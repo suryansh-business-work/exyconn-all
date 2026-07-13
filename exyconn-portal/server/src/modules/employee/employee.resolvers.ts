@@ -15,9 +15,9 @@ interface SupportTicketInput {
 }
 
 /** Attaches the derived gross/net figures to a salary structure document. */
-function withTotals<T extends { basic: number; hra: number; allowances: number; deductions: number }>(
-  doc: T,
-): T & { gross: number; net: number } {
+function withTotals<
+  T extends { basic: number; hra: number; allowances: number; deductions: number },
+>(doc: T): T & { gross: number; net: number } {
   const gross = doc.basic + doc.hra + doc.allowances;
   return { ...doc, gross, net: gross - doc.deductions };
 }

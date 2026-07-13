@@ -18,6 +18,8 @@ interface PersistedState {
 class SecureStore {
   private readonly file = join(app.getPath('userData'), 'tracker-state.json');
   private state: PersistedState;
+  /** Set only when "Remember me" was unchecked — never written to disk. */
+  private sessionToken: string | null = null;
 
   constructor() {
     this.state = this.load();
@@ -43,7 +45,19 @@ class SecureStore {
     return this.state.deviceId;
   }
 
+  /** True when a remembered session is on disk (drives the login screen's checkbox). */
+  get remembered(): boolean {
+    return Boolean(this.state.encryptedToken);
+  }
+
+  /**
+   * The active token. A remembered session is decrypted from disk; a session-only sign-in
+   * lives purely in memory, so quitting the app signs the employee out.
+   */
   getToken(): string | null {
+    if (this.sessionToken) {
+      return this.sessionToken;
+    }
     if (!this.state.encryptedToken || !safeStorage.isEncryptionAvailable()) {
       return null;
     }
@@ -54,15 +68,28 @@ class SecureStore {
     }
   }
 
-  setToken(token: string): void {
-    if (!safeStorage.isEncryptionAvailable()) {
-      throw new Error('OS secure storage is unavailable; cannot store the sign-in securely.');
+  /**
+   * Stores the sign-in. With `remember`, the non-expiring device token is encrypted at rest
+   * via the OS keychain (Keychain / DPAPI) and survives restarts until an explicit logout.
+   * Without it, the token is held in memory only and is gone when the process exits.
+   */
+  setToken(token: string, remember: boolean): void {
+    if (!remember) {
+      this.sessionToken = token;
+      this.state.encryptedToken = null;
+      this.persist();
+      return;
     }
+    if (!safeStorage.isEncryptionAvailable()) {
+      throw new Error('OS secure storage is unavailable; cannot remember this sign-in.');
+    }
+    this.sessionToken = null;
     this.state.encryptedToken = safeStorage.encryptString(token).toString('base64');
     this.persist();
   }
 
   clearToken(): void {
+    this.sessionToken = null;
     this.state.encryptedToken = null;
     this.persist();
   }

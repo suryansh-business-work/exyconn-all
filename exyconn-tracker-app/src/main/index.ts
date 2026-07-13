@@ -48,7 +48,9 @@ let isQuitting = false;
 
 function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.getState, () => ctrl.getState());
-  ipcMain.handle(IPC.login, (_e, email: string, password: string) => ctrl.login(email, password));
+  ipcMain.handle(IPC.login, (_e, email: string, password: string, rememberMe: boolean) =>
+    ctrl.login(email, password, rememberMe),
+  );
   ipcMain.handle(IPC.logout, () => ctrl.logout());
   ipcMain.handle(IPC.acceptConsent, () => ctrl.acceptConsent());
   ipcMain.handle(IPC.start, () => ctrl.start());
@@ -56,11 +58,15 @@ function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.resume, () => ctrl.resume());
   ipcMain.handle(IPC.stop, () => ctrl.stop());
   ipcMain.handle(IPC.syncNow, () => ctrl.syncNow());
+  ipcMain.handle(IPC.getReport, (_e, from: string, to: string) => ctrl.getReport(from, to));
+  ipcMain.handle(IPC.getDay, (_e, start: string, end: string) => ctrl.getDay(start, end));
   ipcMain.handle(IPC.getPermissions, () => ctrl.refreshPermissions());
   ipcMain.handle(IPC.requestPermission, (_e, kind: 'screenRecording' | 'accessibility') =>
     ctrl.requestPermission(kind),
   );
-  ipcMain.handle(IPC.openPrivacy, () => shell.openExternal('https://portal.exyconn.com/me/tracker'));
+  ipcMain.handle(IPC.openPrivacy, () =>
+    shell.openExternal('https://portal.exyconn.com/me/tracker'),
+  );
 }
 
 // A single instance only — a second launch focuses the existing window.

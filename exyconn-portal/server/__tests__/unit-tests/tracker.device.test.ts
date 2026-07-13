@@ -137,6 +137,63 @@ describe('tracker sync', () => {
   });
 });
 
+describe('tracker device info', () => {
+  it('persists the machine id and hardware details on login', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, {
+      ...DEVICE,
+      machineId: 'MACHINE-GUID-123',
+      osName: 'Windows_NT',
+      osVersion: '10.0.26200',
+      arch: 'x64',
+      cpuModel: 'AMD Ryzen 9',
+      cpuCores: 16,
+      totalMemoryMb: 32768,
+      locale: 'en-IN',
+      timezone: 'Asia/Kolkata',
+      screenCount: 2,
+      screenResolution: '2560x1440',
+    });
+
+    const devices = await trackerAdminService.listDevices(user.id);
+    expect(devices[0]).toMatchObject({
+      machineId: 'MACHINE-GUID-123',
+      cpuCores: 16,
+      totalMemoryMb: 32768,
+      screenCount: 2,
+      screenResolution: '2560x1440',
+    });
+  });
+});
+
+describe('trackerMe (remember-me rehydrate)', () => {
+  it('rebuilds the session from a stored device token', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
+
+    // What a "remembered" app does on relaunch: it has a token but no user/settings in
+    // memory. Without this, the app would hold a valid token yet show the login screen.
+    const me = await trackerDeviceService.me(user.id);
+
+    expect(me.user.email).toBe('emp@exyconn.com');
+    expect(me.consentRequired).toBe(true);
+    expect(me.settings.consentText.length).toBeGreaterThan(0);
+  });
+
+  it('refuses to rehydrate once access is revoked', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
+
+    await trackerAdminService.revokeAccess(user.id, 'admin');
+
+    await expect(trackerDeviceService.me(user.id)).rejects.toThrow(/revoked/i);
+  });
+});
+
 describe('tracker consent record', () => {
   it('marks consent on the access grant', async () => {
     const user = await makeEmployee();

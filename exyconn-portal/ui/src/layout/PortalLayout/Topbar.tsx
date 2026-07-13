@@ -65,7 +65,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
           <Typography variant="body2" fontWeight={600} sx={{ display: 'block' }}>
             {user?.name}
           </Typography>
-          <Typography variant="caption" color="text.secondary"sx={{ display: 'block' }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
             {user?.roles.join(', ')}
           </Typography>
         </Box>

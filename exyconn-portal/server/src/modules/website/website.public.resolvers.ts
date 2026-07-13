@@ -33,7 +33,9 @@ export const websitePublicResolvers = {
       ),
 
     publicBlogPost: async (_p: unknown, { slug }: { slug: string }) =>
-      serializeOne((await BlogPostModel.findOne({ slug, isActive: true }).lean()) as LeanDoc | null),
+      serializeOne(
+        (await BlogPostModel.findOne({ slug, isActive: true }).lean()) as LeanDoc | null,
+      ),
 
     publicCaseStudies: async () =>
       withIds(
@@ -61,9 +63,7 @@ export const websitePublicResolvers = {
 
     publicJobs: async (_p: unknown, { companySlug }: { companySlug?: string }) => {
       const filter = companySlug ? { isActive: true, companySlug } : { isActive: true };
-      return withIds(
-        (await JobModel.find(filter).sort({ jobPostDate: -1 }).lean()) as LeanDoc[],
-      );
+      return withIds((await JobModel.find(filter).sort({ jobPostDate: -1 }).lean()) as LeanDoc[]);
     },
 
     publicJob: async (_p: unknown, { jobCode }: { jobCode: string }) =>
@@ -86,7 +86,9 @@ export const websitePublicResolvers = {
     },
 
     publicTool: async (_p: unknown, { toolCode }: { toolCode: string }) =>
-      serializeOne((await ToolModel.findOne({ toolCode, isActive: true }).lean()) as LeanDoc | null),
+      serializeOne(
+        (await ToolModel.findOne({ toolCode, isActive: true }).lean()) as LeanDoc | null,
+      ),
 
     publicNavLinks: async () =>
       withIds((await NavLinkModel.find({ isActive: true }).sort({ order: 1 }).lean()) as LeanDoc[]),

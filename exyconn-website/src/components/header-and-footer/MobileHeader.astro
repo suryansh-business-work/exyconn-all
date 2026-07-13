@@ -1,5 +1,14 @@
 ---
+import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
 
+interface Props {
+  branding: Branding;
+}
+
+const { branding } = Astro.props;
+
+const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
+const logoUrl = branding.logoUrl || BRANDING_FALLBACK.logoUrl;
 ---
 
 <!-- Modern Mobile Drawer Menu -->
@@ -28,11 +37,7 @@
       class="flex items-center justify-between p-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white"
     >
       <a href="/" class="flex items-center gap-2">
-        <img
-          class="h-8 w-auto"
-          src="https://ik.imagekit.io/esdata1/exyconn/logo/exyconn.svg"
-          alt="Exyconn"
-        />
+        <img class="h-8 w-auto" src={logoUrl} alt={businessName} />
       </a>
       <button
         type="button"

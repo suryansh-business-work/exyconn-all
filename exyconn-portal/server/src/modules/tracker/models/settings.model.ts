@@ -59,6 +59,15 @@ const trackerSettingsSchema = new Schema(
       min: 20,
       max: 100,
     },
+    /**
+     * The disclosure the employee must accept in the desktop app before tracking can start.
+     * Rich text (HTML) authored in the portal, rendered by the app's consent screen.
+     */
+    consentText: {
+      type: String,
+      required: true,
+      default: TRACKER_DEFAULTS.consentText,
+    },
     autoSyncEnabled: {
       type: Boolean,
       required: true,

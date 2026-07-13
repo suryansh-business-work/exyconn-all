@@ -1,24 +1,38 @@
 import { useState } from 'react';
+import type { SvgIconComponent } from '@mui/icons-material';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import AccessibilityNewOutlined from '@mui/icons-material/AccessibilityNewOutlined';
+import RefreshRounded from '@mui/icons-material/RefreshRounded';
+import ScreenshotMonitorOutlined from '@mui/icons-material/ScreenshotMonitorOutlined';
 import type { PermissionState } from '@shared/types';
+import GlassCard from '../components/GlassCard';
+import PermissionRow from '../components/PermissionRow';
+import ScreenLayout from '../components/ScreenLayout';
+import { run } from '../run';
 
 type PermissionKind = 'screenRecording' | 'accessibility';
 
-interface PermissionRow {
+interface PermissionInfo {
   kind: PermissionKind;
   title: string;
   reason: string;
+  icon: SvgIconComponent;
 }
 
-const PERMISSION_ROWS: readonly PermissionRow[] = [
+const PERMISSIONS: readonly PermissionInfo[] = [
   {
     kind: 'screenRecording',
     title: 'Screen Recording',
     reason: 'Lets the app capture periodic screenshots and read the active window title.',
+    icon: ScreenshotMonitorOutlined,
   },
   {
     kind: 'accessibility',
     title: 'Accessibility',
     reason: 'Lets the app count keyboard and mouse activity — how often, never what you type.',
+    icon: AccessibilityNewOutlined,
   },
 ];
 
@@ -29,7 +43,7 @@ interface Props {
 /** macOS-only screen prompting for the TCC grants the tracker still needs. */
 export default function PermissionsScreen({ permissions }: Readonly<Props>): JSX.Element {
   const [busy, setBusy] = useState(false);
-  const missing = PERMISSION_ROWS.filter((row) => !permissions[row.kind]);
+  const missing = PERMISSIONS.filter((row) => !permissions[row.kind]);
 
   async function grant(kind: PermissionKind): Promise<void> {
     setBusy(true);
@@ -54,43 +68,42 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): JSX
   }
 
   return (
-    <div className="app screen">
-      <header className="brand">
-        <span className="brand__dot" />
-        <h1 className="brand__title">Exyconn Tracker</h1>
-      </header>
-
-      <div className="card">
-        <h2 className="card__heading">Grant permissions</h2>
-        <p className="body">
+    <ScreenLayout maxWidth={520}>
+      <GlassCard sx={{ p: 3 }}>
+        <Typography variant="h5">Grant permissions</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
           macOS needs your permission before the tracker can work. Grant each item below, then
           re-check.
-        </p>
+        </Typography>
 
-        <ul className="perm-list">
+        <Stack spacing={1.5}>
           {missing.map((row) => (
-            <li key={row.kind} className="perm">
-              <div className="perm__text">
-                <span className="perm__title">{row.title}</span>
-                <span className="perm__reason">{row.reason}</span>
-              </div>
-              <button
-                className="btn btn--primary btn--sm"
-                type="button"
-                onClick={() => grant(row.kind)}
-                disabled={busy}
-              >
-                Grant
-              </button>
-            </li>
+            <PermissionRow
+              key={row.kind}
+              title={row.title}
+              reason={row.reason}
+              icon={row.icon}
+              busy={busy}
+              onGrant={() => run(() => grant(row.kind))}
+            />
           ))}
-        </ul>
+        </Stack>
 
-        <button className="btn btn--ghost" type="button" onClick={recheck} disabled={busy}>
+        <Button
+          variant="outlined"
+          color="inherit"
+          fullWidth
+          startIcon={<RefreshRounded />}
+          disabled={busy}
+          sx={{ mt: 2.5 }}
+          onClick={() => run(recheck)}
+        >
           Re-check
-        </button>
-        <p className="hint">Some features will not work until these are granted.</p>
-      </div>
-    </div>
+        </Button>
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1.5 }}>
+          Some features will not work until these are granted.
+        </Typography>
+      </GlassCard>
+    </ScreenLayout>
   );
 }

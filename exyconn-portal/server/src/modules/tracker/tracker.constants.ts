@@ -39,6 +39,22 @@ export const TRACKER_DEFAULTS = Object.freeze({
   autoSyncEnabled: true,
   /** How often the desktop app flushes its outbox to the portal, in minutes. */
   syncIntervalMinutes: 5,
+
+  /**
+   * The disclosure shown in the desktop app before tracking can start. Rich text (HTML),
+   * editable in the portal. It must stay an honest description of what is recorded —
+   * monitoring is only legitimate when the person being monitored knows about it.
+   */
+  consentText: [
+    '<p>While tracking is <strong>on</strong>, the Exyconn Tracker records:</p>',
+    '<ul>',
+    '<li>Time worked, and whether you are active or idle</li>',
+    '<li>The <strong>number</strong> of key presses and mouse clicks — never which keys you press, and never what you type</li>',
+    '<li>Which application and window is in the foreground, and for how long</li>',
+    '<li>Periodic screenshots of your screen</li>',
+    '</ul>',
+    '<p>Nothing is recorded while tracking is off. You can pause or stop at any time, and you can review everything recorded about you — including your own screenshots — from <strong>My Tracker</strong> in the portal.</p>',
+  ].join(''),
 });
 
 /** Upper bounds enforced server-side so a compromised client cannot flood the DB. */

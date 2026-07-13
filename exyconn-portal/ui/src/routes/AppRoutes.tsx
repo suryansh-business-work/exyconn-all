@@ -7,6 +7,7 @@ import { Portal } from '../pages/Portal/Portal';
 import { ProfilePage } from '../pages/Profile';
 import { SettingsPage } from '../pages/Settings';
 import { AdminPage, UserDetailsPage } from '../pages/modules/admin';
+import { BrandingPage } from '../pages/modules/branding';
 import { FinancePage } from '../pages/modules/finance';
 import { BugsPage } from '../pages/modules/bugs';
 import { ClientsPage } from '../pages/modules/clients';
@@ -81,6 +82,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute requiredRole={ROLES.ADMIN}>
               <AdminPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="admin/branding"
+          element={
+            <ProtectedRoute requiredRole={ROLES.ADMIN}>
+              <BrandingPage />
             </ProtectedRoute>
           }
         />

@@ -4,6 +4,7 @@ import { InputCounter } from './trackers/input-counter';
 import { WindowTracker } from './trackers/window-tracker';
 import { Screenshotter } from './trackers/screenshotter';
 import { Outbox, type OutboxItem } from './outbox';
+import { notifyScreenshotCaptured } from './notifier';
 import * as portal from './portal-client';
 import { TrackerAuthError } from './portal-client';
 
@@ -202,6 +203,12 @@ export class TrackerEngine {
         blurred: capture.blurred,
       });
       this.screenshotCount += 1;
+    }
+
+    // Never capture the employee's screen silently — surface every capture on the OS's own
+    // notification surface, with a short summary of the session so far.
+    if (captures.length > 0) {
+      notifyScreenshotCaptured(captures.length, this.stats());
     }
   }
 

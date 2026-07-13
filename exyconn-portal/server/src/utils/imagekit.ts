@@ -4,6 +4,7 @@ import { ImageConfigModel, type ImageConfigDocument } from '../modules/tech/imag
 const AVATAR_FOLDER = '/exyconn-portal/avatars';
 const TEST_FOLDER = '/exyconn-portal/tests';
 const TRACKER_FOLDER = '/exyconn-portal/tracker';
+const MEDIA_FOLDER = '/exyconn-portal/media';
 
 /**
  * Server-side image uploader (singleton). The provider credentials are loaded
@@ -35,6 +36,23 @@ class ImageUploader {
       file,
       fileName,
       folder: AVATAR_FOLDER,
+      useUniqueFileName: true,
+    });
+    return result.url;
+  }
+
+  /**
+   * Uploads any base64/data-URL image and returns its hosted URL. This is the single path
+   * behind the portal's shared ImageUploadDialog — `folder` just groups the uploads
+   * (branding, blog, tools…). Sanitised so a caller cannot escape the portal's namespace.
+   */
+  async uploadImage(file: string, fileName: string, folder = 'misc'): Promise<string> {
+    const client = await this.getClient();
+    const safeFolder = folder.replaceAll(/[^a-zA-Z0-9_-]/g, '') || 'misc';
+    const result = await client.upload({
+      file,
+      fileName,
+      folder: `${MEDIA_FOLDER}/${safeFolder}`,
       useUniqueFileName: true,
     });
     return result.url;

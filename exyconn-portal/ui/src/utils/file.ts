@@ -9,3 +9,6 @@ export function fileToDataUrl(file: File): Promise<string> {
 }
 
 export const MAX_AVATAR_BYTES = 2 * 1024 * 1024; // 2 MB
+
+/** Upper bound for images uploaded through the shared ImageUploadDialog. */
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB

@@ -1,0 +1,51 @@
+fragment BrandingFields on Branding {
+  id
+  businessName
+  legalName
+  slogan
+  description
+  logoUrl
+  logoDarkUrl
+  faviconUrl
+  appIconUrl
+  emailLogoUrl
+  ogImageUrl
+  primaryColor
+  secondaryColor
+  accentColor
+  backgroundColor
+  textColor
+  supportEmail
+  contactPhone
+  websiteUrl
+  address
+  linkedinUrl
+  twitterUrl
+  facebookUrl
+  instagramUrl
+  youtubeUrl
+  githubUrl
+  copyrightText
+}
+
+query Branding {
+  branding {
+    ...BrandingFields
+  }
+}
+
+query PublicBranding {
+  publicBranding {
+    ...BrandingFields
+  }
+}
+
+mutation UpdateBranding($input: BrandingInput!) {
+  updateBranding(input: $input) {
+    ...BrandingFields
+  }
+}
+
+mutation UploadImage($file: String!, $fileName: String!, $folder: String) {
+  uploadImage(file: $file, fileName: $fileName, folder: $folder)
+}

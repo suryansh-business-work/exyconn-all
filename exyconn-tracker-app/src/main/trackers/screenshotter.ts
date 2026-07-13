@@ -39,8 +39,7 @@ export class Screenshotter {
       height: Math.round(display.size.height * display.scaleFactor),
     };
     const sources = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize });
-    const source =
-      sources.find((s) => s.display_id === String(display.id)) ?? sources[0];
+    const source = sources.find((s) => s.display_id === String(display.id)) ?? sources[0];
     if (!source) {
       return null;
     }

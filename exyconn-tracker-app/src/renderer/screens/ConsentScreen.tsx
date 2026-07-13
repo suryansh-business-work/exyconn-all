@@ -1,13 +1,30 @@
 import { useState } from 'react';
-import { DISCLOSURE_ITEMS } from '@shared/config';
+import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline';
+import type { Branding, TrackerSettings } from '@shared/types';
+import BrandMark from '../components/BrandMark';
+import ConsentBody from '../components/ConsentBody';
+import GlassCard from '../components/GlassCard';
+import ScreenLayout from '../components/ScreenLayout';
+import { run } from '../run';
+
+interface Props {
+  branding: Branding | null;
+  settings: TrackerSettings | null;
+}
 
 /**
- * Consent gate. Discloses exactly what is recorded (verbatim from shared config)
- * and only proceeds once the person explicitly agrees. This is what makes the
- * monitoring consensual, so the copy is plain and honest.
+ * Consent gate. The disclosure itself is authored in the portal (settings.consentText)
+ * and rendered verbatim — this app never paraphrases what it records. Tracking only
+ * begins once the person explicitly agrees, so there is nothing to nudge here.
  */
-export default function ConsentScreen(): JSX.Element {
+export default function ConsentScreen({ branding, settings }: Readonly<Props>): JSX.Element {
   const [busy, setBusy] = useState(false);
+  const consentText = settings?.consentText ?? '';
+  const hasDisclosure = consentText.trim() !== '';
 
   async function accept(): Promise<void> {
     setBusy(true);
@@ -30,48 +47,50 @@ export default function ConsentScreen(): JSX.Element {
   }
 
   return (
-    <div className="app screen screen--scroll">
-      <header className="brand">
-        <span className="brand__dot" />
-        <h1 className="brand__title">Exyconn Tracker</h1>
-      </header>
+    <ScreenLayout maxWidth={560}>
+      <Stack alignItems="center" sx={{ mb: 2.5 }}>
+        <BrandMark branding={branding} height={36} />
+      </Stack>
 
-      <div className="card">
-        <h2 className="card__heading">Before you start</h2>
-        <p className="body">
-          While tracking is on, this app records the following and syncs it to your Exyconn
-          workspace:
-        </p>
+      <GlassCard sx={{ p: 3 }}>
+        <Typography variant="h5">Before you start</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+          Read what this app records while tracking is on. Nothing is captured until you agree and
+          press Start.
+        </Typography>
 
-        <ul className="disclosure">
-          {DISCLOSURE_ITEMS.map((item) => (
-            <li key={item} className="disclosure__item">
-              {item}
-            </li>
-          ))}
-        </ul>
+        {hasDisclosure ? (
+          <ConsentBody html={consentText} />
+        ) : (
+          <Alert severity="warning" variant="outlined" sx={{ borderRadius: '4px' }}>
+            Your workspace has not published a monitoring disclosure yet. You cannot agree to
+            something that has not been disclosed — ask your administrator to publish it in the
+            portal.
+          </Alert>
+        )}
 
-        <div className="notes">
-          <p className="body">
-            <strong>Keystrokes and clicks are counted, not recorded.</strong> The app stores how
-            many times you typed or clicked — never which keys and never the text you enter.
-          </p>
-          <p className="body">
-            Nothing is captured while tracking is stopped or paused. You can pause or stop at any
-            time, from this window or the tray icon.
-          </p>
-          <p className="body">
-            You can review everything collected about you, whenever you like, in the Exyconn portal.
-          </p>
-        </div>
-
-        <button className="btn btn--primary" type="button" onClick={accept} disabled={busy}>
-          I understand and agree
-        </button>
-        <button className="btn btn--ghost" type="button" onClick={decline} disabled={busy}>
-          Not now
-        </button>
-      </div>
-    </div>
+        <Stack spacing={1.25} sx={{ mt: 2.5 }}>
+          <Button
+            variant="contained"
+            size="large"
+            fullWidth
+            startIcon={<CheckCircleOutline />}
+            disabled={busy || !hasDisclosure}
+            onClick={() => run(accept)}
+          >
+            I understand and agree
+          </Button>
+          <Button
+            variant="text"
+            color="inherit"
+            fullWidth
+            disabled={busy}
+            onClick={() => run(decline)}
+          >
+            Not now
+          </Button>
+        </Stack>
+      </GlassCard>
+    </ScreenLayout>
   );
 }

@@ -2,10 +2,80 @@
 import Newsletter from "./../fragments/Newsletter.astro";
 import CokkiesModel from "../CokkiesModel.astro";
 import AccessibilityDrawer from "../AccessibilityDrawer.astro";
+import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
+
+interface Props {
+  branding: Branding;
+}
+
+const { branding } = Astro.props;
 
 // Version is injected at build time via Vite define in astro.config.mjs
 // Falls back to env variable or default
 const versionLabel = import.meta.env.PUBLIC_APP_VERSION || "v0.0.1-dev";
+
+// Branding fields are empty strings until an admin fills them in — fall back to the values
+// the site used to hardcode so it looks unchanged until then.
+const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
+const legalName = branding.legalName || BRANDING_FALLBACK.legalName;
+const logoUrl = branding.logoUrl || BRANDING_FALLBACK.logoUrl;
+
+// The portal can supply the whole notice; otherwise build it from the legal name + this year.
+const copyrightText =
+  branding.copyrightText || `© ${new Date().getFullYear()} ${legalName}. All rights reserved.`;
+
+// An empty URL means "no account" — that icon is not rendered at all. Facebook/Instagram/
+// YouTube have no fallback because the footer never linked to them.
+const socialLinks = [
+  {
+    id: "linkedin",
+    url: branding.linkedinUrl || BRANDING_FALLBACK.linkedinUrl,
+    icon: "fa-brands fa-linkedin-in",
+    label: "Follow us on LinkedIn (opens in new tab)",
+    classes:
+      "w-10 h-10 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+  },
+  {
+    id: "twitter",
+    url: branding.twitterUrl || BRANDING_FALLBACK.twitterUrl,
+    icon: "fa-brands fa-x-twitter",
+    label: "Follow us on X / Twitter (opens in new tab)",
+    classes:
+      "w-10 h-10 bg-gray-100 hover:bg-blue-50 hover:text-blue-400 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+  },
+  {
+    id: "facebook",
+    url: branding.facebookUrl,
+    icon: "fa-brands fa-facebook-f",
+    label: "Follow us on Facebook (opens in new tab)",
+    classes:
+      "w-10 h-10 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+  },
+  {
+    id: "instagram",
+    url: branding.instagramUrl,
+    icon: "fa-brands fa-instagram",
+    label: "Follow us on Instagram (opens in new tab)",
+    classes:
+      "w-10 h-10 bg-gray-100 hover:bg-pink-50 hover:text-pink-600 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-pink-500 focus:ring-offset-2",
+  },
+  {
+    id: "youtube",
+    url: branding.youtubeUrl,
+    icon: "fa-brands fa-youtube",
+    label: "Subscribe to us on YouTube (opens in new tab)",
+    classes:
+      "w-10 h-10 bg-gray-100 hover:bg-red-50 hover:text-red-600 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-red-500 focus:ring-offset-2",
+  },
+  {
+    id: "github",
+    url: branding.githubUrl || BRANDING_FALLBACK.githubUrl,
+    icon: "fa-brands fa-github",
+    label: "View our GitHub profile (opens in new tab)",
+    classes:
+      "w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-gray-500 focus:ring-offset-2",
+  },
+].filter((link) => link.url !== "");
 ---
 
 <Newsletter />
@@ -21,50 +91,28 @@ const versionLabel = import.meta.env.PUBLIC_APP_VERSION || "v0.0.1-dev";
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
       <!-- Brand Column -->
       <div class="lg:col-span-2">
-        <a href="/" class="inline-block mb-6" aria-label="Exyconn - Go to homepage">
-          <img
-            src="https://ik.imagekit.io/esdata1/exyconn/logo/exyconn.svg"
-            alt="Exyconn Logo"
-            class="h-10"
-            width="120"
-            height="40"
-          />
+        <a href="/" class="inline-block mb-6" aria-label={`${businessName} - Go to homepage`}>
+          <img src={logoUrl} alt={`${businessName} Logo`} class="h-10" width="120" height="40" />
         </a>
         <p class="text-gray-600 text-sm leading-relaxed mb-6 max-w-sm">
           Empowering businesses with AI-native intelligence and enterprise-ready SaaS solutions.
           From idea to MVP in weeks, not months.
         </p>
         <div class="flex items-center gap-4" role="list" aria-label="Social media links">
-          <a
-            href="https://linkedin.com/company/exyconn"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="w-10 h-10 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            aria-label="Follow us on LinkedIn (opens in new tab)"
-            role="listitem"
-          >
-            <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
-          </a>
-          <a
-            href="https://twitter.com/exyconn"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="w-10 h-10 bg-gray-100 hover:bg-blue-50 hover:text-blue-400 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            aria-label="Follow us on X / Twitter (opens in new tab)"
-            role="listitem"
-          >
-            <i class="fa-brands fa-x-twitter" aria-hidden="true"></i>
-          </a>
-          <a
-            href="https://github.com/exyconn"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-            aria-label="View our GitHub profile (opens in new tab)"
-            role="listitem"
-          >
-            <i class="fa-brands fa-github" aria-hidden="true"></i>
-          </a>
+          {
+            socialLinks.map((link) => (
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class={link.classes}
+                aria-label={link.label}
+                role="listitem"
+              >
+                <i class={link.icon} aria-hidden="true" />
+              </a>
+            ))
+          }
         </div>
       </div>
 
@@ -332,9 +380,7 @@ const versionLabel = import.meta.env.PUBLIC_APP_VERSION || "v0.0.1-dev";
     <div class="max-w-7xl mx-auto px-6 py-6">
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <p class="text-sm text-gray-500">
-            © 2026 Exyconn Business Solutions. All rights reserved.
-          </p>
+          <p class="text-sm text-gray-500">{copyrightText}</p>
           <span
             class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded font-mono"
             title="Website Version">{versionLabel}</span

@@ -109,7 +109,17 @@ class TrackerAdminService {
           sessions: { $sum: 1 },
         },
       },
-      { $project: { _id: 0, date: '$_id', activeMs: 1, idleMs: 1, keyCount: 1, mouseCount: 1, sessions: 1 } },
+      {
+        $project: {
+          _id: 0,
+          date: '$_id',
+          activeMs: 1,
+          idleMs: 1,
+          keyCount: 1,
+          mouseCount: 1,
+          sessions: 1,
+        },
+      },
       { $sort: { date: 1 } },
     ]);
   }

@@ -61,6 +61,7 @@ export {
   TableRow,
   Switch,
   FormControlLabel,
+  FormHelperText,
 } from '@mui/material';
 export type { AlertColor } from '@mui/material';
 
@@ -94,3 +95,6 @@ export {
   CardFooter,
   type CardFooterProps,
 } from './cards';
+
+// Shared image picker + ImageKit uploader used by every image field.
+export { ImageUploadDialog, ImagePreview } from './ImageUploadDialog';

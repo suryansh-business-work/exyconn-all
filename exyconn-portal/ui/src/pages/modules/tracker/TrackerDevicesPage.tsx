@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import BlockIcon from '@mui/icons-material/Block';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { StatusChip } from '@/components/data/StatusChip';
@@ -6,13 +7,16 @@ import type { StatItem } from '@/components/dashboard/StatCard';
 import { useConfirm } from '@/components/feedback/ConfirmProvider';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useSettings } from '@/hooks/useSettings';
+import { Text } from '@/components/ui';
 import { useTrackerDevicesQuery, useRevokeTrackerDeviceMutation } from '@/graphql/generated';
+import { TrackerDeviceDetails } from './TrackerDeviceDetails';
 import type { TrackerDeviceRow } from './tracker.types';
 
 /** Tracker devices console — the kill-switch for a lost or retired laptop. */
 export function TrackerDevicesPage() {
   const { data, loading, refetch } = useTrackerDevicesQuery({ fetchPolicy: 'cache-and-network' });
   const [revokeDevice] = useRevokeTrackerDeviceMutation();
+  const [selected, setSelected] = useState<TrackerDeviceRow | null>(null);
   const confirm = useConfirm();
   const notify = useNotify();
   const { formatDateTime } = useSettings();
@@ -28,8 +32,21 @@ export function TrackerDevicesPage() {
   ];
 
   const columns: Column<TrackerDeviceRow>[] = [
+    {
+      key: 'machine',
+      label: 'Machine',
+      render: (row) => (
+        <>
+          <Text size="sm" weight="medium" component="div">
+            {row.hostname}
+          </Text>
+          <Text size="caption" color="text.secondary" component="div">
+            {`${row.osName} ${row.osVersion}`}
+          </Text>
+        </>
+      ),
+    },
     { key: 'platform', label: 'Platform' },
-    { key: 'hostname', label: 'Hostname' },
     { key: 'appVersion', label: 'App version' },
     { key: 'lastSeenAt', label: 'Last seen', render: (row) => formatDateTime(row.lastSeenAt) },
     {
@@ -59,6 +76,7 @@ export function TrackerDevicesPage() {
       <DataTable
         columns={columns}
         rows={rows}
+        onRowClick={(row) => setSelected(row)}
         actions={[
           {
             icon: <BlockIcon fontSize="small" />,
@@ -69,6 +87,11 @@ export function TrackerDevicesPage() {
           },
         ]}
         emptyMessage={loading ? 'Loading…' : 'No devices enrolled.'}
+      />
+      <TrackerDeviceDetails
+        device={selected}
+        onClose={() => setSelected(null)}
+        formatDateTime={formatDateTime}
       />
     </ModuleDashboard>
   );

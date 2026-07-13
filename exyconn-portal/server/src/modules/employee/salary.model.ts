@@ -19,5 +19,7 @@ const salaryStructureSchema = new Schema(
 
 export type SalaryStructureDocument = InferSchemaType<typeof salaryStructureSchema>;
 
-export const SalaryStructureModel: Model<SalaryStructureDocument> =
-  model<SalaryStructureDocument>('SalaryStructure', salaryStructureSchema);
+export const SalaryStructureModel: Model<SalaryStructureDocument> = model<SalaryStructureDocument>(
+  'SalaryStructure',
+  salaryStructureSchema,
+);

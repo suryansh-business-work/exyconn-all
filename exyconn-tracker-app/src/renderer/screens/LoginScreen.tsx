@@ -1,18 +1,47 @@
 import { useState, type FormEvent } from 'react';
+import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import CircularProgress from '@mui/material/CircularProgress';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import type { Branding } from '@shared/types';
+import BrandMark from '../components/BrandMark';
+import GlassCard from '../components/GlassCard';
+import PasswordField from '../components/PasswordField';
+import ScreenLayout from '../components/ScreenLayout';
+
+interface Props {
+  branding: Branding | null;
+  rememberMe: boolean;
+}
+
+const GENERIC_ERROR = 'Something went wrong. Please try again.';
 
 /** Sign-in screen. Uses portal credentials; the main process validates them. */
-export default function LoginScreen(): JSX.Element {
+export default function LoginScreen({ branding, rememberMe }: Readonly<Props>): JSX.Element {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(rememberMe);
+  const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const emailMissing = submitted && email.trim() === '';
+  const passwordMissing = submitted && password === '';
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
+    setSubmitted(true);
+    if (email.trim() === '' || password === '') {
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const result = await window.tracker.login(email, password);
+      const result = await window.tracker.login(email.trim(), password, remember);
       if (!result.ok) {
         setError(result.error ?? 'Sign in failed. Please check your details and try again.');
         setLoading(false);
@@ -20,55 +49,76 @@ export default function LoginScreen(): JSX.Element {
       // On success the main process pushes a new state and this screen unmounts.
     } catch (cause: unknown) {
       console.error('Login request failed', cause);
-      setError('Something went wrong. Please try again.');
+      setError(GENERIC_ERROR);
       setLoading(false);
     }
   }
 
   return (
-    <div className="app screen">
-      <header className="brand">
-        <span className="brand__dot" />
-        <h1 className="brand__title">Exyconn Tracker</h1>
-      </header>
+    <ScreenLayout maxWidth={420}>
+      <Stack alignItems="center" sx={{ mb: 2 }}>
+        <BrandMark branding={branding} height={36} />
+      </Stack>
 
-      <form className="card" onSubmit={handleSubmit}>
-        <h2 className="card__heading">Sign in</h2>
+      <GlassCard sx={{ p: 2.5 }}>
+        <Typography variant="h5" sx={{ mb: 0.5 }}>
+          Sign in
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Use your Exyconn portal email and password.
+        </Typography>
 
-        <label className="field">
-          <span className="field__label">Email</span>
-          <input
-            className="field__input"
+        <Stack component="form" noValidate onSubmit={handleSubmit} spacing={1.75}>
+          <TextField
+            label="Email"
             type="email"
             autoComplete="username"
+            autoFocus
+            fullWidth
             value={email}
+            disabled={loading}
+            error={emailMissing}
+            helperText={emailMissing ? 'Enter your email.' : undefined}
             onChange={(event) => setEmail(event.target.value)}
-            disabled={loading}
-            required
           />
-        </label>
 
-        <label className="field">
-          <span className="field__label">Password</span>
-          <input
-            className="field__input"
-            type="password"
-            autoComplete="current-password"
+          <PasswordField
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
             disabled={loading}
-            required
+            error={passwordMissing}
+            helperText={passwordMissing ? 'Enter your password.' : undefined}
+            onChange={setPassword}
           />
-        </label>
 
-        {error !== null && <p className="alert alert--error">{error}</p>}
+          <FormControlLabel
+            sx={{ my: -0.5 }}
+            control={
+              <Checkbox
+                checked={remember}
+                disabled={loading}
+                onChange={(event) => setRemember(event.target.checked)}
+              />
+            }
+            label={<Typography variant="body2">Remember me on this computer</Typography>}
+          />
 
-        <button className="btn btn--primary" type="submit" disabled={loading}>
-          {loading ? 'Signing in…' : 'Sign in'}
-        </button>
+          {error !== null ? (
+            <Alert severity="error" variant="outlined" sx={{ borderRadius: '4px' }}>
+              {error}
+            </Alert>
+          ) : null}
 
-        <p className="hint">Use your Exyconn portal email and password.</p>
-      </form>
-    </div>
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={18} color="inherit" /> : null}
+          >
+            {loading ? 'Signing in…' : 'Sign in'}
+          </Button>
+        </Stack>
+      </GlassCard>
+    </ScreenLayout>
   );
 }

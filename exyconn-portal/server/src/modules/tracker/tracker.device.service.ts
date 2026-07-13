@@ -21,6 +21,18 @@ export interface DeviceInput {
   platform: string;
   hostname?: string;
   appVersion?: string;
+  /** Stable OS hardware id — survives a reinstall, unlike the generated deviceId. */
+  machineId?: string;
+  osName?: string;
+  osVersion?: string;
+  arch?: string;
+  cpuModel?: string;
+  cpuCores?: number;
+  totalMemoryMb?: number;
+  locale?: string;
+  timezone?: string;
+  screenCount?: number;
+  screenResolution?: string;
 }
 
 export interface WindowUsageInput {
@@ -100,6 +112,17 @@ class TrackerDeviceService {
         platform: device.platform,
         hostname: device.hostname ?? '',
         appVersion: device.appVersion ?? '',
+        machineId: device.machineId ?? '',
+        osName: device.osName ?? '',
+        osVersion: device.osVersion ?? '',
+        arch: device.arch ?? '',
+        cpuModel: device.cpuModel ?? '',
+        cpuCores: device.cpuCores ?? 0,
+        totalMemoryMb: device.totalMemoryMb ?? 0,
+        locale: device.locale ?? '',
+        timezone: device.timezone ?? '',
+        screenCount: device.screenCount ?? 0,
+        screenResolution: device.screenResolution ?? '',
         issuedAt: new Date(),
         lastSeenAt: new Date(),
         revokedAt: null,
@@ -111,6 +134,27 @@ class TrackerDeviceService {
     return {
       token,
       user: user.toObject(),
+      consentRequired: !access.consentedAt,
+      settings: await getTrackerSettings(),
+    };
+  }
+
+  /**
+   * Rebuilds a desktop session from a stored device token. This is what makes "Remember me"
+   * work: on relaunch the app has a token but no user/settings in memory, and asking the
+   * portal who it belongs to avoids prompting for the password again.
+   */
+  async me(userId: string) {
+    const user = await UserModel.findById(userId).lean();
+    if (!user) {
+      unauthenticated('Account no longer exists');
+    }
+    const access = await TrackerAccessModel.findOne({ userId }).lean();
+    if (!access?.isActive) {
+      forbidden('Your tracker access has been revoked.');
+    }
+    return {
+      user,
       consentRequired: !access.consentedAt,
       settings: await getTrackerSettings(),
     };

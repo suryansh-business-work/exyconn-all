@@ -32,6 +32,9 @@ export default defineConfig({
     root: resolve(__dirname, 'src/renderer'),
     plugins: [react()],
     resolve: { alias: sharedAlias },
+    // The tracker's dev renderer owns port 4005 (main process picks it up via
+    // ELECTRON_RENDERER_URL). strictPort so a silent fallback can't shift it.
+    server: { port: 4005, strictPort: true },
     build: {
       rollupOptions: {
         input: { index: resolve(__dirname, 'src/renderer/index.html') },

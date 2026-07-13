@@ -40,6 +40,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import DevicesIcon from '@mui/icons-material/Devices';
 import TuneIcon from '@mui/icons-material/Tune';
+import PaletteIcon from '@mui/icons-material/Palette';
 import { ROLES, type Role } from '../auth/roles';
 
 /** A nested navigation entry shown under a parent module in the sidebar. */
@@ -246,6 +247,12 @@ export const MODULES: ModuleDefinition[] = [
       { key: 'admin-users', label: 'Users', path: '/portal/admin', icon: ManageAccountsIcon },
       { key: 'admin-clients', label: 'Clients', path: '/portal/clients', icon: GroupsIcon },
       { key: 'admin-tech', label: 'Tech', path: '/portal/tech', icon: TerminalIcon },
+      {
+        key: 'admin-branding',
+        label: 'Branding',
+        path: '/portal/admin/branding',
+        icon: PaletteIcon,
+      },
     ],
   },
   {

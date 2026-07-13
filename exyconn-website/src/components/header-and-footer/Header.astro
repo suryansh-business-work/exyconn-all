@@ -1,5 +1,17 @@
 ---
 import MobileHeader from "./MobileHeader.astro";
+import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
+
+interface Props {
+  branding: Branding;
+}
+
+const { branding } = Astro.props;
+
+// Branding fields are empty strings until an admin fills them in — fall back to the values
+// the site used to hardcode so it looks unchanged until then.
+const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
+const logoUrl = branding.logoUrl || BRANDING_FALLBACK.logoUrl;
 ---
 
 <!-- Top Banner for Free Tools -->
@@ -23,13 +35,9 @@ import MobileHeader from "./MobileHeader.astro";
   >
     <!-- Logo -->
     <div class="flex lg:flex-1 items-center gap-2 animate-fade-in">
-      <a href="/" class="flex items-center gap-2" aria-label="Exyconn Home">
-        <span class="sr-only">Exyconn</span>
-        <img
-          class="h-9 w-auto transition duration-300"
-          src="https://ik.imagekit.io/esdata1/exyconn/logo/exyconn.svg"
-          alt="Exyconn"
-        />
+      <a href="/" class="flex items-center gap-2" aria-label={`${businessName} Home`}>
+        <span class="sr-only">{businessName}</span>
+        <img class="h-9 w-auto transition duration-300" src={logoUrl} alt={businessName} />
       </a>
     </div>
 
@@ -408,7 +416,7 @@ import MobileHeader from "./MobileHeader.astro";
     </div>
   </nav>
 
-  <MobileHeader />
+  <MobileHeader branding={branding} />
 </header>
 
 <script is:inline>

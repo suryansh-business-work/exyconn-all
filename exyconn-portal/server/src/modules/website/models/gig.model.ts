@@ -21,7 +21,12 @@ const gigSchema = new Schema(
     budget: { type: String, default: '', trim: true },
     duration: { type: String, required: true, enum: GIG_DURATIONS },
     status: { type: String, required: true, enum: GIG_STATUSES, default: 'open' },
-    applicationType: { type: String, required: true, enum: GIG_APPLICATION_TYPES, default: 'email' },
+    applicationType: {
+      type: String,
+      required: true,
+      enum: GIG_APPLICATION_TYPES,
+      default: 'email',
+    },
     applicationContact: { type: String, required: true, trim: true },
     postedDate: { type: Date, required: true, default: Date.now },
     deadline: { type: Date, default: null },

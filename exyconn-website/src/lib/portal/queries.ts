@@ -1,6 +1,7 @@
 import { portalRequest } from './client';
 import type {
   BlogPost,
+  Branding,
   CaseStudy,
   Gig,
   Job,
@@ -48,6 +49,15 @@ const TOOL_FIELDS = `
 `;
 
 const NAV_LINK_FIELDS = `id label href description category keywords`;
+
+const BRANDING_FIELDS = `
+  businessName legalName slogan description
+  logoUrl logoDarkUrl faviconUrl appIconUrl emailLogoUrl ogImageUrl
+  primaryColor secondaryColor accentColor backgroundColor textColor
+  supportEmail contactPhone websiteUrl address
+  linkedinUrl twitterUrl facebookUrl instagramUrl youtubeUrl githubUrl
+  copyrightText
+`;
 
 // ── Blog ────────────────────────────────────────────────────────────────────
 
@@ -196,4 +206,84 @@ export async function getNavLinks(): Promise<NavLink[]> {
     `query { publicNavLinks { ${NAV_LINK_FIELDS} } }`,
   );
   return data.publicNavLinks;
+}
+
+// ── Branding ────────────────────────────────────────────────────────────────
+
+export async function getBranding(): Promise<Branding> {
+  const data = await portalRequest<{ publicBranding: Branding }>(
+    `query { publicBranding { ${BRANDING_FIELDS} } }`,
+  );
+  return data.publicBranding;
+}
+
+/**
+ * The branding the site shipped with before it was portal-driven. Used two ways:
+ *
+ *  1. whole-object, when the portal is unreachable (see `getBrandingSafe`);
+ *  2. per-field, when the portal answers but the field is still an empty string — the
+ *     branding row starts out with blank image URLs and stays that way until an admin
+ *     uploads logos, so `branding.logoUrl || BRANDING_FALLBACK.logoUrl` is the standard
+ *     read. This keeps the site pixel-identical to its pre-portal self until branding is
+ *     actually filled in.
+ *
+ * Fields the site does not render are deliberately empty: there is no old hardcoded value
+ * to preserve. `copyrightText` is empty because the footer derives it from `legalName` plus
+ * the current year, and Facebook/Instagram/YouTube are empty because those icons never
+ * existed — an empty URL simply means "don't render this icon".
+ */
+export const BRANDING_FALLBACK: Branding = {
+  businessName: 'Exyconn',
+  legalName: 'Exyconn Business Solutions',
+  slogan: 'AI-Powered Business Solutions',
+  description:
+    "Transform your business with Exyconn's AI solutions and comprehensive technology infrastructure.",
+
+  logoUrl: 'https://ik.imagekit.io/esdata1/exyconn/logo/exyconn.svg',
+  logoDarkUrl: '',
+  faviconUrl: '/favicon.svg',
+  appIconUrl: '',
+  emailLogoUrl: '',
+  ogImageUrl: '/og-image.svg',
+
+  primaryColor: '#0071e3',
+  secondaryColor: '#9333ea',
+  accentColor: '#06b6d4',
+  backgroundColor: '#ffffff',
+  textColor: '#111827',
+
+  supportEmail: '',
+  contactPhone: '',
+  websiteUrl: 'https://exyconn.com',
+  address: '',
+
+  linkedinUrl: 'https://linkedin.com/company/exyconn',
+  twitterUrl: 'https://twitter.com/exyconn',
+  facebookUrl: '',
+  instagramUrl: '',
+  youtubeUrl: '',
+  githubUrl: 'https://github.com/exyconn',
+
+  copyrightText: '',
+};
+
+/**
+ * Branding, but never throwing.
+ *
+ * The portal client deliberately has NO fallback (see client.ts): for blog, careers and the
+ * rest, serving stale bundled content would silently mask an editor's change, so a failed
+ * fetch must surface. Branding is the one exception, because it is site *chrome* — the
+ * header logo, favicon, theme colour and footer render on EVERY page. Letting a brief portal
+ * hiccup 500 the entire website is far worse than showing last-known-good branding for a few
+ * seconds, so this single query falls back to `BRANDING_FALLBACK` and logs the failure.
+ *
+ * Pages and layout components should always use this, never `getBranding` directly.
+ */
+export async function getBrandingSafe(): Promise<Branding> {
+  try {
+    return await getBranding();
+  } catch (error) {
+    console.error('Portal branding fetch failed — using bundled fallback branding.', error);
+    return BRANDING_FALLBACK;
+  }
 }

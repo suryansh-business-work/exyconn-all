@@ -4,6 +4,7 @@ import "../styles/global.css";
 import Footer from "../components/header-and-footer/Footer.astro";
 import Header from "../components/header-and-footer/Header.astro";
 import SearchModal from "../components/SearchModal.astro";
+import { BRANDING_FALLBACK, getBrandingSafe } from "../lib/portal";
 
 const {
   title,
@@ -21,7 +22,28 @@ const {
 
 const SITE_URL = (Astro.site?.toString() || "https://exyconn.com/").replace(/\/$/, "");
 
-const finalTitle = title || metaTitle || "Exyconn | AI-Powered Business Solutions";
+// Branding is fetched once here and passed down to Header/Footer, so a page render costs a
+// single branding request. `getBrandingSafe` never throws — see queries.ts for why branding
+// is the one portal query allowed a fallback.
+const branding = await getBrandingSafe();
+
+// Every branding field can be an empty string until an admin fills it in, so each read falls
+// back to the value the site used to hardcode.
+const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
+const slogan = branding.slogan || BRANDING_FALLBACK.slogan;
+const faviconUrl = branding.faviconUrl || BRANDING_FALLBACK.faviconUrl;
+const themeColor = branding.primaryColor || BRANDING_FALLBACK.primaryColor;
+// Organization identity only — canonical/og:url stay derived from Astro.site.
+const organizationUrl = branding.websiteUrl || SITE_URL;
+
+// Only tag the icon as SVG when it actually is one; an uploaded PNG/ICO favicon would be
+// ignored by some browsers if mislabelled, and Astro drops the attribute when undefined.
+const faviconType = faviconUrl.toLowerCase().includes(".svg") ? "image/svg+xml" : undefined;
+
+const toAbsoluteUrl = (url: string): string =>
+  /^https?:\/\//i.test(url) ? url : `${SITE_URL}${url}`;
+
+const finalTitle = title || metaTitle || `${businessName} | ${slogan}`;
 const finalDescription =
   description ||
   metaDescription ||
@@ -33,19 +55,20 @@ const finalKeywords =
 const rawPath = Astro.url.pathname.replace(/\/+$/, "") || "/";
 const canonicalUrl = canonical || `${SITE_URL}${rawPath}`;
 
-// OG image: absolute URL, default to /og-image.svg (1200x630). Replace with a PNG/JPG of the
+// OG image: absolute URL, defaulting to the branding OG image (1200x630). Use a PNG/JPG of the
 // same dimensions for full compatibility with Facebook/LinkedIn/X (some platforms reject SVG).
-const rawImage = metaImage || "/og-image.svg";
-const absoluteImage = /^https?:\/\//i.test(rawImage) ? rawImage : `${SITE_URL}${rawImage}`;
+const rawImage = metaImage || branding.ogImageUrl || BRANDING_FALLBACK.ogImageUrl;
+const absoluteImage = toAbsoluteUrl(rawImage);
+const absoluteLogo = toAbsoluteUrl(faviconUrl);
 
 // Baseline Organization + WebSite JSON-LD (always emitted on every page)
 const baselineLd = [
   {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Exyconn",
-    url: SITE_URL,
-    logo: `${SITE_URL}/favicon.svg`,
+    name: businessName,
+    url: organizationUrl,
+    logo: absoluteLogo,
     description:
       "Exyconn is a multi-product technology company building AI automation, B2B SaaS platforms, consumer apps, and complete cloud-infrastructure shells for businesses.",
     knowsAbout: [
@@ -74,8 +97,8 @@ const baselineLd = [
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Exyconn",
-    url: SITE_URL,
+    name: businessName,
+    url: organizationUrl,
     potentialAction: {
       "@type": "SearchAction",
       target: `${SITE_URL}/blog?q={search_term_string}`,
@@ -93,7 +116,7 @@ const allLd = [...baselineLd, ...pageLd];
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type={faviconType} href={faviconUrl} />
     <meta name="generator" content={Astro.generator} />
     <title>{finalTitle}</title>
     <meta name="description" content={finalDescription} />
@@ -110,7 +133,7 @@ const allLd = [...baselineLd, ...pageLd];
     }
 
     <!-- Open Graph -->
-    <meta property="og:site_name" content="Exyconn" />
+    <meta property="og:site_name" content={businessName} />
     <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={finalTitle} />
@@ -126,9 +149,9 @@ const allLd = [...baselineLd, ...pageLd];
     <meta name="twitter:image" content={absoluteImage} />
 
     <!-- Theme color for mobile browsers -->
-    <meta name="theme-color" content="#0071e3" />
+    <meta name="theme-color" content={themeColor} />
     <!-- Apple touch icon for iOS -->
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href={faviconUrl} />
 
     <!-- Structured data (JSON-LD) -->
     {allLd.map((ld) => <script type="application/ld+json" set:html={JSON.stringify(ld)} />)}
@@ -173,13 +196,13 @@ const allLd = [...baselineLd, ...pageLd];
     <!-- Skip to main content link for keyboard users -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
-    <Header />
+    <Header branding={branding} />
 
     <main id="main-content" role="main" tabindex="-1">
       <slot />
     </main>
 
-    <Footer />
+    <Footer branding={branding} />
 
     <!-- Global search modal (Ctrl/Cmd+K, /, or [data-search-open] triggers) -->
     <SearchModal />

@@ -1,10 +1,20 @@
-import type { TrackerSettings, LiveStats } from '@shared/types';
-import { formatLastSync } from '../format';
+import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import LinearProgress from '@mui/material/LinearProgress';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import CloudDoneOutlined from '@mui/icons-material/CloudDoneOutlined';
+import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
+import SyncRounded from '@mui/icons-material/SyncRounded';
+import type { LiveStats, TrackerSettings } from '@shared/types';
+import { formatCount, formatLastSync } from '../format';
+import { run } from '../run';
+import GlassCard from './GlassCard';
 
 interface Props {
   stats: LiveStats;
   settings: TrackerSettings | null;
-  onSync: () => void;
 }
 
 /** Describes the upload policy the portal has configured, in plain language. */
@@ -19,40 +29,55 @@ function policyText(settings: TrackerSettings | null): string {
   return `Auto-syncs every ${mins} minute${mins === 1 ? '' : 's'}`;
 }
 
+function pendingText(pending: number): string {
+  if (pending === 0) {
+    return 'Everything uploaded';
+  }
+  return `${formatCount(pending)} waiting to upload`;
+}
+
 /**
  * Upload status + the manual "Sync now" control. Screenshots and activity share one
  * durable queue, so a sync uploads both (screenshots go to ImageKit via the portal).
  */
-export default function SyncBar({ stats, settings, onSync }: Readonly<Props>): JSX.Element {
-  const pending = stats.pendingSync;
-  const label = stats.syncing ? 'Syncing…' : 'Sync now';
+export default function SyncBar({ stats, settings }: Readonly<Props>): JSX.Element {
+  const settled = stats.pendingSync === 0;
+  const StatusIcon = settled ? CloudDoneOutlined : CloudUploadOutlined;
 
   return (
-    <div className="sync">
-      <div className="sync__row">
-        <div className="sync__info">
-          <span className="sync__pending">
-            {pending === 0 ? 'Everything uploaded' : `${pending.toLocaleString()} waiting to upload`}
-          </span>
-          <span className="sync__meta">Last synced {formatLastSync(stats.lastSyncAt)}</span>
-        </div>
-        <button
-          className="btn btn--primary btn--sm"
-          type="button"
+    <GlassCard sx={{ p: 2 }}>
+      {/* Two lines, not one: at this window width the policy caption and the button were
+          colliding. The caption now owns a full-width row and wraps instead of clipping. */}
+      <Stack direction="row" spacing={1.5} alignItems="center">
+        <StatusIcon fontSize="small" sx={{ color: settled ? 'success.main' : 'warning.main' }} />
+        <Typography variant="subtitle2" noWrap sx={{ flex: 1, minWidth: 0 }}>
+          {pendingText(stats.pendingSync)}
+        </Typography>
+        <Button
+          variant="contained"
+          size="small"
+          sx={{ flexShrink: 0 }}
+          startIcon={
+            stats.syncing ? <CircularProgress size={16} color="inherit" /> : <SyncRounded />
+          }
           disabled={stats.syncing}
-          onClick={onSync}
+          onClick={() => run(() => window.tracker.syncNow())}
         >
-          {label}
-        </button>
-      </div>
+          {stats.syncing ? 'Syncing…' : 'Sync now'}
+        </Button>
+      </Stack>
 
-      <span className="sync__policy">{policyText(settings)}</span>
+      <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.75 }}>
+        Last synced {formatLastSync(stats.lastSyncAt)} · {policyText(settings)}
+      </Typography>
 
-      {stats.lastSyncError ? (
-        <span className="sync__error" role="alert">
+      {stats.syncing ? <LinearProgress sx={{ mt: 1.5 }} /> : null}
+
+      {stats.lastSyncError !== null ? (
+        <Alert severity="warning" variant="outlined" sx={{ mt: 1.5, borderRadius: '4px' }}>
           {stats.lastSyncError} — queued items are safe and will retry.
-        </span>
+        </Alert>
       ) : null}
-    </div>
+    </GlassCard>
   );
 }

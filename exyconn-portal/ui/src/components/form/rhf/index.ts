@@ -5,4 +5,6 @@ export { RhfChipsInput } from './RhfChipsInput';
 export { RhfSwitch } from './RhfSwitch';
 export { RhfDatePicker } from './RhfDatePicker';
 export { RhfAutocomplete } from './RhfAutocomplete';
+export { RhfRichText } from './RhfRichText';
+export { RhfImageField } from './RhfImageField';
 export type { SelectOption } from './types';

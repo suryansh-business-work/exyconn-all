@@ -1,11 +1,18 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { IPC, type LoginResult, type PermissionState, type TrackerState } from '@shared/types';
+import {
+  IPC,
+  type DayDetail,
+  type LoginResult,
+  type PermissionState,
+  type ReportDay,
+  type TrackerState,
+} from '@shared/types';
 
 /** The typed API exposed to the renderer over the context bridge (no Node access). */
 const api = {
   getState: (): Promise<TrackerState> => ipcRenderer.invoke(IPC.getState),
-  login: (email: string, password: string): Promise<LoginResult> =>
-    ipcRenderer.invoke(IPC.login, email, password),
+  login: (email: string, password: string, rememberMe: boolean): Promise<LoginResult> =>
+    ipcRenderer.invoke(IPC.login, email, password, rememberMe),
   logout: (): Promise<void> => ipcRenderer.invoke(IPC.logout),
   acceptConsent: (): Promise<void> => ipcRenderer.invoke(IPC.acceptConsent),
   start: (): Promise<void> => ipcRenderer.invoke(IPC.start),
@@ -13,6 +20,10 @@ const api = {
   resume: (): Promise<void> => ipcRenderer.invoke(IPC.resume),
   stop: (): Promise<void> => ipcRenderer.invoke(IPC.stop),
   syncNow: (): Promise<void> => ipcRenderer.invoke(IPC.syncNow),
+  getReport: (from: string, to: string): Promise<ReportDay[]> =>
+    ipcRenderer.invoke(IPC.getReport, from, to),
+  getDay: (start: string, end: string): Promise<DayDetail> =>
+    ipcRenderer.invoke(IPC.getDay, start, end),
   getPermissions: (): Promise<PermissionState> => ipcRenderer.invoke(IPC.getPermissions),
   requestPermission: (kind: 'screenRecording' | 'accessibility'): Promise<void> =>
     ipcRenderer.invoke(IPC.requestPermission, kind),

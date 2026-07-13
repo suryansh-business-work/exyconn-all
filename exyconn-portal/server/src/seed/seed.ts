@@ -7,6 +7,7 @@ import { AppSettingsModel } from '../modules/admin/settings.model';
 import { hashPassword } from '../utils/password';
 import { seedEmployeeData } from './seedEmployee';
 import { seedWebsiteContent } from '../modules/website/seed';
+import { getBranding } from '../modules/branding';
 
 /** Idempotently seeds the ADMIN user and global settings. */
 async function seed(): Promise<void> {
@@ -104,6 +105,11 @@ async function seed(): Promise<void> {
 
   await seedEmployeeData();
   await seedWebsiteContent();
+
+  // Materialises the global Branding document with its defaults so Admin > Branding and
+  // every consumer (website, tracker, tools) has a brand to read on a fresh install.
+  await getBranding();
+  logger.info('Branding document ready');
 
   await database.disconnect();
   logger.info('Seed complete');

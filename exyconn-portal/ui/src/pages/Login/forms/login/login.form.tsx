@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,6 +13,7 @@ import { RhfTextField } from '@/components/form/rhf';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useLoginMutation } from '@/graphql/generated';
 import { useAuth, type AuthUser } from '@/auth/AuthContext';
+import { safeNext } from '@/utils/redirect';
 
 const schema = z.object({
   email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
@@ -25,6 +26,7 @@ const pillSx = { '& .MuiOutlinedInput-root': { borderRadius: '999px' } };
 /** React Hook Form + Zod login form styled to the Lumin-style frosted card. */
 export function LoginForm() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const notify = useNotify();
   const { signIn } = useAuth();
   const [login] = useLoginMutation();
@@ -41,7 +43,8 @@ export function LoginForm() {
       const { data } = await login({ variables: values });
       if (data?.login) {
         signIn(data.login.token, data.login.user as AuthUser);
-        navigate('/portal', { replace: true });
+        // Return the user to the page they were trying to reach before the gate.
+        navigate(safeNext(params.get('next')), { replace: true });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');

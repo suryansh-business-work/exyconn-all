@@ -1,9 +1,11 @@
-import { app, hostname } from './platform';
 import type {
   AuthUser,
+  Branding,
+  DayDetail,
   LiveStats,
   LoginResult,
   PermissionState,
+  ReportDay,
   TrackerSettings,
   TrackerState,
   TrackerStatus,
@@ -11,6 +13,7 @@ import type {
 import { secureStore } from './store';
 import { TrackerEngine } from './engine';
 import * as portal from './portal-client';
+import { collectDeviceInfo } from './device-info';
 import { getPermissions, requestPermission } from './trackers/permissions';
 
 /**
@@ -21,6 +24,7 @@ import { getPermissions, requestPermission } from './trackers/permissions';
 export class TrackerController {
   private user: AuthUser | null = null;
   private settings: TrackerSettings | null = null;
+  private branding: Branding | null = null;
   private engine: TrackerEngine | null = null;
   private status: TrackerStatus = 'signed-out';
   private permissions: PermissionState = getPermissions();
@@ -33,35 +37,56 @@ export class TrackerController {
       status: this.status,
       user: this.user,
       settings: this.settings,
+      branding: this.branding,
       permissions: this.permissions,
       stats: { ...this.stats, status: this.status },
+      rememberMe: secureStore().remembered,
     };
   }
 
-  /** Attempts to restore a previous non-expiring session on launch. */
+  /**
+   * Restores a remembered session on launch. The stored device token never expires, so we
+   * ask the portal who it belongs to and rebuild the full session — without this the app
+   * would hold a valid token but show the login screen, and "Remember me" would do nothing.
+   */
   async restore(): Promise<void> {
+    await this.loadBranding();
+
     if (!secureStore().getToken()) {
+      this.emit();
       return;
     }
-    // A stored token means a device was registered; confirm it still works with a heartbeat.
+
     try {
-      await portal.heartbeat();
+      const me = await portal.trackerMe();
+      this.user = me.user;
+      this.settings = me.settings;
+      this.status = me.consentRequired ? 'consent-required' : 'idle';
+      this.buildEngine();
     } catch {
+      // Device or access revoked while we were away — drop the stale token.
       secureStore().clearToken();
+      this.status = 'signed-out';
     }
+
     this.refreshPermissions();
     this.emit();
   }
 
-  async login(email: string, password: string): Promise<LoginResult> {
+  /** Branding is public, so it loads before sign-in (the login screen shows the logo). */
+  private async loadBranding(): Promise<void> {
     try {
-      const result = await portal.login(email, password, {
-        deviceId: secureStore().deviceId,
-        platform: process.platform,
-        hostname: hostname(),
-        appVersion: app.getVersion(),
-      });
-      secureStore().setToken(result.token);
+      this.branding = await portal.fetchBranding();
+    } catch {
+      // A branding outage must not block sign-in; the UI falls back to its defaults.
+      this.branding = null;
+    }
+  }
+
+  async login(email: string, password: string, rememberMe: boolean): Promise<LoginResult> {
+    try {
+      const result = await portal.login(email, password, collectDeviceInfo());
+      secureStore().setToken(result.token, rememberMe);
       this.user = result.user;
       this.settings = result.settings;
       this.status = result.consentRequired ? 'consent-required' : 'idle';
@@ -82,8 +107,18 @@ export class TrackerController {
     }
   }
 
+  /**
+   * The outbox is only uploadable while the device token exists, so a final flush runs BEFORE
+   * the token is dropped — otherwise signing out would strand the employee's queued work.
+   */
   async logout(): Promise<void> {
     await this.stop();
+    try {
+      await this.engine?.syncNow();
+    } catch (error) {
+      // A failing portal must never trap someone in a signed-in app.
+      console.error('Final sync before sign-out failed', error);
+    }
     secureStore().clearToken();
     this.user = null;
     this.settings = null;
@@ -125,6 +160,17 @@ export class TrackerController {
   /** Manual "Sync now" — uploads everything queued, regardless of the auto-sync setting. */
   async syncNow(): Promise<void> {
     await this.engine?.syncNow();
+  }
+
+  /** The employee's own tracked time (the portal scopes this to them). */
+  async getReport(from: string, to: string): Promise<ReportDay[]> {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return portal.fetchMyReport(from, to, timezone);
+  }
+
+  /** One day of the employee's own work — totals plus that day's screenshots. */
+  getDay(start: string, end: string): Promise<DayDetail> {
+    return portal.fetchMyDay(start, end);
   }
 
   refreshPermissions(): PermissionState {

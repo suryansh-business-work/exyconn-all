@@ -153,6 +153,45 @@ export interface NavLink {
   keywords: string;
 }
 
+/**
+ * Site-wide branding (name, logos, colours, socials) served by `publicBranding`.
+ * Every field is a non-null String in the schema, but may be an empty string until an
+ * admin fills it in — callers must treat "" as "unset" (see BRANDING_FALLBACK).
+ */
+export interface Branding {
+  businessName: string;
+  legalName: string;
+  slogan: string;
+  description: string;
+
+  logoUrl: string;
+  logoDarkUrl: string;
+  faviconUrl: string;
+  appIconUrl: string;
+  emailLogoUrl: string;
+  ogImageUrl: string;
+
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  backgroundColor: string;
+  textColor: string;
+
+  supportEmail: string;
+  contactPhone: string;
+  websiteUrl: string;
+  address: string;
+
+  linkedinUrl: string;
+  twitterUrl: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  youtubeUrl: string;
+  githubUrl: string;
+
+  copyrightText: string;
+}
+
 /** A tool category with its tools attached — assembled client-side (see queries.ts). */
 export interface ToolCategoryWithTools extends ToolCategory {
   items: Tool[];

@@ -1,9 +1,9 @@
-import type { TrackerSettings } from '@shared/types';
+import type { Branding, DayDetail, ReportDay, TrackerSettings } from '@shared/types';
 import { secureStore } from './store';
+import { summarizeDay, type RawDay } from './day-summary';
 
 /** Portal GraphQL endpoint (main process only — reads process.env, overridable at run time). */
-const PORTAL_GRAPHQL_URL =
-  process.env.PORTAL_GRAPHQL_URL ?? 'http://localhost:4004/graphql';
+const PORTAL_GRAPHQL_URL = process.env.PORTAL_GRAPHQL_URL ?? 'http://localhost:4004/graphql';
 
 /**
  * Talks to the portal GraphQL API from the MAIN process. Requests originate from Node,
@@ -19,7 +19,11 @@ interface GraphQLResponse<T> {
   errors?: Array<{ message: string; extensions?: { code?: string } }>;
 }
 
-async function request<T>(query: string, variables: Record<string, unknown>, token?: string): Promise<T> {
+async function request<T>(
+  query: string,
+  variables: Record<string, unknown>,
+  token?: string,
+): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) {
     headers.Authorization = `Bearer ${token}`;
@@ -60,12 +64,9 @@ function authed<T>(query: string, variables: Record<string, unknown> = {}): Prom
   return request<T>(query, variables, token);
 }
 
-export interface DeviceInfo {
-  deviceId: string;
-  platform: string;
-  hostname: string;
-  appVersion: string;
-}
+import type { DeviceInfo } from './device-info';
+
+export type { DeviceInfo };
 
 export interface LoginResponse {
   token: string;
@@ -83,7 +84,7 @@ const LOGIN = `
       settings {
         intervalMinutes screenshotsPerInterval randomizeScreenshotTiming blurScreenshots
         trackWindowTitles idleThresholdSeconds screenshotMaxWidth screenshotQuality
-        autoSyncEnabled syncIntervalMinutes
+        autoSyncEnabled syncIntervalMinutes consentText
       }
     }
   }
@@ -96,6 +97,96 @@ export async function login(
 ): Promise<LoginResponse> {
   const data = await request<{ trackerLogin: LoginResponse }>(LOGIN, { email, password, device });
   return data.trackerLogin;
+}
+
+const BRANDING = `
+  query {
+    publicBranding {
+      businessName legalName slogan
+      logoUrl logoDarkUrl appIconUrl faviconUrl
+      primaryColor secondaryColor accentColor backgroundColor textColor
+      supportEmail websiteUrl
+    }
+  }
+`;
+
+/** Brand identity for the app's chrome. Unauthenticated — the login screen needs it. */
+export async function fetchBranding(): Promise<Branding> {
+  const data = await request<{ publicBranding: Branding }>(BRANDING, {});
+  return data.publicBranding;
+}
+
+const MY_REPORT = `
+  query MyReport($from: DateTime!, $to: DateTime!, $timezone: String!) {
+    myTrackerCalendar(from: $from, to: $to, timezone: $timezone) {
+      date activeMs idleMs keyCount mouseCount sessions
+    }
+  }
+`;
+
+/**
+ * The signed-in employee's OWN tracked time. The device token is a normal user JWT, so the
+ * portal's `myTracker*` resolvers scope this to them — an employee can only ever see their
+ * own report from the app.
+ */
+export async function fetchMyReport(
+  from: string,
+  to: string,
+  timezone: string,
+): Promise<ReportDay[]> {
+  const data = await authed<{ myTrackerCalendar: ReportDay[] }>(MY_REPORT, {
+    from,
+    to,
+    timezone,
+  });
+  return data.myTrackerCalendar;
+}
+
+const MY_DAY = `
+  query MyDay($start: DateTime!, $end: DateTime!) {
+    myTrackerDay(start: $start, end: $end) {
+      intervals { activeMs idleMs keyCount mouseCount }
+      screenshots { id capturedAt imageUrl blurred }
+      sessions { id }
+    }
+  }
+`;
+
+/**
+ * One day of the signed-in employee's OWN work — their totals and their screenshots. Same
+ * scoping guarantee as `fetchMyReport`: `myTrackerDay` resolves against the token's user, so
+ * the app can never read another employee's day. `start`/`end` are the viewer's local
+ * midnight bounds, computed in the renderer.
+ */
+export async function fetchMyDay(start: string, end: string): Promise<DayDetail> {
+  const data = await authed<{ myTrackerDay: RawDay }>(MY_DAY, { start, end });
+  return summarizeDay(data.myTrackerDay);
+}
+
+const TRACKER_ME = `
+  query {
+    trackerMe {
+      user { id name email }
+      consentRequired
+      settings {
+        intervalMinutes screenshotsPerInterval randomizeScreenshotTiming blurScreenshots
+        trackWindowTitles idleThresholdSeconds screenshotMaxWidth screenshotQuality
+        autoSyncEnabled syncIntervalMinutes consentText
+      }
+    }
+  }
+`;
+
+export interface TrackerMeResponse {
+  user: { id: string; name: string; email: string };
+  consentRequired: boolean;
+  settings: TrackerSettings;
+}
+
+/** Rebuilds a remembered session from the stored device token (no password prompt). */
+export async function trackerMe(): Promise<TrackerMeResponse> {
+  const data = await authed<{ trackerMe: TrackerMeResponse }>(TRACKER_ME, {});
+  return data.trackerMe;
 }
 
 export function acceptConsent(): Promise<{ trackerAcceptConsent: boolean }> {

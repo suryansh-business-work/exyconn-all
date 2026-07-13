@@ -25,11 +25,36 @@ const POSITIONS = [
 ];
 
 const POLICIES = [
-  { title: 'Leave & Time-Off Policy', category: 'LEAVE', summary: 'Casual, sick and earned leave entitlements, accrual and the approval workflow.', effectiveDate: new Date(YEAR, 0, 1) },
-  { title: 'Code of Conduct', category: 'CONDUCT', summary: 'Expected workplace behaviour, anti-harassment and conflict-of-interest rules.', effectiveDate: new Date(YEAR, 0, 1) },
-  { title: 'Acceptable Use of IT', category: 'IT', summary: 'Rules for company devices, accounts, data handling and security hygiene.', effectiveDate: new Date(YEAR, 2, 15) },
-  { title: 'Reimbursement & Expenses', category: 'FINANCE', summary: 'What is reimbursable, claim limits and the submission process.', effectiveDate: new Date(YEAR, 3, 1) },
-  { title: 'Remote & Hybrid Work', category: 'GENERAL', summary: 'Eligibility, expectations and attendance rules for remote and hybrid work.', effectiveDate: new Date(YEAR, 5, 1) },
+  {
+    title: 'Leave & Time-Off Policy',
+    category: 'LEAVE',
+    summary: 'Casual, sick and earned leave entitlements, accrual and the approval workflow.',
+    effectiveDate: new Date(YEAR, 0, 1),
+  },
+  {
+    title: 'Code of Conduct',
+    category: 'CONDUCT',
+    summary: 'Expected workplace behaviour, anti-harassment and conflict-of-interest rules.',
+    effectiveDate: new Date(YEAR, 0, 1),
+  },
+  {
+    title: 'Acceptable Use of IT',
+    category: 'IT',
+    summary: 'Rules for company devices, accounts, data handling and security hygiene.',
+    effectiveDate: new Date(YEAR, 2, 15),
+  },
+  {
+    title: 'Reimbursement & Expenses',
+    category: 'FINANCE',
+    summary: 'What is reimbursable, claim limits and the submission process.',
+    effectiveDate: new Date(YEAR, 3, 1),
+  },
+  {
+    title: 'Remote & Hybrid Work',
+    category: 'GENERAL',
+    summary: 'Eligibility, expectations and attendance rules for remote and hybrid work.',
+    effectiveDate: new Date(YEAR, 5, 1),
+  },
 ];
 
 const HOLIDAYS = [
@@ -43,13 +68,31 @@ const HOLIDAYS = [
   { name: 'Christmas', month: 11, day: 25, type: 'PUBLIC' },
 ];
 
-const STRUCTURE = { currency: 'INR', basic: 60000, hra: 24000, allowances: 16000, deductions: 8000 };
+const STRUCTURE = {
+  currency: 'INR',
+  basic: 60000,
+  hra: 24000,
+  allowances: 16000,
+  deductions: 8000,
+};
 const GROSS = STRUCTURE.basic + STRUCTURE.hra + STRUCTURE.allowances;
 const NET = GROSS - STRUCTURE.deductions;
 
 const TICKETS = [
-  { subject: 'Laptop running slow', category: 'IT', priority: 'MEDIUM', description: 'My work laptop has been slow since the last update. Requesting a check.', status: 'IN_PROGRESS' },
-  { subject: 'Payslip download issue', category: 'PAYROLL', priority: 'LOW', description: 'Last month payslip did not open. Can you re-share it?', status: 'OPEN' },
+  {
+    subject: 'Laptop running slow',
+    category: 'IT',
+    priority: 'MEDIUM',
+    description: 'My work laptop has been slow since the last update. Requesting a check.',
+    status: 'IN_PROGRESS',
+  },
+  {
+    subject: 'Payslip download issue',
+    category: 'PAYROLL',
+    priority: 'LOW',
+    description: 'Last month payslip did not open. Can you re-share it?',
+    status: 'OPEN',
+  },
 ];
 
 /** Idempotently seeds company-wide + per-employee demo data for the workspace views. */

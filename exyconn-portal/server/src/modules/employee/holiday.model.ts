@@ -18,4 +18,7 @@ holidaySchema.index({ date: 1 });
 
 export type HolidayDocument = InferSchemaType<typeof holidaySchema>;
 
-export const HolidayModel: Model<HolidayDocument> = model<HolidayDocument>('Holiday', holidaySchema);
+export const HolidayModel: Model<HolidayDocument> = model<HolidayDocument>(
+  'Holiday',
+  holidaySchema,
+);

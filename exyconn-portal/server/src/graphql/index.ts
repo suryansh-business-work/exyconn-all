@@ -25,6 +25,7 @@ import { techTypeDefs, techResolvers } from '../modules/tech';
 // The website module splits its SDL across one file per content entity, so it exports an array.
 import { websiteTypeDefs, websiteResolvers } from '../modules/website';
 import { trackerTypeDefs, trackerResolvers } from '../modules/tracker';
+import { brandingTypeDefs, brandingResolvers } from '../modules/branding';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = {
@@ -63,6 +64,7 @@ export const typeDefs = [
   techTypeDefs,
   ...websiteTypeDefs,
   trackerTypeDefs,
+  brandingTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -84,4 +86,5 @@ export const resolvers = mergeResolvers([
   techResolvers,
   websiteResolvers,
   trackerResolvers,
+  brandingResolvers,
 ]);

@@ -12,6 +12,8 @@ export interface TrackerSettingsInput {
   screenshotQuality?: number;
   autoSyncEnabled?: boolean;
   syncIntervalMinutes?: number;
+  /** Rich text (HTML) disclosure shown in the desktop app before tracking starts. */
+  consentText?: string;
 }
 
 /** A plain serialized tracker-settings object (as `withId` and resolvers consume it). */

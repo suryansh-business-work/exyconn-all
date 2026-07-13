@@ -1,3 +1,4 @@
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { Box, Button, Flex, Heading, IconButton, Text } from '@/components/ui';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
@@ -5,7 +6,9 @@ import { LoginForm } from './forms/login';
 import { LoginPromo } from './LoginPromo';
 import { env } from '../../config/env';
 import { glass } from '../../components/glass/glass';
+import { useAuth } from '../../auth/AuthContext';
 import { useColorMode } from '../../theme/ColorModeContext';
+import { safeNext } from '../../utils/redirect';
 
 const LIGHT_BG =
   'radial-gradient(at 18% 20%, #bcd6ff 0px, transparent 45%), radial-gradient(at 82% 8%, #d9c8ff 0px, transparent 45%), radial-gradient(at 60% 95%, #b6ecdd 0px, transparent 45%), #eef1f8';
@@ -15,6 +18,12 @@ const DARK_BG =
 /** Login screen styled after the Lumin reference: frosted card + promo + banner. */
 export function Login() {
   const { mode, toggle } = useColorMode();
+  const { user } = useAuth();
+  const [params] = useSearchParams();
+
+  // An already-signed-in user never sees the login screen — bounce them to the
+  // page they were after (or the portal home).
+  if (user) return <Navigate to={safeNext(params.get('next'))} replace />;
 
   return (
     <Box

@@ -1,10 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
-import {
-  EXPERIENCE_LEVELS,
-  JOB_CATEGORIES,
-  JOB_TYPES,
-  WORK_MODES,
-} from '../website.constants';
+import { EXPERIENCE_LEVELS, JOB_CATEGORIES, JOB_TYPES, WORK_MODES } from '../website.constants';
 
 const jobSchema = new Schema(
   {

@@ -1,118 +1,109 @@
-import type { TrackerState, TrackerStatus } from '@shared/types';
+import type { SvgIconComponent } from '@mui/icons-material';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import AppsOutlined from '@mui/icons-material/AppsOutlined';
+import HourglassEmptyOutlined from '@mui/icons-material/HourglassEmptyOutlined';
+import KeyboardOutlined from '@mui/icons-material/KeyboardOutlined';
+import MouseOutlined from '@mui/icons-material/MouseOutlined';
+import PhotoCameraOutlined from '@mui/icons-material/PhotoCameraOutlined';
+import TimerOutlined from '@mui/icons-material/TimerOutlined';
+import type { TrackerState } from '@shared/types';
+import GlassCard from '../components/GlassCard';
 import StatTile from '../components/StatTile';
+import StatusChip from '../components/StatusChip';
 import SyncBar from '../components/SyncBar';
-import { formatClock } from '../format';
+import TrackingControls from '../components/TrackingControls';
+import { formatClock, formatCount } from '../format';
 
-interface PillInfo {
+interface Tile {
+  id: string;
   label: string;
-  className: string;
+  value: string;
+  icon: SvgIconComponent;
 }
 
-const PILL: Record<TrackerStatus, PillInfo> = {
-  'signed-out': { label: 'Signed out', className: 'pill pill--idle' },
-  'consent-required': { label: 'Consent required', className: 'pill pill--idle' },
-  idle: { label: 'Not tracking', className: 'pill pill--idle' },
-  tracking: { label: 'Tracking…', className: 'pill pill--live' },
-  paused: { label: 'Paused', className: 'pill pill--paused' },
-};
-
-/** Fire a tracker command and log (never swallow) any failure. */
-function run(action: () => Promise<void>): void {
-  action().catch((cause: unknown) => {
-    console.error('Tracker action failed', cause);
-  });
+function tiles(state: TrackerState): Tile[] {
+  const { stats } = state;
+  return [
+    {
+      id: 'worked',
+      label: 'Worked',
+      value: formatClock(stats.sessionActiveMs),
+      icon: TimerOutlined,
+    },
+    {
+      id: 'idle',
+      label: 'Idle',
+      value: formatClock(stats.sessionIdleMs),
+      icon: HourglassEmptyOutlined,
+    },
+    {
+      id: 'keys',
+      label: 'Key presses',
+      value: formatCount(stats.keyCount),
+      icon: KeyboardOutlined,
+    },
+    {
+      id: 'mouse',
+      label: 'Mouse clicks',
+      value: formatCount(stats.mouseCount),
+      icon: MouseOutlined,
+    },
+    { id: 'app', label: 'Current app', value: stats.currentApp || '—', icon: AppsOutlined },
+    {
+      id: 'screenshots',
+      label: 'Screenshots',
+      value: formatCount(stats.screenshotCount),
+      icon: PhotoCameraOutlined,
+    },
+  ];
 }
 
 interface Props {
   state: TrackerState;
 }
 
-/** Main tracking UI: identity, status, controls and live stats. */
+/** Tracking controls, sync status and this session's live counters. */
 export default function DashboardScreen({ state }: Readonly<Props>): JSX.Element {
-  const { user, stats, status, settings } = state;
-  const pill = PILL[status];
-  const isIdle = status === 'idle';
-  const isTracking = status === 'tracking';
-  const isPaused = status === 'paused';
+  const { stats, status, settings, user } = state;
 
   return (
-    <div className="app screen screen--scroll">
-      <header className="dash__header">
-        <div className="dash__user">
-          <span className="dash__name">{user?.name ?? 'Signed in'}</span>
-          <span className="dash__email">{user?.email ?? ''}</span>
-        </div>
-        <button
-          className="btn btn--ghost btn--sm"
-          type="button"
-          onClick={() => run(() => window.tracker.logout())}
+    <Stack spacing={2}>
+      <GlassCard sx={{ p: 2.5 }}>
+        <Stack
+          direction="row"
+          spacing={1.5}
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mb: 2 }}
         >
-          Sign out
-        </button>
-      </header>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="subtitle1" noWrap sx={{ fontWeight: 700 }}>
+              {user?.name ?? 'Signed in'}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" noWrap>
+              This session only — totals reset when you stop.
+            </Typography>
+          </Box>
+          <StatusChip status={status} />
+        </Stack>
+        <TrackingControls status={status} />
+      </GlassCard>
 
-      <div className={pill.className}>
-        <span className="pill__dot" />
-        <span>{pill.label}</span>
-      </div>
+      <SyncBar stats={stats} settings={settings} />
 
-      <div className="controls">
-        <button
-          className="btn btn--primary"
-          type="button"
-          disabled={!isIdle}
-          onClick={() => run(() => window.tracker.start())}
-        >
-          Start
-        </button>
-        <button
-          className="btn btn--secondary"
-          type="button"
-          disabled={!isTracking}
-          onClick={() => run(() => window.tracker.pause())}
-        >
-          Pause
-        </button>
-        <button
-          className="btn btn--secondary"
-          type="button"
-          disabled={!isPaused}
-          onClick={() => run(() => window.tracker.resume())}
-        >
-          Resume
-        </button>
-        <button
-          className="btn btn--danger"
-          type="button"
-          disabled={!isTracking && !isPaused}
-          onClick={() => run(() => window.tracker.stop())}
-        >
-          Stop
-        </button>
-      </div>
-
-      <SyncBar
-        stats={stats}
-        settings={settings}
-        onSync={() => run(() => window.tracker.syncNow())}
-      />
-
-      <div className="tiles">
-        <StatTile label="Worked" value={formatClock(stats.sessionActiveMs)} />
-        <StatTile label="Idle" value={formatClock(stats.sessionIdleMs)} />
-        <StatTile label="Key presses" value={stats.keyCount.toLocaleString()} />
-        <StatTile label="Mouse clicks" value={stats.mouseCount.toLocaleString()} />
-        <StatTile label="Current app" value={stats.currentApp || '—'} />
-        <StatTile label="Screenshots" value={stats.screenshotCount.toLocaleString()} />
-      </div>
-
-      <button
-        className="link"
-        type="button"
-        onClick={() => run(() => window.tracker.openPrivacy())}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+          gap: 1.5,
+        }}
       >
-        View my data in the portal
-      </button>
-    </div>
+        {tiles(state).map((tile) => (
+          <StatTile key={tile.id} label={tile.label} value={tile.value} icon={tile.icon} />
+        ))}
+      </Box>
+    </Stack>
   );
 }

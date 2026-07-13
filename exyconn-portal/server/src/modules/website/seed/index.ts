@@ -45,7 +45,9 @@ async function seedCollection<T extends object>(
     }
   }
 
-  logger.info(`Website seed — ${label}: ${inserted} inserted, ${fixtures.length - inserted} existing`);
+  logger.info(
+    `Website seed — ${label}: ${inserted} inserted, ${fixtures.length - inserted} existing`,
+  );
 }
 
 export async function seedWebsiteContent(): Promise<void> {

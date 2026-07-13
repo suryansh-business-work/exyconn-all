@@ -66,6 +66,17 @@ export const trackerResolvers = {
       return serializeDay(await trackerAdminService.day(userId, start, end));
     },
 
+    /** Desktop app rehydrating a remembered (non-expiring) session. */
+    trackerMe: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      const { userId } = await assertTrackerDevice(ctx);
+      const result = await trackerDeviceService.me(userId);
+      return {
+        user: withId(result.user as LeanDoc),
+        consentRequired: result.consentRequired,
+        settings: withId(result.settings),
+      };
+    },
+
     myTrackerAccess: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       const user = assertAuthenticated(ctx);
       const list = await trackerAdminService.listAccess();
@@ -160,7 +171,9 @@ export const trackerResolvers = {
       ctx: GraphQLContext,
     ) => {
       const { userId } = await assertTrackerDevice(ctx);
-      return withId((await trackerDeviceService.stopSession(userId, sessionId, endedAt)) as LeanDoc);
+      return withId(
+        (await trackerDeviceService.stopSession(userId, sessionId, endedAt)) as LeanDoc,
+      );
     },
     trackerSyncIntervals: async (
       _p: unknown,

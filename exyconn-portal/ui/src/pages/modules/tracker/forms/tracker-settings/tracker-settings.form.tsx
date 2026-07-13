@@ -2,7 +2,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Flex, Grid } from '@/components/ui';
-import { RhfTextField, RhfSwitch } from '@/components/form/rhf';
+import { RhfTextField, RhfSwitch, RhfRichText } from '@/components/form/rhf';
 import { FormActions } from '@/components/form/FormActions';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useUpdateTrackerSettingsMutation } from '@/graphql/generated';
@@ -19,6 +19,7 @@ const schema = z.object({
   blurScreenshots: z.boolean(),
   trackWindowTitles: z.boolean(),
   autoSyncEnabled: z.boolean(),
+  consentText: z.string().min(1, 'Consent text is required'),
 });
 type Values = z.infer<typeof schema>;
 
@@ -33,6 +34,7 @@ const toInitial = (row: TrackerSettingsRow): Values => ({
   blurScreenshots: row.blurScreenshots,
   trackWindowTitles: row.trackWindowTitles,
   autoSyncEnabled: row.autoSyncEnabled,
+  consentText: row.consentText,
 });
 
 interface TrackerSettingsFormProps {
@@ -95,6 +97,11 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
           <RhfSwitch name="blurScreenshots" label="Blur screenshots" />
           <RhfSwitch name="trackWindowTitles" label="Track window titles" />
           <RhfSwitch name="autoSyncEnabled" label="Auto-sync (off = employee syncs manually)" />
+          <RhfRichText
+            name="consentText"
+            label="Consent disclosure (shown in the desktop app)"
+            helperText="The employee must read and accept this before any tracking starts."
+          />
           <FormActions
             submitting={methods.formState.isSubmitting}
             isEdit

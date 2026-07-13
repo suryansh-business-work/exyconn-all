@@ -20,6 +20,7 @@ export const trackerTypeDefs = gql`
     screenshotQuality: Int!
     autoSyncEnabled: Boolean!
     syncIntervalMinutes: Int!
+    consentText: String!
   }
 
   input TrackerSettingsInput {
@@ -33,6 +34,7 @@ export const trackerTypeDefs = gql`
     screenshotQuality: Int
     autoSyncEnabled: Boolean
     syncIntervalMinutes: Int
+    consentText: String
   }
 
   type TrackerAccess {
@@ -52,6 +54,17 @@ export const trackerTypeDefs = gql`
     platform: String!
     hostname: String!
     appVersion: String!
+    machineId: String!
+    osName: String!
+    osVersion: String!
+    arch: String!
+    cpuModel: String!
+    cpuCores: Int!
+    totalMemoryMb: Int!
+    locale: String!
+    timezone: String!
+    screenCount: Int!
+    screenResolution: String!
     issuedAt: DateTime!
     lastSeenAt: DateTime!
     revokedAt: DateTime
@@ -120,6 +133,17 @@ export const trackerTypeDefs = gql`
     platform: String!
     hostname: String
     appVersion: String
+    machineId: String
+    osName: String
+    osVersion: String
+    arch: String
+    cpuModel: String
+    cpuCores: Int
+    totalMemoryMb: Int
+    locale: String
+    timezone: String
+    screenCount: Int
+    screenResolution: String
   }
 
   input TrackerWindowUsageInput {
@@ -154,13 +178,29 @@ export const trackerTypeDefs = gql`
     settings: TrackerSettings!
   }
 
+  # Rehydrates a desktop session from a stored (non-expiring) device token, so a
+  # "remembered" app can restore who is signed in without asking for the password again.
+  type TrackerMe {
+    user: User!
+    consentRequired: Boolean!
+    settings: TrackerSettings!
+  }
+
   extend type Query {
     # Portal (TRACKER role)
     trackerSettings: TrackerSettings!
     trackerAccessList: [TrackerAccess!]!
     trackerDevices(userId: ID): [TrackerDevice!]!
-    trackerCalendar(userId: ID!, from: DateTime!, to: DateTime!, timezone: String!): [TrackerDayBucket!]!
+    trackerCalendar(
+      userId: ID!
+      from: DateTime!
+      to: DateTime!
+      timezone: String!
+    ): [TrackerDayBucket!]!
     trackerDay(userId: ID!, start: DateTime!, end: DateTime!): TrackerDay!
+
+    # Desktop app (device token) — rehydrates a remembered session
+    trackerMe: TrackerMe!
 
     # Employee self-view (own data only)
     myTrackerAccess: TrackerAccess
@@ -176,7 +216,11 @@ export const trackerTypeDefs = gql`
     updateTrackerSettings(input: TrackerSettingsInput!): TrackerSettings!
 
     # Desktop app (device token, except trackerLogin which authenticates)
-    trackerLogin(email: String!, password: String!, device: TrackerDeviceInput!): TrackerLoginPayload!
+    trackerLogin(
+      email: String!
+      password: String!
+      device: TrackerDeviceInput!
+    ): TrackerLoginPayload!
     trackerAcceptConsent: Boolean!
     trackerHeartbeat: Boolean!
     trackerStartSession(startedAt: DateTime!): TrackerSession!

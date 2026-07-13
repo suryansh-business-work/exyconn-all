@@ -15,6 +15,9 @@ const initial: TrackerSettingsRow = {
   randomizeScreenshotTiming: true,
   blurScreenshots: false,
   trackWindowTitles: true,
+  autoSyncEnabled: true,
+  syncIntervalMinutes: 5,
+  consentText: '<p>We track activity during work hours.</p>',
 };
 
 const mount = () =>
