@@ -104,6 +104,10 @@ jobs:
             EOF
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             docker compose -f docker-compose.prod.yml pull
+            # Remove every existing exyconn container (this stack + any from older pipelines)
+            # so only the freshly-pulled containers run, with no name conflicts.
+            docker compose -f docker-compose.prod.yml down --remove-orphans || true
+            docker ps -aq --filter "name=exyconn-" | xargs -r docker rm -f || true
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
             docker image prune -f
 
