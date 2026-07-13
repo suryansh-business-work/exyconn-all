@@ -14,9 +14,11 @@ const schema = z.object({
   idleThresholdSeconds: z.coerce.number({ message: 'Enter a number' }).int().min(10).max(3600),
   screenshotMaxWidth: z.coerce.number({ message: 'Enter a number' }).int().min(320).max(3840),
   screenshotQuality: z.coerce.number({ message: 'Enter a number' }).int().min(1).max(100),
+  syncIntervalMinutes: z.coerce.number({ message: 'Enter a number' }).int().min(1).max(60),
   randomizeScreenshotTiming: z.boolean(),
   blurScreenshots: z.boolean(),
   trackWindowTitles: z.boolean(),
+  autoSyncEnabled: z.boolean(),
 });
 type Values = z.infer<typeof schema>;
 
@@ -26,9 +28,11 @@ const toInitial = (row: TrackerSettingsRow): Values => ({
   idleThresholdSeconds: row.idleThresholdSeconds,
   screenshotMaxWidth: row.screenshotMaxWidth,
   screenshotQuality: row.screenshotQuality,
+  syncIntervalMinutes: row.syncIntervalMinutes,
   randomizeScreenshotTiming: row.randomizeScreenshotTiming,
   blurScreenshots: row.blurScreenshots,
   trackWindowTitles: row.trackWindowTitles,
+  autoSyncEnabled: row.autoSyncEnabled,
 });
 
 interface TrackerSettingsFormProps {
@@ -78,10 +82,19 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
             <Grid item xs={12} sm={6}>
               <RhfTextField name="screenshotQuality" label="Screenshot quality" type="number" />
             </Grid>
+            <Grid item xs={12} sm={6}>
+              <RhfTextField
+                name="syncIntervalMinutes"
+                label="Auto-sync every (minutes)"
+                type="number"
+                helperText="How often the desktop app uploads queued activity and screenshots."
+              />
+            </Grid>
           </Grid>
           <RhfSwitch name="randomizeScreenshotTiming" label="Randomize screenshot timing" />
           <RhfSwitch name="blurScreenshots" label="Blur screenshots" />
           <RhfSwitch name="trackWindowTitles" label="Track window titles" />
+          <RhfSwitch name="autoSyncEnabled" label="Auto-sync (off = employee syncs manually)" />
           <FormActions
             submitting={methods.formState.isSubmitting}
             isEdit

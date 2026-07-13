@@ -59,6 +59,18 @@ const trackerSettingsSchema = new Schema(
       min: 20,
       max: 100,
     },
+    autoSyncEnabled: {
+      type: Boolean,
+      required: true,
+      default: TRACKER_DEFAULTS.autoSyncEnabled,
+    },
+    syncIntervalMinutes: {
+      type: Number,
+      required: true,
+      default: TRACKER_DEFAULTS.syncIntervalMinutes,
+      min: 1,
+      max: 60,
+    },
   },
   { timestamps: true },
 );

@@ -83,6 +83,7 @@ const LOGIN = `
       settings {
         intervalMinutes screenshotsPerInterval randomizeScreenshotTiming blurScreenshots
         trackWindowTitles idleThresholdSeconds screenshotMaxWidth screenshotQuality
+        autoSyncEnabled syncIntervalMinutes
       }
     }
   }

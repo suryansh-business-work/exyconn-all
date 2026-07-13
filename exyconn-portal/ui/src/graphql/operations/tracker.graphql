@@ -31,6 +31,8 @@ fragment TrackerSettingsFields on TrackerSettings {
   idleThresholdSeconds
   screenshotMaxWidth
   screenshotQuality
+  autoSyncEnabled
+  syncIntervalMinutes
 }
 
 fragment TrackerDayBucketFields on TrackerDayBucket {

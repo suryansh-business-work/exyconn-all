@@ -391,3 +391,47 @@ body {
 .link:hover {
   color: var(--brand-dark);
 }
+
+/* ---- Sync bar: upload status + manual "Sync now" ------------------------- */
+.sync {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.sync__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sync__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sync__pending {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sync__meta,
+.sync__policy {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sync__error {
+  font-size: 12px;
+  color: var(--danger);
+}

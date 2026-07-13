@@ -2270,6 +2270,7 @@ export type TrackerSession = {
 
 export type TrackerSettings = {
   __typename?: 'TrackerSettings';
+  autoSyncEnabled: Scalars['Boolean']['output'];
   blurScreenshots: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   idleThresholdSeconds: Scalars['Int']['output'];
@@ -2278,10 +2279,12 @@ export type TrackerSettings = {
   screenshotMaxWidth: Scalars['Int']['output'];
   screenshotQuality: Scalars['Int']['output'];
   screenshotsPerInterval: Scalars['Int']['output'];
+  syncIntervalMinutes: Scalars['Int']['output'];
   trackWindowTitles: Scalars['Boolean']['output'];
 };
 
 export type TrackerSettingsInput = {
+  autoSyncEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   blurScreenshots?: InputMaybe<Scalars['Boolean']['input']>;
   idleThresholdSeconds?: InputMaybe<Scalars['Int']['input']>;
   intervalMinutes?: InputMaybe<Scalars['Int']['input']>;
@@ -2289,6 +2292,7 @@ export type TrackerSettingsInput = {
   screenshotMaxWidth?: InputMaybe<Scalars['Int']['input']>;
   screenshotQuality?: InputMaybe<Scalars['Int']['input']>;
   screenshotsPerInterval?: InputMaybe<Scalars['Int']['input']>;
+  syncIntervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   trackWindowTitles?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -3534,6 +3538,7 @@ export type TrackerSessionResolvers<ContextType = GraphQLContext, ParentType ext
 }>;
 
 export type TrackerSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerSettings'] = ResolversParentTypes['TrackerSettings']> = ResolversObject<{
+  autoSyncEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   blurScreenshots?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   idleThresholdSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -3542,6 +3547,7 @@ export type TrackerSettingsResolvers<ContextType = GraphQLContext, ParentType ex
   screenshotMaxWidth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   screenshotQuality?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   screenshotsPerInterval?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  syncIntervalMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   trackWindowTitles?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

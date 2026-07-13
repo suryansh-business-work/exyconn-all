@@ -31,6 +31,14 @@ export const TRACKER_DEFAULTS = Object.freeze({
   /** Screenshots are downscaled to this width and JPEG-encoded before upload. */
   screenshotMaxWidth: 1280,
   screenshotQuality: 60,
+  /**
+   * Push queued activity + screenshots to the portal automatically. When off, nothing
+   * leaves the machine until the employee presses "Sync now" in the app — the data is
+   * still captured and queued durably on disk either way.
+   */
+  autoSyncEnabled: true,
+  /** How often the desktop app flushes its outbox to the portal, in minutes. */
+  syncIntervalMinutes: 5,
 });
 
 /** Upper bounds enforced server-side so a compromised client cannot flood the DB. */

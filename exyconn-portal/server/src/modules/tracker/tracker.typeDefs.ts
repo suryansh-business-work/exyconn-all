@@ -18,6 +18,8 @@ export const trackerTypeDefs = gql`
     idleThresholdSeconds: Int!
     screenshotMaxWidth: Int!
     screenshotQuality: Int!
+    autoSyncEnabled: Boolean!
+    syncIntervalMinutes: Int!
   }
 
   input TrackerSettingsInput {
@@ -29,6 +31,8 @@ export const trackerTypeDefs = gql`
     idleThresholdSeconds: Int
     screenshotMaxWidth: Int
     screenshotQuality: Int
+    autoSyncEnabled: Boolean
+    syncIntervalMinutes: Int
   }
 
   type TrackerAccess {

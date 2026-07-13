@@ -12,6 +12,7 @@ const api = {
   pause: (): Promise<void> => ipcRenderer.invoke(IPC.pause),
   resume: (): Promise<void> => ipcRenderer.invoke(IPC.resume),
   stop: (): Promise<void> => ipcRenderer.invoke(IPC.stop),
+  syncNow: (): Promise<void> => ipcRenderer.invoke(IPC.syncNow),
   getPermissions: (): Promise<PermissionState> => ipcRenderer.invoke(IPC.getPermissions),
   requestPermission: (kind: 'screenRecording' | 'accessibility'): Promise<void> =>
     ipcRenderer.invoke(IPC.requestPermission, kind),

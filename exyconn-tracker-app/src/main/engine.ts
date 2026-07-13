@@ -43,6 +43,10 @@ export class TrackerEngine {
   private sessionMouse = 0;
   private screenshotCount = 0;
   private lastSyncAt: string | null = null;
+  private lastSyncError: string | null = null;
+  private syncing = false;
+  /** When the last sync was attempted (success or not), for interval pacing. */
+  private lastSyncAttempt = 0;
 
   constructor(
     settings: TrackerSettings,
@@ -99,6 +103,11 @@ export class TrackerEngine {
     this.input.stop();
     if (this.sessionId) {
       await this.flushInterval(Date.now());
+      // With auto-sync off the employee owns when data leaves the machine, so don't force
+      // an upload here — the outbox is durable and waits for their "Sync now".
+      if (this.settings.autoSyncEnabled) {
+        await this.sync();
+      }
       await portal.stopSession(this.sessionId, new Date().toISOString()).catch(() => undefined);
     }
     this.sessionId = null;
@@ -157,8 +166,28 @@ export class TrackerEngine {
       this.beginInterval(now);
     }
 
-    await this.flushOutbox();
+    await this.maybeAutoSync(now);
     this.emit();
+  }
+
+  /**
+   * Uploads on the portal-configured cadence rather than every tick. With auto-sync off,
+   * nothing is uploaded until the employee presses "Sync now" — the data is still captured
+   * and queued durably on disk, so nothing is lost either way.
+   */
+  private async maybeAutoSync(now: number): Promise<void> {
+    if (!this.settings.autoSyncEnabled || this.outbox.size === 0) {
+      return;
+    }
+    if (now - this.lastSyncAttempt < this.settings.syncIntervalMinutes * 60_000) {
+      return;
+    }
+    await this.sync();
+  }
+
+  /** Flushes the outbox right now, whatever the auto-sync setting says (the Sync button). */
+  syncNow(): Promise<void> {
+    return this.sync();
   }
 
   private async takeScreenshots(now: number): Promise<void> {
@@ -195,11 +224,42 @@ export class TrackerEngine {
     });
   }
 
-  private async flushOutbox(): Promise<void> {
-    const sent = await this.outbox.flush((item) => this.send(item));
-    if (sent > 0) {
-      this.lastSyncAt = new Date().toISOString();
+  /**
+   * Drains the outbox to the portal. The outbox stops at the first failure and keeps the
+   * rest queued, so a partial upload is safe to retry; we capture the underlying error
+   * here (the outbox itself only reports how many items got through) to show it in the UI.
+   */
+  private async sync(): Promise<void> {
+    if (this.syncing) {
+      return;
     }
+    this.syncing = true;
+    this.lastSyncError = null;
+    this.emit();
+
+    let failure: unknown = null;
+    try {
+      const sent = await this.outbox.flush(async (item) => {
+        try {
+          await this.send(item);
+        } catch (error) {
+          failure = error;
+          throw error; // keep the item queued and stop the drain
+        }
+      });
+      if (sent > 0) {
+        this.lastSyncAt = new Date().toISOString();
+      }
+    } finally {
+      this.syncing = false;
+      this.lastSyncAttempt = Date.now();
+    }
+
+    if (failure) {
+      this.lastSyncError = failure instanceof Error ? failure.message : 'Sync failed';
+      this.handleError(failure);
+    }
+    this.emit();
   }
 
   private send(item: OutboxItem): Promise<void> {
@@ -237,6 +297,8 @@ export class TrackerEngine {
       screenshotCount: this.screenshotCount,
       pendingSync: this.outbox.size,
       lastSyncAt: this.lastSyncAt,
+      syncing: this.syncing,
+      lastSyncError: this.lastSyncError,
     };
   }
 

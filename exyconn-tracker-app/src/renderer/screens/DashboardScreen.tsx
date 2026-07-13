@@ -1,6 +1,7 @@
 import type { TrackerState, TrackerStatus } from '@shared/types';
 import StatTile from '../components/StatTile';
-import { formatClock, formatLastSync } from '../format';
+import SyncBar from '../components/SyncBar';
+import { formatClock } from '../format';
 
 interface PillInfo {
   label: string;
@@ -28,7 +29,7 @@ interface Props {
 
 /** Main tracking UI: identity, status, controls and live stats. */
 export default function DashboardScreen({ state }: Readonly<Props>): JSX.Element {
-  const { user, stats, status } = state;
+  const { user, stats, status, settings } = state;
   const pill = PILL[status];
   const isIdle = status === 'idle';
   const isTracking = status === 'tracking';
@@ -90,6 +91,12 @@ export default function DashboardScreen({ state }: Readonly<Props>): JSX.Element
         </button>
       </div>
 
+      <SyncBar
+        stats={stats}
+        settings={settings}
+        onSync={() => run(() => window.tracker.syncNow())}
+      />
+
       <div className="tiles">
         <StatTile label="Worked" value={formatClock(stats.sessionActiveMs)} />
         <StatTile label="Idle" value={formatClock(stats.sessionIdleMs)} />
@@ -97,8 +104,6 @@ export default function DashboardScreen({ state }: Readonly<Props>): JSX.Element
         <StatTile label="Mouse clicks" value={stats.mouseCount.toLocaleString()} />
         <StatTile label="Current app" value={stats.currentApp || '—'} />
         <StatTile label="Screenshots" value={stats.screenshotCount.toLocaleString()} />
-        <StatTile label="Pending sync" value={stats.pendingSync.toLocaleString()} />
-        <StatTile label="Last synced" value={formatLastSync(stats.lastSyncAt)} />
       </div>
 
       <button

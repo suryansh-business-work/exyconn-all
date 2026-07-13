@@ -11,6 +11,10 @@ export interface TrackerSettings {
   idleThresholdSeconds: number;
   screenshotMaxWidth: number;
   screenshotQuality: number;
+  /** When false, nothing is uploaded until the employee presses "Sync now". */
+  autoSyncEnabled: boolean;
+  /** How often the outbox is flushed to the portal, in minutes. */
+  syncIntervalMinutes: number;
 }
 
 export interface AuthUser {
@@ -41,6 +45,10 @@ export interface LiveStats {
   /** Items still waiting in the offline outbox. */
   pendingSync: number;
   lastSyncAt: string | null;
+  /** True while a sync (manual or automatic) is in flight. */
+  syncing: boolean;
+  /** Why the last sync attempt failed, if it did. */
+  lastSyncError: string | null;
 }
 
 export interface LoginResult {
@@ -59,6 +67,7 @@ export const IPC = {
   pause: 'tracker:pause',
   resume: 'tracker:resume',
   stop: 'tracker:stop',
+  syncNow: 'tracker:sync-now',
   getState: 'tracker:get-state',
   getPermissions: 'tracker:get-permissions',
   requestPermission: 'tracker:request-permission',

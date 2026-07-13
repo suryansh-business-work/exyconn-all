@@ -9,6 +9,8 @@ export interface TrackerSettingsInput {
   idleThresholdSeconds?: number;
   screenshotMaxWidth?: number;
   screenshotQuality?: number;
+  autoSyncEnabled?: boolean;
+  syncIntervalMinutes?: number;
 }
 
 /** A plain serialized tracker-settings object (as `withId` and resolvers consume it). */

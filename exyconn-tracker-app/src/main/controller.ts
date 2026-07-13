@@ -122,6 +122,11 @@ export class TrackerController {
     this.emit();
   }
 
+  /** Manual "Sync now" — uploads everything queued, regardless of the auto-sync setting. */
+  async syncNow(): Promise<void> {
+    await this.engine?.syncNow();
+  }
+
   refreshPermissions(): PermissionState {
     this.permissions = getPermissions();
     return this.permissions;
@@ -162,5 +167,7 @@ function idleStats(): LiveStats {
     screenshotCount: 0,
     pendingSync: 0,
     lastSyncAt: null,
+    syncing: false,
+    lastSyncError: null,
   };
 }

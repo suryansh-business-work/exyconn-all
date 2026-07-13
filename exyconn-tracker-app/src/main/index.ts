@@ -55,6 +55,7 @@ function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.pause, () => ctrl.pause());
   ipcMain.handle(IPC.resume, () => ctrl.resume());
   ipcMain.handle(IPC.stop, () => ctrl.stop());
+  ipcMain.handle(IPC.syncNow, () => ctrl.syncNow());
   ipcMain.handle(IPC.getPermissions, () => ctrl.refreshPermissions());
   ipcMain.handle(IPC.requestPermission, (_e, kind: 'screenRecording' | 'accessibility') =>
     ctrl.requestPermission(kind),
