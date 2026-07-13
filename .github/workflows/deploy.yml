@@ -39,8 +39,7 @@ jobs:
           - service: tools-api
             dockerfile: exyconn-tools/server/Dockerfile
             context: exyconn-tools/server
-            # Private @exyconn/common lives on GitHub Packages; NPM_TOKEN authenticates it.
-            build_args: NPM_TOKEN=${{ secrets.NPM_TOKEN }}
+            build_args: ''
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -55,7 +54,11 @@ jobs:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
-          build-args: ${{ matrix.build_args }}
+          # secrets context is not allowed in the matrix, so NPM_TOKEN is added here.
+          # Only the tools-api Dockerfile consumes it; other images ignore it.
+          build-args: |
+            ${{ matrix.build_args }}
+            NPM_TOKEN=${{ secrets.NPM_TOKEN }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/exyconn-${{ matrix.service }}:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/exyconn-${{ matrix.service }}:${{ github.sha }}
