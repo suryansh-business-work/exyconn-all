@@ -118,7 +118,6 @@ jobs:
     steps:
       - name: Health-check every domain
         run: |
-          set -e
           urls=(
             "https://exyconn.com"
             "https://tools.exyconn.com"
@@ -126,11 +125,22 @@ jobs:
             "https://portal.exyconn.com"
             "https://portal-server.exyconn.com/health"
           )
+          fail=0
+          # Report every domain (a curl connect/DNS/TLS error shows as 000) before failing,
+          # so a missing subdomain vhost/cert is obvious instead of aborting on the first.
           for url in "${urls[@]}"; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 10 --retry-all-errors "$url")
-            echo "$url -> $code"
-            if [ "$code" != "200" ]; then echo "FAILED: $url returned $code"; exit 1; fi
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 --retry 3 --retry-delay 10 --retry-all-errors "$url" || echo 000)
+            if [ "$code" = "200" ]; then
+              echo "OK   $url -> $code"
+            else
+              echo "DOWN $url -> $code"
+              fail=1
+            fi
           done
+          if [ "$fail" != "0" ]; then
+            echo "::error::One or more services are not reachable over HTTPS. If a domain shows 000, its DNS A record and/or nginx vhost + certbot cert is not set up yet (run deploy/server-setup.sh)."
+            exit 1
+          fi
           echo "All five services returned 200 OK."
 
   tracker:
