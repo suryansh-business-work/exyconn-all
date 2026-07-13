@@ -1,0 +1,253 @@
+---
+import Page from "../layouts/Page.astro";
+
+// Prerender to dist/client/404.html so the Astro Node adapter (and any
+// reverse proxy) can serve it reliably for unmatched routes in production.
+export const prerender = true;
+
+// Ensure proper HTTP 404 status (avoids soft-404s in Search Console)
+Astro.response.status = 404;
+Astro.response.statusText = "Not Found";
+
+const quickLinks = [
+  { label: "Home", href: "/", icon: "fa-house", desc: "Back to homepage" },
+  { label: "Services", href: "/our-services", icon: "fa-cogs", desc: "Explore our services" },
+  { label: "Products", href: "/our-products", icon: "fa-cube", desc: "View our products" },
+  { label: "AI Solutions", href: "/ai", icon: "fa-robot", desc: "AI-powered solutions" },
+  { label: "Contact", href: "/contact", icon: "fa-envelope", desc: "Get in touch" },
+  { label: "Careers", href: "/career", icon: "fa-briefcase", desc: "Join our team" },
+];
+
+const helpfulLinks = [
+  { label: "Blog", href: "/blog" },
+  { label: "Case Studies", href: "/case-studies" },
+  { label: "About Us", href: "/about-us" },
+  { label: "Get a Quote", href: "/get-a-quote" },
+  { label: "Sitemap", href: "/sitemap" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+];
+---
+
+<Page
+  metaTitle="404 Not Found | Exyconn"
+  metaDescription="Sorry, the page you are looking for does not exist or has been moved. Explore Exyconn's AI automation, SaaS, and digital solutions."
+  metaKeywords="404, not found, page missing, Exyconn, error"
+  noindex={true}
+>
+  <main class="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 overflow-hidden">
+    <!-- Hero Section with Lottie -->
+    <section class="relative py-16 md:py-20 px-6">
+      <!-- Decorative gradient blobs -->
+      <div
+        class="pointer-events-none absolute -top-20 -left-20 w-[28rem] h-[28rem] bg-gradient-to-br from-blue-300/30 to-purple-300/20 rounded-full blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+      <div
+        class="pointer-events-none absolute -bottom-32 -right-20 w-[28rem] h-[28rem] bg-gradient-to-br from-pink-300/30 to-amber-300/20 rounded-full blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div class="relative max-w-5xl mx-auto text-center">
+        <!-- Lottie illustration -->
+        <div
+          id="lottie-404"
+          class="mx-auto w-[280px] sm:w-[360px] md:w-[440px] h-[260px] sm:h-[320px] md:h-[380px]"
+          role="img"
+          aria-label="Animated 404 illustration"
+          data-anime="zoom-in"
+        >
+        </div>
+
+        <!-- Animated 404 number (fallback / accent) -->
+        <div class="relative inline-block -mt-2 mb-6" data-anime="fade-up" data-anime-delay="150">
+          <h1
+            class="relative text-7xl md:text-8xl font-black leading-none bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 bg-clip-text text-transparent select-none"
+          >
+            404
+          </h1>
+        </div>
+
+        <!-- Error Message -->
+        <div class="max-w-lg mx-auto mb-10" data-anime="fade-up" data-anime-delay="250">
+          <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Oops! Page Not Found</h2>
+          <p class="text-lg text-slate-600 leading-relaxed">
+            The page you're looking for doesn't exist, has been moved, or is temporarily
+            unavailable. Don't worry, let's get you back on track.
+          </p>
+        </div>
+
+        <!-- Primary Actions -->
+        <div
+          class="flex flex-wrap justify-center gap-4 mb-16"
+          data-anime="fade-up"
+          data-anime-delay="350"
+        >
+          <a
+            href="/"
+            class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-full hover:shadow-xl hover:shadow-blue-500/25 transition-all duration-300"
+          >
+            <i class="fa-solid fa-house"></i>
+            Go to Homepage
+          </a>
+          <button
+            id="go-back-btn"
+            type="button"
+            class="inline-flex items-center gap-3 px-8 py-4 bg-white text-slate-700 font-bold rounded-full border-2 border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300"
+          >
+            <i class="fa-solid fa-arrow-left"></i>
+            Go Back
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Links Section -->
+    <section class="py-12 px-6 bg-white border-y border-slate-100">
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-10" data-anime="fade-up">
+          <span
+            class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 text-sm font-semibold px-4 py-2 rounded-full mb-4"
+          >
+            <i class="fa-solid fa-compass"></i>
+            Quick Navigation
+          </span>
+          <h3 class="text-2xl font-bold text-slate-900">Popular Destinations</h3>
+        </div>
+
+        <div
+          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+          data-anime-stagger="fade-up"
+          data-anime-step="80"
+        >
+          {
+            quickLinks.map((link) => (
+              <a
+                href={link.href}
+                class="group flex flex-col items-center p-6 bg-slate-50 rounded-2xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 border border-transparent hover:border-blue-100 transition-all duration-300"
+              >
+                <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all">
+                  <i class={`fa-solid ${link.icon} text-xl text-blue-600`} />
+                </div>
+                <span class="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors text-center">
+                  {link.label}
+                </span>
+                <span class="text-xs text-slate-500 mt-1 text-center hidden md:block">
+                  {link.desc}
+                </span>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Search & More Links -->
+    <section class="py-16 px-6">
+      <div class="max-w-4xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- Search Suggestion -->
+          <div
+            class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 text-white"
+            data-anime="slide-right"
+          >
+            <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-6">
+              <i class="fa-solid fa-magnifying-glass text-2xl"></i>
+            </div>
+            <h4 class="text-xl font-bold mb-3">Looking for something specific?</h4>
+            <p class="text-slate-300 mb-6 text-sm leading-relaxed">
+              Try browsing our sitemap or use the search feature to find exactly what you need.
+            </p>
+            <a
+              href="/sitemap"
+              class="inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-900 font-semibold rounded-full hover:shadow-lg transition-all"
+            >
+              <i class="fa-solid fa-sitemap"></i>
+              View Sitemap
+            </a>
+          </div>
+
+          <!-- More Links -->
+          <div
+            class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm"
+            data-anime="slide-left"
+          >
+            <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6">
+              <i class="fa-solid fa-link text-2xl text-blue-600"></i>
+            </div>
+            <h4 class="text-xl font-bold text-slate-900 mb-4">Other Helpful Links</h4>
+            <div class="grid grid-cols-2 gap-3">
+              {
+                helpfulLinks.map((link) => (
+                  <a
+                    href={link.href}
+                    class="flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors py-1"
+                  >
+                    <i class="fa-solid fa-chevron-right text-xs text-blue-400" />
+                    <span class="text-sm font-medium">{link.label}</span>
+                  </a>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact CTA -->
+    <section class="py-12 px-6 bg-gradient-to-r from-blue-600 to-purple-600">
+      <div class="max-w-4xl mx-auto text-center" data-anime="fade-up">
+        <h3 class="text-2xl font-bold text-white mb-3">Still can't find what you need?</h3>
+        <p class="text-blue-100 mb-6">
+          Our team is here to help. Reach out and we'll point you in the right direction.
+        </p>
+        <a
+          href="/contact"
+          class="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 font-bold rounded-full hover:shadow-xl transition-all"
+        >
+          <i class="fa-solid fa-envelope"></i>
+          Contact Support
+        </a>
+      </div>
+    </section>
+  </main>
+</Page>
+
+<!-- LottieFiles web component (loaded once for the 404 illustration) -->
+<script
+  is:inline
+  type="module"
+  src="https://unpkg.com/@lottiefiles/lottie-player@2.0.12/dist/lottie-player.js"></script>
+
+<script is:inline>
+  // Mount the Lottie player and wire the Go Back button.
+  (function () {
+    function mount() {
+      const host = document.getElementById("lottie-404");
+      if (host && !host.querySelector("lottie-player")) {
+        const player = document.createElement("lottie-player");
+        player.setAttribute("src", "https://assets10.lottiefiles.com/packages/lf20_kcsr6fcp.json");
+        player.setAttribute("background", "transparent");
+        player.setAttribute("speed", "1");
+        player.setAttribute("loop", "");
+        player.setAttribute("autoplay", "");
+        player.style.width = "100%";
+        player.style.height = "100%";
+        host.appendChild(player);
+      }
+      const back = document.getElementById("go-back-btn");
+      if (back) {
+        back.addEventListener("click", function () {
+          if (history.length > 1) history.back();
+          else window.location.href = "/";
+        });
+      }
+    }
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", mount);
+    } else {
+      mount();
+    }
+  })();
+</script>

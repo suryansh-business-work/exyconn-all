@@ -1,0 +1,39 @@
+---
+const {
+  size = "text-2xl",
+  className = "",
+  icons = [
+    { href: "https://twitter.com/", icon: "fa-brands fa-x-twitter", label: "Twitter" },
+    { href: "https://linkedin.com/", icon: "fa-brands fa-linkedin-in", label: "LinkedIn" },
+    { href: "https://facebook.com/", icon: "fa-brands fa-facebook-f", label: "Facebook" },
+    { href: "https://instagram.com/", icon: "fa-brands fa-instagram", label: "Instagram" },
+    { href: "https://youtube.com/", icon: "fa-brands fa-youtube", label: "YouTube" },
+  ],
+} = Astro.props;
+---
+
+<div
+  class={`w-full flex justify-center gap-3 py-5 px-2 rounded-lg bg-gray-100 border border-gray-200 shadow-sm ${className}`}
+>
+  {
+    icons.map(
+      (social: {
+        href: string | URL | null | undefined;
+        label: string | null | undefined;
+        icon: string | null | undefined;
+      }) => (
+        <a
+          href={social.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={social.label}
+          title={social.label}
+          class={`hover:text-indigo-600 transition-colors ${size} flex items-center`}
+          style="min-width:32px;"
+        >
+          <i class={social.icon} />
+        </a>
+      )
+    )
+  }
+</div>

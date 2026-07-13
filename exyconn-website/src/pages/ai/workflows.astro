@@ -1,0 +1,118 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+---
+
+<Page
+  metaTitle="AI Workflows for Modern Business | Exyconn"
+  metaDescription="Discover how AI-powered workflows can automate, optimize, and scale your business processes. Learn about use cases, benefits, and how Exyconn helps you achieve operational excellence with intelligent automation."
+  metaKeywords="AI workflows, business automation, process optimization, real-time analytics, seamless collaboration, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1521737711867-e3b97375f902?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1587&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="AI Workflows for Modern Business"
+    subtitle="Automate. Optimize. Scale."
+    description="Unlock the power of AI-driven workflows to streamline, automate, and elevate your business processes. From data collection to actionable insights, our solutions help you achieve operational excellence and drive growth."
+    image="https://images.unsplash.com/photo-1521737711867-e3b97375f902?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1587&q=80"
+    ctaText="Contact Us"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="What are AI Workflows?"
+    description='<span class="font-semibold text-cyan-700">AI Workflows</span> are orchestrated sequences of automated tasks, powered by artificial intelligence, that optimize and accelerate business operations. They connect data, people, and systems—enabling seamless automation, intelligent decision-making, and continuous improvement across your organization.'
+    iconClass="fa-solid fa-diagram-project text-6xl text-cyan-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Do AI Workflows Matter?"
+    items={[
+      {
+        icon: "fa-solid fa-bolt text-cyan-500 mt-1",
+        text: "Accelerate repetitive and manual processes with automation.",
+      },
+      {
+        icon: "fa-solid fa-brain text-cyan-500 mt-1",
+        text: "Enable smarter, data-driven decisions at every step.",
+      },
+      {
+        icon: "fa-solid fa-link text-cyan-500 mt-1",
+        text: "Integrate seamlessly with your existing tools and platforms.",
+      },
+      {
+        icon: "fa-solid fa-chart-line text-cyan-500 mt-1",
+        text: "Boost productivity, reduce errors, and lower operational costs.",
+      },
+      {
+        icon: "fa-solid fa-rocket text-cyan-500 mt-1",
+        text: "Scale effortlessly as your business grows and evolves.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-cyan-100 via-white to-indigo-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="How AI Workflows Transform Your Business"
+    columns={[
+      {
+        icon: "fa-solid fa-robot text-4xl text-cyan-600 mb-4",
+        heading: "End-to-End Automation",
+        text: "Automate entire processes—from data collection to reporting—minimizing manual intervention and delays.",
+      },
+      {
+        icon: "fa-solid fa-chart-pie text-4xl text-cyan-600 mb-4",
+        heading: "Real-Time Analytics",
+        text: "Gain instant insights and trigger actions based on live data, improving responsiveness and outcomes.",
+      },
+      {
+        icon: "fa-solid fa-people-arrows text-4xl text-cyan-600 mb-4",
+        heading: "Seamless Collaboration",
+        text: "Connect teams, departments, and systems for unified, efficient workflows and better communication.",
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="Frequently Asked Questions"
+    faqs={[
+      {
+        question: "What is the difference between a workflow and a process?",
+        answer:
+          "A workflow is a defined sequence of tasks (often automated) to achieve a specific outcome, while a process is a broader set of activities that may include multiple workflows.",
+      },
+      {
+        question: "Can AI workflows integrate with my existing software?",
+        answer:
+          "Yes, modern AI workflow platforms are designed to integrate with popular business tools, CRMs, ERPs, and cloud services.",
+      },
+      {
+        question: "How do I measure the ROI of AI workflows?",
+        answer:
+          "Track KPIs such as time saved, error reduction, cost savings, and business outcomes before and after implementation.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Business Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

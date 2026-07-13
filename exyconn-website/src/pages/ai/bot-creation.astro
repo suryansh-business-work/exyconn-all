@@ -1,0 +1,128 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+---
+
+<Page
+  metaTitle="AI Bot Creation | Conversational Bots | Exyconn"
+  metaDescription="Build custom AI bots for chat, support, automation, and business workflows with Exyconn. Deploy conversational, task, and workflow bots tailored to your needs."
+  metaKeywords="AI bot creation, chatbots, workflow bots, conversational AI, automation, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="AI Bot Creation"
+    subtitle="Conversational. Automated. Effective."
+    description="Accelerate your business with custom AI bots for chat, support, and workflow automation. Exyconn designs and deploys bots that engage users, automate tasks, and streamline operations across channels."
+    image="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
+    ctaText="Start Your Bot Project"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="What is AI Bot Creation?"
+    description='<span class="font-semibold text-indigo-700">AI Bot Creation</span> is the process of designing, building, and deploying intelligent bots that can converse, automate tasks, and handle workflows across chat, web, and business platforms. These bots use AI to understand, respond, and act on user input or business triggers.'
+    iconClass="fa-solid fa-robot text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Invest in AI Bots?"
+    items={[
+      {
+        icon: "fa-solid fa-comments text-indigo-500 mt-1",
+        text: "24/7 conversational support for customers and employees.",
+      },
+      {
+        icon: "fa-solid fa-bolt text-indigo-500 mt-1",
+        text: "Automates repetitive tasks and business workflows.",
+      },
+      {
+        icon: "fa-solid fa-layer-group text-indigo-500 mt-1",
+        text: "Integrates with your apps, CRMs, and APIs.",
+      },
+      {
+        icon: "fa-solid fa-chart-line text-indigo-500 mt-1",
+        text: "Improves efficiency and reduces operational costs.",
+      },
+      {
+        icon: "fa-solid fa-user-check text-indigo-500 mt-1",
+        text: "Delivers consistent, accurate responses every time.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="Types of Bots We Build"
+    columns={[
+      {
+        icon: "fa-solid fa-comments text-4xl text-indigo-600 mb-4",
+        heading: "Conversational Bots",
+        text: "Engage users in natural language via chat, web, or messaging apps.",
+      },
+      {
+        icon: "fa-solid fa-diagram-project text-4xl text-indigo-600 mb-4",
+        heading: "Workflow Bots",
+        text: "Automate multi-step business processes and approvals.",
+      },
+      {
+        icon: "fa-solid fa-headset text-4xl text-indigo-600 mb-4",
+        heading: "Support Bots",
+        text: "Provide instant answers, ticketing, and escalation for support teams.",
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="AI Bot Creation FAQs"
+    faqs={[
+      {
+        question: "What platforms can Exyconn deploy bots on?",
+        answer:
+          "We build bots for web, chat (WhatsApp, Slack, Teams), mobile apps, and integrate with CRMs, ERPs, and custom APIs.",
+      },
+      {
+        question: "Can bots handle complex workflows?",
+        answer:
+          "Yes, our bots can automate multi-step workflows, approvals, and integrate with your business logic.",
+      },
+      {
+        question: "How do bots understand user input?",
+        answer:
+          "We use advanced NLP and AI models to interpret, classify, and respond to user queries in natural language.",
+      },
+      {
+        question: "Are bots secure and compliant?",
+        answer:
+          "Yes, we follow best practices for data privacy, security, and compliance in all bot deployments.",
+      },
+      {
+        question: "How do I get started with AI bot creation?",
+        answer:
+          "Contact Exyconn for a free consultation. We’ll assess your needs, use cases, and recommend the best bot solution for your business.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Business Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

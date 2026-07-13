@@ -1,0 +1,26 @@
+query ListClients {
+  listClients {
+    id
+    name
+    email
+    phone
+    company
+    status
+  }
+}
+
+mutation CreateClient($input: ClientInput!) {
+  createClient(input: $input) {
+    id
+  }
+}
+
+mutation UpdateClient($id: ID!, $input: ClientInput!) {
+  updateClient(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteClient($id: ID!) {
+  deleteClient(id: $id)
+}

@@ -1,0 +1,54 @@
+---
+const {
+  title = "Lorem Ipsum Dolor Sit Amet",
+  items = [
+    {
+      icon: "fa-solid fa-bolt text-indigo-500 mt-1",
+      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    },
+    {
+      icon: "fa-solid fa-arrows-rotate text-indigo-500 mt-1",
+      text: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    },
+    {
+      icon: "fa-solid fa-money-bill-trend-up text-indigo-500 mt-1",
+      text: "Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
+    },
+    {
+      icon: "fa-solid fa-gauge-high text-indigo-500 mt-1",
+      text: "Duis aute irure dolor in reprehenderit in voluptate velit esse.",
+    },
+    {
+      icon: "fa-solid fa-lightbulb text-indigo-500 mt-1",
+      text: "Excepteur sint occaecat cupidatat non proident, sunt in culpa.",
+    },
+  ],
+} = Astro.props;
+---
+
+<section class="py-20 lg:py-28 bg-gradient-to-b from-gray-50 to-white">
+  <div class="max-w-6xl mx-auto px-6 lg:px-8">
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 lg:p-12">
+      <!-- Title -->
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-8 text-center">
+        {title}
+      </h2>
+
+      <!-- Items Grid -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {
+          items.map((item: { icon: string | null | undefined; text: unknown }, _idx: number) => (
+            <div class="flex items-start gap-4 p-5 bg-gray-50 rounded-2xl hover:bg-blue-50 hover:border-blue-100 border border-gray-100 transition-all duration-300">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shrink-0">
+                <i
+                  class={`${item.icon?.toString().split(" ")[0]} ${item.icon?.toString().split(" ")[1] || ""} text-white text-sm`}
+                />
+              </div>
+              <p class="text-gray-700 leading-relaxed text-sm font-medium" set:html={item.text} />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>

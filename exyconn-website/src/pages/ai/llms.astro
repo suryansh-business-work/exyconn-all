@@ -1,0 +1,175 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+import DynamicHorizontalTab from "../../components/dynamic-components/DynamicHorizontalTab.astro";
+---
+
+<Page
+  metaTitle="Large Language Models (LLMs) | AI Text | Exyconn"
+  metaDescription="Unlock the power of Large Language Models (LLMs) for your business. Exyconn delivers advanced AI text generation, summarization, chat, and automation solutions using state-of-the-art LLMs."
+  metaKeywords="LLM, Large Language Model, AI text, GPT, Claude, Gemini, text generation, summarization, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="Large Language Models (LLMs)"
+    subtitle="AI Text Intelligence for Business"
+    description="Transform your business with advanced Large Language Models. Exyconn helps you leverage LLMs for chatbots, content generation, summarization, automation, and more—securely and at scale."
+    image="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
+    ctaText="Explore LLM Solutions"
+    ctaHref="/contact"
+  />
+
+  <DynamicTwoColumnWithIcon
+    title="What are Large Language Models?"
+    description='<span class="font-semibold text-indigo-700">Large Language Models (LLMs)</span> are advanced AI models trained on massive text datasets. They can understand, generate, summarize, and interact in natural language—powering chatbots, content automation, search, and more.'
+    iconClass="fa-solid fa-brain text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Use LLMs for Your Business?"
+    items={[
+      {
+        icon: "fa-solid fa-comments text-indigo-500 mt-1",
+        text: "Enable natural, human-like chatbots and virtual assistants.",
+      },
+      {
+        icon: "fa-solid fa-file-lines text-indigo-500 mt-1",
+        text: "Automate content creation, summarization, and translation.",
+      },
+      {
+        icon: "fa-solid fa-magnifying-glass text-indigo-500 mt-1",
+        text: "Enhance search, knowledge management, and Q&A systems.",
+      },
+      {
+        icon: "fa-solid fa-bolt text-indigo-500 mt-1",
+        text: "Accelerate document processing and business automation.",
+      },
+      {
+        icon: "fa-solid fa-lock text-indigo-500 mt-1",
+        text: "Deploy securely—on cloud, private, or on-premises infrastructure.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="LLM Use Cases"
+    columns={[
+      {
+        icon: "fa-solid fa-robot text-4xl text-indigo-600 mb-4",
+        heading: "Conversational AI",
+        text: "Build advanced chatbots, virtual agents, and support assistants.",
+      },
+      {
+        icon: "fa-solid fa-file-pen text-4xl text-indigo-600 mb-4",
+        heading: "Content Automation",
+        text: "Generate, summarize, and translate text for marketing, support, and more.",
+      },
+      {
+        icon: "fa-solid fa-database text-4xl text-indigo-600 mb-4",
+        heading: "Knowledge & Search",
+        text: "Power semantic search, document Q&A, and knowledge management.",
+      },
+    ]}
+  />
+
+  <DynamicHorizontalTab
+    heading="Major Large Language Models (LLMs)"
+    tabs={[
+      {
+        label: "OpenAI (ChatGPT)",
+        description: "Popular, versatile, and widely adopted",
+        content: `<div>
+        <img src="https://static.cdnlogo.com/logos/o/61/openai.svg" alt="OpenAI ChatGPT" class="h-10 mb-4" />
+        <p><strong>OpenAI's ChatGPT</strong> is a leading LLM known for its conversational abilities, content generation, summarization, and code assistance. It powers a wide range of business and consumer applications, offering robust APIs and continuous improvements.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Excellent at natural language understanding and generation</li>
+          <li>Supports plugins, fine-tuning, and API integration</li>
+          <li>Used for chatbots, automation, search, and more</li>
+        </ul>
+      </div>`,
+      },
+      {
+        label: "Gemini",
+        description: "Google's advanced multimodal LLM",
+        content: `<div>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png" alt="Google Gemini" class="h-10 mb-4" />
+        <p><strong>Gemini</strong> is Google's next-generation LLM, designed for text, image, and code tasks. It integrates deeply with Google Cloud and Workspace, enabling advanced AI features for enterprise and productivity solutions.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Handles text, images, and code in a unified model</li>
+          <li>Integrates with Google products and APIs</li>
+          <li>Ideal for business automation and productivity</li>
+        </ul>
+      </div>`,
+      },
+      {
+        label: "Claude",
+        description: "Anthropic's safe and ethical LLM",
+        content: `<div>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg" alt="Claude AI" class="h-10 mb-4" />
+        <p><strong>Claude</strong> by Anthropic focuses on safety, transparency, and ethical AI. It is used for enterprise chat, summarization, and automation, with a strong emphasis on responsible AI deployment.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Prioritizes safety and transparency</li>
+          <li>Great for enterprise chat and document workflows</li>
+          <li>Flexible deployment and compliance options</li>
+        </ul>
+      </div>`,
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="LLM FAQs"
+    faqs={[
+      {
+        question: "What LLMs does Exyconn support?",
+        answer:
+          "We support leading LLMs including OpenAI GPT, Google Gemini, Anthropic Claude, and can deploy open-source models as needed.",
+      },
+      {
+        question: "Can LLMs be fine-tuned for my business?",
+        answer:
+          "Yes, we offer custom fine-tuning and prompt engineering to adapt LLMs for your industry, data, and workflows.",
+      },
+      {
+        question: "Is my data secure when using LLMs?",
+        answer:
+          "We offer secure deployment options, including private cloud and on-premises, to keep your data safe and compliant.",
+      },
+      {
+        question: "What are common LLM use cases?",
+        answer:
+          "LLMs are used for chatbots, content generation, summarization, translation, semantic search, document Q&A, and more.",
+      },
+      {
+        question: "How do I get started with LLMs for my business?",
+        answer:
+          "Contact Exyconn for a free consultation. We’ll assess your needs and recommend the best LLM solution for your goals.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Business Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

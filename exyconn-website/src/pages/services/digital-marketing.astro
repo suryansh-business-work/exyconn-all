@@ -1,0 +1,373 @@
+---
+import Page from "../../layouts/Page.astro";
+
+const services = [
+  {
+    id: "seo",
+    title: "SEO (Search Engine Optimization)",
+    icon: "fa-magnifying-glass-chart",
+    color: "from-emerald-500 to-green-500",
+    description:
+      "Rank higher on Google and capture qualified organic demand with technical SEO, on-page optimization, content strategy, and authoritative link building.",
+    features: [
+      "Technical SEO audits & Core Web Vitals",
+      "On-page optimization & schema markup",
+      "Keyword research & content gap analysis",
+      "Link building & digital PR",
+      "Local SEO & Google Business Profile",
+      "International & multilingual SEO",
+    ],
+  },
+  {
+    id: "ppc",
+    title: "Performance Marketing & PPC",
+    icon: "fa-bullseye",
+    color: "from-blue-500 to-indigo-500",
+    description:
+      "Full-funnel paid media across Google, Meta, LinkedIn, YouTube, and programmatic — engineered for ROAS, not vanity metrics.",
+    features: [
+      "Google Ads (Search, Performance Max, Shopping)",
+      "Meta Ads (Facebook & Instagram)",
+      "LinkedIn Ads for B2B",
+      "YouTube & video advertising",
+      "Programmatic & display retargeting",
+      "Bid management & budget pacing",
+    ],
+  },
+  {
+    id: "social",
+    title: "Social Media Marketing",
+    icon: "fa-hashtag",
+    color: "from-pink-500 to-rose-500",
+    description:
+      "Build a brand people remember. Strategy, content production, community management, and paid social on every platform that matters.",
+    features: [
+      "Channel strategy & content calendars",
+      "Reels, shorts & short-form video",
+      "Community management & engagement",
+      "Paid social campaigns",
+      "Social listening & reputation",
+      "Platform analytics & growth reports",
+    ],
+  },
+  {
+    id: "content",
+    title: "Content Marketing & Copywriting",
+    icon: "fa-pen-nib",
+    color: "from-amber-500 to-orange-500",
+    description:
+      "SEO-led blogs, conversion-focused landing pages, whitepapers, case studies, and video scripts that move people from awareness to revenue.",
+    features: [
+      "Long-form blog & article writing",
+      "Landing page & sales copy",
+      "Whitepapers, eBooks & case studies",
+      "Video scripts & YouTube content",
+      "Editorial calendars & topic clusters",
+      "AI-assisted content workflows",
+    ],
+  },
+  {
+    id: "email",
+    title: "Email & Marketing Automation",
+    icon: "fa-envelope-open-text",
+    color: "from-cyan-500 to-sky-500",
+    description:
+      "Lifecycle email, drip sequences, CRM workflows, and lead nurturing using HubSpot, Mailchimp, Klaviyo, ActiveCampaign, and custom stacks.",
+    features: [
+      "Welcome & onboarding flows",
+      "Lead nurture & drip campaigns",
+      "Cart abandonment & re-engagement",
+      "Newsletter strategy & design",
+      "CRM workflows (HubSpot, Salesforce)",
+      "Deliverability & inbox placement",
+    ],
+  },
+  {
+    id: "branding",
+    title: "Branding & Creative Design",
+    icon: "fa-palette",
+    color: "from-fuchsia-500 to-purple-500",
+    description:
+      "Logo, brand identity, ad creatives, and motion graphics that stop the scroll and stay in memory.",
+    features: [
+      "Logo & visual identity systems",
+      "Brand guidelines & messaging",
+      "Static & video ad creatives",
+      "Motion graphics & animation",
+      "Pitch decks & sales collateral",
+      "Packaging & print design",
+    ],
+  },
+  {
+    id: "influencer",
+    title: "Influencer & Affiliate Marketing",
+    icon: "fa-user-group",
+    color: "from-violet-500 to-indigo-500",
+    description:
+      "Scale word-of-mouth with vetted creator partnerships, UGC campaigns, and performance-based affiliate programs.",
+    features: [
+      "Influencer discovery & vetting",
+      "Campaign briefs & contract management",
+      "UGC content production",
+      "Affiliate program setup & tracking",
+      "Creator relationship management",
+      "Performance & ROI reporting",
+    ],
+  },
+  {
+    id: "cro",
+    title: "Conversion Rate Optimization (CRO)",
+    icon: "fa-arrow-trend-up",
+    color: "from-teal-500 to-emerald-500",
+    description:
+      "Funnel audits, A/B testing, heatmaps, and UX improvements that turn existing traffic into more revenue.",
+    features: [
+      "Conversion funnel audits",
+      "A/B & multivariate testing",
+      "Heatmaps & session recordings",
+      "Landing page optimization",
+      "Checkout & form optimization",
+      "Personalization & segmentation",
+    ],
+  },
+  {
+    id: "analytics",
+    title: "Marketing Analytics & Reporting",
+    icon: "fa-chart-line",
+    color: "from-slate-600 to-slate-800",
+    description:
+      "GA4, GTM, server-side tracking, attribution modeling, and executive dashboards that turn data into clear decisions.",
+    features: [
+      "GA4 & GTM implementation",
+      "Server-side tracking & consent mode",
+      "Attribution modeling",
+      "Looker Studio & Power BI dashboards",
+      "Marketing mix & incrementality",
+      "Monthly performance reviews",
+    ],
+  },
+];
+---
+
+<Page
+  metaTitle="Digital Marketing Services | Exyconn"
+  metaDescription="Exyconn Digital Marketing — SEO, PPC, social, content, email, branding, influencer, CRO, and analytics services that grow brand, traffic, and revenue."
+  metaKeywords="digital marketing, SEO, PPC, performance marketing, social media, content marketing, email marketing, branding, CRO, marketing analytics, Exyconn"
+>
+  <main class="bg-white min-h-screen">
+    <!-- Hero -->
+    <section
+      class="relative py-28 px-6 bg-gradient-to-br from-pink-50 via-white to-amber-50 overflow-hidden"
+    >
+      <div
+        class="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-pink-200/40 to-rose-200/40 rounded-full blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-amber-200/40 to-orange-200/40 rounded-full blur-3xl"
+      >
+      </div>
+
+      <div class="relative z-10 max-w-5xl mx-auto text-center">
+        <span
+          class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-8 shadow-sm"
+        >
+          <i class="fa-solid fa-bullhorn text-pink-500"></i>
+          Exyconn Digital Marketing
+        </span>
+
+        <h1 class="text-5xl md:text-7xl font-bold text-gray-900 mb-8 tracking-tight leading-tight">
+          Grow brand, traffic
+          <span class="bg-gradient-to-r from-pink-600 to-amber-500 bg-clip-text text-transparent">
+            and revenue
+          </span>
+        </h1>
+
+        <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-10">
+          Full-funnel digital marketing services — SEO, paid media, social, content, email,
+          branding, CRO, and analytics — engineered to deliver measurable business outcomes.
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-8 py-4 rounded-full hover:bg-gray-800 transition shadow-xl"
+          >
+            <i class="fa-solid fa-rocket"></i> Talk to a strategist
+          </a>
+          <a
+            href="/get-a-quote"
+            class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-8 py-4 rounded-full hover:bg-gray-50 transition shadow-lg"
+          >
+            <i class="fa-solid fa-calculator"></i> Get a quote
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="py-12 px-6 bg-white border-y border-gray-100">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div>
+            <div
+              class="text-4xl font-bold bg-gradient-to-r from-pink-600 to-rose-500 bg-clip-text text-transparent mb-1"
+            >
+              9+
+            </div>
+            <p class="text-gray-500 text-sm">Marketing capabilities</p>
+          </div>
+          <div>
+            <div
+              class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent mb-1"
+            >
+              4×
+            </div>
+            <p class="text-gray-500 text-sm">Average ROAS lift</p>
+          </div>
+          <div>
+            <div
+              class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent mb-1"
+            >
+              60%
+            </div>
+            <p class="text-gray-500 text-sm">Organic growth in 6 mo.</p>
+          </div>
+          <div>
+            <div
+              class="text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent mb-1"
+            >
+              24/7
+            </div>
+            <p class="text-gray-500 text-sm">Campaign monitoring</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services grid -->
+    <section class="py-20 px-6 bg-gray-50">
+      <div class="max-w-6xl mx-auto">
+        <div class="mb-12 text-center">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            Every marketing service under one roof
+          </h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">
+            One integrated team across strategy, creative, paid, organic, and analytics — so your
+            funnel actually works end to end.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {
+            services.map((s) => (
+              <article
+                id={s.id}
+                class="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-xl hover:border-pink-100 transition-all duration-300 scroll-mt-24"
+              >
+                <div
+                  class={`w-14 h-14 bg-gradient-to-br ${s.color} rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}
+                >
+                  <i class={`fa-solid ${s.icon} text-white text-xl`} />
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">{s.title}</h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-4">{s.description}</p>
+                <ul class="space-y-2 mb-5">
+                  {s.features.map((f) => (
+                    <li class="flex items-start gap-2 text-sm text-gray-700">
+                      <i class="fa-solid fa-check text-emerald-500 mt-1 text-xs" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href="/contact"
+                  class="inline-flex items-center gap-2 text-pink-600 font-medium text-sm hover:gap-3 transition-all"
+                >
+                  Discuss this service
+                  <i class="fa-solid fa-arrow-right text-xs" />
+                </a>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Process -->
+    <section class="py-20 px-6 bg-white">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">How we work</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">
+            A repeatable process that compounds results month over month.
+          </p>
+        </div>
+        <div class="grid md:grid-cols-4 gap-6">
+          {
+            [
+              {
+                step: "01",
+                title: "Audit & Strategy",
+                desc: "Deep audit of your funnel, competitors, and market. Roadmap with clear KPIs.",
+                icon: "fa-compass",
+              },
+              {
+                step: "02",
+                title: "Build & Launch",
+                desc: "Campaigns, creatives, content, and tracking implemented in weeks, not months.",
+                icon: "fa-rocket",
+              },
+              {
+                step: "03",
+                title: "Optimize",
+                desc: "Continuous testing, bid tuning, and creative refresh for compounding gains.",
+                icon: "fa-arrows-rotate",
+              },
+              {
+                step: "04",
+                title: "Report & Scale",
+                desc: "Transparent dashboards, monthly reviews, and a plan to scale what works.",
+                icon: "fa-chart-line",
+              },
+            ].map((p) => (
+              <div class="relative bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                <span class="absolute -top-3 -left-3 w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-amber-500 text-white text-sm font-bold flex items-center justify-center shadow-lg">
+                  {p.step}
+                </span>
+                <i class={`fa-solid ${p.icon} text-2xl text-pink-600 mb-3`} />
+                <h3 class="text-lg font-bold text-gray-900 mb-2">{p.title}</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">{p.desc}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-20 px-6 bg-gradient-to-br from-pink-600 to-amber-500">
+      <div class="max-w-4xl mx-auto text-center text-white">
+        <h2 class="text-4xl font-bold mb-6">Ready to grow with Exyconn?</h2>
+        <p class="text-lg text-white/90 mb-10 max-w-2xl mx-auto">
+          Tell us your goals — we'll come back with a custom marketing plan and a clear roadmap to
+          hit them.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 bg-white text-pink-600 font-semibold px-8 py-4 rounded-full hover:bg-gray-50 transition shadow-xl"
+          >
+            <i class="fa-solid fa-comments"></i> Book a free consultation
+          </a>
+          <a
+            href="/get-a-quote"
+            class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/40 text-white font-semibold px-8 py-4 rounded-full hover:bg-white/30 transition"
+          >
+            <i class="fa-solid fa-calculator"></i> Get a quote
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</Page>

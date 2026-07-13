@@ -1,0 +1,155 @@
+query ListLeaveRequests {
+  listLeaveRequests {
+    id
+    employeeId
+    type
+    fromDate
+    toDate
+    reason
+    status
+  }
+}
+
+mutation CreateLeaveRequest($input: LeaveRequestInput!) {
+  createLeaveRequest(input: $input) {
+    id
+  }
+}
+
+mutation UpdateLeaveRequest($id: ID!, $input: LeaveRequestInput!) {
+  updateLeaveRequest(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteLeaveRequest($id: ID!) {
+  deleteLeaveRequest(id: $id)
+}
+
+fragment LeaveFields on LeaveRequest {
+  id
+  employeeId
+  type
+  fromDate
+  toDate
+  reason
+  status
+}
+
+fragment AttendanceFields on Attendance {
+  id
+  employeeId
+  date
+  status
+  note
+}
+
+query MyLeaveRequests {
+  myLeaveRequests {
+    ...LeaveFields
+  }
+}
+
+mutation ApplyLeave($input: ApplyLeaveInput!) {
+  applyLeave(input: $input) {
+    id
+  }
+}
+
+query MyAttendance {
+  myAttendance {
+    ...AttendanceFields
+  }
+}
+
+mutation MarkAttendance($input: MarkAttendanceInput!) {
+  markAttendance(input: $input) {
+    id
+  }
+}
+
+query ListAttendance {
+  listAttendance {
+    ...AttendanceFields
+  }
+}
+
+query LeaveRequestsByEmployee($employeeId: ID!) {
+  leaveRequestsByEmployee(employeeId: $employeeId) {
+    ...LeaveFields
+  }
+}
+
+query AttendanceByEmployee($employeeId: ID!) {
+  attendanceByEmployee(employeeId: $employeeId) {
+    ...AttendanceFields
+  }
+}
+
+mutation SetLeaveStatus($id: ID!, $status: LeaveStatus!) {
+  setLeaveStatus(id: $id, status: $status) {
+    id
+    status
+  }
+}
+
+query HrDashboard {
+  hrDashboard {
+    totalEmployees
+    activeEmployees
+    onLeave
+    headcount {
+      label
+      count
+    }
+  }
+}
+
+query ListDepartments {
+  listDepartments {
+    id
+    name
+    description
+  }
+}
+
+mutation CreateDepartment($input: DepartmentInput!) {
+  createDepartment(input: $input) {
+    id
+  }
+}
+
+mutation UpdateDepartment($id: ID!, $input: DepartmentInput!) {
+  updateDepartment(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteDepartment($id: ID!) {
+  deleteDepartment(id: $id)
+}
+
+query ListPositions {
+  listPositions {
+    id
+    name
+    department
+    description
+  }
+}
+
+mutation CreatePosition($input: PositionInput!) {
+  createPosition(input: $input) {
+    id
+  }
+}
+
+mutation UpdatePosition($id: ID!, $input: PositionInput!) {
+  updatePosition(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeletePosition($id: ID!) {
+  deletePosition(id: $id)
+}

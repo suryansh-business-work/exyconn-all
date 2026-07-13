@@ -1,0 +1,128 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+---
+
+<Page
+  metaTitle="MCP Server | Model Context Protocol | Exyconn"
+  metaDescription="Explore Exyconn's MCP Server: a Model Context Protocol platform for orchestrating AI agents, managing multi-channel workflows, and automating business processes with context-aware intelligence."
+  metaKeywords="MCP server, Model Context Protocol, AI orchestration, workflow automation, context-aware AI, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="MCP Server: Model Context Protocol for AI Orchestration"
+    subtitle="Context. Orchestrate. Automate."
+    description="Leverage Exyconn's MCP Server to orchestrate AI agents and automate business processes using Model Context Protocol. Achieve seamless, context-aware automation across channels and systems."
+    image="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
+    ctaText="Request a Demo"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="What is MCP Server?"
+    description='<span class="font-semibold text-indigo-700">MCP Server</span> (Model Context Protocol Server) is a platform that manages and orchestrates AI agents and business workflows using context-aware protocols. It enables dynamic, multi-step automation by maintaining context across models, channels, and user interactions.'
+    iconClass="fa-solid fa-server text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Use Model Context Protocol?"
+    items={[
+      {
+        icon: "fa-solid fa-network-wired text-indigo-500 mt-1",
+        text: "Maintains context across multi-step, multi-agent workflows.",
+      },
+      {
+        icon: "fa-solid fa-robot text-indigo-500 mt-1",
+        text: "Orchestrates AI agents and models for complex business logic.",
+      },
+      {
+        icon: "fa-solid fa-plug text-indigo-500 mt-1",
+        text: "Integrates with APIs, databases, and third-party systems.",
+      },
+      {
+        icon: "fa-solid fa-chart-line text-indigo-500 mt-1",
+        text: "Enables real-time monitoring and optimization of process flows.",
+      },
+      {
+        icon: "fa-solid fa-shield-halved text-indigo-500 mt-1",
+        text: "Ensures secure, auditable, and compliant automation.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="How MCP Server Helps Your Business"
+    columns={[
+      {
+        icon: "fa-solid fa-diagram-project text-4xl text-indigo-600 mb-4",
+        heading: "Context-Aware Orchestration",
+        text: "Keeps track of user, process, and data context across all steps and agents.",
+      },
+      {
+        icon: "fa-solid fa-bolt text-4xl text-indigo-600 mb-4",
+        heading: "AI Agent Management",
+        text: "Deploy, coordinate, and monitor multiple AI models and agents in real time.",
+      },
+      {
+        icon: "fa-solid fa-plug-circle-check text-4xl text-indigo-600 mb-4",
+        heading: "Seamless Integration",
+        text: "Connects with your existing tools, APIs, and cloud services for unified automation.",
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="MCP Server FAQs"
+    faqs={[
+      {
+        question: "What is the Model Context Protocol (MCP)?",
+        answer:
+          "MCP is a protocol for managing and maintaining context across AI models, agents, and workflows, enabling seamless automation and intelligent orchestration.",
+      },
+      {
+        question: "How does MCP Server orchestrate AI agents?",
+        answer:
+          "MCP Server coordinates multiple AI agents and models, passing context and data between them to automate complex business processes.",
+      },
+      {
+        question: "Can MCP Server integrate with my existing systems?",
+        answer:
+          "Yes, MCP Server provides APIs and connectors for integration with CRMs, ERPs, databases, and cloud services.",
+      },
+      {
+        question: "Is MCP Server secure and compliant?",
+        answer:
+          "Yes, it includes robust security, access controls, and audit logs to help meet compliance requirements.",
+      },
+      {
+        question: "How do I get started with MCP Server?",
+        answer:
+          "Begin by mapping your business processes, identifying integration points, and working with Exyconn to design and deploy your MCP Server solution.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Business Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

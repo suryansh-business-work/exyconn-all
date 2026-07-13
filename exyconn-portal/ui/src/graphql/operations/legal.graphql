@@ -1,0 +1,73 @@
+query ListContracts {
+  listContracts {
+    id
+    title
+    party
+    type
+    effectiveDate
+    expiryDate
+    status
+    sentAt
+    signedBy
+    signedAt
+  }
+}
+
+mutation CreateContract($input: ContractInput!) {
+  createContract(input: $input) {
+    id
+  }
+}
+
+mutation UpdateContract($id: ID!, $input: ContractInput!) {
+  updateContract(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteContract($id: ID!) {
+  deleteContract(id: $id)
+}
+
+mutation SendContract($id: ID!, $email: String!, $message: String) {
+  sendContract(id: $id, email: $email, message: $message) {
+    id
+    sentAt
+  }
+}
+
+mutation SignContract($id: ID!, $signedBy: String!) {
+  signContract(id: $id, signedBy: $signedBy) {
+    id
+    signedBy
+    signedAt
+    status
+  }
+}
+
+query ListLegalDocuments {
+  listLegalDocuments {
+    id
+    title
+    category
+    owner
+    fileUrl
+    status
+  }
+}
+
+mutation CreateLegalDocument($input: LegalDocumentInput!) {
+  createLegalDocument(input: $input) {
+    id
+  }
+}
+
+mutation UpdateLegalDocument($id: ID!, $input: LegalDocumentInput!) {
+  updateLegalDocument(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteLegalDocument($id: ID!) {
+  deleteLegalDocument(id: $id)
+}

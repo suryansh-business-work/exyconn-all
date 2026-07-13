@@ -1,0 +1,468 @@
+---
+/**
+ * Global Search Modal
+ * - Opens via header search button, floating shortcut hint, or Ctrl/Cmd+K
+ * - Fetches /api/search-index.json (cached in sessionStorage)
+ * - Substring + keyword scoring, keyboard nav (↑/↓ + Enter), Esc to close
+ */
+---
+
+<div
+  id="global-search-overlay"
+  class="fixed inset-0 z-9999 hidden items-start justify-center bg-slate-900/60 backdrop-blur-sm px-4 pt-[8vh]"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="global-search-label"
+  aria-hidden="true"
+>
+  <div
+    id="global-search-panel"
+    class="w-full max-w-5xl bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 overflow-hidden"
+  >
+    <!-- Input -->
+    <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
+      <i class="fa-solid fa-magnifying-glass text-slate-400 text-lg shrink-0" aria-hidden="true"
+      ></i>
+      <label for="global-search-input" class="sr-only" id="global-search-label">
+        Search the Exyconn website
+      </label>
+      <input
+        id="global-search-input"
+        type="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Search pages, services, AI, blog…"
+        class="gs-input flex-1 bg-transparent border-0 outline-none text-slate-900 placeholder-slate-400 text-base px-3 py-2"
+        aria-controls="global-search-results"
+        aria-expanded="false"
+        aria-activedescendant=""
+      />
+      <kbd
+        class="hidden sm:inline-flex items-center px-2 py-1 text-[11px] font-semibold text-slate-500 bg-slate-100 rounded border border-slate-200"
+      >
+        ESC
+      </kbd>
+      <button
+        type="button"
+        id="global-search-close"
+        class="text-slate-400 hover:text-slate-600 transition-colors"
+        aria-label="Close search"
+      >
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Results -->
+    <div
+      id="global-search-results"
+      class="max-h-[60vh] overflow-y-auto py-2"
+      role="listbox"
+      aria-label="Search results"
+    >
+      <div id="global-search-empty" class="px-5 py-10 text-center text-slate-400 text-sm">
+        <i class="fa-solid fa-keyboard text-2xl mb-3 block"></i>
+        Start typing to search across the website…
+      </div>
+      <div
+        id="global-search-noresults"
+        class="px-5 py-10 text-center text-slate-400 text-sm hidden"
+      >
+        <i class="fa-regular fa-face-frown text-2xl mb-3 block"></i>
+        No results. Try different keywords.
+      </div>
+      <ul id="global-search-list" class="hidden"></ul>
+    </div>
+
+    <!-- Footer hints -->
+    <div
+      class="flex items-center justify-between px-5 py-2.5 border-t border-slate-100 bg-slate-50 text-[11px] text-slate-500"
+    >
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline-flex items-center gap-1">
+          <kbd class="px-1.5 py-0.5 bg-white rounded border border-slate-200">↑</kbd>
+          <kbd class="px-1.5 py-0.5 bg-white rounded border border-slate-200">↓</kbd>
+          navigate
+        </span>
+        <span class="inline-flex items-center gap-1">
+          <kbd class="px-1.5 py-0.5 bg-white rounded border border-slate-200">↵</kbd>
+          open
+        </span>
+      </div>
+      <span class="hidden sm:inline">Powered by Exyconn</span>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  #global-search-overlay {
+    display: none;
+  }
+  #global-search-overlay.is-open {
+    display: flex;
+  }
+  /* Reset default browser styling on type="search" (rounded pill in WebKit, clear icon, etc.) */
+  .gs-input {
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    margin: 0;
+    width: 100%;
+    min-width: 0;
+  }
+  .gs-input::-webkit-search-decoration,
+  .gs-input::-webkit-search-cancel-button,
+  .gs-input::-webkit-search-results-button,
+  .gs-input::-webkit-search-results-decoration {
+    display: none;
+  }
+  #global-search-panel {
+    transform: translateY(-8px) scale(0.98);
+    opacity: 0;
+    transition:
+      transform 180ms ease-out,
+      opacity 180ms ease-out;
+  }
+  #global-search-overlay.is-open #global-search-panel {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  .gs-result {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    text-decoration: none;
+    color: inherit;
+  }
+  .gs-result:hover,
+  .gs-result.is-active {
+    background: #f1f5f9;
+    border-left-color: #6366f1;
+  }
+  .gs-result .gs-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #eef2ff, #faf5ff);
+    color: #6366f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .gs-title {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 14px;
+  }
+  .gs-desc {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  .gs-cat {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #6366f1;
+    background: #eef2ff;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  mark.gs-hl {
+    background: #fef08a;
+    color: inherit;
+    padding: 0 1px;
+    border-radius: 2px;
+  }
+  #global-search-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  #global-search-list li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .gs-result .gs-meta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .gs-result .gs-title,
+  .gs-result .gs-desc {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  type Item = { t: string; u: string; d: string; c: string; k: string };
+
+  const overlay = document.getElementById("global-search-overlay");
+  const input = document.getElementById("global-search-input") as HTMLInputElement | null;
+  const closeBtn = document.getElementById("global-search-close");
+  const list = document.getElementById("global-search-list") as HTMLUListElement | null;
+  const empty = document.getElementById("global-search-empty");
+  const noresults = document.getElementById("global-search-noresults");
+
+  if (overlay && input && list && empty && noresults && closeBtn) {
+    let items: Item[] = [];
+    let loaded = false;
+    let activeIndex = -1;
+    let visible: Item[] = [];
+
+    const CAT_ICONS: Record<string, string> = {
+      General: "fa-house",
+      AI: "fa-robot",
+      Services: "fa-cogs",
+      "Case Studies": "fa-folder-open",
+      Company: "fa-building",
+      Products: "fa-cube",
+      Tools: "fa-wrench",
+    };
+
+    async function loadIndex(): Promise<void> {
+      if (loaded) return;
+      const cached = sessionStorage.getItem("exyconn:search-index");
+      if (cached) {
+        try {
+          items = JSON.parse(cached);
+          loaded = true;
+          return;
+        } catch {
+          /* fall-through */
+        }
+      }
+      try {
+        const res = await fetch("/api/search-index.json");
+        const data = await res.json();
+        items = data.items || [];
+        loaded = true;
+        try {
+          sessionStorage.setItem("exyconn:search-index", JSON.stringify(items));
+        } catch {
+          /* quota */
+        }
+      } catch (err) {
+        console.error("[search] failed to load index", err);
+      }
+    }
+
+    function escapeHtml(s: string): string {
+      return s.replace(
+        /[&<>"']/g,
+        (c) =>
+          ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string
+      );
+    }
+
+    function highlight(text: string, q: string): string {
+      const safe = escapeHtml(text);
+      if (!q) return safe;
+      const re = new RegExp("(" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig");
+      return safe.replace(re, '<mark class="gs-hl">$1</mark>');
+    }
+
+    function score(it: Item, q: string): number {
+      const ql = q.toLowerCase();
+      const t = it.t.toLowerCase();
+      const d = it.d.toLowerCase();
+      const k = (it.k || "").toLowerCase();
+      let s = 0;
+      if (t === ql) s += 100;
+      if (t.startsWith(ql)) s += 50;
+      if (t.includes(ql)) s += 25;
+      if (k.includes(ql)) s += 15;
+      if (d.includes(ql)) s += 8;
+      // Token-level partial matches
+      const tokens = ql.split(/\s+/).filter(Boolean);
+      for (const tok of tokens) {
+        if (t.includes(tok)) s += 4;
+        if (k.includes(tok)) s += 3;
+        if (d.includes(tok)) s += 1;
+      }
+      return s;
+    }
+
+    function render(q: string): void {
+      const trimmed = q.trim();
+      if (!trimmed) {
+        empty.classList.remove("hidden");
+        noresults.classList.add("hidden");
+        list.classList.add("hidden");
+        list.innerHTML = "";
+        visible = [];
+        activeIndex = -1;
+        input.setAttribute("aria-expanded", "false");
+        return;
+      }
+      empty.classList.add("hidden");
+
+      const ranked = items
+        .map((it) => ({ it, s: score(it, trimmed) }))
+        .filter((x) => x.s > 0)
+        .sort((a, b) => b.s - a.s)
+        .slice(0, 12)
+        .map((x) => x.it);
+
+      visible = ranked;
+
+      if (ranked.length === 0) {
+        noresults.classList.remove("hidden");
+        list.classList.add("hidden");
+        list.innerHTML = "";
+        input.setAttribute("aria-expanded", "false");
+        return;
+      }
+
+      noresults.classList.add("hidden");
+      list.classList.remove("hidden");
+      list.innerHTML = ranked
+        .map((it, i) => {
+          const icon = CAT_ICONS[it.c] || "fa-link";
+          return (
+            '<li role="option" id="gs-opt-' +
+            i +
+            '" aria-selected="false">' +
+            '<a class="gs-result" href="' +
+            escapeHtml(it.u) +
+            '" data-i="' +
+            i +
+            '">' +
+            '<span class="gs-icon"><i class="fa-solid ' +
+            icon +
+            ' text-xs"></i></span>' +
+            '<span class="gs-meta">' +
+            '<span class="gs-title">' +
+            highlight(it.t, trimmed) +
+            "</span>" +
+            '<span class="gs-desc">' +
+            highlight(it.d, trimmed) +
+            "</span>" +
+            "</span>" +
+            '<span class="gs-cat">' +
+            escapeHtml(it.c) +
+            "</span>" +
+            "</a></li>"
+          );
+        })
+        .join("");
+      activeIndex = 0;
+      updateActive();
+      input.setAttribute("aria-expanded", "true");
+    }
+
+    function updateActive(): void {
+      const opts = list.querySelectorAll<HTMLElement>("li");
+      opts.forEach((li, i) => {
+        const a = li.querySelector<HTMLAnchorElement>("a.gs-result");
+        const isActive = i === activeIndex;
+        li.setAttribute("aria-selected", isActive ? "true" : "false");
+        if (a) a.classList.toggle("is-active", isActive);
+        if (isActive) {
+          input.setAttribute("aria-activedescendant", "gs-opt-" + i);
+          a?.scrollIntoView({ block: "nearest" });
+        }
+      });
+    }
+
+    function open(): void {
+      overlay.classList.add("is-open");
+      overlay.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      void loadIndex().then(() => render(input.value));
+      requestAnimationFrame(() => input.focus());
+    }
+
+    function close(): void {
+      overlay.classList.remove("is-open");
+      overlay.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    // Triggers
+    document.addEventListener("click", (e) => {
+      const t = e.target as HTMLElement | null;
+      if (!t) return;
+      const trigger = t.closest<HTMLElement>("[data-search-open]");
+      if (trigger) {
+        e.preventDefault();
+        open();
+      }
+    });
+
+    closeBtn.addEventListener("click", close);
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) close();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      const isOpen = overlay.classList.contains("is-open");
+      // Cmd/Ctrl+K toggles
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        if (isOpen) close();
+        else open();
+        return;
+      }
+      // "/" opens (when not typing in another input)
+      if (
+        !isOpen &&
+        e.key === "/" &&
+        !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)
+      ) {
+        e.preventDefault();
+        open();
+        return;
+      }
+      if (!isOpen) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close();
+        return;
+      }
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (visible.length === 0) return;
+        activeIndex = (activeIndex + 1) % visible.length;
+        updateActive();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (visible.length === 0) return;
+        activeIndex = (activeIndex - 1 + visible.length) % visible.length;
+        updateActive();
+      } else if (e.key === "Enter") {
+        if (activeIndex >= 0 && visible[activeIndex]) {
+          e.preventDefault();
+          window.location.href = visible[activeIndex].u;
+        }
+      }
+    });
+
+    let debounce: number | undefined;
+    input.addEventListener("input", () => {
+      window.clearTimeout(debounce);
+      debounce = window.setTimeout(() => render(input.value), 80);
+    });
+
+    // Pre-warm index on idle
+    if ("requestIdleCallback" in window) {
+      (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(
+        loadIndex
+      );
+    } else {
+      setTimeout(loadIndex, 1500);
+    }
+  }
+</script>

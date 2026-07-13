@@ -1,0 +1,1 @@
+export { TechPage } from './TechPage';

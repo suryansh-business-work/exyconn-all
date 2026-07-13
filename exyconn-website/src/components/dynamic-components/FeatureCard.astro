@@ -1,0 +1,77 @@
+---
+interface Props {
+  icon: string;
+  title: string;
+  description: string;
+  link?: string;
+  color?: "blue" | "emerald" | "purple" | "orange" | "red" | "cyan" | "indigo";
+  variant?: "default" | "dark" | "outline";
+}
+
+const { icon, title, description, link, color = "blue" } = Astro.props;
+
+const gradientClasses = {
+  blue: "from-blue-500 to-blue-600",
+  emerald: "from-emerald-500 to-teal-600",
+  purple: "from-purple-500 to-violet-600",
+  orange: "from-orange-500 to-amber-600",
+  red: "from-red-500 to-rose-600",
+  cyan: "from-cyan-500 to-blue-600",
+  indigo: "from-indigo-500 to-purple-600",
+};
+
+const shadowClasses = {
+  blue: "shadow-blue-500/20",
+  emerald: "shadow-emerald-500/20",
+  purple: "shadow-purple-500/20",
+  orange: "shadow-orange-500/20",
+  red: "shadow-red-500/20",
+  cyan: "shadow-cyan-500/20",
+  indigo: "shadow-indigo-500/20",
+};
+
+const textClasses = {
+  blue: "text-blue-600",
+  emerald: "text-emerald-600",
+  purple: "text-purple-600",
+  orange: "text-orange-600",
+  red: "text-red-600",
+  cyan: "text-cyan-600",
+  indigo: "text-indigo-600",
+};
+
+const borderHoverClasses = {
+  blue: "hover:border-blue-200",
+  emerald: "hover:border-emerald-200",
+  purple: "hover:border-purple-200",
+  orange: "hover:border-orange-200",
+  red: "hover:border-red-200",
+  cyan: "hover:border-cyan-200",
+  indigo: "hover:border-indigo-200",
+};
+
+const WrapperTag = link ? "a" : "div";
+---
+
+<WrapperTag
+  href={link}
+  class={`group block bg-white rounded-2xl shadow-md border border-gray-100 p-6 hover:shadow-xl ${borderHoverClasses[color]} transition-all duration-300`}
+>
+  <div
+    class={`w-12 h-12 bg-gradient-to-br ${gradientClasses[color]} rounded-xl flex items-center justify-center mb-4 shadow-lg ${shadowClasses[color]} group-hover:scale-110 transition-transform`}
+  >
+    <i class={`fa-solid ${icon} text-white text-xl`}></i>
+  </div>
+  <h4 class="font-bold text-lg text-gray-900 mb-2 group-hover:text-gray-800">{title}</h4>
+  <p class="text-gray-600 text-sm leading-relaxed">{description}</p>
+  {
+    link && (
+      <div
+        class={`mt-4 inline-flex items-center gap-1 ${textClasses[color]} text-sm font-semibold`}
+      >
+        Learn more{" "}
+        <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform" />
+      </div>
+    )
+  }
+</WrapperTag>

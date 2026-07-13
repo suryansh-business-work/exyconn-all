@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* Global Anchor Styles - Remove default underlines */
+a {
+  text-decoration: none !important;
+}
+
+a:hover {
+  text-decoration: none !important;
+}
+
+/* Only apply underline to links explicitly styled for it */
+.link-underline {
+  text-decoration: underline !important;
+}
+
+.link-underline:hover {
+  text-decoration: underline !important;
+}
+
+/* Footer and other text links that should have hover effect */
+.hover-link {
+  transition: color 0.2s ease;
+}
+
+.hover-link:hover {
+  color: #3b82f6;
+}

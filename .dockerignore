@@ -1,0 +1,24 @@
+# Keep the Docker build context small and reproducible: everything is (re)built
+# inside the image, so node_modules and prior build output must never be shipped.
+**/node_modules
+**/dist
+**/out
+**/.astro
+**/.turbo
+**/coverage
+**/.vite
+**/*.tsbuildinfo
+
+.git
+**/.github
+**/*.log
+**/.DS_Store
+
+# The desktop app is packaged by its own CI (Windows runner), never in a server image.
+exyconn-tracker-app/dist
+exyconn-tracker-app/out
+
+# Local env files must not leak into images; real values come from GitHub secrets.
+**/.env
+**/.env.*
+!**/.env.example

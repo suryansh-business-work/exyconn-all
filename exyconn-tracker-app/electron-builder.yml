@@ -1,0 +1,50 @@
+appId: com.exyconn.timetracker
+productName: Exyconn Tracker
+copyright: Copyright © Exyconn
+
+directories:
+  output: dist
+  buildResources: build
+
+asar: true
+# Every native module here ships N-API prebuilt binaries, so there is nothing to rebuild.
+npmRebuild: false
+
+files:
+  - out/**/*
+  - package.json
+
+# Keep native binaries OUTSIDE the asar so uiohook-napi's .node and get-windows'
+# macOS Swift helper + node-pre-gyp addon resolve at runtime.
+asarUnpack:
+  - '**/node_modules/uiohook-napi/**'
+  - '**/node_modules/get-windows/**'
+  - '**/node_modules/@mapbox/node-pre-gyp/**'
+
+win:
+  target:
+    - nsis
+  artifactName: ${productName}-Setup-${version}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+
+mac:
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+      arch: universal
+    - target: zip
+      arch: universal
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.inherit.plist
+  extendInfo:
+    NSScreenCaptureUsageDescription: Exyconn Tracker captures periodic work screenshots while you are tracking.
+    NSAppleEventsUsageDescription: Exyconn Tracker reads the active window title to record app usage.
+
+dmg:
+  sign: false

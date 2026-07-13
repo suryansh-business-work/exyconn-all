@@ -1,0 +1,111 @@
+---
+const industries = [
+  {
+    icon: "fa-hospital",
+    title: "Healthcare",
+    description:
+      "HIPAA-compliant AI solutions for patient care, diagnostics, and medical workflows.",
+  },
+  {
+    icon: "fa-landmark",
+    title: "Finance & Banking",
+    description:
+      "Secure fintech solutions with fraud detection, risk analysis, and compliance automation.",
+  },
+  {
+    icon: "fa-shopping-cart",
+    title: "Retail & E-commerce",
+    description: "Personalized shopping experiences, inventory management, and customer analytics.",
+  },
+  {
+    icon: "fa-industry",
+    title: "Manufacturing",
+    description: "Smart factory solutions with predictive maintenance and quality control.",
+  },
+  {
+    icon: "fa-graduation-cap",
+    title: "Education",
+    description: "AI-powered learning platforms, student analytics, and automated assessments.",
+  },
+  {
+    icon: "fa-truck",
+    title: "Logistics",
+    description: "Supply chain optimization, route planning, and real-time tracking systems.",
+  },
+  {
+    icon: "fa-bolt",
+    title: "Energy & Utilities",
+    description: "Smart grid management, consumption forecasting, and sustainability analytics.",
+  },
+  {
+    icon: "fa-shield-halved",
+    title: "Insurance",
+    description: "Claims automation, risk assessment, and fraud detection with AI.",
+  },
+];
+---
+
+<section class="py-20 lg:py-28 bg-gradient-to-b from-white via-blue-50/30 to-white">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <!-- Section Header -->
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <span
+        class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 text-sm font-semibold px-4 py-2 rounded-full mb-6"
+      >
+        <i class="fa-solid fa-globe"></i>
+        Industry Solutions
+      </span>
+      <h2
+        class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6"
+        data-anime="fade-up"
+      >
+        AI + SaaS for <span
+          class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+          >Every Industry</span
+        >
+      </h2>
+      <p class="text-lg text-gray-600 leading-relaxed" data-anime="fade-up" data-anime-delay="100">
+        We deliver tailored AI and software solutions across diverse sectors, helping businesses
+        transform their operations and stay ahead of the competition.
+      </p>
+    </div>
+
+    <!-- Industries Grid -->
+    <div
+      class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      data-anime-stagger="fade-up"
+      data-anime-step="70"
+    >
+      {
+        industries.map((industry, index) => (
+          <div
+            class="group bg-white rounded-2xl p-6 border border-gray-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-100/50 transition-all duration-300 cursor-pointer"
+            style={`animation-delay: ${index * 0.1}s`}
+          >
+            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
+              <i class={`fa-solid ${industry.icon} text-white text-xl`} />
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+              {industry.title}
+            </h3>
+            <p class="text-gray-600 text-sm leading-relaxed">{industry.description}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Bottom CTA -->
+    <div class="mt-16 text-center">
+      <p class="text-gray-600 mb-6">
+        Don't see your industry? We create custom solutions for any sector.
+      </p>
+      <a
+        href="/contact"
+        class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-8 py-4 rounded-full hover:bg-gray-800 transition-all duration-300 shadow-lg"
+      >
+        <i class="fa-solid fa-message"></i>
+        Discuss Your Industry Needs
+      </a>
+    </div>
+  </div>
+</section>

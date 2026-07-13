@@ -1,0 +1,152 @@
+fragment TrackerAccessFields on TrackerAccess {
+  id
+  userId
+  grantedBy
+  grantedAt
+  revokedAt
+  isActive
+  consentedAt
+}
+
+fragment TrackerDeviceFields on TrackerDevice {
+  id
+  userId
+  deviceId
+  platform
+  hostname
+  appVersion
+  issuedAt
+  lastSeenAt
+  revokedAt
+  isActive
+}
+
+fragment TrackerSettingsFields on TrackerSettings {
+  id
+  intervalMinutes
+  screenshotsPerInterval
+  randomizeScreenshotTiming
+  blurScreenshots
+  trackWindowTitles
+  idleThresholdSeconds
+  screenshotMaxWidth
+  screenshotQuality
+}
+
+fragment TrackerDayBucketFields on TrackerDayBucket {
+  date
+  activeMs
+  idleMs
+  keyCount
+  mouseCount
+  sessions
+}
+
+fragment TrackerDayFields on TrackerDay {
+  intervals {
+    id
+    sessionId
+    startedAt
+    endedAt
+    keyCount
+    mouseCount
+    activeMs
+    idleMs
+    activityPercent
+  }
+  screenshots {
+    id
+    sessionId
+    intervalStartedAt
+    capturedAt
+    imageUrl
+    displayId
+    blurred
+  }
+  sessions {
+    id
+    startedAt
+    endedAt
+    status
+    activeMs
+    idleMs
+    keyCount
+    mouseCount
+  }
+  appUsage {
+    appName
+    durationMs
+  }
+}
+
+query TrackerAccessList {
+  trackerAccessList {
+    ...TrackerAccessFields
+  }
+}
+
+query TrackerDevices($userId: ID) {
+  trackerDevices(userId: $userId) {
+    ...TrackerDeviceFields
+  }
+}
+
+query TrackerSettings {
+  trackerSettings {
+    ...TrackerSettingsFields
+  }
+}
+
+query TrackerCalendar($userId: ID!, $from: DateTime!, $to: DateTime!, $timezone: String!) {
+  trackerCalendar(userId: $userId, from: $from, to: $to, timezone: $timezone) {
+    ...TrackerDayBucketFields
+  }
+}
+
+query TrackerDay($userId: ID!, $start: DateTime!, $end: DateTime!) {
+  trackerDay(userId: $userId, start: $start, end: $end) {
+    ...TrackerDayFields
+  }
+}
+
+query MyTrackerAccess {
+  myTrackerAccess {
+    ...TrackerAccessFields
+  }
+}
+
+query MyTrackerCalendar($from: DateTime!, $to: DateTime!, $timezone: String!) {
+  myTrackerCalendar(from: $from, to: $to, timezone: $timezone) {
+    ...TrackerDayBucketFields
+  }
+}
+
+query MyTrackerDay($start: DateTime!, $end: DateTime!) {
+  myTrackerDay(start: $start, end: $end) {
+    ...TrackerDayFields
+  }
+}
+
+mutation GrantTrackerAccess($userId: ID!) {
+  grantTrackerAccess(userId: $userId) {
+    ...TrackerAccessFields
+  }
+}
+
+mutation RevokeTrackerAccess($userId: ID!) {
+  revokeTrackerAccess(userId: $userId) {
+    ...TrackerAccessFields
+  }
+}
+
+mutation RevokeTrackerDevice($deviceId: String!) {
+  revokeTrackerDevice(deviceId: $deviceId) {
+    ...TrackerDeviceFields
+  }
+}
+
+mutation UpdateTrackerSettings($input: TrackerSettingsInput!) {
+  updateTrackerSettings(input: $input) {
+    ...TrackerSettingsFields
+  }
+}

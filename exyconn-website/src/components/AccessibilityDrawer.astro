@@ -1,0 +1,464 @@
+---
+/**
+ * AccessibilityDrawer
+ * A floating accessibility widget that opens a right-side drawer with options:
+ *  - Font size scaling
+ *  - High contrast mode
+ *  - Grayscale mode
+ *  - Underline links
+ *  - Readable (dyslexia-friendly) font
+ *  - Pause animations / reduced motion
+ *  - Larger cursor
+ *  - Reset all
+ *
+ * Preferences are persisted in localStorage under "a11yPreferences" and applied
+ * to <html> via data-* attributes and CSS classes (see globals at bottom of file).
+ */
+---
+
+<!-- Floating launcher button (bottom-left, above cookies button stack) -->
+<button
+  id="a11y-open-btn"
+  type="button"
+  class="fixed left-4 bottom-20 z-[9999] w-12 h-12 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 flex items-center justify-center cursor-pointer"
+  aria-label="Open accessibility options"
+  aria-controls="a11y-drawer"
+  aria-expanded="false"
+>
+  <i class="fa-solid fa-universal-access text-xl" aria-hidden="true"></i>
+</button>
+
+<!-- Backdrop -->
+<div
+  id="a11y-backdrop"
+  class="fixed inset-0 bg-black/40 z-[10000] opacity-0 pointer-events-none transition-opacity duration-300"
+  aria-hidden="true"
+>
+</div>
+
+<!-- Drawer -->
+<aside
+  id="a11y-drawer"
+  class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white shadow-2xl z-[10001] translate-x-full transition-transform duration-300 ease-out flex flex-col"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="a11y-drawer-title"
+  tabindex="-1"
+>
+  <!-- Header -->
+  <div
+    class="flex items-center justify-between p-5 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+  >
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+        <i class="fa-solid fa-universal-access text-xl" aria-hidden="true"></i>
+      </div>
+      <div>
+        <h2 id="a11y-drawer-title" class="text-lg font-bold">Accessibility</h2>
+        <p class="text-xs text-white/80">Customize your viewing experience</p>
+      </div>
+    </div>
+    <button
+      id="a11y-close-btn"
+      type="button"
+      class="w-9 h-9 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-white"
+      aria-label="Close accessibility panel"
+    >
+      <i class="fa-solid fa-times" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto p-5 space-y-6">
+    <!-- Font size -->
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h3 class="text-sm font-semibold text-gray-900">Text size</h3>
+          <p class="text-xs text-gray-500">Scale all text on the site</p>
+        </div>
+        <span
+          id="a11y-font-label"
+          class="text-xs font-mono px-2 py-1 rounded-md bg-gray-100 text-gray-700"
+        >
+          100%
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          data-a11y-font="dec"
+          class="flex-1 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300"
+          aria-label="Decrease text size"
+        >
+          <i class="fa-solid fa-minus" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          data-a11y-font="reset"
+          class="flex-1 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300"
+        >
+          Default
+        </button>
+        <button
+          type="button"
+          data-a11y-font="inc"
+          class="flex-1 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300"
+          aria-label="Increase text size"
+        >
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- Toggle options -->
+    <section>
+      <h3 class="text-sm font-semibold text-gray-900 mb-3">Visual adjustments</h3>
+      <ul class="space-y-2">
+        <li>
+          <label
+            class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+          >
+            <span class="flex items-center gap-3">
+              <span
+                class="w-9 h-9 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center"
+              >
+                <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+              </span>
+              <span>
+                <span class="block text-sm font-medium text-gray-900">High contrast</span>
+                <span class="block text-xs text-gray-500">Boost contrast for readability</span>
+              </span>
+            </span>
+            <input type="checkbox" data-a11y-toggle="contrast" class="a11y-switch" />
+          </label>
+        </li>
+        <li>
+          <label
+            class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+          >
+            <span class="flex items-center gap-3">
+              <span
+                class="w-9 h-9 rounded-lg bg-gray-200 text-gray-700 flex items-center justify-center"
+              >
+                <i class="fa-solid fa-droplet-slash" aria-hidden="true"></i>
+              </span>
+              <span>
+                <span class="block text-sm font-medium text-gray-900">Grayscale</span>
+                <span class="block text-xs text-gray-500">Remove colors</span>
+              </span>
+            </span>
+            <input type="checkbox" data-a11y-toggle="grayscale" class="a11y-switch" />
+          </label>
+        </li>
+        <li>
+          <label
+            class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+          >
+            <span class="flex items-center gap-3">
+              <span
+                class="w-9 h-9 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center"
+              >
+                <i class="fa-solid fa-link" aria-hidden="true"></i>
+              </span>
+              <span>
+                <span class="block text-sm font-medium text-gray-900">Highlight links</span>
+                <span class="block text-xs text-gray-500">Underline all links</span>
+              </span>
+            </span>
+            <input type="checkbox" data-a11y-toggle="links" class="a11y-switch" />
+          </label>
+        </li>
+        <li>
+          <label
+            class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+          >
+            <span class="flex items-center gap-3">
+              <span
+                class="w-9 h-9 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center"
+              >
+                <i class="fa-solid fa-font" aria-hidden="true"></i>
+              </span>
+              <span>
+                <span class="block text-sm font-medium text-gray-900">Readable font</span>
+                <span class="block text-xs text-gray-500">Use a dyslexia-friendly font</span>
+              </span>
+            </span>
+            <input type="checkbox" data-a11y-toggle="readable" class="a11y-switch" />
+          </label>
+        </li>
+        <li>
+          <label
+            class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+          >
+            <span class="flex items-center gap-3">
+              <span
+                class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center"
+              >
+                <i class="fa-solid fa-pause" aria-hidden="true"></i>
+              </span>
+              <span>
+                <span class="block text-sm font-medium text-gray-900">Pause animations</span>
+                <span class="block text-xs text-gray-500">Reduce motion site-wide</span>
+              </span>
+            </span>
+            <input type="checkbox" data-a11y-toggle="motion" class="a11y-switch" />
+          </label>
+        </li>
+        <li>
+          <label
+            class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+          >
+            <span class="flex items-center gap-3">
+              <span
+                class="w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center"
+              >
+                <i class="fa-solid fa-arrow-pointer" aria-hidden="true"></i>
+              </span>
+              <span>
+                <span class="block text-sm font-medium text-gray-900">Larger cursor</span>
+                <span class="block text-xs text-gray-500">Easier pointer tracking</span>
+              </span>
+            </span>
+            <input type="checkbox" data-a11y-toggle="cursor" class="a11y-switch" />
+          </label>
+        </li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- Footer actions -->
+  <div class="p-4 border-t border-gray-100 bg-gray-50 flex items-center gap-3">
+    <button
+      id="a11y-reset-btn"
+      type="button"
+      class="flex-1 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm font-medium hover:bg-gray-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300"
+    >
+      <i class="fa-solid fa-rotate-left mr-2" aria-hidden="true"></i>Reset all
+    </button>
+    <a
+      href="/contact"
+      class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold text-center hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-blue-300"
+    >
+      Get help
+    </a>
+  </div>
+</aside>
+
+<style is:global>
+  /* ===== Accessibility preferences (applied to <html>) ===== */
+  html[data-a11y-contrast="on"] {
+    filter: contrast(1.35);
+  }
+  html[data-a11y-grayscale="on"] {
+    filter: grayscale(1);
+  }
+  html[data-a11y-contrast="on"][data-a11y-grayscale="on"] {
+    filter: contrast(1.35) grayscale(1);
+  }
+  html[data-a11y-links="on"] a {
+    text-decoration: underline !important;
+    text-underline-offset: 2px;
+  }
+  html[data-a11y-readable="on"] body,
+  html[data-a11y-readable="on"] body * {
+    font-family:
+      "Verdana",
+      "Tahoma",
+      "Trebuchet MS",
+      system-ui,
+      -apple-system,
+      sans-serif !important;
+    letter-spacing: 0.02em;
+  }
+  html[data-a11y-motion="on"] *,
+  html[data-a11y-motion="on"] *::before,
+  html[data-a11y-motion="on"] *::after {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+  html[data-a11y-cursor="on"],
+  html[data-a11y-cursor="on"] * {
+    cursor:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><polygon points='2,2 2,26 9,20 13,30 18,28 14,18 24,18' fill='black' stroke='white' stroke-width='1.5'/></svg>")
+        2 2,
+      auto !important;
+  }
+
+  /* ===== Switch styling (override global input[type=checkbox]) ===== */
+  input[type="checkbox"].a11y-switch {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 44px !important;
+    height: 24px !important;
+    min-width: 44px !important;
+    border: none !important;
+    border-radius: 9999px !important;
+    background: #d1d5db !important;
+    position: relative !important;
+    cursor: pointer !important;
+    transition:
+      background 0.2s,
+      box-shadow 0.2s !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+    vertical-align: middle !important;
+  }
+  input[type="checkbox"].a11y-switch::before,
+  input[type="checkbox"].a11y-switch::after {
+    content: "" !important;
+    border: none !important;
+    transform: none !important;
+  }
+  input[type="checkbox"].a11y-switch::after {
+    position: absolute !important;
+    top: 2px !important;
+    left: 2px !important;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 9999px !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    transition: transform 0.2s !important;
+  }
+  input[type="checkbox"].a11y-switch:checked {
+    background: #2563eb !important;
+    border: none !important;
+  }
+  input[type="checkbox"].a11y-switch:checked::after {
+    transform: translateX(20px) !important;
+  }
+  input[type="checkbox"].a11y-switch:focus-visible {
+    outline: 2px solid #3b82f6 !important;
+    outline-offset: 2px !important;
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    const STORAGE_KEY = "a11yPreferences";
+    const FONT_STEPS = [85, 100, 115, 130, 150];
+    const TOGGLES = ["contrast", "grayscale", "links", "readable", "motion", "cursor"];
+
+    function loadPrefs() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") || {};
+      } catch {
+        return {};
+      }
+    }
+    function savePrefs(prefs) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+      } catch {
+        /* noop */
+      }
+    }
+    function applyPrefs(prefs) {
+      const html = document.documentElement;
+      TOGGLES.forEach((key) => {
+        if (prefs[key]) html.setAttribute("data-a11y-" + key, "on");
+        else html.removeAttribute("data-a11y-" + key);
+      });
+      const fontPct = typeof prefs.fontSize === "number" ? prefs.fontSize : 100;
+      html.style.fontSize = fontPct === 100 ? "" : fontPct + "%";
+      const label = document.getElementById("a11y-font-label");
+      if (label) label.textContent = fontPct + "%";
+    }
+    function syncControls(prefs) {
+      TOGGLES.forEach((key) => {
+        const el = document.querySelector('[data-a11y-toggle="' + key + '"]');
+        if (el) el.checked = !!prefs[key];
+      });
+    }
+
+    // Apply on load (early)
+    const initial = loadPrefs();
+    applyPrefs(initial);
+
+    function ready(fn) {
+      if (document.readyState !== "loading") fn();
+      else document.addEventListener("DOMContentLoaded", fn);
+    }
+
+    ready(function () {
+      const drawer = document.getElementById("a11y-drawer");
+      const backdrop = document.getElementById("a11y-backdrop");
+      const openBtn = document.getElementById("a11y-open-btn");
+      const closeBtn = document.getElementById("a11y-close-btn");
+      const resetBtn = document.getElementById("a11y-reset-btn");
+      if (!drawer || !backdrop || !openBtn || !closeBtn || !resetBtn) return;
+
+      let lastFocus = null;
+
+      function openDrawer() {
+        lastFocus = document.activeElement;
+        drawer.classList.remove("translate-x-full");
+        backdrop.classList.remove("opacity-0", "pointer-events-none");
+        backdrop.classList.add("opacity-100");
+        openBtn.setAttribute("aria-expanded", "true");
+        document.body.style.overflow = "hidden";
+        setTimeout(() => drawer.focus(), 50);
+      }
+      function closeDrawer() {
+        drawer.classList.add("translate-x-full");
+        backdrop.classList.add("opacity-0", "pointer-events-none");
+        backdrop.classList.remove("opacity-100");
+        openBtn.setAttribute("aria-expanded", "false");
+        document.body.style.overflow = "";
+        if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
+      }
+
+      openBtn.addEventListener("click", openDrawer);
+      closeBtn.addEventListener("click", closeDrawer);
+      backdrop.addEventListener("click", closeDrawer);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !drawer.classList.contains("translate-x-full")) closeDrawer();
+      });
+
+      // Sync UI to stored prefs
+      syncControls(initial);
+
+      // Toggle handlers
+      TOGGLES.forEach((key) => {
+        const el = document.querySelector('[data-a11y-toggle="' + key + '"]');
+        if (!el) return;
+        el.addEventListener("change", () => {
+          const prefs = loadPrefs();
+          prefs[key] = el.checked;
+          savePrefs(prefs);
+          applyPrefs(prefs);
+        });
+      });
+
+      // Font size handlers
+      document.querySelectorAll("[data-a11y-font]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const action = btn.getAttribute("data-a11y-font");
+          const prefs = loadPrefs();
+          const cur = typeof prefs.fontSize === "number" ? prefs.fontSize : 100;
+          let idx = FONT_STEPS.indexOf(cur);
+          if (idx === -1) idx = FONT_STEPS.indexOf(100);
+          if (action === "inc") idx = Math.min(FONT_STEPS.length - 1, idx + 1);
+          else if (action === "dec") idx = Math.max(0, idx - 1);
+          else idx = FONT_STEPS.indexOf(100);
+          prefs.fontSize = FONT_STEPS[idx];
+          savePrefs(prefs);
+          applyPrefs(prefs);
+        });
+      });
+
+      // Reset
+      resetBtn.addEventListener("click", () => {
+        savePrefs({});
+        applyPrefs({});
+        syncControls({});
+      });
+    });
+  })();
+</script>

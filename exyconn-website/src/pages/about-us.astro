@@ -1,0 +1,292 @@
+---
+import HowWeWork from "../components/HowWeWork.astro";
+import WhyChooseUs from "../components/WhyChooseUs.astro";
+import DynamicImageStack from "../components/dynamic-components/DynamicImageStack.astro";
+import Page from "../layouts/Page.astro";
+
+const teamStats = [
+  { value: "2022", label: "Founded", icon: "fa-calendar" },
+  { value: "15+", label: "Team Members", icon: "fa-users" },
+  { value: "50+", label: "Projects Delivered", icon: "fa-rocket" },
+  { value: "100%", label: "Client Satisfaction", icon: "fa-heart" },
+];
+
+const coreValues = [
+  {
+    icon: "fa-lightbulb",
+    title: "Innovation",
+    description: "We embrace new ideas and technologies to deliver cutting-edge solutions.",
+    color: "from-yellow-400 to-orange-500",
+  },
+  {
+    icon: "fa-handshake-angle",
+    title: "Collaboration",
+    description: "We believe in strong partnerships and teamwork with our clients.",
+    color: "from-blue-400 to-cyan-500",
+  },
+  {
+    icon: "fa-shield-halved",
+    title: "Integrity",
+    description: "We act with honesty, transparency, and ethical business practices.",
+    color: "from-emerald-400 to-teal-500",
+  },
+  {
+    icon: "fa-bullseye",
+    title: "Excellence",
+    description: "We strive for the highest quality in everything we create.",
+    color: "from-purple-400 to-pink-500",
+  },
+];
+
+const whatWeDo = [
+  { icon: "fa-robot", label: "AI Agents & Automation" },
+  { icon: "fa-cloud", label: "SaaS & Custom Software" },
+  { icon: "fa-compass", label: "Digital Consulting & Strategy" },
+  { icon: "fa-chart-line", label: "Data Analytics & Integration" },
+  { icon: "fa-headset", label: "Ongoing Support & Optimization" },
+];
+---
+
+<Page
+  metaTitle="About Us | Our Story & Mission | Exyconn"
+  metaDescription="Learn about Exyconn's mission, vision, and values. Meet our team of AI, automation, and digital transformation experts dedicated to helping your business thrive."
+  metaKeywords="about Exyconn, our team, AI experts, automation, digital transformation, company values, mission, vision"
+  metaImage="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
+>
+  <main class="bg-white min-h-screen">
+    <!-- Hero Section -->
+    <section
+      class="relative py-24 px-6 bg-gradient-to-br from-gray-50 via-white to-blue-50 overflow-hidden"
+    >
+      <div
+        class="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-200/40 to-cyan-200/40 rounded-full blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"
+      >
+      </div>
+
+      <div class="relative z-10 max-w-6xl mx-auto">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <span
+              class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-100 rounded-full text-sm font-semibold text-blue-600 mb-6"
+            >
+              <i class="fa-solid fa-users"></i>
+              About Exyconn
+            </span>
+            <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+              Building the Future of
+              <span class="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"
+                >AI & SaaS</span
+              >
+            </h1>
+            <p class="text-xl text-gray-600 leading-relaxed mb-8">
+              We're a team of passionate technologists, strategists, and innovators dedicated to
+              helping businesses thrive in the digital era through AI, automation, and digital
+              expertise.
+            </p>
+            <div class="flex flex-wrap gap-4">
+              <a
+                href="/contact"
+                class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-6 py-3 rounded-full hover:bg-gray-800 transition shadow-lg"
+              >
+                <i class="fa-solid fa-calendar-check"></i> Work With Us
+              </a>
+              <a
+                href="/our-vision"
+                class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-6 py-3 rounded-full hover:bg-gray-50 transition"
+              >
+                <i class="fa-solid fa-eye"></i> Our Vision
+              </a>
+            </div>
+          </div>
+          <div class="relative">
+            <img
+              src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80"
+              alt="Exyconn Team"
+              class="rounded-2xl shadow-2xl"
+              loading="lazy"
+            />
+            <div
+              class="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-4 border border-gray-100"
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center"
+                >
+                  <i class="fa-solid fa-award text-white text-xl"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500">Trusted by</p>
+                  <p class="font-bold text-gray-900">50+ Clients</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 px-6 bg-white border-y border-gray-100">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {
+            teamStats.map((stat) => (
+              <div class="text-center">
+                <div class="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <i class={`fa-solid ${stat.icon} text-gray-600 text-xl`} />
+                </div>
+                <div class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent mb-1">
+                  {stat.value}
+                </div>
+                <p class="text-gray-500 text-sm">{stat.label}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Mission & Vision -->
+    <section class="py-20 px-6 bg-gray-50">
+      <div class="max-w-6xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div
+              class="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6"
+            >
+              <i class="fa-solid fa-bullseye text-white text-xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
+            <p class="text-gray-600 leading-relaxed">
+              To empower organizations with innovative technology, creativity, and
+              expertise—enabling them to achieve their full potential and stay ahead in a rapidly
+              evolving world.
+            </p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div
+              class="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-6"
+            >
+              <i class="fa-solid fa-eye text-white text-xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Our Vision</h2>
+            <p class="text-gray-600 leading-relaxed">
+              To be a global leader in AI-driven transformation, enabling smarter, faster, and more
+              efficient business outcomes for our clients worldwide.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- What We Do -->
+    <section class="py-20 px-6 bg-white">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-full text-sm font-semibold text-emerald-600 mb-6"
+          >
+            <i class="fa-solid fa-briefcase"></i>
+            Our Expertise
+          </span>
+          <h2 class="text-4xl font-bold text-gray-900 mb-4">What We Do</h2>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            We deliver comprehensive solutions across AI, automation, and digital transformation.
+          </p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {
+            whatWeDo.map((item) => (
+              <div class="bg-gray-50 rounded-xl p-6 text-center hover:bg-blue-50 hover:border-blue-100 border border-gray-100 transition-all duration-300">
+                <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm">
+                  <i class={`fa-solid ${item.icon} text-blue-600 text-lg`} />
+                </div>
+                <p class="text-sm font-medium text-gray-700">{item.label}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Values -->
+    <section class="py-20 px-6 bg-gray-50">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-100 rounded-full text-sm font-semibold text-purple-600 mb-6"
+          >
+            <i class="fa-solid fa-star"></i>
+            Our Values
+          </span>
+          <h2 class="text-4xl font-bold text-gray-900 mb-4">Core Values</h2>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            The principles that guide everything we do.
+          </p>
+        </div>
+        <div class="grid md:grid-cols-4 gap-6">
+          {
+            coreValues.map((value) => (
+              <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center hover:shadow-lg transition-all duration-300">
+                <div
+                  class={`w-14 h-14 bg-gradient-to-br ${value.color} rounded-2xl flex items-center justify-center mx-auto mb-4`}
+                >
+                  <i class={`fa-solid ${value.icon} text-white text-xl`} />
+                </div>
+                <h3 class="font-bold text-gray-900 mb-2">{value.title}</h3>
+                <p class="text-sm text-gray-600">{value.description}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 px-6 bg-white">
+      <div class="max-w-4xl mx-auto">
+        <div
+          class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl shadow-2xl p-12 text-white relative overflow-hidden"
+        >
+          <div
+            class="absolute top-0 right-0 w-60 h-60 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl"
+          >
+          </div>
+          <div class="relative z-10 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">
+              Ready to Transform Your Business with AI?
+            </h2>
+            <p class="mb-8 text-xl text-gray-300 max-w-2xl mx-auto">
+              Partner with Exyconn to unlock the power of AI automation, intelligent agents, and
+              enterprise SaaS.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+              <a
+                href="/contact"
+                class="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-cyan-500/40 hover:scale-105 transition-all"
+              >
+                <i class="fa-solid fa-calendar-check"></i>
+                Schedule a Consultation
+              </a>
+              <a
+                href="/our-products"
+                class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white font-semibold px-8 py-4 rounded-full hover:bg-white/20 transition-all"
+              >
+                <i class="fa-solid fa-cube"></i>
+                Explore Our Products
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <HowWeWork />
+    <WhyChooseUs />
+    <DynamicImageStack title="Powered By Leading Technology" />
+  </main>
+</Page>

@@ -1,0 +1,101 @@
+---
+interface Props {
+  title: string;
+  subtitle?: string;
+  description?: string;
+  primaryCta?: {
+    text: string;
+    href: string;
+    icon?: string;
+  };
+  secondaryCta?: {
+    text: string;
+    href: string;
+    icon?: string;
+  };
+  variant?: "dark" | "light" | "gradient";
+}
+
+const { title, subtitle, description, primaryCta, secondaryCta, variant = "dark" } = Astro.props;
+
+const bgClasses = {
+  dark: "bg-gradient-to-br from-gray-900 to-gray-800",
+  light: "bg-gradient-to-br from-gray-50 to-blue-50",
+  gradient: "bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-500",
+};
+
+const textClasses = {
+  dark: "text-white",
+  light: "text-gray-900",
+  gradient: "text-white",
+};
+
+const subtextClasses = {
+  dark: "text-gray-400",
+  light: "text-gray-600",
+  gradient: "text-white/80",
+};
+
+const primaryBtnClasses = {
+  dark: "bg-white text-gray-900 hover:bg-gray-100",
+  light: "bg-gray-900 text-white hover:bg-gray-800",
+  gradient: "bg-white text-gray-900 hover:bg-gray-100",
+};
+
+const secondaryBtnClasses = {
+  dark: "bg-white/10 border border-white/20 text-white hover:bg-white/20",
+  light: "bg-white border border-gray-200 text-gray-900 hover:bg-gray-50",
+  gradient: "bg-white/20 border border-white/30 text-white hover:bg-white/30",
+};
+---
+
+<section class={`py-24 px-6 ${bgClasses[variant]} relative overflow-hidden`}>
+  {
+    variant !== "light" && (
+      <>
+        <div class="absolute top-20 left-20 w-80 h-80 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl" />
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl" />
+      </>
+    )
+  }
+
+  <div class="max-w-4xl mx-auto text-center relative z-10">
+    {
+      subtitle && (
+        <span class={`inline-block ${subtextClasses[variant]} text-sm font-medium mb-4`}>
+          {subtitle}
+        </span>
+      )
+    }
+    <h2 class={`text-4xl md:text-5xl font-bold ${textClasses[variant]} mb-6`}>{title}</h2>
+    {
+      description && (
+        <p class={`text-xl ${subtextClasses[variant]} mb-10 max-w-2xl mx-auto`}>{description}</p>
+      )
+    }
+    <div class="flex flex-wrap justify-center gap-4">
+      {
+        primaryCta && (
+          <a
+            href={primaryCta.href}
+            class={`inline-flex items-center gap-2 ${primaryBtnClasses[variant]} font-semibold px-8 py-4 rounded-full transition shadow-xl`}
+          >
+            {primaryCta.icon && <i class={`fa-solid ${primaryCta.icon}`} />}
+            {primaryCta.text}
+          </a>
+        )
+      }
+      {
+        secondaryCta && (
+          <a
+            href={secondaryCta.href}
+            class={`inline-flex items-center gap-2 ${secondaryBtnClasses[variant]} font-semibold px-8 py-4 rounded-full transition`}
+          >
+            {secondaryCta.icon && <i class={`fa-solid ${secondaryCta.icon}`} />}
+            {secondaryCta.text}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,128 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+---
+
+<Page
+  metaTitle="Ready-to-Use AI Models | NLP, Vision, and More | Exyconn"
+  metaDescription="Explore Exyconn's library of ready-to-use AI models for NLP, vision, analytics, and automation. Deploy proven models instantly for chat, classification, extraction, and more."
+  metaKeywords="AI models, ready-to-use AI, NLP models, vision models, analytics, automation, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="Ready-to-Use AI Models"
+    subtitle="Deploy Proven AI Instantly"
+    description="Accelerate your projects with Exyconn’s library of pre-trained, production-ready AI models. From NLP and vision to analytics and automation, our models are ready to power your business use cases—no training required."
+    image="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
+    ctaText="See All Models"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="What Are Ready-to-Use AI Models?"
+    description='<span class="font-semibold text-indigo-700">Ready-to-use AI models</span> are pre-trained, production-grade models for common business tasks—such as text classification, sentiment analysis, document extraction, image recognition, and more. Instantly deploy these models via API or integrate them into your workflows.'
+    iconClass="fa-solid fa-cubes text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Use Pre-Built AI Models?"
+    items={[
+      {
+        icon: "fa-solid fa-rocket text-indigo-500 mt-1",
+        text: "Instant deployment—no training or data science required.",
+      },
+      {
+        icon: "fa-solid fa-gears text-indigo-500 mt-1",
+        text: "Covers a wide range of business use cases: NLP, vision, analytics, and more.",
+      },
+      {
+        icon: "fa-solid fa-plug text-indigo-500 mt-1",
+        text: "Easy API integration with your apps, CRMs, and workflows.",
+      },
+      {
+        icon: "fa-solid fa-shield-halved text-indigo-500 mt-1",
+        text: "Enterprise-grade security, reliability, and support.",
+      },
+      {
+        icon: "fa-solid fa-chart-line text-indigo-500 mt-1",
+        text: "Scalable for projects of any size—pay as you grow.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="Popular Model Categories"
+    columns={[
+      {
+        icon: "fa-solid fa-language text-4xl text-indigo-600 mb-4",
+        heading: "NLP & Text",
+        text: "Text classification, sentiment analysis, entity extraction, summarization, translation, and more.",
+      },
+      {
+        icon: "fa-solid fa-image text-4xl text-indigo-600 mb-4",
+        heading: "Vision & Image",
+        text: "Image classification, object detection, OCR, face recognition, and visual search.",
+      },
+      {
+        icon: "fa-solid fa-chart-bar text-4xl text-indigo-600 mb-4",
+        heading: "Analytics & Automation",
+        text: "Forecasting, anomaly detection, document processing, and workflow automation.",
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="Ready-to-Use AI Models FAQs"
+    faqs={[
+      {
+        question: "What types of ready-to-use models does Exyconn offer?",
+        answer:
+          "We offer models for NLP (text classification, sentiment, extraction), vision (image classification, OCR), analytics, and more. Contact us for the full catalog.",
+      },
+      {
+        question: "How do I integrate these models into my app?",
+        answer:
+          "All models are available via secure API. We provide integration guides and support for your stack.",
+      },
+      {
+        question: "Can I combine multiple models in a workflow?",
+        answer:
+          "Yes, you can chain models together or use them as part of automated workflows and business processes.",
+      },
+      {
+        question: "Are these models secure and compliant?",
+        answer:
+          "Yes, all models are deployed with enterprise security, privacy, and compliance in mind.",
+      },
+      {
+        question: "How do I get started with ready-to-use models?",
+        answer:
+          "Contact Exyconn for a free consultation. We’ll help you select and deploy the best models for your needs.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Business Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

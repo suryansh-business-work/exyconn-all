@@ -1,0 +1,152 @@
+name: Deploy portal.exyconn.com
+
+# Deploys the Exyconn portal:
+#   - UI  -> https://portal.exyconn.com         (static SPA from /var/www/exyconn-portal)
+#   - API -> https://portal-server.exyconn.com  (GraphQL on 127.0.0.1:1002 via pm2)
+#
+# SAFETY: strictly ADDITIVE. Only ever creates/edits the dedicated
+# portal.exyconn.com and portal-server.exyconn.com nginx files + their own TLS
+# certs. NEVER touches /etc/nginx/sites-available/exyconn.com or other domains.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-portal-exyconn
+  cancel-in-progress: false
+
+env:
+  APP_HOST: portal.exyconn.com
+  API_HOST: portal-server.exyconn.com
+  WEBROOT: /var/www/exyconn-portal
+  APPDIR: /var/www/exyconn-portal-api
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - run: pnpm install
+      - run: pnpm codegen
+
+      - name: Build UI (API at https://portal-server.exyconn.com/graphql)
+        run: VITE_GRAPHQL_URL="https://${API_HOST}/graphql" pnpm -C ui build
+
+      - name: Build server
+        run: pnpm -C server build
+
+      - name: Assemble server bundle + .env
+        run: |
+          rm -rf server-bundle && mkdir -p server-bundle
+          cp -r server/dist server-bundle/dist
+          cp server/package.json server-bundle/package.json
+          cat > server-bundle/.env <<'ENV'
+          NODE_ENV=production
+          PORT=1002
+          MONGODB_URI=${{ secrets.MONGODB_URI }}
+          CORS_ORIGIN=https://portal.exyconn.com
+          JWT_EXPIRES_IN=7d
+          SEED_ADMIN_NAME=Exyconn Admin
+          SEED_ADMIN_EMAIL=admin@exyconn.com
+          SEED_ADMIN_PASSWORD=Admin@1234
+          ENV
+          echo "JWT_SECRET=$(openssl rand -hex 48)" >> server-bundle/.env
+
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Ship build artifacts to host
+        run: |
+          SSH="ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }}"
+          HOST="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}"
+          $SSH "$HOST" "mkdir -p '${WEBROOT}' '${APPDIR}'"
+          tar czf - -C ui/dist . | $SSH "$HOST" "rm -rf '${WEBROOT}'/* && tar xzf - -C '${WEBROOT}'"
+          tar czf - -C server-bundle . | $SSH "$HOST" "tar xzf - -C '${APPDIR}'"
+
+      - name: Install prod deps, run API via pm2, seed admin
+        run: |
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'bash -s' <<'EOF'
+          set -e
+          cd /var/www/exyconn-portal-api
+          npm install --omit=dev --no-audit --no-fund
+          # Mongo-dependent; non-fatal so the deploy still wires nginx/SSL even
+          # if Atlas is unreachable (e.g. host IP not whitelisted).
+          node dist/seed/seed.js || echo "WARNING: seed failed (check MONGODB_URI + Atlas IP allowlist)"
+          pm2 describe exyconn-portal-api >/dev/null 2>&1 \
+            && pm2 restart exyconn-portal-api --update-env \
+            || pm2 start dist/server.js --name exyconn-portal-api --cwd /var/www/exyconn-portal-api
+          pm2 save
+          sleep 2
+          curl -fsS http://127.0.0.1:1002/health && echo " API health OK" \
+            || echo "WARNING: API not healthy — verify MONGODB_URI secret and Atlas IP allowlist for this host."
+          EOF
+
+      - name: Configure nginx vhosts (additive)
+        run: |
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'bash -s' <<'EOF'
+          set -e
+          # --- UI: portal.exyconn.com (static SPA) ---
+          tee /etc/nginx/sites-available/portal.exyconn.com > /dev/null <<'NGINX'
+          server {
+            server_name portal.exyconn.com;
+            root /var/www/exyconn-portal;
+            index index.html;
+            client_max_body_size 25m;
+            location / {
+              try_files $uri $uri/ /index.html;
+            }
+            listen 80;
+          }
+          NGINX
+          ln -sf /etc/nginx/sites-available/portal.exyconn.com /etc/nginx/sites-enabled/portal.exyconn.com
+
+          # --- API: portal-server.exyconn.com -> 127.0.0.1:1002 ---
+          tee /etc/nginx/sites-available/portal-server.exyconn.com > /dev/null <<'NGINX'
+          server {
+            server_name portal-server.exyconn.com;
+            client_max_body_size 25m;
+            location / {
+              proxy_pass http://127.0.0.1:1002;
+              proxy_http_version 1.1;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection "upgrade";
+            }
+            listen 80;
+          }
+          NGINX
+          ln -sf /etc/nginx/sites-available/portal-server.exyconn.com /etc/nginx/sites-enabled/portal-server.exyconn.com
+
+          nginx -t
+          systemctl reload nginx
+          EOF
+
+      - name: Obtain TLS certs (additive)
+        run: |
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'bash -s' <<'EOF'
+          set -e
+          DOMAINS="-d portal.exyconn.com"
+          if getent ahostsv4 portal-server.exyconn.com >/dev/null 2>&1; then
+            DOMAINS="$DOMAINS -d portal-server.exyconn.com"
+          else
+            echo "WARNING: portal-server.exyconn.com has no DNS yet — skipping its cert. Add an A record to this host and re-run."
+          fi
+          certbot --nginx --non-interactive --agree-tos --redirect \
+            --cert-name portal.exyconn.com $DOMAINS \
+            -m admin@exyconn.com
+          nginx -t
+          systemctl reload nginx
+          curl -fsS -o /dev/null -w "portal.exyconn.com -> HTTP %{http_code}\n" https://portal.exyconn.com/ || true
+          curl -fsS -o /dev/null -w "portal-server.exyconn.com -> HTTP %{http_code}\n" https://portal-server.exyconn.com/health || true
+          EOF

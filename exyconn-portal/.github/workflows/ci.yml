@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      MONGODB_URI: mongodb://127.0.0.1:27017/exyconn
+      JWT_SECRET: ci-test-secret
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - run: pnpm install
+      - run: pnpm codegen
+      - run: pnpm lint
+      - run: pnpm build
+      - run: pnpm test:all
+      - name: Install Cypress OS dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 \
+            libxss1 libasound2 libxtst6 xauth xvfb
+      - name: Allow binding privileged ports (UI 1001 / server 1002)
+        run: sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0
+      - name: Cypress component tests
+        run: pnpm test:ct
+      - run: pnpm test:e2e
+      - run: pnpm coverage

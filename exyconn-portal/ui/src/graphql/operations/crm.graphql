@@ -1,0 +1,27 @@
+query ListLeads {
+  listLeads {
+    id
+    name
+    email
+    source
+    stage
+    value
+    owner
+  }
+}
+
+mutation CreateLead($input: LeadInput!) {
+  createLead(input: $input) {
+    id
+  }
+}
+
+mutation UpdateLead($id: ID!, $input: LeadInput!) {
+  updateLead(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteLead($id: ID!) {
+  deleteLead(id: $id)
+}

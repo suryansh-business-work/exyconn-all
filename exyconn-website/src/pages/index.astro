@@ -1,0 +1,24 @@
+---
+import Page from "../layouts/Page.astro";
+import HomeBanner from "../components/fragments/Banners/HomeBanner.astro";
+import OurSolutions from "../components/OurSolutions.astro";
+import WhyChooseUs from "../components/WhyChooseUs.astro";
+import IndustriesWeServe from "../components/IndustriesWeServe.astro";
+import HowWeWork from "../components/HowWeWork.astro";
+import DynamicImageStack from "../components/dynamic-components/DynamicImageStack.astro";
+---
+
+<Page
+  title="Exyconn | AI Automation & SaaS Solutions for Business"
+  description="Transform your business with Exyconn's AI solutions. From authentication to AI agents, we provide the complete technology shell so you can focus on building what matters most."
+>
+  <HomeBanner />
+  <OurSolutions />
+  <WhyChooseUs />
+  <IndustriesWeServe />
+  <HowWeWork />
+  <DynamicImageStack
+    title="Powered By Leading Technology"
+    subtitle="Cutting-Edge AI & Cloud Infrastructure"
+  />
+</Page>

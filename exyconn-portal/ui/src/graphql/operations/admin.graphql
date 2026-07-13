@@ -1,0 +1,88 @@
+query ListUsers {
+  listUsers {
+    id
+    name
+    email
+    roles
+    avatarUrl
+    isActive
+    isBlocked
+    blockReason
+    department
+    designation
+    joinDate
+    employmentStatus
+  }
+}
+
+query GetUser($id: ID!) {
+  getUser(id: $id) {
+    id
+    name
+    email
+    roles
+    avatarUrl
+    isActive
+    isBlocked
+    blockReason
+    department
+    designation
+    joinDate
+    employmentStatus
+    createdAt
+    updatedAt
+  }
+}
+
+mutation CreateUser($input: CreateUserInput!) {
+  createUser(input: $input) {
+    password
+    user {
+      id
+      name
+      email
+    }
+  }
+}
+
+mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
+  updateUser(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteUser($id: ID!) {
+  deleteUser(id: $id)
+}
+
+mutation SetUserActive($id: ID!, $isActive: Boolean!) {
+  setUserActive(id: $id, isActive: $isActive) {
+    id
+    isActive
+  }
+}
+
+mutation SetUserBlocked($id: ID!, $isBlocked: Boolean!, $reason: String) {
+  setUserBlocked(id: $id, isBlocked: $isBlocked, reason: $reason) {
+    id
+    isBlocked
+    blockReason
+  }
+}
+
+mutation ResetUserPassword($id: ID!) {
+  resetUserPassword(id: $id)
+}
+
+mutation SendUserMail($id: ID!, $input: SendMailInput!) {
+  sendUserMail(id: $id, input: $input)
+}
+
+mutation UpdateSettings($input: UpdateSettingsInput!) {
+  updateSettings(input: $input) {
+    id
+    dateFormat
+    timeFormat
+    timezone
+  }
+}

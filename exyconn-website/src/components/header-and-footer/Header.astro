@@ -1,0 +1,525 @@
+---
+import MobileHeader from "./MobileHeader.astro";
+---
+
+<!-- Top Banner for Free Tools -->
+<div
+  class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white py-2 px-4 text-center text-sm"
+>
+  <a href="/tools" class="inline-flex items-center gap-2 hover:opacity-90 transition-opacity">
+    <i class="fa-solid fa-rocket"></i>
+    <span><strong>New!</strong> Explore our Free Tools - SEO, AI & Business Automation</span>
+    <i class="fa-solid fa-arrow-right text-xs"></i>
+  </a>
+</div>
+
+<header
+  class="bg-white/80 backdrop-blur-xl z-[200] sticky top-0 left-0 w-full border-b border-gray-100/50 transition-all duration-300"
+>
+  <nav
+    class="mx-auto flex max-w-7xl items-center justify-between p-4"
+    aria-label="Global"
+    role="navigation"
+  >
+    <!-- Logo -->
+    <div class="flex lg:flex-1 items-center gap-2 animate-fade-in">
+      <a href="/" class="flex items-center gap-2" aria-label="Exyconn Home">
+        <span class="sr-only">Exyconn</span>
+        <img
+          class="h-9 w-auto transition duration-300"
+          src="https://ik.imagekit.io/esdata1/exyconn/logo/exyconn.svg"
+          alt="Exyconn"
+        />
+      </a>
+    </div>
+
+    <!-- Desktop Nav -->
+    <div class="hidden lg:flex lg:gap-x-1 items-center">
+      <!-- AI Dropdown -->
+      <div class="relative group">
+        <button
+          type="button"
+          class="cursor-pointer flex items-center gap-x-1 text-sm font-medium text-gray-700 hover:text-gray-900 px-4 py-2.5 rounded-full hover:bg-gray-50/80 transition-all duration-200"
+          id="aiMenuBtn"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="aiSubmenu"
+        >
+          <span>AI</span>
+          <i class="fa-solid fa-chevron-down text-xs text-gray-400" aria-hidden="true"></i>
+        </button>
+        <div
+          id="aiSubmenu"
+          class="hidden absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[500px] bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-gray-200/50 ring-1 ring-gray-100 z-[210] p-5"
+          role="menu"
+          aria-label="AI submenu"
+        >
+          <div class="grid grid-cols-2 gap-3">
+            <a href="/ai/agentic" class="header-menu-item" role="menuitem">
+              <div
+                class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fa-solid fa-robot text-white text-sm"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">Agentic AI</div>
+                <div class="text-xs text-gray-500 mt-0.5">Autonomous agents for business</div>
+              </div>
+            </a>
+            <a href="/ai/bot-creation" class="header-menu-item" role="menuitem">
+              <div
+                class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fa-solid fa-comments text-white text-sm"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">Bot Creation</div>
+                <div class="text-xs text-gray-500 mt-0.5">Conversational AI bots</div>
+              </div>
+            </a>
+            <a href="/ai/workflows" class="header-menu-item" role="menuitem">
+              <div
+                class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fa-solid fa-diagram-project text-white text-sm"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">Workflows</div>
+                <div class="text-xs text-gray-500 mt-0.5">AI-driven process automation</div>
+              </div>
+            </a>
+            <a href="/ai/llms" class="header-menu-item" role="menuitem">
+              <div
+                class="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fa-solid fa-brain text-white text-sm"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">LLMs</div>
+                <div class="text-xs text-gray-500 mt-0.5">Large Language Models</div>
+              </div>
+            </a>
+            <a href="/ai/custom-model-training" class="header-menu-item" role="menuitem">
+              <div
+                class="w-10 h-10 bg-gradient-to-br from-rose-500 to-red-500 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fa-solid fa-flask text-white text-sm"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">Custom Training</div>
+                <div class="text-xs text-gray-500 mt-0.5">Tailored AI models</div>
+              </div>
+            </a>
+            <a href="/ai/mcp-server" class="header-menu-item" role="menuitem">
+              <div
+                class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fa-solid fa-server text-white text-sm"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">MCP Server</div>
+                <div class="text-xs text-gray-500 mt-0.5">AI pipeline infrastructure</div>
+              </div>
+            </a>
+          </div>
+          <!-- Explore All Link -->
+          <div class="mt-4 pt-4 border-t border-gray-100">
+            <a
+              href="/ai"
+              class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl text-blue-600 font-medium hover:from-blue-100 hover:to-cyan-100 transition-colors group"
+            >
+              <span>Explore All AI Solutions</span>
+              <i
+                class="fa-solid fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"
+              ></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services Dropdown -->
+      <div class="relative group">
+        <button
+          type="button"
+          class="cursor-pointer flex items-center gap-x-1 text-sm font-medium text-gray-700 hover:text-gray-900 px-4 py-2.5 rounded-full hover:bg-gray-50/80 transition-all duration-200"
+          id="servicesMenuBtn"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="servicesSubmenu"
+        >
+          Services
+          <i class="fa-solid fa-chevron-down text-xs text-gray-400" aria-hidden="true"></i>
+        </button>
+        <div
+          id="servicesSubmenu"
+          class="hidden absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[500px] bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-gray-200/50 ring-1 ring-gray-100 z-[210] p-5"
+          role="menu"
+          aria-label="Services submenu"
+        >
+          <div class="grid grid-cols-2 gap-3">
+            <a href="/services/digital-consulting" class="header-menu-link" role="menuitem">
+              <i class="fa-solid fa-lightbulb text-blue-500 mt-0.5"></i>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">Digital Consulting</div>
+                <div class="text-xs text-gray-500 mt-0.5">Strategy & transformation</div>
+              </div>
+            </a>
+            <a href="/services/software-as-a-service" class="header-menu-link" role="menuitem">
+              <i class="fa-solid fa-cloud text-blue-500 mt-0.5"></i>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">Software-as-a-Service</div>
+                <div class="text-xs text-gray-500 mt-0.5">Scalable SaaS solutions</div>
+              </div>
+            </a>
+            <a href="/services/application-modernization" class="header-menu-link" role="menuitem">
+              <i class="fa-solid fa-gears text-blue-500 mt-0.5"></i>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">App Modernization</div>
+                <div class="text-xs text-gray-500 mt-0.5">Upgrade legacy systems</div>
+              </div>
+            </a>
+            <a href="/services/enterprise-application" class="header-menu-link" role="menuitem">
+              <i class="fa-solid fa-building text-blue-500 mt-0.5"></i>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">Enterprise Apps</div>
+                <div class="text-xs text-gray-500 mt-0.5">Robust enterprise solutions</div>
+              </div>
+            </a>
+            <a
+              href="/services/mobile-application-development"
+              class="header-menu-link"
+              role="menuitem"
+            >
+              <i class="fa-solid fa-mobile-screen-button text-blue-500 mt-0.5"></i>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">Mobile Development</div>
+                <div class="text-xs text-gray-500 mt-0.5">iOS & Android apps</div>
+              </div>
+            </a>
+            <a href="/services/data-analytics" class="header-menu-link" role="menuitem">
+              <i class="fa-solid fa-chart-line text-blue-500 mt-0.5"></i>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">Data & Analytics</div>
+                <div class="text-xs text-gray-500 mt-0.5">Data-driven insights</div>
+              </div>
+            </a>
+            <a href="/services/digital-marketing" class="header-menu-link" role="menuitem">
+              <i class="fa-solid fa-bullhorn text-pink-500 mt-0.5"></i>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">Digital Marketing</div>
+                <div class="text-xs text-gray-500 mt-0.5">SEO, PPC, social & more</div>
+              </div>
+            </a>
+            <a
+              href="/services/software-development-outsourcing"
+              class="header-menu-link"
+              role="menuitem"
+            >
+              <i class="fa-solid fa-people-arrows text-blue-500 mt-0.5"></i>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">Outsourcing</div>
+                <div class="text-xs text-gray-500 mt-0.5">Software dev outsourcing</div>
+              </div>
+            </a>
+            <a href="/india/offer" class="header-menu-link" role="menuitem">
+              <i class="fa-solid fa-flag text-orange-500 mt-0.5"></i>
+              <div>
+                <div class="font-semibold text-gray-900 text-sm">India Offer</div>
+                <div class="text-xs text-gray-500 mt-0.5">₹4,999 से शुरू</div>
+              </div>
+            </a>
+          </div>
+          <!-- Explore All Link -->
+          <div class="mt-4 pt-4 border-t border-gray-100">
+            <a
+              href="/our-services"
+              class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl text-blue-600 font-medium hover:from-blue-100 hover:to-purple-100 transition-colors group"
+            >
+              <span>Explore All Services</span>
+              <i
+                class="fa-solid fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"
+              ></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products -->
+      <a href="/our-products" class="header-nav-link">Products</a>
+
+      <!-- Blog - Main menu item -->
+      <a href="/blog" class="header-nav-link">Blog</a>
+
+      <!-- Company Mega Menu -->
+      <div class="relative group">
+        <button
+          type="button"
+          class="cursor-pointer flex items-center gap-x-1 text-sm font-medium text-gray-700 hover:text-gray-900 px-4 py-2.5 rounded-full hover:bg-gray-50/80 transition-all duration-200"
+          id="moreMenuBtn"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="moreSubmenu"
+        >
+          Company
+          <i class="fa-solid fa-chevron-down text-xs text-gray-400" aria-hidden="true"></i>
+        </button>
+        <div
+          id="moreSubmenu"
+          class="hidden absolute right-0 top-full mt-3 w-[550px] bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-gray-200/50 ring-1 ring-gray-100 z-[210] p-6"
+          role="menu"
+          aria-label="Company submenu"
+        >
+          <div class="flex gap-6">
+            <!-- About Column -->
+            <div class="flex-1">
+              <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                About Us
+              </p>
+              <div class="space-y-1">
+                <a href="/about-us" class="header-mega-simple" role="menuitem">
+                  <i class="fa-solid fa-users text-blue-500 text-sm w-5"></i>
+                  <div>
+                    <span class="text-sm text-gray-700 font-medium">About Exyconn</span>
+                    <p class="text-xs text-gray-400">Learn about our mission and team</p>
+                  </div>
+                </a>
+                <a href="/our-vision" class="header-mega-simple" role="menuitem">
+                  <i class="fa-solid fa-eye text-blue-500 text-sm w-5"></i>
+                  <div>
+                    <span class="text-sm text-gray-700 font-medium">Our Vision</span>
+                    <p class="text-xs text-gray-400">Our goals for the future</p>
+                  </div>
+                </a>
+                <a href="/career" class="header-mega-simple" role="menuitem">
+                  <i class="fa-solid fa-briefcase text-blue-500 text-sm w-5"></i>
+                  <div>
+                    <span class="text-sm text-gray-700 font-medium">Careers</span>
+                    <p class="text-xs text-gray-400">Join our growing team</p>
+                  </div>
+                </a>
+                <a href="/case-studies" class="header-mega-simple" role="menuitem">
+                  <i class="fa-solid fa-folder-open text-blue-500 text-sm w-5"></i>
+                  <div>
+                    <span class="text-sm text-gray-700 font-medium">Case Studies</span>
+                    <p class="text-xs text-gray-400">See our success stories</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+            <!-- Resources & Support Column -->
+            <div class="flex-1">
+              <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                Resources & Support
+              </p>
+              <div class="space-y-1">
+                <a href="/contact" class="header-mega-simple" role="menuitem">
+                  <i class="fa-solid fa-envelope text-blue-500 text-sm w-5"></i>
+                  <div>
+                    <span class="text-sm text-gray-700 font-medium">Contact Us</span>
+                    <p class="text-xs text-gray-400">Get in touch with our team</p>
+                  </div>
+                </a>
+                <a href="/get-a-quote" class="header-mega-simple" role="menuitem">
+                  <i class="fa-solid fa-calculator text-blue-500 text-sm w-5"></i>
+                  <div>
+                    <span class="text-sm text-gray-700 font-medium">Get a Quote</span>
+                    <p class="text-xs text-gray-400">Calculate your project budget</p>
+                  </div>
+                </a>
+                <a href="/grievance" class="header-mega-simple" role="menuitem">
+                  <i class="fa-solid fa-file-signature text-blue-500 text-sm w-5"></i>
+                  <div>
+                    <span class="text-sm text-gray-700 font-medium">Grievance</span>
+                    <p class="text-xs text-gray-400">Submit complaints or feedback</p>
+                  </div>
+                </a>
+                <a href="/legal" class="header-mega-simple" role="menuitem">
+                  <i class="fa-solid fa-scale-balanced text-blue-500 text-sm w-5"></i>
+                  <div>
+                    <span class="text-sm text-gray-700 font-medium">Legal</span>
+                    <p class="text-xs text-gray-400">Terms and legal information</p>
+                  </div>
+                </a>
+                <a href="/tools" class="header-mega-simple" role="menuitem">
+                  <i class="fa-solid fa-toolbox text-indigo-500 text-sm w-5"></i>
+                  <div>
+                    <span class="text-sm text-gray-700 font-medium">Free Tools</span>
+                    <p class="text-xs text-gray-400">SEO, AI & business tools</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Buttons -->
+    <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-2 lg:items-center">
+      <button
+        type="button"
+        data-search-open
+        aria-label="Search the website"
+        title="Search (Ctrl/Cmd + K)"
+        class="inline-flex items-center gap-2 bg-gray-50 text-gray-500 text-sm pl-3 pr-2 py-2 rounded-full border border-gray-200 hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 shrink-0 w-56 xl:w-72"
+      >
+        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+        <span class="flex-1 text-left truncate">Search…</span>
+        <kbd
+          class="hidden xl:inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold text-gray-500 bg-white rounded border border-gray-200 leading-none"
+          >⌘K</kbd
+        >
+      </button>
+      <a
+        href="/shell-strategy"
+        class="inline-flex items-center gap-2 bg-purple-600 text-white text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-purple-700 transition-all duration-200 whitespace-nowrap shrink-0"
+      >
+        <i class="fa-solid fa-bolt text-xs"></i>
+        <span class="hidden xl:inline">Shell Strategy</span>
+        <span class="xl:hidden">Shell</span>
+      </a>
+      <a
+        href="/contact"
+        class="inline-flex items-center gap-2 bg-gray-900 text-white text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-gray-800 transition-all duration-200 whitespace-nowrap shrink-0"
+      >
+        Get Started
+        <i class="fa-solid fa-arrow-right text-xs"></i>
+      </a>
+    </div>
+
+    <!-- Hamburger for mobile -->
+    <div class="flex lg:hidden items-center gap-2">
+      <button
+        type="button"
+        data-search-open
+        aria-label="Search the website"
+        class="cursor-pointer inline-flex items-center justify-center rounded-full p-2.5 text-gray-700 hover:bg-gray-100 transition"
+      >
+        <i class="fa-solid fa-magnifying-glass text-lg" aria-hidden="true"></i>
+      </button>
+      <button
+        id="openMobileMenu"
+        type="button"
+        class="cursor-pointer inline-flex items-center justify-center rounded-full p-2.5 text-gray-700 hover:bg-gray-100 transition"
+        aria-label="Open main menu"
+      >
+        <i class="fa-solid fa-bars text-xl" aria-hidden="true"></i>
+      </button>
+    </div>
+  </nav>
+
+  <MobileHeader />
+</header>
+
+<script is:inline>
+  function setupDesktopDropdown(menuBtnId, submenuId) {
+    const menuBtn = document.getElementById(menuBtnId);
+    const submenu = document.getElementById(submenuId);
+    let open = false;
+
+    if (menuBtn && submenu) {
+      menuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        open = !open;
+        submenu.classList.toggle("hidden", !open);
+        menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+
+      document.addEventListener("click", (e) => {
+        if (open && !menuBtn.contains(e.target) && !submenu.contains(e.target)) {
+          open = false;
+          submenu.classList.add("hidden");
+          menuBtn.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      menuBtn.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          open = false;
+          submenu.classList.add("hidden");
+          menuBtn.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+  }
+
+  setupDesktopDropdown("moreMenuBtn", "moreSubmenu");
+  setupDesktopDropdown("servicesMenuBtn", "servicesSubmenu");
+  setupDesktopDropdown("aiMenuBtn", "aiSubmenu");
+</script>
+
+<style>
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .animate-fade-in {
+    animation: fade-in 0.5s ease;
+  }
+  /* Header link styles - no underline */
+  header a,
+  header a:hover,
+  header a:visited {
+    text-decoration: none !important;
+  }
+  .header-nav-link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    padding: 0.625rem 1rem;
+    border-radius: 9999px;
+    transition: all 0.2s;
+  }
+  .header-nav-link:hover {
+    color: #111827;
+    background-color: rgba(249, 250, 251, 0.8);
+  }
+  .header-menu-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s;
+  }
+  .header-menu-item:hover {
+    background-color: rgba(219, 234, 254, 0.5);
+  }
+  .header-menu-link {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s;
+  }
+  .header-menu-link:hover {
+    background-color: rgba(219, 234, 254, 0.5);
+  }
+  .header-mega-simple {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.625rem 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+  }
+  .header-mega-simple:hover {
+    background-color: rgba(219, 234, 254, 0.5);
+  }
+  .header-more-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+  }
+  .header-more-link:hover {
+    background-color: rgba(219, 234, 254, 0.5);
+  }
+</style>

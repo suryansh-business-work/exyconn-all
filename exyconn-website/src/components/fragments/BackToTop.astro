@@ -1,0 +1,24 @@
+<button
+  id="backToTopBtn"
+  aria-label="Back to top"
+  class="fixed bottom-20 right-6 z-[9999] bg-indigo-700 text-white p-3 rounded-full shadow-lg hover:bg-indigo-800 transition-opacity opacity-0 pointer-events-none"
+  style="transition: opacity 0.3s;"
+>
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script is:inline>
+  const backToTopBtn = document.getElementById("backToTopBtn");
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 300) {
+      backToTopBtn.classList.remove("opacity-0", "pointer-events-none");
+      backToTopBtn.classList.add("opacity-100");
+    } else {
+      backToTopBtn.classList.add("opacity-0", "pointer-events-none");
+      backToTopBtn.classList.remove("opacity-100");
+    }
+  });
+  backToTopBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+</script>

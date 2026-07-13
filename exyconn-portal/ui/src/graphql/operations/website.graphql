@@ -1,0 +1,353 @@
+fragment BlogPostFields on BlogPost {
+  id
+  slug
+  title
+  summary
+  content
+  author {
+    name
+    role
+    initials
+  }
+  readTime
+  tags
+  coverImage
+  featured
+  isActive
+  publishedAt
+}
+
+query ListBlogPosts {
+  listBlogPosts {
+    ...BlogPostFields
+  }
+}
+
+mutation CreateBlogPost($input: BlogPostInput!) {
+  createBlogPost(input: $input) {
+    id
+  }
+}
+
+mutation UpdateBlogPost($id: ID!, $input: BlogPostInput!) {
+  updateBlogPost(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteBlogPost($id: ID!) {
+  deleteBlogPost(id: $id)
+}
+
+fragment CaseStudyFields on CaseStudy {
+  id
+  slug
+  title
+  excerpt
+  content
+  coverImage
+  category
+  author
+  tags
+  pdfUrl
+  featured
+  isActive
+  publishedAt
+}
+
+query ListCaseStudies {
+  listCaseStudies {
+    ...CaseStudyFields
+  }
+}
+
+mutation CreateCaseStudy($input: CaseStudyInput!) {
+  createCaseStudy(input: $input) {
+    id
+  }
+}
+
+mutation UpdateCaseStudy($id: ID!, $input: CaseStudyInput!) {
+  updateCaseStudy(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteCaseStudy($id: ID!) {
+  deleteCaseStudy(id: $id)
+}
+
+fragment JobCompanyFields on JobCompany {
+  id
+  companyCode
+  slug
+  name
+  logo
+  tagline
+  description
+  culture
+  website
+  founded
+  employees
+  industry
+  headquarters
+  benefits {
+    icon
+    title
+    description
+  }
+  socialLinks {
+    linkedin
+    twitter
+    facebook
+    instagram
+  }
+  brandColor
+  secondaryColor
+  isActive
+  order
+}
+
+query ListJobCompanies {
+  listJobCompanies {
+    ...JobCompanyFields
+  }
+}
+
+mutation CreateJobCompany($input: JobCompanyInput!) {
+  createJobCompany(input: $input) {
+    id
+  }
+}
+
+mutation UpdateJobCompany($id: ID!, $input: JobCompanyInput!) {
+  updateJobCompany(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteJobCompany($id: ID!) {
+  deleteJobCompany(id: $id)
+}
+
+fragment JobFields on Job {
+  id
+  jobCode
+  companySlug
+  title
+  category
+  skillSet
+  shortJobDescription
+  jobDescription
+  jobResponsibilities
+  requirements
+  niceToHave
+  benefits
+  location
+  jobType
+  experienceLevel
+  workMode
+  salaryRange
+  jobPostDate
+  applicationDeadline
+  isActive
+  isFeatured
+}
+
+query ListJobs {
+  listJobs {
+    ...JobFields
+  }
+}
+
+mutation CreateJob($input: JobInput!) {
+  createJob(input: $input) {
+    id
+  }
+}
+
+mutation UpdateJob($id: ID!, $input: JobInput!) {
+  updateJob(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteJob($id: ID!) {
+  deleteJob(id: $id)
+}
+
+fragment GigFields on Gig {
+  id
+  gigCode
+  title
+  category
+  shortDescription
+  fullDescription
+  deliverables
+  requirements
+  tags
+  budget
+  duration
+  status
+  applicationType
+  applicationContact
+  postedDate
+  deadline
+  isUrgent
+}
+
+query ListGigs {
+  listGigs {
+    ...GigFields
+  }
+}
+
+mutation CreateGig($input: GigInput!) {
+  createGig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateGig($id: ID!, $input: GigInput!) {
+  updateGig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteGig($id: ID!) {
+  deleteGig(id: $id)
+}
+
+fragment ToolCategoryFields on ToolCategory {
+  id
+  slug
+  category
+  description
+  icon
+  color
+  isActive
+  order
+}
+
+query ListToolCategories {
+  listToolCategories {
+    ...ToolCategoryFields
+  }
+}
+
+mutation CreateToolCategory($input: ToolCategoryInput!) {
+  createToolCategory(input: $input) {
+    id
+  }
+}
+
+mutation UpdateToolCategory($id: ID!, $input: ToolCategoryInput!) {
+  updateToolCategory(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteToolCategory($id: ID!) {
+  deleteToolCategory(id: $id)
+}
+
+fragment ToolFields on Tool {
+  id
+  toolCode
+  categorySlug
+  name
+  description
+  longDescription
+  url
+  icon
+  color
+  features
+  useCases
+  keywords
+  isActive
+  isMVP
+  order
+}
+
+query ListTools {
+  listTools {
+    ...ToolFields
+  }
+}
+
+mutation CreateTool($input: ToolInput!) {
+  createTool(input: $input) {
+    id
+  }
+}
+
+mutation UpdateTool($id: ID!, $input: ToolInput!) {
+  updateTool(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteTool($id: ID!) {
+  deleteTool(id: $id)
+}
+
+fragment NavLinkFields on NavLink {
+  id
+  label
+  href
+  description
+  category
+  keywords
+  isActive
+  order
+}
+
+query ListNavLinks {
+  listNavLinks {
+    ...NavLinkFields
+  }
+}
+
+mutation CreateNavLink($input: NavLinkInput!) {
+  createNavLink(input: $input) {
+    id
+  }
+}
+
+mutation UpdateNavLink($id: ID!, $input: NavLinkInput!) {
+  updateNavLink(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteNavLink($id: ID!) {
+  deleteNavLink(id: $id)
+}
+
+fragment WebsiteSubmissionFields on WebsiteSubmission {
+  id
+  formType
+  source
+  submissionData
+  status
+  notes
+  createdAt
+}
+
+query ListWebsiteSubmissions {
+  listWebsiteSubmissions {
+    ...WebsiteSubmissionFields
+  }
+}
+
+mutation TriageWebsiteSubmission($id: ID!, $input: WebsiteSubmissionTriageInput!) {
+  triageWebsiteSubmission(id: $id, input: $input) {
+    id
+    status
+    notes
+  }
+}
+
+mutation DeleteWebsiteSubmission($id: ID!) {
+  deleteWebsiteSubmission(id: $id)
+}

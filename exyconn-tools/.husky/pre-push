@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "🚀 Running pre-push checks..."
+
+# All checks already run in pre-commit
+# This is a final verification before pushing
+
+echo "✅ All pre-push checks passed! Ready to push."

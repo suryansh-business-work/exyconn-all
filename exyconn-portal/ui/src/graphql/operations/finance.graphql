@@ -1,0 +1,28 @@
+query ListInvoices {
+  listInvoices {
+    id
+    number
+    clientId
+    amount
+    currency
+    status
+    issuedDate
+    dueDate
+  }
+}
+
+mutation CreateInvoice($input: InvoiceInput!) {
+  createInvoice(input: $input) {
+    id
+  }
+}
+
+mutation UpdateInvoice($id: ID!, $input: InvoiceInput!) {
+  updateInvoice(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteInvoice($id: ID!) {
+  deleteInvoice(id: $id)
+}

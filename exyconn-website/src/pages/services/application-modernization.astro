@@ -1,0 +1,128 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+---
+
+<Page
+  metaTitle="Application Modernization Services | Exyconn"
+  metaDescription="Upgrade your legacy systems for performance, security, and innovation. Exyconn's application modernization services help you transform, migrate, and optimize business-critical applications."
+  metaKeywords="application modernization, legacy system upgrade, app migration, modernization consulting, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="Application Modernization"
+    subtitle="Upgrade. Secure. Transform."
+    description="Modernize your legacy applications for better performance, security, and scalability. Exyconn helps you migrate, refactor, and optimize business-critical systems—unlocking innovation and reducing technical debt."
+    image="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+    ctaText="Start Your Modernization"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="What is Application Modernization?"
+    description='<span class="font-semibold text-indigo-700">Application modernization</span> is the process of updating legacy software to modern architectures, platforms, and technologies. This improves performance, security, maintainability, and enables integration with new digital solutions.'
+    iconClass="fa-solid fa-arrows-rotate text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Modernize Your Applications?"
+    items={[
+      {
+        icon: "fa-solid fa-gauge-high text-indigo-500 mt-1",
+        text: "Boost performance and reliability for business-critical apps.",
+      },
+      {
+        icon: "fa-solid fa-shield-halved text-indigo-500 mt-1",
+        text: "Enhance security and compliance to reduce risk.",
+      },
+      {
+        icon: "fa-solid fa-cloud-arrow-up text-indigo-500 mt-1",
+        text: "Enable cloud migration and integration with modern platforms.",
+      },
+      {
+        icon: "fa-solid fa-gears text-indigo-500 mt-1",
+        text: "Reduce technical debt and maintenance costs.",
+      },
+      {
+        icon: "fa-solid fa-lightbulb text-indigo-500 mt-1",
+        text: "Unlock innovation and support digital transformation.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="Our Application Modernization Services"
+    columns={[
+      {
+        icon: "fa-solid fa-database text-4xl text-indigo-600 mb-4",
+        heading: "Legacy Assessment",
+        text: "Evaluate your current systems and define a modernization roadmap.",
+      },
+      {
+        icon: "fa-solid fa-code-compare text-4xl text-indigo-600 mb-4",
+        heading: "Migration & Refactoring",
+        text: "Migrate apps to cloud, refactor code, and adopt modern architectures.",
+      },
+      {
+        icon: "fa-solid fa-shield-halved text-4xl text-indigo-600 mb-4",
+        heading: "Security & Optimization",
+        text: "Enhance security, performance, and maintainability for long-term value.",
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="Application Modernization FAQs"
+    faqs={[
+      {
+        question: "What types of legacy systems can Exyconn modernize?",
+        answer:
+          "We modernize a wide range of legacy applications, including mainframe, desktop, web, and custom business systems.",
+      },
+      {
+        question: "Can you migrate my apps to the cloud?",
+        answer:
+          "Yes, we specialize in cloud migration, refactoring, and re-platforming to AWS, Azure, Google Cloud, and private clouds.",
+      },
+      {
+        question: "How do you ensure security during modernization?",
+        answer:
+          "We follow best practices for secure migration, data protection, and compliance throughout the modernization process.",
+      },
+      {
+        question: "Will there be downtime during migration?",
+        answer:
+          "We plan migrations to minimize downtime and disruption, using phased and parallel approaches where possible.",
+      },
+      {
+        question: "How do I get started with application modernization?",
+        answer:
+          "Contact Exyconn for a free consultation. We’ll assess your legacy systems and recommend the best modernization strategy.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Modernization Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

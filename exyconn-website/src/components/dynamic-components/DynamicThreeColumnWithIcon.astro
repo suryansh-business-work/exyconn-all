@@ -1,0 +1,68 @@
+---
+const {
+  title = "Lorem Ipsum Dolor Sit Amet",
+  columns = [
+    {
+      icon: "fa-solid fa-gears text-4xl text-indigo-600 mb-4",
+      heading: "Column One",
+      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque euismod, urna eu tincidunt consectetur.",
+    },
+    {
+      icon: "fa-solid fa-brain text-4xl text-indigo-600 mb-4",
+      heading: "Column Two",
+      text: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.",
+    },
+    {
+      icon: "fa-solid fa-users text-4xl text-indigo-600 mb-4",
+      heading: "Column Three",
+      text: "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    },
+  ],
+} = Astro.props;
+
+const gradients = [
+  "from-blue-500 to-cyan-500",
+  "from-purple-500 to-pink-500",
+  "from-emerald-500 to-teal-500",
+  "from-orange-500 to-amber-500",
+  "from-rose-500 to-red-500",
+  "from-indigo-500 to-violet-500",
+];
+---
+
+<section class="py-20 lg:py-28 bg-gradient-to-b from-white via-gray-50/50 to-white">
+  <div class="max-w-6xl mx-auto px-6 lg:px-8">
+    <!-- Section Header -->
+    <div class="text-center mb-14">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+        {title}
+      </h2>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="grid md:grid-cols-3 gap-8">
+      {
+        columns.map(
+          (
+            col: { icon: string | null | undefined; heading: unknown; text: unknown },
+            idx: number
+          ) => (
+            <div class="group bg-white rounded-3xl border border-gray-100 p-8 hover:shadow-xl hover:shadow-blue-100/50 hover:border-blue-100 transition-all duration-300">
+              <div
+                class={`w-16 h-16 bg-gradient-to-br ${gradients[idx % gradients.length]} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+              >
+                <i
+                  class={`${col.icon?.toString().split(" ")[0]} ${col.icon?.toString().split(" ")[1] || ""} text-white text-2xl`}
+                />
+              </div>
+              <h3 class="font-bold text-xl text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                {col.heading}
+              </h3>
+              <p class="text-gray-600 leading-relaxed">{col.text}</p>
+            </div>
+          )
+        )
+      }
+    </div>
+  </div>
+</section>

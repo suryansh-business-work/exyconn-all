@@ -1,0 +1,128 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+---
+
+<Page
+  metaTitle="Automation & Integration Services | Exyconn"
+  metaDescription="Automate workflows and integrate your business systems with Exyconn. We deliver end-to-end automation and seamless integration for greater efficiency, accuracy, and growth."
+  metaKeywords="automation, integration, workflow automation, system integration, business automation, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="Automation & Integration Services"
+    subtitle="Seamless. Efficient. Connected."
+    description="Transform your business with Exyconn’s automation and integration services. We help you automate repetitive tasks, connect your apps and data, and streamline workflows for maximum productivity and growth."
+    image="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+    ctaText="Start Automating"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="What is Automation & Integration?"
+    description='<span class="font-semibold text-indigo-700">Automation & Integration</span> involves connecting your business systems and automating manual processes. We enable seamless data flow, reduce errors, and free your team to focus on high-value work.'
+    iconClass="fa-solid fa-plug-circle-check text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Choose Exyconn for Automation & Integration?"
+    items={[
+      {
+        icon: "fa-solid fa-gears text-indigo-500 mt-1",
+        text: "Automate repetitive tasks and business workflows.",
+      },
+      {
+        icon: "fa-solid fa-plug text-indigo-500 mt-1",
+        text: "Integrate apps, databases, APIs, and cloud platforms.",
+      },
+      {
+        icon: "fa-solid fa-chart-line text-indigo-500 mt-1",
+        text: "Boost efficiency, accuracy, and scalability.",
+      },
+      {
+        icon: "fa-solid fa-shield-halved text-indigo-500 mt-1",
+        text: "Secure, compliant, and reliable integrations.",
+      },
+      {
+        icon: "fa-solid fa-user-check text-indigo-500 mt-1",
+        text: "Custom solutions tailored to your business needs.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="Our Automation & Integration Services"
+    columns={[
+      {
+        icon: "fa-solid fa-diagram-project text-4xl text-indigo-600 mb-4",
+        heading: "Workflow Automation",
+        text: "Automate multi-step business processes and approvals.",
+      },
+      {
+        icon: "fa-solid fa-code-merge text-4xl text-indigo-600 mb-4",
+        heading: "System Integration",
+        text: "Connect CRMs, ERPs, cloud apps, and databases for unified operations.",
+      },
+      {
+        icon: "fa-solid fa-robot text-4xl text-indigo-600 mb-4",
+        heading: "RPA & Bots",
+        text: "Deploy robotic process automation and bots for repetitive tasks.",
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="Automation & Integration FAQs"
+    faqs={[
+      {
+        question: "What systems can you integrate?",
+        answer:
+          "We integrate CRMs, ERPs, cloud apps, databases, APIs, and custom business systems.",
+      },
+      {
+        question: "Can you automate custom business workflows?",
+        answer:
+          "Yes, we design and implement automation for a wide range of business processes and approvals.",
+      },
+      {
+        question: "Is automation secure and compliant?",
+        answer:
+          "Absolutely. We follow best practices for security, privacy, and regulatory compliance.",
+      },
+      {
+        question: "Do you provide support after deployment?",
+        answer:
+          "Yes, we offer ongoing monitoring, support, and optimization for all automation and integration solutions.",
+      },
+      {
+        question: "How do I get started with automation & integration?",
+        answer:
+          "Contact Exyconn for a free consultation. We’ll assess your needs and recommend the best automation and integration strategy.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Automation & Integration Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

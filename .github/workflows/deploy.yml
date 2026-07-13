@@ -1,0 +1,165 @@
+name: Build & Deploy Exyconn
+
+# Deploys the full stack to 148.135.136.107 on push to main (or manual run).
+# All credentials come from GitHub Actions secrets — nothing is hardcoded.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: docker.io
+  OWNER: ${{ secrets.DOCKERHUB_USERNAME }}
+  TAG: ${{ github.sha }}
+
+jobs:
+  build:
+    name: Build & push ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: website
+            dockerfile: docker/website.Dockerfile
+            context: .
+            build_args: ''
+          - service: portal-ui
+            dockerfile: docker/portal-ui.Dockerfile
+            context: .
+            build_args: VITE_GRAPHQL_URL=https://portal-server.exyconn.com/graphql
+          - service: portal-server
+            dockerfile: docker/portal-server.Dockerfile
+            context: .
+            build_args: ''
+          - service: tools-ui
+            dockerfile: exyconn-tools/ui/Dockerfile
+            context: exyconn-tools/ui
+            build_args: VITE_API_BASE_URL=https://tools-api.exyconn.com
+          - service: tools-api
+            dockerfile: exyconn-tools/server/Dockerfile
+            context: exyconn-tools/server
+            # Private @exyconn/common lives on GitHub Packages; NPM_TOKEN authenticates it.
+            build_args: NPM_TOKEN=${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          build-args: ${{ matrix.build_args }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/exyconn-${{ matrix.service }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/exyconn-${{ matrix.service }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to server
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy compose file to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: docker-compose.prod.yml
+          target: /opt/exyconn
+      - name: Pull images & restart stack
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: TAG
+          script: |
+            set -e
+            cd /opt/exyconn
+            cat > .env <<EOF
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            TAG=${{ github.sha }}
+            MONGODB_URI=${{ secrets.MONGODB_URI }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            SMTP_HOST=${{ secrets.SMTP_HOST }}
+            SMTP_PORT=${{ secrets.SMTP_PORT }}
+            SMTP_USER=${{ secrets.SMTP_USER }}
+            SMTP_PASS=${{ secrets.SMTP_PASS }}
+            IMAGEKIT_PUBLIC_KEY=${{ secrets.IMAGEKIT_PUBLIC_KEY }}
+            IMAGEKIT_PRIVATE_KEY=${{ secrets.IMAGEKIT_PRIVATE_KEY }}
+            IMAGEKIT_URL_ENDPOINTS=${{ secrets.IMAGEKIT_URL_ENDPOINTS }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            GOOGLE_MAP_API=${{ secrets.GOOGLE_MAP_API }}
+            EOF
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker image prune -f
+
+  verify:
+    name: Verify 200 OK
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health-check every domain
+        run: |
+          set -e
+          urls=(
+            "https://exyconn.com"
+            "https://tools.exyconn.com"
+            "https://tools-api.exyconn.com/health"
+            "https://portal.exyconn.com"
+            "https://portal-server.exyconn.com/health"
+          )
+          for url in "${urls[@]}"; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 10 --retry-all-errors "$url")
+            echo "$url -> $code"
+            if [ "$code" != "200" ]; then echo "FAILED: $url returned $code"; exit 1; fi
+          done
+          echo "All five services returned 200 OK."
+
+  tracker:
+    name: Build tracker installer (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Package Windows installer
+        run: pnpm --filter exyconn-tracker-app run package:win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: exyconn-tracker-windows
+          path: exyconn-tracker-app/dist/*.exe
+          if-no-files-found: error
+
+  notify:
+    name: Notify Slack
+    needs: [verify, tracker]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post result to Slack
+        run: |
+          status="${{ (needs.verify.result == 'success' && needs.tracker.result == 'success') && '✅ succeeded' || '❌ failed' }}"
+          curl -s -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"Exyconn deploy $status for commit ${{ github.sha }} on ${{ github.ref_name }}\"}" \
+            "${{ secrets.SLACK_WEBHOOK }}"

@@ -1,0 +1,68 @@
+---
+interface LogoItem {
+  name: string;
+  src: string;
+  width?: string; // Custom width class e.g., "w-20", "w-24", etc.
+}
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  logos?: LogoItem[];
+  bgClass?: string;
+  lightBg?: boolean;
+}
+
+const {
+  title = "Powered By Leading Technology",
+  subtitle = "Built with industry-leading AI and cloud platforms",
+  logos,
+  bgClass = "bg-gradient-to-b from-gray-50 to-white",
+  lightBg = false,
+} = Astro.props;
+
+const defaultLogos: LogoItem[] = [
+  { name: "OpenAI", src: "/logos/openai.svg", width: "w-[150px]" },
+  { name: "Anthropic", src: "/logos/anthropic.svg" },
+  { name: "Google Cloud", src: "/logos/google-cloud.svg" },
+  { name: "AWS", src: "/logos/aws.png", width: "w-[50px]" },
+  { name: "Azure", src: "/logos/azure.svg", width: "w-[170px]" },
+  { name: "Gemini", src: "/logos/gemini.png" },
+];
+
+const techLogos = logos || defaultLogos;
+---
+
+<section class={`py-16 lg:py-24 ${bgClass}`}>
+  <div class="max-w-6xl mx-auto px-6 lg:px-8">
+    <!-- Section Header -->
+    <div class="text-center mb-12">
+      <h2
+        class={`text-2xl md:text-3xl lg:text-4xl font-bold mb-3 ${lightBg ? "text-gray-900" : "text-gray-900"}`}
+      >
+        {title}
+      </h2>
+      <p class={`text-lg ${lightBg ? "text-gray-600" : "text-gray-600"}`}>{subtitle}</p>
+    </div>
+
+    <!-- Logo Grid -->
+    <div
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-8 items-center justify-items-center"
+    >
+      {
+        techLogos.map((logo) => (
+          <div
+            class={`flex items-center justify-center p-4 rounded-2xl border transition-all duration-300 w-full h-24 ${lightBg ? "bg-white border-gray-100 hover:border-gray-200 hover:shadow-lg" : "bg-white border-gray-100 hover:border-gray-200 hover:shadow-lg"}`}
+          >
+            <img
+              src={logo.src}
+              alt={logo.name}
+              class={`object-contain grayscale hover:grayscale-0 transition-all duration-300 ${logo.width || "h-10 md:h-12 w-auto"}`}
+              loading="lazy"
+            />
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

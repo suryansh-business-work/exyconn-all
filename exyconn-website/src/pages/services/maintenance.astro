@@ -1,0 +1,128 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+---
+
+<Page
+  metaTitle="Application Maintenance & Support Services | Exyconn"
+  metaDescription="Keep your business applications running smoothly with Exyconn's maintenance services. We provide proactive support, updates, monitoring, and optimization for enterprise and custom apps."
+  metaKeywords="application maintenance, app support, software maintenance, managed services, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="Application Maintenance Services"
+    subtitle="Reliable. Proactive. Always On."
+    description="Ensure your business applications are secure, up-to-date, and high-performing. Exyconn provides comprehensive maintenance services—including monitoring, updates, bug fixes, and optimization—to maximize uptime and business value."
+    image="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+    ctaText="Get Maintenance Support"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="Why Application Maintenance?"
+    description='<span class="font-semibold text-indigo-700">Application maintenance</span> ensures your software stays secure, reliable, and aligned with evolving business needs. We handle updates, bug fixes, performance tuning, and enhancements—so you can focus on growth.'
+    iconClass="fa-solid fa-screwdriver-wrench text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Our Maintenance Services Include"
+    items={[
+      {
+        icon: "fa-solid fa-shield-halved text-indigo-500 mt-1",
+        text: "Security updates and vulnerability patching.",
+      },
+      {
+        icon: "fa-solid fa-bug text-indigo-500 mt-1",
+        text: "Bug fixes and issue resolution.",
+      },
+      {
+        icon: "fa-solid fa-gauge-high text-indigo-500 mt-1",
+        text: "Performance monitoring and optimization.",
+      },
+      {
+        icon: "fa-solid fa-gears text-indigo-500 mt-1",
+        text: "Feature enhancements and minor upgrades.",
+      },
+      {
+        icon: "fa-solid fa-headset text-indigo-500 mt-1",
+        text: "24/7 support and incident management.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="Why Choose Exyconn for Maintenance?"
+    columns={[
+      {
+        icon: "fa-solid fa-clock-rotate-left text-4xl text-indigo-600 mb-4",
+        heading: "Proactive Monitoring",
+        text: "Continuous monitoring to detect and resolve issues before they impact your business.",
+      },
+      {
+        icon: "fa-solid fa-user-shield text-4xl text-indigo-600 mb-4",
+        heading: "Expert Support",
+        text: "Experienced team for troubleshooting, updates, and compliance.",
+      },
+      {
+        icon: "fa-solid fa-chart-line text-4xl text-indigo-600 mb-4",
+        heading: "Continuous Optimization",
+        text: "Regular performance reviews and improvements to keep your apps running at their best.",
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="Application Maintenance FAQs"
+    faqs={[
+      {
+        question: "What types of applications do you maintain?",
+        answer:
+          "We support enterprise, custom, web, and mobile applications across a wide range of industries and platforms.",
+      },
+      {
+        question: "Do you offer 24/7 support?",
+        answer:
+          "Yes, we provide round-the-clock monitoring and incident response to ensure your applications are always available.",
+      },
+      {
+        question: "Can you maintain legacy systems?",
+        answer:
+          "Absolutely. We have experience supporting and modernizing legacy applications as well as new solutions.",
+      },
+      {
+        question: "How do you handle security updates?",
+        answer:
+          "We proactively monitor for vulnerabilities and apply security patches and updates as soon as they are available.",
+      },
+      {
+        question: "How do I get started with application maintenance?",
+        answer:
+          "Contact Exyconn for a free consultation. We’ll assess your applications and recommend the best maintenance plan for your needs.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Maintenance Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

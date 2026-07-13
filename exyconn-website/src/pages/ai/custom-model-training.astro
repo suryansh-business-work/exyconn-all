@@ -1,0 +1,128 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+---
+
+<Page
+  metaTitle="Custom AI Model Training | Exyconn"
+  metaDescription="Unlock the power of AI tailored to your business. Exyconn offers custom model training services—fine-tune LLMs, vision, and predictive models on your data for maximum impact."
+  metaKeywords="custom AI model training, fine-tuning, LLM, machine learning, business AI, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="Custom AI Model Training"
+    subtitle="Tailored Intelligence. Real Results."
+    description="Empower your business with AI models trained on your unique data. Exyconn helps you fine-tune large language models, vision models, and predictive systems for your specific industry, workflow, and goals."
+    image="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
+    ctaText="Request a Consultation"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="What is Custom Model Training?"
+    description='<span class="font-semibold text-indigo-700">Custom model training</span> is the process of adapting and fine-tuning AI models—such as LLMs, vision, or predictive models—on your proprietary data. This delivers higher accuracy, relevance, and business value compared to generic, off-the-shelf models.'
+    iconClass="fa-solid fa-brain text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Choose Custom Model Training?"
+    items={[
+      {
+        icon: "fa-solid fa-database text-indigo-500 mt-1",
+        text: "Leverages your unique business data for better results.",
+      },
+      {
+        icon: "fa-solid fa-bullseye text-indigo-500 mt-1",
+        text: "Improves accuracy and relevance for your use case.",
+      },
+      {
+        icon: "fa-solid fa-lock text-indigo-500 mt-1",
+        text: "Keeps sensitive data secure and models private.",
+      },
+      {
+        icon: "fa-solid fa-chart-line text-indigo-500 mt-1",
+        text: "Drives measurable ROI with tailored AI solutions.",
+      },
+      {
+        icon: "fa-solid fa-gears text-indigo-500 mt-1",
+        text: "Supports a wide range of tasks: NLP, vision, prediction, and more.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="How Custom Model Training Works"
+    columns={[
+      {
+        icon: "fa-solid fa-upload text-4xl text-indigo-600 mb-4",
+        heading: "Data Preparation",
+        text: "We help you collect, clean, and structure your business data for training.",
+      },
+      {
+        icon: "fa-solid fa-brain text-4xl text-indigo-600 mb-4",
+        heading: "Model Fine-Tuning",
+        text: "Our experts fine-tune state-of-the-art models (LLMs, vision, etc.) on your data.",
+      },
+      {
+        icon: "fa-solid fa-rocket text-4xl text-indigo-600 mb-4",
+        heading: "Deployment & Support",
+        text: "Deploy your custom model securely—on cloud or on-premises—with ongoing support.",
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="Custom Model Training FAQs"
+    faqs={[
+      {
+        question: "What types of models can Exyconn fine-tune?",
+        answer:
+          "We can fine-tune large language models (LLMs), computer vision models, time-series predictors, and more—tailored to your business needs.",
+      },
+      {
+        question: "Do I need a lot of data for custom training?",
+        answer:
+          "More data helps, but we can often achieve strong results with a few thousand quality examples. We’ll advise on data requirements for your use case.",
+      },
+      {
+        question: "Is my data secure during training?",
+        answer:
+          "Yes, your data remains private and secure. We offer on-premises, private cloud, and secure cloud training options.",
+      },
+      {
+        question: "How long does custom model training take?",
+        answer:
+          "Typical projects take from a few weeks to a few months, depending on data size, complexity, and deployment needs.",
+      },
+      {
+        question: "How do I get started with custom model training?",
+        answer:
+          "Contact Exyconn for a free consultation. We’ll assess your needs, data, and goals, then propose a tailored AI training plan.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Business Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

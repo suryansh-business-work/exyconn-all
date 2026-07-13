@@ -1,0 +1,52 @@
+query ListAiJobs {
+  listAiJobs {
+    id
+    name
+    model
+    prompt
+    status
+  }
+}
+
+mutation CreateAiJob($input: AiJobInput!) {
+  createAiJob(input: $input) {
+    id
+  }
+}
+
+mutation UpdateAiJob($id: ID!, $input: AiJobInput!) {
+  updateAiJob(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteAiJob($id: ID!) {
+  deleteAiJob(id: $id)
+}
+
+query ListPrompts {
+  listPrompts {
+    id
+    title
+    category
+    content
+    description
+    tags
+  }
+}
+
+mutation CreatePrompt($input: PromptInput!) {
+  createPrompt(input: $input) {
+    id
+  }
+}
+
+mutation UpdatePrompt($id: ID!, $input: PromptInput!) {
+  updatePrompt(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeletePrompt($id: ID!) {
+  deletePrompt(id: $id)
+}

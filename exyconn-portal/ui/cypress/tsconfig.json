@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["cypress", "node", "vite/client"],
+    "noEmit": true
+  },
+  "exclude": [],
+  "include": [
+    "./support/**/*.ts",
+    "./support/**/*.tsx",
+    "../src/**/*.cy.tsx",
+    "../__tests__/e2e/**/*.cy.ts"
+  ]
+}

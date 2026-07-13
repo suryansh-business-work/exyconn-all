@@ -1,0 +1,427 @@
+---
+import Newsletter from "./../fragments/Newsletter.astro";
+import CokkiesModel from "../CokkiesModel.astro";
+import AccessibilityDrawer from "../AccessibilityDrawer.astro";
+
+// Version is injected at build time via Vite define in astro.config.mjs
+// Falls back to env variable or default
+const versionLabel = import.meta.env.PUBLIC_APP_VERSION || "v0.0.1-dev";
+---
+
+<Newsletter />
+
+<!-- Footer Section - Modern Light Design -->
+<footer
+  class="w-full bg-gradient-to-b from-gray-50 to-white border-t border-gray-100"
+  role="contentinfo"
+  aria-label="Site footer"
+>
+  <!-- Main Footer Content -->
+  <div class="max-w-7xl mx-auto px-6 py-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
+      <!-- Brand Column -->
+      <div class="lg:col-span-2">
+        <a href="/" class="inline-block mb-6" aria-label="Exyconn - Go to homepage">
+          <img
+            src="https://ik.imagekit.io/esdata1/exyconn/logo/exyconn.svg"
+            alt="Exyconn Logo"
+            class="h-10"
+            width="120"
+            height="40"
+          />
+        </a>
+        <p class="text-gray-600 text-sm leading-relaxed mb-6 max-w-sm">
+          Empowering businesses with AI-native intelligence and enterprise-ready SaaS solutions.
+          From idea to MVP in weeks, not months.
+        </p>
+        <div class="flex items-center gap-4" role="list" aria-label="Social media links">
+          <a
+            href="https://linkedin.com/company/exyconn"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-10 h-10 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            aria-label="Follow us on LinkedIn (opens in new tab)"
+            role="listitem"
+          >
+            <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+          </a>
+          <a
+            href="https://twitter.com/exyconn"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-10 h-10 bg-gray-100 hover:bg-blue-50 hover:text-blue-400 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            aria-label="Follow us on X / Twitter (opens in new tab)"
+            role="listitem"
+          >
+            <i class="fa-brands fa-x-twitter" aria-hidden="true"></i>
+          </a>
+          <a
+            href="https://github.com/exyconn"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            aria-label="View our GitHub profile (opens in new tab)"
+            role="listitem"
+          >
+            <i class="fa-brands fa-github" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- AI Solutions Column -->
+      <nav aria-label="AI Solutions navigation">
+        <h4 class="font-semibold text-gray-900 mb-4">AI Solutions</h4>
+        <ul class="space-y-3 text-sm" role="list">
+          <li>
+            <a href="/ai" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >AI Platform</a
+            >
+          </li>
+          <li>
+            <a
+              href="/ai/agentic"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">Agentic AI</a
+            >
+          </li>
+          <li>
+            <a
+              href="/ai/bot-creation"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">Bot Creation</a
+            >
+          </li>
+          <li>
+            <a
+              href="/ai/workflows"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">AI Workflows</a
+            >
+          </li>
+          <li>
+            <a href="/ai/llms" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >LLMs</a
+            >
+          </li>
+          <li>
+            <a
+              href="/ai/custom-model-training"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >Custom Training</a
+            >
+          </li>
+          <li>
+            <a
+              href="/ai/mcp-server"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">MCP Server</a
+            >
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Services Column -->
+      <nav aria-label="Services navigation">
+        <h4 class="font-semibold text-gray-900 mb-4">Services</h4>
+        <ul class="space-y-3 text-sm" role="list">
+          <li>
+            <a
+              href="/our-services"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">All Services</a
+            >
+          </li>
+          <li>
+            <a
+              href="/services/digital-consulting"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >Digital Consulting</a
+            >
+          </li>
+          <li>
+            <a
+              href="/services/software-as-a-service"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >SaaS Development</a
+            >
+          </li>
+          <li>
+            <a
+              href="/services/enterprise-application"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >Enterprise Apps</a
+            >
+          </li>
+          <li>
+            <a
+              href="/services/mobile-application-development"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">Mobile Apps</a
+            >
+          </li>
+          <li>
+            <a
+              href="/services/data-analytics"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">Data Analytics</a
+            >
+          </li>
+          <li>
+            <a
+              href="/services/digital-marketing"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >Digital Marketing</a
+            >
+          </li>
+          <li>
+            <a
+              href="/services/application-modernization"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >App Modernization</a
+            >
+          </li>
+          <li>
+            <a
+              href="/services/software-development-outsourcing"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">Outsourcing</a
+            >
+          </li>
+          <li>
+            <a
+              href="/india/offer"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">India Offer</a
+            >
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Products Column -->
+      <nav aria-label="Products navigation">
+        <h4 class="font-semibold text-gray-900 mb-4">Products</h4>
+        <ul class="space-y-3 text-sm" role="list">
+          <li>
+            <a
+              href="/our-products"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">All Products</a
+            >
+          </li>
+          <li>
+            <a
+              href="/shell-strategy"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">Shell Strategy</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://sibera.work"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-600 hover:text-gray-900 transition inline-flex items-center gap-1 focus:underline"
+            >
+              Sibera <i
+                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-400"
+                aria-hidden="true"></i>
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://spentiva.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-600 hover:text-gray-900 transition inline-flex items-center gap-1 focus:underline"
+            >
+              Spentiva <i
+                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-400"
+                aria-hidden="true"></i>
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://duncit.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-600 hover:text-gray-900 transition inline-flex items-center gap-1 focus:underline"
+            >
+              Duncit <i
+                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-400"
+                aria-hidden="true"></i>
+            </a>
+          </li>
+          <li>
+            <a href="/tools" class="text-gray-600 hover:text-gray-900 transition focus:underline">
+              Free Tools
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Company Column -->
+      <nav aria-label="Company navigation">
+        <h4 class="font-semibold text-gray-900 mb-4">Company</h4>
+        <ul class="space-y-3 text-sm" role="list">
+          <li>
+            <a href="/about-us" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >About Us</a
+            >
+          </li>
+          <li>
+            <a
+              href="/our-vision"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">Our Vision</a
+            >
+          </li>
+          <li>
+            <a href="/career" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >Careers</a
+            >
+          </li>
+          <li>
+            <a href="/blog" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >Blog</a
+            >
+          </li>
+          <li>
+            <a href="/tools" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >Free Tools</a
+            >
+          </li>
+          <li>
+            <a
+              href="/case-studies"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">Case Studies</a
+            >
+          </li>
+          <li>
+            <a href="/contact" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >Contact</a
+            >
+          </li>
+          <li>
+            <a
+              href="/get-a-quote"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">Get a Quote</a
+            >
+          </li>
+          <li>
+            <a
+              href="/grievance"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">Grievance</a
+            >
+          </li>
+          <li>
+            <a
+              href="/privacy-policy"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">Privacy Policy</a
+            >
+          </li>
+          <li>
+            <a href="/cookies" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >Cookies</a
+            >
+          </li>
+          <li>
+            <a href="/legal" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >Legal</a
+            >
+          </li>
+          <li>
+            <a href="/sitemap" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+              >Sitemap</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="border-t border-gray-100">
+    <div class="max-w-7xl mx-auto px-6 py-6">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <p class="text-sm text-gray-500">
+            © 2026 Exyconn Business Solutions. All rights reserved.
+          </p>
+          <span
+            class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded font-mono"
+            title="Website Version">{versionLabel}</span
+          >
+        </div>
+        <nav aria-label="Legal links" class="flex flex-wrap items-center gap-6 text-sm">
+          <a
+            href="/privacy-policy"
+            class="text-gray-500 hover:text-gray-900 transition focus:underline">Privacy Policy</a
+          >
+          <a href="/legal" class="text-gray-500 hover:text-gray-900 transition focus:underline"
+            >Terms of Service</a
+          >
+          <a href="/cookies" class="text-gray-500 hover:text-gray-900 transition focus:underline"
+            >Cookies</a
+          >
+          <a href="/sitemap" class="text-gray-500 hover:text-gray-900 transition focus:underline"
+            >Sitemap</a
+          >
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <CokkiesModel />
+  <AccessibilityDrawer />
+
+  <!-- Single Back to Top Button -->
+  <button
+    id="backToTopBtn"
+    class="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-all duration-300 flex items-center justify-center opacity-0 pointer-events-none cursor-pointer"
+    aria-label="Back to top"
+  >
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
+</footer>
+
+<script is:inline>
+  // Cookie consent handling
+  function showCookieDialog() {
+    const consent = localStorage.getItem("cookieConsent");
+    const dialog = document.getElementById("cookieConsent");
+    if (!consent && dialog) {
+      dialog.querySelector("div").style.display = "flex";
+    }
+  }
+  function hideCookieDialog() {
+    const dialog = document.getElementById("cookieConsent");
+    if (dialog) dialog.querySelector("div").style.display = "none";
+  }
+  document.addEventListener("DOMContentLoaded", () => {
+    showCookieDialog();
+    document.getElementById("acceptCookies")?.addEventListener("click", () => {
+      localStorage.setItem("cookieConsent", "accepted");
+      hideCookieDialog();
+    });
+    document.getElementById("rejectCookies")?.addEventListener("click", () => {
+      localStorage.setItem("cookieConsent", "rejected");
+      hideCookieDialog();
+    });
+
+    // Back to Top
+    const backToTopBtn = document.getElementById("backToTopBtn");
+    if (backToTopBtn) {
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 300) {
+          backToTopBtn.classList.remove("opacity-0", "pointer-events-none");
+          backToTopBtn.classList.add("opacity-100");
+        } else {
+          backToTopBtn.classList.add("opacity-0", "pointer-events-none");
+          backToTopBtn.classList.remove("opacity-100");
+        }
+      });
+      backToTopBtn.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
+  });
+</script>
+
+<!-- Google Analytics -->
+<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-1SMCDWXEYH"></script>
+<script is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "G-1SMCDWXEYH");
+</script>

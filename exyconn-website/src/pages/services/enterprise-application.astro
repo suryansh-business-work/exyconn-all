@@ -1,0 +1,128 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+---
+
+<Page
+  metaTitle="Enterprise Application Services | Exyconn"
+  metaDescription="Build, scale, and optimize robust enterprise applications with Exyconn. We deliver secure, high-performance solutions tailored for complex business needs and large-scale operations."
+  metaKeywords="enterprise application, business software, enterprise solutions, scalable apps, provider services, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="Enterprise Application Services"
+    subtitle="Robust. Scalable. Enterprise-Grade."
+    description="Empower your organization with robust, secure, and scalable enterprise applications. Exyconn designs, develops, and manages mission-critical solutions for large-scale business operations and complex workflows."
+    image="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+    ctaText="Start Your Enterprise Project"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="What are Enterprise Applications?"
+    description='<span class="font-semibold text-indigo-700">Enterprise applications</span> are large-scale software systems designed to support complex business processes, integrate with multiple systems, and deliver high performance, security, and reliability for organizations of any size.'
+    iconClass="fa-solid fa-building text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Choose Exyconn for Enterprise Applications?"
+    items={[
+      {
+        icon: "fa-solid fa-layer-group text-indigo-500 mt-1",
+        text: "Robust architecture for mission-critical operations.",
+      },
+      {
+        icon: "fa-solid fa-shield-halved text-indigo-500 mt-1",
+        text: "Enterprise-grade security, compliance, and governance.",
+      },
+      {
+        icon: "fa-solid fa-gears text-indigo-500 mt-1",
+        text: "Custom integrations with ERPs, CRMs, and business platforms.",
+      },
+      {
+        icon: "fa-solid fa-chart-line text-indigo-500 mt-1",
+        text: "Scalable solutions for growing business needs.",
+      },
+      {
+        icon: "fa-solid fa-users text-indigo-500 mt-1",
+        text: "End-to-end support from consulting to managed services.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="Our Enterprise Application Services"
+    columns={[
+      {
+        icon: "fa-solid fa-diagram-project text-4xl text-indigo-600 mb-4",
+        heading: "Custom Development",
+        text: "Design and build tailored enterprise applications for your unique business processes.",
+      },
+      {
+        icon: "fa-solid fa-plug text-4xl text-indigo-600 mb-4",
+        heading: "Integration & Modernization",
+        text: "Integrate with existing systems and modernize legacy applications for better performance.",
+      },
+      {
+        icon: "fa-solid fa-shield-halved text-4xl text-indigo-600 mb-4",
+        heading: "Management & Support",
+        text: "Ongoing maintenance, monitoring, and optimization for enterprise-grade reliability.",
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="Enterprise Application FAQs"
+    faqs={[
+      {
+        question: "What types of enterprise applications does Exyconn build?",
+        answer:
+          "We build ERP, CRM, HRM, supply chain, analytics, and custom business applications tailored to your needs.",
+      },
+      {
+        question: "Can you integrate with our existing systems?",
+        answer:
+          "Yes, we specialize in seamless integration with ERPs, CRMs, databases, and cloud platforms.",
+      },
+      {
+        question: "How do you ensure security and compliance?",
+        answer:
+          "Our solutions follow best practices for security, data privacy, and industry compliance standards.",
+      },
+      {
+        question: "Do you provide ongoing support and management?",
+        answer:
+          "Absolutely. We offer managed services, monitoring, and continuous optimization for all enterprise applications.",
+      },
+      {
+        question: "How do I get started with enterprise application services?",
+        answer:
+          "Contact Exyconn for a free consultation. We’ll assess your requirements and recommend the best solution for your enterprise.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Enterprise Application Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

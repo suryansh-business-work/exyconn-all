@@ -1,0 +1,24 @@
+{
+  "name": "exyconn-portal",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "run:all": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --parallel run dev",
+    "build": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --parallel run build",
+    "lint": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --parallel run lint",
+    "test:all": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --parallel run test",
+    "test:unit": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --parallel run test:unit",
+    "unit-test": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --parallel run test:unit",
+    "test:ct": "pnpm --filter exyconn-portal-ui run test:ct",
+    "test:e2e": "pnpm --filter exyconn-portal-server run test:e2e && pnpm --filter exyconn-portal-ui run test:e2e",
+    "e2e": "pnpm run test:e2e",
+    "coverage": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --parallel run coverage",
+    "codegen": "pnpm --filter exyconn-portal-server run codegen && pnpm --filter exyconn-portal-ui run codegen",
+    "seed": "pnpm --filter exyconn-portal-server run seed"
+  },
+  "devDependencies": {
+    "husky": "^9.0.0",
+    "start-server-and-test": "^3.0.5"
+  }
+}

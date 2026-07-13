@@ -1,0 +1,40 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+dist
+.astro
+.next
+.nuxt
+
+# Development files
+*.log
+.env
+.env.local
+.env*.local
+.nvmrc
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Testing
+coverage
+*.test.*
+*.spec.*
+__tests__
+
+# Misc
+README.md
+*.md
+!README.md
+.DS_Store
+Thumbs.db

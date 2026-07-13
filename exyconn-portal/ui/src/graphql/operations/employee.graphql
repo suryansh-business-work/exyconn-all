@@ -1,0 +1,86 @@
+fragment PayrollFields on SalaryStructure {
+  id
+  currency
+  basic
+  hra
+  allowances
+  deductions
+  gross
+  net
+  effectiveFrom
+}
+
+fragment SalarySlipFields on SalarySlip {
+  id
+  month
+  year
+  currency
+  gross
+  deductions
+  net
+  status
+  issuedDate
+}
+
+fragment PolicyFields on Policy {
+  id
+  title
+  category
+  summary
+  url
+  effectiveDate
+}
+
+fragment HolidayFields on Holiday {
+  id
+  name
+  date
+  type
+  description
+}
+
+fragment SupportTicketFields on SupportTicket {
+  id
+  subject
+  category
+  description
+  priority
+  status
+  createdAt
+}
+
+query MyPayroll {
+  myPayroll {
+    ...PayrollFields
+  }
+}
+
+query MySalarySlips {
+  mySalarySlips {
+    ...SalarySlipFields
+  }
+}
+
+query ListPolicies {
+  listPolicies {
+    ...PolicyFields
+  }
+}
+
+query ListHolidays {
+  listHolidays {
+    ...HolidayFields
+  }
+}
+
+query MySupportTickets {
+  mySupportTickets {
+    ...SupportTicketFields
+  }
+}
+
+mutation CreateSupportTicket($input: SupportTicketInput!) {
+  createSupportTicket(input: $input) {
+    id
+  }
+}

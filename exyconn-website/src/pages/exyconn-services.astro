@@ -1,0 +1,618 @@
+---
+import Page from "../layouts/Page.astro";
+import DynamicTable from "../components/dynamic-components/DynamicTable.astro";
+
+// Complete Shell Services Data
+const shellServices = [
+  // Global
+  {
+    id: "dashboard",
+    name: "Dashboard",
+    description: "Overview of API analytics, usage statistics, and system health metrics.",
+    icon: "fa-gauge-high",
+    status: "live",
+    category: "Global",
+    features: ["API Analytics", "Usage Stats", "Health Metrics"],
+  },
+  {
+    id: "api-key",
+    name: "API Key",
+    description: "Manage API keys for external service authentication and access control.",
+    icon: "fa-key",
+    status: "live",
+    category: "Global",
+    features: ["Key Generation", "Access Control", "Rate Limiting"],
+  },
+  {
+    id: "timezone-settings",
+    name: "Timezone",
+    description: "Configure timezone preferences with multi-timezone select and time conversion.",
+    icon: "fa-clock",
+    status: "live",
+    category: "Global",
+    features: ["Multi-timezone", "Time Conversion", "date-fns Integration"],
+  },
+
+  // Communications
+  {
+    id: "email",
+    name: "Email",
+    description:
+      "Send transactional and marketing emails with template support and delivery tracking.",
+    icon: "fa-envelope",
+    status: "live",
+    category: "Communications",
+    features: ["Templates", "History", "Settings", "Delivery Tracking"],
+  },
+  {
+    id: "phone",
+    name: "Phone",
+    description: "Voice calling capabilities with call tracking and recording features.",
+    icon: "fa-phone",
+    status: "live",
+    category: "Communications",
+    features: ["Voice Calls", "Call Recording", "Call Tracking"],
+  },
+  {
+    id: "sms",
+    name: "SMS",
+    description: "Send and receive SMS messages with delivery reports and templates.",
+    icon: "fa-message",
+    status: "live",
+    category: "Communications",
+    features: ["Delivery Reports", "Templates", "Two-way SMS"],
+  },
+  {
+    id: "chat",
+    name: "Chat",
+    description: "Real-time chat and instant messaging for web and mobile applications.",
+    icon: "fa-comments",
+    status: "live",
+    category: "Communications",
+    features: ["Real-time", "WebSocket", "Message History"],
+  },
+  {
+    id: "web-video",
+    name: "Web Video",
+    description: "Video conferencing and streaming capabilities for web applications.",
+    icon: "fa-video",
+    status: "live",
+    category: "Communications",
+    features: ["WebRTC", "Recording", "Screen Share"],
+  },
+  {
+    id: "web-audio",
+    name: "Web Audio",
+    description: "Audio streaming and voice communication for web applications.",
+    icon: "fa-microphone",
+    status: "live",
+    category: "Communications",
+    features: ["Voice Chat", "Audio Streaming", "WebRTC"],
+  },
+  {
+    id: "notifications",
+    name: "Notifications",
+    description: "Push notifications and in-app notification management.",
+    icon: "fa-bell",
+    status: "live",
+    category: "Communications",
+    features: ["Push Notifications", "FCM", "In-app Alerts"],
+  },
+
+  // Developer Tools
+  {
+    id: "logs",
+    name: "Logs",
+    description: "Centralized logging service for application debugging and monitoring.",
+    icon: "fa-file-lines",
+    status: "live",
+    category: "Developer Tools",
+    features: ["Search Logs", "Test Logs", "Log Retention"],
+  },
+  {
+    id: "ai",
+    name: "AI",
+    description: "AI-powered services including text generation, analysis, and custom prompts.",
+    icon: "fa-robot",
+    status: "live",
+    category: "Developer Tools",
+    features: ["GPT Integration", "Custom Prompts", "Model Selection"],
+  },
+  {
+    id: "environment-keys",
+    name: "Environment Keys",
+    description: "Secure storage and management of environment variables and secrets.",
+    icon: "fa-database",
+    status: "live",
+    category: "Developer Tools",
+    features: ["Encryption", "Version Control", "Team Access"],
+  },
+  {
+    id: "global-search",
+    name: "Global Search",
+    description: "Unified search across all services and resources.",
+    icon: "fa-magnifying-glass",
+    status: "live",
+    category: "Developer Tools",
+    features: ["Elasticsearch", "Fuzzy Search", "Filters"],
+  },
+  {
+    id: "system-info",
+    name: "System Info",
+    description: "Server runtime information, OS details, Docker, Nginx, SSL, and terminal access.",
+    icon: "fa-terminal",
+    status: "live",
+    category: "Developer Tools",
+    features: ["Docker Info", "Nginx Status", "SSL Check", "Terminal"],
+  },
+  {
+    id: "dynamic-form",
+    name: "Dynamic Form",
+    description: "Generate dynamic forms from schema definitions with validation.",
+    icon: "fa-wpforms",
+    status: "live",
+    category: "Developer Tools",
+    features: ["Schema-based", "Validation", "Custom Fields"],
+  },
+  {
+    id: "add-api-to-mcp",
+    name: "Add API to MCP",
+    description: "Register and manage APIs in the Model Context Protocol server.",
+    icon: "fa-plug",
+    status: "live",
+    category: "Developer Tools",
+    features: ["API Registration", "MCP Integration", "Auto Schema"],
+  },
+
+  // Storage & Files
+  {
+    id: "imagekit",
+    name: "ImageKit",
+    description: "Image optimization, transformation, and CDN delivery service.",
+    icon: "fa-cloud-arrow-up",
+    status: "live",
+    category: "Storage & Files",
+    features: ["Image Optimization", "CDN", "Transformations"],
+  },
+
+  // Monitoring & Analytics
+  {
+    id: "site-status",
+    name: "Site Status",
+    description: "Monitor website uptime and performance with alerts.",
+    icon: "fa-heart-pulse",
+    status: "live",
+    category: "Monitoring & Analytics",
+    features: ["Uptime Monitoring", "Alerts", "Response Time"],
+  },
+  {
+    id: "repo-monitoring",
+    name: "Repo Monitoring",
+    description: "GitHub repository monitoring for commits, PRs, and issues.",
+    icon: "fa-code-branch",
+    status: "live",
+    category: "Monitoring & Analytics",
+    features: ["GitHub Integration", "PR Tracking", "Issue Alerts"],
+  },
+  {
+    id: "click-tracking",
+    name: "Click Tracking",
+    description: "Track user clicks with custom addresses like 'login.button.click'.",
+    icon: "fa-arrow-pointer",
+    status: "live",
+    category: "Monitoring & Analytics",
+    features: ["Custom Events", "Heatmaps", "Analytics Dashboard"],
+  },
+
+  // Content & Media
+  {
+    id: "translations",
+    name: "Translations",
+    description: "Internationalization and localization management for multi-language support.",
+    icon: "fa-language",
+    status: "live",
+    category: "Content & Media",
+    features: ["i18n", "Locales Management", "Auto Translation"],
+  },
+  {
+    id: "themes",
+    name: "Themes",
+    description: "Theme management and component styling for consistent UI/UX.",
+    icon: "fa-palette",
+    status: "live",
+    category: "Content & Media",
+    features: ["Theme Builder", "Component Tokens", "Dark Mode"],
+  },
+
+  // Infrastructure
+  {
+    id: "deployments",
+    name: "Deployments",
+    description: "Deploy and manage applications across multiple environments.",
+    icon: "fa-rocket",
+    status: "live",
+    category: "Infrastructure",
+    features: ["Multi-env", "CI/CD", "Rollback"],
+  },
+  {
+    id: "queue",
+    name: "Queue",
+    description: "Message queue and background job processing service.",
+    icon: "fa-list-check",
+    status: "live",
+    category: "Infrastructure",
+    features: ["Job Queue", "Retry Logic", "Priority Queues"],
+  },
+  {
+    id: "dynamic-crud",
+    name: "Dynamic CRUD",
+    description: "Auto-generate CRUD operations for database models.",
+    icon: "fa-table",
+    status: "live",
+    category: "Infrastructure",
+    features: ["Auto API", "Schema Sync", "Validation"],
+  },
+  {
+    id: "payments",
+    name: "Payments",
+    description: "Payment processing with refunds, subscriptions, and transaction tracking.",
+    icon: "fa-credit-card",
+    status: "live",
+    category: "Infrastructure",
+    features: ["Stripe", "Subscriptions", "Refunds", "Invoices"],
+  },
+  {
+    id: "events",
+    name: "Events",
+    description: "Event-driven architecture with webhook support for real-time actions.",
+    icon: "fa-bolt",
+    status: "live",
+    category: "Infrastructure",
+    features: ["PubSub", "Webhooks", "Event History"],
+  },
+  {
+    id: "in-memory-database",
+    name: "In-memory Database",
+    description: "Redis-like in-memory data store for caching and sessions.",
+    icon: "fa-server",
+    status: "live",
+    category: "Infrastructure",
+    features: ["Redis-compatible", "Sessions", "Cache"],
+  },
+  {
+    id: "cron-jobs",
+    name: "Cron Jobs",
+    description: "Schedule recurring tasks with webhook support for real-time actions.",
+    icon: "fa-calendar-check",
+    status: "live",
+    category: "Infrastructure",
+    features: ["Scheduler", "Webhook Triggers", "Job History"],
+  },
+];
+
+const categoryOrder = [
+  "Global",
+  "Communications",
+  "Developer Tools",
+  "Storage & Files",
+  "Monitoring & Analytics",
+  "Content & Media",
+  "Infrastructure",
+];
+
+const servicesByCategory = shellServices.reduce(
+  (acc, service) => {
+    if (!acc[service.category]) acc[service.category] = [];
+    acc[service.category].push(service);
+    return acc;
+  },
+  {} as Record<string, typeof shellServices>
+);
+
+const getCategoryIcon = (category: string) => {
+  const icons: Record<string, string> = {
+    Global: "fa-globe",
+    Communications: "fa-satellite-dish",
+    "Developer Tools": "fa-code",
+    "Storage & Files": "fa-hard-drive",
+    "Monitoring & Analytics": "fa-chart-line",
+    "Content & Media": "fa-photo-film",
+    Infrastructure: "fa-server",
+  };
+  return icons[category] || "fa-folder";
+};
+
+const getCategoryColor = (category: string) => {
+  const colors: Record<string, string> = {
+    Global: "from-blue-500 to-cyan-500",
+    Communications: "from-purple-500 to-pink-500",
+    "Developer Tools": "from-emerald-500 to-teal-500",
+    "Storage & Files": "from-orange-500 to-amber-500",
+    "Monitoring & Analytics": "from-rose-500 to-red-500",
+    "Content & Media": "from-indigo-500 to-violet-500",
+    Infrastructure: "from-gray-600 to-gray-800",
+  };
+  return colors[category] || "from-gray-500 to-gray-600";
+};
+
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case "live":
+      return { text: "Live", class: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-500" };
+    case "dev":
+      return { text: "In Dev", class: "bg-amber-100 text-amber-700", dot: "bg-amber-500" };
+    case "soon":
+      return { text: "Soon", class: "bg-gray-100 text-gray-600", dot: "bg-gray-400" };
+    default:
+      return { text: status, class: "bg-gray-100 text-gray-600", dot: "bg-gray-400" };
+  }
+};
+
+const liveCount = shellServices.filter((s) => s.status === "live").length;
+const devCount = shellServices.filter((s) => s.status === "dev").length;
+const soonCount = shellServices.filter((s) => s.status === "soon").length;
+---
+
+<Page
+  metaTitle="Exyconn Infrastructure Platform | Services"
+  metaDescription="Explore Exyconn's comprehensive infrastructure platform. Email, SMS, payments, logs, themes, translations, and 25+ services ready to power your application."
+  metaKeywords="infrastructure platform, API services, email service, payment processing, logging, themes, translations, Exyconn"
+  metaImage="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&w=1200&q=80"
+>
+  <main class="bg-white min-h-screen">
+    <!-- Hero Section -->
+    <section
+      class="relative py-24 px-6 bg-gradient-to-br from-cyan-50 via-white to-blue-50 overflow-hidden"
+    >
+      <div
+        class="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-cyan-200/40 to-blue-200/40 rounded-full blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute bottom-10 left-10 w-80 h-80 bg-gradient-to-r from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"
+      >
+      </div>
+
+      <div class="relative z-10 max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-6 shadow-sm"
+          >
+            <i class="fa-solid fa-terminal text-cyan-500"></i>
+            Infrastructure Platform
+          </span>
+          <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+            Exyconn <span
+              class="bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent"
+              >Infrastructure Platform</span
+            >
+          </h1>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Complete infrastructure platform powering your applications. Email, payments, logs,
+            themes, translations, and more—all in one place.
+          </p>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="flex flex-wrap justify-center gap-6 mb-10">
+          <div
+            class="flex items-center gap-3 px-6 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm"
+          >
+            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <i class="fa-solid fa-circle-check text-emerald-600"></i>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-gray-900">{liveCount}</div>
+              <div class="text-sm text-gray-500">Live Services</div>
+            </div>
+          </div>
+          <div
+            class="flex items-center gap-3 px-6 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm"
+          >
+            <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+              <i class="fa-solid fa-code text-amber-600"></i>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-gray-900">{devCount}</div>
+              <div class="text-sm text-gray-500">In Development</div>
+            </div>
+          </div>
+          <div
+            class="flex items-center gap-3 px-6 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm"
+          >
+            <div class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
+              <i class="fa-solid fa-clock text-gray-600"></i>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-gray-900">{soonCount}</div>
+              <div class="text-sm text-gray-500">Coming Soon</div>
+            </div>
+          </div>
+          <div
+            class="flex items-center gap-3 px-6 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm"
+          >
+            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+              <i class="fa-solid fa-layer-group text-blue-600"></i>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-gray-900">{categoryOrder.length}</div>
+              <div class="text-sm text-gray-500">Categories</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="/shell-strategy"
+            class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-8 py-4 rounded-full hover:bg-gray-800 transition shadow-xl"
+          >
+            <i class="fa-solid fa-bolt"></i> Shell Strategy
+          </a>
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-8 py-4 rounded-full hover:bg-gray-50 transition shadow-lg"
+          >
+            <i class="fa-solid fa-message"></i> Contact Sales
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services by Category -->
+    <section class="py-20 px-6 bg-white">
+      <div class="max-w-7xl mx-auto">
+        {
+          categoryOrder.map((category) => (
+            <div class="mb-16" id={category.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-")}>
+              <div class="flex items-center gap-4 mb-8">
+                <div
+                  class={`w-12 h-12 bg-gradient-to-br ${getCategoryColor(category)} rounded-2xl flex items-center justify-center shadow-lg`}
+                >
+                  <i class={`fa-solid ${getCategoryIcon(category)} text-white text-lg`} />
+                </div>
+                <div>
+                  <h2 class="text-3xl font-bold text-gray-900">{category}</h2>
+                  <p class="text-gray-500">{servicesByCategory[category]?.length || 0} services</p>
+                </div>
+              </div>
+
+              <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {servicesByCategory[category]?.map((service) => {
+                  const badge = getStatusBadge(service.status);
+                  return (
+                    <div class="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:border-blue-100 transition-all duration-300 group">
+                      <div class="flex items-start justify-between mb-4">
+                        <div
+                          class={`w-12 h-12 bg-gradient-to-br ${getCategoryColor(category)} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`}
+                        >
+                          <i class={`fa-solid ${service.icon} text-white`} />
+                        </div>
+                        <span
+                          class={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full ${badge.class}`}
+                        >
+                          <span class={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+                          {badge.text}
+                        </span>
+                      </div>
+
+                      <h3 class="text-xl font-bold text-gray-900 mb-2">{service.name}</h3>
+                      <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                        {service.description}
+                      </p>
+
+                      {service.features && (
+                        <div class="flex flex-wrap gap-2">
+                          {service.features.map((feature) => (
+                            <span class="px-2.5 py-1 bg-gray-50 border border-gray-100 text-xs text-gray-600 rounded-lg">
+                              {feature}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- All Services Table -->
+    <section class="py-20 px-6 bg-gray-50">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">Complete Services Directory</h2>
+          <p class="text-gray-600">All services at a glance with status and category</p>
+        </div>
+
+        <DynamicTable
+          headers={["Service", "Category", "Status", "Key Features"]}
+          rows={shellServices.map((s) => [
+            s.name,
+            s.category,
+            getStatusBadge(s.status).text === "In Dev"
+              ? "In Development"
+              : getStatusBadge(s.status).text === "Soon"
+                ? "Coming Soon"
+                : s.status === "live"
+                  ? "Live"
+                  : s.status,
+            s.features?.slice(0, 3).join(", ") || "-",
+          ])}
+        />
+      </div>
+    </section>
+
+    <!-- Integration Section -->
+    <section class="py-20 px-6 bg-white">
+      <div class="max-w-5xl mx-auto text-center">
+        <span
+          class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-full text-sm font-semibold text-indigo-600 mb-6"
+        >
+          <i class="fa-solid fa-plug"></i>
+          Integration
+        </span>
+        <h2 class="text-4xl font-bold text-gray-900 mb-6">Easy Integration</h2>
+        <p class="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+          All services are accessible via REST API with comprehensive documentation and SDKs.
+        </p>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+            <div
+              class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fa-solid fa-book text-blue-600 text-xl"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">REST API</h3>
+            <p class="text-sm text-gray-600">Comprehensive REST endpoints for all services</p>
+          </div>
+          <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+            <div
+              class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fa-solid fa-code text-emerald-600 text-xl"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">SDKs</h3>
+            <p class="text-sm text-gray-600">JavaScript, Python, and more coming soon</p>
+          </div>
+          <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+            <div
+              class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fa-solid fa-robot text-purple-600 text-xl"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">MCP Ready</h3>
+            <p class="text-sm text-gray-600">AI agent compatible via Model Context Protocol</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 px-6 bg-gradient-to-br from-cyan-50 to-blue-50">
+      <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Ready to Get Started?</h2>
+        <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+          Access the complete infrastructure stack and launch your product faster.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-10 py-4 rounded-full hover:bg-gray-800 transition shadow-xl"
+          >
+            <i class="fa-solid fa-rocket"></i> Get Started
+          </a>
+          <a
+            href="/shell-strategy"
+            class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-10 py-4 rounded-full hover:bg-gray-50 transition shadow-lg"
+          >
+            <i class="fa-solid fa-bolt"></i> Learn Shell Strategy
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</Page>

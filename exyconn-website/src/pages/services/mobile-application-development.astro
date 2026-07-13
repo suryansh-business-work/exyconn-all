@@ -1,0 +1,128 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+---
+
+<Page
+  metaTitle="Mobile Application Development Services | Exyconn"
+  metaDescription="Build high-performance, user-friendly mobile apps for iOS and Android with Exyconn. We deliver custom mobile solutions for startups, enterprises, and digital transformation."
+  metaKeywords="mobile app development, iOS app, Android app, cross-platform, mobile solutions, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="Mobile Application Development"
+    subtitle="Innovative. Scalable. User-Centric."
+    description="Transform your ideas into powerful mobile experiences. Exyconn designs and develops custom mobile applications for iOS, Android, and cross-platform—delivering seamless performance, security, and user engagement."
+    image="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+    ctaText="Start Your Mobile Project"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="What is Mobile Application Development?"
+    description='<span class="font-semibold text-indigo-700">Mobile application development</span> is the process of creating software apps for smartphones and tablets. We build native and cross-platform apps tailored to your business goals, user needs, and technical requirements.'
+    iconClass="fa-solid fa-mobile-screen-button text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Choose Exyconn for Mobile Apps?"
+    items={[
+      {
+        icon: "fa-brands fa-apple text-indigo-500 mt-1",
+        text: "Expertise in iOS, Android, and cross-platform frameworks.",
+      },
+      {
+        icon: "fa-solid fa-user-check text-indigo-500 mt-1",
+        text: "User-centric design for maximum engagement.",
+      },
+      {
+        icon: "fa-solid fa-shield-halved text-indigo-500 mt-1",
+        text: "Secure, scalable, and high-performance solutions.",
+      },
+      {
+        icon: "fa-solid fa-gears text-indigo-500 mt-1",
+        text: "Seamless integration with APIs and backend systems.",
+      },
+      {
+        icon: "fa-solid fa-rocket text-indigo-500 mt-1",
+        text: "Rapid prototyping and agile delivery.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="Our Mobile App Services"
+    columns={[
+      {
+        icon: "fa-solid fa-mobile-alt text-4xl text-indigo-600 mb-4",
+        heading: "Native App Development",
+        text: "Custom apps for iOS and Android, optimized for performance and UX.",
+      },
+      {
+        icon: "fa-solid fa-layer-group text-4xl text-indigo-600 mb-4",
+        heading: "Cross-Platform Apps",
+        text: "Build once, deploy everywhere—React Native, Flutter, and more.",
+      },
+      {
+        icon: "fa-solid fa-cloud-arrow-up text-4xl text-indigo-600 mb-4",
+        heading: "Backend & API Integration",
+        text: "Connect your app to cloud, databases, and business systems.",
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="Mobile App Development FAQs"
+    faqs={[
+      {
+        question: "What platforms do you develop for?",
+        answer:
+          "We build apps for iOS, Android, and cross-platform using React Native, Flutter, and other modern frameworks.",
+      },
+      {
+        question: "Can you integrate my app with existing systems?",
+        answer:
+          "Yes, we specialize in API and backend integration for seamless business workflows.",
+      },
+      {
+        question: "How do you ensure app security?",
+        answer:
+          "We follow best practices for secure coding, data protection, and compliance with app store guidelines.",
+      },
+      {
+        question: "Do you provide post-launch support?",
+        answer:
+          "Absolutely. We offer maintenance, updates, and feature enhancements for all mobile apps we build.",
+      },
+      {
+        question: "How do I get started with mobile app development?",
+        answer:
+          "Contact Exyconn for a free consultation. We’ll discuss your goals and recommend the best mobile strategy for your needs.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Mobile App Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

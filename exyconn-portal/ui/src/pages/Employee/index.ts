@@ -1,0 +1,9 @@
+export { MyLeavePage } from './MyLeavePage';
+export { MyAttendancePage } from './MyAttendancePage';
+export { PayrollPage } from './PayrollPage';
+export { SalarySlipsPage } from './SalarySlipsPage';
+export { HolidaysPage } from './HolidaysPage';
+export { PoliciesPage } from './PoliciesPage';
+export { SupportPage } from './SupportPage';
+export { CalendarPage } from './calendar';
+export { MyTrackerPage } from './MyTrackerPage';

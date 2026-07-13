@@ -1,0 +1,75 @@
+<section class="max-w-xl mx-auto mt-12 bg-white rounded-xl shadow p-8">
+  <h2 class="text-2xl font-semibold text-[#0071e3] mb-6 text-center">Submit a Legal Request</h2>
+  <form method="POST" name="legal-form">
+    <div class="mb-4">
+      <label class="block mb-1 font-medium text-gray-700" for="name">Your Name</label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        required
+        class="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-[#0071e3] outline-none"
+      />
+    </div>
+    <div class="mb-4">
+      <label class="block mb-1 font-medium text-gray-700" for="email">Your Email</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        required
+        class="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-[#0071e3] outline-none"
+      />
+    </div>
+    <div class="mb-4">
+      <label class="block mb-1 font-medium text-gray-700" for="legal-type"
+        >Type of Legal Request</label
+      >
+      <select
+        id="legal-type"
+        name="legal-type"
+        required
+        class="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-[#0071e3] outline-none"
+      >
+        <option value="">Select an option</option>
+        <option value="copyright">Copyright Infringement</option>
+        <option value="image-takedown">Image Takedown Request</option>
+        <option value="content-takedown">Content Takedown Request</option>
+        <option value="trademark">Trademark Concern</option>
+        <option value="privacy">Privacy/Data Request</option>
+        <option value="other">Other Legal Issue</option>
+      </select>
+    </div>
+    <div class="mb-4">
+      <label class="block mb-1 font-medium text-gray-700" for="url"
+        >URL(s) of Concerned Content</label
+      >
+      <input
+        type="text"
+        id="url"
+        name="url"
+        placeholder="https://example.com/page-or-image"
+        class="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-[#0071e3] outline-none"
+      />
+    </div>
+    <div class="mb-6">
+      <label class="block mb-1 font-medium text-gray-700" for="details"
+        >Details of Your Request</label
+      >
+      <textarea
+        id="details"
+        name="details"
+        rows="6"
+        required
+        class="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-[#0071e3] outline-none"
+        placeholder="Describe your legal concern, including any supporting information or documentation."
+      ></textarea>
+    </div>
+    <button type="submit" class="w-full btn"> Submit Legal Request </button>
+  </form>
+  <p class="text-xs text-gray-500 mt-4 text-center">
+    By submitting, you confirm that the information provided is accurate and you have the authority
+    to make this request. Exyconn will review and respond in accordance with applicable law and our
+    policies.
+  </p>
+</section>

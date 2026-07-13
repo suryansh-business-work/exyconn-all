@@ -1,0 +1,326 @@
+---
+import Page from "../../layouts/Page.astro";
+import { getBlogPosts, getAllTags, formatDate } from "../../lib/portal";
+
+const blogPosts = await getBlogPosts();
+const allTags = getAllTags(blogPosts);
+---
+
+<Page
+  metaTitle="Blog | AI Insights & Tech Trends | Exyconn"
+  metaDescription="Read the latest articles, guides, and trends on AI automation, SaaS, and digital transformation from Exyconn's team. Stay ahead with actionable insights."
+  metaKeywords="Exyconn blog, AI insights, SaaS trends, digital innovation, automation, business technology"
+  metaImage="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&w=1200&q=80"
+>
+  <main class="bg-gradient-to-b from-slate-50 via-white to-slate-50 min-h-screen">
+    <!-- Hero Section -->
+    <section class="relative py-20 px-6 overflow-hidden">
+      <div
+        class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-100/50 via-transparent to-transparent"
+      >
+      </div>
+      <div
+        class="absolute top-10 right-20 w-72 h-72 bg-gradient-to-br from-blue-200/30 to-cyan-200/30 rounded-full blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute bottom-0 left-10 w-96 h-96 bg-gradient-to-br from-purple-200/20 to-pink-200/20 rounded-full blur-3xl"
+      >
+      </div>
+
+      <div class="relative z-10 max-w-6xl mx-auto">
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
+          <div class="text-center lg:text-left">
+            <span
+              class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-6 shadow-sm"
+            >
+              <i class="fa-solid fa-rss text-blue-500"></i>
+              Exyconn Blog
+            </span>
+            <h1
+              class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 tracking-tight"
+            >
+              Insights on <span
+                class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+                >AI & Tech</span
+              >
+            </h1>
+            <p class="text-lg text-gray-600 max-w-xl">
+              Discover articles, guides, and industry trends from our expert team at Exyconn.
+            </p>
+          </div>
+
+          <!-- Search Box -->
+          <div class="w-full lg:w-auto">
+            <div class="relative max-w-md">
+              <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              ></i>
+              <input
+                type="text"
+                id="blog-search"
+                placeholder="Search articles..."
+                class="w-full lg:w-80 pl-11 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all shadow-sm"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Topic Filters -->
+    <section class="py-6 px-6 bg-white/80 backdrop-blur-sm border-y border-gray-100">
+      <div class="max-w-6xl mx-auto">
+        <!-- Mobile: Full width horizontal scroll, Desktop: Centered layout -->
+        <div class="relative -mx-6 px-6 lg:mx-0 lg:px-0">
+          <div
+            class="flex items-center gap-3 overflow-x-auto pb-2 lg:pb-0 lg:overflow-visible lg:flex-wrap lg:justify-center scrollbar-hide"
+            id="tag-filters"
+          >
+            <span class="text-sm font-medium text-gray-500 whitespace-nowrap shrink-0">Filter:</span
+            >
+            <button
+              data-tag="all"
+              class="tag-filter active bg-gray-900 text-white px-5 py-2 rounded-full text-sm font-medium transition-all cursor-pointer whitespace-nowrap hover:scale-105 shrink-0"
+            >
+              All Posts
+            </button>
+            {
+              allTags.map((tag) => (
+                <button
+                  data-tag={tag}
+                  class="tag-filter bg-gray-100 text-gray-700 px-5 py-2 rounded-full text-sm font-medium hover:bg-gray-200 transition-all cursor-pointer whitespace-nowrap shrink-0"
+                >
+                  {tag}
+                </button>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Blog Grid -->
+    <section class="py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <!-- Results Info -->
+        <div class="flex items-center justify-between mb-8">
+          <p class="text-gray-600">
+            Showing <span id="visible-count" class="font-semibold text-gray-900"
+              >{blogPosts.length}</span
+            > articles
+          </p>
+        </div>
+
+        <!-- Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="blog-grid">
+          {
+            blogPosts.map((post, index) => (
+              <article
+                data-tags={post.tags.join(",")}
+                data-title={post.title.toLowerCase()}
+                data-summary={post.summary.toLowerCase()}
+                class={`blog-card group relative bg-white rounded-3xl overflow-hidden border border-gray-100 hover:border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 ${index === 0 ? "md:col-span-2 md:row-span-2" : ""}`}
+              >
+                {/* Featured Badge */}
+                {post.featured && (
+                  <div class="absolute top-4 left-4 z-10">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
+                      <i class="fa-solid fa-star text-[10px]" />
+                      Featured
+                    </span>
+                  </div>
+                )}
+
+                {/* Image */}
+                <div class={`relative overflow-hidden ${index === 0 ? "h-64 md:h-80" : "h-48"}`}>
+                  <img
+                    src={post.coverImage}
+                    alt={post.title}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+
+                {/* Content */}
+                <div class={`p-6 ${index === 0 ? "md:p-8" : ""}`}>
+                  {/* Tags */}
+                  <div class="flex flex-wrap gap-2 mb-4">
+                    {post.tags.slice(0, 2).map((tag) => (
+                      <span class="px-2.5 py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-lg">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Title */}
+                  <h2
+                    class={`font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2 ${index === 0 ? "text-2xl md:text-3xl" : "text-lg"}`}
+                  >
+                    <a
+                      href={`/blog/${post.slug}`}
+                      class="hover:underline decoration-2 underline-offset-2"
+                    >
+                      {post.title}
+                    </a>
+                  </h2>
+
+                  {/* Summary */}
+                  <p
+                    class={`text-gray-600 mb-6 line-clamp-2 ${index === 0 ? "text-base md:text-lg" : "text-sm"}`}
+                  >
+                    {post.summary}
+                  </p>
+
+                  {/* Author & Meta */}
+                  <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-md">
+                        {post.author.initials}
+                      </div>
+                      <div>
+                        <p class="text-sm font-semibold text-gray-900">{post.author.name}</p>
+                        <p class="text-xs text-gray-500">An Exyconn employee</p>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-500">{formatDate(post.publishedAt)}</p>
+                      <p class="text-xs text-gray-400">{post.readTime}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hover Effect Arrow */}
+                <a
+                  href={`/blog/${post.slug}`}
+                  class="absolute bottom-6 right-6 w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300"
+                >
+                  <i class="fa-solid fa-arrow-right text-white text-sm" />
+                </a>
+              </article>
+            ))
+          }
+        </div>
+
+        <!-- No Results -->
+        <div id="no-results" class="hidden text-center py-20">
+          <div
+            class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6"
+          >
+            <i class="fa-solid fa-search text-gray-400 text-3xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">No articles found</h3>
+          <p class="text-gray-600 mb-6">Try adjusting your search or filter criteria.</p>
+          <button
+            id="clear-filters"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-full hover:bg-gray-800 transition-colors cursor-pointer"
+          >
+            <i class="fa-solid fa-rotate-left"></i>
+            Clear Filters
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+</Page>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("blog-search") as HTMLInputElement;
+    const filterButtons = document.querySelectorAll(".tag-filter");
+    const blogCards = document.querySelectorAll(".blog-card");
+    const noResults = document.getElementById("no-results");
+    const blogGrid = document.getElementById("blog-grid");
+    const visibleCount = document.getElementById("visible-count");
+    const clearFiltersBtn = document.getElementById("clear-filters");
+
+    let activeTag = "all";
+
+    function filterAndSearch() {
+      const searchQuery = searchInput?.value.toLowerCase().trim() || "";
+      let count = 0;
+
+      blogCards.forEach((card) => {
+        const tags = card.getAttribute("data-tags")?.split(",") || [];
+        const title = card.getAttribute("data-title") || "";
+        const summary = card.getAttribute("data-summary") || "";
+
+        const matchesTag = activeTag === "all" || tags.includes(activeTag);
+        const matchesSearch =
+          !searchQuery ||
+          title.includes(searchQuery) ||
+          summary.includes(searchQuery) ||
+          tags.some((t) => t.toLowerCase().includes(searchQuery));
+
+        if (matchesTag && matchesSearch) {
+          card.classList.remove("hidden");
+          count++;
+        } else {
+          card.classList.add("hidden");
+        }
+      });
+
+      if (visibleCount) visibleCount.textContent = String(count);
+
+      if (noResults && blogGrid) {
+        if (count === 0) {
+          noResults.classList.remove("hidden");
+          blogGrid.classList.add("hidden");
+        } else {
+          noResults.classList.add("hidden");
+          blogGrid.classList.remove("hidden");
+        }
+      }
+    }
+
+    // Tag filter click
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeTag = button.getAttribute("data-tag") || "all";
+
+        filterButtons.forEach((btn) => {
+          btn.classList.remove("active", "bg-gray-900", "text-white");
+          btn.classList.add("bg-gray-100", "text-gray-700");
+        });
+        button.classList.add("active", "bg-gray-900", "text-white");
+        button.classList.remove("bg-gray-100", "text-gray-700");
+
+        filterAndSearch();
+      });
+    });
+
+    // Search input
+    searchInput?.addEventListener("input", filterAndSearch);
+
+    // Clear filters
+    clearFiltersBtn?.addEventListener("click", () => {
+      if (searchInput) searchInput.value = "";
+      activeTag = "all";
+
+      filterButtons.forEach((btn) => {
+        btn.classList.remove("active", "bg-gray-900", "text-white");
+        btn.classList.add("bg-gray-100", "text-gray-700");
+      });
+      filterButtons[0]?.classList.add("active", "bg-gray-900", "text-white");
+      filterButtons[0]?.classList.remove("bg-gray-100", "text-gray-700");
+
+      filterAndSearch();
+    });
+  });
+</script>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>

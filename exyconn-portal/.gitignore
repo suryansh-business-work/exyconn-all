@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+ui/src/graphql/generated/
+server/src/graphql/generated/
+cypress/videos/
+cypress/screenshots/
+.vite/

@@ -1,0 +1,560 @@
+---
+import Page from "../../../../../../layouts/Page.astro";
+import {
+  formatDate,
+  getDaysAgo,
+  getJob,
+  getJobCompany,
+  getJobs,
+} from "../../../../../../lib/portal";
+import JobApplicationForm from "../../../../../../components/career/JobApplicationForm.astro";
+
+// Get params from URL
+const { companySlug, jobId } = Astro.params;
+
+if (!companySlug || !jobId) {
+  return new Response(null, { status: 404 });
+}
+
+// Get the company, the job (jobId carries the job code) and the company's other jobs
+const [company, job, companyJobs] = await Promise.all([
+  getJobCompany(companySlug),
+  getJob(jobId),
+  getJobs(companySlug),
+]);
+
+// Handle company/job not found, or a job that belongs to another company
+if (!company || !job || job.companySlug !== company.slug) {
+  return new Response(null, { status: 404 });
+}
+
+// Get other jobs from same company (excluding current)
+const otherJobs = companyJobs.filter((j) => j.jobCode !== job.jobCode).slice(0, 3);
+
+// Generate schema.org structured data for job posting
+const jobPostingSchema = {
+  "@context": "https://schema.org",
+  "@type": "JobPosting",
+  title: job.title,
+  description: job.shortJobDescription,
+  datePosted: job.jobPostDate,
+  employmentType: job.jobType.toUpperCase().replace(" ", "_"),
+  hiringOrganization: {
+    "@type": "Organization",
+    name: company.name,
+    sameAs: company.website,
+    logo: company.logo,
+  },
+  jobLocation: {
+    "@type": "Place",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: job.location,
+      addressCountry: "IN",
+    },
+  },
+  skills: job.skillSet.join(", "),
+};
+---
+
+<Page
+  metaTitle={`${job.title} | ${company.name} Careers`}
+  metaDescription={job.shortJobDescription}
+  metaKeywords={`${job.title}, ${company.name} careers, ${job.category} jobs, ${job.skillSet.join(", ")}`}
+  metaImage={company.logo}
+  jsonLd={jobPostingSchema}
+>
+  <main class="bg-white min-h-screen">
+    <!-- Header Section -->
+    <section
+      class="relative py-16 px-6 overflow-hidden"
+      style={`background: linear-gradient(135deg, ${company.brandColor}10, ${company.secondaryColor}10);`}
+    >
+      <div
+        class="absolute top-10 right-10 w-60 h-60 rounded-full blur-3xl opacity-30"
+        style={`background: ${company.brandColor};`}
+      >
+      </div>
+
+      <div class="relative z-10 max-w-5xl mx-auto">
+        <!-- Breadcrumb -->
+        <nav class="mb-8">
+          <ol class="flex items-center gap-2 text-sm flex-wrap">
+            <li>
+              <a href="/career" class="text-gray-500 hover:text-gray-700 transition">Careers</a>
+            </li>
+            <li class="text-gray-400">/</li>
+            <li>
+              <a
+                href={`/career/company/${company.slug}`}
+                class="text-gray-500 hover:text-gray-700 transition"
+              >
+                {company.name}
+              </a>
+            </li>
+            <li class="text-gray-400">/</li>
+            <li class="font-medium text-gray-900">{job.title}</li>
+          </ol>
+        </nav>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+          <!-- Job Title & Meta -->
+          <div class="flex-1">
+            <div class="flex items-center gap-4 mb-4">
+              <div
+                class="w-16 h-16 bg-white rounded-xl shadow-lg flex items-center justify-center overflow-hidden"
+              >
+                <img
+                  src={company.logo}
+                  alt={`${company.name} logo`}
+                  class="w-full h-full object-contain p-2"
+                />
+              </div>
+              <div>
+                <a
+                  href={`/career/company/${company.slug}`}
+                  class="text-sm font-medium hover:underline"
+                  style={`color: ${company.brandColor};`}
+                >
+                  {company.name}
+                </a>
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-900">{job.title}</h1>
+              </div>
+            </div>
+
+            <!-- Job Meta Tags -->
+            <div class="flex flex-wrap gap-3 mb-6">
+              <span
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-sm text-gray-600 shadow-sm"
+              >
+                <i class="fa-solid fa-location-dot text-gray-400"></i>
+                {job.location}
+              </span>
+              <span
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-sm text-gray-600 shadow-sm"
+              >
+                <i class="fa-solid fa-clock text-gray-400"></i>
+                {job.jobType}
+              </span>
+              <span
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-sm text-gray-600 shadow-sm"
+              >
+                <i class="fa-solid fa-laptop-house text-gray-400"></i>
+                {job.workMode}
+              </span>
+              <span
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-sm text-gray-600 shadow-sm"
+              >
+                <i class="fa-solid fa-layer-group text-gray-400"></i>
+                {job.experienceLevel}
+              </span>
+              <span
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-sm text-gray-600 shadow-sm"
+              >
+                <i class="fa-solid fa-tag text-gray-400"></i>
+                {job.category}
+              </span>
+              {
+                job.salaryRange && (
+                  <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full text-sm text-emerald-700 shadow-sm font-medium">
+                    <i class="fa-solid fa-indian-rupee-sign text-emerald-500" />
+                    {job.salaryRange}
+                  </span>
+                )
+              }
+            </div>
+
+            <!-- Posted Date -->
+            <p class="text-sm text-gray-500">
+              <i class="fa-solid fa-calendar-plus mr-2"></i>
+              Posted {formatDate(job.jobPostDate)} ({getDaysAgo(job.jobPostDate)})
+            </p>
+          </div>
+
+          <!-- Quick Apply Card (Desktop) -->
+          <div class="hidden lg:block w-80">
+            <div class="bg-white rounded-2xl shadow-xl p-6 sticky top-6">
+              <h3 class="font-bold text-gray-900 mb-4">Quick Apply</h3>
+              <a
+                href="#apply-section"
+                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold text-white transition mb-3"
+                style={`background: ${company.brandColor};`}
+              >
+                <i class="fa-solid fa-paper-plane"></i>
+                Apply Now
+              </a>
+              <p class="text-xs text-gray-500 text-center">or send resume to</p>
+              <a
+                href={`mailto:careers@${company.slug}.com?subject=Application for ${job.title} (${job.jobCode})`}
+                class="text-sm font-medium block text-center mt-1 hover:underline"
+                style={`color: ${company.brandColor};`}
+              >
+                careers@{company.slug}.com
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="py-12 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="flex flex-col lg:flex-row gap-12">
+          <!-- Job Details -->
+          <div class="flex-1">
+            <!-- Skills Required -->
+            <div class="mb-10">
+              <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-code text-gray-400"></i>
+                Skills Required
+              </h2>
+              <div class="flex flex-wrap gap-2">
+                {
+                  job.skillSet.map((skill) => (
+                    <span
+                      class="px-4 py-2 rounded-lg text-sm font-medium"
+                      style={`background: ${company.brandColor}15; color: ${company.brandColor};`}
+                    >
+                      {skill}
+                    </span>
+                  ))
+                }
+              </div>
+            </div>
+
+            <!-- Job Description -->
+            <div class="mb-12">
+              <h2
+                class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-blue-100"
+              >
+                <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <i class="fa-solid fa-file-lines text-blue-600"></i>
+                </div>
+                About This Role
+              </h2>
+              <div
+                class="prose prose-lg max-w-none text-gray-700 prose-headings:text-lg prose-headings:font-bold prose-headings:text-gray-900 prose-headings:mt-6 prose-headings:mb-3 prose-p:text-gray-700 prose-p:leading-7 prose-p:mb-4 prose-ul:my-4 prose-li:text-gray-700 prose-li:leading-7 prose-strong:text-gray-900 prose-strong:font-semibold"
+                set:html={job.jobDescription}
+              />
+            </div>
+
+            <!-- Responsibilities -->
+            <div class="mb-12">
+              <h2
+                class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-emerald-100"
+              >
+                <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                  <i class="fa-solid fa-list-check text-emerald-600"></i>
+                </div>
+                Key Responsibilities
+              </h2>
+              <div class="space-y-3">
+                <div
+                  class="prose prose-lg max-w-none text-gray-700 prose-ul:my-0 prose-li:text-gray-700 prose-li:leading-7 prose-strong:text-gray-900 prose-strong:font-semibold"
+                  set:html={job.jobResponsibilities}
+                />
+              </div>
+            </div>
+
+            <!-- Requirements -->
+            <div class="mb-12">
+              <h2
+                class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-purple-100"
+              >
+                <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                  <i class="fa-solid fa-clipboard-check text-purple-600"></i>
+                </div>
+                Requirements
+              </h2>
+              <ul class="space-y-4">
+                {
+                  job.requirements.map((req) => (
+                    <li class="flex items-start gap-4 group">
+                      <div class="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-purple-200 transition-colors">
+                        <i class="fa-solid fa-check text-purple-600 text-sm" />
+                      </div>
+                      <span class="text-gray-700 leading-7 text-base">{req}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+
+            <!-- Nice to Have -->
+            {
+              job.niceToHave && job.niceToHave.length > 0 && (
+                <div class="mb-12">
+                  <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-amber-100">
+                    <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
+                      <i class="fa-solid fa-star text-amber-600" />
+                    </div>
+                    Nice to Have
+                  </h2>
+                  <ul class="space-y-4">
+                    {job.niceToHave.map((item) => (
+                      <li class="flex items-start gap-4 group">
+                        <div class="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-amber-200 transition-colors">
+                          <i class="fa-solid fa-plus text-amber-600 text-sm" />
+                        </div>
+                        <span class="text-gray-700 leading-7 text-base">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            }
+
+            <!-- Benefits -->
+            {
+              job.benefits && job.benefits.length > 0 && (
+                <div class="mb-12">
+                  <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-rose-100">
+                    <div class="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center">
+                      <i class="fa-solid fa-gift text-rose-600" />
+                    </div>
+                    Benefits
+                  </h2>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {job.benefits.map((benefit) => (
+                      <div class="flex items-start gap-4 p-4 bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl border border-rose-100 hover:shadow-md transition-shadow group">
+                        <div class="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-rose-200 transition-colors">
+                          <i class="fa-solid fa-check-circle text-rose-600 text-sm" />
+                        </div>
+                        <span class="text-gray-700 leading-6 text-base">{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+          </div>
+
+          <!-- Sidebar -->
+          <div class="lg:w-80 shrink-0">
+            <!-- About Company Card -->
+            <div class="bg-gray-50 rounded-2xl p-6 mb-6 sticky top-6">
+              <h3 class="font-bold text-gray-900 mb-4">About {company.name}</h3>
+              <div class="flex items-center gap-3 mb-4">
+                <div
+                  class="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden"
+                >
+                  <img
+                    src={company.logo}
+                    alt={`${company.name} logo`}
+                    class="w-full h-full object-contain p-1"
+                  />
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-900">{company.name}</p>
+                  <p class="text-sm text-gray-500">{company.industry}</p>
+                </div>
+              </div>
+              <p class="text-sm text-gray-600 mb-4">{company.tagline}</p>
+
+              <div class="space-y-2 text-sm mb-4">
+                <div class="flex items-center gap-2 text-gray-600">
+                  <i class="fa-solid fa-location-dot w-4 text-gray-400"></i>
+                  {company.headquarters}
+                </div>
+                {
+                  company.employees && (
+                    <div class="flex items-center gap-2 text-gray-600">
+                      <i class="fa-solid fa-users w-4 text-gray-400" />
+                      {company.employees} employees
+                    </div>
+                  )
+                }
+                {
+                  company.founded && (
+                    <div class="flex items-center gap-2 text-gray-600">
+                      <i class="fa-solid fa-calendar w-4 text-gray-400" />
+                      Founded {company.founded}
+                    </div>
+                  )
+                }
+              </div>
+
+              <a
+                href={`/career/company/${company.slug}`}
+                class="inline-flex items-center gap-2 text-sm font-medium hover:gap-3 transition-all"
+                style={`color: ${company.brandColor};`}
+              >
+                View all jobs at {company.name}
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+              </a>
+            </div>
+
+            <!-- Share Card -->
+            <div class="bg-gray-50 rounded-2xl p-6 mb-6">
+              <h3 class="font-bold text-gray-900 mb-4">Share This Job</h3>
+              <div class="flex gap-3">
+                <a
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-600 hover:bg-blue-600 hover:text-white transition shadow-sm"
+                  title="Share on LinkedIn"
+                >
+                  <i class="fa-brands fa-linkedin-in"></i>
+                </a>
+                <a
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(Astro.url.href)}&text=${encodeURIComponent(`${job.title} at ${company.name}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-600 hover:bg-sky-500 hover:text-white transition shadow-sm"
+                  title="Share on Twitter"
+                >
+                  <i class="fa-brands fa-twitter"></i>
+                </a>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`Check out this job: ${job.title} at ${company.name} - ${Astro.url.href}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-600 hover:bg-green-500 hover:text-white transition shadow-sm"
+                  title="Share on WhatsApp"
+                >
+                  <i class="fa-brands fa-whatsapp"></i>
+                </a>
+                <button
+                  id="copy-link-btn"
+                  class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-600 hover:bg-gray-700 hover:text-white transition shadow-sm"
+                  title="Copy link"
+                >
+                  <i class="fa-solid fa-link"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Application Section -->
+    <section id="apply-section" class="py-16 px-6 bg-gradient-to-br from-gray-50 to-blue-50">
+      <div class="max-w-3xl mx-auto">
+        <div class="text-center mb-10">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">Apply for This Position</h2>
+          <p class="text-gray-600">
+            Fill out the form below and we'll get back to you within 48 hours.
+          </p>
+        </div>
+
+        <JobApplicationForm
+          jobId={job.jobCode}
+          jobTitle={job.title}
+          companyName={company.name}
+          companySlug={company.slug}
+          brandColor={company.brandColor}
+        />
+      </div>
+    </section>
+
+    <!-- Other Jobs Section -->
+    {
+      otherJobs.length > 0 && (
+        <section class="py-16 px-6 bg-white">
+          <div class="max-w-5xl mx-auto">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">
+              Other Opportunities at {company.name}
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-6">
+              {otherJobs.map((otherJob) => (
+                <a
+                  href={`/career/company/${company.slug}/job/${otherJob.jobCode}`}
+                  class="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 border border-gray-100"
+                >
+                  <span class="text-xs font-medium px-2 py-1 rounded-full bg-white text-gray-600 mb-3 inline-block">
+                    {otherJob.category}
+                  </span>
+                  <h3 class="font-bold text-gray-900 group-hover:text-blue-600 transition mb-2">
+                    {otherJob.title}
+                  </h3>
+                  <p class="text-sm text-gray-600 line-clamp-2 mb-3">
+                    {otherJob.shortJobDescription}
+                  </p>
+                  <div class="flex items-center gap-2 text-xs text-gray-500">
+                    <i class="fa-solid fa-location-dot" />
+                    {otherJob.location}
+                    <span class="text-gray-300">•</span>
+                    {otherJob.jobType}
+                  </div>
+                </a>
+              ))}
+            </div>
+
+            <div class="text-center mt-8">
+              <a
+                href={`/career/company/${company.slug}`}
+                class="inline-flex items-center gap-2 font-semibold hover:gap-3 transition-all"
+                style={`color: ${company.brandColor};`}
+              >
+                View all {company.name} jobs
+                <i class="fa-solid fa-arrow-right text-sm" />
+              </a>
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Mobile Apply Button -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 z-50">
+      <a
+        href="#apply-section"
+        class="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full font-semibold text-white transition"
+        style={`background: ${company.brandColor};`}
+      >
+        <i class="fa-solid fa-paper-plane"></i>
+        Apply for this Job
+      </a>
+    </div>
+
+    <!-- Back Navigation -->
+    <section class="py-8 px-6 bg-gray-50 lg:mb-0 mb-20">
+      <div class="max-w-5xl mx-auto flex flex-wrap gap-4 justify-center">
+        <a
+          href={`/career/company/${company.slug}`}
+          class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to {company.name} Jobs
+        </a>
+        <span class="text-gray-300">|</span>
+        <a
+          href="/career"
+          class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
+        >
+          <i class="fa-solid fa-building"></i>
+          All Companies
+        </a>
+      </div>
+    </section>
+  </main>
+</Page>
+
+<script>
+  // Copy link functionality
+  document.addEventListener("DOMContentLoaded", () => {
+    const copyBtn = document.getElementById("copy-link-btn");
+    if (copyBtn) {
+      copyBtn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          const icon = copyBtn.querySelector("i");
+          if (icon) {
+            icon.classList.remove("fa-link");
+            icon.classList.add("fa-check");
+            setTimeout(() => {
+              icon.classList.remove("fa-check");
+              icon.classList.add("fa-link");
+            }, 2000);
+          }
+        } catch (_err) {
+          console.error("Failed to copy link");
+        }
+      });
+    }
+  });
+</script>

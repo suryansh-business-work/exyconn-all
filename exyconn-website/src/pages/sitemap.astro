@@ -1,0 +1,180 @@
+---
+// filepath: src/pages/sitemap.astro
+import Page from "../layouts/Page.astro";
+
+import { getNavLinks } from "../lib/portal";
+
+const allLinks = await getNavLinks();
+
+// Group links by category
+const groupedLinks = allLinks.reduce(
+  (acc: Record<string, typeof allLinks>, link) => {
+    acc[link.category] = acc[link.category] || [];
+    acc[link.category].push(link);
+    return acc;
+  },
+  {} as Record<string, typeof allLinks>
+);
+---
+
+<Page
+  metaTitle="Sitemap | Exyconn"
+  metaDescription="Browse all pages and sections of Exyconn. Find services, products, careers, and more."
+>
+  <main class="min-h-screen bg-gradient-to-b from-white via-blue-50/30 to-white py-16 px-4">
+    <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <span
+          class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 text-sm font-semibold px-4 py-2 rounded-full mb-4"
+        >
+          <i class="fa-solid fa-sitemap"></i>
+          Navigate
+        </span>
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4" id="sitemap-heading">
+          Website <span
+            class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+            >Sitemap</span
+          >
+        </h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          Find all pages and sections of Exyconn. Total <span
+            id="sitemap-total"
+            class="font-semibold text-blue-600">{allLinks.length}</span
+          > pages available.
+        </p>
+      </div>
+
+      <!-- Search -->
+      <div class="max-w-xl mx-auto mb-12">
+        <div class="relative">
+          <i
+            class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+          ></i>
+          <input
+            id="sitemap-search"
+            type="text"
+            placeholder="Search pages..."
+            class="w-full pl-12 pr-4 py-4 bg-white rounded-2xl border border-gray-200 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            aria-label="Search sitemap pages"
+            aria-describedby="sitemap-heading"
+          />
+        </div>
+      </div>
+
+      <nav id="sitemap-list" aria-labelledby="sitemap-heading">
+        {
+          Object.entries(groupedLinks).map(([category, links]) => (
+            <section class="mb-10" aria-labelledby={`sitemap-category-${category}`}>
+              <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <i
+                    class={`fa-solid ${
+                      category === "General"
+                        ? "fa-home"
+                        : category === "AI"
+                          ? "fa-robot"
+                          : category === "Services"
+                            ? "fa-cogs"
+                            : category === "Case Studies"
+                              ? "fa-folder-open"
+                              : category === "Company"
+                                ? "fa-building"
+                                : category === "Products"
+                                  ? "fa-cube"
+                                  : "fa-link"
+                    } text-white text-sm`}
+                  />
+                </div>
+                <h2
+                  class="text-xl font-bold text-gray-900"
+                  id={`sitemap-category-${category}`}
+                  tabindex="0"
+                >
+                  {category}
+                </h2>
+                <span class="text-sm text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full">
+                  {links.length} pages
+                </span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {links.map((link) => (
+                  <a
+                    href={link.href}
+                    class="group block p-5 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300"
+                    aria-label={`${link.label}: ${link.description}`}
+                    tabindex="0"
+                  >
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                        <i class="fa-solid fa-arrow-right text-blue-500 text-xs group-hover:translate-x-0.5 transition-transform" />
+                      </div>
+                      <span class="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {link.label}
+                      </span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2 line-clamp-2">{link.description}</p>
+                  </a>
+                ))}
+              </div>
+            </section>
+          ))
+        }
+      </nav>
+      <div
+        id="no-sitemap-results"
+        class="hidden text-center py-16"
+        role="status"
+        aria-live="polite"
+      >
+        <div
+          class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fa-solid fa-search text-gray-400 text-2xl"></i>
+        </div>
+        <p class="text-gray-500 text-lg font-medium">No pages found</p>
+        <p class="text-gray-400 text-sm mt-1">Try a different search term</p>
+      </div>
+    </div>
+  </main>
+  <script is:inline>
+    document.addEventListener("DOMContentLoaded", function () {
+      const searchInput = document.getElementById("sitemap-search");
+      const list = document.getElementById("sitemap-list");
+      const allCategoryBlocks = Array.from(list.children);
+      const totalSpan = document.getElementById("sitemap-total");
+      const noResults = document.getElementById("no-sitemap-results");
+      searchInput.addEventListener("input", function () {
+        const q = searchInput.value.toLowerCase();
+        let visible = 0;
+        allCategoryBlocks.forEach((block) => {
+          const links = Array.from(block.querySelectorAll("a"));
+          let blockVisible = false;
+          links.forEach((link) => {
+            const text = link.textContent.toLowerCase();
+            if (text.includes(q)) {
+              link.parentElement.style.display = "";
+              visible++;
+              blockVisible = true;
+            } else {
+              link.parentElement.style.display = "none";
+            }
+          });
+          // Show/hide category heading based on links
+          block.style.display = blockVisible ? "" : "none";
+        });
+        noResults.style.display = visible === 0 ? "" : "none";
+        totalSpan.textContent = visible;
+        if (visible === 0) {
+          noResults.classList.remove("hidden");
+        } else {
+          noResults.classList.add("hidden");
+        }
+      });
+      // On load, check if there are any links at all
+      if (parseInt(totalSpan.textContent) === 0) {
+        noResults.classList.remove("hidden");
+      }
+    });
+  </script>
+</Page>

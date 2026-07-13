@@ -1,0 +1,43 @@
+query ListCampaigns {
+  listCampaigns {
+    id
+    name
+    channel
+    budget
+    startDate
+    endDate
+    status
+    subject
+    body
+    lastSentAt
+    recipientsCount
+  }
+}
+
+mutation CreateCampaign($input: CampaignInput!) {
+  createCampaign(input: $input) {
+    id
+  }
+}
+
+mutation UpdateCampaign($id: ID!, $input: CampaignInput!) {
+  updateCampaign(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteCampaign($id: ID!) {
+  deleteCampaign(id: $id)
+}
+
+mutation SendCampaign($id: ID!, $clientIds: [ID!]!) {
+  sendCampaign(id: $id, clientIds: $clientIds) {
+    sent
+    failed
+    campaign {
+      id
+      lastSentAt
+      recipientsCount
+    }
+  }
+}

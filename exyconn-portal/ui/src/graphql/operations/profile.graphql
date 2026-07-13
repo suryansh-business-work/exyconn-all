@@ -1,0 +1,17 @@
+mutation UpdateProfile($input: UpdateProfileInput!) {
+  updateProfile(input: $input) {
+    id
+    name
+    email
+    roles
+    avatarUrl
+  }
+}
+
+mutation ChangePassword($currentPassword: String!, $newPassword: String!) {
+  changePassword(currentPassword: $currentPassword, newPassword: $newPassword)
+}
+
+mutation UploadAvatar($file: String!) {
+  uploadAvatar(file: $file)
+}

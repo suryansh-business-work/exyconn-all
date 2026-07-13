@@ -1,0 +1,62 @@
+{
+  "name": "exyconn",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "typecheck": "astro check && tsc --noEmit",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.{astro,ts,tsx,js,jsx,css,scss,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{astro,ts,tsx,js,jsx,css,scss,json,md}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "setup:husky": "husky",
+    "pre-commit": "lint-staged && npm run test && npm run build"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.5.2",
+    "@astrojs/react": "^4.4.2",
+    "@tailwindcss/vite": "^4.1.18",
+    "animejs": "^4.3.6",
+    "astro": "^5.17.1",
+    "formik": "^2.4.9",
+    "nodemailer": "^8.0.4",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "sass": "^1.97.3",
+    "tailwindcss": "^4.1.18",
+    "yup": "^1.7.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^25.2.0",
+    "@types/nodemailer": "^7.0.11",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.2",
+    "eslint-plugin-astro": "^1.5.0",
+    "husky": "^9.1.0",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0",
+    "vitest": "^3.0.0"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx,astro}": [
+      "eslint --fix"
+    ],
+    "src/**/*.{astro,ts,tsx,js,jsx,css,scss,json,md}": [
+      "prettier --write"
+    ]
+  }
+}

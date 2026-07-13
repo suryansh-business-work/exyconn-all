@@ -1,0 +1,108 @@
+---
+interface Props {
+  image?: string;
+  title: string;
+  subtitle?: string;
+  description?: string;
+  link?: string;
+  linkText?: string;
+  features?: string[];
+  badge?: string;
+  badgeColor?: "amber" | "emerald" | "blue" | "purple" | "red";
+  color?: "indigo" | "emerald" | "cyan" | "purple" | "orange";
+}
+
+const {
+  image,
+  title,
+  subtitle,
+  description,
+  link,
+  linkText = "Learn More",
+  features = [],
+  badge,
+  badgeColor = "emerald",
+  color = "indigo",
+} = Astro.props;
+
+const badgeClasses = {
+  amber: "bg-amber-100 text-amber-700",
+  emerald: "bg-emerald-100 text-emerald-700",
+  blue: "bg-blue-100 text-blue-700",
+  purple: "bg-purple-100 text-purple-700",
+  red: "bg-red-100 text-red-700",
+};
+
+const btnClasses = {
+  indigo: "bg-indigo-600 hover:bg-indigo-700",
+  emerald: "bg-emerald-600 hover:bg-emerald-700",
+  cyan: "bg-cyan-600 hover:bg-cyan-700",
+  purple: "bg-purple-600 hover:bg-purple-700",
+  orange: "bg-orange-600 hover:bg-orange-700",
+};
+
+const checkClasses = {
+  indigo: "text-indigo-500",
+  emerald: "text-emerald-500",
+  cyan: "text-cyan-500",
+  purple: "text-purple-500",
+  orange: "text-orange-500",
+};
+---
+
+<div
+  class="group relative bg-white rounded-3xl border border-gray-100 p-8 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-300"
+>
+  {
+    badge && (
+      <div class="absolute top-6 right-6">
+        <span
+          class={`inline-flex items-center gap-1 px-3 py-1 ${badgeClasses[badgeColor]} text-xs font-bold rounded-full`}
+        >
+          {badge}
+        </span>
+      </div>
+    )
+  }
+
+  {
+    image && (
+      <div class="mb-6">
+        <img src={image} alt={title} class="h-10 object-contain" />
+      </div>
+    )
+  }
+
+  <h3 class="text-2xl font-bold text-gray-900 mb-2">{title}</h3>
+
+  {subtitle && <p class={`${checkClasses[color]} font-medium mb-4`}>{subtitle}</p>}
+
+  {description && <p class="text-gray-600 mb-6 leading-relaxed">{description}</p>}
+
+  {
+    features.length > 0 && (
+      <ul class="space-y-2 mb-8 text-sm">
+        {features.map((feature) => (
+          <li class="flex items-center gap-2 text-gray-600">
+            <i class={`fa-solid fa-check ${checkClasses[color]}`} />
+            {feature}
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  {
+    link && (
+      <div class="flex flex-wrap gap-3">
+        <a
+          href={link}
+          target={link.startsWith("http") ? "_blank" : "_self"}
+          class={`inline-flex items-center gap-2 ${btnClasses[color]} text-white font-semibold px-6 py-3 rounded-full transition`}
+        >
+          <i class="fa-solid fa-rocket" /> {linkText}
+        </a>
+      </div>
+    )
+  }
+</div>

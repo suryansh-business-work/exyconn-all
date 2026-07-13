@@ -1,0 +1,128 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+---
+
+<Page
+  metaTitle="Digital Consulting & AI Strategy Services | Exyconn"
+  metaDescription="Accelerate your digital transformation with Exyconn's digital consulting services. We help you strategize, implement, and optimize AI, automation, and technology for business growth."
+  metaKeywords="digital consulting, digital transformation, AI strategy, business consulting, technology consulting, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="Digital Consulting Services"
+    subtitle="Transform. Innovate. Grow."
+    description="Unlock business value with Exyconn’s digital consulting. We guide your organization through strategy, AI adoption, process automation, and technology transformation—delivering measurable results at every step."
+    image="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+    ctaText="Start Your Digital Journey"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="What is Digital Consulting?"
+    description='<span class="font-semibold text-indigo-700">Digital consulting</span> helps organizations leverage technology, data, and AI to solve business challenges, improve efficiency, and drive innovation. Our experts partner with you to design and implement strategies for digital transformation and sustainable growth.'
+    iconClass="fa-solid fa-lightbulb text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Choose Exyconn for Digital Consulting?"
+    items={[
+      {
+        icon: "fa-solid fa-chart-line text-indigo-500 mt-1",
+        text: "Proven strategies for digital transformation and growth.",
+      },
+      {
+        icon: "fa-solid fa-brain text-indigo-500 mt-1",
+        text: "Expertise in AI, automation, and emerging technologies.",
+      },
+      {
+        icon: "fa-solid fa-users text-indigo-500 mt-1",
+        text: "Collaborative, client-centric approach.",
+      },
+      {
+        icon: "fa-solid fa-gears text-indigo-500 mt-1",
+        text: "End-to-end support from strategy to implementation.",
+      },
+      {
+        icon: "fa-solid fa-shield-halved text-indigo-500 mt-1",
+        text: "Focus on security, compliance, and measurable ROI.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="Our Digital Consulting Services"
+    columns={[
+      {
+        icon: "fa-solid fa-compass-drafting text-4xl text-indigo-600 mb-4",
+        heading: "Strategy & Roadmap",
+        text: "Digital strategy, technology roadmap, and change management for your business goals.",
+      },
+      {
+        icon: "fa-solid fa-robot text-4xl text-indigo-600 mb-4",
+        heading: "AI & Automation",
+        text: "AI adoption, process automation, and workflow optimization for efficiency and innovation.",
+      },
+      {
+        icon: "fa-solid fa-cloud-arrow-up text-4xl text-indigo-600 mb-4",
+        heading: "Implementation & Support",
+        text: "Technology selection, integration, deployment, and ongoing support for digital solutions.",
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="Digital Consulting FAQs"
+    faqs={[
+      {
+        question: "What industries does Exyconn serve?",
+        answer:
+          "We work with clients across finance, healthcare, retail, manufacturing, logistics, and more—adapting digital strategies to each sector.",
+      },
+      {
+        question: "How does Exyconn approach digital transformation?",
+        answer:
+          "We start with a deep assessment of your business, then co-create a strategy and roadmap, followed by implementation and continuous optimization.",
+      },
+      {
+        question: "Can you help with AI and automation adoption?",
+        answer:
+          "Yes, we specialize in AI, automation, and process optimization—helping you select, implement, and scale the right solutions.",
+      },
+      {
+        question: "Is digital consulting only for large enterprises?",
+        answer:
+          "No, we support organizations of all sizes, from startups to global enterprises, tailoring our approach to your needs and resources.",
+      },
+      {
+        question: "How do I get started with digital consulting?",
+        answer:
+          "Contact Exyconn for a free consultation. We’ll discuss your goals and recommend the best path for your digital journey.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Digital Consulting Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

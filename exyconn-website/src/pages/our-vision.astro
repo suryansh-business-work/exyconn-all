@@ -1,0 +1,260 @@
+---
+import Page from "../layouts/Page.astro";
+import DynamicImageStack from "../components/dynamic-components/DynamicImageStack.astro";
+
+const visionPillars = [
+  {
+    icon: "fa-brain",
+    title: "AI-First Innovation",
+    description:
+      "We believe AI should be accessible, ethical, and a force for good—driving efficiency, creativity, and growth while respecting privacy and human values.",
+    color: "from-blue-500 to-cyan-500",
+  },
+  {
+    icon: "fa-users",
+    title: "Human-Centric Design",
+    description:
+      "We design AI solutions that enhance—not replace—human capabilities. Our tools are intuitive, transparent, and built to support your team's unique workflows.",
+    color: "from-purple-500 to-pink-500",
+  },
+  {
+    icon: "fa-leaf",
+    title: "Sustainable Impact",
+    description:
+      "We deliver automation that drives business results while supporting long-term sustainability and positive societal impact.",
+    color: "from-emerald-500 to-teal-500",
+  },
+  {
+    icon: "fa-shield-halved",
+    title: "Trust & Transparency",
+    description:
+      "We build trust through transparency, security, and ethical AI practices in everything we create.",
+    color: "from-amber-500 to-orange-500",
+  },
+];
+
+const goals = [
+  {
+    icon: "fa-rocket",
+    title: "Accelerate Innovation",
+    description: "Help businesses adopt AI faster and more effectively",
+  },
+  {
+    icon: "fa-globe",
+    title: "Global Reach",
+    description: "Make AI accessible to organizations of all sizes worldwide",
+  },
+  {
+    icon: "fa-lightbulb",
+    title: "Continuous Learning",
+    description: "Foster a culture of innovation and knowledge sharing",
+  },
+  {
+    icon: "fa-heart",
+    title: "Positive Impact",
+    description: "Create technology that benefits businesses and society",
+  },
+];
+---
+
+<Page
+  metaTitle="Our Vision | Exyconn"
+  metaDescription="Discover Exyconn's vision for responsible AI automation. Learn how we empower organizations with ethical, human-centric, and sustainable AI solutions for a smarter, more connected future."
+  metaKeywords="Exyconn vision, responsible AI, ethical automation, human-centric AI, sustainable technology, business innovation"
+  metaImage="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&w=1200&q=80"
+>
+  <main class="bg-white min-h-screen">
+    <!-- Hero Section -->
+    <section
+      class="relative py-28 px-6 bg-gradient-to-br from-purple-50 via-white to-blue-50 overflow-hidden"
+    >
+      <div
+        class="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-purple-200/40 to-pink-200/40 rounded-full blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-blue-200/30 to-cyan-200/30 rounded-full blur-3xl"
+      >
+      </div>
+
+      <div class="relative z-10 max-w-5xl mx-auto text-center">
+        <span
+          class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-8 shadow-sm"
+        >
+          <i class="fa-solid fa-eye text-purple-500"></i>
+          Our Vision
+        </span>
+
+        <h1 class="text-5xl md:text-7xl font-bold text-gray-900 mb-8 tracking-tight leading-tight">
+          Empowering Progress Through
+          <span class="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+            Innovation</span
+          >
+        </h1>
+
+        <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-10">
+          We envision a future where AI empowers every organization to achieve their full
+          potential—driving efficiency, creativity, and growth while respecting human values.
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-8 py-4 rounded-full hover:bg-gray-800 transition shadow-xl"
+          >
+            <i class="fa-solid fa-rocket"></i> Join Our Journey
+          </a>
+          <a
+            href="/about-us"
+            class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-8 py-4 rounded-full hover:bg-gray-50 transition shadow-lg"
+          >
+            <i class="fa-solid fa-users"></i> About Us
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vision Image -->
+    <section class="py-16 px-6 bg-white">
+      <div class="max-w-5xl mx-auto">
+        <div class="relative rounded-3xl overflow-hidden shadow-2xl">
+          <img
+            src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&w=1200&q=80"
+            alt="Team collaboration and innovation"
+            class="w-full h-80 object-cover"
+            loading="lazy"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent flex items-end"
+          >
+            <div class="p-8 text-white">
+              <h2 class="text-2xl font-bold mb-2">Building Tomorrow, Today</h2>
+              <p class="text-gray-200 max-w-xl">
+                We're constantly exploring new ways to make AI more accessible, secure, and
+                beneficial for everyone.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vision Pillars -->
+    <section class="py-20 px-6 bg-gray-50">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-100 rounded-full text-sm font-semibold text-purple-600 mb-6"
+          >
+            <i class="fa-solid fa-compass"></i>
+            Our Pillars
+          </span>
+          <h2 class="text-4xl font-bold text-gray-900 mb-4">Vision Pillars</h2>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            The foundational principles that guide our path forward.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          {
+            visionPillars.map((pillar) => (
+              <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 hover:shadow-lg transition-all duration-300">
+                <div
+                  class={`w-14 h-14 bg-gradient-to-br ${pillar.color} rounded-2xl flex items-center justify-center mb-6`}
+                >
+                  <i class={`fa-solid ${pillar.icon} text-white text-xl`} />
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">{pillar.title}</h3>
+                <p class="text-gray-600 leading-relaxed">{pillar.description}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Our Goals -->
+    <section class="py-20 px-6 bg-white">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-full text-sm font-semibold text-emerald-600 mb-6"
+          >
+            <i class="fa-solid fa-bullseye"></i>
+            Our Goals
+          </span>
+          <h2 class="text-4xl font-bold text-gray-900 mb-4">What We're Working Toward</h2>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Ambitious goals that drive our everyday decisions.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-4 gap-6">
+          {
+            goals.map((goal) => (
+              <div class="text-center p-6 bg-gray-50 rounded-2xl border border-gray-100 hover:bg-emerald-50 hover:border-emerald-100 transition-all duration-300">
+                <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <i class={`fa-solid ${goal.icon} text-emerald-600 text-xl`} />
+                </div>
+                <h4 class="font-bold text-gray-900 mb-2">{goal.title}</h4>
+                <p class="text-sm text-gray-600">{goal.description}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Looking Ahead -->
+    <section class="py-20 px-6 bg-gray-50">
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-3xl shadow-lg border border-gray-100 p-10">
+          <div class="text-center mb-8">
+            <div
+              class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-6"
+            >
+              <i class="fa-solid fa-telescope text-white text-2xl"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Looking Ahead</h2>
+          </div>
+          <p class="text-lg text-gray-600 leading-relaxed mb-6">
+            As technology evolves, so does our commitment to responsible innovation. We are
+            constantly exploring new ways to make AI more accessible, secure, and beneficial for
+            everyone. Our vision is a future where businesses thrive, people are empowered, and
+            technology serves humanity.
+          </p>
+          <p class="text-lg text-gray-600 leading-relaxed">
+            Join us on this journey to build a smarter, more connected, and more human world.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 px-6 bg-gradient-to-br from-purple-50 to-blue-50">
+      <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-4xl font-bold text-gray-900 mb-6">Ready to Shape the Future Together?</h2>
+        <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+          Connect with our team to discover how Exyconn can help your business lead with AI
+          innovation.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-10 py-4 rounded-full hover:bg-gray-800 transition shadow-xl"
+          >
+            <i class="fa-solid fa-envelope"></i> Contact Us
+          </a>
+          <a
+            href="/career"
+            class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-10 py-4 rounded-full hover:bg-gray-50 transition shadow-lg"
+          >
+            <i class="fa-solid fa-briefcase"></i> Join Our Team
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <DynamicImageStack title="Powered By Leading Technology" />
+  </main>
+</Page>

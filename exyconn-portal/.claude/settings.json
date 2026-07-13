@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Cd(*)",
+      "Git(*)",
+      "Bash(cd *)",
+      "PowerShell(cd *)",
+      "PowerShell(Set-Location *)",
+      "PowerShell(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "LS(*)",
+      "MultiEdit(*)",
+      "NotebookEdit(*)",
+      "WebFetch(*)"
+    ],
+    "deny": []
+  }
+}

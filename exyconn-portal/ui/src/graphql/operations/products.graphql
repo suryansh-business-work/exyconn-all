@@ -1,0 +1,27 @@
+query ListProducts {
+  listProducts {
+    id
+    name
+    sku
+    price
+    category
+    stock
+    status
+  }
+}
+
+mutation CreateProduct($input: ProductInput!) {
+  createProduct(input: $input) {
+    id
+  }
+}
+
+mutation UpdateProduct($id: ID!, $input: ProductInput!) {
+  updateProduct(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteProduct($id: ID!) {
+  deleteProduct(id: $id)
+}

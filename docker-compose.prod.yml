@@ -1,0 +1,80 @@
+# =============================================================================
+# Exyconn production stack (host: 148.135.136.107)
+#
+# Runs the five web services as containers on their assigned host ports. TLS and the
+# public domains are handled by the HOST nginx (sites-available) + certbot in front of
+# these ports — see deploy/nginx/ and deploy/server-setup.sh. This file does NOT run
+# nginx/certbot itself.
+#
+# Images are pulled from Docker Hub (pushed by CI). Runtime secrets come from a .env file
+# on the server (written by the deploy workflow from GitHub secrets) — never baked in.
+# =============================================================================
+
+services:
+  website:
+    image: ${DOCKERHUB_USERNAME}/exyconn-website:${TAG:-latest}
+    container_name: exyconn-website
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4000:4000'
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4000
+      PUBLIC_SITE_URL: https://exyconn.com
+      PUBLIC_PORTAL_GRAPHQL_URL: https://portal-server.exyconn.com/graphql
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_USER}
+      SMTP_TO: ${SMTP_USER}
+
+  tools-ui:
+    image: ${DOCKERHUB_USERNAME}/exyconn-tools-ui:${TAG:-latest}
+    container_name: exyconn-tools-ui
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4001:4001'
+
+  tools-api:
+    image: ${DOCKERHUB_USERNAME}/exyconn-tools-api:${TAG:-latest}
+    container_name: exyconn-tools-api
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4002:4002'
+    environment:
+      NODE_ENV: production
+      PORT: 4002
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      IMAGEKIT_PUBLIC_KEY: ${IMAGEKIT_PUBLIC_KEY}
+      IMAGEKIT_PRIVATE_KEY: ${IMAGEKIT_PRIVATE_KEY}
+      IMAGEKIT_URL_ENDPOINT: ${IMAGEKIT_URL_ENDPOINTS}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GOOGLE_MAP_API: ${GOOGLE_MAP_API}
+
+  portal-ui:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-ui:${TAG:-latest}
+    container_name: exyconn-portal-ui
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4003:4003'
+
+  portal-server:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-server:${TAG:-latest}
+    container_name: exyconn-portal-server
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4004:4004'
+    environment:
+      NODE_ENV: production
+      PORT: 4004
+      MONGODB_URI: ${MONGODB_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: 7d
+      CORS_ORIGIN: https://portal.exyconn.com
+      APP_URL: https://portal.exyconn.com
+      TRACKER_DOWNLOAD_URL: https://portal.exyconn.com/me/tracker

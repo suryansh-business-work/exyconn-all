@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  exyconn-tools-ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    container_name: exyconn-tools-ui
+    ports:
+      - "4001:4001"
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:4002
+    command: npm run dev
+    depends_on:
+      - exyconn-tools-server
+
+  exyconn-tools-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: exyconn-tools-server
+    ports:
+      - "4002:4002"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=4002
+    command: npm run dev

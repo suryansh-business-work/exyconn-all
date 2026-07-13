@@ -1,0 +1,128 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+---
+
+<Page
+  metaTitle="Software as a Service (SaaS) Solutions | Exyconn"
+  metaDescription="Accelerate your business with Exyconn's SaaS solutions. We design, build, and manage scalable, secure, and innovative cloud software for modern enterprises."
+  metaKeywords="SaaS, software as a service, cloud software, SaaS development, SaaS consulting, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="Software as a Service (SaaS) Solutions"
+    subtitle="Scalable. Secure. Cloud-Native."
+    description="Transform your business with Exyconn’s SaaS expertise. We help you design, develop, and scale cloud-based software that delivers value, flexibility, and innovation to your users."
+    image="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+    ctaText="Start Your SaaS Project"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="What is SaaS?"
+    description='<span class="font-semibold text-indigo-700">Software as a Service (SaaS)</span> delivers applications over the internet as a service. Instead of installing and maintaining software, users access it via the cloud—enabling rapid deployment, lower costs, and seamless updates.'
+    iconClass="fa-solid fa-cloud text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Choose Exyconn for SaaS?"
+    items={[
+      {
+        icon: "fa-solid fa-cloud-arrow-up text-indigo-500 mt-1",
+        text: "Cloud-native architecture for scalability and reliability.",
+      },
+      {
+        icon: "fa-solid fa-lock text-indigo-500 mt-1",
+        text: "Enterprise-grade security and compliance.",
+      },
+      {
+        icon: "fa-solid fa-gears text-indigo-500 mt-1",
+        text: "Custom SaaS development and integration.",
+      },
+      {
+        icon: "fa-solid fa-rocket text-indigo-500 mt-1",
+        text: "Rapid go-to-market and continuous delivery.",
+      },
+      {
+        icon: "fa-solid fa-chart-line text-indigo-500 mt-1",
+        text: "Analytics, automation, and AI built in.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="Our SaaS Services"
+    columns={[
+      {
+        icon: "fa-solid fa-lightbulb text-4xl text-indigo-600 mb-4",
+        heading: "SaaS Consulting",
+        text: "Strategy, architecture, and roadmap for SaaS success.",
+      },
+      {
+        icon: "fa-solid fa-code text-4xl text-indigo-600 mb-4",
+        heading: "SaaS Development",
+        text: "Custom cloud software, integrations, and API platforms.",
+      },
+      {
+        icon: "fa-solid fa-shield-halved text-4xl text-indigo-600 mb-4",
+        heading: "SaaS Management",
+        text: "Ongoing support, monitoring, and optimization for your SaaS apps.",
+      },
+    ]}
+  />
+  <DynamicFaqs
+    title="SaaS FAQs"
+    faqs={[
+      {
+        question: "What types of SaaS solutions does Exyconn build?",
+        answer:
+          "We build SaaS for CRM, ERP, analytics, collaboration, automation, and industry-specific needs—customized for your business.",
+      },
+      {
+        question: "How secure are Exyconn's SaaS platforms?",
+        answer:
+          "Our SaaS solutions follow best practices for security, encryption, and compliance with industry standards.",
+      },
+      {
+        question: "Can you migrate my legacy app to SaaS?",
+        answer:
+          "Yes, we offer modernization and migration services to move your legacy software to a modern SaaS platform.",
+      },
+      {
+        question: "Do you provide ongoing SaaS support?",
+        answer:
+          "Absolutely. We offer managed services, monitoring, and continuous improvement for your SaaS applications.",
+      },
+      {
+        question: "How do I get started with SaaS for my business?",
+        answer:
+          "Contact Exyconn for a free consultation. We’ll discuss your goals and recommend the best SaaS approach for your needs.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our SaaS Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>

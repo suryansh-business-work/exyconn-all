@@ -1,0 +1,27 @@
+query ListBugs {
+  listBugs {
+    id
+    title
+    description
+    severity
+    status
+    assignee
+    dueDate
+  }
+}
+
+mutation CreateBug($input: BugInput!) {
+  createBug(input: $input) {
+    id
+  }
+}
+
+mutation UpdateBug($id: ID!, $input: BugInput!) {
+  updateBug(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteBug($id: ID!) {
+  deleteBug(id: $id)
+}

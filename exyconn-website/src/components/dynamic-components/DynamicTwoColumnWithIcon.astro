@@ -1,0 +1,46 @@
+---
+const {
+  title = "Lorem Ipsum Dolor Sit Amet",
+  description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam enim, vitae facilisis sapien enim nec erat. Mauris non erat nec eros dictum cursus. Etiam ac ex nec velit cursus dictum. Suspendisse potenti. Nullam euismod, nisi vel consectetur cursus, nisl nunc consectetur nisi, euismod aliquam nisl nunc euismod.",
+  iconClass = "fa-solid fa-brain text-6xl text-indigo-600",
+} = Astro.props;
+---
+
+<section class="py-20 lg:py-28 bg-white">
+  <div class="max-w-6xl mx-auto px-6 lg:px-8">
+    <div class="grid lg:grid-cols-2 gap-12 items-center">
+      <!-- Content -->
+      <div class="space-y-6">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+          {title}
+        </h2>
+        <div class="text-lg text-gray-600 leading-relaxed prose prose-lg">
+          <span set:html={description} />
+        </div>
+      </div>
+
+      <!-- Icon Box -->
+      <div class="flex justify-center">
+        <div class="relative">
+          <!-- Background Decorations -->
+          <div
+            class="absolute -inset-4 bg-gradient-to-br from-blue-200/50 to-purple-200/50 rounded-3xl blur-2xl"
+          >
+          </div>
+
+          <!-- Main Icon Container -->
+          <div
+            class="relative bg-gradient-to-br from-blue-50 to-indigo-100 rounded-3xl p-12 shadow-xl border border-white"
+          >
+            <div
+              class="w-32 h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/30"
+            >
+              <i class={`${iconClass.split(" ")[0]} ${iconClass.split(" ")[1] || ""} text-white`}
+              ></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

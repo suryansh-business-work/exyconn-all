@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" fill="none">
+  <defs>
+    <linearGradient id="siberaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="100%" style="stop-color:#a78bfa"/>
+    </linearGradient>
+  </defs>
+  <polygon points="25,8 45,30 25,52 5,30" fill="url(#siberaGrad)"/>
+  <path d="M18 30 L25 37 L32 23" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="25" cy="30" r="5" fill="none" stroke="white" stroke-width="2"/>
+  <text x="55" y="40" font-family="Arial, sans-serif" font-size="26" font-weight="bold" fill="#1a1a1a">Sibera</text>
+</svg>

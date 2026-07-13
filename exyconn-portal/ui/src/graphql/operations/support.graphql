@@ -1,0 +1,19 @@
+query ListSupportTickets {
+  listSupportTickets {
+    id
+    employeeName
+    subject
+    category
+    description
+    priority
+    status
+    createdAt
+  }
+}
+
+mutation SetSupportTicketStatus($id: ID!, $status: SupportStatus!) {
+  setSupportTicketStatus(id: $id, status: $status) {
+    id
+    status
+  }
+}

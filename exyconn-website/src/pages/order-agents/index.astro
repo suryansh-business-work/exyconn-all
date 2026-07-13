@@ -1,0 +1,28 @@
+---
+import Page from "../../layouts/Page.astro";
+import OrderAgents from "../../components/OrderAgents.jsx";
+---
+
+<Page
+  metaTitle="Order AI Agents | Exyconn"
+  metaDescription="Order AI agents for your business. Select from a list of automation agents and add them to your order list."
+  metaKeywords="order, AI agents, Exyconn, automation, business"
+  metaImage="https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&w=1200&q=80"
+>
+  <OrderAgents client:only="react" />
+  <style>
+    @keyframes fade-in-up {
+      0% {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-fade-in-up {
+      animation: fade-in-up 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+  </style>
+</Page>

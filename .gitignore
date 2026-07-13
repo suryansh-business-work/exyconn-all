@@ -1,0 +1,38 @@
+# --- Secrets: never commit real env files (only the .example templates) --------
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# --- Dependencies & build output ----------------------------------------------
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+out/
+**/out/
+build/
+**/build/
+.astro/
+**/.astro/
+.vite/
+**/.vite/
+coverage/
+**/coverage/
+*.tsbuildinfo
+
+# --- Electron packaged artifacts ----------------------------------------------
+exyconn-tracker-app/dist/
+exyconn-tracker-app/out/
+
+# --- Logs & OS cruft ----------------------------------------------------------
+*.log
+**/*.log
+.DS_Store
+Thumbs.db
+
+# --- Editor -------------------------------------------------------------------
+.idea/
+*.swp

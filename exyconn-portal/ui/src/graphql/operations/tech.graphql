@@ -1,0 +1,65 @@
+query ListEmailConfigs {
+  listEmailConfigs {
+    id
+    label
+    host
+    port
+    secure
+    username
+    password
+    fromAddress
+    isActive
+  }
+}
+
+mutation CreateEmailConfig($input: EmailConfigInput!) {
+  createEmailConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateEmailConfig($id: ID!, $input: EmailConfigInput!) {
+  updateEmailConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteEmailConfig($id: ID!) {
+  deleteEmailConfig(id: $id)
+}
+
+query ListImageConfigs {
+  listImageConfigs {
+    id
+    label
+    provider
+    publicKey
+    privateKey
+    urlEndpoint
+    isActive
+  }
+}
+
+mutation CreateImageConfig($input: ImageConfigInput!) {
+  createImageConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateImageConfig($id: ID!, $input: ImageConfigInput!) {
+  updateImageConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteImageConfig($id: ID!) {
+  deleteImageConfig(id: $id)
+}
+
+mutation SendTestEmail($id: ID!, $to: String!) {
+  sendTestEmail(id: $id, to: $to)
+}
+
+mutation TestImageUpload($id: ID!, $file: String!, $fileName: String!) {
+  testImageUpload(id: $id, file: $file, fileName: $fileName)
+}

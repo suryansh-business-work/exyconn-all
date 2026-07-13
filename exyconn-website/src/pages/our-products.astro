@@ -1,0 +1,571 @@
+---
+import Page from "../layouts/Page.astro";
+import DynamicTable from "../components/dynamic-components/DynamicTable.astro";
+
+// Product Classification Data
+const products = [
+  {
+    id: "spentiva",
+    name: "Spentiva",
+    tagline: "Business & Personal Expense Manager",
+    description:
+      "An expense manager for both professionals and businesses. Track, analyze, and optimize spending with AI-powered insights and smart auto-categorization.",
+    primaryUsers: "Individuals + businesses",
+    businessType: "B2B2C SaaS",
+    status: "live",
+    badge: "Production Ready",
+    logo: "https://spentiva.com/logo.svg",
+    color: "emerald",
+    url: "https://spentiva.com",
+    features: [
+      "AI-Powered Insights",
+      "Smart Categorization",
+      "Multi-Tracker Support",
+      "150+ Currencies",
+    ],
+  },
+  {
+    id: "sibera",
+    name: "Sibera",
+    tagline: "CMS + Marketing + Sales Solutions",
+    description:
+      "Our B2B marketing & sales enablement platform. The intelligent CRM that understands your customers with predictive analytics, automated workflows, and AI-driven insights.",
+    primaryUsers: "Companies, brands, agencies",
+    businessType: "B2B SaaS",
+    status: "dev",
+    badge: "In Development",
+    badgeSubtext: "Early Developer Access",
+    logo: "https://ik.imagekit.io/esdata1/sibera/logo/logo-light.svg",
+    color: "indigo",
+    url: "https://sibera.work",
+    features: [
+      "AI Lead Scoring",
+      "Predictive Analytics",
+      "Workflow Automation",
+      "360° Customer View",
+    ],
+  },
+  {
+    id: "duncit",
+    name: "Duncit",
+    tagline: "Mobile Web App for Real Friend Connections",
+    description:
+      "Duncit helps people discover new friends naturally through shared interests, real chats, verified profiles, and built-in safety tools. The mobile web app is live now, with native iOS and Android apps in the works.",
+    primaryUsers: "Consumers and communities",
+    businessType: "B2C Community App",
+    status: "live",
+    badge: "mWeb Live",
+    icon: "fa-heart",
+    color: "pink",
+    url: "https://duncit.com",
+    features: ["Instant Matches", "Real Chats", "Verified Profiles", "Safety Tools"],
+  },
+];
+
+const getStatusBadge = (status: string, badge?: string) => {
+  const badgeText = badge || status;
+  switch (status) {
+    case "live":
+      return { text: badgeText, class: "bg-emerald-100 text-emerald-700" };
+    case "dev":
+      return { text: badgeText, class: "bg-blue-100 text-blue-700" };
+    case "soon":
+      return { text: badgeText, class: "bg-gray-100 text-gray-600" };
+    default:
+      return { text: badgeText, class: "bg-gray-100 text-gray-600" };
+  }
+};
+
+const getColorClasses = (color: string) => {
+  const colors: Record<string, { bg: string; border: string; icon: string; text: string }> = {
+    indigo: {
+      bg: "from-slate-50 to-indigo-50",
+      border: "border-indigo-100",
+      icon: "from-indigo-500 to-violet-600",
+      text: "text-indigo-600",
+    },
+    emerald: {
+      bg: "from-white to-emerald-50",
+      border: "border-emerald-100",
+      icon: "from-emerald-500 to-teal-600",
+      text: "text-emerald-600",
+    },
+    rose: {
+      bg: "from-gray-50 to-rose-50",
+      border: "border-rose-100",
+      icon: "from-rose-500 to-pink-600",
+      text: "text-rose-600",
+    },
+    orange: {
+      bg: "from-white to-orange-50",
+      border: "border-orange-100",
+      icon: "from-orange-500 to-red-500",
+      text: "text-orange-600",
+    },
+    pink: {
+      bg: "from-white to-pink-50",
+      border: "border-pink-100",
+      icon: "from-pink-500 to-rose-500",
+      text: "text-pink-600",
+    },
+    gray: {
+      bg: "from-gray-900 to-gray-800",
+      border: "border-gray-700",
+      icon: "from-red-500 to-red-600",
+      text: "text-gray-100",
+    },
+    purple: {
+      bg: "from-gray-50 to-purple-50",
+      border: "border-purple-100",
+      icon: "from-purple-500 to-violet-600",
+      text: "text-purple-600",
+    },
+    cyan: {
+      bg: "from-gray-50 to-cyan-50",
+      border: "border-cyan-100",
+      icon: "from-cyan-500 to-blue-600",
+      text: "text-cyan-600",
+    },
+  };
+  return colors[color] || colors.gray;
+};
+
+// Group products by type
+const saasProducts = products.filter((p) => ["B2B SaaS", "B2B2C SaaS"].includes(p.businessType));
+const developerProducts = products.filter(
+  (p) => p.businessType.includes("Developer") || p.businessType.includes("PaaS")
+);
+const consumerProducts = products.filter((p) => p.businessType.includes("B2C"));
+
+// ItemList structured data — lets AI engines (AI Overviews, ChatGPT, Perplexity)
+// cite Exyconn's product portfolio with accurate names, descriptions and links.
+const productsJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Exyconn Products",
+  description: "SaaS platforms, consumer apps, and infrastructure built by Exyconn.",
+  itemListElement: products.map((product, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    item: {
+      "@type": "SoftwareApplication",
+      name: product.name,
+      description: product.description,
+      applicationCategory: "BusinessApplication",
+      url: /^https?:\/\//i.test(product.url ?? "")
+        ? product.url
+        : `https://exyconn.com${product.url ?? "/our-products"}`,
+      offers: { "@type": "Offer", category: product.businessType },
+    },
+  })),
+};
+---
+
+<Page
+  metaTitle="Our Products | SaaS & Consumer Apps | Exyconn"
+  metaDescription="Exyconn is a multi-product technology company building B2B SaaS platforms, B2B2C applications, and consumer community apps."
+  metaKeywords="SaaS products, Sibera, Spentiva, Duncit, consumer app, community app, Exyconn products"
+  metaImage="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&w=1200&q=80"
+  jsonLd={productsJsonLd}
+>
+  <main class="bg-white min-h-screen">
+    <!-- Hero Section -->
+    <section
+      class="relative py-24 px-6 bg-gradient-to-br from-gray-50 via-white to-blue-50 overflow-hidden"
+    >
+      <div
+        class="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-200/40 to-cyan-200/40 rounded-full blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"
+      >
+      </div>
+
+      <div class="relative z-10 max-w-6xl mx-auto text-center">
+        <span
+          class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-6 shadow-sm"
+        >
+          <i class="fa-solid fa-cubes text-blue-500"></i>
+          Product Ecosystem
+        </span>
+        <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+          Products that
+          <span class="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"
+            >Power Business</span
+          >
+        </h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-8">
+          Exyconn is a multi-product technology company building B2B SaaS platforms, B2B2C
+          applications, and consumer community apps.
+        </p>
+
+        <!-- Quick Stats -->
+        <div class="flex flex-wrap justify-center gap-6">
+          <div
+            class="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm"
+          >
+            <span class="text-2xl font-bold text-gray-900">{products.length}</span>
+            <span class="text-sm text-gray-500">Products</span>
+          </div>
+          <div
+            class="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm"
+          >
+            <span class="text-2xl font-bold text-emerald-600"
+              >{products.filter((p) => p.status === "live").length}</span
+            >
+            <span class="text-sm text-gray-500">Live</span>
+          </div>
+          <div
+            class="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm"
+          >
+            <span class="text-2xl font-bold text-amber-600"
+              >{
+                products.filter((p) => ["early-access", "dev", "soon"].includes(p.status)).length
+              }</span
+            >
+            <span class="text-sm text-gray-500">In Progress</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product Classification Table -->
+    <section class="py-16 px-6 bg-white">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-10">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">Product Classification</h2>
+          <p class="text-gray-600">Complete overview of our product ecosystem</p>
+        </div>
+
+        <DynamicTable
+          headers={["Product", "What it is", "Primary Users", "Business Type"]}
+          rows={products.map((p) => [p.name, p.tagline, p.primaryUsers, p.businessType])}
+          compact={true}
+        />
+      </div>
+    </section>
+
+    <!-- SaaS Products -->
+    <section class="py-20 px-6 bg-gray-50">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex items-center gap-3 mb-10">
+          <div
+            class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center"
+          >
+            <i class="fa-solid fa-cloud text-white text-lg"></i>
+          </div>
+          <div>
+            <h2 class="text-3xl font-bold text-gray-900">SaaS Products</h2>
+            <p class="text-gray-500">B2B & B2B2C Platforms</p>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+          {
+            saasProducts.map((product) => {
+              const colors = getColorClasses(product.color);
+              const badge = getStatusBadge(product.status, product.badge);
+              return (
+                <div
+                  class={`group relative bg-gradient-to-br ${colors.bg} rounded-3xl border ${colors.border} p-8 hover:shadow-2xl transition-all duration-300`}
+                >
+                  <div class="absolute top-6 right-6 text-right">
+                    <span
+                      class={`inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full ${badge.class}`}
+                    >
+                      {badge.text}
+                    </span>
+                    {product.badgeSubtext && (
+                      <p class="text-[10px] text-gray-500 mt-1">{product.badgeSubtext}</p>
+                    )}
+                  </div>
+
+                  <div class="mb-6">
+                    {product.logo ? (
+                      <img src={product.logo} alt={product.name} class="h-10" />
+                    ) : (
+                      <div
+                        class={`w-14 h-14 bg-gradient-to-br ${colors.icon} rounded-2xl flex items-center justify-center`}
+                      >
+                        <i class={`fa-solid ${product.icon} text-white text-xl`} />
+                      </div>
+                    )}
+                  </div>
+
+                  <h3 class="text-2xl font-bold text-gray-900 mb-2">{product.name}</h3>
+                  <p class={`${colors.text} font-medium mb-4`}>{product.tagline}</p>
+                  <p class="text-gray-600 mb-6 leading-relaxed">{product.description}</p>
+
+                  <div class="mb-6">
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      {product.businessType}
+                    </span>
+                  </div>
+
+                  <ul class="space-y-2 mb-8 text-sm">
+                    {product.features.map((feature) => (
+                      <li class="flex items-center gap-2 text-gray-600">
+                        <i class={`fa-solid fa-check ${colors.text}`} />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {product.url && (
+                    <a
+                      href={product.url}
+                      target={product.url.startsWith("http") ? "_blank" : "_self"}
+                      class={`inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-6 py-3 rounded-full hover:bg-gray-800 transition`}
+                    >
+                      <i class="fa-solid fa-arrow-up-right-from-square" />
+                      Visit Website
+                    </a>
+                  )}
+                </div>
+              );
+            })
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Developer & Infrastructure Products -->
+    {
+      developerProducts.length > 0 && (
+        <section class="py-20 px-6 bg-white">
+          <div class="max-w-7xl mx-auto">
+            <div class="flex items-center gap-3 mb-10">
+              <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl flex items-center justify-center">
+                <i class="fa-solid fa-code text-white text-lg" />
+              </div>
+              <div>
+                <h2 class="text-3xl font-bold text-gray-900">Developer & Infrastructure</h2>
+                <p class="text-gray-500">PaaS & Developer Tools</p>
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {developerProducts.map((product) => {
+                const colors = getColorClasses(product.color);
+                const badge = getStatusBadge(product.status, product.badge);
+                const isDark = product.color === "gray";
+
+                return (
+                  <div
+                    class={`group relative rounded-3xl border p-6 hover:shadow-xl transition-all duration-300 ${isDark ? "bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700" : `bg-gradient-to-br ${colors.bg} ${colors.border}`}`}
+                  >
+                    <div class="flex items-start justify-between mb-4">
+                      <div
+                        class={`w-12 h-12 bg-gradient-to-br ${colors.icon} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}
+                      >
+                        <i
+                          class={`${product.icon?.includes("fa-brands") ? product.icon : `fa-solid ${product.icon}`} text-white text-lg`}
+                        />
+                      </div>
+                      <span
+                        class={`inline-flex items-center gap-1 px-2 py-1 text-xs font-bold rounded-full ${badge.class}`}
+                      >
+                        {badge.text}
+                      </span>
+                    </div>
+
+                    <h3 class={`text-xl font-bold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>
+                      {product.name}
+                    </h3>
+                    <p class={`text-sm font-medium mb-3 ${isDark ? "text-gray-400" : colors.text}`}>
+                      {product.tagline}
+                    </p>
+                    <p
+                      class={`text-sm mb-4 leading-relaxed ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                    >
+                      {product.description}
+                    </p>
+
+                    <div class="mb-4">
+                      <span
+                        class={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-gray-500" : "text-gray-500"}`}
+                      >
+                        {product.businessType}
+                      </span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                      {product.features.slice(0, 3).map((feature) => (
+                        <span
+                          class={`px-2 py-1 text-xs rounded-lg ${isDark ? "bg-gray-700 text-gray-300" : "bg-white border border-gray-100 text-gray-600"}`}
+                        >
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+
+                    {product.url && (
+                      <a
+                        href={product.url}
+                        target={product.url.startsWith("http") ? "_blank" : "_self"}
+                        class={`mt-4 inline-flex items-center gap-2 font-semibold text-sm transition ${isDark ? "text-white hover:text-gray-300" : `${colors.text} hover:opacity-80`}`}
+                      >
+                        Learn More <i class="fa-solid fa-arrow-right text-xs" />
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Consumer Products -->
+    {
+      consumerProducts.length > 0 && (
+        <section class="py-20 px-6 bg-gray-50">
+          <div class="max-w-7xl mx-auto">
+            <div class="flex items-center gap-3 mb-10">
+              <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center">
+                <i class="fa-solid fa-users text-white text-lg" />
+              </div>
+              <div>
+                <h2 class="text-3xl font-bold text-gray-900">Consumer Products</h2>
+                <p class="text-gray-500">B2C & Community Platforms</p>
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+              {consumerProducts.map((product) => {
+                const colors = getColorClasses(product.color);
+                const badge = getStatusBadge(product.status, product.badge);
+
+                return (
+                  <div
+                    class={`group relative bg-white rounded-3xl border ${colors.border} p-6 hover:shadow-xl transition-all duration-300`}
+                  >
+                    <div class="flex items-start justify-between mb-4">
+                      <div
+                        class={`w-12 h-12 bg-gradient-to-br ${colors.icon} rounded-xl flex items-center justify-center`}
+                      >
+                        <i class={`fa-solid ${product.icon} text-white text-lg`} />
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span
+                          class={`inline-flex items-center gap-1 px-2 py-1 text-xs font-bold rounded-full ${badge.class}`}
+                        >
+                          {badge.text}
+                        </span>
+                      </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
+                    <p class={`${colors.text} font-medium text-sm mb-3`}>{product.tagline}</p>
+                    <p class="text-sm text-gray-600 leading-relaxed mb-4">{product.description}</p>
+
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      {product.businessType}
+                    </span>
+
+                    <div class="flex flex-wrap gap-2 mt-4">
+                      {product.features.slice(0, 4).map((feature) => (
+                        <span class="px-2 py-1 text-xs rounded-lg bg-gray-50 border border-gray-100 text-gray-600">
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+
+                    {product.url && (
+                      <a
+                        href={product.url}
+                        target={product.url.startsWith("http") ? "_blank" : "_self"}
+                        class={`mt-5 inline-flex items-center gap-2 font-semibold text-sm transition ${colors.text} hover:opacity-80`}
+                      >
+                        Visit Website <i class="fa-solid fa-arrow-up-right-from-square text-xs" />
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- How to Talk About Products -->
+    <section class="py-20 px-6 bg-white">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-12">
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-100 rounded-full text-sm font-semibold text-blue-600 mb-6"
+          >
+            <i class="fa-solid fa-comments"></i>
+            Quick Reference
+          </span>
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">Product Positioning</h2>
+          <p class="text-gray-600">How we talk about each product</p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100 flex items-start gap-4">
+            <div
+              class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0"
+            >
+              <span class="font-bold text-indigo-600">S</span>
+            </div>
+            <div>
+              <h4 class="font-bold text-gray-900">Sibera</h4>
+              <p class="text-gray-600">"Our B2B marketing & sales enablement platform"</p>
+            </div>
+          </div>
+          <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100 flex items-start gap-4">
+            <div
+              class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0"
+            >
+              <span class="font-bold text-emerald-600">S</span>
+            </div>
+            <div>
+              <h4 class="font-bold text-gray-900">Spentiva</h4>
+              <p class="text-gray-600">
+                "An expense manager for both professionals and businesses"
+              </p>
+            </div>
+          </div>
+          <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100 flex items-start gap-4">
+            <div class="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center shrink-0">
+              <span class="font-bold text-pink-600">D</span>
+            </div>
+            <div>
+              <h4 class="font-bold text-gray-900">Duncit</h4>
+              <p class="text-gray-600">"A mobile web app for real friend connections"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 px-6 bg-gradient-to-br from-gray-50 to-blue-50">
+      <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-4xl font-bold text-gray-900 mb-6">Ready to Build Something Amazing?</h2>
+        <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+          Whether you need a SaaS platform, internal tools, or custom development—we're here to help
+          you launch faster.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="/shell-strategy"
+            class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-8 py-4 rounded-full hover:bg-gray-800 transition shadow-xl"
+          >
+            <i class="fa-solid fa-bolt"></i> Explore Shell Strategy
+          </a>
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-8 py-4 rounded-full hover:bg-gray-50 transition shadow-lg"
+          >
+            <i class="fa-solid fa-message"></i> Contact Sales
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</Page>

@@ -1,0 +1,371 @@
+---
+import Page from "../../layouts/Page.astro";
+import GetInTouch from "../../components/forms/GetInTouch.astro";
+import DynamicFaqs from "../../components/dynamic-components/DynamicFaqs.astro";
+import DynamicBanner from "../../components/fragments/Banners/DynamicBanner.astro";
+import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadcrumb.astro";
+import DynamicTwoColumnWithIcon from "../../components/dynamic-components/DynamicTwoColumnWithIcon.astro";
+import DynamicTwoColumnWithBgAndIcon from "../../components/dynamic-components/DynamicTwoColumnWithBgAndIcon.astro";
+import DynamicThreeColumnWithIcon from "../../components/dynamic-components/DynamicThreeColumnWithIcon.astro";
+import DynamicHorizontalTab from "../../components/dynamic-components/DynamicHorizontalTab.astro";
+---
+
+<Page
+  metaTitle="Agentic AI | Autonomous Intelligence for Business | Exyconn"
+  metaDescription="Discover Agentic AI solutions by Exyconn. Enable autonomous, adaptive, and collaborative AI agents for business automation, decision-making, and innovation."
+  metaKeywords="Agentic AI, autonomous AI, AI agents, business automation, adaptive AI, Exyconn"
+  metaImage="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
+>
+  <DynamicBreadcrumb />
+  <DynamicBanner
+    title="Agentic AI: Autonomous Intelligence for Modern Business"
+    subtitle="Adapt. Decide. Act."
+    description="Empower your organization with Agentic AI—autonomous systems that perceive, learn, and act to achieve your business goals. Unlock new levels of automation, adaptability, and collaboration with next-generation AI agents."
+    image="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
+    ctaText="Contact Us"
+    ctaHref="/contact"
+  />
+  <DynamicTwoColumnWithIcon
+    title="What is Agentic AI?"
+    description='<span class="font-semibold text-indigo-700">Agentic AI</span> refers to artificial intelligence systems that act as autonomous agents—capable of perceiving their environment, making decisions, and taking actions to achieve specific goals. Unlike traditional AI, which often follows static rules or models, agentic AI adapts, learns, and collaborates, making it ideal for dynamic, real-world scenarios.'
+    iconClass="fa-solid fa-brain text-6xl text-indigo-600"
+  />
+  <DynamicTwoColumnWithBgAndIcon
+    title="Why Do We Need Agentic AI?"
+    items={[
+      {
+        icon: "fa-solid fa-bolt text-indigo-500 mt-1",
+        text: "Automates complex, multi-step business processes.",
+      },
+      {
+        icon: "fa-solid fa-arrows-rotate text-indigo-500 mt-1",
+        text: "Adapts to changing environments and requirements.",
+      },
+      {
+        icon: "fa-solid fa-money-bill-trend-up text-indigo-500 mt-1",
+        text: "Reduces manual intervention and operational costs.",
+      },
+      {
+        icon: "fa-solid fa-gauge-high text-indigo-500 mt-1",
+        text: "Enables real-time decision-making and optimization.",
+      },
+      {
+        icon: "fa-solid fa-lightbulb text-indigo-500 mt-1",
+        text: "Drives innovation in customer service, logistics, finance, and more.",
+      },
+    ]}
+    bgClass="bg-gradient-to-r from-indigo-100 via-white to-cyan-100 rounded-2xl shadow-lg p-8"
+  />
+  <DynamicThreeColumnWithIcon
+    title="How Does Agentic AI Solve My Problem?"
+    columns={[
+      {
+        icon: "fa-solid fa-gears text-4xl text-indigo-600 mb-4",
+        heading: "Process Automation",
+        text: "Automates repetitive and complex workflows, freeing up human resources for higher-value tasks.",
+      },
+      {
+        icon: "fa-solid fa-brain text-4xl text-indigo-600 mb-4",
+        heading: "Adaptive Decision-Making",
+        text: "Learns from data and feedback to make smarter, context-aware decisions in real time.",
+      },
+      {
+        icon: "fa-solid fa-users text-4xl text-indigo-600 mb-4",
+        heading: "Collaboration & Integration",
+        text: "Works seamlessly with humans and other systems, integrating across platforms and teams.",
+      },
+    ]}
+  />
+
+  <DynamicHorizontalTab
+    heading="Agentic AI Types"
+    tabs={[
+      {
+        label: "Reactive Agents",
+        description: "Respond instantly to stimuli",
+        content: `<p><strong>Reactive Agents</strong> act only on current input, without memory or internal state. They are fast and simple, ideal for straightforward, repetitive tasks.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Basic chatbots, thermostat controls</li>
+          <li>Strength: Speed and reliability in predictable environments</li>
+          <li>Limitation: Cannot learn or adapt to new situations</li>
+        </ul>`,
+      },
+      {
+        label: "Deliberative Agents",
+        description: "Plan actions using reasoning",
+        content: `<p><strong>Deliberative Agents</strong> build internal models and plan before acting. They can handle complex scenarios by predicting outcomes and making informed decisions.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Route-planning in autonomous vehicles</li>
+          <li>Strength: Can solve complex, multi-step problems</li>
+          <li>Limitation: Requires more computation and time</li>
+        </ul>`,
+      },
+      {
+        label: "Goal-Based Agents",
+        description: "Pursue explicit objectives",
+        content: `<p><strong>Goal-Based Agents</strong> select actions that move them closer to defined goals, evaluating possible future states to make choices.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Game-playing AIs (like chess engines)</li>
+          <li>Strength: Flexible and adaptable to changing goals</li>
+          <li>Limitation: Needs clear goal definitions</li>
+        </ul>`,
+      },
+      {
+        label: "Utility-Based Agents",
+        description: "Maximize overall benefit",
+        content: `<p><strong>Utility-Based Agents</strong> weigh the desirability of outcomes, choosing actions that maximize their expected utility or satisfaction.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Recommendation systems optimizing user satisfaction</li>
+          <li>Strength: Can balance multiple objectives and trade-offs</li>
+          <li>Limitation: Utility functions can be hard to define</li>
+        </ul>`,
+      },
+      {
+        label: "Learning Agents",
+        description: "Adapt and improve over time",
+        content: `<p><strong>Learning Agents</strong> use feedback to refine their behavior, improving performance as they gain experience.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Self-improving chatbots, adaptive spam filters</li>
+          <li>Strength: Can handle new, unseen situations</li>
+          <li>Limitation: Needs data and training time</li>
+        </ul>`,
+      },
+      {
+        label: "Model-Based Reflex Agents",
+        description: "Use internal world models",
+        content: `<p><strong>Model-Based Reflex Agents</strong> maintain a simple internal model to handle partially observable environments, enabling more flexible responses.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Smart home systems that track room occupancy</li>
+          <li>Strength: More robust than simple reflex agents</li>
+          <li>Limitation: Still limited by model complexity</li>
+        </ul>`,
+      },
+      {
+        label: "Multi-Agent Systems",
+        description: "Multiple agents working together",
+        content: `<p><strong>Multi-Agent Systems</strong> involve several agents that interact, cooperate, or compete to solve distributed problems.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Swarm robotics, distributed sensor networks</li>
+          <li>Strength: Scalability and robustness</li>
+          <li>Limitation: Coordination and communication overhead</li>
+        </ul>`,
+      },
+      {
+        label: "Autonomous Agents",
+        description: "Operate independently",
+        content: `<p><strong>Autonomous Agents</strong> make decisions and act without human intervention, adapting to their environment as needed.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Self-driving cars, robotic vacuum cleaners</li>
+          <li>Strength: Reduces need for human oversight</li>
+          <li>Limitation: Must handle unexpected situations safely</li>
+        </ul>`,
+      },
+      {
+        label: "Embodied Agents",
+        description: "Physical presence in the world",
+        content: `<p><strong>Embodied Agents</strong> are robots or devices that interact with the physical world using sensors and actuators.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Industrial robots, drones</li>
+          <li>Strength: Can manipulate and sense the real world</li>
+          <li>Limitation: Hardware constraints and maintenance</li>
+        </ul>`,
+      },
+      {
+        label: "Cognitive Agents",
+        description: "Human-like reasoning",
+        content: `<p><strong>Cognitive Agents</strong> use models inspired by human thought, enabling reasoning, learning, and problem-solving.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Virtual assistants with memory and reasoning</li>
+          <li>Strength: Can handle complex, ambiguous tasks</li>
+          <li>Limitation: Computationally intensive</li>
+        </ul>`,
+      },
+      {
+        label: "Social Agents",
+        description: "Interact with others",
+        content: `<p><strong>Social Agents</strong> communicate and collaborate with humans or other agents, often used in assistants and collaborative tools.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Customer service bots, negotiation agents</li>
+          <li>Strength: Effective in team or user-facing roles</li>
+          <li>Limitation: Needs advanced communication skills</li>
+        </ul>`,
+      },
+      {
+        label: "Planning Agents",
+        description: "Develop and execute plans",
+        content: `<p><strong>Planning Agents</strong> generate and adapt action sequences to achieve complex goals.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Automated logistics and scheduling systems</li>
+          <li>Strength: Can optimize for efficiency and resources</li>
+          <li>Limitation: May struggle with highly dynamic environments</li>
+        </ul>`,
+      },
+      {
+        label: "Conversational Agents",
+        description: "Engage in dialogue",
+        content: `<p><strong>Conversational Agents</strong> interact with users via natural language, such as chatbots and virtual assistants.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: ChatGPT, Alexa, Google Assistant</li>
+          <li>Strength: Natural, intuitive user interaction</li>
+          <li>Limitation: May misunderstand context or intent</li>
+        </ul>`,
+      },
+      {
+        label: "Robotic Agents",
+        description: "Autonomous robots",
+        content: `<p><strong>Robotic Agents</strong> are physical robots capable of sensing, reasoning, and acting in the real world.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Delivery robots, warehouse automation</li>
+          <li>Strength: Can perform physical tasks at scale</li>
+          <li>Limitation: Expensive and complex to deploy</li>
+        </ul>`,
+      },
+      {
+        label: "Software Agents",
+        description: "Digital task automation",
+        content: `<p><strong>Software Agents</strong> are programs that autonomously perform tasks in digital environments, like web crawlers or trading bots.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Email filters, automated trading systems</li>
+          <li>Strength: Fast, scalable, and tireless</li>
+          <li>Limitation: Limited to digital environments</li>
+        </ul>`,
+      },
+      {
+        label: "BDI Agents",
+        description: "Belief-Desire-Intention model",
+        content: `<p><strong>BDI Agents</strong> use beliefs, desires, and intentions to make rational decisions and plan actions.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Research prototypes, advanced planning bots</li>
+          <li>Strength: Flexible and theoretically robust</li>
+          <li>Limitation: Complex to implement and scale</li>
+        </ul>`,
+      },
+      {
+        label: "Evolutionary Agents",
+        description: "Evolve and adapt",
+        content: `<p><strong>Evolutionary Agents</strong> use evolutionary algorithms to adapt and improve their behavior or structure.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: AI for game strategy optimization</li>
+          <li>Strength: Can discover novel solutions</li>
+          <li>Limitation: May require many iterations to improve</li>
+        </ul>`,
+      },
+      {
+        label: "Mobile Agents",
+        description: "Move across networks",
+        content: `<p><strong>Mobile Agents</strong> can migrate between systems or network nodes to perform distributed tasks.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Distributed monitoring tools</li>
+          <li>Strength: Flexible deployment across systems</li>
+          <li>Limitation: Security and coordination challenges</li>
+        </ul>`,
+      },
+      {
+        label: "Collaborative Agents",
+        description: "Work in teams",
+        content: `<p><strong>Collaborative Agents</strong> coordinate with others to solve problems that require teamwork.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Multi-agent scheduling, swarm robotics</li>
+          <li>Strength: Can solve problems beyond single-agent capability</li>
+          <li>Limitation: Requires robust communication protocols</li>
+        </ul>`,
+      },
+      {
+        label: "Interface Agents",
+        description: "Assist with software interfaces",
+        content: `<p><strong>Interface Agents</strong> help users interact with applications, learning preferences and automating tasks.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Personal assistants, smart UI helpers</li>
+          <li>Strength: Improves user productivity and experience</li>
+          <li>Limitation: Needs to learn user preferences accurately</li>
+        </ul>`,
+      },
+      {
+        label: "Rational Agents",
+        description: "Maximize performance",
+        content: `<p><strong>Rational Agents</strong> always choose actions that maximize their expected performance, given their knowledge.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Automated bidding systems</li>
+          <li>Strength: Consistent and goal-oriented</li>
+          <li>Limitation: Dependent on quality of knowledge base</li>
+        </ul>`,
+      },
+      {
+        label: "Hybrid Agents",
+        description: "Combine multiple approaches",
+        content: `<p><strong>Hybrid Agents</strong> integrate features from different agent types to leverage their strengths.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Self-driving cars (combining reactive and deliberative)</li>
+          <li>Strength: Flexible and robust in complex environments</li>
+          <li>Limitation: Increased system complexity</li>
+        </ul>`,
+      },
+      {
+        label: "Proactive Agents",
+        description: "Take initiative",
+        content: `<p><strong>Proactive Agents</strong> anticipate needs or problems and act in advance, not just in response to events.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Predictive maintenance systems</li>
+          <li>Strength: Prevents issues before they occur</li>
+          <li>Limitation: Risk of acting on incorrect predictions</li>
+        </ul>`,
+      },
+      {
+        label: "Reactive-Proactive Hybrid Agents",
+        description: "Balance reaction and initiative",
+        content: `<p><strong>Reactive-Proactive Hybrid Agents</strong> combine immediate responses with proactive planning for flexible behavior.</p>
+        <ul class="list-disc pl-5 mt-2 text-gray-700">
+          <li>Example: Advanced customer support bots</li>
+          <li>Strength: Can handle both urgent and long-term needs</li>
+          <li>Limitation: Complex to design and tune</li>
+        </ul>`,
+      },
+    ]}
+  />
+
+  <DynamicFaqs
+    title="Agentic AI FAQs"
+    faqs={[
+      {
+        question: "What makes Agentic AI different from traditional AI?",
+        answer:
+          "Agentic AI systems act autonomously, adapt to changing environments, and make decisions to achieve specific goals, unlike traditional AI which often follows static rules.",
+      },
+      {
+        question: "Can Agentic AI work with my existing business systems?",
+        answer:
+          "Yes, Agentic AI can integrate with your current platforms and tools, enabling seamless automation and collaboration across your organization.",
+      },
+      {
+        question: "Is Agentic AI safe and reliable?",
+        answer:
+          "With proper monitoring, high-quality data, and human oversight, Agentic AI can be both safe and reliable for business-critical applications.",
+      },
+      {
+        question: "What are the first steps to adopt Agentic AI?",
+        answer:
+          "Start by identifying processes that benefit from autonomy, assess your data readiness, and launch pilot projects to measure impact before scaling.",
+      },
+    ]}
+  />
+  <DynamicImageStack
+    title="Our Business Tools"
+    logos={[
+      {
+        name: "Claude",
+        src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg",
+      },
+      {
+        name: "OpenAI",
+        src: "https://static.cdnlogo.com/logos/o/61/openai.svg",
+        width: "w-[150px]",
+      },
+      {
+        name: "Gemini",
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/344px-Google_Gemini_logo.svg.png",
+      },
+    ]}
+  />
+  <GetInTouch />
+</Page>
