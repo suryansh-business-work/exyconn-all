@@ -21,7 +21,6 @@
     "format:check": "prettier --check \"src/**/*.ts\""
   },
   "dependencies": {
-    "@exyconn/common": "^2.3.6",
     "@imgly/background-removal-node": "^1.4.5",
     "@types/form-data": "^2.5.2",
     "@types/nodemailer": "^7.0.9",

@@ -43,7 +43,7 @@ Run from the repo root, once, with your **rotated** values (do not paste the old
 
 ```bash
 for s in SSH_KEY SSH_USER SSH_HOST SSH_PORT \
-         DOCKERHUB_USERNAME DOCKERHUB_TOKEN NPM_TOKEN \
+         DOCKERHUB_USERNAME DOCKERHUB_TOKEN \
          MONGODB_URI JWT_SECRET \
          SMTP_HOST SMTP_PORT SMTP_USER SMTP_PASS \
          IMAGEKIT_PUBLIC_KEY IMAGEKIT_PRIVATE_KEY IMAGEKIT_URL_ENDPOINTS \
@@ -92,12 +92,8 @@ its own folder (`cd exyconn-tools && npm run dev` → 4001/4002). Tracker:
 
 ## Notes / caveats
 
-- **Tools API image** depends on the private `@exyconn/common` package (hosted on **GitHub
-  Packages** — `github.com/exyconn/common`, not public npm) plus native `onnxruntime`. Its
-  Dockerfile reads an `NPM_TOKEN` build-arg and points the `@exyconn` scope at
-  `npm.pkg.github.com`, so **`NPM_TOKEN` must be a GitHub PAT with `read:packages`** on the
-  exyconn org (a plain npmjs token will 404). This is the one image I could not build-verify
-  locally — I don't have that token. If `@exyconn/common` actually lives on a different
-  registry, change the two `npm.pkg.github.com` lines in `exyconn-tools/server/Dockerfile`.
+- **Tools API image** uses native `onnxruntime` (hence the `node:20-slim` Debian base). The
+  formerly-required private `@exyconn/common` package was an unused dependency and has been
+  removed, so the image now builds with no registry token.
 - The tracker installer is unsigned; macOS distribution additionally needs an Apple
   Developer ID (build the DMG on macOS). See `exyconn-tracker-app/README.md`.

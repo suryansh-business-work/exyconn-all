@@ -54,11 +54,7 @@ jobs:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
-          # secrets context is not allowed in the matrix, so NPM_TOKEN is added here.
-          # Only the tools-api Dockerfile consumes it; other images ignore it.
-          build-args: |
-            ${{ matrix.build_args }}
-            NPM_TOKEN=${{ secrets.NPM_TOKEN }}
+          build-args: ${{ matrix.build_args }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/exyconn-${{ matrix.service }}:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/exyconn-${{ matrix.service }}:${{ github.sha }}

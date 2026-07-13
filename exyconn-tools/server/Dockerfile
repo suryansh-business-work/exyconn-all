@@ -6,18 +6,10 @@
 # =============================================================================
 
 # Stage 1: Dependencies
-# NPM_TOKEN authenticates the private @exyconn/common package. It is written to a
-# throwaway .npmrc and removed in the SAME layer, so the token never persists in any image.
 FROM node:20-slim AS deps
 WORKDIR /app
-ARG NPM_TOKEN
 COPY package.json ./
-RUN if [ -n "$NPM_TOKEN" ]; then { \
-      echo "@exyconn:registry=https://npm.pkg.github.com"; \
-      echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}"; \
-    } > .npmrc; fi && \
-    rm -f package-lock.json && npm install --legacy-peer-deps --include=optional && \
-    rm -f .npmrc
+RUN rm -f package-lock.json && npm install --legacy-peer-deps --include=optional
 
 # Stage 2: Builder
 FROM node:20-slim AS builder
@@ -39,16 +31,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget && \
     mkdir -p /app/logs && \
     chown -R nodejs:nodejs /app
 
-# Copy production files (prod install also needs the private-package token, same scrubbing)
-ARG NPM_TOKEN
+# Copy production files
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
-RUN if [ -n "$NPM_TOKEN" ]; then { \
-      echo "@exyconn:registry=https://npm.pkg.github.com"; \
-      echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}"; \
-    } > .npmrc; fi && \
-    npm install --omit=dev --legacy-peer-deps && npm cache clean --force && \
-    rm -f .npmrc
+RUN npm install --omit=dev --legacy-peer-deps && npm cache clean --force
 
 USER nodejs
 
