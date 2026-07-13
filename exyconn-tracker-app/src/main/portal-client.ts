@@ -1,6 +1,9 @@
-import { PORTAL_GRAPHQL_URL } from '@shared/config';
 import type { TrackerSettings } from '@shared/types';
 import { secureStore } from './store';
+
+/** Portal GraphQL endpoint (main process only — reads process.env, overridable at run time). */
+const PORTAL_GRAPHQL_URL =
+  process.env.PORTAL_GRAPHQL_URL ?? 'http://localhost:4004/graphql';
 
 /**
  * Talks to the portal GraphQL API from the MAIN process. Requests originate from Node,
