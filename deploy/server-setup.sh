@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Exyconn — one-time server nginx + certbot setup. Run ON the server (root).
+# Exyconn — nginx + certbot setup. Run ON the server (root).
 #
 #   scp -r deploy root@148.135.136.107:/opt/exyconn-deploy
 #   ssh root@148.135.136.107 'bash /opt/exyconn-deploy/server-setup.sh'
 #
-# This SAFELY reconfigures nginx to serve ONLY the five Exyconn sites:
+# Adds/updates ONLY the five Exyconn vhosts and their TLS certs:
 #   exyconn.com(4000) tools(4001) tools-api(4002) portal(4003) portal-server(4004)
-# It backs up the current nginx config first, and it never deletes sites-available
-# files — it only re-points sites-enabled. Review the backup before deleting it.
+#
+# SAFETY: this script is ADDITIVE. It never disables or deletes other sites.
+# This box also hosts duncit (duncit.com + duncit-staging-*); wiping sites-enabled
+# would take those offline, so we deliberately do NOT do that. It is idempotent —
+# safe to re-run.
 # =============================================================================
 set -euo pipefail
 
@@ -19,6 +22,7 @@ SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/nginx"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP="/root/nginx-backup-${STAMP}.tar.gz"
 
+# certbot -d args per certificate
 DOMAINS=(
   "exyconn.com|www.exyconn.com"
   "tools.exyconn.com"
@@ -27,36 +31,38 @@ DOMAINS=(
   "portal-server.exyconn.com"
 )
 
-echo "==> 1/5  Backing up current nginx config to ${BACKUP}"
+echo "==> 1/4  Backing up current nginx config to ${BACKUP}"
 tar -czf "${BACKUP}" -C /etc/nginx sites-available sites-enabled 2>/dev/null || true
 
-echo "==> 2/5  Ensuring nginx + certbot are installed"
-if ! command -v nginx >/dev/null; then apt-get update && apt-get install -y nginx; fi
-if ! command -v certbot >/dev/null; then apt-get update && apt-get install -y certbot python3-certbot-nginx; fi
+echo "==> 2/4  Ensuring nginx + certbot are installed"
+command -v nginx   >/dev/null || { apt-get update && apt-get install -y nginx; }
+command -v certbot >/dev/null || { apt-get update && apt-get install -y certbot python3-certbot-nginx; }
 
-echo "==> 3/5  Disabling all currently-enabled sites (backed up above)"
-# Only removes symlinks in sites-enabled; the underlying files in sites-available stay.
-find "${NGINX_ENABLED}" -maxdepth 1 -type l -delete
-
-echo "==> 4/5  Installing the five Exyconn vhosts (HTTP; certbot adds TLS next)"
+echo "==> 3/4  Installing the five Exyconn vhosts (other sites are left untouched)"
 for conf in "${SRC_DIR}"/*.conf; do
   name="$(basename "${conf}")"
-  cp "${conf}" "${NGINX_AVAILABLE}/${name}"
+  # certbot rewrites these files in place to add the 443 block. Don't clobber a vhost
+  # that already has TLS wired up, or we'd strip its cert config on every re-run.
+  if grep -q "listen 443" "${NGINX_AVAILABLE}/${name}" 2>/dev/null; then
+    echo "    ${name} already has TLS — leaving as-is"
+  else
+    cp "${conf}" "${NGINX_AVAILABLE}/${name}"
+    echo "    installed ${name}"
+  fi
   ln -sf "${NGINX_AVAILABLE}/${name}" "${NGINX_ENABLED}/${name}"
-  echo "    enabled ${name}"
 done
 nginx -t
 systemctl reload nginx
 
-echo "==> 5/5  Obtaining/renewing TLS certificates via certbot"
+echo "==> 4/4  Obtaining/renewing TLS certificates (certbot skips ones already valid)"
 for entry in "${DOMAINS[@]}"; do
   args=()
   IFS='|' read -ra names <<< "${entry}"
   for n in "${names[@]}"; do args+=("-d" "${n}"); done
-  echo "    certbot for ${entry}"
-  certbot --nginx --non-interactive --agree-tos -m "${EMAIL}" --redirect "${args[@]}"
+  echo "    certbot: ${entry}"
+  certbot --nginx --non-interactive --agree-tos -m "${EMAIL}" --redirect --keep-until-expiring "${args[@]}"
 done
 
-echo "==> Done. nginx now serves only the five Exyconn sites, all on HTTPS."
+nginx -t && systemctl reload nginx
+echo "==> Done. The five Exyconn sites are served over HTTPS; all other sites untouched."
 echo "    Backup of the previous config: ${BACKUP}"
-echo "    certbot auto-renewal is handled by the packaged systemd timer."

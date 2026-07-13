@@ -62,17 +62,19 @@ done
 
 ## 3. One-time server setup (nginx + TLS)
 
-This is the only manual step on the server. It **backs up** the current nginx config first
-and only re-points `sites-enabled` (it never deletes `sites-available` files):
+This is the only manual step on the server:
 
 ```bash
 scp -r deploy root@148.135.136.107:/opt/exyconn-deploy
 ssh root@148.135.136.107 'bash /opt/exyconn-deploy/server-setup.sh'
 ```
 
-Afterwards nginx serves only the five Exyconn sites, each on HTTPS, with auto-renewal.
-The previous config is saved to `/root/nginx-backup-<timestamp>.tar.gz` — review before
-deleting.
+It backs up nginx, installs the five Exyconn vhosts, and runs certbot. It is **additive
+and idempotent** — safe to re-run.
+
+> ⚠️ **This box also hosts duncit** (`duncit.com` + ~10 `duncit-staging-*` containers).
+> The script deliberately does **not** wipe `sites-enabled`; doing so would take duncit
+> offline. Never "clear out" nginx on this server.
 
 ## 4. Deploy
 
