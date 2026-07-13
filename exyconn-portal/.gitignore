@@ -7,8 +7,8 @@ coverage/
 !.env.example
 *.log
 .DS_Store
-ui/src/graphql/generated/
-server/src/graphql/generated/
+# GraphQL codegen output IS committed so Docker/CI builds are hermetic (no codegen step
+# needed, and the build context no longer depends on files that only exist locally).
 cypress/videos/
 cypress/screenshots/
 .vite/
