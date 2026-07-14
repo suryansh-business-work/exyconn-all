@@ -10,7 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import type { ReportDay } from '@shared/types';
 import { activityPercent, formatCount, formatDayLabel, formatHoursMinutes } from '../format';
-import GlassCard from './GlassCard';
+import Surface from './Surface';
 
 const COLUMNS = ['Day', 'Worked', 'Idle', 'Activity', 'Keys', 'Mouse', 'Sessions'] as const;
 const SKELETON_ROWS = ['s1', 's2', 's3', 's4', 's5'] as const;
@@ -29,29 +29,29 @@ function activityColor(percent: number): 'success' | 'warning' {
 export default function ReportTable({ days, loading }: Readonly<Props>): JSX.Element {
   if (loading) {
     return (
-      <GlassCard sx={{ p: 2 }}>
+      <Surface sx={{ p: 2 }}>
         <Stack spacing={1.25}>
           {SKELETON_ROWS.map((id) => (
             <Skeleton key={id} variant="rounded" height={40} />
           ))}
         </Stack>
-      </GlassCard>
+      </Surface>
     );
   }
 
   if (days.length === 0) {
     return (
-      <GlassCard sx={{ p: 4, textAlign: 'center' }}>
+      <Surface sx={{ p: 4, textAlign: 'center' }}>
         <Typography variant="subtitle1">No tracked time this month</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
           Days appear here once you start tracking and sync.
         </Typography>
-      </GlassCard>
+      </Surface>
     );
   }
 
   return (
-    <GlassCard sx={{ p: 0, overflow: 'hidden' }}>
+    <Surface sx={{ p: 0, overflow: 'hidden' }}>
       <TableContainer sx={{ overflowX: 'auto' }}>
         <Table size="small">
           <TableHead>
@@ -92,6 +92,6 @@ export default function ReportTable({ days, loading }: Readonly<Props>): JSX.Ele
           </TableBody>
         </Table>
       </TableContainer>
-    </GlassCard>
+    </Surface>
   );
 }

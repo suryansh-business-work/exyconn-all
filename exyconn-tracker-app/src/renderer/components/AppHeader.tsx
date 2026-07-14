@@ -5,7 +5,6 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import MenuIcon from '@mui/icons-material/Menu';
 import type { Branding } from '@shared/types';
-import { glass } from '../theme';
 import BrandMark from './BrandMark';
 
 interface Props {
@@ -14,24 +13,21 @@ interface Props {
   onOpenMenu: () => void;
 }
 
-/** Frosted top bar: hamburger, brand logo, and the current section name. */
-export default function GlassAppBar({ branding, title, onOpenMenu }: Readonly<Props>): JSX.Element {
+/** Compact top bar: hamburger, brand logo, and the current section name. */
+export default function AppHeader({ branding, title, onOpenMenu }: Readonly<Props>): JSX.Element {
   return (
     <AppBar
       position="static"
       color="transparent"
       sx={(theme) => ({
-        ...glass(theme, 0.07),
-        borderRadius: 0,
-        borderTop: 'none',
-        borderLeft: 'none',
-        borderRight: 'none',
+        backgroundColor: theme.palette.background.paper,
+        borderBottom: `1px solid ${theme.palette.divider}`,
         boxShadow: 'none',
         color: theme.palette.text.primary,
       })}
     >
-      {/* The window is narrow: the brand shrinks (minWidth 0) so the section name never
-          spills past the right edge, and the section name itself never shrinks. */}
+      {/* Both text runs shrink (minWidth 0) and truncate. The window is narrow enough that a
+          non-shrinking child would push the section name off the right edge — it used to. */}
       <Toolbar
         variant="dense"
         disableGutters
@@ -43,17 +39,20 @@ export default function GlassAppBar({ branding, title, onOpenMenu }: Readonly<Pr
           color="inherit"
           aria-label="Open navigation"
           onClick={onOpenMenu}
+          sx={{ flexShrink: 0 }}
         >
           <MenuIcon fontSize="small" />
         </IconButton>
-        <Box sx={{ flex: '1 1 auto', minWidth: 0, display: 'flex' }}>
+
+        <Box sx={{ display: 'flex', flex: '0 1 auto', minWidth: 0 }}>
           <BrandMark branding={branding} height={20} />
         </Box>
+
         <Typography
           variant="caption"
           color="text.secondary"
           noWrap
-          sx={{ flex: '0 0 auto', maxWidth: '50%', fontWeight: 600 }}
+          sx={{ flex: '1 1 auto', minWidth: 0, textAlign: 'right', fontWeight: 600 }}
         >
           {title}
         </Typography>

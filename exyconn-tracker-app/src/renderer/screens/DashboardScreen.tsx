@@ -9,7 +9,7 @@ import MouseOutlined from '@mui/icons-material/MouseOutlined';
 import PhotoCameraOutlined from '@mui/icons-material/PhotoCameraOutlined';
 import TimerOutlined from '@mui/icons-material/TimerOutlined';
 import type { TrackerState } from '@shared/types';
-import GlassCard from '../components/GlassCard';
+import Surface from '../components/Surface';
 import StatTile from '../components/StatTile';
 import StatusChip from '../components/StatusChip';
 import SyncBar from '../components/SyncBar';
@@ -70,7 +70,7 @@ export default function DashboardScreen({ state }: Readonly<Props>): JSX.Element
 
   return (
     <Stack spacing={2}>
-      <GlassCard sx={{ p: 2.5 }}>
+      <Surface sx={{ p: 2.5 }}>
         <Stack
           direction="row"
           spacing={1.5}
@@ -89,7 +89,7 @@ export default function DashboardScreen({ state }: Readonly<Props>): JSX.Element
           <StatusChip status={status} />
         </Stack>
         <TrackingControls status={status} />
-      </GlassCard>
+      </Surface>
 
       <SyncBar stats={stats} settings={settings} />
 

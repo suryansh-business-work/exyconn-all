@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { alpha } from '@mui/material/styles';
-import GlassCard from './GlassCard';
+import Surface from './Surface';
 
 interface Props {
   title: string;
@@ -24,7 +24,7 @@ export default function PermissionRow({
 }: Readonly<Props>): JSX.Element {
   const Icon = icon;
   return (
-    <GlassCard sx={{ p: 2 }}>
+    <Surface sx={{ p: 2 }}>
       <Stack direction="row" spacing={1.75} alignItems="center">
         <Box
           sx={(theme) => ({
@@ -50,6 +50,6 @@ export default function PermissionRow({
           Grant
         </Button>
       </Stack>
-    </GlassCard>
+    </Surface>
   );
 }

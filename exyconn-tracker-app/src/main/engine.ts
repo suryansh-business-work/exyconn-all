@@ -1,10 +1,11 @@
 import { powerMonitor } from 'electron';
-import type { LiveStats, TrackerSettings, TrackerStatus } from '@shared/types';
+import type { LiveStats, SyncOutcome, TrackerSettings, TrackerStatus } from '@shared/types';
 import { InputCounter } from './trackers/input-counter';
 import { WindowTracker } from './trackers/window-tracker';
 import { Screenshotter } from './trackers/screenshotter';
-import { Outbox, type OutboxItem } from './outbox';
+import { Outbox, type FlushResult, type OutboxItem } from './outbox';
 import { notifyScreenshotCaptured } from './notifier';
+import { classifyFailure, describeSyncFailure } from './sync-message';
 import * as portal from './portal-client';
 import { TrackerAuthError } from './portal-client';
 
@@ -13,7 +14,7 @@ const TICK_MS = 1000;
 /** Callbacks the engine uses to talk back to the app shell (tray/renderer/sign-out). */
 export interface EngineHooks {
   onStats: (stats: LiveStats) => void;
-  onAuthError: () => void;
+  onAuthError: (reason: string) => void;
 }
 
 /**
@@ -44,7 +45,7 @@ export class TrackerEngine {
   private sessionMouse = 0;
   private screenshotCount = 0;
   private lastSyncAt: string | null = null;
-  private lastSyncError: string | null = null;
+  private lastSyncOutcome: SyncOutcome | null = null;
   private syncing = false;
   /** When the last sync was attempted (success or not), for interval pacing. */
   private lastSyncAttempt = 0;
@@ -187,8 +188,29 @@ export class TrackerEngine {
   }
 
   /** Flushes the outbox right now, whatever the auto-sync setting says (the Sync button). */
-  syncNow(): Promise<void> {
+  async syncNow(): Promise<SyncOutcome> {
+    // The activity bucket accrues in memory and is only enqueued when the interval timer fires
+    // — every 10 minutes by default. Without this, pressing "Sync now" early in a session found
+    // an empty queue, uploaded nothing, and said nothing: the button looked broken.
+    await this.closeIntervalForSync(Date.now());
     return this.sync();
+  }
+
+  /**
+   * Enqueues the partial activity bucket and opens a fresh one.
+   *
+   * Deliberately NOT `beginInterval()`: that re-rolls `nextScreenshotAt`, so anyone could
+   * postpone their own screenshot indefinitely just by pressing "Sync now" on a loop. The
+   * screenshot schedule is left exactly as it was.
+   */
+  private async closeIntervalForSync(now: number): Promise<void> {
+    if (this.status !== 'tracking') {
+      return;
+    }
+    await this.flushInterval(now);
+    this.intervalStartedAt = now;
+    this.intervalActiveMs = 0;
+    this.intervalIdleMs = 0;
   }
 
   private async takeScreenshots(now: number): Promise<void> {
@@ -236,37 +258,44 @@ export class TrackerEngine {
    * rest queued, so a partial upload is safe to retry; we capture the underlying error
    * here (the outbox itself only reports how many items got through) to show it in the UI.
    */
-  private async sync(): Promise<void> {
+  private async sync(): Promise<SyncOutcome> {
     if (this.syncing) {
-      return;
+      return { kind: 'unavailable', reason: 'A sync is already running.' };
     }
+    // An empty queue used to fall through the flush and report nothing at all, so pressing
+    // "Sync now" with nothing pending looked exactly like a broken button.
+    if (this.outbox.size === 0) {
+      this.lastSyncAt = new Date().toISOString();
+      return this.settle({ kind: 'nothing' });
+    }
+
     this.syncing = true;
-    this.lastSyncError = null;
+    this.lastSyncOutcome = null;
     this.emit();
 
-    let failure: unknown = null;
+    let result: FlushResult;
     try {
-      const sent = await this.outbox.flush(async (item) => {
-        try {
-          await this.send(item);
-        } catch (error) {
-          failure = error;
-          throw error; // keep the item queued and stop the drain
-        }
-      });
-      if (sent > 0) {
-        this.lastSyncAt = new Date().toISOString();
-      }
+      result = await this.outbox.flush((item) => this.send(item), classifyFailure);
     } finally {
       this.syncing = false;
       this.lastSyncAttempt = Date.now();
     }
 
-    if (failure) {
-      this.lastSyncError = failure instanceof Error ? failure.message : 'Sync failed';
-      this.handleError(failure);
+    if (result.error !== null) {
+      this.handleError(result.error);
+      return this.settle({ kind: 'failed', reason: describeSyncFailure(result.error) });
     }
+
+    this.lastSyncAt = new Date().toISOString();
+    return this.settle({ kind: 'uploaded', count: result.sent, discarded: result.dropped });
+  }
+
+  /** Records the outcome, pushes it to the renderer, and hands it back to the caller. */
+  private settle(outcome: SyncOutcome): SyncOutcome {
+    this.lastSyncOutcome = outcome;
+    this.lastSyncAttempt = Date.now();
     this.emit();
+    return outcome;
   }
 
   private send(item: OutboxItem): Promise<void> {
@@ -278,9 +307,10 @@ export class TrackerEngine {
 
   private handleError(error: unknown): void {
     if (error instanceof TrackerAuthError) {
-      // Device or access revoked mid-session — stop and let the shell sign out.
-      void this.stop();
-      this.hooks.onAuthError();
+      // Device or access revoked mid-session — stop and let the shell sign out, carrying the
+      // reason with it. Being ejected to a login screen with no explanation is its own bug.
+      this.stop().catch((cause: unknown) => console.error('Stop after auth error failed', cause));
+      this.hooks.onAuthError(describeSyncFailure(error));
     }
   }
 
@@ -305,7 +335,7 @@ export class TrackerEngine {
       pendingSync: this.outbox.size,
       lastSyncAt: this.lastSyncAt,
       syncing: this.syncing,
-      lastSyncError: this.lastSyncError,
+      lastSyncOutcome: this.lastSyncOutcome,
     };
   }
 

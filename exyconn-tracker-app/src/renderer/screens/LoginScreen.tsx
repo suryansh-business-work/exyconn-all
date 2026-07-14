@@ -9,19 +9,25 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import type { Branding } from '@shared/types';
 import BrandMark from '../components/BrandMark';
-import GlassCard from '../components/GlassCard';
+import Surface from '../components/Surface';
 import PasswordField from '../components/PasswordField';
 import ScreenLayout from '../components/ScreenLayout';
 
 interface Props {
   branding: Branding | null;
   rememberMe: boolean;
+  /** Set when the app signed the employee out itself — they are owed the reason. */
+  signedOutReason: string | null;
 }
 
 const GENERIC_ERROR = 'Something went wrong. Please try again.';
 
 /** Sign-in screen. Uses portal credentials; the main process validates them. */
-export default function LoginScreen({ branding, rememberMe }: Readonly<Props>): JSX.Element {
+export default function LoginScreen({
+  branding,
+  rememberMe,
+  signedOutReason,
+}: Readonly<Props>): JSX.Element {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(rememberMe);
@@ -60,13 +66,19 @@ export default function LoginScreen({ branding, rememberMe }: Readonly<Props>): 
         <BrandMark branding={branding} height={36} />
       </Stack>
 
-      <GlassCard sx={{ p: 2.5 }}>
+      <Surface sx={{ p: 2.5 }}>
         <Typography variant="h5" sx={{ mb: 0.5 }}>
           Sign in
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Use your Exyconn portal email and password.
         </Typography>
+
+        {signedOutReason !== null ? (
+          <Alert severity="warning" variant="outlined" sx={{ mb: 2, borderRadius: '4px' }}>
+            {signedOutReason}
+          </Alert>
+        ) : null}
 
         <Stack component="form" noValidate onSubmit={handleSubmit} spacing={1.75}>
           <TextField
@@ -118,7 +130,7 @@ export default function LoginScreen({ branding, rememberMe }: Readonly<Props>): 
             {loading ? 'Signing in…' : 'Sign in'}
           </Button>
         </Stack>
-      </GlassCard>
+      </Surface>
     </ScreenLayout>
   );
 }

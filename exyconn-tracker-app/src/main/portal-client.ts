@@ -14,6 +14,16 @@ const PORTAL_GRAPHQL_URL = process.env.PORTAL_GRAPHQL_URL ?? 'http://localhost:4
  */
 export class TrackerAuthError extends Error {}
 
+/**
+ * A rejection that retrying can never fix — an oversized screenshot, or an interval whose
+ * session the portal does not have. Retrying these forever wedges the whole outbox behind
+ * them, so they are dropped instead of retried.
+ */
+export class TrackerRejectedError extends Error {}
+
+const PERMANENT_CODES = new Set(['BAD_USER_INPUT', 'NOT_FOUND', 'GRAPHQL_VALIDATION_FAILED']);
+const PERMANENT_HTTP = new Set([400, 404, 413, 422]);
+
 interface GraphQLResponse<T> {
   data?: T;
   errors?: Array<{ message: string; extensions?: { code?: string } }>;
@@ -36,7 +46,11 @@ async function request<T>(
   });
 
   if (!response.ok) {
-    throw new Error(`Portal request failed: HTTP ${response.status}`);
+    const message = `Portal request failed: HTTP ${response.status}`;
+    if (PERMANENT_HTTP.has(response.status)) {
+      throw new TrackerRejectedError(message);
+    }
+    throw new Error(message);
   }
 
   const payload = (await response.json()) as GraphQLResponse<T>;
@@ -46,6 +60,10 @@ async function request<T>(
     );
     if (authError) {
       throw new TrackerAuthError(authError.message);
+    }
+    const rejection = payload.errors.find((e) => PERMANENT_CODES.has(e.extensions?.code ?? ''));
+    if (rejection) {
+      throw new TrackerRejectedError(rejection.message);
     }
     throw new Error(payload.errors.map((e) => e.message).join('; '));
   }

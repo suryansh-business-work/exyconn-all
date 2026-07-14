@@ -4,7 +4,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { DayDetail } from '@shared/types';
 import { activityPercent, formatCount, formatDayLabel } from '../format';
-import GlassCard from './GlassCard';
+import Surface from './Surface';
 import ReportTotals from './ReportTotals';
 import ScreenshotGrid from './ScreenshotGrid';
 
@@ -54,11 +54,11 @@ export default function DayDetailPanel({
       <Stack spacing={1}>
         {heading}
         <Skeleton variant="rounded" height={72} />
-        <GlassCard sx={{ p: 2, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+        <Surface sx={{ p: 2, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
           {SKELETON_TILES.map((id) => (
             <Skeleton key={id} variant="rounded" height={96} />
           ))}
-        </GlassCard>
+        </Surface>
       </Stack>
     );
   }
@@ -79,9 +79,9 @@ export default function DayDetailPanel({
         {inputSummary(detail)}
       </Typography>
 
-      <GlassCard sx={{ p: 2 }}>
+      <Surface sx={{ p: 2 }}>
         <ScreenshotGrid shots={detail.screenshots} />
-      </GlassCard>
+      </Surface>
     </Stack>
   );
 }

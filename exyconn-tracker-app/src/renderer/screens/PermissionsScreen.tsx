@@ -7,7 +7,7 @@ import AccessibilityNewOutlined from '@mui/icons-material/AccessibilityNewOutlin
 import RefreshRounded from '@mui/icons-material/RefreshRounded';
 import ScreenshotMonitorOutlined from '@mui/icons-material/ScreenshotMonitorOutlined';
 import type { PermissionState } from '@shared/types';
-import GlassCard from '../components/GlassCard';
+import Surface from '../components/Surface';
 import PermissionRow from '../components/PermissionRow';
 import ScreenLayout from '../components/ScreenLayout';
 import { run } from '../run';
@@ -69,7 +69,7 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): JSX
 
   return (
     <ScreenLayout maxWidth={520}>
-      <GlassCard sx={{ p: 3 }}>
+      <Surface sx={{ p: 3 }}>
         <Typography variant="h5">Grant permissions</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
           macOS needs your permission before the tracker can work. Grant each item below, then
@@ -103,7 +103,7 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): JSX
         <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1.5 }}>
           Some features will not work until these are granted.
         </Typography>
-      </GlassCard>
+      </Surface>
     </ScreenLayout>
   );
 }

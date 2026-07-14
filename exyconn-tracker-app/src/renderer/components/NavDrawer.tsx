@@ -8,10 +8,8 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { alpha } from '@mui/material/styles';
 import type { AuthUser } from '@shared/types';
 import { NAV_ITEMS, type Section } from '../sections';
-import { glass } from '../theme';
 
 interface Props {
   open: boolean;
@@ -31,7 +29,7 @@ function initials(name: string): string {
   return `${first}${last}`.toUpperCase();
 }
 
-/** Temporary glass drawer holding the app's three sections. */
+/** Temporary drawer holding the app's three sections. */
 export default function NavDrawer({
   open,
   section,
@@ -47,13 +45,9 @@ export default function NavDrawer({
       onClose={onClose}
       PaperProps={{
         sx: (theme) => ({
-          ...glass(theme, 0.12),
-          borderRadius: 0,
-          borderTop: 'none',
-          borderBottom: 'none',
-          borderLeft: 'none',
           width: 268,
-          backgroundImage: `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.18)}, transparent 45%)`,
+          backgroundColor: theme.palette.background.paper,
+          borderRight: `1px solid ${theme.palette.divider}`,
         }),
       }}
     >

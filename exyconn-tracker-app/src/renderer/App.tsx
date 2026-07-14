@@ -4,7 +4,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import type { TrackerState } from '@shared/types';
-import AppBackground from './components/AppBackground';
+import AppFrame from './components/AppFrame';
 import AppShell from './AppShell';
 import LoginScreen from './screens/LoginScreen';
 import ConsentScreen from './screens/ConsentScreen';
@@ -21,7 +21,13 @@ interface RouterProps {
  */
 function ScreenRouter({ state }: Readonly<RouterProps>): JSX.Element {
   if (state.status === 'signed-out') {
-    return <LoginScreen branding={state.branding} rememberMe={state.rememberMe} />;
+    return (
+      <LoginScreen
+        branding={state.branding}
+        rememberMe={state.rememberMe}
+        signedOutReason={state.signedOutReason}
+      />
+    );
   }
   if (state.status === 'consent-required') {
     return <ConsentScreen branding={state.branding} settings={state.settings} />;
@@ -84,7 +90,7 @@ export default function App(): JSX.Element {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppBackground>{state === null ? <Loading /> : <ScreenRouter state={state} />}</AppBackground>
+      <AppFrame>{state === null ? <Loading /> : <ScreenRouter state={state} />}</AppFrame>
     </ThemeProvider>
   );
 }

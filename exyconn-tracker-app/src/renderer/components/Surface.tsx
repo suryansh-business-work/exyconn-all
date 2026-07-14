@@ -1,6 +1,6 @@
 import Paper, { type PaperProps } from '@mui/material/Paper';
 import type { SxProps, Theme } from '@mui/material/styles';
-import { glass } from '../theme';
+import { surface } from '../theme';
 
 /** MUI's `sx` is either a single style or an array of them. */
 type SxArray = Extract<SxProps<Theme>, readonly unknown[]>;
@@ -22,23 +22,12 @@ function toArray(sx: SxProps<Theme> | undefined): readonly SxEntry[] {
   return [sx];
 }
 
-/**
- * Every surface in the app is one of these: a frosted, translucent MUI Paper.
- * The blur only resolves because the gradient sits on AppBackground behind it —
- * an opaque parent would leave nothing to sample.
- */
-export default function GlassCard({ sx, ...rest }: Readonly<PaperProps>): JSX.Element {
+/** Every panel in the app is one of these: an opaque MUI Paper with a hairline border. */
+export default function Surface({ sx, ...rest }: Readonly<PaperProps>): JSX.Element {
   return (
     <Paper
       {...rest}
-      sx={[
-        (theme) => ({
-          ...glass(theme),
-          padding: theme.spacing(2.5),
-          transition: 'box-shadow 220ms ease, background-color 220ms ease, transform 220ms ease',
-        }),
-        ...toArray(sx),
-      ]}
+      sx={[(theme) => ({ ...surface(theme), padding: theme.spacing(2) }), ...toArray(sx)]}
     />
   );
 }

@@ -55,7 +55,7 @@ interface Props {
   status: TrackerStatus;
 }
 
-/** Glass status pill with a pulsing dot. */
+/** Status pill with a pulsing dot. */
 export default function StatusChip({ status }: Readonly<Props>): JSX.Element {
   const meta = STATUS_META[status];
   const color = TONE_COLOR[meta.tone];
@@ -66,11 +66,11 @@ export default function StatusChip({ status }: Readonly<Props>): JSX.Element {
       label={meta.label}
       sx={(theme) => ({
         pl: 1,
-        height: 34,
+        height: 30,
+        marginTop: '-20px',
         color: theme.palette.text.primary,
         backgroundColor: alpha(color, 0.16),
         border: `1px solid ${alpha(color, 0.4)}`,
-        backdropFilter: 'blur(12px)',
         '& .MuiChip-icon': { ml: 0.5, mr: -0.25 },
       })}
     />

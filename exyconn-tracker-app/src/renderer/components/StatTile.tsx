@@ -2,7 +2,7 @@ import type { SvgIconComponent } from '@mui/icons-material';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { alpha } from '@mui/material/styles';
-import GlassCard from './GlassCard';
+import Surface from './Surface';
 
 interface Props {
   label: string;
@@ -14,7 +14,7 @@ interface Props {
 export default function StatTile({ label, value, icon }: Readonly<Props>): JSX.Element {
   const Icon = icon;
   return (
-    <GlassCard
+    <Surface
       sx={(theme) => ({
         p: 2,
         '&:hover': {
@@ -32,6 +32,6 @@ export default function StatTile({ label, value, icon }: Readonly<Props>): JSX.E
       <Typography variant="h6" noWrap title={value}>
         {value}
       </Typography>
-    </GlassCard>
+    </Surface>
   );
 }

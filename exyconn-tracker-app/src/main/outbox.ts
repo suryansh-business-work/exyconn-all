@@ -3,9 +3,24 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { IntervalPayload, ScreenshotPayload } from './portal-client';
 
-type OutboxItem =
+type OutboxItem = { attempts?: number } & (
   | { kind: 'interval'; sessionId: string; payload: IntervalPayload }
-  | { kind: 'screenshot'; payload: ScreenshotPayload };
+  | { kind: 'screenshot'; payload: ScreenshotPayload }
+);
+
+/** What to do with an item the portal refused. */
+export type FailureKind = 'retry' | 'drop';
+
+export interface FlushResult {
+  sent: number;
+  /** Items the portal will never accept, dropped so they cannot block the queue. */
+  dropped: number;
+  /** The transient error that stopped the drain, if one did. */
+  error: unknown | null;
+}
+
+/** A transient failure this many times running is treated as permanent. */
+const MAX_ATTEMPTS = 5;
 
 /**
  * Durable retry queue. Every interval and screenshot is appended here BEFORE the network
@@ -55,26 +70,42 @@ export class Outbox {
   }
 
   /**
-   * Attempts to send every queued item in order via `send`. Items that succeed are
-   * dropped; on the first failure it stops and keeps the rest for the next flush, so
-   * ordering and at-least-once delivery are preserved.
+   * Sends every queued item in order. A transient failure stops the drain and keeps the rest
+   * queued, preserving order and at-least-once delivery.
+   *
+   * An item the portal will NEVER accept is dropped and the drain continues. This queue is on
+   * disk and survives restarts, so without that a single poison item — an oversized screenshot,
+   * or work belonging to a session this employee no longer owns — blocked every future upload
+   * forever, with no way out but deleting the file by hand.
    */
-  async flush(send: (item: OutboxItem) => Promise<void>): Promise<number> {
+  async flush(
+    send: (item: OutboxItem) => Promise<void>,
+    classify: (error: unknown) => FailureKind,
+  ): Promise<FlushResult> {
     let sent = 0;
+    let dropped = 0;
+    let error: unknown = null;
+
     while (this.items.length > 0) {
       const item = this.items[0];
       try {
         await send(item);
         this.items.shift();
         sent += 1;
-      } catch {
-        break;
+      } catch (cause) {
+        const attempts = (item.attempts ?? 0) + 1;
+        item.attempts = attempts;
+        if (classify(cause) === 'retry' && attempts < MAX_ATTEMPTS) {
+          error = cause;
+          break;
+        }
+        this.items.shift();
+        dropped += 1;
       }
     }
-    if (sent > 0) {
-      this.persist();
-    }
-    return sent;
+
+    this.persist();
+    return { sent, dropped, error };
   }
 }
 

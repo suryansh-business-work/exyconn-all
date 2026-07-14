@@ -51,6 +51,16 @@ export interface PermissionState {
   allGranted: boolean;
 }
 
+/**
+ * What the last sync attempt actually did. A sync that uploads nothing is NOT a failure, but
+ * it is also not success — the employee is told which of the four it was, every time.
+ */
+export type SyncOutcome =
+  | { kind: 'uploaded'; count: number; discarded: number }
+  | { kind: 'nothing' }
+  | { kind: 'failed'; reason: string }
+  | { kind: 'unavailable'; reason: string };
+
 /** Live counters surfaced to the renderer dashboard once per second. */
 export interface LiveStats {
   status: TrackerStatus;
@@ -67,8 +77,8 @@ export interface LiveStats {
   lastSyncAt: string | null;
   /** True while a sync (manual or automatic) is in flight. */
   syncing: boolean;
-  /** Why the last sync attempt failed, if it did. */
-  lastSyncError: string | null;
+  /** What the last sync attempt did, and why, if it did nothing. */
+  lastSyncOutcome: SyncOutcome | null;
 }
 
 export interface LoginResult {
@@ -144,4 +154,6 @@ export interface TrackerState {
   stats: LiveStats;
   /** Whether the stored session was remembered (drives the login checkbox default). */
   rememberMe: boolean;
+  /** Why the app signed the employee out on its own (revoked access), shown on the login screen. */
+  signedOutReason: string | null;
 }

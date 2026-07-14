@@ -5,7 +5,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import OpenInNewRounded from '@mui/icons-material/OpenInNewRounded';
 import type { Branding, TrackerSettings } from '@shared/types';
-import GlassCard from '../components/GlassCard';
+import Surface from '../components/Surface';
 import SettingsList from '../components/SettingsList';
 import SignOutButton from '../components/SignOutButton';
 import { buildSettingRows } from '../settings-rows';
@@ -23,7 +23,7 @@ export default function SettingsScreen({ settings, branding }: Readonly<Props>):
 
   return (
     <Stack spacing={2}>
-      <GlassCard sx={{ p: 2.5 }}>
+      <Surface sx={{ p: 2.5 }}>
         <Typography variant="h6">Settings</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 1 }}>
           Configured by your workspace administrator in the Exyconn portal. This app cannot change
@@ -37,9 +37,9 @@ export default function SettingsScreen({ settings, branding }: Readonly<Props>):
         ) : (
           <SettingsList rows={buildSettingRows(settings)} />
         )}
-      </GlassCard>
+      </Surface>
 
-      <GlassCard sx={{ p: 2.5 }}>
+      <Surface sx={{ p: 2.5 }}>
         <Typography variant="h6">Your data</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
           Everything this app has recorded about you is visible to you in the portal.
@@ -55,9 +55,9 @@ export default function SettingsScreen({ settings, branding }: Readonly<Props>):
           </Button>
           <SignOutButton />
         </Stack>
-      </GlassCard>
+      </Surface>
 
-      <GlassCard sx={{ p: 2.5 }}>
+      <Surface sx={{ p: 2.5 }}>
         <Typography variant="h6">About</Typography>
         <Divider sx={{ my: 1.5 }} />
         <Stack spacing={0.5}>
@@ -76,7 +76,7 @@ export default function SettingsScreen({ settings, branding }: Readonly<Props>):
             stopped or paused.
           </Typography>
         </Stack>
-      </GlassCard>
+      </Surface>
     </Stack>
   );
 }

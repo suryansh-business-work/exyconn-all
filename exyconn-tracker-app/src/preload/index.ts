@@ -5,6 +5,7 @@ import {
   type LoginResult,
   type PermissionState,
   type ReportDay,
+  type SyncOutcome,
   type TrackerState,
 } from '@shared/types';
 
@@ -19,7 +20,7 @@ const api = {
   pause: (): Promise<void> => ipcRenderer.invoke(IPC.pause),
   resume: (): Promise<void> => ipcRenderer.invoke(IPC.resume),
   stop: (): Promise<void> => ipcRenderer.invoke(IPC.stop),
-  syncNow: (): Promise<void> => ipcRenderer.invoke(IPC.syncNow),
+  syncNow: (): Promise<SyncOutcome> => ipcRenderer.invoke(IPC.syncNow),
   getReport: (from: string, to: string): Promise<ReportDay[]> =>
     ipcRenderer.invoke(IPC.getReport, from, to),
   getDay: (start: string, end: string): Promise<DayDetail> =>

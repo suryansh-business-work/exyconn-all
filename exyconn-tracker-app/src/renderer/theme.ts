@@ -1,4 +1,6 @@
 import { alpha, createTheme, type CSSObject, type Theme } from '@mui/material/styles';
+// Teaches `createTheme` about the MUI X picker slots (needed for the MuiPickersDay override).
+import type {} from '@mui/x-date-pickers/themeAugmentation';
 import type { Branding } from '@shared/types';
 
 /** Exyconn defaults, used until the portal branding arrives (or if it fails to load). */
@@ -7,6 +9,12 @@ const FALLBACK = {
   secondaryColor: '#00D2C6',
   backgroundColor: '#0C1024',
   textColor: '#F4F6FF',
+} as const;
+
+/** Neutral app chrome. The brand supplies the accent; it does not tint every pixel. */
+const CHROME = {
+  light: { app: '#F4F5F7', paper: '#FFFFFF', text: '#111827', muted: '#5B6472' },
+  dark: { app: '#0F1216', paper: '#171B21', text: '#E7EAEE', muted: '#9AA4B2' },
 } as const;
 
 const HEX = /^#?([\da-f]{3}|[\da-f]{6})$/i;
@@ -51,23 +59,22 @@ export function brandColors(branding: Branding | null): BrandColors {
 }
 
 /**
- * The one frosted-glass recipe every surface in this app uses.
- * `backdrop-filter` only shows up when something non-opaque sits behind it, so the
- * gradient lives on the app root (AppBackground) and never on the glass itself.
+ * The one surface recipe every panel in this app uses: opaque fill, hairline border, a shadow
+ * just deep enough to lift it off the page.
+ *
+ * Deliberately NOT frosted glass. `backdrop-filter` made Chromium re-sample the panel's own
+ * painted text as its backdrop, which ghosted a blurred duplicate of every glyph behind it —
+ * the calendar was unreadable. An opaque surface also keeps text contrast predictable.
  */
-export function glass(theme: Theme, tint = 0.1): CSSObject {
+export function surface(theme: Theme): CSSObject {
   const isDark = theme.palette.mode === 'dark';
-  const fill = alpha('#FFFFFF', isDark ? tint : tint + 0.52);
-  const border = alpha(isDark ? '#FFFFFF' : '#0F172A', isDark ? 0.16 : 0.08);
-  const drop = isDark ? 'rgba(2, 6, 23, 0.45)' : 'rgba(15, 23, 42, 0.14)';
-  const sheen = alpha('#FFFFFF', isDark ? 0.14 : 0.65);
   return {
-    backgroundColor: fill,
-    backdropFilter: 'blur(20px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-    border: `1px solid ${border}`,
-    borderRadius: 4,
-    boxShadow: `0 18px 44px ${drop}, inset 0 1px 0 ${sheen}`,
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.divider}`,
+    // '4px', not 4: this object is spread into an `sx` prop, where a NUMBER is a multiplier of
+    // theme.shape.borderRadius (4) and would silently render 16px. A string is literal.
+    borderRadius: '4px',
+    boxShadow: isDark ? 'none' : '0 1px 2px rgba(16, 24, 40, 0.06)',
   };
 }
 
@@ -86,15 +93,16 @@ export function buildTheme(branding: Branding | null): Theme {
   const colors = brandColors(branding);
   const isDark = luminance(colors.background) < 0.5;
   const mode = isDark ? 'dark' : 'light';
-  const divider = alpha(isDark ? '#FFFFFF' : '#0F172A', 0.12);
+  const chrome = isDark ? CHROME.dark : CHROME.light;
+  const divider = alpha(isDark ? '#FFFFFF' : '#0F172A', isDark ? 0.1 : 0.1);
 
   return createTheme({
     palette: {
       mode,
       primary: { main: colors.primary },
       secondary: { main: colors.secondary },
-      background: { default: colors.background, paper: alpha(colors.background, 0.6) },
-      text: { primary: colors.text, secondary: alpha(colors.text, 0.68) },
+      background: { default: chrome.app, paper: chrome.paper },
+      text: { primary: chrome.text, secondary: chrome.muted },
       divider,
     },
     // Product decision: nothing in the app is rounded by more than 4px.
@@ -114,15 +122,8 @@ export function buildTheme(branding: Branding | null): Theme {
       MuiButton: {
         defaultProps: { disableElevation: true },
         styleOverrides: {
-          root: {
-            borderRadius: 4,
-            paddingInline: 18,
-            transition: 'transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease',
-            '&:hover': { transform: 'translateY(-1px)' },
-            '&.Mui-disabled': { transform: 'none' },
-          },
-          contained: { boxShadow: `0 10px 24px ${alpha(colors.primary, 0.35)}` },
-          outlined: { borderColor: divider, backdropFilter: 'blur(8px)' },
+          root: { borderRadius: 4, paddingInline: 16 },
+          outlined: { borderColor: divider },
         },
       },
       // The window is narrow, so every input in the app runs at the compact size.
@@ -131,10 +132,7 @@ export function buildTheme(branding: Branding | null): Theme {
         styleOverrides: {
           root: {
             borderRadius: 4,
-            backgroundColor: alpha('#FFFFFF', isDark ? 0.06 : 0.5),
-            backdropFilter: 'blur(8px)',
-            transition: 'background-color 180ms ease',
-            '&:hover': { backgroundColor: alpha('#FFFFFF', isDark ? 0.1 : 0.66) },
+            backgroundColor: chrome.paper,
             '& .MuiOutlinedInput-notchedOutline': { borderColor: divider },
           },
         },
@@ -144,14 +142,17 @@ export function buildTheme(branding: Branding | null): Theme {
       MuiTooltip: {
         styleOverrides: {
           tooltip: {
-            backgroundColor: alpha('#0F172A', 0.92),
-            backdropFilter: 'blur(10px)',
+            backgroundColor: isDark ? '#2B313B' : '#111827',
             borderRadius: 4,
             fontSize: 12,
           },
         },
       },
       MuiTableCell: { styleOverrides: { root: { borderColor: divider } } },
+      MuiTabs: { styleOverrides: { root: { minHeight: 40 } } },
+      MuiTab: { styleOverrides: { root: { minHeight: 40, paddingBlock: 8 } } },
+      // MUI X paints calendar cells as circles by default; the 4px ceiling applies to them too.
+      MuiPickersDay: { styleOverrides: { root: { borderRadius: 4 } } },
     },
   });
 }

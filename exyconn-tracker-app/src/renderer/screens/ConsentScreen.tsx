@@ -7,7 +7,7 @@ import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline';
 import type { Branding, TrackerSettings } from '@shared/types';
 import BrandMark from '../components/BrandMark';
 import ConsentBody from '../components/ConsentBody';
-import GlassCard from '../components/GlassCard';
+import Surface from '../components/Surface';
 import ScreenLayout from '../components/ScreenLayout';
 import { run } from '../run';
 
@@ -52,7 +52,7 @@ export default function ConsentScreen({ branding, settings }: Readonly<Props>): 
         <BrandMark branding={branding} height={36} />
       </Stack>
 
-      <GlassCard sx={{ p: 3 }}>
+      <Surface sx={{ p: 3 }}>
         <Typography variant="h5">Before you start</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
           Read what this app records while tracking is on. Nothing is captured until you agree and
@@ -90,7 +90,7 @@ export default function ConsentScreen({ branding, settings }: Readonly<Props>): 
             Not now
           </Button>
         </Stack>
-      </GlassCard>
+      </Surface>
     </ScreenLayout>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -7,10 +8,11 @@ import Typography from '@mui/material/Typography';
 import CloudDoneOutlined from '@mui/icons-material/CloudDoneOutlined';
 import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
 import SyncRounded from '@mui/icons-material/SyncRounded';
-import type { LiveStats, TrackerSettings } from '@shared/types';
+import type { LiveStats, SyncOutcome, TrackerSettings } from '@shared/types';
 import { formatCount, formatLastSync } from '../format';
 import { run } from '../run';
-import GlassCard from './GlassCard';
+import { syncMessage } from '../sync-text';
+import Surface from './Surface';
 
 interface Props {
   stats: LiveStats;
@@ -37,17 +39,26 @@ function pendingText(pending: number): string {
 }
 
 /**
- * Upload status + the manual "Sync now" control. Screenshots and activity share one
- * durable queue, so a sync uploads both (screenshots go to ImageKit via the portal).
+ * Upload status + the manual "Sync now" control. Screenshots and activity share one durable
+ * queue, so a sync uploads both (screenshots go to ImageKit via the portal). Every press
+ * reports what it did — including when it did nothing, and why.
  */
 export default function SyncBar({ stats, settings }: Readonly<Props>): JSX.Element {
+  const [pressed, setPressed] = useState<SyncOutcome | null>(null);
   const settled = stats.pendingSync === 0;
   const StatusIcon = settled ? CloudDoneOutlined : CloudUploadOutlined;
 
+  // The press result wins: a null engine never reaches the pushed stats at all.
+  const message = syncMessage(pressed ?? stats.lastSyncOutcome);
+
+  async function sync(): Promise<void> {
+    setPressed(null);
+    setPressed(await window.tracker.syncNow());
+  }
+
   return (
-    <GlassCard sx={{ p: 2 }}>
-      {/* Two lines, not one: at this window width the policy caption and the button were
-          colliding. The caption now owns a full-width row and wraps instead of clipping. */}
+    <Surface sx={{ p: 2 }}>
+      {/* Two lines, not one: at this window width the policy caption and the button collided. */}
       <Stack direction="row" spacing={1.5} alignItems="center">
         <StatusIcon fontSize="small" sx={{ color: settled ? 'success.main' : 'warning.main' }} />
         <Typography variant="subtitle2" noWrap sx={{ flex: 1, minWidth: 0 }}>
@@ -61,7 +72,7 @@ export default function SyncBar({ stats, settings }: Readonly<Props>): JSX.Eleme
             stats.syncing ? <CircularProgress size={16} color="inherit" /> : <SyncRounded />
           }
           disabled={stats.syncing}
-          onClick={() => run(() => window.tracker.syncNow())}
+          onClick={() => run(sync)}
         >
           {stats.syncing ? 'Syncing…' : 'Sync now'}
         </Button>
@@ -73,11 +84,11 @@ export default function SyncBar({ stats, settings }: Readonly<Props>): JSX.Eleme
 
       {stats.syncing ? <LinearProgress sx={{ mt: 1.5 }} /> : null}
 
-      {stats.lastSyncError !== null ? (
-        <Alert severity="warning" variant="outlined" sx={{ mt: 1.5, borderRadius: '4px' }}>
-          {stats.lastSyncError} — queued items are safe and will retry.
+      {message !== null && !stats.syncing ? (
+        <Alert severity={message.severity} variant="outlined" sx={{ mt: 1.5, borderRadius: '4px' }}>
+          {message.text}
         </Alert>
       ) : null}
-    </GlassCard>
+    </Surface>
   );
 }

@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { alpha } from '@mui/material/styles';
-import GlassCard from './GlassCard';
+import Surface from './Surface';
 import type { ReportTotals as Totals } from '../hooks/useMyReport';
 import { formatHoursMinutes } from '../format';
 
@@ -26,7 +26,7 @@ function summaries(totals: Totals): Summary[] {
 /** The month's headline numbers, above the day-by-day table. */
 export default function ReportTotals({ totals }: Readonly<Props>): JSX.Element {
   return (
-    <GlassCard
+    <Surface
       sx={{
         p: 2,
         display: 'grid',
@@ -51,6 +51,6 @@ export default function ReportTotals({ totals }: Readonly<Props>): JSX.Element {
           </Typography>
         </Box>
       ))}
-    </GlassCard>
+    </Surface>
   );
 }

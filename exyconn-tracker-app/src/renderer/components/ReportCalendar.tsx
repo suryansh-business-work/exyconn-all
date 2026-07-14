@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import type { ReportDay } from '@shared/types';
-import GlassCard from './GlassCard';
+import Surface from './Surface';
 import TrackedDay, { TrackedDatesContext } from './TrackedDay';
 
 interface Props {
@@ -40,7 +40,7 @@ export default function ReportCalendar({
   };
 
   return (
-    <GlassCard sx={{ p: 2 }}>
+    <Surface sx={{ p: 2 }}>
       <Stack spacing={1}>
         <DatePicker
           label="Jump to date"
@@ -65,6 +65,6 @@ export default function ReportCalendar({
           Dotted days have tracked time. Pick one to see its screenshots.
         </Typography>
       </Stack>
-    </GlassCard>
+    </Surface>
   );
 }

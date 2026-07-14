@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Box from '@mui/material/Box';
 import type { TrackerState } from '@shared/types';
-import GlassAppBar from './components/GlassAppBar';
+import AppHeader from './components/AppHeader';
 import NavDrawer from './components/NavDrawer';
 import DashboardScreen from './screens/DashboardScreen';
 import MyReportScreen from './screens/MyReportScreen';
@@ -45,7 +45,7 @@ export default function AppShell({ state }: Readonly<Props>): JSX.Element {
 
   return (
     <>
-      <GlassAppBar
+      <AppHeader
         branding={state.branding}
         title={titleOf(section)}
         onOpenMenu={() => setMenuOpen(true)}
