@@ -18,6 +18,7 @@ const initial: TrackerSettingsRow = {
   autoSyncEnabled: true,
   syncIntervalMinutes: 5,
   consentText: '<p>We track activity during work hours.</p>',
+  defaultTimezone: 'Asia/Kolkata',
 };
 
 const mount = () =>
@@ -31,6 +32,9 @@ const mount = () =>
     </MockedProvider>,
   );
 
+/** The Autocomplete input, reached through its label (MUI generates the input id). */
+const timezoneInput = () => cy.contains('label', 'Default timezone').parent().find('input').first();
+
 describe('TrackerSettingsForm', () => {
   it('prefills number fields from the initial settings', () => {
     mount();
@@ -43,5 +47,18 @@ describe('TrackerSettingsForm', () => {
     cy.get('input[name="intervalMinutes"]').clear().type('99');
     cy.contains('button', 'Update').click();
     cy.get('input[name="intervalMinutes"]').should('have.attr', 'aria-invalid', 'true');
+  });
+
+  it('prefills the saved default timezone with its UTC offset', () => {
+    mount();
+    timezoneInput().should('have.value', 'Asia/Kolkata (UTC+05:30)');
+  });
+
+  it("offers the device's own timezone as an explicit option", () => {
+    mount();
+    timezoneInput().clear();
+    timezoneInput().type('own timezone');
+    cy.contains('li', "Use each device's own timezone").click();
+    timezoneInput().should('have.value', "Use each device's own timezone");
   });
 });

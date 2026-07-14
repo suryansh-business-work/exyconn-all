@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { DayDetail } from '@shared/types';
+import { dayBounds } from '../time';
 
 export interface DayQuery {
   detail: DayDetail | null;
@@ -7,19 +8,15 @@ export interface DayQuery {
   error: string | null;
 }
 
-/** [00:00, next 00:00) in the viewer's own timezone, as ISO datetimes. */
-export function dayRange(date: Date): { startISO: string; endISO: string } {
-  const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-  return { startISO: start.toISOString(), endISO: end.toISOString() };
-}
-
-/** Loads the signed-in employee's OWN screenshots and totals for one day. */
-export default function useMyDay(date: Date): DayQuery {
+/**
+ * One day of the employee's OWN work, for an explicit pair of instants. The screenshot gallery
+ * (a separate window, handed its bounds in its URL) uses this directly; the report screen goes
+ * through `useMyDay` below, which derives the bounds from the calendar date that was clicked.
+ */
+export function useDayDetail(startISO: string, endISO: string): DayQuery {
   const [detail, setDetail] = useState<DayDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { startISO, endISO } = dayRange(date);
 
   useEffect(() => {
     let active = true;
@@ -47,4 +44,16 @@ export default function useMyDay(date: Date): DayQuery {
   }, [startISO, endISO]);
 
   return { detail, loading, error };
+}
+
+/**
+ * Loads the signed-in employee's OWN screenshots and totals for one day.
+ *
+ * The day runs midnight-to-midnight in the employee's CHOSEN zone, not this computer's. For
+ * someone whose zone is ahead of their laptop's, the device's midnight falls in the middle of
+ * their working day — so the day they clicked would have been served to them cut in half.
+ */
+export default function useMyDay(date: Date, zone: string): DayQuery {
+  const { startISO, endISO } = dayBounds(date, zone);
+  return useDayDetail(startISO, endISO);
 }

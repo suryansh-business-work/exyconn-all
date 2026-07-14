@@ -37,7 +37,13 @@ export default defineConfig({
     server: { port: 4005, strictPort: true },
     build: {
       rollupOptions: {
-        input: { index: resolve(__dirname, 'src/renderer/index.html') },
+        // TWO renderer entries: the tracker window, and the screenshot gallery that opens in a
+        // separate BrowserWindow. Without the second input, screenshots.html is never emitted
+        // and the gallery window loads a blank page in the packaged app.
+        input: {
+          index: resolve(__dirname, 'src/renderer/index.html'),
+          screenshots: resolve(__dirname, 'src/renderer/screenshots.html'),
+        },
       },
     },
   },

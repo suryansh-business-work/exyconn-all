@@ -176,7 +176,7 @@ describe('trackerMe (remember-me rehydrate)', () => {
 
     // What a "remembered" app does on relaunch: it has a token but no user/settings in
     // memory. Without this, the app would hold a valid token yet show the login screen.
-    const me = await trackerDeviceService.me(user.id);
+    const me = await trackerDeviceService.me(user.id, 'device-1');
 
     expect(me.user.email).toBe('emp@exyconn.com');
     expect(me.consentRequired).toBe(true);
@@ -190,7 +190,7 @@ describe('trackerMe (remember-me rehydrate)', () => {
 
     await trackerAdminService.revokeAccess(user.id, 'admin');
 
-    await expect(trackerDeviceService.me(user.id)).rejects.toThrow(/revoked/i);
+    await expect(trackerDeviceService.me(user.id, 'device-1')).rejects.toThrow(/revoked/i);
   });
 });
 

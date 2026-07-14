@@ -6,6 +6,7 @@ fragment TrackerAccessFields on TrackerAccess {
   revokedAt
   isActive
   consentedAt
+  timezone
 }
 
 fragment TrackerDeviceFields on TrackerDevice {
@@ -45,6 +46,7 @@ fragment TrackerSettingsFields on TrackerSettings {
   autoSyncEnabled
   syncIntervalMinutes
   consentText
+  defaultTimezone
 }
 
 fragment TrackerDayBucketFields on TrackerDayBucket {
@@ -76,6 +78,7 @@ fragment TrackerDayFields on TrackerDay {
     imageUrl
     displayId
     blurred
+    activityPercent
   }
   sessions {
     id

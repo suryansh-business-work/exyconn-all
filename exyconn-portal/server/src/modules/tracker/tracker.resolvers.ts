@@ -65,16 +65,26 @@ export const trackerResolvers = {
       assertRole(ctx, TRACKER_ROLES);
       return serializeDay(await trackerAdminService.day(userId, start, end));
     },
+    trackerTotals: async (_p: unknown, { userId }: { userId: string }, ctx: GraphQLContext) => {
+      assertRole(ctx, TRACKER_ROLES);
+      return trackerAdminService.totals(userId);
+    },
 
     /** Desktop app rehydrating a remembered (non-expiring) session. */
     trackerMe: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      const { userId } = await assertTrackerDevice(ctx);
-      const result = await trackerDeviceService.me(userId);
+      const { userId, deviceId } = await assertTrackerDevice(ctx);
+      const result = await trackerDeviceService.me(userId, deviceId);
       return {
         user: withId(result.user as LeanDoc),
         consentRequired: result.consentRequired,
         settings: withId(result.settings),
+        timezone: result.timezone,
       };
+    },
+    /** Desktop app — the signed-in employee's own totals. */
+    myTrackerTotals: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      const { userId } = await assertTrackerDevice(ctx);
+      return trackerAdminService.totals(userId);
     },
 
     myTrackerAccess: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
@@ -190,6 +200,15 @@ export const trackerResolvers = {
     ) => {
       const { userId } = await assertTrackerDevice(ctx);
       return withId((await trackerDeviceService.uploadScreenshot(userId, input)) as LeanDoc);
+    },
+    /** The device token decides whose row is written, so this can only ever set the caller's. */
+    trackerSetTimezone: async (
+      _p: unknown,
+      { timezone }: { timezone: string },
+      ctx: GraphQLContext,
+    ) => {
+      const { userId } = await assertTrackerDevice(ctx);
+      return withId((await trackerDeviceService.setTimezone(userId, timezone)) as LeanDoc);
     },
   },
 };

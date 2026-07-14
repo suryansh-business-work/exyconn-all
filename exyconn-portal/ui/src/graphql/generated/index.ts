@@ -894,6 +894,8 @@ export type Mutation = {
   trackerAcceptConsent: Scalars['Boolean']['output'];
   trackerHeartbeat: Scalars['Boolean']['output'];
   trackerLogin: TrackerLoginPayload;
+  /** Sets the CALLER's own timezone. Must be a resolvable IANA zone name. */
+  trackerSetTimezone: TrackerAccess;
   trackerStartSession: TrackerSession;
   trackerStopSession: TrackerSession;
   trackerSyncIntervals: Scalars['Int']['output'];
@@ -1272,6 +1274,10 @@ export type MutationTrackerLoginArgs = {
   device: TrackerDeviceInput;
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+export type MutationTrackerSetTimezoneArgs = {
+  timezone: Scalars['String']['input'];
 };
 
 export type MutationTrackerStartSessionArgs = {
@@ -1687,6 +1693,8 @@ export type Query = {
   myTrackerAccess?: Maybe<TrackerAccess>;
   myTrackerCalendar: Array<TrackerDayBucket>;
   myTrackerDay: TrackerDay;
+  /** The calling device's own employee, all-time. Device token, not a portal session. */
+  myTrackerTotals: TrackerTotals;
   projectBoard: ProjectBoard;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
@@ -1709,6 +1717,7 @@ export type Query = {
   trackerDevices: Array<TrackerDevice>;
   trackerMe: TrackerMe;
   trackerSettings: TrackerSettings;
+  trackerTotals: TrackerTotals;
 };
 
 export type QueryAttendanceByEmployeeArgs = {
@@ -1877,6 +1886,10 @@ export type QueryTrackerDayArgs = {
 
 export type QueryTrackerDevicesArgs = {
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type QueryTrackerTotalsArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 export enum Role {
@@ -2079,6 +2092,11 @@ export type TrackerAccess = {
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   revokedAt?: Maybe<Scalars['DateTime']['output']>;
+  /**
+   * The zone THIS employee picked in the desktop app.
+   * An empty string means they never picked one.
+   */
+  timezone: Scalars['String']['output'];
   userId: Scalars['ID']['output'];
 };
 
@@ -2184,11 +2202,21 @@ export type TrackerMe = {
   __typename?: 'TrackerMe';
   consentRequired: Scalars['Boolean']['output'];
   settings: TrackerSettings;
+  /**
+   * The EFFECTIVE zone: the employee's own pick, else the admin default, else the zone this
+   * device reported at sign-in, else UTC. Never empty.
+   */
+  timezone: Scalars['String']['output'];
   user: User;
 };
 
 export type TrackerScreenshot = {
   __typename?: 'TrackerScreenshot';
+  /**
+   * Activity level (0-100) of the interval this screenshot belongs to. 0 when the interval
+   * it belongs to has not been synced yet — the app uploads shots from inside the interval.
+   */
+  activityPercent: Scalars['Int']['output'];
   blurred: Scalars['Boolean']['output'];
   capturedAt: Scalars['DateTime']['output'];
   displayId: Scalars['String']['output'];
@@ -2226,6 +2254,11 @@ export type TrackerSettings = {
   autoSyncEnabled: Scalars['Boolean']['output'];
   blurScreenshots: Scalars['Boolean']['output'];
   consentText: Scalars['String']['output'];
+  /**
+   * House default IANA zone (e.g. "Asia/Kolkata"), chosen by an admin.
+   * An empty string means "no house default" — fall back to the device's own zone.
+   */
+  defaultTimezone: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   idleThresholdSeconds: Scalars['Int']['output'];
   intervalMinutes: Scalars['Int']['output'];
@@ -2241,6 +2274,7 @@ export type TrackerSettingsInput = {
   autoSyncEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   blurScreenshots?: InputMaybe<Scalars['Boolean']['input']>;
   consentText?: InputMaybe<Scalars['String']['input']>;
+  defaultTimezone?: InputMaybe<Scalars['String']['input']>;
   idleThresholdSeconds?: InputMaybe<Scalars['Int']['input']>;
   intervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   randomizeScreenshotTiming?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2249,6 +2283,16 @@ export type TrackerSettingsInput = {
   screenshotsPerInterval?: InputMaybe<Scalars['Int']['input']>;
   syncIntervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   trackWindowTitles?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** All-time tracker totals for one employee. */
+export type TrackerTotals = {
+  __typename?: 'TrackerTotals';
+  /** Float, not Int: all-time milliseconds overflow a 32-bit Int. */
+  activeMs: Scalars['Float']['output'];
+  idleMs: Scalars['Float']['output'];
+  screenshots: Scalars['Int']['output'];
+  sessions: Scalars['Int']['output'];
 };
 
 export type TrackerWindowUsageInput = {
@@ -3826,6 +3870,7 @@ export type TrackerAccessFieldsFragment = {
   revokedAt?: string | null;
   isActive: boolean;
   consentedAt?: string | null;
+  timezone: string;
 };
 
 export type TrackerDeviceFieldsFragment = {
@@ -3867,6 +3912,7 @@ export type TrackerSettingsFieldsFragment = {
   autoSyncEnabled: boolean;
   syncIntervalMinutes: number;
   consentText: string;
+  defaultTimezone: string;
 };
 
 export type TrackerDayBucketFieldsFragment = {
@@ -3902,6 +3948,7 @@ export type TrackerDayFieldsFragment = {
     imageUrl: string;
     displayId: string;
     blurred: boolean;
+    activityPercent: number;
   }>;
   sessions: Array<{
     __typename?: 'TrackerSession';
@@ -3930,6 +3977,7 @@ export type TrackerAccessListQuery = {
     revokedAt?: string | null;
     isActive: boolean;
     consentedAt?: string | null;
+    timezone: string;
   }>;
 };
 
@@ -3983,6 +4031,7 @@ export type TrackerSettingsQuery = {
     autoSyncEnabled: boolean;
     syncIntervalMinutes: number;
     consentText: string;
+    defaultTimezone: string;
   };
 };
 
@@ -4037,6 +4086,7 @@ export type TrackerDayQuery = {
       imageUrl: string;
       displayId: string;
       blurred: boolean;
+      activityPercent: number;
     }>;
     sessions: Array<{
       __typename?: 'TrackerSession';
@@ -4066,6 +4116,7 @@ export type MyTrackerAccessQuery = {
     revokedAt?: string | null;
     isActive: boolean;
     consentedAt?: string | null;
+    timezone: string;
   } | null;
 };
 
@@ -4118,6 +4169,7 @@ export type MyTrackerDayQuery = {
       imageUrl: string;
       displayId: string;
       blurred: boolean;
+      activityPercent: number;
     }>;
     sessions: Array<{
       __typename?: 'TrackerSession';
@@ -4149,6 +4201,7 @@ export type GrantTrackerAccessMutation = {
     revokedAt?: string | null;
     isActive: boolean;
     consentedAt?: string | null;
+    timezone: string;
   };
 };
 
@@ -4167,6 +4220,7 @@ export type RevokeTrackerAccessMutation = {
     revokedAt?: string | null;
     isActive: boolean;
     consentedAt?: string | null;
+    timezone: string;
   };
 };
 
@@ -4222,6 +4276,7 @@ export type UpdateTrackerSettingsMutation = {
     autoSyncEnabled: boolean;
     syncIntervalMinutes: number;
     consentText: string;
+    defaultTimezone: string;
   };
 };
 
@@ -4944,6 +4999,7 @@ export const TrackerAccessFieldsFragmentDoc = gql`
     revokedAt
     isActive
     consentedAt
+    timezone
   }
 `;
 export const TrackerDeviceFieldsFragmentDoc = gql`
@@ -4985,6 +5041,7 @@ export const TrackerSettingsFieldsFragmentDoc = gql`
     autoSyncEnabled
     syncIntervalMinutes
     consentText
+    defaultTimezone
   }
 `;
 export const TrackerDayBucketFieldsFragmentDoc = gql`
@@ -5018,6 +5075,7 @@ export const TrackerDayFieldsFragmentDoc = gql`
       imageUrl
       displayId
       blurred
+      activityPercent
     }
     sessions {
       id

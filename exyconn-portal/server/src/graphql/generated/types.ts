@@ -894,6 +894,8 @@ export type Mutation = {
   trackerAcceptConsent: Scalars['Boolean']['output'];
   trackerHeartbeat: Scalars['Boolean']['output'];
   trackerLogin: TrackerLoginPayload;
+  /** Sets the CALLER's own timezone. Must be a resolvable IANA zone name. */
+  trackerSetTimezone: TrackerAccess;
   trackerStartSession: TrackerSession;
   trackerStopSession: TrackerSession;
   trackerSyncIntervals: Scalars['Int']['output'];
@@ -1272,6 +1274,10 @@ export type MutationTrackerLoginArgs = {
   device: TrackerDeviceInput;
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+export type MutationTrackerSetTimezoneArgs = {
+  timezone: Scalars['String']['input'];
 };
 
 export type MutationTrackerStartSessionArgs = {
@@ -1687,6 +1693,8 @@ export type Query = {
   myTrackerAccess?: Maybe<TrackerAccess>;
   myTrackerCalendar: Array<TrackerDayBucket>;
   myTrackerDay: TrackerDay;
+  /** The calling device's own employee, all-time. Device token, not a portal session. */
+  myTrackerTotals: TrackerTotals;
   projectBoard: ProjectBoard;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
@@ -1709,6 +1717,7 @@ export type Query = {
   trackerDevices: Array<TrackerDevice>;
   trackerMe: TrackerMe;
   trackerSettings: TrackerSettings;
+  trackerTotals: TrackerTotals;
 };
 
 export type QueryAttendanceByEmployeeArgs = {
@@ -1877,6 +1886,10 @@ export type QueryTrackerDayArgs = {
 
 export type QueryTrackerDevicesArgs = {
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type QueryTrackerTotalsArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 export enum Role {
@@ -2079,6 +2092,11 @@ export type TrackerAccess = {
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   revokedAt?: Maybe<Scalars['DateTime']['output']>;
+  /**
+   * The zone THIS employee picked in the desktop app.
+   * An empty string means they never picked one.
+   */
+  timezone: Scalars['String']['output'];
   userId: Scalars['ID']['output'];
 };
 
@@ -2184,11 +2202,21 @@ export type TrackerMe = {
   __typename?: 'TrackerMe';
   consentRequired: Scalars['Boolean']['output'];
   settings: TrackerSettings;
+  /**
+   * The EFFECTIVE zone: the employee's own pick, else the admin default, else the zone this
+   * device reported at sign-in, else UTC. Never empty.
+   */
+  timezone: Scalars['String']['output'];
   user: User;
 };
 
 export type TrackerScreenshot = {
   __typename?: 'TrackerScreenshot';
+  /**
+   * Activity level (0-100) of the interval this screenshot belongs to. 0 when the interval
+   * it belongs to has not been synced yet — the app uploads shots from inside the interval.
+   */
+  activityPercent: Scalars['Int']['output'];
   blurred: Scalars['Boolean']['output'];
   capturedAt: Scalars['DateTime']['output'];
   displayId: Scalars['String']['output'];
@@ -2226,6 +2254,11 @@ export type TrackerSettings = {
   autoSyncEnabled: Scalars['Boolean']['output'];
   blurScreenshots: Scalars['Boolean']['output'];
   consentText: Scalars['String']['output'];
+  /**
+   * House default IANA zone (e.g. "Asia/Kolkata"), chosen by an admin.
+   * An empty string means "no house default" — fall back to the device's own zone.
+   */
+  defaultTimezone: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   idleThresholdSeconds: Scalars['Int']['output'];
   intervalMinutes: Scalars['Int']['output'];
@@ -2241,6 +2274,7 @@ export type TrackerSettingsInput = {
   autoSyncEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   blurScreenshots?: InputMaybe<Scalars['Boolean']['input']>;
   consentText?: InputMaybe<Scalars['String']['input']>;
+  defaultTimezone?: InputMaybe<Scalars['String']['input']>;
   idleThresholdSeconds?: InputMaybe<Scalars['Int']['input']>;
   intervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   randomizeScreenshotTiming?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2249,6 +2283,16 @@ export type TrackerSettingsInput = {
   screenshotsPerInterval?: InputMaybe<Scalars['Int']['input']>;
   syncIntervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   trackWindowTitles?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** All-time tracker totals for one employee. */
+export type TrackerTotals = {
+  __typename?: 'TrackerTotals';
+  /** Float, not Int: all-time milliseconds overflow a 32-bit Int. */
+  activeMs: Scalars['Float']['output'];
+  idleMs: Scalars['Float']['output'];
+  screenshots: Scalars['Int']['output'];
+  sessions: Scalars['Int']['output'];
 };
 
 export type TrackerWindowUsageInput = {
@@ -2545,6 +2589,7 @@ export type ResolversTypes = ResolversObject<{
   TrackerSession: ResolverTypeWrapper<TrackerSession>;
   TrackerSettings: ResolverTypeWrapper<TrackerSettings>;
   TrackerSettingsInput: TrackerSettingsInput;
+  TrackerTotals: ResolverTypeWrapper<TrackerTotals>;
   TrackerWindowUsageInput: TrackerWindowUsageInput;
   UpdateProfileInput: UpdateProfileInput;
   UpdateSettingsInput: UpdateSettingsInput;
@@ -2659,6 +2704,7 @@ export type ResolversParentTypes = ResolversObject<{
   TrackerSession: TrackerSession;
   TrackerSettings: TrackerSettings;
   TrackerSettingsInput: TrackerSettingsInput;
+  TrackerTotals: TrackerTotals;
   TrackerWindowUsageInput: TrackerWindowUsageInput;
   UpdateProfileInput: UpdateProfileInput;
   UpdateSettingsInput: UpdateSettingsInput;
@@ -3638,6 +3684,12 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationTrackerLoginArgs, 'device' | 'email' | 'password'>
   >;
+  trackerSetTimezone?: Resolver<
+    ResolversTypes['TrackerAccess'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationTrackerSetTimezoneArgs, 'timezone'>
+  >;
   trackerStartSession?: Resolver<
     ResolversTypes['TrackerSession'],
     ParentType,
@@ -4177,6 +4229,7 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryMyTrackerDayArgs, 'end' | 'start'>
   >;
+  myTrackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType>;
   projectBoard?: Resolver<
     ResolversTypes['ProjectBoard'],
     ParentType,
@@ -4259,6 +4312,12 @@ export type QueryResolvers<
   >;
   trackerMe?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType>;
   trackerSettings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
+  trackerTotals?: Resolver<
+    ResolversTypes['TrackerTotals'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryTrackerTotalsArgs, 'userId'>
+  >;
 }>;
 
 export type SalarySlipResolvers<
@@ -4391,6 +4450,7 @@ export type TrackerAccessResolvers<
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   revokedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -4493,6 +4553,7 @@ export type TrackerMeResolvers<
 > = ResolversObject<{
   consentRequired?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   settings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -4502,6 +4563,7 @@ export type TrackerScreenshotResolvers<
   ParentType extends ResolversParentTypes['TrackerScreenshot'] =
     ResolversParentTypes['TrackerScreenshot'],
 > = ResolversObject<{
+  activityPercent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   blurred?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   capturedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   displayId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -4538,6 +4600,7 @@ export type TrackerSettingsResolvers<
   autoSyncEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   blurScreenshots?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   consentText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  defaultTimezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   idleThresholdSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   intervalMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -4547,6 +4610,17 @@ export type TrackerSettingsResolvers<
   screenshotsPerInterval?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   syncIntervalMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   trackWindowTitles?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerTotalsResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['TrackerTotals'] = ResolversParentTypes['TrackerTotals'],
+> = ResolversObject<{
+  activeMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  idleMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  screenshots?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -4656,6 +4730,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TrackerScreenshot?: TrackerScreenshotResolvers<ContextType>;
   TrackerSession?: TrackerSessionResolvers<ContextType>;
   TrackerSettings?: TrackerSettingsResolvers<ContextType>;
+  TrackerTotals?: TrackerTotalsResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserCredentials?: UserCredentialsResolvers<ContextType>;
   WebsiteSubmission?: WebsiteSubmissionResolvers<ContextType>;

@@ -44,6 +44,7 @@ export {
   Alert,
   Snackbar,
   CircularProgress,
+  LinearProgress,
   Collapse,
   Autocomplete,
   Tabs,

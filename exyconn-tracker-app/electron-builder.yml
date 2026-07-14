@@ -12,6 +12,10 @@ npmRebuild: false
 
 files:
   - out/**/*
+  # electron-vite's `?asset` import compiles to path.join(__dirname, '../../resources/…'),
+  # which lands inside the asar — so the tray icon must be packed there or it silently
+  # resolves to nothing and the tray goes blank. Electron reads from the asar natively.
+  - resources/**/*
   - package.json
 
 # Keep native binaries OUTSIDE the asar so uiohook-napi's .node and get-windows'

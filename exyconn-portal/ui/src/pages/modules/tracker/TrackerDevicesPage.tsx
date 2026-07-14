@@ -10,6 +10,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { Text } from '@/components/ui';
 import { useTrackerDevicesQuery, useRevokeTrackerDeviceMutation } from '@/graphql/generated';
 import { TrackerDeviceDetails } from './TrackerDeviceDetails';
+import { useTrackerTimezones } from './useTrackerTimezones';
 import type { TrackerDeviceRow } from './tracker.types';
 
 /** Tracker devices console — the kill-switch for a lost or retired laptop. */
@@ -20,6 +21,7 @@ export function TrackerDevicesPage() {
   const confirm = useConfirm();
   const notify = useNotify();
   const { formatDateTime } = useSettings();
+  const { timezoneFor } = useTrackerTimezones();
 
   const rows = data?.trackerDevices ?? [];
   const activeCount = rows.filter((row) => row.isActive).length;
@@ -88,11 +90,14 @@ export function TrackerDevicesPage() {
         ]}
         emptyMessage={loading ? 'Loading…' : 'No devices enrolled.'}
       />
-      <TrackerDeviceDetails
-        device={selected}
-        onClose={() => setSelected(null)}
-        formatDateTime={formatDateTime}
-      />
+      {selected && (
+        <TrackerDeviceDetails
+          device={selected}
+          onClose={() => setSelected(null)}
+          formatDateTime={formatDateTime}
+          timezone={timezoneFor(selected.userId, selected.timezone)}
+        />
+      )}
     </ModuleDashboard>
   );
 }

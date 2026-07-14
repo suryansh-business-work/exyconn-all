@@ -8,6 +8,7 @@ import {
   Text,
 } from '@/components/ui';
 import { StatusChip } from '@/components/data/StatusChip';
+import { timezoneSummary, type TimezoneResolution } from './tracker.timezone';
 import type { DateTimeFormatter, TrackerDeviceRow } from './tracker.types';
 
 /** One label/value pair in the device fact sheet. */
@@ -17,7 +18,11 @@ interface DeviceFact {
 }
 
 /** Every fact the desktop agent reports at enrolment, in reading order. */
-function toFacts(device: TrackerDeviceRow, formatDateTime: DateTimeFormatter): DeviceFact[] {
+function toFacts(
+  device: TrackerDeviceRow,
+  formatDateTime: DateTimeFormatter,
+  timezone: TimezoneResolution,
+): DeviceFact[] {
   const memoryGb = (device.totalMemoryMb / 1024).toFixed(1);
   return [
     { label: 'Machine ID', value: device.machineId },
@@ -28,7 +33,8 @@ function toFacts(device: TrackerDeviceRow, formatDateTime: DateTimeFormatter): D
     { label: 'CPU cores', value: String(device.cpuCores) },
     { label: 'Memory', value: `${memoryGb} GB` },
     { label: 'Locale', value: device.locale },
-    { label: 'Timezone', value: device.timezone },
+    { label: 'Device timezone', value: device.timezone },
+    { label: 'Effective timezone', value: timezoneSummary(timezone) },
     { label: 'Screens', value: String(device.screenCount) },
     { label: 'Screen resolution', value: device.screenResolution },
     { label: 'App version', value: device.appVersion },
@@ -41,6 +47,7 @@ interface TrackerDeviceDetailsProps {
   device: TrackerDeviceRow | null;
   onClose: () => void;
   formatDateTime: DateTimeFormatter;
+  timezone: TimezoneResolution;
 }
 
 /** Full hardware/OS fact sheet for one enrolled device, opened from the table. */
@@ -48,6 +55,7 @@ export function TrackerDeviceDetails({
   device,
   onClose,
   formatDateTime,
+  timezone,
 }: Readonly<TrackerDeviceDetailsProps>) {
   if (!device) return null;
 
@@ -59,7 +67,7 @@ export function TrackerDeviceDetails({
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={1.5}>
-          {toFacts(device, formatDateTime).map((fact) => (
+          {toFacts(device, formatDateTime, timezone).map((fact) => (
             <Grid item xs={12} sm={6} key={fact.label}>
               <Text size="caption" color="text.secondary" component="div">
                 {fact.label}

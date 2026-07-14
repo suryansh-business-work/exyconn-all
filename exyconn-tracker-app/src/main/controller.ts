@@ -10,7 +10,9 @@ import type {
   TrackerSettings,
   TrackerState,
   TrackerStatus,
+  TrackerTotals,
 } from '@shared/types';
+import { deviceTimezone, effectiveTimezone } from '@shared/timezone';
 import { secureStore } from './store';
 import { TrackerEngine } from './engine';
 import * as portal from './portal-client';
@@ -32,8 +34,18 @@ export class TrackerController {
   private stats: LiveStats = idleStats();
   /** Why the app signed the employee out on its own; cleared as soon as they sign back in. */
   private signedOutReason: string | null = null;
+  /**
+   * The zone the whole UI renders in. Signed out, that is simply this computer's zone; signed
+   * in, it is whatever the portal resolved for this employee (their pick, else the house
+   * default). Held here so the report query and the renderer agree on ONE zone.
+   */
+  private timezone: string = deviceTimezone();
 
-  constructor(private readonly onChange: (state: TrackerState) => void) {}
+  constructor(
+    private readonly onChange: (state: TrackerState) => void,
+    /** Fired on every screenshot so the shell can broadcast it (the shutter sound). */
+    private readonly onCapture: (count: number) => void,
+  ) {}
 
   getState(): TrackerState {
     return {
@@ -45,6 +57,7 @@ export class TrackerController {
       stats: { ...this.stats, status: this.status },
       rememberMe: secureStore().remembered,
       signedOutReason: this.signedOutReason,
+      timezone: this.timezone,
     };
   }
 
@@ -65,6 +78,7 @@ export class TrackerController {
       const me = await portal.trackerMe();
       this.user = me.user;
       this.settings = me.settings;
+      this.timezone = effectiveTimezone(me.timezone);
       this.status = me.consentRequired ? 'consent-required' : 'idle';
       this.buildEngine();
     } catch {
@@ -98,10 +112,43 @@ export class TrackerController {
       this.buildEngine();
       this.refreshPermissions();
       this.emit();
+      await this.loadTimezone();
       return { ok: true, consentRequired: result.consentRequired, user: result.user };
     } catch (error) {
       return { ok: false, error: error instanceof Error ? error.message : 'Sign-in failed' };
     }
+  }
+
+  /**
+   * The sign-in payload carries no zone (the portal's TrackerLoginPayload has no `timezone`
+   * field), so the effective zone is fetched right after. It runs AFTER the sign-in has been
+   * emitted and swallows its own failure: an employee who is signed in must not be bounced
+   * back to the login screen because one follow-up query failed. They keep the device's zone.
+   */
+  private async loadTimezone(): Promise<void> {
+    try {
+      const me = await portal.trackerMe();
+      this.timezone = effectiveTimezone(me.timezone);
+      this.emit();
+    } catch (error) {
+      console.error('Could not load the timezone; using this device’s zone', error);
+    }
+  }
+
+  /**
+   * Records the zone this employee picked, and re-renders the whole app in it. The portal is
+   * the source of truth: we adopt what it stored, not what we sent.
+   */
+  async setTimezone(timezone: string): Promise<string> {
+    const stored = await portal.setTimezone(timezone);
+    this.timezone = effectiveTimezone(stored);
+    this.emit();
+    return this.timezone;
+  }
+
+  /** The employee's own all-time totals (device-token scoped — never anybody else's). */
+  getTotals(): Promise<TrackerTotals> {
+    return portal.fetchMyTotals();
   }
 
   async acceptConsent(): Promise<void> {
@@ -133,6 +180,8 @@ export class TrackerController {
     this.engine = null;
     this.status = 'signed-out';
     this.stats = idleStats();
+    // The zone belonged to the employee who just left, not to this computer.
+    this.timezone = deviceTimezone();
     // Set AFTER the stats reset — idleStats() would otherwise wipe the very reason we are here.
     this.signedOutReason = reason;
     this.emit();
@@ -182,10 +231,14 @@ export class TrackerController {
     return this.engine.syncNow();
   }
 
-  /** The employee's own tracked time (the portal scopes this to them). */
-  async getReport(from: string, to: string): Promise<ReportDay[]> {
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return portal.fetchMyReport(from, to, timezone);
+  /**
+   * The employee's own tracked time (the portal scopes this to them). The portal buckets the
+   * days by the zone we send, so it must be the SAME zone the renderer computed the range in
+   * and will label the rows with — this device's zone is no longer that zone once an employee
+   * has picked one.
+   */
+  getReport(from: string, to: string): Promise<ReportDay[]> {
+    return portal.fetchMyReport(from, to, this.timezone);
   }
 
   /** One day of the employee's own work — totals plus that day's screenshots. */
@@ -211,6 +264,7 @@ export class TrackerController {
         this.stats = stats;
         this.emit();
       },
+      onCapture: (count: number) => this.onCapture(count),
       onAuthError: (reason: string) => {
         this.logout(reason).catch((cause: unknown) =>
           console.error('Forced sign-out failed', cause),

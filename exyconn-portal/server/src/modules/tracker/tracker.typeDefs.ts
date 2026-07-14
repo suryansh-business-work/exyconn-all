@@ -21,6 +21,11 @@ export const trackerTypeDefs = gql`
     autoSyncEnabled: Boolean!
     syncIntervalMinutes: Int!
     consentText: String!
+    """
+    House default IANA zone (e.g. "Asia/Kolkata"), chosen by an admin.
+    An empty string means "no house default" — fall back to the device's own zone.
+    """
+    defaultTimezone: String!
   }
 
   input TrackerSettingsInput {
@@ -35,6 +40,7 @@ export const trackerTypeDefs = gql`
     autoSyncEnabled: Boolean
     syncIntervalMinutes: Int
     consentText: String
+    defaultTimezone: String
   }
 
   type TrackerAccess {
@@ -45,6 +51,11 @@ export const trackerTypeDefs = gql`
     revokedAt: DateTime
     isActive: Boolean!
     consentedAt: DateTime
+    """
+    The zone THIS employee picked in the desktop app.
+    An empty string means they never picked one.
+    """
+    timezone: String!
   }
 
   type TrackerDevice {
@@ -104,6 +115,24 @@ export const trackerTypeDefs = gql`
     imageUrl: String!
     displayId: String!
     blurred: Boolean!
+    """
+    Activity level (0-100) of the interval this screenshot belongs to. 0 when the interval
+    it belongs to has not been synced yet — the app uploads shots from inside the interval.
+    """
+    activityPercent: Int!
+  }
+
+  """
+  All-time tracker totals for one employee.
+  """
+  type TrackerTotals {
+    """
+    Float, not Int: all-time milliseconds overflow a 32-bit Int.
+    """
+    activeMs: Float!
+    idleMs: Float!
+    screenshots: Int!
+    sessions: Int!
   }
 
   type TrackerAppUsage {
@@ -184,6 +213,11 @@ export const trackerTypeDefs = gql`
     user: User!
     consentRequired: Boolean!
     settings: TrackerSettings!
+    """
+    The EFFECTIVE zone: the employee's own pick, else the admin default, else the zone this
+    device reported at sign-in, else UTC. Never empty.
+    """
+    timezone: String!
   }
 
   extend type Query {
@@ -198,9 +232,14 @@ export const trackerTypeDefs = gql`
       timezone: String!
     ): [TrackerDayBucket!]!
     trackerDay(userId: ID!, start: DateTime!, end: DateTime!): TrackerDay!
+    trackerTotals(userId: ID!): TrackerTotals!
 
     # Desktop app (device token) — rehydrates a remembered session
     trackerMe: TrackerMe!
+    """
+    The calling device's own employee, all-time. Device token, not a portal session.
+    """
+    myTrackerTotals: TrackerTotals!
 
     # Employee self-view (own data only)
     myTrackerAccess: TrackerAccess
@@ -227,5 +266,9 @@ export const trackerTypeDefs = gql`
     trackerStopSession(sessionId: ID!, endedAt: DateTime!): TrackerSession!
     trackerSyncIntervals(sessionId: ID!, intervals: [TrackerIntervalInput!]!): Int!
     trackerUploadScreenshot(input: TrackerScreenshotInput!): TrackerScreenshot!
+    """
+    Sets the CALLER's own timezone. Must be a resolvable IANA zone name.
+    """
+    trackerSetTimezone(timezone: String!): TrackerAccess!
   }
 `;

@@ -13,9 +13,10 @@ describe('tracker settings', () => {
   });
 
   it('fills in fields the stored document predates', async () => {
-    // A document written before autoSync* existed. Inserted through the raw collection so
-    // Mongoose schema defaults are bypassed — exactly how the live document looked, and why
-    // the non-nullable GraphQL field previously blew up with "Cannot return null".
+    // A document written before autoSync*/defaultTimezone existed. Inserted through the raw
+    // collection so Mongoose schema defaults are bypassed — exactly how the live document
+    // looked, and why the non-nullable GraphQL field previously blew up with "Cannot return
+    // null". Every new non-nullable setting must survive this test.
     await TrackerSettingsModel.collection.insertOne({
       key: 'global',
       intervalMinutes: 10,
@@ -32,6 +33,7 @@ describe('tracker settings', () => {
 
     expect(settings.autoSyncEnabled).toBe(TRACKER_DEFAULTS.autoSyncEnabled);
     expect(settings.syncIntervalMinutes).toBe(TRACKER_DEFAULTS.syncIntervalMinutes);
+    expect(settings.defaultTimezone).toBe(TRACKER_DEFAULTS.defaultTimezone);
     // The stored values must still win over the defaults.
     expect(settings.intervalMinutes).toBe(10);
   });
@@ -48,5 +50,23 @@ describe('tracker settings', () => {
   it('round-trips a sync-interval update', async () => {
     await updateTrackerSettings({ syncIntervalMinutes: 15 });
     await expect(getTrackerSettings()).resolves.toMatchObject({ syncIntervalMinutes: 15 });
+  });
+
+  it('round-trips the house default timezone', async () => {
+    await updateTrackerSettings({ defaultTimezone: 'Asia/Kolkata' });
+    await expect(getTrackerSettings()).resolves.toMatchObject({ defaultTimezone: 'Asia/Kolkata' });
+  });
+
+  it('accepts an empty default timezone — it means "use the device\'s own zone"', async () => {
+    await updateTrackerSettings({ defaultTimezone: '' });
+    await expect(getTrackerSettings()).resolves.toMatchObject({ defaultTimezone: '' });
+  });
+
+  it('rejects a default timezone that is not a real zone', async () => {
+    // A typo here would silently misdate every employee's hours, so it never reaches the DB.
+    await expect(updateTrackerSettings({ defaultTimezone: 'Not/AZone' })).rejects.toThrow(
+      /Unknown timezone/i,
+    );
+    await expect(getTrackerSettings()).resolves.toMatchObject({ defaultTimezone: '' });
   });
 });

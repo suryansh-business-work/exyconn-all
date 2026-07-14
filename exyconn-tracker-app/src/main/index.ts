@@ -1,8 +1,9 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { join } from 'node:path';
-import { IPC, type TrackerState } from '@shared/types';
+import { IPC, type ScreenshotsRange, type TrackerState } from '@shared/types';
 import { TrackerController } from './controller';
 import { TrackerTray } from './tray';
+import { closeScreenshotsWindow, openScreenshotsWindow } from './screenshots-window';
 
 let window: BrowserWindow | null = null;
 let tray: TrackerTray | null = null;
@@ -11,6 +12,18 @@ let controller: TrackerController | null = null;
 function broadcast(state: TrackerState): void {
   window?.webContents.send(IPC.stateChanged, state);
   tray?.update(state);
+}
+
+/**
+ * Announces a capture to the main window so it can play the shutter sound. Audio can only
+ * play in a renderer, so the sound has to make this hop — and it is sent to the main window
+ * specifically (not every window), or an open gallery would play a second shutter.
+ *
+ * A hidden or minimised window still runs JS and still plays audio, which is the whole point:
+ * the tracker is usually in the tray when a capture fires, and it must still be audible.
+ */
+function announceCapture(count: number): void {
+  window?.webContents.send(IPC.screenshotCaptured, count);
 }
 
 function createWindow(): BrowserWindow {
@@ -24,6 +37,10 @@ function createWindow(): BrowserWindow {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      // Chromium throttles timers in a backgrounded window. The shutter sound is triggered by
+      // an IPC message rather than a timer, but the renderer must stay responsive enough to
+      // play it while the app sits hidden in the tray, which is where it usually is.
+      backgroundThrottling: false,
     },
   });
 
@@ -51,7 +68,11 @@ function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.login, (_e, email: string, password: string, rememberMe: boolean) =>
     ctrl.login(email, password, rememberMe),
   );
-  ipcMain.handle(IPC.logout, () => ctrl.logout());
+  ipcMain.handle(IPC.logout, async () => {
+    // The gallery is showing the screenshots of the employee who is signing out.
+    closeScreenshotsWindow();
+    await ctrl.logout();
+  });
   ipcMain.handle(IPC.acceptConsent, () => ctrl.acceptConsent());
   ipcMain.handle(IPC.start, () => ctrl.start());
   ipcMain.handle(IPC.pause, () => ctrl.pause());
@@ -60,6 +81,13 @@ function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.syncNow, () => ctrl.syncNow());
   ipcMain.handle(IPC.getReport, (_e, from: string, to: string) => ctrl.getReport(from, to));
   ipcMain.handle(IPC.getDay, (_e, start: string, end: string) => ctrl.getDay(start, end));
+  ipcMain.handle(IPC.getTotals, () => ctrl.getTotals());
+  ipcMain.handle(IPC.setTimezone, (_e, timezone: string) => ctrl.setTimezone(timezone));
+  ipcMain.handle(IPC.openScreenshots, (_e, range: ScreenshotsRange) => {
+    if (window !== null) {
+      openScreenshotsWindow(window, range);
+    }
+  });
   ipcMain.handle(IPC.getPermissions, () => ctrl.refreshPermissions());
   ipcMain.handle(IPC.requestPermission, (_e, kind: 'screenRecording' | 'accessibility') =>
     ctrl.requestPermission(kind),
@@ -79,7 +107,7 @@ if (!app.requestSingleInstanceLock()) {
   });
 
   void app.whenReady().then(async () => {
-    controller = new TrackerController(broadcast);
+    controller = new TrackerController(broadcast, announceCapture);
     window = createWindow();
     tray = new TrackerTray(window, {
       start: () => void controller?.start(),

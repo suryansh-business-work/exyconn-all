@@ -16,6 +16,11 @@ import useMyReport from '../hooks/useMyReport';
 
 type TabId = 'calendar' | 'days';
 
+interface Props {
+  /** The employee's chosen zone: the day bounds and every timestamp below are read in it. */
+  timezone: string;
+}
+
 function startOfMonth(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
@@ -24,14 +29,14 @@ function startOfMonth(date: Date): Date {
  * The employee's own tracked time. "Calendar" browses it date by date, with that day's
  * screenshots; "Days" keeps the month-at-a-glance table. Nobody else's data is reachable here.
  */
-export default function MyReportScreen(): JSX.Element {
+export default function MyReportScreen({ timezone }: Readonly<Props>): JSX.Element {
   const today = useMemo(() => new Date(), []);
   const [tab, setTab] = useState<TabId>('calendar');
   const [month, setMonth] = useState<Date>(() => startOfMonth(today));
   const [selected, setSelected] = useState<Date>(today);
 
-  const { days, totals, loading, error } = useMyReport(month);
-  const day = useMyDay(selected);
+  const { days, totals, loading, error } = useMyReport(month, timezone);
+  const day = useMyDay(selected, timezone);
   const canGoForward = month.getTime() < startOfMonth(today).getTime();
 
   const selectDate = (date: Date): void => {
@@ -79,6 +84,7 @@ export default function MyReportScreen(): JSX.Element {
               detail={day.detail}
               loading={day.loading}
               error={day.error}
+              timezone={timezone}
             />
           </>
         )}

@@ -1,9 +1,13 @@
 import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import OpenInNewRounded from '@mui/icons-material/OpenInNewRounded';
 import type { DayDetail } from '@shared/types';
-import { activityPercent, formatCount, formatDayLabel } from '../format';
+import { activityPercent, formatCount } from '../format';
+import { dayBounds, formatDayLabel } from '../time';
+import { run } from '../run';
 import Surface from './Surface';
 import ReportTotals from './ReportTotals';
 import ScreenshotGrid from './ScreenshotGrid';
@@ -13,6 +17,7 @@ interface Props {
   detail: DayDetail | null;
   loading: boolean;
   error: string | null;
+  timezone: string;
 }
 
 const SKELETON_TILES = ['t1', 't2', 't3', 't4'] as const;
@@ -25,18 +30,25 @@ function inputSummary(detail: DayDetail): string {
   return `${keys} keys · ${clicks} clicks · ${sessions} sessions`;
 }
 
-/** The selected day: its totals, then a grid of the screenshots captured that day. */
+/** The selected day: its totals, then that day's screenshots — which open in their own window. */
 export default function DayDetailPanel({
   date,
   detail,
   loading,
   error,
+  timezone,
 }: Readonly<Props>): JSX.Element {
   const heading = (
     <Typography variant="subtitle1" fontWeight={700}>
-      {formatDayLabel(date.toISOString())}
+      {formatDayLabel(date)}
     </Typography>
   );
+
+  // The gallery is a separate window that loads its own data, so it is handed the same bounds
+  // this panel used — the day as it runs in the EMPLOYEE'S zone, not this computer's.
+  const openGallery = (): void => {
+    run(() => window.tracker.openScreenshots(dayBounds(date, timezone)));
+  };
 
   if (error !== null) {
     return (
@@ -80,7 +92,24 @@ export default function DayDetailPanel({
       </Typography>
 
       <Surface sx={{ p: 2 }}>
-        <ScreenshotGrid shots={detail.screenshots} />
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mb: 1.5 }}
+        >
+          <Typography variant="subtitle2">
+            Screenshots ({formatCount(detail.screenshots.length)})
+          </Typography>
+          {detail.screenshots.length > 0 ? (
+            <Button size="small" startIcon={<OpenInNewRounded />} onClick={openGallery}>
+              Open gallery
+            </Button>
+          ) : null}
+        </Stack>
+
+        <ScreenshotGrid shots={detail.screenshots} timezone={timezone} onOpen={openGallery} />
       </Surface>
     </Stack>
   );

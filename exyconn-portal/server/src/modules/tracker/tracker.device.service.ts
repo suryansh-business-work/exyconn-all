@@ -6,6 +6,7 @@ import { unauthenticated, forbidden, notFound, badRequest } from '../../utils/er
 import { hashToken } from './tracker.auth';
 import { TRACKER_LIMITS } from './tracker.constants';
 import { getTrackerSettings } from './tracker.settings.service';
+import { isValidTimezone, resolveEffectiveTimezone } from './tracker.timezone';
 import type { Role } from '../../constants/roles';
 import {
   TrackerAccessModel,
@@ -144,7 +145,7 @@ class TrackerDeviceService {
    * work: on relaunch the app has a token but no user/settings in memory, and asking the
    * portal who it belongs to avoids prompting for the password again.
    */
-  async me(userId: string) {
+  async me(userId: string, deviceId: string) {
     const user = await UserModel.findById(userId).lean();
     if (!user) {
       unauthenticated('Account no longer exists');
@@ -153,11 +154,44 @@ class TrackerDeviceService {
     if (!access?.isActive) {
       forbidden('Your tracker access has been revoked.');
     }
+
+    const [settings, device] = await Promise.all([
+      getTrackerSettings(),
+      TrackerDeviceModel.findOne({ deviceId, userId }).lean(),
+    ]);
+
     return {
       user,
       consentRequired: !access.consentedAt,
-      settings: await getTrackerSettings(),
+      settings,
+      timezone: resolveEffectiveTimezone({
+        employeeTimezone: access.timezone,
+        defaultTimezone: settings.defaultTimezone,
+        deviceTimezone: device?.timezone,
+      }),
     };
+  }
+
+  /**
+   * Records the zone the employee picked in the desktop app.
+   *
+   * Only ever writes the CALLER's own row — the resolver hands us the userId the device
+   * token authenticated as, so one employee can never restate another's timezone.
+   */
+  async setTimezone(userId: string, timezone: string) {
+    if (!isValidTimezone(timezone)) {
+      badRequest(`Unknown timezone: ${timezone}`);
+    }
+
+    const access = await TrackerAccessModel.findOneAndUpdate(
+      { userId, isActive: true },
+      { timezone },
+      { new: true },
+    ).lean();
+    if (!access) {
+      forbidden('Your tracker access has been revoked.');
+    }
+    return access;
   }
 
   /** Records that the employee accepted the in-app disclosure. Tracking is gated on this. */
@@ -336,7 +370,17 @@ class TrackerDeviceService {
       blurred: input.blurred ?? false,
     });
 
-    return screenshot.toObject();
+    // A screenshot carries the activity of the interval it belongs to. Shots are uploaded
+    // from *inside* the interval, so that interval usually has not been synced yet — 0
+    // until it arrives. One lookup for one screenshot; the day view maps them in bulk.
+    const interval = await TrackerIntervalModel.findOne({
+      sessionId: input.sessionId,
+      startedAt: input.intervalStartedAt,
+    })
+      .select('activityPercent')
+      .lean();
+
+    return { ...screenshot.toObject(), activityPercent: interval?.activityPercent ?? 0 };
   }
 }
 

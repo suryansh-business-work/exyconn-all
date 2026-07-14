@@ -1,5 +1,7 @@
 import { TrackerSettingsModel, type TrackerSettingsDocument } from './models';
 import { TRACKER_DEFAULTS } from './tracker.constants';
+import { isValidTimezone } from './tracker.timezone';
+import { badRequest } from '../../utils/errors';
 
 export interface TrackerSettingsInput {
   intervalMinutes?: number;
@@ -14,6 +16,8 @@ export interface TrackerSettingsInput {
   syncIntervalMinutes?: number;
   /** Rich text (HTML) disclosure shown in the desktop app before tracking starts. */
   consentText?: string;
+  /** House default IANA zone; '' means "use each employee's own device zone". */
+  defaultTimezone?: string;
 }
 
 /** A plain serialized tracker-settings object (as `withId` and resolvers consume it). */
@@ -47,6 +51,12 @@ export async function getTrackerSettings(): Promise<TrackerSettingsLean> {
 export async function updateTrackerSettings(
   input: TrackerSettingsInput,
 ): Promise<TrackerSettingsLean> {
+  // '' is a meaningful value here ("no house default"), anything else must be a zone the
+  // platform can resolve — a typo would silently misdate every employee's hours.
+  if (input.defaultTimezone && !isValidTimezone(input.defaultTimezone)) {
+    badRequest(`Unknown timezone: ${input.defaultTimezone}`);
+  }
+
   const updated = await TrackerSettingsModel.findOneAndUpdate({ key: 'global' }, input, {
     new: true,
     upsert: true,

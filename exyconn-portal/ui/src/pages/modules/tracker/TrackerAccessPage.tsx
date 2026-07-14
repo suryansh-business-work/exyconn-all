@@ -11,6 +11,8 @@ import {
   useGrantTrackerAccessMutation,
   useRevokeTrackerAccessMutation,
 } from '@/graphql/generated';
+import { TrackerTimezoneCell } from './TrackerTimezoneCell';
+import { useTrackerTimezones } from './useTrackerTimezones';
 import type { TrackerAccessRow } from './tracker.types';
 
 interface AccessUserRow {
@@ -57,6 +59,7 @@ export function TrackerAccessPage() {
   const confirm = useConfirm();
   const notify = useNotify();
   const { formatDate } = useSettings();
+  const { timezoneFor } = useTrackerTimezones();
 
   const accessByUser = new Map(
     (accessQuery.data?.trackerAccessList ?? []).map((entry) => [entry.userId, entry]),
@@ -109,6 +112,11 @@ export function TrackerAccessPage() {
       key: 'consent',
       label: 'Consent',
       render: (row) => <ConsentCell consentedAt={row.access?.consentedAt ?? null} />,
+    },
+    {
+      key: 'timezone',
+      label: 'Timezone',
+      render: (row) => <TrackerTimezoneCell resolution={timezoneFor(row.id)} />,
     },
     {
       key: 'grantedAt',

@@ -39,6 +39,12 @@ export const TRACKER_DEFAULTS = Object.freeze({
   autoSyncEnabled: true,
   /** How often the desktop app flushes its outbox to the portal, in minutes. */
   syncIntervalMinutes: 5,
+  /**
+   * IANA zone (e.g. "Asia/Kolkata") every employee's tracker times are read in unless they
+   * pick their own. Empty string means "no house default" — fall back to whatever zone the
+   * employee's own machine reports. See tracker.timezone.ts for the resolution order.
+   */
+  defaultTimezone: '',
 
   /**
    * The disclosure shown in the desktop app before tracking can start. Rich text (HTML),

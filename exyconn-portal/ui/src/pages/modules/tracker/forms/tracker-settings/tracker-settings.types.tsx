@@ -11,4 +11,6 @@ export interface TrackerSettingsFormValues {
   randomizeScreenshotTiming: boolean;
   blurScreenshots: boolean;
   trackWindowTitles: boolean;
+  /** IANA zone name, or '' for "use each device's own timezone". */
+  defaultTimezone: string;
 }

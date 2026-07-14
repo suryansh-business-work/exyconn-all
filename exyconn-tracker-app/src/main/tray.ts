@@ -1,4 +1,5 @@
 import { Tray, Menu, nativeImage, BrowserWindow } from 'electron';
+import trayIconPath from '../../resources/tray.png?asset';
 import type { TrackerState, TrackerStatus } from '@shared/types';
 
 const STATUS_LABEL: Record<TrackerStatus, string> = {
@@ -23,8 +24,10 @@ export class TrackerTray {
       quit: () => void;
     },
   ) {
-    // A 1px transparent base; the real icon ships as a build resource in production.
-    this.tray = new Tray(nativeImage.createEmpty());
+    // The tray icon is load-bearing, not decoration: the consent screen promises the employee
+    // that tracking is always visibly indicated, and an empty icon quietly breaks that promise.
+    // `?asset` makes electron-vite emit the file into out/, so it resolves in dev AND packaged.
+    this.tray = new Tray(nativeImage.createFromPath(trayIconPath));
     this.tray.setToolTip('Exyconn Tracker');
     this.tray.on('click', () => this.showWindow());
   }

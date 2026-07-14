@@ -111,6 +111,20 @@ export interface DayScreenshot {
   capturedAt: string;
   imageUrl: string;
   blurred: boolean;
+  /**
+   * How active (0–100) the interval this shot belongs to was. 0 while that interval is still
+   * queued in the outbox — the app uploads a screenshot from INSIDE the interval it belongs
+   * to, so the shot can land before its interval does.
+   */
+  activityPercent: number;
+}
+
+/** The employee's all-time tracker totals (portal-side, across every device and session). */
+export interface TrackerTotals {
+  activeMs: number;
+  idleMs: number;
+  screenshots: number;
+  sessions: number;
 }
 
 /** One calendar day of the employee's own work: their totals and their screenshots. */
@@ -140,8 +154,13 @@ export const IPC = {
   openPrivacy: 'tracker:open-privacy',
   getReport: 'tracker:get-report',
   getDay: 'tracker:get-day',
+  getTotals: 'tracker:get-totals',
+  setTimezone: 'tracker:set-timezone',
+  openScreenshots: 'tracker:open-screenshots',
   // main → renderer
   stateChanged: 'tracker:state-changed',
+  /** Fired on every capture so a renderer can play the shutter sound (audio needs a window). */
+  screenshotCaptured: 'tracker:screenshot-captured',
 } as const;
 
 /** The full snapshot the renderer renders from. */
@@ -156,4 +175,15 @@ export interface TrackerState {
   rememberMe: boolean;
   /** Why the app signed the employee out on its own (revoked access), shown on the login screen. */
   signedOutReason: string | null;
+  /**
+   * The zone EVERY date and time in this app is rendered in: the employee's own pick, else
+   * the admin's house default, else this device's zone. Never empty.
+   */
+  timezone: string;
+}
+
+/** The window the screenshot gallery opens for: one day of the employee's own captures. */
+export interface ScreenshotsRange {
+  startISO: string;
+  endISO: string;
 }

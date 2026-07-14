@@ -3,7 +3,13 @@ import type { DayScreenshot } from '@shared/types';
 import { summarizeDay, type RawDay } from './day-summary';
 
 function shot(id: string, capturedAt: string): DayScreenshot {
-  return { id, capturedAt, imageUrl: `https://cdn.example/${id}.jpg`, blurred: false };
+  return {
+    id,
+    capturedAt,
+    imageUrl: `https://cdn.example/${id}.jpg`,
+    blurred: false,
+    activityPercent: 62,
+  };
 }
 
 describe('summarizeDay', () => {

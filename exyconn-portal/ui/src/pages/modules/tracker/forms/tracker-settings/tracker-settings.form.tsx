@@ -1,11 +1,14 @@
+import { useMemo } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Flex, Grid } from '@/components/ui';
-import { RhfTextField, RhfSwitch, RhfRichText } from '@/components/form/rhf';
+import { RhfTextField, RhfSwitch, RhfRichText, RhfAutocomplete } from '@/components/form/rhf';
 import { FormActions } from '@/components/form/FormActions';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useUpdateTrackerSettingsMutation } from '@/graphql/generated';
+import { isValidTimezone } from '../../tracker.timezone';
+import { buildTimezoneOptions } from './timezone.options';
 import type { TrackerSettingsRow } from './tracker-settings.types';
 
 const schema = z.object({
@@ -20,6 +23,9 @@ const schema = z.object({
   trackWindowTitles: z.boolean(),
   autoSyncEnabled: z.boolean(),
   consentText: z.string().min(1, 'Consent text is required'),
+  defaultTimezone: z
+    .string()
+    .refine((value) => value === '' || isValidTimezone(value), 'Choose a valid IANA timezone'),
 });
 type Values = z.infer<typeof schema>;
 
@@ -35,6 +41,7 @@ const toInitial = (row: TrackerSettingsRow): Values => ({
   trackWindowTitles: row.trackWindowTitles,
   autoSyncEnabled: row.autoSyncEnabled,
   consentText: row.consentText,
+  defaultTimezone: row.defaultTimezone,
 });
 
 interface TrackerSettingsFormProps {
@@ -49,6 +56,10 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
+  const timezoneOptions = useMemo(
+    () => buildTimezoneOptions(initial.defaultTimezone),
+    [initial.defaultTimezone],
+  );
 
   const onSubmit = async (values: Values) => {
     try {
@@ -93,6 +104,12 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
               />
             </Grid>
           </Grid>
+          <RhfAutocomplete
+            name="defaultTimezone"
+            label="Default timezone"
+            options={timezoneOptions}
+            helperText="Applied to every employee who has not picked a timezone in the desktop app."
+          />
           <RhfSwitch name="randomizeScreenshotTiming" label="Randomize screenshot timing" />
           <RhfSwitch name="blurScreenshots" label="Blur screenshots" />
           <RhfSwitch name="trackWindowTitles" label="Track window titles" />

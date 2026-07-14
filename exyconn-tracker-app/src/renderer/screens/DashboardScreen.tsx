@@ -1,75 +1,30 @@
-import type { SvgIconComponent } from '@mui/icons-material';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import AppsOutlined from '@mui/icons-material/AppsOutlined';
-import HourglassEmptyOutlined from '@mui/icons-material/HourglassEmptyOutlined';
-import KeyboardOutlined from '@mui/icons-material/KeyboardOutlined';
-import MouseOutlined from '@mui/icons-material/MouseOutlined';
-import PhotoCameraOutlined from '@mui/icons-material/PhotoCameraOutlined';
-import TimerOutlined from '@mui/icons-material/TimerOutlined';
 import type { TrackerState } from '@shared/types';
 import Surface from '../components/Surface';
-import StatTile from '../components/StatTile';
+import StatGrid from '../components/StatGrid';
 import StatusChip from '../components/StatusChip';
 import SyncBar from '../components/SyncBar';
+import TotalsPanel from '../components/TotalsPanel';
 import TrackingControls from '../components/TrackingControls';
-import { formatClock, formatCount } from '../format';
-
-interface Tile {
-  id: string;
-  label: string;
-  value: string;
-  icon: SvgIconComponent;
-}
-
-function tiles(state: TrackerState): Tile[] {
-  const { stats } = state;
-  return [
-    {
-      id: 'worked',
-      label: 'Worked',
-      value: formatClock(stats.sessionActiveMs),
-      icon: TimerOutlined,
-    },
-    {
-      id: 'idle',
-      label: 'Idle',
-      value: formatClock(stats.sessionIdleMs),
-      icon: HourglassEmptyOutlined,
-    },
-    {
-      id: 'keys',
-      label: 'Key presses',
-      value: formatCount(stats.keyCount),
-      icon: KeyboardOutlined,
-    },
-    {
-      id: 'mouse',
-      label: 'Mouse clicks',
-      value: formatCount(stats.mouseCount),
-      icon: MouseOutlined,
-    },
-    { id: 'app', label: 'Current app', value: stats.currentApp || '—', icon: AppsOutlined },
-    {
-      id: 'screenshots',
-      label: 'Screenshots',
-      value: formatCount(stats.screenshotCount),
-      icon: PhotoCameraOutlined,
-    },
-  ];
-}
+import { sessionTiles } from '../dashboard-tiles';
 
 interface Props {
   state: TrackerState;
 }
 
-/** Tracking controls, sync status and this session's live counters. */
+/**
+ * Tracking controls, sync status, and TWO clearly separated blocks of numbers: the live
+ * counters for the session in progress, and the employee's all-time totals from the portal.
+ * They are never merged into one grid — a number that resets and a number that never does are
+ * different facts, and each block's heading says which it is.
+ */
 export default function DashboardScreen({ state }: Readonly<Props>): JSX.Element {
-  const { stats, status, settings, user } = state;
+  const { stats, status, settings, user, timezone } = state;
 
   return (
-    <Stack spacing={2}>
+    <Stack spacing={2.5}>
       <Surface sx={{ p: 2.5 }}>
         <Stack
           direction="row"
@@ -83,7 +38,7 @@ export default function DashboardScreen({ state }: Readonly<Props>): JSX.Element
               {user?.name ?? 'Signed in'}
             </Typography>
             <Typography variant="caption" color="text.secondary" noWrap>
-              This session only — totals reset when you stop.
+              {user?.email ?? ''}
             </Typography>
           </Box>
           <StatusChip status={status} />
@@ -91,19 +46,19 @@ export default function DashboardScreen({ state }: Readonly<Props>): JSX.Element
         <TrackingControls status={status} />
       </Surface>
 
-      <SyncBar stats={stats} settings={settings} />
+      <SyncBar stats={stats} settings={settings} timezone={timezone} />
 
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-          gap: 1.5,
-        }}
-      >
-        {tiles(state).map((tile) => (
-          <StatTile key={tile.id} label={tile.label} value={tile.value} icon={tile.icon} />
-        ))}
-      </Box>
+      <Stack spacing={1}>
+        <Stack spacing={0.25}>
+          <Typography variant="subtitle2">This session</Typography>
+          <Typography variant="caption" color="text.secondary">
+            Live counters for the run in progress — they reset to zero when you stop.
+          </Typography>
+        </Stack>
+        <StatGrid tiles={sessionTiles(stats)} />
+      </Stack>
+
+      <TotalsPanel lastSyncAt={stats.lastSyncAt} />
     </Stack>
   );
 }

@@ -36,3 +36,6 @@ Thumbs.db
 # --- Editor -------------------------------------------------------------------
 .idea/
 *.swp
+
+# electron-builder output (the installer is a release artifact, not source)
+exyconn-tracker-app/dist/

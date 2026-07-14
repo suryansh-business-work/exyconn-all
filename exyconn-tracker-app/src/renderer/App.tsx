@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -9,7 +8,9 @@ import AppShell from './AppShell';
 import LoginScreen from './screens/LoginScreen';
 import ConsentScreen from './screens/ConsentScreen';
 import PermissionsScreen from './screens/PermissionsScreen';
-import { buildTheme } from './theme';
+import useBrandTheme from './hooks/useBrandTheme';
+import useShutterSound from './hooks/useShutterSound';
+import useTrackerState from './hooks/useTrackerState';
 
 interface RouterProps {
   state: TrackerState;
@@ -49,43 +50,12 @@ function Loading(): JSX.Element {
 
 /** Subscribes to the tracker state, themes the app from the portal branding, and routes. */
 export default function App(): JSX.Element {
-  const [state, setState] = useState<TrackerState | null>(null);
+  const state = useTrackerState();
+  const theme = useBrandTheme(state?.branding ?? null);
 
-  useEffect(() => {
-    let active = true;
-    const unsubscribe = window.tracker.onStateChanged((next) => {
-      if (active) {
-        setState(next);
-      }
-    });
-    window.tracker
-      .getState()
-      .then((initial) => {
-        if (active) {
-          setState(initial);
-        }
-      })
-      .catch((error: unknown) => {
-        console.error('Failed to load tracker state', error);
-      });
-    return () => {
-      active = false;
-      unsubscribe();
-    };
-  }, []);
-
-  const branding = state?.branding ?? null;
-  // The state object is republished every second, so key the theme on the four colours
-  // buildTheme actually reads — otherwise every tick would rebuild the whole theme.
-  const theme = useMemo(
-    () => buildTheme(branding),
-    [
-      branding?.primaryColor,
-      branding?.secondaryColor,
-      branding?.backgroundColor,
-      branding?.textColor,
-    ],
-  );
+  // At the root, not in a screen: the shutter must still sound while the app is hidden in the
+  // tray, which is exactly where it is for most captures.
+  useShutterSound();
 
   return (
     <ThemeProvider theme={theme}>

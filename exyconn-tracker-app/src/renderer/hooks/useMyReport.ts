@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ReportDay } from '@shared/types';
 import { activityPercent } from '../format';
+import { monthBounds } from '../time';
 
 export interface ReportTotals {
   activeMs: number;
@@ -15,13 +16,6 @@ export interface ReportQuery {
   error: string | null;
 }
 
-/** [1st 00:00, next 1st 00:00) for the given month, as ISO datetimes. */
-export function monthRange(month: Date): { fromISO: string; toISO: string } {
-  const from = new Date(month.getFullYear(), month.getMonth(), 1);
-  const to = new Date(month.getFullYear(), month.getMonth() + 1, 1);
-  return { fromISO: from.toISOString(), toISO: to.toISOString() };
-}
-
 function sum(days: readonly ReportDay[]): ReportTotals {
   let activeMs = 0;
   let idleMs = 0;
@@ -32,12 +26,18 @@ function sum(days: readonly ReportDay[]): ReportTotals {
   return { activeMs, idleMs, activityPercent: activityPercent(activeMs, idleMs) };
 }
 
-/** Loads the signed-in employee's OWN tracked days for the given month. */
-export default function useMyReport(month: Date): ReportQuery {
+/**
+ * Loads the signed-in employee's OWN tracked days for the given month.
+ *
+ * The month is bounded in the employee's CHOSEN zone, and the portal buckets the days it
+ * returns by that same zone (the main process sends it with the query) — so the range asked
+ * for, the days that come back and the labels drawn on them are all one zone, not three.
+ */
+export default function useMyReport(month: Date, zone: string): ReportQuery {
   const [days, setDays] = useState<ReportDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { fromISO, toISO } = monthRange(month);
+  const { fromISO, toISO } = monthBounds(month, zone);
 
   useEffect(() => {
     let active = true;

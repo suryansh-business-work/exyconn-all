@@ -16,10 +16,16 @@ interface SectionProps {
 /** Renders the pane for the selected section (module scope — never nested in AppShell). */
 function SectionView({ section, state }: Readonly<SectionProps>): JSX.Element {
   if (section === 'report') {
-    return <MyReportScreen />;
+    return <MyReportScreen timezone={state.timezone} />;
   }
   if (section === 'settings') {
-    return <SettingsScreen settings={state.settings} branding={state.branding} />;
+    return (
+      <SettingsScreen
+        settings={state.settings}
+        branding={state.branding}
+        timezone={state.timezone}
+      />
+    );
   }
   return <DashboardScreen state={state} />;
 }

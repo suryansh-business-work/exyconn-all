@@ -8,21 +8,36 @@ import type { Branding, TrackerSettings } from '@shared/types';
 import Surface from '../components/Surface';
 import SettingsList from '../components/SettingsList';
 import SignOutButton from '../components/SignOutButton';
+import TimezonePicker from '../components/TimezonePicker';
 import { buildSettingRows } from '../settings-rows';
 import { run } from '../run';
 
 interface Props {
   settings: TrackerSettings | null;
   branding: Branding | null;
+  timezone: string;
 }
 
 /** Read-only view of what the workspace configured, plus the privacy + sign-out actions. */
-export default function SettingsScreen({ settings, branding }: Readonly<Props>): JSX.Element {
+export default function SettingsScreen({
+  settings,
+  branding,
+  timezone,
+}: Readonly<Props>): JSX.Element {
   const supportEmail = branding?.supportEmail ?? '';
   const legalName = branding?.legalName ?? branding?.businessName ?? '';
 
   return (
     <Stack spacing={2}>
+      {/* The one setting on this screen that is the EMPLOYEE'S, not the administrator's. */}
+      <Surface sx={{ p: 2.5 }}>
+        <Typography variant="h6">Your timezone</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+          Your workspace sets a default. Pick your own if you work somewhere else.
+        </Typography>
+        <TimezonePicker timezone={timezone} />
+      </Surface>
+
       <Surface sx={{ p: 2.5 }}>
         <Typography variant="h6">Settings</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 1 }}>

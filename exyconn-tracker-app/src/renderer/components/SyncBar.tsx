@@ -9,7 +9,8 @@ import CloudDoneOutlined from '@mui/icons-material/CloudDoneOutlined';
 import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
 import SyncRounded from '@mui/icons-material/SyncRounded';
 import type { LiveStats, SyncOutcome, TrackerSettings } from '@shared/types';
-import { formatCount, formatLastSync } from '../format';
+import { formatCount } from '../format';
+import { formatLastSync } from '../time';
 import { run } from '../run';
 import { syncMessage } from '../sync-text';
 import Surface from './Surface';
@@ -17,6 +18,8 @@ import Surface from './Surface';
 interface Props {
   stats: LiveStats;
   settings: TrackerSettings | null;
+  /** The employee's chosen zone — "last synced" is a real instant, so it is shown in it. */
+  timezone: string;
 }
 
 /** Describes the upload policy the portal has configured, in plain language. */
@@ -43,7 +46,7 @@ function pendingText(pending: number): string {
  * queue, so a sync uploads both (screenshots go to ImageKit via the portal). Every press
  * reports what it did — including when it did nothing, and why.
  */
-export default function SyncBar({ stats, settings }: Readonly<Props>): JSX.Element {
+export default function SyncBar({ stats, settings, timezone }: Readonly<Props>): JSX.Element {
   const [pressed, setPressed] = useState<SyncOutcome | null>(null);
   const settled = stats.pendingSync === 0;
   const StatusIcon = settled ? CloudDoneOutlined : CloudUploadOutlined;
@@ -79,7 +82,7 @@ export default function SyncBar({ stats, settings }: Readonly<Props>): JSX.Eleme
       </Stack>
 
       <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.75 }}>
-        Last synced {formatLastSync(stats.lastSyncAt)} · {policyText(settings)}
+        Last synced {formatLastSync(stats.lastSyncAt, timezone)} · {policyText(settings)}
       </Typography>
 
       {stats.syncing ? <LinearProgress sx={{ mt: 1.5 }} /> : null}

@@ -9,6 +9,8 @@ import {
   TrackerScreenshotModel,
   TrackerSessionModel,
   TrackerWindowUsageModel,
+  type TrackerAccessDocument,
+  type TrackerScreenshotDocument,
 } from './models';
 
 /** Fire-and-forget email — mirrors the admin module's tryEmail helper. */
@@ -19,6 +21,72 @@ function tryEmail(action: string, send: () => Promise<void>): void {
   } catch (error) {
     onError(error);
   }
+}
+
+/** A screenshot as it comes back from `.lean()`. */
+type ScreenshotLean = TrackerScreenshotDocument & { _id: unknown };
+
+/** An access grant as it comes back from `.lean()`. */
+type AccessLean = TrackerAccessDocument & { _id: unknown };
+
+/** Fields an access grant may predate. '' = the employee never picked a timezone. */
+const ACCESS_DEFAULTS = Object.freeze({ timezone: '' });
+
+/**
+ * Fills in the fields a stored grant predates — today, `timezone`.
+ *
+ * Same trap as tracker.settings.service's `withDefaults`: Mongoose applies schema defaults
+ * only when a document is CREATED and `.lean()` skips them, so a grant written before the
+ * field existed comes back without it and the non-nullable `TrackerAccess.timezone` blows
+ * up with "Cannot return null". Stored values always win — absent keys are the only thing
+ * the spread fills. (A GraphQL field resolver would be the other way to fix this, but
+ * `mergeResolvers` in src/graphql/index.ts merges Query/Mutation maps only.)
+ */
+function withAccessDefaults(access: AccessLean): AccessLean {
+  return { ...ACCESS_DEFAULTS, ...access };
+}
+
+/** A screenshot belongs to exactly one interval, identified by this pair. */
+function intervalKey(sessionId: string, startedAt: Date): string {
+  return `${sessionId}|${startedAt.getTime()}`;
+}
+
+/**
+ * Stamps each screenshot with the activity level of the interval it belongs to.
+ *
+ * The intervals are fetched in ONE query keyed on the (sessionId, intervalStartedAt) pairs
+ * the screenshots actually reference — never one query per screenshot. Keying on the pairs
+ * rather than reusing the day's own interval list also keeps the boundary honest: a shot
+ * taken at 00:02 belongs to an interval that started before midnight, i.e. outside the day.
+ * A screenshot whose interval has not been synced yet (the app uploads shots mid-interval)
+ * simply reports 0.
+ */
+async function withActivityPercent(screenshots: ScreenshotLean[]) {
+  if (screenshots.length === 0) {
+    return [];
+  }
+
+  const sessionIds = [...new Set(screenshots.map((shot) => shot.sessionId))];
+  const startedAts = [...new Set(screenshots.map((shot) => shot.intervalStartedAt.getTime()))];
+
+  const intervals = await TrackerIntervalModel.find({
+    sessionId: { $in: sessionIds },
+    startedAt: { $in: startedAts.map((time) => new Date(time)) },
+  })
+    .select('sessionId startedAt activityPercent')
+    .lean();
+
+  const activity = new Map(
+    intervals.map((interval) => [
+      intervalKey(interval.sessionId, interval.startedAt),
+      interval.activityPercent,
+    ]),
+  );
+
+  return screenshots.map((shot) => ({
+    ...shot,
+    activityPercent: activity.get(intervalKey(shot.sessionId, shot.intervalStartedAt)) ?? 0,
+  }));
 }
 
 /** Portal-side tracker administration & reporting (singleton, TRACKER role). */
@@ -47,7 +115,7 @@ class TrackerAdminService {
       mailer.sendTrackerAccessEmail({ name: user.name, email: user.email }),
     );
 
-    return access;
+    return withAccessDefaults(access);
   }
 
   async revokeAccess(userId: string, revokedBy: string) {
@@ -64,7 +132,7 @@ class TrackerAdminService {
       { userId, isActive: true },
       { isActive: false, revokedAt: new Date() },
     );
-    return access;
+    return withAccessDefaults(access);
   }
 
   /** Revokes a single device — its non-expiring token stops working on the next call. */
@@ -80,8 +148,9 @@ class TrackerAdminService {
     return device;
   }
 
-  listAccess() {
-    return TrackerAccessModel.find().sort({ createdAt: -1 }).lean();
+  async listAccess() {
+    const grants = await TrackerAccessModel.find().sort({ createdAt: -1 }).lean();
+    return grants.map(withAccessDefaults);
   }
 
   listDevices(userId?: string) {
@@ -152,7 +221,42 @@ class TrackerAdminService {
       { $sort: { durationMs: -1 } },
     ]);
 
-    return { intervals, screenshots, sessions, appUsage: windowUsage };
+    return {
+      intervals,
+      screenshots: await withActivityPercent(screenshots),
+      sessions,
+      appUsage: windowUsage,
+    };
+  }
+
+  /**
+   * All-time totals for one employee. `activeMs`/`idleMs` are summed from the intervals
+   * (the sessions' own roll-ups are derived from exactly the same rows) and are Floats in
+   * the schema on purpose: a year of tracked time in milliseconds overflows a 32-bit Int.
+   */
+  async totals(userId: string) {
+    const [summed, screenshots, sessions] = await Promise.all([
+      TrackerIntervalModel.aggregate<{ activeMs: number; idleMs: number }>([
+        { $match: { userId } },
+        {
+          $group: {
+            _id: null,
+            activeMs: { $sum: '$activeMs' },
+            idleMs: { $sum: '$idleMs' },
+          },
+        },
+      ]),
+      TrackerScreenshotModel.countDocuments({ userId }),
+      TrackerSessionModel.countDocuments({ userId }),
+    ]);
+
+    // An employee with no intervals yet aggregates to no rows at all, not to zeroes.
+    return {
+      activeMs: summed[0]?.activeMs ?? 0,
+      idleMs: summed[0]?.idleMs ?? 0,
+      screenshots,
+      sessions,
+    };
   }
 }
 

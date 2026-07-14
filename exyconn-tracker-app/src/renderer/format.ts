@@ -1,4 +1,8 @@
-/** Formatting helpers for the tracker UI. */
+/**
+ * Formatting helpers that carry NO timezone: a duration, a percentage and a count mean the
+ * same thing in every zone. Everything that formats an instant or a date lives in `time.ts`,
+ * the single module that applies the employee's chosen zone.
+ */
 
 /** Format a duration in milliseconds as "Hh Mm Ss" (e.g. 3661000 -> "1h 1m 1s"). */
 export function formatClock(ms: number): string {
@@ -27,58 +31,6 @@ export function activityPercent(activeMs: number, idleMs: number): number {
     return 0;
   }
   return Math.round((activeMs / total) * 100);
-}
-
-/** Format an ISO timestamp as a short relative string, or "Never" when absent. */
-export function formatLastSync(iso: string | null): string {
-  if (iso === null) {
-    return 'Never';
-  }
-  const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) {
-    return 'Never';
-  }
-
-  const diffSeconds = Math.floor((Date.now() - then) / 1000);
-  if (diffSeconds < 60) {
-    return 'Just now';
-  }
-  const diffMinutes = Math.floor(diffSeconds / 60);
-  if (diffMinutes < 60) {
-    return `${diffMinutes}m ago`;
-  }
-  const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) {
-    return `${diffHours}h ago`;
-  }
-  return `${Math.floor(diffHours / 24)}d ago`;
-}
-
-/** "Mon 3 Feb" for a report row (the day key is a YYYY-MM-DD or ISO string). */
-export function formatDayLabel(date: string): string {
-  const parsed = new Date(date);
-  if (Number.isNaN(parsed.getTime())) {
-    return date;
-  }
-  return parsed.toLocaleDateString(undefined, {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-  });
-}
-
-/** "10:42 AM" — when a screenshot was captured, in the viewer's own locale. */
-export function formatTime(iso: string): string {
-  const parsed = new Date(iso);
-  if (Number.isNaN(parsed.getTime())) {
-    return iso;
-  }
-  return parsed.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-}
-
-/** "February 2026" for the month switcher. */
-export function formatMonthLabel(month: Date): string {
-  return month.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 }
 
 /** Counts read better grouped ("12,304") than raw. */

@@ -15,6 +15,11 @@ const trackerAccessSchema = new Schema(
     isActive: { type: Boolean, required: true, default: true },
     /** Whether the employee has accepted the in-app consent screen, and when. */
     consentedAt: { type: Date, default: null },
+    /**
+     * The IANA zone this employee picked for themselves in the desktop app. Empty string =
+     * they never picked one, and the house default (or their device's zone) applies.
+     */
+    timezone: { type: String, default: '', trim: true },
   },
   { timestamps: true },
 );

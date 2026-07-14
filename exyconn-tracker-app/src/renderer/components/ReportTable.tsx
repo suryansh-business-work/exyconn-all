@@ -9,7 +9,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import type { ReportDay } from '@shared/types';
-import { activityPercent, formatCount, formatDayLabel, formatHoursMinutes } from '../format';
+import { activityPercent, formatCount, formatHoursMinutes } from '../format';
+import { activityColor } from '../activity';
+import { formatDayLabel } from '../time';
 import Surface from './Surface';
 
 const COLUMNS = ['Day', 'Worked', 'Idle', 'Activity', 'Keys', 'Mouse', 'Sessions'] as const;
@@ -18,11 +20,6 @@ const SKELETON_ROWS = ['s1', 's2', 's3', 's4', 's5'] as const;
 interface Props {
   days: readonly ReportDay[];
   loading: boolean;
-}
-
-/** Green above 70% activity, amber below — a quick read, never a judgement. */
-function activityColor(percent: number): 'success' | 'warning' {
-  return percent >= 70 ? 'success' : 'warning';
 }
 
 /** Day-by-day table of the employee's own tracked time. */

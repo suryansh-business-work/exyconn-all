@@ -4,7 +4,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import ChevronLeftRounded from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded';
-import { formatMonthLabel } from '../format';
+import { formatMonthLabel } from '../time';
 
 interface Props {
   month: Date;

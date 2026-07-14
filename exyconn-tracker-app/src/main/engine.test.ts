@@ -80,6 +80,7 @@ function build(): { engine: TrackerEngine; stats: () => LiveStats | null } {
     onStats: (s) => {
       latest = s;
     },
+    onCapture: () => undefined,
     onAuthError: () => undefined,
   });
   return { engine, stats: () => latest };

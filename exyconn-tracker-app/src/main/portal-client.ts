@@ -1,9 +1,22 @@
-import type { Branding, DayDetail, ReportDay, TrackerSettings } from '@shared/types';
+import type { Branding, DayDetail, ReportDay, TrackerSettings, TrackerTotals } from '@shared/types';
 import { secureStore } from './store';
 import { summarizeDay, type RawDay } from './day-summary';
 
-/** Portal GraphQL endpoint (main process only — reads process.env, overridable at run time). */
-const PORTAL_GRAPHQL_URL = process.env.PORTAL_GRAPHQL_URL ?? 'http://localhost:4004/graphql';
+const PRODUCTION_GRAPHQL_URL = 'https://portal-server.exyconn.com/graphql';
+const DEV_GRAPHQL_URL = 'http://localhost:4004/graphql';
+
+/**
+ * Portal GraphQL endpoint (main process only). An installed build has no environment
+ * variables, so the default MUST be the real portal: defaulting to localhost shipped an
+ * installer that could only ever talk to the employee's own machine, and nobody could sign in.
+ *
+ * electron-vite sets ELECTRON_RENDERER_URL only when serving the dev renderer, so it is the
+ * one signal that distinguishes `npm run dev` from a packaged app. An explicit
+ * PORTAL_GRAPHQL_URL still wins, for pointing a dev build at staging.
+ */
+const PORTAL_GRAPHQL_URL =
+  process.env.PORTAL_GRAPHQL_URL ??
+  (process.env.ELECTRON_RENDERER_URL ? DEV_GRAPHQL_URL : PRODUCTION_GRAPHQL_URL);
 
 /**
  * Talks to the portal GraphQL API from the MAIN process. Requests originate from Node,
@@ -164,7 +177,7 @@ const MY_DAY = `
   query MyDay($start: DateTime!, $end: DateTime!) {
     myTrackerDay(start: $start, end: $end) {
       intervals { activeMs idleMs keyCount mouseCount }
-      screenshots { id capturedAt imageUrl blurred }
+      screenshots { id capturedAt imageUrl blurred activityPercent }
       sessions { id }
     }
   }
@@ -186,6 +199,7 @@ const TRACKER_ME = `
     trackerMe {
       user { id name email }
       consentRequired
+      timezone
       settings {
         intervalMinutes screenshotsPerInterval randomizeScreenshotTiming blurScreenshots
         trackWindowTitles idleThresholdSeconds screenshotMaxWidth screenshotQuality
@@ -199,12 +213,46 @@ export interface TrackerMeResponse {
   user: { id: string; name: string; email: string };
   consentRequired: boolean;
   settings: TrackerSettings;
+  /** The EFFECTIVE zone the portal resolved: this employee's pick, else the admin default. */
+  timezone: string;
 }
 
 /** Rebuilds a remembered session from the stored device token (no password prompt). */
 export async function trackerMe(): Promise<TrackerMeResponse> {
   const data = await authed<{ trackerMe: TrackerMeResponse }>(TRACKER_ME, {});
   return data.trackerMe;
+}
+
+const SET_TIMEZONE = `
+  mutation SetTimezone($timezone: String!) {
+    trackerSetTimezone(timezone: $timezone) { timezone }
+  }
+`;
+
+/**
+ * Records the zone THIS employee picked. The portal scopes the write to the device token's
+ * own access row, so the app can never set anybody else's zone. Returns what was stored.
+ */
+export async function setTimezone(timezone: string): Promise<string> {
+  const data = await authed<{ trackerSetTimezone: { timezone: string } }>(SET_TIMEZONE, {
+    timezone,
+  });
+  return data.trackerSetTimezone.timezone;
+}
+
+const MY_TOTALS = `
+  query {
+    myTrackerTotals { activeMs idleMs screenshots sessions }
+  }
+`;
+
+/**
+ * The employee's OWN all-time totals. Device-token only by design — a portal session cannot
+ * call this, and this app has nothing but the device token, so it is exactly the right query.
+ */
+export async function fetchMyTotals(): Promise<TrackerTotals> {
+  const data = await authed<{ myTrackerTotals: TrackerTotals }>(MY_TOTALS, {});
+  return data.myTrackerTotals;
 }
 
 export function acceptConsent(): Promise<{ trackerAcceptConsent: boolean }> {

@@ -14,6 +14,8 @@ const TICK_MS = 1000;
 /** Callbacks the engine uses to talk back to the app shell (tray/renderer/sign-out). */
 export interface EngineHooks {
   onStats: (stats: LiveStats) => void;
+  /** A capture just happened, `count` shots. The shell notifies and plays the shutter sound. */
+  onCapture: (count: number) => void;
   onAuthError: (reason: string) => void;
 }
 
@@ -227,10 +229,12 @@ export class TrackerEngine {
       this.screenshotCount += 1;
     }
 
-    // Never capture the employee's screen silently — surface every capture on the OS's own
-    // notification surface, with a short summary of the session so far.
+    // Never capture the employee's screen silently — every capture is announced twice: on the
+    // OS's own notification surface, and with an audible camera shutter (which the shell plays,
+    // because only a renderer can play audio). Neither may throw into the tracking loop.
     if (captures.length > 0) {
       notifyScreenshotCaptured(captures.length, this.stats());
+      this.hooks.onCapture(captures.length);
     }
   }
 

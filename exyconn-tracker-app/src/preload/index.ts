@@ -5,8 +5,10 @@ import {
   type LoginResult,
   type PermissionState,
   type ReportDay,
+  type ScreenshotsRange,
   type SyncOutcome,
   type TrackerState,
+  type TrackerTotals,
 } from '@shared/types';
 
 /** The typed API exposed to the renderer over the context bridge (no Node access). */
@@ -25,6 +27,13 @@ const api = {
     ipcRenderer.invoke(IPC.getReport, from, to),
   getDay: (start: string, end: string): Promise<DayDetail> =>
     ipcRenderer.invoke(IPC.getDay, start, end),
+  /** The employee's own all-time totals, for the dashboard's "All time" tiles. */
+  getTotals: (): Promise<TrackerTotals> => ipcRenderer.invoke(IPC.getTotals),
+  /** Persists the employee's chosen zone; resolves to the zone now in force. */
+  setTimezone: (timezone: string): Promise<string> => ipcRenderer.invoke(IPC.setTimezone, timezone),
+  /** Opens the screenshot gallery in a separate window (or focuses the open one). */
+  openScreenshots: (range: ScreenshotsRange): Promise<void> =>
+    ipcRenderer.invoke(IPC.openScreenshots, range),
   getPermissions: (): Promise<PermissionState> => ipcRenderer.invoke(IPC.getPermissions),
   requestPermission: (kind: 'screenRecording' | 'accessibility'): Promise<void> =>
     ipcRenderer.invoke(IPC.requestPermission, kind),
@@ -33,6 +42,12 @@ const api = {
     const handler = (_event: unknown, state: TrackerState): void => listener(state);
     ipcRenderer.on(IPC.stateChanged, handler);
     return () => ipcRenderer.removeListener(IPC.stateChanged, handler);
+  },
+  /** A screenshot was just captured — the renderer plays the shutter sound. */
+  onScreenshotCaptured: (listener: (count: number) => void): (() => void) => {
+    const handler = (_event: unknown, count: number): void => listener(count);
+    ipcRenderer.on(IPC.screenshotCaptured, handler);
+    return () => ipcRenderer.removeListener(IPC.screenshotCaptured, handler);
   },
 };
 

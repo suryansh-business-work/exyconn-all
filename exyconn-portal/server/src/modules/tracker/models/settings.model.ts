@@ -80,6 +80,15 @@ const trackerSettingsSchema = new Schema(
       min: 1,
       max: 60,
     },
+    /**
+     * House default IANA zone. Not `required` — an empty string is the meaningful value
+     * "use the employee's own device zone", and Mongoose's `required` validator rejects ''.
+     */
+    defaultTimezone: {
+      type: String,
+      default: TRACKER_DEFAULTS.defaultTimezone,
+      trim: true,
+    },
   },
   { timestamps: true },
 );
