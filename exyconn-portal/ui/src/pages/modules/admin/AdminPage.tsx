@@ -1,12 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Flex } from '@/components/ui';
-import LockResetIcon from '@mui/icons-material/LockReset';
-import { DataTable, type Column } from '../../../components/data/DataTable';
-import { StatusChip } from '../../../components/data/StatusChip';
-import { CrudDialog } from '../../../components/data/CrudDialog';
+import { useApolloClient } from '@apollo/client';
 import { ModuleDashboard } from '../../../components/dashboard/ModuleDashboard';
 import type { StatItem } from '../../../components/dashboard/StatCard';
+import { ServerDataGrid, type TablePageResult } from '../../../components/data/ServerDataGrid';
+import { CrudDialog } from '../../../components/data/CrudDialog';
 import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
@@ -15,24 +13,31 @@ import {
   useListUsersQuery,
   useDeleteUserMutation,
   useResetUserPasswordMutation,
+  ListUsersPagedDocument,
+  type ListUsersPagedQuery,
+  type ListUsersPagedQueryVariables,
+  type TableQueryInput,
 } from '../../../graphql/generated';
 import { UserForm, type UserRow } from './forms/user';
-import { userStatus } from './UserDetails/user-details.types';
 import { CredentialsDialog, type Credentials } from './CredentialsDialog';
+import { USER_COLUMNS, type PagedUserRow, type UsersGridContext } from './users-grid';
 
-/** Admin module — user management dashboard. */
+/** Admin module — user management dashboard with a server-side Users grid. */
 export function AdminPage() {
-  const { data, loading, refetch } = useListUsersQuery();
+  // Stat cards still summarise the whole user base; the grid itself is server-paged.
+  const { data } = useListUsersQuery();
   const [deleteUser] = useDeleteUserMutation();
   const [resetPassword] = useResetUserPasswordMutation();
   const dialog = useCrudDialog<UserRow>();
   const confirm = useConfirm();
   const notify = useNotify();
   const navigate = useNavigate();
+  const client = useApolloClient();
   const [credentials, setCredentials] = useState<Credentials | null>(null);
+  const [refreshSignal, setRefreshSignal] = useState(0);
 
   const rows = data?.listUsers ?? [];
-  const roles = new Set(rows.flatMap((r) => r.roles)).size;
+  const roleCount = new Set(rows.flatMap((r) => r.roles)).size;
   const stats: StatItem[] = [
     { label: 'Users', value: String(rows.length), accent: '#4f8cff' },
     { label: 'Active', value: String(rows.filter((r) => r.isActive).length), accent: '#7be37b' },
@@ -41,44 +46,44 @@ export function AdminPage() {
       value: String(rows.filter((r) => r.roles.includes(Role.Admin)).length),
       accent: '#f9851f',
     },
-    { label: 'Roles in use', value: String(roles), accent: '#8b5cf6' },
+    { label: 'Roles in use', value: String(roleCount), accent: '#8b5cf6' },
   ];
 
-  const columns: Column<UserRow>[] = [
-    { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
-    {
-      key: 'roles',
-      label: 'Roles',
-      render: (r) => (
-        <Flex direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-          {r.roles.map((role) => (
-            <StatusChip key={role} value={role} />
-          ))}
-        </Flex>
-      ),
-    },
-    {
-      key: 'isActive',
-      label: 'Status',
-      render: (r) => <StatusChip value={userStatus(r)} />,
-    },
-  ];
+  const reload = () => setRefreshSignal((n) => n + 1);
 
-  const handleDelete = async (row: UserRow) => {
+  const fetchRows = useCallback(
+    async (input: TableQueryInput): Promise<TablePageResult<PagedUserRow>> => {
+      const result = await client.query<ListUsersPagedQuery, ListUsersPagedQueryVariables>({
+        query: ListUsersPagedDocument,
+        variables: { input },
+        fetchPolicy: 'network-only',
+      });
+      return {
+        rows: result.data.listUsersPaged.rows,
+        totalCount: result.data.listUsersPaged.totalCount,
+      };
+    },
+    [client],
+  );
+
+  const handleDelete = async (row: PagedUserRow) => {
     const ok = await confirm({ message: `Delete user "${row.name}"?`, confirmText: 'Delete' });
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
     await deleteUser({ variables: { id: row.id } });
-    await refetch();
+    reload();
     notify('User deleted');
   };
 
-  const handleResetPassword = async (row: UserRow) => {
+  const handleResetPassword = async (row: PagedUserRow) => {
     const ok = await confirm({
       message: `Reset password for "${row.name}"? A new temporary password will be emailed.`,
       confirmText: 'Reset',
     });
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
     try {
       const { data: res } = await resetPassword({ variables: { id: row.id } });
       if (res?.resetUserPassword) {
@@ -87,6 +92,12 @@ export function AdminPage() {
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Reset failed', 'error');
     }
+  };
+
+  const gridContext: UsersGridContext = {
+    onEdit: dialog.openEdit,
+    onReset: handleResetPassword,
+    onDelete: handleDelete,
   };
 
   return (
@@ -107,28 +118,20 @@ export function AdminPage() {
             onCancel={dialog.close}
             onCreated={setCredentials}
             onDone={() => {
-              void refetch();
+              reload();
               dialog.close();
             }}
           />
         </CrudDialog>
       }
     >
-      <DataTable
-        columns={columns}
-        rows={rows}
+      <ServerDataGrid<PagedUserRow>
+        columnDefs={USER_COLUMNS}
+        fetchRows={fetchRows}
+        context={gridContext}
+        refreshSignal={refreshSignal}
         onRowClick={(row) => navigate(`/portal/admin/users/${row.id}`)}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
-        actions={[
-          {
-            icon: <LockResetIcon fontSize="small" />,
-            tooltip: 'Reset & copy password',
-            ariaLabel: 'reset password',
-            onClick: handleResetPassword,
-          },
-        ]}
-        emptyMessage={loading ? 'Loading…' : 'No users yet.'}
+        searchPlaceholder="Search users…"
       />
       <CredentialsDialog credentials={credentials} onClose={() => setCredentials(null)} />
     </ModuleDashboard>

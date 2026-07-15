@@ -18,5 +18,11 @@ export const bugsService = createCrudService<BugInput>(BugModel as never, 'Bug')
 export const bugsResolvers = createCrudResolvers(bugsService, {
   name: 'Bug',
   roles: [ROLES.PROJECTS],
+  table: {
+    searchFields: ['title', 'description', 'assignee'],
+    filterFields: ['title', 'description', 'assignee', 'severity', 'status'],
+    sortFields: ['title', 'assignee', 'severity', 'status', 'dueDate', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
 });
 export { bugsTypeDefs };

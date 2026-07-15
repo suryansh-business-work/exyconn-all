@@ -48,8 +48,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
       sx={(t) => ({
         width: { md: `calc(100% - ${drawerWidth}px)` },
         ml: { md: `${drawerWidth}px` },
-        background: t.palette.mode === 'light' ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.04)',
-        backdropFilter: 'blur(20px)',
+        background: t.palette.background.paper,
         borderBottom: `1px solid ${t.palette.divider}`,
       })}
     >

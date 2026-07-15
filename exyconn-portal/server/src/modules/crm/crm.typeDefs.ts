@@ -36,8 +36,14 @@ export const crmTypeDefs = gql`
     owner: String!
   }
 
+  type LeadPage {
+    rows: [Lead!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     listLeads: [Lead!]!
+    listLeadsPaged(input: TableQueryInput!): LeadPage!
     getLead(id: ID!): Lead!
   }
 

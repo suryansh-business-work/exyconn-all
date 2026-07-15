@@ -9,6 +9,20 @@ query ListClients {
   }
 }
 
+query ListClientsPaged($input: TableQueryInput!) {
+  listClientsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      email
+      phone
+      company
+      status
+    }
+  }
+}
+
 mutation CreateClient($input: ClientInput!) {
   createClient(input: $input) {
     id

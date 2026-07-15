@@ -3,6 +3,7 @@ import { withId, withIds } from '../utils/serialize';
 import type { CrudService } from './crudService';
 import type { Role } from '../constants/roles';
 import type { GraphQLContext } from '../middleware/auth';
+import type { TableConfig, TableQueryInput } from '../utils/tableQuery';
 
 interface CrudResolverConfig {
   /** Singular GraphQL name, e.g. "Invoice" -> listInvoices/getInvoice/... */
@@ -11,9 +12,16 @@ interface CrudResolverConfig {
   roles: Role[];
   /** Irregular plural for the list query, e.g. "CaseStudy" -> "CaseStudies". Defaults to `${name}s`. */
   plural?: string;
+  /**
+   * When set, also exposes `list<Plural>Paged(input: TableQueryInput!): <Name>Page!` for a
+   * server-side grid. The module's SDL must declare the matching `<Name>Page` type.
+   */
+  table?: TableConfig;
 }
 
 type ResolverMap = Record<string, (p: unknown, a: never, c: GraphQLContext) => unknown>;
+
+type LeanDoc = { _id: unknown };
 
 /**
  * Builds the standard `list/get/create/update/delete` resolver map for a module
@@ -21,22 +29,32 @@ type ResolverMap = Record<string, (p: unknown, a: never, c: GraphQLContext) => u
  */
 export function createCrudResolvers<TInput extends object>(
   service: CrudService<TInput>,
-  { name, roles, plural }: CrudResolverConfig,
+  { name, roles, plural, table }: CrudResolverConfig,
 ): { Query: ResolverMap; Mutation: ResolverMap } {
   const guard = (ctx: GraphQLContext) => assertRole(ctx, roles);
   const listName = plural ?? `${name}s`;
 
+  const query: ResolverMap = {
+    [`list${listName}`]: async (_p, _a, ctx) => {
+      guard(ctx);
+      return withIds((await service.list()) as LeanDoc[]);
+    },
+    [`get${name}`]: async (_p, { id }: { id: string }, ctx) => {
+      guard(ctx);
+      return withId((await service.get(id)) as LeanDoc);
+    },
+  };
+
+  if (table) {
+    query[`list${listName}Paged`] = async (_p, { input }: { input: TableQueryInput }, ctx) => {
+      guard(ctx);
+      const page = await service.paged(input, table);
+      return { rows: withIds(page.rows as LeanDoc[]), totalCount: page.totalCount };
+    };
+  }
+
   return {
-    Query: {
-      [`list${listName}`]: async (_p, _a, ctx) => {
-        guard(ctx);
-        return withIds((await service.list()) as Array<{ _id: unknown }>);
-      },
-      [`get${name}`]: async (_p, { id }: { id: string }, ctx) => {
-        guard(ctx);
-        return withId((await service.get(id)) as { _id: unknown });
-      },
-    } as ResolverMap,
+    Query: query,
     Mutation: {
       [`create${name}`]: async (_p, { input }: { input: TInput }, ctx) => {
         guard(ctx);

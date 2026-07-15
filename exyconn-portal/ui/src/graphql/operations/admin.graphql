@@ -15,6 +15,26 @@ query ListUsers {
   }
 }
 
+query ListUsersPaged($input: TableQueryInput!) {
+  listUsersPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      email
+      roles
+      avatarUrl
+      isActive
+      isBlocked
+      blockReason
+      department
+      designation
+      joinDate
+      employmentStatus
+    }
+  }
+}
+
 query GetUser($id: ID!) {
   getUser(id: $id) {
     id

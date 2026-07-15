@@ -13,6 +13,24 @@ query ListContracts {
   }
 }
 
+query ListContractsPaged($input: TableQueryInput!) {
+  listContractsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      title
+      party
+      type
+      effectiveDate
+      expiryDate
+      status
+      sentAt
+      signedBy
+      signedAt
+    }
+  }
+}
+
 mutation CreateContract($input: ContractInput!) {
   createContract(input: $input) {
     id
@@ -53,6 +71,20 @@ query ListLegalDocuments {
     owner
     fileUrl
     status
+  }
+}
+
+query ListLegalDocumentsPaged($input: TableQueryInput!) {
+  listLegalDocumentsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      title
+      category
+      owner
+      fileUrl
+      status
+    }
   }
 }
 

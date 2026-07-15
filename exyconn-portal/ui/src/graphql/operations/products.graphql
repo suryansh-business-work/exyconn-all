@@ -10,6 +10,21 @@ query ListProducts {
   }
 }
 
+query ListProductsPaged($input: TableQueryInput!) {
+  listProductsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      sku
+      price
+      category
+      stock
+      status
+    }
+  }
+}
+
 mutation CreateProduct($input: ProductInput!) {
   createProduct(input: $input) {
     id

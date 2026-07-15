@@ -49,8 +49,14 @@ export const marketingTypeDefs = gql`
     campaign: Campaign!
   }
 
+  type CampaignPage {
+    rows: [Campaign!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     listCampaigns: [Campaign!]!
+    listCampaignsPaged(input: TableQueryInput!): CampaignPage!
     getCampaign(id: ID!): Campaign!
   }
 

@@ -6,6 +6,40 @@ export const baseTypeDefs = gql`
   scalar DateTime
   scalar JSON
 
+  # Shared server-side table controls, reused by every paginated portal grid.
+  enum SortDir {
+    ASC
+    DESC
+  }
+
+  enum FilterOp {
+    CONTAINS
+    STARTS_WITH
+    EQUALS
+    GT
+    LT
+  }
+
+  input TableSortInput {
+    field: String!
+    dir: SortDir!
+  }
+
+  input TableFilterInput {
+    field: String!
+    op: FilterOp!
+    value: String!
+  }
+
+  "Server-side pagination/sort/filter/search request. \`page\` is zero-indexed."
+  input TableQueryInput {
+    page: Int!
+    pageSize: Int!
+    search: String
+    sort: TableSortInput
+    filters: [TableFilterInput!]
+  }
+
   type Query {
     _empty: String
   }

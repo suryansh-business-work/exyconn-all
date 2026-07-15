@@ -2,6 +2,7 @@ import request from 'supertest';
 import type { Express } from 'express';
 import { createApp } from '../../src/app';
 import { ROLES } from '../../src/constants/roles';
+import { UserModel } from '../../src/modules/admin/user.model';
 import { seedUser } from '../helpers';
 
 let app: Express;
@@ -88,5 +89,48 @@ describe('GraphQL e2e', () => {
     const token = login.body.data.login.token;
     const res = await gql(`{ listInvoices { id } }`, undefined, token);
     expect(res.body.errors?.[0].extensions.code).toBe('FORBIDDEN');
+  });
+
+  it('serves a server-side page of users with a total count', async () => {
+    const token = await loginAsAdmin();
+    await seedUser('paged-a@exyconn.com', 'Pass@123', [ROLES.EMPLOYEE]);
+    await seedUser('paged-b@exyconn.com', 'Pass@123', [ROLES.EMPLOYEE]);
+
+    const query = `query($i:TableQueryInput!){ listUsersPaged(input:$i){ totalCount rows { id email } } }`;
+
+    const firstPage = await gql(query, { i: { page: 0, pageSize: 2 } }, token);
+    expect(firstPage.body.errors).toBeUndefined();
+    expect(firstPage.body.data.listUsersPaged.totalCount).toBe(3); // admin + 2 seeded
+    expect(firstPage.body.data.listUsersPaged.rows).toHaveLength(2);
+    expect(firstPage.body.data.listUsersPaged.rows[0].id).toEqual(expect.any(String));
+
+    const searched = await gql(
+      query,
+      { i: { page: 0, pageSize: 10, search: 'paged-a' } },
+      token,
+    );
+    expect(searched.body.data.listUsersPaged.totalCount).toBe(1);
+    expect(searched.body.data.listUsersPaged.rows[0].email).toBe('paged-a@exyconn.com');
+  });
+
+  it('applies a newly assigned role immediately, without a re-login', async () => {
+    const user = await seedUser('grantee@exyconn.com', 'Grant@123', [ROLES.EMPLOYEE]);
+    const login = await gql(
+      `mutation($e:String!,$p:String!){ login(email:$e,password:$p){ token } }`,
+      { e: 'grantee@exyconn.com', p: 'Grant@123' },
+    );
+    const token = login.body.data.login.token;
+
+    // The freshly-minted token carries only EMPLOYEE, so a FINANCE query is refused.
+    const before = await gql(`{ listInvoices { id } }`, undefined, token);
+    expect(before.body.errors?.[0].extensions.code).toBe('FORBIDDEN');
+
+    // An admin grants FINANCE in the database; the 7-day token is never reissued.
+    await UserModel.findByIdAndUpdate(user.id, { roles: [ROLES.EMPLOYEE, ROLES.FINANCE] });
+
+    // The same token now passes, because the context re-reads roles from the database.
+    const after = await gql(`{ listInvoices { id } }`, undefined, token);
+    expect(after.body.errors).toBeUndefined();
+    expect(after.body.data.listInvoices).toEqual([]);
   });
 });

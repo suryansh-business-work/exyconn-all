@@ -27,6 +27,12 @@ export const legalService = createCrudService<ContractInput>(ContractModel as ne
 const contractResolvers = createCrudResolvers(legalService, {
   name: 'Contract',
   roles: [ROLES.LEGAL],
+  table: {
+    searchFields: ['title', 'party'],
+    filterFields: ['title', 'party', 'type', 'status'],
+    sortFields: ['title', 'party', 'type', 'effectiveDate', 'expiryDate', 'status', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
 });
 
 export const documentService = createCrudService<LegalDocumentInput>(
@@ -36,6 +42,12 @@ export const documentService = createCrudService<LegalDocumentInput>(
 const documentResolvers = createCrudResolvers(documentService, {
   name: 'LegalDocument',
   roles: [ROLES.LEGAL],
+  table: {
+    searchFields: ['title', 'owner', 'fileUrl'],
+    filterFields: ['title', 'owner', 'fileUrl', 'category', 'status'],
+    sortFields: ['title', 'category', 'owner', 'fileUrl', 'status', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
 });
 
 /** Merges contract CRUD, document CRUD, and the custom send/sign mutations. */

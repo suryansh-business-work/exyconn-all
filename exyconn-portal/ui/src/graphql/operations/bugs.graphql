@@ -10,6 +10,21 @@ query ListBugs {
   }
 }
 
+query ListBugsPaged($input: TableQueryInput!) {
+  listBugsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      title
+      description
+      severity
+      status
+      assignee
+      dueDate
+    }
+  }
+}
+
 mutation CreateBug($input: BugInput!) {
   createBug(input: $input) {
     id

@@ -10,12 +10,7 @@ import { useAuth } from '../../auth/AuthContext';
 import { useColorMode } from '../../theme/ColorModeContext';
 import { safeNext } from '../../utils/redirect';
 
-const LIGHT_BG =
-  'radial-gradient(at 18% 20%, #bcd6ff 0px, transparent 45%), radial-gradient(at 82% 8%, #d9c8ff 0px, transparent 45%), radial-gradient(at 60% 95%, #b6ecdd 0px, transparent 45%), #eef1f8';
-const DARK_BG =
-  'radial-gradient(at 18% 20%, #1c2c54 0px, transparent 45%), radial-gradient(at 82% 8%, #2a1c46 0px, transparent 45%), radial-gradient(at 60% 95%, #0f3a33 0px, transparent 45%), #06070d';
-
-/** Login screen styled after the Lumin reference: frosted card + promo + banner. */
+/** Login screen: flat card + promo + banner over the brand video. */
 export function Login() {
   const { mode, toggle } = useColorMode();
   const { user } = useAuth();
@@ -35,7 +30,7 @@ export function Login() {
         justifyContent: 'center',
         p: { xs: 2, md: 4 },
         overflow: 'hidden',
-        background: mode === 'light' ? LIGHT_BG : DARK_BG,
+        bgcolor: 'background.default',
       }}
     >
       <Box
@@ -52,7 +47,7 @@ export function Login() {
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          filter: 'blur(6px) saturate(1.05)',
+          filter: 'saturate(1.05)',
           transform: 'scale(1.12)',
         }}
       />
@@ -61,12 +56,10 @@ export function Login() {
         sx={{
           position: 'absolute',
           inset: 0,
-          backdropFilter: 'blur(4px)',
-          WebkitBackdropFilter: 'blur(4px)',
           background:
             mode === 'light'
-              ? 'linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0.2))'
-              : 'linear-gradient(180deg, rgba(5,6,10,0.62), rgba(5,6,10,0.42))',
+              ? 'linear-gradient(180deg, rgba(246,248,251,0.72), rgba(246,248,251,0.55))'
+              : 'linear-gradient(180deg, rgba(11,14,23,0.78), rgba(11,14,23,0.6))',
         }}
       />
 
@@ -92,7 +85,6 @@ export function Login() {
                 width: { xs: '100%', sm: 380 },
                 p: 3,
                 borderRadius: 4,
-                background: mode === 'light' ? 'rgba(255,255,255,0.45)' : 'rgba(17,18,27,0.4)',
               },
             ]}
           >

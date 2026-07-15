@@ -17,5 +17,11 @@ export const productsService = createCrudService<ProductInput>(ProductModel as n
 export const productsResolvers = createCrudResolvers(productsService, {
   name: 'Product',
   roles: [ROLES.PRODUCTS],
+  table: {
+    searchFields: ['name', 'sku', 'category'],
+    filterFields: ['name', 'sku', 'category', 'status'],
+    sortFields: ['name', 'sku', 'price', 'category', 'stock', 'status', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
 });
 export { productsTypeDefs };

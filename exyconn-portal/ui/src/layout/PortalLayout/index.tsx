@@ -13,14 +13,8 @@ const drawerPaper = (t: Theme) => ({
   boxSizing: 'border-box' as const,
   border: 'none',
   borderRight: `1px solid ${t.palette.divider}`,
-  background: t.palette.mode === 'light' ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.05)',
-  backdropFilter: 'blur(20px)',
+  background: t.palette.background.paper,
 });
-
-const DARK_BG =
-  'radial-gradient(1200px 600px at 15% -10%, #2a1c3f 0%, transparent 55%), radial-gradient(1000px 700px at 110% 10%, #3a1e16 0%, transparent 50%), #0b0a12';
-const LIGHT_BG =
-  'radial-gradient(1200px 600px at 15% -10%, #dfe7fb 0%, transparent 55%), radial-gradient(1000px 700px at 110% 10%, #fde7d6 0%, transparent 50%), #eef1f8';
 
 /** Responsive portal shell: permanent drawer on desktop, temporary on mobile. */
 export function PortalLayout() {
@@ -34,7 +28,7 @@ export function PortalLayout() {
         display: 'flex',
         minHeight: '100vh',
         color: 'text.primary',
-        background: (t) => (t.palette.mode === 'light' ? LIGHT_BG : DARK_BG),
+        background: 'background.default',
       }}
     >
       <Topbar drawerWidth={DRAWER_WIDTH} onMenuClick={() => setMobileOpen((o) => !o)} />

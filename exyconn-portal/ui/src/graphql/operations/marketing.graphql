@@ -14,6 +14,25 @@ query ListCampaigns {
   }
 }
 
+query ListCampaignsPaged($input: TableQueryInput!) {
+  listCampaignsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      channel
+      budget
+      startDate
+      endDate
+      status
+      subject
+      body
+      lastSentAt
+      recipientsCount
+    }
+  }
+}
+
 mutation CreateCampaign($input: CampaignInput!) {
   createCampaign(input: $input) {
     id

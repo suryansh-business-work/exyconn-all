@@ -23,6 +23,12 @@ export const marketingService = createCrudService<CampaignInput>(
 const campaignResolvers = createCrudResolvers(marketingService, {
   name: 'Campaign',
   roles: [ROLES.MARKETING],
+  table: {
+    searchFields: ['name', 'subject', 'body'],
+    filterFields: ['name', 'channel', 'status'],
+    sortFields: ['name', 'channel', 'budget', 'status', 'startDate', 'endDate', 'lastSentAt', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
 });
 
 /** Merges campaign CRUD with the custom sendCampaign mutation. */

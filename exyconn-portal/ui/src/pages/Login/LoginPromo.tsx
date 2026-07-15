@@ -12,13 +12,12 @@ export function LoginPromo() {
         minHeight: 520,
         p: 3.5,
         borderRadius: 6,
-        background: t.palette.mode === 'light' ? 'rgba(255,255,255,0.5)' : 'rgba(17,18,27,0.4)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        border: `1px solid ${
-          t.palette.mode === 'light' ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.12)'
-        }`,
-        boxShadow: '0 30px 70px rgba(16,20,38,0.28)',
+        background: t.palette.background.paper,
+        border: `1px solid ${t.palette.divider}`,
+        boxShadow:
+          t.palette.mode === 'light'
+            ? '0 2px 6px rgba(16,24,40,0.06), 0 6px 16px rgba(16,24,40,0.08)'
+            : '0 4px 16px rgba(0,0,0,0.55)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',

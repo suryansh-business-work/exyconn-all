@@ -17,5 +17,11 @@ export const clientsService = createCrudService<ClientInput>(ClientModel as neve
 export const clientsResolvers = createCrudResolvers(clientsService, {
   name: 'Client',
   roles: [ROLES.ADMIN],
+  table: {
+    searchFields: ['name', 'email', 'phone', 'company'],
+    filterFields: ['name', 'email', 'phone', 'company', 'status'],
+    sortFields: ['name', 'email', 'phone', 'company', 'status', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
 });
 export { clientsTypeDefs };

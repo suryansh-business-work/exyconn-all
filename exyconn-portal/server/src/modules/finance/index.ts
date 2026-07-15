@@ -18,5 +18,11 @@ export const financeService = createCrudService<InvoiceInput>(InvoiceModel as ne
 export const financeResolvers = createCrudResolvers(financeService, {
   name: 'Invoice',
   roles: [ROLES.FINANCE],
+  table: {
+    searchFields: ['number', 'clientId', 'currency'],
+    filterFields: ['number', 'clientId', 'currency', 'status'],
+    sortFields: ['number', 'clientId', 'amount', 'status', 'issuedDate', 'dueDate', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
 });
 export { financeTypeDefs };

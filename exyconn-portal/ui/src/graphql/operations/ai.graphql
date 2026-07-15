@@ -8,6 +8,19 @@ query ListAiJobs {
   }
 }
 
+query ListAiJobsPaged($input: TableQueryInput!) {
+  listAiJobsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      model
+      prompt
+      status
+    }
+  }
+}
+
 mutation CreateAiJob($input: AiJobInput!) {
   createAiJob(input: $input) {
     id
@@ -32,6 +45,20 @@ query ListPrompts {
     content
     description
     tags
+  }
+}
+
+query ListPromptsPaged($input: TableQueryInput!) {
+  listPromptsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      title
+      category
+      content
+      description
+      tags
+    }
   }
 }
 

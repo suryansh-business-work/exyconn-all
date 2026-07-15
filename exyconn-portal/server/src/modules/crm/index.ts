@@ -17,5 +17,11 @@ export const crmService = createCrudService<LeadInput>(LeadModel as never, 'Lead
 export const crmResolvers = createCrudResolvers(crmService, {
   name: 'Lead',
   roles: [ROLES.CRM],
+  table: {
+    searchFields: ['name', 'email', 'owner'],
+    filterFields: ['name', 'email', 'owner', 'source', 'stage'],
+    sortFields: ['name', 'email', 'source', 'stage', 'value', 'owner', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
 });
 export { crmTypeDefs };

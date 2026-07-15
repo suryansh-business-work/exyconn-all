@@ -1,6 +1,6 @@
-import { Link } from '@/components/ui';
-import { DataTable, type Column } from '../../../components/data/DataTable';
-import { StatusChip } from '../../../components/data/StatusChip';
+import { useCallback, useState } from 'react';
+import { useApolloClient } from '@apollo/client';
+import { ServerDataGrid, type TablePageResult } from '../../../components/data/ServerDataGrid';
 import { CrudDialog } from '../../../components/data/CrudDialog';
 import { ModuleDashboard } from '../../../components/dashboard/ModuleDashboard';
 import type { StatItem } from '../../../components/dashboard/StatCard';
@@ -10,16 +10,28 @@ import { useNotify } from '../../../components/feedback/NotificationProvider';
 import {
   useListLegalDocumentsQuery,
   useDeleteLegalDocumentMutation,
+  ListLegalDocumentsPagedDocument,
+  type ListLegalDocumentsPagedQuery,
+  type ListLegalDocumentsPagedQueryVariables,
+  type TableQueryInput,
 } from '../../../graphql/generated';
 import { DocumentForm, type LegalDocumentRow } from './forms/document';
+import {
+  DOCUMENT_COLUMNS,
+  type PagedLegalDocumentRow,
+  type DocumentsGridContext,
+} from './document-grid';
 
 /** Legal → Documents: repository of legal documents with CRUD. */
 export function DocumentsPage() {
-  const { data, loading, refetch } = useListLegalDocumentsQuery();
+  // Stat cards still summarise all documents; the grid itself is server-paged.
+  const { data } = useListLegalDocumentsQuery();
   const [deleteDocument] = useDeleteLegalDocumentMutation();
   const dialog = useCrudDialog<LegalDocumentRow>();
   const confirm = useConfirm();
   const notify = useNotify();
+  const client = useApolloClient();
+  const [refreshSignal, setRefreshSignal] = useState(0);
 
   const rows = data?.listLegalDocuments ?? [];
   const count = (s: string) => rows.filter((r) => r.status === s).length;
@@ -30,31 +42,39 @@ export function DocumentsPage() {
     { label: 'Archived', value: String(count('ARCHIVED')), accent: '#64748b' },
   ];
 
-  const columns: Column<LegalDocumentRow>[] = [
-    { key: 'title', label: 'Title' },
-    { key: 'category', label: 'Category', render: (r) => <StatusChip value={r.category} /> },
-    { key: 'owner', label: 'Owner', render: (r) => r.owner ?? '—' },
-    { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
-    {
-      key: 'fileUrl',
-      label: 'Link',
-      render: (r) =>
-        r.fileUrl ? (
-          <Link href={r.fileUrl} target="_blank" rel="noopener">
-            Open
-          </Link>
-        ) : (
-          '—'
-        ),
-    },
-  ];
+  const reload = () => setRefreshSignal((n) => n + 1);
 
-  const handleDelete = async (row: LegalDocumentRow) => {
+  const fetchRows = useCallback(
+    async (input: TableQueryInput): Promise<TablePageResult<PagedLegalDocumentRow>> => {
+      const result = await client.query<
+        ListLegalDocumentsPagedQuery,
+        ListLegalDocumentsPagedQueryVariables
+      >({
+        query: ListLegalDocumentsPagedDocument,
+        variables: { input },
+        fetchPolicy: 'network-only',
+      });
+      return {
+        rows: result.data.listLegalDocumentsPaged.rows,
+        totalCount: result.data.listLegalDocumentsPaged.totalCount,
+      };
+    },
+    [client],
+  );
+
+  const handleDelete = async (row: PagedLegalDocumentRow) => {
     const ok = await confirm({ message: `Delete document "${row.title}"?`, confirmText: 'Delete' });
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
     await deleteDocument({ variables: { id: row.id } });
-    await refetch();
+    reload();
     notify('Document deleted');
+  };
+
+  const gridContext: DocumentsGridContext = {
+    onEdit: dialog.openEdit,
+    onDelete: handleDelete,
   };
 
   return (
@@ -74,19 +94,19 @@ export function DocumentsPage() {
             initial={dialog.editing}
             onCancel={dialog.close}
             onDone={() => {
-              void refetch();
+              reload();
               dialog.close();
             }}
           />
         </CrudDialog>
       }
     >
-      <DataTable
-        columns={columns}
-        rows={rows}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
-        emptyMessage={loading ? 'Loading…' : 'No documents yet.'}
+      <ServerDataGrid<PagedLegalDocumentRow>
+        columnDefs={DOCUMENT_COLUMNS}
+        fetchRows={fetchRows}
+        context={gridContext}
+        refreshSignal={refreshSignal}
+        searchPlaceholder="Search documents…"
       />
     </ModuleDashboard>
   );

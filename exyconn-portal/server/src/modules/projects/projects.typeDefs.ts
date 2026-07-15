@@ -27,8 +27,14 @@ export const projectsTypeDefs = gql`
     endDate: DateTime
   }
 
+  type ProjectPage {
+    rows: [Project!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     listProjects: [Project!]!
+    listProjectsPaged(input: TableQueryInput!): ProjectPage!
     getProject(id: ID!): Project!
   }
 

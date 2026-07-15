@@ -31,8 +31,14 @@ export const financeTypeDefs = gql`
     dueDate: DateTime!
   }
 
+  type InvoicePage {
+    rows: [Invoice!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     listInvoices: [Invoice!]!
+    listInvoicesPaged(input: TableQueryInput!): InvoicePage!
     getInvoice(id: ID!): Invoice!
   }
 

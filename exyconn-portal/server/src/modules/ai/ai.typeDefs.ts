@@ -53,10 +53,22 @@ export const aiTypeDefs = gql`
     tags: [String!]
   }
 
+  type AiJobPage {
+    rows: [AiJob!]!
+    totalCount: Int!
+  }
+
+  type PromptPage {
+    rows: [Prompt!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     listAiJobs: [AiJob!]!
+    listAiJobsPaged(input: TableQueryInput!): AiJobPage!
     getAiJob(id: ID!): AiJob!
     listPrompts: [Prompt!]!
+    listPromptsPaged(input: TableQueryInput!): PromptPage!
     getPrompt(id: ID!): Prompt!
   }
 

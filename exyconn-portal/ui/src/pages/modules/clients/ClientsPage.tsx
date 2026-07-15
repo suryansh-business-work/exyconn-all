@@ -1,29 +1,37 @@
-import { DataTable, type Column } from '../../../components/data/DataTable';
-import { StatusChip } from '../../../components/data/StatusChip';
+import { useCallback, useState } from 'react';
+import { useApolloClient } from '@apollo/client';
+import { ServerDataGrid, type TablePageResult } from '../../../components/data/ServerDataGrid';
 import { CrudDialog } from '../../../components/data/CrudDialog';
 import { ModuleDashboard } from '../../../components/dashboard/ModuleDashboard';
 import type { StatItem } from '../../../components/dashboard/StatCard';
 import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
-import { useListClientsQuery, useDeleteClientMutation } from '../../../graphql/generated';
+import {
+  useListClientsQuery,
+  useDeleteClientMutation,
+  ListClientsPagedDocument,
+  type ListClientsPagedQuery,
+  type ListClientsPagedQueryVariables,
+  type TableQueryInput,
+} from '../../../graphql/generated';
 import { ClientForm, type ClientRow } from './forms/client';
+import { CLIENT_COLUMNS, type PagedClientRow, type ClientsGridContext } from './clients-grid';
 
-/** Clients module — client directory dashboard. */
+/** Clients module — client directory dashboard with a server-side clients grid. */
 export function ClientsPage() {
-  const { data, loading, refetch } = useListClientsQuery();
+  // Stat cards still summarise all clients; the grid itself is server-paged.
+  const { data } = useListClientsQuery();
   const [deleteClient] = useDeleteClientMutation();
   const dialog = useCrudDialog<ClientRow>();
   const confirm = useConfirm();
   const notify = useNotify();
+  const client = useApolloClient();
+  const [refreshSignal, setRefreshSignal] = useState(0);
 
   const rows = data?.listClients ?? [];
   const stats: StatItem[] = [
-    {
-      label: 'Clients',
-      value: String(rows.length),
-      accent: '#4f8cff',
-    },
+    { label: 'Clients', value: String(rows.length), accent: '#4f8cff' },
     {
       label: 'Active',
       value: String(rows.filter((r) => r.status === 'ACTIVE').length),
@@ -41,20 +49,36 @@ export function ClientsPage() {
     },
   ];
 
-  const columns: Column<ClientRow>[] = [
-    { key: 'name', label: 'Name' },
-    { key: 'company', label: 'Company' },
-    { key: 'email', label: 'Email' },
-    { key: 'phone', label: 'Phone' },
-    { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
-  ];
+  const reload = () => setRefreshSignal((n) => n + 1);
 
-  const handleDelete = async (row: ClientRow) => {
+  const fetchRows = useCallback(
+    async (input: TableQueryInput): Promise<TablePageResult<PagedClientRow>> => {
+      const result = await client.query<ListClientsPagedQuery, ListClientsPagedQueryVariables>({
+        query: ListClientsPagedDocument,
+        variables: { input },
+        fetchPolicy: 'network-only',
+      });
+      return {
+        rows: result.data.listClientsPaged.rows,
+        totalCount: result.data.listClientsPaged.totalCount,
+      };
+    },
+    [client],
+  );
+
+  const handleDelete = async (row: PagedClientRow) => {
     const ok = await confirm({ message: `Delete client "${row.name}"?`, confirmText: 'Delete' });
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
     await deleteClient({ variables: { id: row.id } });
-    await refetch();
+    reload();
     notify('Client deleted');
+  };
+
+  const gridContext: ClientsGridContext = {
+    onEdit: dialog.openEdit,
+    onDelete: handleDelete,
   };
 
   return (
@@ -74,19 +98,19 @@ export function ClientsPage() {
             initial={dialog.editing}
             onCancel={dialog.close}
             onDone={() => {
-              void refetch();
+              reload();
               dialog.close();
             }}
           />
         </CrudDialog>
       }
     >
-      <DataTable
-        columns={columns}
-        rows={rows}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
-        emptyMessage={loading ? 'Loading…' : 'No clients yet.'}
+      <ServerDataGrid<PagedClientRow>
+        columnDefs={CLIENT_COLUMNS}
+        fetchRows={fetchRows}
+        context={gridContext}
+        refreshSignal={refreshSignal}
+        searchPlaceholder="Search clients…"
       />
     </ModuleDashboard>
   );

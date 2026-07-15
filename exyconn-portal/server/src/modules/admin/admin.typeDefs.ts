@@ -55,6 +55,12 @@ export const adminTypeDefs = gql`
     password: String!
   }
 
+  "One page of users for the server-side Users grid."
+  type UserPage {
+    rows: [User!]!
+    totalCount: Int!
+  }
+
   input CreateUserInput {
     name: String!
     email: String!
@@ -91,6 +97,7 @@ export const adminTypeDefs = gql`
 
   extend type Query {
     listUsers: [User!]!
+    listUsersPaged(input: TableQueryInput!): UserPage!
     getUser(id: ID!): User!
     appSettings: AppSettings!
   }

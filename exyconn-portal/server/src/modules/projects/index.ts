@@ -16,6 +16,12 @@ export const projectsService = createCrudService<ProjectInput>(ProjectModel as n
 export const projectsResolvers = createCrudResolvers(projectsService, {
   name: 'Project',
   roles: [ROLES.PROJECTS],
+  table: {
+    searchFields: ['name', 'description'],
+    filterFields: ['name', 'description', 'status'],
+    sortFields: ['name', 'description', 'status', 'startDate', 'endDate', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
 });
 export { projectsTypeDefs };
 export { boardTypeDefs } from './board.typeDefs';

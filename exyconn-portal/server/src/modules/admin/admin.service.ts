@@ -4,7 +4,16 @@ import { hashPassword, generateTempPassword } from '../../utils/password';
 import { notFound, badRequest } from '../../utils/errors';
 import { mailer } from '../../utils/mailer';
 import { logger } from '../../utils/logger';
+import { tableQuery, type TableConfig, type TableQueryInput } from '../../utils/tableQuery';
 import type { Role } from '../../constants/roles';
+
+/** Whitelist of the columns the Users grid may search / filter / sort. */
+const USER_TABLE_CONFIG: TableConfig = {
+  searchFields: ['name', 'email', 'department', 'designation'],
+  filterFields: ['name', 'email', 'department', 'designation', 'employmentStatus'],
+  sortFields: ['name', 'email', 'department', 'designation', 'employmentStatus', 'createdAt', 'joinDate'],
+  defaultSort: { field: 'createdAt', dir: 'DESC' },
+};
 
 /**
  * Fire-and-forget, best-effort email: the admin always gets the temp password
@@ -63,6 +72,11 @@ export interface UpdateSettingsInput {
 class AdminService {
   listUsers() {
     return UserModel.find().sort({ createdAt: -1 }).lean();
+  }
+
+  /** One page of users for the server-side Users grid (search/filter/sort/paginate). */
+  listUsersPaged(input: TableQueryInput) {
+    return tableQuery(UserModel, input, USER_TABLE_CONFIG);
   }
 
   async getUser(id: string) {

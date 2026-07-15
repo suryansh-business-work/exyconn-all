@@ -35,8 +35,14 @@ export const bugsTypeDefs = gql`
     dueDate: DateTime!
   }
 
+  type BugPage {
+    rows: [Bug!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     listBugs: [Bug!]!
+    listBugsPaged(input: TableQueryInput!): BugPage!
     getBug(id: ID!): Bug!
   }
 

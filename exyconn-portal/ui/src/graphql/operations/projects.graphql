@@ -9,6 +9,20 @@ query ListProjects {
   }
 }
 
+query ListProjectsPaged($input: TableQueryInput!) {
+  listProjectsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      description
+      status
+      startDate
+      endDate
+    }
+  }
+}
+
 mutation CreateProject($input: ProjectInput!) {
   createProject(input: $input) {
     id

@@ -11,6 +11,22 @@ query ListInvoices {
   }
 }
 
+query ListInvoicesPaged($input: TableQueryInput!) {
+  listInvoicesPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      number
+      clientId
+      amount
+      currency
+      status
+      issuedDate
+      dueDate
+    }
+  }
+}
+
 mutation CreateInvoice($input: InvoiceInput!) {
   createInvoice(input: $input) {
     id

@@ -1,8 +1,6 @@
-import { useState } from 'react';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import SendIcon from '@mui/icons-material/Send';
-import { DataTable, type Column } from '../../../components/data/DataTable';
-import { StatusChip } from '../../../components/data/StatusChip';
+import { useCallback, useState } from 'react';
+import { useApolloClient } from '@apollo/client';
+import { ServerDataGrid, type TablePageResult } from '../../../components/data/ServerDataGrid';
 import { CrudDialog } from '../../../components/data/CrudDialog';
 import { ModuleDashboard } from '../../../components/dashboard/ModuleDashboard';
 import type { StatItem } from '../../../components/dashboard/StatCard';
@@ -10,14 +8,27 @@ import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
 import { useSettings } from '../../../hooks/useSettings';
-import { useListCampaignsQuery, useDeleteCampaignMutation } from '../../../graphql/generated';
+import {
+  useListCampaignsQuery,
+  useDeleteCampaignMutation,
+  ListCampaignsPagedDocument,
+  type ListCampaignsPagedQuery,
+  type ListCampaignsPagedQueryVariables,
+  type TableQueryInput,
+} from '../../../graphql/generated';
 import { CampaignForm, type CampaignRow } from './forms/campaign';
 import { SendCampaignForm } from './forms/send-campaign';
 import { CampaignDetails } from './CampaignDetails';
+import {
+  CAMPAIGN_COLUMNS,
+  type PagedCampaignRow,
+  type CampaignsGridContext,
+} from './campaigns-grid';
 
-/** Marketing module — campaign dashboard with email send. */
+/** Marketing module — campaign dashboard with a server-side campaigns grid and email send. */
 export function MarketingPage() {
-  const { data, loading, refetch } = useListCampaignsQuery();
+  // Stat cards still summarise all campaigns; the grid itself is server-paged.
+  const { data } = useListCampaignsQuery();
   const [deleteCampaign] = useDeleteCampaignMutation();
   const dialog = useCrudDialog<CampaignRow>();
   const [detailsTarget, setDetailsTarget] = useState<CampaignRow | null>(null);
@@ -25,6 +36,8 @@ export function MarketingPage() {
   const confirm = useConfirm();
   const notify = useNotify();
   const { formatDate } = useSettings();
+  const client = useApolloClient();
+  const [refreshSignal, setRefreshSignal] = useState(0);
 
   const rows = data?.listCampaigns ?? [];
   const budget = rows.reduce((sum, r) => sum + r.budget, 0);
@@ -43,24 +56,39 @@ export function MarketingPage() {
     },
   ];
 
-  const columns: Column<CampaignRow>[] = [
-    { key: 'name', label: 'Name' },
-    { key: 'channel', label: 'Channel', render: (r) => <StatusChip value={r.channel} /> },
-    { key: 'budget', label: 'Budget', render: (r) => r.budget.toLocaleString() },
-    {
-      key: 'lastSentAt',
-      label: 'Last sent',
-      render: (r) => (r.lastSentAt ? formatDate(r.lastSentAt) : '—'),
-    },
-    { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
-  ];
+  const reload = () => setRefreshSignal((n) => n + 1);
 
-  const handleDelete = async (row: CampaignRow) => {
+  const fetchRows = useCallback(
+    async (input: TableQueryInput): Promise<TablePageResult<PagedCampaignRow>> => {
+      const result = await client.query<ListCampaignsPagedQuery, ListCampaignsPagedQueryVariables>({
+        query: ListCampaignsPagedDocument,
+        variables: { input },
+        fetchPolicy: 'network-only',
+      });
+      return {
+        rows: result.data.listCampaignsPaged.rows,
+        totalCount: result.data.listCampaignsPaged.totalCount,
+      };
+    },
+    [client],
+  );
+
+  const handleDelete = async (row: PagedCampaignRow) => {
     const ok = await confirm({ message: `Delete campaign "${row.name}"?`, confirmText: 'Delete' });
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
     await deleteCampaign({ variables: { id: row.id } });
-    await refetch();
+    reload();
     notify('Campaign deleted');
+  };
+
+  const gridContext: CampaignsGridContext = {
+    onEdit: dialog.openEdit,
+    onDelete: handleDelete,
+    onViewDetails: setDetailsTarget,
+    onSend: setSendTarget,
+    formatDate,
   };
 
   return (
@@ -81,7 +109,7 @@ export function MarketingPage() {
               initial={dialog.editing}
               onCancel={dialog.close}
               onDone={() => {
-                void refetch();
+                reload();
                 dialog.close();
               }}
             />
@@ -105,7 +133,7 @@ export function MarketingPage() {
                 campaign={sendTarget}
                 onCancel={() => setSendTarget(null)}
                 onDone={() => {
-                  void refetch();
+                  reload();
                   setSendTarget(null);
                 }}
               />
@@ -114,27 +142,12 @@ export function MarketingPage() {
         </>
       }
     >
-      <DataTable
-        columns={columns}
-        rows={rows}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
-        actions={[
-          {
-            icon: <VisibilityIcon fontSize="small" />,
-            tooltip: 'View details',
-            ariaLabel: 'view campaign',
-            onClick: setDetailsTarget,
-          },
-          {
-            icon: <SendIcon fontSize="small" />,
-            tooltip: 'Send email',
-            ariaLabel: 'send campaign',
-            color: 'primary',
-            onClick: setSendTarget,
-          },
-        ]}
-        emptyMessage={loading ? 'Loading…' : 'No campaigns yet.'}
+      <ServerDataGrid<PagedCampaignRow>
+        columnDefs={CAMPAIGN_COLUMNS}
+        fetchRows={fetchRows}
+        context={gridContext}
+        refreshSignal={refreshSignal}
+        searchPlaceholder="Search campaigns…"
       />
     </ModuleDashboard>
   );

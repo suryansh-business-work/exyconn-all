@@ -21,10 +21,28 @@ interface PromptInput {
 }
 
 export const aiService = createCrudService<AiJobInput>(AiJobModel as never, 'AiJob');
-const aiJobResolvers = createCrudResolvers(aiService, { name: 'AiJob', roles: [ROLES.AI] });
+const aiJobResolvers = createCrudResolvers(aiService, {
+  name: 'AiJob',
+  roles: [ROLES.AI],
+  table: {
+    searchFields: ['name', 'model', 'prompt'],
+    filterFields: ['name', 'model', 'prompt', 'status'],
+    sortFields: ['name', 'model', 'prompt', 'status', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
+});
 
 export const promptService = createCrudService<PromptInput>(PromptModel as never, 'Prompt');
-const promptResolvers = createCrudResolvers(promptService, { name: 'Prompt', roles: [ROLES.AI] });
+const promptResolvers = createCrudResolvers(promptService, {
+  name: 'Prompt',
+  roles: [ROLES.AI],
+  table: {
+    searchFields: ['title', 'content', 'description'],
+    filterFields: ['title', 'content', 'description', 'category'],
+    sortFields: ['title', 'category', 'content', 'description', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
+});
 
 /** Merges AI-job CRUD with the Prompt Library CRUD. */
 export const aiResolvers = {

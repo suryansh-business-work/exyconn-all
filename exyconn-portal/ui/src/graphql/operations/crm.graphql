@@ -10,6 +10,21 @@ query ListLeads {
   }
 }
 
+query ListLeadsPaged($input: TableQueryInput!) {
+  listLeadsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      email
+      source
+      stage
+      value
+      owner
+    }
+  }
+}
+
 mutation CreateLead($input: LeadInput!) {
   createLead(input: $input) {
     id

@@ -38,6 +38,11 @@ export const legalTypeDefs = gql`
     status: ContractStatus!
   }
 
+  type ContractPage {
+    rows: [Contract!]!
+    totalCount: Int!
+  }
+
   enum DocumentCategory {
     POLICY
     CONTRACT
@@ -69,10 +74,17 @@ export const legalTypeDefs = gql`
     status: DocumentStatus!
   }
 
+  type LegalDocumentPage {
+    rows: [LegalDocument!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     listContracts: [Contract!]!
+    listContractsPaged(input: TableQueryInput!): ContractPage!
     getContract(id: ID!): Contract!
     listLegalDocuments: [LegalDocument!]!
+    listLegalDocumentsPaged(input: TableQueryInput!): LegalDocumentPage!
     getLegalDocument(id: ID!): LegalDocument!
   }
 

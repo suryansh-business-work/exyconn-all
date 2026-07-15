@@ -1,61 +1,73 @@
-import { DataTable, type Column } from '../../../components/data/DataTable';
-import { StatusChip } from '../../../components/data/StatusChip';
+import { useCallback, useState } from 'react';
+import { useApolloClient } from '@apollo/client';
+import { ServerDataGrid, type TablePageResult } from '../../../components/data/ServerDataGrid';
 import { CrudDialog } from '../../../components/data/CrudDialog';
 import { ModuleDashboard } from '../../../components/dashboard/ModuleDashboard';
 import type { StatItem } from '../../../components/dashboard/StatCard';
 import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
-import { useListLeadsQuery, useDeleteLeadMutation } from '../../../graphql/generated';
+import {
+  useListLeadsQuery,
+  useDeleteLeadMutation,
+  ListLeadsPagedDocument,
+  type ListLeadsPagedQuery,
+  type ListLeadsPagedQueryVariables,
+  type TableQueryInput,
+} from '../../../graphql/generated';
 import { LeadForm, type LeadRow } from './forms/lead';
+import { LEAD_COLUMNS, type PagedLeadRow, type LeadsGridContext } from './leads-grid';
 
-/** CRM module — leads & pipeline dashboard. */
+/** CRM module — leads & pipeline dashboard with a server-side leads grid. */
 export function CrmPage() {
-  const { data, loading, refetch } = useListLeadsQuery();
+  // Stat cards still summarise all leads; the grid itself is server-paged.
+  const { data } = useListLeadsQuery();
   const [deleteLead] = useDeleteLeadMutation();
   const dialog = useCrudDialog<LeadRow>();
   const confirm = useConfirm();
   const notify = useNotify();
+  const client = useApolloClient();
+  const [refreshSignal, setRefreshSignal] = useState(0);
 
   const rows = data?.listLeads ?? [];
   const pipeline = rows.reduce((sum, r) => sum + r.value, 0);
   const stats: StatItem[] = [
-    {
-      label: 'Leads',
-      value: String(rows.length),
-      accent: '#4f8cff',
-    },
-    {
-      label: 'Pipeline',
-      value: `₹${pipeline.toLocaleString()}`,
-      accent: '#22c55e',
-    },
-    {
-      label: 'Won',
-      value: String(rows.filter((r) => r.stage === 'WON').length),
-      accent: '#7be37b',
-    },
-    {
-      label: 'Lost',
-      value: String(rows.filter((r) => r.stage === 'LOST').length),
-      accent: '#ff6b6b',
-    },
+    { label: 'Leads', value: String(rows.length), accent: '#4f8cff' },
+    { label: 'Pipeline', value: `₹${pipeline.toLocaleString()}`, accent: '#22c55e' },
+    { label: 'Won', value: String(rows.filter((r) => r.stage === 'WON').length), accent: '#7be37b' },
+    { label: 'Lost', value: String(rows.filter((r) => r.stage === 'LOST').length), accent: '#ff6b6b' },
   ];
 
-  const columns: Column<LeadRow>[] = [
-    { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
-    { key: 'source', label: 'Source', render: (r) => <StatusChip value={r.source} /> },
-    { key: 'value', label: 'Value', render: (r) => r.value.toLocaleString() },
-    { key: 'stage', label: 'Stage', render: (r) => <StatusChip value={r.stage} /> },
-  ];
+  const reload = () => setRefreshSignal((n) => n + 1);
 
-  const handleDelete = async (row: LeadRow) => {
+  const fetchRows = useCallback(
+    async (input: TableQueryInput): Promise<TablePageResult<PagedLeadRow>> => {
+      const result = await client.query<ListLeadsPagedQuery, ListLeadsPagedQueryVariables>({
+        query: ListLeadsPagedDocument,
+        variables: { input },
+        fetchPolicy: 'network-only',
+      });
+      return {
+        rows: result.data.listLeadsPaged.rows,
+        totalCount: result.data.listLeadsPaged.totalCount,
+      };
+    },
+    [client],
+  );
+
+  const handleDelete = async (row: PagedLeadRow) => {
     const ok = await confirm({ message: `Delete lead "${row.name}"?`, confirmText: 'Delete' });
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
     await deleteLead({ variables: { id: row.id } });
-    await refetch();
+    reload();
     notify('Lead deleted');
+  };
+
+  const gridContext: LeadsGridContext = {
+    onEdit: dialog.openEdit,
+    onDelete: handleDelete,
   };
 
   return (
@@ -75,19 +87,19 @@ export function CrmPage() {
             initial={dialog.editing}
             onCancel={dialog.close}
             onDone={() => {
-              void refetch();
+              reload();
               dialog.close();
             }}
           />
         </CrudDialog>
       }
     >
-      <DataTable
-        columns={columns}
-        rows={rows}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
-        emptyMessage={loading ? 'Loading…' : 'No leads yet.'}
+      <ServerDataGrid<PagedLeadRow>
+        columnDefs={LEAD_COLUMNS}
+        fetchRows={fetchRows}
+        context={gridContext}
+        refreshSignal={refreshSignal}
+        searchPlaceholder="Search leads…"
       />
     </ModuleDashboard>
   );

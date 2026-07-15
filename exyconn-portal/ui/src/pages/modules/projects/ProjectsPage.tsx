@@ -1,7 +1,7 @@
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
-import { DataTable, type Column } from '../../../components/data/DataTable';
-import { StatusChip } from '../../../components/data/StatusChip';
+import { useApolloClient } from '@apollo/client';
+import { ServerDataGrid, type TablePageResult } from '../../../components/data/ServerDataGrid';
 import { CrudDialog } from '../../../components/data/CrudDialog';
 import { ModuleDashboard } from '../../../components/dashboard/ModuleDashboard';
 import type { StatItem } from '../../../components/dashboard/StatCard';
@@ -9,19 +9,31 @@ import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
 import { useSettings } from '../../../hooks/useSettings';
-import { useListProjectsQuery, useDeleteProjectMutation } from '../../../graphql/generated';
+import {
+  useListProjectsQuery,
+  useDeleteProjectMutation,
+  ListProjectsPagedDocument,
+  type ListProjectsPagedQuery,
+  type ListProjectsPagedQueryVariables,
+  type TableQueryInput,
+} from '../../../graphql/generated';
 import { ProjectForm, type ProjectRow } from './forms/project';
+import { PROJECT_COLUMNS, type PagedProjectRow, type ProjectsGridContext } from './projects-grid';
 
-/** Projects module — project management dashboard with real counts. */
+/** Projects module — project management dashboard with a server-side projects grid. */
 export function ProjectsPage() {
-  const { data, loading, refetch } = useListProjectsQuery({ fetchPolicy: 'cache-and-network' });
+  // Stat cards still summarise all projects; the grid itself is server-paged.
+  const { data } = useListProjectsQuery({ fetchPolicy: 'cache-and-network' });
   const [deleteProject] = useDeleteProjectMutation();
   const dialog = useCrudDialog<ProjectRow>();
   const confirm = useConfirm();
   const notify = useNotify();
   const navigate = useNavigate();
   const { formatDate } = useSettings();
-  const openBoard = (row: ProjectRow) => navigate(`/portal/projects/${row.id}/board`);
+  const client = useApolloClient();
+  const [refreshSignal, setRefreshSignal] = useState(0);
+
+  const openBoard = (row: PagedProjectRow) => navigate(`/portal/projects/${row.id}/board`);
 
   const rows = data?.listProjects ?? [];
   const count = (status: string) => rows.filter((r) => r.status === status).length;
@@ -32,20 +44,38 @@ export function ProjectsPage() {
     { label: 'Completed', value: String(count('COMPLETED')), accent: '#8b5cf6' },
   ];
 
-  const columns: Column<ProjectRow>[] = [
-    { key: 'name', label: 'Name' },
-    { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
-    { key: 'startDate', label: 'Start', render: (r) => formatDate(r.startDate) || '—' },
-    { key: 'endDate', label: 'End', render: (r) => formatDate(r.endDate) || '—' },
-    { key: 'description', label: 'Description', render: (r) => r.description ?? '—' },
-  ];
+  const reload = () => setRefreshSignal((n) => n + 1);
 
-  const handleDelete = async (row: ProjectRow) => {
+  const fetchRows = useCallback(
+    async (input: TableQueryInput): Promise<TablePageResult<PagedProjectRow>> => {
+      const result = await client.query<ListProjectsPagedQuery, ListProjectsPagedQueryVariables>({
+        query: ListProjectsPagedDocument,
+        variables: { input },
+        fetchPolicy: 'network-only',
+      });
+      return {
+        rows: result.data.listProjectsPaged.rows,
+        totalCount: result.data.listProjectsPaged.totalCount,
+      };
+    },
+    [client],
+  );
+
+  const handleDelete = async (row: PagedProjectRow) => {
     const ok = await confirm({ message: `Delete project "${row.name}"?`, confirmText: 'Delete' });
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
     await deleteProject({ variables: { id: row.id } });
-    await refetch();
+    reload();
     notify('Project deleted');
+  };
+
+  const gridContext: ProjectsGridContext = {
+    onEdit: dialog.openEdit,
+    onDelete: handleDelete,
+    onOpenBoard: openBoard,
+    formatDate,
   };
 
   return (
@@ -65,29 +95,20 @@ export function ProjectsPage() {
             initial={dialog.editing}
             onCancel={dialog.close}
             onDone={() => {
-              void refetch();
+              reload();
               dialog.close();
             }}
           />
         </CrudDialog>
       }
     >
-      <DataTable
-        columns={columns}
-        rows={rows}
+      <ServerDataGrid<PagedProjectRow>
+        columnDefs={PROJECT_COLUMNS}
+        fetchRows={fetchRows}
+        context={gridContext}
+        refreshSignal={refreshSignal}
+        searchPlaceholder="Search projects…"
         onRowClick={openBoard}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
-        actions={[
-          {
-            icon: <ViewKanbanIcon fontSize="small" />,
-            tooltip: 'Open board',
-            ariaLabel: 'open board',
-            color: 'primary',
-            onClick: openBoard,
-          },
-        ]}
-        emptyMessage={loading ? 'Loading…' : 'No projects yet.'}
       />
     </ModuleDashboard>
   );

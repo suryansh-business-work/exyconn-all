@@ -3,12 +3,15 @@ import { assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
+import type { TableQueryInput } from '../../utils/tableQuery';
 import type {
   CreateUserInput,
   UpdateUserInput,
   UpdateSettingsInput,
   SendMailInput,
 } from './admin.service';
+
+type LeanDoc = { _id: unknown };
 
 const adminOnly = [ROLES.ADMIN];
 /** Employee records are readable by HR too (ADMIN always passes assertRole). */
@@ -19,6 +22,15 @@ export const adminResolvers = {
     listUsers: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       assertRole(ctx, userReaders);
       return withIds(await adminService.listUsers());
+    },
+    listUsersPaged: async (
+      _p: unknown,
+      { input }: { input: TableQueryInput },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, userReaders);
+      const page = await adminService.listUsersPaged(input);
+      return { rows: withIds(page.rows as LeanDoc[]), totalCount: page.totalCount };
     },
     getUser: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       assertRole(ctx, userReaders);
