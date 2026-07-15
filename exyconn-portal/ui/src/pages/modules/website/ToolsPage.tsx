@@ -1,22 +1,33 @@
-import { DataTable, type Column } from '../../../components/data/DataTable';
-import { BoolChip } from '../../../components/data/BoolChip';
-import { StatusChip } from '../../../components/data/StatusChip';
+import { useCallback, useState } from 'react';
+import { useApolloClient } from '@apollo/client';
+import { ServerDataGrid, type TablePageResult } from '../../../components/data/ServerDataGrid';
 import { CrudDialog } from '../../../components/data/CrudDialog';
 import { ModuleDashboard } from '../../../components/dashboard/ModuleDashboard';
 import type { StatItem } from '../../../components/dashboard/StatCard';
 import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
-import { useListToolsQuery, useDeleteToolMutation } from '../../../graphql/generated';
+import {
+  useListToolsQuery,
+  useDeleteToolMutation,
+  ListToolsPagedDocument,
+  type ListToolsPagedQuery,
+  type ListToolsPagedQueryVariables,
+  type TableQueryInput,
+} from '../../../graphql/generated';
 import { ToolForm, type ToolRow } from './forms/tool';
+import { TOOL_COLUMNS, type PagedToolRow, type ToolsGridContext } from './tools-grid';
 
-/** Website CMS — the tools listed in the public tools directory. */
+/** Website CMS — the tools listed in the public tools directory (server-side grid). */
 export function ToolsPage() {
-  const { data, loading, refetch } = useListToolsQuery();
+  // Stat cards still summarise all tools; the grid itself is server-paged.
+  const { data } = useListToolsQuery();
   const [deleteTool] = useDeleteToolMutation();
   const dialog = useCrudDialog<ToolRow>();
   const confirm = useConfirm();
   const notify = useNotify();
+  const client = useApolloClient();
+  const [refreshSignal, setRefreshSignal] = useState(0);
 
   const rows = data?.listTools ?? [];
   const categories = new Set(rows.map((r) => r.categorySlug));
@@ -31,30 +42,36 @@ export function ToolsPage() {
     { label: 'Categories', value: String(categories.size), accent: '#b18cff' },
   ];
 
-  const columns: Column<ToolRow>[] = [
-    { key: 'name', label: 'Name' },
-    { key: 'toolCode', label: 'Code' },
-    { key: 'categorySlug', label: 'Category' },
-    { key: 'url', label: 'URL' },
-    {
-      key: 'isActive',
-      label: 'Active',
-      render: (r) => <StatusChip value={r.isActive ? 'ACTIVE' : 'INACTIVE'} />,
-    },
-    {
-      key: 'isMVP',
-      label: 'MVP',
-      render: (r) => <BoolChip value={r.isMVP} />,
-    },
-    { key: 'order', label: 'Order' },
-  ];
+  const reload = () => setRefreshSignal((n) => n + 1);
 
-  const handleDelete = async (row: ToolRow) => {
+  const fetchRows = useCallback(
+    async (input: TableQueryInput): Promise<TablePageResult<PagedToolRow>> => {
+      const result = await client.query<ListToolsPagedQuery, ListToolsPagedQueryVariables>({
+        query: ListToolsPagedDocument,
+        variables: { input },
+        fetchPolicy: 'network-only',
+      });
+      return {
+        rows: result.data.listToolsPaged.rows,
+        totalCount: result.data.listToolsPaged.totalCount,
+      };
+    },
+    [client],
+  );
+
+  const handleDelete = async (row: PagedToolRow) => {
     const ok = await confirm({ message: `Delete tool ${row.name}?`, confirmText: 'Delete' });
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
     await deleteTool({ variables: { id: row.id } });
-    await refetch();
+    reload();
     notify('Tool deleted');
+  };
+
+  const gridContext: ToolsGridContext = {
+    onEdit: dialog.openEdit,
+    onDelete: handleDelete,
   };
 
   return (
@@ -74,19 +91,19 @@ export function ToolsPage() {
             initial={dialog.editing}
             onCancel={dialog.close}
             onDone={() => {
-              void refetch();
+              reload();
               dialog.close();
             }}
           />
         </CrudDialog>
       }
     >
-      <DataTable
-        columns={columns}
-        rows={rows}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
-        emptyMessage={loading ? 'Loading…' : 'No tools yet.'}
+      <ServerDataGrid<PagedToolRow>
+        columnDefs={TOOL_COLUMNS}
+        fetchRows={fetchRows}
+        context={gridContext}
+        refreshSignal={refreshSignal}
+        searchPlaceholder="Search tools…"
       />
     </ModuleDashboard>
   );

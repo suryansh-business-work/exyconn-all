@@ -45,8 +45,15 @@ export const blogTypeDefs = gql`
     publishedAt: DateTime
   }
 
+  type BlogPostPage {
+    rows: [BlogPost!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     listBlogPosts: [BlogPost!]!
+    listBlogPostsPaged(input: TableQueryInput!): BlogPostPage!
+    listBlogPostsStats: TableStats!
     getBlogPost(id: ID!): BlogPost!
     publicBlogPosts: [BlogPost!]!
     publicBlogPost(slug: String!): BlogPost

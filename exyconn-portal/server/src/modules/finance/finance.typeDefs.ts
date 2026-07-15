@@ -39,6 +39,7 @@ export const financeTypeDefs = gql`
   extend type Query {
     listInvoices: [Invoice!]!
     listInvoicesPaged(input: TableQueryInput!): InvoicePage!
+    listInvoicesStats: TableStats!
     getInvoice(id: ID!): Invoice!
   }
 

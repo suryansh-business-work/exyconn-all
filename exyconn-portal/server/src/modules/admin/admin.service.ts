@@ -4,7 +4,13 @@ import { hashPassword, generateTempPassword } from '../../utils/password';
 import { notFound, badRequest } from '../../utils/errors';
 import { mailer } from '../../utils/mailer';
 import { logger } from '../../utils/logger';
-import { tableQuery, type TableConfig, type TableQueryInput } from '../../utils/tableQuery';
+import {
+  tableQuery,
+  tableStats,
+  type StatsConfig,
+  type TableConfig,
+  type TableQueryInput,
+} from '../../utils/tableQuery';
 import type { Role } from '../../constants/roles';
 
 /** Whitelist of the columns the Users grid may search / filter / sort. */
@@ -14,6 +20,9 @@ const USER_TABLE_CONFIG: TableConfig = {
   sortFields: ['name', 'email', 'department', 'designation', 'employmentStatus', 'createdAt', 'joinDate'],
   defaultSort: { field: 'createdAt', dir: 'DESC' },
 };
+
+/** `isActive` -> active/inactive counts; `roles` unwound -> per-role counts (admins, distinct). */
+const USER_STATS_CONFIG: StatsConfig = { countBy: ['isActive'], unwindCountBy: ['roles'] };
 
 /**
  * Fire-and-forget, best-effort email: the admin always gets the temp password
@@ -77,6 +86,11 @@ class AdminService {
   /** One page of users for the server-side Users grid (search/filter/sort/paginate). */
   listUsersPaged(input: TableQueryInput) {
     return tableQuery(UserModel, input, USER_TABLE_CONFIG);
+  }
+
+  /** Dashboard totals for the Users page (active count, per-role counts) in one aggregation. */
+  listUsersStats() {
+    return tableStats(UserModel, USER_STATS_CONFIG);
   }
 
   async getUser(id: string) {

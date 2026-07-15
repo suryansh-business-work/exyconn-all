@@ -36,6 +36,7 @@ export const productsTypeDefs = gql`
   extend type Query {
     listProducts: [Product!]!
     listProductsPaged(input: TableQueryInput!): ProductPage!
+    listProductsStats: TableStats!
     getProduct(id: ID!): Product!
   }
 

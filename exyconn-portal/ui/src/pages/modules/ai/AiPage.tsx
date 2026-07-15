@@ -7,8 +7,9 @@ import type { StatItem } from '../../../components/dashboard/StatCard';
 import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
+import { statCount, statTotal } from '../../../components/data/tableStats';
 import {
-  useListAiJobsQuery,
+  useListAiJobsStatsQuery,
   useDeleteAiJobMutation,
   ListAiJobsPagedDocument,
   type ListAiJobsPagedQuery,
@@ -20,8 +21,8 @@ import { AI_JOB_COLUMNS, type PagedAiJobRow, type AiJobsGridContext } from './ai
 
 /** AI module — AI jobs dashboard with a server-side jobs grid. */
 export function AiPage() {
-  // Stat cards still summarise all jobs; the grid itself is server-paged.
-  const { data } = useListAiJobsQuery();
+  // Stat cards come from one server aggregation; the grid is server-paged separately.
+  const { data: statsData, refetch: refetchStats } = useListAiJobsStatsQuery();
   const [deleteAiJob] = useDeleteAiJobMutation();
   const dialog = useCrudDialog<AiJobRow>();
   const confirm = useConfirm();
@@ -29,27 +30,22 @@ export function AiPage() {
   const client = useApolloClient();
   const [refreshSignal, setRefreshSignal] = useState(0);
 
-  const rows = data?.listAiJobs ?? [];
-  const stats: StatItem[] = [
-    { label: 'Jobs', value: String(rows.length), accent: '#4f8cff' },
-    {
-      label: 'Running',
-      value: String(rows.filter((r) => r.status === 'RUNNING').length),
-      accent: '#6366f1',
-    },
+  const stats = statsData?.listAiJobsStats;
+  const statItems: StatItem[] = [
+    { label: 'Jobs', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Running', value: String(statCount(stats, 'status', 'RUNNING')), accent: '#6366f1' },
     {
       label: 'Succeeded',
-      value: String(rows.filter((r) => r.status === 'SUCCEEDED').length),
+      value: String(statCount(stats, 'status', 'SUCCEEDED')),
       accent: '#7be37b',
     },
-    {
-      label: 'Failed',
-      value: String(rows.filter((r) => r.status === 'FAILED').length),
-      accent: '#ff6b6b',
-    },
+    { label: 'Failed', value: String(statCount(stats, 'status', 'FAILED')), accent: '#ff6b6b' },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
+  const reload = () => {
+    setRefreshSignal((n) => n + 1);
+    void refetchStats();
+  };
 
   const fetchRows = useCallback(
     async (input: TableQueryInput): Promise<TablePageResult<PagedAiJobRow>> => {
@@ -87,7 +83,7 @@ export function AiPage() {
       subtitle="AI jobs"
       actionLabel="New job"
       onAction={dialog.openCreate}
-      stats={stats}
+      stats={statItems}
       dialog={
         <CrudDialog
           open={dialog.open}

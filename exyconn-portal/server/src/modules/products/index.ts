@@ -23,5 +23,6 @@ export const productsResolvers = createCrudResolvers(productsService, {
     sortFields: ['name', 'sku', 'price', 'category', 'stock', 'status', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  stats: { countBy: ['status'], sum: ['stock'] },
 });
 export { productsTypeDefs };

@@ -25,6 +25,23 @@ query ListBugsPaged($input: TableQueryInput!) {
   }
 }
 
+query ListBugsStats {
+  listBugsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
 mutation CreateBug($input: BugInput!) {
   createBug(input: $input) {
     id

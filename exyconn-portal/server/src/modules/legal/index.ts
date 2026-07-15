@@ -33,6 +33,7 @@ const contractResolvers = createCrudResolvers(legalService, {
     sortFields: ['title', 'party', 'type', 'effectiveDate', 'expiryDate', 'status', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  stats: { countBy: ['status', 'signedBy'] },
 });
 
 export const documentService = createCrudService<LegalDocumentInput>(
@@ -48,6 +49,7 @@ const documentResolvers = createCrudResolvers(documentService, {
     sortFields: ['title', 'category', 'owner', 'fileUrl', 'status', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  stats: { countBy: ['status'] },
 });
 
 /** Merges contract CRUD, document CRUD, and the custom send/sign mutations. */

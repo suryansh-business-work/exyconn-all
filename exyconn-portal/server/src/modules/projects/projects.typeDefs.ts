@@ -35,6 +35,7 @@ export const projectsTypeDefs = gql`
   extend type Query {
     listProjects: [Project!]!
     listProjectsPaged(input: TableQueryInput!): ProjectPage!
+    listProjectsStats: TableStats!
     getProject(id: ID!): Project!
   }
 

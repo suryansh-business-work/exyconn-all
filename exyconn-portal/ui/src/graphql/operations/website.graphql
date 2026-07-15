@@ -23,6 +23,32 @@ query ListBlogPosts {
   }
 }
 
+query ListBlogPostsPaged($input: TableQueryInput!) {
+  listBlogPostsPaged(input: $input) {
+    totalCount
+    rows {
+      ...BlogPostFields
+    }
+  }
+}
+
+query ListBlogPostsStats {
+  listBlogPostsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
 mutation CreateBlogPost($input: BlogPostInput!) {
   createBlogPost(input: $input) {
     id
@@ -58,6 +84,32 @@ fragment CaseStudyFields on CaseStudy {
 query ListCaseStudies {
   listCaseStudies {
     ...CaseStudyFields
+  }
+}
+
+query ListCaseStudiesPaged($input: TableQueryInput!) {
+  listCaseStudiesPaged(input: $input) {
+    totalCount
+    rows {
+      ...CaseStudyFields
+    }
+  }
+}
+
+query ListCaseStudiesStats {
+  listCaseStudiesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
   }
 }
 
@@ -114,6 +166,32 @@ query ListJobCompanies {
   }
 }
 
+query ListJobCompaniesPaged($input: TableQueryInput!) {
+  listJobCompaniesPaged(input: $input) {
+    totalCount
+    rows {
+      ...JobCompanyFields
+    }
+  }
+}
+
+query ListJobCompaniesStats {
+  listJobCompaniesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
 mutation CreateJobCompany($input: JobCompanyInput!) {
   createJobCompany(input: $input) {
     id
@@ -160,6 +238,32 @@ query ListJobs {
   }
 }
 
+query ListJobsPaged($input: TableQueryInput!) {
+  listJobsPaged(input: $input) {
+    totalCount
+    rows {
+      ...JobFields
+    }
+  }
+}
+
+query ListJobsStats {
+  listJobsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
 mutation CreateJob($input: JobInput!) {
   createJob(input: $input) {
     id
@@ -199,6 +303,32 @@ fragment GigFields on Gig {
 query ListGigs {
   listGigs {
     ...GigFields
+  }
+}
+
+query ListGigsPaged($input: TableQueryInput!) {
+  listGigsPaged(input: $input) {
+    totalCount
+    rows {
+      ...GigFields
+    }
+  }
+}
+
+query ListGigsStats {
+  listGigsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
   }
 }
 
@@ -272,6 +402,32 @@ fragment ToolFields on Tool {
 query ListTools {
   listTools {
     ...ToolFields
+  }
+}
+
+query ListToolsPaged($input: TableQueryInput!) {
+  listToolsPaged(input: $input) {
+    totalCount
+    rows {
+      ...ToolFields
+    }
+  }
+}
+
+query ListToolsStats {
+  listToolsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
   }
 }
 

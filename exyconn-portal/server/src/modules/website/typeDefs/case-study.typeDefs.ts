@@ -34,8 +34,15 @@ export const caseStudyTypeDefs = gql`
     publishedAt: DateTime
   }
 
+  type CaseStudyPage {
+    rows: [CaseStudy!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     listCaseStudies: [CaseStudy!]!
+    listCaseStudiesPaged(input: TableQueryInput!): CaseStudyPage!
+    listCaseStudiesStats: TableStats!
     getCaseStudy(id: ID!): CaseStudy!
     publicCaseStudies: [CaseStudy!]!
     publicCaseStudy(slug: String!): CaseStudy

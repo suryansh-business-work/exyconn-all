@@ -21,6 +21,23 @@ query ListAiJobsPaged($input: TableQueryInput!) {
   }
 }
 
+query ListAiJobsStats {
+  listAiJobsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
 mutation CreateAiJob($input: AiJobInput!) {
   createAiJob(input: $input) {
     id
@@ -58,6 +75,23 @@ query ListPromptsPaged($input: TableQueryInput!) {
       content
       description
       tags
+    }
+  }
+}
+
+query ListPromptsStats {
+  listPromptsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
     }
   }
 }

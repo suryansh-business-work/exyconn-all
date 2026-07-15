@@ -82,10 +82,17 @@ export const toolTypeDefs = gql`
     order: Int
   }
 
+  type ToolPage {
+    rows: [Tool!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     listToolCategories: [ToolCategory!]!
     getToolCategory(id: ID!): ToolCategory!
     listTools: [Tool!]!
+    listToolsPaged(input: TableQueryInput!): ToolPage!
+    listToolsStats: TableStats!
     getTool(id: ID!): Tool!
     publicToolCategories: [ToolCategory!]!
     publicTools(categorySlug: String): [Tool!]!

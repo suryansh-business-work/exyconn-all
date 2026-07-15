@@ -8,8 +8,9 @@ import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
 import { useSettings } from '../../../hooks/useSettings';
+import { statCount, statTotal } from '../../../components/data/tableStats';
 import {
-  useListContractsQuery,
+  useListContractsStatsQuery,
   useDeleteContractMutation,
   ListContractsPagedDocument,
   type ListContractsPagedQuery,
@@ -26,8 +27,8 @@ import {
 
 /** Legal → Contracts: contract CRUD plus emailing a contract to a counterparty. */
 export function ContractsPage() {
-  // Stat cards still summarise all contracts; the grid itself is server-paged.
-  const { data } = useListContractsQuery();
+  // Stat cards come from one server aggregation; the grid is server-paged separately.
+  const { data: statsData, refetch: refetchStats } = useListContractsStatsQuery();
   const [deleteContract] = useDeleteContractMutation();
   const dialog = useCrudDialog<ContractRow>();
   const [sendTarget, setSendTarget] = useState<ContractRow | null>(null);
@@ -37,16 +38,20 @@ export function ContractsPage() {
   const client = useApolloClient();
   const [refreshSignal, setRefreshSignal] = useState(0);
 
-  const rows = data?.listContracts ?? [];
-  const count = (s: string) => rows.filter((r) => r.status === s).length;
-  const stats: StatItem[] = [
-    { label: 'Total', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Active', value: String(count('ACTIVE')), accent: '#22c55e' },
-    { label: 'Draft', value: String(count('DRAFT')), accent: '#f59e0b' },
-    { label: 'Signed', value: String(rows.filter((r) => r.signedBy).length), accent: '#8b5cf6' },
+  const stats = statsData?.listContractsStats;
+  // "Signed" counts contracts whose nullable `signedBy` is set = total minus the null bucket.
+  const signed = statTotal(stats) - statCount(stats, 'signedBy', 'null');
+  const statItems: StatItem[] = [
+    { label: 'Total', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#22c55e' },
+    { label: 'Draft', value: String(statCount(stats, 'status', 'DRAFT')), accent: '#f59e0b' },
+    { label: 'Signed', value: String(signed), accent: '#8b5cf6' },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
+  const reload = () => {
+    setRefreshSignal((n) => n + 1);
+    void refetchStats();
+  };
 
   const fetchRows = useCallback(
     async (input: TableQueryInput): Promise<TablePageResult<PagedContractRow>> => {
@@ -86,7 +91,7 @@ export function ContractsPage() {
       subtitle="Create, send & track contracts"
       actionLabel="New contract"
       onAction={dialog.openCreate}
-      stats={stats}
+      stats={statItems}
       dialog={
         <>
           <CrudDialog

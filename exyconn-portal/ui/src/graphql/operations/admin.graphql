@@ -35,6 +35,23 @@ query ListUsersPaged($input: TableQueryInput!) {
   }
 }
 
+query ListUsersStats {
+  listUsersStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
 query GetUser($id: ID!) {
   getUser(id: $id) {
     id

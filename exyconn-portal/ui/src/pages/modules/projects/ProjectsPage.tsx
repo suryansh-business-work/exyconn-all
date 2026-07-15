@@ -9,8 +9,9 @@ import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
 import { useSettings } from '../../../hooks/useSettings';
+import { statCount, statTotal } from '../../../components/data/tableStats';
 import {
-  useListProjectsQuery,
+  useListProjectsStatsQuery,
   useDeleteProjectMutation,
   ListProjectsPagedDocument,
   type ListProjectsPagedQuery,
@@ -22,8 +23,8 @@ import { PROJECT_COLUMNS, type PagedProjectRow, type ProjectsGridContext } from 
 
 /** Projects module — project management dashboard with a server-side projects grid. */
 export function ProjectsPage() {
-  // Stat cards still summarise all projects; the grid itself is server-paged.
-  const { data } = useListProjectsQuery({ fetchPolicy: 'cache-and-network' });
+  // Stat cards come from one server aggregation; the grid is server-paged separately.
+  const { data: statsData, refetch: refetchStats } = useListProjectsStatsQuery();
   const [deleteProject] = useDeleteProjectMutation();
   const dialog = useCrudDialog<ProjectRow>();
   const confirm = useConfirm();
@@ -35,16 +36,18 @@ export function ProjectsPage() {
 
   const openBoard = (row: PagedProjectRow) => navigate(`/portal/projects/${row.id}/board`);
 
-  const rows = data?.listProjects ?? [];
-  const count = (status: string) => rows.filter((r) => r.status === status).length;
-  const stats: StatItem[] = [
-    { label: 'Total', value: String(rows.length), accent: '#155dfc' },
-    { label: 'Active', value: String(count('ACTIVE')), accent: '#22c55e' },
-    { label: 'On hold', value: String(count('ON_HOLD')), accent: '#f59e0b' },
-    { label: 'Completed', value: String(count('COMPLETED')), accent: '#8b5cf6' },
+  const stats = statsData?.listProjectsStats;
+  const statItems: StatItem[] = [
+    { label: 'Total', value: String(statTotal(stats)), accent: '#155dfc' },
+    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#22c55e' },
+    { label: 'On hold', value: String(statCount(stats, 'status', 'ON_HOLD')), accent: '#f59e0b' },
+    { label: 'Completed', value: String(statCount(stats, 'status', 'COMPLETED')), accent: '#8b5cf6' },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
+  const reload = () => {
+    setRefreshSignal((n) => n + 1);
+    void refetchStats();
+  };
 
   const fetchRows = useCallback(
     async (input: TableQueryInput): Promise<TablePageResult<PagedProjectRow>> => {
@@ -84,7 +87,7 @@ export function ProjectsPage() {
       subtitle="Project management"
       actionLabel="New project"
       onAction={dialog.openCreate}
-      stats={stats}
+      stats={statItems}
       dialog={
         <CrudDialog
           open={dialog.open}

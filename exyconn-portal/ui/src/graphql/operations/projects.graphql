@@ -23,6 +23,23 @@ query ListProjectsPaged($input: TableQueryInput!) {
   }
 }
 
+query ListProjectsStats {
+  listProjectsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
 mutation CreateProject($input: ProjectInput!) {
   createProject(input: $input) {
     id

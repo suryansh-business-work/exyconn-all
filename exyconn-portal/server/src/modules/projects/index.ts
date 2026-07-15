@@ -22,6 +22,7 @@ export const projectsResolvers = createCrudResolvers(projectsService, {
     sortFields: ['name', 'description', 'status', 'startDate', 'endDate', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  stats: { countBy: ['status'] },
 });
 export { projectsTypeDefs };
 export { boardTypeDefs } from './board.typeDefs';

@@ -37,6 +37,12 @@ export type AiJobInput = {
   status: AiJobStatus;
 };
 
+export type AiJobPage = {
+  __typename?: 'AiJobPage';
+  rows: Array<AiJob>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export enum AiJobStatus {
   Failed = 'FAILED',
   Queued = 'QUEUED',
@@ -127,6 +133,12 @@ export type BlogPostInput = {
   summary?: InputMaybe<Scalars['String']['input']>;
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
+};
+
+export type BlogPostPage = {
+  __typename?: 'BlogPostPage';
+  rows: Array<BlogPost>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type BoardColumn = {
@@ -329,6 +341,12 @@ export type CaseStudyInput = {
   title: Scalars['String']['input'];
 };
 
+export type CaseStudyPage = {
+  __typename?: 'CaseStudyPage';
+  rows: Array<CaseStudy>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Client = {
   __typename?: 'Client';
   company: Scalars['String']['output'];
@@ -412,6 +430,12 @@ export type ContractInput = {
   status: ContractStatus;
   title: Scalars['String']['input'];
   type: ContractType;
+};
+
+export type ContractPage = {
+  __typename?: 'ContractPage';
+  rows: Array<Contract>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export enum ContractStatus {
@@ -546,6 +570,12 @@ export type GigInput = {
   status: Scalars['String']['input'];
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
+};
+
+export type GigPage = {
+  __typename?: 'GigPage';
+  rows: Array<Gig>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type HeadcountPoint = {
@@ -709,6 +739,12 @@ export type JobCompanyInput = {
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type JobCompanyPage = {
+  __typename?: 'JobCompanyPage';
+  rows: Array<JobCompany>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type JobInput = {
   applicationDeadline?: InputMaybe<Scalars['DateTime']['input']>;
   benefits?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -730,6 +766,12 @@ export type JobInput = {
   skillSet?: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
   workMode: Scalars['String']['input'];
+};
+
+export type JobPage = {
+  __typename?: 'JobPage';
+  rows: Array<Job>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type Lead = {
@@ -828,6 +870,12 @@ export type LegalDocumentInput = {
   owner?: InputMaybe<Scalars['String']['input']>;
   status: DocumentStatus;
   title: Scalars['String']['input'];
+};
+
+export type LegalDocumentPage = {
+  __typename?: 'LegalDocumentPage';
+  rows: Array<LegalDocument>;
+  totalCount: Scalars['Int']['output'];
 };
 
 /** Employee-facing attendance entry — the server sets employeeId. */
@@ -1772,6 +1820,12 @@ export type PromptInput = {
   title: Scalars['String']['input'];
 };
 
+export type PromptPage = {
+  __typename?: 'PromptPage';
+  rows: Array<Prompt>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -1808,32 +1862,41 @@ export type Query = {
   /** HR/ADMIN: a specific employee's leave requests. */
   leaveRequestsByEmployee: Array<LeaveRequest>;
   listAiJobs: Array<AiJob>;
+  listAiJobsPaged: AiJobPage;
   /** HR/ADMIN: all attendance records. */
   listAttendance: Array<Attendance>;
   listBlogPosts: Array<BlogPost>;
+  listBlogPostsPaged: BlogPostPage;
   listBugs: Array<Bug>;
   listBugsPaged: BugPage;
   listCampaigns: Array<Campaign>;
   listCampaignsPaged: CampaignPage;
   listCaseStudies: Array<CaseStudy>;
+  listCaseStudiesPaged: CaseStudyPage;
   listClients: Array<Client>;
   listClientsPaged: ClientPage;
   listContracts: Array<Contract>;
+  listContractsPaged: ContractPage;
   /** HR/ADMIN: organizational departments. */
   listDepartments: Array<Department>;
   listEmailConfigs: Array<EmailConfig>;
   listGigs: Array<Gig>;
+  listGigsPaged: GigPage;
   /** Company-wide holidays, readable by any authenticated employee. */
   listHolidays: Array<Holiday>;
   listImageConfigs: Array<ImageConfig>;
   listInvoices: Array<Invoice>;
   listInvoicesPaged: InvoicePage;
+  listInvoicesStats: TableStats;
   listJobCompanies: Array<JobCompany>;
+  listJobCompaniesPaged: JobCompanyPage;
   listJobs: Array<Job>;
+  listJobsPaged: JobPage;
   listLeads: Array<Lead>;
   listLeadsPaged: LeadPage;
   listLeaveRequests: Array<LeaveRequest>;
   listLegalDocuments: Array<LegalDocument>;
+  listLegalDocumentsPaged: LegalDocumentPage;
   listNavLinks: Array<NavLink>;
   /** Company-wide HR policies, readable by any authenticated employee. */
   listPolicies: Array<Policy>;
@@ -1844,12 +1907,15 @@ export type Query = {
   listProjects: Array<Project>;
   listProjectsPaged: ProjectPage;
   listPrompts: Array<Prompt>;
+  listPromptsPaged: PromptPage;
   /** SUPPORT/ADMIN: every employee support ticket, newest first. */
   listSupportTickets: Array<SupportTicket>;
   listToolCategories: Array<ToolCategory>;
   listTools: Array<Tool>;
+  listToolsPaged: ToolPage;
   listUsers: Array<User>;
   listUsersPaged: UserPage;
+  listUsersStats: TableStats;
   listWebsiteSubmissions: Array<WebsiteSubmission>;
   me: User;
   /** Self-service: the signed-in user's own attendance records. */
@@ -2023,6 +2089,16 @@ export type QueryLeaveRequestsByEmployeeArgs = {
 };
 
 
+export type QueryListAiJobsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListBlogPostsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListBugsPagedArgs = {
   input: TableQueryInput;
 };
@@ -2033,7 +2109,22 @@ export type QueryListCampaignsPagedArgs = {
 };
 
 
+export type QueryListCaseStudiesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListClientsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListContractsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListGigsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -2043,7 +2134,22 @@ export type QueryListInvoicesPagedArgs = {
 };
 
 
+export type QueryListJobCompaniesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListJobsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListLeadsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListLegalDocumentsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -2054,6 +2160,16 @@ export type QueryListProductsPagedArgs = {
 
 
 export type QueryListProjectsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListPromptsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListToolsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -2206,6 +2322,24 @@ export enum SortDir {
   Desc = 'DESC'
 }
 
+export type StatBucket = {
+  __typename?: 'StatBucket';
+  count: Scalars['Int']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type StatFieldCounts = {
+  __typename?: 'StatFieldCounts';
+  buckets: Array<StatBucket>;
+  field: Scalars['String']['output'];
+};
+
+export type StatFieldSum = {
+  __typename?: 'StatFieldSum';
+  field: Scalars['String']['output'];
+  total: Scalars['Float']['output'];
+};
+
 export enum SupportCategory {
   Facilities = 'FACILITIES',
   Hr = 'HR',
@@ -2268,6 +2402,13 @@ export type TableQueryInput = {
 export type TableSortInput = {
   dir: SortDir;
   field: Scalars['String']['input'];
+};
+
+export type TableStats = {
+  __typename?: 'TableStats';
+  counts: Array<StatFieldCounts>;
+  sums: Array<StatFieldSum>;
+  total: Scalars['Int']['output'];
 };
 
 export type Task = {
@@ -2345,6 +2486,12 @@ export type ToolInput = {
   toolCode: Scalars['String']['input'];
   url?: InputMaybe<Scalars['String']['input']>;
   useCases?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type ToolPage = {
+  __typename?: 'ToolPage';
+  rows: Array<Tool>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type ToolPricing = {
@@ -2671,6 +2818,11 @@ export type ListUsersPagedQueryVariables = Exact<{
 
 export type ListUsersPagedQuery = { __typename?: 'Query', listUsersPaged: { __typename?: 'UserPage', totalCount: number, rows: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, employmentStatus: EmploymentStatus }> } };
 
+export type ListUsersStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListUsersStatsQuery = { __typename?: 'Query', listUsersStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
 export type GetUserQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -2744,6 +2896,13 @@ export type ListAiJobsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ListAiJobsQuery = { __typename?: 'Query', listAiJobs: Array<{ __typename?: 'AiJob', id: string, name: string, model: string, prompt: string, status: AiJobStatus }> };
 
+export type ListAiJobsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListAiJobsPagedQuery = { __typename?: 'Query', listAiJobsPaged: { __typename?: 'AiJobPage', totalCount: number, rows: Array<{ __typename?: 'AiJob', id: string, name: string, model: string, prompt: string, status: AiJobStatus }> } };
+
 export type CreateAiJobMutationVariables = Exact<{
   input: AiJobInput;
 }>;
@@ -2770,6 +2929,13 @@ export type ListPromptsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ListPromptsQuery = { __typename?: 'Query', listPrompts: Array<{ __typename?: 'Prompt', id: string, title: string, category: PromptCategory, content: string, description?: string | null, tags: Array<string> }> };
+
+export type ListPromptsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListPromptsPagedQuery = { __typename?: 'Query', listPromptsPaged: { __typename?: 'PromptPage', totalCount: number, rows: Array<{ __typename?: 'Prompt', id: string, title: string, category: PromptCategory, content: string, description?: string | null, tags: Array<string> }> } };
 
 export type CreatePromptMutationVariables = Exact<{
   input: PromptInput;
@@ -3075,6 +3241,11 @@ export type ListInvoicesPagedQueryVariables = Exact<{
 
 export type ListInvoicesPagedQuery = { __typename?: 'Query', listInvoicesPaged: { __typename?: 'InvoicePage', totalCount: number, rows: Array<{ __typename?: 'Invoice', id: string, number: string, clientId: string, amount: number, currency: string, status: InvoiceStatus, issuedDate: string, dueDate: string }> } };
 
+export type ListInvoicesStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListInvoicesStatsQuery = { __typename?: 'Query', listInvoicesStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
 export type CreateInvoiceMutationVariables = Exact<{
   input: InvoiceInput;
 }>;
@@ -3243,6 +3414,13 @@ export type ListContractsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ListContractsQuery = { __typename?: 'Query', listContracts: Array<{ __typename?: 'Contract', id: string, title: string, party: string, type: ContractType, effectiveDate: string, expiryDate: string, status: ContractStatus, sentAt?: string | null, signedBy?: string | null, signedAt?: string | null }> };
 
+export type ListContractsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListContractsPagedQuery = { __typename?: 'Query', listContractsPaged: { __typename?: 'ContractPage', totalCount: number, rows: Array<{ __typename?: 'Contract', id: string, title: string, party: string, type: ContractType, effectiveDate: string, expiryDate: string, status: ContractStatus, sentAt?: string | null, signedBy?: string | null, signedAt?: string | null }> } };
+
 export type CreateContractMutationVariables = Exact<{
   input: ContractInput;
 }>;
@@ -3286,6 +3464,13 @@ export type ListLegalDocumentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ListLegalDocumentsQuery = { __typename?: 'Query', listLegalDocuments: Array<{ __typename?: 'LegalDocument', id: string, title: string, category: DocumentCategory, owner?: string | null, fileUrl?: string | null, status: DocumentStatus }> };
+
+export type ListLegalDocumentsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListLegalDocumentsPagedQuery = { __typename?: 'Query', listLegalDocumentsPaged: { __typename?: 'LegalDocumentPage', totalCount: number, rows: Array<{ __typename?: 'LegalDocument', id: string, title: string, category: DocumentCategory, owner?: string | null, fileUrl?: string | null, status: DocumentStatus }> } };
 
 export type CreateLegalDocumentMutationVariables = Exact<{
   input: LegalDocumentInput;
@@ -3628,6 +3813,13 @@ export type ListBlogPostsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ListBlogPostsQuery = { __typename?: 'Query', listBlogPosts: Array<{ __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> };
 
+export type ListBlogPostsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListBlogPostsPagedQuery = { __typename?: 'Query', listBlogPostsPaged: { __typename?: 'BlogPostPage', totalCount: number, rows: Array<{ __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> } };
+
 export type CreateBlogPostMutationVariables = Exact<{
   input: BlogPostInput;
 }>;
@@ -3656,6 +3848,13 @@ export type ListCaseStudiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ListCaseStudiesQuery = { __typename?: 'Query', listCaseStudies: Array<{ __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> };
+
+export type ListCaseStudiesPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListCaseStudiesPagedQuery = { __typename?: 'Query', listCaseStudiesPaged: { __typename?: 'CaseStudyPage', totalCount: number, rows: Array<{ __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> } };
 
 export type CreateCaseStudyMutationVariables = Exact<{
   input: CaseStudyInput;
@@ -3686,6 +3885,13 @@ export type ListJobCompaniesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ListJobCompaniesQuery = { __typename?: 'Query', listJobCompanies: Array<{ __typename?: 'JobCompany', id: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string } }> };
 
+export type ListJobCompaniesPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListJobCompaniesPagedQuery = { __typename?: 'Query', listJobCompaniesPaged: { __typename?: 'JobCompanyPage', totalCount: number, rows: Array<{ __typename?: 'JobCompany', id: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string } }> } };
+
 export type CreateJobCompanyMutationVariables = Exact<{
   input: JobCompanyInput;
 }>;
@@ -3715,6 +3921,13 @@ export type ListJobsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ListJobsQuery = { __typename?: 'Query', listJobs: Array<{ __typename?: 'Job', id: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean }> };
 
+export type ListJobsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListJobsPagedQuery = { __typename?: 'Query', listJobsPaged: { __typename?: 'JobPage', totalCount: number, rows: Array<{ __typename?: 'Job', id: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean }> } };
+
 export type CreateJobMutationVariables = Exact<{
   input: JobInput;
 }>;
@@ -3743,6 +3956,13 @@ export type ListGigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ListGigsQuery = { __typename?: 'Query', listGigs: Array<{ __typename?: 'Gig', id: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean }> };
+
+export type ListGigsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListGigsPagedQuery = { __typename?: 'Query', listGigsPaged: { __typename?: 'GigPage', totalCount: number, rows: Array<{ __typename?: 'Gig', id: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean }> } };
 
 export type CreateGigMutationVariables = Exact<{
   input: GigInput;
@@ -3801,6 +4021,13 @@ export type ListToolsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ListToolsQuery = { __typename?: 'Query', listTools: Array<{ __typename?: 'Tool', id: string, toolCode: string, categorySlug: string, name: string, description: string, longDescription: string, url: string, icon: string, color: string, features: Array<string>, useCases: Array<string>, keywords: Array<string>, isActive: boolean, isMVP: boolean, order: number }> };
+
+export type ListToolsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListToolsPagedQuery = { __typename?: 'Query', listToolsPaged: { __typename?: 'ToolPage', totalCount: number, rows: Array<{ __typename?: 'Tool', id: string, toolCode: string, categorySlug: string, name: string, description: string, longDescription: string, url: string, icon: string, color: string, features: Array<string>, useCases: Array<string>, keywords: Array<string>, isActive: boolean, isMVP: boolean, order: number }> } };
 
 export type CreateToolMutationVariables = Exact<{
   input: ToolInput;
@@ -4364,6 +4591,59 @@ export type ListUsersPagedQueryHookResult = ReturnType<typeof useListUsersPagedQ
 export type ListUsersPagedLazyQueryHookResult = ReturnType<typeof useListUsersPagedLazyQuery>;
 export type ListUsersPagedSuspenseQueryHookResult = ReturnType<typeof useListUsersPagedSuspenseQuery>;
 export type ListUsersPagedQueryResult = Apollo.QueryResult<ListUsersPagedQuery, ListUsersPagedQueryVariables>;
+export const ListUsersStatsDocument = gql`
+    query ListUsersStats {
+  listUsersStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListUsersStatsQuery__
+ *
+ * To run a query within a React component, call `useListUsersStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListUsersStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListUsersStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListUsersStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListUsersStatsQuery, ListUsersStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListUsersStatsQuery, ListUsersStatsQueryVariables>(ListUsersStatsDocument, options);
+      }
+export function useListUsersStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListUsersStatsQuery, ListUsersStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListUsersStatsQuery, ListUsersStatsQueryVariables>(ListUsersStatsDocument, options);
+        }
+// @ts-ignore
+export function useListUsersStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListUsersStatsQuery, ListUsersStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListUsersStatsQuery, ListUsersStatsQueryVariables>;
+export function useListUsersStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListUsersStatsQuery, ListUsersStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListUsersStatsQuery | undefined, ListUsersStatsQueryVariables>;
+export function useListUsersStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListUsersStatsQuery, ListUsersStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListUsersStatsQuery, ListUsersStatsQueryVariables>(ListUsersStatsDocument, options);
+        }
+export type ListUsersStatsQueryHookResult = ReturnType<typeof useListUsersStatsQuery>;
+export type ListUsersStatsLazyQueryHookResult = ReturnType<typeof useListUsersStatsLazyQuery>;
+export type ListUsersStatsSuspenseQueryHookResult = ReturnType<typeof useListUsersStatsSuspenseQuery>;
+export type ListUsersStatsQueryResult = Apollo.QueryResult<ListUsersStatsQuery, ListUsersStatsQueryVariables>;
 export const GetUserDocument = gql`
     query GetUser($id: ID!) {
   getUser(id: $id) {
@@ -4740,6 +5020,56 @@ export type ListAiJobsQueryHookResult = ReturnType<typeof useListAiJobsQuery>;
 export type ListAiJobsLazyQueryHookResult = ReturnType<typeof useListAiJobsLazyQuery>;
 export type ListAiJobsSuspenseQueryHookResult = ReturnType<typeof useListAiJobsSuspenseQuery>;
 export type ListAiJobsQueryResult = Apollo.QueryResult<ListAiJobsQuery, ListAiJobsQueryVariables>;
+export const ListAiJobsPagedDocument = gql`
+    query ListAiJobsPaged($input: TableQueryInput!) {
+  listAiJobsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      model
+      prompt
+      status
+    }
+  }
+}
+    `;
+
+/**
+ * __useListAiJobsPagedQuery__
+ *
+ * To run a query within a React component, call `useListAiJobsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAiJobsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAiJobsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListAiJobsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListAiJobsPagedQuery, ListAiJobsPagedQueryVariables> & ({ variables: ListAiJobsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListAiJobsPagedQuery, ListAiJobsPagedQueryVariables>(ListAiJobsPagedDocument, options);
+      }
+export function useListAiJobsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListAiJobsPagedQuery, ListAiJobsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListAiJobsPagedQuery, ListAiJobsPagedQueryVariables>(ListAiJobsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListAiJobsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListAiJobsPagedQuery, ListAiJobsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListAiJobsPagedQuery, ListAiJobsPagedQueryVariables>;
+export function useListAiJobsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAiJobsPagedQuery, ListAiJobsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListAiJobsPagedQuery | undefined, ListAiJobsPagedQueryVariables>;
+export function useListAiJobsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAiJobsPagedQuery, ListAiJobsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListAiJobsPagedQuery, ListAiJobsPagedQueryVariables>(ListAiJobsPagedDocument, options);
+        }
+export type ListAiJobsPagedQueryHookResult = ReturnType<typeof useListAiJobsPagedQuery>;
+export type ListAiJobsPagedLazyQueryHookResult = ReturnType<typeof useListAiJobsPagedLazyQuery>;
+export type ListAiJobsPagedSuspenseQueryHookResult = ReturnType<typeof useListAiJobsPagedSuspenseQuery>;
+export type ListAiJobsPagedQueryResult = Apollo.QueryResult<ListAiJobsPagedQuery, ListAiJobsPagedQueryVariables>;
 export const CreateAiJobDocument = gql`
     mutation CreateAiJob($input: AiJobInput!) {
   createAiJob(input: $input) {
@@ -4885,6 +5215,57 @@ export type ListPromptsQueryHookResult = ReturnType<typeof useListPromptsQuery>;
 export type ListPromptsLazyQueryHookResult = ReturnType<typeof useListPromptsLazyQuery>;
 export type ListPromptsSuspenseQueryHookResult = ReturnType<typeof useListPromptsSuspenseQuery>;
 export type ListPromptsQueryResult = Apollo.QueryResult<ListPromptsQuery, ListPromptsQueryVariables>;
+export const ListPromptsPagedDocument = gql`
+    query ListPromptsPaged($input: TableQueryInput!) {
+  listPromptsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      title
+      category
+      content
+      description
+      tags
+    }
+  }
+}
+    `;
+
+/**
+ * __useListPromptsPagedQuery__
+ *
+ * To run a query within a React component, call `useListPromptsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPromptsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPromptsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListPromptsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListPromptsPagedQuery, ListPromptsPagedQueryVariables> & ({ variables: ListPromptsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPromptsPagedQuery, ListPromptsPagedQueryVariables>(ListPromptsPagedDocument, options);
+      }
+export function useListPromptsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPromptsPagedQuery, ListPromptsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPromptsPagedQuery, ListPromptsPagedQueryVariables>(ListPromptsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListPromptsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListPromptsPagedQuery, ListPromptsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListPromptsPagedQuery, ListPromptsPagedQueryVariables>;
+export function useListPromptsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPromptsPagedQuery, ListPromptsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListPromptsPagedQuery | undefined, ListPromptsPagedQueryVariables>;
+export function useListPromptsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPromptsPagedQuery, ListPromptsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPromptsPagedQuery, ListPromptsPagedQueryVariables>(ListPromptsPagedDocument, options);
+        }
+export type ListPromptsPagedQueryHookResult = ReturnType<typeof useListPromptsPagedQuery>;
+export type ListPromptsPagedLazyQueryHookResult = ReturnType<typeof useListPromptsPagedLazyQuery>;
+export type ListPromptsPagedSuspenseQueryHookResult = ReturnType<typeof useListPromptsPagedSuspenseQuery>;
+export type ListPromptsPagedQueryResult = Apollo.QueryResult<ListPromptsPagedQuery, ListPromptsPagedQueryVariables>;
 export const CreatePromptDocument = gql`
     mutation CreatePrompt($input: PromptInput!) {
   createPrompt(input: $input) {
@@ -6573,6 +6954,59 @@ export type ListInvoicesPagedQueryHookResult = ReturnType<typeof useListInvoices
 export type ListInvoicesPagedLazyQueryHookResult = ReturnType<typeof useListInvoicesPagedLazyQuery>;
 export type ListInvoicesPagedSuspenseQueryHookResult = ReturnType<typeof useListInvoicesPagedSuspenseQuery>;
 export type ListInvoicesPagedQueryResult = Apollo.QueryResult<ListInvoicesPagedQuery, ListInvoicesPagedQueryVariables>;
+export const ListInvoicesStatsDocument = gql`
+    query ListInvoicesStats {
+  listInvoicesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListInvoicesStatsQuery__
+ *
+ * To run a query within a React component, call `useListInvoicesStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListInvoicesStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListInvoicesStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListInvoicesStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListInvoicesStatsQuery, ListInvoicesStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListInvoicesStatsQuery, ListInvoicesStatsQueryVariables>(ListInvoicesStatsDocument, options);
+      }
+export function useListInvoicesStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListInvoicesStatsQuery, ListInvoicesStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListInvoicesStatsQuery, ListInvoicesStatsQueryVariables>(ListInvoicesStatsDocument, options);
+        }
+// @ts-ignore
+export function useListInvoicesStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListInvoicesStatsQuery, ListInvoicesStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListInvoicesStatsQuery, ListInvoicesStatsQueryVariables>;
+export function useListInvoicesStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListInvoicesStatsQuery, ListInvoicesStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListInvoicesStatsQuery | undefined, ListInvoicesStatsQueryVariables>;
+export function useListInvoicesStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListInvoicesStatsQuery, ListInvoicesStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListInvoicesStatsQuery, ListInvoicesStatsQueryVariables>(ListInvoicesStatsDocument, options);
+        }
+export type ListInvoicesStatsQueryHookResult = ReturnType<typeof useListInvoicesStatsQuery>;
+export type ListInvoicesStatsLazyQueryHookResult = ReturnType<typeof useListInvoicesStatsLazyQuery>;
+export type ListInvoicesStatsSuspenseQueryHookResult = ReturnType<typeof useListInvoicesStatsSuspenseQuery>;
+export type ListInvoicesStatsQueryResult = Apollo.QueryResult<ListInvoicesStatsQuery, ListInvoicesStatsQueryVariables>;
 export const CreateInvoiceDocument = gql`
     mutation CreateInvoice($input: InvoiceInput!) {
   createInvoice(input: $input) {
@@ -7514,6 +7948,61 @@ export type ListContractsQueryHookResult = ReturnType<typeof useListContractsQue
 export type ListContractsLazyQueryHookResult = ReturnType<typeof useListContractsLazyQuery>;
 export type ListContractsSuspenseQueryHookResult = ReturnType<typeof useListContractsSuspenseQuery>;
 export type ListContractsQueryResult = Apollo.QueryResult<ListContractsQuery, ListContractsQueryVariables>;
+export const ListContractsPagedDocument = gql`
+    query ListContractsPaged($input: TableQueryInput!) {
+  listContractsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      title
+      party
+      type
+      effectiveDate
+      expiryDate
+      status
+      sentAt
+      signedBy
+      signedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useListContractsPagedQuery__
+ *
+ * To run a query within a React component, call `useListContractsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListContractsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListContractsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListContractsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListContractsPagedQuery, ListContractsPagedQueryVariables> & ({ variables: ListContractsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListContractsPagedQuery, ListContractsPagedQueryVariables>(ListContractsPagedDocument, options);
+      }
+export function useListContractsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListContractsPagedQuery, ListContractsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListContractsPagedQuery, ListContractsPagedQueryVariables>(ListContractsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListContractsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListContractsPagedQuery, ListContractsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListContractsPagedQuery, ListContractsPagedQueryVariables>;
+export function useListContractsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListContractsPagedQuery, ListContractsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListContractsPagedQuery | undefined, ListContractsPagedQueryVariables>;
+export function useListContractsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListContractsPagedQuery, ListContractsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListContractsPagedQuery, ListContractsPagedQueryVariables>(ListContractsPagedDocument, options);
+        }
+export type ListContractsPagedQueryHookResult = ReturnType<typeof useListContractsPagedQuery>;
+export type ListContractsPagedLazyQueryHookResult = ReturnType<typeof useListContractsPagedLazyQuery>;
+export type ListContractsPagedSuspenseQueryHookResult = ReturnType<typeof useListContractsPagedSuspenseQuery>;
+export type ListContractsPagedQueryResult = Apollo.QueryResult<ListContractsPagedQuery, ListContractsPagedQueryVariables>;
 export const CreateContractDocument = gql`
     mutation CreateContract($input: ContractInput!) {
   createContract(input: $input) {
@@ -7732,6 +8221,57 @@ export type ListLegalDocumentsQueryHookResult = ReturnType<typeof useListLegalDo
 export type ListLegalDocumentsLazyQueryHookResult = ReturnType<typeof useListLegalDocumentsLazyQuery>;
 export type ListLegalDocumentsSuspenseQueryHookResult = ReturnType<typeof useListLegalDocumentsSuspenseQuery>;
 export type ListLegalDocumentsQueryResult = Apollo.QueryResult<ListLegalDocumentsQuery, ListLegalDocumentsQueryVariables>;
+export const ListLegalDocumentsPagedDocument = gql`
+    query ListLegalDocumentsPaged($input: TableQueryInput!) {
+  listLegalDocumentsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      title
+      category
+      owner
+      fileUrl
+      status
+    }
+  }
+}
+    `;
+
+/**
+ * __useListLegalDocumentsPagedQuery__
+ *
+ * To run a query within a React component, call `useListLegalDocumentsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListLegalDocumentsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListLegalDocumentsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListLegalDocumentsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListLegalDocumentsPagedQuery, ListLegalDocumentsPagedQueryVariables> & ({ variables: ListLegalDocumentsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListLegalDocumentsPagedQuery, ListLegalDocumentsPagedQueryVariables>(ListLegalDocumentsPagedDocument, options);
+      }
+export function useListLegalDocumentsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListLegalDocumentsPagedQuery, ListLegalDocumentsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListLegalDocumentsPagedQuery, ListLegalDocumentsPagedQueryVariables>(ListLegalDocumentsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListLegalDocumentsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListLegalDocumentsPagedQuery, ListLegalDocumentsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListLegalDocumentsPagedQuery, ListLegalDocumentsPagedQueryVariables>;
+export function useListLegalDocumentsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListLegalDocumentsPagedQuery, ListLegalDocumentsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListLegalDocumentsPagedQuery | undefined, ListLegalDocumentsPagedQueryVariables>;
+export function useListLegalDocumentsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListLegalDocumentsPagedQuery, ListLegalDocumentsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListLegalDocumentsPagedQuery, ListLegalDocumentsPagedQueryVariables>(ListLegalDocumentsPagedDocument, options);
+        }
+export type ListLegalDocumentsPagedQueryHookResult = ReturnType<typeof useListLegalDocumentsPagedQuery>;
+export type ListLegalDocumentsPagedLazyQueryHookResult = ReturnType<typeof useListLegalDocumentsPagedLazyQuery>;
+export type ListLegalDocumentsPagedSuspenseQueryHookResult = ReturnType<typeof useListLegalDocumentsPagedSuspenseQuery>;
+export type ListLegalDocumentsPagedQueryResult = Apollo.QueryResult<ListLegalDocumentsPagedQuery, ListLegalDocumentsPagedQueryVariables>;
 export const CreateLegalDocumentDocument = gql`
     mutation CreateLegalDocument($input: LegalDocumentInput!) {
   createLegalDocument(input: $input) {
@@ -9536,6 +10076,52 @@ export type ListBlogPostsQueryHookResult = ReturnType<typeof useListBlogPostsQue
 export type ListBlogPostsLazyQueryHookResult = ReturnType<typeof useListBlogPostsLazyQuery>;
 export type ListBlogPostsSuspenseQueryHookResult = ReturnType<typeof useListBlogPostsSuspenseQuery>;
 export type ListBlogPostsQueryResult = Apollo.QueryResult<ListBlogPostsQuery, ListBlogPostsQueryVariables>;
+export const ListBlogPostsPagedDocument = gql`
+    query ListBlogPostsPaged($input: TableQueryInput!) {
+  listBlogPostsPaged(input: $input) {
+    totalCount
+    rows {
+      ...BlogPostFields
+    }
+  }
+}
+    ${BlogPostFieldsFragmentDoc}`;
+
+/**
+ * __useListBlogPostsPagedQuery__
+ *
+ * To run a query within a React component, call `useListBlogPostsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListBlogPostsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListBlogPostsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListBlogPostsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListBlogPostsPagedQuery, ListBlogPostsPagedQueryVariables> & ({ variables: ListBlogPostsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListBlogPostsPagedQuery, ListBlogPostsPagedQueryVariables>(ListBlogPostsPagedDocument, options);
+      }
+export function useListBlogPostsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListBlogPostsPagedQuery, ListBlogPostsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListBlogPostsPagedQuery, ListBlogPostsPagedQueryVariables>(ListBlogPostsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListBlogPostsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListBlogPostsPagedQuery, ListBlogPostsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListBlogPostsPagedQuery, ListBlogPostsPagedQueryVariables>;
+export function useListBlogPostsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBlogPostsPagedQuery, ListBlogPostsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListBlogPostsPagedQuery | undefined, ListBlogPostsPagedQueryVariables>;
+export function useListBlogPostsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBlogPostsPagedQuery, ListBlogPostsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListBlogPostsPagedQuery, ListBlogPostsPagedQueryVariables>(ListBlogPostsPagedDocument, options);
+        }
+export type ListBlogPostsPagedQueryHookResult = ReturnType<typeof useListBlogPostsPagedQuery>;
+export type ListBlogPostsPagedLazyQueryHookResult = ReturnType<typeof useListBlogPostsPagedLazyQuery>;
+export type ListBlogPostsPagedSuspenseQueryHookResult = ReturnType<typeof useListBlogPostsPagedSuspenseQuery>;
+export type ListBlogPostsPagedQueryResult = Apollo.QueryResult<ListBlogPostsPagedQuery, ListBlogPostsPagedQueryVariables>;
 export const CreateBlogPostDocument = gql`
     mutation CreateBlogPost($input: BlogPostInput!) {
   createBlogPost(input: $input) {
@@ -9676,6 +10262,52 @@ export type ListCaseStudiesQueryHookResult = ReturnType<typeof useListCaseStudie
 export type ListCaseStudiesLazyQueryHookResult = ReturnType<typeof useListCaseStudiesLazyQuery>;
 export type ListCaseStudiesSuspenseQueryHookResult = ReturnType<typeof useListCaseStudiesSuspenseQuery>;
 export type ListCaseStudiesQueryResult = Apollo.QueryResult<ListCaseStudiesQuery, ListCaseStudiesQueryVariables>;
+export const ListCaseStudiesPagedDocument = gql`
+    query ListCaseStudiesPaged($input: TableQueryInput!) {
+  listCaseStudiesPaged(input: $input) {
+    totalCount
+    rows {
+      ...CaseStudyFields
+    }
+  }
+}
+    ${CaseStudyFieldsFragmentDoc}`;
+
+/**
+ * __useListCaseStudiesPagedQuery__
+ *
+ * To run a query within a React component, call `useListCaseStudiesPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCaseStudiesPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCaseStudiesPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListCaseStudiesPagedQuery(baseOptions: Apollo.QueryHookOptions<ListCaseStudiesPagedQuery, ListCaseStudiesPagedQueryVariables> & ({ variables: ListCaseStudiesPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListCaseStudiesPagedQuery, ListCaseStudiesPagedQueryVariables>(ListCaseStudiesPagedDocument, options);
+      }
+export function useListCaseStudiesPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListCaseStudiesPagedQuery, ListCaseStudiesPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListCaseStudiesPagedQuery, ListCaseStudiesPagedQueryVariables>(ListCaseStudiesPagedDocument, options);
+        }
+// @ts-ignore
+export function useListCaseStudiesPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListCaseStudiesPagedQuery, ListCaseStudiesPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListCaseStudiesPagedQuery, ListCaseStudiesPagedQueryVariables>;
+export function useListCaseStudiesPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCaseStudiesPagedQuery, ListCaseStudiesPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListCaseStudiesPagedQuery | undefined, ListCaseStudiesPagedQueryVariables>;
+export function useListCaseStudiesPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCaseStudiesPagedQuery, ListCaseStudiesPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListCaseStudiesPagedQuery, ListCaseStudiesPagedQueryVariables>(ListCaseStudiesPagedDocument, options);
+        }
+export type ListCaseStudiesPagedQueryHookResult = ReturnType<typeof useListCaseStudiesPagedQuery>;
+export type ListCaseStudiesPagedLazyQueryHookResult = ReturnType<typeof useListCaseStudiesPagedLazyQuery>;
+export type ListCaseStudiesPagedSuspenseQueryHookResult = ReturnType<typeof useListCaseStudiesPagedSuspenseQuery>;
+export type ListCaseStudiesPagedQueryResult = Apollo.QueryResult<ListCaseStudiesPagedQuery, ListCaseStudiesPagedQueryVariables>;
 export const CreateCaseStudyDocument = gql`
     mutation CreateCaseStudy($input: CaseStudyInput!) {
   createCaseStudy(input: $input) {
@@ -9816,6 +10448,52 @@ export type ListJobCompaniesQueryHookResult = ReturnType<typeof useListJobCompan
 export type ListJobCompaniesLazyQueryHookResult = ReturnType<typeof useListJobCompaniesLazyQuery>;
 export type ListJobCompaniesSuspenseQueryHookResult = ReturnType<typeof useListJobCompaniesSuspenseQuery>;
 export type ListJobCompaniesQueryResult = Apollo.QueryResult<ListJobCompaniesQuery, ListJobCompaniesQueryVariables>;
+export const ListJobCompaniesPagedDocument = gql`
+    query ListJobCompaniesPaged($input: TableQueryInput!) {
+  listJobCompaniesPaged(input: $input) {
+    totalCount
+    rows {
+      ...JobCompanyFields
+    }
+  }
+}
+    ${JobCompanyFieldsFragmentDoc}`;
+
+/**
+ * __useListJobCompaniesPagedQuery__
+ *
+ * To run a query within a React component, call `useListJobCompaniesPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListJobCompaniesPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListJobCompaniesPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListJobCompaniesPagedQuery(baseOptions: Apollo.QueryHookOptions<ListJobCompaniesPagedQuery, ListJobCompaniesPagedQueryVariables> & ({ variables: ListJobCompaniesPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListJobCompaniesPagedQuery, ListJobCompaniesPagedQueryVariables>(ListJobCompaniesPagedDocument, options);
+      }
+export function useListJobCompaniesPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListJobCompaniesPagedQuery, ListJobCompaniesPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListJobCompaniesPagedQuery, ListJobCompaniesPagedQueryVariables>(ListJobCompaniesPagedDocument, options);
+        }
+// @ts-ignore
+export function useListJobCompaniesPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListJobCompaniesPagedQuery, ListJobCompaniesPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListJobCompaniesPagedQuery, ListJobCompaniesPagedQueryVariables>;
+export function useListJobCompaniesPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListJobCompaniesPagedQuery, ListJobCompaniesPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListJobCompaniesPagedQuery | undefined, ListJobCompaniesPagedQueryVariables>;
+export function useListJobCompaniesPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListJobCompaniesPagedQuery, ListJobCompaniesPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListJobCompaniesPagedQuery, ListJobCompaniesPagedQueryVariables>(ListJobCompaniesPagedDocument, options);
+        }
+export type ListJobCompaniesPagedQueryHookResult = ReturnType<typeof useListJobCompaniesPagedQuery>;
+export type ListJobCompaniesPagedLazyQueryHookResult = ReturnType<typeof useListJobCompaniesPagedLazyQuery>;
+export type ListJobCompaniesPagedSuspenseQueryHookResult = ReturnType<typeof useListJobCompaniesPagedSuspenseQuery>;
+export type ListJobCompaniesPagedQueryResult = Apollo.QueryResult<ListJobCompaniesPagedQuery, ListJobCompaniesPagedQueryVariables>;
 export const CreateJobCompanyDocument = gql`
     mutation CreateJobCompany($input: JobCompanyInput!) {
   createJobCompany(input: $input) {
@@ -9956,6 +10634,52 @@ export type ListJobsQueryHookResult = ReturnType<typeof useListJobsQuery>;
 export type ListJobsLazyQueryHookResult = ReturnType<typeof useListJobsLazyQuery>;
 export type ListJobsSuspenseQueryHookResult = ReturnType<typeof useListJobsSuspenseQuery>;
 export type ListJobsQueryResult = Apollo.QueryResult<ListJobsQuery, ListJobsQueryVariables>;
+export const ListJobsPagedDocument = gql`
+    query ListJobsPaged($input: TableQueryInput!) {
+  listJobsPaged(input: $input) {
+    totalCount
+    rows {
+      ...JobFields
+    }
+  }
+}
+    ${JobFieldsFragmentDoc}`;
+
+/**
+ * __useListJobsPagedQuery__
+ *
+ * To run a query within a React component, call `useListJobsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListJobsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListJobsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListJobsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListJobsPagedQuery, ListJobsPagedQueryVariables> & ({ variables: ListJobsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListJobsPagedQuery, ListJobsPagedQueryVariables>(ListJobsPagedDocument, options);
+      }
+export function useListJobsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListJobsPagedQuery, ListJobsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListJobsPagedQuery, ListJobsPagedQueryVariables>(ListJobsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListJobsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListJobsPagedQuery, ListJobsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListJobsPagedQuery, ListJobsPagedQueryVariables>;
+export function useListJobsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListJobsPagedQuery, ListJobsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListJobsPagedQuery | undefined, ListJobsPagedQueryVariables>;
+export function useListJobsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListJobsPagedQuery, ListJobsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListJobsPagedQuery, ListJobsPagedQueryVariables>(ListJobsPagedDocument, options);
+        }
+export type ListJobsPagedQueryHookResult = ReturnType<typeof useListJobsPagedQuery>;
+export type ListJobsPagedLazyQueryHookResult = ReturnType<typeof useListJobsPagedLazyQuery>;
+export type ListJobsPagedSuspenseQueryHookResult = ReturnType<typeof useListJobsPagedSuspenseQuery>;
+export type ListJobsPagedQueryResult = Apollo.QueryResult<ListJobsPagedQuery, ListJobsPagedQueryVariables>;
 export const CreateJobDocument = gql`
     mutation CreateJob($input: JobInput!) {
   createJob(input: $input) {
@@ -10096,6 +10820,52 @@ export type ListGigsQueryHookResult = ReturnType<typeof useListGigsQuery>;
 export type ListGigsLazyQueryHookResult = ReturnType<typeof useListGigsLazyQuery>;
 export type ListGigsSuspenseQueryHookResult = ReturnType<typeof useListGigsSuspenseQuery>;
 export type ListGigsQueryResult = Apollo.QueryResult<ListGigsQuery, ListGigsQueryVariables>;
+export const ListGigsPagedDocument = gql`
+    query ListGigsPaged($input: TableQueryInput!) {
+  listGigsPaged(input: $input) {
+    totalCount
+    rows {
+      ...GigFields
+    }
+  }
+}
+    ${GigFieldsFragmentDoc}`;
+
+/**
+ * __useListGigsPagedQuery__
+ *
+ * To run a query within a React component, call `useListGigsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListGigsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListGigsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListGigsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListGigsPagedQuery, ListGigsPagedQueryVariables> & ({ variables: ListGigsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListGigsPagedQuery, ListGigsPagedQueryVariables>(ListGigsPagedDocument, options);
+      }
+export function useListGigsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListGigsPagedQuery, ListGigsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListGigsPagedQuery, ListGigsPagedQueryVariables>(ListGigsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListGigsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListGigsPagedQuery, ListGigsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListGigsPagedQuery, ListGigsPagedQueryVariables>;
+export function useListGigsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListGigsPagedQuery, ListGigsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListGigsPagedQuery | undefined, ListGigsPagedQueryVariables>;
+export function useListGigsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListGigsPagedQuery, ListGigsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListGigsPagedQuery, ListGigsPagedQueryVariables>(ListGigsPagedDocument, options);
+        }
+export type ListGigsPagedQueryHookResult = ReturnType<typeof useListGigsPagedQuery>;
+export type ListGigsPagedLazyQueryHookResult = ReturnType<typeof useListGigsPagedLazyQuery>;
+export type ListGigsPagedSuspenseQueryHookResult = ReturnType<typeof useListGigsPagedSuspenseQuery>;
+export type ListGigsPagedQueryResult = Apollo.QueryResult<ListGigsPagedQuery, ListGigsPagedQueryVariables>;
 export const CreateGigDocument = gql`
     mutation CreateGig($input: GigInput!) {
   createGig(input: $input) {
@@ -10376,6 +11146,52 @@ export type ListToolsQueryHookResult = ReturnType<typeof useListToolsQuery>;
 export type ListToolsLazyQueryHookResult = ReturnType<typeof useListToolsLazyQuery>;
 export type ListToolsSuspenseQueryHookResult = ReturnType<typeof useListToolsSuspenseQuery>;
 export type ListToolsQueryResult = Apollo.QueryResult<ListToolsQuery, ListToolsQueryVariables>;
+export const ListToolsPagedDocument = gql`
+    query ListToolsPaged($input: TableQueryInput!) {
+  listToolsPaged(input: $input) {
+    totalCount
+    rows {
+      ...ToolFields
+    }
+  }
+}
+    ${ToolFieldsFragmentDoc}`;
+
+/**
+ * __useListToolsPagedQuery__
+ *
+ * To run a query within a React component, call `useListToolsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListToolsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListToolsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListToolsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListToolsPagedQuery, ListToolsPagedQueryVariables> & ({ variables: ListToolsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListToolsPagedQuery, ListToolsPagedQueryVariables>(ListToolsPagedDocument, options);
+      }
+export function useListToolsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListToolsPagedQuery, ListToolsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListToolsPagedQuery, ListToolsPagedQueryVariables>(ListToolsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListToolsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListToolsPagedQuery, ListToolsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListToolsPagedQuery, ListToolsPagedQueryVariables>;
+export function useListToolsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListToolsPagedQuery, ListToolsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListToolsPagedQuery | undefined, ListToolsPagedQueryVariables>;
+export function useListToolsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListToolsPagedQuery, ListToolsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListToolsPagedQuery, ListToolsPagedQueryVariables>(ListToolsPagedDocument, options);
+        }
+export type ListToolsPagedQueryHookResult = ReturnType<typeof useListToolsPagedQuery>;
+export type ListToolsPagedLazyQueryHookResult = ReturnType<typeof useListToolsPagedLazyQuery>;
+export type ListToolsPagedSuspenseQueryHookResult = ReturnType<typeof useListToolsPagedSuspenseQuery>;
+export type ListToolsPagedQueryResult = Apollo.QueryResult<ListToolsPagedQuery, ListToolsPagedQueryVariables>;
 export const CreateToolDocument = gql`
     mutation CreateTool($input: ToolInput!) {
   createTool(input: $input) {

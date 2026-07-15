@@ -24,5 +24,6 @@ export const bugsResolvers = createCrudResolvers(bugsService, {
     sortFields: ['title', 'assignee', 'severity', 'status', 'dueDate', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  stats: { countBy: ['status', 'severity'] },
 });
 export { bugsTypeDefs };

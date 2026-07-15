@@ -30,6 +30,7 @@ const aiJobResolvers = createCrudResolvers(aiService, {
     sortFields: ['name', 'model', 'prompt', 'status', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  stats: { countBy: ['status'] },
 });
 
 export const promptService = createCrudService<PromptInput>(PromptModel as never, 'Prompt');
@@ -42,6 +43,7 @@ const promptResolvers = createCrudResolvers(promptService, {
     sortFields: ['title', 'category', 'content', 'description', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  stats: { countBy: ['category'] },
 });
 
 /** Merges AI-job CRUD with the Prompt Library CRUD. */

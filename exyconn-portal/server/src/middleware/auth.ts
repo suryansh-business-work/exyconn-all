@@ -9,13 +9,14 @@ export interface GraphQLContext {
 
 /**
  * Builds the per-request GraphQL context by decoding the Bearer token and then
- * refreshing the caller's roles from the database.
+ * revalidating the caller against the database.
  *
- * Authorization (`assertRole`) reads `ctx.user.roles`, but those are baked into a 7-day
- * JWT at login. Without this refresh, a role change persists to Mongo yet does not take
- * effect until the user signs in again — the "roles aren't being assigned" symptom. Re-
- * reading the roles from the source of truth on every request makes changes apply at once,
- * and a token whose user has since been deleted is rejected outright.
+ * Authorization (`assertRole`) reads `ctx.user`, but its roles/identity are baked into a
+ * 7-day JWT at login. Without this refresh, a change persists to Mongo yet does not take
+ * effect until the user signs in again. Re-reading from the source of truth on every request
+ * makes it apply at once: role changes take effect immediately, and a token whose user has
+ * been deleted, deactivated, or blocked is rejected on its very next request rather than
+ * lingering until the token expires.
  */
 export async function buildContext({ req }: { req: Request }): Promise<GraphQLContext> {
   const header = req.headers.authorization ?? '';
@@ -25,8 +26,8 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
     return { user: null };
   }
 
-  const fresh = await UserModel.findById(decoded.id).select('roles').lean();
-  if (!fresh) {
+  const fresh = await UserModel.findById(decoded.id).select('roles isActive isBlocked').lean();
+  if (!fresh || !fresh.isActive || fresh.isBlocked) {
     return { user: null };
   }
 

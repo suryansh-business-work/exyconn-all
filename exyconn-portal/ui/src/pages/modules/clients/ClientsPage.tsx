@@ -7,8 +7,9 @@ import type { StatItem } from '../../../components/dashboard/StatCard';
 import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
+import { statCount, statTotal } from '../../../components/data/tableStats';
 import {
-  useListClientsQuery,
+  useListClientsStatsQuery,
   useDeleteClientMutation,
   ListClientsPagedDocument,
   type ListClientsPagedQuery,
@@ -20,8 +21,8 @@ import { CLIENT_COLUMNS, type PagedClientRow, type ClientsGridContext } from './
 
 /** Clients module — client directory dashboard with a server-side clients grid. */
 export function ClientsPage() {
-  // Stat cards still summarise all clients; the grid itself is server-paged.
-  const { data } = useListClientsQuery();
+  // Stat cards come from one server aggregation; the grid is server-paged separately.
+  const { data: statsData, refetch: refetchStats } = useListClientsStatsQuery();
   const [deleteClient] = useDeleteClientMutation();
   const dialog = useCrudDialog<ClientRow>();
   const confirm = useConfirm();
@@ -29,27 +30,18 @@ export function ClientsPage() {
   const client = useApolloClient();
   const [refreshSignal, setRefreshSignal] = useState(0);
 
-  const rows = data?.listClients ?? [];
-  const stats: StatItem[] = [
-    { label: 'Clients', value: String(rows.length), accent: '#4f8cff' },
-    {
-      label: 'Active',
-      value: String(rows.filter((r) => r.status === 'ACTIVE').length),
-      accent: '#7be37b',
-    },
-    {
-      label: 'Prospects',
-      value: String(rows.filter((r) => r.status === 'PROSPECT').length),
-      accent: '#f9851f',
-    },
-    {
-      label: 'Inactive',
-      value: String(rows.filter((r) => r.status === 'INACTIVE').length),
-      accent: '#ff6b6b',
-    },
+  const stats = statsData?.listClientsStats;
+  const statItems: StatItem[] = [
+    { label: 'Clients', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#7be37b' },
+    { label: 'Prospects', value: String(statCount(stats, 'status', 'PROSPECT')), accent: '#f9851f' },
+    { label: 'Inactive', value: String(statCount(stats, 'status', 'INACTIVE')), accent: '#ff6b6b' },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
+  const reload = () => {
+    setRefreshSignal((n) => n + 1);
+    void refetchStats();
+  };
 
   const fetchRows = useCallback(
     async (input: TableQueryInput): Promise<TablePageResult<PagedClientRow>> => {
@@ -87,7 +79,7 @@ export function ClientsPage() {
       subtitle="Client directory"
       actionLabel="New client"
       onAction={dialog.openCreate}
-      stats={stats}
+      stats={statItems}
       dialog={
         <CrudDialog
           open={dialog.open}

@@ -8,8 +8,9 @@ import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
 import { useSettings } from '../../../hooks/useSettings';
+import { statCount, statSum, statTotal } from '../../../components/data/tableStats';
 import {
-  useListCampaignsQuery,
+  useListCampaignsStatsQuery,
   useDeleteCampaignMutation,
   ListCampaignsPagedDocument,
   type ListCampaignsPagedQuery,
@@ -27,8 +28,8 @@ import {
 
 /** Marketing module — campaign dashboard with a server-side campaigns grid and email send. */
 export function MarketingPage() {
-  // Stat cards still summarise all campaigns; the grid itself is server-paged.
-  const { data } = useListCampaignsQuery();
+  // Stat cards come from one server aggregation; the grid is server-paged separately.
+  const { data: statsData, refetch: refetchStats } = useListCampaignsStatsQuery();
   const [deleteCampaign] = useDeleteCampaignMutation();
   const dialog = useCrudDialog<CampaignRow>();
   const [detailsTarget, setDetailsTarget] = useState<CampaignRow | null>(null);
@@ -39,24 +40,24 @@ export function MarketingPage() {
   const client = useApolloClient();
   const [refreshSignal, setRefreshSignal] = useState(0);
 
-  const rows = data?.listCampaigns ?? [];
-  const budget = rows.reduce((sum, r) => sum + r.budget, 0);
-  const stats: StatItem[] = [
-    { label: 'Campaigns', value: String(rows.length), accent: '#4f8cff' },
+  const stats = statsData?.listCampaignsStats;
+  // "Sent" counts campaigns whose nullable `lastSentAt` is set = total minus the null bucket.
+  const sent = statTotal(stats) - statCount(stats, 'lastSentAt', 'null');
+  const statItems: StatItem[] = [
+    { label: 'Campaigns', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#7be37b' },
     {
-      label: 'Active',
-      value: String(rows.filter((r) => r.status === 'ACTIVE').length),
-      accent: '#7be37b',
+      label: 'Total budget',
+      value: `₹${statSum(stats, 'budget').toLocaleString()}`,
+      accent: '#ec4899',
     },
-    { label: 'Total budget', value: `₹${budget.toLocaleString()}`, accent: '#ec4899' },
-    {
-      label: 'Sent',
-      value: String(rows.filter((r) => r.lastSentAt).length),
-      accent: '#f9851f',
-    },
+    { label: 'Sent', value: String(sent), accent: '#f9851f' },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
+  const reload = () => {
+    setRefreshSignal((n) => n + 1);
+    void refetchStats();
+  };
 
   const fetchRows = useCallback(
     async (input: TableQueryInput): Promise<TablePageResult<PagedCampaignRow>> => {
@@ -97,7 +98,7 @@ export function MarketingPage() {
       subtitle="Campaigns"
       actionLabel="New campaign"
       onAction={dialog.openCreate}
-      stats={stats}
+      stats={statItems}
       dialog={
         <>
           <CrudDialog

@@ -27,6 +27,23 @@ query ListInvoicesPaged($input: TableQueryInput!) {
   }
 }
 
+query ListInvoicesStats {
+  listInvoicesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
 mutation CreateInvoice($input: InvoiceInput!) {
   createInvoice(input: $input) {
     id

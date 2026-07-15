@@ -29,6 +29,7 @@ const campaignResolvers = createCrudResolvers(marketingService, {
     sortFields: ['name', 'channel', 'budget', 'status', 'startDate', 'endDate', 'lastSentAt', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  stats: { countBy: ['status', 'lastSentAt'], sum: ['budget'] },
 });
 
 /** Merges campaign CRUD with the custom sendCampaign mutation. */

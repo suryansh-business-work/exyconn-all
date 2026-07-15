@@ -33,6 +33,23 @@ query ListCampaignsPaged($input: TableQueryInput!) {
   }
 }
 
+query ListCampaignsStats {
+  listCampaignsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
 mutation CreateCampaign($input: CampaignInput!) {
   createCampaign(input: $input) {
     id

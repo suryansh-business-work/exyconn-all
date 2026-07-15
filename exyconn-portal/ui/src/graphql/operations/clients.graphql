@@ -23,6 +23,23 @@ query ListClientsPaged($input: TableQueryInput!) {
   }
 }
 
+query ListClientsStats {
+  listClientsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
 mutation CreateClient($input: ClientInput!) {
   createClient(input: $input) {
     id

@@ -42,8 +42,15 @@ export const gigTypeDefs = gql`
     isUrgent: Boolean
   }
 
+  type GigPage {
+    rows: [Gig!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     listGigs: [Gig!]!
+    listGigsPaged(input: TableQueryInput!): GigPage!
+    listGigsStats: TableStats!
     getGig(id: ID!): Gig!
     publicGigs: [Gig!]!
     publicGig(gigCode: String!): Gig

@@ -1,5 +1,6 @@
-import { DataTable, type Column } from '../../../components/data/DataTable';
-import { BoolChip } from '../../../components/data/BoolChip';
+import { useCallback, useState } from 'react';
+import { useApolloClient } from '@apollo/client';
+import { ServerDataGrid, type TablePageResult } from '../../../components/data/ServerDataGrid';
 import { CrudDialog } from '../../../components/data/CrudDialog';
 import { ModuleDashboard } from '../../../components/dashboard/ModuleDashboard';
 import type { StatItem } from '../../../components/dashboard/StatCard';
@@ -7,17 +8,32 @@ import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
 import { useSettings } from '../../../hooks/useSettings';
-import { useListCaseStudiesQuery, useDeleteCaseStudyMutation } from '../../../graphql/generated';
+import {
+  useListCaseStudiesQuery,
+  useDeleteCaseStudyMutation,
+  ListCaseStudiesPagedDocument,
+  type ListCaseStudiesPagedQuery,
+  type ListCaseStudiesPagedQueryVariables,
+  type TableQueryInput,
+} from '../../../graphql/generated';
 import { CaseStudyForm, type CaseStudyRow } from './forms/case-study';
+import {
+  CASE_STUDY_COLUMNS,
+  type PagedCaseStudyRow,
+  type CaseStudiesGridContext,
+} from './case-studies-grid';
 
-/** Website CMS — case studies. */
+/** Website CMS — case studies with a server-side grid. */
 export function CaseStudiesPage() {
-  const { data, loading, refetch } = useListCaseStudiesQuery();
+  // Stat cards still summarise all case studies; the grid itself is server-paged.
+  const { data } = useListCaseStudiesQuery();
   const [deleteCaseStudy] = useDeleteCaseStudyMutation();
   const dialog = useCrudDialog<CaseStudyRow>();
   const confirm = useConfirm();
   const notify = useNotify();
   const { formatDate } = useSettings();
+  const client = useApolloClient();
+  const [refreshSignal, setRefreshSignal] = useState(0);
 
   const rows = data?.listCaseStudies ?? [];
   const categoryCount = new Set(rows.map((r) => r.category).filter(Boolean)).size;
@@ -28,21 +44,40 @@ export function CaseStudiesPage() {
     { label: 'Categories', value: String(categoryCount), accent: '#b58cff' },
   ];
 
-  const columns: Column<CaseStudyRow>[] = [
-    { key: 'title', label: 'Title' },
-    { key: 'slug', label: 'Slug' },
-    { key: 'category', label: 'Category' },
-    { key: 'author', label: 'Author' },
-    { key: 'featured', label: 'Featured', render: (r) => <BoolChip value={r.featured} /> },
-    { key: 'publishedAt', label: 'Published', render: (r) => formatDate(r.publishedAt) },
-  ];
+  const reload = () => setRefreshSignal((n) => n + 1);
 
-  const handleDelete = async (row: CaseStudyRow) => {
+  const fetchRows = useCallback(
+    async (input: TableQueryInput): Promise<TablePageResult<PagedCaseStudyRow>> => {
+      const result = await client.query<
+        ListCaseStudiesPagedQuery,
+        ListCaseStudiesPagedQueryVariables
+      >({
+        query: ListCaseStudiesPagedDocument,
+        variables: { input },
+        fetchPolicy: 'network-only',
+      });
+      return {
+        rows: result.data.listCaseStudiesPaged.rows,
+        totalCount: result.data.listCaseStudiesPaged.totalCount,
+      };
+    },
+    [client],
+  );
+
+  const handleDelete = async (row: PagedCaseStudyRow) => {
     const ok = await confirm({ message: `Delete case study ${row.title}?`, confirmText: 'Delete' });
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
     await deleteCaseStudy({ variables: { id: row.id } });
-    await refetch();
+    reload();
     notify('Case study deleted');
+  };
+
+  const gridContext: CaseStudiesGridContext = {
+    onEdit: dialog.openEdit,
+    onDelete: handleDelete,
+    formatDate,
   };
 
   return (
@@ -62,19 +97,19 @@ export function CaseStudiesPage() {
             initial={dialog.editing}
             onCancel={dialog.close}
             onDone={() => {
-              void refetch();
+              reload();
               dialog.close();
             }}
           />
         </CrudDialog>
       }
     >
-      <DataTable
-        columns={columns}
-        rows={rows}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
-        emptyMessage={loading ? 'Loading…' : 'No case studies yet.'}
+      <ServerDataGrid<PagedCaseStudyRow>
+        columnDefs={CASE_STUDY_COLUMNS}
+        fetchRows={fetchRows}
+        context={gridContext}
+        refreshSignal={refreshSignal}
+        searchPlaceholder="Search case studies…"
       />
     </ModuleDashboard>
   );

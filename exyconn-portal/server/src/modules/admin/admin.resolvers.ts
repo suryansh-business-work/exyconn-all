@@ -32,6 +32,10 @@ export const adminResolvers = {
       const page = await adminService.listUsersPaged(input);
       return { rows: withIds(page.rows as LeanDoc[]), totalCount: page.totalCount };
     },
+    listUsersStats: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertRole(ctx, userReaders);
+      return adminService.listUsersStats();
+    },
     getUser: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       assertRole(ctx, userReaders);
       return withId(await adminService.getUser(id));

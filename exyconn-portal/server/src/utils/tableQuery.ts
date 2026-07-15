@@ -1,4 +1,4 @@
-import type { FilterQuery, Model } from 'mongoose';
+import type { FilterQuery, Model, PipelineStage } from 'mongoose';
 
 /**
  * Reusable server-side table engine shared by every paginated portal grid.
@@ -112,6 +112,85 @@ function buildSort(input: TableQueryInput, config: TableConfig): Record<string, 
   const useRequested = Boolean(input.sort && sortFields.has(input.sort.field));
   const sort = useRequested ? (input.sort as TableSortInput) : config.defaultSort;
   return { [sort.field]: sort.dir === 'DESC' ? -1 : 1 };
+}
+
+/** Which columns to bucket-count and which numeric columns to sum for a dashboard. */
+export interface StatsConfig {
+  /** Fields to group-count, e.g. ['status'] -> { PAID: 3, OVERDUE: 1 }. */
+  countBy?: string[];
+  /** Array fields to unwind then group, e.g. ['roles'] -> per-role counts. */
+  unwindCountBy?: string[];
+  /** Numeric fields to total, e.g. ['amount']. */
+  sum?: string[];
+}
+
+export interface StatBucket {
+  value: string;
+  count: number;
+}
+
+export interface StatFieldCounts {
+  field: string;
+  buckets: StatBucket[];
+}
+
+export interface StatFieldSum {
+  field: string;
+  total: number;
+}
+
+export interface TableStatsResult {
+  total: number;
+  counts: StatFieldCounts[];
+  sums: StatFieldSum[];
+}
+
+/**
+ * Computes a dashboard's summary numbers in ONE aggregation instead of pulling every row to
+ * the client. `$facet` runs the total, the per-field group counts and the field sums as one
+ * round-trip. The `countBy`/`sum` fields come from trusted server config, never the client.
+ */
+export async function tableStats<T>(
+  model: Model<T>,
+  config: StatsConfig,
+  baseFilter: FilterQuery<T> = {},
+): Promise<TableStatsResult> {
+  const countBy = config.countBy ?? [];
+  const unwindCountBy = config.unwindCountBy ?? [];
+  const sumFields = config.sum ?? [];
+
+  const facet: Record<string, PipelineStage.FacetPipelineStage[]> = {
+    total: [{ $count: 'value' }],
+  };
+  for (const field of countBy) {
+    facet[`c_${field}`] = [{ $group: { _id: `$${field}`, count: { $sum: 1 } } }];
+  }
+  for (const field of unwindCountBy) {
+    facet[`c_${field}`] = [
+      { $unwind: `$${field}` },
+      { $group: { _id: `$${field}`, count: { $sum: 1 } } },
+    ];
+  }
+  for (const field of sumFields) {
+    facet[`s_${field}`] = [{ $group: { _id: null, total: { $sum: `$${field}` } } }];
+  }
+
+  const [raw] = await model.aggregate([{ $match: baseFilter }, { $facet: facet }]);
+  const doc = (raw ?? {}) as Record<string, Array<Record<string, unknown>>>;
+
+  const counts: StatFieldCounts[] = [...countBy, ...unwindCountBy].map((field) => ({
+    field,
+    buckets: (doc[`c_${field}`] ?? []).map((bucket) => ({
+      value: String(bucket._id),
+      count: bucket.count as number,
+    })),
+  }));
+  const sums: StatFieldSum[] = sumFields.map((field) => ({
+    field,
+    total: (doc[`s_${field}`]?.[0]?.total as number) ?? 0,
+  }));
+
+  return { total: (doc.total?.[0]?.value as number) ?? 0, counts, sums };
 }
 
 /**

@@ -40,6 +40,28 @@ export const baseTypeDefs = gql`
     filters: [TableFilterInput!]
   }
 
+  # Dashboard summary numbers computed server-side, so a page never fetches every row.
+  type StatBucket {
+    value: String!
+    count: Int!
+  }
+
+  type StatFieldCounts {
+    field: String!
+    buckets: [StatBucket!]!
+  }
+
+  type StatFieldSum {
+    field: String!
+    total: Float!
+  }
+
+  type TableStats {
+    total: Int!
+    counts: [StatFieldCounts!]!
+    sums: [StatFieldSum!]!
+  }
+
   type Query {
     _empty: String
   }

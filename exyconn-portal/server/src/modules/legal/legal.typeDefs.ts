@@ -82,9 +82,11 @@ export const legalTypeDefs = gql`
   extend type Query {
     listContracts: [Contract!]!
     listContractsPaged(input: TableQueryInput!): ContractPage!
+    listContractsStats: TableStats!
     getContract(id: ID!): Contract!
     listLegalDocuments: [LegalDocument!]!
     listLegalDocumentsPaged(input: TableQueryInput!): LegalDocumentPage!
+    listLegalDocumentsStats: TableStats!
     getLegalDocument(id: ID!): LegalDocument!
   }
 

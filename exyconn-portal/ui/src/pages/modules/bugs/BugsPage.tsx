@@ -8,8 +8,9 @@ import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
 import { useSettings } from '../../../hooks/useSettings';
+import { statCount, statTotal } from '../../../components/data/tableStats';
 import {
-  useListBugsQuery,
+  useListBugsStatsQuery,
   useDeleteBugMutation,
   ListBugsPagedDocument,
   type ListBugsPagedQuery,
@@ -21,8 +22,8 @@ import { BUG_COLUMNS, type PagedBugRow, type BugsGridContext } from './bugs-grid
 
 /** Bugs module — issue tracking dashboard with a server-side bugs grid. */
 export function BugsPage() {
-  // Stat cards still summarise all bugs; the grid itself is server-paged.
-  const { data } = useListBugsQuery();
+  // Stat cards come from one server aggregation; the grid is server-paged separately.
+  const { data: statsData, refetch: refetchStats } = useListBugsStatsQuery();
   const [deleteBug] = useDeleteBugMutation();
   const dialog = useCrudDialog<BugRow>();
   const confirm = useConfirm();
@@ -31,23 +32,26 @@ export function BugsPage() {
   const client = useApolloClient();
   const [refreshSignal, setRefreshSignal] = useState(0);
 
-  const rows = data?.listBugs ?? [];
-  const stats: StatItem[] = [
-    { label: 'Total bugs', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Open', value: String(rows.filter((r) => r.status === 'OPEN').length), accent: '#f9851f' },
+  const stats = statsData?.listBugsStats;
+  const statItems: StatItem[] = [
+    { label: 'Total bugs', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Open', value: String(statCount(stats, 'status', 'OPEN')), accent: '#f9851f' },
     {
       label: 'Critical',
-      value: String(rows.filter((r) => r.severity === 'CRITICAL').length),
+      value: String(statCount(stats, 'severity', 'CRITICAL')),
       accent: '#ff6b6b',
     },
     {
       label: 'Resolved',
-      value: String(rows.filter((r) => r.status === 'RESOLVED').length),
+      value: String(statCount(stats, 'status', 'RESOLVED')),
       accent: '#7be37b',
     },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
+  const reload = () => {
+    setRefreshSignal((n) => n + 1);
+    void refetchStats();
+  };
 
   const fetchRows = useCallback(
     async (input: TableQueryInput): Promise<TablePageResult<PagedBugRow>> => {
@@ -86,7 +90,7 @@ export function BugsPage() {
       subtitle="Issue tracking"
       actionLabel="New bug"
       onAction={dialog.openCreate}
-      stats={stats}
+      stats={statItems}
       dialog={
         <CrudDialog
           open={dialog.open}

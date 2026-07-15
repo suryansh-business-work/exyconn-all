@@ -98,6 +98,7 @@ export const adminTypeDefs = gql`
   extend type Query {
     listUsers: [User!]!
     listUsersPaged(input: TableQueryInput!): UserPage!
+    listUsersStats: TableStats!
     getUser(id: ID!): User!
     appSettings: AppSettings!
   }

@@ -33,7 +33,17 @@ import type {
 const websiteRoles = { roles: [ROLES.WEBSITE] };
 
 export const blogService = createCrudService<BlogPostInput>(BlogPostModel as never, 'BlogPost');
-const blogResolvers = createCrudResolvers(blogService, { name: 'BlogPost', ...websiteRoles });
+const blogResolvers = createCrudResolvers(blogService, {
+  name: 'BlogPost',
+  ...websiteRoles,
+  table: {
+    searchFields: ['slug', 'title', 'summary', 'content', 'readTime'],
+    filterFields: ['slug', 'title', 'summary', 'content', 'readTime'],
+    sortFields: ['slug', 'title', 'readTime', 'featured', 'isActive', 'publishedAt', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
+  stats: { countBy: ['featured', 'isActive'], unwindCountBy: ['tags'] },
+});
 
 export const caseStudyService = createCrudService<CaseStudyInput>(
   CaseStudyModel as never,
@@ -43,6 +53,22 @@ const caseStudyResolvers = createCrudResolvers(caseStudyService, {
   name: 'CaseStudy',
   plural: 'CaseStudies',
   ...websiteRoles,
+  table: {
+    searchFields: ['slug', 'title', 'excerpt', 'content', 'category', 'author'],
+    filterFields: ['slug', 'title', 'excerpt', 'content', 'category', 'author'],
+    sortFields: [
+      'slug',
+      'title',
+      'category',
+      'author',
+      'featured',
+      'isActive',
+      'publishedAt',
+      'createdAt',
+    ],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
+  stats: { countBy: ['featured', 'isActive', 'category'] },
 });
 
 export const jobCompanyService = createCrudService<JobCompanyInput>(
@@ -53,13 +79,91 @@ const jobCompanyResolvers = createCrudResolvers(jobCompanyService, {
   name: 'JobCompany',
   plural: 'JobCompanies',
   ...websiteRoles,
+  table: {
+    searchFields: ['companyCode', 'slug', 'name', 'tagline', 'industry', 'headquarters'],
+    filterFields: ['companyCode', 'slug', 'name', 'tagline', 'industry', 'headquarters'],
+    sortFields: [
+      'companyCode',
+      'slug',
+      'name',
+      'industry',
+      'headquarters',
+      'isActive',
+      'order',
+      'createdAt',
+    ],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
+  stats: { countBy: ['isActive', 'industry'], unwindCountBy: ['benefits'] },
 });
 
 export const jobService = createCrudService<JobInput>(JobModel as never, 'Job');
-const jobResolvers = createCrudResolvers(jobService, { name: 'Job', ...websiteRoles });
+const jobResolvers = createCrudResolvers(jobService, {
+  name: 'Job',
+  ...websiteRoles,
+  table: {
+    searchFields: [
+      'jobCode',
+      'companySlug',
+      'title',
+      'category',
+      'location',
+      'salaryRange',
+      'shortJobDescription',
+    ],
+    filterFields: [
+      'jobCode',
+      'companySlug',
+      'title',
+      'category',
+      'location',
+      'salaryRange',
+      'jobType',
+      'experienceLevel',
+      'workMode',
+    ],
+    sortFields: [
+      'jobCode',
+      'companySlug',
+      'title',
+      'category',
+      'jobType',
+      'experienceLevel',
+      'workMode',
+      'location',
+      'jobPostDate',
+      'isActive',
+      'isFeatured',
+      'createdAt',
+    ],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
+  stats: { countBy: ['isActive', 'isFeatured', 'companySlug'] },
+});
 
 export const gigService = createCrudService<GigInput>(GigModel as never, 'Gig');
-const gigResolvers = createCrudResolvers(gigService, { name: 'Gig', ...websiteRoles });
+const gigResolvers = createCrudResolvers(gigService, {
+  name: 'Gig',
+  ...websiteRoles,
+  table: {
+    searchFields: ['gigCode', 'title', 'category', 'shortDescription', 'budget'],
+    filterFields: ['gigCode', 'title', 'category', 'budget', 'status', 'applicationType'],
+    sortFields: [
+      'gigCode',
+      'title',
+      'category',
+      'budget',
+      'duration',
+      'status',
+      'applicationType',
+      'postedDate',
+      'isUrgent',
+      'createdAt',
+    ],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
+  stats: { countBy: ['status', 'isUrgent', 'category'] },
+});
 
 export const toolCategoryService = createCrudService<ToolCategoryInput>(
   ToolCategoryModel as never,
@@ -72,7 +176,17 @@ const toolCategoryResolvers = createCrudResolvers(toolCategoryService, {
 });
 
 export const toolService = createCrudService<ToolInput>(ToolModel as never, 'Tool');
-const toolResolvers = createCrudResolvers(toolService, { name: 'Tool', ...websiteRoles });
+const toolResolvers = createCrudResolvers(toolService, {
+  name: 'Tool',
+  ...websiteRoles,
+  table: {
+    searchFields: ['toolCode', 'categorySlug', 'name', 'description'],
+    filterFields: ['toolCode', 'categorySlug', 'name', 'description'],
+    sortFields: ['toolCode', 'categorySlug', 'name', 'isActive', 'isMVP', 'order', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
+  stats: { countBy: ['isActive', 'isMVP', 'categorySlug'] },
+});
 
 export const navLinkService = createCrudService<NavLinkInput>(NavLinkModel as never, 'NavLink');
 const navLinkResolvers = createCrudResolvers(navLinkService, { name: 'NavLink', ...websiteRoles });

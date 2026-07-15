@@ -72,8 +72,15 @@ export const jobCompanyTypeDefs = gql`
     order: Int
   }
 
+  type JobCompanyPage {
+    rows: [JobCompany!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     listJobCompanies: [JobCompany!]!
+    listJobCompaniesPaged(input: TableQueryInput!): JobCompanyPage!
+    listJobCompaniesStats: TableStats!
     getJobCompany(id: ID!): JobCompany!
     publicJobCompanies: [JobCompany!]!
     publicJobCompany(slug: String!): JobCompany

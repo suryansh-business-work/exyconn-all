@@ -1,21 +1,33 @@
-import { DataTable, type Column } from '../../../components/data/DataTable';
-import { StatusChip } from '../../../components/data/StatusChip';
+import { useCallback, useState } from 'react';
+import { useApolloClient } from '@apollo/client';
+import { ServerDataGrid, type TablePageResult } from '../../../components/data/ServerDataGrid';
 import { CrudDialog } from '../../../components/data/CrudDialog';
 import { ModuleDashboard } from '../../../components/dashboard/ModuleDashboard';
 import type { StatItem } from '../../../components/dashboard/StatCard';
 import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
-import { useListJobsQuery, useDeleteJobMutation } from '../../../graphql/generated';
+import {
+  useListJobsQuery,
+  useDeleteJobMutation,
+  ListJobsPagedDocument,
+  type ListJobsPagedQuery,
+  type ListJobsPagedQueryVariables,
+  type TableQueryInput,
+} from '../../../graphql/generated';
 import { JobForm, type JobRow } from './forms/job';
+import { JOB_COLUMNS, type PagedJobRow, type JobsGridContext } from './jobs-grid';
 
-/** Website module — job postings published on the public careers site. */
+/** Website module — job postings published on the public careers site (server-side grid). */
 export function JobsPage() {
-  const { data, loading, refetch } = useListJobsQuery();
+  // Stat cards still summarise all jobs; the grid itself is server-paged.
+  const { data } = useListJobsQuery();
   const [deleteJob] = useDeleteJobMutation();
   const dialog = useCrudDialog<JobRow>();
   const confirm = useConfirm();
   const notify = useNotify();
+  const client = useApolloClient();
+  const [refreshSignal, setRefreshSignal] = useState(0);
 
   const rows = data?.listJobs ?? [];
   const companies = new Set(rows.map((r) => r.companySlug).filter(Boolean));
@@ -30,26 +42,36 @@ export function JobsPage() {
     { label: 'Companies', value: String(companies.size), accent: '#c084fc' },
   ];
 
-  const columns: Column<JobRow>[] = [
-    { key: 'title', label: 'Title' },
-    { key: 'jobCode', label: 'Code' },
-    { key: 'companySlug', label: 'Company' },
-    { key: 'category', label: 'Category' },
-    { key: 'jobType', label: 'Type' },
-    { key: 'workMode', label: 'Work mode' },
-    {
-      key: 'isActive',
-      label: 'Status',
-      render: (r) => <StatusChip value={r.isActive ? 'ACTIVE' : 'INACTIVE'} />,
-    },
-  ];
+  const reload = () => setRefreshSignal((n) => n + 1);
 
-  const handleDelete = async (row: JobRow) => {
+  const fetchRows = useCallback(
+    async (input: TableQueryInput): Promise<TablePageResult<PagedJobRow>> => {
+      const result = await client.query<ListJobsPagedQuery, ListJobsPagedQueryVariables>({
+        query: ListJobsPagedDocument,
+        variables: { input },
+        fetchPolicy: 'network-only',
+      });
+      return {
+        rows: result.data.listJobsPaged.rows,
+        totalCount: result.data.listJobsPaged.totalCount,
+      };
+    },
+    [client],
+  );
+
+  const handleDelete = async (row: PagedJobRow) => {
     const ok = await confirm({ message: `Delete job ${row.title}?`, confirmText: 'Delete' });
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
     await deleteJob({ variables: { id: row.id } });
-    await refetch();
+    reload();
     notify('Job deleted');
+  };
+
+  const gridContext: JobsGridContext = {
+    onEdit: dialog.openEdit,
+    onDelete: handleDelete,
   };
 
   return (
@@ -69,19 +91,19 @@ export function JobsPage() {
             initial={dialog.editing}
             onCancel={dialog.close}
             onDone={() => {
-              void refetch();
+              reload();
               dialog.close();
             }}
           />
         </CrudDialog>
       }
     >
-      <DataTable
-        columns={columns}
-        rows={rows}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
-        emptyMessage={loading ? 'Loading…' : 'No jobs yet.'}
+      <ServerDataGrid<PagedJobRow>
+        columnDefs={JOB_COLUMNS}
+        fetchRows={fetchRows}
+        context={gridContext}
+        refreshSignal={refreshSignal}
+        searchPlaceholder="Search jobs…"
       />
     </ModuleDashboard>
   );

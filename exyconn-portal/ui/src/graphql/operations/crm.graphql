@@ -25,6 +25,23 @@ query ListLeadsPaged($input: TableQueryInput!) {
   }
 }
 
+query ListLeadsStats {
+  listLeadsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
 mutation CreateLead($input: LeadInput!) {
   createLead(input: $input) {
     id

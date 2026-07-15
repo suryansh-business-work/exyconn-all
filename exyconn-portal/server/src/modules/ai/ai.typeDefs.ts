@@ -66,9 +66,11 @@ export const aiTypeDefs = gql`
   extend type Query {
     listAiJobs: [AiJob!]!
     listAiJobsPaged(input: TableQueryInput!): AiJobPage!
+    listAiJobsStats: TableStats!
     getAiJob(id: ID!): AiJob!
     listPrompts: [Prompt!]!
     listPromptsPaged(input: TableQueryInput!): PromptPage!
+    listPromptsStats: TableStats!
     getPrompt(id: ID!): Prompt!
   }
 

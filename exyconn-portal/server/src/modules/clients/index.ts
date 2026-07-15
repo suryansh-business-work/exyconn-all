@@ -23,5 +23,6 @@ export const clientsResolvers = createCrudResolvers(clientsService, {
     sortFields: ['name', 'email', 'phone', 'company', 'status', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  stats: { countBy: ['status'] },
 });
 export { clientsTypeDefs };

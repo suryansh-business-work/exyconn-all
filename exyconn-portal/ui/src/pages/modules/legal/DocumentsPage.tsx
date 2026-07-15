@@ -7,8 +7,9 @@ import type { StatItem } from '../../../components/dashboard/StatCard';
 import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
+import { statCount, statTotal } from '../../../components/data/tableStats';
 import {
-  useListLegalDocumentsQuery,
+  useListLegalDocumentsStatsQuery,
   useDeleteLegalDocumentMutation,
   ListLegalDocumentsPagedDocument,
   type ListLegalDocumentsPagedQuery,
@@ -24,8 +25,8 @@ import {
 
 /** Legal → Documents: repository of legal documents with CRUD. */
 export function DocumentsPage() {
-  // Stat cards still summarise all documents; the grid itself is server-paged.
-  const { data } = useListLegalDocumentsQuery();
+  // Stat cards come from one server aggregation; the grid is server-paged separately.
+  const { data: statsData, refetch: refetchStats } = useListLegalDocumentsStatsQuery();
   const [deleteDocument] = useDeleteLegalDocumentMutation();
   const dialog = useCrudDialog<LegalDocumentRow>();
   const confirm = useConfirm();
@@ -33,16 +34,18 @@ export function DocumentsPage() {
   const client = useApolloClient();
   const [refreshSignal, setRefreshSignal] = useState(0);
 
-  const rows = data?.listLegalDocuments ?? [];
-  const count = (s: string) => rows.filter((r) => r.status === s).length;
-  const stats: StatItem[] = [
-    { label: 'Total', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Final', value: String(count('FINAL')), accent: '#22c55e' },
-    { label: 'Draft', value: String(count('DRAFT')), accent: '#f59e0b' },
-    { label: 'Archived', value: String(count('ARCHIVED')), accent: '#64748b' },
+  const stats = statsData?.listLegalDocumentsStats;
+  const statItems: StatItem[] = [
+    { label: 'Total', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Final', value: String(statCount(stats, 'status', 'FINAL')), accent: '#22c55e' },
+    { label: 'Draft', value: String(statCount(stats, 'status', 'DRAFT')), accent: '#f59e0b' },
+    { label: 'Archived', value: String(statCount(stats, 'status', 'ARCHIVED')), accent: '#64748b' },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
+  const reload = () => {
+    setRefreshSignal((n) => n + 1);
+    void refetchStats();
+  };
 
   const fetchRows = useCallback(
     async (input: TableQueryInput): Promise<TablePageResult<PagedLegalDocumentRow>> => {
@@ -83,7 +86,7 @@ export function DocumentsPage() {
       subtitle="Legal document repository"
       actionLabel="New document"
       onAction={dialog.openCreate}
-      stats={stats}
+      stats={statItems}
       dialog={
         <CrudDialog
           open={dialog.open}

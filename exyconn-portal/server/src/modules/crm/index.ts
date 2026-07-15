@@ -23,5 +23,6 @@ export const crmResolvers = createCrudResolvers(crmService, {
     sortFields: ['name', 'email', 'source', 'stage', 'value', 'owner', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  stats: { countBy: ['stage'], sum: ['value'] },
 });
 export { crmTypeDefs };

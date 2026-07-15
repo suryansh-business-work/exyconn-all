@@ -24,5 +24,6 @@ export const financeResolvers = createCrudResolvers(financeService, {
     sortFields: ['number', 'clientId', 'amount', 'status', 'issuedDate', 'dueDate', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  stats: { countBy: ['status'], sum: ['amount'] },
 });
 export { financeTypeDefs };

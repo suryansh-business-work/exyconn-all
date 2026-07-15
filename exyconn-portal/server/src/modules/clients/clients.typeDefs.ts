@@ -34,6 +34,7 @@ export const clientsTypeDefs = gql`
   extend type Query {
     listClients: [Client!]!
     listClientsPaged(input: TableQueryInput!): ClientPage!
+    listClientsStats: TableStats!
     getClient(id: ID!): Client!
   }
 

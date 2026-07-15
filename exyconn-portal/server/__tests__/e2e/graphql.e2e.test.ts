@@ -113,6 +113,63 @@ describe('GraphQL e2e', () => {
     expect(searched.body.data.listUsersPaged.rows[0].email).toBe('paged-a@exyconn.com');
   });
 
+  it('cuts a user off the instant their account is deactivated or blocked', async () => {
+    const user = await seedUser('revoke@exyconn.com', 'Pass@123', [ROLES.FINANCE]);
+    const login = await gql(
+      `mutation($e:String!,$p:String!){ login(email:$e,password:$p){ token } }`,
+      { e: 'revoke@exyconn.com', p: 'Pass@123' },
+    );
+    const token = login.body.data.login.token;
+
+    // The token works while the account is active.
+    const before = await gql(`{ listInvoices { id } }`, undefined, token);
+    expect(before.body.errors).toBeUndefined();
+
+    // Deactivating in the DB rejects the SAME token on its next request.
+    await UserModel.findByIdAndUpdate(user.id, { isActive: false });
+    const deactivated = await gql(`{ listInvoices { id } }`, undefined, token);
+    expect(deactivated.body.errors?.[0].extensions.code).toBe('UNAUTHENTICATED');
+
+    // Re-activating but blocking also rejects it.
+    await UserModel.findByIdAndUpdate(user.id, { isActive: true, isBlocked: true });
+    const blocked = await gql(`{ listInvoices { id } }`, undefined, token);
+    expect(blocked.body.errors?.[0].extensions.code).toBe('UNAUTHENTICATED');
+  });
+
+  it('summarises a module in one server-side stats aggregation', async () => {
+    const token = await loginAsAdmin();
+    const make = (number: string, status: string, amount: number) =>
+      gql(
+        `mutation($i:InvoiceInput!){ createInvoice(input:$i){ id } }`,
+        {
+          i: {
+            number,
+            clientId: 'c1',
+            amount,
+            currency: 'INR',
+            status,
+            issuedDate: '2026-01-01T00:00:00.000Z',
+            dueDate: '2026-02-01T00:00:00.000Z',
+          },
+        },
+        token,
+      );
+    await make('S1', 'PAID', 1000);
+    await make('S2', 'PAID', 500);
+    await make('S3', 'OVERDUE', 200);
+
+    const res = await gql(
+      `{ listInvoicesStats { total counts { field buckets { value count } } sums { field total } } }`,
+      undefined,
+      token,
+    );
+    const stats = res.body.data.listInvoicesStats;
+    expect(stats.total).toBe(3);
+    expect(stats.sums.find((s: { field: string }) => s.field === 'amount').total).toBe(1700);
+    const status = stats.counts.find((c: { field: string }) => c.field === 'status');
+    expect(status.buckets.find((b: { value: string }) => b.value === 'PAID').count).toBe(2);
+  });
+
   it('applies a newly assigned role immediately, without a re-login', async () => {
     const user = await seedUser('grantee@exyconn.com', 'Grant@123', [ROLES.EMPLOYEE]);
     const login = await gql(

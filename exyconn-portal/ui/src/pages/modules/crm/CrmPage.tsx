@@ -7,8 +7,9 @@ import type { StatItem } from '../../../components/dashboard/StatCard';
 import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
+import { statCount, statSum, statTotal } from '../../../components/data/tableStats';
 import {
-  useListLeadsQuery,
+  useListLeadsStatsQuery,
   useDeleteLeadMutation,
   ListLeadsPagedDocument,
   type ListLeadsPagedQuery,
@@ -20,8 +21,8 @@ import { LEAD_COLUMNS, type PagedLeadRow, type LeadsGridContext } from './leads-
 
 /** CRM module — leads & pipeline dashboard with a server-side leads grid. */
 export function CrmPage() {
-  // Stat cards still summarise all leads; the grid itself is server-paged.
-  const { data } = useListLeadsQuery();
+  // Stat cards come from one server aggregation; the grid is server-paged separately.
+  const { data: statsData, refetch: refetchStats } = useListLeadsStatsQuery();
   const [deleteLead] = useDeleteLeadMutation();
   const dialog = useCrudDialog<LeadRow>();
   const confirm = useConfirm();
@@ -29,16 +30,18 @@ export function CrmPage() {
   const client = useApolloClient();
   const [refreshSignal, setRefreshSignal] = useState(0);
 
-  const rows = data?.listLeads ?? [];
-  const pipeline = rows.reduce((sum, r) => sum + r.value, 0);
-  const stats: StatItem[] = [
-    { label: 'Leads', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Pipeline', value: `₹${pipeline.toLocaleString()}`, accent: '#22c55e' },
-    { label: 'Won', value: String(rows.filter((r) => r.stage === 'WON').length), accent: '#7be37b' },
-    { label: 'Lost', value: String(rows.filter((r) => r.stage === 'LOST').length), accent: '#ff6b6b' },
+  const stats = statsData?.listLeadsStats;
+  const statItems: StatItem[] = [
+    { label: 'Leads', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Pipeline', value: `₹${statSum(stats, 'value').toLocaleString()}`, accent: '#22c55e' },
+    { label: 'Won', value: String(statCount(stats, 'stage', 'WON')), accent: '#7be37b' },
+    { label: 'Lost', value: String(statCount(stats, 'stage', 'LOST')), accent: '#ff6b6b' },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
+  const reload = () => {
+    setRefreshSignal((n) => n + 1);
+    void refetchStats();
+  };
 
   const fetchRows = useCallback(
     async (input: TableQueryInput): Promise<TablePageResult<PagedLeadRow>> => {
@@ -76,7 +79,7 @@ export function CrmPage() {
       subtitle="Leads & pipeline"
       actionLabel="New lead"
       onAction={dialog.openCreate}
-      stats={stats}
+      stats={statItems}
       dialog={
         <CrudDialog
           open={dialog.open}

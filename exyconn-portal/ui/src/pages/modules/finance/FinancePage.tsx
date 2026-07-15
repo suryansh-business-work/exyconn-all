@@ -8,8 +8,9 @@ import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
 import { useSettings } from '../../../hooks/useSettings';
+import { statCount, statSum, statTotal } from '../../../components/data/tableStats';
 import {
-  useListInvoicesQuery,
+  useListInvoicesStatsQuery,
   useDeleteInvoiceMutation,
   ListInvoicesPagedDocument,
   type ListInvoicesPagedQuery,
@@ -21,8 +22,8 @@ import { INVOICE_COLUMNS, type PagedInvoiceRow, type InvoicesGridContext } from 
 
 /** Finance module — invoice dashboard with a server-side invoices grid. */
 export function FinancePage() {
-  // Stat cards still summarise all invoices; the grid itself is server-paged.
-  const { data } = useListInvoicesQuery();
+  // Stat cards come from one server aggregation; the grid is server-paged separately.
+  const { data: statsData, refetch: refetchStats } = useListInvoicesStatsQuery();
   const [deleteInvoice] = useDeleteInvoiceMutation();
   const dialog = useCrudDialog<InvoiceRow>();
   const confirm = useConfirm();
@@ -31,20 +32,18 @@ export function FinancePage() {
   const client = useApolloClient();
   const [refreshSignal, setRefreshSignal] = useState(0);
 
-  const rows = data?.listInvoices ?? [];
-  const revenue = rows.reduce((sum, r) => sum + r.amount, 0);
-  const stats: StatItem[] = [
-    { label: 'Invoices', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Revenue', value: `₹${revenue.toLocaleString()}`, accent: '#f9851f' },
-    { label: 'Paid', value: String(rows.filter((r) => r.status === 'PAID').length), accent: '#7be37b' },
-    {
-      label: 'Overdue',
-      value: String(rows.filter((r) => r.status === 'OVERDUE').length),
-      accent: '#ff6b6b',
-    },
+  const stats = statsData?.listInvoicesStats;
+  const statItems: StatItem[] = [
+    { label: 'Invoices', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Revenue', value: `₹${statSum(stats, 'amount').toLocaleString()}`, accent: '#f9851f' },
+    { label: 'Paid', value: String(statCount(stats, 'status', 'PAID')), accent: '#7be37b' },
+    { label: 'Overdue', value: String(statCount(stats, 'status', 'OVERDUE')), accent: '#ff6b6b' },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
+  const reload = () => {
+    setRefreshSignal((n) => n + 1);
+    void refetchStats();
+  };
 
   const fetchRows = useCallback(
     async (input: TableQueryInput): Promise<TablePageResult<PagedInvoiceRow>> => {
@@ -83,7 +82,7 @@ export function FinancePage() {
       subtitle="Invoices & billing"
       actionLabel="New invoice"
       onAction={dialog.openCreate}
-      stats={stats}
+      stats={statItems}
       dialog={
         <CrudDialog
           open={dialog.open}

@@ -10,7 +10,7 @@ import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
 import {
   Role,
-  useListUsersQuery,
+  useListUsersStatsQuery,
   useDeleteUserMutation,
   useResetUserPasswordMutation,
   ListUsersPagedDocument,
@@ -18,14 +18,15 @@ import {
   type ListUsersPagedQueryVariables,
   type TableQueryInput,
 } from '../../../graphql/generated';
+import { statCount, statDistinct, statTotal } from '../../../components/data/tableStats';
 import { UserForm, type UserRow } from './forms/user';
 import { CredentialsDialog, type Credentials } from './CredentialsDialog';
 import { USER_COLUMNS, type PagedUserRow, type UsersGridContext } from './users-grid';
 
 /** Admin module — user management dashboard with a server-side Users grid. */
 export function AdminPage() {
-  // Stat cards still summarise the whole user base; the grid itself is server-paged.
-  const { data } = useListUsersQuery();
+  // Stat cards come from one server aggregation; the grid is server-paged separately.
+  const { data: statsData, refetch: refetchStats } = useListUsersStatsQuery();
   const [deleteUser] = useDeleteUserMutation();
   const [resetPassword] = useResetUserPasswordMutation();
   const dialog = useCrudDialog<UserRow>();
@@ -36,20 +37,18 @@ export function AdminPage() {
   const [credentials, setCredentials] = useState<Credentials | null>(null);
   const [refreshSignal, setRefreshSignal] = useState(0);
 
-  const rows = data?.listUsers ?? [];
-  const roleCount = new Set(rows.flatMap((r) => r.roles)).size;
-  const stats: StatItem[] = [
-    { label: 'Users', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Active', value: String(rows.filter((r) => r.isActive).length), accent: '#7be37b' },
-    {
-      label: 'Admins',
-      value: String(rows.filter((r) => r.roles.includes(Role.Admin)).length),
-      accent: '#f9851f',
-    },
-    { label: 'Roles in use', value: String(roleCount), accent: '#8b5cf6' },
+  const stats = statsData?.listUsersStats;
+  const statItems: StatItem[] = [
+    { label: 'Users', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Active', value: String(statCount(stats, 'isActive', 'true')), accent: '#7be37b' },
+    { label: 'Admins', value: String(statCount(stats, 'roles', Role.Admin)), accent: '#f9851f' },
+    { label: 'Roles in use', value: String(statDistinct(stats, 'roles')), accent: '#8b5cf6' },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
+  const reload = () => {
+    setRefreshSignal((n) => n + 1);
+    void refetchStats();
+  };
 
   const fetchRows = useCallback(
     async (input: TableQueryInput): Promise<TablePageResult<PagedUserRow>> => {
@@ -106,7 +105,7 @@ export function AdminPage() {
       subtitle="Users & roles"
       actionLabel="New user"
       onAction={dialog.openCreate}
-      stats={stats}
+      stats={statItems}
       dialog={
         <CrudDialog
           open={dialog.open}

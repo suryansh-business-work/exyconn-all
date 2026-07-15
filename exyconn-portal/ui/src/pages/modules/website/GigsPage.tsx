@@ -1,5 +1,6 @@
-import { DataTable, type Column } from '../../../components/data/DataTable';
-import { StatusChip } from '../../../components/data/StatusChip';
+import { useCallback, useState } from 'react';
+import { useApolloClient } from '@apollo/client';
+import { ServerDataGrid, type TablePageResult } from '../../../components/data/ServerDataGrid';
 import { CrudDialog } from '../../../components/data/CrudDialog';
 import { ModuleDashboard } from '../../../components/dashboard/ModuleDashboard';
 import type { StatItem } from '../../../components/dashboard/StatCard';
@@ -7,17 +8,28 @@ import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
 import { useSettings } from '../../../hooks/useSettings';
-import { useListGigsQuery, useDeleteGigMutation } from '../../../graphql/generated';
+import {
+  useListGigsQuery,
+  useDeleteGigMutation,
+  ListGigsPagedDocument,
+  type ListGigsPagedQuery,
+  type ListGigsPagedQueryVariables,
+  type TableQueryInput,
+} from '../../../graphql/generated';
 import { GigForm, type GigRow } from './forms/gig';
+import { GIG_COLUMNS, type PagedGigRow, type GigsGridContext } from './gigs-grid';
 
-/** Website CMS — freelance gigs published on the public site. */
+/** Website CMS — freelance gigs published on the public site (server-side grid). */
 export function GigsPage() {
-  const { data, loading, refetch } = useListGigsQuery();
+  // Stat cards still summarise all gigs; the grid itself is server-paged.
+  const { data } = useListGigsQuery();
   const [deleteGig] = useDeleteGigMutation();
   const dialog = useCrudDialog<GigRow>();
   const confirm = useConfirm();
   const notify = useNotify();
   const { formatDate } = useSettings();
+  const client = useApolloClient();
+  const [refreshSignal, setRefreshSignal] = useState(0);
 
   const rows = data?.listGigs ?? [];
   const categories = new Set(rows.map((r) => r.category));
@@ -36,21 +48,37 @@ export function GigsPage() {
     { label: 'Categories', value: String(categories.size), accent: '#f9851f' },
   ];
 
-  const columns: Column<GigRow>[] = [
-    { key: 'title', label: 'Title' },
-    { key: 'gigCode', label: 'Code' },
-    { key: 'category', label: 'Category' },
-    { key: 'budget', label: 'Budget' },
-    { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
-    { key: 'postedDate', label: 'Posted', render: (r) => formatDate(r.postedDate) },
-  ];
+  const reload = () => setRefreshSignal((n) => n + 1);
 
-  const handleDelete = async (row: GigRow) => {
+  const fetchRows = useCallback(
+    async (input: TableQueryInput): Promise<TablePageResult<PagedGigRow>> => {
+      const result = await client.query<ListGigsPagedQuery, ListGigsPagedQueryVariables>({
+        query: ListGigsPagedDocument,
+        variables: { input },
+        fetchPolicy: 'network-only',
+      });
+      return {
+        rows: result.data.listGigsPaged.rows,
+        totalCount: result.data.listGigsPaged.totalCount,
+      };
+    },
+    [client],
+  );
+
+  const handleDelete = async (row: PagedGigRow) => {
     const ok = await confirm({ message: `Delete gig ${row.title}?`, confirmText: 'Delete' });
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
     await deleteGig({ variables: { id: row.id } });
-    await refetch();
+    reload();
     notify('Gig deleted');
+  };
+
+  const gridContext: GigsGridContext = {
+    onEdit: dialog.openEdit,
+    onDelete: handleDelete,
+    formatDate,
   };
 
   return (
@@ -70,19 +98,19 @@ export function GigsPage() {
             initial={dialog.editing}
             onCancel={dialog.close}
             onDone={() => {
-              void refetch();
+              reload();
               dialog.close();
             }}
           />
         </CrudDialog>
       }
     >
-      <DataTable
-        columns={columns}
-        rows={rows}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
-        emptyMessage={loading ? 'Loading…' : 'No gigs yet.'}
+      <ServerDataGrid<PagedGigRow>
+        columnDefs={GIG_COLUMNS}
+        fetchRows={fetchRows}
+        context={gridContext}
+        refreshSignal={refreshSignal}
+        searchPlaceholder="Search gigs…"
       />
     </ModuleDashboard>
   );

@@ -44,6 +44,7 @@ export const crmTypeDefs = gql`
   extend type Query {
     listLeads: [Lead!]!
     listLeadsPaged(input: TableQueryInput!): LeadPage!
+    listLeadsStats: TableStats!
     getLead(id: ID!): Lead!
   }
 

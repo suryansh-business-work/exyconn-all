@@ -1,5 +1,6 @@
-import { DataTable, type Column } from '../../../components/data/DataTable';
-import { BoolChip } from '../../../components/data/BoolChip';
+import { useCallback, useState } from 'react';
+import { useApolloClient } from '@apollo/client';
+import { ServerDataGrid, type TablePageResult } from '../../../components/data/ServerDataGrid';
 import { CrudDialog } from '../../../components/data/CrudDialog';
 import { ModuleDashboard } from '../../../components/dashboard/ModuleDashboard';
 import type { StatItem } from '../../../components/dashboard/StatCard';
@@ -7,17 +8,28 @@ import { useCrudDialog } from '../../../hooks/useCrudDialog';
 import { useConfirm } from '../../../components/feedback/ConfirmProvider';
 import { useNotify } from '../../../components/feedback/NotificationProvider';
 import { useSettings } from '../../../hooks/useSettings';
-import { useListBlogPostsQuery, useDeleteBlogPostMutation } from '../../../graphql/generated';
+import {
+  useListBlogPostsQuery,
+  useDeleteBlogPostMutation,
+  ListBlogPostsPagedDocument,
+  type ListBlogPostsPagedQuery,
+  type ListBlogPostsPagedQueryVariables,
+  type TableQueryInput,
+} from '../../../graphql/generated';
 import { BlogPostForm, type BlogRow } from './forms/blog-post';
+import { BLOG_COLUMNS, type PagedBlogRow, type BlogGridContext } from './blog-grid';
 
-/** Website CMS — blog posts. */
+/** Website CMS — blog posts with a server-side grid. */
 export function BlogPage() {
-  const { data, loading, refetch } = useListBlogPostsQuery();
+  // Stat cards still summarise all posts; the grid itself is server-paged.
+  const { data } = useListBlogPostsQuery();
   const [deleteBlogPost] = useDeleteBlogPostMutation();
   const dialog = useCrudDialog<BlogRow>();
   const confirm = useConfirm();
   const notify = useNotify();
   const { formatDate } = useSettings();
+  const client = useApolloClient();
+  const [refreshSignal, setRefreshSignal] = useState(0);
 
   const rows = data?.listBlogPosts ?? [];
   const tagCount = new Set(rows.flatMap((r) => r.tags)).size;
@@ -28,21 +40,37 @@ export function BlogPage() {
     { label: 'Tags', value: String(tagCount), accent: '#b58cff' },
   ];
 
-  const columns: Column<BlogRow>[] = [
-    { key: 'title', label: 'Title' },
-    { key: 'slug', label: 'Slug' },
-    { key: 'author', label: 'Author', render: (r) => r.author.name },
-    { key: 'tags', label: 'Tags', render: (r) => r.tags.join(', ') },
-    { key: 'featured', label: 'Featured', render: (r) => <BoolChip value={r.featured} /> },
-    { key: 'publishedAt', label: 'Published', render: (r) => formatDate(r.publishedAt) },
-  ];
+  const reload = () => setRefreshSignal((n) => n + 1);
 
-  const handleDelete = async (row: BlogRow) => {
+  const fetchRows = useCallback(
+    async (input: TableQueryInput): Promise<TablePageResult<PagedBlogRow>> => {
+      const result = await client.query<ListBlogPostsPagedQuery, ListBlogPostsPagedQueryVariables>({
+        query: ListBlogPostsPagedDocument,
+        variables: { input },
+        fetchPolicy: 'network-only',
+      });
+      return {
+        rows: result.data.listBlogPostsPaged.rows,
+        totalCount: result.data.listBlogPostsPaged.totalCount,
+      };
+    },
+    [client],
+  );
+
+  const handleDelete = async (row: PagedBlogRow) => {
     const ok = await confirm({ message: `Delete blog post ${row.title}?`, confirmText: 'Delete' });
-    if (!ok) return;
+    if (!ok) {
+      return;
+    }
     await deleteBlogPost({ variables: { id: row.id } });
-    await refetch();
+    reload();
     notify('Blog post deleted');
+  };
+
+  const gridContext: BlogGridContext = {
+    onEdit: dialog.openEdit,
+    onDelete: handleDelete,
+    formatDate,
   };
 
   return (
@@ -62,19 +90,19 @@ export function BlogPage() {
             initial={dialog.editing}
             onCancel={dialog.close}
             onDone={() => {
-              void refetch();
+              reload();
               dialog.close();
             }}
           />
         </CrudDialog>
       }
     >
-      <DataTable
-        columns={columns}
-        rows={rows}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
-        emptyMessage={loading ? 'Loading…' : 'No blog posts yet.'}
+      <ServerDataGrid<PagedBlogRow>
+        columnDefs={BLOG_COLUMNS}
+        fetchRows={fetchRows}
+        context={gridContext}
+        refreshSignal={refreshSignal}
+        searchPlaceholder="Search blog posts…"
       />
     </ModuleDashboard>
   );

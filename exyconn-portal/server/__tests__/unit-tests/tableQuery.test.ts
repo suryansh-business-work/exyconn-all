@@ -1,7 +1,7 @@
 import { UserModel } from '../../src/modules/admin/user.model';
 import { hashPassword } from '../../src/utils/password';
 import { ROLES } from '../../src/constants/roles';
-import { tableQuery, type TableConfig } from '../../src/utils/tableQuery';
+import { tableQuery, tableStats, type TableConfig } from '../../src/utils/tableQuery';
 
 const CONFIG: TableConfig = {
   searchFields: ['name', 'email'],
@@ -61,6 +61,18 @@ describe('tableQuery', () => {
       CONFIG,
     );
     expect(ignored.totalCount).toBe(2);
+  });
+
+  it('aggregates dashboard stats — total and grouped counts — in one pass', async () => {
+    await make('A', 'a@x.com', { department: 'Sales' });
+    await make('B', 'b@x.com', { department: 'Sales' });
+    await make('C', 'c@x.com', { department: 'Ops' });
+
+    const stats = await tableStats(UserModel, { countBy: ['department'] });
+    expect(stats.total).toBe(3);
+    const dept = stats.counts.find((c) => c.field === 'department');
+    expect(dept?.buckets.find((b) => b.value === 'Sales')?.count).toBe(2);
+    expect(dept?.buckets.find((b) => b.value === 'Ops')?.count).toBe(1);
   });
 
   it('sorts by an allowed field and ignores a disallowed sort field', async () => {

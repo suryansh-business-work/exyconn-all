@@ -3,7 +3,7 @@ import { withId, withIds } from '../utils/serialize';
 import type { CrudService } from './crudService';
 import type { Role } from '../constants/roles';
 import type { GraphQLContext } from '../middleware/auth';
-import type { TableConfig, TableQueryInput } from '../utils/tableQuery';
+import type { StatsConfig, TableConfig, TableQueryInput } from '../utils/tableQuery';
 
 interface CrudResolverConfig {
   /** Singular GraphQL name, e.g. "Invoice" -> listInvoices/getInvoice/... */
@@ -17,6 +17,11 @@ interface CrudResolverConfig {
    * server-side grid. The module's SDL must declare the matching `<Name>Page` type.
    */
   table?: TableConfig;
+  /**
+   * When set, also exposes `list<Plural>Stats: TableStats!` so a dashboard's summary numbers
+   * come from one aggregation instead of fetching every row.
+   */
+  stats?: StatsConfig;
 }
 
 type ResolverMap = Record<string, (p: unknown, a: never, c: GraphQLContext) => unknown>;
@@ -29,7 +34,7 @@ type LeanDoc = { _id: unknown };
  */
 export function createCrudResolvers<TInput extends object>(
   service: CrudService<TInput>,
-  { name, roles, plural, table }: CrudResolverConfig,
+  { name, roles, plural, table, stats }: CrudResolverConfig,
 ): { Query: ResolverMap; Mutation: ResolverMap } {
   const guard = (ctx: GraphQLContext) => assertRole(ctx, roles);
   const listName = plural ?? `${name}s`;
@@ -50,6 +55,13 @@ export function createCrudResolvers<TInput extends object>(
       guard(ctx);
       const page = await service.paged(input, table);
       return { rows: withIds(page.rows as LeanDoc[]), totalCount: page.totalCount };
+    };
+  }
+
+  if (stats) {
+    query[`list${listName}Stats`] = async (_p, _a, ctx) => {
+      guard(ctx);
+      return service.stats(stats);
     };
   }
 
