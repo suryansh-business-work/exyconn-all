@@ -3,16 +3,16 @@ import { Container, Alert, Snackbar, Paper, Box, Typography, Button, CircularPro
 import Grid from '@mui/material/Grid2';
 import { Description, CloudUpload } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
-import { APIKeyInput } from '../../shared/components/AIToolShared';
+import { APIKeyInput, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
+import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyAlert';
 import { ChatMessages, ChatInput, ChatMessage, TokenUsage } from '../../shared/components/ChatInterface';
-import { useOpenAI } from '../../shared/context/OpenAIContext';
 import { generateWithOpenAI } from '../../shared/services/openai';
 import { APIs } from '../../shared/config/apis';
 
 const SYSTEM_PROMPT = `You are an AI assistant that answers questions about document content. Be thorough, accurate, and summarize key points when helpful.`;
 
 const ChatWithDocuments: React.FC = () => {
-  const { apiKey, isKeySet } = useOpenAI();
+  const { needsKey, requireKey, reportError } = useOpenAIKey();
   const [fileName, setFileName] = useState('');
   const [documentContent, setDocumentContent] = useState('');
   const [isLoadingContent, setIsLoadingContent] = useState(false);
@@ -51,7 +51,9 @@ const ChatWithDocuments: React.FC = () => {
 
   const handleSendMessage = useCallback(
     async (question: string) => {
-      if (!apiKey || !documentContent) return;
+      if (!documentContent) return;
+      const apiKey = requireKey();
+      if (!apiKey) return;
       const userMsg: ChatMessage = {
         id: Date.now().toString(),
         role: 'user',
@@ -72,12 +74,13 @@ const ChatWithDocuments: React.FC = () => {
         setMessages((prev) => [...prev, assistantMsg]);
         setTokenUsage(response.usage);
       } catch (err) {
+        reportError(err);
         setError(err instanceof Error ? err.message : 'Failed to generate');
       } finally {
         setIsLoading(false);
       }
     },
-    [apiKey, documentContent]
+    [documentContent, requireKey, reportError]
   );
 
   return (
@@ -111,11 +114,6 @@ const ChatWithDocuments: React.FC = () => {
                   {fileName} loaded! ({documentContent.length} chars)
                 </Alert>
               )}
-              {!isKeySet && (
-                <Alert severity="info" sx={{ mt: 2 }}>
-                  Add OpenAI API key to chat.
-                </Alert>
-              )}
             </Paper>
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
@@ -141,10 +139,18 @@ const ChatWithDocuments: React.FC = () => {
               <ChatInput
                 onSend={handleSendMessage}
                 isLoading={isLoading}
-                disabled={!documentContent || !isKeySet}
+                disabled={!documentContent}
                 placeholder="Ask about this document..."
               />
             </Paper>
+            {needsKey && (
+              <Box sx={{ mt: 2 }}>
+                <MissingKeyAlert
+                  secretKey={OPENAI_SECRET_KEY}
+                  hint="Answers about your document come from OpenAI using your own key."
+                />
+              </Box>
+            )}
           </Grid>
         </Grid>
       </Container>

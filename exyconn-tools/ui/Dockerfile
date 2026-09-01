@@ -4,18 +4,21 @@
 # =============================================================================
 
 # Stage 1: Dependencies
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 COPY package.json ./
 RUN rm -f package-lock.json && npm install --legacy-peer-deps --include=optional
 
 # Stage 2: Builder
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 COPY --from=deps /app/node_modules ./node_modules
+# COPY . . includes scripts/ (SEO prerender: build = tsc && vite build && tsx scripts/prerender.ts)
 COPY . .
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 
 # Stage 3: Production (Nginx)

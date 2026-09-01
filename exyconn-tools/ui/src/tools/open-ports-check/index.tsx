@@ -34,7 +34,7 @@ const OpenPortsCheck: React.FC = () => {
   };
 
   return (
-    <ToolLayout toolName="Open Ports Check" toolIcon={<LockOpen />} toolColor="#ef4444">
+    <ToolLayout toolName="Open Port Checker" toolIcon={<LockOpen />} toolColor="#ef4444">
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>

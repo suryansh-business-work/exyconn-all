@@ -1,6 +1,7 @@
 import { Business, PolygonCoordinates } from '../../types';
 
 export interface MapComponentProps {
+  apiKey: string;
   businesses: Business[];
   onPolygonComplete: (coordinates: PolygonCoordinates[]) => void;
   onClearPolygon: () => void;

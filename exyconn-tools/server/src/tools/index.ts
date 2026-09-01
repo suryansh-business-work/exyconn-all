@@ -1,5 +1,8 @@
 import { Router } from "express";
 import logoSetRoutes from "./logo-maker/routes";
+import imageToolsRoutes from "./image-tools/routes";
+import pdfToolsRoutes from "./pdf-tools/routes";
+import officeToolsRoutes from "./office-tools/routes";
 import contactExtractorRoutes from "./contact-extractor/routes";
 import sitemapFinderRoutes from "./sitemap-finder/routes";
 import chatToolsRoutes from "./chat-tools/routes";
@@ -13,6 +16,9 @@ const router = Router();
 
 // Mount tool-specific routes
 router.use("/logo-set", logoSetRoutes);
+router.use("/image-tools", imageToolsRoutes);
+router.use("/pdf-tools", pdfToolsRoutes);
+router.use("/office-tools", officeToolsRoutes);
 router.use("/contact-extractor", contactExtractorRoutes);
 router.use("/sitemap-finder", sitemapFinderRoutes);
 router.use("/chat-tools", chatToolsRoutes);

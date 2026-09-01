@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Container, Alert, Snackbar } from '@mui/material';
+import { Container, Box, Alert, Snackbar } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { Psychology } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
-import { APIKeyInput, AIResultDisplay } from '../../shared/components/AIToolShared';
-import { useOpenAI } from '../../shared/context/OpenAIContext';
+import { APIKeyInput, AIResultDisplay, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
+import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyAlert';
 import { generateWithOpenAI, TokenUsage } from '../../shared/services/openai';
 import PromptForm from './components/PromptForm';
 
@@ -20,13 +20,14 @@ When generating prompts:
 Generate a comprehensive, well-structured prompt based on the user's topic.`;
 
 const AIPromptGenerator: React.FC = () => {
-  const { apiKey, isKeySet } = useOpenAI();
+  const { needsKey, requireKey, reportError } = useOpenAIKey();
   const [result, setResult] = useState('');
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async (topic: string, context: string) => {
+    const apiKey = requireKey();
     if (!apiKey) return;
     setIsLoading(true);
     setError(null);
@@ -37,6 +38,7 @@ const AIPromptGenerator: React.FC = () => {
       setResult(response.content);
       setTokenUsage(response.usage);
     } catch (err) {
+      reportError(err);
       setError(err instanceof Error ? err.message : 'Failed to generate');
     } finally {
       setIsLoading(false);
@@ -50,10 +52,13 @@ const AIPromptGenerator: React.FC = () => {
           <Grid size={{ xs: 12, md: 5 }}>
             <APIKeyInput />
             <PromptForm onSubmit={handleGenerate} isLoading={isLoading} />
-            {!isKeySet && (
-              <Alert severity="info" sx={{ mt: 2 }}>
-                Please add your OpenAI API key to use this tool.
-              </Alert>
+            {needsKey && (
+              <Box sx={{ mt: 2 }}>
+                <MissingKeyAlert
+                  secretKey={OPENAI_SECRET_KEY}
+                  hint="Prompts are written by OpenAI using your own key, which stays in this browser."
+                />
+              </Box>
             )}
           </Grid>
           <Grid size={{ xs: 12, md: 7 }}>

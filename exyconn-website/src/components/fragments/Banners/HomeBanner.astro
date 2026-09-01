@@ -1,5 +1,6 @@
 ---
 // Clean, Professional Home Banner
+import { aiServices } from "../../../lib/services/aiServices";
 ---
 
 <section class="relative bg-white overflow-hidden">
@@ -20,7 +21,7 @@
         data-anime="fade-up"
       >
         <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-        <span class="text-gray-700 text-sm font-medium">AI-Powered Infrastructure</span>
+        <span class="text-gray-700 text-sm font-medium">AI Products &amp; Services</span>
       </div>
 
       <!-- Headline -->
@@ -29,8 +30,8 @@
         data-anime="fade-up"
         data-anime-delay="100"
       >
-        Focus on Value Creation.{" "}
-        <span class="block text-gray-500 mt-2">We Handle the Shell.</span>
+        AI That Does the Work.{" "}
+        <span class="block text-gray-500 mt-2">Not Just the Talking.</span>
       </h1>
 
       <!-- Description -->
@@ -39,9 +40,9 @@
         data-anime="fade-up"
         data-anime-delay="200"
       >
-        Transform your business with our comprehensive AI infrastructure. From authentication to AI
-        agents, we provide the complete technology shell so you can focus on building what matters
-        most.
+        We build AI agents, automation and vertical AI products that run real operations — sales,
+        support, finance, hiring and logistics — across {aiServices.length} service areas, on the
+        systems you already use.
       </p>
 
       <!-- CTA Buttons -->
@@ -51,12 +52,12 @@
         data-anime-delay="300"
       >
         <a
-          href="/shell-strategy"
+          href="/ai-services"
           class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gray-900 text-white font-semibold px-8 py-4 rounded-xl hover:bg-gray-800 transition-colors"
         >
-          <i class="fa-solid fa-bolt text-amber-400"></i>
-          Explore Shell Strategy
-          <i class="fa-solid fa-arrow-right text-sm"></i>
+          <i class="fa-solid fa-bolt text-amber-400" aria-hidden="true"></i>
+          Explore AI Services
+          <i class="fa-solid fa-arrow-right text-sm" aria-hidden="true"></i>
         </a>
         <a
           href="/our-products"
@@ -282,12 +283,12 @@
         features: ["API-First Architecture", "Component Libraries", "CI/CD Integration"],
       },
       {
-        icon: "fa-terminal",
+        icon: "fa-comment-dots",
         gradient: "from-cyan-500 to-blue-500",
-        title: "Shell Services",
+        title: "Conversational AI",
         description:
-          "Email, SMS, themes, translations, logs, and file upload—all ready from day one.",
-        features: ["Email & SMS APIs", "Theme Management", "File Upload & CDN"],
+          "Voice agents and WhatsApp automation that answer, qualify and book around the clock.",
+        features: ["AI Voice Agents", "WhatsApp Business API", "Human Handover"],
       },
       {
         icon: "fa-chart-line",

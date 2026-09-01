@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Container, Alert, Snackbar } from '@mui/material';
+import { Container, Box, Alert, Snackbar } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { SupportAgent } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
-import { APIKeyInput, AIResultDisplay } from '../../shared/components/AIToolShared';
-import { useOpenAI } from '../../shared/context/OpenAIContext';
+import { APIKeyInput, AIResultDisplay, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
+import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyAlert';
 import { generateWithOpenAI, TokenUsage } from '../../shared/services/openai';
 import ScriptForm from './components/ScriptForm';
 
@@ -21,13 +21,14 @@ When generating scripts:
 8. Include sample dialogues for key scenarios`;
 
 const SupportScriptGenerator: React.FC = () => {
-  const { apiKey, isKeySet } = useOpenAI();
+  const { needsKey, requireKey, reportError } = useOpenAIKey();
   const [result, setResult] = useState('');
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async (topic: string, industry: string, tone: string, scenarios: string) => {
+    const apiKey = requireKey();
     if (!apiKey) return;
     setIsLoading(true);
     setError(null);
@@ -44,6 +45,7 @@ Include greeting templates, response templates for common issues, troubleshootin
       setResult(response.content);
       setTokenUsage(response.usage);
     } catch (err) {
+      reportError(err);
       setError(err instanceof Error ? err.message : 'Failed to generate script');
     } finally {
       setIsLoading(false);
@@ -57,10 +59,13 @@ Include greeting templates, response templates for common issues, troubleshootin
           <Grid size={{ xs: 12, md: 5 }}>
             <APIKeyInput />
             <ScriptForm onSubmit={handleGenerate} isLoading={isLoading} />
-            {!isKeySet && (
-              <Alert severity="info" sx={{ mt: 2 }}>
-                Please add your OpenAI API key to use this tool.
-              </Alert>
+            {needsKey && (
+              <Box sx={{ mt: 2 }}>
+                <MissingKeyAlert
+                  secretKey={OPENAI_SECRET_KEY}
+                  hint="Scripts are written by OpenAI using your own key, which stays in this browser."
+                />
+              </Box>
             )}
           </Grid>
           <Grid size={{ xs: 12, md: 7 }}>

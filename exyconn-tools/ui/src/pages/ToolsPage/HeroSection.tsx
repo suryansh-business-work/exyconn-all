@@ -1,10 +1,12 @@
 import React from 'react';
 import { Box, Typography, Chip } from '@mui/material';
-import { Build, RocketLaunch, Apps } from '@mui/icons-material';
+import { Apps, Category } from '@mui/icons-material';
 import { HeroSectionProps } from './types';
 
-const HeroSection: React.FC<HeroSectionProps> = ({
-  title, subtitle, totalTools, availableTools, comingSoonTools,
+const chipSx = { fontWeight: 600, fontSize: '0.8rem', '& .MuiChip-icon': { fontSize: 16 } };
+
+const HeroSection: React.FC<Readonly<HeroSectionProps>> = ({
+  title, subtitle, totalTools, categoryCount,
 }) => (
   <Box sx={{ textAlign: 'center', mb: 3 }}>
     <Typography variant="h3" sx={{
@@ -19,15 +21,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       {subtitle}
     </Typography>
     <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-      <Chip icon={<Apps sx={{ fontSize: '16px !important' }} />}
-        label={`${totalTools} Total Tools`} variant="outlined"
-        sx={{ fontWeight: 600, fontSize: '0.8rem' }} />
-      <Chip icon={<Build sx={{ fontSize: '16px !important' }} />}
-        label={`${availableTools} Available`} color="success" variant="outlined"
-        sx={{ fontWeight: 600, fontSize: '0.8rem' }} />
-      <Chip icon={<RocketLaunch sx={{ fontSize: '16px !important' }} />}
-        label={`${comingSoonTools} Coming Soon`} color="warning" variant="outlined"
-        sx={{ fontWeight: 600, fontSize: '0.8rem' }} />
+      <Chip icon={<Apps />} label={`${totalTools} Free Tools`} variant="outlined" sx={chipSx} />
+      <Chip icon={<Category />} label={`${categoryCount} Categories`} variant="outlined" sx={chipSx} />
     </Box>
   </Box>
 );

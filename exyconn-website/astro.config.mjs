@@ -22,6 +22,11 @@ export default defineConfig({
     mode: 'standalone'
   }),
   trailingSlash: 'never',
+  redirects: {
+    // Retired Shell Strategy pages — keep inbound links alive on /ai-services.
+    '/shell-strategy': { status: 301, destination: '/ai-services' },
+    '/shell-strategy-terms': { status: 301, destination: '/ai-services' },
+  },
   integrations: [react()],
   server: {
     host: true, // allows 0.0.0.0 binding

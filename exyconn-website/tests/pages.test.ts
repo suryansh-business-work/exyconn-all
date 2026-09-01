@@ -24,8 +24,6 @@ const STATIC_PAGES = [
   "/our-services",
   "/our-vision",
   "/privacy-policy",
-  "/shell-strategy",
-  "/shell-strategy-terms",
   "/sitemap",
   "/tools",
   "/404",
@@ -38,6 +36,8 @@ const STATIC_PAGES = [
   "/ai/mcp-server",
   "/ai/models",
   "/ai/workflows",
+  // AI Services (catalogue listing; per-service pages are covered in ai-services.test.ts)
+  "/ai-services",
   // Services Pages
   "/services",
   "/services/application-modernization",

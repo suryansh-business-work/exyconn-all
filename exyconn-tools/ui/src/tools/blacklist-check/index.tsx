@@ -34,7 +34,7 @@ const BlacklistCheck: React.FC = () => {
   };
 
   return (
-    <ToolLayout toolName="Blacklist Check" toolIcon={<GppBad />} toolColor="#ef4444">
+    <ToolLayout toolName="Domain Blacklist Checker" toolIcon={<GppBad />} toolColor="#ef4444">
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>

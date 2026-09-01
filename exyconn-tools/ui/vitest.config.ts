@@ -8,6 +8,10 @@ export default defineConfig({
     environment: 'jsdom',
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/**/*.spec.ts', 'src/**/*.spec.tsx'],
     exclude: ['node_modules', 'dist', 'build'],
+    // Cap workers: the per-tool suites each boot jsdom + heavy canvas/PDF mocks,
+    // and an unbounded fork pool exhausts IPC handles on Windows CI runners.
+    pool: 'threads',
+    poolOptions: { threads: { maxThreads: 4, minThreads: 1 } },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

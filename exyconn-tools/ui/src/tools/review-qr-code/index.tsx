@@ -1,85 +1,71 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
-  Container, Box, Typography, TextField, Button, Paper, Chip,
+  Container, Box, Typography, TextField, Button, Paper, Chip, Slider, Snackbar, Alert,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { QrCode, Download, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
+import {
+  QR_SIZE_MIN, QR_SIZE_MAX, QR_SIZE_DEFAULT, DEFAULT_FG_COLOR, DEFAULT_BG_COLOR,
+  buildReviewUrl, renderQrToCanvas, qrToPngDataUrl, downloadDataUrl,
+} from './utils';
+
+interface ColorFieldProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+const ColorField: React.FC<Readonly<ColorFieldProps>> = ({ label, value, onChange }) => (
+  <Box>
+    <Typography variant="caption" color="text.secondary" display="block">{label}</Typography>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <TextField type="color" size="small" value={value}
+        onChange={(e) => onChange(e.target.value)}
+        slotProps={{ htmlInput: { 'aria-label': `${label} color` } }}
+        sx={{ width: 48, '& input': { p: 0.25, cursor: 'pointer', height: 28 } }} />
+      <Typography variant="caption" color="text.secondary" fontFamily="monospace">{value}</Typography>
+    </Box>
+  </Box>
+);
 
 const ReviewQRCode: React.FC = () => {
   const [placeId, setPlaceId] = useState('');
   const [generatedLink, setGeneratedLink] = useState('');
-  const [qrGenerated, setQrGenerated] = useState(false);
+  const [size, setSize] = useState(QR_SIZE_DEFAULT);
+  const [fgColor, setFgColor] = useState(DEFAULT_FG_COLOR);
+  const [bgColor, setBgColor] = useState(DEFAULT_BG_COLOR);
+  const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleGenerate = () => {
-    if (!placeId.trim()) return;
-    const link = `https://search.google.com/local/writereview?placeid=${placeId.trim()}`;
-    setGeneratedLink(link);
-    setQrGenerated(true);
+    setGeneratedLink(buildReviewUrl(placeId));
   };
 
-  // Simple QR code drawing using canvas (basic implementation)
-  const drawQR = useCallback((canvas: HTMLCanvasElement, text: string) => {
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const size = 256;
-    canvas.width = size;
-    canvas.height = size;
-
-    // White background
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, size, size);
-
-    // Draw QR placeholder with the link info
-    ctx.fillStyle = '#000000';
-    ctx.font = '12px monospace';
-    ctx.textAlign = 'center';
-
-    // Generate a simple pattern based on text hash
-    const hash = text.split('').reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0);
-    const moduleSize = 8;
-    const modules = Math.floor(size / moduleSize);
-
-    for (let y = 0; y < modules; y++) {
-      for (let x = 0; x < modules; x++) {
-        // Create pattern based on position and hash
-        const val = ((hash + x * 31 + y * 37) * 1103515245 + 12345) & 0x7fffffff;
-        if (val % 3 === 0 || (x < 3 && y < 3) || (x < 3 && y > modules - 4) ||
-            (x > modules - 4 && y < 3)) {
-          ctx.fillRect(x * moduleSize, y * moduleSize, moduleSize, moduleSize);
-        }
-      }
-    }
-
-    // Draw finder patterns (the three squares in corners)
-    const drawFinder = (cx: number, cy: number) => {
-      const s = moduleSize;
-      ctx.fillStyle = '#000';
-      ctx.fillRect(cx, cy, 7 * s, 7 * s);
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(cx + s, cy + s, 5 * s, 5 * s);
-      ctx.fillStyle = '#000';
-      ctx.fillRect(cx + 2 * s, cy + 2 * s, 3 * s, 3 * s);
-    };
-
-    drawFinder(0, 0);
-    drawFinder(0, (modules - 7) * moduleSize);
-    drawFinder((modules - 7) * moduleSize, 0);
-
-    // Center text
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(size / 2 - 50, size / 2 - 8, 100, 16);
-    ctx.fillStyle = '#000000';
-    ctx.font = 'bold 10px sans-serif';
-    ctx.fillText('SCAN TO REVIEW', size / 2, size / 2 + 4);
-  }, []);
-
   useEffect(() => {
-    if (qrGenerated && canvasRef.current && generatedLink) {
-      drawQR(canvasRef.current, generatedLink);
+    if (!generatedLink || !canvasRef.current) return;
+    renderQrToCanvas(canvasRef.current, generatedLink, { size, fgColor, bgColor })
+      .catch(() => setError('Failed to render the QR code.'));
+  }, [generatedLink, size, fgColor, bgColor]);
+
+  const handleDownload = async () => {
+    try {
+      const dataUrl = await qrToPngDataUrl(generatedLink, { size, fgColor, bgColor });
+      downloadDataUrl(dataUrl, 'review-qr-code.png');
+    } catch {
+      setError('Failed to export the QR code.');
     }
-  }, [qrGenerated, generatedLink, drawQR]);
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(generatedLink);
+      setCopied(true);
+    } catch {
+      setError('Could not copy the link to the clipboard.');
+    }
+  };
 
   return (
     <ToolLayout toolName="Review QR Code Generator" toolIcon={<QrCode />} toolColor="#6366f1">
@@ -101,55 +87,52 @@ const ReviewQRCode: React.FC = () => {
                 Generate QR Code
               </Button>
 
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontSize: '0.75rem', lineHeight: 1.6 }}>
-                <strong>Note:</strong> For production use, we recommend using a dedicated QR code library like{' '}
-                <code>qrcode.react</code> for accurate QR codes. This tool generates a visual placeholder.
-                You can also use Google Charts API:{' '}
-                <code>{`https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=YOUR_LINK`}</code>
+              <Typography variant="subtitle2" fontWeight={700} sx={{ mt: 3, mb: 1 }}>Customize</Typography>
+              <Typography variant="body2" color="text.secondary">Size: {size}px</Typography>
+              <Slider value={size} min={QR_SIZE_MIN} max={QR_SIZE_MAX} step={10} size="small"
+                onChange={(_, v) => setSize(v as number)} aria-label="QR code size" />
+              <Box sx={{ display: 'flex', gap: 3, mt: 1 }}>
+                <ColorField label="Foreground" value={fgColor} onChange={setFgColor} />
+                <ColorField label="Background" value={bgColor} onChange={setBgColor} />
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontSize: '0.75rem' }}>
+                QR codes are generated with error-correction level M and scan reliably at any of the sizes above.
               </Typography>
             </Paper>
           </Grid>
 
           <Grid size={{ xs: 12, md: 7 }}>
-            {qrGenerated && (
+            {generatedLink && (
               <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
                 <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2 }}>Your QR Code</Typography>
-
-                {/* Google Charts QR as a reliable alternative */}
                 <Box sx={{ mb: 2 }}>
-                  <img
-                    src={`https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${encodeURIComponent(generatedLink)}&choe=UTF-8`}
-                    alt="Review QR Code"
-                    style={{ maxWidth: '100%', width: 300, height: 300, border: '1px solid #e0e0e0', borderRadius: 8 }}
-                  />
+                  <canvas ref={canvasRef} aria-label="Review QR code preview"
+                    style={{ maxWidth: '100%', height: 'auto', border: '1px solid #e0e0e0', borderRadius: 8 }} />
                 </Box>
-
                 <Chip size="small" label={generatedLink} sx={{ mb: 2, maxWidth: '100%' }} />
-
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
                   <Button size="small" variant="contained" startIcon={<Download />}
-                    onClick={() => {
-                      const link = document.createElement('a');
-                      link.download = 'review-qr-code.png';
-                      link.href = `https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=${encodeURIComponent(generatedLink)}&choe=UTF-8`;
-                      link.click();
-                    }}
-                    sx={{ textTransform: 'none' }}>
-                    Download QR
+                    onClick={handleDownload} sx={{ textTransform: 'none' }}>
+                    Download PNG
                   </Button>
                   <Button size="small" variant="outlined" startIcon={<ContentCopy />}
-                    onClick={() => navigator.clipboard.writeText(generatedLink)}
-                    sx={{ textTransform: 'none' }}>
+                    onClick={handleCopy} sx={{ textTransform: 'none' }}>
                     Copy Link
                   </Button>
                 </Box>
-
-                {/* Hidden canvas for custom QR */}
-                <canvas ref={canvasRef} style={{ display: 'none' }} />
               </Paper>
             )}
           </Grid>
         </Grid>
+
+        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+          <Alert severity="error" onClose={() => setError('')}>{error}</Alert>
+        </Snackbar>
+        <Snackbar open={copied} autoHideDuration={2000} onClose={() => setCopied(false)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+          <Alert severity="success" onClose={() => setCopied(false)}>Link copied to clipboard</Alert>
+        </Snackbar>
       </Container>
     </ToolLayout>
   );

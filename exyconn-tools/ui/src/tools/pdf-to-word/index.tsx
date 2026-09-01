@@ -6,142 +6,183 @@ import Paper from '@mui/material/Paper';
 import LinearProgress from '@mui/material/LinearProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableRow from '@mui/material/TableRow';
-import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid2';
 import Description from '@mui/icons-material/Description';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
-import { PDFDocument } from 'pdf-lib';
+import RestartAlt from '@mui/icons-material/RestartAlt';
+import * as pdfjsLib from 'pdfjs-dist';
+import { Document, Packer, PageBreak, Paragraph, TextRun } from 'docx';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { PdfPreview } from '../../shared/components/PdfPreview';
+import { extractParagraphs } from './utils';
 
-const formatSize = (b: number) => (b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(2)} MB`);
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
-interface PdfMeta { pages: number; title: string; author: string; creator: string; producer: string; creationDate: string; }
+const COLOR = '#3b82f6';
+
+const buildDocx = (pages: string[][]): Document => {
+  const children: Paragraph[] = [];
+  pages.forEach((paragraphs, pageIndex) => {
+    if (pageIndex > 0) {
+      children.push(new Paragraph({ children: [new PageBreak()] }));
+    }
+    for (const text of paragraphs) {
+      children.push(new Paragraph({ children: [new TextRun(text)], spacing: { after: 200 } }));
+    }
+  });
+  return new Document({ sections: [{ children }] });
+};
+
+const downloadBlob = (blob: Blob, fileName: string) => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
 
 export default function PdfToWord() {
   const [file, setFile] = useState<File | null>(null);
   const [processing, setProcessing] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [error, setError] = useState('');
-  const [meta, setMeta] = useState<PdfMeta | null>(null);
+  const [done, setDone] = useState(false);
 
-  const loadFile = useCallback(async (f: File) => {
-    if (f.type !== 'application/pdf') { setError('Please select a PDF file.'); return; }
-    setProcessing(true);
-    try {
-      const bytes = await f.arrayBuffer();
-      const doc = await PDFDocument.load(bytes);
-      const created = doc.getCreationDate();
-      setMeta({
-        pages: doc.getPageCount(),
-        title: doc.getTitle() ?? 'N/A',
-        author: doc.getAuthor() ?? 'N/A',
-        creator: doc.getCreator() ?? 'N/A',
-        producer: doc.getProducer() ?? 'N/A',
-        creationDate: created ? created.toLocaleDateString() : 'N/A',
-      });
-      setFile(f);
-    } catch { setError('Failed to read PDF.'); } finally { setProcessing(false); }
+  const handleFile = useCallback((f: File) => {
+    if (f.type !== 'application/pdf') {
+      setError('Please select a PDF file.');
+      return;
+    }
+    setFile(f);
+    setDone(false);
   }, []);
 
-  const onDrop = useCallback((e: DragEvent) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); }, [loadFile]);
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => { if (e.target.files?.[0]) loadFile(e.target.files[0]); e.target.value = ''; };
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    },
+    [handleFile]
+  );
 
-  const downloadPdf = () => {
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    const a = document.createElement('a'); a.href = url; a.download = file.name; a.click(); URL.revokeObjectURL(url);
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) handleFile(e.target.files[0]);
+    e.target.value = '';
   };
 
+  const convert = useCallback(async () => {
+    if (!file) return;
+    setProcessing(true);
+    setDone(false);
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pages: string[][] = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        setProgress({ current: i, total: pdf.numPages });
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        pages.push(extractParagraphs(content.items));
+      }
+      const blob = await Packer.toBlob(buildDocx(pages));
+      downloadBlob(blob, `${file.name.replace(/\.pdf$/i, '')}.docx`);
+      setDone(true);
+    } catch {
+      setError('Failed to convert PDF. The file may be corrupted or password-protected.');
+    } finally {
+      setProcessing(false);
+    }
+  }, [file]);
+
+  const reset = useCallback(() => {
+    setFile(null);
+    setProgress({ current: 0, total: 0 });
+    setDone(false);
+  }, []);
+
   return (
-    <ToolLayout toolName="PDF to Word" toolIcon={<Description />} toolColor="#3b82f6">
-      <Container maxWidth="xl" sx={{ py: 3 }}>
+    <ToolLayout toolName="PDF to Word" toolIcon={<Description />} toolColor={COLOR}>
+      <Container maxWidth="md" sx={{ py: 3 }}>
         <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={12}>
             <Paper
-              sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: dragOver ? '#3b82f6' : 'divider', cursor: 'pointer', transition: '0.2s' }}
-              onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)} onDrop={onDrop}
+              onDrop={onDrop}
+              onDragOver={(e: DragEvent) => e.preventDefault()}
+              onClick={() => !processing && document.getElementById('pdf-to-word-upload')?.click()}
+              sx={{
+                p: 4,
+                textAlign: 'center',
+                border: '2px dashed',
+                borderColor: file ? COLOR : 'divider',
+                cursor: 'pointer',
+              }}
             >
-              <CloudUpload sx={{ fontSize: 48, color: '#3b82f6', mb: 1 }} />
-              <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
-              <Button variant="outlined" component="label" sx={{ color: '#3b82f6', borderColor: '#3b82f6' }}>
-                Browse Files
-                <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
-              </Button>
+              <input id="pdf-to-word-upload" type="file" accept="application/pdf" hidden onChange={onFileChange} />
+              <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
+              <Typography variant="h6">{file ? file.name : 'Drop PDF here or click to upload'}</Typography>
+              {file && (
+                <Typography variant="body2" color="text.secondary">
+                  {(file.size / 1024).toFixed(1)} KB
+                </Typography>
+              )}
             </Paper>
-            {processing && <LinearProgress sx={{ mt: 2 }} />}
-            {file && (
-              <Box sx={{ mt: 2 }}>
-                <PdfPreview file={file} />
-              </Box>
-            )}
+            {file && <PdfPreview file={file} />}
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            {meta && file ? (
-              <Paper sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <Typography variant="h6">PDF Metadata</Typography>
-                  <Chip label="Coming Soon" color="warning" size="small" variant="outlined" />
-                </Box>
-                <Table size="small">
-                  <TableBody>
-                    {([
-                      ['File Name', file.name],
-                      ['File Size', formatSize(file.size)],
-                      ['Pages', String(meta.pages)],
-                      ['Title', meta.title],
-                      ['Author', meta.author],
-                      ['Creator', meta.creator],
-                      ['Producer', meta.producer],
-                      ['Created', meta.creationDate],
-                    ] as [string, string][]).map(([label, value]) => (
-                      <TableRow key={label}>
-                        <TableCell sx={{ fontWeight: 600 }}>{label}</TableCell>
-                        <TableCell>{value}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-
-                <Alert severity="info" icon={<InfoOutlined />} sx={{ mt: 2 }}>
-                  <Typography variant="body2" gutterBottom>
-                    <strong>Full PDF-to-Word conversion</strong> requires server-side processing and is coming soon.
-                  </Typography>
-                  <Typography variant="body2">
-                    In the meantime, you can: upload the PDF to <strong>Google Docs</strong> and download as DOCX, or open it in <strong>Microsoft Word Online</strong> for automatic conversion.
-                  </Typography>
-                </Alert>
-
-                <Button variant="contained" fullWidth startIcon={<Download />} onClick={downloadPdf}
-                  sx={{ mt: 2, bgcolor: '#3b82f6', '&:hover': { bgcolor: '#2563eb' } }}>
-                  Download Original PDF
-                </Button>
-              </Paper>
-            ) : (
-              <Paper sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}>
-                  <Description sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-                  <Typography color="text.secondary">Upload a PDF to extract metadata</Typography>
-                </Box>
-              </Paper>
-            )}
+          <Grid size={12}>
+            <Alert severity="info">
+              Conversion runs entirely in your browser: the text of every PDF page is extracted into an editable Word
+              document, with a page break per PDF page. Complex layout, images, and fonts are simplified.
+            </Alert>
           </Grid>
+
+          <Grid size={12} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button
+              variant="contained"
+              startIcon={<Download />}
+              onClick={convert}
+              disabled={!file || processing}
+              sx={{ bgcolor: COLOR, '&:hover': { bgcolor: '#2563eb' } }}
+            >
+              Convert & Download DOCX
+            </Button>
+            <Button variant="outlined" startIcon={<RestartAlt />} onClick={reset} disabled={processing}>
+              Reset
+            </Button>
+          </Grid>
+
+          {processing && (
+            <Grid size={12}>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Extracting page {progress.current} of {progress.total}...
+              </Typography>
+              <LinearProgress
+                variant="determinate"
+                value={progress.total ? (progress.current / progress.total) * 100 : 0}
+                sx={{ '& .MuiLinearProgress-bar': { bgcolor: COLOR } }}
+              />
+            </Grid>
+          )}
+
+          {done && (
+            <Grid size={12}>
+              <Alert severity="success">Word document downloaded.</Alert>
+            </Grid>
+          )}
         </Grid>
-
-        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity="error" onClose={() => setError('')}>{error}</Alert>
-        </Snackbar>
       </Container>
+
+      <Snackbar
+        open={!!error}
+        autoHideDuration={4000}
+        onClose={() => setError('')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="error" onClose={() => setError('')}>
+          {error}
+        </Alert>
+      </Snackbar>
     </ToolLayout>
   );
 }

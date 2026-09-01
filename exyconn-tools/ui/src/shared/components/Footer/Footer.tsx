@@ -1,8 +1,7 @@
 import React from 'react';
 import { Box, Container, Typography, Link, Divider, Stack } from '@mui/material';
 import { OpenInNew } from '@mui/icons-material';
-
-const LOGO_URL = 'https://ik.imagekit.io/esdata1/exyconn/logo/exyconn.svg';
+import Logo from '../Logo/Logo';
 
 const footerLinks = [
   { label: 'Legal', href: 'https://exyconn.com/legal' },
@@ -37,7 +36,7 @@ const Footer: React.FC = () => {
         >
           {/* Left - Logo & Copyright */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <img src={LOGO_URL} alt="Exyconn" style={{ height: 24, width: 'auto', opacity: 0.8 }} />
+            <Logo height={24} sx={{ opacity: 0.85 }} />
             <Divider orientation="vertical" flexItem sx={{ height: 20, alignSelf: 'center' }} />
             <Typography variant="body2" color="text.secondary">
               © {currentYear} Exyconn. All rights reserved.

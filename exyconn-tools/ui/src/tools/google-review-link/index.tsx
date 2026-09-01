@@ -7,7 +7,11 @@ import {
 import Grid from '@mui/material/Grid2';
 import { RateReview, ContentCopy, OpenInNew, Search, Star, StoreMallDirectory } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
+import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyAlert';
 import { APIs } from '../../shared/config/apis';
+import { readSecret } from '../../shared/services/secrets';
+
+const PLACES_KEY = 'google_places_api_key';
 
 interface PlaceResult { name: string; address: string; placeId: string; rating: number | null; totalReviews: number }
 
@@ -19,12 +23,14 @@ const GoogleReviewLink: React.FC = () => {
   const [searchResults, setSearchResults] = useState<PlaceResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [needsKey, setNeedsKey] = useState(false);
   const [tab, setTab] = useState(0);
 
   const handleSearch = async () => {
     if (!businessQuery.trim()) return;
-    const apiKey = localStorage.getItem('google_places_api_key') || '';
-    if (!apiKey) { setError('Please configure your Google Places API key in the Secrets drawer (key icon).'); return; }
+    const apiKey = readSecret(PLACES_KEY);
+    if (!apiKey) { setNeedsKey(true); return; }
+    setNeedsKey(false);
     setIsSearching(true);
     setError(null);
     setSearchResults([]);
@@ -80,6 +86,14 @@ const GoogleReviewLink: React.FC = () => {
                     {isSearching ? 'Searching...' : 'Search Business'}
                   </Button>
                   {isSearching && <LinearProgress sx={{ mt: 1 }} />}
+                  {needsKey && (
+                    <Box sx={{ mt: 1.5 }}>
+                      <MissingKeyAlert
+                        secretKey={PLACES_KEY}
+                        hint="Business search uses the Google Places API with your own key. Add it once and it applies across every tool."
+                      />
+                    </Box>
+                  )}
                 </>
               ) : (
                 <>

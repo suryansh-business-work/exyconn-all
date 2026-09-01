@@ -6,134 +6,181 @@ import Paper from '@mui/material/Paper';
 import LinearProgress from '@mui/material/LinearProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableRow from '@mui/material/TableRow';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import Grid from '@mui/material/Grid2';
 import PictureAsPdf from '@mui/icons-material/PictureAsPdf';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
-import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline';
-import { PDFDocument } from 'pdf-lib';
+import RestartAlt from '@mui/icons-material/RestartAlt';
+import * as pdfjsLib from 'pdfjs-dist';
+import PptxGenJS from 'pptxgenjs';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { PdfPreview } from '../../shared/components/PdfPreview';
+import { fitContain, SLIDE_16X9 } from './utils';
 
-const formatSize = (b: number) => (b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(2)} MB`);
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
-interface PdfMeta { pages: number; title: string; author: string; creator: string; producer: string; creationDate: string; }
+const COLOR = '#f59e0b';
+const RENDER_SCALE = 2;
+
+const renderPageToDataUrl = async (
+  page: pdfjsLib.PDFPageProxy
+): Promise<{ dataUrl: string; width: number; height: number }> => {
+  const viewport = page.getViewport({ scale: RENDER_SCALE });
+  const canvas = document.createElement('canvas');
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  await page.render({ canvas, viewport }).promise;
+  return { dataUrl: canvas.toDataURL('image/png'), width: viewport.width, height: viewport.height };
+};
 
 export default function PdfToPowerpoint() {
   const [file, setFile] = useState<File | null>(null);
   const [processing, setProcessing] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [error, setError] = useState('');
-  const [meta, setMeta] = useState<PdfMeta | null>(null);
+  const [done, setDone] = useState(false);
 
-  const loadFile = useCallback(async (f: File) => {
-    if (f.type !== 'application/pdf') { setError('Please select a PDF file.'); return; }
-    setProcessing(true);
-    try {
-      const bytes = await f.arrayBuffer();
-      const doc = await PDFDocument.load(bytes);
-      const created = doc.getCreationDate();
-      setMeta({
-        pages: doc.getPageCount(), title: doc.getTitle() ?? 'N/A', author: doc.getAuthor() ?? 'N/A',
-        creator: doc.getCreator() ?? 'N/A', producer: doc.getProducer() ?? 'N/A',
-        creationDate: created ? created.toLocaleDateString() : 'N/A',
-      });
-      setFile(f);
-    } catch { setError('Failed to read PDF.'); } finally { setProcessing(false); }
+  const handleFile = useCallback((f: File) => {
+    if (f.type !== 'application/pdf') {
+      setError('Please select a PDF file.');
+      return;
+    }
+    setFile(f);
+    setDone(false);
   }, []);
 
-  const onDrop = useCallback((e: DragEvent) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); }, [loadFile]);
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => { if (e.target.files?.[0]) loadFile(e.target.files[0]); e.target.value = ''; };
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    },
+    [handleFile]
+  );
 
-  const downloadPdf = () => {
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    const a = document.createElement('a'); a.href = url; a.download = file.name; a.click(); URL.revokeObjectURL(url);
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) handleFile(e.target.files[0]);
+    e.target.value = '';
   };
 
-  const tips = [
-    { primary: 'Google Slides', secondary: 'Open Google Slides → File → Import Slides → Upload your PDF' },
-    { primary: 'Adobe Acrobat', secondary: 'Open PDF in Acrobat → Export PDF → Microsoft PowerPoint' },
-    { primary: 'SmallPDF Online', secondary: 'Visit smallpdf.com/pdf-to-ppt and upload your file' },
-    { primary: 'Microsoft PowerPoint', secondary: 'Insert → Object → Create from File → Select your PDF' },
-  ];
+  const convert = useCallback(async () => {
+    if (!file) return;
+    setProcessing(true);
+    setDone(false);
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pptx = new PptxGenJS();
+      pptx.layout = 'LAYOUT_16x9';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        setProgress({ current: i, total: pdf.numPages });
+        const page = await pdf.getPage(i);
+        const { dataUrl, width, height } = await renderPageToDataUrl(page);
+        const box = fitContain(width, height, SLIDE_16X9.w, SLIDE_16X9.h);
+        pptx.addSlide().addImage({ data: dataUrl, ...box });
+      }
+      await pptx.writeFile({ fileName: `${file.name.replace(/\.pdf$/i, '')}.pptx` });
+      setDone(true);
+    } catch {
+      setError('Failed to convert PDF. The file may be corrupted or password-protected.');
+    } finally {
+      setProcessing(false);
+    }
+  }, [file]);
+
+  const reset = useCallback(() => {
+    setFile(null);
+    setProgress({ current: 0, total: 0 });
+    setDone(false);
+  }, []);
 
   return (
-    <ToolLayout toolName="PDF to PowerPoint" toolIcon={<PictureAsPdf />} toolColor="#f59e0b">
-      <Container maxWidth="xl" sx={{ py: 3 }}>
+    <ToolLayout toolName="PDF to PowerPoint" toolIcon={<PictureAsPdf />} toolColor={COLOR}>
+      <Container maxWidth="md" sx={{ py: 3 }}>
         <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={12}>
             <Paper
-              sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: dragOver ? '#f59e0b' : 'divider', cursor: 'pointer', transition: '0.2s' }}
-              onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)} onDrop={onDrop}
+              onDrop={onDrop}
+              onDragOver={(e: DragEvent) => e.preventDefault()}
+              onClick={() => !processing && document.getElementById('pdf-to-powerpoint-upload')?.click()}
+              sx={{
+                p: 4,
+                textAlign: 'center',
+                border: '2px dashed',
+                borderColor: file ? COLOR : 'divider',
+                cursor: 'pointer',
+              }}
             >
-              <CloudUpload sx={{ fontSize: 48, color: '#f59e0b', mb: 1 }} />
-              <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
-              <Button variant="outlined" component="label" sx={{ color: '#f59e0b', borderColor: '#f59e0b' }}>
-                Browse Files <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
-              </Button>
+              <input
+                id="pdf-to-powerpoint-upload"
+                type="file"
+                accept="application/pdf"
+                hidden
+                onChange={onFileChange}
+              />
+              <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
+              <Typography variant="h6">{file ? file.name : 'Drop PDF here or click to upload'}</Typography>
+              {file && (
+                <Typography variant="body2" color="text.secondary">
+                  {(file.size / 1024).toFixed(1)} KB
+                </Typography>
+              )}
             </Paper>
-            {processing && <LinearProgress sx={{ mt: 2, '& .MuiLinearProgress-bar': { bgcolor: '#f59e0b' } }} />}
-            {file && (
-              <Box sx={{ mt: 2 }}>
-                <PdfPreview file={file} />
-              </Box>
-            )}
+            {file && <PdfPreview file={file} />}
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            {meta && file ? (
-              <Paper sx={{ p: 3 }}>
-                <Typography variant="h6" gutterBottom>PDF Metadata</Typography>
-                <Table size="small">
-                  <TableBody>
-                    {([['File Name', file.name], ['File Size', formatSize(file.size)], ['Pages', String(meta.pages)],
-                      ['Title', meta.title], ['Author', meta.author], ['Creator', meta.creator],
-                      ['Producer', meta.producer], ['Created', meta.creationDate]] as [string, string][]).map(([l, v]) => (
-                      <TableRow key={l}><TableCell sx={{ fontWeight: 600 }}>{l}</TableCell><TableCell>{v}</TableCell></TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <Alert severity="info" icon={<InfoOutlined />} sx={{ mt: 2 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>Server-side conversion coming soon. Quick alternatives:</Typography>
-                  <List dense disablePadding>
-                    {tips.map((t) => (
-                      <ListItem key={t.primary} disableGutters sx={{ py: 0.25 }}>
-                        <ListItemIcon sx={{ minWidth: 28 }}><CheckCircleOutline fontSize="small" color="info" /></ListItemIcon>
-                        <ListItemText primary={t.primary} secondary={t.secondary} primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} secondaryTypographyProps={{ variant: 'caption' }} />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Alert>
-                <Button variant="contained" fullWidth startIcon={<Download />} onClick={downloadPdf}
-                  sx={{ mt: 2, bgcolor: '#f59e0b', '&:hover': { bgcolor: '#d97706' } }}>Download Original PDF</Button>
-              </Paper>
-            ) : (
-              <Paper sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}>
-                  <PictureAsPdf sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-                  <Typography color="text.secondary">Upload a PDF to view metadata</Typography>
-                </Box>
-              </Paper>
-            )}
+          <Grid size={12}>
+            <Alert severity="info">
+              Conversion runs entirely in your browser: each PDF page is rendered as a high-resolution image and placed
+              on its own 16:9 slide. Slide contents are images, so text is not editable in PowerPoint.
+            </Alert>
           </Grid>
+
+          <Grid size={12} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button
+              variant="contained"
+              startIcon={<Download />}
+              onClick={convert}
+              disabled={!file || processing}
+              sx={{ bgcolor: COLOR, '&:hover': { bgcolor: '#d97706' } }}
+            >
+              Convert & Download PPTX
+            </Button>
+            <Button variant="outlined" startIcon={<RestartAlt />} onClick={reset} disabled={processing}>
+              Reset
+            </Button>
+          </Grid>
+
+          {processing && (
+            <Grid size={12}>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Rendering page {progress.current} of {progress.total}...
+              </Typography>
+              <LinearProgress
+                variant="determinate"
+                value={progress.total ? (progress.current / progress.total) * 100 : 0}
+                sx={{ '& .MuiLinearProgress-bar': { bgcolor: COLOR } }}
+              />
+            </Grid>
+          )}
+
+          {done && (
+            <Grid size={12}>
+              <Alert severity="success">PowerPoint presentation downloaded.</Alert>
+            </Grid>
+          )}
         </Grid>
-        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity="error" onClose={() => setError('')}>{error}</Alert>
-        </Snackbar>
       </Container>
+
+      <Snackbar
+        open={!!error}
+        autoHideDuration={4000}
+        onClose={() => setError('')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="error" onClose={() => setError('')}>
+          {error}
+        </Alert>
+      </Snackbar>
     </ToolLayout>
   );
 }

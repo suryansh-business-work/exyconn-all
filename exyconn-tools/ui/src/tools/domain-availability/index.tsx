@@ -31,7 +31,7 @@ const DomainAvailability: React.FC = () => {
   };
 
   return (
-    <ToolLayout toolName="Domain Availability" toolIcon={<DomainVerification />} toolColor="#3b82f6">
+    <ToolLayout toolName="Domain Availability Checker" toolIcon={<DomainVerification />} toolColor="#3b82f6">
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>

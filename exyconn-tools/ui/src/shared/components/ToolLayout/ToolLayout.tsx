@@ -1,10 +1,18 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, AppBar, Toolbar, Typography, IconButton, Breadcrumbs, Link, Chip, Tooltip, Divider } from '@mui/material';
-import { ArrowBack, DarkMode, LightMode, Home, NavigateNext } from '@mui/icons-material';
+import { Box, AppBar, Toolbar, Typography, IconButton, Breadcrumbs, Link, Chip, Tooltip, Divider, Badge } from '@mui/material';
+import { ArrowBack, DarkMode, LightMode, Home, NavigateNext, Key } from '@mui/icons-material';
 import { useTheme } from '../../context/ThemeContext';
+import { useSecrets } from '../../context/SecretsContext';
+import { hasSecret } from '../../services/secrets';
+import { secretsConfig } from '../SecretsDrawer/secretsConfig';
 import Footer from '../Footer/Footer';
 import OwnThisTool from '../OwnThisTool/OwnThisTool';
+import ToolDetails from '../ToolDetails/ToolDetails';
+import { findToolById, getCategoryOfTool } from '../../data/toolsData';
+import { getToolDetails } from '../../data/toolDetails';
+import { buildToolMeta } from '../../seo/buildMeta';
+import { applyMeta, clearToolJsonLd } from '../../seo/applyMeta';
 
 interface ToolLayoutProps {
   children: React.ReactNode;
@@ -17,19 +25,37 @@ interface ToolLayoutProps {
 
 const ToolLayout: React.FC<ToolLayoutProps> = ({ children, toolName, toolIcon, toolColor, isMVP = false, actions }) => {
   const { mode, toggleTheme } = useTheme();
+  const { openSecrets } = useSecrets();
   const navigate = useNavigate();
   const location = useLocation();
+  const anyKeyConfigured = secretsConfig.some((field) => hasSecret(field.key));
 
   // Extract tool ID from path (e.g., /tools/logo-set -> logo-set)
   const toolId = location.pathname.split('/').pop() || '';
 
-  // Update document title
+  // Apply full SEO meta (title, description, canonical, OG, JSON-LD) for this
+  // tool. The prerenderer bakes the same tags into the static HTML; this keeps
+  // them in sync during client-side navigation.
   React.useEffect(() => {
-    document.title = `${toolName} | Exyconn Tools`;
+    const tool = findToolById(toolId);
+    if (tool) {
+      applyMeta(
+        buildToolMeta({
+          id: tool.id,
+          name: tool.name,
+          description: tool.description,
+          categoryName: getCategoryOfTool(tool.id)?.category ?? 'Tools',
+          details: getToolDetails(tool.id),
+        }),
+      );
+    } else {
+      document.title = `${toolName} | Exyconn Tools`;
+    }
     return () => {
       document.title = 'Exyconn Tools';
+      clearToolJsonLd();
     };
-  }, [toolName]);
+  }, [toolId, toolName]);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -128,12 +154,24 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({ children, toolName, toolIcon, t
           {/* Right side - Actions & Theme Toggle */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             {actions}
+            <Tooltip title="API Keys & Secrets">
+              <IconButton
+                size="small"
+                onClick={() => openSecrets()}
+                aria-label="API keys and secrets"
+                sx={{ bgcolor: 'action.hover', '&:hover': { bgcolor: 'action.selected' } }}
+              >
+                <Badge variant="dot" color="warning" invisible={anyKeyConfigured}>
+                  <Key fontSize="small" />
+                </Badge>
+              </IconButton>
+            </Tooltip>
             <Tooltip title={`${mode === 'light' ? 'Dark' : 'Light'} mode`}>
-              <IconButton size="small" onClick={toggleTheme}>
+              <IconButton size="small" onClick={toggleTheme} aria-label="Toggle colour mode">
                 {mode === 'light' ? (
                   <DarkMode fontSize="small" />
                 ) : (
-                  <LightMode fontSize="small" sx={{ color: '#fbbf24' }} />
+                  <LightMode fontSize="small" sx={{ color: 'warning.light' }} />
                 )}
               </IconButton>
             </Tooltip>
@@ -145,6 +183,9 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({ children, toolName, toolIcon, t
       <Box component="main" sx={{ flex: 1, bgcolor: 'background.default' }}>
         {children}
       </Box>
+
+      {/* SEO details: about, features, how-to, FAQs, related tools */}
+      <ToolDetails toolId={toolId} />
 
       {/* Own This Tool Section */}
       <OwnThisTool toolId={toolId} />

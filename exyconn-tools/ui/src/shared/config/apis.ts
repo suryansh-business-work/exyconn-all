@@ -33,9 +33,27 @@ export const APIs = {
     split: `${API_BASE_URL}/pdf-editor/split`,
   },
 
-  // Logo Maker
+  // Logo Set (canonical mount; the legacy /api/remove-background aliases are deprecated)
   logoMaker: {
-    removeBackground: `${API_BASE_URL}/logo-maker/remove-background`,
+    removeBackground: `${API_BASE_URL}/tools/logo-set/remove-background`,
+    removeBackgroundBase64: `${API_BASE_URL}/tools/logo-set/remove-background-base64`,
+  },
+
+  // Image Tools (server-backed; most image tools run fully client-side)
+  imageTools: {
+    upscale: `${API_BASE_URL}/tools/image-tools/upscale`,
+    removeBackground: `${API_BASE_URL}/tools/image-tools/remove-background`,
+  },
+
+  // PDF Tools (server-backed encryption via qpdf)
+  pdfTools: {
+    protect: `${API_BASE_URL}/tools/pdf-tools/protect`,
+    unlock: `${API_BASE_URL}/tools/pdf-tools/unlock`,
+  },
+
+  // Office <-> PDF conversion (server-backed via LibreOffice)
+  officeTools: {
+    officeToPdf: `${API_BASE_URL}/tools/office-tools/office-to-pdf`,
   },
 
   // Chat Tools

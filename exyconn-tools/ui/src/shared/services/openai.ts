@@ -1,3 +1,25 @@
+/** The secrets-drawer key every OpenAI-backed tool reads. */
+export const OPENAI_SECRET_KEY = 'openai_api_key';
+
+/**
+ * An OpenAI HTTP failure that keeps the status code. Without it a rejected key
+ * looks exactly like a transient error, so a tool could not tell the user to
+ * fix the key rather than retry.
+ */
+export class OpenAIRequestError extends Error {
+  readonly status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'OpenAIRequestError';
+    this.status = status;
+  }
+}
+
+/** True when OpenAI refused the key we sent rather than the request itself. */
+export const isKeyRejected = (error: unknown): boolean =>
+  error instanceof OpenAIRequestError && (error.status === 401 || error.status === 403);
+
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -41,7 +63,7 @@ export const generateWithOpenAI = async (
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error?.message || 'Failed to generate response');
+    throw new OpenAIRequestError(error.error?.message || 'Failed to generate response', response.status);
   }
 
   const data: OpenAIResponse = await response.json();

@@ -31,7 +31,7 @@ const SSLChecker: React.FC = () => {
   };
 
   return (
-    <ToolLayout toolName="SSL Checker" toolIcon={<Lock />} toolColor="#22c55e">
+    <ToolLayout toolName="SSL Certificate Checker" toolIcon={<Lock />} toolColor="#22c55e">
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>

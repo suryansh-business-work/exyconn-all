@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Container, Alert, Snackbar } from '@mui/material';
+import { Container, Box, Alert, Snackbar } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { AutoAwesome } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
-import { APIKeyInput, AIResultDisplay } from '../../shared/components/AIToolShared';
-import { useOpenAI } from '../../shared/context/OpenAIContext';
+import { APIKeyInput, AIResultDisplay, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
+import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyAlert';
 import { generateWithOpenAI, TokenUsage } from '../../shared/services/openai';
 import OptimizerForm from './components/OptimizerForm';
 
@@ -21,13 +21,14 @@ When optimizing prompts:
 Provide the optimized prompt and briefly explain the improvements made.`;
 
 const AIPromptOptimizer: React.FC = () => {
-  const { apiKey, isKeySet } = useOpenAI();
+  const { needsKey, requireKey, reportError } = useOpenAIKey();
   const [result, setResult] = useState('');
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleOptimize = async (prompt: string, goal: string) => {
+    const apiKey = requireKey();
     if (!apiKey) return;
     setIsLoading(true);
     setError(null);
@@ -38,6 +39,7 @@ const AIPromptOptimizer: React.FC = () => {
       setResult(response.content);
       setTokenUsage(response.usage);
     } catch (err) {
+      reportError(err);
       setError(err instanceof Error ? err.message : 'Failed to optimize');
     } finally {
       setIsLoading(false);
@@ -51,10 +53,13 @@ const AIPromptOptimizer: React.FC = () => {
           <Grid size={{ xs: 12, md: 5 }}>
             <APIKeyInput />
             <OptimizerForm onSubmit={handleOptimize} isLoading={isLoading} />
-            {!isKeySet && (
-              <Alert severity="info" sx={{ mt: 2 }}>
-                Please add your OpenAI API key to use this tool.
-              </Alert>
+            {needsKey && (
+              <Box sx={{ mt: 2 }}>
+                <MissingKeyAlert
+                  secretKey={OPENAI_SECRET_KEY}
+                  hint="Rewrites run through OpenAI using your own key, which stays in this browser."
+                />
+              </Box>
             )}
           </Grid>
           <Grid size={{ xs: 12, md: 7 }}>

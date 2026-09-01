@@ -2,17 +2,17 @@
 # Exyconn Tools Server - Multi-stage Dockerfile
 # Service: tools-server | Port: 4002 | Domain: tools-api.exyconn.com
 # Build: Node16 moduleResolution fix - Feb 2026
-# Note: Using node:20-slim (Debian) for glibc compatibility with onnxruntime-node
+# Note: Using node:22-slim (Debian) for glibc compatibility with onnxruntime-node
 # =============================================================================
 
 # Stage 1: Dependencies
-FROM node:20-slim AS deps
+FROM node:22-slim AS deps
 WORKDIR /app
 COPY package.json ./
 RUN rm -f package-lock.json && npm install --legacy-peer-deps --include=optional
 
 # Stage 2: Builder
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json tsconfig.json ./
@@ -20,11 +20,20 @@ COPY src ./src
 RUN npm run build
 
 # Stage 3: Production
-FROM node:20-slim AS production
+FROM node:22-slim AS production
 WORKDIR /app
 
-# Install wget for health check and create non-root user
-RUN apt-get update && apt-get install -y --no-install-recommends wget && \
+# Install wget (health check), qpdf (PDF protect/unlock) and LibreOffice + fonts
+# (office -> PDF conversion), then create the non-root user
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        wget \
+        qpdf \
+        libreoffice-core \
+        libreoffice-writer \
+        libreoffice-calc \
+        libreoffice-impress \
+        fonts-dejavu \
+        fontconfig && \
     rm -rf /var/lib/apt/lists/* && \
     groupadd -g 1001 nodejs && \
     useradd -u 1001 -g nodejs -m nodejs && \
@@ -46,5 +55,7 @@ EXPOSE 4002
 
 ENV NODE_ENV=production
 ENV PORT=4002
+# soffice (LibreOffice) needs a writable HOME for its user profile under the non-root user
+ENV HOME=/tmp
 
 CMD ["node", "dist/index.js"]

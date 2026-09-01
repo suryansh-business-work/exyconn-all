@@ -3,15 +3,15 @@ import { Container, Alert, Snackbar, Paper, Box, Typography, TextField, Button }
 import Grid from '@mui/material/Grid2';
 import { TextFields, CheckCircle } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
-import { APIKeyInput } from '../../shared/components/AIToolShared';
+import { APIKeyInput, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
+import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyAlert';
 import { ChatMessages, ChatInput, ChatMessage, TokenUsage } from '../../shared/components/ChatInterface';
-import { useOpenAI } from '../../shared/context/OpenAIContext';
 import { generateWithOpenAI } from '../../shared/services/openai';
 
 const SYSTEM_PROMPT = `You are an AI assistant that answers questions based on text content. Be accurate, reference specific parts when helpful.`;
 
 const ChatWithText: React.FC = () => {
-  const { apiKey, isKeySet } = useOpenAI();
+  const { needsKey, requireKey, reportError } = useOpenAIKey();
   const [textContent, setTextContent] = useState('');
   const [isContentSet, setIsContentSet] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -28,7 +28,9 @@ const ChatWithText: React.FC = () => {
 
   const handleSendMessage = useCallback(
     async (question: string) => {
-      if (!apiKey || !textContent) return;
+      if (!textContent) return;
+      const apiKey = requireKey();
+      if (!apiKey) return;
       const userMsg: ChatMessage = {
         id: Date.now().toString(),
         role: 'user',
@@ -49,12 +51,13 @@ const ChatWithText: React.FC = () => {
         setMessages((prev) => [...prev, assistantMsg]);
         setTokenUsage(response.usage);
       } catch (err) {
+        reportError(err);
         setError(err instanceof Error ? err.message : 'Failed to generate');
       } finally {
         setIsLoading(false);
       }
     },
-    [apiKey, textContent]
+    [textContent, requireKey, reportError]
   );
 
   return (
@@ -97,11 +100,6 @@ const ChatWithText: React.FC = () => {
                   Content set! ({textContent.length} chars)
                 </Alert>
               )}
-              {!isKeySet && (
-                <Alert severity="info" sx={{ mt: 2 }}>
-                  Add OpenAI API key to chat.
-                </Alert>
-              )}
             </Paper>
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
@@ -127,10 +125,18 @@ const ChatWithText: React.FC = () => {
               <ChatInput
                 onSend={handleSendMessage}
                 isLoading={isLoading}
-                disabled={!isContentSet || !isKeySet}
+                disabled={!isContentSet}
                 placeholder="Ask about this text..."
               />
             </Paper>
+            {needsKey && (
+              <Box sx={{ mt: 2 }}>
+                <MissingKeyAlert
+                  secretKey={OPENAI_SECRET_KEY}
+                  hint="Answers about your text come from OpenAI using your own key."
+                />
+              </Box>
+            )}
           </Grid>
         </Grid>
       </Container>
