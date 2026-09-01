@@ -1,8 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useJsApiLoader } from '@react-google-maps/api';
 import { Box } from '@mui/material';
-import { APISettings, STORAGE_KEYS } from '../../types';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
 import MapControls from './MapControls';
 import MapLoadingStates from './MapLoadingStates';
 import MapRenderer from './MapRenderer';
@@ -10,6 +8,7 @@ import { useMapDrawing } from './useMapDrawing';
 import { libraries, defaultCenter, MapComponentProps } from './types';
 
 const MapComponent: React.FC<MapComponentProps> = ({
+  apiKey,
   businesses,
   onPolygonComplete,
   onClearPolygon,
@@ -19,15 +18,11 @@ const MapComponent: React.FC<MapComponentProps> = ({
   onDrawPolygonRef,
   externalCenter,
 }) => {
-  const [settings] = useLocalStorage<APISettings>(STORAGE_KEYS.API_SETTINGS, {
-    googleMapsApiKey: '',
-    googlePlacesApiKey: '',
-  });
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [center, setCenter] = useState(defaultCenter);
 
   const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: settings.googleMapsApiKey,
+    googleMapsApiKey: apiKey,
     libraries,
   });
 
@@ -76,8 +71,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
     }
   };
 
-  if (!settings.googleMapsApiKey || loadError || !isLoaded) {
-    return <MapLoadingStates apiKey={settings.googleMapsApiKey} loadError={loadError} isLoaded={isLoaded} />;
+  if (!apiKey || loadError || !isLoaded) {
+    return <MapLoadingStates apiKey={apiKey} loadError={loadError} isLoaded={isLoaded} />;
   }
 
   return (

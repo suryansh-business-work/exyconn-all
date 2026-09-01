@@ -12,18 +12,24 @@ import {
   Divider,
 } from '@mui/material';
 import { Settings, Visibility, VisibilityOff, Save, Warning, Key, ExpandMore, ExpandLess } from '@mui/icons-material';
-import { APISettings, STORAGE_KEYS } from '../types';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { APISettings } from '../types';
+import { readSecret, writeSecret } from '../../../shared/services/secrets';
+
+const MAPS_KEY = 'google_maps_api_key';
+const PLACES_KEY = 'google_places_api_key';
+
+/** Both keys live in one shared blob, so always go through the secrets module. */
+const readSettings = (): APISettings => ({
+  googleMapsApiKey: readSecret(MAPS_KEY),
+  googlePlacesApiKey: readSecret(PLACES_KEY),
+});
 
 interface APISettingsDialogProps {
   onSettingsChange?: (settings: APISettings) => void;
 }
 
 const APISettingsPanel: React.FC<APISettingsDialogProps> = ({ onSettingsChange }) => {
-  const [settings, setSettings] = useLocalStorage<APISettings>(STORAGE_KEYS.API_SETTINGS, {
-    googleMapsApiKey: '',
-    googlePlacesApiKey: '',
-  });
+  const [settings, setSettings] = useState<APISettings>(readSettings);
   const [showMapsKey, setShowMapsKey] = useState(false);
   const [showPlacesKey, setShowPlacesKey] = useState(false);
   const [expanded, setExpanded] = useState(!settings.googleMapsApiKey);
@@ -31,6 +37,8 @@ const APISettingsPanel: React.FC<APISettingsDialogProps> = ({ onSettingsChange }
   const [saved, setSaved] = useState(false);
 
   const handleSave = () => {
+    writeSecret(MAPS_KEY, tempSettings.googleMapsApiKey);
+    writeSecret(PLACES_KEY, tempSettings.googlePlacesApiKey);
     setSettings(tempSettings);
     onSettingsChange?.(tempSettings);
     setSaved(true);

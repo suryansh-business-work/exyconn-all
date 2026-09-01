@@ -40,6 +40,16 @@ export const secretsConfig: SecretField[] = [
     helpUrl: 'https://console.cloud.google.com/apis/credentials',
   },
   {
+    key: 'removebg_api_key',
+    label: 'Remove.bg API Key',
+    storageKey: 'removebg_api_key',
+    placeholder: 'XXXXXXXXXXXXXXXXXXXXXXXX',
+    category: 'Logo Set',
+    instruction:
+      '1. Go to remove.bg and sign in\n2. Open Tools → API → API Keys\n3. Create a new API key\n4. Copy the key (the free tier includes 50 previews a month)',
+    helpUrl: 'https://www.remove.bg/dashboard#api-key',
+  },
+  {
     key: 'google_search_api_key',
     label: 'Google Custom Search API Key',
     storageKey: 'google_search_api_key',

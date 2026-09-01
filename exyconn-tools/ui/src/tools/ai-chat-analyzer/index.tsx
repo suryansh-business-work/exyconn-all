@@ -3,9 +3,9 @@ import { Container, Alert, Snackbar, Paper, Box, Typography, TextField, Button, 
 import Grid from '@mui/material/Grid2';
 import { Insights, Analytics, CheckCircle } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
-import { APIKeyInput } from '../../shared/components/AIToolShared';
+import { APIKeyInput, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
+import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyAlert';
 import { ChatMessages, ChatInput, ChatMessage, TokenUsage } from '../../shared/components/ChatInterface';
-import { useOpenAI } from '../../shared/context/OpenAIContext';
 import { generateWithOpenAI } from '../../shared/services/openai';
 
 const SYSTEM_PROMPT = `You are an expert chatbot conversation analyst. Analyze chat logs and provide actionable insights about user intents, bot performance, and improvement suggestions.`;
@@ -19,7 +19,7 @@ const focusAreas = [
 ];
 
 const AIChatAnalyzer: React.FC = () => {
-  const { apiKey, isKeySet } = useOpenAI();
+  const { needsKey, requireKey, reportError } = useOpenAIKey();
   const [chatLog, setChatLog] = useState('');
   const [focusArea, setFocusArea] = useState('');
   const [isContentSet, setIsContentSet] = useState(false);
@@ -37,7 +37,9 @@ const AIChatAnalyzer: React.FC = () => {
 
   const handleSendMessage = useCallback(
     async (question: string) => {
-      if (!apiKey || !chatLog) return;
+      if (!chatLog) return;
+      const apiKey = requireKey();
+      if (!apiKey) return;
       const userMsg: ChatMessage = {
         id: Date.now().toString(),
         role: 'user',
@@ -58,12 +60,13 @@ const AIChatAnalyzer: React.FC = () => {
         setMessages((prev) => [...prev, assistantMsg]);
         setTokenUsage(response.usage);
       } catch (err) {
+        reportError(err);
         setError(err instanceof Error ? err.message : 'Failed to analyze');
       } finally {
         setIsLoading(false);
       }
     },
-    [apiKey, chatLog, focusArea]
+    [chatLog, focusArea, requireKey, reportError]
   );
 
   return (
@@ -122,11 +125,6 @@ const AIChatAnalyzer: React.FC = () => {
                   Chat log set! ({chatLog.length} chars)
                 </Alert>
               )}
-              {!isKeySet && (
-                <Alert severity="info" sx={{ mt: 2 }}>
-                  Add OpenAI API key.
-                </Alert>
-              )}
             </Paper>
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
@@ -152,10 +150,18 @@ const AIChatAnalyzer: React.FC = () => {
               <ChatInput
                 onSend={handleSendMessage}
                 isLoading={isLoading}
-                disabled={!isContentSet || !isKeySet}
+                disabled={!isContentSet}
                 placeholder="Ask about this chat log (e.g., What are the main issues?)"
               />
             </Paper>
+            {needsKey && (
+              <Box sx={{ mt: 2 }}>
+                <MissingKeyAlert
+                  secretKey={OPENAI_SECRET_KEY}
+                  hint="The analysis runs through OpenAI with your own key; the chat log stays in this browser."
+                />
+              </Box>
+            )}
           </Grid>
         </Grid>
       </Container>

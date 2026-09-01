@@ -63,8 +63,6 @@ const AITextGenerator: React.FC = () => {
         '',
         'Suggestions:',
         ...d.suggestions.map((s: string) => `• ${s}`),
-        '',
-        `Tip: For AI-generated content, configure your OpenAI API key in the Secrets drawer. The tool will then use GPT to generate original ${contentTypes.find((t) => t.value === type)?.label?.toLowerCase() || 'content'} based on your topic and tone preferences.`,
       ].join('\n');
       setResult(generated);
     } catch (err) {
@@ -102,7 +100,6 @@ const AITextGenerator: React.FC = () => {
               <Button fullWidth variant="contained" onClick={handleGenerate} disabled={isLoading || !topic.trim()} sx={{ textTransform: 'none', bgcolor: '#6366f1', '&:hover': { bgcolor: '#4f46e5' } }}>
                 {isLoading ? 'Generating...' : 'Generate'}
               </Button>
-              <Alert severity="info" sx={{ mt: 2 }}>For full AI-powered generation, add your OpenAI API key in the Secrets drawer (Key icon at top).</Alert>
             </Paper>
           </Grid>
           <Grid size={{ xs: 12, md: 7 }}>

@@ -5,8 +5,8 @@ import {
 import Grid from '@mui/material/Grid2';
 import { Bookmark, Send } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
-import { APIKeyInput, AIResultDisplay } from '../../shared/components/AIToolShared';
-import { useOpenAI } from '../../shared/context/OpenAIContext';
+import { APIKeyInput, AIResultDisplay, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
+import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyAlert';
 import { generateWithOpenAI, TokenUsage } from '../../shared/services/openai';
 import { APIs } from '../../shared/config/apis';
 
@@ -19,7 +19,7 @@ When generating FAQs:
 4. Format output as numbered Q&A pairs`;
 
 const NotionFAQGenerator: React.FC = () => {
-  const { apiKey, isKeySet } = useOpenAI();
+  const { needsKey, requireKey, reportError } = useOpenAIKey();
   const [result, setResult] = useState('');
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | undefined>();
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +29,9 @@ const NotionFAQGenerator: React.FC = () => {
   const [tone, setTone] = useState('professional');
 
   const handleGenerate = async () => {
-    if (!apiKey || !url) return;
+    if (!url) return;
+    const apiKey = requireKey();
+    if (!apiKey) return;
     setIsLoading(true);
     setError(null);
 
@@ -50,6 +52,7 @@ const NotionFAQGenerator: React.FC = () => {
       setResult(response.content);
       setTokenUsage(response.usage);
     } catch (err) {
+      reportError(err);
       setError(err instanceof Error ? err.message : 'Failed to generate FAQs');
     } finally {
       setIsLoading(false);
@@ -83,7 +86,14 @@ const NotionFAQGenerator: React.FC = () => {
                 {isLoading ? 'Generating FAQs...' : 'Generate FAQs'}
               </Button>
             </Paper>
-            {!isKeySet && <Alert severity="info" sx={{ mt: 2 }}>Please add your OpenAI API key to use this tool.</Alert>}
+            {needsKey && (
+              <Box sx={{ mt: 2 }}>
+                <MissingKeyAlert
+                  secretKey={OPENAI_SECRET_KEY}
+                  hint="FAQs are written by OpenAI from the fetched Notion page using your own key."
+                />
+              </Box>
+            )}
           </Grid>
           <Grid size={{ xs: 12, md: 7 }}>
             <AIResultDisplay result={result} title="Generated FAQs" tokenUsage={tokenUsage} />

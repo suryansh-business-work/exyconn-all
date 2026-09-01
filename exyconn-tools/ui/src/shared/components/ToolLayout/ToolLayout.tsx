@@ -1,8 +1,11 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, AppBar, Toolbar, Typography, IconButton, Breadcrumbs, Link, Chip, Tooltip, Divider } from '@mui/material';
-import { ArrowBack, DarkMode, LightMode, Home, NavigateNext } from '@mui/icons-material';
+import { Box, AppBar, Toolbar, Typography, IconButton, Breadcrumbs, Link, Chip, Tooltip, Divider, Badge } from '@mui/material';
+import { ArrowBack, DarkMode, LightMode, Home, NavigateNext, Key } from '@mui/icons-material';
 import { useTheme } from '../../context/ThemeContext';
+import { useSecrets } from '../../context/SecretsContext';
+import { hasSecret } from '../../services/secrets';
+import { secretsConfig } from '../SecretsDrawer/secretsConfig';
 import Footer from '../Footer/Footer';
 import OwnThisTool from '../OwnThisTool/OwnThisTool';
 import ToolDetails from '../ToolDetails/ToolDetails';
@@ -22,8 +25,10 @@ interface ToolLayoutProps {
 
 const ToolLayout: React.FC<ToolLayoutProps> = ({ children, toolName, toolIcon, toolColor, isMVP = false, actions }) => {
   const { mode, toggleTheme } = useTheme();
+  const { openSecrets } = useSecrets();
   const navigate = useNavigate();
   const location = useLocation();
+  const anyKeyConfigured = secretsConfig.some((field) => hasSecret(field.key));
 
   // Extract tool ID from path (e.g., /tools/logo-set -> logo-set)
   const toolId = location.pathname.split('/').pop() || '';
@@ -149,12 +154,24 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({ children, toolName, toolIcon, t
           {/* Right side - Actions & Theme Toggle */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             {actions}
+            <Tooltip title="API Keys & Secrets">
+              <IconButton
+                size="small"
+                onClick={() => openSecrets()}
+                aria-label="API keys and secrets"
+                sx={{ bgcolor: 'action.hover', '&:hover': { bgcolor: 'action.selected' } }}
+              >
+                <Badge variant="dot" color="warning" invisible={anyKeyConfigured}>
+                  <Key fontSize="small" />
+                </Badge>
+              </IconButton>
+            </Tooltip>
             <Tooltip title={`${mode === 'light' ? 'Dark' : 'Light'} mode`}>
-              <IconButton size="small" onClick={toggleTheme}>
+              <IconButton size="small" onClick={toggleTheme} aria-label="Toggle colour mode">
                 {mode === 'light' ? (
                   <DarkMode fontSize="small" />
                 ) : (
-                  <LightMode fontSize="small" sx={{ color: '#fbbf24' }} />
+                  <LightMode fontSize="small" sx={{ color: 'warning.light' }} />
                 )}
               </IconButton>
             </Tooltip>

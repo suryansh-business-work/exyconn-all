@@ -77,9 +77,11 @@ const ParaphrasingTool: React.FC = () => {
                     </List>
                   </Paper>
                 )}
-                <Alert severity="info" variant="outlined" sx={{ fontSize: '0.8rem' }}>
-                  {String(result.note || 'Configure OpenAI API key for AI-powered paraphrasing.')}
-                </Alert>
+                {typeof result.note === 'string' && result.note && (
+                  <Alert severity="info" variant="outlined" sx={{ fontSize: '0.8rem' }}>
+                    {result.note}
+                  </Alert>
+                )}
               </Box>
             )}
           </Grid>

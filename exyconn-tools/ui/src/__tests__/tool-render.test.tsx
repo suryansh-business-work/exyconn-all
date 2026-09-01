@@ -13,6 +13,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '../shared/context/ThemeContext';
 import { OpenAIProvider } from '../shared/context/OpenAIContext';
+import { SecretsProvider } from '../shared/context/SecretsContext';
 import { getAllTools } from '../shared/data/toolsData';
 
 /* ------------------------------------------------------------------ *
@@ -155,9 +156,11 @@ const renderTool = async (id: string) => {
     <ThemeProvider>
       <OpenAIProvider>
         <MemoryRouter initialEntries={[`/tools/${id}`]}>
-          <Suspense fallback={<div>loading</div>}>
-            <Tool />
-          </Suspense>
+          <SecretsProvider>
+            <Suspense fallback={<div>loading</div>}>
+              <Tool />
+            </Suspense>
+          </SecretsProvider>
         </MemoryRouter>
       </OpenAIProvider>
     </ThemeProvider>,

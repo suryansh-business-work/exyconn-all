@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Paper, Stepper, Typography, Alert } from '@mui/material';
+import { Box, Paper, Stepper, Typography } from '@mui/material';
+import MissingKeyAlert from '../../../../shared/components/MissingKeyAlert/MissingKeyAlert';
 import { SearchStepperProps, LocationMode } from './types';
 import LocationStep from './LocationStep';
 import CategoryStep from './CategoryStep';
@@ -116,9 +117,12 @@ const SearchStepper: React.FC<SearchStepperProps> = ({
 
       <Box sx={{ p: 2 }}>
         {!hasApiKey && (
-          <Alert severity="warning" sx={{ mb: 2 }}>
-            Please configure your Google API keys in the settings above first.
-          </Alert>
+          <Box sx={{ mb: 2 }}>
+            <MissingKeyAlert
+              secretKey="google_maps_api_key"
+              hint="The search wizard needs a Google Maps key before it can place and draw an area."
+            />
+          </Box>
         )}
 
         <Stepper activeStep={activeStep} orientation="vertical">

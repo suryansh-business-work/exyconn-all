@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, CircularProgress, Typography, Alert } from '@mui/material';
+import MissingKeyAlert from '../../../../shared/components/MissingKeyAlert/MissingKeyAlert';
 
 interface MapLoadingStatesProps {
   apiKey: string;
@@ -20,7 +21,10 @@ const MapLoadingStates: React.FC<MapLoadingStatesProps> = ({ apiKey, loadError, 
           borderRadius: 2,
         }}
       >
-        <Alert severity="info">Please configure your Google Maps API key in the settings above to use the map.</Alert>
+        <MissingKeyAlert
+          secretKey="google_maps_api_key"
+          hint="The map needs a Google Maps key to draw your search area."
+        />
       </Box>
     );
   }

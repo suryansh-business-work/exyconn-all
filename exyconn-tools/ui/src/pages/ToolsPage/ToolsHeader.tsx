@@ -4,15 +4,22 @@ import {
   IconButton, Tooltip, Badge,
 } from '@mui/material';
 import { Search, Clear, DarkMode, LightMode, Key } from '@mui/icons-material';
-import { useOpenAI } from '../../shared/context/OpenAIContext';
+import { useSecrets } from '../../shared/context/SecretsContext';
+import { hasSecret } from '../../shared/services/secrets';
+import { secretsConfig } from '../../shared/components/SecretsDrawer/secretsConfig';
+import Logo from '../../shared/components/Logo/Logo';
 import { ToolsHeaderProps } from './types';
-
-const LOGO_URL = 'https://ik.imagekit.io/esdata1/exyconn/logo/exyconn.svg';
 
 const ToolsHeader: React.FC<Readonly<ToolsHeaderProps>> = ({
   searchQuery, onSearchChange, mode, onToggleTheme, onLogoClick, onOpenSecrets,
 }) => {
-  const { isKeySet } = useOpenAI();
+  const { isOpen: secretsOpen } = useSecrets();
+  // Recomputed whenever the drawer opens or closes — the only moments a key can
+  // change — so the badge reflects storage rather than a value read once at boot.
+  const anyKeyConfigured = React.useMemo(
+    () => secretsConfig.some((field) => hasSecret(field.key)),
+    [secretsOpen],
+  );
 
   return (
     <AppBar position="sticky" elevation={0}
@@ -20,7 +27,7 @@ const ToolsHeader: React.FC<Readonly<ToolsHeaderProps>> = ({
       <Toolbar sx={{ gap: { xs: 1, sm: 2 }, minHeight: 56, px: { xs: 1.5, sm: 3 } }}>
         <ButtonBase onClick={onLogoClick} aria-label="Exyconn Tools home"
           sx={{ display: 'flex', alignItems: 'center', gap: 1.5, borderRadius: 1, flexShrink: 0 }}>
-          <img src={LOGO_URL} alt="Exyconn" style={{ height: 32, width: 'auto' }} />
+          <Logo height={30} />
           <Typography variant="h6"
             sx={{ fontWeight: 700, color: 'text.primary', display: { xs: 'none', md: 'block' } }}>
             Free Tools
@@ -52,7 +59,7 @@ const ToolsHeader: React.FC<Readonly<ToolsHeaderProps>> = ({
           <Tooltip title="API Keys & Secrets">
             <IconButton onClick={onOpenSecrets} size="small"
               sx={{ bgcolor: 'action.hover', '&:hover': { bgcolor: 'action.selected' } }}>
-              <Badge variant="dot" color="warning" invisible={isKeySet}>
+              <Badge variant="dot" color="warning" invisible={anyKeyConfigured}>
                 <Key fontSize="small" />
               </Badge>
             </IconButton>

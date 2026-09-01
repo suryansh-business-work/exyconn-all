@@ -12,6 +12,9 @@ import {
 } from '@mui/material';
 import { AutoFixHigh, Cloud, Memory } from '@mui/icons-material';
 import ProviderOption from './ProviderOption';
+import { readSecret, writeSecret } from '../../../../shared/services/secrets';
+
+const REMOVEBG_KEY = 'removebg_api_key';
 
 const isLocalDev = import.meta.env.DEV;
 const API_URL = isLocalDev
@@ -29,13 +32,13 @@ interface Props {
 
 const BackgroundRemovalDialog: React.FC<Props> = ({ open, onClose, currentImage, onSuccess }) => {
   const [provider, setProvider] = useState<BgRemovalProvider>('removebg');
-  const [removeBgApiKey, setRemoveBgApiKey] = useState<string>(localStorage.getItem('removebg_api_key') || '');
+  const [removeBgApiKey, setRemoveBgApiKey] = useState<string>(() => readSecret(REMOVEBG_KEY));
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleApiKeyChange = (value: string) => {
     setRemoveBgApiKey(value);
-    localStorage.setItem('removebg_api_key', value);
+    writeSecret(REMOVEBG_KEY, value);
   };
 
   const handleRemoveBackground = async () => {

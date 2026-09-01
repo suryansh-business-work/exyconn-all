@@ -10,7 +10,6 @@ interface UseBusinessSearchResult {
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   setSuccessMessage: React.Dispatch<React.SetStateAction<string | null>>;
   handleSearch: (
-    apiKey: string,
     polygonCoordinates: PolygonCoordinates[],
     searchQuery: string,
     selectedTypes: string[],
@@ -51,17 +50,11 @@ export const useBusinessSearch = (): UseBusinessSearchResult => {
 
   const handleSearch = useCallback(
     async (
-      apiKey: string,
       polygonCoordinates: PolygonCoordinates[],
       searchQuery: string,
       selectedTypes: string[],
       maxResults: number
     ) => {
-      if (!apiKey) {
-        setError('Please configure your Google Places API key in settings');
-        return;
-      }
-
       if (polygonCoordinates.length < 3) {
         setError('Please draw a polygon with at least 3 points');
         return;

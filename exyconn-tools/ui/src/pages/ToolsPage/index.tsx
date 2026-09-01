@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Container, useMediaQuery, useTheme as useMuiTheme } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useTheme } from '../../shared/context/ThemeContext';
+import { useSecrets } from '../../shared/context/SecretsContext';
 import Footer from '../../shared/components/Footer/Footer';
-import { SecretsDrawer } from '../../shared/components/SecretsDrawer';
 import { toolsData, getToolCounts, ToolItem, ToolCategory } from '../../shared/data/toolsData';
 import { SITE_ORIGIN, SITE_NAME, DEFAULT_DESCRIPTION, BuiltMeta } from '../../shared/seo/buildMeta';
 import { applyMeta } from '../../shared/seo/applyMeta';
@@ -62,11 +62,11 @@ const filterBySearch = (categories: ToolCategory[], query: string): ToolCategory
 const ToolsPage: React.FC = () => {
   const navigate = useNavigate();
   const { mode, toggleTheme } = useTheme();
+  const { openSecrets } = useSecrets();
   const muiTheme = useMuiTheme();
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [secretsOpen, setSecretsOpen] = useState(false);
 
   const toolCounts = getToolCounts();
 
@@ -88,7 +88,7 @@ const ToolsPage: React.FC = () => {
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <ToolsHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} mode={mode}
         onToggleTheme={toggleTheme} onLogoClick={() => navigate('/tools')}
-        onOpenSecrets={() => setSecretsOpen(true)} />
+        onOpenSecrets={() => openSecrets()} />
       {isMobile && (
         <CategoryChipRow selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
       )}
@@ -119,7 +119,6 @@ const ToolsPage: React.FC = () => {
           </Grid>
         </Container>
       </Box>
-      <SecretsDrawer open={secretsOpen} onClose={() => setSecretsOpen(false)} />
       <Footer />
     </Box>
   );
