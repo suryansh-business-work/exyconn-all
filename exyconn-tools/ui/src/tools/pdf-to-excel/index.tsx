@@ -6,134 +6,194 @@ import Paper from '@mui/material/Paper';
 import LinearProgress from '@mui/material/LinearProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableRow from '@mui/material/TableRow';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import Grid from '@mui/material/Grid2';
 import TableChart from '@mui/icons-material/TableChart';
 import CloudUpload from '@mui/icons-material/CloudUpload';
-import Download from '@mui/icons-material/Download';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
-import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline';
-import { PDFDocument } from 'pdf-lib';
+import RestartAlt from '@mui/icons-material/RestartAlt';
+import * as pdfjsLib from 'pdfjs-dist';
+import { Workbook } from 'exceljs';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { PdfPreview } from '../../shared/components/PdfPreview';
+import ExtractionResults from './ExtractionResults';
+import { downloadBlob, extractRows, toPreviewRows, TOOL_COLOR, TOOL_COLOR_DARK, type PreviewRow } from './utils';
 
-const formatSize = (b: number) => (b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(2)} MB`);
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
-interface PdfMeta { pages: number; title: string; author: string; creator: string; producer: string; creationDate: string; }
+const PREVIEW_ROW_LIMIT = 8;
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+const buildWorkbookBuffer = async (pages: string[][][]): Promise<ArrayBuffer> => {
+  const workbook = new Workbook();
+  pages.forEach((rows, index) => {
+    const sheet = workbook.addWorksheet(`Page ${index + 1}`);
+    for (const row of rows) {
+      sheet.addRow(row);
+    }
+  });
+  return workbook.xlsx.writeBuffer();
+};
 
 export default function PdfToExcel() {
   const [file, setFile] = useState<File | null>(null);
   const [processing, setProcessing] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [error, setError] = useState('');
-  const [meta, setMeta] = useState<PdfMeta | null>(null);
+  const [pages, setPages] = useState<string[][][] | null>(null);
+  const [preview, setPreview] = useState<PreviewRow[]>([]);
 
-  const loadFile = useCallback(async (f: File) => {
-    if (f.type !== 'application/pdf') { setError('Please select a PDF file.'); return; }
-    setProcessing(true);
-    try {
-      const bytes = await f.arrayBuffer();
-      const doc = await PDFDocument.load(bytes);
-      const created = doc.getCreationDate();
-      setMeta({
-        pages: doc.getPageCount(), title: doc.getTitle() ?? 'N/A', author: doc.getAuthor() ?? 'N/A',
-        creator: doc.getCreator() ?? 'N/A', producer: doc.getProducer() ?? 'N/A',
-        creationDate: created ? created.toLocaleDateString() : 'N/A',
-      });
-      setFile(f);
-    } catch { setError('Failed to read PDF.'); } finally { setProcessing(false); }
+  const handleFile = useCallback((f: File) => {
+    if (f.type !== 'application/pdf') {
+      setError('Please select a PDF file.');
+      return;
+    }
+    setFile(f);
+    setPages(null);
+    setPreview([]);
   }, []);
 
-  const onDrop = useCallback((e: DragEvent) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); }, [loadFile]);
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => { if (e.target.files?.[0]) loadFile(e.target.files[0]); e.target.value = ''; };
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    },
+    [handleFile]
+  );
 
-  const downloadPdf = () => {
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    const a = document.createElement('a'); a.href = url; a.download = file.name; a.click(); URL.revokeObjectURL(url);
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) handleFile(e.target.files[0]);
+    e.target.value = '';
   };
 
-  const tips = [
-    { primary: 'Adobe Acrobat', secondary: 'Open PDF → Export PDF → Spreadsheet → Microsoft Excel Workbook' },
-    { primary: 'Google Sheets', secondary: 'Copy tabular data from PDF and paste into Google Sheets' },
-    { primary: 'SmallPDF Online', secondary: 'Visit smallpdf.com/pdf-to-excel and upload your file' },
-    { primary: 'Tabula (Free)', secondary: 'Use tabula.technology to extract tables from PDFs into CSV/Excel' },
-  ];
+  const extract = useCallback(async () => {
+    if (!file) return;
+    setProcessing(true);
+    setPages(null);
+    setPreview([]);
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const result: string[][][] = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        setProgress({ current: i, total: pdf.numPages });
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        result.push(extractRows(content.items));
+      }
+      setPages(result);
+      setPreview(toPreviewRows(result[0] ?? [], PREVIEW_ROW_LIMIT));
+    } catch {
+      setError('Failed to read PDF. The file may be corrupted or password-protected.');
+    } finally {
+      setProcessing(false);
+    }
+  }, [file]);
+
+  const download = useCallback(async () => {
+    if (!pages || !file) return;
+    try {
+      const buffer = await buildWorkbookBuffer(pages);
+      downloadBlob(new Blob([buffer], { type: XLSX_MIME }), `${file.name.replace(/\.pdf$/i, '')}.xlsx`);
+    } catch {
+      setError('Failed to generate the Excel file.');
+    }
+  }, [pages, file]);
+
+  const reset = useCallback(() => {
+    setFile(null);
+    setProgress({ current: 0, total: 0 });
+    setPages(null);
+    setPreview([]);
+  }, []);
+
+  const totalRows = pages ? pages.reduce((sum, rows) => sum + rows.length, 0) : 0;
 
   return (
-    <ToolLayout toolName="PDF to Excel" toolIcon={<TableChart />} toolColor="#22c55e">
-      <Container maxWidth="xl" sx={{ py: 3 }}>
+    <ToolLayout toolName="PDF to Excel" toolIcon={<TableChart />} toolColor={TOOL_COLOR}>
+      <Container maxWidth="md" sx={{ py: 3 }}>
         <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={12}>
             <Paper
-              sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: dragOver ? '#22c55e' : 'divider', cursor: 'pointer', transition: '0.2s' }}
-              onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)} onDrop={onDrop}
+              onDrop={onDrop}
+              onDragOver={(e: DragEvent) => e.preventDefault()}
+              onClick={() => !processing && document.getElementById('pdf-to-excel-upload')?.click()}
+              sx={{
+                p: 4,
+                textAlign: 'center',
+                border: '2px dashed',
+                borderColor: file ? TOOL_COLOR : 'divider',
+                cursor: 'pointer',
+              }}
             >
-              <CloudUpload sx={{ fontSize: 48, color: '#22c55e', mb: 1 }} />
-              <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
-              <Button variant="outlined" component="label" sx={{ color: '#22c55e', borderColor: '#22c55e' }}>
-                Browse Files <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
-              </Button>
+              <input id="pdf-to-excel-upload" type="file" accept="application/pdf" hidden onChange={onFileChange} />
+              <CloudUpload sx={{ fontSize: 48, color: TOOL_COLOR, mb: 1 }} />
+              <Typography variant="h6">{file ? file.name : 'Drop PDF here or click to upload'}</Typography>
             </Paper>
-            {processing && <LinearProgress sx={{ mt: 2, '& .MuiLinearProgress-bar': { bgcolor: '#22c55e' } }} />}
-            {file && (
-              <Box sx={{ mt: 2 }}>
-                <PdfPreview file={file} />
-              </Box>
-            )}
+            {file && <PdfPreview file={file} />}
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            {meta && file ? (
-              <Paper sx={{ p: 3 }}>
-                <Typography variant="h6" gutterBottom>PDF Metadata</Typography>
-                <Table size="small">
-                  <TableBody>
-                    {([['File Name', file.name], ['File Size', formatSize(file.size)], ['Pages', String(meta.pages)],
-                      ['Title', meta.title], ['Author', meta.author], ['Creator', meta.creator],
-                      ['Producer', meta.producer], ['Created', meta.creationDate]] as [string, string][]).map(([l, v]) => (
-                      <TableRow key={l}><TableCell sx={{ fontWeight: 600 }}>{l}</TableCell><TableCell>{v}</TableCell></TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <Alert severity="info" icon={<InfoOutlined />} sx={{ mt: 2 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>Server-side conversion coming soon. Quick alternatives:</Typography>
-                  <List dense disablePadding>
-                    {tips.map((t) => (
-                      <ListItem key={t.primary} disableGutters sx={{ py: 0.25 }}>
-                        <ListItemIcon sx={{ minWidth: 28 }}><CheckCircleOutline fontSize="small" color="success" /></ListItemIcon>
-                        <ListItemText primary={t.primary} secondary={t.secondary} primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} secondaryTypographyProps={{ variant: 'caption' }} />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Alert>
-                <Button variant="contained" fullWidth startIcon={<Download />} onClick={downloadPdf}
-                  sx={{ mt: 2, bgcolor: '#22c55e', '&:hover': { bgcolor: '#16a34a' } }}>Download Original PDF</Button>
-              </Paper>
-            ) : (
-              <Paper sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}>
-                  <TableChart sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-                  <Typography color="text.secondary">Upload a PDF to view metadata</Typography>
-                </Box>
-              </Paper>
-            )}
+          <Grid size={12}>
+            <Alert severity="info">
+              Extraction runs entirely in your browser: text on each page is clustered into rows and columns by
+              position, one worksheet per PDF page. Merged cells, styling, and scanned pages are not detected.
+            </Alert>
           </Grid>
+
+          <Grid size={12} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button
+              variant="contained"
+              onClick={extract}
+              disabled={!file || processing}
+              sx={{ bgcolor: TOOL_COLOR, '&:hover': { bgcolor: TOOL_COLOR_DARK } }}
+            >
+              Extract Tables
+            </Button>
+            <Button variant="outlined" startIcon={<RestartAlt />} onClick={reset} disabled={processing}>
+              Reset
+            </Button>
+          </Grid>
+
+          {processing && (
+            <Grid size={12}>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Extracting page {progress.current} of {progress.total}...
+              </Typography>
+              <LinearProgress
+                variant="determinate"
+                value={progress.total ? (progress.current / progress.total) * 100 : 0}
+                sx={{ '& .MuiLinearProgress-bar': { bgcolor: TOOL_COLOR } }}
+              />
+            </Grid>
+          )}
+
+          {pages && totalRows === 0 && (
+            <Grid size={12}>
+              <Alert severity="warning">No extractable text found. Scanned PDFs need OCR — try the OCR PDF tool.</Alert>
+            </Grid>
+          )}
+
+          {pages && totalRows > 0 && (
+            <Grid size={12}>
+              <ExtractionResults
+                totalRows={totalRows}
+                pageCount={pages.length}
+                preview={preview}
+                onDownload={download}
+              />
+            </Grid>
+          )}
         </Grid>
-        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity="error" onClose={() => setError('')}>{error}</Alert>
-        </Snackbar>
       </Container>
+
+      <Snackbar
+        open={!!error}
+        autoHideDuration={4000}
+        onClose={() => setError('')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="error" onClose={() => setError('')}>
+          {error}
+        </Alert>
+      </Snackbar>
     </ToolLayout>
   );
 }

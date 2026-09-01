@@ -1,20 +1,17 @@
-version: '3.8'
+# Local stack for exyconn-tools: builds and runs the same production images CI ships
+# (ui: nginx on 4001, server: node on 4002). For hot-reload development use
+# `npm run dev` from exyconn-tools/ instead — this file is for verifying the images.
 
 services:
   exyconn-tools-ui:
     build:
       context: ./ui
       dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:4002
     container_name: exyconn-tools-ui
     ports:
-      - "4001:4001"
-    volumes:
-      - ./ui:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      - VITE_API_URL=http://localhost:4002
-    command: npm run dev
+      - '4001:4001'
     depends_on:
       - exyconn-tools-server
 
@@ -24,11 +21,7 @@ services:
       dockerfile: Dockerfile
     container_name: exyconn-tools-server
     ports:
-      - "4002:4002"
-    volumes:
-      - ./server:/app
-      - /app/node_modules
+      - '4002:4002'
     environment:
-      - NODE_ENV=development
-      - PORT=4002
-    command: npm run dev
+      NODE_ENV: production
+      PORT: 4002

@@ -6,14 +6,58 @@ import { useTheme } from '../../shared/context/ThemeContext';
 import Footer from '../../shared/components/Footer/Footer';
 import { SecretsDrawer } from '../../shared/components/SecretsDrawer';
 import { toolsData, getToolCounts, ToolItem, ToolCategory } from '../../shared/data/toolsData';
-import { StatusFilter } from './types';
+import { SITE_ORIGIN, SITE_NAME, DEFAULT_DESCRIPTION, BuiltMeta } from '../../shared/seo/buildMeta';
+import { applyMeta } from '../../shared/seo/applyMeta';
 import ToolsHeader from './ToolsHeader';
 import HeroSection from './HeroSection';
 import CategorySidebar from './CategorySidebar';
-import StatsBar from './StatsBar';
+import CategoryChipRow from './CategoryChipRow';
 import ToolsGrid from './ToolsGrid';
 import EmptyState from './EmptyState';
-import ToolDescriptionDrawer from './ToolDescriptionDrawer';
+
+const LANDING_TITLE = 'Free Online Tools — SEO, PDF, Image & AI | Exyconn Tools';
+const LANDING_URL = `${SITE_ORIGIN}/tools`;
+
+const LANDING_META: BuiltMeta = {
+  title: LANDING_TITLE,
+  description: DEFAULT_DESCRIPTION,
+  canonical: LANDING_URL,
+  keywords: 'free online tools, seo tools, pdf tools, image tools, ai tools, exyconn',
+  ogTags: {
+    'og:site_name': SITE_NAME,
+    'og:type': 'website',
+    'og:title': LANDING_TITLE,
+    'og:description': DEFAULT_DESCRIPTION,
+    'og:url': LANDING_URL,
+  },
+  twitterTags: {
+    'twitter:card': 'summary',
+    'twitter:title': LANDING_TITLE,
+    'twitter:description': DEFAULT_DESCRIPTION,
+  },
+  jsonLd: [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: SITE_NAME,
+      url: LANDING_URL,
+      description: DEFAULT_DESCRIPTION,
+    },
+  ],
+};
+
+const filterBySearch = (categories: ToolCategory[], query: string): ToolCategory[] => {
+  const q = query.toLowerCase();
+  return categories
+    .map((cat) => ({
+      ...cat,
+      items: cat.items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(q) || item.description.toLowerCase().includes(q)
+      ),
+    }))
+    .filter((cat) => cat.items.length > 0);
+};
 
 const ToolsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,73 +66,37 @@ const ToolsPage: React.FC = () => {
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [secretsOpen, setSecretsOpen] = useState(false);
-  const [descriptionTool, setDescriptionTool] = useState<ToolItem | null>(null);
 
   const toolCounts = getToolCounts();
 
   const filteredData = useMemo(() => {
-    let filtered: ToolCategory[] = toolsData;
-    if (selectedCategory !== 'All') {
-      filtered = toolsData.filter((cat) => cat.category === selectedCategory);
-    }
-    if (statusFilter !== 'all') {
-      filtered = filtered
-        .map((cat) => ({
-          ...cat,
-          items: cat.items.filter((item) =>
-            statusFilter === 'available' ? item.isActive : !item.isActive
-          ),
-        }))
-        .filter((cat) => cat.items.length > 0);
-    }
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered
-        .map((cat) => ({
-          ...cat,
-          items: cat.items.filter(
-            (item) =>
-              item.name.toLowerCase().includes(query) ||
-              item.description.toLowerCase().includes(query)
-          ),
-        }))
-        .filter((cat) => cat.items.length > 0);
-    }
-    return filtered;
-  }, [searchQuery, selectedCategory, statusFilter]);
+    const byCategory = selectedCategory === 'All'
+      ? toolsData
+      : toolsData.filter((cat) => cat.category === selectedCategory);
+    if (!searchQuery.trim()) return byCategory;
+    return filterBySearch(byCategory, searchQuery);
+  }, [searchQuery, selectedCategory]);
 
   useEffect(() => {
-    document.title = 'Exyconn Free Tools \u2014 SEO, AI, Domain, PDF & Image Tools';
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', 'Free online tools for SEO analysis, AI content generation, domain lookup, PDF conversion, image editing, sitemap management and more. No sign-up required.');
-    }
+    applyMeta(LANDING_META);
   }, []);
 
-  const handleToolClick = (tool: ToolItem) => {
-    if (tool.isActive) navigate(tool.url);
-  };
-
-  const handleShowDescription = (tool: ToolItem) => {
-    setDescriptionTool(tool);
-  };
+  const handleToolClick = (tool: ToolItem) => navigate(tool.url);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <ToolsHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} mode={mode}
         onToggleTheme={toggleTheme} onLogoClick={() => navigate('/tools')}
         onOpenSecrets={() => setSecretsOpen(true)} />
+      {isMobile && (
+        <CategoryChipRow selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
+      )}
       <Box sx={{ flex: 1, bgcolor: 'background.default', py: 3 }}>
         <Container maxWidth="xl">
           <HeroSection title="Exyconn Free Tools"
             subtitle="Powerful design, SEO, AI, and productivity tools. All free, all in one place."
-            totalTools={toolCounts.total} availableTools={toolCounts.available}
-            comingSoonTools={toolCounts.comingSoon} />
-          <StatsBar totalTools={toolCounts.total} availableTools={toolCounts.available}
-            comingSoonTools={toolCounts.comingSoon} statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter} />
+            totalTools={toolCounts.total} categoryCount={toolCounts.categories} />
           <Grid container spacing={2}>
             {!isMobile && (
               <Grid size={{ md: 3, lg: 2.5 }}>
@@ -101,7 +109,7 @@ const ToolsPage: React.FC = () => {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {filteredData.map((category) => (
                     <ToolsGrid key={category.category} category={category}
-                      onToolClick={handleToolClick} onShowDescription={handleShowDescription} />
+                      onToolClick={handleToolClick} />
                   ))}
                 </Box>
               ) : (
@@ -111,7 +119,6 @@ const ToolsPage: React.FC = () => {
           </Grid>
         </Container>
       </Box>
-      <ToolDescriptionDrawer open={!!descriptionTool} onClose={() => setDescriptionTool(null)} tool={descriptionTool} />
       <SecretsDrawer open={secretsOpen} onClose={() => setSecretsOpen(false)} />
       <Footer />
     </Box>

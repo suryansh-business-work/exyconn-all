@@ -16,11 +16,16 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: 'terser',
+    // esbuild (Vite's default) rather than terser: with ~13k modules terser
+    // segfaults the build process, and esbuild minifies the same bundle in
+    // seconds with comparable output size.
+    minify: 'esbuild',
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
+          // 'react'/'react-dom' are pulled in by the mui chunk, so listing them
+          // separately produced an empty vendor chunk.
           mui: ['@mui/material', '@mui/icons-material'],
         },
       },

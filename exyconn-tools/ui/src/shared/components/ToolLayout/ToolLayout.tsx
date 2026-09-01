@@ -5,6 +5,11 @@ import { ArrowBack, DarkMode, LightMode, Home, NavigateNext } from '@mui/icons-m
 import { useTheme } from '../../context/ThemeContext';
 import Footer from '../Footer/Footer';
 import OwnThisTool from '../OwnThisTool/OwnThisTool';
+import ToolDetails from '../ToolDetails/ToolDetails';
+import { findToolById, getCategoryOfTool } from '../../data/toolsData';
+import { getToolDetails } from '../../data/toolDetails';
+import { buildToolMeta } from '../../seo/buildMeta';
+import { applyMeta, clearToolJsonLd } from '../../seo/applyMeta';
 
 interface ToolLayoutProps {
   children: React.ReactNode;
@@ -23,13 +28,29 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({ children, toolName, toolIcon, t
   // Extract tool ID from path (e.g., /tools/logo-set -> logo-set)
   const toolId = location.pathname.split('/').pop() || '';
 
-  // Update document title
+  // Apply full SEO meta (title, description, canonical, OG, JSON-LD) for this
+  // tool. The prerenderer bakes the same tags into the static HTML; this keeps
+  // them in sync during client-side navigation.
   React.useEffect(() => {
-    document.title = `${toolName} | Exyconn Tools`;
+    const tool = findToolById(toolId);
+    if (tool) {
+      applyMeta(
+        buildToolMeta({
+          id: tool.id,
+          name: tool.name,
+          description: tool.description,
+          categoryName: getCategoryOfTool(tool.id)?.category ?? 'Tools',
+          details: getToolDetails(tool.id),
+        }),
+      );
+    } else {
+      document.title = `${toolName} | Exyconn Tools`;
+    }
     return () => {
       document.title = 'Exyconn Tools';
+      clearToolJsonLd();
     };
-  }, [toolName]);
+  }, [toolId, toolName]);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -145,6 +166,9 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({ children, toolName, toolIcon, t
       <Box component="main" sx={{ flex: 1, bgcolor: 'background.default' }}>
         {children}
       </Box>
+
+      {/* SEO details: about, features, how-to, FAQs, related tools */}
+      <ToolDetails toolId={toolId} />
 
       {/* Own This Tool Section */}
       <OwnThisTool toolId={toolId} />

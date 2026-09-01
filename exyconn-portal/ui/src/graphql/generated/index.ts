@@ -1863,25 +1863,33 @@ export type Query = {
   leaveRequestsByEmployee: Array<LeaveRequest>;
   listAiJobs: Array<AiJob>;
   listAiJobsPaged: AiJobPage;
+  listAiJobsStats: TableStats;
   /** HR/ADMIN: all attendance records. */
   listAttendance: Array<Attendance>;
   listBlogPosts: Array<BlogPost>;
   listBlogPostsPaged: BlogPostPage;
+  listBlogPostsStats: TableStats;
   listBugs: Array<Bug>;
   listBugsPaged: BugPage;
+  listBugsStats: TableStats;
   listCampaigns: Array<Campaign>;
   listCampaignsPaged: CampaignPage;
+  listCampaignsStats: TableStats;
   listCaseStudies: Array<CaseStudy>;
   listCaseStudiesPaged: CaseStudyPage;
+  listCaseStudiesStats: TableStats;
   listClients: Array<Client>;
   listClientsPaged: ClientPage;
+  listClientsStats: TableStats;
   listContracts: Array<Contract>;
   listContractsPaged: ContractPage;
+  listContractsStats: TableStats;
   /** HR/ADMIN: organizational departments. */
   listDepartments: Array<Department>;
   listEmailConfigs: Array<EmailConfig>;
   listGigs: Array<Gig>;
   listGigsPaged: GigPage;
+  listGigsStats: TableStats;
   /** Company-wide holidays, readable by any authenticated employee. */
   listHolidays: Array<Holiday>;
   listImageConfigs: Array<ImageConfig>;
@@ -1890,13 +1898,17 @@ export type Query = {
   listInvoicesStats: TableStats;
   listJobCompanies: Array<JobCompany>;
   listJobCompaniesPaged: JobCompanyPage;
+  listJobCompaniesStats: TableStats;
   listJobs: Array<Job>;
   listJobsPaged: JobPage;
+  listJobsStats: TableStats;
   listLeads: Array<Lead>;
   listLeadsPaged: LeadPage;
+  listLeadsStats: TableStats;
   listLeaveRequests: Array<LeaveRequest>;
   listLegalDocuments: Array<LegalDocument>;
   listLegalDocumentsPaged: LegalDocumentPage;
+  listLegalDocumentsStats: TableStats;
   listNavLinks: Array<NavLink>;
   /** Company-wide HR policies, readable by any authenticated employee. */
   listPolicies: Array<Policy>;
@@ -1904,15 +1916,19 @@ export type Query = {
   listPositions: Array<Position>;
   listProducts: Array<Product>;
   listProductsPaged: ProductPage;
+  listProductsStats: TableStats;
   listProjects: Array<Project>;
   listProjectsPaged: ProjectPage;
+  listProjectsStats: TableStats;
   listPrompts: Array<Prompt>;
   listPromptsPaged: PromptPage;
+  listPromptsStats: TableStats;
   /** SUPPORT/ADMIN: every employee support ticket, newest first. */
   listSupportTickets: Array<SupportTicket>;
   listToolCategories: Array<ToolCategory>;
   listTools: Array<Tool>;
   listToolsPaged: ToolPage;
+  listToolsStats: TableStats;
   listUsers: Array<User>;
   listUsersPaged: UserPage;
   listUsersStats: TableStats;
@@ -2903,6 +2919,11 @@ export type ListAiJobsPagedQueryVariables = Exact<{
 
 export type ListAiJobsPagedQuery = { __typename?: 'Query', listAiJobsPaged: { __typename?: 'AiJobPage', totalCount: number, rows: Array<{ __typename?: 'AiJob', id: string, name: string, model: string, prompt: string, status: AiJobStatus }> } };
 
+export type ListAiJobsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListAiJobsStatsQuery = { __typename?: 'Query', listAiJobsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
 export type CreateAiJobMutationVariables = Exact<{
   input: AiJobInput;
 }>;
@@ -2936,6 +2957,11 @@ export type ListPromptsPagedQueryVariables = Exact<{
 
 
 export type ListPromptsPagedQuery = { __typename?: 'Query', listPromptsPaged: { __typename?: 'PromptPage', totalCount: number, rows: Array<{ __typename?: 'Prompt', id: string, title: string, category: PromptCategory, content: string, description?: string | null, tags: Array<string> }> } };
+
+export type ListPromptsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListPromptsStatsQuery = { __typename?: 'Query', listPromptsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
 
 export type CreatePromptMutationVariables = Exact<{
   input: PromptInput;
@@ -3097,6 +3123,11 @@ export type ListBugsPagedQueryVariables = Exact<{
 
 export type ListBugsPagedQuery = { __typename?: 'Query', listBugsPaged: { __typename?: 'BugPage', totalCount: number, rows: Array<{ __typename?: 'Bug', id: string, title: string, description: string, severity: BugSeverity, status: BugStatus, assignee: string, dueDate: string }> } };
 
+export type ListBugsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListBugsStatsQuery = { __typename?: 'Query', listBugsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
 export type CreateBugMutationVariables = Exact<{
   input: BugInput;
 }>;
@@ -3131,6 +3162,11 @@ export type ListClientsPagedQueryVariables = Exact<{
 
 export type ListClientsPagedQuery = { __typename?: 'Query', listClientsPaged: { __typename?: 'ClientPage', totalCount: number, rows: Array<{ __typename?: 'Client', id: string, name: string, email: string, phone: string, company: string, status: ClientStatus }> } };
 
+export type ListClientsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListClientsStatsQuery = { __typename?: 'Query', listClientsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
 export type CreateClientMutationVariables = Exact<{
   input: ClientInput;
 }>;
@@ -3164,6 +3200,11 @@ export type ListLeadsPagedQueryVariables = Exact<{
 
 
 export type ListLeadsPagedQuery = { __typename?: 'Query', listLeadsPaged: { __typename?: 'LeadPage', totalCount: number, rows: Array<{ __typename?: 'Lead', id: string, name: string, email: string, source: LeadSource, stage: LeadStage, value: number, owner: string }> } };
+
+export type ListLeadsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListLeadsStatsQuery = { __typename?: 'Query', listLeadsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
 
 export type CreateLeadMutationVariables = Exact<{
   input: LeadInput;
@@ -3421,6 +3462,11 @@ export type ListContractsPagedQueryVariables = Exact<{
 
 export type ListContractsPagedQuery = { __typename?: 'Query', listContractsPaged: { __typename?: 'ContractPage', totalCount: number, rows: Array<{ __typename?: 'Contract', id: string, title: string, party: string, type: ContractType, effectiveDate: string, expiryDate: string, status: ContractStatus, sentAt?: string | null, signedBy?: string | null, signedAt?: string | null }> } };
 
+export type ListContractsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListContractsStatsQuery = { __typename?: 'Query', listContractsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
 export type CreateContractMutationVariables = Exact<{
   input: ContractInput;
 }>;
@@ -3472,6 +3518,11 @@ export type ListLegalDocumentsPagedQueryVariables = Exact<{
 
 export type ListLegalDocumentsPagedQuery = { __typename?: 'Query', listLegalDocumentsPaged: { __typename?: 'LegalDocumentPage', totalCount: number, rows: Array<{ __typename?: 'LegalDocument', id: string, title: string, category: DocumentCategory, owner?: string | null, fileUrl?: string | null, status: DocumentStatus }> } };
 
+export type ListLegalDocumentsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListLegalDocumentsStatsQuery = { __typename?: 'Query', listLegalDocumentsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
 export type CreateLegalDocumentMutationVariables = Exact<{
   input: LegalDocumentInput;
 }>;
@@ -3505,6 +3556,11 @@ export type ListCampaignsPagedQueryVariables = Exact<{
 
 
 export type ListCampaignsPagedQuery = { __typename?: 'Query', listCampaignsPaged: { __typename?: 'CampaignPage', totalCount: number, rows: Array<{ __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, lastSentAt?: string | null, recipientsCount?: number | null }> } };
+
+export type ListCampaignsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListCampaignsStatsQuery = { __typename?: 'Query', listCampaignsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
 
 export type CreateCampaignMutationVariables = Exact<{
   input: CampaignInput;
@@ -3547,6 +3603,11 @@ export type ListProductsPagedQueryVariables = Exact<{
 
 
 export type ListProductsPagedQuery = { __typename?: 'Query', listProductsPaged: { __typename?: 'ProductPage', totalCount: number, rows: Array<{ __typename?: 'Product', id: string, name: string, sku: string, price: number, category: string, stock: number, status: ProductStatus }> } };
+
+export type ListProductsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListProductsStatsQuery = { __typename?: 'Query', listProductsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
 
 export type CreateProductMutationVariables = Exact<{
   input: ProductInput;
@@ -3603,6 +3664,11 @@ export type ListProjectsPagedQueryVariables = Exact<{
 
 
 export type ListProjectsPagedQuery = { __typename?: 'Query', listProjectsPaged: { __typename?: 'ProjectPage', totalCount: number, rows: Array<{ __typename?: 'Project', id: string, name: string, description?: string | null, status: ProjectStatus, startDate?: string | null, endDate?: string | null }> } };
+
+export type ListProjectsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListProjectsStatsQuery = { __typename?: 'Query', listProjectsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
 
 export type CreateProjectMutationVariables = Exact<{
   input: ProjectInput;
@@ -3820,6 +3886,11 @@ export type ListBlogPostsPagedQueryVariables = Exact<{
 
 export type ListBlogPostsPagedQuery = { __typename?: 'Query', listBlogPostsPaged: { __typename?: 'BlogPostPage', totalCount: number, rows: Array<{ __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> } };
 
+export type ListBlogPostsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListBlogPostsStatsQuery = { __typename?: 'Query', listBlogPostsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
 export type CreateBlogPostMutationVariables = Exact<{
   input: BlogPostInput;
 }>;
@@ -3855,6 +3926,11 @@ export type ListCaseStudiesPagedQueryVariables = Exact<{
 
 
 export type ListCaseStudiesPagedQuery = { __typename?: 'Query', listCaseStudiesPaged: { __typename?: 'CaseStudyPage', totalCount: number, rows: Array<{ __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> } };
+
+export type ListCaseStudiesStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListCaseStudiesStatsQuery = { __typename?: 'Query', listCaseStudiesStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
 
 export type CreateCaseStudyMutationVariables = Exact<{
   input: CaseStudyInput;
@@ -3892,6 +3968,11 @@ export type ListJobCompaniesPagedQueryVariables = Exact<{
 
 export type ListJobCompaniesPagedQuery = { __typename?: 'Query', listJobCompaniesPaged: { __typename?: 'JobCompanyPage', totalCount: number, rows: Array<{ __typename?: 'JobCompany', id: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string } }> } };
 
+export type ListJobCompaniesStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListJobCompaniesStatsQuery = { __typename?: 'Query', listJobCompaniesStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
 export type CreateJobCompanyMutationVariables = Exact<{
   input: JobCompanyInput;
 }>;
@@ -3928,6 +4009,11 @@ export type ListJobsPagedQueryVariables = Exact<{
 
 export type ListJobsPagedQuery = { __typename?: 'Query', listJobsPaged: { __typename?: 'JobPage', totalCount: number, rows: Array<{ __typename?: 'Job', id: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean }> } };
 
+export type ListJobsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListJobsStatsQuery = { __typename?: 'Query', listJobsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
 export type CreateJobMutationVariables = Exact<{
   input: JobInput;
 }>;
@@ -3963,6 +4049,11 @@ export type ListGigsPagedQueryVariables = Exact<{
 
 
 export type ListGigsPagedQuery = { __typename?: 'Query', listGigsPaged: { __typename?: 'GigPage', totalCount: number, rows: Array<{ __typename?: 'Gig', id: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean }> } };
+
+export type ListGigsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListGigsStatsQuery = { __typename?: 'Query', listGigsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
 
 export type CreateGigMutationVariables = Exact<{
   input: GigInput;
@@ -4028,6 +4119,11 @@ export type ListToolsPagedQueryVariables = Exact<{
 
 
 export type ListToolsPagedQuery = { __typename?: 'Query', listToolsPaged: { __typename?: 'ToolPage', totalCount: number, rows: Array<{ __typename?: 'Tool', id: string, toolCode: string, categorySlug: string, name: string, description: string, longDescription: string, url: string, icon: string, color: string, features: Array<string>, useCases: Array<string>, keywords: Array<string>, isActive: boolean, isMVP: boolean, order: number }> } };
+
+export type ListToolsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListToolsStatsQuery = { __typename?: 'Query', listToolsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
 
 export type CreateToolMutationVariables = Exact<{
   input: ToolInput;
@@ -5070,6 +5166,59 @@ export type ListAiJobsPagedQueryHookResult = ReturnType<typeof useListAiJobsPage
 export type ListAiJobsPagedLazyQueryHookResult = ReturnType<typeof useListAiJobsPagedLazyQuery>;
 export type ListAiJobsPagedSuspenseQueryHookResult = ReturnType<typeof useListAiJobsPagedSuspenseQuery>;
 export type ListAiJobsPagedQueryResult = Apollo.QueryResult<ListAiJobsPagedQuery, ListAiJobsPagedQueryVariables>;
+export const ListAiJobsStatsDocument = gql`
+    query ListAiJobsStats {
+  listAiJobsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListAiJobsStatsQuery__
+ *
+ * To run a query within a React component, call `useListAiJobsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAiJobsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAiJobsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListAiJobsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListAiJobsStatsQuery, ListAiJobsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListAiJobsStatsQuery, ListAiJobsStatsQueryVariables>(ListAiJobsStatsDocument, options);
+      }
+export function useListAiJobsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListAiJobsStatsQuery, ListAiJobsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListAiJobsStatsQuery, ListAiJobsStatsQueryVariables>(ListAiJobsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListAiJobsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListAiJobsStatsQuery, ListAiJobsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListAiJobsStatsQuery, ListAiJobsStatsQueryVariables>;
+export function useListAiJobsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAiJobsStatsQuery, ListAiJobsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListAiJobsStatsQuery | undefined, ListAiJobsStatsQueryVariables>;
+export function useListAiJobsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAiJobsStatsQuery, ListAiJobsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListAiJobsStatsQuery, ListAiJobsStatsQueryVariables>(ListAiJobsStatsDocument, options);
+        }
+export type ListAiJobsStatsQueryHookResult = ReturnType<typeof useListAiJobsStatsQuery>;
+export type ListAiJobsStatsLazyQueryHookResult = ReturnType<typeof useListAiJobsStatsLazyQuery>;
+export type ListAiJobsStatsSuspenseQueryHookResult = ReturnType<typeof useListAiJobsStatsSuspenseQuery>;
+export type ListAiJobsStatsQueryResult = Apollo.QueryResult<ListAiJobsStatsQuery, ListAiJobsStatsQueryVariables>;
 export const CreateAiJobDocument = gql`
     mutation CreateAiJob($input: AiJobInput!) {
   createAiJob(input: $input) {
@@ -5266,6 +5415,59 @@ export type ListPromptsPagedQueryHookResult = ReturnType<typeof useListPromptsPa
 export type ListPromptsPagedLazyQueryHookResult = ReturnType<typeof useListPromptsPagedLazyQuery>;
 export type ListPromptsPagedSuspenseQueryHookResult = ReturnType<typeof useListPromptsPagedSuspenseQuery>;
 export type ListPromptsPagedQueryResult = Apollo.QueryResult<ListPromptsPagedQuery, ListPromptsPagedQueryVariables>;
+export const ListPromptsStatsDocument = gql`
+    query ListPromptsStats {
+  listPromptsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListPromptsStatsQuery__
+ *
+ * To run a query within a React component, call `useListPromptsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPromptsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPromptsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListPromptsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListPromptsStatsQuery, ListPromptsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPromptsStatsQuery, ListPromptsStatsQueryVariables>(ListPromptsStatsDocument, options);
+      }
+export function useListPromptsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPromptsStatsQuery, ListPromptsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPromptsStatsQuery, ListPromptsStatsQueryVariables>(ListPromptsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListPromptsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListPromptsStatsQuery, ListPromptsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListPromptsStatsQuery, ListPromptsStatsQueryVariables>;
+export function useListPromptsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPromptsStatsQuery, ListPromptsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListPromptsStatsQuery | undefined, ListPromptsStatsQueryVariables>;
+export function useListPromptsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPromptsStatsQuery, ListPromptsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPromptsStatsQuery, ListPromptsStatsQueryVariables>(ListPromptsStatsDocument, options);
+        }
+export type ListPromptsStatsQueryHookResult = ReturnType<typeof useListPromptsStatsQuery>;
+export type ListPromptsStatsLazyQueryHookResult = ReturnType<typeof useListPromptsStatsLazyQuery>;
+export type ListPromptsStatsSuspenseQueryHookResult = ReturnType<typeof useListPromptsStatsSuspenseQuery>;
+export type ListPromptsStatsQueryResult = Apollo.QueryResult<ListPromptsStatsQuery, ListPromptsStatsQueryVariables>;
 export const CreatePromptDocument = gql`
     mutation CreatePrompt($input: PromptInput!) {
   createPrompt(input: $input) {
@@ -6117,6 +6319,59 @@ export type ListBugsPagedQueryHookResult = ReturnType<typeof useListBugsPagedQue
 export type ListBugsPagedLazyQueryHookResult = ReturnType<typeof useListBugsPagedLazyQuery>;
 export type ListBugsPagedSuspenseQueryHookResult = ReturnType<typeof useListBugsPagedSuspenseQuery>;
 export type ListBugsPagedQueryResult = Apollo.QueryResult<ListBugsPagedQuery, ListBugsPagedQueryVariables>;
+export const ListBugsStatsDocument = gql`
+    query ListBugsStats {
+  listBugsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListBugsStatsQuery__
+ *
+ * To run a query within a React component, call `useListBugsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListBugsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListBugsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListBugsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListBugsStatsQuery, ListBugsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListBugsStatsQuery, ListBugsStatsQueryVariables>(ListBugsStatsDocument, options);
+      }
+export function useListBugsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListBugsStatsQuery, ListBugsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListBugsStatsQuery, ListBugsStatsQueryVariables>(ListBugsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListBugsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListBugsStatsQuery, ListBugsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListBugsStatsQuery, ListBugsStatsQueryVariables>;
+export function useListBugsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBugsStatsQuery, ListBugsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListBugsStatsQuery | undefined, ListBugsStatsQueryVariables>;
+export function useListBugsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBugsStatsQuery, ListBugsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListBugsStatsQuery, ListBugsStatsQueryVariables>(ListBugsStatsDocument, options);
+        }
+export type ListBugsStatsQueryHookResult = ReturnType<typeof useListBugsStatsQuery>;
+export type ListBugsStatsLazyQueryHookResult = ReturnType<typeof useListBugsStatsLazyQuery>;
+export type ListBugsStatsSuspenseQueryHookResult = ReturnType<typeof useListBugsStatsSuspenseQuery>;
+export type ListBugsStatsQueryResult = Apollo.QueryResult<ListBugsStatsQuery, ListBugsStatsQueryVariables>;
 export const CreateBugDocument = gql`
     mutation CreateBug($input: BugInput!) {
   createBug(input: $input) {
@@ -6313,6 +6568,59 @@ export type ListClientsPagedQueryHookResult = ReturnType<typeof useListClientsPa
 export type ListClientsPagedLazyQueryHookResult = ReturnType<typeof useListClientsPagedLazyQuery>;
 export type ListClientsPagedSuspenseQueryHookResult = ReturnType<typeof useListClientsPagedSuspenseQuery>;
 export type ListClientsPagedQueryResult = Apollo.QueryResult<ListClientsPagedQuery, ListClientsPagedQueryVariables>;
+export const ListClientsStatsDocument = gql`
+    query ListClientsStats {
+  listClientsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListClientsStatsQuery__
+ *
+ * To run a query within a React component, call `useListClientsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListClientsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListClientsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListClientsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListClientsStatsQuery, ListClientsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListClientsStatsQuery, ListClientsStatsQueryVariables>(ListClientsStatsDocument, options);
+      }
+export function useListClientsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListClientsStatsQuery, ListClientsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListClientsStatsQuery, ListClientsStatsQueryVariables>(ListClientsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListClientsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListClientsStatsQuery, ListClientsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListClientsStatsQuery, ListClientsStatsQueryVariables>;
+export function useListClientsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListClientsStatsQuery, ListClientsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListClientsStatsQuery | undefined, ListClientsStatsQueryVariables>;
+export function useListClientsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListClientsStatsQuery, ListClientsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListClientsStatsQuery, ListClientsStatsQueryVariables>(ListClientsStatsDocument, options);
+        }
+export type ListClientsStatsQueryHookResult = ReturnType<typeof useListClientsStatsQuery>;
+export type ListClientsStatsLazyQueryHookResult = ReturnType<typeof useListClientsStatsLazyQuery>;
+export type ListClientsStatsSuspenseQueryHookResult = ReturnType<typeof useListClientsStatsSuspenseQuery>;
+export type ListClientsStatsQueryResult = Apollo.QueryResult<ListClientsStatsQuery, ListClientsStatsQueryVariables>;
 export const CreateClientDocument = gql`
     mutation CreateClient($input: ClientInput!) {
   createClient(input: $input) {
@@ -6511,6 +6819,59 @@ export type ListLeadsPagedQueryHookResult = ReturnType<typeof useListLeadsPagedQ
 export type ListLeadsPagedLazyQueryHookResult = ReturnType<typeof useListLeadsPagedLazyQuery>;
 export type ListLeadsPagedSuspenseQueryHookResult = ReturnType<typeof useListLeadsPagedSuspenseQuery>;
 export type ListLeadsPagedQueryResult = Apollo.QueryResult<ListLeadsPagedQuery, ListLeadsPagedQueryVariables>;
+export const ListLeadsStatsDocument = gql`
+    query ListLeadsStats {
+  listLeadsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListLeadsStatsQuery__
+ *
+ * To run a query within a React component, call `useListLeadsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListLeadsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListLeadsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListLeadsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListLeadsStatsQuery, ListLeadsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListLeadsStatsQuery, ListLeadsStatsQueryVariables>(ListLeadsStatsDocument, options);
+      }
+export function useListLeadsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListLeadsStatsQuery, ListLeadsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListLeadsStatsQuery, ListLeadsStatsQueryVariables>(ListLeadsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListLeadsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListLeadsStatsQuery, ListLeadsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListLeadsStatsQuery, ListLeadsStatsQueryVariables>;
+export function useListLeadsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListLeadsStatsQuery, ListLeadsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListLeadsStatsQuery | undefined, ListLeadsStatsQueryVariables>;
+export function useListLeadsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListLeadsStatsQuery, ListLeadsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListLeadsStatsQuery, ListLeadsStatsQueryVariables>(ListLeadsStatsDocument, options);
+        }
+export type ListLeadsStatsQueryHookResult = ReturnType<typeof useListLeadsStatsQuery>;
+export type ListLeadsStatsLazyQueryHookResult = ReturnType<typeof useListLeadsStatsLazyQuery>;
+export type ListLeadsStatsSuspenseQueryHookResult = ReturnType<typeof useListLeadsStatsSuspenseQuery>;
+export type ListLeadsStatsQueryResult = Apollo.QueryResult<ListLeadsStatsQuery, ListLeadsStatsQueryVariables>;
 export const CreateLeadDocument = gql`
     mutation CreateLead($input: LeadInput!) {
   createLead(input: $input) {
@@ -8003,6 +8364,59 @@ export type ListContractsPagedQueryHookResult = ReturnType<typeof useListContrac
 export type ListContractsPagedLazyQueryHookResult = ReturnType<typeof useListContractsPagedLazyQuery>;
 export type ListContractsPagedSuspenseQueryHookResult = ReturnType<typeof useListContractsPagedSuspenseQuery>;
 export type ListContractsPagedQueryResult = Apollo.QueryResult<ListContractsPagedQuery, ListContractsPagedQueryVariables>;
+export const ListContractsStatsDocument = gql`
+    query ListContractsStats {
+  listContractsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListContractsStatsQuery__
+ *
+ * To run a query within a React component, call `useListContractsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListContractsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListContractsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListContractsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListContractsStatsQuery, ListContractsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListContractsStatsQuery, ListContractsStatsQueryVariables>(ListContractsStatsDocument, options);
+      }
+export function useListContractsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListContractsStatsQuery, ListContractsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListContractsStatsQuery, ListContractsStatsQueryVariables>(ListContractsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListContractsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListContractsStatsQuery, ListContractsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListContractsStatsQuery, ListContractsStatsQueryVariables>;
+export function useListContractsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListContractsStatsQuery, ListContractsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListContractsStatsQuery | undefined, ListContractsStatsQueryVariables>;
+export function useListContractsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListContractsStatsQuery, ListContractsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListContractsStatsQuery, ListContractsStatsQueryVariables>(ListContractsStatsDocument, options);
+        }
+export type ListContractsStatsQueryHookResult = ReturnType<typeof useListContractsStatsQuery>;
+export type ListContractsStatsLazyQueryHookResult = ReturnType<typeof useListContractsStatsLazyQuery>;
+export type ListContractsStatsSuspenseQueryHookResult = ReturnType<typeof useListContractsStatsSuspenseQuery>;
+export type ListContractsStatsQueryResult = Apollo.QueryResult<ListContractsStatsQuery, ListContractsStatsQueryVariables>;
 export const CreateContractDocument = gql`
     mutation CreateContract($input: ContractInput!) {
   createContract(input: $input) {
@@ -8272,6 +8686,59 @@ export type ListLegalDocumentsPagedQueryHookResult = ReturnType<typeof useListLe
 export type ListLegalDocumentsPagedLazyQueryHookResult = ReturnType<typeof useListLegalDocumentsPagedLazyQuery>;
 export type ListLegalDocumentsPagedSuspenseQueryHookResult = ReturnType<typeof useListLegalDocumentsPagedSuspenseQuery>;
 export type ListLegalDocumentsPagedQueryResult = Apollo.QueryResult<ListLegalDocumentsPagedQuery, ListLegalDocumentsPagedQueryVariables>;
+export const ListLegalDocumentsStatsDocument = gql`
+    query ListLegalDocumentsStats {
+  listLegalDocumentsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListLegalDocumentsStatsQuery__
+ *
+ * To run a query within a React component, call `useListLegalDocumentsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListLegalDocumentsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListLegalDocumentsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListLegalDocumentsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListLegalDocumentsStatsQuery, ListLegalDocumentsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListLegalDocumentsStatsQuery, ListLegalDocumentsStatsQueryVariables>(ListLegalDocumentsStatsDocument, options);
+      }
+export function useListLegalDocumentsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListLegalDocumentsStatsQuery, ListLegalDocumentsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListLegalDocumentsStatsQuery, ListLegalDocumentsStatsQueryVariables>(ListLegalDocumentsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListLegalDocumentsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListLegalDocumentsStatsQuery, ListLegalDocumentsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListLegalDocumentsStatsQuery, ListLegalDocumentsStatsQueryVariables>;
+export function useListLegalDocumentsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListLegalDocumentsStatsQuery, ListLegalDocumentsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListLegalDocumentsStatsQuery | undefined, ListLegalDocumentsStatsQueryVariables>;
+export function useListLegalDocumentsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListLegalDocumentsStatsQuery, ListLegalDocumentsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListLegalDocumentsStatsQuery, ListLegalDocumentsStatsQueryVariables>(ListLegalDocumentsStatsDocument, options);
+        }
+export type ListLegalDocumentsStatsQueryHookResult = ReturnType<typeof useListLegalDocumentsStatsQuery>;
+export type ListLegalDocumentsStatsLazyQueryHookResult = ReturnType<typeof useListLegalDocumentsStatsLazyQuery>;
+export type ListLegalDocumentsStatsSuspenseQueryHookResult = ReturnType<typeof useListLegalDocumentsStatsSuspenseQuery>;
+export type ListLegalDocumentsStatsQueryResult = Apollo.QueryResult<ListLegalDocumentsStatsQuery, ListLegalDocumentsStatsQueryVariables>;
 export const CreateLegalDocumentDocument = gql`
     mutation CreateLegalDocument($input: LegalDocumentInput!) {
   createLegalDocument(input: $input) {
@@ -8478,6 +8945,59 @@ export type ListCampaignsPagedQueryHookResult = ReturnType<typeof useListCampaig
 export type ListCampaignsPagedLazyQueryHookResult = ReturnType<typeof useListCampaignsPagedLazyQuery>;
 export type ListCampaignsPagedSuspenseQueryHookResult = ReturnType<typeof useListCampaignsPagedSuspenseQuery>;
 export type ListCampaignsPagedQueryResult = Apollo.QueryResult<ListCampaignsPagedQuery, ListCampaignsPagedQueryVariables>;
+export const ListCampaignsStatsDocument = gql`
+    query ListCampaignsStats {
+  listCampaignsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListCampaignsStatsQuery__
+ *
+ * To run a query within a React component, call `useListCampaignsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCampaignsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCampaignsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListCampaignsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListCampaignsStatsQuery, ListCampaignsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListCampaignsStatsQuery, ListCampaignsStatsQueryVariables>(ListCampaignsStatsDocument, options);
+      }
+export function useListCampaignsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListCampaignsStatsQuery, ListCampaignsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListCampaignsStatsQuery, ListCampaignsStatsQueryVariables>(ListCampaignsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListCampaignsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListCampaignsStatsQuery, ListCampaignsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListCampaignsStatsQuery, ListCampaignsStatsQueryVariables>;
+export function useListCampaignsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCampaignsStatsQuery, ListCampaignsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListCampaignsStatsQuery | undefined, ListCampaignsStatsQueryVariables>;
+export function useListCampaignsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCampaignsStatsQuery, ListCampaignsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListCampaignsStatsQuery, ListCampaignsStatsQueryVariables>(ListCampaignsStatsDocument, options);
+        }
+export type ListCampaignsStatsQueryHookResult = ReturnType<typeof useListCampaignsStatsQuery>;
+export type ListCampaignsStatsLazyQueryHookResult = ReturnType<typeof useListCampaignsStatsLazyQuery>;
+export type ListCampaignsStatsSuspenseQueryHookResult = ReturnType<typeof useListCampaignsStatsSuspenseQuery>;
+export type ListCampaignsStatsQueryResult = Apollo.QueryResult<ListCampaignsStatsQuery, ListCampaignsStatsQueryVariables>;
 export const CreateCampaignDocument = gql`
     mutation CreateCampaign($input: CampaignInput!) {
   createCampaign(input: $input) {
@@ -8716,6 +9236,59 @@ export type ListProductsPagedQueryHookResult = ReturnType<typeof useListProducts
 export type ListProductsPagedLazyQueryHookResult = ReturnType<typeof useListProductsPagedLazyQuery>;
 export type ListProductsPagedSuspenseQueryHookResult = ReturnType<typeof useListProductsPagedSuspenseQuery>;
 export type ListProductsPagedQueryResult = Apollo.QueryResult<ListProductsPagedQuery, ListProductsPagedQueryVariables>;
+export const ListProductsStatsDocument = gql`
+    query ListProductsStats {
+  listProductsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListProductsStatsQuery__
+ *
+ * To run a query within a React component, call `useListProductsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListProductsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListProductsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListProductsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListProductsStatsQuery, ListProductsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListProductsStatsQuery, ListProductsStatsQueryVariables>(ListProductsStatsDocument, options);
+      }
+export function useListProductsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListProductsStatsQuery, ListProductsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListProductsStatsQuery, ListProductsStatsQueryVariables>(ListProductsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListProductsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListProductsStatsQuery, ListProductsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListProductsStatsQuery, ListProductsStatsQueryVariables>;
+export function useListProductsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListProductsStatsQuery, ListProductsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListProductsStatsQuery | undefined, ListProductsStatsQueryVariables>;
+export function useListProductsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListProductsStatsQuery, ListProductsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListProductsStatsQuery, ListProductsStatsQueryVariables>(ListProductsStatsDocument, options);
+        }
+export type ListProductsStatsQueryHookResult = ReturnType<typeof useListProductsStatsQuery>;
+export type ListProductsStatsLazyQueryHookResult = ReturnType<typeof useListProductsStatsLazyQuery>;
+export type ListProductsStatsSuspenseQueryHookResult = ReturnType<typeof useListProductsStatsSuspenseQuery>;
+export type ListProductsStatsQueryResult = Apollo.QueryResult<ListProductsStatsQuery, ListProductsStatsQueryVariables>;
 export const CreateProductDocument = gql`
     mutation CreateProduct($input: ProductInput!) {
   createProduct(input: $input) {
@@ -9012,6 +9585,59 @@ export type ListProjectsPagedQueryHookResult = ReturnType<typeof useListProjects
 export type ListProjectsPagedLazyQueryHookResult = ReturnType<typeof useListProjectsPagedLazyQuery>;
 export type ListProjectsPagedSuspenseQueryHookResult = ReturnType<typeof useListProjectsPagedSuspenseQuery>;
 export type ListProjectsPagedQueryResult = Apollo.QueryResult<ListProjectsPagedQuery, ListProjectsPagedQueryVariables>;
+export const ListProjectsStatsDocument = gql`
+    query ListProjectsStats {
+  listProjectsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListProjectsStatsQuery__
+ *
+ * To run a query within a React component, call `useListProjectsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListProjectsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListProjectsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListProjectsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListProjectsStatsQuery, ListProjectsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListProjectsStatsQuery, ListProjectsStatsQueryVariables>(ListProjectsStatsDocument, options);
+      }
+export function useListProjectsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListProjectsStatsQuery, ListProjectsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListProjectsStatsQuery, ListProjectsStatsQueryVariables>(ListProjectsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListProjectsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListProjectsStatsQuery, ListProjectsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListProjectsStatsQuery, ListProjectsStatsQueryVariables>;
+export function useListProjectsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListProjectsStatsQuery, ListProjectsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListProjectsStatsQuery | undefined, ListProjectsStatsQueryVariables>;
+export function useListProjectsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListProjectsStatsQuery, ListProjectsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListProjectsStatsQuery, ListProjectsStatsQueryVariables>(ListProjectsStatsDocument, options);
+        }
+export type ListProjectsStatsQueryHookResult = ReturnType<typeof useListProjectsStatsQuery>;
+export type ListProjectsStatsLazyQueryHookResult = ReturnType<typeof useListProjectsStatsLazyQuery>;
+export type ListProjectsStatsSuspenseQueryHookResult = ReturnType<typeof useListProjectsStatsSuspenseQuery>;
+export type ListProjectsStatsQueryResult = Apollo.QueryResult<ListProjectsStatsQuery, ListProjectsStatsQueryVariables>;
 export const CreateProjectDocument = gql`
     mutation CreateProject($input: ProjectInput!) {
   createProject(input: $input) {
@@ -10122,6 +10748,59 @@ export type ListBlogPostsPagedQueryHookResult = ReturnType<typeof useListBlogPos
 export type ListBlogPostsPagedLazyQueryHookResult = ReturnType<typeof useListBlogPostsPagedLazyQuery>;
 export type ListBlogPostsPagedSuspenseQueryHookResult = ReturnType<typeof useListBlogPostsPagedSuspenseQuery>;
 export type ListBlogPostsPagedQueryResult = Apollo.QueryResult<ListBlogPostsPagedQuery, ListBlogPostsPagedQueryVariables>;
+export const ListBlogPostsStatsDocument = gql`
+    query ListBlogPostsStats {
+  listBlogPostsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListBlogPostsStatsQuery__
+ *
+ * To run a query within a React component, call `useListBlogPostsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListBlogPostsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListBlogPostsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListBlogPostsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListBlogPostsStatsQuery, ListBlogPostsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListBlogPostsStatsQuery, ListBlogPostsStatsQueryVariables>(ListBlogPostsStatsDocument, options);
+      }
+export function useListBlogPostsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListBlogPostsStatsQuery, ListBlogPostsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListBlogPostsStatsQuery, ListBlogPostsStatsQueryVariables>(ListBlogPostsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListBlogPostsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListBlogPostsStatsQuery, ListBlogPostsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListBlogPostsStatsQuery, ListBlogPostsStatsQueryVariables>;
+export function useListBlogPostsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBlogPostsStatsQuery, ListBlogPostsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListBlogPostsStatsQuery | undefined, ListBlogPostsStatsQueryVariables>;
+export function useListBlogPostsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBlogPostsStatsQuery, ListBlogPostsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListBlogPostsStatsQuery, ListBlogPostsStatsQueryVariables>(ListBlogPostsStatsDocument, options);
+        }
+export type ListBlogPostsStatsQueryHookResult = ReturnType<typeof useListBlogPostsStatsQuery>;
+export type ListBlogPostsStatsLazyQueryHookResult = ReturnType<typeof useListBlogPostsStatsLazyQuery>;
+export type ListBlogPostsStatsSuspenseQueryHookResult = ReturnType<typeof useListBlogPostsStatsSuspenseQuery>;
+export type ListBlogPostsStatsQueryResult = Apollo.QueryResult<ListBlogPostsStatsQuery, ListBlogPostsStatsQueryVariables>;
 export const CreateBlogPostDocument = gql`
     mutation CreateBlogPost($input: BlogPostInput!) {
   createBlogPost(input: $input) {
@@ -10308,6 +10987,59 @@ export type ListCaseStudiesPagedQueryHookResult = ReturnType<typeof useListCaseS
 export type ListCaseStudiesPagedLazyQueryHookResult = ReturnType<typeof useListCaseStudiesPagedLazyQuery>;
 export type ListCaseStudiesPagedSuspenseQueryHookResult = ReturnType<typeof useListCaseStudiesPagedSuspenseQuery>;
 export type ListCaseStudiesPagedQueryResult = Apollo.QueryResult<ListCaseStudiesPagedQuery, ListCaseStudiesPagedQueryVariables>;
+export const ListCaseStudiesStatsDocument = gql`
+    query ListCaseStudiesStats {
+  listCaseStudiesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListCaseStudiesStatsQuery__
+ *
+ * To run a query within a React component, call `useListCaseStudiesStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCaseStudiesStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCaseStudiesStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListCaseStudiesStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListCaseStudiesStatsQuery, ListCaseStudiesStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListCaseStudiesStatsQuery, ListCaseStudiesStatsQueryVariables>(ListCaseStudiesStatsDocument, options);
+      }
+export function useListCaseStudiesStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListCaseStudiesStatsQuery, ListCaseStudiesStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListCaseStudiesStatsQuery, ListCaseStudiesStatsQueryVariables>(ListCaseStudiesStatsDocument, options);
+        }
+// @ts-ignore
+export function useListCaseStudiesStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListCaseStudiesStatsQuery, ListCaseStudiesStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListCaseStudiesStatsQuery, ListCaseStudiesStatsQueryVariables>;
+export function useListCaseStudiesStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCaseStudiesStatsQuery, ListCaseStudiesStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListCaseStudiesStatsQuery | undefined, ListCaseStudiesStatsQueryVariables>;
+export function useListCaseStudiesStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCaseStudiesStatsQuery, ListCaseStudiesStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListCaseStudiesStatsQuery, ListCaseStudiesStatsQueryVariables>(ListCaseStudiesStatsDocument, options);
+        }
+export type ListCaseStudiesStatsQueryHookResult = ReturnType<typeof useListCaseStudiesStatsQuery>;
+export type ListCaseStudiesStatsLazyQueryHookResult = ReturnType<typeof useListCaseStudiesStatsLazyQuery>;
+export type ListCaseStudiesStatsSuspenseQueryHookResult = ReturnType<typeof useListCaseStudiesStatsSuspenseQuery>;
+export type ListCaseStudiesStatsQueryResult = Apollo.QueryResult<ListCaseStudiesStatsQuery, ListCaseStudiesStatsQueryVariables>;
 export const CreateCaseStudyDocument = gql`
     mutation CreateCaseStudy($input: CaseStudyInput!) {
   createCaseStudy(input: $input) {
@@ -10494,6 +11226,59 @@ export type ListJobCompaniesPagedQueryHookResult = ReturnType<typeof useListJobC
 export type ListJobCompaniesPagedLazyQueryHookResult = ReturnType<typeof useListJobCompaniesPagedLazyQuery>;
 export type ListJobCompaniesPagedSuspenseQueryHookResult = ReturnType<typeof useListJobCompaniesPagedSuspenseQuery>;
 export type ListJobCompaniesPagedQueryResult = Apollo.QueryResult<ListJobCompaniesPagedQuery, ListJobCompaniesPagedQueryVariables>;
+export const ListJobCompaniesStatsDocument = gql`
+    query ListJobCompaniesStats {
+  listJobCompaniesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListJobCompaniesStatsQuery__
+ *
+ * To run a query within a React component, call `useListJobCompaniesStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListJobCompaniesStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListJobCompaniesStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListJobCompaniesStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListJobCompaniesStatsQuery, ListJobCompaniesStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListJobCompaniesStatsQuery, ListJobCompaniesStatsQueryVariables>(ListJobCompaniesStatsDocument, options);
+      }
+export function useListJobCompaniesStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListJobCompaniesStatsQuery, ListJobCompaniesStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListJobCompaniesStatsQuery, ListJobCompaniesStatsQueryVariables>(ListJobCompaniesStatsDocument, options);
+        }
+// @ts-ignore
+export function useListJobCompaniesStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListJobCompaniesStatsQuery, ListJobCompaniesStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListJobCompaniesStatsQuery, ListJobCompaniesStatsQueryVariables>;
+export function useListJobCompaniesStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListJobCompaniesStatsQuery, ListJobCompaniesStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListJobCompaniesStatsQuery | undefined, ListJobCompaniesStatsQueryVariables>;
+export function useListJobCompaniesStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListJobCompaniesStatsQuery, ListJobCompaniesStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListJobCompaniesStatsQuery, ListJobCompaniesStatsQueryVariables>(ListJobCompaniesStatsDocument, options);
+        }
+export type ListJobCompaniesStatsQueryHookResult = ReturnType<typeof useListJobCompaniesStatsQuery>;
+export type ListJobCompaniesStatsLazyQueryHookResult = ReturnType<typeof useListJobCompaniesStatsLazyQuery>;
+export type ListJobCompaniesStatsSuspenseQueryHookResult = ReturnType<typeof useListJobCompaniesStatsSuspenseQuery>;
+export type ListJobCompaniesStatsQueryResult = Apollo.QueryResult<ListJobCompaniesStatsQuery, ListJobCompaniesStatsQueryVariables>;
 export const CreateJobCompanyDocument = gql`
     mutation CreateJobCompany($input: JobCompanyInput!) {
   createJobCompany(input: $input) {
@@ -10680,6 +11465,59 @@ export type ListJobsPagedQueryHookResult = ReturnType<typeof useListJobsPagedQue
 export type ListJobsPagedLazyQueryHookResult = ReturnType<typeof useListJobsPagedLazyQuery>;
 export type ListJobsPagedSuspenseQueryHookResult = ReturnType<typeof useListJobsPagedSuspenseQuery>;
 export type ListJobsPagedQueryResult = Apollo.QueryResult<ListJobsPagedQuery, ListJobsPagedQueryVariables>;
+export const ListJobsStatsDocument = gql`
+    query ListJobsStats {
+  listJobsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListJobsStatsQuery__
+ *
+ * To run a query within a React component, call `useListJobsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListJobsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListJobsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListJobsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListJobsStatsQuery, ListJobsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListJobsStatsQuery, ListJobsStatsQueryVariables>(ListJobsStatsDocument, options);
+      }
+export function useListJobsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListJobsStatsQuery, ListJobsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListJobsStatsQuery, ListJobsStatsQueryVariables>(ListJobsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListJobsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListJobsStatsQuery, ListJobsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListJobsStatsQuery, ListJobsStatsQueryVariables>;
+export function useListJobsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListJobsStatsQuery, ListJobsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListJobsStatsQuery | undefined, ListJobsStatsQueryVariables>;
+export function useListJobsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListJobsStatsQuery, ListJobsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListJobsStatsQuery, ListJobsStatsQueryVariables>(ListJobsStatsDocument, options);
+        }
+export type ListJobsStatsQueryHookResult = ReturnType<typeof useListJobsStatsQuery>;
+export type ListJobsStatsLazyQueryHookResult = ReturnType<typeof useListJobsStatsLazyQuery>;
+export type ListJobsStatsSuspenseQueryHookResult = ReturnType<typeof useListJobsStatsSuspenseQuery>;
+export type ListJobsStatsQueryResult = Apollo.QueryResult<ListJobsStatsQuery, ListJobsStatsQueryVariables>;
 export const CreateJobDocument = gql`
     mutation CreateJob($input: JobInput!) {
   createJob(input: $input) {
@@ -10866,6 +11704,59 @@ export type ListGigsPagedQueryHookResult = ReturnType<typeof useListGigsPagedQue
 export type ListGigsPagedLazyQueryHookResult = ReturnType<typeof useListGigsPagedLazyQuery>;
 export type ListGigsPagedSuspenseQueryHookResult = ReturnType<typeof useListGigsPagedSuspenseQuery>;
 export type ListGigsPagedQueryResult = Apollo.QueryResult<ListGigsPagedQuery, ListGigsPagedQueryVariables>;
+export const ListGigsStatsDocument = gql`
+    query ListGigsStats {
+  listGigsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListGigsStatsQuery__
+ *
+ * To run a query within a React component, call `useListGigsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListGigsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListGigsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListGigsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListGigsStatsQuery, ListGigsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListGigsStatsQuery, ListGigsStatsQueryVariables>(ListGigsStatsDocument, options);
+      }
+export function useListGigsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListGigsStatsQuery, ListGigsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListGigsStatsQuery, ListGigsStatsQueryVariables>(ListGigsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListGigsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListGigsStatsQuery, ListGigsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListGigsStatsQuery, ListGigsStatsQueryVariables>;
+export function useListGigsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListGigsStatsQuery, ListGigsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListGigsStatsQuery | undefined, ListGigsStatsQueryVariables>;
+export function useListGigsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListGigsStatsQuery, ListGigsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListGigsStatsQuery, ListGigsStatsQueryVariables>(ListGigsStatsDocument, options);
+        }
+export type ListGigsStatsQueryHookResult = ReturnType<typeof useListGigsStatsQuery>;
+export type ListGigsStatsLazyQueryHookResult = ReturnType<typeof useListGigsStatsLazyQuery>;
+export type ListGigsStatsSuspenseQueryHookResult = ReturnType<typeof useListGigsStatsSuspenseQuery>;
+export type ListGigsStatsQueryResult = Apollo.QueryResult<ListGigsStatsQuery, ListGigsStatsQueryVariables>;
 export const CreateGigDocument = gql`
     mutation CreateGig($input: GigInput!) {
   createGig(input: $input) {
@@ -11192,6 +12083,59 @@ export type ListToolsPagedQueryHookResult = ReturnType<typeof useListToolsPagedQ
 export type ListToolsPagedLazyQueryHookResult = ReturnType<typeof useListToolsPagedLazyQuery>;
 export type ListToolsPagedSuspenseQueryHookResult = ReturnType<typeof useListToolsPagedSuspenseQuery>;
 export type ListToolsPagedQueryResult = Apollo.QueryResult<ListToolsPagedQuery, ListToolsPagedQueryVariables>;
+export const ListToolsStatsDocument = gql`
+    query ListToolsStats {
+  listToolsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListToolsStatsQuery__
+ *
+ * To run a query within a React component, call `useListToolsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListToolsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListToolsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListToolsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListToolsStatsQuery, ListToolsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListToolsStatsQuery, ListToolsStatsQueryVariables>(ListToolsStatsDocument, options);
+      }
+export function useListToolsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListToolsStatsQuery, ListToolsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListToolsStatsQuery, ListToolsStatsQueryVariables>(ListToolsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListToolsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListToolsStatsQuery, ListToolsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListToolsStatsQuery, ListToolsStatsQueryVariables>;
+export function useListToolsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListToolsStatsQuery, ListToolsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListToolsStatsQuery | undefined, ListToolsStatsQueryVariables>;
+export function useListToolsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListToolsStatsQuery, ListToolsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListToolsStatsQuery, ListToolsStatsQueryVariables>(ListToolsStatsDocument, options);
+        }
+export type ListToolsStatsQueryHookResult = ReturnType<typeof useListToolsStatsQuery>;
+export type ListToolsStatsLazyQueryHookResult = ReturnType<typeof useListToolsStatsLazyQuery>;
+export type ListToolsStatsSuspenseQueryHookResult = ReturnType<typeof useListToolsStatsSuspenseQuery>;
+export type ListToolsStatsQueryResult = Apollo.QueryResult<ListToolsStatsQuery, ListToolsStatsQueryVariables>;
 export const CreateToolDocument = gql`
     mutation CreateTool($input: ToolInput!) {
   createTool(input: $input) {

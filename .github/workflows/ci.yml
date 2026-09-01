@@ -24,16 +24,44 @@ jobs:
       - run: pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run lint
       - run: pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run test
 
-  tools:
-    name: Tools typecheck
+  tools-ui:
+    name: Tools UI · Typecheck · Lint · Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install & typecheck tools
+      - name: Install
         working-directory: exyconn-tools
-        run: |
-          npm run install:all
-          cd ui && npx tsc --noEmit && cd ../server && npx tsc --noEmit
+        run: npm run install:all
+      - name: Typecheck
+        working-directory: exyconn-tools/ui
+        run: npm run typecheck
+      - name: Lint
+        working-directory: exyconn-tools/ui
+        run: npm run lint
+      - name: Test
+        working-directory: exyconn-tools/ui
+        run: npm test
+
+  tools-server:
+    name: Tools Server · Typecheck · Lint · Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        working-directory: exyconn-tools
+        run: npm run install:all
+      - name: Typecheck
+        working-directory: exyconn-tools/server
+        run: npm run typecheck
+      - name: Lint
+        working-directory: exyconn-tools/server
+        run: npm run lint
+      - name: Test
+        working-directory: exyconn-tools/server
+        run: npm test

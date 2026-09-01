@@ -12,12 +12,12 @@ import Grid from '@mui/material/Grid2';
 import LockOpen from '@mui/icons-material/LockOpen';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
-import { PDFDocument } from 'pdf-lib';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
-import { PdfPreview } from '../../shared/components/PdfPreview';
-
-const formatSize = (b: number) =>
-  b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(2)} MB`;
+import { APIs } from '../../shared/config/apis';
+import {
+  formatSize, unlockedFileName, requestUnlockedPdf, downloadBlob,
+  SERVICE_UNAVAILABLE, INCORRECT_PASSWORD,
+} from './utils';
 
 export default function UnlockPdf() {
   const [file, setFile] = useState<File | null>(null);
@@ -25,12 +25,13 @@ export default function UnlockPdf() {
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState('');
   const [password, setPassword] = useState('');
-  const [result, setResult] = useState<Uint8Array | null>(null);
-  const [pageCount, setPageCount] = useState(0);
+  const [passwordError, setPasswordError] = useState('');
+  const [serviceDown, setServiceDown] = useState(false);
+  const [result, setResult] = useState<Blob | null>(null);
 
   const loadFile = useCallback((f: File) => {
     if (f.type !== 'application/pdf') { setError('Please select a PDF file.'); return; }
-    setFile(f); setResult(null); setPageCount(0);
+    setFile(f); setResult(null); setServiceDown(false); setPasswordError('');
   }, []);
 
   const onDrop = useCallback((e: DragEvent) => {
@@ -39,34 +40,32 @@ export default function UnlockPdf() {
   }, [loadFile]);
 
   const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) loadFile(e.target.files[0]); e.target.value = '';
+    if (e.target.files?.[0]) { loadFile(e.target.files[0]); }
+    e.target.value = '';
   };
 
   const unlock = async () => {
     if (!file) return;
-    setProcessing(true);
+    if (!password) { setPasswordError('Password is required.'); return; }
+    setProcessing(true); setServiceDown(false); setResult(null);
     try {
-      const bytes = await file.arrayBuffer();
-      const loadOptions = password ? { password } : undefined;
-      const doc = await PDFDocument.load(bytes, loadOptions as Parameters<typeof PDFDocument.load>[1]);
-      setPageCount(doc.getPageCount());
-      const saved = await doc.save();
-      setResult(saved);
+      const blob = await requestUnlockedPdf(APIs.pdfTools.unlock, file, password);
+      setResult(blob);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Unknown error';
-      if (msg.toLowerCase().includes('password') || msg.toLowerCase().includes('encrypted')) {
-        setError('Incorrect password. Please try again.');
+      const message = err instanceof Error ? err.message : 'Failed to unlock the PDF.';
+      if (message === SERVICE_UNAVAILABLE) {
+        setServiceDown(true);
+      } else if (message === INCORRECT_PASSWORD) {
+        setPasswordError('Incorrect password. Please try again.');
       } else {
-        setError(`Failed to unlock PDF: ${msg}`);
+        setError(message);
       }
     } finally { setProcessing(false); }
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
-    const a = document.createElement('a'); a.href = url;
-    a.download = `unlocked-${file?.name ?? 'document.pdf'}`; a.click(); URL.revokeObjectURL(url);
+    if (!result || !file) return;
+    downloadBlob(result, unlockedFileName(file.name));
   };
 
   return (
@@ -92,18 +91,24 @@ export default function UnlockPdf() {
                 <Typography variant="body2" color="text.secondary">Size: {formatSize(file.size)}</Typography>
               </Paper>
             )}
-            {file && (
-              <Box sx={{ mt: 2 }}>
-                <PdfPreview file={file} />
-              </Box>
-            )}
             <Box sx={{ mt: 2 }}>
               <TextField label="PDF Password" type="password" fullWidth size="small"
-                value={password} onChange={(e) => setPassword(e.target.value)}
-                helperText="Enter the password used to protect this PDF" />
+                required error={!!passwordError}
+                helperText={passwordError || 'Enter the password used to protect this PDF'}
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setPasswordError(''); }} />
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
+            <Alert severity="info" sx={{ mb: 2 }}>
+              The password is removed on our server and the decrypted PDF is returned to you.
+              Files are processed transiently and never stored.
+            </Alert>
+            {serviceDown && (
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                The PDF unlock service is temporarily unavailable. Please try again in a few minutes.
+              </Alert>
+            )}
             {processing && <LinearProgress sx={{ mb: 2 }} color="error" />}
             <Button variant="contained" fullWidth sx={{ bgcolor: '#ef4444', mb: 2, '&:hover': { bgcolor: '#dc2626' } }}
               onClick={unlock} disabled={!file || processing}>
@@ -111,9 +116,7 @@ export default function UnlockPdf() {
             </Button>
             {result && (
               <Box>
-                <Alert severity="success" sx={{ mb: 2 }}>
-                  PDF unlocked successfully! {pageCount} page{pageCount !== 1 ? 's' : ''} found.
-                </Alert>
+                <Alert severity="success" sx={{ mb: 2 }}>PDF unlocked successfully!</Alert>
                 <Button variant="outlined" fullWidth startIcon={<Download />} color="error" onClick={download}>
                   Download Unlocked PDF
                 </Button>

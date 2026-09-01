@@ -13,12 +13,13 @@ import Lock from '@mui/icons-material/Lock';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import Info from '@mui/icons-material/Info';
-import { PDFDocument } from 'pdf-lib';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { PdfPreview } from '../../shared/components/PdfPreview';
-
-const formatSize = (b: number) =>
-  b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(2)} MB`;
+import { APIs } from '../../shared/config/apis';
+import {
+  formatSize, validateUserPassword, protectedFileName, requestProtectedPdf,
+  downloadBlob, SERVICE_UNAVAILABLE,
+} from './utils';
 
 export default function ProtectPdf() {
   const [file, setFile] = useState<File | null>(null);
@@ -27,11 +28,13 @@ export default function ProtectPdf() {
   const [error, setError] = useState('');
   const [userPassword, setUserPassword] = useState('');
   const [ownerPassword, setOwnerPassword] = useState('');
-  const [result, setResult] = useState<Uint8Array | null>(null);
+  const [passwordError, setPasswordError] = useState('');
+  const [serviceDown, setServiceDown] = useState(false);
+  const [result, setResult] = useState<Blob | null>(null);
 
   const loadFile = useCallback((f: File) => {
     if (f.type !== 'application/pdf') { setError('Please select a PDF file.'); return; }
-    setFile(f); setResult(null);
+    setFile(f); setResult(null); setServiceDown(false);
   }, []);
 
   const onDrop = useCallback((e: DragEvent) => {
@@ -40,31 +43,31 @@ export default function ProtectPdf() {
   }, [loadFile]);
 
   const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) loadFile(e.target.files[0]); e.target.value = '';
+    if (e.target.files?.[0]) { loadFile(e.target.files[0]); }
+    e.target.value = '';
   };
 
   const protect = async () => {
     if (!file) return;
-    if (!userPassword && !ownerPassword) { setError('Enter at least one password.'); return; }
-    setProcessing(true);
+    const validation = validateUserPassword(userPassword);
+    setPasswordError(validation);
+    if (validation) return;
+    setProcessing(true); setServiceDown(false); setResult(null);
     try {
-      const bytes = await file.arrayBuffer();
-      const srcDoc = await PDFDocument.load(bytes);
-      const newDoc = await PDFDocument.create();
-      const pages = await newDoc.copyPages(srcDoc, srcDoc.getPageIndices());
-      pages.forEach((p) => newDoc.addPage(p));
-      const saved = await newDoc.save();
-      setResult(saved);
-    } catch {
-      setError('Failed to process PDF.');
+      const blob = await requestProtectedPdf(APIs.pdfTools.protect, file, userPassword, ownerPassword);
+      setResult(blob);
+    } catch (err) {
+      if (err instanceof Error && err.message === SERVICE_UNAVAILABLE) {
+        setServiceDown(true);
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to protect the PDF.');
+      }
     } finally { setProcessing(false); }
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
-    const a = document.createElement('a'); a.href = url;
-    a.download = `protected-${file?.name ?? 'document.pdf'}`; a.click(); URL.revokeObjectURL(url);
+    if (!result || !file) return;
+    downloadBlob(result, protectedFileName(file.name));
   };
 
   return (
@@ -94,25 +97,31 @@ export default function ProtectPdf() {
             <PdfPreview file={file} />
             <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
               <TextField label="User Password (to open)" type="password" fullWidth size="small"
-                value={userPassword} onChange={(e) => setUserPassword(e.target.value)} />
-              <TextField label="Owner Password (to edit)" type="password" fullWidth size="small"
+                required error={!!passwordError} helperText={passwordError || 'Minimum 4 characters.'}
+                value={userPassword}
+                onChange={(e) => { setUserPassword(e.target.value); setPasswordError(''); }} />
+              <TextField label="Owner Password (to edit, optional)" type="password" fullWidth size="small"
                 value={ownerPassword} onChange={(e) => setOwnerPassword(e.target.value)} />
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <Alert severity="info" icon={<Info />} sx={{ mb: 2 }}>
-              Browser-based PDF encryption is limited. pdf-lib does not natively support password encryption.
-              The PDF will be re-saved (copies all pages), but <strong>no actual password lock</strong> is applied.
-              For strong encryption, use a desktop tool such as Adobe Acrobat or qpdf.
+              Your PDF is encrypted on our server with <strong>AES-256</strong> and the passwords you set.
+              Files are processed transiently and never stored.
             </Alert>
+            {serviceDown && (
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                The PDF protection service is temporarily unavailable. Please try again in a few minutes.
+              </Alert>
+            )}
             {processing && <LinearProgress sx={{ mb: 2 }} color="success" />}
             <Button variant="contained" fullWidth sx={{ bgcolor: '#22c55e', mb: 2, '&:hover': { bgcolor: '#16a34a' } }}
               onClick={protect} disabled={!file || processing}>
-              {processing ? 'Processing...' : 'Process PDF'}
+              {processing ? 'Encrypting...' : 'Protect PDF'}
             </Button>
             {result && (
               <Button variant="outlined" fullWidth startIcon={<Download />} color="success" onClick={download}>
-                Download Re-saved PDF
+                Download Protected PDF
               </Button>
             )}
           </Grid>

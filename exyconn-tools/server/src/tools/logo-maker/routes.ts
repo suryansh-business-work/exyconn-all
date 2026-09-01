@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import multer from "multer";
 import { removeBackground } from "@imgly/background-removal-node";
+import { removeBackgroundFromDataUrl } from "./services";
 
 const router = Router();
 
@@ -71,34 +72,10 @@ router.post(
 
       console.log("Processing base64 image...");
 
-      // Extract base64 data from data URL
-      const base64Match = image.match(/^data:image\/\w+;base64,(.+)$/);
-      if (!base64Match) {
+      const dataUrl = await removeBackgroundFromDataUrl(image);
+      if (!dataUrl) {
         return res.status(400).json({ error: "Invalid image data format" });
       }
-
-      const base64Data = base64Match[1];
-      const buffer = Buffer.from(base64Data, "base64");
-
-      // Convert buffer to Blob
-      const blob = new Blob([buffer], { type: "image/png" });
-
-      // Remove background using @imgly/background-removal-node
-      const resultBlob = await removeBackground(blob, {
-        progress: (key, current, total) => {
-          console.log(
-            `Progress [${key}]: ${Math.round((current / total) * 100)}%`,
-          );
-        },
-      });
-
-      // Convert result blob to buffer
-      const arrayBuffer = await resultBlob.arrayBuffer();
-      const resultBuffer = Buffer.from(arrayBuffer);
-
-      // Send as base64 data URL
-      const resultBase64 = resultBuffer.toString("base64");
-      const dataUrl = `data:image/png;base64,${resultBase64}`;
 
       console.log("Background removal completed successfully");
       res.json({ success: true, image: dataUrl });
