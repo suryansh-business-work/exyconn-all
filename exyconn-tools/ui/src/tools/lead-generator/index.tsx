@@ -25,8 +25,9 @@ const LeadGenerator: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [maxResults, setMaxResults] = useState(10);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
-  const [locationMode, setLocationMode] = useState<LocationMode | null>(null);
-  console.debug('Location mode:', locationMode);
+  // Only the setter is used: the stepper reports its mode up so the re-render
+  // keeps the wizard in sync, but no consumer here reads the value back.
+  const [, setLocationMode] = useState<LocationMode | null>(null);
 
   const triggerDrawPolygonRef = useRef<(() => void) | null>(null);
 

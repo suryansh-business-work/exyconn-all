@@ -169,10 +169,14 @@ const renderTool = async (id: string) => {
 let consoleError: ReturnType<typeof vi.spyOn>;
 let consoleWarn: ReturnType<typeof vi.spyOn>;
 
-beforeAll(() => {
+beforeAll(async () => {
   consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
   consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-});
+  // Vitest transforms modules on demand, so whichever tool renders first pays
+  // for the whole shared MUI/ToolLayout graph (~15s). Warm it here instead, so
+  // no single test in the matrix sits near its timeout on a slow CI runner.
+  await import('../shared/components/ToolLayout/ToolLayout');
+}, 120000);
 
 afterAll(() => {
   consoleError.mockRestore();

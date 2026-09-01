@@ -47,8 +47,8 @@ const ToolDetails: React.FC<ToolDetailsProps> = ({ toolId }) => {
           About {tool.name}
         </Typography>
         <Stack spacing={1.5} sx={{ maxWidth: 860 }}>
-          {details.longDescription.map((paragraph, index) => (
-            <Typography key={index} color="text.secondary">
+          {details.longDescription.map((paragraph) => (
+            <Typography key={paragraph} color="text.secondary">
               {paragraph}
             </Typography>
           ))}

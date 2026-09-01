@@ -31,7 +31,7 @@ const IPLookup: React.FC = () => {
   };
 
   return (
-    <ToolLayout toolName="IP Lookup" toolIcon={<Router />} toolColor="#6366f1">
+    <ToolLayout toolName="IP Address Lookup" toolIcon={<Router />} toolColor="#6366f1">
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>

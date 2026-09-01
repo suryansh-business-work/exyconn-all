@@ -25,7 +25,7 @@ const EmailSignature: React.FC = () => {
   }, [setSavedFormData]);
 
   return (
-    <ToolLayout toolName="Email Signature" toolIcon={<Email />} toolColor="#10b981">
+    <ToolLayout toolName="Email Signature Generator" toolIcon={<Email />} toolColor="#10b981">
       <Formik<SignatureFormValues>
         initialValues={savedFormData}
         validationSchema={signatureValidationSchema}

@@ -31,7 +31,7 @@ const WhoisLookup: React.FC = () => {
   };
 
   return (
-    <ToolLayout toolName="Whois Lookup" toolIcon={<Search />} toolColor="#8b5cf6">
+    <ToolLayout toolName="WHOIS Lookup" toolIcon={<Search />} toolColor="#8b5cf6">
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>

@@ -31,7 +31,7 @@ const CNAMEChecker: React.FC = () => {
   };
 
   return (
-    <ToolLayout toolName="CNAME Checker" toolIcon={<CompareArrows />} toolColor="#0ea5e9">
+    <ToolLayout toolName="CNAME Record Checker" toolIcon={<CompareArrows />} toolColor="#0ea5e9">
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
