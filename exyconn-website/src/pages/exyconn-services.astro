@@ -2,8 +2,8 @@
 import Page from "../layouts/Page.astro";
 import DynamicTable from "../components/dynamic-components/DynamicTable.astro";
 
-// Complete Shell Services Data
-const shellServices = [
+// Complete Infrastructure Services Data
+const platformServices = [
   // Global
   {
     id: "dashboard",
@@ -300,13 +300,13 @@ const categoryOrder = [
   "Infrastructure",
 ];
 
-const servicesByCategory = shellServices.reduce(
+const servicesByCategory = platformServices.reduce(
   (acc, service) => {
     if (!acc[service.category]) acc[service.category] = [];
     acc[service.category].push(service);
     return acc;
   },
-  {} as Record<string, typeof shellServices>
+  {} as Record<string, typeof platformServices>
 );
 
 const getCategoryIcon = (category: string) => {
@@ -348,9 +348,9 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-const liveCount = shellServices.filter((s) => s.status === "live").length;
-const devCount = shellServices.filter((s) => s.status === "dev").length;
-const soonCount = shellServices.filter((s) => s.status === "soon").length;
+const liveCount = platformServices.filter((s) => s.status === "live").length;
+const devCount = platformServices.filter((s) => s.status === "dev").length;
+const soonCount = platformServices.filter((s) => s.status === "soon").length;
 ---
 
 <Page
@@ -443,10 +443,10 @@ const soonCount = shellServices.filter((s) => s.status === "soon").length;
 
         <div class="flex flex-wrap justify-center gap-4">
           <a
-            href="/shell-strategy"
+            href="/ai-services"
             class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-8 py-4 rounded-full hover:bg-gray-800 transition shadow-xl"
           >
-            <i class="fa-solid fa-bolt"></i> Shell Strategy
+            <i class="fa-solid fa-bolt"></i> AI Services
           </a>
           <a
             href="/contact"
@@ -529,7 +529,7 @@ const soonCount = shellServices.filter((s) => s.status === "soon").length;
 
         <DynamicTable
           headers={["Service", "Category", "Status", "Key Features"]}
-          rows={shellServices.map((s) => [
+          rows={platformServices.map((s) => [
             s.name,
             s.category,
             getStatusBadge(s.status).text === "In Dev"
@@ -606,10 +606,10 @@ const soonCount = shellServices.filter((s) => s.status === "soon").length;
             <i class="fa-solid fa-rocket"></i> Get Started
           </a>
           <a
-            href="/shell-strategy"
+            href="/ai-services"
             class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-10 py-4 rounded-full hover:bg-gray-50 transition shadow-lg"
           >
-            <i class="fa-solid fa-bolt"></i> Learn Shell Strategy
+            <i class="fa-solid fa-bolt"></i> Explore AI Services
           </a>
         </div>
       </div>

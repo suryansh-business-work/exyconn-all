@@ -4,7 +4,7 @@ const SITE_URL = "https://exyconn.com";
 
 const content = `# Exyconn
 
-> Exyconn is a multi-product technology company that builds AI automation, B2B SaaS platforms, consumer apps, and complete cloud infrastructure so businesses can ship faster. Its "Shell Strategy" delivers a production-ready tech-shell (auth, email/SMS, payments, logs, themes, translations and 25+ services) in roughly one week, at a large cost saving versus building in-house.
+> Exyconn is a multi-product technology company that builds AI automation, B2B SaaS platforms, consumer apps, and complete cloud infrastructure so businesses can ship faster. Its AI services practice covers 29 offerings across six areas — agents and automation, revenue and growth, industry platforms, business operations, platform and infrastructure, and trust and security — each delivered as a working system connected to the tools a business already runs on.
 
 ## About
 Exyconn is a B2B technology services company offering AI agents, an infrastructure platform, and SaaS products. It operates a portfolio of brands across AI/SaaS, FinTech, cybersecurity, and community technology. Headquartered in India, serving clients globally and remotely.
@@ -20,7 +20,7 @@ Exyconn is a B2B technology services company offering AI agents, an infrastructu
 - [Our Products](${SITE_URL}/our-products): SaaS and consumer-app portfolio
 - [Our Services](${SITE_URL}/our-services): Full service catalog
 - [AI Solutions](${SITE_URL}/ai): AI agents, MCP servers, models, and automation workflows
-- [Shell Strategy](${SITE_URL}/shell-strategy): Complete tech-shell offering
+- [AI Services](${SITE_URL}/ai-services): The full AI services catalogue — agents, automation, industry platforms, operations, infrastructure and AI governance
 - [Case Studies](${SITE_URL}/case-studies): Real-world results
 - [Blog](${SITE_URL}/blog): Insights on AI and technology
 - [About Us](${SITE_URL}/about-us): Team and mission

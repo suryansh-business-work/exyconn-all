@@ -1,0 +1,275 @@
+---
+import Page from "../../layouts/Page.astro";
+import { aiServiceCategories, aiServices, servicesInCategory } from "../../lib/services/aiServices";
+
+const SITE_URL = "https://exyconn.com";
+const PAGE_URL = `${SITE_URL}/ai-services`;
+
+// Everything countable is derived from the catalogue so the copy can never drift
+// out of step with the data.
+const serviceCount = aiServices.length;
+const categoryCount = aiServiceCategories.length;
+
+const sections = aiServiceCategories.map((category) => ({
+  category,
+  services: servicesInCategory(category.slug),
+}));
+
+const pageTitle = `AI Services | ${serviceCount} AI Products & Build Services | Exyconn`;
+const pageDescription = `Exyconn is an AI product and services company. ${serviceCount} AI services across ${categoryCount} categories — agents and automation, revenue systems, industry platforms, business operations, AI infrastructure, and governance.`;
+const pageKeywords = [
+  "AI services",
+  "AI product company",
+  "AI development company",
+  "AI agents",
+  ...aiServices.map((service) => service.title),
+].join(", ");
+
+const itemListJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Exyconn AI Services",
+  description: pageDescription,
+  url: PAGE_URL,
+  numberOfItems: serviceCount,
+  itemListElement: aiServices.map((service, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: service.title,
+    description: service.summary,
+    url: `${PAGE_URL}/${service.slug}`,
+  })),
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+    { "@type": "ListItem", position: 2, name: "AI Services", item: PAGE_URL },
+  ],
+};
+---
+
+<Page
+  metaTitle={pageTitle}
+  metaDescription={pageDescription}
+  metaKeywords={pageKeywords}
+  canonical={PAGE_URL}
+  jsonLd={[itemListJsonLd, breadcrumbJsonLd]}
+>
+  <div class="bg-white min-h-screen">
+    <!-- Hero -->
+    <section
+      class="relative overflow-hidden px-6 py-24 bg-gradient-to-br from-blue-50 via-white to-cyan-50"
+    >
+      <div
+        class="absolute top-16 right-10 w-96 h-96 bg-gradient-to-r from-blue-200/40 to-cyan-200/40 rounded-full blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+      <div
+        class="absolute -bottom-10 left-10 w-80 h-80 bg-gradient-to-r from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div class="relative z-10 max-w-5xl mx-auto text-center">
+        <span
+          class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-8 shadow-sm"
+          data-anime="fade-up"
+        >
+          <i class="fa-solid fa-microchip text-blue-600" aria-hidden="true"></i>
+          AI Products &amp; Services
+        </span>
+
+        <h1
+          class="text-4xl md:text-6xl font-bold text-gray-900 mb-8 tracking-tight leading-tight"
+          data-anime="fade-up"
+          data-anime-delay="100"
+        >
+          An AI company that ships
+          <span class="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+            working systems</span
+          >, not pilots
+        </h1>
+
+        <p
+          class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-10"
+          data-anime="fade-up"
+          data-anime-delay="200"
+        >
+          Exyconn builds AI products and runs the services around them — agents that do real work,
+          the platforms they run on, and the guardrails that keep them defensible in front of your
+          customers.
+        </p>
+
+        <div
+          class="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl mx-auto mb-10"
+          data-anime="fade-up"
+          data-anime-delay="250"
+        >
+          <div>
+            <div
+              class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent mb-1"
+            >
+              {serviceCount}
+            </div>
+            <p class="text-gray-600 text-sm">AI Services</p>
+          </div>
+          <div>
+            <div
+              class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent mb-1"
+            >
+              {categoryCount}
+            </div>
+            <p class="text-gray-600 text-sm">Capability Areas</p>
+          </div>
+          <div>
+            <div
+              class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent mb-1"
+            >
+              End&#8209;to&#8209;end
+            </div>
+            <p class="text-gray-600 text-sm">Build &amp; Run</p>
+          </div>
+          <div>
+            <div
+              class="text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent mb-1"
+            >
+              Weeks
+            </div>
+            <p class="text-gray-600 text-sm">To First Release</p>
+          </div>
+        </div>
+
+        <div
+          class="flex flex-wrap justify-center gap-4"
+          data-anime="fade-up"
+          data-anime-delay="300"
+        >
+          <a
+            href="/get-a-quote"
+            class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-8 py-4 rounded-full hover:bg-gray-800 transition shadow-xl"
+          >
+            <i class="fa-solid fa-calculator" aria-hidden="true"></i> Get a Quote
+          </a>
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-8 py-4 rounded-full hover:bg-gray-50 transition shadow-lg"
+          >
+            <i class="fa-solid fa-comments" aria-hidden="true"></i> Talk to an Engineer
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Category jump nav: keeps all services reachable without scrolling the whole page -->
+    <nav
+      aria-label="AI service categories"
+      class="sticky top-[69px] z-40 bg-white/90 backdrop-blur-xl border-y border-gray-100"
+    >
+      <div class="max-w-7xl mx-auto px-4">
+        <ul class="flex items-center gap-2 overflow-x-auto py-3 no-scrollbar">
+          {
+            sections.map(({ category, services }) => (
+              <li class="shrink-0">
+                <a
+                  href={`#${category.slug}`}
+                  class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:text-blue-700 hover:border-blue-200 hover:bg-blue-50 transition-colors"
+                >
+                  <i class={`fa-solid ${category.icon} text-blue-600 text-xs`} aria-hidden="true" />
+                  {category.title}
+                  <span class="text-xs text-gray-500">{services.length}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Categories -->
+    {
+      sections.map(({ category, services }, index) => (
+        <section
+          id={category.slug}
+          class={`scroll-mt-36 px-6 py-20 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
+        >
+          <div class="max-w-6xl mx-auto">
+            <div class="mb-12 max-w-3xl" data-anime="fade-up">
+              <div class="flex items-center gap-4 mb-4">
+                <span class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center shrink-0">
+                  <i class={`fa-solid ${category.icon} text-white`} aria-hidden="true" />
+                </span>
+                <h2 class="text-3xl font-bold text-gray-900">{category.title}</h2>
+              </div>
+              <p class="text-gray-600 leading-relaxed">{category.description}</p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {services.map((service) => (
+                <a
+                  href={`/ai-services/${service.slug}`}
+                  class="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-xl hover:border-blue-100 hover:-translate-y-1 transition-all duration-300"
+                >
+                  <div
+                    class={`w-14 h-14 bg-gradient-to-br ${service.color} rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}
+                  >
+                    <i class={`fa-solid ${service.icon} text-white text-xl`} aria-hidden="true" />
+                  </div>
+                  <h3 class="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-700 transition-colors">
+                    {service.title}
+                  </h3>
+                  <p class="text-gray-600 text-sm leading-relaxed mb-4">{service.summary}</p>
+                  <span class="inline-flex items-center gap-2 text-blue-700 font-medium text-sm group-hover:gap-3 transition-all">
+                    Explore service
+                    <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true" />
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      ))
+    }
+
+    <!-- Closing CTA -->
+    <section class="px-6 py-20 bg-gradient-to-br from-blue-600 to-cyan-500">
+      <div class="max-w-4xl mx-auto text-center text-white">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">
+          Tell us the process, we&rsquo;ll scope the AI
+        </h2>
+        <p class="text-lg text-blue-50 mb-10 max-w-2xl mx-auto leading-relaxed">
+          Bring one workflow that costs your team too much time. We will come back with what an AI
+          system can take over, what it should not, and what it costs to build.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="/get-a-quote"
+            class="inline-flex items-center gap-2 bg-white text-blue-700 font-semibold px-10 py-4 rounded-full hover:bg-blue-50 transition shadow-xl"
+          >
+            <i class="fa-solid fa-calculator" aria-hidden="true"></i> Get a Quote
+          </a>
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/40 text-white font-semibold px-10 py-4 rounded-full hover:bg-white/25 transition shadow-lg"
+          >
+            <i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Book a Consultation
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+</Page>
+
+<style>
+  /* Horizontal category nav scrolls on small screens without a visible scrollbar. */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+</style>

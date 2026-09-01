@@ -76,8 +76,7 @@ Open [http://localhost:4000](http://localhost:4000)
 | **Legal** | `/legal` | [exyconn.com/legal](https://exyconn.com/legal) |
 | **Grievance** | `/grievance` | [exyconn.com/grievance](https://exyconn.com/grievance) |
 | **Sitemap** | `/sitemap` | [exyconn.com/sitemap](https://exyconn.com/sitemap) |
-| **Shell Strategy** | `/shell-strategy` | [exyconn.com/shell-strategy](https://exyconn.com/shell-strategy) |
-| **Shell Strategy Terms** | `/shell-strategy-terms` | [exyconn.com/shell-strategy-terms](https://exyconn.com/shell-strategy-terms) |
+| **AI Services** | `/ai-services` | [exyconn.com/ai-services](https://exyconn.com/ai-services) |
 | **404** | `/404` | [exyconn.com/404](https://exyconn.com/404) |
 | **AI Platform** | `/ai` | [exyconn.com/ai](https://exyconn.com/ai) |
 | **Agentic AI** | `/ai/agentic` | [exyconn.com/ai/agentic](https://exyconn.com/ai/agentic) |

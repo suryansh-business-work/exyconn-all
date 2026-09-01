@@ -2,18 +2,22 @@
 import Page from "../layouts/Page.astro";
 import HomeBanner from "../components/fragments/Banners/HomeBanner.astro";
 import OurSolutions from "../components/OurSolutions.astro";
+import AiServicesOverview from "../components/AiServicesOverview.astro";
 import WhyChooseUs from "../components/WhyChooseUs.astro";
 import IndustriesWeServe from "../components/IndustriesWeServe.astro";
 import HowWeWork from "../components/HowWeWork.astro";
 import DynamicImageStack from "../components/dynamic-components/DynamicImageStack.astro";
+import { aiServices } from "../lib/services/aiServices";
 ---
 
 <Page
-  title="Exyconn | AI Automation & SaaS Solutions for Business"
-  description="Transform your business with Exyconn's AI solutions. From authentication to AI agents, we provide the complete technology shell so you can focus on building what matters most."
+  title="Exyconn | AI Agents, Automation & Vertical AI SaaS"
+  description={`Exyconn builds AI agents, automation and vertical AI products across ${aiServices.length} service areas — sales, support, voice, finance, hiring, logistics and the platform layer underneath.`}
+  keywords="AI agents, AI automation, AI sales automation, AI customer support, AI voice agents, WhatsApp automation, vertical AI SaaS, AI workflow automation, RAG platform, AI governance"
 >
   <HomeBanner />
   <OurSolutions />
+  <AiServicesOverview />
   <WhyChooseUs />
   <IndustriesWeServe />
   <HowWeWork />

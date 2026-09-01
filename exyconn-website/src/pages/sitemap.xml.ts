@@ -1,5 +1,7 @@
 import type { APIRoute } from "astro";
 
+import { aiServices } from "../lib/services/aiServices";
+
 const SITE_URL = "https://exyconn.com";
 
 // All static pages
@@ -16,8 +18,9 @@ const staticPages = [
   "/our-services",
   "/our-vision",
   "/privacy-policy",
-  "/shell-strategy",
-  "/shell-strategy-terms",
+  // AI Services
+  "/ai-services",
+  ...aiServices.map((service) => `/ai-services/${service.slug}`),
   // Services
   "/services",
   "/services/application-modernization",

@@ -1,3 +1,7 @@
+---
+import { aiServices, aiServiceCategories } from "../lib/services/aiServices";
+---
+
 <!-- AI + SaaS Solutions Grid - Light Theme -->
 <section
   class="py-24 px-4 md:px-8 bg-gradient-to-b from-white to-gray-50 w-full relative overflow-hidden"
@@ -41,9 +45,9 @@
 
     <!-- Three-Pillar Cards -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-      <!-- Pillar 1: Shell Strategy -->
+      <!-- Pillar 1: AI Services -->
       <a
-        href="/shell-strategy"
+        href="/ai-services"
         class="group bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl shadow-2xl p-8 flex flex-col text-white hover:scale-[1.02] hover:shadow-gray-900/30 transition-all duration-300 relative overflow-hidden"
       >
         <div
@@ -54,35 +58,27 @@
           <div
             class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform"
           >
-            <i class="fa-solid fa-bolt text-2xl text-white"></i>
+            <i class="fa-solid fa-bolt text-2xl text-white" aria-hidden="true"></i>
           </div>
           <span
             class="inline-flex items-center gap-1 px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full mb-3"
           >
-            <i class="fa-solid fa-star text-[10px]"></i> FEATURED
+            <i class="fa-solid fa-star text-[10px]" aria-hidden="true"></i> FEATURED
           </span>
-          <h3 class="font-bold text-2xl mb-3">Shell Strategy</h3>
+          <h3 class="font-bold text-2xl mb-3">AI Services</h3>
           <p class="text-gray-300 mb-6 leading-relaxed">
-            From idea to MVP in 1 week. We handle auth, infrastructure, and everything in
-            between—you focus on building value.
+            {aiServices.length} service areas across agents, automation, vertical AI products and the
+            platform underneath them — delivered on the systems you already run.
           </p>
           <ul class="space-y-3 mb-8">
-            <li class="flex items-center gap-3 text-gray-200">
-              <i class="fa-solid fa-check-circle text-blue-400"></i>
-              Authentication & User Management
-            </li>
-            <li class="flex items-center gap-3 text-gray-200">
-              <i class="fa-solid fa-check-circle text-blue-400"></i>
-              Infrastructure & Deployment
-            </li>
-            <li class="flex items-center gap-3 text-gray-200">
-              <i class="fa-solid fa-check-circle text-blue-400"></i>
-              Email, SMS & Notifications
-            </li>
-            <li class="flex items-center gap-3 text-gray-200">
-              <i class="fa-solid fa-check-circle text-blue-400"></i>
-              Payments & Analytics
-            </li>
+            {
+              aiServiceCategories.slice(0, 4).map((category) => (
+                <li class="flex items-center gap-3 text-gray-200">
+                  <i class="fa-solid fa-check-circle text-blue-400" aria-hidden="true"></i>
+                  {category.title}
+                </li>
+              ))
+            }
           </ul>
           <div
             class="inline-flex items-center gap-2 text-blue-400 font-semibold group-hover:text-blue-300 transition"
