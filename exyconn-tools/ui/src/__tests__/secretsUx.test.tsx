@@ -89,6 +89,18 @@ describe('Logo', () => {
     render(wrap(<Logo />));
     expect(screen.getByRole('img', { name: 'Exyconn' })).toBeInTheDocument();
   });
+
+  it('uses JSX attribute names, so React logs no invalid-property warnings', () => {
+    // The SVG was converted from published markup; kebab-case leftovers such as
+    // flood-opacity render as warnings rather than failures, so assert on them.
+    const errors: unknown[] = [];
+    const spy = vi.spyOn(console, 'error').mockImplementation((...args) => errors.push(args[0]));
+
+    render(wrap(<Logo />));
+    spy.mockRestore();
+
+    expect(errors.filter((message) => String(message).includes('Invalid DOM property'))).toEqual([]);
+  });
 });
 
 describe('ScrollTopButton', () => {

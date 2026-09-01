@@ -16,23 +16,20 @@ dotenv.config();
 
 export const PORT = process.env.PORT || 4002;
 
+const isProduction = process.env.NODE_ENV === "production";
+
+/**
+ * Any loopback origin, on any port.
+ *
+ * The allowlist used to enumerate "common dev ports", which broke as soon as
+ * Vite fell back to another port because the configured one was busy — the UI
+ * then failed every request with an opaque CORS error. Loopback is only trusted
+ * outside production.
+ */
+const LOOPBACK_ORIGIN = /^http:\/\/(?:localhost|127\.0\.0\.1|\[::1\]):\d+$/;
+
 // CORS configuration for production and development
 const allowedOrigins = [
-  // Local development - all common dev ports
-  "http://localhost:4001",
-  "http://localhost:4002",
-  "http://localhost:4014",
-  "http://localhost:4015",
-  "http://localhost:4016",
-  "http://127.0.0.1:4001",
-  "http://127.0.0.1:4002",
-  "http://127.0.0.1:4014",
-  "http://127.0.0.1:4015",
-  "http://127.0.0.1:4016",
-  "http://localhost:3000",
-  "http://127.0.0.1:3000",
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
   // Production domains - Tools
   "https://tools.exyconn.com",
   "https://www.tools.exyconn.com",
@@ -50,6 +47,9 @@ const corsOptions: cors.CorsOptions = {
       return callback(null, true);
     }
     if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    if (!isProduction && LOOPBACK_ORIGIN.test(origin)) {
       return callback(null, true);
     }
     // Allow all subdomains of exyconn.com
