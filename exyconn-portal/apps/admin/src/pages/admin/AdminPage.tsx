@@ -1,16 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApolloClient } from '@apollo/client';
-import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
+import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import {
-  ServerDataGrid,
-  type TablePageResult,
-} from '@exyconn/shell/components/data/ServerDataGrid';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
   Role,
   useListUsersStatsQuery,
@@ -18,8 +12,6 @@ import {
   useResetUserPasswordMutation,
   ListUsersPagedDocument,
   type ListUsersPagedQuery,
-  type ListUsersPagedQueryVariables,
-  type TableQueryInput,
 } from '@exyconn/shell/graphql/generated';
 import { statCount, statDistinct, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { UserForm, type UserRow } from '@exyconn/shell/pages/user-forms/user';
@@ -32,13 +24,20 @@ export function AdminPage() {
   const { data: statsData, refetch: refetchStats } = useListUsersStatsQuery();
   const [deleteUser] = useDeleteUserMutation();
   const [resetPassword] = useResetUserPasswordMutation();
-  const dialog = useCrudDialog<UserRow>();
   const confirm = useConfirm();
   const notify = useNotify();
   const navigate = useNavigate();
-  const client = useApolloClient();
   const [credentials, setCredentials] = useState<Credentials | null>(null);
-  const [refreshSignal, setRefreshSignal] = useState(0);
+  const crud = useCrudResource<UserRow, PagedUserRow>({
+    label: 'User',
+    onDelete: (row) => deleteUser({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete user "${row.name}"?`,
+    refetch: refetchStats,
+  });
+  const fetchRows = usePagedFetcher(
+    ListUsersPagedDocument,
+    (data: ListUsersPagedQuery) => data.listUsersPaged,
+  );
 
   const stats = statsData?.listUsersStats;
   const statItems: StatItem[] = [
@@ -47,36 +46,6 @@ export function AdminPage() {
     { label: 'Admins', value: String(statCount(stats, 'roles', Role.Admin)), accent: '#f9851f' },
     { label: 'Roles in use', value: String(statDistinct(stats, 'roles')), accent: '#8b5cf6' },
   ];
-
-  const reload = () => {
-    setRefreshSignal((n) => n + 1);
-    void refetchStats();
-  };
-
-  const fetchRows = useCallback(
-    async (input: TableQueryInput): Promise<TablePageResult<PagedUserRow>> => {
-      const result = await client.query<ListUsersPagedQuery, ListUsersPagedQueryVariables>({
-        query: ListUsersPagedDocument,
-        variables: { input },
-        fetchPolicy: 'network-only',
-      });
-      return {
-        rows: result.data.listUsersPaged.rows,
-        totalCount: result.data.listUsersPaged.totalCount,
-      };
-    },
-    [client],
-  );
-
-  const handleDelete = async (row: PagedUserRow) => {
-    const ok = await confirm({ message: `Delete user "${row.name}"?`, confirmText: 'Delete' });
-    if (!ok) {
-      return;
-    }
-    await deleteUser({ variables: { id: row.id } });
-    reload();
-    notify('User deleted');
-  };
 
   const handleResetPassword = async (row: PagedUserRow) => {
     const ok = await confirm({
@@ -92,50 +61,36 @@ export function AdminPage() {
         setCredentials({ name: row.name, email: row.email, password: res.resetUserPassword });
       }
     } catch (err) {
-      notify(err instanceof Error ? err.message : 'Reset failed', 'error');
+      notify(errorMessage(err, 'Reset failed'), 'error');
     }
   };
 
   const gridContext: UsersGridContext = {
-    onEdit: dialog.openEdit,
-    onReset: handleResetPassword,
-    onDelete: handleDelete,
+    actions: { edit: crud.openEdit, reset: handleResetPassword, delete: crud.remove },
   };
 
   return (
-    <ModuleDashboard
+    <CrudDashboard
       title="Admin"
       subtitle="Users & roles"
-      actionLabel="New user"
-      onAction={dialog.openCreate}
+      entityLabel="user"
       stats={statItems}
-      dialog={
-        <CrudDialog
-          open={dialog.open}
-          title={dialog.editing ? 'Edit user' : 'New user'}
-          onClose={dialog.close}
-        >
-          <UserForm
-            initial={dialog.editing}
-            onCancel={dialog.close}
-            onCreated={setCredentials}
-            onDone={() => {
-              reload();
-              dialog.close();
-            }}
-          />
-        </CrudDialog>
-      }
+      crud={crud}
+      renderForm={(initial) => (
+        <UserForm
+          initial={initial}
+          onCancel={crud.close}
+          onCreated={setCredentials}
+          onDone={crud.onDone}
+        />
+      )}
+      columnDefs={USER_COLUMNS}
+      fetchRows={fetchRows}
+      context={gridContext}
+      onRowClick={(row) => navigate(`/admin/users/${row.id}`)}
+      searchPlaceholder="Search users…"
     >
-      <ServerDataGrid<PagedUserRow>
-        columnDefs={USER_COLUMNS}
-        fetchRows={fetchRows}
-        context={gridContext}
-        refreshSignal={refreshSignal}
-        onRowClick={(row) => navigate(`/admin/users/${row.id}`)}
-        searchPlaceholder="Search users…"
-      />
       <CredentialsDialog credentials={credentials} onClose={() => setCredentials(null)} />
-    </ModuleDashboard>
+    </CrudDashboard>
   );
 }

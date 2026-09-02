@@ -1,11 +1,10 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect, RhfDatePicker } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
   BugSeverity,
   BugStatus,
@@ -45,47 +44,33 @@ interface BugFormProps {
 
 /** React Hook Form + Zod form to create or update a bug. */
 export function BugForm({ initial, onDone, onCancel }: BugFormProps) {
-  const notify = useNotify();
   const [createBug] = useCreateBugMutation();
   const [updateBug] = useUpdateBugMutation();
-  const isEdit = Boolean(initial);
   const methods = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    try {
-      if (isEdit && initial) await updateBug({ variables: { id: initial.id, input: values } });
-      else await createBug({ variables: { input: values } });
-      notify(`Bug ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Bug',
+    initial,
+    create: (values: Values) => createBug({ variables: { input: values } }),
+    update: (row, values) => updateBug({ variables: { id: row.id, input: values } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="title" label="Title" />
-          <RhfTextField name="description" label="Description" multiline minRows={3} />
-          <RhfSelect
-            name="severity"
-            label="Severity"
-            options={enumOptions(Object.values(BugSeverity))}
-          />
-          <RhfSelect name="status" label="Status" options={enumOptions(Object.values(BugStatus))} />
-          <RhfTextField name="assignee" label="Assignee" />
-          <RhfDatePicker name="dueDate" label="Due date" />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="title" label="Title" />
+      <RhfTextField name="description" label="Description" multiline minRows={3} />
+      <RhfSelect
+        name="severity"
+        label="Severity"
+        options={enumOptions(Object.values(BugSeverity))}
+      />
+      <RhfSelect name="status" label="Status" options={enumOptions(Object.values(BugStatus))} />
+      <RhfTextField name="assignee" label="Assignee" />
+      <RhfDatePicker name="dueDate" label="Due date" />
+    </EntityForm>
   );
 }

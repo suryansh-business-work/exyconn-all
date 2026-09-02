@@ -1,10 +1,9 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateToolCategoryMutation,
   useUpdateToolCategoryMutation,
@@ -40,52 +39,35 @@ interface ToolCategoryFormProps {
 
 /** React Hook Form + Zod form to create or update a tool category. */
 export function ToolCategoryForm({ initial, onDone, onCancel }: Readonly<ToolCategoryFormProps>) {
-  const notify = useNotify();
   const [createToolCategory] = useCreateToolCategoryMutation();
   const [updateToolCategory] = useUpdateToolCategoryMutation();
-  const isEdit = Boolean(initial);
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (input: Values) => {
-    try {
-      if (isEdit && initial) {
-        await updateToolCategory({ variables: { id: initial.id, input } });
-      } else {
-        await createToolCategory({ variables: { input } });
-      }
-      notify(`Tool category ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Tool category',
+    initial,
+    create: (values: Values) => createToolCategory({ variables: { input: values } }),
+    update: (row, values) => updateToolCategory({ variables: { id: row.id, input: values } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="slug" label="Slug" helperText="URL segment, e.g. ai-writing" />
-          <RhfTextField name="category" label="Category" />
-          <RhfTextField name="description" label="Description" multiline minRows={3} />
-          <RhfTextField name="icon" label="Icon" helperText="Icon name rendered on the site" />
-          <RhfTextField name="color" label="Color" helperText="Hex color, e.g. #f9851f" />
-          <RhfSwitch name="isActive" label="Active" />
-          <RhfTextField
-            name="order"
-            label="Order"
-            type="number"
-            helperText="Lower numbers appear first"
-          />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="slug" label="Slug" helperText="URL segment, e.g. ai-writing" />
+      <RhfTextField name="category" label="Category" />
+      <RhfTextField name="description" label="Description" multiline minRows={3} />
+      <RhfTextField name="icon" label="Icon" helperText="Icon name rendered on the site" />
+      <RhfTextField name="color" label="Color" helperText="Hex color, e.g. #f9851f" />
+      <RhfSwitch name="isActive" label="Active" />
+      <RhfTextField
+        name="order"
+        label="Order"
+        type="number"
+        helperText="Lower numbers appear first"
+      />
+    </EntityForm>
   );
 }

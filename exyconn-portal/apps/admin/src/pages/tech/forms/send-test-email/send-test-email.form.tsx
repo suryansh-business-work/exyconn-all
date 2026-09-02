@@ -1,9 +1,9 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex, Text } from '@exyconn/shell/components/ui';
+import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSendTestEmailMutation } from '@exyconn/shell/graphql/generated';
 
@@ -46,21 +46,17 @@ export function SendTestEmailForm({
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <Text size="sm" color="text.secondary">
-            Send a verification email using the &ldquo;{configLabel}&rdquo; SMTP configuration.
-          </Text>
-          <RhfTextField name="to" label="Recipient email" type="email" />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={false}
-            onCancel={onCancel}
-            submitLabel="Send test"
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm
+      methods={methods}
+      onSubmit={onSubmit}
+      isEdit={false}
+      onCancel={onCancel}
+      submitLabel="Send test"
+    >
+      <Text size="sm" color="text.secondary">
+        Send a verification email using the &ldquo;{configLabel}&rdquo; SMTP configuration.
+      </Text>
+      <RhfTextField name="to" label="Recipient email" type="email" />
+    </EntityForm>
   );
 }

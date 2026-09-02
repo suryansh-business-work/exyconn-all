@@ -1,9 +1,9 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex, Text } from '@exyconn/shell/components/ui';
+import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSignContractMutation } from '@exyconn/shell/graphql/generated';
 import type { SignContractTarget } from './sign-contract.types';
@@ -39,21 +39,17 @@ export function SignContractForm({ contract, onDone, onCancel }: SignContractFor
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <Text size="sm" color="text.secondary">
-            Signing “{contract.title}” with {contract.party}.
-          </Text>
-          <RhfTextField name="signedBy" label="Signed by (full name)" />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={false}
-            onCancel={onCancel}
-            submitLabel="Sign"
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm
+      methods={methods}
+      onSubmit={onSubmit}
+      isEdit={false}
+      onCancel={onCancel}
+      submitLabel="Sign"
+    >
+      <Text size="sm" color="text.secondary">
+        Signing “{contract.title}” with {contract.party}.
+      </Text>
+      <RhfTextField name="signedBy" label="Signed by (full name)" />
+    </EntityForm>
   );
 }

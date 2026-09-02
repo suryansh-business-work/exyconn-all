@@ -27,6 +27,13 @@ npm run codegen           # generate typed GraphQL hooks
 npm run dev               # http://localhost:1001
 ```
 
+## Architecture & packages
+
+The portal is split into one micro-frontend per module on top of four shared workspace
+packages (`@exyconn/config`, `@exyconn/shell`, `@exyconn/crud`, `@exyconn/login`).
+See [docs/portal](../docs/portal/README.md) for the architecture, the package reference,
+the CRUD kit and the recipes for adding a screen or a whole app.
+
 ## Conventions
 See [.claude/CLAUDE.md](.claude/CLAUDE.md). Key rules: MUI only, Formik + Yup,
 GraphQL Codegen, ≤200 lines per `.tsx`, singleton design, MUI dialogs (no native

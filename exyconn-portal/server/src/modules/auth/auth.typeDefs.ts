@@ -20,5 +20,11 @@ export const authTypeDefs = gql`
     updateProfile(input: UpdateProfileInput!): User!
     changePassword(currentPassword: String!, newPassword: String!): Boolean!
     uploadAvatar(file: String!): String!
+    """
+    Recovery for a portal with no administrator: mails a fresh password for the
+    configured admin account to that configured address. A no-op once any ADMIN
+    exists. Returns a message safe to show the caller.
+    """
+    sendAdminCredentials: String!
   }
 `;

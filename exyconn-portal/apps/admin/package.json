@@ -20,6 +20,9 @@
     "@dnd-kit/utilities": "^3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@exyconn/crud": "workspace:*",
+    "@exyconn/login": "workspace:*",
+    "@exyconn/shell": "workspace:*",
     "@hookform/resolvers": "^5.4.0",
     "@mui/icons-material": "^6.4.0",
     "@mui/material": "^6.4.0",
@@ -39,11 +42,10 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.77.0",
     "react-router-dom": "^6.28.2",
-    "zod": "^4.4.3",
-    "@exyconn/shell": "workspace:*",
-    "@exyconn/login": "workspace:*"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@exyconn/config": "workspace:*",
     "@graphql-codegen/cli": "^5.0.3",
     "@graphql-codegen/typescript": "^4.1.2",
     "@graphql-codegen/typescript-operations": "^4.4.0",
@@ -67,5 +69,6 @@
     "typescript": "^5.7.3",
     "vite": "^5.4.11",
     "vitest": "^2.1.8"
-  }
+  },
+  "prettier": "@exyconn/config/prettier.json"
 }

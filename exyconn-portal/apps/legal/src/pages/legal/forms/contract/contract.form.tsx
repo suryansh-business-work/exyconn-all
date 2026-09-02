@@ -1,11 +1,10 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect, RhfDatePicker } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
   ContractType,
   ContractStatus,
@@ -41,47 +40,33 @@ interface ContractFormProps {
 
 /** React Hook Form + Zod form to create or update a contract. */
 export function ContractForm({ initial, onDone, onCancel }: ContractFormProps) {
-  const notify = useNotify();
   const [createContract] = useCreateContractMutation();
   const [updateContract] = useUpdateContractMutation();
-  const isEdit = Boolean(initial);
   const methods = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    try {
-      if (isEdit && initial) await updateContract({ variables: { id: initial.id, input: values } });
-      else await createContract({ variables: { input: values } });
-      notify(`Contract ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Contract',
+    initial,
+    create: (values: Values) => createContract({ variables: { input: values } }),
+    update: (row, values) => updateContract({ variables: { id: row.id, input: values } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="title" label="Title" />
-          <RhfTextField name="party" label="Counterparty" />
-          <RhfSelect name="type" label="Type" options={enumOptions(Object.values(ContractType))} />
-          <RhfDatePicker name="effectiveDate" label="Effective date" />
-          <RhfDatePicker name="expiryDate" label="Expiry date" />
-          <RhfSelect
-            name="status"
-            label="Status"
-            options={enumOptions(Object.values(ContractStatus))}
-          />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="title" label="Title" />
+      <RhfTextField name="party" label="Counterparty" />
+      <RhfSelect name="type" label="Type" options={enumOptions(Object.values(ContractType))} />
+      <RhfDatePicker name="effectiveDate" label="Effective date" />
+      <RhfDatePicker name="expiryDate" label="Expiry date" />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={enumOptions(Object.values(ContractStatus))}
+      />
+    </EntityForm>
   );
 }

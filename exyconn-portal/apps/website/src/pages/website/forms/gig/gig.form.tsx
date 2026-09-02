@@ -1,7 +1,6 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import {
   RhfTextField,
   RhfSelect,
@@ -9,8 +8,8 @@ import {
   RhfSwitch,
   RhfDatePicker,
 } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateGigMutation,
   useUpdateGigMutation,
@@ -79,68 +78,53 @@ interface GigFormProps {
 
 /** React Hook Form + Zod form to create or update a gig. */
 export function GigForm({ initial, onDone, onCancel }: Readonly<GigFormProps>) {
-  const notify = useNotify();
   const [createGig] = useCreateGigMutation();
   const [updateGig] = useUpdateGigMutation();
-  const isEdit = Boolean(initial);
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    const input = toInput(values);
-    try {
-      if (isEdit && initial) await updateGig({ variables: { id: initial.id, input } });
-      else await createGig({ variables: { input } });
-      notify(`Gig ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Gig',
+    initial,
+    create: (values: Values) => createGig({ variables: { input: toInput(values) } }),
+    update: (row, values) => updateGig({ variables: { id: row.id, input: toInput(values) } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="gigCode" label="Gig code" helperText="Unique code, e.g. GIG-001" />
-          <RhfTextField name="title" label="Title" />
-          <RhfSelect name="category" label="Category" options={toOptions(GIG_CATEGORIES)} />
-          <RhfTextField name="shortDescription" label="Short description" multiline minRows={2} />
-          <RhfTextField
-            name="fullDescription"
-            label="Full description"
-            multiline
-            minRows={8}
-            helperText="HTML is allowed — the body is rendered as-is on the public site."
-          />
-          <RhfChipsInput name="deliverables" label="Deliverables" />
-          <RhfChipsInput name="requirements" label="Requirements" />
-          <RhfChipsInput name="tags" label="Tags" />
-          <RhfTextField name="budget" label="Budget" helperText="e.g. ₹25,000 - ₹40,000" />
-          <RhfSelect name="duration" label="Duration" options={toOptions(GIG_DURATIONS)} />
-          <RhfSelect name="status" label="Status" options={toOptions(GIG_STATUSES)} />
-          <RhfSelect
-            name="applicationType"
-            label="Application type"
-            options={toOptions(GIG_APPLICATION_TYPES)}
-          />
-          <RhfTextField
-            name="applicationContact"
-            label="Application contact"
-            helperText="Email, form URL or WhatsApp number, matching the application type."
-          />
-          <RhfDatePicker name="postedDate" label="Posted date" />
-          <RhfDatePicker name="deadline" label="Deadline" />
-          <RhfSwitch name="isUrgent" label="Urgent" />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="gigCode" label="Gig code" helperText="Unique code, e.g. GIG-001" />
+      <RhfTextField name="title" label="Title" />
+      <RhfSelect name="category" label="Category" options={toOptions(GIG_CATEGORIES)} />
+      <RhfTextField name="shortDescription" label="Short description" multiline minRows={2} />
+      <RhfTextField
+        name="fullDescription"
+        label="Full description"
+        multiline
+        minRows={8}
+        helperText="HTML is allowed — the body is rendered as-is on the public site."
+      />
+      <RhfChipsInput name="deliverables" label="Deliverables" />
+      <RhfChipsInput name="requirements" label="Requirements" />
+      <RhfChipsInput name="tags" label="Tags" />
+      <RhfTextField name="budget" label="Budget" helperText="e.g. ₹25,000 - ₹40,000" />
+      <RhfSelect name="duration" label="Duration" options={toOptions(GIG_DURATIONS)} />
+      <RhfSelect name="status" label="Status" options={toOptions(GIG_STATUSES)} />
+      <RhfSelect
+        name="applicationType"
+        label="Application type"
+        options={toOptions(GIG_APPLICATION_TYPES)}
+      />
+      <RhfTextField
+        name="applicationContact"
+        label="Application contact"
+        helperText="Email, form URL or WhatsApp number, matching the application type."
+      />
+      <RhfDatePicker name="postedDate" label="Posted date" />
+      <RhfDatePicker name="deadline" label="Deadline" />
+      <RhfSwitch name="isUrgent" label="Urgent" />
+    </EntityForm>
   );
 }

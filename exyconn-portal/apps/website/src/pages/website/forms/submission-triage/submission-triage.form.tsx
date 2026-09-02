@@ -1,9 +1,8 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useTriageWebsiteSubmissionMutation } from '@exyconn/shell/graphql/generated';
 import { SUBMISSION_STATUSES, toOptions } from '../../website.constants';
@@ -48,25 +47,21 @@ export function SubmissionTriageForm({
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-          <RhfTextField
-            name="notes"
-            label="Notes"
-            multiline
-            minRows={4}
-            helperText="Internal triage notes — never shown on the website."
-          />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit
-            onCancel={onCancel}
-            submitLabel="Save triage"
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm
+      methods={methods}
+      onSubmit={onSubmit}
+      isEdit
+      onCancel={onCancel}
+      submitLabel="Save triage"
+    >
+      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
+      <RhfTextField
+        name="notes"
+        label="Notes"
+        multiline
+        minRows={4}
+        helperText="Internal triage notes — never shown on the website."
+      />
+    </EntityForm>
   );
 }

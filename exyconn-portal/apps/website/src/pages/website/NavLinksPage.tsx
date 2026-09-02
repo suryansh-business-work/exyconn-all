@@ -3,9 +3,7 @@ import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { useCrudResource } from '@exyconn/crud';
 import { useListNavLinksQuery, useDeleteNavLinkMutation } from '@exyconn/shell/graphql/generated';
 import { NavLinkForm, type NavLinkRow } from './forms/nav-link';
 
@@ -13,9 +11,12 @@ import { NavLinkForm, type NavLinkRow } from './forms/nav-link';
 export function NavLinksPage() {
   const { data, loading, refetch } = useListNavLinksQuery();
   const [deleteNavLink] = useDeleteNavLinkMutation();
-  const dialog = useCrudDialog<NavLinkRow>();
-  const confirm = useConfirm();
-  const notify = useNotify();
+  const crud = useCrudResource<NavLinkRow>({
+    label: 'Nav link',
+    onDelete: (row) => deleteNavLink({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete nav link "${row.label}"?`,
+    refetch,
+  });
 
   const rows = data?.listNavLinks ?? [];
   const categories = new Set(rows.map((r) => r.category));
@@ -37,43 +38,28 @@ export function NavLinksPage() {
     { key: 'order', label: 'Order' },
   ];
 
-  const handleDelete = async (row: NavLinkRow) => {
-    const ok = await confirm({ message: `Delete nav link "${row.label}"?`, confirmText: 'Delete' });
-    if (!ok) return;
-    await deleteNavLink({ variables: { id: row.id } });
-    await refetch();
-    notify('Nav link deleted');
-  };
-
   return (
     <ModuleDashboard
       title="Navigation links"
       subtitle="Menu & search links on exyconn.com"
       actionLabel="New nav link"
-      onAction={dialog.openCreate}
+      onAction={crud.openCreate}
       stats={stats}
       dialog={
         <CrudDialog
-          open={dialog.open}
-          title={dialog.editing ? 'Edit nav link' : 'New nav link'}
-          onClose={dialog.close}
+          open={crud.open}
+          title={crud.editing ? 'Edit nav link' : 'New nav link'}
+          onClose={crud.close}
         >
-          <NavLinkForm
-            initial={dialog.editing}
-            onCancel={dialog.close}
-            onDone={() => {
-              void refetch();
-              dialog.close();
-            }}
-          />
+          <NavLinkForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
         </CrudDialog>
       }
     >
       <DataTable
         columns={columns}
         rows={rows}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
+        onEdit={crud.openEdit}
+        onDelete={crud.remove}
         emptyMessage={loading ? 'Loading…' : 'No nav links yet.'}
       />
     </ModuleDashboard>

@@ -69,6 +69,9 @@ export type { AlertColor } from '@mui/material';
 // MUIX date & time pickers (CLAUDE.md rule 11). The date-fns adapter is wired
 // once in App.tsx via LocalizationProvider.
 export { LocalizationProvider } from '@mui/x-date-pickers';
+// The adapter belongs here too: PortalApp wires it once, and any component test
+// that mounts a picker has to provide it without reaching into MUI directly.
+export { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 export { DatePicker } from '@mui/x-date-pickers/DatePicker';
 export { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 export { TimePicker } from '@mui/x-date-pickers/TimePicker';

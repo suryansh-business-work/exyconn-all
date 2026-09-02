@@ -1,10 +1,9 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreatePositionMutation,
   useUpdatePositionMutation,
@@ -33,11 +32,9 @@ interface PositionFormProps {
 
 /** React Hook Form + Zod form to create or update a position (with department). */
 export function PositionForm({ initial, onDone, onCancel }: PositionFormProps) {
-  const notify = useNotify();
   const [createPosition] = useCreatePositionMutation();
   const [updatePosition] = useUpdatePositionMutation();
   const { data } = useListDepartmentsQuery();
-  const isEdit = Boolean(initial);
 
   const departmentOptions = (data?.listDepartments ?? []).map((d) => ({
     value: d.name,
@@ -49,41 +46,26 @@ export function PositionForm({ initial, onDone, onCancel }: PositionFormProps) {
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    try {
-      if (isEdit && initial) {
-        await updatePosition({ variables: { id: initial.id, input: values } });
-      } else {
-        await createPosition({ variables: { input: values } });
-      }
-      notify(`Position ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Position',
+    initial,
+    create: (values: Values) => createPosition({ variables: { input: values } }),
+    update: (row, values) => updatePosition({ variables: { id: row.id, input: values } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="name" label="Position name" />
-          <RhfSelect
-            name="department"
-            label="Department"
-            options={departmentOptions}
-            helperText={
-              departmentOptions.length ? undefined : 'Add departments in HR → Departments first.'
-            }
-          />
-          <RhfTextField name="description" label="Description (optional)" multiline minRows={2} />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="name" label="Position name" />
+      <RhfSelect
+        name="department"
+        label="Department"
+        options={departmentOptions}
+        helperText={
+          departmentOptions.length ? undefined : 'Add departments in HR → Departments first.'
+        }
+      />
+      <RhfTextField name="description" label="Description (optional)" multiline minRows={2} />
+    </EntityForm>
   );
 }

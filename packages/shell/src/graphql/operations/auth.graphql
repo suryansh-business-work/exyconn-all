@@ -29,3 +29,7 @@ query AppSettings {
     timezone
   }
 }
+
+mutation SendAdminCredentials {
+  sendAdminCredentials
+}

@@ -1,9 +1,9 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Alert, Flex, Text } from '@exyconn/shell/components/ui';
+import { Alert, Text } from '@exyconn/shell/components/ui';
 import { RhfMultiSelect } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useListClientsQuery, useSendCampaignMutation } from '@exyconn/shell/graphql/generated';
 import type { SendCampaignTarget } from './send-campaign.types';
@@ -51,31 +51,27 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: SendCampaignFor
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <Text size="sm" color="text.secondary">
-            Sending “{campaign.name}”{campaign.subject ? ` — “${campaign.subject}”` : ''}.
-          </Text>
-          {!ready && (
-            <Alert severity="warning">
-              Add an email subject and body to this campaign before sending.
-            </Alert>
-          )}
-          <RhfMultiSelect
-            name="clientIds"
-            label="Recipients (clients)"
-            options={options}
-            helperText={options.length ? undefined : 'No clients found — add clients first.'}
-          />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={false}
-            onCancel={onCancel}
-            submitLabel="Send"
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm
+      methods={methods}
+      onSubmit={onSubmit}
+      isEdit={false}
+      onCancel={onCancel}
+      submitLabel="Send"
+    >
+      <Text size="sm" color="text.secondary">
+        Sending “{campaign.name}”{campaign.subject ? ` — “${campaign.subject}”` : ''}.
+      </Text>
+      {!ready && (
+        <Alert severity="warning">
+          Add an email subject and body to this campaign before sending.
+        </Alert>
+      )}
+      <RhfMultiSelect
+        name="clientIds"
+        label="Recipients (clients)"
+        options={options}
+        helperText={options.length ? undefined : 'No clients found — add clients first.'}
+      />
+    </EntityForm>
   );
 }

@@ -1,9 +1,8 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@/components/ui';
 import { RhfTextField } from '@/components/form/rhf';
-import { FormActions } from '@/components/form/FormActions';
+import { EntityForm } from '@/components/form/EntityForm';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useSendUserMailMutation } from '@/graphql/generated';
 
@@ -39,19 +38,15 @@ export function CustomMailForm({ userId, onDone, onCancel }: CustomMailFormProps
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="subject" label="Subject" />
-          <RhfTextField name="message" label="Message" multiline minRows={5} />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={false}
-            onCancel={onCancel}
-            submitLabel="Send"
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm
+      methods={methods}
+      onSubmit={onSubmit}
+      isEdit={false}
+      onCancel={onCancel}
+      submitLabel="Send"
+    >
+      <RhfTextField name="subject" label="Subject" />
+      <RhfTextField name="message" label="Message" multiline minRows={5} />
+    </EntityForm>
   );
 }

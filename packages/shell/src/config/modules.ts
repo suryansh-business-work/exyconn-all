@@ -6,6 +6,14 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import BadgeIcon from '@mui/icons-material/Badge';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import CampaignIcon from '@mui/icons-material/Campaign';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import TrackChangesIcon from '@mui/icons-material/TrackChanges';
+import StarIcon from '@mui/icons-material/Star';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+import SchoolIcon from '@mui/icons-material/School';
+import FolderIcon from '@mui/icons-material/Folder';
 import GavelIcon from '@mui/icons-material/Gavel';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import HubIcon from '@mui/icons-material/Hub';
@@ -75,12 +83,19 @@ export const MODULES: ModuleDefinition[] = [
   {
     key: 'employee',
     label: 'My Workspace',
-    path: '/profile',
+    path: '/me',
     role: ROLES.EMPLOYEE,
     icon: BadgeIcon,
-    description: 'Payroll, leave, holidays & support',
+    description: 'Everything you need day to day',
     accent: '#14b8a6',
     children: [
+      { key: 'me-dashboard', label: 'Dashboard', path: '/me', icon: DashboardIcon },
+      {
+        key: 'me-announcements',
+        label: 'Announcements',
+        path: '/me/announcements',
+        icon: CampaignIcon,
+      },
       { key: 'me-profile', label: 'My Profile', path: '/profile', icon: PersonIcon },
       { key: 'me-payroll', label: 'Payroll', path: '/me/payroll', icon: PaymentsIcon },
       {
@@ -108,6 +123,19 @@ export const MODULES: ModuleDefinition[] = [
         path: '/me/calendar',
         icon: CalendarMonthIcon,
       },
+      {
+        key: 'me-notifications',
+        label: 'Notifications',
+        path: '/me/notifications',
+        icon: NotificationsIcon,
+      },
+      { key: 'me-requests', label: 'My Requests', path: '/me/requests', icon: AssignmentIcon },
+      { key: 'me-goals', label: 'Goals', path: '/me/goals', icon: TrackChangesIcon },
+      { key: 'me-performance', label: 'Performance', path: '/me/performance', icon: StarIcon },
+      { key: 'me-expenses', label: 'Expenses', path: '/me/expenses', icon: ReceiptIcon },
+      { key: 'me-benefits', label: 'Benefits', path: '/me/benefits', icon: HealthAndSafetyIcon },
+      { key: 'me-training', label: 'Learning', path: '/me/training', icon: SchoolIcon },
+      { key: 'me-documents', label: 'My Documents', path: '/me/documents', icon: FolderIcon },
       { key: 'me-policies', label: 'Policies', path: '/me/policies', icon: PolicyIcon },
       { key: 'me-support', label: 'Support', path: '/me/support', icon: SupportAgentIcon },
       { key: 'me-tracker', label: 'My Tracker', path: '/me/tracker', icon: AccessTimeIcon },
@@ -119,8 +147,12 @@ export const MODULES: ModuleDefinition[] = [
     path: '/finance',
     role: ROLES.FINANCE,
     icon: AccountBalanceIcon,
-    description: 'Invoices & billing',
+    description: 'Invoices, billing & reimbursements',
     accent: '#0ea5e9',
+    children: [
+      { key: 'finance-invoices', label: 'Invoices', path: '/finance', icon: ReceiptLongIcon },
+      { key: 'finance-expenses', label: 'Expense Claims', path: '/expenses', icon: ReceiptIcon },
+    ],
   },
   {
     key: 'support',
@@ -214,6 +246,18 @@ export const MODULES: ModuleDefinition[] = [
         icon: ApartmentIcon,
       },
       { key: 'hr-positions', label: 'Positions', path: '/hr/positions', icon: WorkIcon },
+      { key: 'hr-requests', label: 'Requests', path: '/hr/requests', icon: AssignmentIcon },
+      { key: 'hr-goals', label: 'Goals', path: '/hr/goals', icon: TrackChangesIcon },
+      { key: 'hr-performance', label: 'Performance', path: '/hr/performance', icon: StarIcon },
+      { key: 'hr-documents', label: 'Documents', path: '/hr/documents', icon: FolderIcon },
+      { key: 'hr-benefits', label: 'Benefits', path: '/hr/benefits', icon: HealthAndSafetyIcon },
+      { key: 'hr-training', label: 'Learning', path: '/hr/training', icon: SchoolIcon },
+      {
+        key: 'hr-announcements',
+        label: 'Announcements',
+        path: '/hr/announcements',
+        icon: CampaignIcon,
+      },
     ],
   },
   {

@@ -22,6 +22,7 @@ import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvid
 import { useLoginMutation } from '@exyconn/shell/graphql/generated';
 import { useAuth, type AuthUser } from '@exyconn/shell/auth/AuthContext';
 import { safeNext } from '@exyconn/shell/utils/redirect';
+import { AdminRecovery } from './AdminRecovery';
 
 const schema = z.object({
   email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
@@ -118,6 +119,7 @@ export function LoginForm() {
           >
             Forgot password?
           </Link>
+          <AdminRecovery />
 
           <Flex direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
             <Text size="caption" color="text.secondary">

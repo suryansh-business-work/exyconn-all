@@ -1,23 +1,11 @@
-import { useCallback, useState } from 'react';
-import { useApolloClient } from '@apollo/client';
-import {
-  ServerDataGrid,
-  type TablePageResult,
-} from '@exyconn/shell/components/data/ServerDataGrid';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
+import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
   useListCaseStudiesQuery,
   useDeleteCaseStudyMutation,
   ListCaseStudiesPagedDocument,
   type ListCaseStudiesPagedQuery,
-  type ListCaseStudiesPagedQueryVariables,
-  type TableQueryInput,
 } from '@exyconn/shell/graphql/generated';
 import { CaseStudyForm, type CaseStudyRow } from './forms/case-study';
 import {
@@ -31,12 +19,16 @@ export function CaseStudiesPage() {
   // Stat cards still summarise all case studies; the grid itself is server-paged.
   const { data } = useListCaseStudiesQuery();
   const [deleteCaseStudy] = useDeleteCaseStudyMutation();
-  const dialog = useCrudDialog<CaseStudyRow>();
-  const confirm = useConfirm();
-  const notify = useNotify();
   const { formatDate } = useSettings();
-  const client = useApolloClient();
-  const [refreshSignal, setRefreshSignal] = useState(0);
+  const crud = useCrudResource<CaseStudyRow, PagedCaseStudyRow>({
+    label: 'Case study',
+    onDelete: (row) => deleteCaseStudy({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete case study ${row.title}?`,
+  });
+  const fetchRows = usePagedFetcher(
+    ListCaseStudiesPagedDocument,
+    (result: ListCaseStudiesPagedQuery) => result.listCaseStudiesPaged,
+  );
 
   const rows = data?.listCaseStudies ?? [];
   const categoryCount = new Set(rows.map((r) => r.category).filter(Boolean)).size;
@@ -47,73 +39,25 @@ export function CaseStudiesPage() {
     { label: 'Categories', value: String(categoryCount), accent: '#b58cff' },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
-
-  const fetchRows = useCallback(
-    async (input: TableQueryInput): Promise<TablePageResult<PagedCaseStudyRow>> => {
-      const result = await client.query<
-        ListCaseStudiesPagedQuery,
-        ListCaseStudiesPagedQueryVariables
-      >({
-        query: ListCaseStudiesPagedDocument,
-        variables: { input },
-        fetchPolicy: 'network-only',
-      });
-      return {
-        rows: result.data.listCaseStudiesPaged.rows,
-        totalCount: result.data.listCaseStudiesPaged.totalCount,
-      };
-    },
-    [client],
-  );
-
-  const handleDelete = async (row: PagedCaseStudyRow) => {
-    const ok = await confirm({ message: `Delete case study ${row.title}?`, confirmText: 'Delete' });
-    if (!ok) {
-      return;
-    }
-    await deleteCaseStudy({ variables: { id: row.id } });
-    reload();
-    notify('Case study deleted');
-  };
-
   const gridContext: CaseStudiesGridContext = {
-    onEdit: dialog.openEdit,
-    onDelete: handleDelete,
+    actions: { edit: crud.openEdit, delete: crud.remove },
     formatDate,
   };
 
   return (
-    <ModuleDashboard
+    <CrudDashboard
       title="Case studies"
       subtitle="Website case studies"
-      actionLabel="New case study"
-      onAction={dialog.openCreate}
+      entityLabel="case study"
       stats={stats}
-      dialog={
-        <CrudDialog
-          open={dialog.open}
-          title={dialog.editing ? 'Edit case study' : 'New case study'}
-          onClose={dialog.close}
-        >
-          <CaseStudyForm
-            initial={dialog.editing}
-            onCancel={dialog.close}
-            onDone={() => {
-              reload();
-              dialog.close();
-            }}
-          />
-        </CrudDialog>
-      }
-    >
-      <ServerDataGrid<PagedCaseStudyRow>
-        columnDefs={CASE_STUDY_COLUMNS}
-        fetchRows={fetchRows}
-        context={gridContext}
-        refreshSignal={refreshSignal}
-        searchPlaceholder="Search case studies…"
-      />
-    </ModuleDashboard>
+      crud={crud}
+      renderForm={(initial) => (
+        <CaseStudyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+      )}
+      columnDefs={CASE_STUDY_COLUMNS}
+      fetchRows={fetchRows}
+      context={gridContext}
+      searchPlaceholder="Search case studies…"
+    />
   );
 }

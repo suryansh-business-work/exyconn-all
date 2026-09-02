@@ -1,7 +1,6 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@/components/ui';
 import {
   RhfTextField,
   RhfSelect,
@@ -9,7 +8,7 @@ import {
   RhfDatePicker,
   type SelectOption,
 } from '@/components/form/rhf';
-import { FormActions } from '@/components/form/FormActions';
+import { EntityForm } from '@/components/form/EntityForm';
 import { enumOptions } from '@/utils/enumOptions';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import {
@@ -141,50 +140,37 @@ export function UserForm({ initial, onDone, onCancel, onCreated }: UserFormProps
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="name" label="Name" />
-          <RhfTextField name="email" label="Email" type="email" />
-          {isEdit && (
-            <RhfTextField name="password" label="New password (optional)" type="password" />
-          )}
-          <RhfMultiSelect
-            name="roles"
-            label="Roles"
-            options={enumOptions(Object.values(Role))}
-            helperText={isEdit ? undefined : 'A temporary password will be emailed to the user.'}
-          />
-          <RhfSelect
-            name="department"
-            label="Department"
-            options={departmentOptions}
-            helperText={
-              departmentOptions.length ? undefined : 'Add departments in HR → Departments first.'
-            }
-          />
-          <RhfSelect
-            name="designation"
-            label="Designation"
-            options={positionOptions}
-            helperText={
-              positionOptions.length ? undefined : 'Add positions in HR → Positions first.'
-            }
-          />
-          <RhfDatePicker name="joinDate" label="Join date" />
-          <RhfSelect
-            name="employmentStatus"
-            label="Employment status"
-            options={enumOptions(Object.values(EmploymentStatus))}
-          />
-          <RhfSelect name="isActive" label="Account access" options={ACTIVE_OPTIONS} />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="name" label="Name" />
+      <RhfTextField name="email" label="Email" type="email" />
+      {isEdit && <RhfTextField name="password" label="New password (optional)" type="password" />}
+      <RhfMultiSelect
+        name="roles"
+        label="Roles"
+        options={enumOptions(Object.values(Role))}
+        helperText={isEdit ? undefined : 'A temporary password will be emailed to the user.'}
+      />
+      <RhfSelect
+        name="department"
+        label="Department"
+        options={departmentOptions}
+        helperText={
+          departmentOptions.length ? undefined : 'Add departments in HR → Departments first.'
+        }
+      />
+      <RhfSelect
+        name="designation"
+        label="Designation"
+        options={positionOptions}
+        helperText={positionOptions.length ? undefined : 'Add positions in HR → Positions first.'}
+      />
+      <RhfDatePicker name="joinDate" label="Join date" />
+      <RhfSelect
+        name="employmentStatus"
+        label="Employment status"
+        options={enumOptions(Object.values(EmploymentStatus))}
+      />
+      <RhfSelect name="isActive" label="Account access" options={ACTIVE_OPTIONS} />
+    </EntityForm>
   );
 }

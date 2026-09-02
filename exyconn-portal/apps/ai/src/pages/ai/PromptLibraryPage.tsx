@@ -1,14 +1,5 @@
-import { useCallback, useState } from 'react';
-import { useApolloClient } from '@apollo/client';
-import {
-  ServerDataGrid,
-  type TablePageResult,
-} from '@exyconn/shell/components/data/ServerDataGrid';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
+import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import {
@@ -16,8 +7,6 @@ import {
   useDeletePromptMutation,
   ListPromptsPagedDocument,
   type ListPromptsPagedQuery,
-  type ListPromptsPagedQueryVariables,
-  type TableQueryInput,
 } from '@exyconn/shell/graphql/generated';
 import { PromptForm, type PromptRow } from './forms/prompt';
 import { PROMPT_COLUMNS, type PagedPromptRow, type PromptsGridContext } from './prompts-grid';
@@ -27,11 +16,17 @@ export function PromptLibraryPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListPromptsStatsQuery();
   const [deletePrompt] = useDeletePromptMutation();
-  const dialog = useCrudDialog<PromptRow>();
-  const confirm = useConfirm();
   const notify = useNotify();
-  const client = useApolloClient();
-  const [refreshSignal, setRefreshSignal] = useState(0);
+  const crud = useCrudResource<PromptRow, PagedPromptRow>({
+    label: 'Prompt',
+    onDelete: (row) => deletePrompt({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete prompt "${row.title}"?`,
+    refetch: refetchStats,
+  });
+  const fetchRows = usePagedFetcher(
+    ListPromptsPagedDocument,
+    (data: ListPromptsPagedQuery) => data.listPromptsPaged,
+  );
 
   const stats = statsData?.listPromptsStats;
   const statItems: StatItem[] = [
@@ -45,26 +40,6 @@ export function PromptLibraryPage() {
     },
   ];
 
-  const reload = () => {
-    setRefreshSignal((n) => n + 1);
-    void refetchStats();
-  };
-
-  const fetchRows = useCallback(
-    async (input: TableQueryInput): Promise<TablePageResult<PagedPromptRow>> => {
-      const result = await client.query<ListPromptsPagedQuery, ListPromptsPagedQueryVariables>({
-        query: ListPromptsPagedDocument,
-        variables: { input },
-        fetchPolicy: 'network-only',
-      });
-      return {
-        rows: result.data.listPromptsPaged.rows,
-        totalCount: result.data.listPromptsPaged.totalCount,
-      };
-    },
-    [client],
-  );
-
   const copyPrompt = async (row: PagedPromptRow) => {
     try {
       await navigator.clipboard.writeText(row.content);
@@ -74,53 +49,24 @@ export function PromptLibraryPage() {
     }
   };
 
-  const handleDelete = async (row: PagedPromptRow) => {
-    const ok = await confirm({ message: `Delete prompt "${row.title}"?`, confirmText: 'Delete' });
-    if (!ok) {
-      return;
-    }
-    await deletePrompt({ variables: { id: row.id } });
-    reload();
-    notify('Prompt deleted');
-  };
-
   const gridContext: PromptsGridContext = {
-    onEdit: dialog.openEdit,
-    onDelete: handleDelete,
-    onCopy: copyPrompt,
+    actions: { copy: copyPrompt, edit: crud.openEdit, delete: crud.remove },
   };
 
   return (
-    <ModuleDashboard
+    <CrudDashboard
       title="Prompt Library"
       subtitle="Reusable AI prompts"
-      actionLabel="New prompt"
-      onAction={dialog.openCreate}
+      entityLabel="prompt"
       stats={statItems}
-      dialog={
-        <CrudDialog
-          open={dialog.open}
-          title={dialog.editing ? 'Edit prompt' : 'New prompt'}
-          onClose={dialog.close}
-        >
-          <PromptForm
-            initial={dialog.editing}
-            onCancel={dialog.close}
-            onDone={() => {
-              reload();
-              dialog.close();
-            }}
-          />
-        </CrudDialog>
-      }
-    >
-      <ServerDataGrid<PagedPromptRow>
-        columnDefs={PROMPT_COLUMNS}
-        fetchRows={fetchRows}
-        context={gridContext}
-        refreshSignal={refreshSignal}
-        searchPlaceholder="Search prompts…"
-      />
-    </ModuleDashboard>
+      crud={crud}
+      renderForm={(initial) => (
+        <PromptForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+      )}
+      columnDefs={PROMPT_COLUMNS}
+      fetchRows={fetchRows}
+      context={gridContext}
+      searchPlaceholder="Search prompts…"
+    />
   );
 }

@@ -1,0 +1,57 @@
+fragment AnnouncementFields on Announcement {
+  id
+  title
+  body
+  category
+  pinned
+  publishedAt
+  expiresAt
+}
+
+query ActiveAnnouncements {
+  activeAnnouncements {
+    ...AnnouncementFields
+  }
+}
+
+query ListAnnouncementsPaged($input: TableQueryInput!) {
+  listAnnouncementsPaged(input: $input) {
+    totalCount
+    rows {
+      ...AnnouncementFields
+    }
+  }
+}
+
+query ListAnnouncementsStats {
+  listAnnouncementsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateAnnouncement($input: AnnouncementInput!) {
+  createAnnouncement(input: $input) {
+    id
+  }
+}
+
+mutation UpdateAnnouncement($id: ID!, $input: AnnouncementInput!) {
+  updateAnnouncement(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteAnnouncement($id: ID!) {
+  deleteAnnouncement(id: $id)
+}

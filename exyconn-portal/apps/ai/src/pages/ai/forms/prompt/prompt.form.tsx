@@ -1,11 +1,10 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
   PromptCategory,
   useCreatePromptMutation,
@@ -21,6 +20,15 @@ const schema = z.object({
   tags: z.string().trim().max(200, 'Keep tags under 200 characters'),
 });
 type Values = z.infer<typeof schema>;
+
+/** Maps the validated form values onto the GraphQL input. */
+const toInput = (values: Values) => ({
+  title: values.title,
+  category: values.category,
+  content: values.content,
+  description: values.description || null,
+  tags: parseTags(values.tags),
+});
 
 const toInitial = (row: PromptRow | null): Values => ({
   title: row?.title ?? '',
@@ -44,54 +52,33 @@ interface PromptFormProps {
 
 /** React Hook Form + Zod form to create or update a library prompt. */
 export function PromptForm({ initial, onDone, onCancel }: PromptFormProps) {
-  const notify = useNotify();
   const [createPrompt] = useCreatePromptMutation();
   const [updatePrompt] = useUpdatePromptMutation();
-  const isEdit = Boolean(initial);
 
   const methods = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    const input = {
-      title: values.title,
-      category: values.category,
-      content: values.content,
-      description: values.description || null,
-      tags: parseTags(values.tags),
-    };
-    try {
-      if (isEdit && initial) await updatePrompt({ variables: { id: initial.id, input } });
-      else await createPrompt({ variables: { input } });
-      notify(`Prompt ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Prompt',
+    initial,
+    create: (values: Values) => createPrompt({ variables: { input: toInput(values) } }),
+    update: (row, values) => updatePrompt({ variables: { id: row.id, input: toInput(values) } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="title" label="Prompt title" />
-          <RhfSelect
-            name="category"
-            label="Category"
-            options={enumOptions(Object.values(PromptCategory))}
-          />
-          <RhfTextField name="content" label="Prompt" multiline minRows={4} />
-          <RhfTextField name="description" label="Description (optional)" />
-          <RhfTextField name="tags" label="Tags (comma separated)" />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="title" label="Prompt title" />
+      <RhfSelect
+        name="category"
+        label="Category"
+        options={enumOptions(Object.values(PromptCategory))}
+      />
+      <RhfTextField name="content" label="Prompt" multiline minRows={4} />
+      <RhfTextField name="description" label="Description (optional)" />
+      <RhfTextField name="tags" label="Tags (comma separated)" />
+    </EntityForm>
   );
 }

@@ -1,9 +1,8 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@/components/ui';
 import { RhfTextField } from '@/components/form/rhf';
-import { FormActions } from '@/components/form/FormActions';
+import { EntityForm } from '@/components/form/EntityForm';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useChangePasswordMutation } from '@/graphql/generated';
 
@@ -44,19 +43,10 @@ export function ChangePasswordForm() {
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="currentPassword" label="Current password" type="password" />
-          <RhfTextField name="newPassword" label="New password" type="password" />
-          <RhfTextField name="confirmPassword" label="Confirm new password" type="password" />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit
-            onCancel={() => methods.reset()}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit onCancel={() => methods.reset()}>
+      <RhfTextField name="currentPassword" label="Current password" type="password" />
+      <RhfTextField name="newPassword" label="New password" type="password" />
+      <RhfTextField name="confirmPassword" label="Confirm new password" type="password" />
+    </EntityForm>
   );
 }

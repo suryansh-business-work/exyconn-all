@@ -5,9 +5,7 @@ import { DataTable, type Column, type RowAction } from '@exyconn/shell/component
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { useCrudResource } from '@exyconn/crud';
 import {
   useListImageConfigsQuery,
   useDeleteImageConfigMutation,
@@ -19,10 +17,13 @@ import { TestUploadDialog } from './TestUploadDialog';
 export function ImageConfigsPanel() {
   const { data, loading, refetch } = useListImageConfigsQuery();
   const [deleteConfig] = useDeleteImageConfigMutation();
-  const dialog = useCrudDialog<ImageConfigRow>();
-  const confirm = useConfirm();
-  const notify = useNotify();
   const [testTarget, setTestTarget] = useState<ImageConfigRow | null>(null);
+  const crud = useCrudResource<ImageConfigRow>({
+    label: 'Image config',
+    onDelete: (row) => deleteConfig({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete image config "${row.label}"?`,
+    refetch,
+  });
 
   const rows = data?.listImageConfigs ?? [];
 
@@ -47,46 +48,28 @@ export function ImageConfigsPanel() {
     },
   ];
 
-  const handleDelete = async (row: ImageConfigRow) => {
-    const ok = await confirm({
-      message: `Delete image config "${row.label}"?`,
-      confirmText: 'Delete',
-    });
-    if (!ok) return;
-    await deleteConfig({ variables: { id: row.id } });
-    await refetch();
-    notify('Image config deleted');
-  };
-
   return (
     <Box>
       <PageHeader
         title="Image upload configurations"
         subtitle="ImageKit providers used for uploads"
         actionLabel="New image config"
-        onAction={dialog.openCreate}
+        onAction={crud.openCreate}
       />
       <DataTable
         columns={columns}
         rows={rows}
         actions={actions}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
+        onEdit={crud.openEdit}
+        onDelete={crud.remove}
         emptyMessage={loading ? 'Loading…' : 'No image configs yet.'}
       />
       <CrudDialog
-        open={dialog.open}
-        title={dialog.editing ? 'Edit image config' : 'New image config'}
-        onClose={dialog.close}
+        open={crud.open}
+        title={crud.editing ? 'Edit image config' : 'New image config'}
+        onClose={crud.close}
       >
-        <ImageConfigForm
-          initial={dialog.editing}
-          onCancel={dialog.close}
-          onDone={() => {
-            void refetch();
-            dialog.close();
-          }}
-        />
+        <ImageConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
       </CrudDialog>
       {testTarget && (
         <TestUploadDialog

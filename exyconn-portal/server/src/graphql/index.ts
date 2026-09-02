@@ -26,6 +26,15 @@ import { techTypeDefs, techResolvers } from '../modules/tech';
 import { websiteTypeDefs, websiteResolvers } from '../modules/website';
 import { trackerTypeDefs, trackerResolvers } from '../modules/tracker';
 import { brandingTypeDefs, brandingResolvers } from '../modules/branding';
+import { announcementsTypeDefs, announcementsResolvers } from '../modules/announcements';
+import { notificationsTypeDefs, notificationsResolvers } from '../modules/notifications';
+import { requestsTypeDefs, requestsResolvers } from '../modules/requests';
+import { goalsTypeDefs, goalsResolvers } from '../modules/goals';
+import { performanceTypeDefs, performanceResolvers } from '../modules/performance';
+import { expensesTypeDefs, expensesResolvers } from '../modules/expenses';
+import { benefitsTypeDefs, benefitsResolvers } from '../modules/benefits';
+import { trainingTypeDefs, trainingResolvers } from '../modules/training';
+import { documentsTypeDefs, documentsResolvers } from '../modules/documents';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = {
@@ -65,6 +74,15 @@ export const typeDefs = [
   ...websiteTypeDefs,
   trackerTypeDefs,
   brandingTypeDefs,
+  announcementsTypeDefs,
+  notificationsTypeDefs,
+  requestsTypeDefs,
+  goalsTypeDefs,
+  performanceTypeDefs,
+  expensesTypeDefs,
+  benefitsTypeDefs,
+  trainingTypeDefs,
+  documentsTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -87,4 +105,13 @@ export const resolvers = mergeResolvers([
   websiteResolvers,
   trackerResolvers,
   brandingResolvers,
+  announcementsResolvers,
+  notificationsResolvers,
+  requestsResolvers,
+  goalsResolvers,
+  performanceResolvers,
+  expensesResolvers,
+  benefitsResolvers,
+  trainingResolvers,
+  documentsResolvers,
 ]);

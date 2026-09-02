@@ -17,6 +17,8 @@ WORKDIR /repo
 FROM base AS deps
 ARG APP_PKG
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml .npmrc ./
+COPY packages/config/package.json packages/config/
+COPY packages/crud/package.json packages/crud/
 COPY packages/shell/package.json packages/shell/
 COPY packages/login/package.json packages/login/
 COPY exyconn-portal/package.json exyconn-portal/

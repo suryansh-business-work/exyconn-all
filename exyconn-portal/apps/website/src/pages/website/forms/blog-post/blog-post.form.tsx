@@ -1,15 +1,14 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import {
   RhfTextField,
   RhfChipsInput,
   RhfSwitch,
   RhfDatePicker,
 } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateBlogPostMutation,
   useUpdateBlogPostMutation,
@@ -68,57 +67,42 @@ interface BlogPostFormProps {
 
 /** React Hook Form + Zod form to create or update a blog post. */
 export function BlogPostForm({ initial, onDone, onCancel }: Readonly<BlogPostFormProps>) {
-  const notify = useNotify();
   const [createBlogPost] = useCreateBlogPostMutation();
   const [updateBlogPost] = useUpdateBlogPostMutation();
-  const isEdit = Boolean(initial);
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    const input = toInput(values);
-    try {
-      if (isEdit && initial) await updateBlogPost({ variables: { id: initial.id, input } });
-      else await createBlogPost({ variables: { input } });
-      notify(`Blog post ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Blog post',
+    initial,
+    create: (values: Values) => createBlogPost({ variables: { input: toInput(values) } }),
+    update: (row, values) => updateBlogPost({ variables: { id: row.id, input: toInput(values) } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="slug" label="Slug" helperText="URL segment, e.g. scaling-graphql" />
-          <RhfTextField name="title" label="Title" />
-          <RhfTextField name="summary" label="Summary" multiline minRows={2} />
-          <RhfTextField
-            name="content"
-            label="Content"
-            multiline
-            minRows={10}
-            helperText="HTML is allowed — the body is rendered as-is on the public site."
-          />
-          <RhfTextField name="author.name" label="Author name" />
-          <RhfTextField name="author.role" label="Author role" />
-          <RhfTextField name="author.initials" label="Author initials" />
-          <RhfTextField name="readTime" label="Read time" helperText="e.g. 5 min read" />
-          <RhfChipsInput name="tags" label="Tags" />
-          <RhfTextField name="coverImage" label="Cover image URL" />
-          <RhfSwitch name="featured" label="Featured" />
-          <RhfSwitch name="isActive" label="Active" />
-          <RhfDatePicker name="publishedAt" label="Published at" />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="slug" label="Slug" helperText="URL segment, e.g. scaling-graphql" />
+      <RhfTextField name="title" label="Title" />
+      <RhfTextField name="summary" label="Summary" multiline minRows={2} />
+      <RhfTextField
+        name="content"
+        label="Content"
+        multiline
+        minRows={10}
+        helperText="HTML is allowed — the body is rendered as-is on the public site."
+      />
+      <RhfTextField name="author.name" label="Author name" />
+      <RhfTextField name="author.role" label="Author role" />
+      <RhfTextField name="author.initials" label="Author initials" />
+      <RhfTextField name="readTime" label="Read time" helperText="e.g. 5 min read" />
+      <RhfChipsInput name="tags" label="Tags" />
+      <RhfTextField name="coverImage" label="Cover image URL" />
+      <RhfSwitch name="featured" label="Featured" />
+      <RhfSwitch name="isActive" label="Active" />
+      <RhfDatePicker name="publishedAt" label="Published at" />
+    </EntityForm>
   );
 }

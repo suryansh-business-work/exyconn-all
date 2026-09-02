@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["../shell/src/*"],
+      "@exyconn/shell": ["../shell/src/index.ts"],
+      "@exyconn/shell/*": ["../shell/src/*"],
+      "@exyconn/login": ["../login/src/index.ts"],
+      "@exyconn/crud": ["../crud/src/index.ts"],
+      "@exyconn/crud/*": ["../crud/src/*"]
+    },
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
+  }
+}

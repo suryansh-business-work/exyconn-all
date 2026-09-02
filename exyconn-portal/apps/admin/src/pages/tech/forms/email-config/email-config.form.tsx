@@ -1,10 +1,9 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateEmailConfigMutation,
   useUpdateEmailConfigMutation,
@@ -31,6 +30,18 @@ const schema = z.object({
 });
 type Values = z.infer<typeof schema>;
 
+/** Maps the validated form values onto the GraphQL input. */
+const toInput = (values: Values) => ({
+  label: values.label,
+  host: values.host,
+  port: values.port,
+  secure: values.secure === 'true',
+  username: values.username,
+  password: values.password,
+  fromAddress: values.fromAddress,
+  isActive: values.isActive === 'true',
+});
+
 const toInitial = (row: EmailConfigRow | null): Values => ({
   label: row?.label ?? '',
   host: row?.host ?? '',
@@ -50,55 +61,31 @@ interface EmailConfigFormProps {
 
 /** React Hook Form + Zod form to create or update an SMTP/email configuration. */
 export function EmailConfigForm({ initial, onDone, onCancel }: EmailConfigFormProps) {
-  const notify = useNotify();
   const [createConfig] = useCreateEmailConfigMutation();
   const [updateConfig] = useUpdateEmailConfigMutation();
-  const isEdit = Boolean(initial);
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    const input = {
-      label: values.label,
-      host: values.host,
-      port: values.port,
-      secure: values.secure === 'true',
-      username: values.username,
-      password: values.password,
-      fromAddress: values.fromAddress,
-      isActive: values.isActive === 'true',
-    };
-    try {
-      if (isEdit && initial) await updateConfig({ variables: { id: initial.id, input } });
-      else await createConfig({ variables: { input } });
-      notify(`Email config ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Email config',
+    initial,
+    create: (values: Values) => createConfig({ variables: { input: toInput(values) } }),
+    update: (row, values) => updateConfig({ variables: { id: row.id, input: toInput(values) } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="label" label="Label" />
-          <RhfTextField name="host" label="SMTP host" />
-          <RhfTextField name="port" label="Port" type="number" />
-          <RhfSelect name="secure" label="Use TLS/SSL (secure)" options={BOOL_OPTIONS} />
-          <RhfTextField name="username" label="Username" />
-          <RhfTextField name="password" label="Password" type="password" />
-          <RhfTextField name="fromAddress" label="From address" />
-          <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="label" label="Label" />
+      <RhfTextField name="host" label="SMTP host" />
+      <RhfTextField name="port" label="Port" type="number" />
+      <RhfSelect name="secure" label="Use TLS/SSL (secure)" options={BOOL_OPTIONS} />
+      <RhfTextField name="username" label="Username" />
+      <RhfTextField name="password" label="Password" type="password" />
+      <RhfTextField name="fromAddress" label="From address" />
+      <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
+    </EntityForm>
   );
 }

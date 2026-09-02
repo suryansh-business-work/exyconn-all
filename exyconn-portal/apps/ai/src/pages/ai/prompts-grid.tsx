@@ -1,35 +1,31 @@
-import type { MouseEvent } from 'react';
-import type { ColDef, ICellRendererParams, ValueFormatterParams } from 'ag-grid-community';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import type { ColDef, ICellRendererParams } from 'ag-grid-community';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { Flex, Chip, IconButton } from '@exyconn/shell/components/ui';
-import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import {
+  DELETE_ACTION,
+  EDIT_ACTION,
+  actionsColumn,
+  statusColumn,
+  textColumn,
+  type CrudGridContext,
+  type RowActionSpec,
+} from '@exyconn/crud';
+import { Chip, Flex } from '@exyconn/shell/components/ui';
 import type { ListPromptsPagedQuery } from '@exyconn/shell/graphql/generated';
 
 export type PagedPromptRow = ListPromptsPagedQuery['listPromptsPaged']['rows'][number];
 
-/** Page-level handlers ag-grid hands to the prompt cells via its `context`. */
-export interface PromptsGridContext {
-  onEdit: (row: PagedPromptRow) => void;
-  onDelete: (row: PagedPromptRow) => void;
-  onCopy: (row: PagedPromptRow) => void;
-}
+/** Row handlers ag-grid hands to the shared action cells via its `context`. */
+export type PromptsGridContext = CrudGridContext<PagedPromptRow>;
 
-function contentFormatter(params: ValueFormatterParams<PagedPromptRow>): string {
-  const row = params.data;
-  if (!row) {
-    return '';
-  }
-  return row.content.slice(0, 60);
-}
+/** How much of a prompt body fits in the grid cell before it is truncated. */
+const CONTENT_PREVIEW_CHARS = 60;
 
-function CategoryCell(params: Readonly<ICellRendererParams<PagedPromptRow>>) {
-  if (!params.data) {
-    return null;
-  }
-  return <StatusChip value={params.data.category} />;
-}
+const COPY_ACTION: RowActionSpec = {
+  key: 'copy',
+  label: 'copy prompt',
+  icon: ContentCopyIcon,
+  color: 'primary',
+};
 
 function TagsCell(params: Readonly<ICellRendererParams<PagedPromptRow>>) {
   const row = params.data;
@@ -48,42 +44,11 @@ function TagsCell(params: Readonly<ICellRendererParams<PagedPromptRow>>) {
   );
 }
 
-function PromptActionsCell(params: Readonly<ICellRendererParams<PagedPromptRow>>) {
-  const row = params.data;
-  const ctx = params.context as PromptsGridContext;
-  if (!row) {
-    return null;
-  }
-  const run = (handler: (target: PagedPromptRow) => void) => (event: MouseEvent) => {
-    event.stopPropagation();
-    handler(row);
-  };
-  return (
-    <Flex direction="row" spacing={0.25}>
-      <IconButton size="small" color="primary" aria-label="copy prompt" onClick={run(ctx.onCopy)}>
-        <ContentCopyIcon fontSize="small" />
-      </IconButton>
-      <IconButton size="small" aria-label="edit" onClick={run(ctx.onEdit)}>
-        <EditIcon fontSize="small" />
-      </IconButton>
-      <IconButton size="small" aria-label="delete" onClick={run(ctx.onDelete)}>
-        <DeleteIcon fontSize="small" />
-      </IconButton>
-    </Flex>
-  );
-}
-
 /** Column model for the server-side Prompt Library grid. Title/Content hit the server filter. */
 export const PROMPT_COLUMNS: ColDef<PagedPromptRow>[] = [
-  { field: 'title', headerName: 'Title' },
-  {
-    field: 'category',
-    headerName: 'Category',
-    cellRenderer: CategoryCell,
-    filter: false,
-    floatingFilter: false,
-  },
-  { field: 'content', headerName: 'Prompt', valueFormatter: contentFormatter },
+  textColumn('title', 'Title'),
+  statusColumn('category', 'Category'),
+  textColumn('content', 'Prompt', (row) => row.content.slice(0, CONTENT_PREVIEW_CHARS)),
   {
     colId: 'tags',
     headerName: 'Tags',
@@ -92,15 +57,5 @@ export const PROMPT_COLUMNS: ColDef<PagedPromptRow>[] = [
     filter: false,
     floatingFilter: false,
   },
-  {
-    colId: 'actions',
-    headerName: '',
-    cellRenderer: PromptActionsCell,
-    sortable: false,
-    filter: false,
-    floatingFilter: false,
-    flex: 0,
-    width: 150,
-    minWidth: 150,
-  },
+  actionsColumn([COPY_ACTION, EDIT_ACTION, DELETE_ACTION]),
 ];

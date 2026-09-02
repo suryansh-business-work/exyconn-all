@@ -1,0 +1,86 @@
+{
+  "hub": {
+    "subdomain": "portal",
+    "port": 4003,
+    "title": "Exyconn Track",
+    "description": "Exyconn Track — internal role-based operations portal."
+  },
+  "admin": {
+    "subdomain": "admin",
+    "port": 4020,
+    "title": "Admin · Exyconn Track",
+    "description": "Exyconn Track — Admin module."
+  },
+  "employee": {
+    "subdomain": "employee",
+    "port": 4021,
+    "title": "My Workspace · Exyconn Track",
+    "description": "Exyconn Track — My Workspace module."
+  },
+  "finance": {
+    "subdomain": "finance",
+    "port": 4022,
+    "title": "Finance · Exyconn Track",
+    "description": "Exyconn Track — Finance module."
+  },
+  "support": {
+    "subdomain": "support",
+    "port": 4023,
+    "title": "Support · Exyconn Track",
+    "description": "Exyconn Track — Support module."
+  },
+  "crm": {
+    "subdomain": "crm",
+    "port": 4024,
+    "title": "CRM · Exyconn Track",
+    "description": "Exyconn Track — CRM module."
+  },
+  "products": {
+    "subdomain": "products",
+    "port": 4025,
+    "title": "Products · Exyconn Track",
+    "description": "Exyconn Track — Products module."
+  },
+  "legal": {
+    "subdomain": "legal",
+    "port": 4026,
+    "title": "Legal · Exyconn Track",
+    "description": "Exyconn Track — Legal module."
+  },
+  "hr": {
+    "subdomain": "hr",
+    "port": 4027,
+    "title": "HR · Exyconn Track",
+    "description": "Exyconn Track — HR module."
+  },
+  "marketing": {
+    "subdomain": "marketing",
+    "port": 4028,
+    "title": "Marketing · Exyconn Track",
+    "description": "Exyconn Track — Marketing module."
+  },
+  "projects": {
+    "subdomain": "projects",
+    "port": 4029,
+    "title": "Projects · Exyconn Track",
+    "description": "Exyconn Track — Projects module."
+  },
+  "ai": {
+    "subdomain": "ai",
+    "port": 4030,
+    "title": "AI · Exyconn Track",
+    "description": "Exyconn Track — AI module."
+  },
+  "website": {
+    "subdomain": "website",
+    "port": 4031,
+    "title": "Website · Exyconn Track",
+    "description": "Exyconn Track — Website module."
+  },
+  "tracker": {
+    "subdomain": "tracker",
+    "port": 4032,
+    "title": "Time Tracker · Exyconn Track",
+    "description": "Exyconn Track — Time Tracker module."
+  }
+}

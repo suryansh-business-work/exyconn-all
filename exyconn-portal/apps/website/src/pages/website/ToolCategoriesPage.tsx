@@ -3,9 +3,7 @@ import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { useCrudResource } from '@exyconn/crud';
 import {
   useListToolCategoriesQuery,
   useDeleteToolCategoryMutation,
@@ -16,9 +14,12 @@ import { ToolCategoryForm, type ToolCategoryRow } from './forms/tool-category';
 export function ToolCategoriesPage() {
   const { data, loading, refetch } = useListToolCategoriesQuery();
   const [deleteToolCategory] = useDeleteToolCategoryMutation();
-  const dialog = useCrudDialog<ToolCategoryRow>();
-  const confirm = useConfirm();
-  const notify = useNotify();
+  const crud = useCrudResource<ToolCategoryRow>({
+    label: 'Tool category',
+    onDelete: (row) => deleteToolCategory({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete tool category ${row.category}?`,
+    refetch,
+  });
 
   const rows = data?.listToolCategories ?? [];
   const stats: StatItem[] = [
@@ -43,46 +44,28 @@ export function ToolCategoriesPage() {
     { key: 'order', label: 'Order' },
   ];
 
-  const handleDelete = async (row: ToolCategoryRow) => {
-    const ok = await confirm({
-      message: `Delete tool category ${row.category}?`,
-      confirmText: 'Delete',
-    });
-    if (!ok) return;
-    await deleteToolCategory({ variables: { id: row.id } });
-    await refetch();
-    notify('Tool category deleted');
-  };
-
   return (
     <ModuleDashboard
       title="Tool categories"
       subtitle="Groupings for the public tools directory"
       actionLabel="New category"
-      onAction={dialog.openCreate}
+      onAction={crud.openCreate}
       stats={stats}
       dialog={
         <CrudDialog
-          open={dialog.open}
-          title={dialog.editing ? 'Edit tool category' : 'New tool category'}
-          onClose={dialog.close}
+          open={crud.open}
+          title={crud.editing ? 'Edit tool category' : 'New tool category'}
+          onClose={crud.close}
         >
-          <ToolCategoryForm
-            initial={dialog.editing}
-            onCancel={dialog.close}
-            onDone={() => {
-              void refetch();
-              dialog.close();
-            }}
-          />
+          <ToolCategoryForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
         </CrudDialog>
       }
     >
       <DataTable
         columns={columns}
         rows={rows}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
+        onEdit={crud.openEdit}
+        onDelete={crud.remove}
         emptyMessage={loading ? 'Loading…' : 'No tool categories yet.'}
       />
     </ModuleDashboard>

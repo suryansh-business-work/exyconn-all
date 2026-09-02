@@ -1,0 +1,154 @@
+# Employee self-service: everything an employee reads or does for themselves.
+
+query MyNotifications {
+  myNotifications {
+    id
+    kind
+    title
+    body
+    link
+    read
+    createdAt
+  }
+}
+
+query MyUnreadNotificationCount {
+  myUnreadNotificationCount
+}
+
+mutation MarkNotificationRead($id: ID!) {
+  markNotificationRead(id: $id)
+}
+
+mutation MarkAllNotificationsRead {
+  markAllNotificationsRead
+}
+
+query MyRequests {
+  myRequests {
+    id
+    type
+    subject
+    details
+    status
+    decisionNote
+    decidedAt
+    createdAt
+  }
+}
+
+mutation CreateMyRequest($input: MyRequestInput!) {
+  createMyRequest(input: $input) {
+    id
+  }
+}
+
+query MyGoals {
+  myGoals {
+    id
+    title
+    description
+    kpi
+    weightage
+    startDate
+    endDate
+    progress
+    status
+    managerComment
+  }
+}
+
+mutation UpdateMyGoalProgress($id: ID!, $progress: Int!) {
+  updateMyGoalProgress(id: $id, progress: $progress) {
+    id
+    progress
+  }
+}
+
+query MyPerformanceReviews {
+  myPerformanceReviews {
+    id
+    cycle
+    selfAssessment
+    managerAssessment
+    competencies
+    score
+    rating
+    actionPlan
+    status
+    updatedAt
+  }
+}
+
+mutation SubmitSelfAssessment($id: ID!, $text: String!) {
+  submitSelfAssessment(id: $id, text: $text) {
+    id
+    status
+  }
+}
+
+query MyExpenseClaims {
+  myExpenseClaims {
+    id
+    category
+    description
+    amount
+    currency
+    incurredOn
+    receiptUrl
+    status
+    approvedAmount
+  }
+}
+
+mutation CreateMyExpenseClaim($input: MyExpenseClaimInput!) {
+  createMyExpenseClaim(input: $input) {
+    id
+  }
+}
+
+query MyBenefits {
+  myBenefits {
+    id
+    kind
+    name
+    provider
+    reference
+    coverage
+    validFrom
+    validTo
+    documentUrl
+  }
+}
+
+query MyTrainings {
+  myTrainings {
+    id
+    title
+    provider
+    category
+    assignedOn
+    dueOn
+    completedOn
+    status
+    certificateUrl
+  }
+}
+
+mutation UpdateMyTrainingStatus($id: ID!, $status: TrainingStatus!) {
+  updateMyTrainingStatus(id: $id, status: $status) {
+    id
+    status
+    completedOn
+  }
+}
+
+query MyDocuments {
+  myDocuments {
+    id
+    kind
+    title
+    url
+    issuedOn
+  }
+}

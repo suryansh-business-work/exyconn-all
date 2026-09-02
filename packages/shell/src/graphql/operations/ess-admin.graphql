@@ -1,0 +1,355 @@
+# HR/Finance admin operations for the employee self-service records.
+
+query ListEmployeeRequestsPaged($input: TableQueryInput!) {
+  listEmployeeRequestsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      type
+      subject
+      details
+      status
+      decisionNote
+      decidedAt
+      createdAt
+    }
+  }
+}
+
+query ListEmployeeRequestsStats {
+  listEmployeeRequestsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateEmployeeRequest($input: EmployeeRequestInput!) {
+  createEmployeeRequest(input: $input) {
+    id
+  }
+}
+
+mutation UpdateEmployeeRequest($id: ID!, $input: EmployeeRequestInput!) {
+  updateEmployeeRequest(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteEmployeeRequest($id: ID!) {
+  deleteEmployeeRequest(id: $id)
+}
+
+query ListGoalsPaged($input: TableQueryInput!) {
+  listGoalsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      title
+      description
+      kpi
+      weightage
+      startDate
+      endDate
+      progress
+      status
+      managerComment
+    }
+  }
+}
+
+query ListGoalsStats {
+  listGoalsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateGoal($input: GoalInput!) {
+  createGoal(input: $input) {
+    id
+  }
+}
+
+mutation UpdateGoal($id: ID!, $input: GoalInput!) {
+  updateGoal(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteGoal($id: ID!) {
+  deleteGoal(id: $id)
+}
+
+query ListPerformanceReviewsPaged($input: TableQueryInput!) {
+  listPerformanceReviewsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      cycle
+      selfAssessment
+      managerAssessment
+      competencies
+      score
+      rating
+      actionPlan
+      status
+      updatedAt
+    }
+  }
+}
+
+query ListPerformanceReviewsStats {
+  listPerformanceReviewsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreatePerformanceReview($input: PerformanceReviewInput!) {
+  createPerformanceReview(input: $input) {
+    id
+  }
+}
+
+mutation UpdatePerformanceReview($id: ID!, $input: PerformanceReviewInput!) {
+  updatePerformanceReview(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeletePerformanceReview($id: ID!) {
+  deletePerformanceReview(id: $id)
+}
+
+query ListEmployeeDocumentsPaged($input: TableQueryInput!) {
+  listEmployeeDocumentsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      kind
+      title
+      url
+      issuedOn
+    }
+  }
+}
+
+query ListEmployeeDocumentsStats {
+  listEmployeeDocumentsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateEmployeeDocument($input: EmployeeDocumentInput!) {
+  createEmployeeDocument(input: $input) {
+    id
+  }
+}
+
+mutation UpdateEmployeeDocument($id: ID!, $input: EmployeeDocumentInput!) {
+  updateEmployeeDocument(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteEmployeeDocument($id: ID!) {
+  deleteEmployeeDocument(id: $id)
+}
+
+query ListBenefitsPaged($input: TableQueryInput!) {
+  listBenefitsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      kind
+      name
+      provider
+      reference
+      coverage
+      validFrom
+      validTo
+      documentUrl
+    }
+  }
+}
+
+query ListBenefitsStats {
+  listBenefitsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateBenefit($input: BenefitInput!) {
+  createBenefit(input: $input) {
+    id
+  }
+}
+
+mutation UpdateBenefit($id: ID!, $input: BenefitInput!) {
+  updateBenefit(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteBenefit($id: ID!) {
+  deleteBenefit(id: $id)
+}
+
+query ListTrainingsPaged($input: TableQueryInput!) {
+  listTrainingsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      title
+      provider
+      category
+      assignedOn
+      dueOn
+      completedOn
+      status
+      certificateUrl
+    }
+  }
+}
+
+query ListTrainingsStats {
+  listTrainingsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateTraining($input: TrainingInput!) {
+  createTraining(input: $input) {
+    id
+  }
+}
+
+mutation UpdateTraining($id: ID!, $input: TrainingInput!) {
+  updateTraining(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteTraining($id: ID!) {
+  deleteTraining(id: $id)
+}
+
+query ListExpenseClaimsPaged($input: TableQueryInput!) {
+  listExpenseClaimsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      category
+      description
+      amount
+      currency
+      incurredOn
+      receiptUrl
+      status
+      approvedAmount
+    }
+  }
+}
+
+query ListExpenseClaimsStats {
+  listExpenseClaimsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateExpenseClaim($input: ExpenseClaimInput!) {
+  createExpenseClaim(input: $input) {
+    id
+  }
+}
+
+mutation UpdateExpenseClaim($id: ID!, $input: ExpenseClaimInput!) {
+  updateExpenseClaim(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteExpenseClaim($id: ID!) {
+  deleteExpenseClaim(id: $id)
+}

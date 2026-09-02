@@ -1,15 +1,7 @@
-import { useCallback, useState } from 'react';
-import { useApolloClient } from '@apollo/client';
-import {
-  ServerDataGrid,
-  type TablePageResult,
-} from '@exyconn/shell/components/data/ServerDataGrid';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
+import { useState } from 'react';
+import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import {
@@ -17,8 +9,6 @@ import {
   useDeleteContractMutation,
   ListContractsPagedDocument,
   type ListContractsPagedQuery,
-  type ListContractsPagedQueryVariables,
-  type TableQueryInput,
 } from '@exyconn/shell/graphql/generated';
 import { ContractForm, type ContractRow } from './forms/contract';
 import { SendContractForm } from './forms/send-contract';
@@ -33,13 +23,18 @@ export function ContractsPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListContractsStatsQuery();
   const [deleteContract] = useDeleteContractMutation();
-  const dialog = useCrudDialog<ContractRow>();
   const [sendTarget, setSendTarget] = useState<ContractRow | null>(null);
-  const confirm = useConfirm();
-  const notify = useNotify();
   const { formatDate } = useSettings();
-  const client = useApolloClient();
-  const [refreshSignal, setRefreshSignal] = useState(0);
+  const crud = useCrudResource<ContractRow, PagedContractRow>({
+    label: 'Contract',
+    onDelete: (row) => deleteContract({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete contract "${row.title}"?`,
+    refetch: refetchStats,
+  });
+  const fetchRows = usePagedFetcher(
+    ListContractsPagedDocument,
+    (data: ListContractsPagedQuery) => data.listContractsPaged,
+  );
 
   const stats = statsData?.listContractsStats;
   // "Signed" counts contracts whose nullable `signedBy` is set = total minus the null bucket.
@@ -51,92 +46,41 @@ export function ContractsPage() {
     { label: 'Signed', value: String(signed), accent: '#8b5cf6' },
   ];
 
-  const reload = () => {
-    setRefreshSignal((n) => n + 1);
-    void refetchStats();
-  };
-
-  const fetchRows = useCallback(
-    async (input: TableQueryInput): Promise<TablePageResult<PagedContractRow>> => {
-      const result = await client.query<ListContractsPagedQuery, ListContractsPagedQueryVariables>({
-        query: ListContractsPagedDocument,
-        variables: { input },
-        fetchPolicy: 'network-only',
-      });
-      return {
-        rows: result.data.listContractsPaged.rows,
-        totalCount: result.data.listContractsPaged.totalCount,
-      };
-    },
-    [client],
-  );
-
-  const handleDelete = async (row: PagedContractRow) => {
-    const ok = await confirm({ message: `Delete contract "${row.title}"?`, confirmText: 'Delete' });
-    if (!ok) {
-      return;
-    }
-    await deleteContract({ variables: { id: row.id } });
-    reload();
-    notify('Contract deleted');
-  };
-
   const gridContext: ContractsGridContext = {
-    onEdit: dialog.openEdit,
-    onSend: setSendTarget,
-    onDelete: handleDelete,
+    actions: { edit: crud.openEdit, send: setSendTarget, delete: crud.remove },
     formatDate,
   };
 
+  const closeSend = () => setSendTarget(null);
+
   return (
-    <ModuleDashboard
+    <CrudDashboard
       title="Contracts"
       subtitle="Create, send & track contracts"
-      actionLabel="New contract"
-      onAction={dialog.openCreate}
+      entityLabel="contract"
       stats={statItems}
-      dialog={
-        <>
-          <CrudDialog
-            open={dialog.open}
-            title={dialog.editing ? 'Edit contract' : 'New contract'}
-            onClose={dialog.close}
-          >
-            <ContractForm
-              initial={dialog.editing}
-              onCancel={dialog.close}
+      crud={crud}
+      renderForm={(initial) => (
+        <ContractForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+      )}
+      columnDefs={CONTRACT_COLUMNS}
+      fetchRows={fetchRows}
+      context={gridContext}
+      searchPlaceholder="Search contracts…"
+      extraDialogs={
+        <CrudDialog open={Boolean(sendTarget)} title="Send contract" onClose={closeSend}>
+          {sendTarget && (
+            <SendContractForm
+              contract={sendTarget}
+              onCancel={closeSend}
               onDone={() => {
-                reload();
-                dialog.close();
+                crud.reload();
+                closeSend();
               }}
             />
-          </CrudDialog>
-          <CrudDialog
-            open={Boolean(sendTarget)}
-            title="Send contract"
-            onClose={() => setSendTarget(null)}
-          >
-            {sendTarget && (
-              <SendContractForm
-                contract={sendTarget}
-                onCancel={() => setSendTarget(null)}
-                onDone={() => {
-                  reload();
-                  setSendTarget(null);
-                }}
-              />
-            )}
-          </CrudDialog>
-        </>
+          )}
+        </CrudDialog>
       }
-    >
-      <ServerDataGrid<PagedContractRow>
-        columnDefs={CONTRACT_COLUMNS}
-        fetchRows={fetchRows}
-        context={gridContext}
-        refreshSignal={refreshSignal}
-        searchPlaceholder="Search contracts…"
-      />
-    </ModuleDashboard>
+    />
   );
 }

@@ -1,3 +1,13 @@
+export { NotificationsPage } from './NotificationsPage';
+export { RequestsPage } from './RequestsPage';
+export { GoalsPage } from './GoalsPage';
+export { PerformancePage } from './PerformancePage';
+export { ExpensesPage } from './ExpensesPage';
+export { BenefitsPage } from './BenefitsPage';
+export { TrainingPage } from './TrainingPage';
+export { DocumentsPage } from './DocumentsPage';
+export { AnnouncementsPage } from './AnnouncementsPage';
+export { DashboardPage } from './dashboard';
 export { MyLeavePage } from './MyLeavePage';
 export { MyAttendancePage } from './MyAttendancePage';
 export { PayrollPage } from './PayrollPage';

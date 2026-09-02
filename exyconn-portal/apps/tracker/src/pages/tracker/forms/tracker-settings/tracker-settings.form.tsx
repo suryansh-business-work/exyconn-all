@@ -1,15 +1,15 @@
 import { useMemo } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex, Grid } from '@exyconn/shell/components/ui';
+import { Grid } from '@exyconn/shell/components/ui';
 import {
   RhfTextField,
   RhfSwitch,
   RhfRichText,
   RhfAutocomplete,
 } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useUpdateTrackerSettingsMutation } from '@exyconn/shell/graphql/generated';
 import { isValidTimezone } from '../../tracker.timezone';
@@ -77,60 +77,51 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <RhfTextField name="intervalMinutes" label="Interval (minutes)" type="number" />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <RhfTextField
-                name="screenshotsPerInterval"
-                label="Screenshots / interval"
-                type="number"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <RhfTextField name="idleThresholdSeconds" label="Idle threshold (s)" type="number" />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <RhfTextField name="screenshotMaxWidth" label="Screenshot max width" type="number" />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <RhfTextField name="screenshotQuality" label="Screenshot quality" type="number" />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <RhfTextField
-                name="syncIntervalMinutes"
-                label="Auto-sync every (minutes)"
-                type="number"
-                helperText="How often the desktop app uploads queued activity and screenshots."
-              />
-            </Grid>
-          </Grid>
-          <RhfAutocomplete
-            name="defaultTimezone"
-            label="Default timezone"
-            options={timezoneOptions}
-            helperText="Applied to every employee who has not picked a timezone in the desktop app."
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit onCancel={() => methods.reset()}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={6}>
+          <RhfTextField name="intervalMinutes" label="Interval (minutes)" type="number" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <RhfTextField
+            name="screenshotsPerInterval"
+            label="Screenshots / interval"
+            type="number"
           />
-          <RhfSwitch name="randomizeScreenshotTiming" label="Randomize screenshot timing" />
-          <RhfSwitch name="blurScreenshots" label="Blur screenshots" />
-          <RhfSwitch name="trackWindowTitles" label="Track window titles" />
-          <RhfSwitch name="autoSyncEnabled" label="Auto-sync (off = employee syncs manually)" />
-          <RhfRichText
-            name="consentText"
-            label="Consent disclosure (shown in the desktop app)"
-            helperText="The employee must read and accept this before any tracking starts."
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <RhfTextField name="idleThresholdSeconds" label="Idle threshold (s)" type="number" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <RhfTextField name="screenshotMaxWidth" label="Screenshot max width" type="number" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <RhfTextField name="screenshotQuality" label="Screenshot quality" type="number" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <RhfTextField
+            name="syncIntervalMinutes"
+            label="Auto-sync every (minutes)"
+            type="number"
+            helperText="How often the desktop app uploads queued activity and screenshots."
           />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit
-            onCancel={() => methods.reset()}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+        </Grid>
+      </Grid>
+      <RhfAutocomplete
+        name="defaultTimezone"
+        label="Default timezone"
+        options={timezoneOptions}
+        helperText="Applied to every employee who has not picked a timezone in the desktop app."
+      />
+      <RhfSwitch name="randomizeScreenshotTiming" label="Randomize screenshot timing" />
+      <RhfSwitch name="blurScreenshots" label="Blur screenshots" />
+      <RhfSwitch name="trackWindowTitles" label="Track window titles" />
+      <RhfSwitch name="autoSyncEnabled" label="Auto-sync (off = employee syncs manually)" />
+      <RhfRichText
+        name="consentText"
+        label="Consent disclosure (shown in the desktop app)"
+        helperText="The employee must read and accept this before any tracking starts."
+      />
+    </EntityForm>
   );
 }
