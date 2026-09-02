@@ -1,40 +1,5 @@
 /** Content types served by the portal. These mirror the portal's GraphQL schema. */
 
-export interface BlogAuthor {
-  name: string;
-  role: string;
-  initials: string;
-}
-
-export interface BlogPost {
-  id: string;
-  slug: string;
-  title: string;
-  summary: string;
-  content: string;
-  author: BlogAuthor;
-  readTime: string;
-  tags: string[];
-  coverImage: string;
-  featured: boolean;
-  publishedAt: string;
-}
-
-export interface CaseStudy {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  coverImage: string;
-  category: string;
-  author: string;
-  tags: string[];
-  pdfUrl: string;
-  featured: boolean;
-  publishedAt: string;
-}
-
 export interface CompanyBenefit {
   icon: string;
   title: string;

@@ -34,6 +34,11 @@ export default defineConfig({
     '/shell-strategy-terms': { status: 301, destination: '/ai-services' },
   },
   integrations: [react()],
+  markdown: {
+    // Blog and case-study bodies are markdown edited in TinaCMS; keep the straight quotes and
+    // apostrophes editors type rather than converting them to typographic ones.
+    smartypants: false,
+  },
   server: {
     host: true, // allows 0.0.0.0 binding
     port: 4000  // exyconn.com website port

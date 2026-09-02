@@ -1,13 +1,16 @@
 ---
 import Page from "../../layouts/Page.astro";
-import { getCaseStudy, formatDate } from "../../lib/portal";
+import { formatDate } from "../../lib/portal";
+import { getCaseStudy } from "../../lib/content";
 
 const { slug } = Astro.params;
-const caseStudy = slug ? await getCaseStudy(slug) : null;
+const result = slug ? await getCaseStudy(slug) : null;
 
-if (!caseStudy) {
+if (!result) {
   return new Response(null, { status: 404 });
 }
+
+const { caseStudy, Content } = result;
 
 const SITE_URL = (Astro.site?.toString() || "https://exyconn.com/").replace(/\/$/, "");
 const caseStudyUrl = `${SITE_URL}/case-studies/${caseStudy.slug}`;
@@ -142,8 +145,9 @@ const pageJsonLd = [
       <div class="max-w-3xl mx-auto">
         <article
           class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-headings:font-bold prose-p:text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-li:text-gray-700"
-          set:html={caseStudy.content}
-        />
+        >
+          <Content />
+        </article>
 
         <!-- Back Link -->
         <div class="mt-12 pt-8 border-t border-gray-200">

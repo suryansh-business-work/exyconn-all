@@ -47,10 +47,11 @@ Open [http://localhost:4000](http://localhost:4000)
 ```
 ├── src/
 │   ├── components/    # UI Components
+│   ├── content/       # Blog posts & case studies (markdown, edited with TinaCMS)
 │   ├── layouts/       # Page layouts
 │   ├── pages/         # Routes
-│   ├── data/          # Static data
 │   └── styles/        # Global styles
+├── tina/              # TinaCMS config + collection schemas
 ├── tests/             # Vitest test files
 ├── public/            # Static assets
 └── tools/             # Creative tools (Logo Maker)
@@ -98,6 +99,21 @@ Open [http://localhost:4000](http://localhost:4000)
 | **Career** | `/career` | [exyconn.com/career](https://exyconn.com/career) |
 | **Gigs** | `/career/gigs` | [exyconn.com/career/gigs](https://exyconn.com/career/gigs) |
 | **Order Agents** | `/order-agents` | [exyconn.com/order-agents](https://exyconn.com/order-agents) |
+
+## ✍️ Content (TinaCMS)
+
+Blog posts and case studies are markdown files edited with [TinaCMS](https://tina.io):
+
+| What | Where |
+|------|-------|
+| Blog posts | `src/content/blog/*.md` (filename = URL slug) |
+| Case studies | `src/content/case-studies/*.md` (filename = URL slug) |
+| Editor schema | `tina/collections/` |
+| Page data | `src/content.config.ts` + `src/lib/content/` |
+
+- `pnpm dev` starts the TinaCMS editor alongside Astro. Open [http://localhost:4000/admin/index.html](http://localhost:4000/admin/index.html); every save writes the markdown file to disk.
+- Publishing is a commit: push the changed files on a branch, open a PR and merge to `main`, which deploys the site.
+- To host the editor on the live site, create a project at [app.tina.io](https://app.tina.io), provide `PUBLIC_TINA_CLIENT_ID` and `TINA_TOKEN` at build time and change the `build` script to `tinacms build --content=local -c "astro build"`.
 
 ## 🔄 CI/CD
 
