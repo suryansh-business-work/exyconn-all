@@ -13,6 +13,7 @@ import {
   CalendarPage,
   MyTrackerPage,
   DashboardPage,
+  AnnouncementsPage,
 } from './pages/employee';
 
 /** My Workspace micro-frontend. Everything outside its routes comes from the shell. */
@@ -24,6 +25,7 @@ export function App() {
       <Route path="/me/salary-slips" element={<SalarySlipsPage />} />
       <Route path="/me/leave" element={<MyLeavePage />} />
       <Route path="/me/attendance" element={<MyAttendancePage />} />
+      <Route path="/me/announcements" element={<AnnouncementsPage />} />
       <Route path="/me/holidays" element={<HolidaysPage />} />
       <Route path="/me/calendar" element={<CalendarPage />} />
       <Route path="/me/policies" element={<PoliciesPage />} />

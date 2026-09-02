@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Box, Grid, Heading, Text, Flex } from '@exyconn/shell/components/ui';
+import { Box, Grid } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
@@ -12,9 +12,12 @@ import {
   useMySalarySlipsQuery,
   useMyPayrollQuery,
   useMySupportTicketsQuery,
+  useActiveAnnouncementsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { DashboardTiles } from './DashboardTiles';
 import { UpcomingHolidays } from './UpcomingHolidays';
+import { LatestAnnouncements, type AnnouncementSummary } from './LatestAnnouncements';
+import { RecentLeave, type LeaveSummaryRow } from './RecentLeave';
 import {
   todayAttendance,
   monthAttendance,
@@ -41,6 +44,7 @@ export function DashboardPage() {
   const slips = useMySalarySlipsQuery(policy);
   const payroll = useMyPayrollQuery(policy);
   const tickets = useMySupportTicketsQuery(policy);
+  const announcements = useActiveAnnouncementsQuery(policy);
 
   const stats = useMemo<StatItem[]>(() => {
     const now = new Date();
@@ -94,28 +98,22 @@ export function DashboardPage() {
       <DashboardTiles stats={stats} />
 
       <Grid container spacing={2}>
-        <Grid item xs={12} md={5}>
+        <Grid item xs={12} md={4}>
+          <LatestAnnouncements
+            announcements={(
+              (announcements.data?.activeAnnouncements ?? []) as AnnouncementSummary[]
+            ).slice(0, 4)}
+            formatDate={formatDate}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
           <UpcomingHolidays holidays={nextHolidays} formatDate={formatDate} />
         </Grid>
-        <Grid item xs={12} md={7}>
-          <Box sx={{ p: 2 }}>
-            <Heading level={6}>Recent leave</Heading>
-            {(leave.data?.myLeaveRequests ?? []).slice(0, 4).map((request) => (
-              <Flex key={request.id} direction="row" justifyContent="space-between" sx={{ mt: 1 }}>
-                <Text size="sm">
-                  {request.type} · {formatDate(request.fromDate)} → {formatDate(request.toDate)}
-                </Text>
-                <Text size="sm" color="text.secondary">
-                  {request.status}
-                </Text>
-              </Flex>
-            ))}
-            {(leave.data?.myLeaveRequests ?? []).length === 0 && (
-              <Text size="sm" color="text.secondary">
-                No leave requests yet.
-              </Text>
-            )}
-          </Box>
+        <Grid item xs={12} md={4}>
+          <RecentLeave
+            requests={((leave.data?.myLeaveRequests ?? []) as LeaveSummaryRow[]).slice(0, 4)}
+            formatDate={formatDate}
+          />
         </Grid>
       </Grid>
     </Box>

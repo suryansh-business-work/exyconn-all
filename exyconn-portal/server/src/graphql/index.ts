@@ -26,6 +26,7 @@ import { techTypeDefs, techResolvers } from '../modules/tech';
 import { websiteTypeDefs, websiteResolvers } from '../modules/website';
 import { trackerTypeDefs, trackerResolvers } from '../modules/tracker';
 import { brandingTypeDefs, brandingResolvers } from '../modules/branding';
+import { announcementsTypeDefs, announcementsResolvers } from '../modules/announcements';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = {
@@ -65,6 +66,7 @@ export const typeDefs = [
   ...websiteTypeDefs,
   trackerTypeDefs,
   brandingTypeDefs,
+  announcementsTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -87,4 +89,5 @@ export const resolvers = mergeResolvers([
   websiteResolvers,
   trackerResolvers,
   brandingResolvers,
+  announcementsResolvers,
 ]);

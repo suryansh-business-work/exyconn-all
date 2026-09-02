@@ -82,6 +82,12 @@ export const MODULES: ModuleDefinition[] = [
     accent: '#14b8a6',
     children: [
       { key: 'me-dashboard', label: 'Dashboard', path: '/me', icon: DashboardIcon },
+      {
+        key: 'me-announcements',
+        label: 'Announcements',
+        path: '/me/announcements',
+        icon: CampaignIcon,
+      },
       { key: 'me-profile', label: 'My Profile', path: '/profile', icon: PersonIcon },
       { key: 'me-payroll', label: 'Payroll', path: '/me/payroll', icon: PaymentsIcon },
       {
@@ -215,6 +221,12 @@ export const MODULES: ModuleDefinition[] = [
         icon: ApartmentIcon,
       },
       { key: 'hr-positions', label: 'Positions', path: '/hr/positions', icon: WorkIcon },
+      {
+        key: 'hr-announcements',
+        label: 'Announcements',
+        path: '/hr/announcements',
+        icon: CampaignIcon,
+      },
     ],
   },
   {

@@ -11,6 +11,7 @@ import {
   PositionsPage,
 } from './pages/hr';
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
+import { AnnouncementsPage } from './pages/announcements';
 
 /** HR micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -22,6 +23,7 @@ export function App() {
       <Route path="/hr/leave" element={<HrPage />} />
       <Route path="/hr/attendance" element={<AttendanceListPage />} />
       <Route path="/hr/departments" element={<DepartmentsPage />} />
+      <Route path="/hr/announcements" element={<AnnouncementsPage />} />
       <Route path="/hr/positions" element={<PositionsPage />} />
     </PortalApp>
   );

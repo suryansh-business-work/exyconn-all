@@ -50,6 +50,41 @@ export enum AiJobStatus {
   Succeeded = 'SUCCEEDED'
 }
 
+export type Announcement = {
+  __typename?: 'Announcement';
+  body: Scalars['String']['output'];
+  category: AnnouncementCategory;
+  createdAt: Scalars['DateTime']['output'];
+  expiresAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  pinned: Scalars['Boolean']['output'];
+  publishedAt: Scalars['DateTime']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export enum AnnouncementCategory {
+  Event = 'EVENT',
+  Notice = 'NOTICE',
+  Policy = 'POLICY',
+  Update = 'UPDATE'
+}
+
+export type AnnouncementInput = {
+  body: Scalars['String']['input'];
+  category: AnnouncementCategory;
+  expiresAt?: InputMaybe<Scalars['DateTime']['input']>;
+  pinned: Scalars['Boolean']['input'];
+  publishedAt: Scalars['DateTime']['input'];
+  title: Scalars['String']['input'];
+};
+
+export type AnnouncementPage = {
+  __typename?: 'AnnouncementPage';
+  rows: Array<Announcement>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type AppSettings = {
   __typename?: 'AppSettings';
   dateFormat: Scalars['String']['output'];
@@ -892,6 +927,7 @@ export type Mutation = {
   applyLeave: LeaveRequest;
   changePassword: Scalars['Boolean']['output'];
   createAiJob: AiJob;
+  createAnnouncement: Announcement;
   createBlogPost: BlogPost;
   createBug: Bug;
   createCampaign: Campaign;
@@ -923,6 +959,7 @@ export type Mutation = {
   createUser: UserCredentials;
   createWebsiteSubmission: WebsiteSubmission;
   deleteAiJob: Scalars['Boolean']['output'];
+  deleteAnnouncement: Scalars['Boolean']['output'];
   deleteBlogPost: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
   deleteCampaign: Scalars['Boolean']['output'];
@@ -991,6 +1028,7 @@ export type Mutation = {
   trackerUploadScreenshot: TrackerScreenshot;
   triageWebsiteSubmission: WebsiteSubmission;
   updateAiJob: AiJob;
+  updateAnnouncement: Announcement;
   updateBlogPost: BlogPost;
   updateBranding: Branding;
   updateBug: Bug;
@@ -1038,6 +1076,11 @@ export type MutationChangePasswordArgs = {
 
 export type MutationCreateAiJobArgs = {
   input: AiJobInput;
+};
+
+
+export type MutationCreateAnnouncementArgs = {
+  input: AnnouncementInput;
 };
 
 
@@ -1186,6 +1229,11 @@ export type MutationCreateWebsiteSubmissionArgs = {
 
 
 export type MutationDeleteAiJobArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteAnnouncementArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -1481,6 +1529,12 @@ export type MutationTriageWebsiteSubmissionArgs = {
 export type MutationUpdateAiJobArgs = {
   id: Scalars['ID']['input'];
   input: AiJobInput;
+};
+
+
+export type MutationUpdateAnnouncementArgs = {
+  id: Scalars['ID']['input'];
+  input: AnnouncementInput;
 };
 
 
@@ -1835,11 +1889,17 @@ export type PromptPage = {
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
+  /**
+   * The employee-facing feed: everything published and not yet expired, pinned
+   * first then newest. Readable by any signed-in user, unlike the HR CRUD above.
+   */
+  activeAnnouncements: Array<Announcement>;
   appSettings: AppSettings;
   /** HR/ADMIN: a specific employee's attendance records. */
   attendanceByEmployee: Array<Attendance>;
   branding: Branding;
   getAiJob: AiJob;
+  getAnnouncement: Announcement;
   getBlogPost: BlogPost;
   getBug: Bug;
   getCampaign: Campaign;
@@ -1870,6 +1930,9 @@ export type Query = {
   listAiJobs: Array<AiJob>;
   listAiJobsPaged: AiJobPage;
   listAiJobsStats: TableStats;
+  listAnnouncements: Array<Announcement>;
+  listAnnouncementsPaged: AnnouncementPage;
+  listAnnouncementsStats: TableStats;
   /** HR/ADMIN: all attendance records. */
   listAttendance: Array<Attendance>;
   listBlogPosts: Array<BlogPost>;
@@ -1987,6 +2050,11 @@ export type QueryAttendanceByEmployeeArgs = {
 
 
 export type QueryGetAiJobArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetAnnouncementArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2112,6 +2180,11 @@ export type QueryLeaveRequestsByEmployeeArgs = {
 
 
 export type QueryListAiJobsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListAnnouncementsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -2904,6 +2977,10 @@ export type ResolversTypes = ResolversObject<{
   AiJobInput: AiJobInput;
   AiJobPage: ResolverTypeWrapper<AiJobPage>;
   AiJobStatus: AiJobStatus;
+  Announcement: ResolverTypeWrapper<Announcement>;
+  AnnouncementCategory: AnnouncementCategory;
+  AnnouncementInput: AnnouncementInput;
+  AnnouncementPage: ResolverTypeWrapper<AnnouncementPage>;
   AppSettings: ResolverTypeWrapper<AppSettings>;
   ApplyLeaveInput: ApplyLeaveInput;
   Attendance: ResolverTypeWrapper<Attendance>;
@@ -3072,6 +3149,9 @@ export type ResolversParentTypes = ResolversObject<{
   AiJob: AiJob;
   AiJobInput: AiJobInput;
   AiJobPage: AiJobPage;
+  Announcement: Announcement;
+  AnnouncementInput: AnnouncementInput;
+  AnnouncementPage: AnnouncementPage;
   AppSettings: AppSettings;
   ApplyLeaveInput: ApplyLeaveInput;
   Attendance: Attendance;
@@ -3220,6 +3300,25 @@ export type AiJobResolvers<ContextType = GraphQLContext, ParentType extends Reso
 
 export type AiJobPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AiJobPage'] = ResolversParentTypes['AiJobPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['AiJob']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AnnouncementResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Announcement'] = ResolversParentTypes['Announcement']> = ResolversObject<{
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['AnnouncementCategory'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  expiresAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  pinned?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  publishedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AnnouncementPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AnnouncementPage'] = ResolversParentTypes['AnnouncementPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Announcement']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -3683,6 +3782,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   applyLeave?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationApplyLeaveArgs, 'input'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
   createAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationCreateAiJobArgs, 'input'>>;
+  createAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<MutationCreateAnnouncementArgs, 'input'>>;
   createBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationCreateBlogPostArgs, 'input'>>;
   createBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationCreateBugArgs, 'input'>>;
   createCampaign?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationCreateCampaignArgs, 'input'>>;
@@ -3712,6 +3812,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createUser?: Resolver<ResolversTypes['UserCredentials'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
   createWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationCreateWebsiteSubmissionArgs, 'input'>>;
   deleteAiJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAiJobArgs, 'id'>>;
+  deleteAnnouncement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAnnouncementArgs, 'id'>>;
   deleteBlogPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBlogPostArgs, 'id'>>;
   deleteBug?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBugArgs, 'id'>>;
   deleteCampaign?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCampaignArgs, 'id'>>;
@@ -3769,6 +3870,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   trackerUploadScreenshot?: Resolver<ResolversTypes['TrackerScreenshot'], ParentType, ContextType, RequireFields<MutationTrackerUploadScreenshotArgs, 'input'>>;
   triageWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationTriageWebsiteSubmissionArgs, 'id' | 'input'>>;
   updateAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationUpdateAiJobArgs, 'id' | 'input'>>;
+  updateAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<MutationUpdateAnnouncementArgs, 'id' | 'input'>>;
   updateBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationUpdateBlogPostArgs, 'id' | 'input'>>;
   updateBranding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType, RequireFields<MutationUpdateBrandingArgs, 'input'>>;
   updateBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationUpdateBugArgs, 'id' | 'input'>>;
@@ -3899,10 +4001,12 @@ export type PromptPageResolvers<ContextType = GraphQLContext, ParentType extends
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  activeAnnouncements?: Resolver<Array<ResolversTypes['Announcement']>, ParentType, ContextType>;
   appSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType>;
   attendanceByEmployee?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType, RequireFields<QueryAttendanceByEmployeeArgs, 'employeeId'>>;
   branding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
   getAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<QueryGetAiJobArgs, 'id'>>;
+  getAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<QueryGetAnnouncementArgs, 'id'>>;
   getBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<QueryGetBlogPostArgs, 'id'>>;
   getBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<QueryGetBugArgs, 'id'>>;
   getCampaign?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<QueryGetCampaignArgs, 'id'>>;
@@ -3931,6 +4035,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listAiJobs?: Resolver<Array<ResolversTypes['AiJob']>, ParentType, ContextType>;
   listAiJobsPaged?: Resolver<ResolversTypes['AiJobPage'], ParentType, ContextType, RequireFields<QueryListAiJobsPagedArgs, 'input'>>;
   listAiJobsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listAnnouncements?: Resolver<Array<ResolversTypes['Announcement']>, ParentType, ContextType>;
+  listAnnouncementsPaged?: Resolver<ResolversTypes['AnnouncementPage'], ParentType, ContextType, RequireFields<QueryListAnnouncementsPagedArgs, 'input'>>;
+  listAnnouncementsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listAttendance?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType>;
   listBlogPosts?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType>;
   listBlogPostsPaged?: Resolver<ResolversTypes['BlogPostPage'], ParentType, ContextType, RequireFields<QueryListBlogPostsPagedArgs, 'input'>>;
@@ -4344,6 +4451,8 @@ export type WebsiteSubmissionResolvers<ContextType = GraphQLContext, ParentType 
 export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AiJob?: AiJobResolvers<ContextType>;
   AiJobPage?: AiJobPageResolvers<ContextType>;
+  Announcement?: AnnouncementResolvers<ContextType>;
+  AnnouncementPage?: AnnouncementPageResolvers<ContextType>;
   AppSettings?: AppSettingsResolvers<ContextType>;
   Attendance?: AttendanceResolvers<ContextType>;
   AuthPayload?: AuthPayloadResolvers<ContextType>;
