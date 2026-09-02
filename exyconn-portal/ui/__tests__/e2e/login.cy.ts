@@ -31,17 +31,19 @@ describe('Login flow', () => {
     cy.get('video').should('exist');
   });
 
-  it('logs in as admin and lands on the portal', () => {
+  it('logs in as admin and lands on the module launcher', () => {
     cy.visit('/login');
     cy.get('input[name="email"]').type('admin@exyconn.com');
     cy.get('input[name="password"]').type('Admin@1234');
     cy.get('button[aria-label="Log in"]').click();
     cy.wait('@loginRequest');
-    cy.url().should('include', '/portal');
     cy.contains('You have access to').should('be.visible');
   });
 
   it('blocks the portal when unauthenticated', () => {
+    // The session lives in a cookie shared across the portal subdomains, so
+    // clearing localStorage alone would leave the user signed in.
+    cy.clearCookies();
     cy.clearLocalStorage();
     cy.visit('/portal');
     cy.url().should('include', '/login');

@@ -1,27 +1,35 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2021",
-    "useDefineForClassFields": true,
-    "lib": ["ES2021", "ES2022.Intl", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "jsx": "react-jsx",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@ui": ["src/components/ui"],
-      "@ui/*": ["src/components/ui/*"]
+      "@/*": [
+        "../../packages/shell/src/*"
+      ],
+      "@exyconn/shell": [
+        "../../packages/shell/src/index.ts"
+      ],
+      "@exyconn/shell/*": [
+        "../../packages/shell/src/*"
+      ],
+      "@exyconn/login": [
+        "../../packages/login/src/index.ts"
+      ]
     },
-    "types": ["vitest/globals", "@testing-library/jest-dom"]
+    "types": [
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ]
   },
-  "include": ["src", "__tests__", "vite.config.ts", "codegen.ts"],
-  "exclude": ["**/*.cy.ts", "**/*.cy.tsx", "cypress"]
+  "include": [
+    "src",
+    "__tests__",
+    "vite.config.ts",
+    "../../packages/shell/src/vite-env.d.ts"
+  ],
+  "exclude": [
+    "**/*.cy.ts",
+    "**/*.cy.tsx",
+    "cypress"
+  ]
 }

@@ -19,7 +19,7 @@ const SERVICES = [
     color: '[36m',
   },
   {
-    name: 'portal-ui',
+    name: 'portal-hub',
     pkg: 'exyconn-portal-ui',
     port: 4003,
     url: 'http://localhost:4003',
@@ -183,6 +183,10 @@ async function main() {
   const rows = SERVICES.map((service, index) => buildRow(service, readiness[index]));
 
   process.stdout.write(`\n${renderTable(rows)}\n\n`);
+  process.stdout.write(
+    `${DIM}Module apps run on their own ports — start one with${RESET}\n` +
+      `${DIM}  pnpm --filter @exyconn/portal-app-<module> dev   (hr, ai, website, …)${RESET}\n\n`,
+  );
   process.stdout.write(`${DIM}Press Ctrl+C to stop all services.${RESET}\n\n`);
 }
 

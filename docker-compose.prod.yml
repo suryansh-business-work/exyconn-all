@@ -1,7 +1,7 @@
 # =============================================================================
 # Exyconn production stack (host: 148.135.136.107)
 #
-# Runs the five web services as containers on their assigned host ports. TLS and the
+# Runs the web services as containers on their assigned host ports. TLS and the
 # public domains are handled by the HOST nginx (sites-available) + certbot in front of
 # these ports — see deploy/nginx/ and deploy/server-setup.sh. This file does NOT run
 # nginx/certbot itself.
@@ -37,7 +37,9 @@ services:
       GITHUB_BRANCH: main
       GITHUB_PERSONAL_ACCESS_TOKEN: ${TINA_GITHUB_TOKEN}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      NEXTAUTH_URL: https://exyconn.com/api/tina/auth
+      # The Tina editor is reached at website.exyconn.com (nginx proxies /admin
+      # and /api/tina here), so its auth callback has to match that host.
+      NEXTAUTH_URL: https://website.exyconn.com/api/tina/auth
 
   tools-ui:
     image: ${DOCKERHUB_USERNAME}/exyconn-tools-ui:${TAG:-latest}
@@ -65,12 +67,106 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       GOOGLE_MAP_API: ${GOOGLE_MAP_API}
 
-  portal-ui:
-    image: ${DOCKERHUB_USERNAME}/exyconn-portal-ui:${TAG:-latest}
-    container_name: exyconn-portal-ui
+  # Portal micro-frontends: the hub plus one app per module, each on its own
+  # subdomain. They share the login cookie scoped to .exyconn.com and all talk
+  # to the single portal-server below.
+  portal-hub:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-hub:${TAG:-latest}
+    container_name: exyconn-portal-hub
     restart: unless-stopped
     ports:
       - '127.0.0.1:4003:4003'
+
+  portal-admin:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-admin:${TAG:-latest}
+    container_name: exyconn-portal-admin
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4020:4020'
+
+  portal-employee:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-employee:${TAG:-latest}
+    container_name: exyconn-portal-employee
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4021:4021'
+
+  portal-finance:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-finance:${TAG:-latest}
+    container_name: exyconn-portal-finance
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4022:4022'
+
+  portal-support:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-support:${TAG:-latest}
+    container_name: exyconn-portal-support
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4023:4023'
+
+  portal-crm:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-crm:${TAG:-latest}
+    container_name: exyconn-portal-crm
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4024:4024'
+
+  portal-products:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-products:${TAG:-latest}
+    container_name: exyconn-portal-products
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4025:4025'
+
+  portal-legal:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-legal:${TAG:-latest}
+    container_name: exyconn-portal-legal
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4026:4026'
+
+  portal-hr:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-hr:${TAG:-latest}
+    container_name: exyconn-portal-hr
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4027:4027'
+
+  portal-marketing:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-marketing:${TAG:-latest}
+    container_name: exyconn-portal-marketing
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4028:4028'
+
+  portal-projects:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-projects:${TAG:-latest}
+    container_name: exyconn-portal-projects
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4029:4029'
+
+  portal-ai:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-ai:${TAG:-latest}
+    container_name: exyconn-portal-ai
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4030:4030'
+
+  portal-website:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-website:${TAG:-latest}
+    container_name: exyconn-portal-website
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4031:4031'
+
+  portal-tracker:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-tracker:${TAG:-latest}
+    container_name: exyconn-portal-tracker
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4032:4032'
 
   portal-server:
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-server:${TAG:-latest}
@@ -84,6 +180,7 @@ services:
       MONGODB_URI: ${MONGODB_URI}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: 7d
-      CORS_ORIGIN: https://portal.exyconn.com
+      # Every portal micro-frontend calls this API from its own origin.
+      CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com
       APP_URL: https://portal.exyconn.com
-      TRACKER_DOWNLOAD_URL: https://portal.exyconn.com/me/tracker
+      TRACKER_DOWNLOAD_URL: https://employee.exyconn.com/me/tracker

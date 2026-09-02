@@ -15,7 +15,7 @@ export async function createApp(): Promise<Express> {
   await apollo.start();
 
   const app = express();
-  app.use(cors({ origin: env.corsOrigin, credentials: true }));
+  app.use(cors({ origin: env.corsOrigins, credentials: true }));
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok' });
   });

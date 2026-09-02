@@ -18,7 +18,14 @@ export const env = Object.freeze({
   mongoUri: required('MONGODB_URI'),
   jwtSecret: required('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
-  corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:1001',
+  /**
+   * Origins allowed to call the API. The portal is split into one micro-frontend
+   * per module, each on its own subdomain, so this is a comma-separated list.
+   */
+  corsOrigins: (process.env.CORS_ORIGIN ?? 'http://localhost:1001')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
   /** Public portal URL used as the login CTA inside transactional emails. */
   appUrl: process.env.APP_URL ?? 'https://portal.exyconn.com',
   /**
@@ -27,7 +34,7 @@ export const env = Object.freeze({
    */
   graphqlBodyLimit: process.env.GRAPHQL_BODY_LIMIT ?? '12mb',
   /** Download page for the desktop tracker, used as the CTA in the access-granted email. */
-  trackerDownloadUrl: process.env.TRACKER_DOWNLOAD_URL ?? 'https://portal.exyconn.com/tracker',
+  trackerDownloadUrl: process.env.TRACKER_DOWNLOAD_URL ?? 'https://employee.exyconn.com/me/tracker',
   seedAdmin: {
     name: process.env.SEED_ADMIN_NAME ?? 'Exyconn Admin',
     email: process.env.SEED_ADMIN_EMAIL ?? 'admin@exyconn.com',

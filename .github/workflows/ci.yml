@@ -26,11 +26,11 @@ jobs:
       - name: GraphQL codegen is in sync
         run: |
           pnpm codegen
-          git diff --exit-code -- exyconn-portal/server/src/graphql/generated exyconn-portal/ui/src/graphql/generated \
+          git diff --exit-code -- exyconn-portal/server/src/graphql/generated packages/shell/src/graphql/generated \
             || { echo "::error::Committed GraphQL codegen output is stale — run 'pnpm codegen' and commit the result."; exit 1; }
-      - run: pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run typecheck
-      - run: pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run lint
-      - run: pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run test
+      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run typecheck
+      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run lint
+      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run test
 
   tools-ui:
     name: Tools UI · Typecheck · Lint · Test

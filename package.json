@@ -2,7 +2,7 @@
   "name": "exyconn-portal-plus-website",
   "version": "1.0.0",
   "private": true,
-  "description": "Exyconn monorepo — portal (GraphQL server + React admin UI) and the public Astro website.",
+  "description": "Exyconn monorepo \u2014 portal (GraphQL server + React admin UI) and the public Astro website.",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=22.0.0"
@@ -10,12 +10,12 @@
   "scripts": {
     "run:all": "node scripts/run-all.js",
     "dev": "node scripts/run-all.js",
-    "build": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --filter exyconn-tracker-app --parallel run build",
-    "lint": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --filter exyconn-tracker-app --parallel run lint",
-    "typecheck": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --filter exyconn-tracker-app --parallel run typecheck",
-    "format": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --parallel run format",
-    "test": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run test",
-    "codegen": "pnpm --filter exyconn-portal-server run codegen && pnpm --filter exyconn-portal-ui run codegen",
+    "build": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --filter exyconn-tracker-app --parallel run build",
+    "lint": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --filter exyconn-tracker-app --parallel run lint",
+    "typecheck": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --filter exyconn-tracker-app --parallel run typecheck",
+    "format": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --parallel run format",
+    "test": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run test",
+    "codegen": "pnpm --filter exyconn-portal-server run codegen && pnpm --filter @exyconn/shell run codegen",
     "seed": "pnpm --filter exyconn-portal-server run seed"
   },
   "pnpm": {

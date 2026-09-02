@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "../shell/src/*"
+      ],
+      "@exyconn/shell": [
+        "../shell/src/index.ts"
+      ],
+      "@exyconn/shell/*": [
+        "../shell/src/*"
+      ]
+    }
+  },
+  "include": [
+    "src",
+    "../shell/src/vite-env.d.ts"
+  ],
+  "exclude": [
+    "**/*.cy.ts",
+    "**/*.cy.tsx"
+  ]
+}
