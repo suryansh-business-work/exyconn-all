@@ -3,9 +3,7 @@ import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { useCrudResource } from '@exyconn/crud';
 import { useListPositionsQuery, useDeletePositionMutation } from '@exyconn/shell/graphql/generated';
 import { PositionForm, type PositionRow } from './forms/position';
 
@@ -13,9 +11,12 @@ import { PositionForm, type PositionRow } from './forms/position';
 export function PositionsPage() {
   const { data, loading, refetch } = useListPositionsQuery({ fetchPolicy: 'cache-and-network' });
   const [deletePosition] = useDeletePositionMutation();
-  const dialog = useCrudDialog<PositionRow>();
-  const confirm = useConfirm();
-  const notify = useNotify();
+  const crud = useCrudResource<PositionRow>({
+    label: 'Position',
+    onDelete: (row) => deletePosition({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete position "${row.name}"?`,
+    refetch,
+  });
 
   const rows = data?.listPositions ?? [];
 
@@ -25,44 +26,29 @@ export function PositionsPage() {
     { key: 'description', label: 'Description', render: (r) => r.description ?? '—' },
   ];
 
-  const handleDelete = async (row: PositionRow) => {
-    const ok = await confirm({ message: `Delete position "${row.name}"?`, confirmText: 'Delete' });
-    if (!ok) return;
-    await deletePosition({ variables: { id: row.id } });
-    await refetch();
-    notify('Position deleted');
-  };
-
   return (
     <Box>
       <PageHeader
         title="Positions"
         subtitle="Job titles used when assigning employees"
         actionLabel="New position"
-        onAction={dialog.openCreate}
+        onAction={crud.openCreate}
       />
       <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
         <DataTable
           columns={columns}
           rows={rows}
-          onEdit={dialog.openEdit}
-          onDelete={handleDelete}
+          onEdit={crud.openEdit}
+          onDelete={crud.remove}
           emptyMessage={loading ? 'Loading…' : 'No positions yet.'}
         />
       </Box>
       <CrudDialog
-        open={dialog.open}
-        title={dialog.editing ? 'Edit position' : 'New position'}
-        onClose={dialog.close}
+        open={crud.open}
+        title={crud.editing ? 'Edit position' : 'New position'}
+        onClose={crud.close}
       >
-        <PositionForm
-          initial={dialog.editing}
-          onCancel={dialog.close}
-          onDone={() => {
-            void refetch();
-            dialog.close();
-          }}
-        />
+        <PositionForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
       </CrudDialog>
     </Box>
   );

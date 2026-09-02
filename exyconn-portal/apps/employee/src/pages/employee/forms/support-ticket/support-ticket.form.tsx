@@ -1,9 +1,8 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
@@ -55,29 +54,25 @@ export function SupportTicketForm({
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="subject" label="Subject" />
-          <RhfSelect
-            name="category"
-            label="Category"
-            options={enumOptions(Object.values(SupportCategory))}
-          />
-          <RhfSelect
-            name="priority"
-            label="Priority"
-            options={enumOptions(Object.values(SupportPriority))}
-          />
-          <RhfTextField name="description" label="Description" multiline minRows={3} />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={false}
-            onCancel={onCancel}
-            submitLabel="Raise ticket"
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm
+      methods={methods}
+      onSubmit={onSubmit}
+      isEdit={false}
+      onCancel={onCancel}
+      submitLabel="Raise ticket"
+    >
+      <RhfTextField name="subject" label="Subject" />
+      <RhfSelect
+        name="category"
+        label="Category"
+        options={enumOptions(Object.values(SupportCategory))}
+      />
+      <RhfSelect
+        name="priority"
+        label="Priority"
+        options={enumOptions(Object.values(SupportPriority))}
+      />
+      <RhfTextField name="description" label="Description" multiline minRows={3} />
+    </EntityForm>
   );
 }

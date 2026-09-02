@@ -1,9 +1,8 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect, RhfDatePicker } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { LeaveType, useApplyLeaveMutation } from '@exyconn/shell/graphql/generated';
@@ -41,25 +40,17 @@ export function ApplyLeaveForm({ onCancel, onDone }: { onCancel: () => void; onD
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfSelect
-            name="type"
-            label="Leave type"
-            options={enumOptions(Object.values(LeaveType))}
-          />
-          <RhfDatePicker name="fromDate" label="From date" />
-          <RhfDatePicker name="toDate" label="To date" />
-          <RhfTextField name="reason" label="Reason" multiline minRows={2} />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={false}
-            onCancel={onCancel}
-            submitLabel="Apply"
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm
+      methods={methods}
+      onSubmit={onSubmit}
+      isEdit={false}
+      onCancel={onCancel}
+      submitLabel="Apply"
+    >
+      <RhfSelect name="type" label="Leave type" options={enumOptions(Object.values(LeaveType))} />
+      <RhfDatePicker name="fromDate" label="From date" />
+      <RhfDatePicker name="toDate" label="To date" />
+      <RhfTextField name="reason" label="Reason" multiline minRows={2} />
+    </EntityForm>
   );
 }

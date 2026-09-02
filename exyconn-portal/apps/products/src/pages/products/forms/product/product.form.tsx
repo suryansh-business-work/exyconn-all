@@ -1,11 +1,10 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
   ProductStatus,
   useCreateProductMutation,
@@ -43,47 +42,29 @@ interface ProductFormProps {
 
 /** React Hook Form + Zod form to create or update a product. */
 export function ProductForm({ initial, onDone, onCancel }: ProductFormProps) {
-  const notify = useNotify();
   const [createProduct] = useCreateProductMutation();
   const [updateProduct] = useUpdateProductMutation();
-  const isEdit = Boolean(initial);
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    try {
-      if (isEdit && initial) await updateProduct({ variables: { id: initial.id, input: values } });
-      else await createProduct({ variables: { input: values } });
-      notify(`Product ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Product',
+    initial,
+    create: (values: Values) => createProduct({ variables: { input: values } }),
+    update: (row, values) => updateProduct({ variables: { id: row.id, input: values } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="name" label="Name" />
-          <RhfTextField name="sku" label="SKU" />
-          <RhfTextField name="price" label="Price" type="number" />
-          <RhfTextField name="category" label="Category" />
-          <RhfTextField name="stock" label="Stock" type="number" />
-          <RhfSelect
-            name="status"
-            label="Status"
-            options={enumOptions(Object.values(ProductStatus))}
-          />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="name" label="Name" />
+      <RhfTextField name="sku" label="SKU" />
+      <RhfTextField name="price" label="Price" type="number" />
+      <RhfTextField name="category" label="Category" />
+      <RhfTextField name="stock" label="Stock" type="number" />
+      <RhfSelect name="status" label="Status" options={enumOptions(Object.values(ProductStatus))} />
+    </EntityForm>
   );
 }

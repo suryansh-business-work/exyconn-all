@@ -1,10 +1,10 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Divider, Flex, Typography } from '@exyconn/shell/components/ui';
+import { Divider, Typography } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateJobCompanyMutation,
   useUpdateJobCompanyMutation,
@@ -83,89 +83,67 @@ interface JobCompanyFormProps {
 
 /** React Hook Form + Zod form to create or update a job company. */
 export function JobCompanyForm({ initial, onDone, onCancel }: Readonly<JobCompanyFormProps>) {
-  const notify = useNotify();
   const [createJobCompany] = useCreateJobCompanyMutation();
   const [updateJobCompany] = useUpdateJobCompanyMutation();
-  const isEdit = Boolean(initial);
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    try {
-      if (isEdit && initial) {
-        await updateJobCompany({ variables: { id: initial.id, input: values } });
-      } else {
-        await createJobCompany({ variables: { input: values } });
-      }
-      notify(`Company ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Company',
+    initial,
+    create: (values: Values) => createJobCompany({ variables: { input: values } }),
+    update: (row, values) => updateJobCompany({ variables: { id: row.id, input: values } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="companyCode" label="Company code" />
-          <RhfTextField name="slug" label="Slug" />
-          <RhfTextField name="name" label="Name" />
-          <RhfTextField name="logo" label="Logo URL" />
-          <RhfTextField name="tagline" label="Tagline" />
-          <RhfTextField
-            name="description"
-            label="Description (HTML)"
-            multiline
-            minRows={8}
-            helperText="Raw HTML rendered on the public website"
-          />
-          <RhfTextField
-            name="culture"
-            label="Culture (HTML)"
-            multiline
-            minRows={8}
-            helperText="Raw HTML rendered on the public website"
-          />
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="companyCode" label="Company code" />
+      <RhfTextField name="slug" label="Slug" />
+      <RhfTextField name="name" label="Name" />
+      <RhfTextField name="logo" label="Logo URL" />
+      <RhfTextField name="tagline" label="Tagline" />
+      <RhfTextField
+        name="description"
+        label="Description (HTML)"
+        multiline
+        minRows={8}
+        helperText="Raw HTML rendered on the public website"
+      />
+      <RhfTextField
+        name="culture"
+        label="Culture (HTML)"
+        multiline
+        minRows={8}
+        helperText="Raw HTML rendered on the public website"
+      />
 
-          <Divider />
-          <Typography variant="subtitle2">Company profile</Typography>
-          <RhfTextField name="website" label="Website" />
-          <RhfTextField name="founded" label="Founded" />
-          <RhfTextField name="employees" label="Employees" />
-          <RhfTextField name="industry" label="Industry" />
-          <RhfTextField name="headquarters" label="Headquarters" />
+      <Divider />
+      <Typography variant="subtitle2">Company profile</Typography>
+      <RhfTextField name="website" label="Website" />
+      <RhfTextField name="founded" label="Founded" />
+      <RhfTextField name="employees" label="Employees" />
+      <RhfTextField name="industry" label="Industry" />
+      <RhfTextField name="headquarters" label="Headquarters" />
 
-          <Divider />
-          <CompanyBenefitsFields />
+      <Divider />
+      <CompanyBenefitsFields />
 
-          <Divider />
-          <Typography variant="subtitle2">Social links</Typography>
-          <RhfTextField name="socialLinks.linkedin" label="LinkedIn" />
-          <RhfTextField name="socialLinks.twitter" label="Twitter" />
-          <RhfTextField name="socialLinks.facebook" label="Facebook" />
-          <RhfTextField name="socialLinks.instagram" label="Instagram" />
+      <Divider />
+      <Typography variant="subtitle2">Social links</Typography>
+      <RhfTextField name="socialLinks.linkedin" label="LinkedIn" />
+      <RhfTextField name="socialLinks.twitter" label="Twitter" />
+      <RhfTextField name="socialLinks.facebook" label="Facebook" />
+      <RhfTextField name="socialLinks.instagram" label="Instagram" />
 
-          <Divider />
-          <Typography variant="subtitle2">Branding & visibility</Typography>
-          <RhfTextField
-            name="brandColor"
-            label="Brand color"
-            helperText="Hex value, e.g. #f9851f"
-          />
-          <RhfTextField name="secondaryColor" label="Secondary color" />
-          <RhfTextField name="order" label="Order" type="number" />
-          <RhfSwitch name="isActive" label="Active" />
-
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+      <Divider />
+      <Typography variant="subtitle2">Branding & visibility</Typography>
+      <RhfTextField name="brandColor" label="Brand color" helperText="Hex value, e.g. #f9851f" />
+      <RhfTextField name="secondaryColor" label="Secondary color" />
+      <RhfTextField name="order" label="Order" type="number" />
+      <RhfSwitch name="isActive" label="Active" />
+    </EntityForm>
   );
 }

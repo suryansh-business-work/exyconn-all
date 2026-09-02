@@ -1,4 +1,4 @@
-const portalEslintConfig = require('../../eslint.portal.cjs');
+const portalEslintConfig = require('@exyconn/config/eslint');
 
 // The design-system wrapper, theme construction and the date-adapter wiring are
 // the only places allowed to reach for MUI directly.

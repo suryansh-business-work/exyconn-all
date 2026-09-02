@@ -19,6 +19,7 @@
     "@dnd-kit/utilities": "^3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@exyconn/config": "workspace:*",
     "@hookform/resolvers": "^5.4.0",
     "@mui/icons-material": "^6.4.0",
     "@mui/material": "^6.4.0",
@@ -64,5 +65,6 @@
     "typescript": "^5.7.3",
     "vite": "^5.4.11",
     "vitest": "^2.1.8"
-  }
+  },
+  "prettier": "@exyconn/config/prettier.json"
 }

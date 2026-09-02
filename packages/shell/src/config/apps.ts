@@ -1,26 +1,16 @@
+import appsRegistry from '@exyconn/config/apps.json';
 import { env } from './env';
 
 /**
  * Every micro-frontend that makes up the portal. Each one is its own Vite build,
  * served from its own subdomain in production and its own port in local dev, and
  * all of them talk to the single portal GraphQL server.
+ *
+ * The registry itself lives in `@exyconn/config/apps.json` so the Vite dev ports,
+ * the page `<head>` each app ships and the cross-app links below all read the same
+ * source. Adding an app means adding it there.
  */
-export const PORTAL_APPS = {
-  hub: { subdomain: 'portal', port: 4003 },
-  admin: { subdomain: 'admin', port: 4020 },
-  employee: { subdomain: 'employee', port: 4021 },
-  finance: { subdomain: 'finance', port: 4022 },
-  support: { subdomain: 'support', port: 4023 },
-  crm: { subdomain: 'crm', port: 4024 },
-  products: { subdomain: 'products', port: 4025 },
-  legal: { subdomain: 'legal', port: 4026 },
-  hr: { subdomain: 'hr', port: 4027 },
-  marketing: { subdomain: 'marketing', port: 4028 },
-  projects: { subdomain: 'projects', port: 4029 },
-  ai: { subdomain: 'ai', port: 4030 },
-  website: { subdomain: 'website', port: 4031 },
-  tracker: { subdomain: 'tracker', port: 4032 },
-} as const;
+export const PORTAL_APPS = appsRegistry;
 
 export type PortalAppKey = keyof typeof PORTAL_APPS;
 

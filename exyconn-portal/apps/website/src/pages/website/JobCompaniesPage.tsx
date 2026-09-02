@@ -1,22 +1,10 @@
-import { useCallback, useState } from 'react';
-import { useApolloClient } from '@apollo/client';
-import {
-  ServerDataGrid,
-  type TablePageResult,
-} from '@exyconn/shell/components/data/ServerDataGrid';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
+import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
   useListJobCompaniesQuery,
   useDeleteJobCompanyMutation,
   ListJobCompaniesPagedDocument,
   type ListJobCompaniesPagedQuery,
-  type ListJobCompaniesPagedQueryVariables,
-  type TableQueryInput,
 } from '@exyconn/shell/graphql/generated';
 import { JobCompanyForm, type JobCompanyRow } from './forms/job-company';
 import {
@@ -30,11 +18,15 @@ export function JobCompaniesPage() {
   // Stat cards still summarise all companies; the grid itself is server-paged.
   const { data } = useListJobCompaniesQuery();
   const [deleteJobCompany] = useDeleteJobCompanyMutation();
-  const dialog = useCrudDialog<JobCompanyRow>();
-  const confirm = useConfirm();
-  const notify = useNotify();
-  const client = useApolloClient();
-  const [refreshSignal, setRefreshSignal] = useState(0);
+  const crud = useCrudResource<JobCompanyRow, PagedJobCompanyRow>({
+    label: 'Company',
+    onDelete: (row) => deleteJobCompany({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete company ${row.name}?`,
+  });
+  const fetchRows = usePagedFetcher(
+    ListJobCompaniesPagedDocument,
+    (result: ListJobCompaniesPagedQuery) => result.listJobCompaniesPaged,
+  );
 
   const rows = data?.listJobCompanies ?? [];
   const benefitCount = rows.reduce((sum, r) => sum + r.benefits.length, 0);
@@ -46,72 +38,24 @@ export function JobCompaniesPage() {
     { label: 'Industries', value: String(industries.size), accent: '#c084fc' },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
-
-  const fetchRows = useCallback(
-    async (input: TableQueryInput): Promise<TablePageResult<PagedJobCompanyRow>> => {
-      const result = await client.query<
-        ListJobCompaniesPagedQuery,
-        ListJobCompaniesPagedQueryVariables
-      >({
-        query: ListJobCompaniesPagedDocument,
-        variables: { input },
-        fetchPolicy: 'network-only',
-      });
-      return {
-        rows: result.data.listJobCompaniesPaged.rows,
-        totalCount: result.data.listJobCompaniesPaged.totalCount,
-      };
-    },
-    [client],
-  );
-
-  const handleDelete = async (row: PagedJobCompanyRow) => {
-    const ok = await confirm({ message: `Delete company ${row.name}?`, confirmText: 'Delete' });
-    if (!ok) {
-      return;
-    }
-    await deleteJobCompany({ variables: { id: row.id } });
-    reload();
-    notify('Company deleted');
-  };
-
   const gridContext: JobCompaniesGridContext = {
-    onEdit: dialog.openEdit,
-    onDelete: handleDelete,
+    actions: { edit: crud.openEdit, delete: crud.remove },
   };
 
   return (
-    <ModuleDashboard
+    <CrudDashboard
       title="Job Companies"
       subtitle="Companies hiring through the public careers site"
-      actionLabel="New company"
-      onAction={dialog.openCreate}
+      entityLabel="company"
       stats={stats}
-      dialog={
-        <CrudDialog
-          open={dialog.open}
-          title={dialog.editing ? 'Edit company' : 'New company'}
-          onClose={dialog.close}
-        >
-          <JobCompanyForm
-            initial={dialog.editing}
-            onCancel={dialog.close}
-            onDone={() => {
-              reload();
-              dialog.close();
-            }}
-          />
-        </CrudDialog>
-      }
-    >
-      <ServerDataGrid<PagedJobCompanyRow>
-        columnDefs={JOB_COMPANY_COLUMNS}
-        fetchRows={fetchRows}
-        context={gridContext}
-        refreshSignal={refreshSignal}
-        searchPlaceholder="Search companies…"
-      />
-    </ModuleDashboard>
+      crud={crud}
+      renderForm={(initial) => (
+        <JobCompanyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+      )}
+      columnDefs={JOB_COMPANY_COLUMNS}
+      fetchRows={fetchRows}
+      context={gridContext}
+      searchPlaceholder="Search companies…"
+    />
   );
 }

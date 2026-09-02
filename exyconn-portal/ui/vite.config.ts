@@ -1,4 +1,3 @@
-import { defineConfig } from 'vitest/config';
-import { portalViteConfig } from '../../packages/shell/vite.shared';
+import { portalViteConfig } from '@exyconn/config/vite';
 
-export default defineConfig(portalViteConfig(4003));
+export default portalViteConfig('hub');

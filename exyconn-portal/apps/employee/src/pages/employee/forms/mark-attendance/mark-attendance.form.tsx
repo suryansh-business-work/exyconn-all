@@ -1,9 +1,8 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect, RhfDatePicker } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { AttendanceStatus, useMarkAttendanceMutation } from '@exyconn/shell/graphql/generated';
@@ -43,24 +42,20 @@ export function MarkAttendanceForm({
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfDatePicker name="date" label="Date" />
-          <RhfSelect
-            name="status"
-            label="Status"
-            options={enumOptions(Object.values(AttendanceStatus))}
-          />
-          <RhfTextField name="note" label="Note (optional)" multiline minRows={2} />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={false}
-            onCancel={onCancel}
-            submitLabel="Save"
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm
+      methods={methods}
+      onSubmit={onSubmit}
+      isEdit={false}
+      onCancel={onCancel}
+      submitLabel="Save"
+    >
+      <RhfDatePicker name="date" label="Date" />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={enumOptions(Object.values(AttendanceStatus))}
+      />
+      <RhfTextField name="note" label="Note (optional)" multiline minRows={2} />
+    </EntityForm>
   );
 }

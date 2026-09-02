@@ -1,15 +1,5 @@
-import { useCallback, useState } from 'react';
-import { useApolloClient } from '@apollo/client';
-import {
-  ServerDataGrid,
-  type TablePageResult,
-} from '@exyconn/shell/components/data/ServerDataGrid';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
+import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import {
@@ -17,8 +7,6 @@ import {
   useDeleteBugMutation,
   ListBugsPagedDocument,
   type ListBugsPagedQuery,
-  type ListBugsPagedQueryVariables,
-  type TableQueryInput,
 } from '@exyconn/shell/graphql/generated';
 import { BugForm, type BugRow } from './forms/bug';
 import { BUG_COLUMNS, type PagedBugRow, type BugsGridContext } from './bugs-grid';
@@ -28,12 +16,17 @@ export function BugsPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListBugsStatsQuery();
   const [deleteBug] = useDeleteBugMutation();
-  const dialog = useCrudDialog<BugRow>();
-  const confirm = useConfirm();
-  const notify = useNotify();
   const { formatDate } = useSettings();
-  const client = useApolloClient();
-  const [refreshSignal, setRefreshSignal] = useState(0);
+  const crud = useCrudResource<BugRow, PagedBugRow>({
+    label: 'Bug',
+    onDelete: (row) => deleteBug({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete bug "${row.title}"?`,
+    refetch: refetchStats,
+  });
+  const fetchRows = usePagedFetcher(
+    ListBugsPagedDocument,
+    (data: ListBugsPagedQuery) => data.listBugsPaged,
+  );
 
   const stats = statsData?.listBugsStats;
   const statItems: StatItem[] = [
@@ -51,73 +44,25 @@ export function BugsPage() {
     },
   ];
 
-  const reload = () => {
-    setRefreshSignal((n) => n + 1);
-    void refetchStats();
-  };
-
-  const fetchRows = useCallback(
-    async (input: TableQueryInput): Promise<TablePageResult<PagedBugRow>> => {
-      const result = await client.query<ListBugsPagedQuery, ListBugsPagedQueryVariables>({
-        query: ListBugsPagedDocument,
-        variables: { input },
-        fetchPolicy: 'network-only',
-      });
-      return {
-        rows: result.data.listBugsPaged.rows,
-        totalCount: result.data.listBugsPaged.totalCount,
-      };
-    },
-    [client],
-  );
-
-  const handleDelete = async (row: PagedBugRow) => {
-    const ok = await confirm({ message: `Delete bug "${row.title}"?`, confirmText: 'Delete' });
-    if (!ok) {
-      return;
-    }
-    await deleteBug({ variables: { id: row.id } });
-    reload();
-    notify('Bug deleted');
-  };
-
   const gridContext: BugsGridContext = {
-    onEdit: dialog.openEdit,
-    onDelete: handleDelete,
+    actions: { edit: crud.openEdit, delete: crud.remove },
     formatDate,
   };
 
   return (
-    <ModuleDashboard
+    <CrudDashboard
       title="Bugs"
       subtitle="Issue tracking"
-      actionLabel="New bug"
-      onAction={dialog.openCreate}
+      entityLabel="bug"
       stats={statItems}
-      dialog={
-        <CrudDialog
-          open={dialog.open}
-          title={dialog.editing ? 'Edit bug' : 'New bug'}
-          onClose={dialog.close}
-        >
-          <BugForm
-            initial={dialog.editing}
-            onCancel={dialog.close}
-            onDone={() => {
-              reload();
-              dialog.close();
-            }}
-          />
-        </CrudDialog>
-      }
-    >
-      <ServerDataGrid<PagedBugRow>
-        columnDefs={BUG_COLUMNS}
-        fetchRows={fetchRows}
-        context={gridContext}
-        refreshSignal={refreshSignal}
-        searchPlaceholder="Search bugs…"
-      />
-    </ModuleDashboard>
+      crud={crud}
+      renderForm={(initial) => (
+        <BugForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+      )}
+      columnDefs={BUG_COLUMNS}
+      fetchRows={fetchRows}
+      context={gridContext}
+      searchPlaceholder="Search bugs…"
+    />
   );
 }

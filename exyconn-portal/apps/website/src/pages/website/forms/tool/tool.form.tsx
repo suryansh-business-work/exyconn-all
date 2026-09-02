@@ -1,15 +1,14 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import {
   RhfTextField,
   RhfSelect,
   RhfChipsInput,
   RhfSwitch,
 } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateToolMutation,
   useUpdateToolMutation,
@@ -63,11 +62,9 @@ interface ToolFormProps {
  * edited here — the server's partial `$set` update keeps whatever is already stored.
  */
 export function ToolForm({ initial, onDone, onCancel }: Readonly<ToolFormProps>) {
-  const notify = useNotify();
   const [createTool] = useCreateToolMutation();
   const [updateTool] = useUpdateToolMutation();
   const { data: categoryData } = useListToolCategoriesQuery();
-  const isEdit = Boolean(initial);
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
@@ -78,58 +75,46 @@ export function ToolForm({ initial, onDone, onCancel }: Readonly<ToolFormProps>)
     value: category.slug,
   }));
 
-  const onSubmit = async (input: Values) => {
-    try {
-      if (isEdit && initial) await updateTool({ variables: { id: initial.id, input } });
-      else await createTool({ variables: { input } });
-      notify(`Tool ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Tool',
+    initial,
+    create: (values: Values) => createTool({ variables: { input: values } }),
+    update: (row, values) => updateTool({ variables: { id: row.id, input: values } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="toolCode" label="Tool code" helperText="Unique code, e.g. TL-001" />
-          <RhfSelect
-            name="categorySlug"
-            label="Category"
-            options={categoryOptions}
-            helperText="Managed under Website → Tool categories"
-          />
-          <RhfTextField name="name" label="Name" />
-          <RhfTextField name="description" label="Description" multiline minRows={2} />
-          <RhfTextField
-            name="longDescription"
-            label="Long description"
-            multiline
-            minRows={6}
-            helperText="HTML is allowed — the body is rendered as-is on the public site."
-          />
-          <RhfTextField name="url" label="URL" helperText="Where the tool lives, e.g. /tools/foo" />
-          <RhfTextField name="icon" label="Icon" helperText="Icon name rendered on the site" />
-          <RhfTextField name="color" label="Color" helperText="Hex color, e.g. #f9851f" />
-          <RhfChipsInput name="features" label="Features" />
-          <RhfChipsInput name="useCases" label="Use cases" />
-          <RhfChipsInput name="keywords" label="Keywords" />
-          <RhfSwitch name="isActive" label="Active" />
-          <RhfSwitch name="isMVP" label="MVP" />
-          <RhfTextField
-            name="order"
-            label="Order"
-            type="number"
-            helperText="Lower numbers appear first"
-          />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="toolCode" label="Tool code" helperText="Unique code, e.g. TL-001" />
+      <RhfSelect
+        name="categorySlug"
+        label="Category"
+        options={categoryOptions}
+        helperText="Managed under Website → Tool categories"
+      />
+      <RhfTextField name="name" label="Name" />
+      <RhfTextField name="description" label="Description" multiline minRows={2} />
+      <RhfTextField
+        name="longDescription"
+        label="Long description"
+        multiline
+        minRows={6}
+        helperText="HTML is allowed — the body is rendered as-is on the public site."
+      />
+      <RhfTextField name="url" label="URL" helperText="Where the tool lives, e.g. /tools/foo" />
+      <RhfTextField name="icon" label="Icon" helperText="Icon name rendered on the site" />
+      <RhfTextField name="color" label="Color" helperText="Hex color, e.g. #f9851f" />
+      <RhfChipsInput name="features" label="Features" />
+      <RhfChipsInput name="useCases" label="Use cases" />
+      <RhfChipsInput name="keywords" label="Keywords" />
+      <RhfSwitch name="isActive" label="Active" />
+      <RhfSwitch name="isMVP" label="MVP" />
+      <RhfTextField
+        name="order"
+        label="Order"
+        type="number"
+        helperText="Lower numbers appear first"
+      />
+    </EntityForm>
   );
 }

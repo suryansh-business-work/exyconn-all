@@ -5,9 +5,7 @@ import { DataTable, type Column, type RowAction } from '@exyconn/shell/component
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { useCrudResource } from '@exyconn/crud';
 import {
   useListEmailConfigsQuery,
   useDeleteEmailConfigMutation,
@@ -19,10 +17,13 @@ import { SendTestEmailForm } from './forms/send-test-email';
 export function EmailConfigsPanel() {
   const { data, loading, refetch } = useListEmailConfigsQuery();
   const [deleteConfig] = useDeleteEmailConfigMutation();
-  const dialog = useCrudDialog<EmailConfigRow>();
-  const confirm = useConfirm();
-  const notify = useNotify();
   const [testTarget, setTestTarget] = useState<EmailConfigRow | null>(null);
+  const crud = useCrudResource<EmailConfigRow>({
+    label: 'Email config',
+    onDelete: (row) => deleteConfig({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete email config "${row.label}"?`,
+    refetch,
+  });
 
   const rows = data?.listEmailConfigs ?? [];
 
@@ -47,46 +48,28 @@ export function EmailConfigsPanel() {
     },
   ];
 
-  const handleDelete = async (row: EmailConfigRow) => {
-    const ok = await confirm({
-      message: `Delete email config "${row.label}"?`,
-      confirmText: 'Delete',
-    });
-    if (!ok) return;
-    await deleteConfig({ variables: { id: row.id } });
-    await refetch();
-    notify('Email config deleted');
-  };
-
   return (
     <Box>
       <PageHeader
         title="Email configurations"
         subtitle="SMTP accounts used for outgoing email"
         actionLabel="New email config"
-        onAction={dialog.openCreate}
+        onAction={crud.openCreate}
       />
       <DataTable
         columns={columns}
         rows={rows}
         actions={actions}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
+        onEdit={crud.openEdit}
+        onDelete={crud.remove}
         emptyMessage={loading ? 'Loading…' : 'No email configs yet.'}
       />
       <CrudDialog
-        open={dialog.open}
-        title={dialog.editing ? 'Edit email config' : 'New email config'}
-        onClose={dialog.close}
+        open={crud.open}
+        title={crud.editing ? 'Edit email config' : 'New email config'}
+        onClose={crud.close}
       >
-        <EmailConfigForm
-          initial={dialog.editing}
-          onCancel={dialog.close}
-          onDone={() => {
-            void refetch();
-            dialog.close();
-          }}
-        />
+        <EmailConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
       </CrudDialog>
       <CrudDialog
         open={Boolean(testTarget)}

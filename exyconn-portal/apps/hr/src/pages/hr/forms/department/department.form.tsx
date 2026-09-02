@@ -1,10 +1,9 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateDepartmentMutation,
   useUpdateDepartmentMutation,
@@ -30,40 +29,25 @@ interface DepartmentFormProps {
 
 /** React Hook Form + Zod form to create or update a department. */
 export function DepartmentForm({ initial, onDone, onCancel }: DepartmentFormProps) {
-  const notify = useNotify();
   const [createDepartment] = useCreateDepartmentMutation();
   const [updateDepartment] = useUpdateDepartmentMutation();
-  const isEdit = Boolean(initial);
   const methods = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    try {
-      if (isEdit && initial)
-        await updateDepartment({ variables: { id: initial.id, input: values } });
-      else await createDepartment({ variables: { input: values } });
-      notify(`Department ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Department',
+    initial,
+    create: (values: Values) => createDepartment({ variables: { input: values } }),
+    update: (row, values) => updateDepartment({ variables: { id: row.id, input: values } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="name" label="Department name" />
-          <RhfTextField name="description" label="Description (optional)" multiline minRows={2} />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="name" label="Department name" />
+      <RhfTextField name="description" label="Description (optional)" multiline minRows={2} />
+    </EntityForm>
   );
 }

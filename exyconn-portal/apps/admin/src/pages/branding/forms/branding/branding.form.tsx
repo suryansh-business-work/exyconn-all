@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useForm, useFormContext, useWatch, FormProvider } from 'react-hook-form';
+import { useForm, useFormContext, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, Flex, Tab, Tabs } from '@exyconn/shell/components/ui';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { Box, Tab, Tabs } from '@exyconn/shell/components/ui';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useUpdateBrandingMutation } from '@exyconn/shell/graphql/generated';
 import { BrandingPreview } from '../../BrandingPreview';
@@ -72,26 +72,22 @@ export function BrandingForm({ initial }: Readonly<BrandingFormProps>) {
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <BrandingLivePreview />
-          <Box>
-            <Tabs value={tab} onChange={(_e, v: number) => setTab(v)} variant="scrollable">
-              {TAB_LABELS.map((label) => (
-                <Tab key={label} label={label} />
-              ))}
-            </Tabs>
-          </Box>
-          <BrandingTabPanel tab={tab} />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit
-            submitLabel="Save changes"
-            onCancel={() => methods.reset(toBrandingValues(initial))}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm
+      methods={methods}
+      onSubmit={onSubmit}
+      isEdit
+      submitLabel="Save changes"
+      onCancel={() => methods.reset(toBrandingValues(initial))}
+    >
+      <BrandingLivePreview />
+      <Box>
+        <Tabs value={tab} onChange={(_e, v: number) => setTab(v)} variant="scrollable">
+          {TAB_LABELS.map((label) => (
+            <Tab key={label} label={label} />
+          ))}
+        </Tabs>
+      </Box>
+      <BrandingTabPanel tab={tab} />
+    </EntityForm>
   );
 }

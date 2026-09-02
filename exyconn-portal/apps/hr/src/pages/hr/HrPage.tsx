@@ -5,9 +5,7 @@ import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { useCrudResource } from '@exyconn/crud';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
   useListLeaveRequestsQuery,
@@ -21,10 +19,13 @@ export function HrPage() {
   const { data, loading, refetch } = useListLeaveRequestsQuery();
   const { data: usersData } = useListUsersQuery();
   const [deleteLeaveRequest] = useDeleteLeaveRequestMutation();
-  const dialog = useCrudDialog<LeaveRequestRow>();
-  const confirm = useConfirm();
-  const notify = useNotify();
   const navigate = useNavigate();
+  const crud = useCrudResource<LeaveRequestRow>({
+    label: 'Leave request',
+    onDelete: (row) => deleteLeaveRequest({ variables: { id: row.id } }),
+    confirmMessage: () => 'Delete this leave request?',
+    refetch,
+  });
   const { formatDate } = useSettings();
 
   const rows = data?.listLeaveRequests ?? [];
@@ -65,35 +66,20 @@ export function HrPage() {
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
   ];
 
-  const handleDelete = async (row: LeaveRequestRow) => {
-    const ok = await confirm({ message: 'Delete this leave request?', confirmText: 'Delete' });
-    if (!ok) return;
-    await deleteLeaveRequest({ variables: { id: row.id } });
-    await refetch();
-    notify('Leave request deleted');
-  };
-
   return (
     <ModuleDashboard
       title="Leave Requests"
       subtitle="Apply, approve & track leave"
       actionLabel="New request"
-      onAction={dialog.openCreate}
+      onAction={crud.openCreate}
       stats={stats}
       dialog={
         <CrudDialog
-          open={dialog.open}
-          title={dialog.editing ? 'Edit request' : 'New request'}
-          onClose={dialog.close}
+          open={crud.open}
+          title={crud.editing ? 'Edit request' : 'New request'}
+          onClose={crud.close}
         >
-          <LeaveRequestForm
-            initial={dialog.editing}
-            onCancel={dialog.close}
-            onDone={() => {
-              void refetch();
-              dialog.close();
-            }}
-          />
+          <LeaveRequestForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
         </CrudDialog>
       }
     >
@@ -101,8 +87,8 @@ export function HrPage() {
         columns={columns}
         rows={rows}
         onRowClick={(row) => navigate(`/hr/employees/${row.employeeId}`)}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
+        onEdit={crud.openEdit}
+        onDelete={crud.remove}
         emptyMessage={loading ? 'Loading…' : 'No leave requests yet.'}
       />
     </ModuleDashboard>

@@ -1,9 +1,9 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Divider, Flex } from '@exyconn/shell/components/ui';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { Divider } from '@exyconn/shell/components/ui';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateJobMutation,
   useUpdateJobMutation,
@@ -77,44 +77,26 @@ interface JobFormProps {
 
 /** React Hook Form + Zod form to create or update a job posting. */
 export function JobForm({ initial, onDone, onCancel }: Readonly<JobFormProps>) {
-  const notify = useNotify();
   const [createJob] = useCreateJobMutation();
   const [updateJob] = useUpdateJobMutation();
-  const isEdit = Boolean(initial);
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    const input = toInput(values);
-    try {
-      if (isEdit && initial) {
-        await updateJob({ variables: { id: initial.id, input } });
-      } else {
-        await createJob({ variables: { input } });
-      }
-      notify(`Job ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Job',
+    initial,
+    create: (values: Values) => createJob({ variables: { input: toInput(values) } }),
+    update: (row, values) => updateJob({ variables: { id: row.id, input: toInput(values) } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <JobDetailsFields />
-          <Divider />
-          <JobContentFields />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <JobDetailsFields />
+      <Divider />
+      <JobContentFields />
+    </EntityForm>
   );
 }

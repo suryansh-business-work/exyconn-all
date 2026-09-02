@@ -1,9 +1,8 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@/components/ui';
 import { RhfTextField } from '@/components/form/rhf';
-import { FormActions } from '@/components/form/FormActions';
+import { EntityForm } from '@/components/form/EntityForm';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useSetUserBlockedMutation } from '@/graphql/generated';
 
@@ -35,24 +34,20 @@ export function BlockUserForm({ userId, onDone, onCancel }: BlockUserFormProps) 
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField
-            name="reason"
-            label="Reason for blocking"
-            multiline
-            minRows={3}
-            helperText="Shown internally; the user only sees a generic blocked message at sign-in."
-          />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={false}
-            onCancel={onCancel}
-            submitLabel="Block"
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm
+      methods={methods}
+      onSubmit={onSubmit}
+      isEdit={false}
+      onCancel={onCancel}
+      submitLabel="Block"
+    >
+      <RhfTextField
+        name="reason"
+        label="Reason for blocking"
+        multiline
+        minRows={3}
+        helperText="Shown internally; the user only sees a generic blocked message at sign-in."
+      />
+    </EntityForm>
   );
 }

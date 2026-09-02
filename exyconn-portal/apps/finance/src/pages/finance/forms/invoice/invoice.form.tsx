@@ -1,11 +1,10 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect, RhfDatePicker } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
   InvoiceStatus,
   useCreateInvoiceMutation,
@@ -42,48 +41,30 @@ interface InvoiceFormProps {
 
 /** React Hook Form + Zod form to create or update an invoice. */
 export function InvoiceForm({ initial, onDone, onCancel }: InvoiceFormProps) {
-  const notify = useNotify();
   const [createInvoice] = useCreateInvoiceMutation();
   const [updateInvoice] = useUpdateInvoiceMutation();
-  const isEdit = Boolean(initial);
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    try {
-      if (isEdit && initial) await updateInvoice({ variables: { id: initial.id, input: values } });
-      else await createInvoice({ variables: { input: values } });
-      notify(`Invoice ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Invoice',
+    initial,
+    create: (values: Values) => createInvoice({ variables: { input: values } }),
+    update: (row, values) => updateInvoice({ variables: { id: row.id, input: values } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="number" label="Invoice number" />
-          <RhfTextField name="clientId" label="Client ID" />
-          <RhfTextField name="amount" label="Amount" type="number" />
-          <RhfTextField name="currency" label="Currency" />
-          <RhfSelect
-            name="status"
-            label="Status"
-            options={enumOptions(Object.values(InvoiceStatus))}
-          />
-          <RhfDatePicker name="issuedDate" label="Issued date" />
-          <RhfDatePicker name="dueDate" label="Due date" />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="number" label="Invoice number" />
+      <RhfTextField name="clientId" label="Client ID" />
+      <RhfTextField name="amount" label="Amount" type="number" />
+      <RhfTextField name="currency" label="Currency" />
+      <RhfSelect name="status" label="Status" options={enumOptions(Object.values(InvoiceStatus))} />
+      <RhfDatePicker name="issuedDate" label="Issued date" />
+      <RhfDatePicker name="dueDate" label="Due date" />
+    </EntityForm>
   );
 }

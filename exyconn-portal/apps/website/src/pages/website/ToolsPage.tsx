@@ -1,22 +1,10 @@
-import { useCallback, useState } from 'react';
-import { useApolloClient } from '@apollo/client';
-import {
-  ServerDataGrid,
-  type TablePageResult,
-} from '@exyconn/shell/components/data/ServerDataGrid';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
+import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
   useListToolsQuery,
   useDeleteToolMutation,
   ListToolsPagedDocument,
   type ListToolsPagedQuery,
-  type ListToolsPagedQueryVariables,
-  type TableQueryInput,
 } from '@exyconn/shell/graphql/generated';
 import { ToolForm, type ToolRow } from './forms/tool';
 import { TOOL_COLUMNS, type PagedToolRow, type ToolsGridContext } from './tools-grid';
@@ -26,11 +14,15 @@ export function ToolsPage() {
   // Stat cards still summarise all tools; the grid itself is server-paged.
   const { data } = useListToolsQuery();
   const [deleteTool] = useDeleteToolMutation();
-  const dialog = useCrudDialog<ToolRow>();
-  const confirm = useConfirm();
-  const notify = useNotify();
-  const client = useApolloClient();
-  const [refreshSignal, setRefreshSignal] = useState(0);
+  const crud = useCrudResource<ToolRow, PagedToolRow>({
+    label: 'Tool',
+    onDelete: (row) => deleteTool({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete tool ${row.name}?`,
+  });
+  const fetchRows = usePagedFetcher(
+    ListToolsPagedDocument,
+    (result: ListToolsPagedQuery) => result.listToolsPaged,
+  );
 
   const rows = data?.listTools ?? [];
   const categories = new Set(rows.map((r) => r.categorySlug));
@@ -45,69 +37,24 @@ export function ToolsPage() {
     { label: 'Categories', value: String(categories.size), accent: '#b18cff' },
   ];
 
-  const reload = () => setRefreshSignal((n) => n + 1);
-
-  const fetchRows = useCallback(
-    async (input: TableQueryInput): Promise<TablePageResult<PagedToolRow>> => {
-      const result = await client.query<ListToolsPagedQuery, ListToolsPagedQueryVariables>({
-        query: ListToolsPagedDocument,
-        variables: { input },
-        fetchPolicy: 'network-only',
-      });
-      return {
-        rows: result.data.listToolsPaged.rows,
-        totalCount: result.data.listToolsPaged.totalCount,
-      };
-    },
-    [client],
-  );
-
-  const handleDelete = async (row: PagedToolRow) => {
-    const ok = await confirm({ message: `Delete tool ${row.name}?`, confirmText: 'Delete' });
-    if (!ok) {
-      return;
-    }
-    await deleteTool({ variables: { id: row.id } });
-    reload();
-    notify('Tool deleted');
-  };
-
   const gridContext: ToolsGridContext = {
-    onEdit: dialog.openEdit,
-    onDelete: handleDelete,
+    actions: { edit: crud.openEdit, delete: crud.remove },
   };
 
   return (
-    <ModuleDashboard
+    <CrudDashboard
       title="Tools"
       subtitle="The public tools directory"
-      actionLabel="New tool"
-      onAction={dialog.openCreate}
+      entityLabel="tool"
       stats={stats}
-      dialog={
-        <CrudDialog
-          open={dialog.open}
-          title={dialog.editing ? 'Edit tool' : 'New tool'}
-          onClose={dialog.close}
-        >
-          <ToolForm
-            initial={dialog.editing}
-            onCancel={dialog.close}
-            onDone={() => {
-              reload();
-              dialog.close();
-            }}
-          />
-        </CrudDialog>
-      }
-    >
-      <ServerDataGrid<PagedToolRow>
-        columnDefs={TOOL_COLUMNS}
-        fetchRows={fetchRows}
-        context={gridContext}
-        refreshSignal={refreshSignal}
-        searchPlaceholder="Search tools…"
-      />
-    </ModuleDashboard>
+      crud={crud}
+      renderForm={(initial) => (
+        <ToolForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+      )}
+      columnDefs={TOOL_COLUMNS}
+      fetchRows={fetchRows}
+      context={gridContext}
+      searchPlaceholder="Search tools…"
+    />
   );
 }

@@ -1,77 +1,20 @@
-import type { MouseEvent } from 'react';
-import type { ColDef, ICellRendererParams, ValueFormatterParams } from 'ag-grid-community';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { Flex, IconButton } from '@exyconn/shell/components/ui';
-import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import type { ColDef } from 'ag-grid-community';
+import { actionsColumn, statusColumn, textColumn, type CrudGridContext } from '@exyconn/crud';
 import type { ListAiJobsPagedQuery } from '@exyconn/shell/graphql/generated';
 
 export type PagedAiJobRow = ListAiJobsPagedQuery['listAiJobsPaged']['rows'][number];
 
-/** Page-level handlers ag-grid hands to the AI-job cells via its `context`. */
-export interface AiJobsGridContext {
-  onEdit: (row: PagedAiJobRow) => void;
-  onDelete: (row: PagedAiJobRow) => void;
-}
+/** Row handlers ag-grid hands to the shared action cells via its `context`. */
+export type AiJobsGridContext = CrudGridContext<PagedAiJobRow>;
 
-function promptFormatter(params: ValueFormatterParams<PagedAiJobRow>): string {
-  const row = params.data;
-  if (!row) {
-    return '';
-  }
-  return row.prompt.slice(0, 48);
-}
-
-function StatusCell(params: Readonly<ICellRendererParams<PagedAiJobRow>>) {
-  if (!params.data) {
-    return null;
-  }
-  return <StatusChip value={params.data.status} />;
-}
-
-function AiJobActionsCell(params: Readonly<ICellRendererParams<PagedAiJobRow>>) {
-  const row = params.data;
-  const ctx = params.context as AiJobsGridContext;
-  if (!row) {
-    return null;
-  }
-  const run = (handler: (target: PagedAiJobRow) => void) => (event: MouseEvent) => {
-    event.stopPropagation();
-    handler(row);
-  };
-  return (
-    <Flex direction="row" spacing={0.25}>
-      <IconButton size="small" aria-label="edit" onClick={run(ctx.onEdit)}>
-        <EditIcon fontSize="small" />
-      </IconButton>
-      <IconButton size="small" aria-label="delete" onClick={run(ctx.onDelete)}>
-        <DeleteIcon fontSize="small" />
-      </IconButton>
-    </Flex>
-  );
-}
+/** How much of a prompt fits in the grid cell before it is truncated. */
+const PROMPT_PREVIEW_CHARS = 48;
 
 /** Column model for the server-side AI Jobs grid. Name/Model/Prompt hit the server filter. */
 export const AI_JOB_COLUMNS: ColDef<PagedAiJobRow>[] = [
-  { field: 'name', headerName: 'Name' },
-  { field: 'model', headerName: 'Model' },
-  { field: 'prompt', headerName: 'Prompt', valueFormatter: promptFormatter },
-  {
-    field: 'status',
-    headerName: 'Status',
-    cellRenderer: StatusCell,
-    filter: false,
-    floatingFilter: false,
-  },
-  {
-    colId: 'actions',
-    headerName: '',
-    cellRenderer: AiJobActionsCell,
-    sortable: false,
-    filter: false,
-    floatingFilter: false,
-    flex: 0,
-    width: 120,
-    minWidth: 120,
-  },
+  textColumn('name', 'Name'),
+  textColumn('model', 'Model'),
+  textColumn('prompt', 'Prompt', (row) => row.prompt.slice(0, PROMPT_PREVIEW_CHARS)),
+  statusColumn('status', 'Status'),
+  actionsColumn(),
 ];

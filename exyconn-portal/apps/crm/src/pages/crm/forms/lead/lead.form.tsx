@@ -1,11 +1,10 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
-import { FormActions } from '@exyconn/shell/components/form/FormActions';
+import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
   LeadSource,
   LeadStage,
@@ -41,47 +40,29 @@ interface LeadFormProps {
 
 /** React Hook Form + Zod form to create or update a lead. */
 export function LeadForm({ initial, onDone, onCancel }: LeadFormProps) {
-  const notify = useNotify();
   const [createLead] = useCreateLeadMutation();
   const [updateLead] = useUpdateLeadMutation();
-  const isEdit = Boolean(initial);
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const onSubmit = async (values: Values) => {
-    try {
-      if (isEdit && initial) await updateLead({ variables: { id: initial.id, input: values } });
-      else await createLead({ variables: { input: values } });
-      notify(`Lead ${isEdit ? 'updated' : 'created'}`);
-      onDone();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  };
+  const { isEdit, onSubmit } = useEntitySave({
+    label: 'Lead',
+    initial,
+    create: (values: Values) => createLead({ variables: { input: values } }),
+    update: (row, values) => updateLead({ variables: { id: row.id, input: values } }),
+    onDone,
+  });
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={2.5}>
-          <RhfTextField name="name" label="Name" />
-          <RhfTextField name="email" label="Email" type="email" />
-          <RhfSelect
-            name="source"
-            label="Source"
-            options={enumOptions(Object.values(LeadSource))}
-          />
-          <RhfSelect name="stage" label="Stage" options={enumOptions(Object.values(LeadStage))} />
-          <RhfTextField name="value" label="Value" type="number" />
-          <RhfTextField name="owner" label="Owner" />
-          <FormActions
-            submitting={methods.formState.isSubmitting}
-            isEdit={isEdit}
-            onCancel={onCancel}
-          />
-        </Flex>
-      </form>
-    </FormProvider>
+    <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfTextField name="name" label="Name" />
+      <RhfTextField name="email" label="Email" type="email" />
+      <RhfSelect name="source" label="Source" options={enumOptions(Object.values(LeadSource))} />
+      <RhfSelect name="stage" label="Stage" options={enumOptions(Object.values(LeadStage))} />
+      <RhfTextField name="value" label="Value" type="number" />
+      <RhfTextField name="owner" label="Owner" />
+    </EntityForm>
   );
 }

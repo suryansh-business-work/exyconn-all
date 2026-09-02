@@ -3,9 +3,7 @@ import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { useCrudResource } from '@exyconn/crud';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
   useListWebsiteSubmissionsQuery,
@@ -18,9 +16,12 @@ import { SubmissionPayload } from './SubmissionPayload';
 export function WebsiteSubmissionsPage() {
   const { data, loading, refetch } = useListWebsiteSubmissionsQuery();
   const [deleteSubmission] = useDeleteWebsiteSubmissionMutation();
-  const dialog = useCrudDialog<WebsiteSubmissionRow>();
-  const confirm = useConfirm();
-  const notify = useNotify();
+  const crud = useCrudResource<WebsiteSubmissionRow>({
+    label: 'Submission',
+    onDelete: (row) => deleteSubmission({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete this ${row.formType} submission?`,
+    refetch,
+  });
   const { formatDate } = useSettings();
 
   const rows = data?.listWebsiteSubmissions ?? [];
@@ -39,34 +40,20 @@ export function WebsiteSubmissionsPage() {
     { key: 'createdAt', label: 'Received', render: (r) => formatDate(r.createdAt) },
   ];
 
-  const handleDelete = async (row: WebsiteSubmissionRow) => {
-    const ok = await confirm({
-      message: `Delete this ${row.formType} submission?`,
-      confirmText: 'Delete',
-    });
-    if (!ok) return;
-    await deleteSubmission({ variables: { id: row.id } });
-    await refetch();
-    notify('Submission deleted');
-  };
-
   return (
     <ModuleDashboard
       title="Form submissions"
       subtitle="Enquiries captured by the exyconn.com website"
       stats={stats}
       dialog={
-        <CrudDialog open={dialog.open} title="Triage submission" onClose={dialog.close}>
-          {dialog.editing && (
+        <CrudDialog open={crud.open} title="Triage submission" onClose={crud.close}>
+          {crud.editing && (
             <>
-              <SubmissionPayload data={dialog.editing.submissionData} />
+              <SubmissionPayload data={crud.editing.submissionData} />
               <SubmissionTriageForm
-                submission={dialog.editing}
-                onCancel={dialog.close}
-                onDone={() => {
-                  void refetch();
-                  dialog.close();
-                }}
+                submission={crud.editing}
+                onCancel={crud.close}
+                onDone={crud.onDone}
               />
             </>
           )}
@@ -76,8 +63,8 @@ export function WebsiteSubmissionsPage() {
       <DataTable
         columns={columns}
         rows={rows}
-        onEdit={dialog.openEdit}
-        onDelete={handleDelete}
+        onEdit={crud.openEdit}
+        onDelete={crud.remove}
         emptyMessage={loading ? 'Loading…' : 'No submissions yet.'}
       />
     </ModuleDashboard>

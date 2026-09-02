@@ -1,3 +1,3 @@
-const portalEslintConfig = require('../../eslint.portal.cjs');
+const portalEslintConfig = require('@exyconn/config/eslint');
 
 module.exports = portalEslintConfig({ uiImport: '@exyconn/shell/components/ui' });

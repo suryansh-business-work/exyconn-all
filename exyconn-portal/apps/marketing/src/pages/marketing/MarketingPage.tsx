@@ -1,15 +1,7 @@
-import { useCallback, useState } from 'react';
-import { useApolloClient } from '@apollo/client';
-import {
-  ServerDataGrid,
-  type TablePageResult,
-} from '@exyconn/shell/components/data/ServerDataGrid';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
+import { useState } from 'react';
+import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { statCount, statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
 import {
@@ -17,8 +9,6 @@ import {
   useDeleteCampaignMutation,
   ListCampaignsPagedDocument,
   type ListCampaignsPagedQuery,
-  type ListCampaignsPagedQueryVariables,
-  type TableQueryInput,
 } from '@exyconn/shell/graphql/generated';
 import { CampaignForm, type CampaignRow } from './forms/campaign';
 import { SendCampaignForm } from './forms/send-campaign';
@@ -34,14 +24,19 @@ export function MarketingPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListCampaignsStatsQuery();
   const [deleteCampaign] = useDeleteCampaignMutation();
-  const dialog = useCrudDialog<CampaignRow>();
   const [detailsTarget, setDetailsTarget] = useState<CampaignRow | null>(null);
   const [sendTarget, setSendTarget] = useState<CampaignRow | null>(null);
-  const confirm = useConfirm();
-  const notify = useNotify();
   const { formatDate } = useSettings();
-  const client = useApolloClient();
-  const [refreshSignal, setRefreshSignal] = useState(0);
+  const crud = useCrudResource<CampaignRow, PagedCampaignRow>({
+    label: 'Campaign',
+    onDelete: (row) => deleteCampaign({ variables: { id: row.id } }),
+    confirmMessage: (row) => `Delete campaign "${row.name}"?`,
+    refetch: refetchStats,
+  });
+  const fetchRows = usePagedFetcher(
+    ListCampaignsPagedDocument,
+    (data: ListCampaignsPagedQuery) => data.listCampaignsPaged,
+  );
 
   const stats = statsData?.listCampaignsStats;
   // "Sent" counts campaigns whose nullable `lastSentAt` is set = total minus the null bucket.
@@ -57,102 +52,53 @@ export function MarketingPage() {
     { label: 'Sent', value: String(sent), accent: '#f9851f' },
   ];
 
-  const reload = () => {
-    setRefreshSignal((n) => n + 1);
-    void refetchStats();
-  };
-
-  const fetchRows = useCallback(
-    async (input: TableQueryInput): Promise<TablePageResult<PagedCampaignRow>> => {
-      const result = await client.query<ListCampaignsPagedQuery, ListCampaignsPagedQueryVariables>({
-        query: ListCampaignsPagedDocument,
-        variables: { input },
-        fetchPolicy: 'network-only',
-      });
-      return {
-        rows: result.data.listCampaignsPaged.rows,
-        totalCount: result.data.listCampaignsPaged.totalCount,
-      };
-    },
-    [client],
-  );
-
-  const handleDelete = async (row: PagedCampaignRow) => {
-    const ok = await confirm({ message: `Delete campaign "${row.name}"?`, confirmText: 'Delete' });
-    if (!ok) {
-      return;
-    }
-    await deleteCampaign({ variables: { id: row.id } });
-    reload();
-    notify('Campaign deleted');
-  };
-
   const gridContext: CampaignsGridContext = {
-    onEdit: dialog.openEdit,
-    onDelete: handleDelete,
-    onViewDetails: setDetailsTarget,
-    onSend: setSendTarget,
+    actions: {
+      view: setDetailsTarget,
+      send: setSendTarget,
+      edit: crud.openEdit,
+      delete: crud.remove,
+    },
     formatDate,
   };
 
+  const closeDetails = () => setDetailsTarget(null);
+  const closeSend = () => setSendTarget(null);
+
   return (
-    <ModuleDashboard
+    <CrudDashboard
       title="Marketing"
       subtitle="Campaigns"
-      actionLabel="New campaign"
-      onAction={dialog.openCreate}
+      entityLabel="campaign"
       stats={statItems}
-      dialog={
+      crud={crud}
+      renderForm={(initial) => (
+        <CampaignForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+      )}
+      columnDefs={CAMPAIGN_COLUMNS}
+      fetchRows={fetchRows}
+      context={gridContext}
+      searchPlaceholder="Search campaigns…"
+      extraDialogs={
         <>
-          <CrudDialog
-            open={dialog.open}
-            title={dialog.editing ? 'Edit campaign' : 'New campaign'}
-            onClose={dialog.close}
-          >
-            <CampaignForm
-              initial={dialog.editing}
-              onCancel={dialog.close}
-              onDone={() => {
-                reload();
-                dialog.close();
-              }}
-            />
-          </CrudDialog>
-
-          <CrudDialog
-            open={Boolean(detailsTarget)}
-            title="Campaign details"
-            onClose={() => setDetailsTarget(null)}
-          >
+          <CrudDialog open={Boolean(detailsTarget)} title="Campaign details" onClose={closeDetails}>
             {detailsTarget && <CampaignDetails campaign={detailsTarget} />}
           </CrudDialog>
 
-          <CrudDialog
-            open={Boolean(sendTarget)}
-            title="Send campaign"
-            onClose={() => setSendTarget(null)}
-          >
+          <CrudDialog open={Boolean(sendTarget)} title="Send campaign" onClose={closeSend}>
             {sendTarget && (
               <SendCampaignForm
                 campaign={sendTarget}
-                onCancel={() => setSendTarget(null)}
+                onCancel={closeSend}
                 onDone={() => {
-                  reload();
-                  setSendTarget(null);
+                  crud.reload();
+                  closeSend();
                 }}
               />
             )}
           </CrudDialog>
         </>
       }
-    >
-      <ServerDataGrid<PagedCampaignRow>
-        columnDefs={CAMPAIGN_COLUMNS}
-        fetchRows={fetchRows}
-        context={gridContext}
-        refreshSignal={refreshSignal}
-        searchPlaceholder="Search campaigns…"
-      />
-    </ModuleDashboard>
+    />
   );
 }
