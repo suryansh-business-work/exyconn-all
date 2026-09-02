@@ -12,12 +12,14 @@ import {
   SupportPage,
   CalendarPage,
   MyTrackerPage,
+  DashboardPage,
 } from './pages/employee';
 
 /** My Workspace micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
   return (
-    <PortalApp loginElement={<Login />} moduleRole={ROLES.EMPLOYEE} homePath="/profile">
+    <PortalApp loginElement={<Login />} moduleRole={ROLES.EMPLOYEE} homePath="/me">
+      <Route path="/me" element={<DashboardPage />} />
       <Route path="/me/payroll" element={<PayrollPage />} />
       <Route path="/me/salary-slips" element={<SalarySlipsPage />} />
       <Route path="/me/leave" element={<MyLeavePage />} />

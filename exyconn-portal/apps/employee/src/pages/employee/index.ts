@@ -1,3 +1,4 @@
+export { DashboardPage } from './dashboard';
 export { MyLeavePage } from './MyLeavePage';
 export { MyAttendancePage } from './MyAttendancePage';
 export { PayrollPage } from './PayrollPage';

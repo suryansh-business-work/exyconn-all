@@ -75,12 +75,13 @@ export const MODULES: ModuleDefinition[] = [
   {
     key: 'employee',
     label: 'My Workspace',
-    path: '/profile',
+    path: '/me',
     role: ROLES.EMPLOYEE,
     icon: BadgeIcon,
     description: 'Payroll, leave, holidays & support',
     accent: '#14b8a6',
     children: [
+      { key: 'me-dashboard', label: 'Dashboard', path: '/me', icon: DashboardIcon },
       { key: 'me-profile', label: 'My Profile', path: '/profile', icon: PersonIcon },
       { key: 'me-payroll', label: 'Payroll', path: '/me/payroll', icon: PaymentsIcon },
       {
