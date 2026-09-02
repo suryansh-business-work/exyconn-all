@@ -1,16 +1,17 @@
-import { defineConfig } from "tinacms";
+import { LocalAuthProvider, defineConfig } from "tinacms";
+import { TinaUserCollection, UsernamePasswordAuthJSProvider } from "tinacms-authjs/dist/tinacms";
 import { blogCollection } from "./collections/blog";
 import { caseStudyCollection } from "./collections/case-study";
 
-// Only used when the editor is hosted through TinaCloud, which commits edits to this
-// branch. `pnpm dev` runs the editor locally and writes straight to the working tree.
-const branch = process.env.GITHUB_BRANCH ?? process.env.HEAD ?? "main";
+// `pnpm dev` (TINA_PUBLIC_IS_LOCAL=true) edits the working tree without a login. The production
+// editor at /admin signs in against the users collection kept in the self-hosted database.
+const isLocal = process.env.TINA_PUBLIC_IS_LOCAL === "true";
 
 export default defineConfig({
   telemetry: "disabled",
-  branch,
-  clientId: process.env.PUBLIC_TINA_CLIENT_ID,
-  token: process.env.TINA_TOKEN,
+  // Self-hosted backend, served by src/pages/api/tina/[...routes].ts on the same origin.
+  contentApiUrlOverride: "/api/tina/gql",
+  authProvider: isLocal ? new LocalAuthProvider() : new UsernamePasswordAuthJSProvider(),
   build: {
     outputFolder: "admin",
     publicFolder: "public",
@@ -19,9 +20,12 @@ export default defineConfig({
     tina: {
       mediaRoot: "uploads",
       publicFolder: "public",
+      // Without TinaCloud there is no upload service: the media manager lists the files
+      // committed under public/uploads, and image fields also accept a pasted URL.
+      static: true,
     },
   },
   schema: {
-    collections: [blogCollection, caseStudyCollection],
+    collections: [TinaUserCollection, blogCollection, caseStudyCollection],
   },
 });

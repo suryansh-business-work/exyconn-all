@@ -6,8 +6,8 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "dev": "tinacms dev --port 4005 -c \"astro dev\"",
-    "build": "astro build",
+    "dev": "TINA_PUBLIC_IS_LOCAL=true tinacms dev --port 4005 -c \"astro dev\"",
+    "build": "tinacms build --skip-indexing && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check && tsc --noEmit",
@@ -24,14 +24,19 @@
     "@astrojs/node": "^9.5.2",
     "@astrojs/react": "^4.4.2",
     "@tailwindcss/vite": "^4.1.18",
+    "@tinacms/datalayer": "^2.0.29",
+    "@tinacms/schema-tools": "^2.9.0",
     "animejs": "^4.3.6",
     "astro": "^5.17.1",
     "formik": "^2.4.9",
+    "mongodb-level": "^0.0.4",
+    "next-auth": "^4.24.15",
     "nodemailer": "^8.0.4",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "sass": "^1.97.3",
     "tailwindcss": "^4.1.18",
+    "tinacms-gitprovider-github": "^4.1.16",
     "yup": "^1.7.1"
   },
   "devDependencies": {
@@ -49,6 +54,7 @@
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
     "tinacms": "^3.12.1",
+    "tinacms-authjs": "^24.0.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.54.0",
     "vitest": "^3.0.0"

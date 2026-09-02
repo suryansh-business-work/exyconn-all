@@ -102,18 +102,22 @@ Open [http://localhost:4000](http://localhost:4000)
 
 ## ✍️ Content (TinaCMS)
 
-Blog posts and case studies are markdown files edited with [TinaCMS](https://tina.io):
+Blog posts and case studies are markdown files edited with a self-hosted [TinaCMS](https://tina.io):
 
 | What | Where |
 |------|-------|
 | Blog posts | `src/content/blog/*.md` (filename = URL slug) |
 | Case studies | `src/content/case-studies/*.md` (filename = URL slug) |
-| Editor schema | `tina/collections/` |
+| Editor users | `content/users/index.json` (seed only, see below) |
+| Editor schema | `tina/collections/`, `tina/config.ts`, `tina/database.ts` |
+| Editor backend | `src/pages/api/tina/[...routes].ts` (GraphQL + Auth.js) |
 | Page data | `src/content.config.ts` + `src/lib/content/` |
 
-- `pnpm dev` starts the TinaCMS editor alongside Astro. Open [http://localhost:4000/admin/index.html](http://localhost:4000/admin/index.html); every save writes the markdown file to disk.
-- Publishing is a commit: push the changed files on a branch, open a PR and merge to `main`, which deploys the site.
-- To host the editor on the live site, create a project at [app.tina.io](https://app.tina.io), provide `PUBLIC_TINA_CLIENT_ID` and `TINA_TOKEN` at build time and change the `build` script to `tinacms build --content=local -c "astro build"`.
+**Editing on the live site.** Open [https://exyconn.com/admin](https://exyconn.com/admin) and sign in. Every save is committed to `main` on GitHub, and that push deploys the site with the new content. The backend runs inside this app: the content index lives in MongoDB (`MONGODB_URI`, database `tinacms`), commits use `GITHUB_PERSONAL_ACCESS_TOKEN`, and sessions are signed with `NEXTAUTH_SECRET` (see `.env.example` and `DEPLOYMENT.md`).
+
+**Users.** `content/users/index.json` seeds the editor's users the first time the database is indexed; after that, users and passwords live only in the database and are never written back to git. The seeded account must change its password on first login. Add or remove users from the *Users* screen in the editor.
+
+**Editing locally.** `pnpm dev` starts the editor against your working tree with no login at [http://localhost:4000/admin/index.html](http://localhost:4000/admin/index.html); every save writes the markdown file to disk, and you commit it like any other change.
 
 ## 🔄 CI/CD
 
