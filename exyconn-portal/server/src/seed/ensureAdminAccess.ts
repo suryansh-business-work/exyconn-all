@@ -5,33 +5,38 @@ import { env } from '../config/env';
 import { logger } from '../utils/logger';
 
 /**
- * Guarantees the portal stays administrable. Runs on every boot, but only acts
- * when NO user holds ADMIN — a fresh database gets the configured admin, and a
- * database that lost every administrator (role edited away, account deleted)
- * gets it back on the seed account. Because it is a no-op whenever any admin
- * exists, it never fights a deliberate change made by a real administrator.
+ * Keeps the configured bootstrap account able to administer the portal. Runs on
+ * every boot: creates it on a fresh database, and re-grants ADMIN (plus
+ * un-blocks and re-activates it) whenever something has taken that away.
+ *
+ * This one account is deliberately not demotable — an edit in Admin > Users that
+ * strips its ADMIN role is exactly how the portal previously ended up with
+ * nobody able to administer it. Every other user's roles are left alone, and no
+ * existing password is ever overwritten.
  */
 export async function ensureAdminAccess(): Promise<void> {
-  if (await UserModel.exists({ roles: ROLES.ADMIN })) return;
-
   const email = env.seedAdmin.email.toLowerCase();
   const existing = await UserModel.findOne({ email });
 
-  if (existing) {
-    existing.roles = Array.from(new Set([...existing.roles, ROLES.ADMIN])) as Role[];
-    existing.isActive = true;
-    existing.isBlocked = false;
-    await existing.save();
-    logger.warn(`No ADMIN user existed — restored the ADMIN role on ${email}`);
+  if (!existing) {
+    await UserModel.create({
+      name: env.seedAdmin.name,
+      email,
+      passwordHash: await hashPassword(env.seedAdmin.password),
+      roles: [ROLES.ADMIN],
+      isActive: true,
+    });
+    logger.warn(`Created the bootstrap ADMIN account ${email}`);
     return;
   }
 
-  await UserModel.create({
-    name: env.seedAdmin.name,
-    email,
-    passwordHash: await hashPassword(env.seedAdmin.password),
-    roles: [ROLES.ADMIN],
-    isActive: true,
-  });
-  logger.warn(`No ADMIN user existed — created the seed ADMIN ${email}`);
+  const canAdminister =
+    existing.roles.includes(ROLES.ADMIN) && existing.isActive && !existing.isBlocked;
+  if (canAdminister) return;
+
+  existing.roles = Array.from(new Set([...existing.roles, ROLES.ADMIN])) as Role[];
+  existing.isActive = true;
+  existing.isBlocked = false;
+  await existing.save();
+  logger.warn(`Restored ADMIN access on the bootstrap account ${email}`);
 }

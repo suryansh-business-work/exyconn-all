@@ -29,13 +29,34 @@ describe('ensureAdminAccess', () => {
     expect(admin?.roles).toEqual(expect.arrayContaining([ROLES.EMPLOYEE, ROLES.ADMIN]));
   });
 
-  it('leaves an existing administrator completely alone', async () => {
-    const other = await seedUser('boss@exyconn.com', 'whatever123', [ROLES.ADMIN]);
+  it('re-grants ADMIN even when another administrator exists', async () => {
+    await seedUser('boss@exyconn.com', 'whatever123', [ROLES.ADMIN]);
     await seedUser(ADMIN_EMAIL, 'whatever123', [ROLES.EMPLOYEE]);
     await ensureAdminAccess();
     const seedAdmin = await UserModel.findOne({ email: ADMIN_EMAIL });
-    expect(seedAdmin?.roles).toEqual([ROLES.EMPLOYEE]);
-    expect((await UserModel.findById(other.id))?.roles).toEqual([ROLES.ADMIN]);
+    expect(seedAdmin?.roles).toEqual(expect.arrayContaining([ROLES.EMPLOYEE, ROLES.ADMIN]));
+  });
+
+  it('un-blocks and re-activates the bootstrap account', async () => {
+    const user = await seedUser(ADMIN_EMAIL, 'whatever123', [ROLES.ADMIN]);
+    await UserModel.updateOne({ _id: user.id }, { isActive: false, isBlocked: true });
+    await ensureAdminAccess();
+    const admin = await UserModel.findOne({ email: ADMIN_EMAIL });
+    expect(admin?.isActive).toBe(true);
+    expect(admin?.isBlocked).toBe(false);
+  });
+
+  it("never touches another user's roles", async () => {
+    const other = await seedUser('staff@exyconn.com', 'whatever123', [ROLES.HR]);
+    await ensureAdminAccess();
+    expect((await UserModel.findById(other.id))?.roles).toEqual([ROLES.HR]);
+  });
+
+  it('leaves an existing password untouched', async () => {
+    await seedUser(ADMIN_EMAIL, 'knownpass123', [ROLES.EMPLOYEE]);
+    await ensureAdminAccess();
+    const { user } = await authService.login(ADMIN_EMAIL, 'knownpass123');
+    expect(user.roles).toContain(ROLES.ADMIN);
   });
 });
 

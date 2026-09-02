@@ -17,19 +17,25 @@ import {
   Toolbar,
   Typography,
 } from '@/components/ui';
-import { accessibleModules, type ModuleDefinition } from '@/config/modules';
+import type { ModuleDefinition } from '@/config/modules';
 import { env } from '@/config/env';
 import type { Role } from '@/auth/roles';
 import { useCrossAppNavigate } from '@/hooks/useCrossAppNavigate';
 import type { PortalAppKey } from '@/config/apps';
 import { PortalSwitcher } from '@/layout/PortalSwitcher';
+import { navModules } from './moduleNav';
+import { ModuleNavList } from './ModuleNavList';
 
 interface SidebarProps {
   roles: Role[];
   onNavigate?: () => void;
 }
 
-/** Lists the modules the current user can open, with nested children + search. */
+/**
+ * Navigation for this portal. The hub lists every module the roles can open; a
+ * module app shows only its own pages, because every other portal is one click
+ * away in the switcher above.
+ */
 export function Sidebar({ roles, onNavigate }: SidebarProps) {
   const navigateTo = useCrossAppNavigate();
   const { pathname } = useLocation();
@@ -37,11 +43,13 @@ export function Sidebar({ roles, onNavigate }: SidebarProps) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
+  const isHub = env.portalApp === 'hub';
   const modules = useMemo(() => {
+    const scoped = navModules(roles, env.portalApp);
     const q = query.trim().toLowerCase();
-    const all = accessibleModules(roles);
-    return q ? all.filter((m) => `${m.label} ${m.description}`.toLowerCase().includes(q)) : all;
-  }, [roles, query]);
+    if (!q || !isHub) return scoped;
+    return scoped.filter((m) => `${m.label} ${m.description}`.toLowerCase().includes(q));
+  }, [roles, query, isHub]);
 
   const go = (app: PortalAppKey, path: string) => {
     navigateTo(app, path);
@@ -128,7 +136,7 @@ export function Sidebar({ roles, onNavigate }: SidebarProps) {
       <Box sx={{ px: 1.5, pb: 1 }}>
         <TextField
           fullWidth
-          placeholder="Search modules…"
+          placeholder={isHub ? 'Search modules…' : 'Search pages…'}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           InputProps={{
@@ -142,14 +150,26 @@ export function Sidebar({ roles, onNavigate }: SidebarProps) {
         />
       </Box>
 
-      <List sx={{ px: 1 }}>
-        {modules.length === 0 && (
-          <Typography variant="caption" color="text.secondary" sx={{ px: 2 }}>
-            No modules match “{query}”.
-          </Typography>
-        )}
-        {modules.map(renderParent)}
-      </List>
+      {isHub ? (
+        <List sx={{ px: 1 }}>
+          {modules.length === 0 && (
+            <Typography variant="caption" color="text.secondary" sx={{ px: 2 }}>
+              No modules match “{query}”.
+            </Typography>
+          )}
+          {modules.map(renderParent)}
+        </List>
+      ) : (
+        modules.map((module) => (
+          <ModuleNavList
+            key={module.key}
+            module={module}
+            pathname={pathname}
+            query={query}
+            onSelect={(path) => go(module.key, path)}
+          />
+        ))
+      )}
     </Box>
   );
 }
