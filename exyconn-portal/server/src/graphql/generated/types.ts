@@ -665,6 +665,82 @@ export enum EmploymentStatus {
   Terminated = 'TERMINATED'
 }
 
+export type EmploymentType = {
+  __typename?: 'EmploymentType';
+  active: Scalars['Boolean']['output'];
+  code: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  payrollEligible: Scalars['Boolean']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type EmploymentTypeInput = {
+  active: Scalars['Boolean']['input'];
+  code: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  payrollEligible: Scalars['Boolean']['input'];
+};
+
+export type EmploymentTypePage = {
+  __typename?: 'EmploymentTypePage';
+  rows: Array<EmploymentType>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type ExitRecord = {
+  __typename?: 'ExitRecord';
+  assetsReturned: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** Days left until the last working day; null once it has passed or is unset. */
+  daysToLastWorkingDay?: Maybe<Scalars['Int']['output']>;
+  documentsIssued: Scalars['Boolean']['output'];
+  employeeId: Scalars['String']['output'];
+  exitInterviewNotes: Scalars['String']['output'];
+  finalSettlementAmount?: Maybe<Scalars['Float']['output']>;
+  id: Scalars['ID']['output'];
+  knowledgeTransferDone: Scalars['Boolean']['output'];
+  lastWorkingDate?: Maybe<Scalars['DateTime']['output']>;
+  noticePeriodDays: Scalars['Int']['output'];
+  reason: Scalars['String']['output'];
+  resignationDate: Scalars['DateTime']['output'];
+  stage: ExitStage;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type ExitRecordInput = {
+  assetsReturned: Scalars['Boolean']['input'];
+  documentsIssued: Scalars['Boolean']['input'];
+  employeeId: Scalars['String']['input'];
+  exitInterviewNotes: Scalars['String']['input'];
+  finalSettlementAmount?: InputMaybe<Scalars['Float']['input']>;
+  knowledgeTransferDone: Scalars['Boolean']['input'];
+  lastWorkingDate?: InputMaybe<Scalars['DateTime']['input']>;
+  noticePeriodDays: Scalars['Int']['input'];
+  reason: Scalars['String']['input'];
+  resignationDate: Scalars['DateTime']['input'];
+  stage: ExitStage;
+};
+
+export type ExitRecordPage = {
+  __typename?: 'ExitRecordPage';
+  rows: Array<ExitRecord>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ExitStage {
+  Approved = 'APPROVED',
+  Clearance = 'CLEARANCE',
+  Exited = 'EXITED',
+  FullAndFinal = 'FULL_AND_FINAL',
+  NoticePeriod = 'NOTICE_PERIOD',
+  Resigned = 'RESIGNED',
+  Withdrawn = 'WITHDRAWN'
+}
+
 export type ExpenseClaim = {
   __typename?: 'ExpenseClaim';
   amount: Scalars['Float']['output'];
@@ -804,6 +880,34 @@ export enum GoalStatus {
   Completed = 'COMPLETED',
   Draft = 'DRAFT'
 }
+
+export type Grade = {
+  __typename?: 'Grade';
+  active: Scalars['Boolean']['output'];
+  code: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  level: Scalars['Int']['output'];
+  maxSalary: Scalars['Float']['output'];
+  minSalary: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type GradeInput = {
+  active: Scalars['Boolean']['input'];
+  code: Scalars['String']['input'];
+  level: Scalars['Int']['input'];
+  maxSalary: Scalars['Float']['input'];
+  minSalary: Scalars['Float']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type GradePage = {
+  __typename?: 'GradePage';
+  rows: Array<Grade>;
+  totalCount: Scalars['Int']['output'];
+};
 
 export type HeadcountPoint = {
   __typename?: 'HeadcountPoint';
@@ -1180,6 +1284,38 @@ export type LegalDocumentPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type Location = {
+  __typename?: 'Location';
+  active: Scalars['Boolean']['output'];
+  address: Scalars['String']['output'];
+  city: Scalars['String']['output'];
+  code: Scalars['String']['output'];
+  country: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  state: Scalars['String']['output'];
+  timezone: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type LocationInput = {
+  active: Scalars['Boolean']['input'];
+  address: Scalars['String']['input'];
+  city: Scalars['String']['input'];
+  code: Scalars['String']['input'];
+  country: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  state: Scalars['String']['input'];
+  timezone: Scalars['String']['input'];
+};
+
+export type LocationPage = {
+  __typename?: 'LocationPage';
+  rows: Array<Location>;
+  totalCount: Scalars['Int']['output'];
+};
+
 /** Employee-facing attendance entry — the server sets employeeId. */
 export type MarkAttendanceInput = {
   date: Scalars['DateTime']['input'];
@@ -1207,9 +1343,12 @@ export type Mutation = {
   createEmailConfig: EmailConfig;
   createEmployeeDocument: EmployeeDocument;
   createEmployeeRequest: EmployeeRequest;
+  createEmploymentType: EmploymentType;
+  createExitRecord: ExitRecord;
   createExpenseClaim: ExpenseClaim;
   createGig: Gig;
   createGoal: Goal;
+  createGrade: Grade;
   createHoliday: Holiday;
   createImageConfig: ImageConfig;
   createInvoice: Invoice;
@@ -1220,6 +1359,7 @@ export type Mutation = {
   createLeavePolicy: LeavePolicy;
   createLeaveRequest: LeaveRequest;
   createLegalDocument: LegalDocument;
+  createLocation: Location;
   /**
    * Filed by the employee for themselves: id from the token, always SUBMITTED,
    * and the approved amount stays finance's to set.
@@ -1236,9 +1376,11 @@ export type Mutation = {
   createProduct: Product;
   createProject: Project;
   createPrompt: Prompt;
+  createShift: Shift;
   /** Self-service: raise a support ticket (status forced to OPEN). */
   createSupportTicket: SupportTicket;
   createTask: Task;
+  createTeam: Team;
   createTool: Tool;
   createToolCategory: ToolCategory;
   createTraining: Training;
@@ -1259,9 +1401,12 @@ export type Mutation = {
   deleteEmailConfig: Scalars['Boolean']['output'];
   deleteEmployeeDocument: Scalars['Boolean']['output'];
   deleteEmployeeRequest: Scalars['Boolean']['output'];
+  deleteEmploymentType: Scalars['Boolean']['output'];
+  deleteExitRecord: Scalars['Boolean']['output'];
   deleteExpenseClaim: Scalars['Boolean']['output'];
   deleteGig: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
+  deleteGrade: Scalars['Boolean']['output'];
   deleteHoliday: Scalars['Boolean']['output'];
   deleteImageConfig: Scalars['Boolean']['output'];
   deleteInvoice: Scalars['Boolean']['output'];
@@ -1272,13 +1417,16 @@ export type Mutation = {
   deleteLeavePolicy: Scalars['Boolean']['output'];
   deleteLeaveRequest: Scalars['Boolean']['output'];
   deleteLegalDocument: Scalars['Boolean']['output'];
+  deleteLocation: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
   deletePerformanceReview: Scalars['Boolean']['output'];
   deletePosition: Scalars['Boolean']['output'];
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
+  deleteShift: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
+  deleteTeam: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
   deleteToolCategory: Scalars['Boolean']['output'];
   deleteTraining: Scalars['Boolean']['output'];
@@ -1345,9 +1493,12 @@ export type Mutation = {
   updateEmailConfig: EmailConfig;
   updateEmployeeDocument: EmployeeDocument;
   updateEmployeeRequest: EmployeeRequest;
+  updateEmploymentType: EmploymentType;
+  updateExitRecord: ExitRecord;
   updateExpenseClaim: ExpenseClaim;
   updateGig: Gig;
   updateGoal: Goal;
+  updateGrade: Grade;
   updateHoliday: Holiday;
   updateImageConfig: ImageConfig;
   updateInvoice: Invoice;
@@ -1358,6 +1509,7 @@ export type Mutation = {
   updateLeavePolicy: LeavePolicy;
   updateLeaveRequest: LeaveRequest;
   updateLegalDocument: LegalDocument;
+  updateLocation: Location;
   /**
    * Employee self-update. Only progress moves; weightage, dates and the manager's
    * comment stay HR/manager-owned.
@@ -1373,7 +1525,9 @@ export type Mutation = {
   updateProject: Project;
   updatePrompt: Prompt;
   updateSettings: AppSettings;
+  updateShift: Shift;
   updateTask: Task;
+  updateTeam: Team;
   updateTool: Tool;
   updateToolCategory: ToolCategory;
   updateTrackerSettings: TrackerSettings;
@@ -1466,6 +1620,16 @@ export type MutationCreateEmployeeRequestArgs = {
 };
 
 
+export type MutationCreateEmploymentTypeArgs = {
+  input: EmploymentTypeInput;
+};
+
+
+export type MutationCreateExitRecordArgs = {
+  input: ExitRecordInput;
+};
+
+
 export type MutationCreateExpenseClaimArgs = {
   input: ExpenseClaimInput;
 };
@@ -1478,6 +1642,11 @@ export type MutationCreateGigArgs = {
 
 export type MutationCreateGoalArgs = {
   input: GoalInput;
+};
+
+
+export type MutationCreateGradeArgs = {
+  input: GradeInput;
 };
 
 
@@ -1531,6 +1700,11 @@ export type MutationCreateLegalDocumentArgs = {
 };
 
 
+export type MutationCreateLocationArgs = {
+  input: LocationInput;
+};
+
+
 export type MutationCreateMyExpenseClaimArgs = {
   input: MyExpenseClaimInput;
 };
@@ -1571,6 +1745,11 @@ export type MutationCreatePromptArgs = {
 };
 
 
+export type MutationCreateShiftArgs = {
+  input: ShiftInput;
+};
+
+
 export type MutationCreateSupportTicketArgs = {
   input: SupportTicketInput;
 };
@@ -1581,6 +1760,11 @@ export type MutationCreateTaskArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   projectId: Scalars['ID']['input'];
   title: Scalars['String']['input'];
+};
+
+
+export type MutationCreateTeamArgs = {
+  input: TeamInput;
 };
 
 
@@ -1679,6 +1863,16 @@ export type MutationDeleteEmployeeRequestArgs = {
 };
 
 
+export type MutationDeleteEmploymentTypeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteExitRecordArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteExpenseClaimArgs = {
   id: Scalars['ID']['input'];
 };
@@ -1690,6 +1884,11 @@ export type MutationDeleteGigArgs = {
 
 
 export type MutationDeleteGoalArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteGradeArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -1744,6 +1943,11 @@ export type MutationDeleteLegalDocumentArgs = {
 };
 
 
+export type MutationDeleteLocationArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteNavLinkArgs = {
   id: Scalars['ID']['input'];
 };
@@ -1774,7 +1978,17 @@ export type MutationDeletePromptArgs = {
 };
 
 
+export type MutationDeleteShiftArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteTaskArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteTeamArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2051,6 +2265,18 @@ export type MutationUpdateEmployeeRequestArgs = {
 };
 
 
+export type MutationUpdateEmploymentTypeArgs = {
+  id: Scalars['ID']['input'];
+  input: EmploymentTypeInput;
+};
+
+
+export type MutationUpdateExitRecordArgs = {
+  id: Scalars['ID']['input'];
+  input: ExitRecordInput;
+};
+
+
 export type MutationUpdateExpenseClaimArgs = {
   id: Scalars['ID']['input'];
   input: ExpenseClaimInput;
@@ -2066,6 +2292,12 @@ export type MutationUpdateGigArgs = {
 export type MutationUpdateGoalArgs = {
   id: Scalars['ID']['input'];
   input: GoalInput;
+};
+
+
+export type MutationUpdateGradeArgs = {
+  id: Scalars['ID']['input'];
+  input: GradeInput;
 };
 
 
@@ -2129,6 +2361,12 @@ export type MutationUpdateLegalDocumentArgs = {
 };
 
 
+export type MutationUpdateLocationArgs = {
+  id: Scalars['ID']['input'];
+  input: LocationInput;
+};
+
+
 export type MutationUpdateMyGoalProgressArgs = {
   id: Scalars['ID']['input'];
   progress: Scalars['Int']['input'];
@@ -2187,10 +2425,22 @@ export type MutationUpdateSettingsArgs = {
 };
 
 
+export type MutationUpdateShiftArgs = {
+  id: Scalars['ID']['input'];
+  input: ShiftInput;
+};
+
+
 export type MutationUpdateTaskArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateTeamArgs = {
+  id: Scalars['ID']['input'];
+  input: TeamInput;
 };
 
 
@@ -2497,9 +2747,12 @@ export type Query = {
   getDepartment: Department;
   getEmployeeDocument: EmployeeDocument;
   getEmployeeRequest: EmployeeRequest;
+  getEmploymentType: EmploymentType;
+  getExitRecord: ExitRecord;
   getExpenseClaim: ExpenseClaim;
   getGig: Gig;
   getGoal: Goal;
+  getGrade: Grade;
   getHoliday: Holiday;
   getInvoice: Invoice;
   getJob: Job;
@@ -2509,12 +2762,15 @@ export type Query = {
   getLeavePolicy: LeavePolicy;
   getLeaveRequest: LeaveRequest;
   getLegalDocument: LegalDocument;
+  getLocation: Location;
   getNavLink: NavLink;
   getPerformanceReview: PerformanceReview;
   getPosition: Position;
   getProduct: Product;
   getProject: Project;
   getPrompt: Prompt;
+  getShift: Shift;
+  getTeam: Team;
   getTool: Tool;
   getToolCategory: ToolCategory;
   getTraining: Training;
@@ -2562,6 +2818,12 @@ export type Query = {
   listEmployeeRequests: Array<EmployeeRequest>;
   listEmployeeRequestsPaged: EmployeeRequestPage;
   listEmployeeRequestsStats: TableStats;
+  listEmploymentTypes: Array<EmploymentType>;
+  listEmploymentTypesPaged: EmploymentTypePage;
+  listEmploymentTypesStats: TableStats;
+  listExitRecords: Array<ExitRecord>;
+  listExitRecordsPaged: ExitRecordPage;
+  listExitRecordsStats: TableStats;
   listExpenseClaims: Array<ExpenseClaim>;
   listExpenseClaimsPaged: ExpenseClaimPage;
   listExpenseClaimsStats: TableStats;
@@ -2571,6 +2833,9 @@ export type Query = {
   listGoals: Array<Goal>;
   listGoalsPaged: GoalPage;
   listGoalsStats: TableStats;
+  listGrades: Array<Grade>;
+  listGradesPaged: GradePage;
+  listGradesStats: TableStats;
   /** Company-wide holidays, readable by any authenticated employee. */
   listHolidays: Array<Holiday>;
   listHolidaysPaged: HolidayPage;
@@ -2598,6 +2863,9 @@ export type Query = {
   listLegalDocuments: Array<LegalDocument>;
   listLegalDocumentsPaged: LegalDocumentPage;
   listLegalDocumentsStats: TableStats;
+  listLocations: Array<Location>;
+  listLocationsPaged: LocationPage;
+  listLocationsStats: TableStats;
   listNavLinks: Array<NavLink>;
   listPerformanceReviews: Array<PerformanceReview>;
   listPerformanceReviewsPaged: PerformanceReviewPage;
@@ -2615,8 +2883,14 @@ export type Query = {
   listPrompts: Array<Prompt>;
   listPromptsPaged: PromptPage;
   listPromptsStats: TableStats;
+  listShifts: Array<Shift>;
+  listShiftsPaged: ShiftPage;
+  listShiftsStats: TableStats;
   /** SUPPORT/ADMIN: every employee support ticket, newest first. */
   listSupportTickets: Array<SupportTicket>;
+  listTeams: Array<Team>;
+  listTeamsPaged: TeamPage;
+  listTeamsStats: TableStats;
   listToolCategories: Array<ToolCategory>;
   listTools: Array<Tool>;
   listToolsPaged: ToolPage;
@@ -2633,6 +2907,8 @@ export type Query = {
   myAttendance: Array<Attendance>;
   myBenefits: Array<Benefit>;
   myDocuments: Array<EmployeeDocument>;
+  /** The signed-in employee's own exit record, if one has been opened. */
+  myExitRecord?: Maybe<ExitRecord>;
   myExpenseClaims: Array<ExpenseClaim>;
   myGoals: Array<Goal>;
   /** This employee's own balances for the current year. */
@@ -2746,6 +3022,16 @@ export type QueryGetEmployeeRequestArgs = {
 };
 
 
+export type QueryGetEmploymentTypeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetExitRecordArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetExpenseClaimArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2757,6 +3043,11 @@ export type QueryGetGigArgs = {
 
 
 export type QueryGetGoalArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetGradeArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2806,6 +3097,11 @@ export type QueryGetLegalDocumentArgs = {
 };
 
 
+export type QueryGetLocationArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetNavLinkArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2832,6 +3128,16 @@ export type QueryGetProjectArgs = {
 
 
 export type QueryGetPromptArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetShiftArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetTeamArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2921,6 +3227,16 @@ export type QueryListEmployeeRequestsPagedArgs = {
 };
 
 
+export type QueryListEmploymentTypesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListExitRecordsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListExpenseClaimsPagedArgs = {
   input: TableQueryInput;
 };
@@ -2932,6 +3248,11 @@ export type QueryListGigsPagedArgs = {
 
 
 export type QueryListGoalsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListGradesPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -2976,6 +3297,11 @@ export type QueryListLegalDocumentsPagedArgs = {
 };
 
 
+export type QueryListLocationsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListPerformanceReviewsPagedArgs = {
   input: TableQueryInput;
 };
@@ -2992,6 +3318,16 @@ export type QueryListProjectsPagedArgs = {
 
 
 export type QueryListPromptsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListShiftsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListTeamsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -3167,6 +3503,36 @@ export type SendMailInput = {
   subject: Scalars['String']['input'];
 };
 
+export type Shift = {
+  __typename?: 'Shift';
+  active: Scalars['Boolean']['output'];
+  breakMinutes: Scalars['Int']['output'];
+  code: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  endTime: Scalars['String']['output'];
+  graceMinutes: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  startTime: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type ShiftInput = {
+  active: Scalars['Boolean']['input'];
+  breakMinutes: Scalars['Int']['input'];
+  code: Scalars['String']['input'];
+  endTime: Scalars['String']['input'];
+  graceMinutes: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+  startTime: Scalars['String']['input'];
+};
+
+export type ShiftPage = {
+  __typename?: 'ShiftPage';
+  rows: Array<Shift>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export enum SlipStatus {
   Generated = 'GENERATED',
   Paid = 'PAID'
@@ -3273,6 +3639,32 @@ export type Task = {
   id: Scalars['ID']['output'];
   order: Scalars['Int']['output'];
   title: Scalars['String']['output'];
+};
+
+export type Team = {
+  __typename?: 'Team';
+  active: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  department: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  leadEmployeeId?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type TeamInput = {
+  active: Scalars['Boolean']['input'];
+  department: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  leadEmployeeId?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
+export type TeamPage = {
+  __typename?: 'TeamPage';
+  rows: Array<Team>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type Tool = {
@@ -3842,6 +4234,13 @@ export type ResolversTypes = ResolversObject<{
   EmployeeRequestInput: EmployeeRequestInput;
   EmployeeRequestPage: ResolverTypeWrapper<EmployeeRequestPage>;
   EmploymentStatus: EmploymentStatus;
+  EmploymentType: ResolverTypeWrapper<EmploymentType>;
+  EmploymentTypeInput: EmploymentTypeInput;
+  EmploymentTypePage: ResolverTypeWrapper<EmploymentTypePage>;
+  ExitRecord: ResolverTypeWrapper<ExitRecord>;
+  ExitRecordInput: ExitRecordInput;
+  ExitRecordPage: ResolverTypeWrapper<ExitRecordPage>;
+  ExitStage: ExitStage;
   ExpenseClaim: ResolverTypeWrapper<ExpenseClaim>;
   ExpenseClaimInput: ExpenseClaimInput;
   ExpenseClaimPage: ResolverTypeWrapper<ExpenseClaimPage>;
@@ -3855,6 +4254,9 @@ export type ResolversTypes = ResolversObject<{
   GoalInput: GoalInput;
   GoalPage: ResolverTypeWrapper<GoalPage>;
   GoalStatus: GoalStatus;
+  Grade: ResolverTypeWrapper<Grade>;
+  GradeInput: GradeInput;
+  GradePage: ResolverTypeWrapper<GradePage>;
   HeadcountPoint: ResolverTypeWrapper<HeadcountPoint>;
   Holiday: ResolverTypeWrapper<Holiday>;
   HolidayInput: HolidayInput;
@@ -3894,6 +4296,9 @@ export type ResolversTypes = ResolversObject<{
   LegalDocument: ResolverTypeWrapper<LegalDocument>;
   LegalDocumentInput: LegalDocumentInput;
   LegalDocumentPage: ResolverTypeWrapper<LegalDocumentPage>;
+  Location: ResolverTypeWrapper<Location>;
+  LocationInput: LocationInput;
+  LocationPage: ResolverTypeWrapper<LocationPage>;
   MarkAttendanceInput: MarkAttendanceInput;
   Mutation: ResolverTypeWrapper<{}>;
   MyExpenseClaimInput: MyExpenseClaimInput;
@@ -3930,6 +4335,9 @@ export type ResolversTypes = ResolversObject<{
   SalarySlip: ResolverTypeWrapper<SalarySlip>;
   SalaryStructure: ResolverTypeWrapper<SalaryStructure>;
   SendMailInput: SendMailInput;
+  Shift: ResolverTypeWrapper<Shift>;
+  ShiftInput: ShiftInput;
+  ShiftPage: ResolverTypeWrapper<ShiftPage>;
   SlipStatus: SlipStatus;
   SortDir: SortDir;
   StatBucket: ResolverTypeWrapper<StatBucket>;
@@ -3946,6 +4354,9 @@ export type ResolversTypes = ResolversObject<{
   TableSortInput: TableSortInput;
   TableStats: ResolverTypeWrapper<TableStats>;
   Task: ResolverTypeWrapper<Task>;
+  Team: ResolverTypeWrapper<Team>;
+  TeamInput: TeamInput;
+  TeamPage: ResolverTypeWrapper<TeamPage>;
   Tool: ResolverTypeWrapper<Tool>;
   ToolCategory: ResolverTypeWrapper<ToolCategory>;
   ToolCategoryInput: ToolCategoryInput;
@@ -4041,6 +4452,12 @@ export type ResolversParentTypes = ResolversObject<{
   EmployeeRequest: EmployeeRequest;
   EmployeeRequestInput: EmployeeRequestInput;
   EmployeeRequestPage: EmployeeRequestPage;
+  EmploymentType: EmploymentType;
+  EmploymentTypeInput: EmploymentTypeInput;
+  EmploymentTypePage: EmploymentTypePage;
+  ExitRecord: ExitRecord;
+  ExitRecordInput: ExitRecordInput;
+  ExitRecordPage: ExitRecordPage;
   ExpenseClaim: ExpenseClaim;
   ExpenseClaimInput: ExpenseClaimInput;
   ExpenseClaimPage: ExpenseClaimPage;
@@ -4051,6 +4468,9 @@ export type ResolversParentTypes = ResolversObject<{
   Goal: Goal;
   GoalInput: GoalInput;
   GoalPage: GoalPage;
+  Grade: Grade;
+  GradeInput: GradeInput;
+  GradePage: GradePage;
   HeadcountPoint: HeadcountPoint;
   Holiday: Holiday;
   HolidayInput: HolidayInput;
@@ -4084,6 +4504,9 @@ export type ResolversParentTypes = ResolversObject<{
   LegalDocument: LegalDocument;
   LegalDocumentInput: LegalDocumentInput;
   LegalDocumentPage: LegalDocumentPage;
+  Location: Location;
+  LocationInput: LocationInput;
+  LocationPage: LocationPage;
   MarkAttendanceInput: MarkAttendanceInput;
   Mutation: {};
   MyExpenseClaimInput: MyExpenseClaimInput;
@@ -4111,6 +4534,9 @@ export type ResolversParentTypes = ResolversObject<{
   SalarySlip: SalarySlip;
   SalaryStructure: SalaryStructure;
   SendMailInput: SendMailInput;
+  Shift: Shift;
+  ShiftInput: ShiftInput;
+  ShiftPage: ShiftPage;
   StatBucket: StatBucket;
   StatFieldCounts: StatFieldCounts;
   StatFieldSum: StatFieldSum;
@@ -4122,6 +4548,9 @@ export type ResolversParentTypes = ResolversObject<{
   TableSortInput: TableSortInput;
   TableStats: TableStats;
   Task: Task;
+  Team: Team;
+  TeamInput: TeamInput;
+  TeamPage: TeamPage;
   Tool: Tool;
   ToolCategory: ToolCategory;
   ToolCategoryInput: ToolCategoryInput;
@@ -4507,6 +4936,49 @@ export type EmployeeRequestPageResolvers<ContextType = GraphQLContext, ParentTyp
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type EmploymentTypeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmploymentType'] = ResolversParentTypes['EmploymentType']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  payrollEligible?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmploymentTypePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmploymentTypePage'] = ResolversParentTypes['EmploymentTypePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['EmploymentType']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ExitRecordResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ExitRecord'] = ResolversParentTypes['ExitRecord']> = ResolversObject<{
+  assetsReturned?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  daysToLastWorkingDay?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  documentsIssued?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  employeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  exitInterviewNotes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  finalSettlementAmount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  knowledgeTransferDone?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  lastWorkingDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  noticePeriodDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  resignationDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  stage?: Resolver<ResolversTypes['ExitStage'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ExitRecordPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ExitRecordPage'] = ResolversParentTypes['ExitRecordPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ExitRecord']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ExpenseClaimResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ExpenseClaim'] = ResolversParentTypes['ExpenseClaim']> = ResolversObject<{
   amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   approvedAmount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -4577,6 +5049,25 @@ export type GoalResolvers<ContextType = GraphQLContext, ParentType extends Resol
 
 export type GoalPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GoalPage'] = ResolversParentTypes['GoalPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type GradeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Grade'] = ResolversParentTypes['Grade']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  maxSalary?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  minSalary?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type GradePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GradePage'] = ResolversParentTypes['GradePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Grade']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -4802,6 +5293,27 @@ export type LegalDocumentPageResolvers<ContextType = GraphQLContext, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type LocationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Location'] = ResolversParentTypes['Location']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LocationPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LocationPage'] = ResolversParentTypes['LocationPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Location']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   applyLeave?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationApplyLeaveArgs, 'input'>>;
@@ -4820,9 +5332,12 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createEmailConfig?: Resolver<ResolversTypes['EmailConfig'], ParentType, ContextType, RequireFields<MutationCreateEmailConfigArgs, 'input'>>;
   createEmployeeDocument?: Resolver<ResolversTypes['EmployeeDocument'], ParentType, ContextType, RequireFields<MutationCreateEmployeeDocumentArgs, 'input'>>;
   createEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationCreateEmployeeRequestArgs, 'input'>>;
+  createEmploymentType?: Resolver<ResolversTypes['EmploymentType'], ParentType, ContextType, RequireFields<MutationCreateEmploymentTypeArgs, 'input'>>;
+  createExitRecord?: Resolver<ResolversTypes['ExitRecord'], ParentType, ContextType, RequireFields<MutationCreateExitRecordArgs, 'input'>>;
   createExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationCreateExpenseClaimArgs, 'input'>>;
   createGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<MutationCreateGigArgs, 'input'>>;
   createGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCreateGoalArgs, 'input'>>;
+  createGrade?: Resolver<ResolversTypes['Grade'], ParentType, ContextType, RequireFields<MutationCreateGradeArgs, 'input'>>;
   createHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<MutationCreateHolidayArgs, 'input'>>;
   createImageConfig?: Resolver<ResolversTypes['ImageConfig'], ParentType, ContextType, RequireFields<MutationCreateImageConfigArgs, 'input'>>;
   createInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationCreateInvoiceArgs, 'input'>>;
@@ -4833,6 +5348,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createLeavePolicy?: Resolver<ResolversTypes['LeavePolicy'], ParentType, ContextType, RequireFields<MutationCreateLeavePolicyArgs, 'input'>>;
   createLeaveRequest?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationCreateLeaveRequestArgs, 'input'>>;
   createLegalDocument?: Resolver<ResolversTypes['LegalDocument'], ParentType, ContextType, RequireFields<MutationCreateLegalDocumentArgs, 'input'>>;
+  createLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationCreateLocationArgs, 'input'>>;
   createMyExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationCreateMyExpenseClaimArgs, 'input'>>;
   createMyRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationCreateMyRequestArgs, 'input'>>;
   createNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationCreateNavLinkArgs, 'input'>>;
@@ -4841,8 +5357,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'input'>>;
   createProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
   createPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationCreatePromptArgs, 'input'>>;
+  createShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationCreateShiftArgs, 'input'>>;
   createSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationCreateSupportTicketArgs, 'input'>>;
   createTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationCreateTaskArgs, 'columnId' | 'projectId' | 'title'>>;
+  createTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<MutationCreateTeamArgs, 'input'>>;
   createTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<MutationCreateToolArgs, 'input'>>;
   createToolCategory?: Resolver<ResolversTypes['ToolCategory'], ParentType, ContextType, RequireFields<MutationCreateToolCategoryArgs, 'input'>>;
   createTraining?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationCreateTrainingArgs, 'input'>>;
@@ -4862,9 +5380,12 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteEmailConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmailConfigArgs, 'id'>>;
   deleteEmployeeDocument?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmployeeDocumentArgs, 'id'>>;
   deleteEmployeeRequest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmployeeRequestArgs, 'id'>>;
+  deleteEmploymentType?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmploymentTypeArgs, 'id'>>;
+  deleteExitRecord?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteExitRecordArgs, 'id'>>;
   deleteExpenseClaim?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteExpenseClaimArgs, 'id'>>;
   deleteGig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGigArgs, 'id'>>;
   deleteGoal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGoalArgs, 'id'>>;
+  deleteGrade?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGradeArgs, 'id'>>;
   deleteHoliday?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteHolidayArgs, 'id'>>;
   deleteImageConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteImageConfigArgs, 'id'>>;
   deleteInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteInvoiceArgs, 'id'>>;
@@ -4875,13 +5396,16 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteLeavePolicy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLeavePolicyArgs, 'id'>>;
   deleteLeaveRequest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLeaveRequestArgs, 'id'>>;
   deleteLegalDocument?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLegalDocumentArgs, 'id'>>;
+  deleteLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLocationArgs, 'id'>>;
   deleteNavLink?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNavLinkArgs, 'id'>>;
   deletePerformanceReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePerformanceReviewArgs, 'id'>>;
   deletePosition?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePositionArgs, 'id'>>;
   deleteProduct?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'id'>>;
   deleteProject?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'id'>>;
   deletePrompt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePromptArgs, 'id'>>;
+  deleteShift?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteShiftArgs, 'id'>>;
   deleteTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaskArgs, 'id'>>;
+  deleteTeam?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTeamArgs, 'id'>>;
   deleteTool?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolArgs, 'id'>>;
   deleteToolCategory?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolCategoryArgs, 'id'>>;
   deleteTraining?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrainingArgs, 'id'>>;
@@ -4933,9 +5457,12 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateEmailConfig?: Resolver<ResolversTypes['EmailConfig'], ParentType, ContextType, RequireFields<MutationUpdateEmailConfigArgs, 'id' | 'input'>>;
   updateEmployeeDocument?: Resolver<ResolversTypes['EmployeeDocument'], ParentType, ContextType, RequireFields<MutationUpdateEmployeeDocumentArgs, 'id' | 'input'>>;
   updateEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationUpdateEmployeeRequestArgs, 'id' | 'input'>>;
+  updateEmploymentType?: Resolver<ResolversTypes['EmploymentType'], ParentType, ContextType, RequireFields<MutationUpdateEmploymentTypeArgs, 'id' | 'input'>>;
+  updateExitRecord?: Resolver<ResolversTypes['ExitRecord'], ParentType, ContextType, RequireFields<MutationUpdateExitRecordArgs, 'id' | 'input'>>;
   updateExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationUpdateExpenseClaimArgs, 'id' | 'input'>>;
   updateGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<MutationUpdateGigArgs, 'id' | 'input'>>;
   updateGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateGoalArgs, 'id' | 'input'>>;
+  updateGrade?: Resolver<ResolversTypes['Grade'], ParentType, ContextType, RequireFields<MutationUpdateGradeArgs, 'id' | 'input'>>;
   updateHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<MutationUpdateHolidayArgs, 'id' | 'input'>>;
   updateImageConfig?: Resolver<ResolversTypes['ImageConfig'], ParentType, ContextType, RequireFields<MutationUpdateImageConfigArgs, 'id' | 'input'>>;
   updateInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationUpdateInvoiceArgs, 'id' | 'input'>>;
@@ -4946,6 +5473,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateLeavePolicy?: Resolver<ResolversTypes['LeavePolicy'], ParentType, ContextType, RequireFields<MutationUpdateLeavePolicyArgs, 'id' | 'input'>>;
   updateLeaveRequest?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationUpdateLeaveRequestArgs, 'id' | 'input'>>;
   updateLegalDocument?: Resolver<ResolversTypes['LegalDocument'], ParentType, ContextType, RequireFields<MutationUpdateLegalDocumentArgs, 'id' | 'input'>>;
+  updateLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationUpdateLocationArgs, 'id' | 'input'>>;
   updateMyGoalProgress?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateMyGoalProgressArgs, 'id' | 'progress'>>;
   updateMyTrainingStatus?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationUpdateMyTrainingStatusArgs, 'id' | 'status'>>;
   updateNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationUpdateNavLinkArgs, 'id' | 'input'>>;
@@ -4956,7 +5484,9 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationUpdateProjectArgs, 'id' | 'input'>>;
   updatePrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationUpdatePromptArgs, 'id' | 'input'>>;
   updateSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType, RequireFields<MutationUpdateSettingsArgs, 'input'>>;
+  updateShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationUpdateShiftArgs, 'id' | 'input'>>;
   updateTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationUpdateTaskArgs, 'id'>>;
+  updateTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<MutationUpdateTeamArgs, 'id' | 'input'>>;
   updateTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<MutationUpdateToolArgs, 'id' | 'input'>>;
   updateToolCategory?: Resolver<ResolversTypes['ToolCategory'], ParentType, ContextType, RequireFields<MutationUpdateToolCategoryArgs, 'id' | 'input'>>;
   updateTrackerSettings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType, RequireFields<MutationUpdateTrackerSettingsArgs, 'input'>>;
@@ -5113,9 +5643,12 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getDepartment?: Resolver<ResolversTypes['Department'], ParentType, ContextType, RequireFields<QueryGetDepartmentArgs, 'id'>>;
   getEmployeeDocument?: Resolver<ResolversTypes['EmployeeDocument'], ParentType, ContextType, RequireFields<QueryGetEmployeeDocumentArgs, 'id'>>;
   getEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<QueryGetEmployeeRequestArgs, 'id'>>;
+  getEmploymentType?: Resolver<ResolversTypes['EmploymentType'], ParentType, ContextType, RequireFields<QueryGetEmploymentTypeArgs, 'id'>>;
+  getExitRecord?: Resolver<ResolversTypes['ExitRecord'], ParentType, ContextType, RequireFields<QueryGetExitRecordArgs, 'id'>>;
   getExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<QueryGetExpenseClaimArgs, 'id'>>;
   getGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<QueryGetGigArgs, 'id'>>;
   getGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<QueryGetGoalArgs, 'id'>>;
+  getGrade?: Resolver<ResolversTypes['Grade'], ParentType, ContextType, RequireFields<QueryGetGradeArgs, 'id'>>;
   getHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<QueryGetHolidayArgs, 'id'>>;
   getInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<QueryGetInvoiceArgs, 'id'>>;
   getJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<QueryGetJobArgs, 'id'>>;
@@ -5125,12 +5658,15 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getLeavePolicy?: Resolver<ResolversTypes['LeavePolicy'], ParentType, ContextType, RequireFields<QueryGetLeavePolicyArgs, 'id'>>;
   getLeaveRequest?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<QueryGetLeaveRequestArgs, 'id'>>;
   getLegalDocument?: Resolver<ResolversTypes['LegalDocument'], ParentType, ContextType, RequireFields<QueryGetLegalDocumentArgs, 'id'>>;
+  getLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<QueryGetLocationArgs, 'id'>>;
   getNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<QueryGetNavLinkArgs, 'id'>>;
   getPerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<QueryGetPerformanceReviewArgs, 'id'>>;
   getPosition?: Resolver<ResolversTypes['Position'], ParentType, ContextType, RequireFields<QueryGetPositionArgs, 'id'>>;
   getProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<QueryGetProductArgs, 'id'>>;
   getProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<QueryGetProjectArgs, 'id'>>;
   getPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<QueryGetPromptArgs, 'id'>>;
+  getShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<QueryGetShiftArgs, 'id'>>;
+  getTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<QueryGetTeamArgs, 'id'>>;
   getTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<QueryGetToolArgs, 'id'>>;
   getToolCategory?: Resolver<ResolversTypes['ToolCategory'], ParentType, ContextType, RequireFields<QueryGetToolCategoryArgs, 'id'>>;
   getTraining?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<QueryGetTrainingArgs, 'id'>>;
@@ -5174,6 +5710,12 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listEmployeeRequests?: Resolver<Array<ResolversTypes['EmployeeRequest']>, ParentType, ContextType>;
   listEmployeeRequestsPaged?: Resolver<ResolversTypes['EmployeeRequestPage'], ParentType, ContextType, RequireFields<QueryListEmployeeRequestsPagedArgs, 'input'>>;
   listEmployeeRequestsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listEmploymentTypes?: Resolver<Array<ResolversTypes['EmploymentType']>, ParentType, ContextType>;
+  listEmploymentTypesPaged?: Resolver<ResolversTypes['EmploymentTypePage'], ParentType, ContextType, RequireFields<QueryListEmploymentTypesPagedArgs, 'input'>>;
+  listEmploymentTypesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listExitRecords?: Resolver<Array<ResolversTypes['ExitRecord']>, ParentType, ContextType>;
+  listExitRecordsPaged?: Resolver<ResolversTypes['ExitRecordPage'], ParentType, ContextType, RequireFields<QueryListExitRecordsPagedArgs, 'input'>>;
+  listExitRecordsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listExpenseClaims?: Resolver<Array<ResolversTypes['ExpenseClaim']>, ParentType, ContextType>;
   listExpenseClaimsPaged?: Resolver<ResolversTypes['ExpenseClaimPage'], ParentType, ContextType, RequireFields<QueryListExpenseClaimsPagedArgs, 'input'>>;
   listExpenseClaimsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -5183,6 +5725,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listGoals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
   listGoalsPaged?: Resolver<ResolversTypes['GoalPage'], ParentType, ContextType, RequireFields<QueryListGoalsPagedArgs, 'input'>>;
   listGoalsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listGrades?: Resolver<Array<ResolversTypes['Grade']>, ParentType, ContextType>;
+  listGradesPaged?: Resolver<ResolversTypes['GradePage'], ParentType, ContextType, RequireFields<QueryListGradesPagedArgs, 'input'>>;
+  listGradesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listHolidays?: Resolver<Array<ResolversTypes['Holiday']>, ParentType, ContextType>;
   listHolidaysPaged?: Resolver<ResolversTypes['HolidayPage'], ParentType, ContextType, RequireFields<QueryListHolidaysPagedArgs, 'input'>>;
   listHolidaysStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -5209,6 +5754,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listLegalDocuments?: Resolver<Array<ResolversTypes['LegalDocument']>, ParentType, ContextType>;
   listLegalDocumentsPaged?: Resolver<ResolversTypes['LegalDocumentPage'], ParentType, ContextType, RequireFields<QueryListLegalDocumentsPagedArgs, 'input'>>;
   listLegalDocumentsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listLocations?: Resolver<Array<ResolversTypes['Location']>, ParentType, ContextType>;
+  listLocationsPaged?: Resolver<ResolversTypes['LocationPage'], ParentType, ContextType, RequireFields<QueryListLocationsPagedArgs, 'input'>>;
+  listLocationsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listNavLinks?: Resolver<Array<ResolversTypes['NavLink']>, ParentType, ContextType>;
   listPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
   listPerformanceReviewsPaged?: Resolver<ResolversTypes['PerformanceReviewPage'], ParentType, ContextType, RequireFields<QueryListPerformanceReviewsPagedArgs, 'input'>>;
@@ -5224,7 +5772,13 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPrompts?: Resolver<Array<ResolversTypes['Prompt']>, ParentType, ContextType>;
   listPromptsPaged?: Resolver<ResolversTypes['PromptPage'], ParentType, ContextType, RequireFields<QueryListPromptsPagedArgs, 'input'>>;
   listPromptsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listShifts?: Resolver<Array<ResolversTypes['Shift']>, ParentType, ContextType>;
+  listShiftsPaged?: Resolver<ResolversTypes['ShiftPage'], ParentType, ContextType, RequireFields<QueryListShiftsPagedArgs, 'input'>>;
+  listShiftsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listSupportTickets?: Resolver<Array<ResolversTypes['SupportTicket']>, ParentType, ContextType>;
+  listTeams?: Resolver<Array<ResolversTypes['Team']>, ParentType, ContextType>;
+  listTeamsPaged?: Resolver<ResolversTypes['TeamPage'], ParentType, ContextType, RequireFields<QueryListTeamsPagedArgs, 'input'>>;
+  listTeamsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listToolCategories?: Resolver<Array<ResolversTypes['ToolCategory']>, ParentType, ContextType>;
   listTools?: Resolver<Array<ResolversTypes['Tool']>, ParentType, ContextType>;
   listToolsPaged?: Resolver<ResolversTypes['ToolPage'], ParentType, ContextType, RequireFields<QueryListToolsPagedArgs, 'input'>>;
@@ -5240,6 +5794,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myAttendance?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType>;
   myBenefits?: Resolver<Array<ResolversTypes['Benefit']>, ParentType, ContextType>;
   myDocuments?: Resolver<Array<ResolversTypes['EmployeeDocument']>, ParentType, ContextType>;
+  myExitRecord?: Resolver<Maybe<ResolversTypes['ExitRecord']>, ParentType, ContextType>;
   myExpenseClaims?: Resolver<Array<ResolversTypes['ExpenseClaim']>, ParentType, ContextType>;
   myGoals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
   myLeaveBalances?: Resolver<Array<ResolversTypes['LeaveBalance']>, ParentType, ContextType>;
@@ -5310,6 +5865,26 @@ export type SalaryStructureResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ShiftResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Shift'] = ResolversParentTypes['Shift']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  breakMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  endTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  graceMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  startTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ShiftPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ShiftPage'] = ResolversParentTypes['ShiftPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Shift']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type StatBucketResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StatBucket'] = ResolversParentTypes['StatBucket']> = ResolversObject<{
   count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -5355,6 +5930,24 @@ export type TaskResolvers<ContextType = GraphQLContext, ParentType extends Resol
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TeamResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Team'] = ResolversParentTypes['Team']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  department?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  leadEmployeeId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TeamPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TeamPage'] = ResolversParentTypes['TeamPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Team']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -5650,12 +6243,18 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   EmployeeDocumentPage?: EmployeeDocumentPageResolvers<ContextType>;
   EmployeeRequest?: EmployeeRequestResolvers<ContextType>;
   EmployeeRequestPage?: EmployeeRequestPageResolvers<ContextType>;
+  EmploymentType?: EmploymentTypeResolvers<ContextType>;
+  EmploymentTypePage?: EmploymentTypePageResolvers<ContextType>;
+  ExitRecord?: ExitRecordResolvers<ContextType>;
+  ExitRecordPage?: ExitRecordPageResolvers<ContextType>;
   ExpenseClaim?: ExpenseClaimResolvers<ContextType>;
   ExpenseClaimPage?: ExpenseClaimPageResolvers<ContextType>;
   Gig?: GigResolvers<ContextType>;
   GigPage?: GigPageResolvers<ContextType>;
   Goal?: GoalResolvers<ContextType>;
   GoalPage?: GoalPageResolvers<ContextType>;
+  Grade?: GradeResolvers<ContextType>;
+  GradePage?: GradePageResolvers<ContextType>;
   HeadcountPoint?: HeadcountPointResolvers<ContextType>;
   Holiday?: HolidayResolvers<ContextType>;
   HolidayPage?: HolidayPageResolvers<ContextType>;
@@ -5677,6 +6276,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   LeaveRequest?: LeaveRequestResolvers<ContextType>;
   LegalDocument?: LegalDocumentResolvers<ContextType>;
   LegalDocumentPage?: LegalDocumentPageResolvers<ContextType>;
+  Location?: LocationResolvers<ContextType>;
+  LocationPage?: LocationPageResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   NavLink?: NavLinkResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;
@@ -5694,12 +6295,16 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Query?: QueryResolvers<ContextType>;
   SalarySlip?: SalarySlipResolvers<ContextType>;
   SalaryStructure?: SalaryStructureResolvers<ContextType>;
+  Shift?: ShiftResolvers<ContextType>;
+  ShiftPage?: ShiftPageResolvers<ContextType>;
   StatBucket?: StatBucketResolvers<ContextType>;
   StatFieldCounts?: StatFieldCountsResolvers<ContextType>;
   StatFieldSum?: StatFieldSumResolvers<ContextType>;
   SupportTicket?: SupportTicketResolvers<ContextType>;
   TableStats?: TableStatsResolvers<ContextType>;
   Task?: TaskResolvers<ContextType>;
+  Team?: TeamResolvers<ContextType>;
+  TeamPage?: TeamPageResolvers<ContextType>;
   Tool?: ToolResolvers<ContextType>;
   ToolCategory?: ToolCategoryResolvers<ContextType>;
   ToolPage?: ToolPageResolvers<ContextType>;

@@ -36,6 +36,8 @@ import { benefitsTypeDefs, benefitsResolvers } from '../modules/benefits';
 import { trainingTypeDefs, trainingResolvers } from '../modules/training';
 import { documentsTypeDefs, documentsResolvers } from '../modules/documents';
 import { hrMasterTypeDefs, hrMasterResolvers } from '../modules/hrmaster';
+import { orgMasterTypeDefs, orgMasterResolvers } from '../modules/orgmaster';
+import { exitTypeDefs, exitResolvers } from '../modules/exit';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = Record<string, Record<string, unknown> | undefined>;
@@ -91,6 +93,8 @@ export const typeDefs = [
   trainingTypeDefs,
   documentsTypeDefs,
   hrMasterTypeDefs,
+  orgMasterTypeDefs,
+  exitTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -123,4 +127,6 @@ export const resolvers = mergeResolvers([
   trainingResolvers,
   documentsResolvers,
   hrMasterResolvers,
+  orgMasterResolvers,
+  exitResolvers,
 ]);
