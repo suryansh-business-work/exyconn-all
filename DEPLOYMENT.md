@@ -47,7 +47,8 @@ for s in SSH_KEY SSH_USER SSH_HOST SSH_PORT \
          MONGODB_URI JWT_SECRET \
          SMTP_HOST SMTP_PORT SMTP_USER SMTP_PASS \
          IMAGEKIT_PUBLIC_KEY IMAGEKIT_PRIVATE_KEY IMAGEKIT_URL_ENDPOINTS \
-         OPENAI_API_KEY GOOGLE_MAP_API SLACK_WEBHOOK; do
+         OPENAI_API_KEY GOOGLE_MAP_API SLACK_WEBHOOK \
+         TINA_GITHUB_TOKEN NEXTAUTH_SECRET; do
   gh secret set "$s"
 done
 ```
@@ -57,6 +58,12 @@ done
   secret while you're at it, since anything derived from a leaked repo should be considered
   exposed).
 - `SSH_PORT` is `22`. `IMAGEKIT_URL_ENDPOINTS` is the ImageKit `urlEndpoint`.
+- **`TINA_GITHUB_TOKEN` and `NEXTAUTH_SECRET` power the website's content editor**
+  (`https://exyconn.com/admin`, self-hosted TinaCMS). `TINA_GITHUB_TOKEN` is a fine-grained
+  GitHub personal access token for this repository with *Contents: Read and write* — every save
+  in the editor is committed to `main` with it. `NEXTAUTH_SECRET` signs the editor's login
+  session (`openssl rand -base64 32`). The editor's content index reuses `MONGODB_URI`
+  (database `tinacms`).
 - The Portal API reads SMTP and ImageKit from its own DB (Tech module), not env — those
   secrets are for the **website** (form emails) and **Tools API**.
 

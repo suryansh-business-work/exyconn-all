@@ -34,6 +34,22 @@ export default defineConfig({
     '/shell-strategy-terms': { status: 301, destination: '/ai-services' },
   },
   integrations: [react()],
+  security: {
+    // Astro only trusts the Host / X-Forwarded-* headers of these domains when it reconstructs
+    // the request URL; with the list empty every request resolves to "localhost" and the
+    // built-in cross-site check rejects the editor's login form. Local hosts cover `pnpm dev`.
+    allowedDomains: [
+      { hostname: 'exyconn.com' },
+      { hostname: 'www.exyconn.com' },
+      { hostname: 'localhost' },
+      { hostname: '127.0.0.1' },
+    ],
+  },
+  markdown: {
+    // Blog and case-study bodies are markdown edited in TinaCMS; keep the straight quotes and
+    // apostrophes editors type rather than converting them to typographic ones.
+    smartypants: false,
+  },
   server: {
     host: true, // allows 0.0.0.0 binding
     port: 4000  // exyconn.com website port

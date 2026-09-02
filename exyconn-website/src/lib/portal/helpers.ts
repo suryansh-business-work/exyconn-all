@@ -1,4 +1,4 @@
-import type { BlogPost, Gig, Job, JobCompany } from './types';
+import type { Gig, Job, JobCompany } from './types';
 
 /**
  * Presentation helpers that used to live alongside the hardcoded data files. They
@@ -30,24 +30,6 @@ export function getDaysAgo(value: string): string {
 
   const months = Math.floor(days / 30);
   return months === 1 ? '1 month ago' : `${months} months ago`;
-}
-
-export function getFeaturedPosts(posts: BlogPost[]): BlogPost[] {
-  return posts.filter((post) => post.featured);
-}
-
-export function getRegularPosts(posts: BlogPost[]): BlogPost[] {
-  return posts.filter((post) => !post.featured);
-}
-
-/** Every distinct tag across the given posts, alphabetically. */
-export function getAllTags(posts: BlogPost[]): string[] {
-  const tags = new Set(posts.flatMap((post) => post.tags));
-  return [...tags].toSorted((a, b) => a.localeCompare(b));
-}
-
-export function getPostsByTag(posts: BlogPost[], tag: string): BlogPost[] {
-  return posts.filter((post) => post.tags.includes(tag));
 }
 
 /** Gig category -> number of open gigs in it. */

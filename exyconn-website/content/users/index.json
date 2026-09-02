@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "name": "Exyconn Admin",
+      "username": "admin",
+      "password": {
+        "value": "G8FvyWQU3RYGL5KwPWkS",
+        "passwordChangeRequired": true
+      }
+    }
+  ]
+}

@@ -1,13 +1,16 @@
 ---
 import Page from "../../layouts/Page.astro";
-import { getBlogPost, getBlogPosts, formatDate } from "../../lib/portal";
+import { formatDate } from "../../lib/portal";
+import { getBlogPost, getBlogPosts } from "../../lib/content";
 
 const { slug } = Astro.params;
-const post = slug ? await getBlogPost(slug) : null;
+const result = slug ? await getBlogPost(slug) : null;
 
-if (!post) {
+if (!result) {
   return new Response(null, { status: 404 });
 }
+
+const { post, Content } = result;
 
 // Get related posts (same tags, excluding current)
 const allPosts = await getBlogPosts();
@@ -129,8 +132,9 @@ const pageJsonLd = [
       <div class="max-w-3xl mx-auto">
         <article
           class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-headings:font-bold prose-p:text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-li:text-gray-700"
-          set:html={post.content}
-        />
+        >
+          <Content />
+        </article>
 
         <!-- Share Section -->
         <div class="mt-12 pt-8 border-t border-gray-200">

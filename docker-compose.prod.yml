@@ -29,6 +29,15 @@ services:
       SMTP_PASS: ${SMTP_PASS}
       SMTP_FROM: ${SMTP_USER}
       SMTP_TO: ${SMTP_USER}
+      # TinaCMS editor at /admin: self-hosted backend, content index in MongoDB, saves
+      # committed to GitHub on main (which redeploys the site).
+      MONGODB_URI: ${MONGODB_URI}
+      GITHUB_OWNER: suryansh-business-work
+      GITHUB_REPO: exyconn-all
+      GITHUB_BRANCH: main
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${TINA_GITHUB_TOKEN}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: https://exyconn.com/api/tina/auth
 
   tools-ui:
     image: ${DOCKERHUB_USERNAME}/exyconn-tools-ui:${TAG:-latest}

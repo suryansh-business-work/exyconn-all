@@ -17,5 +17,23 @@
     "test": "pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run test",
     "codegen": "pnpm --filter exyconn-portal-server run codegen && pnpm --filter exyconn-portal-ui run codegen",
     "seed": "pnpm --filter exyconn-portal-server run seed"
+  },
+  "pnpm": {
+    "packageExtensions": {
+      "next-auth": {
+        "peerDependenciesMeta": {
+          "next": {
+            "optional": true
+          }
+        }
+      },
+      "tinacms-authjs": {
+        "peerDependenciesMeta": {
+          "next": {
+            "optional": true
+          }
+        }
+      }
+    }
   }
 }
