@@ -36,5 +36,8 @@ export const authResolvers = {
       const user = assertAuthenticated(ctx);
       return authService.uploadAvatar(user.id, file);
     },
+    // Deliberately unauthenticated: it exists for the case where nobody can sign
+    // in. The service guards it by doing nothing once an ADMIN exists.
+    sendAdminCredentials: () => authService.sendAdminCredentials(),
   },
 };

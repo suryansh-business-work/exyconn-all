@@ -961,6 +961,12 @@ export type Mutation = {
   resetUserPassword: Scalars['String']['output'];
   revokeTrackerAccess: TrackerAccess;
   revokeTrackerDevice: TrackerDevice;
+  /**
+   * Recovery for a portal with no administrator: mails a fresh password for the
+   * configured admin account to that configured address. A no-op once any ADMIN
+   * exists. Returns a message safe to show the caller.
+   */
+  sendAdminCredentials: Scalars['String']['output'];
   /** Emails the campaign's subject/body to the selected clients. */
   sendCampaign: CampaignSendResult;
   sendContract: Contract;
@@ -3002,6 +3008,11 @@ export type AppSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AppSettingsQuery = { __typename?: 'Query', appSettings: { __typename?: 'AppSettings', id: string, dateFormat: string, timeFormat: string, timezone: string } };
+
+export type SendAdminCredentialsMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SendAdminCredentialsMutation = { __typename?: 'Mutation', sendAdminCredentials: string };
 
 export type ProjectBoardQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -5698,6 +5709,36 @@ export type AppSettingsQueryHookResult = ReturnType<typeof useAppSettingsQuery>;
 export type AppSettingsLazyQueryHookResult = ReturnType<typeof useAppSettingsLazyQuery>;
 export type AppSettingsSuspenseQueryHookResult = ReturnType<typeof useAppSettingsSuspenseQuery>;
 export type AppSettingsQueryResult = Apollo.QueryResult<AppSettingsQuery, AppSettingsQueryVariables>;
+export const SendAdminCredentialsDocument = gql`
+    mutation SendAdminCredentials {
+  sendAdminCredentials
+}
+    `;
+export type SendAdminCredentialsMutationFn = Apollo.MutationFunction<SendAdminCredentialsMutation, SendAdminCredentialsMutationVariables>;
+
+/**
+ * __useSendAdminCredentialsMutation__
+ *
+ * To run a mutation, you first call `useSendAdminCredentialsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendAdminCredentialsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendAdminCredentialsMutation, { data, loading, error }] = useSendAdminCredentialsMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSendAdminCredentialsMutation(baseOptions?: Apollo.MutationHookOptions<SendAdminCredentialsMutation, SendAdminCredentialsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendAdminCredentialsMutation, SendAdminCredentialsMutationVariables>(SendAdminCredentialsDocument, options);
+      }
+export type SendAdminCredentialsMutationHookResult = ReturnType<typeof useSendAdminCredentialsMutation>;
+export type SendAdminCredentialsMutationResult = Apollo.MutationResult<SendAdminCredentialsMutation>;
+export type SendAdminCredentialsMutationOptions = Apollo.BaseMutationOptions<SendAdminCredentialsMutation, SendAdminCredentialsMutationVariables>;
 export const ProjectBoardDocument = gql`
     query ProjectBoard($projectId: ID!) {
   projectBoard(projectId: $projectId) {

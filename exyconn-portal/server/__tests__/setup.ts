@@ -4,7 +4,10 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 // Email delivery is an external side effect; stub it so user creation works
 // deterministically in tests without configured SMTP credentials.
 jest.mock('../src/utils/mailer', () => ({
-  mailer: { sendWelcomeEmail: jest.fn().mockResolvedValue(undefined) },
+  mailer: {
+    sendWelcomeEmail: jest.fn().mockResolvedValue(undefined),
+    sendCredentialsEmail: jest.fn().mockResolvedValue(undefined),
+  },
 }));
 
 let mongod: MongoMemoryServer;
