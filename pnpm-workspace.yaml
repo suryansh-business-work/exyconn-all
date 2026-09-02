@@ -1,6 +1,8 @@
 packages:
+  - 'packages/*'
   - 'exyconn-portal'
   - 'exyconn-portal/server'
   - 'exyconn-portal/ui'
+  - 'exyconn-portal/apps/*'
   - 'exyconn-website'
   - 'exyconn-tracker-app'

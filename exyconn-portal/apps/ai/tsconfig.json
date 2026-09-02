@@ -1,0 +1,35 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "../../../packages/shell/src/*"
+      ],
+      "@exyconn/shell": [
+        "../../../packages/shell/src/index.ts"
+      ],
+      "@exyconn/shell/*": [
+        "../../../packages/shell/src/*"
+      ],
+      "@exyconn/login": [
+        "../../../packages/login/src/index.ts"
+      ]
+    },
+    "types": [
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ]
+  },
+  "include": [
+    "src",
+    "__tests__",
+    "vite.config.ts",
+    "../../../packages/shell/src/vite-env.d.ts"
+  ],
+  "exclude": [
+    "**/*.cy.ts",
+    "**/*.cy.tsx",
+    "cypress"
+  ]
+}

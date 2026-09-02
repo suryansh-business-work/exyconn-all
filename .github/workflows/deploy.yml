@@ -49,11 +49,11 @@ jobs:
       - name: GraphQL codegen is in sync
         run: |
           pnpm codegen
-          git diff --exit-code -- exyconn-portal/server/src/graphql/generated exyconn-portal/ui/src/graphql/generated \
+          git diff --exit-code -- exyconn-portal/server/src/graphql/generated packages/shell/src/graphql/generated \
             || { echo "::error::Committed GraphQL codegen output is stale — run 'pnpm codegen' and commit the result."; exit 1; }
-      - run: pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run typecheck
-      - run: pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run lint
-      - run: pnpm --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run test
+      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run typecheck
+      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run lint
+      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run test
 
   build:
     name: Build & push ${{ matrix.service }}
@@ -67,10 +67,118 @@ jobs:
             dockerfile: docker/website.Dockerfile
             context: .
             build_args: ''
-          - service: portal-ui
-            dockerfile: docker/portal-ui.Dockerfile
+          - service: portal-hub
+            dockerfile: docker/portal-app.Dockerfile
             context: .
-            build_args: VITE_GRAPHQL_URL=https://portal-server.exyconn.com/graphql
+            build_args: |
+              APP_PKG=exyconn-portal-ui
+              APP_DIR=exyconn-portal/ui
+              PORT=4003
+              VITE_PORTAL_APP=hub
+          - service: portal-admin
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-admin
+              APP_DIR=exyconn-portal/apps/admin
+              PORT=4020
+              VITE_PORTAL_APP=admin
+          - service: portal-employee
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-employee
+              APP_DIR=exyconn-portal/apps/employee
+              PORT=4021
+              VITE_PORTAL_APP=employee
+          - service: portal-finance
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-finance
+              APP_DIR=exyconn-portal/apps/finance
+              PORT=4022
+              VITE_PORTAL_APP=finance
+          - service: portal-support
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-support
+              APP_DIR=exyconn-portal/apps/support
+              PORT=4023
+              VITE_PORTAL_APP=support
+          - service: portal-crm
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-crm
+              APP_DIR=exyconn-portal/apps/crm
+              PORT=4024
+              VITE_PORTAL_APP=crm
+          - service: portal-products
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-products
+              APP_DIR=exyconn-portal/apps/products
+              PORT=4025
+              VITE_PORTAL_APP=products
+          - service: portal-legal
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-legal
+              APP_DIR=exyconn-portal/apps/legal
+              PORT=4026
+              VITE_PORTAL_APP=legal
+          - service: portal-hr
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-hr
+              APP_DIR=exyconn-portal/apps/hr
+              PORT=4027
+              VITE_PORTAL_APP=hr
+          - service: portal-marketing
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-marketing
+              APP_DIR=exyconn-portal/apps/marketing
+              PORT=4028
+              VITE_PORTAL_APP=marketing
+          - service: portal-projects
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-projects
+              APP_DIR=exyconn-portal/apps/projects
+              PORT=4029
+              VITE_PORTAL_APP=projects
+          - service: portal-ai
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-ai
+              APP_DIR=exyconn-portal/apps/ai
+              PORT=4030
+              VITE_PORTAL_APP=ai
+          - service: portal-website
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-website
+              APP_DIR=exyconn-portal/apps/website
+              PORT=4031
+              VITE_PORTAL_APP=website
+          - service: portal-tracker
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-tracker
+              APP_DIR=exyconn-portal/apps/tracker
+              PORT=4032
+              VITE_PORTAL_APP=tracker
           - service: portal-server
             dockerfile: docker/portal-server.Dockerfile
             context: .
@@ -167,8 +275,21 @@ jobs:
             "https://exyconn.com"
             "https://tools.exyconn.com"
             "https://tools-api.exyconn.com/health"
-            "https://portal.exyconn.com"
             "https://portal-server.exyconn.com/health"
+            "https://portal.exyconn.com"
+            "https://admin.exyconn.com"
+            "https://employee.exyconn.com"
+            "https://finance.exyconn.com"
+            "https://support.exyconn.com"
+            "https://crm.exyconn.com"
+            "https://products.exyconn.com"
+            "https://legal.exyconn.com"
+            "https://hr.exyconn.com"
+            "https://marketing.exyconn.com"
+            "https://projects.exyconn.com"
+            "https://ai.exyconn.com"
+            "https://website.exyconn.com"
+            "https://tracker.exyconn.com"
           )
           fail=0
           # Report every domain (a curl connect/DNS/TLS error shows as 000) before failing,
@@ -186,7 +307,7 @@ jobs:
             echo "::error::One or more services are not reachable over HTTPS. If a domain shows 000, its DNS A record and/or nginx vhost + certbot cert is not set up yet (run deploy/server-setup.sh)."
             exit 1
           fi
-          echo "All five services returned 200 OK."
+          echo "Every service returned 200 OK."
 
   tracker:
     name: Build tracker installer (Windows)

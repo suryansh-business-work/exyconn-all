@@ -1,6 +1,6 @@
 # Exyconn deployment
 
-One monorepo → five containerized web services behind host nginx + certbot on
+One monorepo → containerized web services behind host nginx + certbot on
 `148.135.136.107`, deployed by GitHub Actions on push to `main`. The Tracker desktop app
 is built as a downloadable Windows installer artifact by the same workflow.
 
@@ -9,7 +9,20 @@ is built as a downloadable Windows installer artifact by the same workflow.
 | Main website (Astro) | 4000 | exyconn.com | `exyconn-website` |
 | Tools UI | 4001 | tools.exyconn.com | `exyconn-tools-ui` |
 | Tools API | 4002 | tools-api.exyconn.com | `exyconn-tools-api` |
-| Portal UI | 4003 | portal.exyconn.com | `exyconn-portal-ui` |
+| Portal hub (launcher, profile, settings) | 4003 | portal.exyconn.com | `exyconn-portal-hub` |
+| Portal · Admin | 4020 | admin.exyconn.com | `exyconn-portal-admin` |
+| Portal · My Workspace | 4021 | employee.exyconn.com | `exyconn-portal-employee` |
+| Portal · Finance | 4022 | finance.exyconn.com | `exyconn-portal-finance` |
+| Portal · Support | 4023 | support.exyconn.com | `exyconn-portal-support` |
+| Portal · CRM | 4024 | crm.exyconn.com | `exyconn-portal-crm` |
+| Portal · Products | 4025 | products.exyconn.com | `exyconn-portal-products` |
+| Portal · Legal | 4026 | legal.exyconn.com | `exyconn-portal-legal` |
+| Portal · HR | 4027 | hr.exyconn.com | `exyconn-portal-hr` |
+| Portal · Marketing | 4028 | marketing.exyconn.com | `exyconn-portal-marketing` |
+| Portal · Projects | 4029 | projects.exyconn.com | `exyconn-portal-projects` |
+| Portal · AI | 4030 | ai.exyconn.com | `exyconn-portal-ai` |
+| Portal · Website | 4031 | website.exyconn.com | `exyconn-portal-website` |
+| Portal · Time Tracker | 4032 | tracker.exyconn.com | `exyconn-portal-tracker` |
 | Portal API | 4004 | portal-server.exyconn.com | `exyconn-portal-server` |
 | Tracker (desktop) | — | — | Windows installer artifact |
 
@@ -25,7 +38,7 @@ password, Slack webhook.
 
 ## 1. DNS
 
-Point A records for all five names at `148.135.136.107` (certbot needs them resolving first):
+Point A records for every name in the table at `148.135.136.107` (certbot needs them resolving first):
 
 ```
 exyconn.com                 A  148.135.136.107
@@ -87,7 +100,7 @@ and idempotent** — safe to re-run.
 
 Push to `main` (or run the workflow manually). `.github/workflows/deploy.yml` then:
 
-1. builds + pushes all five images to Docker Hub (tagged `latest` and the commit SHA),
+1. builds + pushes every image to Docker Hub (tagged `latest` and the commit SHA),
 2. copies `docker-compose.prod.yml` to `/opt/exyconn` and runs `docker compose up -d`,
 3. verifies every domain returns **200 OK**,
 4. builds the Tracker Windows installer (download it from the run's Artifacts),
@@ -95,9 +108,22 @@ Push to `main` (or run the workflow manually). `.github/workflows/deploy.yml` th
 
 ## Local development
 
-`pnpm run:all` runs website (4000), portal UI (4003), portal API (4004). Tools runs from
-its own folder (`cd exyconn-tools && npm run dev` → 4001/4002). Tracker:
+`pnpm run:all` runs website (4000), portal hub (4003), portal API (4004). A module app is
+started on its own port with `pnpm --filter @exyconn/portal-app-<module> dev` (hr, ai,
+website, …) — in dev they are plain `localhost:<port>` origins, and because cookies ignore
+ports the session is shared across them just as it is across subdomains in production.
+Tools runs from its own folder (`cd exyconn-tools && npm run dev` → 4001/4002). Tracker:
 `pnpm --filter exyconn-tracker-app dev`.
+
+## Portal architecture
+
+The portal is a set of micro-frontends: `packages/shell` (design system, layout, Apollo
+client, auth context, module registry) and `packages/login` (the sign-in screen) are shared
+as source by the hub and by each module app under `exyconn-portal/apps/*`. Every app is its
+own Vite build on its own subdomain, and all of them call the single portal API. The JWT
+lives in a cookie scoped to `.exyconn.com`, so signing in on any one app signs you in
+everywhere; ADMIN passes every module's role guard. Old `/portal/<module>/...` URLs are
+redirected from the hub to the app that now owns them.
 
 ## Notes / caveats
 

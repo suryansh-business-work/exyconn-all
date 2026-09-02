@@ -1,13 +1,13 @@
-import { useNavigate } from 'react-router-dom';
-import { Box, CardActionArea, Grid, Flex, Heading, Text } from '@/components/ui';
-import { useAuth } from '../../auth/AuthContext';
-import { accessibleModules } from '../../config/modules';
-import { glass } from '../../components/glass/glass';
+import { Box, CardActionArea, Grid, Flex, Heading, Text } from '@exyconn/shell/components/ui';
+import { useAuth } from '@exyconn/shell/auth/AuthContext';
+import { accessibleModules } from '@exyconn/shell/config/modules';
+import { glass } from '@exyconn/shell/components/glass/glass';
+import { useCrossAppNavigate } from '@exyconn/shell/hooks/useCrossAppNavigate';
 
 /** Post-login landing: a grid of the modules the current role can open. */
 export function Portal() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const navigateTo = useCrossAppNavigate();
   if (!user) return null;
 
   const modules = accessibleModules(user.roles);
@@ -28,7 +28,7 @@ export function Portal() {
             <Grid key={module.key} item xs={12} sm={6} md={4} lg={3}>
               <Box sx={[glass, { height: '100%', overflow: 'hidden' }]}>
                 <CardActionArea
-                  onClick={() => navigate(module.path)}
+                  onClick={() => navigateTo(module.key, module.path)}
                   sx={{ p: 3, height: '100%', display: 'block' }}
                 >
                   <Box

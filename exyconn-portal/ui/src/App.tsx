@@ -1,31 +1,22 @@
-import { ApolloProvider } from '@apollo/client';
-import { BrowserRouter } from 'react-router-dom';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
-import { apolloClient } from './config/apolloClient';
-import { ColorModeProvider } from './theme/ColorModeContext';
-import { AuthProvider } from './auth/AuthContext';
-import { NotificationProvider } from './components/feedback/NotificationProvider';
-import { ConfirmProvider } from './components/feedback/ConfirmProvider';
-import { AppRoutes } from './routes/AppRoutes';
+import { Navigate, Route } from 'react-router-dom';
+import { PortalApp } from '@exyconn/shell';
+import { Login } from '@exyconn/login';
+import { Portal } from './pages/Portal/Portal';
+import { LegacyModuleRedirect } from './routes/LegacyModuleRedirect';
 
-/** Composes the app-wide providers (singleton client, theme, auth, feedback). */
+/**
+ * Hub micro-frontend (portal.exyconn.com): the module launcher plus the shared
+ * profile/settings screens. Module routes live in their own apps now, so the
+ * old `/portal/...` URLs are forwarded there instead of being served here.
+ */
 export function App() {
   return (
-    <ApolloProvider client={apolloClient}>
-      <ColorModeProvider>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <NotificationProvider>
-            <ConfirmProvider>
-              <BrowserRouter>
-                <AuthProvider>
-                  <AppRoutes />
-                </AuthProvider>
-              </BrowserRouter>
-            </ConfirmProvider>
-          </NotificationProvider>
-        </LocalizationProvider>
-      </ColorModeProvider>
-    </ApolloProvider>
+    <PortalApp loginElement={<Login />} homePath="/">
+      <Route index element={<Portal />} />
+      <Route path="/portal" element={<Portal />} />
+      <Route path="/portal/profile" element={<Navigate to="/profile" replace />} />
+      <Route path="/portal/settings" element={<Navigate to="/settings" replace />} />
+      <Route path="/portal/*" element={<LegacyModuleRedirect />} />
+    </PortalApp>
   );
 }
