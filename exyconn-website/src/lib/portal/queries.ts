@@ -8,9 +8,6 @@ import type {
   JobCompany,
   JobWithCompany,
   NavLink,
-  Tool,
-  ToolCategory,
-  ToolCategoryWithTools,
 } from './types';
 
 const BLOG_FIELDS = `
@@ -38,14 +35,6 @@ const JOB_FIELDS = `
 const GIG_FIELDS = `
   id gigCode title category shortDescription fullDescription deliverables requirements
   tags budget duration status applicationType applicationContact postedDate deadline isUrgent
-`;
-
-const TOOL_CATEGORY_FIELDS = `id slug category description icon color`;
-
-const TOOL_FIELDS = `
-  id toolCode categorySlug name description longDescription url icon color
-  features useCases keywords isMVP
-  pricing { price currency features alterationNote }
 `;
 
 const NAV_LINK_FIELDS = `id label href description category keywords`;
@@ -158,45 +147,6 @@ export async function getGig(gigCode: string): Promise<Gig | null> {
     { gigCode },
   );
   return data.publicGig;
-}
-
-// ── Tools ───────────────────────────────────────────────────────────────────
-
-export async function getToolCategories(): Promise<ToolCategory[]> {
-  const data = await portalRequest<{ publicToolCategories: ToolCategory[] }>(
-    `query { publicToolCategories { ${TOOL_CATEGORY_FIELDS} } }`,
-  );
-  return data.publicToolCategories;
-}
-
-export async function getTools(categorySlug?: string): Promise<Tool[]> {
-  const data = await portalRequest<{ publicTools: Tool[] }>(
-    `query GetTools($categorySlug: String) { publicTools(categorySlug: $categorySlug) { ${TOOL_FIELDS} } }`,
-    { categorySlug },
-  );
-  return data.publicTools;
-}
-
-export async function getTool(toolCode: string): Promise<Tool | null> {
-  const data = await portalRequest<{ publicTool: Tool | null }>(
-    `query GetTool($toolCode: String!) { publicTool(toolCode: $toolCode) { ${TOOL_FIELDS} } }`,
-    { toolCode },
-  );
-  return data.publicTool;
-}
-
-/**
- * Categories with their tools nested, mirroring the shape the tools pages used to get
- * from the hardcoded `toolsData` array. Grouped here rather than on the server because
- * the portal deliberately exposes no type-level field resolvers.
- */
-export async function getToolCategoriesWithTools(): Promise<ToolCategoryWithTools[]> {
-  const [categories, tools] = await Promise.all([getToolCategories(), getTools()]);
-
-  return categories.map((category) => ({
-    ...category,
-    items: tools.filter((tool) => tool.categorySlug === category.slug),
-  }));
 }
 
 // ── Navigation ──────────────────────────────────────────────────────────────

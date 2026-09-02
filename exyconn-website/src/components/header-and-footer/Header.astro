@@ -1,6 +1,7 @@
 ---
 import MobileHeader from "./MobileHeader.astro";
 import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
+import { TOOLS_SITE_URL } from "../../lib/site";
 
 interface Props {
   branding: Branding;
@@ -18,7 +19,12 @@ const logoUrl = branding.logoUrl || BRANDING_FALLBACK.logoUrl;
 <div
   class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white py-2 px-4 text-center text-sm"
 >
-  <a href="/tools" class="inline-flex items-center gap-2 hover:opacity-90 transition-opacity">
+  <a
+    href={TOOLS_SITE_URL}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
+  >
     <i class="fa-solid fa-rocket"></i>
     <span><strong>New!</strong> Explore our Free Tools - SEO, AI & Business Automation</span>
     <i class="fa-solid fa-arrow-right text-xs"></i>
@@ -348,7 +354,13 @@ const logoUrl = branding.logoUrl || BRANDING_FALLBACK.logoUrl;
                     <p class="text-xs text-gray-400">Terms and legal information</p>
                   </div>
                 </a>
-                <a href="/tools" class="header-mega-simple" role="menuitem">
+                <a
+                  href={TOOLS_SITE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="header-mega-simple"
+                  role="menuitem"
+                >
                   <i class="fa-solid fa-toolbox text-indigo-500 text-sm w-5"></i>
                   <div>
                     <span class="text-sm text-gray-700 font-medium">Free Tools</span>

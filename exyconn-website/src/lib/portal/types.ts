@@ -111,39 +111,6 @@ export interface Gig {
   isUrgent: boolean;
 }
 
-export interface ToolPricing {
-  price: number;
-  currency: string;
-  features: string[];
-  alterationNote: string;
-}
-
-export interface ToolCategory {
-  id: string;
-  slug: string;
-  category: string;
-  description: string;
-  icon: string;
-  color: string;
-}
-
-export interface Tool {
-  id: string;
-  toolCode: string;
-  categorySlug: string;
-  name: string;
-  description: string;
-  longDescription: string;
-  url: string;
-  icon: string;
-  color: string;
-  features: string[];
-  useCases: string[];
-  keywords: string[];
-  pricing: ToolPricing | null;
-  isMVP: boolean;
-}
-
 export interface NavLink {
   id: string;
   label: string;
@@ -190,11 +157,6 @@ export interface Branding {
   githubUrl: string;
 
   copyrightText: string;
-}
-
-/** A tool category with its tools attached — assembled client-side (see queries.ts). */
-export interface ToolCategoryWithTools extends ToolCategory {
-  items: Tool[];
 }
 
 /** A job paired with the company that posted it. */
