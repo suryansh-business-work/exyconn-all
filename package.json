@@ -1,6 +1,6 @@
 {
   "name": "exyconn-portal-plus-website",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Exyconn monorepo \u2014 portal (GraphQL server + React admin UI) and the public Astro website.",
   "packageManager": "pnpm@9.15.0",
