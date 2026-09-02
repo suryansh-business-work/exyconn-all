@@ -125,6 +125,48 @@ export type AuthPayload = {
   user: User;
 };
 
+export type Benefit = {
+  __typename?: 'Benefit';
+  coverage: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  documentUrl?: Maybe<Scalars['String']['output']>;
+  employeeId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  kind: BenefitKind;
+  name: Scalars['String']['output'];
+  provider: Scalars['String']['output'];
+  reference: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  validFrom?: Maybe<Scalars['DateTime']['output']>;
+  validTo?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type BenefitInput = {
+  coverage: Scalars['String']['input'];
+  documentUrl?: InputMaybe<Scalars['String']['input']>;
+  employeeId: Scalars['String']['input'];
+  kind: BenefitKind;
+  name: Scalars['String']['input'];
+  provider: Scalars['String']['input'];
+  reference: Scalars['String']['input'];
+  validFrom?: InputMaybe<Scalars['DateTime']['input']>;
+  validTo?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export enum BenefitKind {
+  Gratuity = 'GRATUITY',
+  Insurance = 'INSURANCE',
+  Other = 'OTHER',
+  Pf = 'PF',
+  Wellness = 'WELLNESS'
+}
+
+export type BenefitPage = {
+  __typename?: 'BenefitPage';
+  rows: Array<Benefit>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type BlogAuthor = {
   __typename?: 'BlogAuthor';
   initials: Scalars['String']['output'];
@@ -519,6 +561,17 @@ export enum DocumentCategory {
   Policy = 'POLICY'
 }
 
+export enum DocumentKind {
+  AppointmentLetter = 'APPOINTMENT_LETTER',
+  Experience = 'EXPERIENCE',
+  OfferLetter = 'OFFER_LETTER',
+  Other = 'OTHER',
+  Policy = 'POLICY',
+  Relieving = 'RELIEVING',
+  SalarySlip = 'SALARY_SLIP',
+  Tax = 'TAX'
+}
+
 export enum DocumentStatus {
   Archived = 'ARCHIVED',
   Draft = 'DRAFT',
@@ -551,10 +604,106 @@ export type EmailConfigInput = {
   username: Scalars['String']['input'];
 };
 
+export type EmployeeDocument = {
+  __typename?: 'EmployeeDocument';
+  createdAt: Scalars['DateTime']['output'];
+  employeeId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  issuedOn: Scalars['DateTime']['output'];
+  kind: DocumentKind;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type EmployeeDocumentInput = {
+  employeeId: Scalars['String']['input'];
+  issuedOn: Scalars['DateTime']['input'];
+  kind: DocumentKind;
+  title: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+export type EmployeeDocumentPage = {
+  __typename?: 'EmployeeDocumentPage';
+  rows: Array<EmployeeDocument>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type EmployeeRequest = {
+  __typename?: 'EmployeeRequest';
+  createdAt: Scalars['DateTime']['output'];
+  decidedAt?: Maybe<Scalars['DateTime']['output']>;
+  decisionNote?: Maybe<Scalars['String']['output']>;
+  details: Scalars['String']['output'];
+  employeeId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  status: RequestStatus;
+  subject: Scalars['String']['output'];
+  type: RequestType;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type EmployeeRequestInput = {
+  decisionNote?: InputMaybe<Scalars['String']['input']>;
+  details: Scalars['String']['input'];
+  employeeId: Scalars['String']['input'];
+  status: RequestStatus;
+  subject: Scalars['String']['input'];
+  type: RequestType;
+};
+
+export type EmployeeRequestPage = {
+  __typename?: 'EmployeeRequestPage';
+  rows: Array<EmployeeRequest>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export enum EmploymentStatus {
   Active = 'ACTIVE',
   OnLeave = 'ON_LEAVE',
   Terminated = 'TERMINATED'
+}
+
+export type ExpenseClaim = {
+  __typename?: 'ExpenseClaim';
+  amount: Scalars['Float']['output'];
+  approvedAmount?: Maybe<Scalars['Float']['output']>;
+  category: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  employeeId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  incurredOn: Scalars['DateTime']['output'];
+  receiptUrl?: Maybe<Scalars['String']['output']>;
+  status: ExpenseStatus;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type ExpenseClaimInput = {
+  amount: Scalars['Float']['input'];
+  approvedAmount?: InputMaybe<Scalars['Float']['input']>;
+  category: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  employeeId: Scalars['String']['input'];
+  incurredOn: Scalars['DateTime']['input'];
+  receiptUrl?: InputMaybe<Scalars['String']['input']>;
+  status: ExpenseStatus;
+};
+
+export type ExpenseClaimPage = {
+  __typename?: 'ExpenseClaimPage';
+  rows: Array<ExpenseClaim>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ExpenseStatus {
+  Approved = 'APPROVED',
+  Paid = 'PAID',
+  Rejected = 'REJECTED',
+  Submitted = 'SUBMITTED'
 }
 
 export enum FilterOp {
@@ -612,6 +761,49 @@ export type GigPage = {
   rows: Array<Gig>;
   totalCount: Scalars['Int']['output'];
 };
+
+export type Goal = {
+  __typename?: 'Goal';
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  employeeId: Scalars['String']['output'];
+  endDate: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  kpi: Scalars['String']['output'];
+  managerComment?: Maybe<Scalars['String']['output']>;
+  progress: Scalars['Int']['output'];
+  startDate: Scalars['DateTime']['output'];
+  status: GoalStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  weightage: Scalars['Int']['output'];
+};
+
+export type GoalInput = {
+  description: Scalars['String']['input'];
+  employeeId: Scalars['String']['input'];
+  endDate: Scalars['DateTime']['input'];
+  kpi: Scalars['String']['input'];
+  managerComment?: InputMaybe<Scalars['String']['input']>;
+  progress: Scalars['Int']['input'];
+  startDate: Scalars['DateTime']['input'];
+  status: GoalStatus;
+  title: Scalars['String']['input'];
+  weightage: Scalars['Int']['input'];
+};
+
+export type GoalPage = {
+  __typename?: 'GoalPage';
+  rows: Array<Goal>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum GoalStatus {
+  Active = 'ACTIVE',
+  Cancelled = 'CANCELLED',
+  Completed = 'COMPLETED',
+  Draft = 'DRAFT'
+}
 
 export type HeadcountPoint = {
   __typename?: 'HeadcountPoint';
@@ -928,6 +1120,7 @@ export type Mutation = {
   changePassword: Scalars['Boolean']['output'];
   createAiJob: AiJob;
   createAnnouncement: Announcement;
+  createBenefit: Benefit;
   createBlogPost: BlogPost;
   createBug: Bug;
   createCampaign: Campaign;
@@ -937,7 +1130,11 @@ export type Mutation = {
   createContract: Contract;
   createDepartment: Department;
   createEmailConfig: EmailConfig;
+  createEmployeeDocument: EmployeeDocument;
+  createEmployeeRequest: EmployeeRequest;
+  createExpenseClaim: ExpenseClaim;
   createGig: Gig;
+  createGoal: Goal;
   createImageConfig: ImageConfig;
   createInvoice: Invoice;
   createJob: Job;
@@ -945,7 +1142,18 @@ export type Mutation = {
   createLead: Lead;
   createLeaveRequest: LeaveRequest;
   createLegalDocument: LegalDocument;
+  /**
+   * Filed by the employee for themselves: id from the token, always SUBMITTED,
+   * and the approved amount stays finance's to set.
+   */
+  createMyExpenseClaim: ExpenseClaim;
+  /**
+   * Raised by the employee for themselves — the employee id comes from the token,
+   * and the status always starts PENDING.
+   */
+  createMyRequest: EmployeeRequest;
   createNavLink: NavLink;
+  createPerformanceReview: PerformanceReview;
   createPosition: Position;
   createProduct: Product;
   createProject: Project;
@@ -955,11 +1163,13 @@ export type Mutation = {
   createTask: Task;
   createTool: Tool;
   createToolCategory: ToolCategory;
+  createTraining: Training;
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
   createWebsiteSubmission: WebsiteSubmission;
   deleteAiJob: Scalars['Boolean']['output'];
   deleteAnnouncement: Scalars['Boolean']['output'];
+  deleteBenefit: Scalars['Boolean']['output'];
   deleteBlogPost: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
   deleteCampaign: Scalars['Boolean']['output'];
@@ -969,7 +1179,11 @@ export type Mutation = {
   deleteContract: Scalars['Boolean']['output'];
   deleteDepartment: Scalars['Boolean']['output'];
   deleteEmailConfig: Scalars['Boolean']['output'];
+  deleteEmployeeDocument: Scalars['Boolean']['output'];
+  deleteEmployeeRequest: Scalars['Boolean']['output'];
+  deleteExpenseClaim: Scalars['Boolean']['output'];
   deleteGig: Scalars['Boolean']['output'];
+  deleteGoal: Scalars['Boolean']['output'];
   deleteImageConfig: Scalars['Boolean']['output'];
   deleteInvoice: Scalars['Boolean']['output'];
   deleteJob: Scalars['Boolean']['output'];
@@ -978,6 +1192,7 @@ export type Mutation = {
   deleteLeaveRequest: Scalars['Boolean']['output'];
   deleteLegalDocument: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
+  deletePerformanceReview: Scalars['Boolean']['output'];
   deletePosition: Scalars['Boolean']['output'];
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
@@ -985,12 +1200,15 @@ export type Mutation = {
   deleteTask: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
   deleteToolCategory: Scalars['Boolean']['output'];
+  deleteTraining: Scalars['Boolean']['output'];
   deleteUser: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
   grantTrackerAccess: TrackerAccess;
   login: AuthPayload;
+  markAllNotificationsRead: Scalars['Int']['output'];
   /** Self-service: mark today's (or a given day's) attendance — upserts per day. */
   markAttendance: Attendance;
+  markNotificationRead: Scalars['Boolean']['output'];
   moveTask: Scalars['Boolean']['output'];
   renameColumn: BoardColumn;
   reorderColumns: Scalars['Boolean']['output'];
@@ -1016,6 +1234,11 @@ export type Mutation = {
   setUserActive: User;
   setUserBlocked: User;
   signContract: Contract;
+  /**
+   * The employee's own half of the appraisal. Allowed only while the cycle is
+   * still OPEN, and it never touches the manager's assessment or the rating.
+   */
+  submitSelfAssessment: PerformanceReview;
   testImageUpload: Scalars['String']['output'];
   trackerAcceptConsent: Scalars['Boolean']['output'];
   trackerHeartbeat: Scalars['Boolean']['output'];
@@ -1029,6 +1252,7 @@ export type Mutation = {
   triageWebsiteSubmission: WebsiteSubmission;
   updateAiJob: AiJob;
   updateAnnouncement: Announcement;
+  updateBenefit: Benefit;
   updateBlogPost: BlogPost;
   updateBranding: Branding;
   updateBug: Bug;
@@ -1038,7 +1262,11 @@ export type Mutation = {
   updateContract: Contract;
   updateDepartment: Department;
   updateEmailConfig: EmailConfig;
+  updateEmployeeDocument: EmployeeDocument;
+  updateEmployeeRequest: EmployeeRequest;
+  updateExpenseClaim: ExpenseClaim;
   updateGig: Gig;
+  updateGoal: Goal;
   updateImageConfig: ImageConfig;
   updateInvoice: Invoice;
   updateJob: Job;
@@ -1046,7 +1274,15 @@ export type Mutation = {
   updateLead: Lead;
   updateLeaveRequest: LeaveRequest;
   updateLegalDocument: LegalDocument;
+  /**
+   * Employee self-update. Only progress moves; weightage, dates and the manager's
+   * comment stay HR/manager-owned.
+   */
+  updateMyGoalProgress: Goal;
+  /** The employee marking their own progress. Completing it stamps completedOn. */
+  updateMyTrainingStatus: Training;
   updateNavLink: NavLink;
+  updatePerformanceReview: PerformanceReview;
   updatePosition: Position;
   updateProduct: Product;
   updateProfile: User;
@@ -1057,6 +1293,7 @@ export type Mutation = {
   updateTool: Tool;
   updateToolCategory: ToolCategory;
   updateTrackerSettings: TrackerSettings;
+  updateTraining: Training;
   updateUser: User;
   uploadAvatar: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
@@ -1081,6 +1318,11 @@ export type MutationCreateAiJobArgs = {
 
 export type MutationCreateAnnouncementArgs = {
   input: AnnouncementInput;
+};
+
+
+export type MutationCreateBenefitArgs = {
+  input: BenefitInput;
 };
 
 
@@ -1130,8 +1372,28 @@ export type MutationCreateEmailConfigArgs = {
 };
 
 
+export type MutationCreateEmployeeDocumentArgs = {
+  input: EmployeeDocumentInput;
+};
+
+
+export type MutationCreateEmployeeRequestArgs = {
+  input: EmployeeRequestInput;
+};
+
+
+export type MutationCreateExpenseClaimArgs = {
+  input: ExpenseClaimInput;
+};
+
+
 export type MutationCreateGigArgs = {
   input: GigInput;
+};
+
+
+export type MutationCreateGoalArgs = {
+  input: GoalInput;
 };
 
 
@@ -1170,8 +1432,23 @@ export type MutationCreateLegalDocumentArgs = {
 };
 
 
+export type MutationCreateMyExpenseClaimArgs = {
+  input: MyExpenseClaimInput;
+};
+
+
+export type MutationCreateMyRequestArgs = {
+  input: MyRequestInput;
+};
+
+
 export type MutationCreateNavLinkArgs = {
   input: NavLinkInput;
+};
+
+
+export type MutationCreatePerformanceReviewArgs = {
+  input: PerformanceReviewInput;
 };
 
 
@@ -1218,6 +1495,11 @@ export type MutationCreateToolCategoryArgs = {
 };
 
 
+export type MutationCreateTrainingArgs = {
+  input: TrainingInput;
+};
+
+
 export type MutationCreateUserArgs = {
   input: CreateUserInput;
 };
@@ -1234,6 +1516,11 @@ export type MutationDeleteAiJobArgs = {
 
 
 export type MutationDeleteAnnouncementArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteBenefitArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -1283,7 +1570,27 @@ export type MutationDeleteEmailConfigArgs = {
 };
 
 
+export type MutationDeleteEmployeeDocumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteEmployeeRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteExpenseClaimArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteGigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteGoalArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -1328,6 +1635,11 @@ export type MutationDeleteNavLinkArgs = {
 };
 
 
+export type MutationDeletePerformanceReviewArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeletePositionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -1363,6 +1675,11 @@ export type MutationDeleteToolCategoryArgs = {
 };
 
 
+export type MutationDeleteTrainingArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteUserArgs = {
   id: Scalars['ID']['input'];
 };
@@ -1386,6 +1703,11 @@ export type MutationLoginArgs = {
 
 export type MutationMarkAttendanceArgs = {
   input: MarkAttendanceInput;
+};
+
+
+export type MutationMarkNotificationReadArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -1479,6 +1801,12 @@ export type MutationSignContractArgs = {
 };
 
 
+export type MutationSubmitSelfAssessmentArgs = {
+  id: Scalars['ID']['input'];
+  text: Scalars['String']['input'];
+};
+
+
 export type MutationTestImageUploadArgs = {
   file: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
@@ -1538,6 +1866,12 @@ export type MutationUpdateAnnouncementArgs = {
 };
 
 
+export type MutationUpdateBenefitArgs = {
+  id: Scalars['ID']['input'];
+  input: BenefitInput;
+};
+
+
 export type MutationUpdateBlogPostArgs = {
   id: Scalars['ID']['input'];
   input: BlogPostInput;
@@ -1591,9 +1925,33 @@ export type MutationUpdateEmailConfigArgs = {
 };
 
 
+export type MutationUpdateEmployeeDocumentArgs = {
+  id: Scalars['ID']['input'];
+  input: EmployeeDocumentInput;
+};
+
+
+export type MutationUpdateEmployeeRequestArgs = {
+  id: Scalars['ID']['input'];
+  input: EmployeeRequestInput;
+};
+
+
+export type MutationUpdateExpenseClaimArgs = {
+  id: Scalars['ID']['input'];
+  input: ExpenseClaimInput;
+};
+
+
 export type MutationUpdateGigArgs = {
   id: Scalars['ID']['input'];
   input: GigInput;
+};
+
+
+export type MutationUpdateGoalArgs = {
+  id: Scalars['ID']['input'];
+  input: GoalInput;
 };
 
 
@@ -1639,9 +1997,27 @@ export type MutationUpdateLegalDocumentArgs = {
 };
 
 
+export type MutationUpdateMyGoalProgressArgs = {
+  id: Scalars['ID']['input'];
+  progress: Scalars['Int']['input'];
+};
+
+
+export type MutationUpdateMyTrainingStatusArgs = {
+  id: Scalars['ID']['input'];
+  status: TrainingStatus;
+};
+
+
 export type MutationUpdateNavLinkArgs = {
   id: Scalars['ID']['input'];
   input: NavLinkInput;
+};
+
+
+export type MutationUpdatePerformanceReviewArgs = {
+  id: Scalars['ID']['input'];
+  input: PerformanceReviewInput;
 };
 
 
@@ -1703,6 +2079,12 @@ export type MutationUpdateTrackerSettingsArgs = {
 };
 
 
+export type MutationUpdateTrainingArgs = {
+  id: Scalars['ID']['input'];
+  input: TrainingInput;
+};
+
+
 export type MutationUpdateUserArgs = {
   id: Scalars['ID']['input'];
   input: UpdateUserInput;
@@ -1718,6 +2100,21 @@ export type MutationUploadImageArgs = {
   file: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
   folder?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type MyExpenseClaimInput = {
+  amount: Scalars['Float']['input'];
+  category: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  incurredOn: Scalars['DateTime']['input'];
+  receiptUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type MyRequestInput = {
+  details: Scalars['String']['input'];
+  subject: Scalars['String']['input'];
+  type: RequestType;
 };
 
 export type NavLink = {
@@ -1742,6 +2139,62 @@ export type NavLinkInput = {
   keywords?: InputMaybe<Scalars['String']['input']>;
   label: Scalars['String']['input'];
   order?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type Notification = {
+  __typename?: 'Notification';
+  body: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  kind: NotificationKind;
+  link?: Maybe<Scalars['String']['output']>;
+  read: Scalars['Boolean']['output'];
+  title: Scalars['String']['output'];
+};
+
+export enum NotificationKind {
+  Announcement = 'ANNOUNCEMENT',
+  General = 'GENERAL',
+  Goal = 'GOAL',
+  Leave = 'LEAVE',
+  Payroll = 'PAYROLL',
+  Performance = 'PERFORMANCE',
+  Request = 'REQUEST',
+  Training = 'TRAINING'
+}
+
+export type PerformanceReview = {
+  __typename?: 'PerformanceReview';
+  actionPlan: Scalars['String']['output'];
+  competencies: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  cycle: Scalars['String']['output'];
+  employeeId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  managerAssessment: Scalars['String']['output'];
+  rating?: Maybe<Scalars['String']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  selfAssessment: Scalars['String']['output'];
+  status: ReviewStatus;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PerformanceReviewInput = {
+  actionPlan: Scalars['String']['input'];
+  competencies: Scalars['String']['input'];
+  cycle: Scalars['String']['input'];
+  employeeId: Scalars['String']['input'];
+  managerAssessment: Scalars['String']['input'];
+  rating?: InputMaybe<Scalars['String']['input']>;
+  score?: InputMaybe<Scalars['Float']['input']>;
+  selfAssessment: Scalars['String']['input'];
+  status: ReviewStatus;
+};
+
+export type PerformanceReviewPage = {
+  __typename?: 'PerformanceReviewPage';
+  rows: Array<PerformanceReview>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type Policy = {
@@ -1900,6 +2353,7 @@ export type Query = {
   branding: Branding;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
+  getBenefit: Benefit;
   getBlogPost: BlogPost;
   getBug: Bug;
   getCampaign: Campaign;
@@ -1907,7 +2361,11 @@ export type Query = {
   getClient: Client;
   getContract: Contract;
   getDepartment: Department;
+  getEmployeeDocument: EmployeeDocument;
+  getEmployeeRequest: EmployeeRequest;
+  getExpenseClaim: ExpenseClaim;
   getGig: Gig;
+  getGoal: Goal;
   getInvoice: Invoice;
   getJob: Job;
   getJobCompany: JobCompany;
@@ -1915,12 +2373,14 @@ export type Query = {
   getLeaveRequest: LeaveRequest;
   getLegalDocument: LegalDocument;
   getNavLink: NavLink;
+  getPerformanceReview: PerformanceReview;
   getPosition: Position;
   getProduct: Product;
   getProject: Project;
   getPrompt: Prompt;
   getTool: Tool;
   getToolCategory: ToolCategory;
+  getTraining: Training;
   getUser: User;
   getWebsiteSubmission: WebsiteSubmission;
   /** HR/ADMIN: workforce counts + headcount-over-time series. */
@@ -1935,6 +2395,9 @@ export type Query = {
   listAnnouncementsStats: TableStats;
   /** HR/ADMIN: all attendance records. */
   listAttendance: Array<Attendance>;
+  listBenefits: Array<Benefit>;
+  listBenefitsPaged: BenefitPage;
+  listBenefitsStats: TableStats;
   listBlogPosts: Array<BlogPost>;
   listBlogPostsPaged: BlogPostPage;
   listBlogPostsStats: TableStats;
@@ -1956,9 +2419,21 @@ export type Query = {
   /** HR/ADMIN: organizational departments. */
   listDepartments: Array<Department>;
   listEmailConfigs: Array<EmailConfig>;
+  listEmployeeDocuments: Array<EmployeeDocument>;
+  listEmployeeDocumentsPaged: EmployeeDocumentPage;
+  listEmployeeDocumentsStats: TableStats;
+  listEmployeeRequests: Array<EmployeeRequest>;
+  listEmployeeRequestsPaged: EmployeeRequestPage;
+  listEmployeeRequestsStats: TableStats;
+  listExpenseClaims: Array<ExpenseClaim>;
+  listExpenseClaimsPaged: ExpenseClaimPage;
+  listExpenseClaimsStats: TableStats;
   listGigs: Array<Gig>;
   listGigsPaged: GigPage;
   listGigsStats: TableStats;
+  listGoals: Array<Goal>;
+  listGoalsPaged: GoalPage;
+  listGoalsStats: TableStats;
   /** Company-wide holidays, readable by any authenticated employee. */
   listHolidays: Array<Holiday>;
   listImageConfigs: Array<ImageConfig>;
@@ -1979,6 +2454,9 @@ export type Query = {
   listLegalDocumentsPaged: LegalDocumentPage;
   listLegalDocumentsStats: TableStats;
   listNavLinks: Array<NavLink>;
+  listPerformanceReviews: Array<PerformanceReview>;
+  listPerformanceReviewsPaged: PerformanceReviewPage;
+  listPerformanceReviewsStats: TableStats;
   /** Company-wide HR policies, readable by any authenticated employee. */
   listPolicies: Array<Policy>;
   /** HR/ADMIN: job positions / designations. */
@@ -1998,6 +2476,9 @@ export type Query = {
   listTools: Array<Tool>;
   listToolsPaged: ToolPage;
   listToolsStats: TableStats;
+  listTrainings: Array<Training>;
+  listTrainingsPaged: TrainingPage;
+  listTrainingsStats: TableStats;
   listUsers: Array<User>;
   listUsersPaged: UserPage;
   listUsersStats: TableStats;
@@ -2005,10 +2486,17 @@ export type Query = {
   me: User;
   /** Self-service: the signed-in user's own attendance records. */
   myAttendance: Array<Attendance>;
+  myBenefits: Array<Benefit>;
+  myDocuments: Array<EmployeeDocument>;
+  myExpenseClaims: Array<ExpenseClaim>;
+  myGoals: Array<Goal>;
   /** Self-service: the signed-in user's own leave requests. */
   myLeaveRequests: Array<LeaveRequest>;
+  myNotifications: Array<Notification>;
   /** Self-service: the signed-in employee's salary structure (null if unset). */
   myPayroll?: Maybe<SalaryStructure>;
+  myPerformanceReviews: Array<PerformanceReview>;
+  myRequests: Array<EmployeeRequest>;
   /** Self-service: the signed-in employee's monthly payslips. */
   mySalarySlips: Array<SalarySlip>;
   /** The signed-in employee's own support tickets. */
@@ -2018,6 +2506,8 @@ export type Query = {
   myTrackerDay: TrackerDay;
   /** The calling device's own employee, all-time. Device token, not a portal session. */
   myTrackerTotals: TrackerTotals;
+  myTrainings: Array<Training>;
+  myUnreadNotificationCount: Scalars['Int']['output'];
   projectBoard: ProjectBoard;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
@@ -2059,6 +2549,11 @@ export type QueryGetAnnouncementArgs = {
 };
 
 
+export type QueryGetBenefitArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetBlogPostArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2094,7 +2589,27 @@ export type QueryGetDepartmentArgs = {
 };
 
 
+export type QueryGetEmployeeDocumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetEmployeeRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetExpenseClaimArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetGigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetGoalArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2134,6 +2649,11 @@ export type QueryGetNavLinkArgs = {
 };
 
 
+export type QueryGetPerformanceReviewArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetPositionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2164,6 +2684,11 @@ export type QueryGetToolCategoryArgs = {
 };
 
 
+export type QueryGetTrainingArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetUserArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2185,6 +2710,11 @@ export type QueryListAiJobsPagedArgs = {
 
 
 export type QueryListAnnouncementsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListBenefitsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -2219,7 +2749,27 @@ export type QueryListContractsPagedArgs = {
 };
 
 
+export type QueryListEmployeeDocumentsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListEmployeeRequestsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListExpenseClaimsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListGigsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListGoalsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -2249,6 +2799,11 @@ export type QueryListLegalDocumentsPagedArgs = {
 };
 
 
+export type QueryListPerformanceReviewsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListProductsPagedArgs = {
   input: TableQueryInput;
 };
@@ -2265,6 +2820,11 @@ export type QueryListPromptsPagedArgs = {
 
 
 export type QueryListToolsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListTrainingsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -2355,6 +2915,29 @@ export type QueryTrackerDevicesArgs = {
 export type QueryTrackerTotalsArgs = {
   userId: Scalars['ID']['input'];
 };
+
+export enum RequestStatus {
+  Approved = 'APPROVED',
+  Pending = 'PENDING',
+  Rejected = 'REJECTED'
+}
+
+export enum RequestType {
+  Document = 'DOCUMENT',
+  Other = 'OTHER',
+  ProfileChange = 'PROFILE_CHANGE',
+  Regularization = 'REGULARIZATION',
+  Reimbursement = 'REIMBURSEMENT',
+  Travel = 'TRAVEL',
+  Wfh = 'WFH'
+}
+
+export enum ReviewStatus {
+  Closed = 'CLOSED',
+  ManagerSubmitted = 'MANAGER_SUBMITTED',
+  Open = 'OPEN',
+  SelfSubmitted = 'SELF_SUBMITTED'
+}
 
 export enum Role {
   Admin = 'ADMIN',
@@ -2820,6 +3403,46 @@ export type TrackerWindowUsageInput = {
   durationMs: Scalars['Float']['input'];
   windowTitle?: InputMaybe<Scalars['String']['input']>;
 };
+
+export type Training = {
+  __typename?: 'Training';
+  assignedOn: Scalars['DateTime']['output'];
+  category: Scalars['String']['output'];
+  certificateUrl?: Maybe<Scalars['String']['output']>;
+  completedOn?: Maybe<Scalars['DateTime']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  dueOn?: Maybe<Scalars['DateTime']['output']>;
+  employeeId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  provider: Scalars['String']['output'];
+  status: TrainingStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type TrainingInput = {
+  assignedOn: Scalars['DateTime']['input'];
+  category: Scalars['String']['input'];
+  certificateUrl?: InputMaybe<Scalars['String']['input']>;
+  completedOn?: InputMaybe<Scalars['DateTime']['input']>;
+  dueOn?: InputMaybe<Scalars['DateTime']['input']>;
+  employeeId: Scalars['String']['input'];
+  provider: Scalars['String']['input'];
+  status: TrainingStatus;
+  title: Scalars['String']['input'];
+};
+
+export type TrainingPage = {
+  __typename?: 'TrainingPage';
+  rows: Array<Training>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum TrainingStatus {
+  Assigned = 'ASSIGNED',
+  Completed = 'COMPLETED',
+  InProgress = 'IN_PROGRESS'
+}
 
 export type UpdateProfileInput = {
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
@@ -3394,6 +4017,101 @@ export type CreateSupportTicketMutationVariables = Exact<{
 
 
 export type CreateSupportTicketMutation = { __typename?: 'Mutation', createSupportTicket: { __typename?: 'SupportTicket', id: string } };
+
+export type MyNotificationsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyNotificationsQuery = { __typename?: 'Query', myNotifications: Array<{ __typename?: 'Notification', id: string, kind: NotificationKind, title: string, body: string, link?: string | null, read: boolean, createdAt: string }> };
+
+export type MyUnreadNotificationCountQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyUnreadNotificationCountQuery = { __typename?: 'Query', myUnreadNotificationCount: number };
+
+export type MarkNotificationReadMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type MarkNotificationReadMutation = { __typename?: 'Mutation', markNotificationRead: boolean };
+
+export type MarkAllNotificationsReadMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MarkAllNotificationsReadMutation = { __typename?: 'Mutation', markAllNotificationsRead: number };
+
+export type MyRequestsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyRequestsQuery = { __typename?: 'Query', myRequests: Array<{ __typename?: 'EmployeeRequest', id: string, type: RequestType, subject: string, details: string, status: RequestStatus, decisionNote?: string | null, decidedAt?: string | null, createdAt: string }> };
+
+export type CreateMyRequestMutationVariables = Exact<{
+  input: MyRequestInput;
+}>;
+
+
+export type CreateMyRequestMutation = { __typename?: 'Mutation', createMyRequest: { __typename?: 'EmployeeRequest', id: string } };
+
+export type MyGoalsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyGoalsQuery = { __typename?: 'Query', myGoals: Array<{ __typename?: 'Goal', id: string, title: string, description: string, kpi: string, weightage: number, startDate: string, endDate: string, progress: number, status: GoalStatus, managerComment?: string | null }> };
+
+export type UpdateMyGoalProgressMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  progress: Scalars['Int']['input'];
+}>;
+
+
+export type UpdateMyGoalProgressMutation = { __typename?: 'Mutation', updateMyGoalProgress: { __typename?: 'Goal', id: string, progress: number } };
+
+export type MyPerformanceReviewsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyPerformanceReviewsQuery = { __typename?: 'Query', myPerformanceReviews: Array<{ __typename?: 'PerformanceReview', id: string, cycle: string, selfAssessment: string, managerAssessment: string, competencies: string, score?: number | null, rating?: string | null, actionPlan: string, status: ReviewStatus, updatedAt: string }> };
+
+export type SubmitSelfAssessmentMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  text: Scalars['String']['input'];
+}>;
+
+
+export type SubmitSelfAssessmentMutation = { __typename?: 'Mutation', submitSelfAssessment: { __typename?: 'PerformanceReview', id: string, status: ReviewStatus } };
+
+export type MyExpenseClaimsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyExpenseClaimsQuery = { __typename?: 'Query', myExpenseClaims: Array<{ __typename?: 'ExpenseClaim', id: string, category: string, description: string, amount: number, currency: string, incurredOn: string, receiptUrl?: string | null, status: ExpenseStatus, approvedAmount?: number | null }> };
+
+export type CreateMyExpenseClaimMutationVariables = Exact<{
+  input: MyExpenseClaimInput;
+}>;
+
+
+export type CreateMyExpenseClaimMutation = { __typename?: 'Mutation', createMyExpenseClaim: { __typename?: 'ExpenseClaim', id: string } };
+
+export type MyBenefitsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyBenefitsQuery = { __typename?: 'Query', myBenefits: Array<{ __typename?: 'Benefit', id: string, kind: BenefitKind, name: string, provider: string, reference: string, coverage: string, validFrom?: string | null, validTo?: string | null, documentUrl?: string | null }> };
+
+export type MyTrainingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyTrainingsQuery = { __typename?: 'Query', myTrainings: Array<{ __typename?: 'Training', id: string, title: string, provider: string, category: string, assignedOn: string, dueOn?: string | null, completedOn?: string | null, status: TrainingStatus, certificateUrl?: string | null }> };
+
+export type UpdateMyTrainingStatusMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  status: TrainingStatus;
+}>;
+
+
+export type UpdateMyTrainingStatusMutation = { __typename?: 'Mutation', updateMyTrainingStatus: { __typename?: 'Training', id: string, status: TrainingStatus, completedOn?: string | null } };
+
+export type MyDocumentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyDocumentsQuery = { __typename?: 'Query', myDocuments: Array<{ __typename?: 'EmployeeDocument', id: string, kind: DocumentKind, title: string, url: string, issuedOn: string }> };
 
 export type ListInvoicesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -7618,6 +8336,674 @@ export function useCreateSupportTicketMutation(baseOptions?: Apollo.MutationHook
 export type CreateSupportTicketMutationHookResult = ReturnType<typeof useCreateSupportTicketMutation>;
 export type CreateSupportTicketMutationResult = Apollo.MutationResult<CreateSupportTicketMutation>;
 export type CreateSupportTicketMutationOptions = Apollo.BaseMutationOptions<CreateSupportTicketMutation, CreateSupportTicketMutationVariables>;
+export const MyNotificationsDocument = gql`
+    query MyNotifications {
+  myNotifications {
+    id
+    kind
+    title
+    body
+    link
+    read
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useMyNotificationsQuery__
+ *
+ * To run a query within a React component, call `useMyNotificationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyNotificationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyNotificationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyNotificationsQuery(baseOptions?: Apollo.QueryHookOptions<MyNotificationsQuery, MyNotificationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyNotificationsQuery, MyNotificationsQueryVariables>(MyNotificationsDocument, options);
+      }
+export function useMyNotificationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyNotificationsQuery, MyNotificationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyNotificationsQuery, MyNotificationsQueryVariables>(MyNotificationsDocument, options);
+        }
+// @ts-ignore
+export function useMyNotificationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyNotificationsQuery, MyNotificationsQueryVariables>): Apollo.UseSuspenseQueryResult<MyNotificationsQuery, MyNotificationsQueryVariables>;
+export function useMyNotificationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyNotificationsQuery, MyNotificationsQueryVariables>): Apollo.UseSuspenseQueryResult<MyNotificationsQuery | undefined, MyNotificationsQueryVariables>;
+export function useMyNotificationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyNotificationsQuery, MyNotificationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyNotificationsQuery, MyNotificationsQueryVariables>(MyNotificationsDocument, options);
+        }
+export type MyNotificationsQueryHookResult = ReturnType<typeof useMyNotificationsQuery>;
+export type MyNotificationsLazyQueryHookResult = ReturnType<typeof useMyNotificationsLazyQuery>;
+export type MyNotificationsSuspenseQueryHookResult = ReturnType<typeof useMyNotificationsSuspenseQuery>;
+export type MyNotificationsQueryResult = Apollo.QueryResult<MyNotificationsQuery, MyNotificationsQueryVariables>;
+export const MyUnreadNotificationCountDocument = gql`
+    query MyUnreadNotificationCount {
+  myUnreadNotificationCount
+}
+    `;
+
+/**
+ * __useMyUnreadNotificationCountQuery__
+ *
+ * To run a query within a React component, call `useMyUnreadNotificationCountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyUnreadNotificationCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyUnreadNotificationCountQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyUnreadNotificationCountQuery(baseOptions?: Apollo.QueryHookOptions<MyUnreadNotificationCountQuery, MyUnreadNotificationCountQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyUnreadNotificationCountQuery, MyUnreadNotificationCountQueryVariables>(MyUnreadNotificationCountDocument, options);
+      }
+export function useMyUnreadNotificationCountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyUnreadNotificationCountQuery, MyUnreadNotificationCountQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyUnreadNotificationCountQuery, MyUnreadNotificationCountQueryVariables>(MyUnreadNotificationCountDocument, options);
+        }
+// @ts-ignore
+export function useMyUnreadNotificationCountSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyUnreadNotificationCountQuery, MyUnreadNotificationCountQueryVariables>): Apollo.UseSuspenseQueryResult<MyUnreadNotificationCountQuery, MyUnreadNotificationCountQueryVariables>;
+export function useMyUnreadNotificationCountSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyUnreadNotificationCountQuery, MyUnreadNotificationCountQueryVariables>): Apollo.UseSuspenseQueryResult<MyUnreadNotificationCountQuery | undefined, MyUnreadNotificationCountQueryVariables>;
+export function useMyUnreadNotificationCountSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyUnreadNotificationCountQuery, MyUnreadNotificationCountQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyUnreadNotificationCountQuery, MyUnreadNotificationCountQueryVariables>(MyUnreadNotificationCountDocument, options);
+        }
+export type MyUnreadNotificationCountQueryHookResult = ReturnType<typeof useMyUnreadNotificationCountQuery>;
+export type MyUnreadNotificationCountLazyQueryHookResult = ReturnType<typeof useMyUnreadNotificationCountLazyQuery>;
+export type MyUnreadNotificationCountSuspenseQueryHookResult = ReturnType<typeof useMyUnreadNotificationCountSuspenseQuery>;
+export type MyUnreadNotificationCountQueryResult = Apollo.QueryResult<MyUnreadNotificationCountQuery, MyUnreadNotificationCountQueryVariables>;
+export const MarkNotificationReadDocument = gql`
+    mutation MarkNotificationRead($id: ID!) {
+  markNotificationRead(id: $id)
+}
+    `;
+export type MarkNotificationReadMutationFn = Apollo.MutationFunction<MarkNotificationReadMutation, MarkNotificationReadMutationVariables>;
+
+/**
+ * __useMarkNotificationReadMutation__
+ *
+ * To run a mutation, you first call `useMarkNotificationReadMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMarkNotificationReadMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [markNotificationReadMutation, { data, loading, error }] = useMarkNotificationReadMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useMarkNotificationReadMutation(baseOptions?: Apollo.MutationHookOptions<MarkNotificationReadMutation, MarkNotificationReadMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<MarkNotificationReadMutation, MarkNotificationReadMutationVariables>(MarkNotificationReadDocument, options);
+      }
+export type MarkNotificationReadMutationHookResult = ReturnType<typeof useMarkNotificationReadMutation>;
+export type MarkNotificationReadMutationResult = Apollo.MutationResult<MarkNotificationReadMutation>;
+export type MarkNotificationReadMutationOptions = Apollo.BaseMutationOptions<MarkNotificationReadMutation, MarkNotificationReadMutationVariables>;
+export const MarkAllNotificationsReadDocument = gql`
+    mutation MarkAllNotificationsRead {
+  markAllNotificationsRead
+}
+    `;
+export type MarkAllNotificationsReadMutationFn = Apollo.MutationFunction<MarkAllNotificationsReadMutation, MarkAllNotificationsReadMutationVariables>;
+
+/**
+ * __useMarkAllNotificationsReadMutation__
+ *
+ * To run a mutation, you first call `useMarkAllNotificationsReadMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMarkAllNotificationsReadMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [markAllNotificationsReadMutation, { data, loading, error }] = useMarkAllNotificationsReadMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMarkAllNotificationsReadMutation(baseOptions?: Apollo.MutationHookOptions<MarkAllNotificationsReadMutation, MarkAllNotificationsReadMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<MarkAllNotificationsReadMutation, MarkAllNotificationsReadMutationVariables>(MarkAllNotificationsReadDocument, options);
+      }
+export type MarkAllNotificationsReadMutationHookResult = ReturnType<typeof useMarkAllNotificationsReadMutation>;
+export type MarkAllNotificationsReadMutationResult = Apollo.MutationResult<MarkAllNotificationsReadMutation>;
+export type MarkAllNotificationsReadMutationOptions = Apollo.BaseMutationOptions<MarkAllNotificationsReadMutation, MarkAllNotificationsReadMutationVariables>;
+export const MyRequestsDocument = gql`
+    query MyRequests {
+  myRequests {
+    id
+    type
+    subject
+    details
+    status
+    decisionNote
+    decidedAt
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useMyRequestsQuery__
+ *
+ * To run a query within a React component, call `useMyRequestsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyRequestsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyRequestsQuery(baseOptions?: Apollo.QueryHookOptions<MyRequestsQuery, MyRequestsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyRequestsQuery, MyRequestsQueryVariables>(MyRequestsDocument, options);
+      }
+export function useMyRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyRequestsQuery, MyRequestsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyRequestsQuery, MyRequestsQueryVariables>(MyRequestsDocument, options);
+        }
+// @ts-ignore
+export function useMyRequestsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyRequestsQuery, MyRequestsQueryVariables>): Apollo.UseSuspenseQueryResult<MyRequestsQuery, MyRequestsQueryVariables>;
+export function useMyRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyRequestsQuery, MyRequestsQueryVariables>): Apollo.UseSuspenseQueryResult<MyRequestsQuery | undefined, MyRequestsQueryVariables>;
+export function useMyRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyRequestsQuery, MyRequestsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyRequestsQuery, MyRequestsQueryVariables>(MyRequestsDocument, options);
+        }
+export type MyRequestsQueryHookResult = ReturnType<typeof useMyRequestsQuery>;
+export type MyRequestsLazyQueryHookResult = ReturnType<typeof useMyRequestsLazyQuery>;
+export type MyRequestsSuspenseQueryHookResult = ReturnType<typeof useMyRequestsSuspenseQuery>;
+export type MyRequestsQueryResult = Apollo.QueryResult<MyRequestsQuery, MyRequestsQueryVariables>;
+export const CreateMyRequestDocument = gql`
+    mutation CreateMyRequest($input: MyRequestInput!) {
+  createMyRequest(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateMyRequestMutationFn = Apollo.MutationFunction<CreateMyRequestMutation, CreateMyRequestMutationVariables>;
+
+/**
+ * __useCreateMyRequestMutation__
+ *
+ * To run a mutation, you first call `useCreateMyRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateMyRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createMyRequestMutation, { data, loading, error }] = useCreateMyRequestMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateMyRequestMutation(baseOptions?: Apollo.MutationHookOptions<CreateMyRequestMutation, CreateMyRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateMyRequestMutation, CreateMyRequestMutationVariables>(CreateMyRequestDocument, options);
+      }
+export type CreateMyRequestMutationHookResult = ReturnType<typeof useCreateMyRequestMutation>;
+export type CreateMyRequestMutationResult = Apollo.MutationResult<CreateMyRequestMutation>;
+export type CreateMyRequestMutationOptions = Apollo.BaseMutationOptions<CreateMyRequestMutation, CreateMyRequestMutationVariables>;
+export const MyGoalsDocument = gql`
+    query MyGoals {
+  myGoals {
+    id
+    title
+    description
+    kpi
+    weightage
+    startDate
+    endDate
+    progress
+    status
+    managerComment
+  }
+}
+    `;
+
+/**
+ * __useMyGoalsQuery__
+ *
+ * To run a query within a React component, call `useMyGoalsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyGoalsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyGoalsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyGoalsQuery(baseOptions?: Apollo.QueryHookOptions<MyGoalsQuery, MyGoalsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyGoalsQuery, MyGoalsQueryVariables>(MyGoalsDocument, options);
+      }
+export function useMyGoalsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyGoalsQuery, MyGoalsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyGoalsQuery, MyGoalsQueryVariables>(MyGoalsDocument, options);
+        }
+// @ts-ignore
+export function useMyGoalsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyGoalsQuery, MyGoalsQueryVariables>): Apollo.UseSuspenseQueryResult<MyGoalsQuery, MyGoalsQueryVariables>;
+export function useMyGoalsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyGoalsQuery, MyGoalsQueryVariables>): Apollo.UseSuspenseQueryResult<MyGoalsQuery | undefined, MyGoalsQueryVariables>;
+export function useMyGoalsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyGoalsQuery, MyGoalsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyGoalsQuery, MyGoalsQueryVariables>(MyGoalsDocument, options);
+        }
+export type MyGoalsQueryHookResult = ReturnType<typeof useMyGoalsQuery>;
+export type MyGoalsLazyQueryHookResult = ReturnType<typeof useMyGoalsLazyQuery>;
+export type MyGoalsSuspenseQueryHookResult = ReturnType<typeof useMyGoalsSuspenseQuery>;
+export type MyGoalsQueryResult = Apollo.QueryResult<MyGoalsQuery, MyGoalsQueryVariables>;
+export const UpdateMyGoalProgressDocument = gql`
+    mutation UpdateMyGoalProgress($id: ID!, $progress: Int!) {
+  updateMyGoalProgress(id: $id, progress: $progress) {
+    id
+    progress
+  }
+}
+    `;
+export type UpdateMyGoalProgressMutationFn = Apollo.MutationFunction<UpdateMyGoalProgressMutation, UpdateMyGoalProgressMutationVariables>;
+
+/**
+ * __useUpdateMyGoalProgressMutation__
+ *
+ * To run a mutation, you first call `useUpdateMyGoalProgressMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMyGoalProgressMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMyGoalProgressMutation, { data, loading, error }] = useUpdateMyGoalProgressMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      progress: // value for 'progress'
+ *   },
+ * });
+ */
+export function useUpdateMyGoalProgressMutation(baseOptions?: Apollo.MutationHookOptions<UpdateMyGoalProgressMutation, UpdateMyGoalProgressMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateMyGoalProgressMutation, UpdateMyGoalProgressMutationVariables>(UpdateMyGoalProgressDocument, options);
+      }
+export type UpdateMyGoalProgressMutationHookResult = ReturnType<typeof useUpdateMyGoalProgressMutation>;
+export type UpdateMyGoalProgressMutationResult = Apollo.MutationResult<UpdateMyGoalProgressMutation>;
+export type UpdateMyGoalProgressMutationOptions = Apollo.BaseMutationOptions<UpdateMyGoalProgressMutation, UpdateMyGoalProgressMutationVariables>;
+export const MyPerformanceReviewsDocument = gql`
+    query MyPerformanceReviews {
+  myPerformanceReviews {
+    id
+    cycle
+    selfAssessment
+    managerAssessment
+    competencies
+    score
+    rating
+    actionPlan
+    status
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useMyPerformanceReviewsQuery__
+ *
+ * To run a query within a React component, call `useMyPerformanceReviewsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyPerformanceReviewsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyPerformanceReviewsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyPerformanceReviewsQuery(baseOptions?: Apollo.QueryHookOptions<MyPerformanceReviewsQuery, MyPerformanceReviewsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyPerformanceReviewsQuery, MyPerformanceReviewsQueryVariables>(MyPerformanceReviewsDocument, options);
+      }
+export function useMyPerformanceReviewsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyPerformanceReviewsQuery, MyPerformanceReviewsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyPerformanceReviewsQuery, MyPerformanceReviewsQueryVariables>(MyPerformanceReviewsDocument, options);
+        }
+// @ts-ignore
+export function useMyPerformanceReviewsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyPerformanceReviewsQuery, MyPerformanceReviewsQueryVariables>): Apollo.UseSuspenseQueryResult<MyPerformanceReviewsQuery, MyPerformanceReviewsQueryVariables>;
+export function useMyPerformanceReviewsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyPerformanceReviewsQuery, MyPerformanceReviewsQueryVariables>): Apollo.UseSuspenseQueryResult<MyPerformanceReviewsQuery | undefined, MyPerformanceReviewsQueryVariables>;
+export function useMyPerformanceReviewsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyPerformanceReviewsQuery, MyPerformanceReviewsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyPerformanceReviewsQuery, MyPerformanceReviewsQueryVariables>(MyPerformanceReviewsDocument, options);
+        }
+export type MyPerformanceReviewsQueryHookResult = ReturnType<typeof useMyPerformanceReviewsQuery>;
+export type MyPerformanceReviewsLazyQueryHookResult = ReturnType<typeof useMyPerformanceReviewsLazyQuery>;
+export type MyPerformanceReviewsSuspenseQueryHookResult = ReturnType<typeof useMyPerformanceReviewsSuspenseQuery>;
+export type MyPerformanceReviewsQueryResult = Apollo.QueryResult<MyPerformanceReviewsQuery, MyPerformanceReviewsQueryVariables>;
+export const SubmitSelfAssessmentDocument = gql`
+    mutation SubmitSelfAssessment($id: ID!, $text: String!) {
+  submitSelfAssessment(id: $id, text: $text) {
+    id
+    status
+  }
+}
+    `;
+export type SubmitSelfAssessmentMutationFn = Apollo.MutationFunction<SubmitSelfAssessmentMutation, SubmitSelfAssessmentMutationVariables>;
+
+/**
+ * __useSubmitSelfAssessmentMutation__
+ *
+ * To run a mutation, you first call `useSubmitSelfAssessmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSubmitSelfAssessmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [submitSelfAssessmentMutation, { data, loading, error }] = useSubmitSelfAssessmentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useSubmitSelfAssessmentMutation(baseOptions?: Apollo.MutationHookOptions<SubmitSelfAssessmentMutation, SubmitSelfAssessmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SubmitSelfAssessmentMutation, SubmitSelfAssessmentMutationVariables>(SubmitSelfAssessmentDocument, options);
+      }
+export type SubmitSelfAssessmentMutationHookResult = ReturnType<typeof useSubmitSelfAssessmentMutation>;
+export type SubmitSelfAssessmentMutationResult = Apollo.MutationResult<SubmitSelfAssessmentMutation>;
+export type SubmitSelfAssessmentMutationOptions = Apollo.BaseMutationOptions<SubmitSelfAssessmentMutation, SubmitSelfAssessmentMutationVariables>;
+export const MyExpenseClaimsDocument = gql`
+    query MyExpenseClaims {
+  myExpenseClaims {
+    id
+    category
+    description
+    amount
+    currency
+    incurredOn
+    receiptUrl
+    status
+    approvedAmount
+  }
+}
+    `;
+
+/**
+ * __useMyExpenseClaimsQuery__
+ *
+ * To run a query within a React component, call `useMyExpenseClaimsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyExpenseClaimsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyExpenseClaimsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyExpenseClaimsQuery(baseOptions?: Apollo.QueryHookOptions<MyExpenseClaimsQuery, MyExpenseClaimsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyExpenseClaimsQuery, MyExpenseClaimsQueryVariables>(MyExpenseClaimsDocument, options);
+      }
+export function useMyExpenseClaimsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyExpenseClaimsQuery, MyExpenseClaimsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyExpenseClaimsQuery, MyExpenseClaimsQueryVariables>(MyExpenseClaimsDocument, options);
+        }
+// @ts-ignore
+export function useMyExpenseClaimsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyExpenseClaimsQuery, MyExpenseClaimsQueryVariables>): Apollo.UseSuspenseQueryResult<MyExpenseClaimsQuery, MyExpenseClaimsQueryVariables>;
+export function useMyExpenseClaimsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyExpenseClaimsQuery, MyExpenseClaimsQueryVariables>): Apollo.UseSuspenseQueryResult<MyExpenseClaimsQuery | undefined, MyExpenseClaimsQueryVariables>;
+export function useMyExpenseClaimsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyExpenseClaimsQuery, MyExpenseClaimsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyExpenseClaimsQuery, MyExpenseClaimsQueryVariables>(MyExpenseClaimsDocument, options);
+        }
+export type MyExpenseClaimsQueryHookResult = ReturnType<typeof useMyExpenseClaimsQuery>;
+export type MyExpenseClaimsLazyQueryHookResult = ReturnType<typeof useMyExpenseClaimsLazyQuery>;
+export type MyExpenseClaimsSuspenseQueryHookResult = ReturnType<typeof useMyExpenseClaimsSuspenseQuery>;
+export type MyExpenseClaimsQueryResult = Apollo.QueryResult<MyExpenseClaimsQuery, MyExpenseClaimsQueryVariables>;
+export const CreateMyExpenseClaimDocument = gql`
+    mutation CreateMyExpenseClaim($input: MyExpenseClaimInput!) {
+  createMyExpenseClaim(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateMyExpenseClaimMutationFn = Apollo.MutationFunction<CreateMyExpenseClaimMutation, CreateMyExpenseClaimMutationVariables>;
+
+/**
+ * __useCreateMyExpenseClaimMutation__
+ *
+ * To run a mutation, you first call `useCreateMyExpenseClaimMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateMyExpenseClaimMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createMyExpenseClaimMutation, { data, loading, error }] = useCreateMyExpenseClaimMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateMyExpenseClaimMutation(baseOptions?: Apollo.MutationHookOptions<CreateMyExpenseClaimMutation, CreateMyExpenseClaimMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateMyExpenseClaimMutation, CreateMyExpenseClaimMutationVariables>(CreateMyExpenseClaimDocument, options);
+      }
+export type CreateMyExpenseClaimMutationHookResult = ReturnType<typeof useCreateMyExpenseClaimMutation>;
+export type CreateMyExpenseClaimMutationResult = Apollo.MutationResult<CreateMyExpenseClaimMutation>;
+export type CreateMyExpenseClaimMutationOptions = Apollo.BaseMutationOptions<CreateMyExpenseClaimMutation, CreateMyExpenseClaimMutationVariables>;
+export const MyBenefitsDocument = gql`
+    query MyBenefits {
+  myBenefits {
+    id
+    kind
+    name
+    provider
+    reference
+    coverage
+    validFrom
+    validTo
+    documentUrl
+  }
+}
+    `;
+
+/**
+ * __useMyBenefitsQuery__
+ *
+ * To run a query within a React component, call `useMyBenefitsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyBenefitsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyBenefitsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyBenefitsQuery(baseOptions?: Apollo.QueryHookOptions<MyBenefitsQuery, MyBenefitsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyBenefitsQuery, MyBenefitsQueryVariables>(MyBenefitsDocument, options);
+      }
+export function useMyBenefitsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyBenefitsQuery, MyBenefitsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyBenefitsQuery, MyBenefitsQueryVariables>(MyBenefitsDocument, options);
+        }
+// @ts-ignore
+export function useMyBenefitsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyBenefitsQuery, MyBenefitsQueryVariables>): Apollo.UseSuspenseQueryResult<MyBenefitsQuery, MyBenefitsQueryVariables>;
+export function useMyBenefitsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyBenefitsQuery, MyBenefitsQueryVariables>): Apollo.UseSuspenseQueryResult<MyBenefitsQuery | undefined, MyBenefitsQueryVariables>;
+export function useMyBenefitsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyBenefitsQuery, MyBenefitsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyBenefitsQuery, MyBenefitsQueryVariables>(MyBenefitsDocument, options);
+        }
+export type MyBenefitsQueryHookResult = ReturnType<typeof useMyBenefitsQuery>;
+export type MyBenefitsLazyQueryHookResult = ReturnType<typeof useMyBenefitsLazyQuery>;
+export type MyBenefitsSuspenseQueryHookResult = ReturnType<typeof useMyBenefitsSuspenseQuery>;
+export type MyBenefitsQueryResult = Apollo.QueryResult<MyBenefitsQuery, MyBenefitsQueryVariables>;
+export const MyTrainingsDocument = gql`
+    query MyTrainings {
+  myTrainings {
+    id
+    title
+    provider
+    category
+    assignedOn
+    dueOn
+    completedOn
+    status
+    certificateUrl
+  }
+}
+    `;
+
+/**
+ * __useMyTrainingsQuery__
+ *
+ * To run a query within a React component, call `useMyTrainingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyTrainingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyTrainingsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyTrainingsQuery(baseOptions?: Apollo.QueryHookOptions<MyTrainingsQuery, MyTrainingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyTrainingsQuery, MyTrainingsQueryVariables>(MyTrainingsDocument, options);
+      }
+export function useMyTrainingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyTrainingsQuery, MyTrainingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyTrainingsQuery, MyTrainingsQueryVariables>(MyTrainingsDocument, options);
+        }
+// @ts-ignore
+export function useMyTrainingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyTrainingsQuery, MyTrainingsQueryVariables>): Apollo.UseSuspenseQueryResult<MyTrainingsQuery, MyTrainingsQueryVariables>;
+export function useMyTrainingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyTrainingsQuery, MyTrainingsQueryVariables>): Apollo.UseSuspenseQueryResult<MyTrainingsQuery | undefined, MyTrainingsQueryVariables>;
+export function useMyTrainingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyTrainingsQuery, MyTrainingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyTrainingsQuery, MyTrainingsQueryVariables>(MyTrainingsDocument, options);
+        }
+export type MyTrainingsQueryHookResult = ReturnType<typeof useMyTrainingsQuery>;
+export type MyTrainingsLazyQueryHookResult = ReturnType<typeof useMyTrainingsLazyQuery>;
+export type MyTrainingsSuspenseQueryHookResult = ReturnType<typeof useMyTrainingsSuspenseQuery>;
+export type MyTrainingsQueryResult = Apollo.QueryResult<MyTrainingsQuery, MyTrainingsQueryVariables>;
+export const UpdateMyTrainingStatusDocument = gql`
+    mutation UpdateMyTrainingStatus($id: ID!, $status: TrainingStatus!) {
+  updateMyTrainingStatus(id: $id, status: $status) {
+    id
+    status
+    completedOn
+  }
+}
+    `;
+export type UpdateMyTrainingStatusMutationFn = Apollo.MutationFunction<UpdateMyTrainingStatusMutation, UpdateMyTrainingStatusMutationVariables>;
+
+/**
+ * __useUpdateMyTrainingStatusMutation__
+ *
+ * To run a mutation, you first call `useUpdateMyTrainingStatusMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMyTrainingStatusMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMyTrainingStatusMutation, { data, loading, error }] = useUpdateMyTrainingStatusMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useUpdateMyTrainingStatusMutation(baseOptions?: Apollo.MutationHookOptions<UpdateMyTrainingStatusMutation, UpdateMyTrainingStatusMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateMyTrainingStatusMutation, UpdateMyTrainingStatusMutationVariables>(UpdateMyTrainingStatusDocument, options);
+      }
+export type UpdateMyTrainingStatusMutationHookResult = ReturnType<typeof useUpdateMyTrainingStatusMutation>;
+export type UpdateMyTrainingStatusMutationResult = Apollo.MutationResult<UpdateMyTrainingStatusMutation>;
+export type UpdateMyTrainingStatusMutationOptions = Apollo.BaseMutationOptions<UpdateMyTrainingStatusMutation, UpdateMyTrainingStatusMutationVariables>;
+export const MyDocumentsDocument = gql`
+    query MyDocuments {
+  myDocuments {
+    id
+    kind
+    title
+    url
+    issuedOn
+  }
+}
+    `;
+
+/**
+ * __useMyDocumentsQuery__
+ *
+ * To run a query within a React component, call `useMyDocumentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyDocumentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyDocumentsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyDocumentsQuery(baseOptions?: Apollo.QueryHookOptions<MyDocumentsQuery, MyDocumentsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyDocumentsQuery, MyDocumentsQueryVariables>(MyDocumentsDocument, options);
+      }
+export function useMyDocumentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyDocumentsQuery, MyDocumentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyDocumentsQuery, MyDocumentsQueryVariables>(MyDocumentsDocument, options);
+        }
+// @ts-ignore
+export function useMyDocumentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyDocumentsQuery, MyDocumentsQueryVariables>): Apollo.UseSuspenseQueryResult<MyDocumentsQuery, MyDocumentsQueryVariables>;
+export function useMyDocumentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyDocumentsQuery, MyDocumentsQueryVariables>): Apollo.UseSuspenseQueryResult<MyDocumentsQuery | undefined, MyDocumentsQueryVariables>;
+export function useMyDocumentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyDocumentsQuery, MyDocumentsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyDocumentsQuery, MyDocumentsQueryVariables>(MyDocumentsDocument, options);
+        }
+export type MyDocumentsQueryHookResult = ReturnType<typeof useMyDocumentsQuery>;
+export type MyDocumentsLazyQueryHookResult = ReturnType<typeof useMyDocumentsLazyQuery>;
+export type MyDocumentsSuspenseQueryHookResult = ReturnType<typeof useMyDocumentsSuspenseQuery>;
+export type MyDocumentsQueryResult = Apollo.QueryResult<MyDocumentsQuery, MyDocumentsQueryVariables>;
 export const ListInvoicesDocument = gql`
     query ListInvoices {
   listInvoices {

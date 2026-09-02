@@ -5,6 +5,7 @@ import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
+import { notifyEveryone } from '../notifications';
 import type { GraphQLContext } from '../../middleware/auth';
 
 interface AnnouncementInput {
@@ -46,8 +47,25 @@ async function activeAnnouncements(_p: unknown, _a: unknown, ctx: GraphQLContext
   return withIds(rows as { _id: unknown }[]);
 }
 
+/**
+ * Publishing wraps the generated create so everyone gets a notification. The
+ * fan-out never throws, so a mail-less notification store cannot block HR from
+ * publishing.
+ */
+const createAnnouncement = async (p: unknown, args: never, ctx: GraphQLContext) => {
+  const created = await crud.Mutation.createAnnouncement(p, args, ctx);
+  const { input } = args as unknown as { input: { title: string } };
+  await notifyEveryone({
+    kind: 'ANNOUNCEMENT',
+    title: input.title,
+    body: 'A new announcement was published.',
+    link: '/me/announcements',
+  });
+  return created;
+};
+
 export const announcementsResolvers = {
   Query: { ...crud.Query, activeAnnouncements },
-  Mutation: crud.Mutation,
+  Mutation: { ...crud.Mutation, createAnnouncement },
 };
 export { announcementsTypeDefs };
