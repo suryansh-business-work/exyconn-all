@@ -147,8 +147,12 @@ export const MODULES: ModuleDefinition[] = [
     path: '/finance',
     role: ROLES.FINANCE,
     icon: AccountBalanceIcon,
-    description: 'Invoices & billing',
+    description: 'Invoices, billing & reimbursements',
     accent: '#0ea5e9',
+    children: [
+      { key: 'finance-invoices', label: 'Invoices', path: '/finance', icon: ReceiptLongIcon },
+      { key: 'finance-expenses', label: 'Expense Claims', path: '/expenses', icon: ReceiptIcon },
+    ],
   },
   {
     key: 'support',
@@ -242,6 +246,12 @@ export const MODULES: ModuleDefinition[] = [
         icon: ApartmentIcon,
       },
       { key: 'hr-positions', label: 'Positions', path: '/hr/positions', icon: WorkIcon },
+      { key: 'hr-requests', label: 'Requests', path: '/hr/requests', icon: AssignmentIcon },
+      { key: 'hr-goals', label: 'Goals', path: '/hr/goals', icon: TrackChangesIcon },
+      { key: 'hr-performance', label: 'Performance', path: '/hr/performance', icon: StarIcon },
+      { key: 'hr-documents', label: 'Documents', path: '/hr/documents', icon: FolderIcon },
+      { key: 'hr-benefits', label: 'Benefits', path: '/hr/benefits', icon: HealthAndSafetyIcon },
+      { key: 'hr-training', label: 'Learning', path: '/hr/training', icon: SchoolIcon },
       {
         key: 'hr-announcements',
         label: 'Announcements',

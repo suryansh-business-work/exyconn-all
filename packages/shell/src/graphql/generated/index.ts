@@ -4018,6 +4018,244 @@ export type CreateSupportTicketMutationVariables = Exact<{
 
 export type CreateSupportTicketMutation = { __typename?: 'Mutation', createSupportTicket: { __typename?: 'SupportTicket', id: string } };
 
+export type ListEmployeeRequestsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListEmployeeRequestsPagedQuery = { __typename?: 'Query', listEmployeeRequestsPaged: { __typename?: 'EmployeeRequestPage', totalCount: number, rows: Array<{ __typename?: 'EmployeeRequest', id: string, employeeId: string, type: RequestType, subject: string, details: string, status: RequestStatus, decisionNote?: string | null, decidedAt?: string | null, createdAt: string }> } };
+
+export type ListEmployeeRequestsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListEmployeeRequestsStatsQuery = { __typename?: 'Query', listEmployeeRequestsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreateEmployeeRequestMutationVariables = Exact<{
+  input: EmployeeRequestInput;
+}>;
+
+
+export type CreateEmployeeRequestMutation = { __typename?: 'Mutation', createEmployeeRequest: { __typename?: 'EmployeeRequest', id: string } };
+
+export type UpdateEmployeeRequestMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: EmployeeRequestInput;
+}>;
+
+
+export type UpdateEmployeeRequestMutation = { __typename?: 'Mutation', updateEmployeeRequest: { __typename?: 'EmployeeRequest', id: string } };
+
+export type DeleteEmployeeRequestMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteEmployeeRequestMutation = { __typename?: 'Mutation', deleteEmployeeRequest: boolean };
+
+export type ListGoalsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListGoalsPagedQuery = { __typename?: 'Query', listGoalsPaged: { __typename?: 'GoalPage', totalCount: number, rows: Array<{ __typename?: 'Goal', id: string, employeeId: string, title: string, description: string, kpi: string, weightage: number, startDate: string, endDate: string, progress: number, status: GoalStatus, managerComment?: string | null }> } };
+
+export type ListGoalsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListGoalsStatsQuery = { __typename?: 'Query', listGoalsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreateGoalMutationVariables = Exact<{
+  input: GoalInput;
+}>;
+
+
+export type CreateGoalMutation = { __typename?: 'Mutation', createGoal: { __typename?: 'Goal', id: string } };
+
+export type UpdateGoalMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: GoalInput;
+}>;
+
+
+export type UpdateGoalMutation = { __typename?: 'Mutation', updateGoal: { __typename?: 'Goal', id: string } };
+
+export type DeleteGoalMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteGoalMutation = { __typename?: 'Mutation', deleteGoal: boolean };
+
+export type ListPerformanceReviewsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListPerformanceReviewsPagedQuery = { __typename?: 'Query', listPerformanceReviewsPaged: { __typename?: 'PerformanceReviewPage', totalCount: number, rows: Array<{ __typename?: 'PerformanceReview', id: string, employeeId: string, cycle: string, selfAssessment: string, managerAssessment: string, competencies: string, score?: number | null, rating?: string | null, actionPlan: string, status: ReviewStatus, updatedAt: string }> } };
+
+export type ListPerformanceReviewsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListPerformanceReviewsStatsQuery = { __typename?: 'Query', listPerformanceReviewsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreatePerformanceReviewMutationVariables = Exact<{
+  input: PerformanceReviewInput;
+}>;
+
+
+export type CreatePerformanceReviewMutation = { __typename?: 'Mutation', createPerformanceReview: { __typename?: 'PerformanceReview', id: string } };
+
+export type UpdatePerformanceReviewMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: PerformanceReviewInput;
+}>;
+
+
+export type UpdatePerformanceReviewMutation = { __typename?: 'Mutation', updatePerformanceReview: { __typename?: 'PerformanceReview', id: string } };
+
+export type DeletePerformanceReviewMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeletePerformanceReviewMutation = { __typename?: 'Mutation', deletePerformanceReview: boolean };
+
+export type ListEmployeeDocumentsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListEmployeeDocumentsPagedQuery = { __typename?: 'Query', listEmployeeDocumentsPaged: { __typename?: 'EmployeeDocumentPage', totalCount: number, rows: Array<{ __typename?: 'EmployeeDocument', id: string, employeeId: string, kind: DocumentKind, title: string, url: string, issuedOn: string }> } };
+
+export type ListEmployeeDocumentsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListEmployeeDocumentsStatsQuery = { __typename?: 'Query', listEmployeeDocumentsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreateEmployeeDocumentMutationVariables = Exact<{
+  input: EmployeeDocumentInput;
+}>;
+
+
+export type CreateEmployeeDocumentMutation = { __typename?: 'Mutation', createEmployeeDocument: { __typename?: 'EmployeeDocument', id: string } };
+
+export type UpdateEmployeeDocumentMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: EmployeeDocumentInput;
+}>;
+
+
+export type UpdateEmployeeDocumentMutation = { __typename?: 'Mutation', updateEmployeeDocument: { __typename?: 'EmployeeDocument', id: string } };
+
+export type DeleteEmployeeDocumentMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteEmployeeDocumentMutation = { __typename?: 'Mutation', deleteEmployeeDocument: boolean };
+
+export type ListBenefitsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListBenefitsPagedQuery = { __typename?: 'Query', listBenefitsPaged: { __typename?: 'BenefitPage', totalCount: number, rows: Array<{ __typename?: 'Benefit', id: string, employeeId: string, kind: BenefitKind, name: string, provider: string, reference: string, coverage: string, validFrom?: string | null, validTo?: string | null, documentUrl?: string | null }> } };
+
+export type ListBenefitsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListBenefitsStatsQuery = { __typename?: 'Query', listBenefitsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreateBenefitMutationVariables = Exact<{
+  input: BenefitInput;
+}>;
+
+
+export type CreateBenefitMutation = { __typename?: 'Mutation', createBenefit: { __typename?: 'Benefit', id: string } };
+
+export type UpdateBenefitMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: BenefitInput;
+}>;
+
+
+export type UpdateBenefitMutation = { __typename?: 'Mutation', updateBenefit: { __typename?: 'Benefit', id: string } };
+
+export type DeleteBenefitMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteBenefitMutation = { __typename?: 'Mutation', deleteBenefit: boolean };
+
+export type ListTrainingsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListTrainingsPagedQuery = { __typename?: 'Query', listTrainingsPaged: { __typename?: 'TrainingPage', totalCount: number, rows: Array<{ __typename?: 'Training', id: string, employeeId: string, title: string, provider: string, category: string, assignedOn: string, dueOn?: string | null, completedOn?: string | null, status: TrainingStatus, certificateUrl?: string | null }> } };
+
+export type ListTrainingsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListTrainingsStatsQuery = { __typename?: 'Query', listTrainingsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreateTrainingMutationVariables = Exact<{
+  input: TrainingInput;
+}>;
+
+
+export type CreateTrainingMutation = { __typename?: 'Mutation', createTraining: { __typename?: 'Training', id: string } };
+
+export type UpdateTrainingMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: TrainingInput;
+}>;
+
+
+export type UpdateTrainingMutation = { __typename?: 'Mutation', updateTraining: { __typename?: 'Training', id: string } };
+
+export type DeleteTrainingMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteTrainingMutation = { __typename?: 'Mutation', deleteTraining: boolean };
+
+export type ListExpenseClaimsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListExpenseClaimsPagedQuery = { __typename?: 'Query', listExpenseClaimsPaged: { __typename?: 'ExpenseClaimPage', totalCount: number, rows: Array<{ __typename?: 'ExpenseClaim', id: string, employeeId: string, category: string, description: string, amount: number, currency: string, incurredOn: string, receiptUrl?: string | null, status: ExpenseStatus, approvedAmount?: number | null }> } };
+
+export type ListExpenseClaimsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListExpenseClaimsStatsQuery = { __typename?: 'Query', listExpenseClaimsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreateExpenseClaimMutationVariables = Exact<{
+  input: ExpenseClaimInput;
+}>;
+
+
+export type CreateExpenseClaimMutation = { __typename?: 'Mutation', createExpenseClaim: { __typename?: 'ExpenseClaim', id: string } };
+
+export type UpdateExpenseClaimMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: ExpenseClaimInput;
+}>;
+
+
+export type UpdateExpenseClaimMutation = { __typename?: 'Mutation', updateExpenseClaim: { __typename?: 'ExpenseClaim', id: string } };
+
+export type DeleteExpenseClaimMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteExpenseClaimMutation = { __typename?: 'Mutation', deleteExpenseClaim: boolean };
+
 export type MyNotificationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -8336,6 +8574,1445 @@ export function useCreateSupportTicketMutation(baseOptions?: Apollo.MutationHook
 export type CreateSupportTicketMutationHookResult = ReturnType<typeof useCreateSupportTicketMutation>;
 export type CreateSupportTicketMutationResult = Apollo.MutationResult<CreateSupportTicketMutation>;
 export type CreateSupportTicketMutationOptions = Apollo.BaseMutationOptions<CreateSupportTicketMutation, CreateSupportTicketMutationVariables>;
+export const ListEmployeeRequestsPagedDocument = gql`
+    query ListEmployeeRequestsPaged($input: TableQueryInput!) {
+  listEmployeeRequestsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      type
+      subject
+      details
+      status
+      decisionNote
+      decidedAt
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useListEmployeeRequestsPagedQuery__
+ *
+ * To run a query within a React component, call `useListEmployeeRequestsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListEmployeeRequestsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListEmployeeRequestsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListEmployeeRequestsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListEmployeeRequestsPagedQuery, ListEmployeeRequestsPagedQueryVariables> & ({ variables: ListEmployeeRequestsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListEmployeeRequestsPagedQuery, ListEmployeeRequestsPagedQueryVariables>(ListEmployeeRequestsPagedDocument, options);
+      }
+export function useListEmployeeRequestsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListEmployeeRequestsPagedQuery, ListEmployeeRequestsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListEmployeeRequestsPagedQuery, ListEmployeeRequestsPagedQueryVariables>(ListEmployeeRequestsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListEmployeeRequestsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListEmployeeRequestsPagedQuery, ListEmployeeRequestsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListEmployeeRequestsPagedQuery, ListEmployeeRequestsPagedQueryVariables>;
+export function useListEmployeeRequestsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListEmployeeRequestsPagedQuery, ListEmployeeRequestsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListEmployeeRequestsPagedQuery | undefined, ListEmployeeRequestsPagedQueryVariables>;
+export function useListEmployeeRequestsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListEmployeeRequestsPagedQuery, ListEmployeeRequestsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListEmployeeRequestsPagedQuery, ListEmployeeRequestsPagedQueryVariables>(ListEmployeeRequestsPagedDocument, options);
+        }
+export type ListEmployeeRequestsPagedQueryHookResult = ReturnType<typeof useListEmployeeRequestsPagedQuery>;
+export type ListEmployeeRequestsPagedLazyQueryHookResult = ReturnType<typeof useListEmployeeRequestsPagedLazyQuery>;
+export type ListEmployeeRequestsPagedSuspenseQueryHookResult = ReturnType<typeof useListEmployeeRequestsPagedSuspenseQuery>;
+export type ListEmployeeRequestsPagedQueryResult = Apollo.QueryResult<ListEmployeeRequestsPagedQuery, ListEmployeeRequestsPagedQueryVariables>;
+export const ListEmployeeRequestsStatsDocument = gql`
+    query ListEmployeeRequestsStats {
+  listEmployeeRequestsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListEmployeeRequestsStatsQuery__
+ *
+ * To run a query within a React component, call `useListEmployeeRequestsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListEmployeeRequestsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListEmployeeRequestsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListEmployeeRequestsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListEmployeeRequestsStatsQuery, ListEmployeeRequestsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListEmployeeRequestsStatsQuery, ListEmployeeRequestsStatsQueryVariables>(ListEmployeeRequestsStatsDocument, options);
+      }
+export function useListEmployeeRequestsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListEmployeeRequestsStatsQuery, ListEmployeeRequestsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListEmployeeRequestsStatsQuery, ListEmployeeRequestsStatsQueryVariables>(ListEmployeeRequestsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListEmployeeRequestsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListEmployeeRequestsStatsQuery, ListEmployeeRequestsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListEmployeeRequestsStatsQuery, ListEmployeeRequestsStatsQueryVariables>;
+export function useListEmployeeRequestsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListEmployeeRequestsStatsQuery, ListEmployeeRequestsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListEmployeeRequestsStatsQuery | undefined, ListEmployeeRequestsStatsQueryVariables>;
+export function useListEmployeeRequestsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListEmployeeRequestsStatsQuery, ListEmployeeRequestsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListEmployeeRequestsStatsQuery, ListEmployeeRequestsStatsQueryVariables>(ListEmployeeRequestsStatsDocument, options);
+        }
+export type ListEmployeeRequestsStatsQueryHookResult = ReturnType<typeof useListEmployeeRequestsStatsQuery>;
+export type ListEmployeeRequestsStatsLazyQueryHookResult = ReturnType<typeof useListEmployeeRequestsStatsLazyQuery>;
+export type ListEmployeeRequestsStatsSuspenseQueryHookResult = ReturnType<typeof useListEmployeeRequestsStatsSuspenseQuery>;
+export type ListEmployeeRequestsStatsQueryResult = Apollo.QueryResult<ListEmployeeRequestsStatsQuery, ListEmployeeRequestsStatsQueryVariables>;
+export const CreateEmployeeRequestDocument = gql`
+    mutation CreateEmployeeRequest($input: EmployeeRequestInput!) {
+  createEmployeeRequest(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateEmployeeRequestMutationFn = Apollo.MutationFunction<CreateEmployeeRequestMutation, CreateEmployeeRequestMutationVariables>;
+
+/**
+ * __useCreateEmployeeRequestMutation__
+ *
+ * To run a mutation, you first call `useCreateEmployeeRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateEmployeeRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createEmployeeRequestMutation, { data, loading, error }] = useCreateEmployeeRequestMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateEmployeeRequestMutation(baseOptions?: Apollo.MutationHookOptions<CreateEmployeeRequestMutation, CreateEmployeeRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateEmployeeRequestMutation, CreateEmployeeRequestMutationVariables>(CreateEmployeeRequestDocument, options);
+      }
+export type CreateEmployeeRequestMutationHookResult = ReturnType<typeof useCreateEmployeeRequestMutation>;
+export type CreateEmployeeRequestMutationResult = Apollo.MutationResult<CreateEmployeeRequestMutation>;
+export type CreateEmployeeRequestMutationOptions = Apollo.BaseMutationOptions<CreateEmployeeRequestMutation, CreateEmployeeRequestMutationVariables>;
+export const UpdateEmployeeRequestDocument = gql`
+    mutation UpdateEmployeeRequest($id: ID!, $input: EmployeeRequestInput!) {
+  updateEmployeeRequest(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateEmployeeRequestMutationFn = Apollo.MutationFunction<UpdateEmployeeRequestMutation, UpdateEmployeeRequestMutationVariables>;
+
+/**
+ * __useUpdateEmployeeRequestMutation__
+ *
+ * To run a mutation, you first call `useUpdateEmployeeRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateEmployeeRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateEmployeeRequestMutation, { data, loading, error }] = useUpdateEmployeeRequestMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateEmployeeRequestMutation(baseOptions?: Apollo.MutationHookOptions<UpdateEmployeeRequestMutation, UpdateEmployeeRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateEmployeeRequestMutation, UpdateEmployeeRequestMutationVariables>(UpdateEmployeeRequestDocument, options);
+      }
+export type UpdateEmployeeRequestMutationHookResult = ReturnType<typeof useUpdateEmployeeRequestMutation>;
+export type UpdateEmployeeRequestMutationResult = Apollo.MutationResult<UpdateEmployeeRequestMutation>;
+export type UpdateEmployeeRequestMutationOptions = Apollo.BaseMutationOptions<UpdateEmployeeRequestMutation, UpdateEmployeeRequestMutationVariables>;
+export const DeleteEmployeeRequestDocument = gql`
+    mutation DeleteEmployeeRequest($id: ID!) {
+  deleteEmployeeRequest(id: $id)
+}
+    `;
+export type DeleteEmployeeRequestMutationFn = Apollo.MutationFunction<DeleteEmployeeRequestMutation, DeleteEmployeeRequestMutationVariables>;
+
+/**
+ * __useDeleteEmployeeRequestMutation__
+ *
+ * To run a mutation, you first call `useDeleteEmployeeRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteEmployeeRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteEmployeeRequestMutation, { data, loading, error }] = useDeleteEmployeeRequestMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteEmployeeRequestMutation(baseOptions?: Apollo.MutationHookOptions<DeleteEmployeeRequestMutation, DeleteEmployeeRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteEmployeeRequestMutation, DeleteEmployeeRequestMutationVariables>(DeleteEmployeeRequestDocument, options);
+      }
+export type DeleteEmployeeRequestMutationHookResult = ReturnType<typeof useDeleteEmployeeRequestMutation>;
+export type DeleteEmployeeRequestMutationResult = Apollo.MutationResult<DeleteEmployeeRequestMutation>;
+export type DeleteEmployeeRequestMutationOptions = Apollo.BaseMutationOptions<DeleteEmployeeRequestMutation, DeleteEmployeeRequestMutationVariables>;
+export const ListGoalsPagedDocument = gql`
+    query ListGoalsPaged($input: TableQueryInput!) {
+  listGoalsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      title
+      description
+      kpi
+      weightage
+      startDate
+      endDate
+      progress
+      status
+      managerComment
+    }
+  }
+}
+    `;
+
+/**
+ * __useListGoalsPagedQuery__
+ *
+ * To run a query within a React component, call `useListGoalsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListGoalsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListGoalsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListGoalsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListGoalsPagedQuery, ListGoalsPagedQueryVariables> & ({ variables: ListGoalsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListGoalsPagedQuery, ListGoalsPagedQueryVariables>(ListGoalsPagedDocument, options);
+      }
+export function useListGoalsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListGoalsPagedQuery, ListGoalsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListGoalsPagedQuery, ListGoalsPagedQueryVariables>(ListGoalsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListGoalsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListGoalsPagedQuery, ListGoalsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListGoalsPagedQuery, ListGoalsPagedQueryVariables>;
+export function useListGoalsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListGoalsPagedQuery, ListGoalsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListGoalsPagedQuery | undefined, ListGoalsPagedQueryVariables>;
+export function useListGoalsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListGoalsPagedQuery, ListGoalsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListGoalsPagedQuery, ListGoalsPagedQueryVariables>(ListGoalsPagedDocument, options);
+        }
+export type ListGoalsPagedQueryHookResult = ReturnType<typeof useListGoalsPagedQuery>;
+export type ListGoalsPagedLazyQueryHookResult = ReturnType<typeof useListGoalsPagedLazyQuery>;
+export type ListGoalsPagedSuspenseQueryHookResult = ReturnType<typeof useListGoalsPagedSuspenseQuery>;
+export type ListGoalsPagedQueryResult = Apollo.QueryResult<ListGoalsPagedQuery, ListGoalsPagedQueryVariables>;
+export const ListGoalsStatsDocument = gql`
+    query ListGoalsStats {
+  listGoalsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListGoalsStatsQuery__
+ *
+ * To run a query within a React component, call `useListGoalsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListGoalsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListGoalsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListGoalsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListGoalsStatsQuery, ListGoalsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListGoalsStatsQuery, ListGoalsStatsQueryVariables>(ListGoalsStatsDocument, options);
+      }
+export function useListGoalsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListGoalsStatsQuery, ListGoalsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListGoalsStatsQuery, ListGoalsStatsQueryVariables>(ListGoalsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListGoalsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListGoalsStatsQuery, ListGoalsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListGoalsStatsQuery, ListGoalsStatsQueryVariables>;
+export function useListGoalsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListGoalsStatsQuery, ListGoalsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListGoalsStatsQuery | undefined, ListGoalsStatsQueryVariables>;
+export function useListGoalsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListGoalsStatsQuery, ListGoalsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListGoalsStatsQuery, ListGoalsStatsQueryVariables>(ListGoalsStatsDocument, options);
+        }
+export type ListGoalsStatsQueryHookResult = ReturnType<typeof useListGoalsStatsQuery>;
+export type ListGoalsStatsLazyQueryHookResult = ReturnType<typeof useListGoalsStatsLazyQuery>;
+export type ListGoalsStatsSuspenseQueryHookResult = ReturnType<typeof useListGoalsStatsSuspenseQuery>;
+export type ListGoalsStatsQueryResult = Apollo.QueryResult<ListGoalsStatsQuery, ListGoalsStatsQueryVariables>;
+export const CreateGoalDocument = gql`
+    mutation CreateGoal($input: GoalInput!) {
+  createGoal(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateGoalMutationFn = Apollo.MutationFunction<CreateGoalMutation, CreateGoalMutationVariables>;
+
+/**
+ * __useCreateGoalMutation__
+ *
+ * To run a mutation, you first call `useCreateGoalMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateGoalMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createGoalMutation, { data, loading, error }] = useCreateGoalMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateGoalMutation(baseOptions?: Apollo.MutationHookOptions<CreateGoalMutation, CreateGoalMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateGoalMutation, CreateGoalMutationVariables>(CreateGoalDocument, options);
+      }
+export type CreateGoalMutationHookResult = ReturnType<typeof useCreateGoalMutation>;
+export type CreateGoalMutationResult = Apollo.MutationResult<CreateGoalMutation>;
+export type CreateGoalMutationOptions = Apollo.BaseMutationOptions<CreateGoalMutation, CreateGoalMutationVariables>;
+export const UpdateGoalDocument = gql`
+    mutation UpdateGoal($id: ID!, $input: GoalInput!) {
+  updateGoal(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateGoalMutationFn = Apollo.MutationFunction<UpdateGoalMutation, UpdateGoalMutationVariables>;
+
+/**
+ * __useUpdateGoalMutation__
+ *
+ * To run a mutation, you first call `useUpdateGoalMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGoalMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGoalMutation, { data, loading, error }] = useUpdateGoalMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateGoalMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGoalMutation, UpdateGoalMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateGoalMutation, UpdateGoalMutationVariables>(UpdateGoalDocument, options);
+      }
+export type UpdateGoalMutationHookResult = ReturnType<typeof useUpdateGoalMutation>;
+export type UpdateGoalMutationResult = Apollo.MutationResult<UpdateGoalMutation>;
+export type UpdateGoalMutationOptions = Apollo.BaseMutationOptions<UpdateGoalMutation, UpdateGoalMutationVariables>;
+export const DeleteGoalDocument = gql`
+    mutation DeleteGoal($id: ID!) {
+  deleteGoal(id: $id)
+}
+    `;
+export type DeleteGoalMutationFn = Apollo.MutationFunction<DeleteGoalMutation, DeleteGoalMutationVariables>;
+
+/**
+ * __useDeleteGoalMutation__
+ *
+ * To run a mutation, you first call `useDeleteGoalMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteGoalMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteGoalMutation, { data, loading, error }] = useDeleteGoalMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteGoalMutation(baseOptions?: Apollo.MutationHookOptions<DeleteGoalMutation, DeleteGoalMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteGoalMutation, DeleteGoalMutationVariables>(DeleteGoalDocument, options);
+      }
+export type DeleteGoalMutationHookResult = ReturnType<typeof useDeleteGoalMutation>;
+export type DeleteGoalMutationResult = Apollo.MutationResult<DeleteGoalMutation>;
+export type DeleteGoalMutationOptions = Apollo.BaseMutationOptions<DeleteGoalMutation, DeleteGoalMutationVariables>;
+export const ListPerformanceReviewsPagedDocument = gql`
+    query ListPerformanceReviewsPaged($input: TableQueryInput!) {
+  listPerformanceReviewsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      cycle
+      selfAssessment
+      managerAssessment
+      competencies
+      score
+      rating
+      actionPlan
+      status
+      updatedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useListPerformanceReviewsPagedQuery__
+ *
+ * To run a query within a React component, call `useListPerformanceReviewsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPerformanceReviewsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPerformanceReviewsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListPerformanceReviewsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListPerformanceReviewsPagedQuery, ListPerformanceReviewsPagedQueryVariables> & ({ variables: ListPerformanceReviewsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPerformanceReviewsPagedQuery, ListPerformanceReviewsPagedQueryVariables>(ListPerformanceReviewsPagedDocument, options);
+      }
+export function useListPerformanceReviewsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPerformanceReviewsPagedQuery, ListPerformanceReviewsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPerformanceReviewsPagedQuery, ListPerformanceReviewsPagedQueryVariables>(ListPerformanceReviewsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListPerformanceReviewsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListPerformanceReviewsPagedQuery, ListPerformanceReviewsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListPerformanceReviewsPagedQuery, ListPerformanceReviewsPagedQueryVariables>;
+export function useListPerformanceReviewsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPerformanceReviewsPagedQuery, ListPerformanceReviewsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListPerformanceReviewsPagedQuery | undefined, ListPerformanceReviewsPagedQueryVariables>;
+export function useListPerformanceReviewsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPerformanceReviewsPagedQuery, ListPerformanceReviewsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPerformanceReviewsPagedQuery, ListPerformanceReviewsPagedQueryVariables>(ListPerformanceReviewsPagedDocument, options);
+        }
+export type ListPerformanceReviewsPagedQueryHookResult = ReturnType<typeof useListPerformanceReviewsPagedQuery>;
+export type ListPerformanceReviewsPagedLazyQueryHookResult = ReturnType<typeof useListPerformanceReviewsPagedLazyQuery>;
+export type ListPerformanceReviewsPagedSuspenseQueryHookResult = ReturnType<typeof useListPerformanceReviewsPagedSuspenseQuery>;
+export type ListPerformanceReviewsPagedQueryResult = Apollo.QueryResult<ListPerformanceReviewsPagedQuery, ListPerformanceReviewsPagedQueryVariables>;
+export const ListPerformanceReviewsStatsDocument = gql`
+    query ListPerformanceReviewsStats {
+  listPerformanceReviewsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListPerformanceReviewsStatsQuery__
+ *
+ * To run a query within a React component, call `useListPerformanceReviewsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPerformanceReviewsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPerformanceReviewsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListPerformanceReviewsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListPerformanceReviewsStatsQuery, ListPerformanceReviewsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPerformanceReviewsStatsQuery, ListPerformanceReviewsStatsQueryVariables>(ListPerformanceReviewsStatsDocument, options);
+      }
+export function useListPerformanceReviewsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPerformanceReviewsStatsQuery, ListPerformanceReviewsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPerformanceReviewsStatsQuery, ListPerformanceReviewsStatsQueryVariables>(ListPerformanceReviewsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListPerformanceReviewsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListPerformanceReviewsStatsQuery, ListPerformanceReviewsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListPerformanceReviewsStatsQuery, ListPerformanceReviewsStatsQueryVariables>;
+export function useListPerformanceReviewsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPerformanceReviewsStatsQuery, ListPerformanceReviewsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListPerformanceReviewsStatsQuery | undefined, ListPerformanceReviewsStatsQueryVariables>;
+export function useListPerformanceReviewsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPerformanceReviewsStatsQuery, ListPerformanceReviewsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPerformanceReviewsStatsQuery, ListPerformanceReviewsStatsQueryVariables>(ListPerformanceReviewsStatsDocument, options);
+        }
+export type ListPerformanceReviewsStatsQueryHookResult = ReturnType<typeof useListPerformanceReviewsStatsQuery>;
+export type ListPerformanceReviewsStatsLazyQueryHookResult = ReturnType<typeof useListPerformanceReviewsStatsLazyQuery>;
+export type ListPerformanceReviewsStatsSuspenseQueryHookResult = ReturnType<typeof useListPerformanceReviewsStatsSuspenseQuery>;
+export type ListPerformanceReviewsStatsQueryResult = Apollo.QueryResult<ListPerformanceReviewsStatsQuery, ListPerformanceReviewsStatsQueryVariables>;
+export const CreatePerformanceReviewDocument = gql`
+    mutation CreatePerformanceReview($input: PerformanceReviewInput!) {
+  createPerformanceReview(input: $input) {
+    id
+  }
+}
+    `;
+export type CreatePerformanceReviewMutationFn = Apollo.MutationFunction<CreatePerformanceReviewMutation, CreatePerformanceReviewMutationVariables>;
+
+/**
+ * __useCreatePerformanceReviewMutation__
+ *
+ * To run a mutation, you first call `useCreatePerformanceReviewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePerformanceReviewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPerformanceReviewMutation, { data, loading, error }] = useCreatePerformanceReviewMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePerformanceReviewMutation(baseOptions?: Apollo.MutationHookOptions<CreatePerformanceReviewMutation, CreatePerformanceReviewMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePerformanceReviewMutation, CreatePerformanceReviewMutationVariables>(CreatePerformanceReviewDocument, options);
+      }
+export type CreatePerformanceReviewMutationHookResult = ReturnType<typeof useCreatePerformanceReviewMutation>;
+export type CreatePerformanceReviewMutationResult = Apollo.MutationResult<CreatePerformanceReviewMutation>;
+export type CreatePerformanceReviewMutationOptions = Apollo.BaseMutationOptions<CreatePerformanceReviewMutation, CreatePerformanceReviewMutationVariables>;
+export const UpdatePerformanceReviewDocument = gql`
+    mutation UpdatePerformanceReview($id: ID!, $input: PerformanceReviewInput!) {
+  updatePerformanceReview(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdatePerformanceReviewMutationFn = Apollo.MutationFunction<UpdatePerformanceReviewMutation, UpdatePerformanceReviewMutationVariables>;
+
+/**
+ * __useUpdatePerformanceReviewMutation__
+ *
+ * To run a mutation, you first call `useUpdatePerformanceReviewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePerformanceReviewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePerformanceReviewMutation, { data, loading, error }] = useUpdatePerformanceReviewMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePerformanceReviewMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePerformanceReviewMutation, UpdatePerformanceReviewMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePerformanceReviewMutation, UpdatePerformanceReviewMutationVariables>(UpdatePerformanceReviewDocument, options);
+      }
+export type UpdatePerformanceReviewMutationHookResult = ReturnType<typeof useUpdatePerformanceReviewMutation>;
+export type UpdatePerformanceReviewMutationResult = Apollo.MutationResult<UpdatePerformanceReviewMutation>;
+export type UpdatePerformanceReviewMutationOptions = Apollo.BaseMutationOptions<UpdatePerformanceReviewMutation, UpdatePerformanceReviewMutationVariables>;
+export const DeletePerformanceReviewDocument = gql`
+    mutation DeletePerformanceReview($id: ID!) {
+  deletePerformanceReview(id: $id)
+}
+    `;
+export type DeletePerformanceReviewMutationFn = Apollo.MutationFunction<DeletePerformanceReviewMutation, DeletePerformanceReviewMutationVariables>;
+
+/**
+ * __useDeletePerformanceReviewMutation__
+ *
+ * To run a mutation, you first call `useDeletePerformanceReviewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePerformanceReviewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePerformanceReviewMutation, { data, loading, error }] = useDeletePerformanceReviewMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePerformanceReviewMutation(baseOptions?: Apollo.MutationHookOptions<DeletePerformanceReviewMutation, DeletePerformanceReviewMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePerformanceReviewMutation, DeletePerformanceReviewMutationVariables>(DeletePerformanceReviewDocument, options);
+      }
+export type DeletePerformanceReviewMutationHookResult = ReturnType<typeof useDeletePerformanceReviewMutation>;
+export type DeletePerformanceReviewMutationResult = Apollo.MutationResult<DeletePerformanceReviewMutation>;
+export type DeletePerformanceReviewMutationOptions = Apollo.BaseMutationOptions<DeletePerformanceReviewMutation, DeletePerformanceReviewMutationVariables>;
+export const ListEmployeeDocumentsPagedDocument = gql`
+    query ListEmployeeDocumentsPaged($input: TableQueryInput!) {
+  listEmployeeDocumentsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      kind
+      title
+      url
+      issuedOn
+    }
+  }
+}
+    `;
+
+/**
+ * __useListEmployeeDocumentsPagedQuery__
+ *
+ * To run a query within a React component, call `useListEmployeeDocumentsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListEmployeeDocumentsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListEmployeeDocumentsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListEmployeeDocumentsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListEmployeeDocumentsPagedQuery, ListEmployeeDocumentsPagedQueryVariables> & ({ variables: ListEmployeeDocumentsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListEmployeeDocumentsPagedQuery, ListEmployeeDocumentsPagedQueryVariables>(ListEmployeeDocumentsPagedDocument, options);
+      }
+export function useListEmployeeDocumentsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListEmployeeDocumentsPagedQuery, ListEmployeeDocumentsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListEmployeeDocumentsPagedQuery, ListEmployeeDocumentsPagedQueryVariables>(ListEmployeeDocumentsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListEmployeeDocumentsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListEmployeeDocumentsPagedQuery, ListEmployeeDocumentsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListEmployeeDocumentsPagedQuery, ListEmployeeDocumentsPagedQueryVariables>;
+export function useListEmployeeDocumentsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListEmployeeDocumentsPagedQuery, ListEmployeeDocumentsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListEmployeeDocumentsPagedQuery | undefined, ListEmployeeDocumentsPagedQueryVariables>;
+export function useListEmployeeDocumentsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListEmployeeDocumentsPagedQuery, ListEmployeeDocumentsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListEmployeeDocumentsPagedQuery, ListEmployeeDocumentsPagedQueryVariables>(ListEmployeeDocumentsPagedDocument, options);
+        }
+export type ListEmployeeDocumentsPagedQueryHookResult = ReturnType<typeof useListEmployeeDocumentsPagedQuery>;
+export type ListEmployeeDocumentsPagedLazyQueryHookResult = ReturnType<typeof useListEmployeeDocumentsPagedLazyQuery>;
+export type ListEmployeeDocumentsPagedSuspenseQueryHookResult = ReturnType<typeof useListEmployeeDocumentsPagedSuspenseQuery>;
+export type ListEmployeeDocumentsPagedQueryResult = Apollo.QueryResult<ListEmployeeDocumentsPagedQuery, ListEmployeeDocumentsPagedQueryVariables>;
+export const ListEmployeeDocumentsStatsDocument = gql`
+    query ListEmployeeDocumentsStats {
+  listEmployeeDocumentsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListEmployeeDocumentsStatsQuery__
+ *
+ * To run a query within a React component, call `useListEmployeeDocumentsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListEmployeeDocumentsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListEmployeeDocumentsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListEmployeeDocumentsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListEmployeeDocumentsStatsQuery, ListEmployeeDocumentsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListEmployeeDocumentsStatsQuery, ListEmployeeDocumentsStatsQueryVariables>(ListEmployeeDocumentsStatsDocument, options);
+      }
+export function useListEmployeeDocumentsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListEmployeeDocumentsStatsQuery, ListEmployeeDocumentsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListEmployeeDocumentsStatsQuery, ListEmployeeDocumentsStatsQueryVariables>(ListEmployeeDocumentsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListEmployeeDocumentsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListEmployeeDocumentsStatsQuery, ListEmployeeDocumentsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListEmployeeDocumentsStatsQuery, ListEmployeeDocumentsStatsQueryVariables>;
+export function useListEmployeeDocumentsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListEmployeeDocumentsStatsQuery, ListEmployeeDocumentsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListEmployeeDocumentsStatsQuery | undefined, ListEmployeeDocumentsStatsQueryVariables>;
+export function useListEmployeeDocumentsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListEmployeeDocumentsStatsQuery, ListEmployeeDocumentsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListEmployeeDocumentsStatsQuery, ListEmployeeDocumentsStatsQueryVariables>(ListEmployeeDocumentsStatsDocument, options);
+        }
+export type ListEmployeeDocumentsStatsQueryHookResult = ReturnType<typeof useListEmployeeDocumentsStatsQuery>;
+export type ListEmployeeDocumentsStatsLazyQueryHookResult = ReturnType<typeof useListEmployeeDocumentsStatsLazyQuery>;
+export type ListEmployeeDocumentsStatsSuspenseQueryHookResult = ReturnType<typeof useListEmployeeDocumentsStatsSuspenseQuery>;
+export type ListEmployeeDocumentsStatsQueryResult = Apollo.QueryResult<ListEmployeeDocumentsStatsQuery, ListEmployeeDocumentsStatsQueryVariables>;
+export const CreateEmployeeDocumentDocument = gql`
+    mutation CreateEmployeeDocument($input: EmployeeDocumentInput!) {
+  createEmployeeDocument(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateEmployeeDocumentMutationFn = Apollo.MutationFunction<CreateEmployeeDocumentMutation, CreateEmployeeDocumentMutationVariables>;
+
+/**
+ * __useCreateEmployeeDocumentMutation__
+ *
+ * To run a mutation, you first call `useCreateEmployeeDocumentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateEmployeeDocumentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createEmployeeDocumentMutation, { data, loading, error }] = useCreateEmployeeDocumentMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateEmployeeDocumentMutation(baseOptions?: Apollo.MutationHookOptions<CreateEmployeeDocumentMutation, CreateEmployeeDocumentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateEmployeeDocumentMutation, CreateEmployeeDocumentMutationVariables>(CreateEmployeeDocumentDocument, options);
+      }
+export type CreateEmployeeDocumentMutationHookResult = ReturnType<typeof useCreateEmployeeDocumentMutation>;
+export type CreateEmployeeDocumentMutationResult = Apollo.MutationResult<CreateEmployeeDocumentMutation>;
+export type CreateEmployeeDocumentMutationOptions = Apollo.BaseMutationOptions<CreateEmployeeDocumentMutation, CreateEmployeeDocumentMutationVariables>;
+export const UpdateEmployeeDocumentDocument = gql`
+    mutation UpdateEmployeeDocument($id: ID!, $input: EmployeeDocumentInput!) {
+  updateEmployeeDocument(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateEmployeeDocumentMutationFn = Apollo.MutationFunction<UpdateEmployeeDocumentMutation, UpdateEmployeeDocumentMutationVariables>;
+
+/**
+ * __useUpdateEmployeeDocumentMutation__
+ *
+ * To run a mutation, you first call `useUpdateEmployeeDocumentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateEmployeeDocumentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateEmployeeDocumentMutation, { data, loading, error }] = useUpdateEmployeeDocumentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateEmployeeDocumentMutation(baseOptions?: Apollo.MutationHookOptions<UpdateEmployeeDocumentMutation, UpdateEmployeeDocumentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateEmployeeDocumentMutation, UpdateEmployeeDocumentMutationVariables>(UpdateEmployeeDocumentDocument, options);
+      }
+export type UpdateEmployeeDocumentMutationHookResult = ReturnType<typeof useUpdateEmployeeDocumentMutation>;
+export type UpdateEmployeeDocumentMutationResult = Apollo.MutationResult<UpdateEmployeeDocumentMutation>;
+export type UpdateEmployeeDocumentMutationOptions = Apollo.BaseMutationOptions<UpdateEmployeeDocumentMutation, UpdateEmployeeDocumentMutationVariables>;
+export const DeleteEmployeeDocumentDocument = gql`
+    mutation DeleteEmployeeDocument($id: ID!) {
+  deleteEmployeeDocument(id: $id)
+}
+    `;
+export type DeleteEmployeeDocumentMutationFn = Apollo.MutationFunction<DeleteEmployeeDocumentMutation, DeleteEmployeeDocumentMutationVariables>;
+
+/**
+ * __useDeleteEmployeeDocumentMutation__
+ *
+ * To run a mutation, you first call `useDeleteEmployeeDocumentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteEmployeeDocumentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteEmployeeDocumentMutation, { data, loading, error }] = useDeleteEmployeeDocumentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteEmployeeDocumentMutation(baseOptions?: Apollo.MutationHookOptions<DeleteEmployeeDocumentMutation, DeleteEmployeeDocumentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteEmployeeDocumentMutation, DeleteEmployeeDocumentMutationVariables>(DeleteEmployeeDocumentDocument, options);
+      }
+export type DeleteEmployeeDocumentMutationHookResult = ReturnType<typeof useDeleteEmployeeDocumentMutation>;
+export type DeleteEmployeeDocumentMutationResult = Apollo.MutationResult<DeleteEmployeeDocumentMutation>;
+export type DeleteEmployeeDocumentMutationOptions = Apollo.BaseMutationOptions<DeleteEmployeeDocumentMutation, DeleteEmployeeDocumentMutationVariables>;
+export const ListBenefitsPagedDocument = gql`
+    query ListBenefitsPaged($input: TableQueryInput!) {
+  listBenefitsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      kind
+      name
+      provider
+      reference
+      coverage
+      validFrom
+      validTo
+      documentUrl
+    }
+  }
+}
+    `;
+
+/**
+ * __useListBenefitsPagedQuery__
+ *
+ * To run a query within a React component, call `useListBenefitsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListBenefitsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListBenefitsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListBenefitsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListBenefitsPagedQuery, ListBenefitsPagedQueryVariables> & ({ variables: ListBenefitsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListBenefitsPagedQuery, ListBenefitsPagedQueryVariables>(ListBenefitsPagedDocument, options);
+      }
+export function useListBenefitsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListBenefitsPagedQuery, ListBenefitsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListBenefitsPagedQuery, ListBenefitsPagedQueryVariables>(ListBenefitsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListBenefitsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListBenefitsPagedQuery, ListBenefitsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListBenefitsPagedQuery, ListBenefitsPagedQueryVariables>;
+export function useListBenefitsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBenefitsPagedQuery, ListBenefitsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListBenefitsPagedQuery | undefined, ListBenefitsPagedQueryVariables>;
+export function useListBenefitsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBenefitsPagedQuery, ListBenefitsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListBenefitsPagedQuery, ListBenefitsPagedQueryVariables>(ListBenefitsPagedDocument, options);
+        }
+export type ListBenefitsPagedQueryHookResult = ReturnType<typeof useListBenefitsPagedQuery>;
+export type ListBenefitsPagedLazyQueryHookResult = ReturnType<typeof useListBenefitsPagedLazyQuery>;
+export type ListBenefitsPagedSuspenseQueryHookResult = ReturnType<typeof useListBenefitsPagedSuspenseQuery>;
+export type ListBenefitsPagedQueryResult = Apollo.QueryResult<ListBenefitsPagedQuery, ListBenefitsPagedQueryVariables>;
+export const ListBenefitsStatsDocument = gql`
+    query ListBenefitsStats {
+  listBenefitsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListBenefitsStatsQuery__
+ *
+ * To run a query within a React component, call `useListBenefitsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListBenefitsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListBenefitsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListBenefitsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListBenefitsStatsQuery, ListBenefitsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListBenefitsStatsQuery, ListBenefitsStatsQueryVariables>(ListBenefitsStatsDocument, options);
+      }
+export function useListBenefitsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListBenefitsStatsQuery, ListBenefitsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListBenefitsStatsQuery, ListBenefitsStatsQueryVariables>(ListBenefitsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListBenefitsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListBenefitsStatsQuery, ListBenefitsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListBenefitsStatsQuery, ListBenefitsStatsQueryVariables>;
+export function useListBenefitsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBenefitsStatsQuery, ListBenefitsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListBenefitsStatsQuery | undefined, ListBenefitsStatsQueryVariables>;
+export function useListBenefitsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBenefitsStatsQuery, ListBenefitsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListBenefitsStatsQuery, ListBenefitsStatsQueryVariables>(ListBenefitsStatsDocument, options);
+        }
+export type ListBenefitsStatsQueryHookResult = ReturnType<typeof useListBenefitsStatsQuery>;
+export type ListBenefitsStatsLazyQueryHookResult = ReturnType<typeof useListBenefitsStatsLazyQuery>;
+export type ListBenefitsStatsSuspenseQueryHookResult = ReturnType<typeof useListBenefitsStatsSuspenseQuery>;
+export type ListBenefitsStatsQueryResult = Apollo.QueryResult<ListBenefitsStatsQuery, ListBenefitsStatsQueryVariables>;
+export const CreateBenefitDocument = gql`
+    mutation CreateBenefit($input: BenefitInput!) {
+  createBenefit(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateBenefitMutationFn = Apollo.MutationFunction<CreateBenefitMutation, CreateBenefitMutationVariables>;
+
+/**
+ * __useCreateBenefitMutation__
+ *
+ * To run a mutation, you first call `useCreateBenefitMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateBenefitMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createBenefitMutation, { data, loading, error }] = useCreateBenefitMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateBenefitMutation(baseOptions?: Apollo.MutationHookOptions<CreateBenefitMutation, CreateBenefitMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateBenefitMutation, CreateBenefitMutationVariables>(CreateBenefitDocument, options);
+      }
+export type CreateBenefitMutationHookResult = ReturnType<typeof useCreateBenefitMutation>;
+export type CreateBenefitMutationResult = Apollo.MutationResult<CreateBenefitMutation>;
+export type CreateBenefitMutationOptions = Apollo.BaseMutationOptions<CreateBenefitMutation, CreateBenefitMutationVariables>;
+export const UpdateBenefitDocument = gql`
+    mutation UpdateBenefit($id: ID!, $input: BenefitInput!) {
+  updateBenefit(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateBenefitMutationFn = Apollo.MutationFunction<UpdateBenefitMutation, UpdateBenefitMutationVariables>;
+
+/**
+ * __useUpdateBenefitMutation__
+ *
+ * To run a mutation, you first call `useUpdateBenefitMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBenefitMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBenefitMutation, { data, loading, error }] = useUpdateBenefitMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateBenefitMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBenefitMutation, UpdateBenefitMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateBenefitMutation, UpdateBenefitMutationVariables>(UpdateBenefitDocument, options);
+      }
+export type UpdateBenefitMutationHookResult = ReturnType<typeof useUpdateBenefitMutation>;
+export type UpdateBenefitMutationResult = Apollo.MutationResult<UpdateBenefitMutation>;
+export type UpdateBenefitMutationOptions = Apollo.BaseMutationOptions<UpdateBenefitMutation, UpdateBenefitMutationVariables>;
+export const DeleteBenefitDocument = gql`
+    mutation DeleteBenefit($id: ID!) {
+  deleteBenefit(id: $id)
+}
+    `;
+export type DeleteBenefitMutationFn = Apollo.MutationFunction<DeleteBenefitMutation, DeleteBenefitMutationVariables>;
+
+/**
+ * __useDeleteBenefitMutation__
+ *
+ * To run a mutation, you first call `useDeleteBenefitMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteBenefitMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteBenefitMutation, { data, loading, error }] = useDeleteBenefitMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteBenefitMutation(baseOptions?: Apollo.MutationHookOptions<DeleteBenefitMutation, DeleteBenefitMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteBenefitMutation, DeleteBenefitMutationVariables>(DeleteBenefitDocument, options);
+      }
+export type DeleteBenefitMutationHookResult = ReturnType<typeof useDeleteBenefitMutation>;
+export type DeleteBenefitMutationResult = Apollo.MutationResult<DeleteBenefitMutation>;
+export type DeleteBenefitMutationOptions = Apollo.BaseMutationOptions<DeleteBenefitMutation, DeleteBenefitMutationVariables>;
+export const ListTrainingsPagedDocument = gql`
+    query ListTrainingsPaged($input: TableQueryInput!) {
+  listTrainingsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      title
+      provider
+      category
+      assignedOn
+      dueOn
+      completedOn
+      status
+      certificateUrl
+    }
+  }
+}
+    `;
+
+/**
+ * __useListTrainingsPagedQuery__
+ *
+ * To run a query within a React component, call `useListTrainingsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListTrainingsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListTrainingsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListTrainingsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListTrainingsPagedQuery, ListTrainingsPagedQueryVariables> & ({ variables: ListTrainingsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListTrainingsPagedQuery, ListTrainingsPagedQueryVariables>(ListTrainingsPagedDocument, options);
+      }
+export function useListTrainingsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListTrainingsPagedQuery, ListTrainingsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListTrainingsPagedQuery, ListTrainingsPagedQueryVariables>(ListTrainingsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListTrainingsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListTrainingsPagedQuery, ListTrainingsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListTrainingsPagedQuery, ListTrainingsPagedQueryVariables>;
+export function useListTrainingsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListTrainingsPagedQuery, ListTrainingsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListTrainingsPagedQuery | undefined, ListTrainingsPagedQueryVariables>;
+export function useListTrainingsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListTrainingsPagedQuery, ListTrainingsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListTrainingsPagedQuery, ListTrainingsPagedQueryVariables>(ListTrainingsPagedDocument, options);
+        }
+export type ListTrainingsPagedQueryHookResult = ReturnType<typeof useListTrainingsPagedQuery>;
+export type ListTrainingsPagedLazyQueryHookResult = ReturnType<typeof useListTrainingsPagedLazyQuery>;
+export type ListTrainingsPagedSuspenseQueryHookResult = ReturnType<typeof useListTrainingsPagedSuspenseQuery>;
+export type ListTrainingsPagedQueryResult = Apollo.QueryResult<ListTrainingsPagedQuery, ListTrainingsPagedQueryVariables>;
+export const ListTrainingsStatsDocument = gql`
+    query ListTrainingsStats {
+  listTrainingsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListTrainingsStatsQuery__
+ *
+ * To run a query within a React component, call `useListTrainingsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListTrainingsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListTrainingsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListTrainingsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListTrainingsStatsQuery, ListTrainingsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListTrainingsStatsQuery, ListTrainingsStatsQueryVariables>(ListTrainingsStatsDocument, options);
+      }
+export function useListTrainingsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListTrainingsStatsQuery, ListTrainingsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListTrainingsStatsQuery, ListTrainingsStatsQueryVariables>(ListTrainingsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListTrainingsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListTrainingsStatsQuery, ListTrainingsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListTrainingsStatsQuery, ListTrainingsStatsQueryVariables>;
+export function useListTrainingsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListTrainingsStatsQuery, ListTrainingsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListTrainingsStatsQuery | undefined, ListTrainingsStatsQueryVariables>;
+export function useListTrainingsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListTrainingsStatsQuery, ListTrainingsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListTrainingsStatsQuery, ListTrainingsStatsQueryVariables>(ListTrainingsStatsDocument, options);
+        }
+export type ListTrainingsStatsQueryHookResult = ReturnType<typeof useListTrainingsStatsQuery>;
+export type ListTrainingsStatsLazyQueryHookResult = ReturnType<typeof useListTrainingsStatsLazyQuery>;
+export type ListTrainingsStatsSuspenseQueryHookResult = ReturnType<typeof useListTrainingsStatsSuspenseQuery>;
+export type ListTrainingsStatsQueryResult = Apollo.QueryResult<ListTrainingsStatsQuery, ListTrainingsStatsQueryVariables>;
+export const CreateTrainingDocument = gql`
+    mutation CreateTraining($input: TrainingInput!) {
+  createTraining(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateTrainingMutationFn = Apollo.MutationFunction<CreateTrainingMutation, CreateTrainingMutationVariables>;
+
+/**
+ * __useCreateTrainingMutation__
+ *
+ * To run a mutation, you first call `useCreateTrainingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTrainingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createTrainingMutation, { data, loading, error }] = useCreateTrainingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateTrainingMutation(baseOptions?: Apollo.MutationHookOptions<CreateTrainingMutation, CreateTrainingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateTrainingMutation, CreateTrainingMutationVariables>(CreateTrainingDocument, options);
+      }
+export type CreateTrainingMutationHookResult = ReturnType<typeof useCreateTrainingMutation>;
+export type CreateTrainingMutationResult = Apollo.MutationResult<CreateTrainingMutation>;
+export type CreateTrainingMutationOptions = Apollo.BaseMutationOptions<CreateTrainingMutation, CreateTrainingMutationVariables>;
+export const UpdateTrainingDocument = gql`
+    mutation UpdateTraining($id: ID!, $input: TrainingInput!) {
+  updateTraining(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateTrainingMutationFn = Apollo.MutationFunction<UpdateTrainingMutation, UpdateTrainingMutationVariables>;
+
+/**
+ * __useUpdateTrainingMutation__
+ *
+ * To run a mutation, you first call `useUpdateTrainingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTrainingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTrainingMutation, { data, loading, error }] = useUpdateTrainingMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateTrainingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateTrainingMutation, UpdateTrainingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateTrainingMutation, UpdateTrainingMutationVariables>(UpdateTrainingDocument, options);
+      }
+export type UpdateTrainingMutationHookResult = ReturnType<typeof useUpdateTrainingMutation>;
+export type UpdateTrainingMutationResult = Apollo.MutationResult<UpdateTrainingMutation>;
+export type UpdateTrainingMutationOptions = Apollo.BaseMutationOptions<UpdateTrainingMutation, UpdateTrainingMutationVariables>;
+export const DeleteTrainingDocument = gql`
+    mutation DeleteTraining($id: ID!) {
+  deleteTraining(id: $id)
+}
+    `;
+export type DeleteTrainingMutationFn = Apollo.MutationFunction<DeleteTrainingMutation, DeleteTrainingMutationVariables>;
+
+/**
+ * __useDeleteTrainingMutation__
+ *
+ * To run a mutation, you first call `useDeleteTrainingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTrainingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteTrainingMutation, { data, loading, error }] = useDeleteTrainingMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteTrainingMutation(baseOptions?: Apollo.MutationHookOptions<DeleteTrainingMutation, DeleteTrainingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteTrainingMutation, DeleteTrainingMutationVariables>(DeleteTrainingDocument, options);
+      }
+export type DeleteTrainingMutationHookResult = ReturnType<typeof useDeleteTrainingMutation>;
+export type DeleteTrainingMutationResult = Apollo.MutationResult<DeleteTrainingMutation>;
+export type DeleteTrainingMutationOptions = Apollo.BaseMutationOptions<DeleteTrainingMutation, DeleteTrainingMutationVariables>;
+export const ListExpenseClaimsPagedDocument = gql`
+    query ListExpenseClaimsPaged($input: TableQueryInput!) {
+  listExpenseClaimsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      category
+      description
+      amount
+      currency
+      incurredOn
+      receiptUrl
+      status
+      approvedAmount
+    }
+  }
+}
+    `;
+
+/**
+ * __useListExpenseClaimsPagedQuery__
+ *
+ * To run a query within a React component, call `useListExpenseClaimsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListExpenseClaimsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListExpenseClaimsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListExpenseClaimsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListExpenseClaimsPagedQuery, ListExpenseClaimsPagedQueryVariables> & ({ variables: ListExpenseClaimsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListExpenseClaimsPagedQuery, ListExpenseClaimsPagedQueryVariables>(ListExpenseClaimsPagedDocument, options);
+      }
+export function useListExpenseClaimsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListExpenseClaimsPagedQuery, ListExpenseClaimsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListExpenseClaimsPagedQuery, ListExpenseClaimsPagedQueryVariables>(ListExpenseClaimsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListExpenseClaimsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListExpenseClaimsPagedQuery, ListExpenseClaimsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListExpenseClaimsPagedQuery, ListExpenseClaimsPagedQueryVariables>;
+export function useListExpenseClaimsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListExpenseClaimsPagedQuery, ListExpenseClaimsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListExpenseClaimsPagedQuery | undefined, ListExpenseClaimsPagedQueryVariables>;
+export function useListExpenseClaimsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListExpenseClaimsPagedQuery, ListExpenseClaimsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListExpenseClaimsPagedQuery, ListExpenseClaimsPagedQueryVariables>(ListExpenseClaimsPagedDocument, options);
+        }
+export type ListExpenseClaimsPagedQueryHookResult = ReturnType<typeof useListExpenseClaimsPagedQuery>;
+export type ListExpenseClaimsPagedLazyQueryHookResult = ReturnType<typeof useListExpenseClaimsPagedLazyQuery>;
+export type ListExpenseClaimsPagedSuspenseQueryHookResult = ReturnType<typeof useListExpenseClaimsPagedSuspenseQuery>;
+export type ListExpenseClaimsPagedQueryResult = Apollo.QueryResult<ListExpenseClaimsPagedQuery, ListExpenseClaimsPagedQueryVariables>;
+export const ListExpenseClaimsStatsDocument = gql`
+    query ListExpenseClaimsStats {
+  listExpenseClaimsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListExpenseClaimsStatsQuery__
+ *
+ * To run a query within a React component, call `useListExpenseClaimsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListExpenseClaimsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListExpenseClaimsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListExpenseClaimsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListExpenseClaimsStatsQuery, ListExpenseClaimsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListExpenseClaimsStatsQuery, ListExpenseClaimsStatsQueryVariables>(ListExpenseClaimsStatsDocument, options);
+      }
+export function useListExpenseClaimsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListExpenseClaimsStatsQuery, ListExpenseClaimsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListExpenseClaimsStatsQuery, ListExpenseClaimsStatsQueryVariables>(ListExpenseClaimsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListExpenseClaimsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListExpenseClaimsStatsQuery, ListExpenseClaimsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListExpenseClaimsStatsQuery, ListExpenseClaimsStatsQueryVariables>;
+export function useListExpenseClaimsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListExpenseClaimsStatsQuery, ListExpenseClaimsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListExpenseClaimsStatsQuery | undefined, ListExpenseClaimsStatsQueryVariables>;
+export function useListExpenseClaimsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListExpenseClaimsStatsQuery, ListExpenseClaimsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListExpenseClaimsStatsQuery, ListExpenseClaimsStatsQueryVariables>(ListExpenseClaimsStatsDocument, options);
+        }
+export type ListExpenseClaimsStatsQueryHookResult = ReturnType<typeof useListExpenseClaimsStatsQuery>;
+export type ListExpenseClaimsStatsLazyQueryHookResult = ReturnType<typeof useListExpenseClaimsStatsLazyQuery>;
+export type ListExpenseClaimsStatsSuspenseQueryHookResult = ReturnType<typeof useListExpenseClaimsStatsSuspenseQuery>;
+export type ListExpenseClaimsStatsQueryResult = Apollo.QueryResult<ListExpenseClaimsStatsQuery, ListExpenseClaimsStatsQueryVariables>;
+export const CreateExpenseClaimDocument = gql`
+    mutation CreateExpenseClaim($input: ExpenseClaimInput!) {
+  createExpenseClaim(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateExpenseClaimMutationFn = Apollo.MutationFunction<CreateExpenseClaimMutation, CreateExpenseClaimMutationVariables>;
+
+/**
+ * __useCreateExpenseClaimMutation__
+ *
+ * To run a mutation, you first call `useCreateExpenseClaimMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateExpenseClaimMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createExpenseClaimMutation, { data, loading, error }] = useCreateExpenseClaimMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateExpenseClaimMutation(baseOptions?: Apollo.MutationHookOptions<CreateExpenseClaimMutation, CreateExpenseClaimMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateExpenseClaimMutation, CreateExpenseClaimMutationVariables>(CreateExpenseClaimDocument, options);
+      }
+export type CreateExpenseClaimMutationHookResult = ReturnType<typeof useCreateExpenseClaimMutation>;
+export type CreateExpenseClaimMutationResult = Apollo.MutationResult<CreateExpenseClaimMutation>;
+export type CreateExpenseClaimMutationOptions = Apollo.BaseMutationOptions<CreateExpenseClaimMutation, CreateExpenseClaimMutationVariables>;
+export const UpdateExpenseClaimDocument = gql`
+    mutation UpdateExpenseClaim($id: ID!, $input: ExpenseClaimInput!) {
+  updateExpenseClaim(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateExpenseClaimMutationFn = Apollo.MutationFunction<UpdateExpenseClaimMutation, UpdateExpenseClaimMutationVariables>;
+
+/**
+ * __useUpdateExpenseClaimMutation__
+ *
+ * To run a mutation, you first call `useUpdateExpenseClaimMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateExpenseClaimMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateExpenseClaimMutation, { data, loading, error }] = useUpdateExpenseClaimMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateExpenseClaimMutation(baseOptions?: Apollo.MutationHookOptions<UpdateExpenseClaimMutation, UpdateExpenseClaimMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateExpenseClaimMutation, UpdateExpenseClaimMutationVariables>(UpdateExpenseClaimDocument, options);
+      }
+export type UpdateExpenseClaimMutationHookResult = ReturnType<typeof useUpdateExpenseClaimMutation>;
+export type UpdateExpenseClaimMutationResult = Apollo.MutationResult<UpdateExpenseClaimMutation>;
+export type UpdateExpenseClaimMutationOptions = Apollo.BaseMutationOptions<UpdateExpenseClaimMutation, UpdateExpenseClaimMutationVariables>;
+export const DeleteExpenseClaimDocument = gql`
+    mutation DeleteExpenseClaim($id: ID!) {
+  deleteExpenseClaim(id: $id)
+}
+    `;
+export type DeleteExpenseClaimMutationFn = Apollo.MutationFunction<DeleteExpenseClaimMutation, DeleteExpenseClaimMutationVariables>;
+
+/**
+ * __useDeleteExpenseClaimMutation__
+ *
+ * To run a mutation, you first call `useDeleteExpenseClaimMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteExpenseClaimMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteExpenseClaimMutation, { data, loading, error }] = useDeleteExpenseClaimMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteExpenseClaimMutation(baseOptions?: Apollo.MutationHookOptions<DeleteExpenseClaimMutation, DeleteExpenseClaimMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteExpenseClaimMutation, DeleteExpenseClaimMutationVariables>(DeleteExpenseClaimDocument, options);
+      }
+export type DeleteExpenseClaimMutationHookResult = ReturnType<typeof useDeleteExpenseClaimMutation>;
+export type DeleteExpenseClaimMutationResult = Apollo.MutationResult<DeleteExpenseClaimMutation>;
+export type DeleteExpenseClaimMutationOptions = Apollo.BaseMutationOptions<DeleteExpenseClaimMutation, DeleteExpenseClaimMutationVariables>;
 export const MyNotificationsDocument = gql`
     query MyNotifications {
   myNotifications {
