@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
+import AppsIcon from '@mui/icons-material/Apps';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { Collapse } from '@/components/ui';
+import { Collapse, Divider } from '@/components/ui';
 import {
   Box,
   InputAdornment,
@@ -20,6 +22,7 @@ import { env } from '@/config/env';
 import type { Role } from '@/auth/roles';
 import { useCrossAppNavigate } from '@/hooks/useCrossAppNavigate';
 import type { PortalAppKey } from '@/config/apps';
+import { PortalSwitcher } from '@/layout/PortalSwitcher';
 
 interface SidebarProps {
   roles: Role[];
@@ -32,6 +35,7 @@ export function Sidebar({ roles, onNavigate }: SidebarProps) {
   const { pathname } = useLocation();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   const modules = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -106,6 +110,20 @@ export function Sidebar({ roles, onNavigate }: SidebarProps) {
       <Toolbar variant="dense">
         <Box component="img" src={env.iconUrl} alt="Exyconn" sx={{ height: 26 }} />
       </Toolbar>
+
+      {/* Each portal is its own site, so jumping between them needs an explicit switcher. */}
+      <Box sx={{ px: 1, pb: 1 }}>
+        <ListItemButton onClick={() => setSwitcherOpen(true)} sx={{ borderRadius: 2 }}>
+          <ListItemIcon sx={{ minWidth: 40 }}>
+            <AppsIcon />
+          </ListItemIcon>
+          <ListItemText primary="Other Portals" secondary="Switch to another portal" />
+          <ChevronRightIcon fontSize="small" color="disabled" />
+        </ListItemButton>
+      </Box>
+      <Divider sx={{ mx: 1.5, mb: 1 }} />
+
+      <PortalSwitcher roles={roles} open={switcherOpen} onClose={() => setSwitcherOpen(false)} />
 
       <Box sx={{ px: 1.5, pb: 1 }}>
         <TextField

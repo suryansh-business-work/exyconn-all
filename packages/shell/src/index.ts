@@ -1,5 +1,6 @@
 export { PortalApp } from './app/PortalApp';
 export { ProtectedRoute } from './routes/ProtectedRoute';
+export { PortalSwitcher } from './layout/PortalSwitcher';
 export { ExternalRedirect } from './routes/ExternalRedirect';
 export { ROLES, canAccess, type Role } from './auth/roles';
 export { useAuth } from './auth/AuthContext';
