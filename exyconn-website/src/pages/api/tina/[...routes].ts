@@ -8,7 +8,15 @@ import { ensureIndexed } from "../../../lib/tina/sync";
 export const prerender = false;
 
 export const ALL: APIRoute = async ({ request }) => {
-  await ensureIndexed();
+  try {
+    await ensureIndexed();
+  } catch (error) {
+    console.error("TinaCMS: indexing the content into the database failed", error);
+    return Response.json(
+      { error: "The TinaCMS content index is unavailable; check the website server logs." },
+      { status: 503 }
+    );
+  }
   const res = new NodeResponse();
   await tinaBackend(await toNodeRequest(request), res as unknown as ServerResponse);
   return res.toResponse();
