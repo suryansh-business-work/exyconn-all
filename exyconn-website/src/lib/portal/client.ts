@@ -2,7 +2,7 @@
  * Thin GraphQL client for the Exyconn portal.
  *
  * The portal is the single source of truth for all site content (blog, case studies,
- * careers, gigs, tools, navigation). There is deliberately NO hardcoded fallback: if the
+ * careers, gigs, navigation). There is deliberately NO hardcoded fallback: if the
  * portal cannot be reached the error propagates, rather than silently serving stale
  * bundled content that would mask an editor's changes.
  */

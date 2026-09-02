@@ -3,6 +3,7 @@ import Newsletter from "./../fragments/Newsletter.astro";
 import CokkiesModel from "../CokkiesModel.astro";
 import AccessibilityDrawer from "../AccessibilityDrawer.astro";
 import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
+import { TOOLS_SITE_URL } from "../../lib/site";
 
 interface Props {
   branding: Branding;
@@ -289,8 +290,15 @@ const socialLinks = [
             </a>
           </li>
           <li>
-            <a href="/tools" class="text-gray-600 hover:text-gray-900 transition focus:underline">
-              Free Tools
+            <a
+              href={TOOLS_SITE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-600 hover:text-gray-900 transition inline-flex items-center gap-1 focus:underline"
+            >
+              Free Tools <i
+                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-400"
+                aria-hidden="true"></i>
             </a>
           </li>
         </ul>
@@ -322,8 +330,11 @@ const socialLinks = [
             >
           </li>
           <li>
-            <a href="/tools" class="text-gray-600 hover:text-gray-900 transition focus:underline"
-              >Free Tools</a
+            <a
+              href={TOOLS_SITE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-600 hover:text-gray-900 transition focus:underline">Free Tools</a
             >
           </li>
           <li>

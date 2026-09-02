@@ -4,6 +4,7 @@ import node from '@astrojs/node';
 import react from '@astrojs/react';
 import { execSync } from 'child_process';
 import pkg from './package.json' with { type: 'json' };
+import { TOOLS_SITE_URL } from './src/lib/site.ts';
 
 // Compute version at build time (not runtime)
 let gitHash = 'dev';
@@ -23,6 +24,11 @@ export default defineConfig({
   }),
   trailingSlash: 'never',
   redirects: {
+    // The tools catalogue now lives on its own app — keep inbound links (and their SEO
+    // equity) alive by sending every /tools URL to tools.exyconn.com. Tool slugs differ
+    // there, so everything lands on its home page.
+    '/tools': { status: 301, destination: TOOLS_SITE_URL },
+    '/tools/[...slug]': { status: 301, destination: TOOLS_SITE_URL },
     // Retired Shell Strategy pages — keep inbound links alive on /ai-services.
     '/shell-strategy': { status: 301, destination: '/ai-services' },
     '/shell-strategy-terms': { status: 301, destination: '/ai-services' },

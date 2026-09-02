@@ -1,6 +1,7 @@
 ---
 // Clean, Professional Home Banner
 import { aiServices } from "../../../lib/services/aiServices";
+import { TOOLS_SITE_URL } from "../../../lib/site";
 ---
 
 <section class="relative bg-white overflow-hidden">
@@ -67,7 +68,9 @@ import { aiServices } from "../../../lib/services/aiServices";
           View Products
         </a>
         <a
-          href="/tools"
+          href={TOOLS_SITE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
           class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold px-8 py-4 rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-colors shadow-lg shadow-indigo-500/25"
         >
           <i class="fa-solid fa-toolbox"></i>

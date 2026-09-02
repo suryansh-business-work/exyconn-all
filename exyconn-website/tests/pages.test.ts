@@ -25,7 +25,6 @@ const STATIC_PAGES = [
   "/our-vision",
   "/privacy-policy",
   "/sitemap",
-  "/tools",
   "/404",
   // AI Pages
   "/ai",
