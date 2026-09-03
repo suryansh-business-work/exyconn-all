@@ -1,20 +1,26 @@
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { Box, Button, Flex, Heading, IconButton, Text } from '@exyconn/shell/components/ui';
+import { Box, Chip, Flex, Heading, IconButton, Text } from '@exyconn/shell/components/ui';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { LoginForm } from './forms/login';
-import { LoginPromo } from './LoginPromo';
-import { env } from '@exyconn/shell/config/env';
+import { LoginBackground } from './LoginBackground';
+import { useLoginPage } from './useLoginPage';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
 import { useColorMode } from '@exyconn/shell/theme/ColorModeContext';
 import { safeNext } from '@exyconn/shell/utils/redirect';
 
-/** Login screen: flat card + promo + banner over the brand video. */
+/**
+ * Login screen. One form, one set of credentials — the artwork, the portal name and the
+ * accent come from Admin > Branding > Login Pages for whichever subdomain is serving it,
+ * so `finance.exyconn.com` and `hr.exyconn.com` look like their own front doors.
+ */
 export function Login() {
   const { mode, toggle } = useColorMode();
   const { user } = useAuth();
   const [params] = useSearchParams();
+  const isDark = mode === 'dark';
+  const page = useLoginPage(isDark);
 
   // An already-signed-in user never sees the login screen — bounce them to the
   // page they were after (or the portal home).
@@ -25,111 +31,50 @@ export function Login() {
       sx={{
         position: 'relative',
         minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: { xs: 2, md: 4 },
+        display: 'grid',
+        placeItems: 'center',
+        p: 2,
         overflow: 'hidden',
-        bgcolor: 'background.default',
       }}
     >
-      <Box
-        component="video"
-        src={env.loginVideoUrl}
-        autoPlay
-        muted
-        loop
-        playsInline
-        aria-hidden
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          filter: 'saturate(1.05)',
-          transform: 'scale(1.12)',
-        }}
-      />
-      <Box
-        aria-hidden
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          background:
-            mode === 'light'
-              ? 'linear-gradient(180deg, rgba(246,248,251,0.72), rgba(246,248,251,0.55))'
-              : 'linear-gradient(180deg, rgba(11,14,23,0.78), rgba(11,14,23,0.6))',
-        }}
+      <LoginBackground
+        imageUrl={page.backgroundImageUrl}
+        accentColor={page.accentColor}
+        isDark={isDark}
       />
 
       <IconButton
         onClick={toggle}
         aria-label="toggle color mode"
-        sx={{ position: 'absolute', top: 16, right: 16, zIndex: 2 }}
+        sx={{ position: 'absolute', top: 12, right: 12, zIndex: 2 }}
       >
-        {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+        {isDark ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
       </IconButton>
 
-      <Flex
-        direction={{ xs: 'column', md: 'row' }}
-        spacing={2.5}
-        alignItems="stretch"
-        sx={{ position: 'relative', zIndex: 1 }}
-      >
-        <Flex direction="column" spacing={2}>
-          <Box
-            sx={[
-              glass,
-              {
-                width: { xs: '100%', sm: 380 },
-                p: 3,
-                borderRadius: 4,
-              },
-            ]}
-          >
-            <Flex direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
-              <Box
-                component="img"
-                src={mode === 'dark' ? env.logoDarkUrl : env.logoUrl}
-                alt="Exyconn"
-                sx={{ height: 26 }}
-              />
-              <Button
-                href={env.brandUrl}
-                target="_blank"
-                rel="noopener"
-                size="small"
-                sx={{ borderRadius: '999px', bgcolor: 'action.hover', px: 1.75 }}
-              >
-                Support
-              </Button>
-            </Flex>
-
-            <Heading level={4} sx={{ mb: 2 }}>
-              Log in
-            </Heading>
-            <LoginForm />
-          </Box>
-
-          <Box
-            sx={{
-              bgcolor: '#0e1116',
-              color: '#fff',
-              borderRadius: 4,
-              px: 3,
-              py: 2,
-              textAlign: 'center',
-            }}
-          >
-            <Text fontWeight={700}>Track, analyze, decide — all in one place.</Text>
-          </Box>
+      <Box sx={[glass, { position: 'relative', zIndex: 1, width: '100%', maxWidth: 380, p: 2.5 }]}>
+        <Flex direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
+          <Box component="img" src={page.logoUrl} alt={page.businessName} sx={{ height: 22 }} />
+          <Chip
+            size="small"
+            label={page.name}
+            sx={{ bgcolor: page.accentColor, color: '#fff', fontWeight: 700 }}
+          />
         </Flex>
 
-        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-          <LoginPromo />
-        </Box>
-      </Flex>
+        <Heading level={5} sx={{ mb: 0.25 }}>
+          Sign in to {page.name}
+        </Heading>
+        <Text size="sm" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+          {page.tagline}
+        </Text>
+
+        <LoginForm accentColor={page.accentColor} />
+
+        <Text size="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
+          Authorized personnel only.
+          {page.supportEmail ? ` Need access? ${page.supportEmail}` : ''}
+        </Text>
+      </Box>
     </Box>
   );
 }

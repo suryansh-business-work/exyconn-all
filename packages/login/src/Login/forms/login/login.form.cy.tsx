@@ -11,7 +11,7 @@ const mount = () =>
       <ThemeProvider theme={theme}>
         <MemoryRouter>
           <AuthProvider>
-            <LoginForm />
+            <LoginForm accentColor="#155dfc" />
           </AuthProvider>
         </MemoryRouter>
       </ThemeProvider>

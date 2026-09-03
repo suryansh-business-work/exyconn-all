@@ -6,17 +6,16 @@ import { z } from 'zod';
 import {
   Alert,
   Box,
+  Button,
   Flex,
   IconButton,
   InputAdornment,
   Link,
-  Text,
 } from '@exyconn/shell/components/ui';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useLoginMutation } from '@exyconn/shell/graphql/generated';
@@ -30,10 +29,13 @@ const schema = z.object({
 });
 type Values = z.infer<typeof schema>;
 
-const pillSx = { '& .MuiOutlinedInput-root': { borderRadius: '999px' } };
+interface LoginFormProps {
+  /** Portal accent from branding — tints the submit button so each portal reads as its own. */
+  accentColor: string;
+}
 
-/** React Hook Form + Zod login form styled to the Lumin-style frosted card. */
-export function LoginForm() {
+/** React Hook Form + Zod login form. Compact: two fields and one full-width action. */
+export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const notify = useNotify();
@@ -63,13 +65,12 @@ export function LoginForm() {
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        <Flex direction="column" spacing={1.75}>
+        <Flex direction="column" spacing={1.5}>
           {error && <Alert severity="error">{error}</Alert>}
           <RhfTextField
             name="email"
             placeholder="e-mail address"
             autoComplete="email"
-            sx={pillSx}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -83,7 +84,6 @@ export function LoginForm() {
             placeholder="password"
             type={show ? 'text' : 'password'}
             autoComplete="current-password"
-            sx={pillSx}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -108,39 +108,29 @@ export function LoginForm() {
               ),
             }}
           />
-          <Link
-            component="button"
-            type="button"
-            variant="body2"
-            sx={{ alignSelf: 'flex-start', color: 'text.secondary' }}
-            onClick={() =>
-              notify('Please contact your administrator to reset your password.', 'info')
-            }
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            disabled={methods.formState.isSubmitting}
+            sx={{ bgcolor: accentColor, py: 1, '&:hover': { bgcolor: accentColor, opacity: 0.9 } }}
           >
-            Forgot password?
-          </Link>
-          <AdminRecovery />
+            Log in
+          </Button>
 
-          <Flex direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-            <Text size="caption" color="text.secondary">
-              Authorized personnel only. Sign in with your Exyconn credentials to access the
-              operations portal.
-            </Text>
-            <IconButton
-              type="submit"
-              disabled={methods.formState.isSubmitting}
-              aria-label="Log in"
-              sx={{
-                flexShrink: 0,
-                width: 56,
-                height: 56,
-                bgcolor: '#0e1116',
-                color: '#fff',
-                '&:hover': { bgcolor: '#000' },
-              }}
+          <Flex direction="column" alignItems="flex-start" spacing={0.25}>
+            <Link
+              component="button"
+              type="button"
+              variant="caption"
+              sx={{ color: 'text.secondary' }}
+              onClick={() =>
+                notify('Please contact your administrator to reset your password.', 'info')
+              }
             >
-              <ArrowForwardIcon />
-            </IconButton>
+              Forgot password?
+            </Link>
+            <AdminRecovery />
           </Flex>
         </Flex>
         <Box sx={{ display: 'none' }} data-testid="login-form-ready" />

@@ -33,6 +33,15 @@ const INITIAL: BrandingRow = {
   youtubeUrl: '',
   githubUrl: '',
   copyrightText: '',
+  loginPages: [
+    {
+      app: 'finance',
+      name: 'Finance',
+      tagline: 'Invoices, billing and reimbursements.',
+      backgroundImageUrl: 'https://images.example.com/finance.jpg',
+      accentColor: '#0ea5e9',
+    },
+  ],
 };
 
 const mount = () =>
@@ -75,6 +84,22 @@ describe('BrandingForm', () => {
     cy.get('input[name="websiteUrl"]').clear().type('nope');
     cy.contains('button', 'Save changes').click();
     cy.contains('Enter a valid email address').should('be.visible');
+    cy.contains('Enter a valid URL').should('be.visible');
+  });
+
+  it('edits the per-portal login page and rejects a blank portal name', () => {
+    mount();
+    cy.contains('button', 'Login Pages').click();
+    cy.get('input[name="loginPages.0.name"]').should('have.value', 'Finance').clear();
+    cy.contains('button', 'Save changes').click();
+    cy.contains('Portal name is required').should('be.visible');
+  });
+
+  it('rejects a login background that is not a URL', () => {
+    mount();
+    cy.contains('button', 'Login Pages').click();
+    cy.get('input[name="loginPages.0.backgroundImageUrl"]').clear().type('nope');
+    cy.contains('button', 'Save changes').click();
     cy.contains('Enter a valid URL').should('be.visible');
   });
 

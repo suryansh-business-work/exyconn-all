@@ -25,7 +25,7 @@ export function AdminRecovery() {
     <Link
       component="button"
       type="button"
-      variant="body2"
+      variant="caption"
       disabled={loading}
       sx={{ alignSelf: 'flex-start', color: 'text.secondary' }}
       onClick={handleClick}

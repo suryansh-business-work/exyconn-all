@@ -24,11 +24,11 @@ export function ModuleNavList({ module, pathname, query, onSelect }: Readonly<Mo
       <Typography
         variant="overline"
         color="text.secondary"
-        sx={{ px: 2.5, display: 'block', letterSpacing: 1 }}
+        sx={{ px: 2, pt: 0.5, display: 'block', letterSpacing: 1 }}
       >
         {module.label}
       </Typography>
-      <List sx={{ px: 1 }}>
+      <List sx={{ px: 1, py: 0.5 }}>
         {items.length === 0 && (
           <Typography variant="caption" color="text.secondary" sx={{ px: 1.5 }}>
             No page matches “{query}”.
@@ -41,12 +41,12 @@ export function ModuleNavList({ module, pathname, query, onSelect }: Readonly<Mo
               key={item.key}
               selected={active === item.path}
               onClick={() => onSelect(item.path)}
-              sx={{ borderRadius: 2, mb: 0.5 }}
+              sx={{ borderRadius: 1.5, mb: 0.25 }}
             >
-              <ListItemIcon sx={{ minWidth: 40, color: module.accent }}>
+              <ListItemIcon sx={{ minWidth: 36, color: module.accent }}>
                 <Icon fontSize="small" />
               </ListItemIcon>
-              <ListItemText primary={item.label} />
+              <ListItemText primary={item.label} primaryTypographyProps={{ variant: 'body2' }} />
             </ListItemButton>
           );
         })}
