@@ -14,6 +14,11 @@ interface InvoiceInput {
   dueDate: Date;
 }
 
+/**
+ * `amountPaid` is deliberately absent from the input: it is the payments ledger's to write,
+ * never a form's. See finance.billing.ts.
+ */
+
 export const financeService = createCrudService<InvoiceInput>(InvoiceModel as never, 'Invoice');
 export const financeResolvers = createCrudResolvers(financeService, {
   name: 'Invoice',
@@ -27,3 +32,5 @@ export const financeResolvers = createCrudResolvers(financeService, {
   stats: { countBy: ['status'], sum: ['amount'] },
 });
 export { financeTypeDefs };
+export { financeBillingTypeDefs } from './finance.billing.typeDefs';
+export { financeBillingResolvers } from './finance.billing';

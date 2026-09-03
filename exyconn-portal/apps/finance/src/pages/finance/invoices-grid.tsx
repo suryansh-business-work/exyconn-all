@@ -19,6 +19,13 @@ export const INVOICE_COLUMNS: ColDef<PagedInvoiceRow>[] = [
   textColumn('number', 'Number'),
   textColumn('clientId', 'Client'),
   valueColumn('amount', 'Amount', (row) => `${row.currency} ${row.amount.toLocaleString()}`),
+  // Written by the payments ledger, never by the invoice form — see finance.billing.ts.
+  valueColumn('amountPaid', 'Paid', (row) => `${row.currency} ${row.amountPaid.toLocaleString()}`),
+  valueColumn(
+    'balanceDue',
+    'Balance',
+    (row) => `${row.currency} ${row.balanceDue.toLocaleString()}`,
+  ),
   statusColumn('status', 'Status'),
   dateColumn('dueDate', 'Due'),
   actionsColumn(),

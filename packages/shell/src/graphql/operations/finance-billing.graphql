@@ -1,0 +1,57 @@
+fragment PaymentFields on Payment {
+  id
+  invoiceId
+  invoiceNumber
+  clientId
+  amount
+  currency
+  method
+  reference
+  notes
+  receivedAt
+  recordedBy
+  createdAt
+}
+
+query ListPayments {
+  listPayments {
+    ...PaymentFields
+  }
+}
+
+query ListPaymentsPaged($input: TableQueryInput!) {
+  listPaymentsPaged(input: $input) {
+    totalCount
+    rows {
+      ...PaymentFields
+    }
+  }
+}
+
+query InvoicePayments($invoiceId: ID!) {
+  invoicePayments(invoiceId: $invoiceId) {
+    ...PaymentFields
+  }
+}
+
+query Receivables {
+  receivables {
+    outstanding
+    overdue
+    invoices
+    buckets {
+      band
+      label
+      invoices
+      amount
+    }
+  }
+}
+
+mutation RecordPayment($input: PaymentInput!) {
+  recordPayment(input: $input) {
+    id
+    amount
+    invoiceNumber
+  }
+}

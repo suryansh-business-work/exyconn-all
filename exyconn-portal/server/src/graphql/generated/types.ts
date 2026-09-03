@@ -1265,6 +1265,10 @@ export type ImageConfigInput = {
 export type Invoice = {
   __typename?: 'Invoice';
   amount: Scalars['Float']['output'];
+  /** Sum of the payments recorded against this invoice. */
+  amountPaid: Scalars['Float']['output'];
+  /** amount - amountPaid. What is still owed. */
+  balanceDue: Scalars['Float']['output'];
   clientId: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
@@ -1783,6 +1787,8 @@ export type Mutation = {
   /** Marks every GENERATED slip of the month PAID. Returns how many changed. */
   markPayrollPaid: Scalars['Int']['output'];
   moveTask: Scalars['Boolean']['output'];
+  /** Records a receipt and moves the invoice's paid figure and status with it, in one step. */
+  recordPayment: Payment;
   /** Records a movement and moves the product's stock with it, in one step. */
   recordStockMovement: StockMovement;
   renameColumn: BoardColumn;
@@ -2569,6 +2575,11 @@ export type MutationMoveTaskArgs = {
 };
 
 
+export type MutationRecordPaymentArgs = {
+  input: PaymentInput;
+};
+
+
 export type MutationRecordStockMovementArgs = {
   input: StockMovementInput;
 };
@@ -3201,6 +3212,47 @@ export enum NotificationKind {
   Training = 'TRAINING'
 }
 
+/** One receipt against one invoice. Negative for a refund. */
+export type Payment = {
+  __typename?: 'Payment';
+  amount: Scalars['Float']['output'];
+  clientId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  invoiceId: Scalars['ID']['output'];
+  invoiceNumber: Scalars['String']['output'];
+  method: PaymentMethod;
+  notes: Scalars['String']['output'];
+  receivedAt: Scalars['DateTime']['output'];
+  recordedBy: Scalars['String']['output'];
+  reference: Scalars['String']['output'];
+};
+
+export type PaymentInput = {
+  amount: Scalars['Float']['input'];
+  invoiceId: Scalars['ID']['input'];
+  method: PaymentMethod;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  receivedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  reference?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum PaymentMethod {
+  BankTransfer = 'BANK_TRANSFER',
+  Card = 'CARD',
+  Cash = 'CASH',
+  Cheque = 'CHEQUE',
+  Other = 'OTHER',
+  Upi = 'UPI'
+}
+
+export type PaymentPage = {
+  __typename?: 'PaymentPage';
+  rows: Array<Payment>;
+  totalCount: Scalars['Int']['output'];
+};
+
 /** What one payroll run did. */
 export type PayrollRunResult = {
   __typename?: 'PayrollRunResult';
@@ -3552,6 +3604,8 @@ export type Query = {
   getWebsiteSubmission: WebsiteSubmission;
   /** HR/ADMIN: workforce counts + headcount-over-time series. */
   hrDashboard: HrDashboard;
+  /** Payments against one invoice, newest first. */
+  invoicePayments: Array<Payment>;
   /** HR/ADMIN: a specific employee's leave requests. */
   leaveRequestsByEmployee: Array<LeaveRequest>;
   listActivities: Array<Activity>;
@@ -3659,6 +3713,9 @@ export type Query = {
   listLocationsPaged: LocationPage;
   listLocationsStats: TableStats;
   listNavLinks: Array<NavLink>;
+  listPayments: Array<Payment>;
+  listPaymentsPaged: PaymentPage;
+  listPaymentsStats: TableStats;
   listPerformanceReviews: Array<PerformanceReview>;
   listPerformanceReviewsPaged: PerformanceReviewPage;
   listPerformanceReviewsStats: TableStats;
@@ -3769,6 +3826,7 @@ export type Query = {
   publicTool?: Maybe<Tool>;
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
+  receivables: Receivables;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
   statusOverview: StatusOverview;
   trackerAccessList: Array<TrackerAccess>;
@@ -4037,6 +4095,11 @@ export type QueryGetWebsiteSubmissionArgs = {
 };
 
 
+export type QueryInvoicePaymentsArgs = {
+  invoiceId: Scalars['ID']['input'];
+};
+
+
 export type QueryLeaveRequestsByEmployeeArgs = {
   employeeId: Scalars['ID']['input'];
 };
@@ -4193,6 +4256,11 @@ export type QueryListLegalDocumentsPagedArgs = {
 
 
 export type QueryListLocationsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListPaymentsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -4368,6 +4436,27 @@ export type QueryTrackerDevicesArgs = {
 
 export type QueryTrackerTotalsArgs = {
   userId: Scalars['ID']['input'];
+};
+
+/** What is owed, and how late it is. */
+export type Receivables = {
+  __typename?: 'Receivables';
+  buckets: Array<ReceivablesBucket>;
+  invoices: Scalars['Int']['output'];
+  /** Everything unpaid, whether or not it is late. */
+  outstanding: Scalars['Float']['output'];
+  /** The part of outstanding that is past its due date. */
+  overdue: Scalars['Float']['output'];
+};
+
+/** One age band of unpaid invoice balances, counted from the due date. */
+export type ReceivablesBucket = {
+  __typename?: 'ReceivablesBucket';
+  amount: Scalars['Float']['output'];
+  /** CURRENT, D1_30, D31_60 or D60_PLUS. */
+  band: Scalars['String']['output'];
+  invoices: Scalars['Int']['output'];
+  label: Scalars['String']['output'];
 };
 
 export enum RequestStatus {
@@ -5604,6 +5693,10 @@ export type ResolversTypes = ResolversObject<{
   Notification: ResolverTypeWrapper<Notification>;
   NotificationAudience: NotificationAudience;
   NotificationKind: NotificationKind;
+  Payment: ResolverTypeWrapper<Payment>;
+  PaymentInput: PaymentInput;
+  PaymentMethod: PaymentMethod;
+  PaymentPage: ResolverTypeWrapper<PaymentPage>;
   PayrollRunResult: ResolverTypeWrapper<PayrollRunResult>;
   PayrollSummary: ResolverTypeWrapper<PayrollSummary>;
   PerformanceReview: ResolverTypeWrapper<PerformanceReview>;
@@ -5635,6 +5728,8 @@ export type ResolversTypes = ResolversObject<{
   PromptInput: PromptInput;
   PromptPage: ResolverTypeWrapper<PromptPage>;
   Query: ResolverTypeWrapper<{}>;
+  Receivables: ResolverTypeWrapper<Receivables>;
+  ReceivablesBucket: ResolverTypeWrapper<ReceivablesBucket>;
   RequestStatus: RequestStatus;
   RequestType: RequestType;
   ReviewStatus: ReviewStatus;
@@ -5872,6 +5967,9 @@ export type ResolversParentTypes = ResolversObject<{
   NavLink: NavLink;
   NavLinkInput: NavLinkInput;
   Notification: Notification;
+  Payment: Payment;
+  PaymentInput: PaymentInput;
+  PaymentPage: PaymentPage;
   PayrollRunResult: PayrollRunResult;
   PayrollSummary: PayrollSummary;
   PerformanceReview: PerformanceReview;
@@ -5895,6 +5993,8 @@ export type ResolversParentTypes = ResolversObject<{
   PromptInput: PromptInput;
   PromptPage: PromptPage;
   Query: {};
+  Receivables: Receivables;
+  ReceivablesBucket: ReceivablesBucket;
   RolePermission: RolePermission;
   SalarySlip: SalarySlip;
   SalarySlipPage: SalarySlipPage;
@@ -6647,6 +6747,8 @@ export type ImageConfigResolvers<ContextType = GraphQLContext, ParentType extend
 
 export type InvoiceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Invoice'] = ResolversParentTypes['Invoice']> = ResolversObject<{
   amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  amountPaid?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  balanceDue?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -6983,6 +7085,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   markNotificationRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMarkNotificationReadArgs, 'id'>>;
   markPayrollPaid?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationMarkPayrollPaidArgs, 'month' | 'year'>>;
   moveTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveTaskArgs, 'id' | 'toColumnId' | 'toIndex'>>;
+  recordPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationRecordPaymentArgs, 'input'>>;
   recordStockMovement?: Resolver<ResolversTypes['StockMovement'], ParentType, ContextType, RequireFields<MutationRecordStockMovementArgs, 'input'>>;
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
   reorderColumns?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReorderColumnsArgs, 'columnIds' | 'projectId'>>;
@@ -7105,6 +7208,28 @@ export type NotificationResolvers<ContextType = GraphQLContext, ParentType exten
   link?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   read?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PaymentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Payment'] = ResolversParentTypes['Payment']> = ResolversObject<{
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  invoiceId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  invoiceNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  method?: Resolver<ResolversTypes['PaymentMethod'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  receivedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  recordedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PaymentPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PaymentPage'] = ResolversParentTypes['PaymentPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Payment']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -7322,6 +7447,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryGetUserArgs, 'id'>>;
   getWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<QueryGetWebsiteSubmissionArgs, 'id'>>;
   hrDashboard?: Resolver<ResolversTypes['HrDashboard'], ParentType, ContextType>;
+  invoicePayments?: Resolver<Array<ResolversTypes['Payment']>, ParentType, ContextType, RequireFields<QueryInvoicePaymentsArgs, 'invoiceId'>>;
   leaveRequestsByEmployee?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType, RequireFields<QueryLeaveRequestsByEmployeeArgs, 'employeeId'>>;
   listActivities?: Resolver<Array<ResolversTypes['Activity']>, ParentType, ContextType>;
   listActivitiesPaged?: Resolver<ResolversTypes['ActivityPage'], ParentType, ContextType, RequireFields<QueryListActivitiesPagedArgs, 'input'>>;
@@ -7424,6 +7550,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listLocationsPaged?: Resolver<ResolversTypes['LocationPage'], ParentType, ContextType, RequireFields<QueryListLocationsPagedArgs, 'input'>>;
   listLocationsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listNavLinks?: Resolver<Array<ResolversTypes['NavLink']>, ParentType, ContextType>;
+  listPayments?: Resolver<Array<ResolversTypes['Payment']>, ParentType, ContextType>;
+  listPaymentsPaged?: Resolver<ResolversTypes['PaymentPage'], ParentType, ContextType, RequireFields<QueryListPaymentsPagedArgs, 'input'>>;
+  listPaymentsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
   listPerformanceReviewsPaged?: Resolver<ResolversTypes['PerformanceReviewPage'], ParentType, ContextType, RequireFields<QueryListPerformanceReviewsPagedArgs, 'input'>>;
   listPerformanceReviewsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -7518,6 +7647,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicTool?: Resolver<Maybe<ResolversTypes['Tool']>, ParentType, ContextType, RequireFields<QueryPublicToolArgs, 'toolCode'>>;
   publicToolCategories?: Resolver<Array<ResolversTypes['ToolCategory']>, ParentType, ContextType>;
   publicTools?: Resolver<Array<ResolversTypes['Tool']>, ParentType, ContextType, Partial<QueryPublicToolsArgs>>;
+  receivables?: Resolver<ResolversTypes['Receivables'], ParentType, ContextType>;
   statusOverview?: Resolver<ResolversTypes['StatusOverview'], ParentType, ContextType, Partial<QueryStatusOverviewArgs>>;
   trackerAccessList?: Resolver<Array<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
   trackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType>;
@@ -7527,6 +7657,22 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerMe?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType>;
   trackerSettings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
   trackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType, RequireFields<QueryTrackerTotalsArgs, 'userId'>>;
+}>;
+
+export type ReceivablesResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Receivables'] = ResolversParentTypes['Receivables']> = ResolversObject<{
+  buckets?: Resolver<Array<ResolversTypes['ReceivablesBucket']>, ParentType, ContextType>;
+  invoices?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  outstanding?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  overdue?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ReceivablesBucketResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ReceivablesBucket'] = ResolversParentTypes['ReceivablesBucket']> = ResolversObject<{
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  band?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  invoices?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type RolePermissionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['RolePermission'] = ResolversParentTypes['RolePermission']> = ResolversObject<{
@@ -8192,6 +8338,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Mutation?: MutationResolvers<ContextType>;
   NavLink?: NavLinkResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;
+  Payment?: PaymentResolvers<ContextType>;
+  PaymentPage?: PaymentPageResolvers<ContextType>;
   PayrollRunResult?: PayrollRunResultResolvers<ContextType>;
   PayrollSummary?: PayrollSummaryResolvers<ContextType>;
   PerformanceReview?: PerformanceReviewResolvers<ContextType>;
@@ -8209,6 +8357,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Receivables?: ReceivablesResolvers<ContextType>;
+  ReceivablesBucket?: ReceivablesBucketResolvers<ContextType>;
   RolePermission?: RolePermissionResolvers<ContextType>;
   SalarySlip?: SalarySlipResolvers<ContextType>;
   SalarySlipPage?: SalarySlipPageResolvers<ContextType>;

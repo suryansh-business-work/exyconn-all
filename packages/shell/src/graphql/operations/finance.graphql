@@ -8,6 +8,8 @@ query ListInvoices {
     status
     issuedDate
     dueDate
+    amountPaid
+    balanceDue
   }
 }
 
@@ -23,6 +25,8 @@ query ListInvoicesPaged($input: TableQueryInput!) {
       status
       issuedDate
       dueDate
+      amountPaid
+      balanceDue
     }
   }
 }

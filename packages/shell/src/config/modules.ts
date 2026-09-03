@@ -42,6 +42,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import PaymentsIcon from '@mui/icons-material/Payments';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import PolicyIcon from '@mui/icons-material/Policy';
 import CelebrationIcon from '@mui/icons-material/Celebration';
@@ -172,6 +173,18 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Invoices',
         path: '/finance/invoices',
         icon: ReceiptLongIcon,
+      },
+      {
+        key: 'finance-payments',
+        label: 'Payments',
+        path: '/finance/payments',
+        icon: PaymentsIcon,
+      },
+      {
+        key: 'finance-receivables',
+        label: 'Receivables',
+        path: '/finance/receivables',
+        icon: TrendingUpIcon,
       },
       { key: 'finance-expenses', label: 'Expense Claims', path: '/expenses', icon: ReceiptIcon },
     ],
