@@ -20,6 +20,7 @@ import HubIcon from '@mui/icons-material/Hub';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import TerminalIcon from '@mui/icons-material/Terminal';
+import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import InventoryIcon from '@mui/icons-material/Inventory2';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
@@ -162,7 +163,13 @@ export const MODULES: ModuleDefinition[] = [
     description: 'Invoices, billing & reimbursements',
     accent: '#0ea5e9',
     children: [
-      { key: 'finance-invoices', label: 'Invoices', path: '/finance', icon: ReceiptLongIcon },
+      { key: 'finance-overview', label: 'Overview', path: '/finance', icon: DashboardIcon },
+      {
+        key: 'finance-invoices',
+        label: 'Invoices',
+        path: '/finance/invoices',
+        icon: ReceiptLongIcon,
+      },
       { key: 'finance-expenses', label: 'Expense Claims', path: '/expenses', icon: ReceiptIcon },
     ],
   },
@@ -174,6 +181,15 @@ export const MODULES: ModuleDefinition[] = [
     icon: SupportAgentIcon,
     description: 'Employee support tickets',
     accent: '#e11d48',
+    children: [
+      { key: 'support-overview', label: 'Overview', path: '/support', icon: DashboardIcon },
+      {
+        key: 'support-tickets',
+        label: 'Tickets',
+        path: '/support/tickets',
+        icon: SupportAgentIcon,
+      },
+    ],
   },
   {
     key: 'crm',
@@ -183,6 +199,10 @@ export const MODULES: ModuleDefinition[] = [
     icon: HubIcon,
     description: 'Leads & pipeline',
     accent: '#22c55e',
+    children: [
+      { key: 'crm-overview', label: 'Overview', path: '/crm', icon: DashboardIcon },
+      { key: 'crm-leads', label: 'Leads', path: '/crm/leads', icon: ContactPhoneIcon },
+    ],
   },
   {
     key: 'products',
@@ -192,6 +212,15 @@ export const MODULES: ModuleDefinition[] = [
     icon: Inventory2Icon,
     description: 'Product catalog',
     accent: '#f97316',
+    children: [
+      { key: 'products-overview', label: 'Overview', path: '/products', icon: DashboardIcon },
+      {
+        key: 'products-catalogue',
+        label: 'Catalogue',
+        path: '/products/catalogue',
+        icon: InventoryIcon,
+      },
+    ],
   },
   {
     key: 'legal',
@@ -308,6 +337,15 @@ export const MODULES: ModuleDefinition[] = [
     icon: CampaignIcon,
     description: 'Campaigns',
     accent: '#ec4899',
+    children: [
+      { key: 'marketing-overview', label: 'Overview', path: '/marketing', icon: DashboardIcon },
+      {
+        key: 'marketing-campaigns',
+        label: 'Campaigns',
+        path: '/marketing/campaigns',
+        icon: CampaignIcon,
+      },
+    ],
   },
   {
     key: 'projects',
@@ -494,12 +532,15 @@ export const MODULES: ModuleDefinition[] = [
   {
     key: 'it',
     label: 'IT',
-    path: '/it/assets',
+    path: '/it',
     role: ROLES.IT,
     icon: DevicesIcon,
     description: 'Company hardware & licences',
     accent: '#0891b2',
-    children: [{ key: 'it-assets', label: 'Assets', path: '/it/assets', icon: InventoryIcon }],
+    children: [
+      { key: 'it-overview', label: 'Overview', path: '/it', icon: DashboardIcon },
+      { key: 'it-assets', label: 'Assets', path: '/it/assets', icon: InventoryIcon },
+    ],
   },
 ];
 

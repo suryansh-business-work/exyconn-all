@@ -5087,6 +5087,11 @@ export type DeleteAssetMutationVariables = Exact<{
 
 export type DeleteAssetMutation = { __typename?: 'Mutation', deleteAsset: boolean };
 
+export type ListAssetsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListAssetsQuery = { __typename?: 'Query', listAssets: Array<{ __typename?: 'Asset', id: string, assetTag: string, name: string, category: AssetCategory, status: AssetStatus, manufacturer: string, modelName: string, serialNumber: string, assignedToId: string, assignedToName: string, location: string, purchaseDate?: string | null, warrantyExpiry?: string | null, purchaseCost: number, notes: string }> };
+
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -9215,6 +9220,48 @@ export function useDeleteAssetMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAssetMutationHookResult = ReturnType<typeof useDeleteAssetMutation>;
 export type DeleteAssetMutationResult = Apollo.MutationResult<DeleteAssetMutation>;
 export type DeleteAssetMutationOptions = Apollo.BaseMutationOptions<DeleteAssetMutation, DeleteAssetMutationVariables>;
+export const ListAssetsDocument = gql`
+    query ListAssets {
+  listAssets {
+    ...AssetFields
+  }
+}
+    ${AssetFieldsFragmentDoc}`;
+
+/**
+ * __useListAssetsQuery__
+ *
+ * To run a query within a React component, call `useListAssetsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAssetsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAssetsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListAssetsQuery(baseOptions?: Apollo.QueryHookOptions<ListAssetsQuery, ListAssetsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListAssetsQuery, ListAssetsQueryVariables>(ListAssetsDocument, options);
+      }
+export function useListAssetsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListAssetsQuery, ListAssetsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListAssetsQuery, ListAssetsQueryVariables>(ListAssetsDocument, options);
+        }
+// @ts-ignore
+export function useListAssetsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListAssetsQuery, ListAssetsQueryVariables>): Apollo.UseSuspenseQueryResult<ListAssetsQuery, ListAssetsQueryVariables>;
+export function useListAssetsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAssetsQuery, ListAssetsQueryVariables>): Apollo.UseSuspenseQueryResult<ListAssetsQuery | undefined, ListAssetsQueryVariables>;
+export function useListAssetsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAssetsQuery, ListAssetsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListAssetsQuery, ListAssetsQueryVariables>(ListAssetsDocument, options);
+        }
+export type ListAssetsQueryHookResult = ReturnType<typeof useListAssetsQuery>;
+export type ListAssetsLazyQueryHookResult = ReturnType<typeof useListAssetsLazyQuery>;
+export type ListAssetsSuspenseQueryHookResult = ReturnType<typeof useListAssetsSuspenseQuery>;
+export type ListAssetsQueryResult = Apollo.QueryResult<ListAssetsQuery, ListAssetsQueryVariables>;
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {
