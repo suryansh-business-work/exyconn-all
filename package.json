@@ -11,10 +11,10 @@
     "run:all": "node scripts/run-all.js",
     "dev": "node scripts/run-all.js",
     "build": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --filter exyconn-tracker-app --parallel run build",
-    "lint": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --filter exyconn-tracker-app --parallel run lint",
-    "typecheck": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --filter exyconn-tracker-app --parallel run typecheck",
+    "lint": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --filter exyconn-tracker-app --workspace-concurrency=3 run lint",
+    "typecheck": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --filter exyconn-tracker-app --workspace-concurrency=2 run typecheck",
     "format": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --parallel run format",
-    "test": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --parallel run test",
+    "test": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=1 run test",
     "codegen": "pnpm --filter exyconn-portal-server run codegen && pnpm --filter @exyconn/shell run codegen",
     "seed": "pnpm --filter exyconn-portal-server run seed"
   },
