@@ -1265,6 +1265,10 @@ export type ImageConfigInput = {
 export type Invoice = {
   __typename?: 'Invoice';
   amount: Scalars['Float']['output'];
+  /** Sum of the payments recorded against this invoice. */
+  amountPaid: Scalars['Float']['output'];
+  /** amount - amountPaid. What is still owed. */
+  balanceDue: Scalars['Float']['output'];
   clientId: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
@@ -1783,6 +1787,8 @@ export type Mutation = {
   /** Marks every GENERATED slip of the month PAID. Returns how many changed. */
   markPayrollPaid: Scalars['Int']['output'];
   moveTask: Scalars['Boolean']['output'];
+  /** Records a receipt and moves the invoice's paid figure and status with it, in one step. */
+  recordPayment: Payment;
   /** Records a movement and moves the product's stock with it, in one step. */
   recordStockMovement: StockMovement;
   renameColumn: BoardColumn;
@@ -2569,6 +2575,11 @@ export type MutationMoveTaskArgs = {
 };
 
 
+export type MutationRecordPaymentArgs = {
+  input: PaymentInput;
+};
+
+
 export type MutationRecordStockMovementArgs = {
   input: StockMovementInput;
 };
@@ -3201,6 +3212,47 @@ export enum NotificationKind {
   Training = 'TRAINING'
 }
 
+/** One receipt against one invoice. Negative for a refund. */
+export type Payment = {
+  __typename?: 'Payment';
+  amount: Scalars['Float']['output'];
+  clientId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  invoiceId: Scalars['ID']['output'];
+  invoiceNumber: Scalars['String']['output'];
+  method: PaymentMethod;
+  notes: Scalars['String']['output'];
+  receivedAt: Scalars['DateTime']['output'];
+  recordedBy: Scalars['String']['output'];
+  reference: Scalars['String']['output'];
+};
+
+export type PaymentInput = {
+  amount: Scalars['Float']['input'];
+  invoiceId: Scalars['ID']['input'];
+  method: PaymentMethod;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  receivedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  reference?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum PaymentMethod {
+  BankTransfer = 'BANK_TRANSFER',
+  Card = 'CARD',
+  Cash = 'CASH',
+  Cheque = 'CHEQUE',
+  Other = 'OTHER',
+  Upi = 'UPI'
+}
+
+export type PaymentPage = {
+  __typename?: 'PaymentPage';
+  rows: Array<Payment>;
+  totalCount: Scalars['Int']['output'];
+};
+
 /** What one payroll run did. */
 export type PayrollRunResult = {
   __typename?: 'PayrollRunResult';
@@ -3552,6 +3604,8 @@ export type Query = {
   getWebsiteSubmission: WebsiteSubmission;
   /** HR/ADMIN: workforce counts + headcount-over-time series. */
   hrDashboard: HrDashboard;
+  /** Payments against one invoice, newest first. */
+  invoicePayments: Array<Payment>;
   /** HR/ADMIN: a specific employee's leave requests. */
   leaveRequestsByEmployee: Array<LeaveRequest>;
   listActivities: Array<Activity>;
@@ -3659,6 +3713,9 @@ export type Query = {
   listLocationsPaged: LocationPage;
   listLocationsStats: TableStats;
   listNavLinks: Array<NavLink>;
+  listPayments: Array<Payment>;
+  listPaymentsPaged: PaymentPage;
+  listPaymentsStats: TableStats;
   listPerformanceReviews: Array<PerformanceReview>;
   listPerformanceReviewsPaged: PerformanceReviewPage;
   listPerformanceReviewsStats: TableStats;
@@ -3769,6 +3826,7 @@ export type Query = {
   publicTool?: Maybe<Tool>;
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
+  receivables: Receivables;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
   statusOverview: StatusOverview;
   trackerAccessList: Array<TrackerAccess>;
@@ -4037,6 +4095,11 @@ export type QueryGetWebsiteSubmissionArgs = {
 };
 
 
+export type QueryInvoicePaymentsArgs = {
+  invoiceId: Scalars['ID']['input'];
+};
+
+
 export type QueryLeaveRequestsByEmployeeArgs = {
   employeeId: Scalars['ID']['input'];
 };
@@ -4193,6 +4256,11 @@ export type QueryListLegalDocumentsPagedArgs = {
 
 
 export type QueryListLocationsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListPaymentsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -4368,6 +4436,27 @@ export type QueryTrackerDevicesArgs = {
 
 export type QueryTrackerTotalsArgs = {
   userId: Scalars['ID']['input'];
+};
+
+/** What is owed, and how late it is. */
+export type Receivables = {
+  __typename?: 'Receivables';
+  buckets: Array<ReceivablesBucket>;
+  invoices: Scalars['Int']['output'];
+  /** Everything unpaid, whether or not it is late. */
+  outstanding: Scalars['Float']['output'];
+  /** The part of outstanding that is past its due date. */
+  overdue: Scalars['Float']['output'];
+};
+
+/** One age band of unpaid invoice balances, counted from the due date. */
+export type ReceivablesBucket = {
+  __typename?: 'ReceivablesBucket';
+  amount: Scalars['Float']['output'];
+  /** CURRENT, D1_30, D31_60 or D60_PLUS. */
+  band: Scalars['String']['output'];
+  invoices: Scalars['Int']['output'];
+  label: Scalars['String']['output'];
 };
 
 export enum RequestStatus {
@@ -6414,17 +6503,50 @@ export type SendNotificationMutationVariables = Exact<{
 
 export type SendNotificationMutation = { __typename?: 'Mutation', sendNotification: { __typename?: 'SendNotificationResult', recipients: number } };
 
+export type PaymentFieldsFragment = { __typename?: 'Payment', id: string, invoiceId: string, invoiceNumber: string, clientId: string, amount: number, currency: string, method: PaymentMethod, reference: string, notes: string, receivedAt: string, recordedBy: string, createdAt: string };
+
+export type ListPaymentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListPaymentsQuery = { __typename?: 'Query', listPayments: Array<{ __typename?: 'Payment', id: string, invoiceId: string, invoiceNumber: string, clientId: string, amount: number, currency: string, method: PaymentMethod, reference: string, notes: string, receivedAt: string, recordedBy: string, createdAt: string }> };
+
+export type ListPaymentsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListPaymentsPagedQuery = { __typename?: 'Query', listPaymentsPaged: { __typename?: 'PaymentPage', totalCount: number, rows: Array<{ __typename?: 'Payment', id: string, invoiceId: string, invoiceNumber: string, clientId: string, amount: number, currency: string, method: PaymentMethod, reference: string, notes: string, receivedAt: string, recordedBy: string, createdAt: string }> } };
+
+export type InvoicePaymentsQueryVariables = Exact<{
+  invoiceId: Scalars['ID']['input'];
+}>;
+
+
+export type InvoicePaymentsQuery = { __typename?: 'Query', invoicePayments: Array<{ __typename?: 'Payment', id: string, invoiceId: string, invoiceNumber: string, clientId: string, amount: number, currency: string, method: PaymentMethod, reference: string, notes: string, receivedAt: string, recordedBy: string, createdAt: string }> };
+
+export type ReceivablesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ReceivablesQuery = { __typename?: 'Query', receivables: { __typename?: 'Receivables', outstanding: number, overdue: number, invoices: number, buckets: Array<{ __typename?: 'ReceivablesBucket', band: string, label: string, invoices: number, amount: number }> } };
+
+export type RecordPaymentMutationVariables = Exact<{
+  input: PaymentInput;
+}>;
+
+
+export type RecordPaymentMutation = { __typename?: 'Mutation', recordPayment: { __typename?: 'Payment', id: string, amount: number, invoiceNumber: string } };
+
 export type ListInvoicesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListInvoicesQuery = { __typename?: 'Query', listInvoices: Array<{ __typename?: 'Invoice', id: string, number: string, clientId: string, amount: number, currency: string, status: InvoiceStatus, issuedDate: string, dueDate: string }> };
+export type ListInvoicesQuery = { __typename?: 'Query', listInvoices: Array<{ __typename?: 'Invoice', id: string, number: string, clientId: string, amount: number, currency: string, status: InvoiceStatus, issuedDate: string, dueDate: string, amountPaid: number, balanceDue: number }> };
 
 export type ListInvoicesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListInvoicesPagedQuery = { __typename?: 'Query', listInvoicesPaged: { __typename?: 'InvoicePage', totalCount: number, rows: Array<{ __typename?: 'Invoice', id: string, number: string, clientId: string, amount: number, currency: string, status: InvoiceStatus, issuedDate: string, dueDate: string }> } };
+export type ListInvoicesPagedQuery = { __typename?: 'Query', listInvoicesPaged: { __typename?: 'InvoicePage', totalCount: number, rows: Array<{ __typename?: 'Invoice', id: string, number: string, clientId: string, amount: number, currency: string, status: InvoiceStatus, issuedDate: string, dueDate: string, amountPaid: number, balanceDue: number }> } };
 
 export type ListInvoicesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -8240,6 +8362,22 @@ export const SupportTicketFieldsFragmentDoc = gql`
   description
   priority
   status
+  createdAt
+}
+    `;
+export const PaymentFieldsFragmentDoc = gql`
+    fragment PaymentFields on Payment {
+  id
+  invoiceId
+  invoiceNumber
+  clientId
+  amount
+  currency
+  method
+  reference
+  notes
+  receivedAt
+  recordedBy
   createdAt
 }
     `;
@@ -14913,6 +15051,222 @@ export function useSendNotificationMutation(baseOptions?: Apollo.MutationHookOpt
 export type SendNotificationMutationHookResult = ReturnType<typeof useSendNotificationMutation>;
 export type SendNotificationMutationResult = Apollo.MutationResult<SendNotificationMutation>;
 export type SendNotificationMutationOptions = Apollo.BaseMutationOptions<SendNotificationMutation, SendNotificationMutationVariables>;
+export const ListPaymentsDocument = gql`
+    query ListPayments {
+  listPayments {
+    ...PaymentFields
+  }
+}
+    ${PaymentFieldsFragmentDoc}`;
+
+/**
+ * __useListPaymentsQuery__
+ *
+ * To run a query within a React component, call `useListPaymentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPaymentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPaymentsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListPaymentsQuery(baseOptions?: Apollo.QueryHookOptions<ListPaymentsQuery, ListPaymentsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPaymentsQuery, ListPaymentsQueryVariables>(ListPaymentsDocument, options);
+      }
+export function useListPaymentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPaymentsQuery, ListPaymentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPaymentsQuery, ListPaymentsQueryVariables>(ListPaymentsDocument, options);
+        }
+// @ts-ignore
+export function useListPaymentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListPaymentsQuery, ListPaymentsQueryVariables>): Apollo.UseSuspenseQueryResult<ListPaymentsQuery, ListPaymentsQueryVariables>;
+export function useListPaymentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPaymentsQuery, ListPaymentsQueryVariables>): Apollo.UseSuspenseQueryResult<ListPaymentsQuery | undefined, ListPaymentsQueryVariables>;
+export function useListPaymentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPaymentsQuery, ListPaymentsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPaymentsQuery, ListPaymentsQueryVariables>(ListPaymentsDocument, options);
+        }
+export type ListPaymentsQueryHookResult = ReturnType<typeof useListPaymentsQuery>;
+export type ListPaymentsLazyQueryHookResult = ReturnType<typeof useListPaymentsLazyQuery>;
+export type ListPaymentsSuspenseQueryHookResult = ReturnType<typeof useListPaymentsSuspenseQuery>;
+export type ListPaymentsQueryResult = Apollo.QueryResult<ListPaymentsQuery, ListPaymentsQueryVariables>;
+export const ListPaymentsPagedDocument = gql`
+    query ListPaymentsPaged($input: TableQueryInput!) {
+  listPaymentsPaged(input: $input) {
+    totalCount
+    rows {
+      ...PaymentFields
+    }
+  }
+}
+    ${PaymentFieldsFragmentDoc}`;
+
+/**
+ * __useListPaymentsPagedQuery__
+ *
+ * To run a query within a React component, call `useListPaymentsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPaymentsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPaymentsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListPaymentsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListPaymentsPagedQuery, ListPaymentsPagedQueryVariables> & ({ variables: ListPaymentsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPaymentsPagedQuery, ListPaymentsPagedQueryVariables>(ListPaymentsPagedDocument, options);
+      }
+export function useListPaymentsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPaymentsPagedQuery, ListPaymentsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPaymentsPagedQuery, ListPaymentsPagedQueryVariables>(ListPaymentsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListPaymentsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListPaymentsPagedQuery, ListPaymentsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListPaymentsPagedQuery, ListPaymentsPagedQueryVariables>;
+export function useListPaymentsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPaymentsPagedQuery, ListPaymentsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListPaymentsPagedQuery | undefined, ListPaymentsPagedQueryVariables>;
+export function useListPaymentsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPaymentsPagedQuery, ListPaymentsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPaymentsPagedQuery, ListPaymentsPagedQueryVariables>(ListPaymentsPagedDocument, options);
+        }
+export type ListPaymentsPagedQueryHookResult = ReturnType<typeof useListPaymentsPagedQuery>;
+export type ListPaymentsPagedLazyQueryHookResult = ReturnType<typeof useListPaymentsPagedLazyQuery>;
+export type ListPaymentsPagedSuspenseQueryHookResult = ReturnType<typeof useListPaymentsPagedSuspenseQuery>;
+export type ListPaymentsPagedQueryResult = Apollo.QueryResult<ListPaymentsPagedQuery, ListPaymentsPagedQueryVariables>;
+export const InvoicePaymentsDocument = gql`
+    query InvoicePayments($invoiceId: ID!) {
+  invoicePayments(invoiceId: $invoiceId) {
+    ...PaymentFields
+  }
+}
+    ${PaymentFieldsFragmentDoc}`;
+
+/**
+ * __useInvoicePaymentsQuery__
+ *
+ * To run a query within a React component, call `useInvoicePaymentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useInvoicePaymentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useInvoicePaymentsQuery({
+ *   variables: {
+ *      invoiceId: // value for 'invoiceId'
+ *   },
+ * });
+ */
+export function useInvoicePaymentsQuery(baseOptions: Apollo.QueryHookOptions<InvoicePaymentsQuery, InvoicePaymentsQueryVariables> & ({ variables: InvoicePaymentsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<InvoicePaymentsQuery, InvoicePaymentsQueryVariables>(InvoicePaymentsDocument, options);
+      }
+export function useInvoicePaymentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<InvoicePaymentsQuery, InvoicePaymentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<InvoicePaymentsQuery, InvoicePaymentsQueryVariables>(InvoicePaymentsDocument, options);
+        }
+// @ts-ignore
+export function useInvoicePaymentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<InvoicePaymentsQuery, InvoicePaymentsQueryVariables>): Apollo.UseSuspenseQueryResult<InvoicePaymentsQuery, InvoicePaymentsQueryVariables>;
+export function useInvoicePaymentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<InvoicePaymentsQuery, InvoicePaymentsQueryVariables>): Apollo.UseSuspenseQueryResult<InvoicePaymentsQuery | undefined, InvoicePaymentsQueryVariables>;
+export function useInvoicePaymentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<InvoicePaymentsQuery, InvoicePaymentsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<InvoicePaymentsQuery, InvoicePaymentsQueryVariables>(InvoicePaymentsDocument, options);
+        }
+export type InvoicePaymentsQueryHookResult = ReturnType<typeof useInvoicePaymentsQuery>;
+export type InvoicePaymentsLazyQueryHookResult = ReturnType<typeof useInvoicePaymentsLazyQuery>;
+export type InvoicePaymentsSuspenseQueryHookResult = ReturnType<typeof useInvoicePaymentsSuspenseQuery>;
+export type InvoicePaymentsQueryResult = Apollo.QueryResult<InvoicePaymentsQuery, InvoicePaymentsQueryVariables>;
+export const ReceivablesDocument = gql`
+    query Receivables {
+  receivables {
+    outstanding
+    overdue
+    invoices
+    buckets {
+      band
+      label
+      invoices
+      amount
+    }
+  }
+}
+    `;
+
+/**
+ * __useReceivablesQuery__
+ *
+ * To run a query within a React component, call `useReceivablesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useReceivablesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useReceivablesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useReceivablesQuery(baseOptions?: Apollo.QueryHookOptions<ReceivablesQuery, ReceivablesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ReceivablesQuery, ReceivablesQueryVariables>(ReceivablesDocument, options);
+      }
+export function useReceivablesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ReceivablesQuery, ReceivablesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ReceivablesQuery, ReceivablesQueryVariables>(ReceivablesDocument, options);
+        }
+// @ts-ignore
+export function useReceivablesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ReceivablesQuery, ReceivablesQueryVariables>): Apollo.UseSuspenseQueryResult<ReceivablesQuery, ReceivablesQueryVariables>;
+export function useReceivablesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ReceivablesQuery, ReceivablesQueryVariables>): Apollo.UseSuspenseQueryResult<ReceivablesQuery | undefined, ReceivablesQueryVariables>;
+export function useReceivablesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ReceivablesQuery, ReceivablesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ReceivablesQuery, ReceivablesQueryVariables>(ReceivablesDocument, options);
+        }
+export type ReceivablesQueryHookResult = ReturnType<typeof useReceivablesQuery>;
+export type ReceivablesLazyQueryHookResult = ReturnType<typeof useReceivablesLazyQuery>;
+export type ReceivablesSuspenseQueryHookResult = ReturnType<typeof useReceivablesSuspenseQuery>;
+export type ReceivablesQueryResult = Apollo.QueryResult<ReceivablesQuery, ReceivablesQueryVariables>;
+export const RecordPaymentDocument = gql`
+    mutation RecordPayment($input: PaymentInput!) {
+  recordPayment(input: $input) {
+    id
+    amount
+    invoiceNumber
+  }
+}
+    `;
+export type RecordPaymentMutationFn = Apollo.MutationFunction<RecordPaymentMutation, RecordPaymentMutationVariables>;
+
+/**
+ * __useRecordPaymentMutation__
+ *
+ * To run a mutation, you first call `useRecordPaymentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRecordPaymentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [recordPaymentMutation, { data, loading, error }] = useRecordPaymentMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRecordPaymentMutation(baseOptions?: Apollo.MutationHookOptions<RecordPaymentMutation, RecordPaymentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RecordPaymentMutation, RecordPaymentMutationVariables>(RecordPaymentDocument, options);
+      }
+export type RecordPaymentMutationHookResult = ReturnType<typeof useRecordPaymentMutation>;
+export type RecordPaymentMutationResult = Apollo.MutationResult<RecordPaymentMutation>;
+export type RecordPaymentMutationOptions = Apollo.BaseMutationOptions<RecordPaymentMutation, RecordPaymentMutationVariables>;
 export const ListInvoicesDocument = gql`
     query ListInvoices {
   listInvoices {
@@ -14924,6 +15278,8 @@ export const ListInvoicesDocument = gql`
     status
     issuedDate
     dueDate
+    amountPaid
+    balanceDue
   }
 }
     `;
@@ -14975,6 +15331,8 @@ export const ListInvoicesPagedDocument = gql`
       status
       issuedDate
       dueDate
+      amountPaid
+      balanceDue
     }
   }
 }
