@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { LocalizationProvider, AdapterDateFns } from '@exyconn/ui/pickers';
 import { apolloClient } from '@/config/apolloClient';
 import { ColorModeProvider } from '@/theme/ColorModeContext';
 import { AuthProvider } from '@/auth/AuthContext';

@@ -10,12 +10,12 @@ export const PORTAL_APPS = require("./apps.json");
 const packageUrl = (relative) =>
   fileURLToPath(new URL(relative, import.meta.url));
 
+const uiSrc = packageUrl("../ui/src");
 const shellSrc = packageUrl("../shell/src");
 const shellPublic = packageUrl("../shell/public");
 const loginSrc = packageUrl("../login/src");
 const crudSrc = packageUrl("../crud/src");
 const tabberSrc = packageUrl("../tabber/src");
-const vitestSetup = packageUrl("./vitest.setup.ts");
 
 const FONT_HREF =
   "https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap";
@@ -76,7 +76,7 @@ function portalHtml(app) {
 /**
  * Vite + Vitest config shared by every portal micro-frontend, keyed by its entry in
  * the app registry. The workspace packages are consumed as source, so the aliases
- * below are what make `@exyconn/shell/...`, `@exyconn/crud/...`, `@exyconn/tabber/...` and
+ * below are what make `@exyconn/ui/...`, `@exyconn/shell/...`, `@exyconn/crud/...`, `@exyconn/tabber/...` and
  * the shell's own internal `@/...` resolve, and `dedupe` keeps React, MUI and Apollo
  * single instances across the app and the packages.
  */
@@ -99,6 +99,8 @@ export function portalViteConfig(app) {
         { find: /^@exyconn\/tabber$/, replacement: `${tabberSrc}/index.ts` },
         { find: /^@exyconn\/tabber\/(.*)$/, replacement: `${tabberSrc}/$1` },
         { find: /^@exyconn\/login$/, replacement: `${loginSrc}/index.ts` },
+        { find: /^@exyconn\/ui$/, replacement: `${uiSrc}/index.ts` },
+        { find: /^@exyconn\/ui\/(.*)$/, replacement: `${uiSrc}/$1` },
         { find: /^@\/(.*)$/, replacement: `${shellSrc}/$1` },
       ],
       dedupe: [
@@ -110,13 +112,17 @@ export function portalViteConfig(app) {
         "@emotion/styled",
         "@mui/material",
         "@mui/system",
+        "@mui/x-date-pickers",
+        "date-fns",
       ],
     },
     server: { port: entry.port, strictPort: true },
     test: {
       globals: true,
       environment: "jsdom",
-      setupFiles: [vitestSetup],
+      // Registers the jest-dom matchers. A bare specifier, resolved from the app, so the
+      // matchers extend the very `expect` instance the app's vitest runs with.
+      setupFiles: ["@testing-library/jest-dom/vitest"],
       include: ["__tests__/unit-tests/**/*.{test,spec}.{ts,tsx}"],
     },
   };

@@ -1,9 +1,7 @@
 import { mount } from 'cypress/react';
 import type { ReactNode } from 'react';
-import { ThemeProvider } from '@mui/material/styles';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
-import { theme } from '../../src/config/theme';
+import { ThemeProvider } from '@exyconn/ui/styles';
+import { LocalizationProvider, AdapterDateFns, theme } from '@exyconn/ui';
 import './commands';
 
 declare global {

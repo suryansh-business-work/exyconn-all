@@ -1,6 +1,6 @@
 # Package reference
 
-Four workspace packages under [`packages/`](../../packages). All are `private`, consumed
+The workspace packages under [`packages/`](../../packages). All are `private`, consumed
 as TypeScript source, and versioned with the repo — there is no publish step.
 
 ---
@@ -17,11 +17,10 @@ Cypress alike.
 | --- | --- | --- |
 | `@exyconn/config/apps.json` | `shell/config/apps.ts`, `@exyconn/config/vite` | The app registry: subdomain, dev port, page title and description for each micro-frontend. |
 | `@exyconn/config/vite` | every app's `vite.config.ts` | `portalViteConfig(appKey)` — React plugin, source aliases, React/MUI/Apollo dedupe, the dev port, the shared `<head>` injector and the Vitest defaults. |
-| `@exyconn/config/tsconfig.app.json` | every app's `tsconfig.json` | Compiler options plus the `paths` that resolve `@exyconn/shell`, `@exyconn/crud`, `@exyconn/login` and the shell's internal `@/`. |
-| `@exyconn/config/eslint` | every `.eslintrc.cjs` | `portalEslintConfig({ uiImport, muiAllowed })` — the rule set, including the guard that blocks direct `@mui/material` imports outside the design system. |
+| `@exyconn/config/tsconfig.app.json` | every app's `tsconfig.json` | Compiler options plus the `paths` that resolve `@exyconn/ui`, `@exyconn/shell`, `@exyconn/crud`, `@exyconn/login`, `@exyconn/tabber` and the shell's internal `@/`. |
+| `@exyconn/config/eslint` | every `eslint.config.js` | `portalEslintConfig()` — the rule set, including the guard that blocks direct `@mui/*` imports outside `@exyconn/ui` (`muiGuard(uiImport)` is exported for non-portal consumers such as the tracker). |
 | `@exyconn/config/prettier.json` | the `"prettier"` field of each `package.json` | Formatting rules. |
 | `@exyconn/config/cypress` | every `cypress.config.ts` | Component-testing config and the shared support file. |
-| `@exyconn/config/vitest.setup` | `portalViteConfig` | Registers the jest-dom matchers. |
 
 An app's whole build configuration is now four short files:
 
@@ -49,15 +48,35 @@ head is a one-line edit in `packages/config/vite.js`.
 
 ---
 
+## `@exyconn/ui`
+
+**Path:** `packages/ui` · **Depends on:** `@exyconn/config` (dev only).
+
+The design system, and the **only** package allowed to import `@mui/*` directly — the
+ESLint guard blocks it everywhere else. It has no Apollo, router or auth dependency, so
+the portals, the tools site and the desktop tracker can all consume it.
+
+| Entry point | What it is |
+| --- | --- |
+| `@exyconn/ui` | Branded wrappers (`Button`, `IconButton`, `AppBar`, `Drawer`, `TextField`, `Card`, inputs, typography, layout, spacing, tokens) plus every pass-through MUI primitive the apps use, the pickers and the theme. Add a new primitive here first. |
+| `@exyconn/ui/styles` | `styled`, `alpha`, `useTheme`, `createTheme`, the raw MUI `ThemeProvider`, `CssBaseline` and the `Theme`/`SxProps`/`CSSObject`/`SystemStyleObject` types. |
+| `@exyconn/ui/pickers` | The MUIX date & time pickers and the date-fns adapter, on their own subpath so a bundle without pickers never pulls MUI X. |
+| `@exyconn/ui/theme` | `createAppTheme(mode)` and the default `theme` instance. |
+
+Icons stay direct `@mui/icons-material/X` imports. `@exyconn/shell/components/ui` and
+`@/components/ui` still resolve as compatibility re-exports of this package.
+
+---
+
 ## `@exyconn/shell`
 
-**Path:** `packages/shell` · **Depends on:** `@exyconn/config`.
+**Path:** `packages/shell` · **Depends on:** `@exyconn/ui`, `@exyconn/config`.
 
 Everything an app renders that is not one of its own screens.
 
 | Area | Path | Notes |
 | --- | --- | --- |
-| Design system | `src/components/ui` | The only place allowed to import `@mui/material`; ESLint blocks it everywhere else. Icons stay direct `@mui/icons-material/X` imports. |
+| Design system | `src/components/ui` | A compatibility re-export of `@exyconn/ui` (plus the image upload dialog, which needs the shell's Apollo client). |
 | Form primitives | `src/components/form` | `EntityForm`, `useEntitySave`, `FormActions` and the `Rhf*` field set (React Hook Form + Zod). |
 | Data components | `src/components/data` | `ServerDataGrid` (lazily-loaded ag-grid), `DataTable`, `CrudDialog`, `StatusChip`, `BoolChip`, `tableStats`. |
 | Dashboard | `src/components/dashboard` | `ModuleDashboard`, `StatCard`. |
@@ -65,7 +84,7 @@ Everything an app renders that is not one of its own screens.
 | App frame | `src/app`, `src/layout` | `PortalApp` (providers + routing + auth gate), `mountPortalApp`, sidebar/topbar. |
 | Auth | `src/auth` | Roles, JWT cookie store, `useAuth`. |
 | GraphQL | `src/graphql` | `.graphql` operations and the committed codegen output. |
-| Config | `src/config` | Apollo client, theme, the app registry re-export and the module/navigation model. |
+| Config | `src/config` | Apollo client, the app registry re-export and the module/navigation model (the theme lives in `@exyconn/ui/theme`). |
 | Shared pages | `src/pages` | Profile, Settings, User details, the tracker view and the user forms every module reuses. |
 
 ### Forms

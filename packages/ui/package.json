@@ -1,0 +1,41 @@
+{
+  "name": "@exyconn/ui",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The Exyconn design system: every MUI primitive the portals, tools and tracker use, wrapped once, plus the theme. The only package allowed to import @mui/* directly.",
+  "main": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "test": "vitest run --passWithNoTests",
+    "test:ct": "cypress run --component"
+  },
+  "prettier": "@exyconn/config/prettier.json",
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^6.4.0",
+    "@mui/system": "^6.4.0",
+    "@mui/x-date-pickers": "^7.23.6",
+    "date-fns": "^3.6.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@exyconn/config": "workspace:*",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^6.1.1",
+    "cypress": "^16.0.0",
+    "eslint": "^10.9.1",
+    "jsdom": "^30.0.1",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "vite": "^8.2.2",
+    "vitest": "^5.0.0"
+  }
+}

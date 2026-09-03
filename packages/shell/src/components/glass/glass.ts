@@ -1,5 +1,4 @@
-import type { Theme } from '@/components/ui';
-import type { SystemStyleObject } from '@mui/system';
+import type { Theme, SystemStyleObject } from '@exyconn/ui/styles';
 
 /**
  * Flat surface style (Stripe-inspired), adapted to the active color mode. Use inside an

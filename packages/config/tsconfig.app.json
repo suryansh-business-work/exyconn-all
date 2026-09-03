@@ -1,8 +1,23 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "target": "ES2021",
+    "useDefineForClassFields": true,
+    "lib": ["ES2021", "ES2022.Intl", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
     "paths": {
+      "@exyconn/ui": ["../ui/src/index.ts"],
+      "@exyconn/ui/*": ["../ui/src/*"],
       "@/*": ["../shell/src/*"],
       "@exyconn/shell": ["../shell/src/index.ts"],
       "@exyconn/shell/*": ["../shell/src/*"],
@@ -12,6 +27,6 @@
       "@exyconn/tabber": ["../tabber/src/index.ts"],
       "@exyconn/tabber/*": ["../tabber/src/*"]
     },
-    "types": ["vitest/globals", "@testing-library/jest-dom"]
+    "types": ["vitest/globals", "@testing-library/jest-dom/vitest"]
   }
 }
