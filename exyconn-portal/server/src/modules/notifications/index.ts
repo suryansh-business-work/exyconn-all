@@ -1,7 +1,9 @@
 import { NotificationModel } from './notification.model';
 import { notificationsTypeDefs } from './notifications.typeDefs';
 import { createMyRecordsResolver } from '../../lib/employeeScope';
-import { assertAuthenticated } from '../../middleware/roleGuard';
+import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
+import { ROLES } from '../../constants/roles';
+import { broadcast, type BroadcastInput } from './notifications.service';
 import type { GraphQLContext } from '../../middleware/auth';
 
 export const notificationsResolvers = {
@@ -20,6 +22,14 @@ export const notificationsResolvers = {
         { read: true },
       );
       return res.matchedCount > 0;
+    },
+    sendNotification: async (
+      _p: unknown,
+      { input }: { input: BroadcastInput },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, [ROLES.HR]);
+      return { recipients: await broadcast(input) };
     },
     markAllNotificationsRead: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       const user = assertAuthenticated(ctx);

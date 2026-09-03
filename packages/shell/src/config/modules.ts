@@ -266,6 +266,7 @@ export const MODULES: ModuleDefinition[] = [
       { key: 'hr-exits', label: 'Exits', path: '/hr/exits', icon: LogoutIcon },
       { key: 'hr-salaries', label: 'Salaries', path: '/hr/salaries', icon: PaymentsIcon },
       { key: 'hr-payroll', label: 'Payroll', path: '/hr/payroll', icon: PaidIcon },
+      { key: 'hr-notify', label: 'Send Notification', path: '/hr/notify', icon: NotificationsIcon },
       { key: 'hr-reports', label: 'Reports', path: '/hr/reports', icon: AssessmentIcon },
       { key: 'hr-holidays', label: 'Holidays', path: '/hr/holidays', icon: CelebrationIcon },
       {

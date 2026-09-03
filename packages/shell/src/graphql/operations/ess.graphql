@@ -152,3 +152,9 @@ query MyDocuments {
     issuedOn
   }
 }
+
+mutation SendNotification($input: SendNotificationInput!) {
+  sendNotification(input: $input) {
+    recipients
+  }
+}

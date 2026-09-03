@@ -263,7 +263,9 @@ jobs:
             # so only the freshly-pulled containers run, with no name conflicts.
             docker compose -f docker-compose.prod.yml down --remove-orphans || true
             docker ps -aq --filter "name=exyconn-" | xargs -r docker rm -f || true
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            # --wait blocks until every service reports healthy, so the verify job never
+            # races portal-server's boot (Mongo connect + admin bootstrap take a few seconds).
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans --wait --wait-timeout 180
             docker image prune -f
 
   verify:
@@ -271,6 +273,14 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     steps:
+      - name: Wait for the API to come up
+        run: |
+          for i in $(seq 1 24); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://portal-server.exyconn.com/health || echo 000)
+            [ "$code" = "200" ] && { echo "API healthy after $((i*5))s"; exit 0; }
+            sleep 5
+          done
+          echo "::error::portal-server did not become healthy within 120s"; exit 1
       - name: Health-check every domain
         run: |
           urls=(

@@ -1464,6 +1464,8 @@ export type Mutation = {
   /** Emails the campaign's subject/body to the selected clients. */
   sendCampaign: CampaignSendResult;
   sendContract: Contract;
+  /** HR broadcast to every active employee, one department, or a chosen list. */
+  sendNotification: SendNotificationResult;
   sendTestEmail: Scalars['Boolean']['output'];
   sendUserMail: Scalars['Boolean']['output'];
   /** HR/ADMIN: approve or reject a leave request. */
@@ -2119,6 +2121,11 @@ export type MutationSendContractArgs = {
 };
 
 
+export type MutationSendNotificationArgs = {
+  input: SendNotificationInput;
+};
+
+
 export type MutationSendTestEmailArgs = {
   id: Scalars['ID']['input'];
   to: Scalars['String']['input'];
@@ -2572,6 +2579,12 @@ export type Notification = {
   read: Scalars['Boolean']['output'];
   title: Scalars['String']['output'];
 };
+
+export enum NotificationAudience {
+  All = 'ALL',
+  Department = 'DEPARTMENT',
+  Employees = 'EMPLOYEES'
+}
 
 export enum NotificationKind {
   Announcement = 'ANNOUNCEMENT',
@@ -3618,6 +3631,24 @@ export type SendMailInput = {
   subject: Scalars['String']['input'];
 };
 
+export type SendNotificationInput = {
+  audience: NotificationAudience;
+  body?: InputMaybe<Scalars['String']['input']>;
+  /** Required when audience is DEPARTMENT. */
+  department?: InputMaybe<Scalars['String']['input']>;
+  /** Required when audience is EMPLOYEES. */
+  employeeIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  kind: NotificationKind;
+  /** In-portal path the notification opens, e.g. /me/announcements. */
+  link?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+export type SendNotificationResult = {
+  __typename?: 'SendNotificationResult';
+  recipients: Scalars['Int']['output'];
+};
+
 export type Shift = {
   __typename?: 'Shift';
   active: Scalars['Boolean']['output'];
@@ -4421,6 +4452,7 @@ export type ResolversTypes = ResolversObject<{
   NavLink: ResolverTypeWrapper<NavLink>;
   NavLinkInput: NavLinkInput;
   Notification: ResolverTypeWrapper<Notification>;
+  NotificationAudience: NotificationAudience;
   NotificationKind: NotificationKind;
   PayrollRunResult: ResolverTypeWrapper<PayrollRunResult>;
   PayrollSummary: ResolverTypeWrapper<PayrollSummary>;
@@ -4455,6 +4487,8 @@ export type ResolversTypes = ResolversObject<{
   SalaryStructureInput: SalaryStructureInput;
   SalaryStructurePage: ResolverTypeWrapper<SalaryStructurePage>;
   SendMailInput: SendMailInput;
+  SendNotificationInput: SendNotificationInput;
+  SendNotificationResult: ResolverTypeWrapper<SendNotificationResult>;
   Shift: ResolverTypeWrapper<Shift>;
   ShiftInput: ShiftInput;
   ShiftPage: ResolverTypeWrapper<ShiftPage>;
@@ -4659,6 +4693,8 @@ export type ResolversParentTypes = ResolversObject<{
   SalaryStructureInput: SalaryStructureInput;
   SalaryStructurePage: SalaryStructurePage;
   SendMailInput: SendMailInput;
+  SendNotificationInput: SendNotificationInput;
+  SendNotificationResult: SendNotificationResult;
   Shift: Shift;
   ShiftInput: ShiftInput;
   ShiftPage: ShiftPage;
@@ -5554,6 +5590,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'clientIds' | 'id'>>;
   sendContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSendContractArgs, 'email' | 'id'>>;
+  sendNotification?: Resolver<ResolversTypes['SendNotificationResult'], ParentType, ContextType, RequireFields<MutationSendNotificationArgs, 'input'>>;
   sendTestEmail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestEmailArgs, 'id' | 'to'>>;
   sendUserMail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendUserMailArgs, 'id' | 'input'>>;
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
@@ -6035,6 +6072,11 @@ export type SalaryStructurePageResolvers<ContextType = GraphQLContext, ParentTyp
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type SendNotificationResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SendNotificationResult'] = ResolversParentTypes['SendNotificationResult']> = ResolversObject<{
+  recipients?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ShiftResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Shift'] = ResolversParentTypes['Shift']> = ResolversObject<{
   active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   breakMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -6469,6 +6511,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   SalarySlipPage?: SalarySlipPageResolvers<ContextType>;
   SalaryStructure?: SalaryStructureResolvers<ContextType>;
   SalaryStructurePage?: SalaryStructurePageResolvers<ContextType>;
+  SendNotificationResult?: SendNotificationResultResolvers<ContextType>;
   Shift?: ShiftResolvers<ContextType>;
   ShiftPage?: ShiftPageResolvers<ContextType>;
   StatBucket?: StatBucketResolvers<ContextType>;

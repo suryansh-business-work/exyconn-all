@@ -1464,6 +1464,8 @@ export type Mutation = {
   /** Emails the campaign's subject/body to the selected clients. */
   sendCampaign: CampaignSendResult;
   sendContract: Contract;
+  /** HR broadcast to every active employee, one department, or a chosen list. */
+  sendNotification: SendNotificationResult;
   sendTestEmail: Scalars['Boolean']['output'];
   sendUserMail: Scalars['Boolean']['output'];
   /** HR/ADMIN: approve or reject a leave request. */
@@ -2119,6 +2121,11 @@ export type MutationSendContractArgs = {
 };
 
 
+export type MutationSendNotificationArgs = {
+  input: SendNotificationInput;
+};
+
+
 export type MutationSendTestEmailArgs = {
   id: Scalars['ID']['input'];
   to: Scalars['String']['input'];
@@ -2572,6 +2579,12 @@ export type Notification = {
   read: Scalars['Boolean']['output'];
   title: Scalars['String']['output'];
 };
+
+export enum NotificationAudience {
+  All = 'ALL',
+  Department = 'DEPARTMENT',
+  Employees = 'EMPLOYEES'
+}
 
 export enum NotificationKind {
   Announcement = 'ANNOUNCEMENT',
@@ -3616,6 +3629,24 @@ export type SalaryStructurePage = {
 export type SendMailInput = {
   message: Scalars['String']['input'];
   subject: Scalars['String']['input'];
+};
+
+export type SendNotificationInput = {
+  audience: NotificationAudience;
+  body?: InputMaybe<Scalars['String']['input']>;
+  /** Required when audience is DEPARTMENT. */
+  department?: InputMaybe<Scalars['String']['input']>;
+  /** Required when audience is EMPLOYEES. */
+  employeeIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  kind: NotificationKind;
+  /** In-portal path the notification opens, e.g. /me/announcements. */
+  link?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+export type SendNotificationResult = {
+  __typename?: 'SendNotificationResult';
+  recipients: Scalars['Int']['output'];
 };
 
 export type Shift = {
@@ -5034,6 +5065,13 @@ export type MyDocumentsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MyDocumentsQuery = { __typename?: 'Query', myDocuments: Array<{ __typename?: 'EmployeeDocument', id: string, kind: DocumentKind, title: string, url: string, issuedOn: string }> };
+
+export type SendNotificationMutationVariables = Exact<{
+  input: SendNotificationInput;
+}>;
+
+
+export type SendNotificationMutation = { __typename?: 'Mutation', sendNotification: { __typename?: 'SendNotificationResult', recipients: number } };
 
 export type ListInvoicesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -11780,6 +11818,39 @@ export type MyDocumentsQueryHookResult = ReturnType<typeof useMyDocumentsQuery>;
 export type MyDocumentsLazyQueryHookResult = ReturnType<typeof useMyDocumentsLazyQuery>;
 export type MyDocumentsSuspenseQueryHookResult = ReturnType<typeof useMyDocumentsSuspenseQuery>;
 export type MyDocumentsQueryResult = Apollo.QueryResult<MyDocumentsQuery, MyDocumentsQueryVariables>;
+export const SendNotificationDocument = gql`
+    mutation SendNotification($input: SendNotificationInput!) {
+  sendNotification(input: $input) {
+    recipients
+  }
+}
+    `;
+export type SendNotificationMutationFn = Apollo.MutationFunction<SendNotificationMutation, SendNotificationMutationVariables>;
+
+/**
+ * __useSendNotificationMutation__
+ *
+ * To run a mutation, you first call `useSendNotificationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendNotificationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendNotificationMutation, { data, loading, error }] = useSendNotificationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSendNotificationMutation(baseOptions?: Apollo.MutationHookOptions<SendNotificationMutation, SendNotificationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendNotificationMutation, SendNotificationMutationVariables>(SendNotificationDocument, options);
+      }
+export type SendNotificationMutationHookResult = ReturnType<typeof useSendNotificationMutation>;
+export type SendNotificationMutationResult = Apollo.MutationResult<SendNotificationMutation>;
+export type SendNotificationMutationOptions = Apollo.BaseMutationOptions<SendNotificationMutation, SendNotificationMutationVariables>;
 export const ListInvoicesDocument = gql`
     query ListInvoices {
   listInvoices {
