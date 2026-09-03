@@ -35,21 +35,21 @@ employee must accept an in-app consent screen listing the above before any track
 
 ## Architecture
 
-| Layer | Path | Responsibility |
-|---|---|---|
-| Main | `src/main/index.ts` | App lifecycle, window, tray, IPC |
-| Main | `src/main/controller.ts` | State machine: auth → consent → track |
-| Main | `src/main/engine.ts` | The per-second tracking loop |
-| Main | `src/main/trackers/*` | Input counting, window usage, screenshots, macOS permissions |
-| Main | `src/main/outbox.ts` | Durable at-least-once sync queue (survives restart) |
-| Main | `src/main/portal-client.ts` | GraphQL calls to the portal (from Node, so no CORS) |
-| Main | `src/main/store.ts` | Device token encrypted at rest via `safeStorage` |
-| Preload | `src/preload/index.ts` | Typed `window.tracker` bridge (context isolation on) |
-| Main | `src/main/capture-bridge.ts` | Asks a renderer for the webcam photo (main has no camera) |
-| Main | `src/main/window-chrome.ts` | Minimise/maximise/close for the frameless windows |
-| Renderer | `src/renderer/*` | React UI: login, consent, permissions, dashboard |
-| Renderer | `src/renderer/capture/*` | Webcam frame + compositing it onto the screenshot |
-| Shared | `src/shared/*` | Types + config shared across processes |
+| Layer    | Path                         | Responsibility                                               |
+| -------- | ---------------------------- | ------------------------------------------------------------ |
+| Main     | `src/main/index.ts`          | App lifecycle, window, tray, IPC                             |
+| Main     | `src/main/controller.ts`     | State machine: auth → consent → track                        |
+| Main     | `src/main/engine.ts`         | The per-second tracking loop                                 |
+| Main     | `src/main/trackers/*`        | Input counting, window usage, screenshots, macOS permissions |
+| Main     | `src/main/outbox.ts`         | Durable at-least-once sync queue (survives restart)          |
+| Main     | `src/main/portal-client.ts`  | GraphQL calls to the portal (from Node, so no CORS)          |
+| Main     | `src/main/store.ts`          | Device token encrypted at rest via `safeStorage`             |
+| Preload  | `src/preload/index.ts`       | Typed `window.tracker` bridge (context isolation on)         |
+| Main     | `src/main/capture-bridge.ts` | Asks a renderer for the webcam photo (main has no camera)    |
+| Main     | `src/main/window-chrome.ts`  | Minimise/maximise/close for the frameless windows            |
+| Renderer | `src/renderer/*`             | React UI: login, consent, permissions, dashboard             |
+| Renderer | `src/renderer/capture/*`     | Webcam frame + compositing it onto the screenshot            |
+| Shared   | `src/shared/*`               | Types + config shared across processes                       |
 
 The device token is **non-expiring** (the employee never signs in again) but bound to a
 device row in the portal DB. Every call re-checks the device and the access grant, so a
@@ -58,16 +58,37 @@ rotation, which would sign out the whole portal.
 
 ## Screenshot quality
 
-`screenshotQuality` is a straight 0-100 percentage, and **100 means actual best quality**: the
-screen is kept at its native resolution and encoded losslessly as PNG, with no downscale.
-Below 100 the shot is a JPEG at that quality, downscaled to `screenshotMaxWidth` — which is
-what keeps a working day of screenshots to a sane upload size. The rule lives in one place,
-`src/main/trackers/capture-policy.ts`, and is unit-tested there.
+`screenshotQuality` is a straight 0-100 percentage, it **defaults to 100**, and **100 means
+actual best quality**: the screen is kept at its native resolution and encoded losslessly as
+PNG, with no downscale. Below 100 the shot is a JPEG at that quality, downscaled to
+`screenshotMaxWidth` — which is what keeps a working day of screenshots to a sane upload
+size. The rule lives in one place, `src/main/trackers/capture-policy.ts`, and is unit-tested.
+
+There is a ceiling (`MAX_CAPTURE_BYTES`), kept deliberately under the portal's own
+`TRACKER_LIMITS.maxScreenshotBytes`. A lossless capture over it is re-encoded as a
+quality-100 JPEG **at the same resolution** — resolution is the quality a manager actually
+looks at, so when something has to give it is the encoder, never the pixel count. Without
+that ceiling an oversized upload came back `BAD_USER_INPUT`, which the outbox treats as
+permanent and drops: quality 100 did not produce worse screenshots, it produced none.
 
 Blur is independent of the dial: it is a privacy decision, so a workspace that asks for
 lossless captures still gets unreadable ones. The webcam photo is composited **after** the
 blur pass — blur exists to stop on-screen content being readable, and a workspace that has
 asked to see who is at the desk is not asking to see them smeared.
+
+## Uploading
+
+Uploading is automatic and always on, at the cadence an admin sets in the portal
+(`syncIntervalMinutes`, default 5 minutes). There is no "Sync now" button and no switch:
+both existed, and between them an employee could work a full week with the toggle off and
+nothing uploaded, with nobody finding out until the timesheet came back empty. The outbox is
+durable, so an unreachable portal still costs nothing.
+
+Closing the app while an upload is in flight does not lose work — the queue survives a
+restart — but it does make that work climb again. So a real quit is held: the window says
+what is still going up and the app closes itself the moment it lands (`close-guard.ts`). The
+hold has a 30-second ceiling, because an upload that will not finish must never trap somebody
+in an app they asked to close.
 
 ## Windows and the tray
 
@@ -79,7 +100,16 @@ window.
 Closing the window leaves the app running in the tray, which is how it is meant to be used —
 tracking carries on and the tray icon stays as the visible reminder. An employee can turn that
 off in **Settings → This app**, and close then means quit. The preference is per-install and
-stored locally; it is not the workspace's to set.
+stored locally; it is not the workspace's to set — and neither is the light/dark choice
+alongside it, which defaults to following the OS.
+
+The header carries a recording indicator on every page: a slow green pulse while tracking,
+a still dot otherwise. Only `tracking` animates — a dot that pulsed while paused would say
+the opposite of the truth, which is the one thing a monitoring app cannot afford.
+
+Every dashboard tile opens on click. A number on a monitoring dashboard is half a fact; the
+detail gives the other half — the unabbreviated figure, the numbers around it, and the rule
+or privacy promise that produced it.
 
 ## Staying in step with the portal
 
@@ -87,7 +117,7 @@ Once signed in, the app calls `trackerHeartbeat` every minute (`TrackerControlle
 one round-trip is what keeps the two sides in agreement:
 
 - **The portal learns the app is running.** It stamps the device's `lastSeenAt`, which is what
-  Tracker → Devices shows as *Last seen* and counts under *Online now*. The console polls on the
+  Tracker → Devices shows as _Last seen_ and counts under _Online now_. The console polls on the
   same cadence, so it stays live while an admin watches it.
 - **The app adopts what an admin changed.** The heartbeat answers with the current settings,
   consent state and timezone, and they are handed straight to the running engine — a new

@@ -4,7 +4,7 @@ import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import useTotals from '../hooks/useTotals';
-import { totalTiles } from '../dashboard-tiles';
+import { totalTiles } from '../tiles';
 import StatGrid from './StatGrid';
 
 interface Props {

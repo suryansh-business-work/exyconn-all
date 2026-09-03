@@ -4,6 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import type { TrackerState } from '@shared/types';
 import AppFrame from './components/AppFrame';
+import ClosingDialog from './components/ClosingDialog';
 import AppShell from './AppShell';
 import LoginScreen from './screens/LoginScreen';
 import ConsentScreen from './screens/ConsentScreen';
@@ -52,7 +53,7 @@ function Loading(): JSX.Element {
 /** Subscribes to the tracker state, themes the app from the portal branding, and routes. */
 export default function App(): JSX.Element {
   const state = useTrackerState();
-  const theme = useBrandTheme(state?.branding ?? null);
+  const theme = useBrandTheme(state?.branding ?? null, state?.preferences.themeMode);
 
   // Both at the root, not in a screen, and for the same reason: a capture fires whatever page
   // the employee is on — including no page at all, with the app hidden in the tray, which is
@@ -65,6 +66,8 @@ export default function App(): JSX.Element {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppFrame>{state === null ? <Loading /> : <ScreenRouter state={state} />}</AppFrame>
+      {/* At the root: a quit can be asked for from any page, and from the tray. */}
+      <ClosingDialog />
     </ThemeProvider>
   );
 }

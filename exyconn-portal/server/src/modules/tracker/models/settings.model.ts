@@ -80,11 +80,6 @@ const trackerSettingsSchema = new Schema(
       required: true,
       default: TRACKER_DEFAULTS.consentText,
     },
-    autoSyncEnabled: {
-      type: Boolean,
-      required: true,
-      default: TRACKER_DEFAULTS.autoSyncEnabled,
-    },
     syncIntervalMinutes: {
       type: Number,
       required: true,

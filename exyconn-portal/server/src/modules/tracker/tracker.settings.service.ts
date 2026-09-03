@@ -18,7 +18,6 @@ export interface TrackerSettingsInput {
   webcamEnabled?: boolean;
   /** One of WEBCAM_CORNERS. */
   webcamCorner?: string;
-  autoSyncEnabled?: boolean;
   syncIntervalMinutes?: number;
   /** Rich text (HTML) disclosure shown in the desktop app before tracking starts. */
   consentText?: string;

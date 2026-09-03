@@ -15,7 +15,6 @@ const initial: TrackerSettingsRow = {
   randomizeScreenshotTiming: true,
   blurScreenshots: false,
   trackWindowTitles: true,
-  autoSyncEnabled: true,
   webcamEnabled: false,
   webcamCorner: 'bottom-right',
   syncIntervalMinutes: 5,

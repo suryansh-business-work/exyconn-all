@@ -1,6 +1,12 @@
 import { desktopCapturer, screen, nativeImage } from 'electron';
 import type { TrackerSettings } from '@shared/types';
-import { blurWidth, capturePolicy } from './capture-policy';
+import {
+  blurWidth,
+  capturePolicy,
+  needsFallback,
+  JPEG_MIME,
+  type CapturePolicy,
+} from './capture-policy';
 
 export interface Capture {
   /** Base64 of the encoded capture (no data-URL prefix), ready to POST. */
@@ -21,6 +27,28 @@ export interface Capture {
  * when enabled, is a coarse downscale-then-upscale so the manager sees layout/context but not
  * readable on-screen content.
  */
+/**
+ * Encodes the processed image, keeping it inside what the portal will accept.
+ *
+ * A lossless encode that is too big becomes a quality-100 JPEG at the SAME resolution rather
+ * than being downscaled or — as it was — refused by the server and dropped from the outbox,
+ * which is what made quality 100 produce no screenshots at all.
+ */
+function encode(
+  image: Electron.NativeImage,
+  policy: CapturePolicy,
+  quality: number,
+): { buffer: Buffer; mimeType: string } {
+  if (!policy.lossless) {
+    return { buffer: image.toJPEG(quality), mimeType: policy.mimeType };
+  }
+  const png = image.toPNG();
+  if (!needsFallback(true, png.length)) {
+    return { buffer: png, mimeType: policy.mimeType };
+  }
+  return { buffer: image.toJPEG(100), mimeType: JPEG_MIME };
+}
+
 export class Screenshotter {
   async capture(settings: TrackerSettings): Promise<Capture[]> {
     const displays = screen.getAllDisplays();
@@ -51,13 +79,11 @@ export class Screenshotter {
 
     const policy = capturePolicy(settings, source.thumbnail.getSize().width);
     const processed = this.process(source.thumbnail, settings, policy.targetWidth);
-    const encoded = policy.lossless
-      ? processed.toPNG()
-      : processed.toJPEG(settings.screenshotQuality);
+    const { buffer, mimeType } = encode(processed, policy, settings.screenshotQuality);
 
     return {
-      image: encoded.toString('base64'),
-      mimeType: policy.mimeType,
+      image: buffer.toString('base64'),
+      mimeType,
       displayId: String(display.id),
       blurred: settings.blurScreenshots,
     };

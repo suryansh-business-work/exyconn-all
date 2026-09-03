@@ -30,7 +30,6 @@ export const trackerTypeDefs = gql`
     One of: top-left, top-right, bottom-left, bottom-right.
     """
     webcamCorner: String!
-    autoSyncEnabled: Boolean!
     syncIntervalMinutes: Int!
     consentText: String!
     """
@@ -51,7 +50,6 @@ export const trackerTypeDefs = gql`
     screenshotQuality: Int
     webcamEnabled: Boolean
     webcamCorner: String
-    autoSyncEnabled: Boolean
     syncIntervalMinutes: Int
     consentText: String
     defaultTimezone: String

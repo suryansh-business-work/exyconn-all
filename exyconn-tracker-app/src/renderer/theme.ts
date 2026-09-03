@@ -1,7 +1,7 @@
 import { alpha, createTheme, type CSSObject, type Theme } from '@mui/material/styles';
 // Teaches `createTheme` about the MUI X picker slots (needed for the MuiPickersDay override).
 import type {} from '@mui/x-date-pickers/themeAugmentation';
-import type { Branding } from '@shared/types';
+import type { Branding, ThemeMode } from '@shared/types';
 
 /** Exyconn defaults, used until the portal branding arrives (or if it fails to load). */
 const FALLBACK = {
@@ -88,10 +88,31 @@ const FONT_STACK = [
   'sans-serif',
 ].join(', ');
 
+/**
+ * Which palette to paint, given the employee's choice.
+ *
+ * `system` keeps the old behaviour of reading the brand's own background — the workspace
+ * decides, as it always did. An explicit light or dark is the employee overruling that for
+ * their own screen, which is the whole point of offering it.
+ */
+function resolveDark(mode: ThemeMode, background: string, systemPrefersDark: boolean): boolean {
+  if (mode === 'light') {
+    return false;
+  }
+  if (mode === 'dark') {
+    return true;
+  }
+  return systemPrefersDark || luminance(background) < 0.5;
+}
+
 /** Build the MUI theme from the portal branding (null → Exyconn defaults). */
-export function buildTheme(branding: Branding | null): Theme {
+export function buildTheme(
+  branding: Branding | null,
+  themeMode: ThemeMode = 'system',
+  systemPrefersDark = false,
+): Theme {
   const colors = brandColors(branding);
-  const isDark = luminance(colors.background) < 0.5;
+  const isDark = resolveDark(themeMode, colors.background, systemPrefersDark);
   const mode = isDark ? 'dark' : 'light';
   const chrome = isDark ? CHROME.dark : CHROME.light;
   const divider = alpha(isDark ? '#FFFFFF' : '#0F172A', isDark ? 0.1 : 0.1);

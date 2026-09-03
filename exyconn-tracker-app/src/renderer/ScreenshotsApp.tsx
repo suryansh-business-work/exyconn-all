@@ -33,7 +33,7 @@ function Loading(): JSX.Element {
  */
 export default function ScreenshotsApp(): JSX.Element {
   const state = useTrackerState();
-  const theme = useBrandTheme(state?.branding ?? null);
+  const theme = useBrandTheme(state?.branding ?? null, state?.preferences.themeMode);
 
   return (
     <ThemeProvider theme={theme}>

@@ -23,9 +23,10 @@ export interface TrackerSettings {
   webcamEnabled: boolean;
   /** Which corner that photo goes in. */
   webcamCorner: WebcamCorner;
-  /** When false, nothing is uploaded until the employee presses "Sync now". */
-  autoSyncEnabled: boolean;
-  /** How often the outbox is flushed to the portal, in minutes. */
+  /**
+   * How often the outbox is flushed to the portal, in minutes. Syncing is automatic and
+   * always on — there is no manual path, and so no switch to leave off by accident.
+   */
   syncIntervalMinutes: number;
   /** Rich text (HTML) disclosure, authored in the portal and rendered on the consent screen. */
   consentText: string;
@@ -72,11 +73,19 @@ export interface PermissionState {
 /** A permission the app can ask the OS for. */
 export type PermissionKind = 'screenRecording' | 'accessibility' | 'camera';
 
+/** How the app picks its palette. `system` follows the OS. */
+export type ThemeMode = 'system' | 'light' | 'dark';
+
 /**
  * Preferences that belong to this INSTALL, not to the workspace. The portal owns what is
  * captured; these only decide how the app behaves on this employee's own desktop.
  */
 export interface AppPreferences {
+  /**
+   * Light, dark, or whatever the OS is set to. Held per install rather than per employee:
+   * it describes this screen in this room, not the person using it.
+   */
+  themeMode: ThemeMode;
   /**
    * Closing the window leaves the app running in the tray instead of quitting. On by
    * default: tracking is the whole point, and a stray click on the close button should not
@@ -109,7 +118,7 @@ export interface LiveStats {
   /** Items still waiting in the offline outbox. */
   pendingSync: number;
   lastSyncAt: string | null;
-  /** True while a sync (manual or automatic) is in flight. */
+  /** True while an upload is in flight. */
   syncing: boolean;
   /** What the last sync attempt did, and why, if it did nothing. */
   lastSyncOutcome: SyncOutcome | null;
@@ -181,7 +190,6 @@ export const IPC = {
   pause: 'tracker:pause',
   resume: 'tracker:resume',
   stop: 'tracker:stop',
-  syncNow: 'tracker:sync-now',
   getState: 'tracker:get-state',
   getPermissions: 'tracker:get-permissions',
   requestPermission: 'tracker:request-permission',
@@ -208,6 +216,13 @@ export const IPC = {
   captureRequested: 'tracker:capture-requested',
   /** Fired on every capture so a renderer can play the shutter sound (audio needs a window). */
   screenshotCaptured: 'tracker:screenshot-captured',
+  /**
+   * The employee asked to close a window that would quit the app while an upload was in
+   * flight. The renderer shows what is still going up; main quits on its own once it lands.
+   */
+  closeBlocked: 'tracker:close-blocked',
+  /** The upload finished (or failed) — the renderer can drop the closing dialog. */
+  closeReleased: 'tracker:close-released',
 } as const;
 
 /** The full snapshot the renderer renders from. */

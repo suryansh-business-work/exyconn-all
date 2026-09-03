@@ -5267,7 +5267,6 @@ export type TrackerSession = {
 
 export type TrackerSettings = {
   __typename?: 'TrackerSettings';
-  autoSyncEnabled: Scalars['Boolean']['output'];
   blurScreenshots: Scalars['Boolean']['output'];
   consentText: Scalars['String']['output'];
   /**
@@ -5295,7 +5294,6 @@ export type TrackerSettings = {
 };
 
 export type TrackerSettingsInput = {
-  autoSyncEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   blurScreenshots?: InputMaybe<Scalars['Boolean']['input']>;
   consentText?: InputMaybe<Scalars['String']['input']>;
   defaultTimezone?: InputMaybe<Scalars['String']['input']>;
@@ -8161,7 +8159,6 @@ export type TrackerSessionResolvers<ContextType = GraphQLContext, ParentType ext
 }>;
 
 export type TrackerSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerSettings'] = ResolversParentTypes['TrackerSettings']> = ResolversObject<{
-  autoSyncEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   blurScreenshots?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   consentText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   defaultTimezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

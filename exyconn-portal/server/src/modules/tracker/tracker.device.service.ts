@@ -62,6 +62,17 @@ export interface ScreenshotInput {
   blurred?: boolean;
 }
 
+/**
+ * How many bytes a base64 payload actually carries.
+ *
+ * `.length` is characters, and base64 spends 4 of them per 3 bytes — measuring the string
+ * against a byte budget rejected uploads a third smaller than the limit claimed.
+ */
+export function decodedBytes(base64: string): number {
+  const padding = base64.endsWith('==') ? 2 : Number(base64.endsWith('='));
+  return Math.floor((base64.length * 3) / 4) - padding;
+}
+
 /** Share of an interval spent with input activity, clamped to 0–100. */
 function activityPercent(activeMs: number, idleMs: number): number {
   const total = activeMs + idleMs;
@@ -376,7 +387,7 @@ class TrackerDeviceService {
 
   /** Uploads a screenshot to ImageKit and records its URL against the interval. */
   async uploadScreenshot(userId: string, input: ScreenshotInput) {
-    if (input.image.length > TRACKER_LIMITS.maxScreenshotBytes) {
+    if (decodedBytes(input.image) > TRACKER_LIMITS.maxScreenshotBytes) {
       badRequest('Screenshot is too large');
     }
 
