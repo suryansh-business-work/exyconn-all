@@ -42,7 +42,8 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.77.0",
     "react-router-dom": "^6.28.2",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "@exyconn/tabber": "workspace:*"
   },
   "devDependencies": {
     "@exyconn/config": "workspace:*",

@@ -37,6 +37,47 @@ export const techTypeDefs = gql`
     updatedAt: DateTime!
   }
 
+  type GithubConfig {
+    id: ID!
+    label: String!
+    owner: String!
+    repo: String!
+    token: String!
+    isActive: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
+  type SlackChannel {
+    id: String!
+    name: String!
+    isPrivate: Boolean!
+    isMember: Boolean!
+  }
+
+  "One run of the tracker build workflow."
+  type TrackerBuild {
+    id: String!
+    "queued, in_progress or completed."
+    status: String!
+    "success, failure, cancelled — null until the run completes."
+    conclusion: String
+    branch: String!
+    url: String!
+    startedAt: DateTime!
+  }
+
+  type TrackerBuildSettings {
+    slackChannels: [String!]!
+  }
+
+  "The installers a build can produce."
+  enum TrackerPlatform {
+    WINDOWS
+    MACOS
+    LINUX
+  }
+
   input EmailConfigInput {
     label: String!
     host: String!
@@ -64,10 +105,23 @@ export const techTypeDefs = gql`
     isActive: Boolean
   }
 
+  input GithubConfigInput {
+    label: String!
+    owner: String!
+    repo: String!
+    token: String!
+    isActive: Boolean
+  }
+
   extend type Query {
     listEmailConfigs: [EmailConfig!]!
     listImageConfigs: [ImageConfig!]!
     listSlackConfigs: [SlackConfig!]!
+    listGithubConfigs: [GithubConfig!]!
+    "Every channel the active Slack bot token can see."
+    listSlackChannels: [SlackChannel!]!
+    listTrackerBuilds: [TrackerBuild!]!
+    trackerBuildSettings: TrackerBuildSettings!
   }
 
   extend type Mutation {
@@ -83,5 +137,12 @@ export const techTypeDefs = gql`
     updateSlackConfig(id: ID!, input: SlackConfigInput!): SlackConfig!
     deleteSlackConfig(id: ID!): Boolean!
     sendTestSlackMessage(id: ID!, channel: String!): Boolean!
+    createGithubConfig(input: GithubConfigInput!): GithubConfig!
+    updateGithubConfig(id: ID!, input: GithubConfigInput!): GithubConfig!
+    deleteGithubConfig(id: ID!): Boolean!
+    testGithubConnection(id: ID!): Boolean!
+    "Asks GitHub to build the chosen installers off the given branch."
+    startTrackerBuild(platforms: [TrackerPlatform!]!, ref: String!): Boolean!
+    saveTrackerBuildSettings(slackChannels: [String!]!): TrackerBuildSettings!
   }
 `;

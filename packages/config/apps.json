@@ -82,5 +82,17 @@
     "port": 4032,
     "title": "Time Tracker · Exyconn Track",
     "description": "Exyconn Track — Time Tracker module."
+  },
+  "tech": {
+    "subdomain": "tech",
+    "port": 4033,
+    "title": "Tech · Exyconn Track",
+    "description": "Exyconn Track — Tech module."
+  },
+  "it": {
+    "subdomain": "it",
+    "port": 4034,
+    "title": "IT · Exyconn Track",
+    "description": "Exyconn Track — IT module."
   }
 }

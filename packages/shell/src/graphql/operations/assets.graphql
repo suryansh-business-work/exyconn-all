@@ -1,0 +1,67 @@
+fragment AssetFields on Asset {
+  id
+  assetTag
+  name
+  category
+  status
+  manufacturer
+  modelName
+  serialNumber
+  assignedToId
+  assignedToName
+  location
+  purchaseDate
+  warrantyExpiry
+  purchaseCost
+  notes
+}
+
+query ListAssetsPaged($input: TableQueryInput!) {
+  listAssetsPaged(input: $input) {
+    rows {
+      ...AssetFields
+    }
+    totalCount
+  }
+}
+
+query ListAssetsStats {
+  listAssetsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query ListAssetAssignees {
+  listAssetAssignees {
+    id
+    name
+    email
+  }
+}
+
+mutation CreateAsset($input: AssetInput!) {
+  createAsset(input: $input) {
+    id
+  }
+}
+
+mutation UpdateAsset($id: ID!, $input: AssetInput!) {
+  updateAsset(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteAsset($id: ID!) {
+  deleteAsset(id: $id)
+}
