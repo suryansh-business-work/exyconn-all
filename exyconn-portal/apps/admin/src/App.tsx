@@ -7,6 +7,7 @@ import { BrandingPage } from './pages/branding';
 import { ClientsPage } from './pages/clients';
 import { TechPage } from './pages/tech';
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
+import { PermissionsPage } from './pages/permissions';
 
 /** Admin micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -14,6 +15,7 @@ export function App() {
     <PortalApp loginElement={<Login />} moduleRole={ROLES.ADMIN} homePath="/admin">
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/admin/branding" element={<BrandingPage />} />
+      <Route path="/admin/permissions" element={<PermissionsPage />} />
       <Route path="/admin/users/:id" element={<UserDetailsPage />} />
       <Route path="/clients" element={<ClientsPage />} />
       <Route path="/tech" element={<TechPage />} />

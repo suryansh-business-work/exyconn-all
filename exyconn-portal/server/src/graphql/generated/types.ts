@@ -1343,6 +1343,7 @@ export type Mutation = {
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
   changePassword: Scalars['Boolean']['output'];
+  clearRolePermission: Scalars['Boolean']['output'];
   createAiJob: AiJob;
   createAnnouncement: Announcement;
   createBenefit: Benefit;
@@ -1484,6 +1485,12 @@ export type Mutation = {
   sendUserMail: Scalars['Boolean']['output'];
   /** HR/ADMIN: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
+  /**
+   * Sets exactly what a role may do in a module. An empty list blocks the role
+   * from the module entirely; deleting the row (clearRolePermission) restores
+   * the default of everything the role's module access allows.
+   */
+  setRolePermission: RolePermission;
   /** SUPPORT/ADMIN: move a ticket through its lifecycle. */
   setSupportTicketStatus: SupportTicket;
   setUserActive: User;
@@ -1573,6 +1580,12 @@ export type MutationApplyLeaveArgs = {
 export type MutationChangePasswordArgs = {
   currentPassword: Scalars['String']['input'];
   newPassword: Scalars['String']['input'];
+};
+
+
+export type MutationClearRolePermissionArgs = {
+  module: Scalars['String']['input'];
+  role: Role;
 };
 
 
@@ -2158,6 +2171,13 @@ export type MutationSetLeaveStatusArgs = {
 };
 
 
+export type MutationSetRolePermissionArgs = {
+  actions: Array<PermissionAction>;
+  module: Scalars['String']['input'];
+  role: Role;
+};
+
+
 export type MutationSetSupportTicketStatusArgs = {
   id: Scalars['ID']['input'];
   status: SupportStatus;
@@ -2671,6 +2691,15 @@ export type PerformanceReviewPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export enum PermissionAction {
+  Approve = 'APPROVE',
+  Create = 'CREATE',
+  Delete = 'DELETE',
+  Edit = 'EDIT',
+  Export = 'EXPORT',
+  View = 'VIEW'
+}
+
 export type Policy = {
   __typename?: 'Policy';
   category: PolicyCategory;
@@ -2964,6 +2993,8 @@ export type Query = {
   listPerformanceReviews: Array<PerformanceReview>;
   listPerformanceReviewsPaged: PerformanceReviewPage;
   listPerformanceReviewsStats: TableStats;
+  /** Every module that can be restricted, as registered by the server. */
+  listPermissionModules: Array<Scalars['String']['output']>;
   /** Company-wide HR policies, readable by any authenticated employee. */
   listPolicies: Array<Policy>;
   /** HR/ADMIN: job positions / designations. */
@@ -2977,6 +3008,8 @@ export type Query = {
   listPrompts: Array<Prompt>;
   listPromptsPaged: PromptPage;
   listPromptsStats: TableStats;
+  /** Only restrictions that exist; a missing (role, module) pair means everything is allowed. */
+  listRolePermissions: Array<RolePermission>;
   listSalarySlipsPaged: SalarySlipPage;
   listSalarySlipsStats: TableStats;
   listSalaryStructures: Array<SalaryStructure>;
@@ -3588,6 +3621,15 @@ export enum Role {
   Tracker = 'TRACKER',
   Website = 'WEBSITE'
 }
+
+export type RolePermission = {
+  __typename?: 'RolePermission';
+  actions: Array<PermissionAction>;
+  id: Scalars['ID']['output'];
+  module: Scalars['String']['output'];
+  role: Role;
+  updatedAt: Scalars['DateTime']['output'];
+};
 
 export type SalarySlip = {
   __typename?: 'SalarySlip';
@@ -4475,6 +4517,7 @@ export type ResolversTypes = ResolversObject<{
   PerformanceReview: ResolverTypeWrapper<PerformanceReview>;
   PerformanceReviewInput: PerformanceReviewInput;
   PerformanceReviewPage: ResolverTypeWrapper<PerformanceReviewPage>;
+  PermissionAction: PermissionAction;
   Policy: ResolverTypeWrapper<Policy>;
   PolicyCategory: PolicyCategory;
   Position: ResolverTypeWrapper<Position>;
@@ -4497,6 +4540,7 @@ export type ResolversTypes = ResolversObject<{
   RequestType: RequestType;
   ReviewStatus: ReviewStatus;
   Role: Role;
+  RolePermission: ResolverTypeWrapper<RolePermission>;
   SalarySlip: ResolverTypeWrapper<SalarySlip>;
   SalarySlipPage: ResolverTypeWrapper<SalarySlipPage>;
   SalaryStructure: ResolverTypeWrapper<SalaryStructure>;
@@ -4703,6 +4747,7 @@ export type ResolversParentTypes = ResolversObject<{
   PromptInput: PromptInput;
   PromptPage: PromptPage;
   Query: {};
+  RolePermission: RolePermission;
   SalarySlip: SalarySlip;
   SalarySlipPage: SalarySlipPage;
   SalaryStructure: SalaryStructure;
@@ -5498,6 +5543,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   applyLeave?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationApplyLeaveArgs, 'input'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
+  clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
   createAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationCreateAiJobArgs, 'input'>>;
   createAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<MutationCreateAnnouncementArgs, 'input'>>;
   createBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationCreateBenefitArgs, 'input'>>;
@@ -5613,6 +5659,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   sendTestEmail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestEmailArgs, 'id' | 'to'>>;
   sendUserMail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendUserMailArgs, 'id' | 'input'>>;
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
+  setRolePermission?: Resolver<ResolversTypes['RolePermission'], ParentType, ContextType, RequireFields<MutationSetRolePermissionArgs, 'actions' | 'module' | 'role'>>;
   setSupportTicketStatus?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationSetSupportTicketStatusArgs, 'id' | 'status'>>;
   setUserActive?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserActiveArgs, 'id' | 'isActive'>>;
   setUserBlocked?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserBlockedArgs, 'id' | 'isBlocked'>>;
@@ -5969,6 +6016,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
   listPerformanceReviewsPaged?: Resolver<ResolversTypes['PerformanceReviewPage'], ParentType, ContextType, RequireFields<QueryListPerformanceReviewsPagedArgs, 'input'>>;
   listPerformanceReviewsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listPermissionModules?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   listPolicies?: Resolver<Array<ResolversTypes['Policy']>, ParentType, ContextType>;
   listPositions?: Resolver<Array<ResolversTypes['Position']>, ParentType, ContextType>;
   listProducts?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType>;
@@ -5980,6 +6028,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPrompts?: Resolver<Array<ResolversTypes['Prompt']>, ParentType, ContextType>;
   listPromptsPaged?: Resolver<ResolversTypes['PromptPage'], ParentType, ContextType, RequireFields<QueryListPromptsPagedArgs, 'input'>>;
   listPromptsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listRolePermissions?: Resolver<Array<ResolversTypes['RolePermission']>, ParentType, ContextType>;
   listSalarySlipsPaged?: Resolver<ResolversTypes['SalarySlipPage'], ParentType, ContextType, RequireFields<QueryListSalarySlipsPagedArgs, 'input'>>;
   listSalarySlipsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listSalaryStructures?: Resolver<Array<ResolversTypes['SalaryStructure']>, ParentType, ContextType>;
@@ -6048,6 +6097,15 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerMe?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType>;
   trackerSettings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
   trackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType, RequireFields<QueryTrackerTotalsArgs, 'userId'>>;
+}>;
+
+export type RolePermissionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['RolePermission'] = ResolversParentTypes['RolePermission']> = ResolversObject<{
+  actions?: Resolver<Array<ResolversTypes['PermissionAction']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  module?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['Role'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type SalarySlipResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SalarySlip'] = ResolversParentTypes['SalarySlip']> = ResolversObject<{
@@ -6526,6 +6584,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  RolePermission?: RolePermissionResolvers<ContextType>;
   SalarySlip?: SalarySlipResolvers<ContextType>;
   SalarySlipPage?: SalarySlipPageResolvers<ContextType>;
   SalaryStructure?: SalaryStructureResolvers<ContextType>;

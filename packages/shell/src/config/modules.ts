@@ -31,6 +31,7 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import PaidIcon from '@mui/icons-material/Paid';
+import LockPersonIcon from '@mui/icons-material/LockPerson';
 import WorkIcon from '@mui/icons-material/Work';
 import DescriptionIcon from '@mui/icons-material/Description';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
@@ -329,6 +330,12 @@ export const MODULES: ModuleDefinition[] = [
       { key: 'admin-users', label: 'Users', path: '/admin', icon: ManageAccountsIcon },
       { key: 'admin-clients', label: 'Clients', path: '/clients', icon: GroupsIcon },
       { key: 'admin-tech', label: 'Tech', path: '/tech', icon: TerminalIcon },
+      {
+        key: 'admin-permissions',
+        label: 'Roles & Permissions',
+        path: '/admin/permissions',
+        icon: LockPersonIcon,
+      },
       {
         key: 'admin-branding',
         label: 'Branding',
