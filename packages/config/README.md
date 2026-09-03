@@ -13,7 +13,7 @@ export default portalViteConfig('crm');
   page title and description.
 - `vite.js` — `portalViteConfig(appKey)`: source aliases, dedupe, dev port, the shared
   `<head>` injector and the Vitest defaults.
-- `tsconfig.app.json`, `eslint.cjs`, `prettier.json`, `cypress.js`, `vitest.setup.ts`.
+- `tsconfig.app.json`, `eslint.js`, `prettier.json`, `cypress.js`, `vitest.setup.ts`.
 
 Full reference: [docs/portal/packages.md](../../docs/portal/packages.md#exyconnconfig).
 Adding an app: [docs/portal/adding-a-module.md](../../docs/portal/adding-a-module.md).

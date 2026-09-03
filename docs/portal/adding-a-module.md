@@ -51,7 +51,7 @@ The server side first — the shared grid only works against a `listXxxPaged` +
    package.json          name @exyconn/portal-app-<key>, prettier: "@exyconn/config/prettier.json"
    tsconfig.json         extends @exyconn/config/tsconfig.app.json
    vite.config.ts        export default portalViteConfig('<key>')
-   .eslintrc.cjs         portalEslintConfig({ uiImport: '@exyconn/shell/components/ui' })
+   eslint.config.js      export default portalEslintConfig()
    cypress.config.ts     defineConfig(portalCypressConfig())
    index.html            the bare mount point — the head comes from the registry
    src/main.tsx          mountPortalApp(<App />)
@@ -76,7 +76,7 @@ The server side first — the shared grid only works against a `listXxxPaged` +
 | A page's `<title>`, description, port or subdomain | `packages/config/apps.json` |
 | The favicon or webfont every app loads | `packages/config/vite.js` (`portalHtml`) |
 | A TypeScript compiler option or path alias | `packages/config/tsconfig.app.json` |
-| An ESLint rule | `packages/config/eslint.cjs` |
+| An ESLint rule | `packages/config/eslint.js` |
 | Formatting | `packages/config/prettier.json` |
 | A UI primitive's defaults | `packages/shell/src/components/ui` |
 | The Cancel/Save footer or field spacing on every form | `packages/shell/src/components/form` |

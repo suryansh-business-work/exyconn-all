@@ -18,7 +18,7 @@ Cypress alike.
 | `@exyconn/config/apps.json` | `shell/config/apps.ts`, `@exyconn/config/vite` | The app registry: subdomain, dev port, page title and description for each micro-frontend. |
 | `@exyconn/config/vite` | every app's `vite.config.ts` | `portalViteConfig(appKey)` — React plugin, source aliases, React/MUI/Apollo dedupe, the dev port, the shared `<head>` injector and the Vitest defaults. |
 | `@exyconn/config/tsconfig.app.json` | every app's `tsconfig.json` | Compiler options plus the `paths` that resolve `@exyconn/ui`, `@exyconn/shell`, `@exyconn/crud`, `@exyconn/login`, `@exyconn/tabber` and the shell's internal `@/`. |
-| `@exyconn/config/eslint` | every `.eslintrc.cjs` | `portalEslintConfig()` — the rule set, including the guard that blocks direct `@mui/*` imports outside `@exyconn/ui` (`muiGuard(uiImport)` is exported for non-portal consumers such as the tracker). |
+| `@exyconn/config/eslint` | every `eslint.config.js` | `portalEslintConfig()` — the rule set, including the guard that blocks direct `@mui/*` imports outside `@exyconn/ui` (`muiGuard(uiImport)` is exported for non-portal consumers such as the tracker). |
 | `@exyconn/config/prettier.json` | the `"prettier"` field of each `package.json` | Formatting rules. |
 | `@exyconn/config/cypress` | every `cypress.config.ts` | Component-testing config and the shared support file. |
 | `@exyconn/config/vitest.setup` | `portalViteConfig` | Registers the jest-dom matchers. |

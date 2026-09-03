@@ -14,13 +14,16 @@
       "types": "./cypress.d.ts",
       "default": "./cypress.js"
     },
-    "./eslint": "./eslint.cjs",
+    "./eslint": {
+      "types": "./eslint.d.ts",
+      "default": "./eslint.js"
+    },
     "./prettier.json": "./prettier.json",
     "./tsconfig.app.json": "./tsconfig.app.json",
     "./vitest.setup": "./vitest.setup.ts"
   },
   "scripts": {
-    "lint": "eslint \"*.{js,cjs}\"",
+    "lint": "eslint \"*.js\"",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "peerDependencies": {
@@ -31,7 +34,15 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@types/node": "^22.10.5",
-    "eslint": "^8.57.1",
-    "typescript": "^5.7.3"
+    "eslint": "^10.9.1",
+    "typescript": "^5.7.3",
+    "@types/eslint": "^9.6.1"
+  },
+  "dependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.12.0",
+    "typescript-eslint": "^8.69.0"
   }
 }
