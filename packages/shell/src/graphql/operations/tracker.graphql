@@ -45,7 +45,6 @@ fragment TrackerSettingsFields on TrackerSettings {
   screenshotQuality
   webcamEnabled
   webcamCorner
-  autoSyncEnabled
   syncIntervalMinutes
   consentText
   defaultTimezone

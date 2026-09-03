@@ -55,6 +55,7 @@ export default function AppShell({ state }: Readonly<Props>): JSX.Element {
       <AppHeader
         branding={state.branding}
         title={titleOf(section)}
+        status={state.status}
         onOpenMenu={() => setMenuOpen(true)}
       />
       <NavDrawer

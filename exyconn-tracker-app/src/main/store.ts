@@ -14,10 +14,11 @@ interface PersistedState {
 }
 
 /**
- * Tray-first by default. The app is built to sit in the tray and keep tracking, and a stray
- * click on the close button should not quietly end somebody's working day.
+ * Tray-first by default, and following the OS's own light/dark choice until the employee
+ * says otherwise. The app is built to sit in the tray and keep tracking, and a stray click on
+ * the close button should not quietly end somebody's working day.
  */
-const DEFAULT_PREFERENCES: AppPreferences = { closeToTray: true };
+const DEFAULT_PREFERENCES: AppPreferences = { closeToTray: true, themeMode: 'system' };
 
 /**
  * Persists the non-expiring device token, encrypted at rest with the OS keychain

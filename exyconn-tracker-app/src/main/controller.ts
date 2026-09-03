@@ -8,7 +8,6 @@ import type {
   PermissionKind,
   PermissionState,
   ReportDay,
-  SyncOutcome,
   TrackerSettings,
   TrackerState,
   TrackerStatus,
@@ -315,21 +314,6 @@ export class TrackerController {
       this.status = 'idle';
     }
     this.emit();
-  }
-
-  /**
-   * Manual "Sync now" — uploads everything queued, regardless of the auto-sync setting.
-   * `engine` is null until settings load, and `engine?.syncNow()` quietly resolved to
-   * undefined in that window: the button appeared to work and did nothing. Say so instead.
-   */
-  async syncNow(): Promise<SyncOutcome> {
-    if (!this.engine) {
-      return {
-        kind: 'unavailable',
-        reason: 'The tracker is still starting up. Wait a moment, then try again.',
-      };
-    }
-    return this.engine.syncNow();
   }
 
   /**

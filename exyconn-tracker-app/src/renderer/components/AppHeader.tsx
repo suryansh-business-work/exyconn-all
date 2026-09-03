@@ -4,13 +4,16 @@ import IconButton from '@mui/material/IconButton';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import MenuIcon from '@mui/icons-material/Menu';
-import type { Branding } from '@shared/types';
+import type { Branding, TrackerStatus } from '@shared/types';
 import BrandMark from './BrandMark';
+import TrackingPulse from './TrackingPulse';
 import WindowControls from './WindowControls';
 
 interface Props {
   branding: Branding | null;
   title: string;
+  /** Drives the recording indicator — visible on every page, not just the dashboard. */
+  status: TrackerStatus;
   onOpenMenu: () => void;
 }
 
@@ -22,7 +25,12 @@ const DRAG = { WebkitAppRegion: 'drag' } as const;
 const NO_DRAG = { WebkitAppRegion: 'no-drag' } as const;
 
 /** Compact top bar: hamburger, brand logo, the current section name, and window controls. */
-export default function AppHeader({ branding, title, onOpenMenu }: Readonly<Props>): JSX.Element {
+export default function AppHeader({
+  branding,
+  title,
+  status,
+  onOpenMenu,
+}: Readonly<Props>): JSX.Element {
   return (
     <AppBar
       position="static"
@@ -65,6 +73,7 @@ export default function AppHeader({ branding, title, onOpenMenu }: Readonly<Prop
           {title}
         </Typography>
 
+        <TrackingPulse status={status} />
         <WindowControls />
       </Toolbar>
     </AppBar>

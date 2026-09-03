@@ -8,12 +8,12 @@ import { TRACKER_DEFAULTS } from '../../src/modules/tracker/tracker.constants';
 describe('tracker settings', () => {
   it('creates the global document with defaults on first read', async () => {
     const settings = await getTrackerSettings();
-    expect(settings.autoSyncEnabled).toBe(TRACKER_DEFAULTS.autoSyncEnabled);
     expect(settings.syncIntervalMinutes).toBe(TRACKER_DEFAULTS.syncIntervalMinutes);
+    expect(settings.screenshotQuality).toBe(TRACKER_DEFAULTS.screenshotQuality);
   });
 
   it('fills in fields the stored document predates', async () => {
-    // A document written before autoSync*/defaultTimezone existed. Inserted through the raw
+    // A document written before syncIntervalMinutes/defaultTimezone existed. Inserted via the raw
     // collection so Mongoose schema defaults are bypassed — exactly how the live document
     // looked, and why the non-nullable GraphQL field previously blew up with "Cannot return
     // null". Every new non-nullable setting must survive this test.
@@ -31,19 +31,19 @@ describe('tracker settings', () => {
 
     const settings = await getTrackerSettings();
 
-    expect(settings.autoSyncEnabled).toBe(TRACKER_DEFAULTS.autoSyncEnabled);
     expect(settings.syncIntervalMinutes).toBe(TRACKER_DEFAULTS.syncIntervalMinutes);
     expect(settings.defaultTimezone).toBe(TRACKER_DEFAULTS.defaultTimezone);
+    expect(settings.webcamEnabled).toBe(TRACKER_DEFAULTS.webcamEnabled);
     // The stored values must still win over the defaults.
     expect(settings.intervalMinutes).toBe(10);
   });
 
   it('never lets a default overwrite a stored falsy value', async () => {
-    await updateTrackerSettings({ autoSyncEnabled: false, screenshotsPerInterval: 0 });
+    await updateTrackerSettings({ blurScreenshots: false, screenshotsPerInterval: 0 });
 
     const settings = await getTrackerSettings();
 
-    expect(settings.autoSyncEnabled).toBe(false);
+    expect(settings.blurScreenshots).toBe(false);
     expect(settings.screenshotsPerInterval).toBe(0);
   });
 

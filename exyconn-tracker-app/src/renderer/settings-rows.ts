@@ -37,11 +37,9 @@ function webcamPolicy(settings: TrackerSettings): string {
   return `On — shown in the ${CORNER_LABEL[settings.webcamCorner]} of each screenshot`;
 }
 
+/** Uploading is automatic and always on; only the cadence is an administrator's choice. */
 function syncPolicy(settings: TrackerSettings): string {
-  if (!settings.autoSyncEnabled) {
-    return 'Off — manual "Sync now" only';
-  }
-  return `Every ${plural(settings.syncIntervalMinutes, 'minute')}`;
+  return `Automatic, every ${plural(settings.syncIntervalMinutes, 'minute')}`;
 }
 
 /**
@@ -74,6 +72,6 @@ export function buildSettingRows(settings: TrackerSettings): SettingRow[] {
       label: 'Idle after',
       value: plural(settings.idleThresholdSeconds, 'second'),
     },
-    { id: 'sync', label: 'Auto-sync', value: syncPolicy(settings) },
+    { id: 'sync', label: 'Upload', value: syncPolicy(settings) },
   ];
 }

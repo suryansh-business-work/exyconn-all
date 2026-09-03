@@ -2,7 +2,11 @@ import { UserModel } from '../../src/modules/admin/user.model';
 import { hashPassword } from '../../src/utils/password';
 import { ROLES } from '../../src/constants/roles';
 import { verifyToken } from '../../src/utils/jwt';
-import { trackerDeviceService } from '../../src/modules/tracker/tracker.device.service';
+import {
+  trackerDeviceService,
+  decodedBytes,
+} from '../../src/modules/tracker/tracker.device.service';
+import { TRACKER_LIMITS } from '../../src/modules/tracker/tracker.constants';
 import { assertTrackerDevice } from '../../src/modules/tracker/tracker.auth';
 import { trackerAdminService } from '../../src/modules/tracker/tracker.admin.service';
 import {
@@ -285,6 +289,26 @@ describe('tracker heartbeat', () => {
     await trackerAdminService.revokeAccess(user.id, 'admin');
 
     await expect(trackerDeviceService.heartbeat(user.id, 'device-1')).rejects.toThrow(/revoked/i);
+  });
+});
+
+describe('screenshot size guard', () => {
+  it('measures bytes, not base64 characters', () => {
+    // 4 base64 characters carry 3 bytes. Measuring the string instead made the real ceiling
+    // a third lower than the limit claimed, so lossless captures were rejected as too large
+    // and the outbox dropped them — quality 100 produced no screenshots at all.
+    expect(decodedBytes('AAAA')).toBe(3);
+    expect(decodedBytes(Buffer.alloc(3000).toString('base64'))).toBe(3000);
+  });
+
+  it('accounts for padding', () => {
+    expect(decodedBytes(Buffer.alloc(1).toString('base64'))).toBe(1);
+    expect(decodedBytes(Buffer.alloc(2).toString('base64'))).toBe(2);
+  });
+
+  it('leaves room for a lossless retina capture', () => {
+    // A 5120x2880 PNG runs to well over the old 8MB-of-characters (6MB-of-bytes) ceiling.
+    expect(TRACKER_LIMITS.maxScreenshotBytes).toBeGreaterThanOrEqual(16 * 1024 * 1024);
   });
 });
 

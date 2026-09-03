@@ -73,7 +73,6 @@ const SETTINGS: TrackerSettings = {
   screenshotQuality: 70,
   webcamEnabled: false,
   webcamCorner: 'bottom-right',
-  autoSyncEnabled: true,
   syncIntervalMinutes: 5,
   consentText: '<p>ok</p>',
 };

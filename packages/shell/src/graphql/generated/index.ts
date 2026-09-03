@@ -5267,7 +5267,6 @@ export type TrackerSession = {
 
 export type TrackerSettings = {
   __typename?: 'TrackerSettings';
-  autoSyncEnabled: Scalars['Boolean']['output'];
   blurScreenshots: Scalars['Boolean']['output'];
   consentText: Scalars['String']['output'];
   /**
@@ -5295,7 +5294,6 @@ export type TrackerSettings = {
 };
 
 export type TrackerSettingsInput = {
-  autoSyncEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   blurScreenshots?: InputMaybe<Scalars['Boolean']['input']>;
   consentText?: InputMaybe<Scalars['String']['input']>;
   defaultTimezone?: InputMaybe<Scalars['String']['input']>;
@@ -7746,7 +7744,7 @@ export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: st
 
 export type TrackerDeviceFieldsFragment = { __typename?: 'TrackerDevice', id: string, userId: string, deviceId: string, platform: string, hostname: string, appVersion: string, machineId: string, osName: string, osVersion: string, arch: string, cpuModel: string, cpuCores: number, totalMemoryMb: number, locale: string, timezone: string, screenCount: number, screenResolution: string, issuedAt: string, lastSeenAt: string, revokedAt?: string | null, isActive: boolean };
 
-export type TrackerSettingsFieldsFragment = { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, autoSyncEnabled: boolean, syncIntervalMinutes: number, consentText: string, defaultTimezone: string };
+export type TrackerSettingsFieldsFragment = { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, defaultTimezone: string };
 
 export type TrackerDayBucketFieldsFragment = { __typename?: 'TrackerDayBucket', date: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number, sessions: number };
 
@@ -7767,7 +7765,7 @@ export type TrackerDevicesQuery = { __typename?: 'Query', trackerDevices: Array<
 export type TrackerSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TrackerSettingsQuery = { __typename?: 'Query', trackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, autoSyncEnabled: boolean, syncIntervalMinutes: number, consentText: string, defaultTimezone: string } };
+export type TrackerSettingsQuery = { __typename?: 'Query', trackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, defaultTimezone: string } };
 
 export type TrackerCalendarQueryVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -7836,7 +7834,7 @@ export type UpdateTrackerSettingsMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTrackerSettingsMutation = { __typename?: 'Mutation', updateTrackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, autoSyncEnabled: boolean, syncIntervalMinutes: number, consentText: string, defaultTimezone: string } };
+export type UpdateTrackerSettingsMutation = { __typename?: 'Mutation', updateTrackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, defaultTimezone: string } };
 
 export type BlogPostFieldsFragment = { __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } };
 
@@ -8549,7 +8547,6 @@ export const TrackerSettingsFieldsFragmentDoc = gql`
   screenshotQuality
   webcamEnabled
   webcamCorner
-  autoSyncEnabled
   syncIntervalMinutes
   consentText
   defaultTimezone

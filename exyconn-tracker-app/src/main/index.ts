@@ -12,6 +12,7 @@ import { TrackerTray } from './tray';
 import { closeScreenshotsWindow, openScreenshotsWindow } from './screenshots-window';
 import { composeWithWebcam, registerCaptureBridge } from './capture-bridge';
 import { applyWindowChrome, registerWindowControls } from './window-chrome';
+import { holdForUpload, type CloseGuardHooks } from './close-guard';
 import { secureStore } from './store';
 
 let window: BrowserWindow | null = null;
@@ -69,6 +70,11 @@ function createWindow(): BrowserWindow {
       win.hide();
       return;
     }
+    // Quitting for real. If an upload is still going up, hold the window open, say so, and
+    // let the guard quit once it lands — closing now would make that work climb twice.
+    if (waitForUpload(win, event)) {
+      return;
+    }
     isQuitting = true;
   });
 
@@ -81,6 +87,33 @@ function createWindow(): BrowserWindow {
 }
 
 let isQuitting = false;
+
+/**
+ * What the close guard needs to know, read live rather than captured: `syncing` flips while
+ * the guard is waiting, which is the whole point of waiting.
+ */
+function uploadHooks(): CloseGuardHooks {
+  return {
+    isSyncing: () => controller?.getState().stats.syncing ?? false,
+    pending: () => controller?.getState().stats.pendingSync ?? 0,
+    release: () => {
+      isQuitting = true;
+      app.quit();
+    },
+  };
+}
+
+/**
+ * Holds a real quit while an upload is in flight. Returns true when the close was held, in
+ * which case the guard quits the app itself once the upload lands or the wait runs out.
+ */
+function waitForUpload(win: BrowserWindow, event: Electron.Event): boolean {
+  const held = holdForUpload(win, uploadHooks());
+  if (held) {
+    event.preventDefault();
+  }
+  return held;
+}
 
 function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.getState, () => ctrl.getState());
@@ -97,7 +130,6 @@ function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.pause, () => ctrl.pause());
   ipcMain.handle(IPC.resume, () => ctrl.resume());
   ipcMain.handle(IPC.stop, () => ctrl.stop());
-  ipcMain.handle(IPC.syncNow, () => ctrl.syncNow());
   ipcMain.handle(IPC.getReport, (_e, from: string, to: string) => ctrl.getReport(from, to));
   ipcMain.handle(IPC.getDay, (_e, start: string, end: string) => ctrl.getDay(start, end));
   ipcMain.handle(IPC.getTotals, () => ctrl.getTotals());
@@ -154,6 +186,10 @@ if (!app.requestSingleInstanceLock()) {
       resume: () => controller?.resume(),
       stop: () => void controller?.stop(),
       quit: () => {
+        // Same hold as the window's close button: the tray must not be a way around it.
+        if (window !== null && holdForUpload(window, uploadHooks())) {
+          return;
+        }
         isQuitting = true;
         app.quit();
       },

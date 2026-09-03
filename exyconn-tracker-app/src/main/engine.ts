@@ -71,6 +71,11 @@ export class TrackerEngine {
     return this.status;
   }
 
+  /** True while an upload is in flight — what the close guard waits on. */
+  get isSyncing(): boolean {
+    return this.syncing;
+  }
+
   updateSettings(settings: TrackerSettings): void {
     this.settings = settings;
   }
@@ -115,11 +120,9 @@ export class TrackerEngine {
     this.input.stop();
     if (this.sessionId) {
       await this.flushInterval(Date.now());
-      // With auto-sync off the employee owns when data leaves the machine, so don't force
-      // an upload here — the outbox is durable and waits for their "Sync now".
-      if (this.settings.autoSyncEnabled) {
-        await this.sync();
-      }
+      // Stopping is the moment the day's last bucket exists, so it goes up now rather than
+      // waiting out an interval the employee is no longer around for.
+      await this.sync();
       await portal.stopSession(this.sessionId, new Date().toISOString()).catch(() => undefined);
     }
     this.sessionId = null;
@@ -183,12 +186,14 @@ export class TrackerEngine {
   }
 
   /**
-   * Uploads on the portal-configured cadence rather than every tick. With auto-sync off,
-   * nothing is uploaded until the employee presses "Sync now" — the data is still captured
-   * and queued durably on disk, so nothing is lost either way.
+   * Uploads on the portal-configured cadence rather than every tick.
+   *
+   * There is no manual alternative and no switch: an employee could once work a full week
+   * with auto-sync left off and nothing uploaded, and nobody found out until the timesheet
+   * was empty. The outbox is still durable, so an unreachable portal costs nothing.
    */
   private async maybeAutoSync(now: number): Promise<void> {
-    if (!this.settings.autoSyncEnabled || this.outbox.size === 0) {
+    if (this.outbox.size === 0) {
       return;
     }
     if (now - this.lastSyncAttempt < this.settings.syncIntervalMinutes * 60_000) {
@@ -197,11 +202,14 @@ export class TrackerEngine {
     await this.sync();
   }
 
-  /** Flushes the outbox right now, whatever the auto-sync setting says (the Sync button). */
+  /**
+   * Flushes the outbox right now, ahead of the cadence. Used when the app is shutting down
+   * or signing out — the moments where waiting for the next tick would strand queued work.
+   */
   async syncNow(): Promise<SyncOutcome> {
-    // The activity bucket accrues in memory and is only enqueued when the interval timer fires
-    // — every 10 minutes by default. Without this, pressing "Sync now" early in a session found
-    // an empty queue, uploaded nothing, and said nothing: the button looked broken.
+    // The activity bucket accrues in memory and is only enqueued when the interval timer
+    // fires — every 10 minutes by default. Closing it first is what stops a sign-out early in
+    // a session from leaving the minutes worked so far behind.
     await this.closeIntervalForSync(Date.now());
     return this.sync();
   }
@@ -209,9 +217,9 @@ export class TrackerEngine {
   /**
    * Enqueues the partial activity bucket and opens a fresh one.
    *
-   * Deliberately NOT `beginInterval()`: that re-rolls `nextScreenshotAt`, so anyone could
-   * postpone their own screenshot indefinitely just by pressing "Sync now" on a loop. The
-   * screenshot schedule is left exactly as it was.
+   * Deliberately NOT `beginInterval()`: that re-rolls `nextScreenshotAt`, and the screenshot
+   * schedule must survive a flush untouched — otherwise anything that triggers one becomes a
+   * way to postpone being screenshotted.
    */
   private async closeIntervalForSync(now: number): Promise<void> {
     if (this.status !== 'tracking') {

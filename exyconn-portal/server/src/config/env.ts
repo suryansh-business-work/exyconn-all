@@ -30,9 +30,11 @@ export const env = Object.freeze({
   appUrl: process.env.APP_URL ?? 'https://portal.exyconn.com',
   /**
    * Body limit for /graphql. Raised well above Express's 100kb default because the
-   * desktop tracker posts base64 screenshots through it.
+   * desktop tracker posts base64 screenshots through it. It has to clear
+   * TRACKER_LIMITS.maxScreenshotBytes with room for base64's 4/3 inflation, or a capture
+   * the tracker module accepts is killed by Express before it ever reaches the resolver.
    */
-  graphqlBodyLimit: process.env.GRAPHQL_BODY_LIMIT ?? '12mb',
+  graphqlBodyLimit: process.env.GRAPHQL_BODY_LIMIT ?? '36mb',
   /** Download page for the desktop tracker, used as the CTA in the access-granted email. */
   trackerDownloadUrl: process.env.TRACKER_DOWNLOAD_URL ?? 'https://employee.exyconn.com/me/tracker',
   /**

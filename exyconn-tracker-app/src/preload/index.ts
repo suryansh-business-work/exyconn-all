@@ -10,7 +10,6 @@ import {
   type PermissionState,
   type ReportDay,
   type ScreenshotsRange,
-  type SyncOutcome,
   type TrackerState,
   type TrackerTotals,
 } from '@shared/types';
@@ -26,7 +25,6 @@ const api = {
   pause: (): Promise<void> => ipcRenderer.invoke(IPC.pause),
   resume: (): Promise<void> => ipcRenderer.invoke(IPC.resume),
   stop: (): Promise<void> => ipcRenderer.invoke(IPC.stop),
-  syncNow: (): Promise<SyncOutcome> => ipcRenderer.invoke(IPC.syncNow),
   getReport: (from: string, to: string): Promise<ReportDay[]> =>
     ipcRenderer.invoke(IPC.getReport, from, to),
   getDay: (start: string, end: string): Promise<DayDetail> =>
@@ -81,6 +79,21 @@ const api = {
   },
   sendCaptureResult: (result: CaptureResult): void => {
     ipcRenderer.send(IPC.captureResult, result);
+  },
+  /**
+   * A quit is being held because an upload is still going up. `pending` is how many items
+   * were queued when it was held, so the dialog can say what it is waiting for.
+   */
+  onCloseBlocked: (listener: (pending: number) => void): (() => void) => {
+    const handler = (_event: unknown, pending: number): void => listener(pending);
+    ipcRenderer.on(IPC.closeBlocked, handler);
+    return () => ipcRenderer.removeListener(IPC.closeBlocked, handler);
+  },
+  /** The upload landed (or the wait ran out) — the app is quitting, drop the dialog. */
+  onCloseReleased: (listener: () => void): (() => void) => {
+    const handler = (): void => listener();
+    ipcRenderer.on(IPC.closeReleased, handler);
+    return () => ipcRenderer.removeListener(IPC.closeReleased, handler);
   },
 };
 

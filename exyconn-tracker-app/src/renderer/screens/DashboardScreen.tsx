@@ -8,7 +8,7 @@ import StatusChip from '../components/StatusChip';
 import SyncBar from '../components/SyncBar';
 import TotalsPanel from '../components/TotalsPanel';
 import TrackingControls from '../components/TrackingControls';
-import { sessionTiles } from '../dashboard-tiles';
+import { sessionTiles } from '../tiles';
 
 interface Props {
   state: TrackerState;
@@ -55,7 +55,7 @@ export default function DashboardScreen({ state }: Readonly<Props>): JSX.Element
             Live counters for the run in progress — they reset to zero when you stop.
           </Typography>
         </Stack>
-        <StatGrid tiles={sessionTiles(stats)} />
+        <StatGrid tiles={sessionTiles(stats, settings)} />
       </Stack>
 
       <TotalsPanel lastSyncAt={stats.lastSyncAt} />

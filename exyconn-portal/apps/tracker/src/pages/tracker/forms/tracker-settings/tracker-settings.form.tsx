@@ -29,7 +29,6 @@ const schema = z.object({
   randomizeScreenshotTiming: z.boolean(),
   blurScreenshots: z.boolean(),
   trackWindowTitles: z.boolean(),
-  autoSyncEnabled: z.boolean(),
   webcamEnabled: z.boolean(),
   webcamCorner: z.enum(WEBCAM_CORNERS as [string, ...string[]]),
   consentText: z.string().min(1, 'Consent text is required'),
@@ -49,7 +48,6 @@ const toInitial = (row: TrackerSettingsRow): Values => ({
   randomizeScreenshotTiming: row.randomizeScreenshotTiming,
   blurScreenshots: row.blurScreenshots,
   trackWindowTitles: row.trackWindowTitles,
-  autoSyncEnabled: row.autoSyncEnabled,
   webcamEnabled: row.webcamEnabled,
   webcamCorner: row.webcamCorner,
   consentText: row.consentText,
@@ -117,7 +115,7 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
             name="syncIntervalMinutes"
             label="Auto-sync every (minutes)"
             type="number"
-            helperText="How often the desktop app uploads queued activity and screenshots."
+            helperText="How often the desktop app uploads queued activity and screenshots. Syncing is always automatic."
           />
         </Grid>
       </Grid>
@@ -130,7 +128,6 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
       <RhfSwitch name="randomizeScreenshotTiming" label="Randomize screenshot timing" />
       <RhfSwitch name="blurScreenshots" label="Blur screenshots" />
       <RhfSwitch name="trackWindowTitles" label="Track window titles" />
-      <RhfSwitch name="autoSyncEnabled" label="Auto-sync (off = employee syncs manually)" />
       <Box>
         <RhfSwitch name="webcamEnabled" label="Webcam photo with each screenshot" />
         <FormHelperText>

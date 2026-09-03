@@ -41,7 +41,7 @@ export const TRACKER_DEFAULTS = Object.freeze({
    * Anything below 100 is a JPEG at that quality, downscaled to screenshotMaxWidth. Higher
    * quality costs upload bandwidth and storage, which is the whole reason it is a dial.
    */
-  screenshotQuality: 60,
+  screenshotQuality: 100,
   /**
    * Capture a webcam photo alongside each screenshot and composite it into a corner of the
    * shot. Off by default, and deliberately so: photographing an employee is a far bigger
@@ -52,12 +52,13 @@ export const TRACKER_DEFAULTS = Object.freeze({
   /** Which corner of the screenshot the webcam photo is placed in. */
   webcamCorner: 'bottom-right',
   /**
-   * Push queued activity + screenshots to the portal automatically. When off, nothing
-   * leaves the machine until the employee presses "Sync now" in the app — the data is
-   * still captured and queued durably on disk either way.
+   * How often the desktop app flushes its outbox to the portal, in minutes.
+   *
+   * Syncing is automatic and always on. It used to be switchable, with a "Sync now" button
+   * as the manual path — which meant an employee could work all week with an unswitched
+   * toggle and nothing uploaded, and nobody found out until the timesheet was empty. One
+   * path, on a cadence an admin sets.
    */
-  autoSyncEnabled: true,
-  /** How often the desktop app flushes its outbox to the portal, in minutes. */
   syncIntervalMinutes: 5,
   /**
    * IANA zone (e.g. "Asia/Kolkata") every employee's tracker times are read in unless they
@@ -88,8 +89,16 @@ export const TRACKER_DEFAULTS = Object.freeze({
 export const TRACKER_LIMITS = Object.freeze({
   maxIntervalsPerSync: 200,
   maxWindowUsagePerInterval: 100,
-  /** Matches the /graphql body limit; a screenshot arrives base64-encoded. */
-  maxScreenshotBytes: 8 * 1024 * 1024,
+  /**
+   * Largest screenshot the portal accepts, in DECODED bytes.
+   *
+   * This used to be compared against the base64 string's length, which counts characters,
+   * not bytes — base64 is 4 characters per 3 bytes, so the real ceiling was 6MB, not 8. A
+   * lossless native-resolution capture sails past that, the upload came back BAD_USER_INPUT,
+   * and the outbox drops a permanent rejection: quality 100 did not produce worse
+   * screenshots, it produced no screenshots. Sized for a lossless retina capture now.
+   */
+  maxScreenshotBytes: 24 * 1024 * 1024,
 });
 
 export type DevicePlatform = (typeof DEVICE_PLATFORMS)[number];
