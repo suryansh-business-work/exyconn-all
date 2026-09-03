@@ -20,6 +20,9 @@ import HubIcon from '@mui/icons-material/Hub';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import TerminalIcon from '@mui/icons-material/Terminal';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import HandshakeIcon from '@mui/icons-material/Handshake';
+import BusinessIcon from '@mui/icons-material/Business';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import InventoryIcon from '@mui/icons-material/Inventory2';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -202,6 +205,10 @@ export const MODULES: ModuleDefinition[] = [
     children: [
       { key: 'crm-overview', label: 'Overview', path: '/crm', icon: DashboardIcon },
       { key: 'crm-leads', label: 'Leads', path: '/crm/leads', icon: ContactPhoneIcon },
+      { key: 'crm-companies', label: 'Companies', path: '/crm/companies', icon: BusinessIcon },
+      { key: 'crm-contacts', label: 'Contacts', path: '/crm/contacts', icon: PersonIcon },
+      { key: 'crm-deals', label: 'Deals', path: '/crm/deals', icon: HandshakeIcon },
+      { key: 'crm-activities', label: 'Activities', path: '/crm/activities', icon: EventNoteIcon },
     ],
   },
   {

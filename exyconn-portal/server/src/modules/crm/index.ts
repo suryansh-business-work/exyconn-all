@@ -23,6 +23,14 @@ export const crmResolvers = createCrudResolvers(crmService, {
     sortFields: ['name', 'email', 'source', 'stage', 'value', 'owner', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
-  stats: { countBy: ['stage'], sum: ['value'] },
+  stats: { countBy: ['stage', 'source'], sum: ['value'] },
 });
 export { crmTypeDefs };
+export { crmEntitiesTypeDefs } from './crm.entities.typeDefs';
+export {
+  crmEntitiesResolvers,
+  companiesService,
+  contactsService,
+  dealsService,
+  activitiesService,
+} from './crm.entities';

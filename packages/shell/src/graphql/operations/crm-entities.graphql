@@ -1,0 +1,223 @@
+fragment CompanyFields on Company {
+  id
+  name
+  domain
+  industry
+  size
+  status
+  phone
+  location
+  owner
+  notes
+}
+
+fragment ContactFields on Contact {
+  id
+  name
+  email
+  phone
+  title
+  companyId
+  companyName
+  status
+  owner
+  notes
+}
+
+fragment DealFields on Deal {
+  id
+  title
+  companyId
+  companyName
+  contactId
+  contactName
+  stage
+  value
+  probability
+  expectedCloseDate
+  owner
+  notes
+}
+
+fragment ActivityFields on Activity {
+  id
+  type
+  subject
+  notes
+  relatedType
+  relatedId
+  relatedName
+  dueDate
+  done
+  owner
+}
+
+fragment CrmStats on TableStats {
+  total
+  counts {
+    field
+    buckets {
+      value
+      count
+    }
+  }
+  sums {
+    field
+    total
+  }
+}
+
+query ListCompanies {
+  listCompanies {
+    ...CompanyFields
+  }
+}
+
+query ListCompaniesPaged($input: TableQueryInput!) {
+  listCompaniesPaged(input: $input) {
+    totalCount
+    rows {
+      ...CompanyFields
+    }
+  }
+}
+
+query ListCompaniesStats {
+  listCompaniesStats {
+    ...CrmStats
+  }
+}
+
+mutation CreateCompany($input: CompanyInput!) {
+  createCompany(input: $input) {
+    id
+  }
+}
+
+mutation UpdateCompany($id: ID!, $input: CompanyInput!) {
+  updateCompany(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteCompany($id: ID!) {
+  deleteCompany(id: $id)
+}
+
+query ListContacts {
+  listContacts {
+    ...ContactFields
+  }
+}
+
+query ListContactsPaged($input: TableQueryInput!) {
+  listContactsPaged(input: $input) {
+    totalCount
+    rows {
+      ...ContactFields
+    }
+  }
+}
+
+query ListContactsStats {
+  listContactsStats {
+    ...CrmStats
+  }
+}
+
+mutation CreateContact($input: ContactInput!) {
+  createContact(input: $input) {
+    id
+  }
+}
+
+mutation UpdateContact($id: ID!, $input: ContactInput!) {
+  updateContact(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteContact($id: ID!) {
+  deleteContact(id: $id)
+}
+
+query ListDeals {
+  listDeals {
+    ...DealFields
+  }
+}
+
+query ListDealsPaged($input: TableQueryInput!) {
+  listDealsPaged(input: $input) {
+    totalCount
+    rows {
+      ...DealFields
+    }
+  }
+}
+
+query ListDealsStats {
+  listDealsStats {
+    ...CrmStats
+  }
+}
+
+mutation CreateDeal($input: DealInput!) {
+  createDeal(input: $input) {
+    id
+  }
+}
+
+mutation UpdateDeal($id: ID!, $input: DealInput!) {
+  updateDeal(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteDeal($id: ID!) {
+  deleteDeal(id: $id)
+}
+
+mutation SetDealStage($id: ID!, $stage: DealStage!) {
+  setDealStage(id: $id, stage: $stage) {
+    id
+    stage
+  }
+}
+
+query ListActivities {
+  listActivities {
+    ...ActivityFields
+  }
+}
+
+query ListActivitiesPaged($input: TableQueryInput!) {
+  listActivitiesPaged(input: $input) {
+    totalCount
+    rows {
+      ...ActivityFields
+    }
+  }
+}
+
+query ListActivitiesStats {
+  listActivitiesStats {
+    ...CrmStats
+  }
+}
+
+mutation CreateActivity($input: ActivityInput!) {
+  createActivity(input: $input) {
+    id
+  }
+}
+
+mutation UpdateActivity($id: ID!, $input: ActivityInput!) {
+  updateActivity(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteActivity($id: ID!) {
+  deleteActivity(id: $id)
+}
