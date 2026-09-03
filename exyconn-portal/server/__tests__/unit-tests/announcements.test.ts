@@ -4,13 +4,15 @@ import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
 
 const ctx = (roles: string[] = [ROLES.EMPLOYEE]) =>
-  ({ user: { id: 'u1', email: 'e@exyconn.com', roles } }) as unknown as GraphQLContext;
+  ({
+    user: { id: '65b000000000000000000001', email: 'e@exyconn.com', roles },
+  }) as unknown as GraphQLContext;
 
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const Q = announcementsResolvers.Query as unknown as Record<string, Resolver>;
 
-const active = async (): Promise<{ id: string; title: string }[]> =>
-  (await Q.activeAnnouncements(null, {}, ctx())) as { id: string; title: string }[];
+const active = async (c: GraphQLContext = ctx()): Promise<{ id: string; title: string }[]> =>
+  (await Q.activeAnnouncements(null, {}, c)) as { id: string; title: string }[];
 
 const HOUR = 60 * 60 * 1000;
 const make = (title: string, over: Record<string, unknown> = {}) =>
@@ -58,5 +60,30 @@ describe('activeAnnouncements', () => {
     await make('Live');
     await expect(active()).resolves.toHaveLength(1);
     await expect(Q.listAnnouncements(null, {}, ctx([ROLES.EMPLOYEE]))).rejects.toThrow();
+  });
+});
+
+describe('activeAnnouncements targeting', () => {
+  const { UserModel } = jest.requireActual(
+    '../../src/modules/admin/user.model',
+  ) as typeof import('../../src/modules/admin/user.model');
+  const { seedUser } = jest.requireActual('../helpers') as typeof import('../helpers');
+
+  it('shows company-wide, own-department and by-name announcements, and nothing else', async () => {
+    const eng = await seedUser('eng@exyconn.com', 'pw123456', [ROLES.EMPLOYEE]);
+    const sales = await seedUser('sales@exyconn.com', 'pw123456', [ROLES.EMPLOYEE]);
+    await UserModel.updateOne({ _id: eng._id }, { department: 'Engineering' });
+    await UserModel.updateOne({ _id: sales._id }, { department: 'Sales' });
+    await make('Everyone');
+    await make('Eng only', { audience: 'DEPARTMENT', department: 'Engineering' });
+    await make('Sales only', { audience: 'DEPARTMENT', department: 'Sales' });
+    await make('Just eng person', { audience: 'EMPLOYEES', employeeIds: [String(eng._id)] });
+    await make('Just sales person', { audience: 'EMPLOYEES', employeeIds: [String(sales._id)] });
+
+    const engCtx = {
+      user: { id: String(eng._id), email: 'eng@exyconn.com', roles: [ROLES.EMPLOYEE] },
+    } as unknown as GraphQLContext;
+    const titles = (await active(engCtx)).map((a) => a.title).sort();
+    expect(titles).toEqual(['Eng only', 'Everyone', 'Just eng person']);
   });
 });

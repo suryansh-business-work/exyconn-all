@@ -19,6 +19,7 @@ export type AnnouncementsGridContext = DatedCrudGridContext<PagedAnnouncementRow
 export const ANNOUNCEMENT_COLUMNS: ColDef<PagedAnnouncementRow>[] = [
   textColumn('title', 'Title'),
   statusColumn('category', 'Category'),
+  statusColumn('audience', 'Audience'),
   boolColumn('pinned', 'Pinned'),
   dateColumn('publishedAt', 'Published'),
   dateColumn('expiresAt', 'Expires'),

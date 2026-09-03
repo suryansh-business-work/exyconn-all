@@ -52,9 +52,12 @@ export enum AiJobStatus {
 
 export type Announcement = {
   __typename?: 'Announcement';
+  audience: AnnouncementAudience;
   body: Scalars['String']['output'];
   category: AnnouncementCategory;
   createdAt: Scalars['DateTime']['output'];
+  department?: Maybe<Scalars['String']['output']>;
+  employeeIds: Array<Scalars['String']['output']>;
   expiresAt?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
   pinned: Scalars['Boolean']['output'];
@@ -62,6 +65,12 @@ export type Announcement = {
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
+
+export enum AnnouncementAudience {
+  All = 'ALL',
+  Department = 'DEPARTMENT',
+  Employees = 'EMPLOYEES'
+}
 
 export enum AnnouncementCategory {
   Event = 'EVENT',
@@ -71,8 +80,13 @@ export enum AnnouncementCategory {
 }
 
 export type AnnouncementInput = {
+  audience: AnnouncementAudience;
   body: Scalars['String']['input'];
   category: AnnouncementCategory;
+  /** Required when audience is DEPARTMENT. */
+  department?: InputMaybe<Scalars['String']['input']>;
+  /** Required when audience is EMPLOYEES. */
+  employeeIds?: InputMaybe<Array<Scalars['String']['input']>>;
   expiresAt?: InputMaybe<Scalars['DateTime']['input']>;
   pinned: Scalars['Boolean']['input'];
   publishedAt: Scalars['DateTime']['input'];
@@ -2803,8 +2817,9 @@ export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
   /**
-   * The employee-facing feed: everything published and not yet expired, pinned
-   * first then newest. Readable by any signed-in user, unlike the HR CRUD above.
+   * The employee-facing feed: everything published, not yet expired and aimed at
+   * the caller (company-wide, their department, or them by name), pinned first
+   * then newest. Readable by any signed-in user, unlike the HR CRUD above.
    */
   activeAnnouncements: Array<Announcement>;
   /** Leave types an employee can pick from when applying. */
@@ -4402,19 +4417,19 @@ export type DeletePromptMutationVariables = Exact<{
 
 export type DeletePromptMutation = { __typename?: 'Mutation', deletePrompt: boolean };
 
-export type AnnouncementFieldsFragment = { __typename?: 'Announcement', id: string, title: string, body: string, category: AnnouncementCategory, pinned: boolean, publishedAt: string, expiresAt?: string | null };
+export type AnnouncementFieldsFragment = { __typename?: 'Announcement', id: string, title: string, body: string, category: AnnouncementCategory, pinned: boolean, publishedAt: string, expiresAt?: string | null, audience: AnnouncementAudience, department?: string | null, employeeIds: Array<string> };
 
 export type ActiveAnnouncementsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ActiveAnnouncementsQuery = { __typename?: 'Query', activeAnnouncements: Array<{ __typename?: 'Announcement', id: string, title: string, body: string, category: AnnouncementCategory, pinned: boolean, publishedAt: string, expiresAt?: string | null }> };
+export type ActiveAnnouncementsQuery = { __typename?: 'Query', activeAnnouncements: Array<{ __typename?: 'Announcement', id: string, title: string, body: string, category: AnnouncementCategory, pinned: boolean, publishedAt: string, expiresAt?: string | null, audience: AnnouncementAudience, department?: string | null, employeeIds: Array<string> }> };
 
 export type ListAnnouncementsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListAnnouncementsPagedQuery = { __typename?: 'Query', listAnnouncementsPaged: { __typename?: 'AnnouncementPage', totalCount: number, rows: Array<{ __typename?: 'Announcement', id: string, title: string, body: string, category: AnnouncementCategory, pinned: boolean, publishedAt: string, expiresAt?: string | null }> } };
+export type ListAnnouncementsPagedQuery = { __typename?: 'Query', listAnnouncementsPaged: { __typename?: 'AnnouncementPage', totalCount: number, rows: Array<{ __typename?: 'Announcement', id: string, title: string, body: string, category: AnnouncementCategory, pinned: boolean, publishedAt: string, expiresAt?: string | null, audience: AnnouncementAudience, department?: string | null, employeeIds: Array<string> }> } };
 
 export type ListAnnouncementsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6400,6 +6415,9 @@ export const AnnouncementFieldsFragmentDoc = gql`
   pinned
   publishedAt
   expiresAt
+  audience
+  department
+  employeeIds
 }
     `;
 export const BrandingFieldsFragmentDoc = gql`

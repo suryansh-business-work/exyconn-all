@@ -8,6 +8,12 @@ export const announcementsTypeDefs = gql`
     UPDATE
   }
 
+  enum AnnouncementAudience {
+    ALL
+    DEPARTMENT
+    EMPLOYEES
+  }
+
   type Announcement {
     id: ID!
     title: String!
@@ -16,6 +22,9 @@ export const announcementsTypeDefs = gql`
     pinned: Boolean!
     publishedAt: DateTime!
     expiresAt: DateTime
+    audience: AnnouncementAudience!
+    department: String
+    employeeIds: [String!]!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -27,6 +36,11 @@ export const announcementsTypeDefs = gql`
     pinned: Boolean!
     publishedAt: DateTime!
     expiresAt: DateTime
+    audience: AnnouncementAudience!
+    "Required when audience is DEPARTMENT."
+    department: String
+    "Required when audience is EMPLOYEES."
+    employeeIds: [String!]
   }
 
   type AnnouncementPage {
@@ -40,8 +54,9 @@ export const announcementsTypeDefs = gql`
     listAnnouncementsStats: TableStats!
     getAnnouncement(id: ID!): Announcement!
     """
-    The employee-facing feed: everything published and not yet expired, pinned
-    first then newest. Readable by any signed-in user, unlike the HR CRUD above.
+    The employee-facing feed: everything published, not yet expired and aimed at
+    the caller (company-wide, their department, or them by name), pinned first
+    then newest. Readable by any signed-in user, unlike the HR CRUD above.
     """
     activeAnnouncements: [Announcement!]!
   }

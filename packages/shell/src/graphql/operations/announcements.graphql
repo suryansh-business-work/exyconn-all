@@ -6,6 +6,9 @@ fragment AnnouncementFields on Announcement {
   pinned
   publishedAt
   expiresAt
+  audience
+  department
+  employeeIds
 }
 
 query ActiveAnnouncements {
