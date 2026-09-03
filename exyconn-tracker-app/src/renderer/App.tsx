@@ -10,6 +10,7 @@ import ConsentScreen from './screens/ConsentScreen';
 import PermissionsScreen from './screens/PermissionsScreen';
 import useBrandTheme from './hooks/useBrandTheme';
 import useShutterSound from './hooks/useShutterSound';
+import useCaptureBridge from './hooks/useCaptureBridge';
 import useTrackerState from './hooks/useTrackerState';
 
 interface RouterProps {
@@ -53,9 +54,12 @@ export default function App(): JSX.Element {
   const state = useTrackerState();
   const theme = useBrandTheme(state?.branding ?? null);
 
-  // At the root, not in a screen: the shutter must still sound while the app is hidden in the
-  // tray, which is exactly where it is for most captures.
+  // Both at the root, not in a screen, and for the same reason: a capture fires whatever page
+  // the employee is on — including no page at all, with the app hidden in the tray, which is
+  // where it is for most captures. The shutter must still sound, and the webcam photo (which
+  // only a renderer can take) must still be produced.
   useShutterSound();
+  useCaptureBridge();
 
   return (
     <ThemeProvider theme={theme}>

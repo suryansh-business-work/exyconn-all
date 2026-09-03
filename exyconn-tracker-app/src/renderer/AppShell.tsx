@@ -24,6 +24,7 @@ function SectionView({ section, state }: Readonly<SectionProps>): JSX.Element {
         settings={state.settings}
         branding={state.branding}
         timezone={state.timezone}
+        preferences={state.preferences}
       />
     );
   }

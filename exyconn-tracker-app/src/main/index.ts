@@ -1,9 +1,18 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, session, shell } from 'electron';
 import { join } from 'node:path';
-import { IPC, type ScreenshotsRange, type TrackerState } from '@shared/types';
+import {
+  IPC,
+  type AppPreferences,
+  type PermissionKind,
+  type ScreenshotsRange,
+  type TrackerState,
+} from '@shared/types';
 import { TrackerController } from './controller';
 import { TrackerTray } from './tray';
 import { closeScreenshotsWindow, openScreenshotsWindow } from './screenshots-window';
+import { composeWithWebcam, registerCaptureBridge } from './capture-bridge';
+import { applyWindowChrome, registerWindowControls } from './window-chrome';
+import { secureStore } from './store';
 
 let window: BrowserWindow | null = null;
 let tray: TrackerTray | null = null;
@@ -29,9 +38,13 @@ function announceCapture(count: number): void {
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: 420,
-    height: 640,
-    resizable: false,
+    height: 680,
+    minWidth: 380,
+    minHeight: 560,
     show: false,
+    // No OS chrome: the tracker draws its own title bar, so minimise/maximise/close are part
+    // of the app rather than a strip of Windows or macOS bolted to the top of it.
+    frame: false,
     title: 'Exyconn Tracker',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -45,12 +58,18 @@ function createWindow(): BrowserWindow {
   });
 
   win.on('ready-to-show', () => win.show());
-  // Keep the app resident in the tray when the window is closed, rather than quitting.
+  applyWindowChrome(win);
+  /**
+   * Closing the window leaves the app running in the tray, unless the employee has turned
+   * that off in Settings — in which case close means quit, and tracking stops with it.
+   */
   win.on('close', (event) => {
-    if (!isQuitting) {
+    if (!isQuitting && secureStore().preferences.closeToTray) {
       event.preventDefault();
       win.hide();
+      return;
     }
+    isQuitting = true;
   });
 
   if (process.env.ELECTRON_RENDERER_URL) {
@@ -89,12 +108,27 @@ function registerIpc(ctrl: TrackerController): void {
     }
   });
   ipcMain.handle(IPC.getPermissions, () => ctrl.refreshPermissions());
-  ipcMain.handle(IPC.requestPermission, (_e, kind: 'screenRecording' | 'accessibility') =>
-    ctrl.requestPermission(kind),
+  ipcMain.handle(IPC.requestPermission, (_e, kind: PermissionKind) => ctrl.requestPermission(kind));
+  ipcMain.handle(IPC.setPreferences, (_e, update: Partial<AppPreferences>) =>
+    ctrl.setPreferences(update),
   );
   ipcMain.handle(IPC.openPrivacy, () =>
     shell.openExternal('https://portal.exyconn.com/me/tracker'),
   );
+}
+
+/**
+ * What the app's own pages may ask Chromium for.
+ *
+ * Only `media` — the webcam photo — and only for the tracker's own windows. Electron grants
+ * every permission by default, and an employee-monitoring app that silently held a
+ * microphone, geolocation or notification-spam permission it never uses would be exactly the
+ * thing this app spends its consent screen promising it is not.
+ */
+function lockDownPermissions(): void {
+  session.defaultSession.setPermissionRequestHandler((_contents, permission, callback) => {
+    callback(permission === 'media');
+  });
 }
 
 // A single instance only — a second launch focuses the existing window.
@@ -107,7 +141,12 @@ if (!app.requestSingleInstanceLock()) {
   });
 
   void app.whenReady().then(async () => {
-    controller = new TrackerController(broadcast, announceCapture);
+    lockDownPermissions();
+    registerCaptureBridge();
+    registerWindowControls();
+    controller = new TrackerController(broadcast, announceCapture, (input) =>
+      composeWithWebcam(window, input),
+    );
     window = createWindow();
     tray = new TrackerTray(window, {
       start: () => void controller?.start(),

@@ -3,6 +3,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import AppFrame from './components/AppFrame';
+import TitleBar from './components/TitleBar';
 import ScreenshotsScreen from './screens/ScreenshotsScreen';
 import useBrandTheme from './hooks/useBrandTheme';
 import useTrackerState from './hooks/useTrackerState';
@@ -38,6 +39,8 @@ export default function ScreenshotsApp(): JSX.Element {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppFrame>
+        {/* The window is frameless, so without this it could not be moved or closed. */}
+        <TitleBar title="My screenshots — Exyconn Tracker" />
         {state === null ? (
           <Loading />
         ) : (

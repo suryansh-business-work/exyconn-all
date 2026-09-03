@@ -49,6 +49,9 @@ mac:
   extendInfo:
     NSScreenCaptureUsageDescription: Exyconn Tracker captures periodic work screenshots while you are tracking.
     NSAppleEventsUsageDescription: Exyconn Tracker reads the active window title to record app usage.
+    # Only ever used when the workspace has switched webcam capture on, and only while
+    # tracking is running. macOS shows this sentence in its own permission prompt.
+    NSCameraUsageDescription: Exyconn Tracker takes a photo with each work screenshot, if your workspace has enabled it.
 
 dmg:
   sign: false

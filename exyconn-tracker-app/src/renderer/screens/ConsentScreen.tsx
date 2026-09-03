@@ -4,7 +4,9 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline';
+import PhotoCameraOutlined from '@mui/icons-material/PhotoCameraOutlined';
 import type { Branding, TrackerSettings } from '@shared/types';
+import { WEBCAM_DISCLOSURE } from '@shared/config';
 import BrandMark from '../components/BrandMark';
 import ConsentBody from '../components/ConsentBody';
 import Surface from '../components/Surface';
@@ -20,11 +22,16 @@ interface Props {
  * Consent gate. The disclosure itself is authored in the portal (settings.consentText)
  * and rendered verbatim — this app never paraphrases what it records. Tracking only
  * begins once the person explicitly agrees, so there is nothing to nudge here.
+ *
+ * The one thing the app states on its own account is the webcam, when it is switched on: the
+ * consent text is the workspace's to write, and being photographed is not something anyone
+ * should be able to leave out of it.
  */
 export default function ConsentScreen({ branding, settings }: Readonly<Props>): JSX.Element {
   const [busy, setBusy] = useState(false);
   const consentText = settings?.consentText ?? '';
   const hasDisclosure = consentText.trim() !== '';
+  const webcamEnabled = settings?.webcamEnabled ?? false;
 
   async function accept(): Promise<void> {
     setBusy(true);
@@ -68,6 +75,17 @@ export default function ConsentScreen({ branding, settings }: Readonly<Props>): 
             portal.
           </Alert>
         )}
+
+        {webcamEnabled ? (
+          <Alert
+            severity="warning"
+            variant="outlined"
+            icon={<PhotoCameraOutlined fontSize="small" />}
+            sx={{ borderRadius: '4px', mt: 2 }}
+          >
+            {WEBCAM_DISCLOSURE}
+          </Alert>
+        ) : null}
 
         <Stack spacing={1.25} sx={{ mt: 2.5 }}>
           <Button

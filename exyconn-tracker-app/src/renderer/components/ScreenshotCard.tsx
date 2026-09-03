@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import ButtonBase from '@mui/material/ButtonBase';
 import Chip from '@mui/material/Chip';
 import LinearProgress from '@mui/material/LinearProgress';
 import Stack from '@mui/material/Stack';
@@ -13,31 +14,45 @@ import Surface from './Surface';
 interface Props {
   shot: DayScreenshot;
   timezone: string;
+  /** Opens this shot full screen — a 300px thumbnail shows that it exists, not what it caught. */
+  onOpen: () => void;
 }
 
 const PENDING_HINT =
   'Activity is measured over the interval this screenshot belongs to. A screenshot is uploaded from inside its interval, so a shot that has landed before its interval reads 0% until the next sync.';
 
 /** One screenshot, with the activity level of its interval and the time it was captured. */
-export default function ScreenshotCard({ shot, timezone }: Readonly<Props>): JSX.Element {
+export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Props>): JSX.Element {
   const capturedAt = formatDateTime(shot.capturedAt, timezone);
 
   return (
     <Surface sx={{ p: 1.5 }}>
-      <Box
-        component="img"
-        src={shot.imageUrl}
-        alt={`Screenshot captured at ${capturedAt}`}
-        loading="lazy"
-        sx={(theme) => ({
-          width: '100%',
-          aspectRatio: '16 / 10',
-          objectFit: 'cover',
+      <ButtonBase
+        onClick={onOpen}
+        aria-label={`Open the screenshot captured at ${capturedAt} full screen`}
+        sx={{
           display: 'block',
+          width: '100%',
           borderRadius: '4px',
-          border: `1px solid ${theme.palette.divider}`,
-        })}
-      />
+          transition: 'transform 180ms ease',
+          '&:hover': { transform: 'translateY(-2px)' },
+        }}
+      >
+        <Box
+          component="img"
+          src={shot.imageUrl}
+          alt={`Screenshot captured at ${capturedAt}`}
+          loading="lazy"
+          sx={(theme) => ({
+            width: '100%',
+            aspectRatio: '16 / 10',
+            objectFit: 'cover',
+            display: 'block',
+            borderRadius: '4px',
+            border: `1px solid ${theme.palette.divider}`,
+          })}
+        />
+      </ButtonBase>
 
       <Stack
         direction="row"

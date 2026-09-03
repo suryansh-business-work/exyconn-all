@@ -1,4 +1,4 @@
-import type { TrackerSettings } from '@shared/types';
+import type { TrackerSettings, WebcamCorner } from '@shared/types';
 
 export interface SettingRow {
   id: string;
@@ -12,6 +12,29 @@ function plural(count: number, unit: string): string {
 
 function yesNo(value: boolean): string {
   return value ? 'On' : 'Off';
+}
+
+/** The quality dial, said out loud — 100 is not "100 of something", it is lossless. */
+function qualityPolicy(settings: TrackerSettings): string {
+  if (settings.screenshotQuality >= 100) {
+    return '100% — full resolution, lossless';
+  }
+  return `${settings.screenshotQuality}% — up to ${settings.screenshotMaxWidth}px wide`;
+}
+
+/** Where the webcam photo lands, in the words the portal's own picker uses. */
+const CORNER_LABEL: Record<WebcamCorner, string> = {
+  'top-left': 'top left',
+  'top-right': 'top right',
+  'bottom-left': 'bottom left',
+  'bottom-right': 'bottom right',
+};
+
+function webcamPolicy(settings: TrackerSettings): string {
+  if (!settings.webcamEnabled) {
+    return 'Off — no photo is taken';
+  }
+  return `On — shown in the ${CORNER_LABEL[settings.webcamCorner]} of each screenshot`;
 }
 
 function syncPolicy(settings: TrackerSettings): string {
@@ -42,7 +65,9 @@ export function buildSettingRows(settings: TrackerSettings): SettingRow[] {
       label: 'Randomised screenshot timing',
       value: yesNo(settings.randomizeScreenshotTiming),
     },
+    { id: 'quality', label: 'Screenshot quality', value: qualityPolicy(settings) },
     { id: 'blur', label: 'Blur screenshots', value: yesNo(settings.blurScreenshots) },
+    { id: 'webcam', label: 'Webcam photo', value: webcamPolicy(settings) },
     { id: 'titles', label: 'Record window titles', value: yesNo(settings.trackWindowTitles) },
     {
       id: 'idle',

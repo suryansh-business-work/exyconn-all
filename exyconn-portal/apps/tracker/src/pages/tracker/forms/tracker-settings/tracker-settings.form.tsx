@@ -2,10 +2,11 @@ import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Grid } from '@exyconn/shell/components/ui';
+import { Box, FormHelperText, Grid } from '@exyconn/shell/components/ui';
 import {
   RhfTextField,
   RhfSwitch,
+  RhfSelect,
   RhfRichText,
   RhfAutocomplete,
 } from '@exyconn/shell/components/form/rhf';
@@ -14,6 +15,7 @@ import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvid
 import { useUpdateTrackerSettingsMutation } from '@exyconn/shell/graphql/generated';
 import { isValidTimezone } from '../../tracker.timezone';
 import { buildTimezoneOptions } from './timezone.options';
+import { WEBCAM_CORNERS, WEBCAM_CORNER_OPTIONS } from './webcam.options';
 import type { TrackerSettingsRow } from './tracker-settings.types';
 
 const schema = z.object({
@@ -21,12 +23,15 @@ const schema = z.object({
   screenshotsPerInterval: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(10),
   idleThresholdSeconds: z.coerce.number({ message: 'Enter a number' }).int().min(10).max(3600),
   screenshotMaxWidth: z.coerce.number({ message: 'Enter a number' }).int().min(320).max(3840),
-  screenshotQuality: z.coerce.number({ message: 'Enter a number' }).int().min(1).max(100),
+  // 0-100. 100 is the honest top of the scale: native resolution, encoded losslessly.
+  screenshotQuality: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(100),
   syncIntervalMinutes: z.coerce.number({ message: 'Enter a number' }).int().min(1).max(60),
   randomizeScreenshotTiming: z.boolean(),
   blurScreenshots: z.boolean(),
   trackWindowTitles: z.boolean(),
   autoSyncEnabled: z.boolean(),
+  webcamEnabled: z.boolean(),
+  webcamCorner: z.enum(WEBCAM_CORNERS as [string, ...string[]]),
   consentText: z.string().min(1, 'Consent text is required'),
   defaultTimezone: z
     .string()
@@ -45,6 +50,8 @@ const toInitial = (row: TrackerSettingsRow): Values => ({
   blurScreenshots: row.blurScreenshots,
   trackWindowTitles: row.trackWindowTitles,
   autoSyncEnabled: row.autoSyncEnabled,
+  webcamEnabled: row.webcamEnabled,
+  webcamCorner: row.webcamCorner,
   consentText: row.consentText,
   defaultTimezone: row.defaultTimezone,
 });
@@ -65,6 +72,8 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
     () => buildTimezoneOptions(initial.defaultTimezone),
     [initial.defaultTimezone],
   );
+  // The corner only means anything when a photo is actually being taken.
+  const webcamEnabled = methods.watch('webcamEnabled');
 
   const onSubmit = async (values: Values) => {
     try {
@@ -96,7 +105,12 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
           <RhfTextField name="screenshotMaxWidth" label="Screenshot max width" type="number" />
         </Grid>
         <Grid item xs={12} sm={6}>
-          <RhfTextField name="screenshotQuality" label="Screenshot quality" type="number" />
+          <RhfTextField
+            name="screenshotQuality"
+            label="Screenshot quality (%)"
+            type="number"
+            helperText="100 = native resolution, lossless. Below 100 downscales to the max width."
+          />
         </Grid>
         <Grid item xs={12} sm={6}>
           <RhfTextField
@@ -117,6 +131,21 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
       <RhfSwitch name="blurScreenshots" label="Blur screenshots" />
       <RhfSwitch name="trackWindowTitles" label="Track window titles" />
       <RhfSwitch name="autoSyncEnabled" label="Auto-sync (off = employee syncs manually)" />
+      <Box>
+        <RhfSwitch name="webcamEnabled" label="Webcam photo with each screenshot" />
+        <FormHelperText>
+          Photographs the employee. The desktop app discloses it on the consent screen, announces
+          every capture, and macOS asks for camera access before the first one.
+        </FormHelperText>
+      </Box>
+      {webcamEnabled ? (
+        <RhfSelect
+          name="webcamCorner"
+          label="Webcam photo corner"
+          options={[...WEBCAM_CORNER_OPTIONS]}
+          helperText="Where the photo sits on the screenshot."
+        />
+      ) : null}
       <RhfRichText
         name="consentText"
         label="Consent disclosure (shown in the desktop app)"

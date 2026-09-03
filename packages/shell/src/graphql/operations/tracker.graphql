@@ -43,6 +43,8 @@ fragment TrackerSettingsFields on TrackerSettings {
   idleThresholdSeconds
   screenshotMaxWidth
   screenshotQuality
+  webcamEnabled
+  webcamCorner
   autoSyncEnabled
   syncIntervalMinutes
   consentText

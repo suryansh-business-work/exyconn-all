@@ -71,6 +71,32 @@ function activityPercent(activeMs: number, idleMs: number): number {
   return Math.min(100, Math.max(0, Math.round((activeMs / total) * 100)));
 }
 
+/**
+ * The descriptive half of a device row — what the machine is, not what it is allowed to do.
+ *
+ * Kept apart from the identity and grant fields (userId, tokenHash, isActive, revokedAt) on
+ * purpose: a heartbeat may refresh this, and must never be able to re-enrol a device or
+ * un-revoke itself by sending a fuller payload.
+ */
+function describeDevice(device: DeviceInput) {
+  return {
+    platform: device.platform,
+    hostname: device.hostname ?? '',
+    appVersion: device.appVersion ?? '',
+    machineId: device.machineId ?? '',
+    osName: device.osName ?? '',
+    osVersion: device.osVersion ?? '',
+    arch: device.arch ?? '',
+    cpuModel: device.cpuModel ?? '',
+    cpuCores: device.cpuCores ?? 0,
+    totalMemoryMb: device.totalMemoryMb ?? 0,
+    locale: device.locale ?? '',
+    timezone: device.timezone ?? '',
+    screenCount: device.screenCount ?? 0,
+    screenResolution: device.screenResolution ?? '',
+  };
+}
+
 /** Desktop-tracker logic (singleton). */
 class TrackerDeviceService {
   /**
@@ -107,23 +133,10 @@ class TrackerDeviceService {
     await TrackerDeviceModel.findOneAndUpdate(
       { deviceId: device.deviceId },
       {
+        ...describeDevice(device),
         userId: user.id,
         deviceId: device.deviceId,
         tokenHash: hashToken(token),
-        platform: device.platform,
-        hostname: device.hostname ?? '',
-        appVersion: device.appVersion ?? '',
-        machineId: device.machineId ?? '',
-        osName: device.osName ?? '',
-        osVersion: device.osVersion ?? '',
-        arch: device.arch ?? '',
-        cpuModel: device.cpuModel ?? '',
-        cpuCores: device.cpuCores ?? 0,
-        totalMemoryMb: device.totalMemoryMb ?? 0,
-        locale: device.locale ?? '',
-        timezone: device.timezone ?? '',
-        screenCount: device.screenCount ?? 0,
-        screenResolution: device.screenResolution ?? '',
         issuedAt: new Date(),
         lastSeenAt: new Date(),
         revokedAt: null,
@@ -207,9 +220,24 @@ class TrackerDeviceService {
     return true;
   }
 
-  async heartbeat(deviceId: string) {
-    await TrackerDeviceModel.updateOne({ deviceId }, { lastSeenAt: new Date() });
-    return true;
+  /**
+   * Desktop keep-alive. Marks the device as seen just now — that is the only thing keeping
+   * the portal's Devices console honest about who is actually running the app — and returns
+   * the current state in the same round-trip, so a long-running app never sits on settings
+   * an admin has since changed.
+   *
+   * The app also re-states what it is. Device details were previously written only at sign-in,
+   * and a device token never expires, so the console kept showing the app version and hardware
+   * an employee enrolled with however many updates ago. Only the descriptive fields are
+   * refreshed, and the row is matched on (deviceId, userId): a heartbeat cannot re-enrol a
+   * device, move it to another employee, or undo a revocation.
+   */
+  async heartbeat(userId: string, deviceId: string, device?: DeviceInput) {
+    const seen = device
+      ? { ...describeDevice(device), lastSeenAt: new Date() }
+      : { lastSeenAt: new Date() };
+    await TrackerDeviceModel.updateOne({ deviceId, userId }, seen);
+    return this.me(userId, deviceId);
   }
 
   /** Opens a tracking session. The employee must have accepted the disclosure first. */

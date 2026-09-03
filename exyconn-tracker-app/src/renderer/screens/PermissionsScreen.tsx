@@ -6,13 +6,12 @@ import Typography from '@mui/material/Typography';
 import AccessibilityNewOutlined from '@mui/icons-material/AccessibilityNewOutlined';
 import RefreshRounded from '@mui/icons-material/RefreshRounded';
 import ScreenshotMonitorOutlined from '@mui/icons-material/ScreenshotMonitorOutlined';
-import type { PermissionState } from '@shared/types';
+import PhotoCameraOutlined from '@mui/icons-material/PhotoCameraOutlined';
+import type { PermissionKind, PermissionState } from '@shared/types';
 import Surface from '../components/Surface';
 import PermissionRow from '../components/PermissionRow';
 import ScreenLayout from '../components/ScreenLayout';
 import { run } from '../run';
-
-type PermissionKind = 'screenRecording' | 'accessibility';
 
 interface PermissionInfo {
   kind: PermissionKind;
@@ -33,6 +32,15 @@ const PERMISSIONS: readonly PermissionInfo[] = [
     title: 'Accessibility',
     reason: 'Lets the app count keyboard and mouse activity — how often, never what you type.',
     icon: AccessibilityNewOutlined,
+  },
+  // Only ever missing when the workspace has turned webcam capture on; `permissions.camera`
+  // reports granted otherwise, so nobody is asked for a camera that will never be used.
+  {
+    kind: 'camera',
+    title: 'Camera',
+    reason:
+      'Your workspace takes a webcam photo with each screenshot. Every one is announced, and shows in the notification.',
+    icon: PhotoCameraOutlined,
   },
 ];
 

@@ -1,9 +1,11 @@
 import type {
+  AppPreferences,
   AuthUser,
   Branding,
   DayDetail,
   LiveStats,
   LoginResult,
+  PermissionKind,
   PermissionState,
   ReportDay,
   SyncOutcome,
@@ -16,8 +18,18 @@ import { deviceTimezone, effectiveTimezone } from '@shared/timezone';
 import { secureStore } from './store';
 import { TrackerEngine } from './engine';
 import * as portal from './portal-client';
+import { TrackerAuthError } from './portal-client';
 import { collectDeviceInfo } from './device-info';
+import { describeSyncFailure } from './sync-message';
 import { getPermissions, requestPermission } from './trackers/permissions';
+import type { ComposeInput } from './capture-bridge';
+
+/**
+ * How often the app checks in with the portal while signed in. Fast enough that the Devices
+ * console's "last seen" means something and an admin's settings change lands within a
+ * minute; slow enough to be one small request per employee per minute.
+ */
+const PORTAL_POLL_MS = 60_000;
 
 /**
  * Owns tracker app state and mediates every command from the renderer/tray. The window,
@@ -40,11 +52,19 @@ export class TrackerController {
    * default). Held here so the report query and the renderer agree on ONE zone.
    */
   private timezone: string = deviceTimezone();
+  /** The keep-alive/settings poll; runs only while somebody is signed in. */
+  private pollTimer: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly onChange: (state: TrackerState) => void,
     /** Fired on every screenshot so the shell can broadcast it (the shutter sound). */
     private readonly onCapture: (count: number) => void,
+    /**
+     * Adds the webcam photo to a screenshot. Injected rather than imported because it needs a
+     * BrowserWindow, which this class deliberately knows nothing about — that is what keeps
+     * it unit-testable.
+     */
+    private readonly composeWithWebcam: (input: ComposeInput) => Promise<string | null>,
   ) {}
 
   getState(): TrackerState {
@@ -55,6 +75,7 @@ export class TrackerController {
       branding: this.branding,
       permissions: this.permissions,
       stats: { ...this.stats, status: this.status },
+      preferences: secureStore().preferences,
       rememberMe: secureStore().remembered,
       signedOutReason: this.signedOutReason,
       timezone: this.timezone,
@@ -75,12 +96,9 @@ export class TrackerController {
     }
 
     try {
-      const me = await portal.trackerMe();
-      this.user = me.user;
-      this.settings = me.settings;
-      this.timezone = effectiveTimezone(me.timezone);
-      this.status = me.consentRequired ? 'consent-required' : 'idle';
+      this.applyPortalState(await portal.trackerMe());
       this.buildEngine();
+      this.startPolling();
     } catch {
       // Device or access revoked while we were away — drop the stale token.
       secureStore().clearToken();
@@ -112,7 +130,8 @@ export class TrackerController {
       this.buildEngine();
       this.refreshPermissions();
       this.emit();
-      await this.loadTimezone();
+      this.startPolling();
+      await this.syncFromPortal();
       return { ok: true, consentRequired: result.consentRequired, user: result.user };
     } catch (error) {
       return { ok: false, error: error instanceof Error ? error.message : 'Sign-in failed' };
@@ -121,17 +140,96 @@ export class TrackerController {
 
   /**
    * The sign-in payload carries no zone (the portal's TrackerLoginPayload has no `timezone`
-   * field), so the effective zone is fetched right after. It runs AFTER the sign-in has been
+   * field), so the full state is fetched right after. It runs AFTER the sign-in has been
    * emitted and swallows its own failure: an employee who is signed in must not be bounced
-   * back to the login screen because one follow-up query failed. They keep the device's zone.
+   * back to the login screen because one follow-up query failed. They keep this device's zone
+   * until the next heartbeat corrects it.
    */
-  private async loadTimezone(): Promise<void> {
+  private async syncFromPortal(): Promise<void> {
     try {
-      const me = await portal.trackerMe();
-      this.timezone = effectiveTimezone(me.timezone);
+      this.applyPortalState(await portal.trackerMe());
       this.emit();
     } catch (error) {
-      console.error('Could not load the timezone; using this device’s zone', error);
+      console.error('Could not read the portal after sign-in; using this device’s zone', error);
+    }
+  }
+
+  /**
+   * Adopts the portal's view of this employee: their settings, their consent state and the
+   * zone every time in this app is rendered in. The engine reads the settings on every tick,
+   * so handing them over here is what makes an admin's change to the interval, the screenshot
+   * rules or the sync cadence take effect on a RUNNING app rather than at the next restart.
+   *
+   * Returns whether anything actually moved, so a quiet heartbeat does not re-render the UI
+   * once a minute for nothing.
+   */
+  private applyPortalState(me: portal.TrackerMeResponse): boolean {
+    const before = this.stateSignature();
+
+    this.user = me.user;
+    this.settings = me.settings;
+    this.timezone = effectiveTimezone(me.timezone);
+    this.status = this.statusFor(me.consentRequired);
+    this.engine?.updateSettings(me.settings);
+    // Turning webcam capture on introduces a permission the employee has never been asked for.
+    this.permissions = getPermissions(me.settings.webcamEnabled);
+
+    return this.stateSignature() !== before;
+  }
+
+  /** The portal-owned slice of the state, for spotting a change without comparing by hand. */
+  private stateSignature(): string {
+    return JSON.stringify([this.user, this.settings, this.timezone, this.status, this.permissions]);
+  }
+
+  /**
+   * Where the portal's consent answer leaves the app. A heartbeat must never interrupt work
+   * in progress, so only the resting states follow the portal; `tracking` and `paused` are
+   * left exactly as they are.
+   */
+  private statusFor(consentRequired: boolean): TrackerStatus {
+    if (this.status === 'tracking' || this.status === 'paused') {
+      return this.status;
+    }
+    return consentRequired ? 'consent-required' : 'idle';
+  }
+
+  /**
+   * Keeps this app and the portal in step for as long as somebody is signed in.
+   *
+   * Without it the app read the portal exactly once, at sign-in: settings an admin changed
+   * never arrived, the Devices console's "last seen" stayed frozen at enrolment, and an app
+   * sitting idle after its access was revoked only found out at its next upload — which,
+   * with nothing to upload, never came.
+   */
+  private startPolling(): void {
+    this.stopPolling();
+    this.pollTimer = setInterval(() => {
+      this.poll().catch((error: unknown) => console.error('Portal poll failed', error));
+    }, PORTAL_POLL_MS);
+  }
+
+  private stopPolling(): void {
+    if (this.pollTimer !== null) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = null;
+    }
+  }
+
+  /** One check-in: adopt whatever the portal now says, and sign out if it says we are revoked. */
+  private async poll(): Promise<void> {
+    try {
+      if (this.applyPortalState(await portal.heartbeat(collectDeviceInfo()))) {
+        this.emit();
+      }
+    } catch (error) {
+      if (error instanceof TrackerAuthError) {
+        await this.logout(describeSyncFailure(error));
+        return;
+      }
+      // A portal that is briefly unreachable must not disturb a tracking session — the work
+      // keeps accruing in the durable outbox and the next check-in picks the change up.
+      console.error('Portal heartbeat failed', error);
     }
   }
 
@@ -164,6 +262,9 @@ export class TrackerController {
    * the token is dropped — otherwise signing out would strand the employee's queued work.
    */
   async logout(reason: string | null = null): Promise<void> {
+    // Before the re-entry guard: a poll that lands mid-sign-out must not restart the timer's
+    // life beyond the session it belongs to.
+    this.stopPolling();
     if (this.status === 'signed-out') {
       return; // an auth error during the sign-out flush would otherwise re-enter here
     }
@@ -246,13 +347,25 @@ export class TrackerController {
     return portal.fetchMyDay(start, end);
   }
 
+  /**
+   * Re-reads the OS grants. Camera only counts as required when the workspace has webcam
+   * capture switched on, so the settings have to be in hand — which is why every caller runs
+   * after the portal state has been applied.
+   */
   refreshPermissions(): PermissionState {
-    this.permissions = getPermissions();
+    this.permissions = getPermissions(this.settings?.webcamEnabled ?? false);
     return this.permissions;
   }
 
-  requestPermission(kind: 'screenRecording' | 'accessibility'): Promise<void> {
+  requestPermission(kind: PermissionKind): Promise<void> {
     return requestPermission(kind);
+  }
+
+  /** Updates this install's own preferences (tray behaviour) and re-renders. */
+  setPreferences(update: Partial<AppPreferences>): AppPreferences {
+    const preferences = secureStore().setPreferences(update);
+    this.emit();
+    return preferences;
   }
 
   private buildEngine(): void {
@@ -270,6 +383,7 @@ export class TrackerController {
           console.error('Forced sign-out failed', cause),
         );
       },
+      composeWithWebcam: (input) => this.composeWithWebcam(input),
     });
   }
 

@@ -2,8 +2,9 @@ import { powerMonitor } from 'electron';
 import type { LiveStats, SyncOutcome, TrackerSettings, TrackerStatus } from '@shared/types';
 import { InputCounter } from './trackers/input-counter';
 import { WindowTracker } from './trackers/window-tracker';
-import { Screenshotter } from './trackers/screenshotter';
+import { Screenshotter, type Capture } from './trackers/screenshotter';
 import { Outbox, type FlushResult, type OutboxItem } from './outbox';
+import type { ComposeInput } from './capture-bridge';
 import { notifyScreenshotCaptured } from './notifier';
 import { classifyFailure, describeSyncFailure } from './sync-message';
 import * as portal from './portal-client';
@@ -17,6 +18,13 @@ export interface EngineHooks {
   /** A capture just happened, `count` shots. The shell notifies and plays the shutter sound. */
   onCapture: (count: number) => void;
   onAuthError: (reason: string) => void;
+  /**
+   * Adds the webcam photo to a screenshot, in a renderer — the only place a camera and a
+   * canvas exist. Resolves to `null` whenever no photo could be taken, and the engine then
+   * uploads the plain screenshot: a missing photo must never cost the employee the tracked
+   * time it belonged to.
+   */
+  composeWithWebcam: (input: ComposeInput) => Promise<string | null>;
 }
 
 /**
@@ -217,12 +225,16 @@ export class TrackerEngine {
 
   private async takeScreenshots(now: number): Promise<void> {
     const captures = await this.screenshotter.capture(this.settings);
+    let preview: string | undefined;
+
     for (const capture of captures) {
+      const image = await this.withWebcam(capture);
+      preview ??= image;
       this.outbox.enqueueScreenshot({
         sessionId: this.sessionId ?? '',
         intervalStartedAt: new Date(this.intervalStartedAt).toISOString(),
         capturedAt: new Date(now).toISOString(),
-        image: capture.image,
+        image,
         displayId: capture.displayId,
         blurred: capture.blurred,
       });
@@ -230,12 +242,33 @@ export class TrackerEngine {
     }
 
     // Never capture the employee's screen silently — every capture is announced twice: on the
-    // OS's own notification surface, and with an audible camera shutter (which the shell plays,
-    // because only a renderer can play audio). Neither may throw into the tracking loop.
+    // OS's own notification surface (showing them the shot itself, webcam photo and all), and
+    // with an audible camera shutter (which the shell plays, because only a renderer can play
+    // audio). Neither may throw into the tracking loop.
     if (captures.length > 0) {
-      notifyScreenshotCaptured(captures.length, this.stats());
+      notifyScreenshotCaptured(captures.length, this.stats(), preview);
       this.hooks.onCapture(captures.length);
     }
+  }
+
+  /**
+   * Composites the webcam photo into the corner of a capture, when the workspace asks for one.
+   *
+   * Blur is applied to the SCREEN before this, never to the photo: blur exists to stop
+   * on-screen content being readable, and a workspace that has asked to see who is at the
+   * desk is not asking to see them smeared.
+   */
+  private async withWebcam(capture: Capture): Promise<string> {
+    if (!this.settings.webcamEnabled) {
+      return capture.image;
+    }
+    const composed = await this.hooks.composeWithWebcam({
+      screen: capture.image,
+      mimeType: capture.mimeType,
+      corner: this.settings.webcamCorner,
+      quality: this.settings.screenshotQuality,
+    });
+    return composed ?? capture.image;
   }
 
   private async flushInterval(now: number): Promise<void> {

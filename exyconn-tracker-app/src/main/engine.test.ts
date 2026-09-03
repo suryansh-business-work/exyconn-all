@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -35,10 +35,12 @@ vi.mock('./trackers/window-tracker', () => ({
     }
   },
 }));
+/** What the fake screenshotter hands back. Empty unless a test asks for a capture. */
+const captures: unknown[] = [];
 vi.mock('./trackers/screenshotter', () => ({
   Screenshotter: class {
     capture(): Promise<unknown[]> {
-      return Promise.resolve([]);
+      return Promise.resolve(captures);
     }
   },
 }));
@@ -69,21 +71,55 @@ const SETTINGS: TrackerSettings = {
   idleThresholdSeconds: 300,
   screenshotMaxWidth: 1600,
   screenshotQuality: 70,
+  webcamEnabled: false,
+  webcamCorner: 'bottom-right',
   autoSyncEnabled: true,
   syncIntervalMinutes: 5,
   consentText: '<p>ok</p>',
 };
 
-function build(): { engine: TrackerEngine; stats: () => LiveStats | null } {
+interface Built {
+  engine: TrackerEngine;
+  stats: () => LiveStats | null;
+  compose: ReturnType<typeof vi.fn>;
+}
+
+function build(settings: TrackerSettings = SETTINGS, composed: string | null = null): Built {
   let latest: LiveStats | null = null;
-  const engine = new TrackerEngine(SETTINGS, {
+  const compose = vi.fn(() => Promise.resolve(composed));
+  const engine = new TrackerEngine(settings, {
     onStats: (s) => {
       latest = s;
     },
     onCapture: () => undefined,
     onAuthError: () => undefined,
+    composeWithWebcam: compose,
   });
-  return { engine, stats: () => latest };
+  return { engine, stats: () => latest, compose };
+}
+
+/** One capture on the wire, as the screenshotter would produce it. */
+const SHOT = {
+  image: 'screen-bytes',
+  mimeType: 'image/jpeg',
+  displayId: '1',
+  blurred: false,
+};
+
+/** Runs a session long enough for the (non-randomised) screenshot to fire. */
+async function captureOnce(built: Built): Promise<void> {
+  vi.useFakeTimers();
+  await built.engine.start();
+  // Long enough for the (non-randomised) screenshot to fire and for the auto-sync that
+  // follows it to drain the outbox, so the assertion reads what the portal was actually sent.
+  await vi.advanceTimersByTimeAsync(5_000);
+  vi.useRealTimers();
+}
+
+/** The image that actually reached the portal — what the manager will end up looking at. */
+function uploadedImage(): string | undefined {
+  const [input] = vi.mocked(portal.uploadScreenshot).mock.calls[0] ?? [];
+  return input?.image;
 }
 
 describe('TrackerEngine sync', () => {
@@ -157,5 +193,55 @@ describe('TrackerEngine sync', () => {
     expect(outcome).toHaveProperty('reason', expect.stringContaining('Cannot reach the portal'));
     // The employee's work is still on disk, not lost.
     expect(stats()?.pendingSync).toBe(1);
+  });
+});
+
+describe('TrackerEngine webcam capture', () => {
+  beforeEach(() => {
+    rmSync(OUTBOX_FILE, { force: true });
+    vi.clearAllMocks();
+    captures.length = 0;
+    captures.push({ ...SHOT });
+  });
+
+  afterEach(() => {
+    captures.length = 0;
+  });
+
+  it('does not reach for the camera when the workspace has not asked for a photo', async () => {
+    const built = build({ ...SETTINGS, randomizeScreenshotTiming: false });
+
+    await captureOnce(built);
+
+    expect(built.compose).not.toHaveBeenCalled();
+    expect(uploadedImage()).toBe('screen-bytes');
+  });
+
+  it('queues the composited image when webcam capture is on', async () => {
+    const built = build(
+      { ...SETTINGS, randomizeScreenshotTiming: false, webcamEnabled: true },
+      'screen-plus-face',
+    );
+
+    await captureOnce(built);
+
+    expect(built.compose).toHaveBeenCalledWith({
+      screen: 'screen-bytes',
+      mimeType: 'image/jpeg',
+      corner: 'bottom-right',
+      quality: SETTINGS.screenshotQuality,
+    });
+    expect(uploadedImage()).toBe('screen-plus-face');
+  });
+
+  it('still records the screenshot when no photo could be taken', async () => {
+    // No camera, a denied permission, a renderer that never answered: the employee must not
+    // lose the screenshot — and the tracked time it belongs to — over a missing photo.
+    const built = build({ ...SETTINGS, randomizeScreenshotTiming: false, webcamEnabled: true });
+
+    await captureOnce(built);
+
+    expect(built.compose).toHaveBeenCalled();
+    expect(uploadedImage()).toBe('screen-bytes');
   });
 });

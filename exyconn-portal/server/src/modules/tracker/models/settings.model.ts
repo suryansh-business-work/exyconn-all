@@ -1,5 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
-import { TRACKER_DEFAULTS } from '../tracker.constants';
+import { TRACKER_DEFAULTS, WEBCAM_CORNERS } from '../tracker.constants';
 
 /**
  * Global tracker configuration, edited from the portal and pulled by the desktop app on
@@ -52,12 +52,24 @@ const trackerSettingsSchema = new Schema(
       min: 640,
       max: 3840,
     },
+    /** 0-100. 100 is lossless at native resolution; see TRACKER_DEFAULTS for the contract. */
     screenshotQuality: {
       type: Number,
       required: true,
       default: TRACKER_DEFAULTS.screenshotQuality,
-      min: 20,
+      min: 0,
       max: 100,
+    },
+    webcamEnabled: {
+      type: Boolean,
+      required: true,
+      default: TRACKER_DEFAULTS.webcamEnabled,
+    },
+    webcamCorner: {
+      type: String,
+      required: true,
+      enum: WEBCAM_CORNERS,
+      default: TRACKER_DEFAULTS.webcamCorner,
     },
     /**
      * The disclosure the employee must accept in the desktop app before tracking can start.

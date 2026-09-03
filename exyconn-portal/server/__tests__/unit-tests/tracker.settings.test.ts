@@ -69,4 +69,35 @@ describe('tracker settings', () => {
     );
     await expect(getTrackerSettings()).resolves.toMatchObject({ defaultTimezone: '' });
   });
+
+  it('defaults webcam capture to off', async () => {
+    // Photographing an employee is opt-in by an administrator, never a default.
+    await expect(getTrackerSettings()).resolves.toMatchObject({
+      webcamEnabled: false,
+      webcamCorner: 'bottom-right',
+    });
+  });
+
+  it('round-trips webcam capture and the corner it goes in', async () => {
+    await updateTrackerSettings({ webcamEnabled: true, webcamCorner: 'top-left' });
+    await expect(getTrackerSettings()).resolves.toMatchObject({
+      webcamEnabled: true,
+      webcamCorner: 'top-left',
+    });
+  });
+
+  it('rejects a corner the desktop app cannot place a photo in', async () => {
+    await expect(updateTrackerSettings({ webcamCorner: 'middle' })).rejects.toThrow(
+      /Unknown webcam corner/i,
+    );
+    await expect(getTrackerSettings()).resolves.toMatchObject({ webcamCorner: 'bottom-right' });
+  });
+
+  it('accepts the whole 0-100 quality range, so 100 can mean lossless', async () => {
+    await updateTrackerSettings({ screenshotQuality: 100 });
+    await expect(getTrackerSettings()).resolves.toMatchObject({ screenshotQuality: 100 });
+
+    await updateTrackerSettings({ screenshotQuality: 0 });
+    await expect(getTrackerSettings()).resolves.toMatchObject({ screenshotQuality: 0 });
+  });
 });

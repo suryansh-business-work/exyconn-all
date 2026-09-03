@@ -1,4 +1,5 @@
 import { app, safeStorage } from 'electron';
+import type { AppPreferences } from '@shared/types';
 import { randomUUID } from 'node:crypto';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -8,7 +9,15 @@ interface PersistedState {
   encryptedToken: string | null;
   /** Stable per-install device id, generated once. */
   deviceId: string;
+  /** This install's own preferences. Absent in state files written before they existed. */
+  preferences?: Partial<AppPreferences>;
 }
+
+/**
+ * Tray-first by default. The app is built to sit in the tray and keep tracking, and a stray
+ * click on the close button should not quietly end somebody's working day.
+ */
+const DEFAULT_PREFERENCES: AppPreferences = { closeToTray: true };
 
 /**
  * Persists the non-expiring device token, encrypted at rest with the OS keychain
@@ -33,7 +42,7 @@ class SecureStore {
         // Corrupt state file — start fresh rather than crash on launch.
       }
     }
-    return { encryptedToken: null, deviceId: randomUUID() };
+    return { encryptedToken: null, deviceId: randomUUID(), preferences: DEFAULT_PREFERENCES };
   }
 
   private persist(): void {
@@ -86,6 +95,21 @@ class SecureStore {
     this.sessionToken = null;
     this.state.encryptedToken = safeStorage.encryptString(token).toString('base64');
     this.persist();
+  }
+
+  /**
+   * This install's preferences, with defaults filled in — a state file written before a
+   * preference existed comes back without it, and the renderer needs a whole object.
+   */
+  get preferences(): AppPreferences {
+    return { ...DEFAULT_PREFERENCES, ...this.state.preferences };
+  }
+
+  /** Merges a partial update, so a caller never has to restate preferences it did not touch. */
+  setPreferences(update: Partial<AppPreferences>): AppPreferences {
+    this.state.preferences = { ...this.preferences, ...update };
+    this.persist();
+    return this.preferences;
   }
 
   clearToken(): void {

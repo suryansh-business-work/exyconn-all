@@ -16,6 +16,8 @@ const initial: TrackerSettingsRow = {
   blurScreenshots: false,
   trackWindowTitles: true,
   autoSyncEnabled: true,
+  webcamEnabled: false,
+  webcamCorner: 'bottom-right',
   syncIntervalMinutes: 5,
   consentText: '<p>We track activity during work hours.</p>',
   defaultTimezone: 'Asia/Kolkata',
@@ -40,6 +42,14 @@ describe('TrackerSettingsForm', () => {
     mount();
     cy.get('input[name="intervalMinutes"]').should('have.value', '10');
     cy.get('input[name="screenshotQuality"]').should('have.value', '60');
+  });
+
+  it('hides the webcam corner until a photo is actually being taken', () => {
+    mount();
+    cy.contains('label', 'Webcam photo corner').should('not.exist');
+
+    cy.contains('label', 'Webcam photo with each screenshot').find('input').check();
+    cy.contains('label', 'Webcam photo corner').should('exist');
   });
 
   it('rejects an out-of-range capture interval', () => {

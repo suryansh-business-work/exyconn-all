@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron';
 import { join } from 'node:path';
 import type { ScreenshotsRange } from '@shared/types';
+import { applyWindowChrome } from './window-chrome';
 
 /**
  * The screenshot gallery is a REAL second window, not a dialog inside the tracker: the main
@@ -41,7 +42,11 @@ function create(parent: BrowserWindow): BrowserWindow {
     width: 960,
     height: 720,
     minWidth: 480,
+    minHeight: 480,
     show: false,
+    // Frameless like the tracker window: the gallery is part of the app, not a stray OS
+    // window that happens to belong to it, so it wears the same title bar.
+    frame: false,
     title: 'My screenshots — Exyconn Tracker',
     // Not `parent`/`modal`: the gallery is a peer window the employee can leave open and
     // move to another monitor while they keep working, not a lightbox over the tracker.
@@ -56,6 +61,7 @@ function create(parent: BrowserWindow): BrowserWindow {
   });
 
   win.on('ready-to-show', () => win.show());
+  applyWindowChrome(win);
   win.on('closed', () => {
     // Dereference. A destroyed BrowserWindow that is still held would throw on the next
     // `.focus()` — this is the leak/crash the "focus the existing one" path depends on.
