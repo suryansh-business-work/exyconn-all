@@ -16,7 +16,6 @@ const shellPublic = packageUrl("../shell/public");
 const loginSrc = packageUrl("../login/src");
 const crudSrc = packageUrl("../crud/src");
 const tabberSrc = packageUrl("../tabber/src");
-const vitestSetup = packageUrl("./vitest.setup.ts");
 
 const FONT_HREF =
   "https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap";
@@ -121,7 +120,9 @@ export function portalViteConfig(app) {
     test: {
       globals: true,
       environment: "jsdom",
-      setupFiles: [vitestSetup],
+      // Registers the jest-dom matchers. A bare specifier, resolved from the app, so the
+      // matchers extend the very `expect` instance the app's vitest runs with.
+      setupFiles: ["@testing-library/jest-dom/vitest"],
       include: ["__tests__/unit-tests/**/*.{test,spec}.{ts,tsx}"],
     },
   };

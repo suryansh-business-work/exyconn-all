@@ -13,7 +13,12 @@ export default portalViteConfig('crm');
   page title and description.
 - `vite.js` — `portalViteConfig(appKey)`: source aliases, dedupe, dev port, the shared
   `<head>` injector and the Vitest defaults.
-- `tsconfig.app.json`, `eslint.js`, `prettier.json`, `cypress.js`, `vitest.setup.ts`.
+- `tsconfig.app.json`, `eslint.js`, `prettier.json`, `cypress.js`.
 
 Full reference: [docs/portal/packages.md](../../docs/portal/packages.md#exyconnconfig).
 Adding an app: [docs/portal/adding-a-module.md](../../docs/portal/adding-a-module.md).
+
+`tsconfig.app.json` inlines the options from the root `tsconfig.base.json` instead of extending
+it: Vite's Oxc transformer resolves `extends` through the `node_modules` symlink rather than the
+real path, so a relative `../../tsconfig.base.json` from inside the package cannot be found.
+Change a compiler option in both files.

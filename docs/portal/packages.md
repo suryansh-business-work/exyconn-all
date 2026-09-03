@@ -21,7 +21,6 @@ Cypress alike.
 | `@exyconn/config/eslint` | every `eslint.config.js` | `portalEslintConfig()` — the rule set, including the guard that blocks direct `@mui/*` imports outside `@exyconn/ui` (`muiGuard(uiImport)` is exported for non-portal consumers such as the tracker). |
 | `@exyconn/config/prettier.json` | the `"prettier"` field of each `package.json` | Formatting rules. |
 | `@exyconn/config/cypress` | every `cypress.config.ts` | Component-testing config and the shared support file. |
-| `@exyconn/config/vitest.setup` | `portalViteConfig` | Registers the jest-dom matchers. |
 
 An app's whole build configuration is now four short files:
 
