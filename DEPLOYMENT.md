@@ -147,6 +147,36 @@ lives in a cookie scoped to `.exyconn.com`, so signing in on any one app signs y
 everywhere; ADMIN passes every module's role guard. Old `/portal/<module>/...` URLs are
 redirected from the hub to the app that now owns them.
 
+## Exposed ports
+
+Every exyconn domain and subdomain resolves to the same host, so the firewall is the
+whole story — there is nothing per-subdomain to configure. The host is already
+default-deny (an unlisted port times out rather than refusing), and the only ports
+that answer from the internet are:
+
+| Port | Service |
+| --- | --- |
+| 22 | SSH |
+| 80, 443 | nginx — every domain, including the Infinity Home app on `iot.exyconn.com` |
+| 1883 | MQTT, **plaintext** |
+| 8883 | MQTT over TLS (certificate `CN=iot.exyconn.com`) |
+
+Nothing else leaks: `docker-compose.prod.yml` binds every container to `127.0.0.1`, so
+the 4000–4035 app ports, MongoDB and the Docker API are all unreachable.
+
+The MQTT broker belongs to the Infinity Home stack, not this repo. It does require
+credentials (an anonymous CONNECT is refused with CONNACK `0x05`), but 1883 carries
+them in clear text. To take both ports off the internet, run the **Close the MQTT
+ports** workflow and type `close-mqtt` in the confirm box; it runs
+`deploy/close-mqtt-ports.sh`, then checks from outside that the ports stopped
+answering and that 443 still serves.
+
+> ⚠️ The broker keeps listening on localhost, so the Infinity Home web app (which uses
+> its own `/api/mqtt` and `/ws` on 443) is unaffected. **Physical devices connecting
+> from outside are cut off** — re-home them before running it. If the broker turns out
+> to be a published Docker port, ufw cannot close it: the script says so and fails, and
+> the port has to be bound to `127.0.0.1` in that stack instead.
+
 ## Notes / caveats
 
 - **Tools API image** uses native `onnxruntime` (hence the `node:20-slim` Debian base). The
