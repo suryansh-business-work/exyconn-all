@@ -60,8 +60,8 @@ export function TrackerNotificationsForm({
       submitLabel="Save channels"
     >
       <Text size="sm" color="text.secondary">
-        Every channel the Slack bot can see is listed. The bot must be a member of a channel before
-        it can post there.
+        Every channel the Slack bot can see is listed. A channel marked &ldquo;bot not
+        invited&rdquo; will reject the post — run /invite in it first.
       </Text>
       <RhfMultiSelect name="slackChannels" label="Channels for tracker builds" options={options} />
     </EntityForm>
