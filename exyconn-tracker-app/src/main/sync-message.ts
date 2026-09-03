@@ -1,7 +1,6 @@
 import type { FailureKind } from './outbox';
 import { TrackerAuthError, TrackerRejectedError } from './portal-client';
-
-const HTTP_STATUS = /HTTP (\d{3})/;
+import { httpStatusOf } from './portal-error';
 
 /**
  * Turns whatever the sync path threw into one sentence the employee can act on.
@@ -22,11 +21,8 @@ export function describeSyncFailure(error: unknown): string {
   }
 
   if (error instanceof Error) {
-    const match = HTTP_STATUS.exec(error.message);
-    if (match !== null) {
-      return describeHttpStatus(Number.parseInt(match[1], 10));
-    }
-    return error.message;
+    const status = httpStatusOf(error);
+    return status === null ? error.message : describeHttpStatus(status);
   }
 
   return 'The sync failed for an unknown reason. Your work is saved and will be retried.';

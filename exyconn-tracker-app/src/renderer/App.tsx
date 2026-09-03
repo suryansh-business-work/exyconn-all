@@ -29,6 +29,7 @@ function ScreenRouter({ state }: Readonly<RouterProps>): JSX.Element {
         branding={state.branding}
         rememberMe={state.rememberMe}
         signedOutReason={state.signedOutReason}
+        themeMode={state.preferences.themeMode}
       />
     );
   }

@@ -48,6 +48,8 @@ export interface Branding {
   textColor: string;
   supportEmail: string;
   websiteUrl: string;
+  /** The whole notice, authored in the admin panel. Empty means "compose one from the name". */
+  copyrightText: string;
 }
 
 export interface AuthUser {

@@ -42,6 +42,17 @@ interface GraphQLResponse<T> {
   errors?: Array<{ message: string; extensions?: { code?: string } }>;
 }
 
+/** What the portal said about a failed request, for the main-process log. */
+async function reasonFor(response: Response): Promise<string> {
+  try {
+    const body = (await response.json()) as GraphQLResponse<unknown>;
+    const reasons = body.errors?.map((e) => e.message).join('; ') ?? '';
+    return reasons === '' ? response.statusText : reasons;
+  } catch {
+    return response.statusText;
+  }
+}
+
 async function request<T>(
   query: string,
   variables: Record<string, unknown>,
@@ -59,7 +70,10 @@ async function request<T>(
   });
 
   if (!response.ok) {
-    const message = `Portal request failed: HTTP ${response.status}`;
+    // The body is read for the LOG, never for the employee: a rejected request is almost
+    // always a query this build asks for and the portal no longer serves, and without the
+    // reason in the log that is a bare status code to debug from.
+    const message = `Portal request failed: HTTP ${response.status} — ${await reasonFor(response)}`;
     if (PERMANENT_HTTP.has(response.status)) {
       throw new TrackerRejectedError(message);
     }
@@ -106,17 +120,25 @@ export interface LoginResponse {
   settings: TrackerSettings;
 }
 
+/**
+ * The workspace settings the app reads, selected in ONE place because three operations
+ * return them (`trackerLogin`, `trackerMe`, `trackerHeartbeat`) and a field that drifts from
+ * the portal's schema fails every one of them with an HTTP 400 that nobody can sign in past.
+ * `schema-drift.test.ts` checks this list against the portal's own type definitions.
+ */
+export const SETTINGS_FIELDS = `
+  intervalMinutes screenshotsPerInterval randomizeScreenshotTiming blurScreenshots
+  trackWindowTitles idleThresholdSeconds screenshotMaxWidth screenshotQuality
+  webcamEnabled webcamCorner syncIntervalMinutes consentText
+`;
+
 const LOGIN = `
   mutation TrackerLogin($email: String!, $password: String!, $device: TrackerDeviceInput!) {
     trackerLogin(email: $email, password: $password, device: $device) {
       token
       user { id name email }
       consentRequired
-      settings {
-        intervalMinutes screenshotsPerInterval randomizeScreenshotTiming blurScreenshots
-        trackWindowTitles idleThresholdSeconds screenshotMaxWidth screenshotQuality
-        autoSyncEnabled syncIntervalMinutes consentText
-      }
+      settings { ${SETTINGS_FIELDS} }
     }
   }
 `;
@@ -130,16 +152,15 @@ export async function login(
   return data.trackerLogin;
 }
 
-const BRANDING = `
-  query {
-    publicBranding {
-      businessName legalName slogan
-      logoUrl logoDarkUrl appIconUrl faviconUrl
-      primaryColor secondaryColor accentColor backgroundColor textColor
-      supportEmail websiteUrl
-    }
-  }
+/** Checked against the portal's schema by `schema-drift.test.ts`, like the settings. */
+export const BRANDING_FIELDS = `
+  businessName legalName slogan
+  logoUrl logoDarkUrl appIconUrl faviconUrl
+  primaryColor secondaryColor accentColor backgroundColor textColor
+  supportEmail websiteUrl copyrightText
 `;
+
+const BRANDING = `query { publicBranding { ${BRANDING_FIELDS} } }`;
 
 /** Brand identity for the app's chrome. Unauthenticated — the login screen needs it. */
 export async function fetchBranding(): Promise<Branding> {
@@ -203,11 +224,7 @@ const ME_FIELDS = `
   user { id name email }
   consentRequired
   timezone
-  settings {
-    intervalMinutes screenshotsPerInterval randomizeScreenshotTiming blurScreenshots
-    trackWindowTitles idleThresholdSeconds screenshotMaxWidth screenshotQuality
-    autoSyncEnabled syncIntervalMinutes consentText
-  }
+  settings { ${SETTINGS_FIELDS} }
 `;
 
 const TRACKER_ME = `query { trackerMe { ${ME_FIELDS} } }`;
