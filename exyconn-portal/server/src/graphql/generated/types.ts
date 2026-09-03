@@ -1394,6 +1394,7 @@ export type Mutation = {
   createPrompt: Prompt;
   createSalaryStructure: SalaryStructure;
   createShift: Shift;
+  createSlackConfig: SlackConfig;
   /** Self-service: raise a support ticket (status forced to OPEN). */
   createSupportTicket: SupportTicket;
   createTask: Task;
@@ -1443,6 +1444,7 @@ export type Mutation = {
   deletePrompt: Scalars['Boolean']['output'];
   deleteSalaryStructure: Scalars['Boolean']['output'];
   deleteShift: Scalars['Boolean']['output'];
+  deleteSlackConfig: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
@@ -1483,6 +1485,7 @@ export type Mutation = {
   /** HR broadcast to every active employee, one department, or a chosen list. */
   sendNotification: SendNotificationResult;
   sendTestEmail: Scalars['Boolean']['output'];
+  sendTestSlackMessage: Scalars['Boolean']['output'];
   sendUserMail: Scalars['Boolean']['output'];
   /** HR/ADMIN: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
@@ -1561,6 +1564,7 @@ export type Mutation = {
   updateSalaryStructure: SalaryStructure;
   updateSettings: AppSettings;
   updateShift: Shift;
+  updateSlackConfig: SlackConfig;
   updateTask: Task;
   updateTeam: Team;
   updateTool: Tool;
@@ -1793,6 +1797,11 @@ export type MutationCreateSalaryStructureArgs = {
 
 export type MutationCreateShiftArgs = {
   input: ShiftInput;
+};
+
+
+export type MutationCreateSlackConfigArgs = {
+  input: SlackConfigInput;
 };
 
 
@@ -2034,6 +2043,11 @@ export type MutationDeleteShiftArgs = {
 };
 
 
+export type MutationDeleteSlackConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteTaskArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2157,6 +2171,12 @@ export type MutationSendNotificationArgs = {
 export type MutationSendTestEmailArgs = {
   id: Scalars['ID']['input'];
   to: Scalars['String']['input'];
+};
+
+
+export type MutationSendTestSlackMessageArgs = {
+  channel: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -2509,6 +2529,12 @@ export type MutationUpdateSettingsArgs = {
 export type MutationUpdateShiftArgs = {
   id: Scalars['ID']['input'];
   input: ShiftInput;
+};
+
+
+export type MutationUpdateSlackConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: SlackConfigInput;
 };
 
 
@@ -3019,6 +3045,7 @@ export type Query = {
   listShifts: Array<Shift>;
   listShiftsPaged: ShiftPage;
   listShiftsStats: TableStats;
+  listSlackConfigs: Array<SlackConfig>;
   /** SUPPORT/ADMIN: every employee support ticket, newest first. */
   listSupportTickets: Array<SupportTicket>;
   listTeams: Array<Team>;
@@ -3735,6 +3762,24 @@ export type ShiftPage = {
   __typename?: 'ShiftPage';
   rows: Array<Shift>;
   totalCount: Scalars['Int']['output'];
+};
+
+export type SlackConfig = {
+  __typename?: 'SlackConfig';
+  botToken: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  defaultChannel: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type SlackConfigInput = {
+  botToken: Scalars['String']['input'];
+  defaultChannel: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
 };
 
 export enum SlipStatus {
@@ -4555,6 +4600,8 @@ export type ResolversTypes = ResolversObject<{
   Shift: ResolverTypeWrapper<Shift>;
   ShiftInput: ShiftInput;
   ShiftPage: ResolverTypeWrapper<ShiftPage>;
+  SlackConfig: ResolverTypeWrapper<SlackConfig>;
+  SlackConfigInput: SlackConfigInput;
   SlipStatus: SlipStatus;
   SortDir: SortDir;
   StatBucket: ResolverTypeWrapper<StatBucket>;
@@ -4762,6 +4809,8 @@ export type ResolversParentTypes = ResolversObject<{
   Shift: Shift;
   ShiftInput: ShiftInput;
   ShiftPage: ShiftPage;
+  SlackConfig: SlackConfig;
+  SlackConfigInput: SlackConfigInput;
   StatBucket: StatBucket;
   StatFieldCounts: StatFieldCounts;
   StatFieldSum: StatFieldSum;
@@ -5588,6 +5637,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationCreatePromptArgs, 'input'>>;
   createSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationCreateSalaryStructureArgs, 'input'>>;
   createShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationCreateShiftArgs, 'input'>>;
+  createSlackConfig?: Resolver<ResolversTypes['SlackConfig'], ParentType, ContextType, RequireFields<MutationCreateSlackConfigArgs, 'input'>>;
   createSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationCreateSupportTicketArgs, 'input'>>;
   createTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationCreateTaskArgs, 'columnId' | 'projectId' | 'title'>>;
   createTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<MutationCreateTeamArgs, 'input'>>;
@@ -5635,6 +5685,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deletePrompt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePromptArgs, 'id'>>;
   deleteSalaryStructure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSalaryStructureArgs, 'id'>>;
   deleteShift?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteShiftArgs, 'id'>>;
+  deleteSlackConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSlackConfigArgs, 'id'>>;
   deleteTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaskArgs, 'id'>>;
   deleteTeam?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTeamArgs, 'id'>>;
   deleteTool?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolArgs, 'id'>>;
@@ -5660,6 +5711,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   sendContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSendContractArgs, 'email' | 'id'>>;
   sendNotification?: Resolver<ResolversTypes['SendNotificationResult'], ParentType, ContextType, RequireFields<MutationSendNotificationArgs, 'input'>>;
   sendTestEmail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestEmailArgs, 'id' | 'to'>>;
+  sendTestSlackMessage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestSlackMessageArgs, 'channel' | 'id'>>;
   sendUserMail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendUserMailArgs, 'id' | 'input'>>;
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
   setRolePermission?: Resolver<ResolversTypes['RolePermission'], ParentType, ContextType, RequireFields<MutationSetRolePermissionArgs, 'actions' | 'module' | 'role'>>;
@@ -5721,6 +5773,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationUpdateSalaryStructureArgs, 'id' | 'input'>>;
   updateSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType, RequireFields<MutationUpdateSettingsArgs, 'input'>>;
   updateShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationUpdateShiftArgs, 'id' | 'input'>>;
+  updateSlackConfig?: Resolver<ResolversTypes['SlackConfig'], ParentType, ContextType, RequireFields<MutationUpdateSlackConfigArgs, 'id' | 'input'>>;
   updateTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationUpdateTaskArgs, 'id'>>;
   updateTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<MutationUpdateTeamArgs, 'id' | 'input'>>;
   updateTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<MutationUpdateToolArgs, 'id' | 'input'>>;
@@ -6040,6 +6093,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listShifts?: Resolver<Array<ResolversTypes['Shift']>, ParentType, ContextType>;
   listShiftsPaged?: Resolver<ResolversTypes['ShiftPage'], ParentType, ContextType, RequireFields<QueryListShiftsPagedArgs, 'input'>>;
   listShiftsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listSlackConfigs?: Resolver<Array<ResolversTypes['SlackConfig']>, ParentType, ContextType>;
   listSupportTickets?: Resolver<Array<ResolversTypes['SupportTicket']>, ParentType, ContextType>;
   listTeams?: Resolver<Array<ResolversTypes['Team']>, ParentType, ContextType>;
   listTeamsPaged?: Resolver<ResolversTypes['TeamPage'], ParentType, ContextType, RequireFields<QueryListTeamsPagedArgs, 'input'>>;
@@ -6174,6 +6228,17 @@ export type ShiftResolvers<ContextType = GraphQLContext, ParentType extends Reso
 export type ShiftPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ShiftPage'] = ResolversParentTypes['ShiftPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Shift']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SlackConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SlackConfig'] = ResolversParentTypes['SlackConfig']> = ResolversObject<{
+  botToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  defaultChannel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6596,6 +6661,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   SendNotificationResult?: SendNotificationResultResolvers<ContextType>;
   Shift?: ShiftResolvers<ContextType>;
   ShiftPage?: ShiftPageResolvers<ContextType>;
+  SlackConfig?: SlackConfigResolvers<ContextType>;
   StatBucket?: StatBucketResolvers<ContextType>;
   StatFieldCounts?: StatFieldCountsResolvers<ContextType>;
   StatFieldSum?: StatFieldSumResolvers<ContextType>;

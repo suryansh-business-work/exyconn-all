@@ -2517,10 +2517,7 @@ importers:
         version: 0.0.4(mongodb@6.21.0(socks@2.8.9))
       next-auth:
         specifier: ^4.24.15
-        version: 4.24.15(nodemailer@8.0.11)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      nodemailer:
-        specifier: ^8.0.4
-        version: 8.0.11
+        version: 4.24.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
         specifier: ^19.2.4
         version: 19.2.7
@@ -2538,7 +2535,7 @@ importers:
         version: 3.12.1(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.17))(@types/node@25.9.5)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(abstract-level@1.0.4)(immer@10.2.0)(preact-render-to-string@5.2.6(preact@10.29.8))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(slate-dom@0.114.0(slate@0.114.0))(slate@0.114.0)(use-sync-external-store@1.6.0(react@19.2.7))
       tinacms-authjs:
         specifier: ^24.0.3
-        version: 24.0.3(next-auth@4.24.15(nodemailer@8.0.11)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tinacms@3.12.1(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.17))(@types/node@25.9.5)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(abstract-level@1.0.4)(immer@10.2.0)(preact-render-to-string@5.2.6(preact@10.29.8))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(slate-dom@0.114.0(slate@0.114.0))(slate@0.114.0)(use-sync-external-store@1.6.0(react@19.2.7)))(yup@1.7.1)
+        version: 24.0.3(next-auth@4.24.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tinacms@3.12.1(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.17))(@types/node@25.9.5)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(abstract-level@1.0.4)(immer@10.2.0)(preact-render-to-string@5.2.6(preact@10.29.8))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(slate-dom@0.114.0(slate@0.114.0))(slate@0.114.0)(use-sync-external-store@1.6.0(react@19.2.7)))(yup@1.7.1)
       tinacms-gitprovider-github:
         specifier: ^4.1.16
         version: 4.1.16(@tinacms/datalayer@2.0.29(react@19.2.7))
@@ -2558,9 +2555,6 @@ importers:
       '@types/node':
         specifier: ^25.2.0
         version: 25.9.5
-      '@types/nodemailer':
-        specifier: ^7.0.11
-        version: 7.0.12
       '@types/react':
         specifier: ^19.2.10
         version: 19.2.17
@@ -6761,9 +6755,6 @@ packages:
 
   '@types/node@25.9.5':
     resolution: {integrity: sha512-OScDchr2fwuUmWdf4kZ9h7PcJiYDVInhJizG/biAq3cAvqwYktuy/TYGGdZNMtNTFUP7rnb0NU4TUdm82kt4Rg==}
-
-  '@types/nodemailer@7.0.12':
-    resolution: {integrity: sha512-80vKwiIsVSyFA1rRovH59jNPLBOuc6dRZIHEu40gXTkBkZnQv8vog1xSGEb9j5q/tdMAs5ivvDR2pLTU0hGHXA==}
 
   '@types/nodemailer@8.0.1':
     resolution: {integrity: sha512-PxpaInm8V1JQDd4j0ds5HfvWQk8JupS1C0Picb96QJsrrRDjBH+DlK7L4ZdNSqNULhiZRQHc40nLVShaGxXAMw==}
@@ -19306,10 +19297,6 @@ snapshots:
     dependencies:
       undici-types: 7.24.6
 
-  '@types/nodemailer@7.0.12':
-    dependencies:
-      '@types/node': 25.9.5
-
   '@types/nodemailer@8.0.1':
     dependencies:
       '@types/node': 25.9.5
@@ -26126,7 +26113,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  next-auth@4.24.15(nodemailer@8.0.11)(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  next-auth@4.24.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       '@babel/runtime': 7.29.7
       '@panva/hkdf': 1.2.1
@@ -26139,8 +26126,6 @@ snapshots:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
       uuid: 11.1.1
-    optionalDependencies:
-      nodemailer: 8.0.11
 
   ngraminator@3.0.2: {}
 
@@ -28437,10 +28422,10 @@ snapshots:
 
   timeout-signal@2.0.0: {}
 
-  tinacms-authjs@24.0.3(next-auth@4.24.15(nodemailer@8.0.11)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tinacms@3.12.1(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.17))(@types/node@25.9.5)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(abstract-level@1.0.4)(immer@10.2.0)(preact-render-to-string@5.2.6(preact@10.29.8))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(slate-dom@0.114.0(slate@0.114.0))(slate@0.114.0)(use-sync-external-store@1.6.0(react@19.2.7)))(yup@1.7.1):
+  tinacms-authjs@24.0.3(next-auth@4.24.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tinacms@3.12.1(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.17))(@types/node@25.9.5)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(abstract-level@1.0.4)(immer@10.2.0)(preact-render-to-string@5.2.6(preact@10.29.8))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(slate-dom@0.114.0(slate@0.114.0))(slate@0.114.0)(use-sync-external-store@1.6.0(react@19.2.7)))(yup@1.7.1):
     dependencies:
       '@tinacms/schema-tools': 2.9.0(react@19.2.7)(yup@1.7.1)
-      next-auth: 4.24.15(nodemailer@8.0.11)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      next-auth: 4.24.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
       tinacms: 3.12.1(@types/hoist-non-react-statics@3.3.7(@types/react@19.2.17))(@types/node@25.9.5)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(abstract-level@1.0.4)(immer@10.2.0)(preact-render-to-string@5.2.6(preact@10.29.8))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(scheduler@0.27.0)(slate-dom@0.114.0(slate@0.114.0))(slate@0.114.0)(use-sync-external-store@1.6.0(react@19.2.7))

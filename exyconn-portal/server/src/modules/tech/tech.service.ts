@@ -1,8 +1,10 @@
 import { EmailConfigModel } from './email-config.model';
 import { ImageConfigModel } from './image-config.model';
+import { SlackConfigModel } from './slack-config.model';
 import { notFound } from '../../utils/errors';
 import { mailer } from '../../utils/mailer';
 import { imageUploader } from '../../utils/imagekit';
+import { slackNotifier } from '../../utils/slack';
 
 export interface EmailConfigInput {
   label: string;
@@ -24,9 +26,17 @@ export interface ImageConfigInput {
   isActive?: boolean;
 }
 
+export interface SlackConfigInput {
+  label: string;
+  botToken: string;
+  defaultChannel: string;
+  isActive?: boolean;
+}
+
 /**
- * Tech-module integration configs (email & image upload). Enforces a single
- * active config per type so the mailer/uploader have an unambiguous choice.
+ * Integration configs (email, image upload & Slack) behind Admin › Environment
+ * Variables. Enforces a single active config per type so the mailer, uploader
+ * and Slack notifier each have an unambiguous choice.
  */
 class TechService {
   listEmailConfigs() {
@@ -90,6 +100,38 @@ class TechService {
     const config = await ImageConfigModel.findById(id);
     if (!config) notFound('Image config');
     return imageUploader.uploadTest(config, file, fileName);
+  }
+
+  listSlackConfigs() {
+    return SlackConfigModel.find().sort({ createdAt: -1 }).lean();
+  }
+
+  async createSlackConfig(input: SlackConfigInput) {
+    if (input.isActive) await SlackConfigModel.updateMany({}, { isActive: false });
+    return (await SlackConfigModel.create(input)).toObject();
+  }
+
+  async updateSlackConfig(id: string, input: SlackConfigInput) {
+    if (input.isActive) {
+      await SlackConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
+    }
+    const doc = await SlackConfigModel.findByIdAndUpdate(id, input, { new: true }).lean();
+    if (!doc) notFound('Slack config');
+    return doc;
+  }
+
+  async deleteSlackConfig(id: string) {
+    const doc = await SlackConfigModel.findByIdAndDelete(id).lean();
+    if (!doc) notFound('Slack config');
+    return true;
+  }
+
+  /** Posts a message through a specific config to validate its bot token. */
+  async sendTestSlackMessage(id: string, channel: string) {
+    const config = await SlackConfigModel.findById(id);
+    if (!config) notFound('Slack config');
+    await slackNotifier.sendTestMessage(config, channel);
+    return true;
   }
 }
 

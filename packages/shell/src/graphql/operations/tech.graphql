@@ -63,3 +63,33 @@ mutation SendTestEmail($id: ID!, $to: String!) {
 mutation TestImageUpload($id: ID!, $file: String!, $fileName: String!) {
   testImageUpload(id: $id, file: $file, fileName: $fileName)
 }
+
+query ListSlackConfigs {
+  listSlackConfigs {
+    id
+    label
+    botToken
+    defaultChannel
+    isActive
+  }
+}
+
+mutation CreateSlackConfig($input: SlackConfigInput!) {
+  createSlackConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateSlackConfig($id: ID!, $input: SlackConfigInput!) {
+  updateSlackConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteSlackConfig($id: ID!) {
+  deleteSlackConfig(id: $id)
+}
+
+mutation SendTestSlackMessage($id: ID!, $channel: String!) {
+  sendTestSlackMessage(id: $id, channel: $channel)
+}

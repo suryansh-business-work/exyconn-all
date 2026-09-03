@@ -3,7 +3,7 @@ import { assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
-import type { EmailConfigInput, ImageConfigInput } from './tech.service';
+import type { EmailConfigInput, ImageConfigInput, SlackConfigInput } from './tech.service';
 
 const adminOnly = [ROLES.ADMIN];
 
@@ -16,6 +16,10 @@ export const techResolvers = {
     listImageConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       assertRole(ctx, adminOnly);
       return withIds(await techService.listImageConfigs());
+    },
+    listSlackConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertRole(ctx, adminOnly);
+      return withIds(await techService.listSlackConfigs());
     },
   },
   Mutation: {
@@ -74,6 +78,34 @@ export const techResolvers = {
     ) => {
       assertRole(ctx, adminOnly);
       return techService.testImageUpload(id, file, fileName);
+    },
+    createSlackConfig: async (
+      _p: unknown,
+      { input }: { input: SlackConfigInput },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, adminOnly);
+      return withId(await techService.createSlackConfig(input));
+    },
+    updateSlackConfig: async (
+      _p: unknown,
+      { id, input }: { id: string; input: SlackConfigInput },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, adminOnly);
+      return withId(await techService.updateSlackConfig(id, input));
+    },
+    deleteSlackConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      assertRole(ctx, adminOnly);
+      return techService.deleteSlackConfig(id);
+    },
+    sendTestSlackMessage: async (
+      _p: unknown,
+      { id, channel }: { id: string; channel: string },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, adminOnly);
+      return techService.sendTestSlackMessage(id, channel);
     },
   },
 };

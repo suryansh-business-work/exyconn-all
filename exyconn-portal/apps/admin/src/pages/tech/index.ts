@@ -1,1 +1,0 @@
-export { TechPage } from './TechPage';

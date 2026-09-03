@@ -13,7 +13,7 @@ import {
 import { ImageConfigForm, type ImageConfigRow } from './forms/image-config';
 import { TestUploadDialog } from './TestUploadDialog';
 
-/** Tech sub-panel: manage image-upload (ImageKit) configurations (DB-backed). */
+/** Environment Variables sub-panel: manage image-upload (ImageKit) configurations (DB-backed). */
 export function ImageConfigsPanel() {
   const { data, loading, refetch } = useListImageConfigsQuery();
   const [deleteConfig] = useDeleteImageConfigMutation();

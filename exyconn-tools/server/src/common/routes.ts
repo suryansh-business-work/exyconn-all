@@ -5,7 +5,11 @@ import {
   getAuthenticationParameters,
   deleteImage,
 } from "../shared/services/imagekit";
-import { sendEmail, verifyConnection } from "../shared/services/email";
+import {
+  sendEmail,
+  verifyConnection,
+  getDefaultFromAddress,
+} from "../shared/services/email";
 
 const router = Router();
 const upload = multer({
@@ -16,9 +20,9 @@ const upload = multer({
 // ============== ImageKit Routes ==============
 
 // Get ImageKit auth parameters (for client-side uploads)
-router.get("/imagekit/auth", (req: Request, res: Response) => {
+router.get("/imagekit/auth", async (req: Request, res: Response) => {
   try {
-    const authParams = getAuthenticationParameters();
+    const authParams = await getAuthenticationParameters();
     res.json({ success: true, ...authParams });
   } catch (error) {
     res.status(500).json({
@@ -188,7 +192,7 @@ router.post(
         subject: "Test Email Signature Preview",
         html: htmlContent,
         from: senderName
-          ? `"${senderName}" <${process.env.SMTP_USER}>`
+          ? `"${senderName}" <${await getDefaultFromAddress()}>`
           : undefined,
       });
 

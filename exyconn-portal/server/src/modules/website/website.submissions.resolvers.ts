@@ -5,6 +5,8 @@ import { ROLES } from '../../constants/roles';
 import { assertRole } from '../../middleware/roleGuard';
 import { withId, withIds } from '../../utils/serialize';
 import { badRequest, notFound } from '../../utils/errors';
+import { mailer } from '../../utils/mailer';
+import { logger } from '../../utils/logger';
 
 const ALLOWED_FORM_TYPES = new Set<string>(SUBMISSION_FORM_TYPES);
 const ALLOWED_STATUSES = new Set<string>(SUBMISSION_STATUSES);
@@ -25,10 +27,20 @@ interface TriageInput {
   notes?: string;
 }
 
+/** Reads the submitter's address, when the form collected one, for the Reply-To header. */
+function replyToOf(submissionData: Record<string, unknown>): string | undefined {
+  const email = submissionData.email;
+  return typeof email === 'string' && email ? email : undefined;
+}
+
 /**
  * `createWebsiteSubmission` is public (the website posts every form through it), so
  * it validates `formType` against an allow-list rather than trusting the caller —
  * an open mutation must not let anonymous traffic invent arbitrary buckets.
+ *
+ * The stored submission is the durable record, so the notification email is
+ * best-effort: the team can always see the submission in the portal, and a mail
+ * outage must not make a visitor re-submit and create a duplicate record.
  */
 export const websiteSubmissionResolvers = {
   Query: {
@@ -63,6 +75,16 @@ export const websiteSubmissionResolvers = {
         status: 'new',
         notes: '',
       });
+      const submissionData = (input.submissionData ?? {}) as Record<string, unknown>;
+      try {
+        await mailer.sendFormSubmissionEmail({
+          formType: input.formType,
+          submissionData,
+          replyTo: replyToOf(submissionData),
+        });
+      } catch (error) {
+        logger.error({ error }, `Submission ${input.formType} stored, but its email failed`);
+      }
       return withId(created.toObject());
     },
 
