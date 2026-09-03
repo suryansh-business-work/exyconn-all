@@ -622,6 +622,85 @@ export type CompanyBenefitInput = {
   title: Scalars['String']['input'];
 };
 
+/** A cost the company incurred — a vendor bill, rent, a subscription. */
+export type CompanyExpense = {
+  __typename?: 'CompanyExpense';
+  amount: Scalars['Float']['output'];
+  category: ExpenseCategory;
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  dueDate: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  /** When the cost was incurred. Profit is measured on this date. */
+  incurredOn: Scalars['DateTime']['output'];
+  /** When the money actually left. Cash flow is measured on this date. Null until paid. */
+  paidOn?: Maybe<Scalars['DateTime']['output']>;
+  recordedBy: Scalars['String']['output'];
+  reference: Scalars['String']['output'];
+  status: ExpenseState;
+  updatedAt: Scalars['DateTime']['output'];
+  vendor: Scalars['String']['output'];
+};
+
+export type CompanyExpenseInput = {
+  amount: Scalars['Float']['input'];
+  category: ExpenseCategory;
+  currency: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  dueDate: Scalars['DateTime']['input'];
+  incurredOn: Scalars['DateTime']['input'];
+  reference?: InputMaybe<Scalars['String']['input']>;
+  vendor: Scalars['String']['input'];
+};
+
+export type CompanyExpensePage = {
+  __typename?: 'CompanyExpensePage';
+  rows: Array<CompanyExpense>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/**
+ * The company's finances over a period.
+ *
+ * Two different questions live here and they are answered separately on purpose. The
+ * ACCRUAL figures (invoiced, expenses, payroll, reimbursements, profit) say what the period
+ * earned and what it cost, whenever the money happens to move. The CASH figures (collected,
+ * paidOut, netCash) say what actually moved. A dashboard that shows one number called
+ * "revenue" without saying which of the two it is invites an argument nobody can settle.
+ */
+export type CompanyFinance = {
+  __typename?: 'CompanyFinance';
+  byCategory: Array<FinanceBucket>;
+  /** Cash: customer payments received in the period. */
+  collected: Scalars['Float']['output'];
+  /** Accrual: company bills incurred in the period. */
+  expenses: Scalars['Float']['output'];
+  from: Scalars['DateTime']['output'];
+  /** Accrual: invoices issued in the period. */
+  invoiced: Scalars['Float']['output'];
+  months: Array<FinanceMonth>;
+  /** collected - paidOut. */
+  netCash: Scalars['Float']['output'];
+  /** Owed by the company right now, regardless of the period. */
+  outstandingPayable: Scalars['Float']['output'];
+  /** Owed to the company right now, regardless of the period. */
+  outstandingReceivable: Scalars['Float']['output'];
+  /** The part of outstandingPayable already past its due date. */
+  overduePayable: Scalars['Float']['output'];
+  /** Cash: bills settled in the period. */
+  paidOut: Scalars['Float']['output'];
+  /** Accrual: payslips issued in the period. */
+  payroll: Scalars['Float']['output'];
+  /** invoiced - totalCost. */
+  profit: Scalars['Float']['output'];
+  /** Accrual: employee expense claims incurred in the period, once approved. */
+  reimbursements: Scalars['Float']['output'];
+  to: Scalars['DateTime']['output'];
+  /** expenses + payroll + reimbursements. */
+  totalCost: Scalars['Float']['output'];
+};
+
 export type CompanyInput = {
   domain: Scalars['String']['input'];
   industry?: InputMaybe<Scalars['String']['input']>;
@@ -1010,6 +1089,19 @@ export enum ExitStage {
   Withdrawn = 'WITHDRAWN'
 }
 
+export enum ExpenseCategory {
+  Hardware = 'HARDWARE',
+  Marketing = 'MARKETING',
+  Other = 'OTHER',
+  Rent = 'RENT',
+  Salaries = 'SALARIES',
+  Services = 'SERVICES',
+  Software = 'SOFTWARE',
+  Taxes = 'TAXES',
+  Travel = 'TRAVEL',
+  Utilities = 'UTILITIES'
+}
+
 export type ExpenseClaim = {
   __typename?: 'ExpenseClaim';
   amount: Scalars['Float']['output'];
@@ -1044,6 +1136,11 @@ export type ExpenseClaimPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export enum ExpenseState {
+  Paid = 'PAID',
+  Unpaid = 'UNPAID'
+}
+
 export enum ExpenseStatus {
   Approved = 'APPROVED',
   Paid = 'PAID',
@@ -1058,6 +1155,25 @@ export enum FilterOp {
   Lt = 'LT',
   StartsWith = 'STARTS_WITH'
 }
+
+/** One slice of spend, for the category breakdown. */
+export type FinanceBucket = {
+  __typename?: 'FinanceBucket';
+  amount: Scalars['Float']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
+/** One month of the trend. Revenue and cost are accrual figures, not cash. */
+export type FinanceMonth = {
+  __typename?: 'FinanceMonth';
+  cost: Scalars['Float']['output'];
+  label: Scalars['String']['output'];
+  /** YYYY-MM. */
+  month: Scalars['String']['output'];
+  profit: Scalars['Float']['output'];
+  revenue: Scalars['Float']['output'];
+};
 
 export type Gig = {
   __typename?: 'Gig';
@@ -1665,6 +1781,7 @@ export type Mutation = {
   createClient: Client;
   createColumn: BoardColumn;
   createCompany: Company;
+  createCompanyExpense: CompanyExpense;
   createContact: Contact;
   createContract: Contract;
   createDeal: Deal;
@@ -1734,6 +1851,7 @@ export type Mutation = {
   deleteClient: Scalars['Boolean']['output'];
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
+  deleteCompanyExpense: Scalars['Boolean']['output'];
   deleteContact: Scalars['Boolean']['output'];
   deleteContract: Scalars['Boolean']['output'];
   deleteDeal: Scalars['Boolean']['output'];
@@ -1783,6 +1901,8 @@ export type Mutation = {
   markAllNotificationsRead: Scalars['Int']['output'];
   /** Self-service: mark today's (or a given day's) attendance — upserts per day. */
   markAttendance: Attendance;
+  /** Settles a bill: records when the money left and moves it to PAID. */
+  markExpensePaid: CompanyExpense;
   markNotificationRead: Scalars['Boolean']['output'];
   /** Marks every GENERATED slip of the month PAID. Returns how many changed. */
   markPayrollPaid: Scalars['Int']['output'];
@@ -1874,6 +1994,7 @@ export type Mutation = {
   updateCaseStudy: CaseStudy;
   updateClient: Client;
   updateCompany: Company;
+  updateCompanyExpense: CompanyExpense;
   updateContact: Contact;
   updateContract: Contract;
   updateDeal: Deal;
@@ -2020,6 +2141,11 @@ export type MutationCreateColumnArgs = {
 
 export type MutationCreateCompanyArgs = {
   input: CompanyInput;
+};
+
+
+export type MutationCreateCompanyExpenseArgs = {
+  input: CompanyExpenseInput;
 };
 
 
@@ -2321,6 +2447,11 @@ export type MutationDeleteCompanyArgs = {
 };
 
 
+export type MutationDeleteCompanyExpenseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteContactArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2554,6 +2685,12 @@ export type MutationLoginArgs = {
 
 export type MutationMarkAttendanceArgs = {
   input: MarkAttendanceInput;
+};
+
+
+export type MutationMarkExpensePaidArgs = {
+  id: Scalars['ID']['input'];
+  paidOn?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
 
@@ -2845,6 +2982,12 @@ export type MutationUpdateClientArgs = {
 export type MutationUpdateCompanyArgs = {
   id: Scalars['ID']['input'];
   input: CompanyInput;
+};
+
+
+export type MutationUpdateCompanyExpenseArgs = {
+  id: Scalars['ID']['input'];
+  input: CompanyExpenseInput;
 };
 
 
@@ -3552,6 +3695,11 @@ export type Query = {
   /** HR/ADMIN: a specific employee's attendance records. */
   attendanceByEmployee: Array<Attendance>;
   branding: Branding;
+  /**
+   * The company's finances between two dates. Both bounds are inclusive of the days they
+   * fall on, as the caller sends them.
+   */
+  companyFinance: CompanyFinance;
   getActivity: Activity;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
@@ -3563,6 +3711,7 @@ export type Query = {
   getCaseStudy: CaseStudy;
   getClient: Client;
   getCompany: Company;
+  getCompanyExpense: CompanyExpense;
   getContact: Contact;
   getContract: Contract;
   getDeal: Deal;
@@ -3645,6 +3794,9 @@ export type Query = {
   listCompanies: Array<Company>;
   listCompaniesPaged: CompanyPage;
   listCompaniesStats: TableStats;
+  listCompanyExpenses: Array<CompanyExpense>;
+  listCompanyExpensesPaged: CompanyExpensePage;
+  listCompanyExpensesStats: TableStats;
   listContacts: Array<Contact>;
   listContactsPaged: ContactPage;
   listContactsStats: TableStats;
@@ -3845,6 +3997,12 @@ export type QueryAttendanceByEmployeeArgs = {
 };
 
 
+export type QueryCompanyFinanceArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryGetActivityArgs = {
   id: Scalars['ID']['input'];
 };
@@ -3896,6 +4054,11 @@ export type QueryGetClientArgs = {
 
 
 export type QueryGetCompanyArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetCompanyExpenseArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4156,6 +4319,11 @@ export type QueryListClientsPagedArgs = {
 
 
 export type QueryListCompaniesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListCompanyExpensesPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -6534,6 +6702,63 @@ export type RecordPaymentMutationVariables = Exact<{
 
 export type RecordPaymentMutation = { __typename?: 'Mutation', recordPayment: { __typename?: 'Payment', id: string, amount: number, invoiceNumber: string } };
 
+export type CompanyExpenseFieldsFragment = { __typename?: 'CompanyExpense', id: string, vendor: string, category: ExpenseCategory, description: string, amount: number, currency: string, incurredOn: string, dueDate: string, status: ExpenseState, paidOn?: string | null, reference: string, recordedBy: string };
+
+export type ListCompanyExpensesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListCompanyExpensesQuery = { __typename?: 'Query', listCompanyExpenses: Array<{ __typename?: 'CompanyExpense', id: string, vendor: string, category: ExpenseCategory, description: string, amount: number, currency: string, incurredOn: string, dueDate: string, status: ExpenseState, paidOn?: string | null, reference: string, recordedBy: string }> };
+
+export type ListCompanyExpensesPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListCompanyExpensesPagedQuery = { __typename?: 'Query', listCompanyExpensesPaged: { __typename?: 'CompanyExpensePage', totalCount: number, rows: Array<{ __typename?: 'CompanyExpense', id: string, vendor: string, category: ExpenseCategory, description: string, amount: number, currency: string, incurredOn: string, dueDate: string, status: ExpenseState, paidOn?: string | null, reference: string, recordedBy: string }> } };
+
+export type ListCompanyExpensesStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListCompanyExpensesStatsQuery = { __typename?: 'Query', listCompanyExpensesStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CompanyFinanceQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type CompanyFinanceQuery = { __typename?: 'Query', companyFinance: { __typename?: 'CompanyFinance', from: string, to: string, invoiced: number, expenses: number, payroll: number, reimbursements: number, totalCost: number, profit: number, collected: number, paidOut: number, netCash: number, outstandingReceivable: number, outstandingPayable: number, overduePayable: number, byCategory: Array<{ __typename?: 'FinanceBucket', key: string, label: string, amount: number }>, months: Array<{ __typename?: 'FinanceMonth', month: string, label: string, revenue: number, cost: number, profit: number }> } };
+
+export type CreateCompanyExpenseMutationVariables = Exact<{
+  input: CompanyExpenseInput;
+}>;
+
+
+export type CreateCompanyExpenseMutation = { __typename?: 'Mutation', createCompanyExpense: { __typename?: 'CompanyExpense', id: string } };
+
+export type UpdateCompanyExpenseMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: CompanyExpenseInput;
+}>;
+
+
+export type UpdateCompanyExpenseMutation = { __typename?: 'Mutation', updateCompanyExpense: { __typename?: 'CompanyExpense', id: string } };
+
+export type DeleteCompanyExpenseMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCompanyExpenseMutation = { __typename?: 'Mutation', deleteCompanyExpense: boolean };
+
+export type MarkExpensePaidMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  paidOn?: InputMaybe<Scalars['DateTime']['input']>;
+}>;
+
+
+export type MarkExpensePaidMutation = { __typename?: 'Mutation', markExpensePaid: { __typename?: 'CompanyExpense', id: string, status: ExpenseState, paidOn?: string | null } };
+
 export type ListInvoicesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -8377,6 +8602,22 @@ export const PaymentFieldsFragmentDoc = gql`
   receivedAt
   recordedBy
   createdAt
+}
+    `;
+export const CompanyExpenseFieldsFragmentDoc = gql`
+    fragment CompanyExpenseFields on CompanyExpense {
+  id
+  vendor
+  category
+  description
+  amount
+  currency
+  incurredOn
+  dueDate
+  status
+  paidOn
+  reference
+  recordedBy
 }
     `;
 export const LeaveFieldsFragmentDoc = gql`
@@ -15264,6 +15505,350 @@ export function useRecordPaymentMutation(baseOptions?: Apollo.MutationHookOption
 export type RecordPaymentMutationHookResult = ReturnType<typeof useRecordPaymentMutation>;
 export type RecordPaymentMutationResult = Apollo.MutationResult<RecordPaymentMutation>;
 export type RecordPaymentMutationOptions = Apollo.BaseMutationOptions<RecordPaymentMutation, RecordPaymentMutationVariables>;
+export const ListCompanyExpensesDocument = gql`
+    query ListCompanyExpenses {
+  listCompanyExpenses {
+    ...CompanyExpenseFields
+  }
+}
+    ${CompanyExpenseFieldsFragmentDoc}`;
+
+/**
+ * __useListCompanyExpensesQuery__
+ *
+ * To run a query within a React component, call `useListCompanyExpensesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCompanyExpensesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCompanyExpensesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListCompanyExpensesQuery(baseOptions?: Apollo.QueryHookOptions<ListCompanyExpensesQuery, ListCompanyExpensesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListCompanyExpensesQuery, ListCompanyExpensesQueryVariables>(ListCompanyExpensesDocument, options);
+      }
+export function useListCompanyExpensesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListCompanyExpensesQuery, ListCompanyExpensesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListCompanyExpensesQuery, ListCompanyExpensesQueryVariables>(ListCompanyExpensesDocument, options);
+        }
+// @ts-ignore
+export function useListCompanyExpensesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListCompanyExpensesQuery, ListCompanyExpensesQueryVariables>): Apollo.UseSuspenseQueryResult<ListCompanyExpensesQuery, ListCompanyExpensesQueryVariables>;
+export function useListCompanyExpensesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCompanyExpensesQuery, ListCompanyExpensesQueryVariables>): Apollo.UseSuspenseQueryResult<ListCompanyExpensesQuery | undefined, ListCompanyExpensesQueryVariables>;
+export function useListCompanyExpensesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCompanyExpensesQuery, ListCompanyExpensesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListCompanyExpensesQuery, ListCompanyExpensesQueryVariables>(ListCompanyExpensesDocument, options);
+        }
+export type ListCompanyExpensesQueryHookResult = ReturnType<typeof useListCompanyExpensesQuery>;
+export type ListCompanyExpensesLazyQueryHookResult = ReturnType<typeof useListCompanyExpensesLazyQuery>;
+export type ListCompanyExpensesSuspenseQueryHookResult = ReturnType<typeof useListCompanyExpensesSuspenseQuery>;
+export type ListCompanyExpensesQueryResult = Apollo.QueryResult<ListCompanyExpensesQuery, ListCompanyExpensesQueryVariables>;
+export const ListCompanyExpensesPagedDocument = gql`
+    query ListCompanyExpensesPaged($input: TableQueryInput!) {
+  listCompanyExpensesPaged(input: $input) {
+    totalCount
+    rows {
+      ...CompanyExpenseFields
+    }
+  }
+}
+    ${CompanyExpenseFieldsFragmentDoc}`;
+
+/**
+ * __useListCompanyExpensesPagedQuery__
+ *
+ * To run a query within a React component, call `useListCompanyExpensesPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCompanyExpensesPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCompanyExpensesPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListCompanyExpensesPagedQuery(baseOptions: Apollo.QueryHookOptions<ListCompanyExpensesPagedQuery, ListCompanyExpensesPagedQueryVariables> & ({ variables: ListCompanyExpensesPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListCompanyExpensesPagedQuery, ListCompanyExpensesPagedQueryVariables>(ListCompanyExpensesPagedDocument, options);
+      }
+export function useListCompanyExpensesPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListCompanyExpensesPagedQuery, ListCompanyExpensesPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListCompanyExpensesPagedQuery, ListCompanyExpensesPagedQueryVariables>(ListCompanyExpensesPagedDocument, options);
+        }
+// @ts-ignore
+export function useListCompanyExpensesPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListCompanyExpensesPagedQuery, ListCompanyExpensesPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListCompanyExpensesPagedQuery, ListCompanyExpensesPagedQueryVariables>;
+export function useListCompanyExpensesPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCompanyExpensesPagedQuery, ListCompanyExpensesPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListCompanyExpensesPagedQuery | undefined, ListCompanyExpensesPagedQueryVariables>;
+export function useListCompanyExpensesPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCompanyExpensesPagedQuery, ListCompanyExpensesPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListCompanyExpensesPagedQuery, ListCompanyExpensesPagedQueryVariables>(ListCompanyExpensesPagedDocument, options);
+        }
+export type ListCompanyExpensesPagedQueryHookResult = ReturnType<typeof useListCompanyExpensesPagedQuery>;
+export type ListCompanyExpensesPagedLazyQueryHookResult = ReturnType<typeof useListCompanyExpensesPagedLazyQuery>;
+export type ListCompanyExpensesPagedSuspenseQueryHookResult = ReturnType<typeof useListCompanyExpensesPagedSuspenseQuery>;
+export type ListCompanyExpensesPagedQueryResult = Apollo.QueryResult<ListCompanyExpensesPagedQuery, ListCompanyExpensesPagedQueryVariables>;
+export const ListCompanyExpensesStatsDocument = gql`
+    query ListCompanyExpensesStats {
+  listCompanyExpensesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListCompanyExpensesStatsQuery__
+ *
+ * To run a query within a React component, call `useListCompanyExpensesStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCompanyExpensesStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCompanyExpensesStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListCompanyExpensesStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListCompanyExpensesStatsQuery, ListCompanyExpensesStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListCompanyExpensesStatsQuery, ListCompanyExpensesStatsQueryVariables>(ListCompanyExpensesStatsDocument, options);
+      }
+export function useListCompanyExpensesStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListCompanyExpensesStatsQuery, ListCompanyExpensesStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListCompanyExpensesStatsQuery, ListCompanyExpensesStatsQueryVariables>(ListCompanyExpensesStatsDocument, options);
+        }
+// @ts-ignore
+export function useListCompanyExpensesStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListCompanyExpensesStatsQuery, ListCompanyExpensesStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListCompanyExpensesStatsQuery, ListCompanyExpensesStatsQueryVariables>;
+export function useListCompanyExpensesStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCompanyExpensesStatsQuery, ListCompanyExpensesStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListCompanyExpensesStatsQuery | undefined, ListCompanyExpensesStatsQueryVariables>;
+export function useListCompanyExpensesStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCompanyExpensesStatsQuery, ListCompanyExpensesStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListCompanyExpensesStatsQuery, ListCompanyExpensesStatsQueryVariables>(ListCompanyExpensesStatsDocument, options);
+        }
+export type ListCompanyExpensesStatsQueryHookResult = ReturnType<typeof useListCompanyExpensesStatsQuery>;
+export type ListCompanyExpensesStatsLazyQueryHookResult = ReturnType<typeof useListCompanyExpensesStatsLazyQuery>;
+export type ListCompanyExpensesStatsSuspenseQueryHookResult = ReturnType<typeof useListCompanyExpensesStatsSuspenseQuery>;
+export type ListCompanyExpensesStatsQueryResult = Apollo.QueryResult<ListCompanyExpensesStatsQuery, ListCompanyExpensesStatsQueryVariables>;
+export const CompanyFinanceDocument = gql`
+    query CompanyFinance($from: DateTime!, $to: DateTime!) {
+  companyFinance(from: $from, to: $to) {
+    from
+    to
+    invoiced
+    expenses
+    payroll
+    reimbursements
+    totalCost
+    profit
+    collected
+    paidOut
+    netCash
+    outstandingReceivable
+    outstandingPayable
+    overduePayable
+    byCategory {
+      key
+      label
+      amount
+    }
+    months {
+      month
+      label
+      revenue
+      cost
+      profit
+    }
+  }
+}
+    `;
+
+/**
+ * __useCompanyFinanceQuery__
+ *
+ * To run a query within a React component, call `useCompanyFinanceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyFinanceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompanyFinanceQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useCompanyFinanceQuery(baseOptions: Apollo.QueryHookOptions<CompanyFinanceQuery, CompanyFinanceQueryVariables> & ({ variables: CompanyFinanceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CompanyFinanceQuery, CompanyFinanceQueryVariables>(CompanyFinanceDocument, options);
+      }
+export function useCompanyFinanceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CompanyFinanceQuery, CompanyFinanceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CompanyFinanceQuery, CompanyFinanceQueryVariables>(CompanyFinanceDocument, options);
+        }
+// @ts-ignore
+export function useCompanyFinanceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CompanyFinanceQuery, CompanyFinanceQueryVariables>): Apollo.UseSuspenseQueryResult<CompanyFinanceQuery, CompanyFinanceQueryVariables>;
+export function useCompanyFinanceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CompanyFinanceQuery, CompanyFinanceQueryVariables>): Apollo.UseSuspenseQueryResult<CompanyFinanceQuery | undefined, CompanyFinanceQueryVariables>;
+export function useCompanyFinanceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CompanyFinanceQuery, CompanyFinanceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CompanyFinanceQuery, CompanyFinanceQueryVariables>(CompanyFinanceDocument, options);
+        }
+export type CompanyFinanceQueryHookResult = ReturnType<typeof useCompanyFinanceQuery>;
+export type CompanyFinanceLazyQueryHookResult = ReturnType<typeof useCompanyFinanceLazyQuery>;
+export type CompanyFinanceSuspenseQueryHookResult = ReturnType<typeof useCompanyFinanceSuspenseQuery>;
+export type CompanyFinanceQueryResult = Apollo.QueryResult<CompanyFinanceQuery, CompanyFinanceQueryVariables>;
+export const CreateCompanyExpenseDocument = gql`
+    mutation CreateCompanyExpense($input: CompanyExpenseInput!) {
+  createCompanyExpense(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateCompanyExpenseMutationFn = Apollo.MutationFunction<CreateCompanyExpenseMutation, CreateCompanyExpenseMutationVariables>;
+
+/**
+ * __useCreateCompanyExpenseMutation__
+ *
+ * To run a mutation, you first call `useCreateCompanyExpenseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCompanyExpenseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCompanyExpenseMutation, { data, loading, error }] = useCreateCompanyExpenseMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCompanyExpenseMutation(baseOptions?: Apollo.MutationHookOptions<CreateCompanyExpenseMutation, CreateCompanyExpenseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCompanyExpenseMutation, CreateCompanyExpenseMutationVariables>(CreateCompanyExpenseDocument, options);
+      }
+export type CreateCompanyExpenseMutationHookResult = ReturnType<typeof useCreateCompanyExpenseMutation>;
+export type CreateCompanyExpenseMutationResult = Apollo.MutationResult<CreateCompanyExpenseMutation>;
+export type CreateCompanyExpenseMutationOptions = Apollo.BaseMutationOptions<CreateCompanyExpenseMutation, CreateCompanyExpenseMutationVariables>;
+export const UpdateCompanyExpenseDocument = gql`
+    mutation UpdateCompanyExpense($id: ID!, $input: CompanyExpenseInput!) {
+  updateCompanyExpense(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateCompanyExpenseMutationFn = Apollo.MutationFunction<UpdateCompanyExpenseMutation, UpdateCompanyExpenseMutationVariables>;
+
+/**
+ * __useUpdateCompanyExpenseMutation__
+ *
+ * To run a mutation, you first call `useUpdateCompanyExpenseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCompanyExpenseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCompanyExpenseMutation, { data, loading, error }] = useUpdateCompanyExpenseMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCompanyExpenseMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCompanyExpenseMutation, UpdateCompanyExpenseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCompanyExpenseMutation, UpdateCompanyExpenseMutationVariables>(UpdateCompanyExpenseDocument, options);
+      }
+export type UpdateCompanyExpenseMutationHookResult = ReturnType<typeof useUpdateCompanyExpenseMutation>;
+export type UpdateCompanyExpenseMutationResult = Apollo.MutationResult<UpdateCompanyExpenseMutation>;
+export type UpdateCompanyExpenseMutationOptions = Apollo.BaseMutationOptions<UpdateCompanyExpenseMutation, UpdateCompanyExpenseMutationVariables>;
+export const DeleteCompanyExpenseDocument = gql`
+    mutation DeleteCompanyExpense($id: ID!) {
+  deleteCompanyExpense(id: $id)
+}
+    `;
+export type DeleteCompanyExpenseMutationFn = Apollo.MutationFunction<DeleteCompanyExpenseMutation, DeleteCompanyExpenseMutationVariables>;
+
+/**
+ * __useDeleteCompanyExpenseMutation__
+ *
+ * To run a mutation, you first call `useDeleteCompanyExpenseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCompanyExpenseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCompanyExpenseMutation, { data, loading, error }] = useDeleteCompanyExpenseMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCompanyExpenseMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCompanyExpenseMutation, DeleteCompanyExpenseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteCompanyExpenseMutation, DeleteCompanyExpenseMutationVariables>(DeleteCompanyExpenseDocument, options);
+      }
+export type DeleteCompanyExpenseMutationHookResult = ReturnType<typeof useDeleteCompanyExpenseMutation>;
+export type DeleteCompanyExpenseMutationResult = Apollo.MutationResult<DeleteCompanyExpenseMutation>;
+export type DeleteCompanyExpenseMutationOptions = Apollo.BaseMutationOptions<DeleteCompanyExpenseMutation, DeleteCompanyExpenseMutationVariables>;
+export const MarkExpensePaidDocument = gql`
+    mutation MarkExpensePaid($id: ID!, $paidOn: DateTime) {
+  markExpensePaid(id: $id, paidOn: $paidOn) {
+    id
+    status
+    paidOn
+  }
+}
+    `;
+export type MarkExpensePaidMutationFn = Apollo.MutationFunction<MarkExpensePaidMutation, MarkExpensePaidMutationVariables>;
+
+/**
+ * __useMarkExpensePaidMutation__
+ *
+ * To run a mutation, you first call `useMarkExpensePaidMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMarkExpensePaidMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [markExpensePaidMutation, { data, loading, error }] = useMarkExpensePaidMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      paidOn: // value for 'paidOn'
+ *   },
+ * });
+ */
+export function useMarkExpensePaidMutation(baseOptions?: Apollo.MutationHookOptions<MarkExpensePaidMutation, MarkExpensePaidMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<MarkExpensePaidMutation, MarkExpensePaidMutationVariables>(MarkExpensePaidDocument, options);
+      }
+export type MarkExpensePaidMutationHookResult = ReturnType<typeof useMarkExpensePaidMutation>;
+export type MarkExpensePaidMutationResult = Apollo.MutationResult<MarkExpensePaidMutation>;
+export type MarkExpensePaidMutationOptions = Apollo.BaseMutationOptions<MarkExpensePaidMutation, MarkExpensePaidMutationVariables>;
 export const ListInvoicesDocument = gql`
     query ListInvoices {
   listInvoices {

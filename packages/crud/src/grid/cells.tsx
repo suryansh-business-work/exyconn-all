@@ -55,6 +55,9 @@ export function RowActionsCell(params: Readonly<ActionCellParams>) {
       {params.actionSpecs.map((spec) => {
         const handler = actions[spec.key];
         const Icon = spec.icon;
+        if (spec.hidden?.(row as never)) {
+          return null;
+        }
         return handler ? (
           <IconButton
             key={spec.key}

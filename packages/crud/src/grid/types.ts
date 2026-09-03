@@ -15,6 +15,12 @@ export interface RowActionSpec {
   label: string;
   icon: SvgIconComponent;
   color?: RowActionColor;
+  /**
+   * Hides the button for rows it cannot act on — a "mark paid" that is already paid, a
+   * "send" that has already been sent. Omit it and the action shows on every row, which is
+   * what every existing column model expects.
+   */
+  hidden?: (row: never) => boolean;
 }
 
 /** Shape every CRUD grid puts on ag-grid's `context` so the shared cells can read it. */

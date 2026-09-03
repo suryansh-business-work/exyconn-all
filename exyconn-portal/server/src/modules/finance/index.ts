@@ -34,3 +34,5 @@ export const financeResolvers = createCrudResolvers(financeService, {
 export { financeTypeDefs };
 export { financeBillingTypeDefs } from './finance.billing.typeDefs';
 export { financeBillingResolvers } from './finance.billing';
+export { financeCompanyTypeDefs } from './finance.company.typeDefs';
+export { financeCompanyResolvers, companyExpensesService } from './finance.company';

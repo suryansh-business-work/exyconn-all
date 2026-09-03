@@ -43,6 +43,7 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import PolicyIcon from '@mui/icons-material/Policy';
 import CelebrationIcon from '@mui/icons-material/Celebration';
@@ -164,7 +165,7 @@ export const MODULES: ModuleDefinition[] = [
     path: '/finance',
     role: ROLES.FINANCE,
     icon: AccountBalanceIcon,
-    description: 'Invoices, billing & reimbursements',
+    description: 'Invoices, spend, cash & reimbursements',
     accent: '#0ea5e9',
     children: [
       { key: 'finance-overview', label: 'Overview', path: '/finance', icon: DashboardIcon },
@@ -185,6 +186,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Receivables',
         path: '/finance/receivables',
         icon: TrendingUpIcon,
+      },
+      {
+        key: 'finance-company-expenses',
+        label: 'Company Expenses',
+        path: '/finance/company-expenses',
+        icon: StorefrontIcon,
       },
       { key: 'finance-expenses', label: 'Expense Claims', path: '/expenses', icon: ReceiptIcon },
     ],

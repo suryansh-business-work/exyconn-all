@@ -1,0 +1,101 @@
+fragment CompanyExpenseFields on CompanyExpense {
+  id
+  vendor
+  category
+  description
+  amount
+  currency
+  incurredOn
+  dueDate
+  status
+  paidOn
+  reference
+  recordedBy
+}
+
+query ListCompanyExpenses {
+  listCompanyExpenses {
+    ...CompanyExpenseFields
+  }
+}
+
+query ListCompanyExpensesPaged($input: TableQueryInput!) {
+  listCompanyExpensesPaged(input: $input) {
+    totalCount
+    rows {
+      ...CompanyExpenseFields
+    }
+  }
+}
+
+query ListCompanyExpensesStats {
+  listCompanyExpensesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query CompanyFinance($from: DateTime!, $to: DateTime!) {
+  companyFinance(from: $from, to: $to) {
+    from
+    to
+    invoiced
+    expenses
+    payroll
+    reimbursements
+    totalCost
+    profit
+    collected
+    paidOut
+    netCash
+    outstandingReceivable
+    outstandingPayable
+    overduePayable
+    byCategory {
+      key
+      label
+      amount
+    }
+    months {
+      month
+      label
+      revenue
+      cost
+      profit
+    }
+  }
+}
+
+mutation CreateCompanyExpense($input: CompanyExpenseInput!) {
+  createCompanyExpense(input: $input) {
+    id
+  }
+}
+
+mutation UpdateCompanyExpense($id: ID!, $input: CompanyExpenseInput!) {
+  updateCompanyExpense(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteCompanyExpense($id: ID!) {
+  deleteCompanyExpense(id: $id)
+}
+
+mutation MarkExpensePaid($id: ID!, $paidOn: DateTime) {
+  markExpensePaid(id: $id, paidOn: $paidOn) {
+    id
+    status
+    paidOn
+  }
+}

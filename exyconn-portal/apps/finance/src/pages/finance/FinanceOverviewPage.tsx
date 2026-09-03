@@ -1,98 +1,128 @@
-import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import {
-  ModuleOverview,
-  type OverviewBreakdown,
-} from '@exyconn/shell/components/dashboard/ModuleOverview';
+import { useMemo, useState } from 'react';
+import { Box, Grid } from '@exyconn/shell/components/ui';
+import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
+import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
+import { StatBreakdown } from '@exyconn/shell/components/dashboard/StatBreakdown';
+import { LineChart } from '@exyconn/shell/components/dashboard/LineChart';
 import { formatMoney } from '@exyconn/shell/utils/money';
-import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import {
-  useListInvoicesQuery,
-  useListInvoicesStatsQuery,
-  useReceivablesQuery,
-} from '@exyconn/shell/graphql/generated';
-import type { InvoiceRow } from './forms/invoice';
+import { useCompanyFinanceQuery } from '@exyconn/shell/graphql/generated';
+import { financePeriods, periodFor } from './finance-period';
+import { FinancePeriodPicker } from './FinancePeriodPicker';
+import { FinanceMoneyPanel, type MoneyLine } from './FinanceMoneyPanel';
 
-/** How many invoices the overview lists before sending you to the register. */
-const RECENT_INVOICES = 8;
+/** Rounded whole units — a dashboard is read at a glance, not reconciled to the paisa. */
+const round = (amount: number): number => Math.round(amount);
 
 /**
- * An invoice is overdue once its due date has passed and money is still owed on it.
+ * Finance → Overview: the company's money, on one page.
  *
- * Tested on the balance rather than the status: a part-paid invoice past its due date is
- * still overdue for what is left, and reading the status alone would have quietly stopped
- * counting it the moment the first instalment arrived.
+ * Everything here is scoped to one stated period, and the two halves of the story are kept
+ * apart on purpose. What the period EARNED and COST (accrual) answers "are we profitable";
+ * what actually MOVED (cash) answers "can we pay people this month". They are different
+ * numbers, they routinely disagree, and a dashboard that blends them into one figure called
+ * "revenue" is how a company convinces itself it is fine while running out of money.
  */
-function isOverdue(invoice: { balanceDue: number; dueDate?: string | null }): boolean {
-  return (
-    invoice.balanceDue > 0 && Boolean(invoice.dueDate) && new Date(invoice.dueDate!) < new Date()
-  );
-}
-
-/** Finance → Overview: what is owed, what is overdue, and what has been paid. */
 export function FinanceOverviewPage() {
-  const { data: statsData } = useListInvoicesStatsQuery();
-  const { data: invoicesData, loading } = useListInvoicesQuery();
-  const { data: receivablesData } = useReceivablesQuery();
-  const { formatDate } = useSettings();
+  const [periodKey, setPeriodKey] = useState('last-3');
+  const periods = useMemo(() => financePeriods(), []);
+  const period = useMemo(() => periodFor(periodKey), [periodKey]);
 
-  const stats = statsData?.listInvoicesStats;
-  const invoices = invoicesData?.listInvoices ?? [];
-  const overdue = invoices.filter(isOverdue);
+  const { data, loading } = useCompanyFinanceQuery({
+    variables: { from: period.from.toISOString(), to: period.to.toISOString() },
+    fetchPolicy: 'cache-and-network',
+  });
+  const finance = data?.companyFinance;
 
-  // Invoiced is what was billed; outstanding is what is actually still owed — the figure a
-  // finance lead is looking for, and one only the payments ledger can answer.
-  const receivables = receivablesData?.receivables;
-  const statItems: StatItem[] = [
-    { label: 'Invoices', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Paid', value: String(statCount(stats, 'status', 'PAID')), accent: '#22c55e' },
+  const stats: StatItem[] = [
+    { label: 'Invoiced', value: formatMoney(finance?.invoiced ?? 0), accent: '#4f8cff' },
+    { label: 'Total cost', value: formatMoney(finance?.totalCost ?? 0), accent: '#f9851f' },
     {
-      label: 'Outstanding',
-      value: formatMoney(receivables?.outstanding ?? 0),
-      accent: '#8b5cf6',
+      label: 'Profit',
+      value: formatMoney(finance?.profit ?? 0),
+      accent: (finance?.profit ?? 0) < 0 ? '#ff6b6b' : '#22c55e',
     },
-    { label: 'Overdue', value: formatMoney(receivables?.overdue ?? 0), accent: '#ff6b6b' },
+    { label: 'Net cash', value: formatMoney(finance?.netCash ?? 0), accent: '#8b5cf6' },
   ];
 
-  const breakdowns: OverviewBreakdown[] = [
-    {
-      title: 'By status',
-      buckets: stats?.counts.find((c) => c.field === 'status')?.buckets ?? [],
-      accent: '#4f8cff',
-    },
+  const earned: MoneyLine[] = [
+    { id: 'invoiced', label: 'Invoiced', amount: finance?.invoiced ?? 0 },
+    { id: 'expenses', label: 'Company expenses', amount: -(finance?.expenses ?? 0) },
+    { id: 'payroll', label: 'Payroll', amount: -(finance?.payroll ?? 0) },
+    { id: 'claims', label: 'Reimbursed claims', amount: -(finance?.reimbursements ?? 0) },
+    { id: 'profit', label: 'Profit', amount: finance?.profit ?? 0, total: true },
   ];
 
-  const columns: Column<InvoiceRow>[] = [
-    { key: 'number', label: 'Invoice' },
-    { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
-    { key: 'dueDate', label: 'Due', render: (r) => formatDate(r.dueDate) },
-    { key: 'amount', label: 'Amount', render: (r) => formatMoney(r.amount) },
-    { key: 'balanceDue', label: 'Owing', render: (r) => formatMoney(r.balanceDue) },
+  const moved: MoneyLine[] = [
+    { id: 'collected', label: 'Collected from customers', amount: finance?.collected ?? 0 },
+    { id: 'paid', label: 'Bills settled', amount: -(finance?.paidOut ?? 0) },
+    { id: 'net', label: 'Net cash movement', amount: finance?.netCash ?? 0, total: true },
   ];
 
-  const rows = overdue.length > 0 ? overdue : invoices;
+  const owed: MoneyLine[] = [
+    { id: 'receivable', label: 'Owed to us', amount: finance?.outstandingReceivable ?? 0 },
+    { id: 'payable', label: 'Owed by us', amount: -(finance?.outstandingPayable ?? 0) },
+    { id: 'overdue', label: 'Of which already late', amount: -(finance?.overduePayable ?? 0) },
+  ];
+
+  const months = finance?.months ?? [];
+  const spend = (finance?.byCategory ?? []).map((slice) => ({
+    value: slice.label,
+    count: round(slice.amount),
+  }));
 
   return (
-    <ModuleOverview
-      title="Finance"
-      subtitle="Invoicing at a glance"
-      stats={statItems}
-      breakdowns={breakdowns}
-      links={[
-        { label: 'Open invoices', to: '/finance/invoices' },
-        { label: 'Record a payment', to: '/finance/payments' },
-        { label: 'Receivables ageing', to: '/finance/receivables' },
-        { label: 'Open expenses', to: '/expenses' },
-      ]}
-      recentTitle={overdue.length > 0 ? 'Overdue invoices' : 'Newest invoices'}
-    >
-      <DataTable
-        columns={columns}
-        rows={rows.slice(0, RECENT_INVOICES)}
-        emptyMessage={loading ? 'Loading…' : 'No invoices yet.'}
-      />
-    </ModuleOverview>
+    <Box>
+      <PageHeader title="Finance" subtitle={`Company finances · ${period.label}`}>
+        <FinancePeriodPicker periods={periods} value={periodKey} onChange={setPeriodKey} />
+      </PageHeader>
+
+      <ModuleDashboard
+        title="Company finance"
+        subtitle={loading && !finance ? 'Loading…' : `${period.label}, ending today`}
+        stats={stats}
+      >
+        <Grid container spacing={1.5}>
+          <Grid item xs={12} md={4}>
+            <FinanceMoneyPanel
+              title="Earned and spent"
+              basis="Accrual — dated when it was invoiced or incurred, whenever the money moves."
+              lines={earned}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <FinanceMoneyPanel
+              title="Cash movement"
+              basis="Cash — dated when the money actually arrived or left."
+              lines={moved}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <FinanceMoneyPanel
+              title="Position today"
+              basis="As of now, not the period — an old unpaid invoice is still owed today."
+              lines={owed}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={7}>
+            <Box sx={{ p: 1 }}>
+              <LineChart
+                labels={months.map((month) => month.label)}
+                data={months.map((month) => round(month.profit))}
+                height={240}
+              />
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={5}>
+            <StatBreakdown
+              title="Spend by category"
+              buckets={spend}
+              emptyMessage="No company expenses recorded in this period."
+            />
+          </Grid>
+        </Grid>
+      </ModuleDashboard>
+    </Box>
   );
 }
