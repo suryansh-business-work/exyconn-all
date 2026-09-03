@@ -22,10 +22,19 @@ slack_api() {
 }
 
 assert_ok() {
-  if [ "$(jq -r '.ok' <<<"$1")" != "true" ]; then
-    echo "::error::Slack $2 failed: $(jq -r '.error // "unknown error"' <<<"$1")"
-    exit 1
+  if [ "$(jq -r '.ok' <<<"$1")" = "true" ]; then
+    return
   fi
+  local err
+  err=$(jq -r '.error // "unknown error"' <<<"$1")
+  # By far the most common cause, and the one whose Slack error name says least
+  # about the fix: the bot has to be invited before it can post anywhere.
+  if [ "$err" = "not_in_channel" ] || [ "$err" = "channel_not_found" ]; then
+    echo "::error::Slack rejected the post to ${3:-the channel} with \"$err\" — the bot is not a member of it. Open that channel in Slack and run /invite @<your-bot>, then re-run this workflow."
+  else
+    echo "::error::Slack $2 failed: $err"
+  fi
+  exit 1
 }
 
 # Posts every given file into one channel.
@@ -41,7 +50,7 @@ post_to_channel() {
     echo "Uploading $name ($size bytes) to $channel"
     ticket=$(slack_api files.getUploadURLExternal \
       --data-urlencode "filename=$name" --data-urlencode "length=$size")
-    assert_ok "$ticket" "files.getUploadURLExternal"
+    assert_ok "$ticket" "files.getUploadURLExternal" "$channel"
     curl -sS -X POST "$(jq -r '.upload_url' <<<"$ticket")" -F "file=@$file" >/dev/null
     uploaded=$(jq -c --arg id "$(jq -r '.file_id' <<<"$ticket")" --arg title "$name" \
       '. + [{id: $id, title: $title}]' <<<"$uploaded")
@@ -51,7 +60,7 @@ post_to_channel() {
   body=$(jq -nc --argjson files "$uploaded" --arg channel "$channel" --arg text "$SLACK_MESSAGE" \
     '{files: $files, channel_id: $channel, initial_comment: $text}')
   result=$(slack_api files.completeUploadExternal -H 'Content-Type: application/json' --data "$body")
-  assert_ok "$result" "files.completeUploadExternal"
+  assert_ok "$result" "files.completeUploadExternal" "$channel"
   echo "Posted $# file(s) to Slack channel $channel"
 }
 

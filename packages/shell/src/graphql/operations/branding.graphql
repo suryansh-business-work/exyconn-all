@@ -26,6 +26,13 @@ fragment BrandingFields on Branding {
   youtubeUrl
   githubUrl
   copyrightText
+  loginPages {
+    app
+    name
+    tagline
+    backgroundImageUrl
+    accentColor
+  }
 }
 
 query Branding {

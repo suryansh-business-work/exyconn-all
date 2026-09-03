@@ -329,6 +329,7 @@ export type Branding = {
   instagramUrl: Scalars['String']['output'];
   legalName: Scalars['String']['output'];
   linkedinUrl: Scalars['String']['output'];
+  loginPages: Array<LoginPage>;
   logoDarkUrl: Scalars['String']['output'];
   logoUrl: Scalars['String']['output'];
   ogImageUrl: Scalars['String']['output'];
@@ -358,6 +359,7 @@ export type BrandingInput = {
   instagramUrl?: InputMaybe<Scalars['String']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   linkedinUrl?: InputMaybe<Scalars['String']['input']>;
+  loginPages?: InputMaybe<Array<LoginPageInput>>;
   logoDarkUrl?: InputMaybe<Scalars['String']['input']>;
   logoUrl?: InputMaybe<Scalars['String']['input']>;
   ogImageUrl?: InputMaybe<Scalars['String']['input']>;
@@ -1421,6 +1423,23 @@ export type LocationPage = {
   __typename?: 'LocationPage';
   rows: Array<Location>;
   totalCount: Scalars['Int']['output'];
+};
+
+export type LoginPage = {
+  __typename?: 'LoginPage';
+  accentColor: Scalars['String']['output'];
+  app: Scalars['String']['output'];
+  backgroundImageUrl: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  tagline: Scalars['String']['output'];
+};
+
+export type LoginPageInput = {
+  accentColor: Scalars['String']['input'];
+  app: Scalars['String']['input'];
+  backgroundImageUrl: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  tagline: Scalars['String']['input'];
 };
 
 /** Employee-facing attendance entry — the server sets employeeId. */
@@ -4898,24 +4917,24 @@ export type GetProjectQueryVariables = Exact<{
 
 export type GetProjectQuery = { __typename?: 'Query', getProject: { __typename?: 'Project', id: string, name: string, description?: string | null, status: ProjectStatus } };
 
-export type BrandingFieldsFragment = { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string };
+export type BrandingFieldsFragment = { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> };
 
 export type BrandingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type BrandingQuery = { __typename?: 'Query', branding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string } };
+export type BrandingQuery = { __typename?: 'Query', branding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
 
 export type PublicBrandingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PublicBrandingQuery = { __typename?: 'Query', publicBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string } };
+export type PublicBrandingQuery = { __typename?: 'Query', publicBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
 
 export type UpdateBrandingMutationVariables = Exact<{
   input: BrandingInput;
 }>;
 
 
-export type UpdateBrandingMutation = { __typename?: 'Mutation', updateBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string } };
+export type UpdateBrandingMutation = { __typename?: 'Mutation', updateBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
 
 export type UploadImageMutationVariables = Exact<{
   file: Scalars['String']['input'];
@@ -6931,6 +6950,13 @@ export const BrandingFieldsFragmentDoc = gql`
   youtubeUrl
   githubUrl
   copyrightText
+  loginPages {
+    app
+    name
+    tagline
+    backgroundImageUrl
+    accentColor
+  }
 }
     `;
 export const PayrollFieldsFragmentDoc = gql`

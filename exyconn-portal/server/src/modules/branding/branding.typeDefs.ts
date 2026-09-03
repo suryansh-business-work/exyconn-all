@@ -9,6 +9,24 @@ import gql from 'graphql-tag';
  * any image field (branding, avatars, blog covers, tool icons) goes through it.
  */
 export const brandingTypeDefs = gql`
+  # One portal app's login screen. The sign-in form is identical everywhere; only the
+  # background, the portal name and the accent change per subdomain.
+  type LoginPage {
+    app: String!
+    name: String!
+    tagline: String!
+    backgroundImageUrl: String!
+    accentColor: String!
+  }
+
+  input LoginPageInput {
+    app: String!
+    name: String!
+    tagline: String!
+    backgroundImageUrl: String!
+    accentColor: String!
+  }
+
   type Branding {
     id: ID!
     businessName: String!
@@ -42,6 +60,8 @@ export const brandingTypeDefs = gql`
     githubUrl: String!
 
     copyrightText: String!
+
+    loginPages: [LoginPage!]!
   }
 
   input BrandingInput {
@@ -76,6 +96,8 @@ export const brandingTypeDefs = gql`
     githubUrl: String
 
     copyrightText: String
+
+    loginPages: [LoginPageInput!]
   }
 
   extend type Query {

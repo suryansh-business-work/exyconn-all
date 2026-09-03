@@ -9,9 +9,15 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { TrackerNotificationsForm } from './forms/tracker-notifications';
 
-/** A private channel is worth marking, since the bot has to be invited to one. */
-const channelLabel = (name: string, isPrivate: boolean) =>
-  isPrivate ? `#${name} (private)` : `#${name}`;
+/**
+ * A channel the bot has not joined is the one thing that silently breaks a build
+ * notification — Slack accepts the upload and then refuses to post it — so it is
+ * called out here rather than discovered in a failed workflow run.
+ */
+function channelLabel(name: string, isPrivate: boolean, isMember: boolean): string {
+  const notes = [isPrivate ? 'private' : '', isMember ? '' : 'bot not invited'].filter(Boolean);
+  return notes.length ? `#${name} (${notes.join(', ')})` : `#${name}`;
+}
 
 /**
  * Tech settings. Today that is where a finished tracker build is announced: the
@@ -26,7 +32,7 @@ export function SettingsPage() {
     () =>
       (channels.data?.listSlackChannels ?? []).map((c) => ({
         value: c.id,
-        label: channelLabel(c.name, c.isPrivate),
+        label: channelLabel(c.name, c.isPrivate, c.isMember),
       })),
     [channels.data],
   );
