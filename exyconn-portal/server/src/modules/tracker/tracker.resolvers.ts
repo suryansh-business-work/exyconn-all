@@ -20,6 +20,19 @@ const TRACKER_ROLES = [ROLES.TRACKER];
 
 type LeanDoc = { _id: unknown };
 
+/** The desktop state payload, shared by `trackerMe` and `trackerHeartbeat`. */
+type DeviceState = Awaited<ReturnType<typeof trackerDeviceService.me>>;
+
+/** Serializes that payload with `_id -> id`, so both resolvers answer identically. */
+function serializeDeviceState(state: DeviceState) {
+  return {
+    user: withId(state.user as LeanDoc),
+    consentRequired: state.consentRequired,
+    settings: withId(state.settings),
+    timezone: state.timezone,
+  };
+}
+
 /** Serializes the day payload (four independent lists) with `_id -> id`. */
 async function serializeDay(day: {
   intervals: LeanDoc[];
@@ -73,13 +86,7 @@ export const trackerResolvers = {
     /** Desktop app rehydrating a remembered (non-expiring) session. */
     trackerMe: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       const { userId, deviceId } = await assertTrackerDevice(ctx);
-      const result = await trackerDeviceService.me(userId, deviceId);
-      return {
-        user: withId(result.user as LeanDoc),
-        consentRequired: result.consentRequired,
-        settings: withId(result.settings),
-        timezone: result.timezone,
-      };
+      return serializeDeviceState(await trackerDeviceService.me(userId, deviceId));
     },
     /** Desktop app — the signed-in employee's own totals. */
     myTrackerTotals: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
@@ -163,9 +170,14 @@ export const trackerResolvers = {
       const { userId } = await assertTrackerDevice(ctx);
       return trackerDeviceService.acceptConsent(userId);
     },
-    trackerHeartbeat: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      const { deviceId } = await assertTrackerDevice(ctx);
-      return trackerDeviceService.heartbeat(deviceId);
+    /** Keep-alive: touches lastSeenAt and answers with the state the app should adopt. */
+    trackerHeartbeat: async (
+      _p: unknown,
+      { device }: { device?: DeviceInput },
+      ctx: GraphQLContext,
+    ) => {
+      const { userId, deviceId } = await assertTrackerDevice(ctx);
+      return serializeDeviceState(await trackerDeviceService.heartbeat(userId, deviceId, device));
     },
     trackerStartSession: async (
       _p: unknown,

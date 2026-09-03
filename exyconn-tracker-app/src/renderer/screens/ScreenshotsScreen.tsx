@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
@@ -7,6 +8,7 @@ import { useDayDetail } from '../hooks/useMyDay';
 import { formatCount } from '../format';
 import { formatDayInZone, offsetLabel } from '../time';
 import ScreenshotCard from '../components/ScreenshotCard';
+import ScreenshotLightbox from '../components/ScreenshotLightbox';
 
 interface Props {
   startISO: string;
@@ -35,6 +37,8 @@ export default function ScreenshotsScreen({
 }: Readonly<Props>): JSX.Element {
   const { detail, loading, error } = useDayDetail(startISO, endISO);
   const shots = detail?.screenshots ?? [];
+  /** Index of the shot open full screen, or null. Held here so paging can walk the day. */
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', p: 3 }}>
@@ -72,12 +76,25 @@ export default function ScreenshotsScreen({
             {formatCount(shots.length)} captured
           </Typography>
           <Box sx={GRID}>
-            {shots.map((shot) => (
-              <ScreenshotCard key={shot.id} shot={shot} timezone={timezone} />
+            {shots.map((shot, index) => (
+              <ScreenshotCard
+                key={shot.id}
+                shot={shot}
+                timezone={timezone}
+                onOpen={() => setOpenIndex(index)}
+              />
             ))}
           </Box>
         </>
       ) : null}
+
+      <ScreenshotLightbox
+        shots={shots}
+        index={openIndex}
+        timezone={timezone}
+        onClose={() => setOpenIndex(null)}
+        onNavigate={setOpenIndex}
+      />
     </Box>
   );
 }

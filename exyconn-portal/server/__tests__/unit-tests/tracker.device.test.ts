@@ -7,9 +7,11 @@ import { assertTrackerDevice } from '../../src/modules/tracker/tracker.auth';
 import { trackerAdminService } from '../../src/modules/tracker/tracker.admin.service';
 import {
   TrackerAccessModel,
+  TrackerDeviceModel,
   TrackerIntervalModel,
   TrackerSessionModel,
 } from '../../src/modules/tracker/models';
+import { updateTrackerSettings } from '../../src/modules/tracker/tracker.settings.service';
 
 // The mailer talks to SMTP; stub the access-granted email so grants work offline.
 jest.mock('../../src/utils/mailer', () => ({
@@ -31,9 +33,9 @@ function ctxFor(token: string) {
 describe('tracker device auth', () => {
   it('refuses login without an access grant', async () => {
     await makeEmployee();
-    await expect(
-      trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE),
-    ).rejects.toThrow(/access to the tracker/i);
+    await expect(trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE)).rejects.toThrow(
+      /access to the tracker/i,
+    );
   });
 
   it('issues a non-expiring device token once access is granted', async () => {
@@ -191,6 +193,98 @@ describe('trackerMe (remember-me rehydrate)', () => {
     await trackerAdminService.revokeAccess(user.id, 'admin');
 
     await expect(trackerDeviceService.me(user.id, 'device-1')).rejects.toThrow(/revoked/i);
+  });
+});
+
+describe('tracker heartbeat', () => {
+  it('records that the device is still online', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
+
+    // Rewind lastSeenAt to what an enrolment an hour ago looks like: without a heartbeat the
+    // portal's Devices console can only ever show this, and "Last seen" means nothing.
+    const stale = new Date(Date.now() - 3_600_000);
+    await TrackerDeviceModel.updateOne({ deviceId: 'device-1' }, { lastSeenAt: stale });
+
+    await trackerDeviceService.heartbeat(user.id, 'device-1');
+
+    const device = await TrackerDeviceModel.findOne({ deviceId: 'device-1' }).lean();
+    expect(device?.lastSeenAt.getTime()).toBeGreaterThan(stale.getTime());
+  });
+
+  it('hands back settings an admin changed after the app signed in', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    const signedIn = await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
+    expect(signedIn.settings.intervalMinutes).not.toBe(3);
+
+    await updateTrackerSettings({ intervalMinutes: 3, blurScreenshots: true });
+
+    // This is what keeps a RUNNING app in step with the portal: the same round-trip that says
+    // "still here" answers with the rules the app should now be tracking by.
+    const state = await trackerDeviceService.heartbeat(user.id, 'device-1');
+    expect(state.settings.intervalMinutes).toBe(3);
+    expect(state.settings.blurScreenshots).toBe(true);
+  });
+
+  it('refreshes the app version after an update, without a fresh sign-in', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
+
+    // The device token never expires, so an updated app restores its session rather than
+    // signing in again — the console would otherwise show 1.0.0 forever.
+    await trackerDeviceService.heartbeat(user.id, 'device-1', {
+      ...DEVICE,
+      appVersion: '1.2.0',
+      screenCount: 2,
+    });
+
+    const devices = await trackerAdminService.listDevices(user.id);
+    expect(devices[0]).toMatchObject({ appVersion: '1.2.0', screenCount: 2 });
+  });
+
+  it('cannot re-enrol a device or undo a revocation', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
+    await trackerAdminService.revokeDevice('device-1');
+
+    // The auth guard already refuses a revoked device; this pins down that the write itself
+    // touches only the descriptive fields, so no payload can talk its way back in.
+    await trackerDeviceService.heartbeat(user.id, 'device-1', { ...DEVICE, hostname: 'NEW-PC' });
+
+    const device = await TrackerDeviceModel.findOne({ deviceId: 'device-1' }).lean();
+    expect(device?.isActive).toBe(false);
+    expect(device?.revokedAt).not.toBeNull();
+    expect(device?.hostname).toBe('NEW-PC');
+  });
+
+  it('reports consent as accepted once the employee accepts it', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
+
+    await expect(trackerDeviceService.heartbeat(user.id, 'device-1')).resolves.toMatchObject({
+      consentRequired: true,
+    });
+
+    await trackerDeviceService.acceptConsent(user.id);
+
+    await expect(trackerDeviceService.heartbeat(user.id, 'device-1')).resolves.toMatchObject({
+      consentRequired: false,
+    });
+  });
+
+  it('refuses once access is revoked, so an idle app finds out', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
+
+    await trackerAdminService.revokeAccess(user.id, 'admin');
+
+    await expect(trackerDeviceService.heartbeat(user.id, 'device-1')).rejects.toThrow(/revoked/i);
   });
 });
 

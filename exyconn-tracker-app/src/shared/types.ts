@@ -2,6 +2,9 @@
 
 export type TrackerStatus = 'signed-out' | 'consent-required' | 'idle' | 'tracking' | 'paused';
 
+/** Where the webcam photo is composited onto the screenshot. Mirrors the portal's list. */
+export type WebcamCorner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+
 export interface TrackerSettings {
   intervalMinutes: number;
   screenshotsPerInterval: number;
@@ -9,8 +12,17 @@ export interface TrackerSettings {
   blurScreenshots: boolean;
   trackWindowTitles: boolean;
   idleThresholdSeconds: number;
+  /** Screenshots are downscaled to this width. Ignored at quality 100. */
   screenshotMaxWidth: number;
+  /**
+   * 0-100. 100 means ACTUAL best quality — native resolution, encoded losslessly (PNG), no
+   * downscale. Below 100 is a JPEG at that quality, downscaled to `screenshotMaxWidth`.
+   */
   screenshotQuality: number;
+  /** Take a webcam photo with each screenshot and composite it into a corner of the shot. */
+  webcamEnabled: boolean;
+  /** Which corner that photo goes in. */
+  webcamCorner: WebcamCorner;
   /** When false, nothing is uploaded until the employee presses "Sync now". */
   autoSyncEnabled: boolean;
   /** How often the outbox is flushed to the portal, in minutes. */
@@ -47,8 +59,30 @@ export interface AuthUser {
 export interface PermissionState {
   screenRecording: boolean;
   accessibility: boolean;
+  /**
+   * Camera access. Only ever required when the workspace has turned webcam capture on, so it
+   * is reported as granted when it is not needed — nobody is asked for a camera they will
+   * never be photographed with.
+   */
+  camera: boolean;
   /** True when the platform needs no explicit grants (Windows). */
   allGranted: boolean;
+}
+
+/** A permission the app can ask the OS for. */
+export type PermissionKind = 'screenRecording' | 'accessibility' | 'camera';
+
+/**
+ * Preferences that belong to this INSTALL, not to the workspace. The portal owns what is
+ * captured; these only decide how the app behaves on this employee's own desktop.
+ */
+export interface AppPreferences {
+  /**
+   * Closing the window leaves the app running in the tray instead of quitting. On by
+   * default: tracking is the whole point, and a stray click on the close button should not
+   * silently end someone's working day.
+   */
+  closeToTray: boolean;
 }
 
 /**
@@ -157,8 +191,21 @@ export const IPC = {
   getTotals: 'tracker:get-totals',
   setTimezone: 'tracker:set-timezone',
   openScreenshots: 'tracker:open-screenshots',
+  setPreferences: 'tracker:set-preferences',
+  minimizeWindow: 'tracker:minimize-window',
+  toggleMaximizeWindow: 'tracker:toggle-maximize-window',
+  closeWindow: 'tracker:close-window',
+  /** The renderer's answer to a capture request (see `captureRequested`). */
+  captureResult: 'tracker:capture-result',
   // main → renderer
   stateChanged: 'tracker:state-changed',
+  /** Whether the window this renderer runs in is maximized, for the window controls. */
+  windowMaximized: 'tracker:window-maximized',
+  /**
+   * Main needs the renderer to finish a capture: only a renderer can reach the webcam and a
+   * canvas. Answered on `captureResult` with the same request id.
+   */
+  captureRequested: 'tracker:capture-requested',
   /** Fired on every capture so a renderer can play the shutter sound (audio needs a window). */
   screenshotCaptured: 'tracker:screenshot-captured',
 } as const;
@@ -171,6 +218,8 @@ export interface TrackerState {
   branding: Branding | null;
   permissions: PermissionState;
   stats: LiveStats;
+  /** This install's own preferences (tray behaviour), not the workspace's settings. */
+  preferences: AppPreferences;
   /** Whether the stored session was remembered (drives the login checkbox default). */
   rememberMe: boolean;
   /** Why the app signed the employee out on its own (revoked access), shown on the login screen. */
@@ -180,6 +229,28 @@ export interface TrackerState {
    * the admin's house default, else this device's zone. Never empty.
    */
   timezone: string;
+}
+
+/**
+ * What main asks a renderer to produce: the screen it already captured, plus the webcam photo
+ * only a renderer can take, composited into one image.
+ */
+export interface CaptureRequest {
+  id: string;
+  /** Base64 of the screen capture (no data-URL prefix). */
+  screen: string;
+  /** The MIME type `screen` is encoded in — PNG at quality 100, JPEG below it. */
+  mimeType: string;
+  corner: WebcamCorner;
+  /** 0-100, applied to the composited result exactly as it was to the screen. */
+  quality: number;
+}
+
+/** The renderer's answer. `image` is base64 in the same MIME type that was requested. */
+export interface CaptureResult {
+  id: string;
+  image: string | null;
+  error: string | null;
 }
 
 /** The window the screenshot gallery opens for: one day of the employee's own captures. */

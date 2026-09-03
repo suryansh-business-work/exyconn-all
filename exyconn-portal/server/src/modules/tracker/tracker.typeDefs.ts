@@ -17,7 +17,19 @@ export const trackerTypeDefs = gql`
     trackWindowTitles: Boolean!
     idleThresholdSeconds: Int!
     screenshotMaxWidth: Int!
+    """
+    0-100. 100 means actual best quality: native resolution, encoded losslessly, no
+    downscale. Below 100 is a JPEG at that quality, downscaled to screenshotMaxWidth.
+    """
     screenshotQuality: Int!
+    """
+    Capture a webcam photo with each screenshot and composite it into a corner of the shot.
+    """
+    webcamEnabled: Boolean!
+    """
+    One of: top-left, top-right, bottom-left, bottom-right.
+    """
+    webcamCorner: String!
     autoSyncEnabled: Boolean!
     syncIntervalMinutes: Int!
     consentText: String!
@@ -37,6 +49,8 @@ export const trackerTypeDefs = gql`
     idleThresholdSeconds: Int
     screenshotMaxWidth: Int
     screenshotQuality: Int
+    webcamEnabled: Boolean
+    webcamCorner: String
     autoSyncEnabled: Boolean
     syncIntervalMinutes: Int
     consentText: String
@@ -261,7 +275,15 @@ export const trackerTypeDefs = gql`
       device: TrackerDeviceInput!
     ): TrackerLoginPayload!
     trackerAcceptConsent: Boolean!
-    trackerHeartbeat: Boolean!
+    """
+    Desktop keep-alive, called on a timer for as long as the app is signed in.
+
+    Does three things in one round-trip: records that this device is still online (the
+    portal's Devices console reads lastSeenAt), hands back the CURRENT portal state so a
+    running app adopts settings, consent and timezone changes without a restart, and fails
+    with an auth error the moment the device or the access grant is revoked.
+    """
+    trackerHeartbeat(device: TrackerDeviceInput): TrackerMe!
     trackerStartSession(startedAt: DateTime!): TrackerSession!
     trackerStopSession(sessionId: ID!, endedAt: DateTime!): TrackerSession!
     trackerSyncIntervals(sessionId: ID!, intervals: [TrackerIntervalInput!]!): Int!

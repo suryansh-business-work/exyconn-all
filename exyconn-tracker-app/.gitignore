@@ -4,3 +4,9 @@ dist
 *.log
 *.tsbuildinfo
 .DS_Store
+
+# The macOS signing entitlements are SOURCE, not build output. The root .gitignore's
+# `**/build/` swallowed them, which is why electron-builder.yml pointed at files that were
+# never in the repo — a mac build would fail on a fresh clone.
+!build/
+!build/*.plist

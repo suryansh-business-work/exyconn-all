@@ -1839,7 +1839,15 @@ export type Mutation = {
   testGithubConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
   trackerAcceptConsent: Scalars['Boolean']['output'];
-  trackerHeartbeat: Scalars['Boolean']['output'];
+  /**
+   * Desktop keep-alive, called on a timer for as long as the app is signed in.
+   *
+   * Does three things in one round-trip: records that this device is still online (the
+   * portal's Devices console reads lastSeenAt), hands back the CURRENT portal state so a
+   * running app adopts settings, consent and timezone changes without a restart, and fails
+   * with an auth error the moment the device or the access grant is revoked.
+   */
+  trackerHeartbeat: TrackerMe;
   trackerLogin: TrackerLoginPayload;
   /** Sets the CALLER's own timezone. Must be a resolvable IANA zone name. */
   trackerSetTimezone: TrackerAccess;
@@ -2710,6 +2718,11 @@ export type MutationTestImageUploadArgs = {
   file: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationTrackerHeartbeatArgs = {
+  device?: InputMaybe<TrackerDeviceInput>;
 };
 
 
@@ -5178,10 +5191,18 @@ export type TrackerSettings = {
   intervalMinutes: Scalars['Int']['output'];
   randomizeScreenshotTiming: Scalars['Boolean']['output'];
   screenshotMaxWidth: Scalars['Int']['output'];
+  /**
+   * 0-100. 100 means actual best quality: native resolution, encoded losslessly, no
+   * downscale. Below 100 is a JPEG at that quality, downscaled to screenshotMaxWidth.
+   */
   screenshotQuality: Scalars['Int']['output'];
   screenshotsPerInterval: Scalars['Int']['output'];
   syncIntervalMinutes: Scalars['Int']['output'];
   trackWindowTitles: Scalars['Boolean']['output'];
+  /** One of: top-left, top-right, bottom-left, bottom-right. */
+  webcamCorner: Scalars['String']['output'];
+  /** Capture a webcam photo with each screenshot and composite it into a corner of the shot. */
+  webcamEnabled: Scalars['Boolean']['output'];
 };
 
 export type TrackerSettingsInput = {
@@ -5197,6 +5218,8 @@ export type TrackerSettingsInput = {
   screenshotsPerInterval?: InputMaybe<Scalars['Int']['input']>;
   syncIntervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   trackWindowTitles?: InputMaybe<Scalars['Boolean']['input']>;
+  webcamCorner?: InputMaybe<Scalars['String']['input']>;
+  webcamEnabled?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** All-time tracker totals for one employee. */
@@ -6988,7 +7011,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  trackerHeartbeat?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
   trackerLogin?: Resolver<ResolversTypes['TrackerLoginPayload'], ParentType, ContextType, RequireFields<MutationTrackerLoginArgs, 'device' | 'email' | 'password'>>;
   trackerSetTimezone?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationTrackerSetTimezoneArgs, 'timezone'>>;
   trackerStartSession?: Resolver<ResolversTypes['TrackerSession'], ParentType, ContextType, RequireFields<MutationTrackerStartSessionArgs, 'startedAt'>>;
@@ -8005,6 +8028,8 @@ export type TrackerSettingsResolvers<ContextType = GraphQLContext, ParentType ex
   screenshotsPerInterval?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   syncIntervalMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   trackWindowTitles?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  webcamCorner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  webcamEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

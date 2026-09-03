@@ -1,20 +1,25 @@
 import { desktopCapturer, screen, nativeImage } from 'electron';
 import type { TrackerSettings } from '@shared/types';
+import { blurWidth, capturePolicy } from './capture-policy';
 
 export interface Capture {
-  /** JPEG data-URL, downscaled and (optionally) blurred, ready to POST. */
+  /** Base64 of the encoded capture (no data-URL prefix), ready to POST. */
   image: string;
+  /** What `image` is encoded as — PNG at quality 100, JPEG below it. */
+  mimeType: string;
   displayId: string;
   blurred: boolean;
 }
 
 /**
- * Captures every display and returns compressed JPEG data-URLs.
+ * Captures every display and returns encoded, base64 data.
  *
  * desktopCapturer is main-process only (since Electron 17). We request thumbnails at each
- * display's native pixel size, then downscale to the configured max width and JPEG-encode
- * to keep the upload small. Blur, when enabled, is a coarse downscale-then-upscale so the
- * manager sees layout/context but not readable on-screen content.
+ * display's native pixel size, then encode according to the workspace's quality dial: at 100
+ * the native-resolution image is kept and PNG-encoded losslessly, below it the shot is
+ * downscaled to the configured max width and JPEG-encoded to keep the upload small. Blur,
+ * when enabled, is a coarse downscale-then-upscale so the manager sees layout/context but not
+ * readable on-screen content.
  */
 export class Screenshotter {
   async capture(settings: TrackerSettings): Promise<Capture[]> {
@@ -44,25 +49,36 @@ export class Screenshotter {
       return null;
     }
 
-    const processed = this.process(source.thumbnail, settings);
+    const policy = capturePolicy(settings, source.thumbnail.getSize().width);
+    const processed = this.process(source.thumbnail, settings, policy.targetWidth);
+    const encoded = policy.lossless
+      ? processed.toPNG()
+      : processed.toJPEG(settings.screenshotQuality);
+
     return {
-      image: processed.toJPEG(settings.screenshotQuality).toString('base64'),
+      image: encoded.toString('base64'),
+      mimeType: policy.mimeType,
       displayId: String(display.id),
       blurred: settings.blurScreenshots,
     };
   }
 
-  /** Downscales to the max width, and coarsely pixelates when blur is on. */
-  private process(source: Electron.NativeImage, settings: TrackerSettings): Electron.NativeImage {
-    const size = source.getSize();
-    const targetWidth = Math.min(settings.screenshotMaxWidth, size.width);
+  /**
+   * Downscales to the target width (or leaves the image alone when there is none, which is
+   * what quality 100 asks for), and coarsely pixelates when blur is on.
+   */
+  private process(
+    source: Electron.NativeImage,
+    settings: TrackerSettings,
+    targetWidth: number | null,
+  ): Electron.NativeImage {
+    const width = targetWidth ?? source.getSize().width;
 
     if (!settings.blurScreenshots) {
-      return source.resize({ width: targetWidth, quality: 'good' });
+      return targetWidth === null ? source : source.resize({ width, quality: 'good' });
     }
 
-    // Blur: shrink hard, then blow back up — content becomes unreadable, layout survives.
-    const tiny = source.resize({ width: Math.max(64, Math.round(targetWidth / 12)) });
-    return nativeImage.createFromBuffer(tiny.toPNG()).resize({ width: targetWidth });
+    const tiny = source.resize({ width: blurWidth(width) });
+    return nativeImage.createFromBuffer(tiny.toPNG()).resize({ width });
   }
 }

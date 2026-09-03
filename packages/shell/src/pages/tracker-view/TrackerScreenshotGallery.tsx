@@ -8,7 +8,13 @@ interface TrackerScreenshotGalleryProps {
   formatDateTime: DateTimeFormatter;
 }
 
-/** Presentational screenshot grid; clicking a thumbnail opens a larger dialog. */
+/**
+ * Presentational screenshot grid; clicking a thumbnail opens the shot FULL SCREEN.
+ *
+ * A 96px thumbnail shows that a capture exists and nothing about what it caught, and these
+ * are the images a manager makes judgements from — they need to be readable at the size they
+ * were taken at, not at the size that happens to fit beside them.
+ */
 export function TrackerScreenshotGallery({
   screenshots,
   formatDateTime,
@@ -66,15 +72,23 @@ export function TrackerScreenshotGallery({
         ))}
       </Box>
 
-      <Dialog open={Boolean(active)} onClose={() => setActive(null)} maxWidth="md" fullWidth>
-        <DialogContent>
+      {/* Escape and a backdrop click both close it, which is what a full-screen viewer owes. */}
+      <Dialog open={Boolean(active)} onClose={() => setActive(null)} fullScreen>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', p: 2 }}>
           {active && (
-            <Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
               <Box
                 component="img"
                 src={active.imageUrl}
                 alt={`Screenshot from ${formatDateTime(active.capturedAt)}`}
-                sx={{ width: '100%', height: 'auto', borderRadius: '4px', display: 'block' }}
+                sx={{
+                  flex: 1,
+                  minHeight: 0,
+                  maxWidth: '100%',
+                  objectFit: 'contain',
+                  borderRadius: '4px',
+                  display: 'block',
+                }}
               />
               <Flex direction="row" spacing={1} alignItems="center" sx={{ mt: 1.5 }}>
                 <Text size="sm" color="text.secondary">

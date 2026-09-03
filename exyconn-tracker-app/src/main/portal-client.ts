@@ -194,18 +194,26 @@ export async function fetchMyDay(start: string, end: string): Promise<DayDetail>
   return summarizeDay(data.myTrackerDay);
 }
 
-const TRACKER_ME = `
-  query {
-    trackerMe {
-      user { id name email }
-      consentRequired
-      timezone
-      settings {
-        intervalMinutes screenshotsPerInterval randomizeScreenshotTiming blurScreenshots
-        trackWindowTitles idleThresholdSeconds screenshotMaxWidth screenshotQuality
-        autoSyncEnabled syncIntervalMinutes consentText
-      }
-    }
+/**
+ * Everything the app needs to render itself for the signed-in employee. `trackerMe` and
+ * `trackerHeartbeat` return the same type, so they select the same fields — the app must
+ * never learn less from a heartbeat than it did at sign-in.
+ */
+const ME_FIELDS = `
+  user { id name email }
+  consentRequired
+  timezone
+  settings {
+    intervalMinutes screenshotsPerInterval randomizeScreenshotTiming blurScreenshots
+    trackWindowTitles idleThresholdSeconds screenshotMaxWidth screenshotQuality
+    autoSyncEnabled syncIntervalMinutes consentText
+  }
+`;
+
+const TRACKER_ME = `query { trackerMe { ${ME_FIELDS} } }`;
+const HEARTBEAT = `
+  mutation Heartbeat($device: TrackerDeviceInput!) {
+    trackerHeartbeat(device: $device) { ${ME_FIELDS} }
   }
 `;
 
@@ -259,8 +267,16 @@ export function acceptConsent(): Promise<{ trackerAcceptConsent: boolean }> {
   return authed(`mutation { trackerAcceptConsent }`);
 }
 
-export function heartbeat(): Promise<{ trackerHeartbeat: boolean }> {
-  return authed(`mutation { trackerHeartbeat }`);
+/**
+ * Keep-alive and settings pull in one call. Tells the portal this device is still online and
+ * what it currently is — device details are otherwise only written at sign-in, and a device
+ * token never expires, so the Devices console would show the app version an employee
+ * enrolled with however many updates ago. Returns the portal's current view of this
+ * employee, so an admin's change reaches a running app without anyone restarting it.
+ */
+export async function heartbeat(device: DeviceInfo): Promise<TrackerMeResponse> {
+  const data = await authed<{ trackerHeartbeat: TrackerMeResponse }>(HEARTBEAT, { device });
+  return data.trackerHeartbeat;
 }
 
 export async function startSession(startedAt: string): Promise<string> {

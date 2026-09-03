@@ -1,5 +1,7 @@
 import { TrackerSettingsModel, type TrackerSettingsDocument } from './models';
-import { TRACKER_DEFAULTS } from './tracker.constants';
+import { TRACKER_DEFAULTS, WEBCAM_CORNERS } from './tracker.constants';
+
+const CORNERS = new Set<string>(WEBCAM_CORNERS);
 import { isValidTimezone } from './tracker.timezone';
 import { badRequest } from '../../utils/errors';
 
@@ -11,7 +13,11 @@ export interface TrackerSettingsInput {
   trackWindowTitles?: boolean;
   idleThresholdSeconds?: number;
   screenshotMaxWidth?: number;
+  /** 0-100; 100 is lossless at native resolution. */
   screenshotQuality?: number;
+  webcamEnabled?: boolean;
+  /** One of WEBCAM_CORNERS. */
+  webcamCorner?: string;
   autoSyncEnabled?: boolean;
   syncIntervalMinutes?: number;
   /** Rich text (HTML) disclosure shown in the desktop app before tracking starts. */
@@ -55,6 +61,12 @@ export async function updateTrackerSettings(
   // platform can resolve — a typo would silently misdate every employee's hours.
   if (input.defaultTimezone && !isValidTimezone(input.defaultTimezone)) {
     badRequest(`Unknown timezone: ${input.defaultTimezone}`);
+  }
+
+  // The corner is a free-form String in the schema (GraphQL enums would rename the values);
+  // reject anything the desktop app cannot actually place a photo in.
+  if (input.webcamCorner && !CORNERS.has(input.webcamCorner)) {
+    badRequest(`Unknown webcam corner: ${input.webcamCorner}`);
   }
 
   const updated = await TrackerSettingsModel.findOneAndUpdate({ key: 'global' }, input, {
