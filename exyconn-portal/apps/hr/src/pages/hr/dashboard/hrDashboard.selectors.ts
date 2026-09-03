@@ -62,3 +62,39 @@ export function activeSplit(users: UserRow[]): { active: number; inactive: numbe
   for (const u of users) if (u.isActive) active += 1;
   return { active, inactive: users.length - active };
 }
+
+export interface Anniversary {
+  user: UserRow;
+  /** Completed years on the upcoming date (1 = first anniversary). */
+  years: number;
+  /** The anniversary date in the current cycle. */
+  on: Date;
+  daysAway: number;
+}
+
+const DAY = 24 * 60 * 60 * 1000;
+
+/**
+ * Work anniversaries falling within the next `withinDays`, soonest first. Someone
+ * who joined today is excluded (that is a new joiner, not an anniversary).
+ */
+export function upcomingAnniversaries(
+  users: UserRow[],
+  today: Date,
+  withinDays = 30,
+): Anniversary[] {
+  const start = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  const out: Anniversary[] = [];
+  for (const user of users) {
+    const joined = toDate(user.joinDate);
+    if (!joined || !user.isActive) continue;
+    let on = Date.UTC(today.getUTCFullYear(), joined.getUTCMonth(), joined.getUTCDate());
+    if (on < start)
+      on = Date.UTC(today.getUTCFullYear() + 1, joined.getUTCMonth(), joined.getUTCDate());
+    const years = new Date(on).getUTCFullYear() - joined.getUTCFullYear();
+    if (years < 1) continue;
+    const daysAway = Math.round((on - start) / DAY);
+    if (daysAway <= withinDays) out.push({ user, years, on: new Date(on), daysAway });
+  }
+  return out.sort((a, b) => a.daysAway - b.daysAway);
+}
