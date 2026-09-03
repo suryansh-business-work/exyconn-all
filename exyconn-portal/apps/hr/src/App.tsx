@@ -12,6 +12,7 @@ import {
 } from './pages/hr';
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
 import { AnnouncementsPage } from './pages/announcements';
+import { ReportsPage } from './pages/reports';
 import { LocationsPage } from './pages/locations';
 import { TeamsPage } from './pages/teams';
 import { GradesPage } from './pages/grades';
@@ -39,6 +40,7 @@ export function App() {
       <Route path="/hr/attendance" element={<AttendanceListPage />} />
       <Route path="/hr/departments" element={<DepartmentsPage />} />
       <Route path="/hr/announcements" element={<AnnouncementsPage />} />
+      <Route path="/hr/reports" element={<ReportsPage />} />
       <Route path="/hr/locations" element={<LocationsPage />} />
       <Route path="/hr/teams" element={<TeamsPage />} />
       <Route path="/hr/grades" element={<GradesPage />} />
