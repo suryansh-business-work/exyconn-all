@@ -60,15 +60,42 @@ command -v certbot >/dev/null || { apt-get update && apt-get install -y certbot 
 echo "==> 3/4  Installing the Exyconn vhosts (other sites are left untouched)"
 for conf in "${SRC_DIR}"/*.conf; do
   name="$(basename "${conf}")"
+  installed="${NGINX_AVAILABLE}/${name}"
   # certbot rewrites these files in place to add the 443 block. Don't clobber a vhost
   # that already has TLS wired up, or we'd strip its cert config on every re-run.
-  if grep -q "listen 443" "${NGINX_AVAILABLE}/${name}" 2>/dev/null; then
-    echo "    ${name} already has TLS — leaving as-is"
+  if grep -q "listen 443" "${installed}" 2>/dev/null; then
+    # ...but a new app added to this repo's conf would then never land on the server.
+    # That is how tech/it/status stayed unrouted for weeks. Append only the server
+    # blocks whose server_name is missing, leaving certbot's existing blocks alone.
+    missing=""
+    while read -r host; do
+      grep -qE "^[[:space:]]*server_name[[:space:]]+.*\b${host//./\\.}\b" "${installed}" || missing="${missing} ${host}"
+    done < <(grep -hoE "^[[:space:]]*server_name[[:space:]]+[^;]+;" "${conf}" | sed -E 's/^[[:space:]]*server_name[[:space:]]+//; s/;$//' | tr ' ' '\n' | grep -v '^$' | sort -u)
+
+    if [ -z "${missing}" ]; then
+      echo "    ${name} already has TLS and every host — leaving as-is"
+    else
+      echo "    ${name} already has TLS but is missing:${missing} — appending those blocks"
+      for host in ${missing}; do
+        awk -v want="${host}" '
+          /^server[[:space:]]*\{/ && depth == 0 { inblock = 1; buf = "" }
+          inblock {
+            buf = buf $0 "\n"
+            depth += gsub(/\{/, "{")
+            depth -= gsub(/\}/, "}")
+            if (depth == 0) {
+              if (buf ~ "server_name[ \t]+[^;]*[ \t]*" want "[ \t]*;") { printf "\n%s", buf }
+              inblock = 0
+            }
+          }
+        ' "${conf}" >> "${installed}"
+      done
+    fi
   else
-    cp "${conf}" "${NGINX_AVAILABLE}/${name}"
+    cp "${conf}" "${installed}"
     echo "    installed ${name}"
   fi
-  ln -sf "${NGINX_AVAILABLE}/${name}" "${NGINX_ENABLED}/${name}"
+  ln -sf "${installed}" "${NGINX_ENABLED}/${name}"
 done
 nginx -t
 systemctl reload nginx
