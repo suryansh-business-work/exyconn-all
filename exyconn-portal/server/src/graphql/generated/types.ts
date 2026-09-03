@@ -952,6 +952,140 @@ export type EmailConfigInput = {
   username: Scalars['String']['input'];
 };
 
+export type EmailDashboard = {
+  __typename?: 'EmailDashboard';
+  activeTemplates: Scalars['Int']['output'];
+  byTemplate: Array<EmailTemplateUsage>;
+  /** Whether an SMTP configuration is active. Nothing sends without one. */
+  configured: Scalars['Boolean']['output'];
+  days: Array<EmailDayCount>;
+  failed: Scalars['Int']['output'];
+  fragments: Scalars['Int']['output'];
+  recentFailures: Array<EmailLog>;
+  sent: Scalars['Int']['output'];
+  templates: Scalars['Int']['output'];
+};
+
+/** One day of sending, for the dashboard's trend. */
+export type EmailDayCount = {
+  __typename?: 'EmailDayCount';
+  date: Scalars['String']['output'];
+  failed: Scalars['Int']['output'];
+  sent: Scalars['Int']['output'];
+};
+
+/** A reusable piece of MJML, pulled into a template with {{> key }}. */
+export type EmailFragment = {
+  __typename?: 'EmailFragment';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  mjml: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  updatedBy: Scalars['String']['output'];
+};
+
+export type EmailFragmentInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  key: Scalars['String']['input'];
+  mjml: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type EmailFragmentPage = {
+  __typename?: 'EmailFragmentPage';
+  rows: Array<EmailFragment>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** One attempt to send, kept whether it worked or not. */
+export type EmailLog = {
+  __typename?: 'EmailLog';
+  /** The transport's own words when it refused. Empty on success. */
+  error: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  sentAt: Scalars['DateTime']['output'];
+  status: EmailLogStatus;
+  subject: Scalars['String']['output'];
+  templateKey: Scalars['String']['output'];
+  templateName: Scalars['String']['output'];
+  to: Scalars['String']['output'];
+  triggeredBy: Scalars['String']['output'];
+};
+
+export type EmailLogPage = {
+  __typename?: 'EmailLogPage';
+  rows: Array<EmailLog>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum EmailLogStatus {
+  Failed = 'FAILED',
+  Sent = 'SENT'
+}
+
+/** A rendered template, as the send path itself produces it. */
+export type EmailPreview = {
+  __typename?: 'EmailPreview';
+  fragments: Array<Scalars['String']['output']>;
+  html: Scalars['String']['output'];
+  subject: Scalars['String']['output'];
+  variables: Array<Scalars['String']['output']>;
+};
+
+/** One transactional email, authored here rather than compiled into the server. */
+export type EmailTemplate = {
+  __typename?: 'EmailTemplate';
+  description: Scalars['String']['output'];
+  /** The fragments it pulls in. */
+  fragments: Array<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  /** What code sends by. Renaming it breaks the caller. */
+  key: Scalars['String']['output'];
+  mjml: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  subject: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  updatedBy: Scalars['String']['output'];
+  /**
+   * The placeholders this template needs, read out of its own markup (and its fragments')
+   * every time it is asked for — never a stored list, which drifts the moment copy is edited.
+   */
+  variables: Array<Scalars['String']['output']>;
+};
+
+export type EmailTemplateInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  key: Scalars['String']['input'];
+  mjml: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  subject: Scalars['String']['input'];
+};
+
+export type EmailTemplatePage = {
+  __typename?: 'EmailTemplatePage';
+  rows: Array<EmailTemplate>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** How much a single template is used, and how reliably. */
+export type EmailTemplateUsage = {
+  __typename?: 'EmailTemplateUsage';
+  failed: Scalars['Int']['output'];
+  key: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  sent: Scalars['Int']['output'];
+};
+
+/** One placeholder value, for previewing and test sends. */
+export type EmailVariableInput = {
+  name: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
 export type EmployeeDocument = {
   __typename?: 'EmployeeDocument';
   createdAt: Scalars['DateTime']['output'];
@@ -1761,10 +1895,16 @@ export enum MovementReason {
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
+  /**
+   * Signs the version currently published. The signer's identity comes from their token, so
+   * nobody can sign on somebody else's behalf; signedName is what they typed.
+   */
+  acknowledgePolicy: PolicyAcknowledgement;
   /** SUPPORT/ADMIN: reply on a ticket, or leave an internal note. */
   addSupportReply: SupportReply;
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
+  archivePolicy: Policy;
   /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
   assignSupportTicket: SupportTicket;
   changePassword: Scalars['Boolean']['output'];
@@ -1787,6 +1927,8 @@ export type Mutation = {
   createDeal: Deal;
   createDepartment: Department;
   createEmailConfig: EmailConfig;
+  createEmailFragment: EmailFragment;
+  createEmailTemplate: EmailTemplate;
   createEmployeeDocument: EmployeeDocument;
   createEmployeeRequest: EmployeeRequest;
   createEmploymentType: EmploymentType;
@@ -1819,6 +1961,8 @@ export type Mutation = {
   createMyRequest: EmployeeRequest;
   createNavLink: NavLink;
   createPerformanceReview: PerformanceReview;
+  createPexelsConfig: PexelsConfig;
+  createPolicy: Policy;
   createPosition: Position;
   createProblemReport: ProblemReport;
   createProduct: Product;
@@ -1857,6 +2001,8 @@ export type Mutation = {
   deleteDeal: Scalars['Boolean']['output'];
   deleteDepartment: Scalars['Boolean']['output'];
   deleteEmailConfig: Scalars['Boolean']['output'];
+  deleteEmailFragment: Scalars['Boolean']['output'];
+  deleteEmailTemplate: Scalars['Boolean']['output'];
   deleteEmployeeDocument: Scalars['Boolean']['output'];
   deleteEmployeeRequest: Scalars['Boolean']['output'];
   deleteEmploymentType: Scalars['Boolean']['output'];
@@ -1879,6 +2025,8 @@ export type Mutation = {
   deleteLocation: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
   deletePerformanceReview: Scalars['Boolean']['output'];
+  deletePexelsConfig: Scalars['Boolean']['output'];
+  deletePolicy: Scalars['Boolean']['output'];
   deletePosition: Scalars['Boolean']['output'];
   deleteProblemReport: Scalars['Boolean']['output'];
   deleteProduct: Scalars['Boolean']['output'];
@@ -1907,6 +2055,11 @@ export type Mutation = {
   /** Marks every GENERATED slip of the month PAID. Returns how many changed. */
   markPayrollPaid: Scalars['Int']['output'];
   moveTask: Scalars['Boolean']['output'];
+  /**
+   * Publishes a policy. raiseVersion asks everybody who already signed to sign again,
+   * which is what a change in wording means — leave it off for a typo fix.
+   */
+  publishPolicy: Policy;
   /** Records a receipt and moves the invoice's paid figure and status with it, in one step. */
   recordPayment: Payment;
   /** Records a movement and moves the product's stock with it, in one step. */
@@ -1936,6 +2089,8 @@ export type Mutation = {
   /** HR broadcast to every active employee, one department, or a chosen list. */
   sendNotification: SendNotificationResult;
   sendTestEmail: Scalars['Boolean']['output'];
+  /** Sends the real thing to one address, and logs it like any other send. */
+  sendTestEmailTemplate: Scalars['Boolean']['output'];
   sendTestSlackMessage: Scalars['Boolean']['output'];
   sendUserMail: Scalars['Boolean']['output'];
   /** Moves a deal to another pipeline stage — what a drag on the board does. */
@@ -1964,6 +2119,7 @@ export type Mutation = {
   submitSelfAssessment: PerformanceReview;
   testGithubConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
+  testPexelsConnection: Scalars['Boolean']['output'];
   trackerAcceptConsent: Scalars['Boolean']['output'];
   /**
    * Desktop keep-alive, called on a timer for as long as the app is signed in.
@@ -2000,6 +2156,8 @@ export type Mutation = {
   updateDeal: Deal;
   updateDepartment: Department;
   updateEmailConfig: EmailConfig;
+  updateEmailFragment: EmailFragment;
+  updateEmailTemplate: EmailTemplate;
   updateEmployeeDocument: EmployeeDocument;
   updateEmployeeRequest: EmployeeRequest;
   updateEmploymentType: EmploymentType;
@@ -2029,6 +2187,8 @@ export type Mutation = {
   updateMyTrainingStatus: Training;
   updateNavLink: NavLink;
   updatePerformanceReview: PerformanceReview;
+  updatePexelsConfig: PexelsConfig;
+  updatePolicy: Policy;
   updatePosition: Position;
   updateProblemReport: ProblemReport;
   updateProduct: Product;
@@ -2053,6 +2213,12 @@ export type Mutation = {
 };
 
 
+export type MutationAcknowledgePolicyArgs = {
+  policyId: Scalars['ID']['input'];
+  signedName: Scalars['String']['input'];
+};
+
+
 export type MutationAddSupportReplyArgs = {
   body: Scalars['String']['input'];
   internal: Scalars['Boolean']['input'];
@@ -2062,6 +2228,11 @@ export type MutationAddSupportReplyArgs = {
 
 export type MutationApplyLeaveArgs = {
   input: ApplyLeaveInput;
+};
+
+
+export type MutationArchivePolicyArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -2171,6 +2342,16 @@ export type MutationCreateDepartmentArgs = {
 
 export type MutationCreateEmailConfigArgs = {
   input: EmailConfigInput;
+};
+
+
+export type MutationCreateEmailFragmentArgs = {
+  input: EmailFragmentInput;
+};
+
+
+export type MutationCreateEmailTemplateArgs = {
+  input: EmailTemplateInput;
 };
 
 
@@ -2291,6 +2472,16 @@ export type MutationCreateNavLinkArgs = {
 
 export type MutationCreatePerformanceReviewArgs = {
   input: PerformanceReviewInput;
+};
+
+
+export type MutationCreatePexelsConfigArgs = {
+  input: PexelsConfigInput;
+};
+
+
+export type MutationCreatePolicyArgs = {
+  input: PolicyInput;
 };
 
 
@@ -2477,6 +2668,16 @@ export type MutationDeleteEmailConfigArgs = {
 };
 
 
+export type MutationDeleteEmailFragmentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteEmailTemplateArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteEmployeeDocumentArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2583,6 +2784,16 @@ export type MutationDeleteNavLinkArgs = {
 
 
 export type MutationDeletePerformanceReviewArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePexelsConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePolicyArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2712,6 +2923,12 @@ export type MutationMoveTaskArgs = {
 };
 
 
+export type MutationPublishPolicyArgs = {
+  id: Scalars['ID']['input'];
+  raiseVersion?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
 export type MutationRecordPaymentArgs = {
   input: PaymentInput;
 };
@@ -2781,6 +2998,13 @@ export type MutationSendNotificationArgs = {
 export type MutationSendTestEmailArgs = {
   id: Scalars['ID']['input'];
   to: Scalars['String']['input'];
+};
+
+
+export type MutationSendTestEmailTemplateArgs = {
+  key: Scalars['String']['input'];
+  to: Scalars['String']['input'];
+  variables?: InputMaybe<Array<EmailVariableInput>>;
 };
 
 
@@ -2865,6 +3089,11 @@ export type MutationTestGithubConnectionArgs = {
 export type MutationTestImageUploadArgs = {
   file: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestPexelsConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -3021,6 +3250,18 @@ export type MutationUpdateEmailConfigArgs = {
 };
 
 
+export type MutationUpdateEmailFragmentArgs = {
+  id: Scalars['ID']['input'];
+  input: EmailFragmentInput;
+};
+
+
+export type MutationUpdateEmailTemplateArgs = {
+  id: Scalars['ID']['input'];
+  input: EmailTemplateInput;
+};
+
+
 export type MutationUpdateEmployeeDocumentArgs = {
   id: Scalars['ID']['input'];
   input: EmployeeDocumentInput;
@@ -3165,6 +3406,18 @@ export type MutationUpdatePerformanceReviewArgs = {
 };
 
 
+export type MutationUpdatePexelsConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: PexelsConfigInput;
+};
+
+
+export type MutationUpdatePolicyArgs = {
+  id: Scalars['ID']['input'];
+  input: PolicyInput;
+};
+
+
 export type MutationUpdatePositionArgs = {
   id: Scalars['ID']['input'];
   input: PositionInput;
@@ -3295,6 +3548,25 @@ export type MyExpenseClaimInput = {
   description: Scalars['String']['input'];
   incurredOn: Scalars['DateTime']['input'];
   receiptUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+/**
+ * A policy as a member of staff sees it: the wording, and whether THEY have signed the
+ * version now in force.
+ */
+export type MyPolicy = {
+  __typename?: 'MyPolicy';
+  /** True only when this person has signed the version currently published. */
+  acknowledged: Scalars['Boolean']['output'];
+  acknowledgedAt?: Maybe<Scalars['DateTime']['output']>;
+  body: Scalars['String']['output'];
+  effectiveDate: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  requiresAcknowledgement: Scalars['Boolean']['output'];
+  slug: Scalars['String']['output'];
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type MyRequestInput = {
@@ -3465,22 +3737,100 @@ export enum PermissionAction {
   View = 'VIEW'
 }
 
-export type Policy = {
-  __typename?: 'Policy';
-  category: PolicyCategory;
-  effectiveDate: Scalars['DateTime']['output'];
+/** The Pexels API credential behind the shared upload dialog's stock tabs. */
+export type PexelsConfig = {
+  __typename?: 'PexelsConfig';
+  apiKey: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
-  summary: Scalars['String']['output'];
-  title: Scalars['String']['output'];
-  url?: Maybe<Scalars['String']['output']>;
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
-export enum PolicyCategory {
-  Conduct = 'CONDUCT',
-  Finance = 'FINANCE',
-  General = 'GENERAL',
-  It = 'IT',
-  Leave = 'LEAVE'
+export type PexelsConfigInput = {
+  apiKey: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
+
+/** One Pexels result — a photo or a video — flattened to what the upload dialog renders. */
+export type PexelsMedia = {
+  __typename?: 'PexelsMedia';
+  alt: Scalars['String']['output'];
+  /** Photographer / videographer, credited under the grid as Pexels requires. */
+  credit: Scalars['String']['output'];
+  /** Seconds. Zero for photos. */
+  duration: Scalars['Int']['output'];
+  id: Scalars['String']['output'];
+  /** Still frame for the grid: the photo thumbnail, or the video's poster. */
+  previewUrl: Scalars['String']['output'];
+  /** The URL stored when the item is picked. */
+  url: Scalars['String']['output'];
+};
+
+export type Policy = {
+  __typename?: 'Policy';
+  /** How many people have signed the CURRENT version. */
+  acknowledgedCount: Scalars['Int']['output'];
+  audience: PolicyAudience;
+  body: Scalars['String']['output'];
+  effectiveDate: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  owner: Scalars['String']['output'];
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  requiresAcknowledgement: Scalars['Boolean']['output'];
+  /** URL segment the website renders this at. */
+  slug: Scalars['String']['output'];
+  status: PolicyStatus;
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  /** Raised whenever published wording changes. Signatures are recorded per version. */
+  version: Scalars['Int']['output'];
+};
+
+/** One person's signature on one version of one policy. */
+export type PolicyAcknowledgement = {
+  __typename?: 'PolicyAcknowledgement';
+  id: Scalars['ID']['output'];
+  policyId: Scalars['ID']['output'];
+  policyTitle: Scalars['String']['output'];
+  signedAt: Scalars['DateTime']['output'];
+  signedName: Scalars['String']['output'];
+  userEmail: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+  userName: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export enum PolicyAudience {
+  AllStaff = 'ALL_STAFF',
+  HrOnly = 'HR_ONLY',
+  Public = 'PUBLIC'
+}
+
+export type PolicyInput = {
+  audience: PolicyAudience;
+  body: Scalars['String']['input'];
+  effectiveDate: Scalars['DateTime']['input'];
+  owner?: InputMaybe<Scalars['String']['input']>;
+  requiresAcknowledgement?: InputMaybe<Scalars['Boolean']['input']>;
+  slug: Scalars['String']['input'];
+  summary?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+export type PolicyPage = {
+  __typename?: 'PolicyPage';
+  rows: Array<Policy>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum PolicyStatus {
+  Archived = 'ARCHIVED',
+  Draft = 'DRAFT',
+  Published = 'PUBLISHED'
 }
 
 export type Position = {
@@ -3680,6 +4030,18 @@ export type PromptPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** A published PUBLIC policy, for the website. No authentication. */
+export type PublicPolicy = {
+  __typename?: 'PublicPolicy';
+  body: Scalars['String']['output'];
+  effectiveDate: Scalars['DateTime']['output'];
+  slug: Scalars['String']['output'];
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  version: Scalars['Int']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -3700,6 +4062,7 @@ export type Query = {
    * fall on, as the caller sends them.
    */
   companyFinance: CompanyFinance;
+  emailDashboard: EmailDashboard;
   getActivity: Activity;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
@@ -3716,6 +4079,8 @@ export type Query = {
   getContract: Contract;
   getDeal: Deal;
   getDepartment: Department;
+  getEmailFragment: EmailFragment;
+  getEmailTemplate: EmailTemplate;
   getEmployeeDocument: EmployeeDocument;
   getEmployeeRequest: EmployeeRequest;
   getEmploymentType: EmploymentType;
@@ -3736,6 +4101,7 @@ export type Query = {
   getLocation: Location;
   getNavLink: NavLink;
   getPerformanceReview: PerformanceReview;
+  getPolicy: Policy;
   getPosition: Position;
   getProblemReport: ProblemReport;
   getProduct: Product;
@@ -3809,6 +4175,14 @@ export type Query = {
   /** HR/ADMIN: organizational departments. */
   listDepartments: Array<Department>;
   listEmailConfigs: Array<EmailConfig>;
+  listEmailFragments: Array<EmailFragment>;
+  listEmailFragmentsPaged: EmailFragmentPage;
+  listEmailFragmentsStats: TableStats;
+  listEmailLogsPaged: EmailLogPage;
+  listEmailLogsStats: TableStats;
+  listEmailTemplates: Array<EmailTemplate>;
+  listEmailTemplatesPaged: EmailTemplatePage;
+  listEmailTemplatesStats: TableStats;
   listEmployeeDocuments: Array<EmployeeDocument>;
   listEmployeeDocumentsPaged: EmployeeDocumentPage;
   listEmployeeDocumentsStats: TableStats;
@@ -3873,8 +4247,10 @@ export type Query = {
   listPerformanceReviewsStats: TableStats;
   /** Every module that can be restricted, as registered by the server. */
   listPermissionModules: Array<Scalars['String']['output']>;
-  /** Company-wide HR policies, readable by any authenticated employee. */
+  listPexelsConfigs: Array<PexelsConfig>;
   listPolicies: Array<Policy>;
+  listPoliciesPaged: PolicyPage;
+  listPoliciesStats: TableStats;
   /** HR/ADMIN: job positions / designations. */
   listPositions: Array<Position>;
   listProblemReports: Array<ProblemReport>;
@@ -3949,6 +4325,9 @@ export type Query = {
   /** Self-service: the signed-in employee's salary structure (null if unset). */
   myPayroll?: Maybe<SalaryStructure>;
   myPerformanceReviews: Array<PerformanceReview>;
+  /** Published policies this person is meant to see, with their own signature state. */
+  myPolicies: Array<MyPolicy>;
+  myPolicy?: Maybe<MyPolicy>;
   myRequests: Array<EmployeeRequest>;
   /** Self-service: the signed-in employee's monthly payslips. */
   mySalarySlips: Array<SalarySlip>;
@@ -3962,6 +4341,10 @@ export type Query = {
   myTrainings: Array<Training>;
   myUnreadNotificationCount: Scalars['Int']['output'];
   payrollSummary: PayrollSummary;
+  /** Who has signed a policy, newest first. */
+  policyAcknowledgements: Array<PolicyAcknowledgement>;
+  /** Renders a stored template with the values given, through the very code that sends it. */
+  previewEmailTemplate: EmailPreview;
   projectBoard: ProjectBoard;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
@@ -3975,10 +4358,16 @@ export type Query = {
   publicJobCompany?: Maybe<JobCompany>;
   publicJobs: Array<Job>;
   publicNavLinks: Array<NavLink>;
+  publicPolicies: Array<PublicPolicy>;
+  publicPolicy?: Maybe<PublicPolicy>;
   publicTool?: Maybe<Tool>;
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
   receivables: Receivables;
+  /** Stock photos for the shared upload dialog. Any signed-in user may search. */
+  searchPexelsPhotos: Array<PexelsMedia>;
+  /** Stock videos for the shared upload dialog. Any signed-in user may search. */
+  searchPexelsVideos: Array<PexelsMedia>;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
   statusOverview: StatusOverview;
   trackerAccessList: Array<TrackerAccess>;
@@ -4000,6 +4389,11 @@ export type QueryAttendanceByEmployeeArgs = {
 export type QueryCompanyFinanceArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryEmailDashboardArgs = {
+  days?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -4079,6 +4473,16 @@ export type QueryGetDealArgs = {
 
 
 export type QueryGetDepartmentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetEmailFragmentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetEmailTemplateArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4179,6 +4583,11 @@ export type QueryGetNavLinkArgs = {
 
 
 export type QueryGetPerformanceReviewArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetPolicyArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4343,6 +4752,21 @@ export type QueryListDealsPagedArgs = {
 };
 
 
+export type QueryListEmailFragmentsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListEmailLogsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListEmailTemplatesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListEmployeeDocumentsPagedArgs = {
   input: TableQueryInput;
 };
@@ -4438,6 +4862,11 @@ export type QueryListPerformanceReviewsPagedArgs = {
 };
 
 
+export type QueryListPoliciesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListProblemReportsPagedArgs = {
   input: TableQueryInput;
 };
@@ -4513,6 +4942,11 @@ export type QueryListUsersPagedArgs = {
 };
 
 
+export type QueryMyPolicyArgs = {
+  slug: Scalars['String']['input'];
+};
+
+
 export type QueryMyTrackerCalendarArgs = {
   from: Scalars['DateTime']['input'];
   timezone: Scalars['String']['input'];
@@ -4529,6 +4963,17 @@ export type QueryMyTrackerDayArgs = {
 export type QueryPayrollSummaryArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
+};
+
+
+export type QueryPolicyAcknowledgementsArgs = {
+  policyId: Scalars['ID']['input'];
+};
+
+
+export type QueryPreviewEmailTemplateArgs = {
+  key: Scalars['String']['input'];
+  variables?: InputMaybe<Array<EmailVariableInput>>;
 };
 
 
@@ -4567,6 +5012,11 @@ export type QueryPublicJobsArgs = {
 };
 
 
+export type QueryPublicPolicyArgs = {
+  slug: Scalars['String']['input'];
+};
+
+
 export type QueryPublicToolArgs = {
   toolCode: Scalars['String']['input'];
 };
@@ -4574,6 +5024,18 @@ export type QueryPublicToolArgs = {
 
 export type QueryPublicToolsArgs = {
   categorySlug?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QuerySearchPexelsPhotosArgs = {
+  page?: InputMaybe<Scalars['Int']['input']>;
+  query: Scalars['String']['input'];
+};
+
+
+export type QuerySearchPexelsVideosArgs = {
+  page?: InputMaybe<Scalars['Int']['input']>;
+  query: Scalars['String']['input'];
 };
 
 
@@ -5777,6 +6239,20 @@ export type ResolversTypes = ResolversObject<{
   DocumentStatus: DocumentStatus;
   EmailConfig: ResolverTypeWrapper<EmailConfig>;
   EmailConfigInput: EmailConfigInput;
+  EmailDashboard: ResolverTypeWrapper<EmailDashboard>;
+  EmailDayCount: ResolverTypeWrapper<EmailDayCount>;
+  EmailFragment: ResolverTypeWrapper<EmailFragment>;
+  EmailFragmentInput: EmailFragmentInput;
+  EmailFragmentPage: ResolverTypeWrapper<EmailFragmentPage>;
+  EmailLog: ResolverTypeWrapper<EmailLog>;
+  EmailLogPage: ResolverTypeWrapper<EmailLogPage>;
+  EmailLogStatus: EmailLogStatus;
+  EmailPreview: ResolverTypeWrapper<EmailPreview>;
+  EmailTemplate: ResolverTypeWrapper<EmailTemplate>;
+  EmailTemplateInput: EmailTemplateInput;
+  EmailTemplatePage: ResolverTypeWrapper<EmailTemplatePage>;
+  EmailTemplateUsage: ResolverTypeWrapper<EmailTemplateUsage>;
+  EmailVariableInput: EmailVariableInput;
   EmployeeDocument: ResolverTypeWrapper<EmployeeDocument>;
   EmployeeDocumentInput: EmployeeDocumentInput;
   EmployeeDocumentPage: ResolverTypeWrapper<EmployeeDocumentPage>;
@@ -5861,6 +6337,7 @@ export type ResolversTypes = ResolversObject<{
   MovementReason: MovementReason;
   Mutation: ResolverTypeWrapper<{}>;
   MyExpenseClaimInput: MyExpenseClaimInput;
+  MyPolicy: ResolverTypeWrapper<MyPolicy>;
   MyRequestInput: MyRequestInput;
   NavLink: ResolverTypeWrapper<NavLink>;
   NavLinkInput: NavLinkInput;
@@ -5877,8 +6354,15 @@ export type ResolversTypes = ResolversObject<{
   PerformanceReviewInput: PerformanceReviewInput;
   PerformanceReviewPage: ResolverTypeWrapper<PerformanceReviewPage>;
   PermissionAction: PermissionAction;
+  PexelsConfig: ResolverTypeWrapper<PexelsConfig>;
+  PexelsConfigInput: PexelsConfigInput;
+  PexelsMedia: ResolverTypeWrapper<PexelsMedia>;
   Policy: ResolverTypeWrapper<Policy>;
-  PolicyCategory: PolicyCategory;
+  PolicyAcknowledgement: ResolverTypeWrapper<PolicyAcknowledgement>;
+  PolicyAudience: PolicyAudience;
+  PolicyInput: PolicyInput;
+  PolicyPage: ResolverTypeWrapper<PolicyPage>;
+  PolicyStatus: PolicyStatus;
   Position: ResolverTypeWrapper<Position>;
   PositionInput: PositionInput;
   ProblemCategory: ProblemCategory;
@@ -5901,6 +6385,7 @@ export type ResolversTypes = ResolversObject<{
   PromptCategory: PromptCategory;
   PromptInput: PromptInput;
   PromptPage: ResolverTypeWrapper<PromptPage>;
+  PublicPolicy: ResolverTypeWrapper<PublicPolicy>;
   Query: ResolverTypeWrapper<{}>;
   Receivables: ResolverTypeWrapper<Receivables>;
   ReceivablesBucket: ResolverTypeWrapper<ReceivablesBucket>;
@@ -6073,6 +6558,19 @@ export type ResolversParentTypes = ResolversObject<{
   DepartmentInput: DepartmentInput;
   EmailConfig: EmailConfig;
   EmailConfigInput: EmailConfigInput;
+  EmailDashboard: EmailDashboard;
+  EmailDayCount: EmailDayCount;
+  EmailFragment: EmailFragment;
+  EmailFragmentInput: EmailFragmentInput;
+  EmailFragmentPage: EmailFragmentPage;
+  EmailLog: EmailLog;
+  EmailLogPage: EmailLogPage;
+  EmailPreview: EmailPreview;
+  EmailTemplate: EmailTemplate;
+  EmailTemplateInput: EmailTemplateInput;
+  EmailTemplatePage: EmailTemplatePage;
+  EmailTemplateUsage: EmailTemplateUsage;
+  EmailVariableInput: EmailVariableInput;
   EmployeeDocument: EmployeeDocument;
   EmployeeDocumentInput: EmployeeDocumentInput;
   EmployeeDocumentPage: EmployeeDocumentPage;
@@ -6143,6 +6641,7 @@ export type ResolversParentTypes = ResolversObject<{
   MarkAttendanceInput: MarkAttendanceInput;
   Mutation: {};
   MyExpenseClaimInput: MyExpenseClaimInput;
+  MyPolicy: MyPolicy;
   MyRequestInput: MyRequestInput;
   NavLink: NavLink;
   NavLinkInput: NavLinkInput;
@@ -6155,7 +6654,13 @@ export type ResolversParentTypes = ResolversObject<{
   PerformanceReview: PerformanceReview;
   PerformanceReviewInput: PerformanceReviewInput;
   PerformanceReviewPage: PerformanceReviewPage;
+  PexelsConfig: PexelsConfig;
+  PexelsConfigInput: PexelsConfigInput;
+  PexelsMedia: PexelsMedia;
   Policy: Policy;
+  PolicyAcknowledgement: PolicyAcknowledgement;
+  PolicyInput: PolicyInput;
+  PolicyPage: PolicyPage;
   Position: Position;
   PositionInput: PositionInput;
   ProblemReport: ProblemReport;
@@ -6172,6 +6677,7 @@ export type ResolversParentTypes = ResolversObject<{
   Prompt: Prompt;
   PromptInput: PromptInput;
   PromptPage: PromptPage;
+  PublicPolicy: PublicPolicy;
   Query: {};
   Receivables: Receivables;
   ReceivablesBucket: ReceivablesBucket;
@@ -6741,6 +7247,99 @@ export type EmailConfigResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type EmailDashboardResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailDashboard'] = ResolversParentTypes['EmailDashboard']> = ResolversObject<{
+  activeTemplates?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  byTemplate?: Resolver<Array<ResolversTypes['EmailTemplateUsage']>, ParentType, ContextType>;
+  configured?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  days?: Resolver<Array<ResolversTypes['EmailDayCount']>, ParentType, ContextType>;
+  failed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  fragments?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  recentFailures?: Resolver<Array<ResolversTypes['EmailLog']>, ParentType, ContextType>;
+  sent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  templates?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailDayCountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailDayCount'] = ResolversParentTypes['EmailDayCount']> = ResolversObject<{
+  date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  failed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailFragmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailFragment'] = ResolversParentTypes['EmailFragment']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mjml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  updatedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailFragmentPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailFragmentPage'] = ResolversParentTypes['EmailFragmentPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['EmailFragment']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailLogResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailLog'] = ResolversParentTypes['EmailLog']> = ResolversObject<{
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  sentAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['EmailLogStatus'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  templateKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  templateName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  to?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  triggeredBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailLogPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailLogPage'] = ResolversParentTypes['EmailLogPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['EmailLog']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailPreviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailPreview'] = ResolversParentTypes['EmailPreview']> = ResolversObject<{
+  fragments?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  html?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  variables?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailTemplateResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailTemplate'] = ResolversParentTypes['EmailTemplate']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fragments?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mjml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  updatedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  variables?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailTemplatePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailTemplatePage'] = ResolversParentTypes['EmailTemplatePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['EmailTemplate']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailTemplateUsageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailTemplateUsage'] = ResolversParentTypes['EmailTemplateUsage']> = ResolversObject<{
+  failed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type EmployeeDocumentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmployeeDocument'] = ResolversParentTypes['EmployeeDocument']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   employeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -7198,8 +7797,10 @@ export type LoginPageResolvers<ContextType = GraphQLContext, ParentType extends 
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  acknowledgePolicy?: Resolver<ResolversTypes['PolicyAcknowledgement'], ParentType, ContextType, RequireFields<MutationAcknowledgePolicyArgs, 'policyId' | 'signedName'>>;
   addSupportReply?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationAddSupportReplyArgs, 'body' | 'internal' | 'ticketId'>>;
   applyLeave?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationApplyLeaveArgs, 'input'>>;
+  archivePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationArchivePolicyArgs, 'id'>>;
   assignSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationAssignSupportTicketArgs, 'assigneeId' | 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
@@ -7221,6 +7822,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationCreateDealArgs, 'input'>>;
   createDepartment?: Resolver<ResolversTypes['Department'], ParentType, ContextType, RequireFields<MutationCreateDepartmentArgs, 'input'>>;
   createEmailConfig?: Resolver<ResolversTypes['EmailConfig'], ParentType, ContextType, RequireFields<MutationCreateEmailConfigArgs, 'input'>>;
+  createEmailFragment?: Resolver<ResolversTypes['EmailFragment'], ParentType, ContextType, RequireFields<MutationCreateEmailFragmentArgs, 'input'>>;
+  createEmailTemplate?: Resolver<ResolversTypes['EmailTemplate'], ParentType, ContextType, RequireFields<MutationCreateEmailTemplateArgs, 'input'>>;
   createEmployeeDocument?: Resolver<ResolversTypes['EmployeeDocument'], ParentType, ContextType, RequireFields<MutationCreateEmployeeDocumentArgs, 'input'>>;
   createEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationCreateEmployeeRequestArgs, 'input'>>;
   createEmploymentType?: Resolver<ResolversTypes['EmploymentType'], ParentType, ContextType, RequireFields<MutationCreateEmploymentTypeArgs, 'input'>>;
@@ -7245,6 +7848,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createMyRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationCreateMyRequestArgs, 'input'>>;
   createNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationCreateNavLinkArgs, 'input'>>;
   createPerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationCreatePerformanceReviewArgs, 'input'>>;
+  createPexelsConfig?: Resolver<ResolversTypes['PexelsConfig'], ParentType, ContextType, RequireFields<MutationCreatePexelsConfigArgs, 'input'>>;
+  createPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationCreatePolicyArgs, 'input'>>;
   createPosition?: Resolver<ResolversTypes['Position'], ParentType, ContextType, RequireFields<MutationCreatePositionArgs, 'input'>>;
   createProblemReport?: Resolver<ResolversTypes['ProblemReport'], ParentType, ContextType, RequireFields<MutationCreateProblemReportArgs, 'input'>>;
   createProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'input'>>;
@@ -7281,6 +7886,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteDeal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDealArgs, 'id'>>;
   deleteDepartment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDepartmentArgs, 'id'>>;
   deleteEmailConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmailConfigArgs, 'id'>>;
+  deleteEmailFragment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmailFragmentArgs, 'id'>>;
+  deleteEmailTemplate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmailTemplateArgs, 'id'>>;
   deleteEmployeeDocument?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmployeeDocumentArgs, 'id'>>;
   deleteEmployeeRequest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmployeeRequestArgs, 'id'>>;
   deleteEmploymentType?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmploymentTypeArgs, 'id'>>;
@@ -7303,6 +7910,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLocationArgs, 'id'>>;
   deleteNavLink?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNavLinkArgs, 'id'>>;
   deletePerformanceReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePerformanceReviewArgs, 'id'>>;
+  deletePexelsConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePexelsConfigArgs, 'id'>>;
+  deletePolicy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePolicyArgs, 'id'>>;
   deletePosition?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePositionArgs, 'id'>>;
   deleteProblemReport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProblemReportArgs, 'id'>>;
   deleteProduct?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'id'>>;
@@ -7328,6 +7937,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   markNotificationRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMarkNotificationReadArgs, 'id'>>;
   markPayrollPaid?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationMarkPayrollPaidArgs, 'month' | 'year'>>;
   moveTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveTaskArgs, 'id' | 'toColumnId' | 'toIndex'>>;
+  publishPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationPublishPolicyArgs, 'id'>>;
   recordPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationRecordPaymentArgs, 'input'>>;
   recordStockMovement?: Resolver<ResolversTypes['StockMovement'], ParentType, ContextType, RequireFields<MutationRecordStockMovementArgs, 'input'>>;
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
@@ -7342,6 +7952,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   sendContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSendContractArgs, 'email' | 'id'>>;
   sendNotification?: Resolver<ResolversTypes['SendNotificationResult'], ParentType, ContextType, RequireFields<MutationSendNotificationArgs, 'input'>>;
   sendTestEmail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestEmailArgs, 'id' | 'to'>>;
+  sendTestEmailTemplate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestEmailTemplateArgs, 'key' | 'to'>>;
   sendTestSlackMessage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestSlackMessageArgs, 'channel' | 'id'>>;
   sendUserMail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendUserMailArgs, 'id' | 'input'>>;
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
@@ -7356,6 +7967,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   submitSelfAssessment?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationSubmitSelfAssessmentArgs, 'id' | 'text'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
+  testPexelsConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestPexelsConnectionArgs, 'id'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
   trackerLogin?: Resolver<ResolversTypes['TrackerLoginPayload'], ParentType, ContextType, RequireFields<MutationTrackerLoginArgs, 'device' | 'email' | 'password'>>;
@@ -7383,6 +7995,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationUpdateDealArgs, 'id' | 'input'>>;
   updateDepartment?: Resolver<ResolversTypes['Department'], ParentType, ContextType, RequireFields<MutationUpdateDepartmentArgs, 'id' | 'input'>>;
   updateEmailConfig?: Resolver<ResolversTypes['EmailConfig'], ParentType, ContextType, RequireFields<MutationUpdateEmailConfigArgs, 'id' | 'input'>>;
+  updateEmailFragment?: Resolver<ResolversTypes['EmailFragment'], ParentType, ContextType, RequireFields<MutationUpdateEmailFragmentArgs, 'id' | 'input'>>;
+  updateEmailTemplate?: Resolver<ResolversTypes['EmailTemplate'], ParentType, ContextType, RequireFields<MutationUpdateEmailTemplateArgs, 'id' | 'input'>>;
   updateEmployeeDocument?: Resolver<ResolversTypes['EmployeeDocument'], ParentType, ContextType, RequireFields<MutationUpdateEmployeeDocumentArgs, 'id' | 'input'>>;
   updateEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationUpdateEmployeeRequestArgs, 'id' | 'input'>>;
   updateEmploymentType?: Resolver<ResolversTypes['EmploymentType'], ParentType, ContextType, RequireFields<MutationUpdateEmploymentTypeArgs, 'id' | 'input'>>;
@@ -7407,6 +8021,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateMyTrainingStatus?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationUpdateMyTrainingStatusArgs, 'id' | 'status'>>;
   updateNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationUpdateNavLinkArgs, 'id' | 'input'>>;
   updatePerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationUpdatePerformanceReviewArgs, 'id' | 'input'>>;
+  updatePexelsConfig?: Resolver<ResolversTypes['PexelsConfig'], ParentType, ContextType, RequireFields<MutationUpdatePexelsConfigArgs, 'id' | 'input'>>;
+  updatePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationUpdatePolicyArgs, 'id' | 'input'>>;
   updatePosition?: Resolver<ResolversTypes['Position'], ParentType, ContextType, RequireFields<MutationUpdatePositionArgs, 'id' | 'input'>>;
   updateProblemReport?: Resolver<ResolversTypes['ProblemReport'], ParentType, ContextType, RequireFields<MutationUpdateProblemReportArgs, 'id' | 'input'>>;
   updateProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<MutationUpdateProductArgs, 'id' | 'input'>>;
@@ -7428,6 +8044,20 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id' | 'input'>>;
   uploadAvatar?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'file'>>;
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
+}>;
+
+export type MyPolicyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MyPolicy'] = ResolversParentTypes['MyPolicy']> = ResolversObject<{
+  acknowledged?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  acknowledgedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  requiresAcknowledgement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type NavLinkResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['NavLink'] = ResolversParentTypes['NavLink']> = ResolversObject<{
@@ -7520,13 +8150,60 @@ export type PerformanceReviewPageResolvers<ContextType = GraphQLContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PexelsConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PexelsConfig'] = ResolversParentTypes['PexelsConfig']> = ResolversObject<{
+  apiKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PexelsMediaResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PexelsMedia'] = ResolversParentTypes['PexelsMedia']> = ResolversObject<{
+  alt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  credit?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  duration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  previewUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PolicyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Policy'] = ResolversParentTypes['Policy']> = ResolversObject<{
-  category?: Resolver<ResolversTypes['PolicyCategory'], ParentType, ContextType>;
+  acknowledgedCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  audience?: Resolver<ResolversTypes['PolicyAudience'], ParentType, ContextType>;
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  publishedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  requiresAcknowledgement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['PolicyStatus'], ParentType, ContextType>;
   summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PolicyAcknowledgementResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PolicyAcknowledgement'] = ResolversParentTypes['PolicyAcknowledgement']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  policyId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  policyTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  signedName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PolicyPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PolicyPage'] = ResolversParentTypes['PolicyPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Policy']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -7633,6 +8310,17 @@ export type PromptPageResolvers<ContextType = GraphQLContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PublicPolicyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PublicPolicy'] = ResolversParentTypes['PublicPolicy']> = ResolversObject<{
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   activeAnnouncements?: Resolver<Array<ResolversTypes['Announcement']>, ParentType, ContextType>;
@@ -7641,6 +8329,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   attendanceByEmployee?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType, RequireFields<QueryAttendanceByEmployeeArgs, 'employeeId'>>;
   branding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
   companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
+  emailDashboard?: Resolver<ResolversTypes['EmailDashboard'], ParentType, ContextType, Partial<QueryEmailDashboardArgs>>;
   getActivity?: Resolver<ResolversTypes['Activity'], ParentType, ContextType, RequireFields<QueryGetActivityArgs, 'id'>>;
   getAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<QueryGetAiJobArgs, 'id'>>;
   getAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<QueryGetAnnouncementArgs, 'id'>>;
@@ -7657,6 +8346,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<QueryGetContractArgs, 'id'>>;
   getDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<QueryGetDealArgs, 'id'>>;
   getDepartment?: Resolver<ResolversTypes['Department'], ParentType, ContextType, RequireFields<QueryGetDepartmentArgs, 'id'>>;
+  getEmailFragment?: Resolver<ResolversTypes['EmailFragment'], ParentType, ContextType, RequireFields<QueryGetEmailFragmentArgs, 'id'>>;
+  getEmailTemplate?: Resolver<ResolversTypes['EmailTemplate'], ParentType, ContextType, RequireFields<QueryGetEmailTemplateArgs, 'id'>>;
   getEmployeeDocument?: Resolver<ResolversTypes['EmployeeDocument'], ParentType, ContextType, RequireFields<QueryGetEmployeeDocumentArgs, 'id'>>;
   getEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<QueryGetEmployeeRequestArgs, 'id'>>;
   getEmploymentType?: Resolver<ResolversTypes['EmploymentType'], ParentType, ContextType, RequireFields<QueryGetEmploymentTypeArgs, 'id'>>;
@@ -7677,6 +8368,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<QueryGetLocationArgs, 'id'>>;
   getNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<QueryGetNavLinkArgs, 'id'>>;
   getPerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<QueryGetPerformanceReviewArgs, 'id'>>;
+  getPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<QueryGetPolicyArgs, 'id'>>;
   getPosition?: Resolver<ResolversTypes['Position'], ParentType, ContextType, RequireFields<QueryGetPositionArgs, 'id'>>;
   getProblemReport?: Resolver<ResolversTypes['ProblemReport'], ParentType, ContextType, RequireFields<QueryGetProblemReportArgs, 'id'>>;
   getProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<QueryGetProductArgs, 'id'>>;
@@ -7744,6 +8436,14 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listDealsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listDepartments?: Resolver<Array<ResolversTypes['Department']>, ParentType, ContextType>;
   listEmailConfigs?: Resolver<Array<ResolversTypes['EmailConfig']>, ParentType, ContextType>;
+  listEmailFragments?: Resolver<Array<ResolversTypes['EmailFragment']>, ParentType, ContextType>;
+  listEmailFragmentsPaged?: Resolver<ResolversTypes['EmailFragmentPage'], ParentType, ContextType, RequireFields<QueryListEmailFragmentsPagedArgs, 'input'>>;
+  listEmailFragmentsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listEmailLogsPaged?: Resolver<ResolversTypes['EmailLogPage'], ParentType, ContextType, RequireFields<QueryListEmailLogsPagedArgs, 'input'>>;
+  listEmailLogsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listEmailTemplates?: Resolver<Array<ResolversTypes['EmailTemplate']>, ParentType, ContextType>;
+  listEmailTemplatesPaged?: Resolver<ResolversTypes['EmailTemplatePage'], ParentType, ContextType, RequireFields<QueryListEmailTemplatesPagedArgs, 'input'>>;
+  listEmailTemplatesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listEmployeeDocuments?: Resolver<Array<ResolversTypes['EmployeeDocument']>, ParentType, ContextType>;
   listEmployeeDocumentsPaged?: Resolver<ResolversTypes['EmployeeDocumentPage'], ParentType, ContextType, RequireFields<QueryListEmployeeDocumentsPagedArgs, 'input'>>;
   listEmployeeDocumentsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -7806,7 +8506,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPerformanceReviewsPaged?: Resolver<ResolversTypes['PerformanceReviewPage'], ParentType, ContextType, RequireFields<QueryListPerformanceReviewsPagedArgs, 'input'>>;
   listPerformanceReviewsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listPermissionModules?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  listPexelsConfigs?: Resolver<Array<ResolversTypes['PexelsConfig']>, ParentType, ContextType>;
   listPolicies?: Resolver<Array<ResolversTypes['Policy']>, ParentType, ContextType>;
+  listPoliciesPaged?: Resolver<ResolversTypes['PolicyPage'], ParentType, ContextType, RequireFields<QueryListPoliciesPagedArgs, 'input'>>;
+  listPoliciesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listPositions?: Resolver<Array<ResolversTypes['Position']>, ParentType, ContextType>;
   listProblemReports?: Resolver<Array<ResolversTypes['ProblemReport']>, ParentType, ContextType>;
   listProblemReportsPaged?: Resolver<ResolversTypes['ProblemReportPage'], ParentType, ContextType, RequireFields<QueryListProblemReportsPagedArgs, 'input'>>;
@@ -7870,6 +8573,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myNotifications?: Resolver<Array<ResolversTypes['Notification']>, ParentType, ContextType>;
   myPayroll?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType>;
   myPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
+  myPolicies?: Resolver<Array<ResolversTypes['MyPolicy']>, ParentType, ContextType>;
+  myPolicy?: Resolver<Maybe<ResolversTypes['MyPolicy']>, ParentType, ContextType, RequireFields<QueryMyPolicyArgs, 'slug'>>;
   myRequests?: Resolver<Array<ResolversTypes['EmployeeRequest']>, ParentType, ContextType>;
   mySalarySlips?: Resolver<Array<ResolversTypes['SalarySlip']>, ParentType, ContextType>;
   mySupportTickets?: Resolver<Array<ResolversTypes['SupportTicket']>, ParentType, ContextType>;
@@ -7880,6 +8585,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myTrainings?: Resolver<Array<ResolversTypes['Training']>, ParentType, ContextType>;
   myUnreadNotificationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   payrollSummary?: Resolver<ResolversTypes['PayrollSummary'], ParentType, ContextType, RequireFields<QueryPayrollSummaryArgs, 'month' | 'year'>>;
+  policyAcknowledgements?: Resolver<Array<ResolversTypes['PolicyAcknowledgement']>, ParentType, ContextType, RequireFields<QueryPolicyAcknowledgementsArgs, 'policyId'>>;
+  previewEmailTemplate?: Resolver<ResolversTypes['EmailPreview'], ParentType, ContextType, RequireFields<QueryPreviewEmailTemplateArgs, 'key'>>;
   projectBoard?: Resolver<ResolversTypes['ProjectBoard'], ParentType, ContextType, RequireFields<QueryProjectBoardArgs, 'projectId'>>;
   publicBlogPost?: Resolver<Maybe<ResolversTypes['BlogPost']>, ParentType, ContextType, RequireFields<QueryPublicBlogPostArgs, 'slug'>>;
   publicBlogPosts?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType>;
@@ -7893,10 +8600,14 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicJobCompany?: Resolver<Maybe<ResolversTypes['JobCompany']>, ParentType, ContextType, RequireFields<QueryPublicJobCompanyArgs, 'slug'>>;
   publicJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType, Partial<QueryPublicJobsArgs>>;
   publicNavLinks?: Resolver<Array<ResolversTypes['NavLink']>, ParentType, ContextType>;
+  publicPolicies?: Resolver<Array<ResolversTypes['PublicPolicy']>, ParentType, ContextType>;
+  publicPolicy?: Resolver<Maybe<ResolversTypes['PublicPolicy']>, ParentType, ContextType, RequireFields<QueryPublicPolicyArgs, 'slug'>>;
   publicTool?: Resolver<Maybe<ResolversTypes['Tool']>, ParentType, ContextType, RequireFields<QueryPublicToolArgs, 'toolCode'>>;
   publicToolCategories?: Resolver<Array<ResolversTypes['ToolCategory']>, ParentType, ContextType>;
   publicTools?: Resolver<Array<ResolversTypes['Tool']>, ParentType, ContextType, Partial<QueryPublicToolsArgs>>;
   receivables?: Resolver<ResolversTypes['Receivables'], ParentType, ContextType>;
+  searchPexelsPhotos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsPhotosArgs, 'query'>>;
+  searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
   statusOverview?: Resolver<ResolversTypes['StatusOverview'], ParentType, ContextType, Partial<QueryStatusOverviewArgs>>;
   trackerAccessList?: Resolver<Array<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
   trackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType>;
@@ -8545,6 +9256,16 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   DealPage?: DealPageResolvers<ContextType>;
   Department?: DepartmentResolvers<ContextType>;
   EmailConfig?: EmailConfigResolvers<ContextType>;
+  EmailDashboard?: EmailDashboardResolvers<ContextType>;
+  EmailDayCount?: EmailDayCountResolvers<ContextType>;
+  EmailFragment?: EmailFragmentResolvers<ContextType>;
+  EmailFragmentPage?: EmailFragmentPageResolvers<ContextType>;
+  EmailLog?: EmailLogResolvers<ContextType>;
+  EmailLogPage?: EmailLogPageResolvers<ContextType>;
+  EmailPreview?: EmailPreviewResolvers<ContextType>;
+  EmailTemplate?: EmailTemplateResolvers<ContextType>;
+  EmailTemplatePage?: EmailTemplatePageResolvers<ContextType>;
+  EmailTemplateUsage?: EmailTemplateUsageResolvers<ContextType>;
   EmployeeDocument?: EmployeeDocumentResolvers<ContextType>;
   EmployeeDocumentPage?: EmployeeDocumentPageResolvers<ContextType>;
   EmployeeRequest?: EmployeeRequestResolvers<ContextType>;
@@ -8589,6 +9310,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   LocationPage?: LocationPageResolvers<ContextType>;
   LoginPage?: LoginPageResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  MyPolicy?: MyPolicyResolvers<ContextType>;
   NavLink?: NavLinkResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;
   Payment?: PaymentResolvers<ContextType>;
@@ -8597,7 +9319,11 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   PayrollSummary?: PayrollSummaryResolvers<ContextType>;
   PerformanceReview?: PerformanceReviewResolvers<ContextType>;
   PerformanceReviewPage?: PerformanceReviewPageResolvers<ContextType>;
+  PexelsConfig?: PexelsConfigResolvers<ContextType>;
+  PexelsMedia?: PexelsMediaResolvers<ContextType>;
   Policy?: PolicyResolvers<ContextType>;
+  PolicyAcknowledgement?: PolicyAcknowledgementResolvers<ContextType>;
+  PolicyPage?: PolicyPageResolvers<ContextType>;
   Position?: PositionResolvers<ContextType>;
   ProblemReport?: ProblemReportResolvers<ContextType>;
   ProblemReportPage?: ProblemReportPageResolvers<ContextType>;
@@ -8609,6 +9335,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ProjectPage?: ProjectPageResolvers<ContextType>;
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
+  PublicPolicy?: PublicPolicyResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Receivables?: ReceivablesResolvers<ContextType>;
   ReceivablesBucket?: ReceivablesBucketResolvers<ContextType>;

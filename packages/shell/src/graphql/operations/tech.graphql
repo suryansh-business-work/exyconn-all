@@ -160,3 +160,53 @@ mutation SaveTrackerBuildSettings($slackChannels: [String!]!) {
     slackChannels
   }
 }
+
+query ListPexelsConfigs {
+  listPexelsConfigs {
+    id
+    label
+    apiKey
+    isActive
+  }
+}
+
+mutation CreatePexelsConfig($input: PexelsConfigInput!) {
+  createPexelsConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdatePexelsConfig($id: ID!, $input: PexelsConfigInput!) {
+  updatePexelsConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeletePexelsConfig($id: ID!) {
+  deletePexelsConfig(id: $id)
+}
+
+mutation TestPexelsConnection($id: ID!) {
+  testPexelsConnection(id: $id)
+}
+
+fragment PexelsMediaFields on PexelsMedia {
+  id
+  previewUrl
+  url
+  alt
+  credit
+  duration
+}
+
+query SearchPexelsPhotos($query: String!, $page: Int) {
+  searchPexelsPhotos(query: $query, page: $page) {
+    ...PexelsMediaFields
+  }
+}
+
+query SearchPexelsVideos($query: String!, $page: Int) {
+  searchPexelsVideos(query: $query, page: $page) {
+    ...PexelsMediaFields
+  }
+}

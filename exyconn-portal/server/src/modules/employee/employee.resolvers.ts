@@ -1,6 +1,5 @@
 import { SalaryStructureModel } from './salary.model';
 import { SalarySlipModel } from './salarySlip.model';
-import { PolicyModel } from './policy.model';
 import { HolidayModel } from './holiday.model';
 import { SupportTicketModel } from './support.model';
 import { assertAuthenticated } from '../../middleware/roleGuard';
@@ -43,10 +42,6 @@ export const employeeResolvers = {
         .sort({ createdAt: -1 })
         .lean();
       return withIds(docs);
-    },
-    listPolicies: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertAuthenticated(ctx);
-      return withIds(await PolicyModel.find().sort({ effectiveDate: -1 }).lean());
     },
     listHolidays: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       assertAuthenticated(ctx);

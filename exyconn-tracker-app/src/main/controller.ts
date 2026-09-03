@@ -19,6 +19,7 @@ import { TrackerEngine } from './engine';
 import * as portal from './portal-client';
 import { TrackerAuthError } from './portal-client';
 import { collectDeviceInfo } from './device-info';
+import { describeLoginFailure } from './login-message';
 import { describeSyncFailure } from './sync-message';
 import { getPermissions, requestPermission } from './trackers/permissions';
 import type { ComposeInput } from './capture-bridge';
@@ -133,7 +134,10 @@ export class TrackerController {
       await this.syncFromPortal();
       return { ok: true, consentRequired: result.consentRequired, user: result.user };
     } catch (error) {
-      return { ok: false, error: error instanceof Error ? error.message : 'Sign-in failed' };
+      // The raw failure is logged, never shown: the login screen gets a sentence, the
+      // developer console keeps the status code and the portal's reason.
+      console.error('Tracker sign-in failed', error);
+      return { ok: false, error: describeLoginFailure(error) };
     }
   }
 

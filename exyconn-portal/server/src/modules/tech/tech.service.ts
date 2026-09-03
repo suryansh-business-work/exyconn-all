@@ -2,12 +2,14 @@ import { EmailConfigModel } from './email-config.model';
 import { ImageConfigModel } from './image-config.model';
 import { SlackConfigModel } from './slack-config.model';
 import { GithubConfigModel } from './github-config.model';
+import { PexelsConfigModel } from './pexels-config.model';
 import { TrackerBuildSettingsModel } from './tracker-build-settings.model';
 import { badRequest, notFound } from '../../utils/errors';
 import { mailer } from '../../utils/mailer';
 import { imageUploader } from '../../utils/imagekit';
 import { slackNotifier } from '../../utils/slack';
 import { githubActions } from '../../utils/github';
+import { pexelsClient } from '../../utils/pexels';
 
 export interface EmailConfigInput {
   label: string;
@@ -34,6 +36,12 @@ export interface GithubConfigInput {
   owner: string;
   repo: string;
   token: string;
+  isActive?: boolean;
+}
+
+export interface PexelsConfigInput {
+  label: string;
+  apiKey: string;
   isActive?: boolean;
 }
 
@@ -230,6 +238,48 @@ class TechService {
       slack_channels: settings.slackChannels.join(','),
     });
     return true;
+  }
+
+  listPexelsConfigs() {
+    return PexelsConfigModel.find().sort({ createdAt: -1 }).lean();
+  }
+
+  async createPexelsConfig(input: PexelsConfigInput) {
+    if (input.isActive) await PexelsConfigModel.updateMany({}, { isActive: false });
+    return (await PexelsConfigModel.create(input)).toObject();
+  }
+
+  async updatePexelsConfig(id: string, input: PexelsConfigInput) {
+    if (input.isActive) {
+      await PexelsConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
+    }
+    const doc = await PexelsConfigModel.findByIdAndUpdate(id, input, { new: true }).lean();
+    if (!doc) notFound('Pexels config');
+    return doc;
+  }
+
+  async deletePexelsConfig(id: string) {
+    const doc = await PexelsConfigModel.findByIdAndDelete(id).lean();
+    if (!doc) notFound('Pexels config');
+    return true;
+  }
+
+  /** Runs a one-result search through a specific config to validate its API key. */
+  async testPexelsConnection(id: string) {
+    const config = await PexelsConfigModel.findById(id);
+    if (!config) notFound('Pexels config');
+    await pexelsClient.verify(config);
+    return true;
+  }
+
+  /** Stock photos for the shared upload dialog, through the active Pexels key. */
+  searchPexelsPhotos(query: string, page: number) {
+    return pexelsClient.searchPhotos(query, page);
+  }
+
+  /** Stock videos for the shared upload dialog, through the active Pexels key. */
+  searchPexelsVideos(query: string, page: number) {
+    return pexelsClient.searchVideos(query, page);
   }
 }
 

@@ -1,5 +1,6 @@
 import { Notification, nativeImage } from 'electron';
 import type { LiveStats } from '@shared/types';
+import { heroToastXml } from './toast';
 
 /**
  * Width the capture is downscaled to for the notification thumbnail. A full-resolution (and
@@ -28,6 +29,22 @@ function preview(image: string | undefined): Electron.NativeImage | undefined {
   } catch {
     return undefined;
   }
+}
+
+/**
+ * The picture across the top of the notification is a Windows-only placement, and it only
+ * exists for a toast handed over as raw XML — every other platform draws `icon` beside the
+ * text instead.
+ */
+function heroToast(
+  title: string,
+  lines: string[],
+  shot: Electron.NativeImage | undefined,
+): string | undefined {
+  if (process.platform !== 'win32' || shot === undefined) {
+    return undefined;
+  }
+  return heroToastXml(title, lines, shot);
 }
 
 /** "2h 05m" — compact worked-time for a notification body. */
@@ -68,19 +85,22 @@ export function notifyScreenshotCaptured(
   }
 
   const shots = count === 1 ? 'Screenshot captured' : `${count} screenshots captured`;
-  const body = [
+  const title = `Exyconn Tracker — ${shots}`;
+  const lines = [
     `Worked ${clock(stats.sessionActiveMs)} · ${activityPercent(stats)}% active`,
     `${stats.keyCount.toLocaleString()} keys · ${stats.mouseCount.toLocaleString()} clicks`,
     stats.currentApp ? `In ${stats.currentApp}` : '',
-  ]
-    .filter(Boolean)
-    .join('\n');
+  ].filter(Boolean);
+
+  const shot = preview(image);
 
   try {
     new Notification({
-      title: `Exyconn Tracker — ${shots}`,
-      body,
-      icon: preview(image),
+      title,
+      body: lines.join('\n'),
+      // Windows draws the shot full-width above the text; elsewhere the OS puts it alongside.
+      toastXml: heroToast(title, lines, shot),
+      icon: shot,
       silent: false,
     }).show();
   } catch {

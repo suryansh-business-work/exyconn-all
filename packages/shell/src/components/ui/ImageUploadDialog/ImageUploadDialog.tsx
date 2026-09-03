@@ -1,21 +1,17 @@
-import { useRef, useState } from 'react';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  LinearProgress,
-  Stack,
-  Typography,
-} from '@exyconn/ui';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import { useNotify } from '@/components/feedback/NotificationProvider';
-import { useUploadImageMutation } from '@/graphql/generated';
-import { fileToDataUrl, MAX_IMAGE_BYTES } from '@/utils/file';
-import { ImagePreview } from './ImagePreview';
+import { useState } from 'react';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Tab, Tabs } from '@exyconn/ui';
+import type { PexelsMediaFieldsFragment } from '@/graphql/generated';
+import { DeviceUploadTab } from './DeviceUploadTab';
+import { PexelsTab } from './PexelsTab';
+import { useDeviceUpload } from './useDeviceUpload';
 
-const MAX_MB = MAX_IMAGE_BYTES / (1024 * 1024);
+/**
+ * What the dialog is allowed to return. Image fields (`RhfImageField`) pass `image`
+ * so a clip can never land in a field that renders an `<img>`.
+ */
+export type UploadMediaKind = 'image' | 'all';
+
+type TabKey = 'device' | 'photos' | 'videos';
 
 interface ImageUploadDialogProps {
   open: boolean;
@@ -23,110 +19,82 @@ interface ImageUploadDialogProps {
   /** Groups the upload on ImageKit (e.g. "branding", "blog"). */
   folder?: string;
   currentUrl?: string | null;
+  /** `all` adds the stock video tab; `image` stops at device + stock photos. */
+  media?: UploadMediaKind;
   onClose: () => void;
   onUploaded: (url: string) => void;
 }
 
 /**
- * Shared image picker + uploader. Every image field in the portal goes through
- * this dialog and the single `uploadImage` mutation (ImageKit) behind it.
+ * The platform's single upload dialog. Three ways in — a file from the device (uploaded
+ * to ImageKit through the one `uploadImage` mutation), a Pexels photo, or a Pexels clip —
+ * and one way out: the hosted URL handed to `onUploaded`. Stock results are returned as
+ * their Pexels CDN URL, which is how a stock asset is meant to be referenced.
  */
 export function ImageUploadDialog({
   open,
-  title = 'Upload image',
+  title = 'Upload',
   folder,
   currentUrl,
+  media = 'all',
   onClose,
   onUploaded,
 }: Readonly<ImageUploadDialogProps>) {
-  const notify = useNotify();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadImage] = useUploadImageMutation();
-
-  const reset = () => {
-    setFile(null);
-    setPreview(null);
-  };
+  const [tab, setTab] = useState<TabKey>('device');
+  const device = useDeviceUpload(folder, (url) => {
+    onUploaded(url);
+    onClose();
+  });
 
   const handleClose = () => {
-    reset();
+    device.reset();
     onClose();
   };
 
-  const handlePick = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const picked = event.target.files?.[0];
-    event.target.value = '';
-    if (!picked) return;
-    if (picked.size > MAX_IMAGE_BYTES) {
-      notify(`Image must be ${MAX_MB} MB or smaller`, 'error');
-      return;
-    }
-    try {
-      setPreview(await fileToDataUrl(picked));
-      setFile(picked);
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Could not read the file', 'error');
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!file || !preview) return;
-    setUploading(true);
-    try {
-      const { data } = await uploadImage({
-        variables: { file: preview, fileName: file.name, folder },
-      });
-      const url = data?.uploadImage;
-      if (!url) throw new Error('Upload returned no URL');
-      notify('Image uploaded');
-      onUploaded(url);
-      reset();
-      onClose();
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Upload failed', 'error');
-    } finally {
-      setUploading(false);
-    }
+  const handlePickStock = (item: PexelsMediaFieldsFragment) => {
+    onUploaded(item.url);
+    handleClose();
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>{title}</DialogTitle>
+      <Tabs
+        value={tab}
+        onChange={(_event, next: TabKey) => setTab(next)}
+        variant="fullWidth"
+        aria-label="upload source"
+        sx={{ px: 2, borderBottom: 1, borderColor: 'divider' }}
+      >
+        <Tab value="device" label="From your device" />
+        <Tab value="photos" label="Pexels images" />
+        {media === 'all' && <Tab value="videos" label="Pexels videos" />}
+      </Tabs>
       <DialogContent dividers>
-        <Stack spacing={2} alignItems="center">
-          <ImagePreview url={preview ?? currentUrl ?? null} />
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={handlePick}
-            data-testid="image-upload-input"
+        {tab === 'device' && (
+          <DeviceUploadTab
+            previewUrl={device.preview ?? currentUrl ?? null}
+            uploading={device.uploading}
+            inputRef={device.inputRef}
+            onPick={device.pick}
           />
-          <Button
-            variant="outlined"
-            startIcon={<UploadFileIcon />}
-            disabled={uploading}
-            onClick={() => inputRef.current?.click()}
-          >
-            Choose image
-          </Button>
-          <Typography variant="caption" color="text.secondary">
-            PNG, JPG or SVG · up to {MAX_MB} MB
-          </Typography>
-          {uploading && <LinearProgress sx={{ width: '100%' }} />}
-        </Stack>
+        )}
+        {tab === 'photos' && <PexelsTab kind="photos" onPick={handlePickStock} />}
+        {tab === 'videos' && <PexelsTab kind="videos" onPick={handlePickStock} />}
       </DialogContent>
       <DialogActions>
-        <Button color="inherit" onClick={handleClose} disabled={uploading}>
+        <Button color="inherit" onClick={handleClose} disabled={device.uploading}>
           Cancel
         </Button>
-        <Button variant="contained" onClick={handleUpload} disabled={!file || uploading}>
-          {uploading ? 'Uploading…' : 'Upload'}
-        </Button>
+        {tab === 'device' && (
+          <Button
+            variant="contained"
+            onClick={device.upload}
+            disabled={!device.file || device.uploading}
+          >
+            {device.uploading ? 'Uploading…' : 'Upload'}
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

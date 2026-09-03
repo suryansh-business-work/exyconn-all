@@ -4,12 +4,14 @@ import ChatIcon from '@mui/icons-material/Chat';
 import ImageIcon from '@mui/icons-material/Image';
 import EmailIcon from '@mui/icons-material/Email';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
 import { ImageConfigsPanel } from './ImageConfigsPanel';
 import { EmailConfigsPanel } from './EmailConfigsPanel';
 import { GithubConfigsPanel } from './GithubConfigsPanel';
+import { PexelsConfigsPanel } from './PexelsConfigsPanel';
 
 /** Route the tabs live under; each tab is a slug beneath it. */
 export const ENVIRONMENT_VARIABLES_PATH = '/tech/environment-variables';
@@ -38,6 +40,16 @@ const TABS: TabberItem[] = [
     content: (
       <GlassPanel>
         <ImageConfigsPanel />
+      </GlassPanel>
+    ),
+  },
+  {
+    slug: 'pexels',
+    label: 'Pexels',
+    icon: <PhotoLibraryIcon />,
+    content: (
+      <GlassPanel>
+        <PexelsConfigsPanel />
       </GlassPanel>
     ),
   },

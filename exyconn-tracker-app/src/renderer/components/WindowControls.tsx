@@ -6,9 +6,7 @@ import CropSquareRounded from '@mui/icons-material/CropSquareRounded';
 import FilterNoneRounded from '@mui/icons-material/FilterNoneRounded';
 import CloseRounded from '@mui/icons-material/CloseRounded';
 import { run } from '../run';
-
-/** The controls sit on the drag region, so they must opt out of it or they cannot be clicked. */
-const NO_DRAG = { WebkitAppRegion: 'no-drag' } as const;
+import { NO_DRAG } from '../window-drag';
 
 const BUTTON_SX = {
   ...NO_DRAG,

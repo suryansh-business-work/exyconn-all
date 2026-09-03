@@ -6,6 +6,7 @@ import type {
   JobCompany,
   JobWithCompany,
   NavLink,
+  PublicPolicy,
 } from './types';
 
 const COMPANY_FIELDS = `
@@ -191,4 +192,25 @@ export async function getBrandingSafe(): Promise<Branding> {
     console.error('Portal branding fetch failed — using bundled fallback branding.', error);
     return BRANDING_FALLBACK;
   }
+}
+
+const POLICY_FIELDS = `
+  title slug summary body version effectiveDate updatedAt
+`;
+
+/** Every policy Legal has published for the public. */
+export async function getPublicPolicies(): Promise<PublicPolicy[]> {
+  const data = await portalRequest<{ publicPolicies: PublicPolicy[] }>(
+    `query { publicPolicies { ${POLICY_FIELDS} } }`,
+  );
+  return data.publicPolicies;
+}
+
+/** One public policy by slug, or null when Legal has not published one at that address. */
+export async function getPublicPolicy(slug: string): Promise<PublicPolicy | null> {
+  const data = await portalRequest<{ publicPolicy: PublicPolicy | null }>(
+    `query PublicPolicy($slug: String!) { publicPolicy(slug: $slug) { ${POLICY_FIELDS} } }`,
+    { slug },
+  );
+  return data.publicPolicy;
 }

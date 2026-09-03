@@ -1,19 +1,22 @@
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { Box, Chip, Flex, Heading, IconButton, Text } from '@exyconn/shell/components/ui';
+import { Box, Button, Flex, Heading, IconButton, Text } from '@exyconn/shell/components/ui';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { LoginForm } from './forms/login';
 import { LoginBackground } from './LoginBackground';
+import { LoginPromo } from './LoginPromo';
 import { useLoginPage } from './useLoginPage';
+import { env } from '@exyconn/shell/config/env';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
 import { useColorMode } from '@exyconn/shell/theme/ColorModeContext';
 import { safeNext } from '@exyconn/shell/utils/redirect';
 
 /**
- * Login screen. One form, one set of credentials — the artwork, the portal name and the
- * accent come from Admin > Branding > Login Pages for whichever subdomain is serving it,
- * so `finance.exyconn.com` and `hr.exyconn.com` look like their own front doors.
+ * Login screen: the two-card layout — sign-in card and banner beside a promo card — over
+ * full-bleed artwork. One form and one set of credentials everywhere; the artwork, the
+ * portal name, the tagline and the accent come from Admin > Branding > Login Pages for
+ * whichever subdomain is serving it, so no two portals share a front door.
  */
 export function Login() {
   const { mode, toggle } = useColorMode();
@@ -31,9 +34,10 @@ export function Login() {
       sx={{
         position: 'relative',
         minHeight: '100vh',
-        display: 'grid',
-        placeItems: 'center',
-        p: 2,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        p: { xs: 2, md: 4 },
         overflow: 'hidden',
       }}
     >
@@ -46,35 +50,61 @@ export function Login() {
       <IconButton
         onClick={toggle}
         aria-label="toggle color mode"
-        sx={{ position: 'absolute', top: 12, right: 12, zIndex: 2 }}
+        sx={{ position: 'absolute', top: 16, right: 16, zIndex: 2 }}
       >
-        {isDark ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
+        {isDark ? <LightModeIcon /> : <DarkModeIcon />}
       </IconButton>
 
-      <Box sx={[glass, { position: 'relative', zIndex: 1, width: '100%', maxWidth: 380, p: 2.5 }]}>
-        <Flex direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
-          <Box component="img" src={page.logoUrl} alt={page.businessName} sx={{ height: 22 }} />
-          <Chip
-            size="small"
-            label={page.name}
-            sx={{ bgcolor: page.accentColor, color: '#fff', fontWeight: 700 }}
-          />
+      <Flex
+        direction={{ xs: 'column', md: 'row' }}
+        spacing={2.5}
+        alignItems="stretch"
+        sx={{ position: 'relative', zIndex: 1 }}
+      >
+        <Flex direction="column" spacing={2}>
+          <Box sx={[glass, { width: { xs: '100%', sm: 380 }, p: 3, borderRadius: 4 }]}>
+            <Flex direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+              <Box component="img" src={page.logoUrl} alt={page.businessName} sx={{ height: 26 }} />
+              <Button
+                href={env.brandUrl}
+                target="_blank"
+                rel="noopener"
+                size="small"
+                sx={{ borderRadius: '999px', bgcolor: 'action.hover', px: 1.75 }}
+              >
+                Support
+              </Button>
+            </Flex>
+
+            <Heading level={4} sx={{ mb: 2 }}>
+              Sign in to {page.name}
+            </Heading>
+            <LoginForm accentColor={page.accentColor} />
+
+            <Text size="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
+              Authorized personnel only.
+              {page.supportEmail ? ` Need access? ${page.supportEmail}` : ''}
+            </Text>
+          </Box>
+
+          <Box
+            sx={{
+              bgcolor: page.accentColor,
+              color: '#fff',
+              borderRadius: 4,
+              px: 3,
+              py: 2,
+              textAlign: 'center',
+            }}
+          >
+            <Text fontWeight={700}>{page.tagline}</Text>
+          </Box>
         </Flex>
 
-        <Heading level={5} sx={{ mb: 0.25 }}>
-          Sign in to {page.name}
-        </Heading>
-        <Text size="sm" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
-          {page.tagline}
-        </Text>
-
-        <LoginForm accentColor={page.accentColor} />
-
-        <Text size="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
-          Authorized personnel only.
-          {page.supportEmail ? ` Need access? ${page.supportEmail}` : ''}
-        </Text>
-      </Box>
+        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+          <LoginPromo name={page.name} slogan={page.slogan} accentColor={page.accentColor} />
+        </Box>
+      </Flex>
     </Box>
   );
 }

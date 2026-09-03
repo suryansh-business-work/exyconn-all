@@ -1,0 +1,117 @@
+fragment PolicyFields on Policy {
+  id
+  title
+  slug
+  summary
+  body
+  audience
+  status
+  version
+  effectiveDate
+  requiresAcknowledgement
+  owner
+  publishedAt
+  updatedAt
+  acknowledgedCount
+}
+
+fragment MyPolicyFields on MyPolicy {
+  id
+  title
+  slug
+  summary
+  body
+  version
+  effectiveDate
+  requiresAcknowledgement
+  acknowledged
+  acknowledgedAt
+}
+
+query ListPolicies {
+  listPolicies {
+    ...PolicyFields
+  }
+}
+
+query ListPoliciesPaged($input: TableQueryInput!) {
+  listPoliciesPaged(input: $input) {
+    totalCount
+    rows {
+      ...PolicyFields
+    }
+  }
+}
+
+query ListPoliciesStats {
+  listPoliciesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query PolicyAcknowledgements($policyId: ID!) {
+  policyAcknowledgements(policyId: $policyId) {
+    id
+    version
+    userName
+    userEmail
+    signedName
+    signedAt
+  }
+}
+
+query MyPolicies {
+  myPolicies {
+    ...MyPolicyFields
+  }
+}
+
+mutation CreatePolicy($input: PolicyInput!) {
+  createPolicy(input: $input) {
+    id
+  }
+}
+
+mutation UpdatePolicy($id: ID!, $input: PolicyInput!) {
+  updatePolicy(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeletePolicy($id: ID!) {
+  deletePolicy(id: $id)
+}
+
+mutation PublishPolicy($id: ID!, $raiseVersion: Boolean) {
+  publishPolicy(id: $id, raiseVersion: $raiseVersion) {
+    id
+    status
+    version
+  }
+}
+
+mutation ArchivePolicy($id: ID!) {
+  archivePolicy(id: $id) {
+    id
+    status
+  }
+}
+
+mutation AcknowledgePolicy($policyId: ID!, $signedName: String!) {
+  acknowledgePolicy(policyId: $policyId, signedName: $signedName) {
+    id
+    version
+    signedAt
+  }
+}

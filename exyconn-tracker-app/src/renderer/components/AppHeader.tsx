@@ -8,6 +8,7 @@ import type { Branding, TrackerStatus } from '@shared/types';
 import BrandMark from './BrandMark';
 import TrackingPulse from './TrackingPulse';
 import WindowControls from './WindowControls';
+import { DRAG, NO_DRAG } from '../window-drag';
 
 interface Props {
   branding: Branding | null;
@@ -18,13 +19,11 @@ interface Props {
 }
 
 /**
+ * Compact top bar: hamburger, brand logo, the current section name, and window controls.
+ *
  * The window is frameless, so this bar IS the title bar: it drags the window, and the
  * minimise / maximise / close buttons at its right are the app's own.
  */
-const DRAG = { WebkitAppRegion: 'drag' } as const;
-const NO_DRAG = { WebkitAppRegion: 'no-drag' } as const;
-
-/** Compact top bar: hamburger, brand logo, the current section name, and window controls. */
 export default function AppHeader({
   branding,
   title,

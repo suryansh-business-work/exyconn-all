@@ -44,6 +44,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import StorefrontIcon from '@mui/icons-material/Storefront';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import PolicyIcon from '@mui/icons-material/Policy';
 import CelebrationIcon from '@mui/icons-material/Celebration';
@@ -262,10 +263,11 @@ export const MODULES: ModuleDefinition[] = [
     path: '/legal',
     role: ROLES.LEGAL,
     icon: GavelIcon,
-    description: 'Contracts & documents',
+    description: 'Contracts, policies & documents',
     accent: '#64748b',
     children: [
       { key: 'legal-dashboard', label: 'Dashboard', path: '/legal', icon: DashboardIcon },
+      { key: 'legal-policies', label: 'Policies', path: '/legal/policies', icon: PolicyIcon },
       {
         key: 'legal-documents',
         label: 'Documents',
@@ -529,7 +531,7 @@ export const MODULES: ModuleDefinition[] = [
     path: '/tech/environment-variables',
     role: ROLES.TECH,
     icon: TerminalIcon,
-    description: 'Integrations & desktop builds',
+    description: 'Integrations, email & desktop builds',
     accent: '#7c3aed',
     children: [
       {
@@ -538,6 +540,7 @@ export const MODULES: ModuleDefinition[] = [
         path: '/tech/environment-variables',
         icon: TerminalIcon,
       },
+      { key: 'tech-email', label: 'Email', path: '/tech/email', icon: MarkEmailReadIcon },
       {
         key: 'tech-tracker-build',
         label: 'Tracker Build',

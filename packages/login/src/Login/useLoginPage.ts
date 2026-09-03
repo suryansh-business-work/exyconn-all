@@ -6,7 +6,10 @@ import { env } from '@exyconn/shell/config/env';
 export interface LoginPageView {
   /** Portal name above the form, e.g. "Finance". */
   name: string;
+  /** One line about this portal, from Branding > Login Pages. */
   tagline: string;
+  /** The company slogan, shown on the card beside the form. */
+  slogan: string;
   /** Full-bleed background; empty renders the flat brand surface instead. */
   backgroundImageUrl: string;
   /** Tint for the overlay and the sign-in button. */
@@ -39,6 +42,7 @@ export function useLoginPage(isDark: boolean): LoginPageView {
   return {
     name: page?.name || registryName(env.portalApp),
     tagline: page?.tagline ?? '',
+    slogan: branding?.slogan ?? '',
     backgroundImageUrl: page?.backgroundImageUrl ?? '',
     accentColor: page?.accentColor || FALLBACK_ACCENT,
     logoUrl: brandLogo || (isDark ? env.logoDarkUrl : env.logoUrl),
