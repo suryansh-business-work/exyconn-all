@@ -1,17 +1,38 @@
-import nodemailer from "nodemailer";
-import dotenv from "dotenv";
+import nodemailer, { Transporter } from "nodemailer";
+import { getActiveEmailConfig } from "./integration-config";
 
-dotenv.config();
+let cached: { key: string; transporter: Transporter } | null = null;
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.SMTP_PORT || "587"),
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+/**
+ * Builds a transport from the SMTP account the portal marks active (managed at
+ * Admin > Environment Variables, stored in MongoDB — no SMTP env vars here).
+ * The transport is rebuilt whenever those credentials change.
+ */
+async function getTransporter(): Promise<{
+  transporter: Transporter;
+  from: string;
+}> {
+  const config = await getActiveEmailConfig();
+  const key = `${config.host}:${config.port}:${config.username}:${config.password}`;
+  if (!cached || cached.key !== key) {
+    cached = {
+      key,
+      transporter: nodemailer.createTransport({
+        host: config.host,
+        port: config.port,
+        secure: config.secure,
+        auth: { user: config.username, pass: config.password },
+      }),
+    };
+  }
+  return { transporter: cached.transporter, from: config.fromAddress };
+}
+
+/** "Exyconn <a@b.com>" -> "a@b.com"; a bare address passes through unchanged. */
+function addressOf(from: string): string {
+  const match = /<([^>]+)>/.exec(from);
+  return match ? match[1] : from;
+}
 
 export interface EmailOptions {
   to: string;
@@ -30,8 +51,9 @@ export interface EmailResponse {
 
 export async function sendEmail(options: EmailOptions): Promise<EmailResponse> {
   try {
+    const { transporter, from } = await getTransporter();
     const info = await transporter.sendMail({
-      from: options.from || `"Creative Tools" <${process.env.SMTP_USER}>`,
+      from: options.from || `"Creative Tools" <${addressOf(from)}>`,
       to: options.to,
       subject: options.subject,
       text: options.text,
@@ -54,6 +76,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResponse> {
 
 export async function verifyConnection(): Promise<boolean> {
   try {
+    const { transporter } = await getTransporter();
     await transporter.verify();
     return true;
   } catch (error) {
@@ -62,4 +85,8 @@ export async function verifyConnection(): Promise<boolean> {
   }
 }
 
-export default transporter;
+/** The from-address on the active SMTP account, for callers that build their own header. */
+export async function getDefaultFromAddress(): Promise<string> {
+  const { from } = await getTransporter();
+  return from;
+}

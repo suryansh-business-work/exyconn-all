@@ -252,13 +252,6 @@ jobs:
             TAG=${{ github.sha }}
             MONGODB_URI=${{ secrets.MONGODB_URI }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
-            SMTP_HOST=${{ secrets.SMTP_HOST }}
-            SMTP_PORT=${{ secrets.SMTP_PORT }}
-            SMTP_USER=${{ secrets.SMTP_USER }}
-            SMTP_PASS=${{ secrets.SMTP_PASS }}
-            IMAGEKIT_PUBLIC_KEY=${{ secrets.IMAGEKIT_PUBLIC_KEY }}
-            IMAGEKIT_PRIVATE_KEY=${{ secrets.IMAGEKIT_PRIVATE_KEY }}
-            IMAGEKIT_URL_ENDPOINTS=${{ secrets.IMAGEKIT_URL_ENDPOINTS }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             GOOGLE_MAP_API=${{ secrets.GOOGLE_MAP_API }}
             TINA_GITHUB_TOKEN=${{ secrets.TINA_GITHUB_TOKEN }}

@@ -58,8 +58,6 @@ Run from the repo root, once, with your **rotated** values (do not paste the old
 for s in SSH_KEY SSH_USER SSH_HOST SSH_PORT \
          DOCKERHUB_USERNAME DOCKERHUB_TOKEN \
          MONGODB_URI JWT_SECRET \
-         SMTP_HOST SMTP_PORT SMTP_USER SMTP_PASS \
-         IMAGEKIT_PUBLIC_KEY IMAGEKIT_PRIVATE_KEY IMAGEKIT_URL_ENDPOINTS \
          OPENAI_API_KEY GOOGLE_MAP_API SLACK_WEBHOOK \
          TINA_GITHUB_TOKEN NEXTAUTH_SECRET; do
   gh secret set "$s"
@@ -70,15 +68,18 @@ done
   them** — copy them from the current `exyconn-portal/server/.env` (and rotate the JWT
   secret while you're at it, since anything derived from a leaked repo should be considered
   exposed).
-- `SSH_PORT` is `22`. `IMAGEKIT_URL_ENDPOINTS` is the ImageKit `urlEndpoint`.
+- `SSH_PORT` is `22`.
 - **`TINA_GITHUB_TOKEN` and `NEXTAUTH_SECRET` power the website's content editor**
   (`https://exyconn.com/admin`, self-hosted TinaCMS). `TINA_GITHUB_TOKEN` is a fine-grained
   GitHub personal access token for this repository with *Contents: Read and write* — every save
   in the editor is committed to `main` with it. `NEXTAUTH_SECRET` signs the editor's login
   session (`openssl rand -base64 32`). The editor's content index reuses `MONGODB_URI`
   (database `tinacms`).
-- The Portal API reads SMTP and ImageKit from its own DB (Tech module), not env — those
-  secrets are for the **website** (form emails) and **Tools API**.
+- **SMTP, ImageKit and Slack are not secrets any more.** All three are stored in MongoDB and
+  managed in the portal under **Admin › Environment Variables**, where each has a
+  test-connection action. The Portal API, the Tools API and the website's form notifications
+  all read the active configuration from there, so rotating a credential needs no redeploy.
+  `SLACK_WEBHOOK` stays a GitHub secret because CI posts deploy results before any app is up.
 
 ## 3. One-time server setup (nginx + TLS)
 

@@ -1394,6 +1394,7 @@ export type Mutation = {
   createPrompt: Prompt;
   createSalaryStructure: SalaryStructure;
   createShift: Shift;
+  createSlackConfig: SlackConfig;
   /** Self-service: raise a support ticket (status forced to OPEN). */
   createSupportTicket: SupportTicket;
   createTask: Task;
@@ -1443,6 +1444,7 @@ export type Mutation = {
   deletePrompt: Scalars['Boolean']['output'];
   deleteSalaryStructure: Scalars['Boolean']['output'];
   deleteShift: Scalars['Boolean']['output'];
+  deleteSlackConfig: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
@@ -1483,6 +1485,7 @@ export type Mutation = {
   /** HR broadcast to every active employee, one department, or a chosen list. */
   sendNotification: SendNotificationResult;
   sendTestEmail: Scalars['Boolean']['output'];
+  sendTestSlackMessage: Scalars['Boolean']['output'];
   sendUserMail: Scalars['Boolean']['output'];
   /** HR/ADMIN: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
@@ -1561,6 +1564,7 @@ export type Mutation = {
   updateSalaryStructure: SalaryStructure;
   updateSettings: AppSettings;
   updateShift: Shift;
+  updateSlackConfig: SlackConfig;
   updateTask: Task;
   updateTeam: Team;
   updateTool: Tool;
@@ -1793,6 +1797,11 @@ export type MutationCreateSalaryStructureArgs = {
 
 export type MutationCreateShiftArgs = {
   input: ShiftInput;
+};
+
+
+export type MutationCreateSlackConfigArgs = {
+  input: SlackConfigInput;
 };
 
 
@@ -2034,6 +2043,11 @@ export type MutationDeleteShiftArgs = {
 };
 
 
+export type MutationDeleteSlackConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteTaskArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2157,6 +2171,12 @@ export type MutationSendNotificationArgs = {
 export type MutationSendTestEmailArgs = {
   id: Scalars['ID']['input'];
   to: Scalars['String']['input'];
+};
+
+
+export type MutationSendTestSlackMessageArgs = {
+  channel: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -2509,6 +2529,12 @@ export type MutationUpdateSettingsArgs = {
 export type MutationUpdateShiftArgs = {
   id: Scalars['ID']['input'];
   input: ShiftInput;
+};
+
+
+export type MutationUpdateSlackConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: SlackConfigInput;
 };
 
 
@@ -3019,6 +3045,7 @@ export type Query = {
   listShifts: Array<Shift>;
   listShiftsPaged: ShiftPage;
   listShiftsStats: TableStats;
+  listSlackConfigs: Array<SlackConfig>;
   /** SUPPORT/ADMIN: every employee support ticket, newest first. */
   listSupportTickets: Array<SupportTicket>;
   listTeams: Array<Team>;
@@ -3735,6 +3762,24 @@ export type ShiftPage = {
   __typename?: 'ShiftPage';
   rows: Array<Shift>;
   totalCount: Scalars['Int']['output'];
+};
+
+export type SlackConfig = {
+  __typename?: 'SlackConfig';
+  botToken: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  defaultChannel: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type SlackConfigInput = {
+  botToken: Scalars['String']['input'];
+  defaultChannel: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
 };
 
 export enum SlipStatus {
@@ -6055,6 +6100,41 @@ export type TestImageUploadMutationVariables = Exact<{
 
 
 export type TestImageUploadMutation = { __typename?: 'Mutation', testImageUpload: string };
+
+export type ListSlackConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListSlackConfigsQuery = { __typename?: 'Query', listSlackConfigs: Array<{ __typename?: 'SlackConfig', id: string, label: string, botToken: string, defaultChannel: string, isActive: boolean }> };
+
+export type CreateSlackConfigMutationVariables = Exact<{
+  input: SlackConfigInput;
+}>;
+
+
+export type CreateSlackConfigMutation = { __typename?: 'Mutation', createSlackConfig: { __typename?: 'SlackConfig', id: string } };
+
+export type UpdateSlackConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: SlackConfigInput;
+}>;
+
+
+export type UpdateSlackConfigMutation = { __typename?: 'Mutation', updateSlackConfig: { __typename?: 'SlackConfig', id: string } };
+
+export type DeleteSlackConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteSlackConfigMutation = { __typename?: 'Mutation', deleteSlackConfig: boolean };
+
+export type SendTestSlackMessageMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  channel: Scalars['String']['input'];
+}>;
+
+
+export type SendTestSlackMessageMutation = { __typename?: 'Mutation', sendTestSlackMessage: boolean };
 
 export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: string, userId: string, grantedBy: string, grantedAt: string, revokedAt?: string | null, isActive: boolean, consentedAt?: string | null, timezone: string };
 
@@ -17401,6 +17481,182 @@ export function useTestImageUploadMutation(baseOptions?: Apollo.MutationHookOpti
 export type TestImageUploadMutationHookResult = ReturnType<typeof useTestImageUploadMutation>;
 export type TestImageUploadMutationResult = Apollo.MutationResult<TestImageUploadMutation>;
 export type TestImageUploadMutationOptions = Apollo.BaseMutationOptions<TestImageUploadMutation, TestImageUploadMutationVariables>;
+export const ListSlackConfigsDocument = gql`
+    query ListSlackConfigs {
+  listSlackConfigs {
+    id
+    label
+    botToken
+    defaultChannel
+    isActive
+  }
+}
+    `;
+
+/**
+ * __useListSlackConfigsQuery__
+ *
+ * To run a query within a React component, call `useListSlackConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListSlackConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListSlackConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListSlackConfigsQuery(baseOptions?: Apollo.QueryHookOptions<ListSlackConfigsQuery, ListSlackConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListSlackConfigsQuery, ListSlackConfigsQueryVariables>(ListSlackConfigsDocument, options);
+      }
+export function useListSlackConfigsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListSlackConfigsQuery, ListSlackConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListSlackConfigsQuery, ListSlackConfigsQueryVariables>(ListSlackConfigsDocument, options);
+        }
+// @ts-ignore
+export function useListSlackConfigsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListSlackConfigsQuery, ListSlackConfigsQueryVariables>): Apollo.UseSuspenseQueryResult<ListSlackConfigsQuery, ListSlackConfigsQueryVariables>;
+export function useListSlackConfigsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSlackConfigsQuery, ListSlackConfigsQueryVariables>): Apollo.UseSuspenseQueryResult<ListSlackConfigsQuery | undefined, ListSlackConfigsQueryVariables>;
+export function useListSlackConfigsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSlackConfigsQuery, ListSlackConfigsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListSlackConfigsQuery, ListSlackConfigsQueryVariables>(ListSlackConfigsDocument, options);
+        }
+export type ListSlackConfigsQueryHookResult = ReturnType<typeof useListSlackConfigsQuery>;
+export type ListSlackConfigsLazyQueryHookResult = ReturnType<typeof useListSlackConfigsLazyQuery>;
+export type ListSlackConfigsSuspenseQueryHookResult = ReturnType<typeof useListSlackConfigsSuspenseQuery>;
+export type ListSlackConfigsQueryResult = Apollo.QueryResult<ListSlackConfigsQuery, ListSlackConfigsQueryVariables>;
+export const CreateSlackConfigDocument = gql`
+    mutation CreateSlackConfig($input: SlackConfigInput!) {
+  createSlackConfig(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateSlackConfigMutationFn = Apollo.MutationFunction<CreateSlackConfigMutation, CreateSlackConfigMutationVariables>;
+
+/**
+ * __useCreateSlackConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateSlackConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSlackConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createSlackConfigMutation, { data, loading, error }] = useCreateSlackConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateSlackConfigMutation(baseOptions?: Apollo.MutationHookOptions<CreateSlackConfigMutation, CreateSlackConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateSlackConfigMutation, CreateSlackConfigMutationVariables>(CreateSlackConfigDocument, options);
+      }
+export type CreateSlackConfigMutationHookResult = ReturnType<typeof useCreateSlackConfigMutation>;
+export type CreateSlackConfigMutationResult = Apollo.MutationResult<CreateSlackConfigMutation>;
+export type CreateSlackConfigMutationOptions = Apollo.BaseMutationOptions<CreateSlackConfigMutation, CreateSlackConfigMutationVariables>;
+export const UpdateSlackConfigDocument = gql`
+    mutation UpdateSlackConfig($id: ID!, $input: SlackConfigInput!) {
+  updateSlackConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateSlackConfigMutationFn = Apollo.MutationFunction<UpdateSlackConfigMutation, UpdateSlackConfigMutationVariables>;
+
+/**
+ * __useUpdateSlackConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateSlackConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSlackConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSlackConfigMutation, { data, loading, error }] = useUpdateSlackConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateSlackConfigMutation(baseOptions?: Apollo.MutationHookOptions<UpdateSlackConfigMutation, UpdateSlackConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateSlackConfigMutation, UpdateSlackConfigMutationVariables>(UpdateSlackConfigDocument, options);
+      }
+export type UpdateSlackConfigMutationHookResult = ReturnType<typeof useUpdateSlackConfigMutation>;
+export type UpdateSlackConfigMutationResult = Apollo.MutationResult<UpdateSlackConfigMutation>;
+export type UpdateSlackConfigMutationOptions = Apollo.BaseMutationOptions<UpdateSlackConfigMutation, UpdateSlackConfigMutationVariables>;
+export const DeleteSlackConfigDocument = gql`
+    mutation DeleteSlackConfig($id: ID!) {
+  deleteSlackConfig(id: $id)
+}
+    `;
+export type DeleteSlackConfigMutationFn = Apollo.MutationFunction<DeleteSlackConfigMutation, DeleteSlackConfigMutationVariables>;
+
+/**
+ * __useDeleteSlackConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteSlackConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSlackConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteSlackConfigMutation, { data, loading, error }] = useDeleteSlackConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteSlackConfigMutation(baseOptions?: Apollo.MutationHookOptions<DeleteSlackConfigMutation, DeleteSlackConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteSlackConfigMutation, DeleteSlackConfigMutationVariables>(DeleteSlackConfigDocument, options);
+      }
+export type DeleteSlackConfigMutationHookResult = ReturnType<typeof useDeleteSlackConfigMutation>;
+export type DeleteSlackConfigMutationResult = Apollo.MutationResult<DeleteSlackConfigMutation>;
+export type DeleteSlackConfigMutationOptions = Apollo.BaseMutationOptions<DeleteSlackConfigMutation, DeleteSlackConfigMutationVariables>;
+export const SendTestSlackMessageDocument = gql`
+    mutation SendTestSlackMessage($id: ID!, $channel: String!) {
+  sendTestSlackMessage(id: $id, channel: $channel)
+}
+    `;
+export type SendTestSlackMessageMutationFn = Apollo.MutationFunction<SendTestSlackMessageMutation, SendTestSlackMessageMutationVariables>;
+
+/**
+ * __useSendTestSlackMessageMutation__
+ *
+ * To run a mutation, you first call `useSendTestSlackMessageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendTestSlackMessageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendTestSlackMessageMutation, { data, loading, error }] = useSendTestSlackMessageMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      channel: // value for 'channel'
+ *   },
+ * });
+ */
+export function useSendTestSlackMessageMutation(baseOptions?: Apollo.MutationHookOptions<SendTestSlackMessageMutation, SendTestSlackMessageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendTestSlackMessageMutation, SendTestSlackMessageMutationVariables>(SendTestSlackMessageDocument, options);
+      }
+export type SendTestSlackMessageMutationHookResult = ReturnType<typeof useSendTestSlackMessageMutation>;
+export type SendTestSlackMessageMutationResult = Apollo.MutationResult<SendTestSlackMessageMutation>;
+export type SendTestSlackMessageMutationOptions = Apollo.BaseMutationOptions<SendTestSlackMessageMutation, SendTestSlackMessageMutationVariables>;
 export const TrackerAccessListDocument = gql`
     query TrackerAccessList {
   trackerAccessList {

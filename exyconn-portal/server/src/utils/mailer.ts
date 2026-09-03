@@ -6,6 +6,7 @@ import { welcomeTemplate } from '../templates/welcome.template';
 import { credentialsTemplate } from '../templates/credentials.template';
 import { customTemplate } from '../templates/custom.template';
 import { trackerAccessTemplate } from '../templates/tracker-access.template';
+import { formSubmissionTemplate } from '../templates/form-submission.template';
 import { EmailConfigModel, type EmailConfigDocument } from '../modules/tech/email-config.model';
 import type { Role } from '../constants/roles';
 
@@ -34,6 +35,12 @@ export interface TrackerAccessEmailPayload {
   email: string;
 }
 
+export interface FormSubmissionEmailPayload {
+  formType: string;
+  submissionData: Record<string, unknown>;
+  replyTo?: string;
+}
+
 /**
  * Transactional email sender (singleton). The SMTP credentials are loaded from
  * the active Email config in the Tech module (DB-backed, no env dependency).
@@ -60,13 +67,13 @@ class Mailer {
   }
 
   /** Compiles MJML and delivers a single message through the active transport. */
-  private async send(to: string, subject: string, mjml: string): Promise<void> {
+  private async send(to: string, subject: string, mjml: string, replyTo?: string): Promise<void> {
     const { transporter, fromAddress } = await this.getTransport();
     const { html, errors } = await mjml2html(mjml);
     if (errors.length) {
       logger.error({ errors }, `MJML compilation produced errors for "${subject}"`);
     }
-    await transporter.sendMail({ from: fromAddress, to, subject, html });
+    await transporter.sendMail({ from: fromAddress, to, subject, html, replyTo });
     logger.info(`Email "${subject}" sent to ${to}`);
   }
 
@@ -96,6 +103,21 @@ class Mailer {
       'Exyconn Tracker — your access is ready, start tracking your work',
       mjml,
     );
+  }
+
+  /**
+   * Notifies the team about a form submitted on the public website. The
+   * notification goes to the active SMTP config's own from-address, so the
+   * recipient is managed in Admin › Environment Variables rather than in env.
+   */
+  async sendFormSubmissionEmail(payload: FormSubmissionEmailPayload): Promise<void> {
+    const { fromAddress } = await this.getTransport();
+    const mjml = formSubmissionTemplate({
+      formType: payload.formType,
+      submissionData: payload.submissionData,
+    });
+    const subject = `Website form: ${payload.formType}`;
+    await this.send(fromAddress, subject, mjml, payload.replyTo);
   }
 
   /**

@@ -13,7 +13,7 @@ import {
 import { EmailConfigForm, type EmailConfigRow } from './forms/email-config';
 import { SendTestEmailForm } from './forms/send-test-email';
 
-/** Tech sub-panel: manage SMTP/email configurations (DB-backed). */
+/** Environment Variables sub-panel: manage SMTP/email configurations (DB-backed). */
 export function EmailConfigsPanel() {
   const { data, loading, refetch } = useListEmailConfigsQuery();
   const [deleteConfig] = useDeleteEmailConfigMutation();

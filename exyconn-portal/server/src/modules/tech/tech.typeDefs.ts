@@ -27,6 +27,16 @@ export const techTypeDefs = gql`
     updatedAt: DateTime!
   }
 
+  type SlackConfig {
+    id: ID!
+    label: String!
+    botToken: String!
+    defaultChannel: String!
+    isActive: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
   input EmailConfigInput {
     label: String!
     host: String!
@@ -47,9 +57,17 @@ export const techTypeDefs = gql`
     isActive: Boolean
   }
 
+  input SlackConfigInput {
+    label: String!
+    botToken: String!
+    defaultChannel: String!
+    isActive: Boolean
+  }
+
   extend type Query {
     listEmailConfigs: [EmailConfig!]!
     listImageConfigs: [ImageConfig!]!
+    listSlackConfigs: [SlackConfig!]!
   }
 
   extend type Mutation {
@@ -61,5 +79,9 @@ export const techTypeDefs = gql`
     deleteImageConfig(id: ID!): Boolean!
     sendTestEmail(id: ID!, to: String!): Boolean!
     testImageUpload(id: ID!, file: String!, fileName: String!): String!
+    createSlackConfig(input: SlackConfigInput!): SlackConfig!
+    updateSlackConfig(id: ID!, input: SlackConfigInput!): SlackConfig!
+    deleteSlackConfig(id: ID!): Boolean!
+    sendTestSlackMessage(id: ID!, channel: String!): Boolean!
   }
 `;

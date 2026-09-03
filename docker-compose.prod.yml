@@ -23,12 +23,8 @@ services:
       PORT: 4000
       PUBLIC_SITE_URL: https://exyconn.com
       PUBLIC_PORTAL_GRAPHQL_URL: https://portal-server.exyconn.com/graphql
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASS: ${SMTP_PASS}
-      SMTP_FROM: ${SMTP_USER}
-      SMTP_TO: ${SMTP_USER}
+      # No SMTP here: form notifications are sent by portal-server using the
+      # SMTP account configured in Admin > Environment Variables.
       # TinaCMS editor at /admin: self-hosted backend, content index in MongoDB, saves
       # committed to GitHub on main (which redeploys the site).
       MONGODB_URI: ${MONGODB_URI}
@@ -57,13 +53,9 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4002
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASS: ${SMTP_PASS}
-      IMAGEKIT_PUBLIC_KEY: ${IMAGEKIT_PUBLIC_KEY}
-      IMAGEKIT_PRIVATE_KEY: ${IMAGEKIT_PRIVATE_KEY}
-      IMAGEKIT_URL_ENDPOINT: ${IMAGEKIT_URL_ENDPOINTS}
+      # SMTP and ImageKit credentials are read from the database, where the
+      # portal manages them under Admin > Environment Variables.
+      MONGODB_URI: ${MONGODB_URI}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       GOOGLE_MAP_API: ${GOOGLE_MAP_API}
 

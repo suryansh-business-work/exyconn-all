@@ -1,25 +1,28 @@
 import ImageKit from "imagekit";
-import dotenv from "dotenv";
+import { getActiveImageConfig } from "./integration-config";
 
-dotenv.config();
+let cached: { key: string; client: ImageKit } | null = null;
 
-// Validate required environment variables
-const publicKey = process.env.IMAGEKIT_PUBLIC_KEY;
-const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
-const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT;
-
-if (!publicKey || !privateKey || !urlEndpoint) {
-  console.warn("⚠️ ImageKit environment variables not set. Image upload features will be disabled.");
-  console.warn("Required: IMAGEKIT_PUBLIC_KEY, IMAGEKIT_PRIVATE_KEY, IMAGEKIT_URL_ENDPOINT");
+/**
+ * Builds an ImageKit client from the provider account the portal marks active
+ * (managed at Admin > Environment Variables, stored in MongoDB — no ImageKit env
+ * vars here). The client is rebuilt whenever those credentials change.
+ */
+async function getClient(): Promise<ImageKit> {
+  const config = await getActiveImageConfig();
+  const key = `${config.publicKey}:${config.privateKey}:${config.urlEndpoint}`;
+  if (!cached || cached.key !== key) {
+    cached = {
+      key,
+      client: new ImageKit({
+        publicKey: config.publicKey,
+        privateKey: config.privateKey,
+        urlEndpoint: config.urlEndpoint,
+      }),
+    };
+  }
+  return cached.client;
 }
-
-const imagekit = publicKey && privateKey && urlEndpoint
-  ? new ImageKit({
-      publicKey,
-      privateKey,
-      urlEndpoint,
-    })
-  : null;
 
 export interface UploadResponse {
   success: boolean;
@@ -34,14 +37,8 @@ export async function uploadImage(
   fileName: string,
   folder: string = "/tools",
 ): Promise<UploadResponse> {
-  if (!imagekit) {
-    return {
-      success: false,
-      error: "ImageKit not configured. Missing environment variables.",
-    };
-  }
-
   try {
+    const imagekit = await getClient();
     const response = await imagekit.upload({
       file,
       fileName,
@@ -65,12 +62,8 @@ export async function uploadImage(
 }
 
 export async function deleteImage(fileId: string): Promise<boolean> {
-  if (!imagekit) {
-    console.error("ImageKit not configured");
-    return false;
-  }
-
   try {
+    const imagekit = await getClient();
     await imagekit.deleteFile(fileId);
     return true;
   } catch (error) {
@@ -79,15 +72,16 @@ export async function deleteImage(fileId: string): Promise<boolean> {
   }
 }
 
-export function getAuthenticationParameters() {
-  if (!imagekit) {
-    return { token: "", expire: 0, signature: "" };
-  }
+export async function getAuthenticationParameters() {
+  const imagekit = await getClient();
   return imagekit.getAuthenticationParameters();
 }
 
-export function isImageKitConfigured(): boolean {
-  return imagekit !== null;
+export async function isImageKitConfigured(): Promise<boolean> {
+  try {
+    await getClient();
+    return true;
+  } catch {
+    return false;
+  }
 }
-
-export default imagekit;
