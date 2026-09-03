@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider as MuiThemeProvider, type Theme } from '@/components/ui/styles';
-import { theme as defaultTheme } from '@/config/theme';
+import { ThemeProvider as MuiThemeProvider, type Theme } from '../styles';
+import { theme as defaultTheme } from '../theme';
 
 /**
  * The app itself bootstraps via src/theme/ColorModeContext.tsx (persisted

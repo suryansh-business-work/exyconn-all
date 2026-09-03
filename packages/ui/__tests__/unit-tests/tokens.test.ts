@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { spacing, radius, duration, fontWeight } from '../../src/components/ui/tokens/tokens';
+import { spacing, radius, duration, fontWeight } from '../../src/tokens/tokens';
 
 describe('tokens', () => {
   it('derives spacing from the 8px unit', () => {

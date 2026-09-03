@@ -1,9 +1,9 @@
 {
-  "name": "@exyconn/crud",
+  "name": "@exyconn/ui",
   "version": "1.1.0",
   "private": true,
   "type": "module",
-  "description": "Server-paged CRUD building blocks: ag-grid column factories, a paged fetcher, the create/edit/delete resource hook and the module dashboard that composes them.",
+  "description": "The Exyconn design system: every MUI primitive the portals, tools and tracker use, wrapped once, plus the theme. The only package allowed to import @mui/* directly.",
   "main": "./src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -14,15 +14,12 @@
   },
   "prettier": "@exyconn/config/prettier.json",
   "dependencies": {
-    "@apollo/client": "^3.12.5",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@exyconn/shell": "workspace:*",
-    "@exyconn/ui": "workspace:*",
-    "@mui/icons-material": "^6.4.0",
     "@mui/material": "^6.4.0",
-    "ag-grid-community": "^36.0.0",
-    "graphql": "^16.10.0",
+    "@mui/system": "^6.4.0",
+    "@mui/x-date-pickers": "^7.23.6",
+    "date-fns": "^3.6.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

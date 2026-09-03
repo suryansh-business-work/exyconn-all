@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box } from '@exyconn/ui';
 import ImageIcon from '@mui/icons-material/Image';
 
 const FRAME = {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { space } from '../../src/components/ui/spacing/spacing';
+import { space } from '../../src/spacing/spacing';
 
 describe('spacing', () => {
   it('derives named sizes from the 8px unit', () => {

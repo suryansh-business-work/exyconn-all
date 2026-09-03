@@ -8,7 +8,7 @@ import {
   LinearProgress,
   Stack,
   Typography,
-} from '@mui/material';
+} from '@exyconn/ui';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useUploadImageMutation } from '@/graphql/generated';

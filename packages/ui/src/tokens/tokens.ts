@@ -20,5 +20,5 @@ export const duration = { fast: 120, base: 200, slow: 320 } as const;
 
 export const easing = { standard: 'cubic-bezier(0.4, 0, 0.2, 1)' } as const;
 
-// MUST equal ui/src/config/theme.ts's fontWeightRegular/Medium/Bold.
+// MUST equal packages/ui/src/theme/createAppTheme.ts's fontWeightRegular/Medium/Bold.
 export const fontWeight = { regular: 400, medium: 600, bold: 800 } as const;

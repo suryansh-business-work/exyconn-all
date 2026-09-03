@@ -10,6 +10,7 @@ export const PORTAL_APPS = require("./apps.json");
 const packageUrl = (relative) =>
   fileURLToPath(new URL(relative, import.meta.url));
 
+const uiSrc = packageUrl("../ui/src");
 const shellSrc = packageUrl("../shell/src");
 const shellPublic = packageUrl("../shell/public");
 const loginSrc = packageUrl("../login/src");
@@ -76,7 +77,7 @@ function portalHtml(app) {
 /**
  * Vite + Vitest config shared by every portal micro-frontend, keyed by its entry in
  * the app registry. The workspace packages are consumed as source, so the aliases
- * below are what make `@exyconn/shell/...`, `@exyconn/crud/...`, `@exyconn/tabber/...` and
+ * below are what make `@exyconn/ui/...`, `@exyconn/shell/...`, `@exyconn/crud/...`, `@exyconn/tabber/...` and
  * the shell's own internal `@/...` resolve, and `dedupe` keeps React, MUI and Apollo
  * single instances across the app and the packages.
  */
@@ -99,6 +100,8 @@ export function portalViteConfig(app) {
         { find: /^@exyconn\/tabber$/, replacement: `${tabberSrc}/index.ts` },
         { find: /^@exyconn\/tabber\/(.*)$/, replacement: `${tabberSrc}/$1` },
         { find: /^@exyconn\/login$/, replacement: `${loginSrc}/index.ts` },
+        { find: /^@exyconn\/ui$/, replacement: `${uiSrc}/index.ts` },
+        { find: /^@exyconn\/ui\/(.*)$/, replacement: `${uiSrc}/$1` },
         { find: /^@\/(.*)$/, replacement: `${shellSrc}/$1` },
       ],
       dedupe: [
@@ -110,6 +113,8 @@ export function portalViteConfig(app) {
         "@emotion/styled",
         "@mui/material",
         "@mui/system",
+        "@mui/x-date-pickers",
+        "date-fns",
       ],
     },
     server: { port: entry.port, strictPort: true },

@@ -3,15 +3,40 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "paths": {
-      "@/*": ["../shell/src/*"],
-      "@exyconn/shell": ["../shell/src/index.ts"],
-      "@exyconn/shell/*": ["../shell/src/*"],
-      "@exyconn/login": ["../login/src/index.ts"],
-      "@exyconn/crud": ["../crud/src/index.ts"],
-      "@exyconn/crud/*": ["../crud/src/*"],
-      "@exyconn/tabber": ["../tabber/src/index.ts"],
-      "@exyconn/tabber/*": ["../tabber/src/*"]
+      "@exyconn/ui": [
+        "../ui/src/index.ts"
+      ],
+      "@exyconn/ui/*": [
+        "../ui/src/*"
+      ],
+      "@/*": [
+        "../shell/src/*"
+      ],
+      "@exyconn/shell": [
+        "../shell/src/index.ts"
+      ],
+      "@exyconn/shell/*": [
+        "../shell/src/*"
+      ],
+      "@exyconn/login": [
+        "../login/src/index.ts"
+      ],
+      "@exyconn/crud": [
+        "../crud/src/index.ts"
+      ],
+      "@exyconn/crud/*": [
+        "../crud/src/*"
+      ],
+      "@exyconn/tabber": [
+        "../tabber/src/index.ts"
+      ],
+      "@exyconn/tabber/*": [
+        "../tabber/src/*"
+      ]
     },
-    "types": ["vitest/globals", "@testing-library/jest-dom"]
+    "types": [
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ]
   }
 }

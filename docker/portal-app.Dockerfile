@@ -26,6 +26,7 @@ COPY packages/crud/package.json packages/crud/
 COPY packages/shell/package.json packages/shell/
 COPY packages/login/package.json packages/login/
 COPY packages/tabber/package.json packages/tabber/
+COPY packages/ui/package.json packages/ui/
 COPY exyconn-portal/package.json exyconn-portal/
 COPY exyconn-portal/server/package.json exyconn-portal/server/
 COPY exyconn-portal/ui/package.json exyconn-portal/ui/

@@ -2,8 +2,23 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] }
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@exyconn/ui": [
+        "../ui/src/index.ts"
+      ],
+      "@exyconn/ui/*": [
+        "../ui/src/*"
+      ]
+    }
   },
-  "include": ["src"],
-  "exclude": ["**/*.cy.ts", "**/*.cy.tsx"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "**/*.cy.ts",
+    "**/*.cy.tsx"
+  ]
 }

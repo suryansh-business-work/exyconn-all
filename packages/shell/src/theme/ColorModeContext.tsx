@@ -1,8 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { ThemeProvider } from '@/components/ui/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { createAppTheme, type ColorMode } from '@/config/theme';
+import { ThemeProvider, CssBaseline } from '@exyconn/ui/styles';
+import { createAppTheme, type ColorMode } from '@exyconn/ui/theme';
 
 const STORAGE_KEY = 'exyconn-track.color-mode';
 
