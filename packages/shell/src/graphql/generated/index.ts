@@ -1632,8 +1632,12 @@ export type MarkAttendanceInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
+  /** SUPPORT/ADMIN: reply on a ticket, or leave an internal note. */
+  addSupportReply: SupportReply;
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
+  /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
+  assignSupportTicket: SupportTicket;
   changePassword: Scalars['Boolean']['output'];
   clearRolePermission: Scalars['Boolean']['output'];
   createActivity: Activity;
@@ -1900,8 +1904,21 @@ export type Mutation = {
 };
 
 
+export type MutationAddSupportReplyArgs = {
+  body: Scalars['String']['input'];
+  internal: Scalars['Boolean']['input'];
+  ticketId: Scalars['ID']['input'];
+};
+
+
 export type MutationApplyLeaveArgs = {
   input: ApplyLeaveInput;
+};
+
+
+export type MutationAssignSupportTicketArgs = {
+  assigneeId: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -3630,6 +3647,10 @@ export type Query = {
   listStatusMonitors: Array<StatusMonitor>;
   listStatusMonitorsPaged: StatusMonitorPage;
   listStatusMonitorsStats: TableStats;
+  /** SUPPORT/ADMIN: who a ticket can be assigned to. */
+  listSupportAgents: Array<SupportAgent>;
+  /** SUPPORT/ADMIN: the whole thread on one ticket, internal notes included. */
+  listSupportReplies: Array<SupportReply>;
   /** SUPPORT/ADMIN: every employee support ticket, newest first. */
   listSupportTickets: Array<SupportTicket>;
   listTeams: Array<Team>;
@@ -4161,6 +4182,11 @@ export type QueryListStatusMonitorsPagedArgs = {
 };
 
 
+export type QueryListSupportRepliesArgs = {
+  ticketId: Scalars['ID']['input'];
+};
+
+
 export type QueryListTeamsPagedArgs = {
   input: TableQueryInput;
 };
@@ -4603,6 +4629,14 @@ export type SubmitProblemReportInput = {
   subject: Scalars['String']['input'];
 };
 
+/** Somebody the support team can hand a ticket to. */
+export type SupportAgent = {
+  __typename?: 'SupportAgent';
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
 export enum SupportCategory {
   Facilities = 'FACILITIES',
   Hr = 'HR',
@@ -4617,6 +4651,18 @@ export enum SupportPriority {
   Medium = 'MEDIUM'
 }
 
+/** One message on a ticket. Internal notes are hidden from the employee. */
+export type SupportReply = {
+  __typename?: 'SupportReply';
+  authorId: Scalars['String']['output'];
+  authorName: Scalars['String']['output'];
+  body: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  internal: Scalars['Boolean']['output'];
+  ticketId: Scalars['String']['output'];
+};
+
 export enum SupportStatus {
   Closed = 'CLOSED',
   InProgress = 'IN_PROGRESS',
@@ -4626,6 +4672,9 @@ export enum SupportStatus {
 
 export type SupportTicket = {
   __typename?: 'SupportTicket';
+  /** Support-team member who owns it. Empty until someone picks it up. */
+  assigneeId: Scalars['String']['output'];
+  assigneeName: Scalars['String']['output'];
   category: SupportCategory;
   createdAt: Scalars['DateTime']['output'];
   description: Scalars['String']['output'];
@@ -7151,7 +7200,7 @@ export type DeleteStatusMonitorMutation = { __typename?: 'Mutation', deleteStatu
 export type ListSupportTicketsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListSupportTicketsQuery = { __typename?: 'Query', listSupportTickets: Array<{ __typename?: 'SupportTicket', id: string, employeeName?: string | null, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, createdAt: string }> };
+export type ListSupportTicketsQuery = { __typename?: 'Query', listSupportTickets: Array<{ __typename?: 'SupportTicket', id: string, employeeName?: string | null, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, createdAt: string }> };
 
 export type SetSupportTicketStatusMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -7160,6 +7209,35 @@ export type SetSupportTicketStatusMutationVariables = Exact<{
 
 
 export type SetSupportTicketStatusMutation = { __typename?: 'Mutation', setSupportTicketStatus: { __typename?: 'SupportTicket', id: string, status: SupportStatus } };
+
+export type ListSupportRepliesQueryVariables = Exact<{
+  ticketId: Scalars['ID']['input'];
+}>;
+
+
+export type ListSupportRepliesQuery = { __typename?: 'Query', listSupportReplies: Array<{ __typename?: 'SupportReply', id: string, ticketId: string, authorId: string, authorName: string, body: string, internal: boolean, createdAt: string }> };
+
+export type ListSupportAgentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListSupportAgentsQuery = { __typename?: 'Query', listSupportAgents: Array<{ __typename?: 'SupportAgent', id: string, name: string, email: string }> };
+
+export type AssignSupportTicketMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  assigneeId: Scalars['String']['input'];
+}>;
+
+
+export type AssignSupportTicketMutation = { __typename?: 'Mutation', assignSupportTicket: { __typename?: 'SupportTicket', id: string, assigneeId: string, assigneeName: string } };
+
+export type AddSupportReplyMutationVariables = Exact<{
+  ticketId: Scalars['ID']['input'];
+  body: Scalars['String']['input'];
+  internal: Scalars['Boolean']['input'];
+}>;
+
+
+export type AddSupportReplyMutation = { __typename?: 'Mutation', addSupportReply: { __typename?: 'SupportReply', id: string } };
 
 export type ListEmailConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -20172,6 +20250,8 @@ export const ListSupportTicketsDocument = gql`
     description
     priority
     status
+    assigneeId
+    assigneeName
     createdAt
   }
 }
@@ -20246,6 +20326,170 @@ export function useSetSupportTicketStatusMutation(baseOptions?: Apollo.MutationH
 export type SetSupportTicketStatusMutationHookResult = ReturnType<typeof useSetSupportTicketStatusMutation>;
 export type SetSupportTicketStatusMutationResult = Apollo.MutationResult<SetSupportTicketStatusMutation>;
 export type SetSupportTicketStatusMutationOptions = Apollo.BaseMutationOptions<SetSupportTicketStatusMutation, SetSupportTicketStatusMutationVariables>;
+export const ListSupportRepliesDocument = gql`
+    query ListSupportReplies($ticketId: ID!) {
+  listSupportReplies(ticketId: $ticketId) {
+    id
+    ticketId
+    authorId
+    authorName
+    body
+    internal
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useListSupportRepliesQuery__
+ *
+ * To run a query within a React component, call `useListSupportRepliesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListSupportRepliesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListSupportRepliesQuery({
+ *   variables: {
+ *      ticketId: // value for 'ticketId'
+ *   },
+ * });
+ */
+export function useListSupportRepliesQuery(baseOptions: Apollo.QueryHookOptions<ListSupportRepliesQuery, ListSupportRepliesQueryVariables> & ({ variables: ListSupportRepliesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListSupportRepliesQuery, ListSupportRepliesQueryVariables>(ListSupportRepliesDocument, options);
+      }
+export function useListSupportRepliesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListSupportRepliesQuery, ListSupportRepliesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListSupportRepliesQuery, ListSupportRepliesQueryVariables>(ListSupportRepliesDocument, options);
+        }
+// @ts-ignore
+export function useListSupportRepliesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListSupportRepliesQuery, ListSupportRepliesQueryVariables>): Apollo.UseSuspenseQueryResult<ListSupportRepliesQuery, ListSupportRepliesQueryVariables>;
+export function useListSupportRepliesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSupportRepliesQuery, ListSupportRepliesQueryVariables>): Apollo.UseSuspenseQueryResult<ListSupportRepliesQuery | undefined, ListSupportRepliesQueryVariables>;
+export function useListSupportRepliesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSupportRepliesQuery, ListSupportRepliesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListSupportRepliesQuery, ListSupportRepliesQueryVariables>(ListSupportRepliesDocument, options);
+        }
+export type ListSupportRepliesQueryHookResult = ReturnType<typeof useListSupportRepliesQuery>;
+export type ListSupportRepliesLazyQueryHookResult = ReturnType<typeof useListSupportRepliesLazyQuery>;
+export type ListSupportRepliesSuspenseQueryHookResult = ReturnType<typeof useListSupportRepliesSuspenseQuery>;
+export type ListSupportRepliesQueryResult = Apollo.QueryResult<ListSupportRepliesQuery, ListSupportRepliesQueryVariables>;
+export const ListSupportAgentsDocument = gql`
+    query ListSupportAgents {
+  listSupportAgents {
+    id
+    name
+    email
+  }
+}
+    `;
+
+/**
+ * __useListSupportAgentsQuery__
+ *
+ * To run a query within a React component, call `useListSupportAgentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListSupportAgentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListSupportAgentsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListSupportAgentsQuery(baseOptions?: Apollo.QueryHookOptions<ListSupportAgentsQuery, ListSupportAgentsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListSupportAgentsQuery, ListSupportAgentsQueryVariables>(ListSupportAgentsDocument, options);
+      }
+export function useListSupportAgentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListSupportAgentsQuery, ListSupportAgentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListSupportAgentsQuery, ListSupportAgentsQueryVariables>(ListSupportAgentsDocument, options);
+        }
+// @ts-ignore
+export function useListSupportAgentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListSupportAgentsQuery, ListSupportAgentsQueryVariables>): Apollo.UseSuspenseQueryResult<ListSupportAgentsQuery, ListSupportAgentsQueryVariables>;
+export function useListSupportAgentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSupportAgentsQuery, ListSupportAgentsQueryVariables>): Apollo.UseSuspenseQueryResult<ListSupportAgentsQuery | undefined, ListSupportAgentsQueryVariables>;
+export function useListSupportAgentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSupportAgentsQuery, ListSupportAgentsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListSupportAgentsQuery, ListSupportAgentsQueryVariables>(ListSupportAgentsDocument, options);
+        }
+export type ListSupportAgentsQueryHookResult = ReturnType<typeof useListSupportAgentsQuery>;
+export type ListSupportAgentsLazyQueryHookResult = ReturnType<typeof useListSupportAgentsLazyQuery>;
+export type ListSupportAgentsSuspenseQueryHookResult = ReturnType<typeof useListSupportAgentsSuspenseQuery>;
+export type ListSupportAgentsQueryResult = Apollo.QueryResult<ListSupportAgentsQuery, ListSupportAgentsQueryVariables>;
+export const AssignSupportTicketDocument = gql`
+    mutation AssignSupportTicket($id: ID!, $assigneeId: String!) {
+  assignSupportTicket(id: $id, assigneeId: $assigneeId) {
+    id
+    assigneeId
+    assigneeName
+  }
+}
+    `;
+export type AssignSupportTicketMutationFn = Apollo.MutationFunction<AssignSupportTicketMutation, AssignSupportTicketMutationVariables>;
+
+/**
+ * __useAssignSupportTicketMutation__
+ *
+ * To run a mutation, you first call `useAssignSupportTicketMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAssignSupportTicketMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [assignSupportTicketMutation, { data, loading, error }] = useAssignSupportTicketMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      assigneeId: // value for 'assigneeId'
+ *   },
+ * });
+ */
+export function useAssignSupportTicketMutation(baseOptions?: Apollo.MutationHookOptions<AssignSupportTicketMutation, AssignSupportTicketMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AssignSupportTicketMutation, AssignSupportTicketMutationVariables>(AssignSupportTicketDocument, options);
+      }
+export type AssignSupportTicketMutationHookResult = ReturnType<typeof useAssignSupportTicketMutation>;
+export type AssignSupportTicketMutationResult = Apollo.MutationResult<AssignSupportTicketMutation>;
+export type AssignSupportTicketMutationOptions = Apollo.BaseMutationOptions<AssignSupportTicketMutation, AssignSupportTicketMutationVariables>;
+export const AddSupportReplyDocument = gql`
+    mutation AddSupportReply($ticketId: ID!, $body: String!, $internal: Boolean!) {
+  addSupportReply(ticketId: $ticketId, body: $body, internal: $internal) {
+    id
+  }
+}
+    `;
+export type AddSupportReplyMutationFn = Apollo.MutationFunction<AddSupportReplyMutation, AddSupportReplyMutationVariables>;
+
+/**
+ * __useAddSupportReplyMutation__
+ *
+ * To run a mutation, you first call `useAddSupportReplyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddSupportReplyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addSupportReplyMutation, { data, loading, error }] = useAddSupportReplyMutation({
+ *   variables: {
+ *      ticketId: // value for 'ticketId'
+ *      body: // value for 'body'
+ *      internal: // value for 'internal'
+ *   },
+ * });
+ */
+export function useAddSupportReplyMutation(baseOptions?: Apollo.MutationHookOptions<AddSupportReplyMutation, AddSupportReplyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddSupportReplyMutation, AddSupportReplyMutationVariables>(AddSupportReplyDocument, options);
+      }
+export type AddSupportReplyMutationHookResult = ReturnType<typeof useAddSupportReplyMutation>;
+export type AddSupportReplyMutationResult = Apollo.MutationResult<AddSupportReplyMutation>;
+export type AddSupportReplyMutationOptions = Apollo.BaseMutationOptions<AddSupportReplyMutation, AddSupportReplyMutationVariables>;
 export const ListEmailConfigsDocument = gql`
     query ListEmailConfigs {
   listEmailConfigs {

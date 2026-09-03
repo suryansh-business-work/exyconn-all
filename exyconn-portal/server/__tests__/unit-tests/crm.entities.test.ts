@@ -22,6 +22,13 @@ const deal = {
 };
 
 describe('CRM accounts, contacts and deals', () => {
+  // Mongoose builds indexes in the background after connecting, so the unique
+  // index on `domain` is not necessarily there when the first test runs. `init()`
+  // resolves once it is — without this the duplicate simply saves.
+  beforeAll(async () => {
+    await CompanyModel.init();
+  });
+
   it('refuses a second company on the same domain', async () => {
     await companiesService.create(company);
 

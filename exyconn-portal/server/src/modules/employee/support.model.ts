@@ -16,6 +16,13 @@ const supportTicketSchema = new Schema(
     description: { type: String, required: true, trim: true },
     priority: { type: String, enum: SUPPORT_PRIORITIES, required: true, default: 'MEDIUM' },
     status: { type: String, enum: SUPPORT_STATUSES, required: true, default: 'OPEN' },
+    /**
+     * Who on the support team owns it. Empty means nobody has picked it up, which
+     * is the queue the console leads with. The name is stored with the id so a
+     * ticket row reads without joining the user collection.
+     */
+    assigneeId: { type: String, default: '', trim: true },
+    assigneeName: { type: String, default: '', trim: true },
   },
   { timestamps: true },
 );

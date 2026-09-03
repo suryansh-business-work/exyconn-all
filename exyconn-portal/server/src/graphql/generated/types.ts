@@ -1632,8 +1632,12 @@ export type MarkAttendanceInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
+  /** SUPPORT/ADMIN: reply on a ticket, or leave an internal note. */
+  addSupportReply: SupportReply;
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
+  /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
+  assignSupportTicket: SupportTicket;
   changePassword: Scalars['Boolean']['output'];
   clearRolePermission: Scalars['Boolean']['output'];
   createActivity: Activity;
@@ -1900,8 +1904,21 @@ export type Mutation = {
 };
 
 
+export type MutationAddSupportReplyArgs = {
+  body: Scalars['String']['input'];
+  internal: Scalars['Boolean']['input'];
+  ticketId: Scalars['ID']['input'];
+};
+
+
 export type MutationApplyLeaveArgs = {
   input: ApplyLeaveInput;
+};
+
+
+export type MutationAssignSupportTicketArgs = {
+  assigneeId: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -3630,6 +3647,10 @@ export type Query = {
   listStatusMonitors: Array<StatusMonitor>;
   listStatusMonitorsPaged: StatusMonitorPage;
   listStatusMonitorsStats: TableStats;
+  /** SUPPORT/ADMIN: who a ticket can be assigned to. */
+  listSupportAgents: Array<SupportAgent>;
+  /** SUPPORT/ADMIN: the whole thread on one ticket, internal notes included. */
+  listSupportReplies: Array<SupportReply>;
   /** SUPPORT/ADMIN: every employee support ticket, newest first. */
   listSupportTickets: Array<SupportTicket>;
   listTeams: Array<Team>;
@@ -4161,6 +4182,11 @@ export type QueryListStatusMonitorsPagedArgs = {
 };
 
 
+export type QueryListSupportRepliesArgs = {
+  ticketId: Scalars['ID']['input'];
+};
+
+
 export type QueryListTeamsPagedArgs = {
   input: TableQueryInput;
 };
@@ -4603,6 +4629,14 @@ export type SubmitProblemReportInput = {
   subject: Scalars['String']['input'];
 };
 
+/** Somebody the support team can hand a ticket to. */
+export type SupportAgent = {
+  __typename?: 'SupportAgent';
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
 export enum SupportCategory {
   Facilities = 'FACILITIES',
   Hr = 'HR',
@@ -4617,6 +4651,18 @@ export enum SupportPriority {
   Medium = 'MEDIUM'
 }
 
+/** One message on a ticket. Internal notes are hidden from the employee. */
+export type SupportReply = {
+  __typename?: 'SupportReply';
+  authorId: Scalars['String']['output'];
+  authorName: Scalars['String']['output'];
+  body: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  internal: Scalars['Boolean']['output'];
+  ticketId: Scalars['String']['output'];
+};
+
 export enum SupportStatus {
   Closed = 'CLOSED',
   InProgress = 'IN_PROGRESS',
@@ -4626,6 +4672,9 @@ export enum SupportStatus {
 
 export type SupportTicket = {
   __typename?: 'SupportTicket';
+  /** Support-team member who owns it. Empty until someone picks it up. */
+  assigneeId: Scalars['String']['output'];
+  assigneeName: Scalars['String']['output'];
   category: SupportCategory;
   createdAt: Scalars['DateTime']['output'];
   description: Scalars['String']['output'];
@@ -5471,8 +5520,10 @@ export type ResolversTypes = ResolversObject<{
   StatusState: StatusState;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   SubmitProblemReportInput: SubmitProblemReportInput;
+  SupportAgent: ResolverTypeWrapper<SupportAgent>;
   SupportCategory: SupportCategory;
   SupportPriority: SupportPriority;
+  SupportReply: ResolverTypeWrapper<SupportReply>;
   SupportStatus: SupportStatus;
   SupportTicket: ResolverTypeWrapper<SupportTicket>;
   SupportTicketInput: SupportTicketInput;
@@ -5714,6 +5765,8 @@ export type ResolversParentTypes = ResolversObject<{
   StatusServiceSummary: StatusServiceSummary;
   String: Scalars['String']['output'];
   SubmitProblemReportInput: SubmitProblemReportInput;
+  SupportAgent: SupportAgent;
+  SupportReply: SupportReply;
   SupportTicket: SupportTicket;
   SupportTicketInput: SupportTicketInput;
   TableFilterInput: TableFilterInput;
@@ -6640,7 +6693,9 @@ export type LoginPageResolvers<ContextType = GraphQLContext, ParentType extends 
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  addSupportReply?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationAddSupportReplyArgs, 'body' | 'internal' | 'ticketId'>>;
   applyLeave?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationApplyLeaveArgs, 'input'>>;
+  assignSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationAssignSupportTicketArgs, 'assigneeId' | 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
   createActivity?: Resolver<ResolversTypes['Activity'], ParentType, ContextType, RequireFields<MutationCreateActivityArgs, 'input'>>;
@@ -7233,6 +7288,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listStatusMonitors?: Resolver<Array<ResolversTypes['StatusMonitor']>, ParentType, ContextType>;
   listStatusMonitorsPaged?: Resolver<ResolversTypes['StatusMonitorPage'], ParentType, ContextType, RequireFields<QueryListStatusMonitorsPagedArgs, 'input'>>;
   listStatusMonitorsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listSupportAgents?: Resolver<Array<ResolversTypes['SupportAgent']>, ParentType, ContextType>;
+  listSupportReplies?: Resolver<Array<ResolversTypes['SupportReply']>, ParentType, ContextType, RequireFields<QueryListSupportRepliesArgs, 'ticketId'>>;
   listSupportTickets?: Resolver<Array<ResolversTypes['SupportTicket']>, ParentType, ContextType>;
   listTeams?: Resolver<Array<ResolversTypes['Team']>, ParentType, ContextType>;
   listTeamsPaged?: Resolver<ResolversTypes['TeamPage'], ParentType, ContextType, RequireFields<QueryListTeamsPagedArgs, 'input'>>;
@@ -7490,7 +7547,27 @@ export type StatusServiceSummaryResolvers<ContextType = GraphQLContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type SupportAgentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SupportAgent'] = ResolversParentTypes['SupportAgent']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SupportReplyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SupportReply'] = ResolversParentTypes['SupportReply']> = ResolversObject<{
+  authorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  authorName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  internal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  ticketId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type SupportTicketResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SupportTicket'] = ResolversParentTypes['SupportTicket']> = ResolversObject<{
+  assigneeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  assigneeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   category?: Resolver<ResolversTypes['SupportCategory'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -7933,6 +8010,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   StatusMonitorPage?: StatusMonitorPageResolvers<ContextType>;
   StatusOverview?: StatusOverviewResolvers<ContextType>;
   StatusServiceSummary?: StatusServiceSummaryResolvers<ContextType>;
+  SupportAgent?: SupportAgentResolvers<ContextType>;
+  SupportReply?: SupportReplyResolvers<ContextType>;
   SupportTicket?: SupportTicketResolvers<ContextType>;
   TableStats?: TableStatsResolvers<ContextType>;
   Task?: TaskResolvers<ContextType>;
