@@ -16,6 +16,7 @@ export const ROLES = {
   AI: 'AI',
   WEBSITE: 'WEBSITE',
   TRACKER: 'TRACKER',
+  TECH: 'TECH',
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];

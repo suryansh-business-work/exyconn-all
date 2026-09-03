@@ -2,7 +2,9 @@ name: Tracker Release
 
 # Builds the Exyconn Tracker desktop installers for Windows (.exe), macOS (.dmg) and
 # Linux (.AppImage), publishes them on a GitHub Release tagged tracker-v<version>, and
-# uploads the three files to Slack. Runs when tracker code lands on main, or by hand.
+# uploads the files to Slack. Runs when tracker code lands on main, and on demand
+# from the portal's Tech > Tracker Build screen, which chooses the platforms and the
+# Slack channels.
 on:
   push:
     branches: [main]
@@ -11,31 +13,56 @@ on:
       - '.github/workflows/tracker-release.yml'
       - '.github/scripts/slack-upload-files.sh'
   workflow_dispatch:
+    inputs:
+      platforms:
+        description: 'Installers to build, comma-separated: windows, macos, linux'
+        required: false
+        default: 'windows,macos,linux'
+      slack_channels:
+        description: 'Slack channel ids to post the installers to, comma-separated'
+        required: false
+        default: ''
 
 concurrency:
   group: tracker-release
   cancel-in-progress: true
 
 jobs:
+  # A push builds everything; a dispatch builds only what was asked for. The matrix
+  # is computed here rather than filtered per job, so a platform that was not chosen
+  # never shows up as a skipped job in the run.
+  plan:
+    name: Plan builds
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.pick.outputs.matrix }}
+    steps:
+      - id: pick
+        env:
+          PLATFORMS: ${{ github.event_name == 'workflow_dispatch' && inputs.platforms || 'windows,macos,linux' }}
+        run: |
+          all='[
+            {"os":"windows-latest","key":"windows","label":"Windows","script":"package:win","glob":"*.exe"},
+            {"os":"macos-latest","key":"macos","label":"macOS","script":"package:mac","glob":"*.dmg"},
+            {"os":"ubuntu-latest","key":"linux","label":"Linux","script":"package:linux","glob":"*.AppImage"}
+          ]'
+          chosen=$(jq -c --arg want "$PLATFORMS" \
+            '[.[] | select(($want | split(",") | map(gsub("^\\s+|\\s+$";"")) ) | index(.key))]' <<<"$all")
+          if [ "$(jq 'length' <<<"$chosen")" -eq 0 ]; then
+            echo "::error::No known platform in \"$PLATFORMS\" — expected windows, macos or linux."
+            exit 1
+          fi
+          echo "matrix=$chosen" >> "$GITHUB_OUTPUT"
+          echo "Building: $(jq -r '[.[].label] | join(", ")' <<<"$chosen")"
+
   build:
     name: Build ${{ matrix.label }}
+    needs: plan
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: windows-latest
-            label: Windows
-            script: package:win
-            glob: '*.exe'
-          - os: macos-latest
-            label: macOS
-            script: package:mac
-            glob: '*.dmg'
-          - os: ubuntu-latest
-            label: Linux
-            script: package:linux
-            glob: '*.AppImage'
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
     env:
       # No Apple Developer ID in CI yet — ship the DMG unsigned instead of failing the build.
       CSC_IDENTITY_AUTO_DISCOVERY: false
@@ -59,7 +86,7 @@ jobs:
 
   release:
     name: Publish release & post to Slack
-    needs: build
+    needs: [plan, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -86,24 +113,29 @@ jobs:
       # Until those secrets exist the release itself still succeeds — the installers
       # are on the GitHub Release either way, so a missing notification is a notice,
       # not a failed release.
+      # Posting to Slack needs a bot token (an incoming webhook cannot carry files).
+      # A dispatch from the portal names its own channels; a push falls back to the
+      # repository default. Until both are set the release itself still succeeds —
+      # the installers are on the GitHub Release either way, so a missing
+      # notification is a notice, not a failed release.
       - name: Check Slack credentials
         id: slack
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          CHANNELS: ${{ inputs.slack_channels || secrets.SLACK_CHANNEL_ID }}
         run: |
-          if [ -n "$SLACK_BOT_TOKEN" ] && [ -n "$SLACK_CHANNEL_ID" ]; then
+          if [ -n "$SLACK_BOT_TOKEN" ] && [ -n "$CHANNELS" ]; then
             echo "configured=true" >> "$GITHUB_OUTPUT"
           else
             echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping the Slack upload — set SLACK_BOT_TOKEN (scopes files:write, chat:write) and SLACK_CHANNEL_ID, and invite the bot to the channel."
+            echo "::notice::Skipping the Slack upload — set SLACK_BOT_TOKEN (scopes files:write, chat:write) and either SLACK_CHANNEL_ID or the channels in Tech > Settings, and invite the bot to them."
           fi
       - name: Upload installers to Slack
         if: steps.slack.outputs.configured == 'true'
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          SLACK_CHANNEL_IDS: ${{ inputs.slack_channels || secrets.SLACK_CHANNEL_ID }}
           SLACK_MESSAGE: |
-            :rocket: *Exyconn Tracker ${{ steps.app.outputs.version }}* is out — Windows, macOS and Linux installers attached.
+            :rocket: *Exyconn Tracker ${{ steps.app.outputs.version }}* is out — installers attached.
             Release: ${{ steps.gh_release.outputs.url }}
         run: .github/scripts/slack-upload-files.sh installers/*

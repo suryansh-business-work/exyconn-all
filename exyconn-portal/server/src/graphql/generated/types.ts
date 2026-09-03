@@ -853,6 +853,26 @@ export type GigPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type GithubConfig = {
+  __typename?: 'GithubConfig';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  owner: Scalars['String']['output'];
+  repo: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type GithubConfigInput = {
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  owner: Scalars['String']['input'];
+  repo: Scalars['String']['input'];
+  token: Scalars['String']['input'];
+};
+
 export type Goal = {
   __typename?: 'Goal';
   createdAt: Scalars['DateTime']['output'];
@@ -1363,6 +1383,7 @@ export type Mutation = {
   createExitRecord: ExitRecord;
   createExpenseClaim: ExpenseClaim;
   createGig: Gig;
+  createGithubConfig: GithubConfig;
   createGoal: Goal;
   createGrade: Grade;
   createHoliday: Holiday;
@@ -1423,6 +1444,7 @@ export type Mutation = {
   deleteExitRecord: Scalars['Boolean']['output'];
   deleteExpenseClaim: Scalars['Boolean']['output'];
   deleteGig: Scalars['Boolean']['output'];
+  deleteGithubConfig: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
   deleteGrade: Scalars['Boolean']['output'];
   deleteHoliday: Scalars['Boolean']['output'];
@@ -1473,6 +1495,7 @@ export type Mutation = {
    * recomputes GENERATED slips and never touches PAID ones.
    */
   runPayroll: PayrollRunResult;
+  saveTrackerBuildSettings: TrackerBuildSettings;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
    * configured admin account to that configured address. A no-op once any ADMIN
@@ -1500,11 +1523,14 @@ export type Mutation = {
   setUserActive: User;
   setUserBlocked: User;
   signContract: Contract;
+  /** Asks GitHub to build the chosen installers off the given branch. */
+  startTrackerBuild: Scalars['Boolean']['output'];
   /**
    * The employee's own half of the appraisal. Allowed only while the cycle is
    * still OPEN, and it never touches the manager's assessment or the rating.
    */
   submitSelfAssessment: PerformanceReview;
+  testGithubConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
   trackerAcceptConsent: Scalars['Boolean']['output'];
   trackerHeartbeat: Scalars['Boolean']['output'];
@@ -1534,6 +1560,7 @@ export type Mutation = {
   updateExitRecord: ExitRecord;
   updateExpenseClaim: ExpenseClaim;
   updateGig: Gig;
+  updateGithubConfig: GithubConfig;
   updateGoal: Goal;
   updateGrade: Grade;
   updateHoliday: Holiday;
@@ -1682,6 +1709,11 @@ export type MutationCreateExpenseClaimArgs = {
 
 export type MutationCreateGigArgs = {
   input: GigInput;
+};
+
+
+export type MutationCreateGithubConfigArgs = {
+  input: GithubConfigInput;
 };
 
 
@@ -1938,6 +1970,11 @@ export type MutationDeleteGigArgs = {
 };
 
 
+export type MutationDeleteGithubConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteGoalArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2150,6 +2187,11 @@ export type MutationRunPayrollArgs = {
 };
 
 
+export type MutationSaveTrackerBuildSettingsArgs = {
+  slackChannels: Array<Scalars['String']['input']>;
+};
+
+
 export type MutationSendCampaignArgs = {
   clientIds: Array<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
@@ -2224,9 +2266,20 @@ export type MutationSignContractArgs = {
 };
 
 
+export type MutationStartTrackerBuildArgs = {
+  platforms: Array<TrackerPlatform>;
+  ref: Scalars['String']['input'];
+};
+
+
 export type MutationSubmitSelfAssessmentArgs = {
   id: Scalars['ID']['input'];
   text: Scalars['String']['input'];
+};
+
+
+export type MutationTestGithubConnectionArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -2381,6 +2434,12 @@ export type MutationUpdateExpenseClaimArgs = {
 export type MutationUpdateGigArgs = {
   id: Scalars['ID']['input'];
   input: GigInput;
+};
+
+
+export type MutationUpdateGithubConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: GithubConfigInput;
 };
 
 
@@ -2980,6 +3039,7 @@ export type Query = {
   listGigs: Array<Gig>;
   listGigsPaged: GigPage;
   listGigsStats: TableStats;
+  listGithubConfigs: Array<GithubConfig>;
   listGoals: Array<Goal>;
   listGoalsPaged: GoalPage;
   listGoalsStats: TableStats;
@@ -3045,6 +3105,8 @@ export type Query = {
   listShifts: Array<Shift>;
   listShiftsPaged: ShiftPage;
   listShiftsStats: TableStats;
+  /** Every channel the active Slack bot token can see. */
+  listSlackChannels: Array<SlackChannel>;
   listSlackConfigs: Array<SlackConfig>;
   /** SUPPORT/ADMIN: every employee support ticket, newest first. */
   listSupportTickets: Array<SupportTicket>;
@@ -3055,6 +3117,7 @@ export type Query = {
   listTools: Array<Tool>;
   listToolsPaged: ToolPage;
   listToolsStats: TableStats;
+  listTrackerBuilds: Array<TrackerBuild>;
   listTrainings: Array<Training>;
   listTrainingsPaged: TrainingPage;
   listTrainingsStats: TableStats;
@@ -3109,6 +3172,7 @@ export type Query = {
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
   trackerAccessList: Array<TrackerAccess>;
+  trackerBuildSettings: TrackerBuildSettings;
   trackerCalendar: Array<TrackerDayBucket>;
   trackerDay: TrackerDay;
   trackerDevices: Array<TrackerDevice>;
@@ -3646,6 +3710,7 @@ export enum Role {
   Products = 'PRODUCTS',
   Projects = 'PROJECTS',
   Support = 'SUPPORT',
+  Tech = 'TECH',
   Tracker = 'TRACKER',
   Website = 'WEBSITE'
 }
@@ -3762,6 +3827,14 @@ export type ShiftPage = {
   __typename?: 'ShiftPage';
   rows: Array<Shift>;
   totalCount: Scalars['Int']['output'];
+};
+
+export type SlackChannel = {
+  __typename?: 'SlackChannel';
+  id: Scalars['String']['output'];
+  isMember: Scalars['Boolean']['output'];
+  isPrivate: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type SlackConfig = {
@@ -4027,6 +4100,24 @@ export type TrackerAppUsage = {
   durationMs: Scalars['Float']['output'];
 };
 
+/** One run of the tracker build workflow. */
+export type TrackerBuild = {
+  __typename?: 'TrackerBuild';
+  branch: Scalars['String']['output'];
+  /** success, failure, cancelled — null until the run completes. */
+  conclusion?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  startedAt: Scalars['DateTime']['output'];
+  /** queued, in_progress or completed. */
+  status: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type TrackerBuildSettings = {
+  __typename?: 'TrackerBuildSettings';
+  slackChannels: Array<Scalars['String']['output']>;
+};
+
 export type TrackerDay = {
   __typename?: 'TrackerDay';
   appUsage: Array<TrackerAppUsage>;
@@ -4130,6 +4221,13 @@ export type TrackerMe = {
   timezone: Scalars['String']['output'];
   user: User;
 };
+
+/** The installers a build can produce. */
+export enum TrackerPlatform {
+  Linux = 'LINUX',
+  Macos = 'MACOS',
+  Windows = 'WINDOWS'
+}
 
 export type TrackerScreenshot = {
   __typename?: 'TrackerScreenshot';
@@ -4502,6 +4600,8 @@ export type ResolversTypes = ResolversObject<{
   Gig: ResolverTypeWrapper<Gig>;
   GigInput: GigInput;
   GigPage: ResolverTypeWrapper<GigPage>;
+  GithubConfig: ResolverTypeWrapper<GithubConfig>;
+  GithubConfigInput: GithubConfigInput;
   Goal: ResolverTypeWrapper<Goal>;
   GoalInput: GoalInput;
   GoalPage: ResolverTypeWrapper<GoalPage>;
@@ -4600,6 +4700,7 @@ export type ResolversTypes = ResolversObject<{
   Shift: ResolverTypeWrapper<Shift>;
   ShiftInput: ShiftInput;
   ShiftPage: ResolverTypeWrapper<ShiftPage>;
+  SlackChannel: ResolverTypeWrapper<SlackChannel>;
   SlackConfig: ResolverTypeWrapper<SlackConfig>;
   SlackConfigInput: SlackConfigInput;
   SlipStatus: SlipStatus;
@@ -4630,6 +4731,8 @@ export type ResolversTypes = ResolversObject<{
   ToolPricingInput: ToolPricingInput;
   TrackerAccess: ResolverTypeWrapper<TrackerAccess>;
   TrackerAppUsage: ResolverTypeWrapper<TrackerAppUsage>;
+  TrackerBuild: ResolverTypeWrapper<TrackerBuild>;
+  TrackerBuildSettings: ResolverTypeWrapper<TrackerBuildSettings>;
   TrackerDay: ResolverTypeWrapper<TrackerDay>;
   TrackerDayBucket: ResolverTypeWrapper<TrackerDayBucket>;
   TrackerDevice: ResolverTypeWrapper<TrackerDevice>;
@@ -4638,6 +4741,7 @@ export type ResolversTypes = ResolversObject<{
   TrackerIntervalInput: TrackerIntervalInput;
   TrackerLoginPayload: ResolverTypeWrapper<TrackerLoginPayload>;
   TrackerMe: ResolverTypeWrapper<TrackerMe>;
+  TrackerPlatform: TrackerPlatform;
   TrackerScreenshot: ResolverTypeWrapper<TrackerScreenshot>;
   TrackerScreenshotInput: TrackerScreenshotInput;
   TrackerSession: ResolverTypeWrapper<TrackerSession>;
@@ -4729,6 +4833,8 @@ export type ResolversParentTypes = ResolversObject<{
   Gig: Gig;
   GigInput: GigInput;
   GigPage: GigPage;
+  GithubConfig: GithubConfig;
+  GithubConfigInput: GithubConfigInput;
   Goal: Goal;
   GoalInput: GoalInput;
   GoalPage: GoalPage;
@@ -4809,6 +4915,7 @@ export type ResolversParentTypes = ResolversObject<{
   Shift: Shift;
   ShiftInput: ShiftInput;
   ShiftPage: ShiftPage;
+  SlackChannel: SlackChannel;
   SlackConfig: SlackConfig;
   SlackConfigInput: SlackConfigInput;
   StatBucket: StatBucket;
@@ -4834,6 +4941,8 @@ export type ResolversParentTypes = ResolversObject<{
   ToolPricingInput: ToolPricingInput;
   TrackerAccess: TrackerAccess;
   TrackerAppUsage: TrackerAppUsage;
+  TrackerBuild: TrackerBuild;
+  TrackerBuildSettings: TrackerBuildSettings;
   TrackerDay: TrackerDay;
   TrackerDayBucket: TrackerDayBucket;
   TrackerDevice: TrackerDevice;
@@ -5307,6 +5416,18 @@ export type GigPageResolvers<ContextType = GraphQLContext, ParentType extends Re
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type GithubConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GithubConfig'] = ResolversParentTypes['GithubConfig']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  repo?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type GoalResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Goal'] = ResolversParentTypes['Goal']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -5614,6 +5735,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createExitRecord?: Resolver<ResolversTypes['ExitRecord'], ParentType, ContextType, RequireFields<MutationCreateExitRecordArgs, 'input'>>;
   createExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationCreateExpenseClaimArgs, 'input'>>;
   createGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<MutationCreateGigArgs, 'input'>>;
+  createGithubConfig?: Resolver<ResolversTypes['GithubConfig'], ParentType, ContextType, RequireFields<MutationCreateGithubConfigArgs, 'input'>>;
   createGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCreateGoalArgs, 'input'>>;
   createGrade?: Resolver<ResolversTypes['Grade'], ParentType, ContextType, RequireFields<MutationCreateGradeArgs, 'input'>>;
   createHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<MutationCreateHolidayArgs, 'input'>>;
@@ -5664,6 +5786,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteExitRecord?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteExitRecordArgs, 'id'>>;
   deleteExpenseClaim?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteExpenseClaimArgs, 'id'>>;
   deleteGig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGigArgs, 'id'>>;
+  deleteGithubConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGithubConfigArgs, 'id'>>;
   deleteGoal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGoalArgs, 'id'>>;
   deleteGrade?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGradeArgs, 'id'>>;
   deleteHoliday?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteHolidayArgs, 'id'>>;
@@ -5706,6 +5829,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   revokeTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationRevokeTrackerAccessArgs, 'userId'>>;
   revokeTrackerDevice?: Resolver<ResolversTypes['TrackerDevice'], ParentType, ContextType, RequireFields<MutationRevokeTrackerDeviceArgs, 'deviceId'>>;
   runPayroll?: Resolver<ResolversTypes['PayrollRunResult'], ParentType, ContextType, RequireFields<MutationRunPayrollArgs, 'month' | 'year'>>;
+  saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'clientIds' | 'id'>>;
   sendContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSendContractArgs, 'email' | 'id'>>;
@@ -5719,7 +5843,9 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setUserActive?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserActiveArgs, 'id' | 'isActive'>>;
   setUserBlocked?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserBlockedArgs, 'id' | 'isBlocked'>>;
   signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id' | 'signedBy'>>;
+  startTrackerBuild?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationStartTrackerBuildArgs, 'platforms' | 'ref'>>;
   submitSelfAssessment?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationSubmitSelfAssessmentArgs, 'id' | 'text'>>;
+  testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   trackerHeartbeat?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -5748,6 +5874,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateExitRecord?: Resolver<ResolversTypes['ExitRecord'], ParentType, ContextType, RequireFields<MutationUpdateExitRecordArgs, 'id' | 'input'>>;
   updateExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationUpdateExpenseClaimArgs, 'id' | 'input'>>;
   updateGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<MutationUpdateGigArgs, 'id' | 'input'>>;
+  updateGithubConfig?: Resolver<ResolversTypes['GithubConfig'], ParentType, ContextType, RequireFields<MutationUpdateGithubConfigArgs, 'id' | 'input'>>;
   updateGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateGoalArgs, 'id' | 'input'>>;
   updateGrade?: Resolver<ResolversTypes['Grade'], ParentType, ContextType, RequireFields<MutationUpdateGradeArgs, 'id' | 'input'>>;
   updateHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<MutationUpdateHolidayArgs, 'id' | 'input'>>;
@@ -6033,6 +6160,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listGigs?: Resolver<Array<ResolversTypes['Gig']>, ParentType, ContextType>;
   listGigsPaged?: Resolver<ResolversTypes['GigPage'], ParentType, ContextType, RequireFields<QueryListGigsPagedArgs, 'input'>>;
   listGigsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listGithubConfigs?: Resolver<Array<ResolversTypes['GithubConfig']>, ParentType, ContextType>;
   listGoals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
   listGoalsPaged?: Resolver<ResolversTypes['GoalPage'], ParentType, ContextType, RequireFields<QueryListGoalsPagedArgs, 'input'>>;
   listGoalsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -6093,6 +6221,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listShifts?: Resolver<Array<ResolversTypes['Shift']>, ParentType, ContextType>;
   listShiftsPaged?: Resolver<ResolversTypes['ShiftPage'], ParentType, ContextType, RequireFields<QueryListShiftsPagedArgs, 'input'>>;
   listShiftsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listSlackChannels?: Resolver<Array<ResolversTypes['SlackChannel']>, ParentType, ContextType>;
   listSlackConfigs?: Resolver<Array<ResolversTypes['SlackConfig']>, ParentType, ContextType>;
   listSupportTickets?: Resolver<Array<ResolversTypes['SupportTicket']>, ParentType, ContextType>;
   listTeams?: Resolver<Array<ResolversTypes['Team']>, ParentType, ContextType>;
@@ -6102,6 +6231,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listTools?: Resolver<Array<ResolversTypes['Tool']>, ParentType, ContextType>;
   listToolsPaged?: Resolver<ResolversTypes['ToolPage'], ParentType, ContextType, RequireFields<QueryListToolsPagedArgs, 'input'>>;
   listToolsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listTrackerBuilds?: Resolver<Array<ResolversTypes['TrackerBuild']>, ParentType, ContextType>;
   listTrainings?: Resolver<Array<ResolversTypes['Training']>, ParentType, ContextType>;
   listTrainingsPaged?: Resolver<ResolversTypes['TrainingPage'], ParentType, ContextType, RequireFields<QueryListTrainingsPagedArgs, 'input'>>;
   listTrainingsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -6148,6 +6278,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicToolCategories?: Resolver<Array<ResolversTypes['ToolCategory']>, ParentType, ContextType>;
   publicTools?: Resolver<Array<ResolversTypes['Tool']>, ParentType, ContextType, Partial<QueryPublicToolsArgs>>;
   trackerAccessList?: Resolver<Array<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
+  trackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType>;
   trackerCalendar?: Resolver<Array<ResolversTypes['TrackerDayBucket']>, ParentType, ContextType, RequireFields<QueryTrackerCalendarArgs, 'from' | 'timezone' | 'to' | 'userId'>>;
   trackerDay?: Resolver<ResolversTypes['TrackerDay'], ParentType, ContextType, RequireFields<QueryTrackerDayArgs, 'end' | 'start' | 'userId'>>;
   trackerDevices?: Resolver<Array<ResolversTypes['TrackerDevice']>, ParentType, ContextType, Partial<QueryTrackerDevicesArgs>>;
@@ -6228,6 +6359,14 @@ export type ShiftResolvers<ContextType = GraphQLContext, ParentType extends Reso
 export type ShiftPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ShiftPage'] = ResolversParentTypes['ShiftPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Shift']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SlackChannelResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SlackChannel'] = ResolversParentTypes['SlackChannel']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  isMember?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  isPrivate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6375,6 +6514,21 @@ export type TrackerAccessResolvers<ContextType = GraphQLContext, ParentType exte
 export type TrackerAppUsageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerAppUsage'] = ResolversParentTypes['TrackerAppUsage']> = ResolversObject<{
   appName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   durationMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerBuildResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerBuild'] = ResolversParentTypes['TrackerBuild']> = ResolversObject<{
+  branch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  conclusion?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  startedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerBuildSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerBuildSettings'] = ResolversParentTypes['TrackerBuildSettings']> = ResolversObject<{
+  slackChannels?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6609,6 +6763,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ExpenseClaimPage?: ExpenseClaimPageResolvers<ContextType>;
   Gig?: GigResolvers<ContextType>;
   GigPage?: GigPageResolvers<ContextType>;
+  GithubConfig?: GithubConfigResolvers<ContextType>;
   Goal?: GoalResolvers<ContextType>;
   GoalPage?: GoalPageResolvers<ContextType>;
   Grade?: GradeResolvers<ContextType>;
@@ -6661,6 +6816,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   SendNotificationResult?: SendNotificationResultResolvers<ContextType>;
   Shift?: ShiftResolvers<ContextType>;
   ShiftPage?: ShiftPageResolvers<ContextType>;
+  SlackChannel?: SlackChannelResolvers<ContextType>;
   SlackConfig?: SlackConfigResolvers<ContextType>;
   StatBucket?: StatBucketResolvers<ContextType>;
   StatFieldCounts?: StatFieldCountsResolvers<ContextType>;
@@ -6676,6 +6832,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ToolPricing?: ToolPricingResolvers<ContextType>;
   TrackerAccess?: TrackerAccessResolvers<ContextType>;
   TrackerAppUsage?: TrackerAppUsageResolvers<ContextType>;
+  TrackerBuild?: TrackerBuildResolvers<ContextType>;
+  TrackerBuildSettings?: TrackerBuildSettingsResolvers<ContextType>;
   TrackerDay?: TrackerDayResolvers<ContextType>;
   TrackerDayBucket?: TrackerDayBucketResolvers<ContextType>;
   TrackerDevice?: TrackerDeviceResolvers<ContextType>;

@@ -853,6 +853,26 @@ export type GigPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type GithubConfig = {
+  __typename?: 'GithubConfig';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  owner: Scalars['String']['output'];
+  repo: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type GithubConfigInput = {
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  owner: Scalars['String']['input'];
+  repo: Scalars['String']['input'];
+  token: Scalars['String']['input'];
+};
+
 export type Goal = {
   __typename?: 'Goal';
   createdAt: Scalars['DateTime']['output'];
@@ -1363,6 +1383,7 @@ export type Mutation = {
   createExitRecord: ExitRecord;
   createExpenseClaim: ExpenseClaim;
   createGig: Gig;
+  createGithubConfig: GithubConfig;
   createGoal: Goal;
   createGrade: Grade;
   createHoliday: Holiday;
@@ -1423,6 +1444,7 @@ export type Mutation = {
   deleteExitRecord: Scalars['Boolean']['output'];
   deleteExpenseClaim: Scalars['Boolean']['output'];
   deleteGig: Scalars['Boolean']['output'];
+  deleteGithubConfig: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
   deleteGrade: Scalars['Boolean']['output'];
   deleteHoliday: Scalars['Boolean']['output'];
@@ -1473,6 +1495,7 @@ export type Mutation = {
    * recomputes GENERATED slips and never touches PAID ones.
    */
   runPayroll: PayrollRunResult;
+  saveTrackerBuildSettings: TrackerBuildSettings;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
    * configured admin account to that configured address. A no-op once any ADMIN
@@ -1500,11 +1523,14 @@ export type Mutation = {
   setUserActive: User;
   setUserBlocked: User;
   signContract: Contract;
+  /** Asks GitHub to build the chosen installers off the given branch. */
+  startTrackerBuild: Scalars['Boolean']['output'];
   /**
    * The employee's own half of the appraisal. Allowed only while the cycle is
    * still OPEN, and it never touches the manager's assessment or the rating.
    */
   submitSelfAssessment: PerformanceReview;
+  testGithubConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
   trackerAcceptConsent: Scalars['Boolean']['output'];
   trackerHeartbeat: Scalars['Boolean']['output'];
@@ -1534,6 +1560,7 @@ export type Mutation = {
   updateExitRecord: ExitRecord;
   updateExpenseClaim: ExpenseClaim;
   updateGig: Gig;
+  updateGithubConfig: GithubConfig;
   updateGoal: Goal;
   updateGrade: Grade;
   updateHoliday: Holiday;
@@ -1682,6 +1709,11 @@ export type MutationCreateExpenseClaimArgs = {
 
 export type MutationCreateGigArgs = {
   input: GigInput;
+};
+
+
+export type MutationCreateGithubConfigArgs = {
+  input: GithubConfigInput;
 };
 
 
@@ -1938,6 +1970,11 @@ export type MutationDeleteGigArgs = {
 };
 
 
+export type MutationDeleteGithubConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteGoalArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2150,6 +2187,11 @@ export type MutationRunPayrollArgs = {
 };
 
 
+export type MutationSaveTrackerBuildSettingsArgs = {
+  slackChannels: Array<Scalars['String']['input']>;
+};
+
+
 export type MutationSendCampaignArgs = {
   clientIds: Array<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
@@ -2224,9 +2266,20 @@ export type MutationSignContractArgs = {
 };
 
 
+export type MutationStartTrackerBuildArgs = {
+  platforms: Array<TrackerPlatform>;
+  ref: Scalars['String']['input'];
+};
+
+
 export type MutationSubmitSelfAssessmentArgs = {
   id: Scalars['ID']['input'];
   text: Scalars['String']['input'];
+};
+
+
+export type MutationTestGithubConnectionArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -2381,6 +2434,12 @@ export type MutationUpdateExpenseClaimArgs = {
 export type MutationUpdateGigArgs = {
   id: Scalars['ID']['input'];
   input: GigInput;
+};
+
+
+export type MutationUpdateGithubConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: GithubConfigInput;
 };
 
 
@@ -2980,6 +3039,7 @@ export type Query = {
   listGigs: Array<Gig>;
   listGigsPaged: GigPage;
   listGigsStats: TableStats;
+  listGithubConfigs: Array<GithubConfig>;
   listGoals: Array<Goal>;
   listGoalsPaged: GoalPage;
   listGoalsStats: TableStats;
@@ -3045,6 +3105,8 @@ export type Query = {
   listShifts: Array<Shift>;
   listShiftsPaged: ShiftPage;
   listShiftsStats: TableStats;
+  /** Every channel the active Slack bot token can see. */
+  listSlackChannels: Array<SlackChannel>;
   listSlackConfigs: Array<SlackConfig>;
   /** SUPPORT/ADMIN: every employee support ticket, newest first. */
   listSupportTickets: Array<SupportTicket>;
@@ -3055,6 +3117,7 @@ export type Query = {
   listTools: Array<Tool>;
   listToolsPaged: ToolPage;
   listToolsStats: TableStats;
+  listTrackerBuilds: Array<TrackerBuild>;
   listTrainings: Array<Training>;
   listTrainingsPaged: TrainingPage;
   listTrainingsStats: TableStats;
@@ -3109,6 +3172,7 @@ export type Query = {
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
   trackerAccessList: Array<TrackerAccess>;
+  trackerBuildSettings: TrackerBuildSettings;
   trackerCalendar: Array<TrackerDayBucket>;
   trackerDay: TrackerDay;
   trackerDevices: Array<TrackerDevice>;
@@ -3646,6 +3710,7 @@ export enum Role {
   Products = 'PRODUCTS',
   Projects = 'PROJECTS',
   Support = 'SUPPORT',
+  Tech = 'TECH',
   Tracker = 'TRACKER',
   Website = 'WEBSITE'
 }
@@ -3762,6 +3827,14 @@ export type ShiftPage = {
   __typename?: 'ShiftPage';
   rows: Array<Shift>;
   totalCount: Scalars['Int']['output'];
+};
+
+export type SlackChannel = {
+  __typename?: 'SlackChannel';
+  id: Scalars['String']['output'];
+  isMember: Scalars['Boolean']['output'];
+  isPrivate: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type SlackConfig = {
@@ -4027,6 +4100,24 @@ export type TrackerAppUsage = {
   durationMs: Scalars['Float']['output'];
 };
 
+/** One run of the tracker build workflow. */
+export type TrackerBuild = {
+  __typename?: 'TrackerBuild';
+  branch: Scalars['String']['output'];
+  /** success, failure, cancelled — null until the run completes. */
+  conclusion?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  startedAt: Scalars['DateTime']['output'];
+  /** queued, in_progress or completed. */
+  status: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type TrackerBuildSettings = {
+  __typename?: 'TrackerBuildSettings';
+  slackChannels: Array<Scalars['String']['output']>;
+};
+
 export type TrackerDay = {
   __typename?: 'TrackerDay';
   appUsage: Array<TrackerAppUsage>;
@@ -4130,6 +4221,13 @@ export type TrackerMe = {
   timezone: Scalars['String']['output'];
   user: User;
 };
+
+/** The installers a build can produce. */
+export enum TrackerPlatform {
+  Linux = 'LINUX',
+  Macos = 'MACOS',
+  Windows = 'WINDOWS'
+}
 
 export type TrackerScreenshot = {
   __typename?: 'TrackerScreenshot';
@@ -6135,6 +6233,70 @@ export type SendTestSlackMessageMutationVariables = Exact<{
 
 
 export type SendTestSlackMessageMutation = { __typename?: 'Mutation', sendTestSlackMessage: boolean };
+
+export type ListGithubConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListGithubConfigsQuery = { __typename?: 'Query', listGithubConfigs: Array<{ __typename?: 'GithubConfig', id: string, label: string, owner: string, repo: string, token: string, isActive: boolean }> };
+
+export type CreateGithubConfigMutationVariables = Exact<{
+  input: GithubConfigInput;
+}>;
+
+
+export type CreateGithubConfigMutation = { __typename?: 'Mutation', createGithubConfig: { __typename?: 'GithubConfig', id: string } };
+
+export type UpdateGithubConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: GithubConfigInput;
+}>;
+
+
+export type UpdateGithubConfigMutation = { __typename?: 'Mutation', updateGithubConfig: { __typename?: 'GithubConfig', id: string } };
+
+export type DeleteGithubConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteGithubConfigMutation = { __typename?: 'Mutation', deleteGithubConfig: boolean };
+
+export type TestGithubConnectionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestGithubConnectionMutation = { __typename?: 'Mutation', testGithubConnection: boolean };
+
+export type ListSlackChannelsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListSlackChannelsQuery = { __typename?: 'Query', listSlackChannels: Array<{ __typename?: 'SlackChannel', id: string, name: string, isPrivate: boolean, isMember: boolean }> };
+
+export type ListTrackerBuildsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListTrackerBuildsQuery = { __typename?: 'Query', listTrackerBuilds: Array<{ __typename?: 'TrackerBuild', id: string, status: string, conclusion?: string | null, branch: string, url: string, startedAt: string }> };
+
+export type TrackerBuildSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TrackerBuildSettingsQuery = { __typename?: 'Query', trackerBuildSettings: { __typename?: 'TrackerBuildSettings', slackChannels: Array<string> } };
+
+export type StartTrackerBuildMutationVariables = Exact<{
+  platforms: Array<TrackerPlatform> | TrackerPlatform;
+  ref: Scalars['String']['input'];
+}>;
+
+
+export type StartTrackerBuildMutation = { __typename?: 'Mutation', startTrackerBuild: boolean };
+
+export type SaveTrackerBuildSettingsMutationVariables = Exact<{
+  slackChannels: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type SaveTrackerBuildSettingsMutation = { __typename?: 'Mutation', saveTrackerBuildSettings: { __typename?: 'TrackerBuildSettings', slackChannels: Array<string> } };
 
 export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: string, userId: string, grantedBy: string, grantedAt: string, revokedAt?: string | null, isActive: boolean, consentedAt?: string | null, timezone: string };
 
@@ -17657,6 +17819,381 @@ export function useSendTestSlackMessageMutation(baseOptions?: Apollo.MutationHoo
 export type SendTestSlackMessageMutationHookResult = ReturnType<typeof useSendTestSlackMessageMutation>;
 export type SendTestSlackMessageMutationResult = Apollo.MutationResult<SendTestSlackMessageMutation>;
 export type SendTestSlackMessageMutationOptions = Apollo.BaseMutationOptions<SendTestSlackMessageMutation, SendTestSlackMessageMutationVariables>;
+export const ListGithubConfigsDocument = gql`
+    query ListGithubConfigs {
+  listGithubConfigs {
+    id
+    label
+    owner
+    repo
+    token
+    isActive
+  }
+}
+    `;
+
+/**
+ * __useListGithubConfigsQuery__
+ *
+ * To run a query within a React component, call `useListGithubConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListGithubConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListGithubConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListGithubConfigsQuery(baseOptions?: Apollo.QueryHookOptions<ListGithubConfigsQuery, ListGithubConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListGithubConfigsQuery, ListGithubConfigsQueryVariables>(ListGithubConfigsDocument, options);
+      }
+export function useListGithubConfigsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListGithubConfigsQuery, ListGithubConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListGithubConfigsQuery, ListGithubConfigsQueryVariables>(ListGithubConfigsDocument, options);
+        }
+// @ts-ignore
+export function useListGithubConfigsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListGithubConfigsQuery, ListGithubConfigsQueryVariables>): Apollo.UseSuspenseQueryResult<ListGithubConfigsQuery, ListGithubConfigsQueryVariables>;
+export function useListGithubConfigsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListGithubConfigsQuery, ListGithubConfigsQueryVariables>): Apollo.UseSuspenseQueryResult<ListGithubConfigsQuery | undefined, ListGithubConfigsQueryVariables>;
+export function useListGithubConfigsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListGithubConfigsQuery, ListGithubConfigsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListGithubConfigsQuery, ListGithubConfigsQueryVariables>(ListGithubConfigsDocument, options);
+        }
+export type ListGithubConfigsQueryHookResult = ReturnType<typeof useListGithubConfigsQuery>;
+export type ListGithubConfigsLazyQueryHookResult = ReturnType<typeof useListGithubConfigsLazyQuery>;
+export type ListGithubConfigsSuspenseQueryHookResult = ReturnType<typeof useListGithubConfigsSuspenseQuery>;
+export type ListGithubConfigsQueryResult = Apollo.QueryResult<ListGithubConfigsQuery, ListGithubConfigsQueryVariables>;
+export const CreateGithubConfigDocument = gql`
+    mutation CreateGithubConfig($input: GithubConfigInput!) {
+  createGithubConfig(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateGithubConfigMutationFn = Apollo.MutationFunction<CreateGithubConfigMutation, CreateGithubConfigMutationVariables>;
+
+/**
+ * __useCreateGithubConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateGithubConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateGithubConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createGithubConfigMutation, { data, loading, error }] = useCreateGithubConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateGithubConfigMutation(baseOptions?: Apollo.MutationHookOptions<CreateGithubConfigMutation, CreateGithubConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateGithubConfigMutation, CreateGithubConfigMutationVariables>(CreateGithubConfigDocument, options);
+      }
+export type CreateGithubConfigMutationHookResult = ReturnType<typeof useCreateGithubConfigMutation>;
+export type CreateGithubConfigMutationResult = Apollo.MutationResult<CreateGithubConfigMutation>;
+export type CreateGithubConfigMutationOptions = Apollo.BaseMutationOptions<CreateGithubConfigMutation, CreateGithubConfigMutationVariables>;
+export const UpdateGithubConfigDocument = gql`
+    mutation UpdateGithubConfig($id: ID!, $input: GithubConfigInput!) {
+  updateGithubConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateGithubConfigMutationFn = Apollo.MutationFunction<UpdateGithubConfigMutation, UpdateGithubConfigMutationVariables>;
+
+/**
+ * __useUpdateGithubConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateGithubConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGithubConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGithubConfigMutation, { data, loading, error }] = useUpdateGithubConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateGithubConfigMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGithubConfigMutation, UpdateGithubConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateGithubConfigMutation, UpdateGithubConfigMutationVariables>(UpdateGithubConfigDocument, options);
+      }
+export type UpdateGithubConfigMutationHookResult = ReturnType<typeof useUpdateGithubConfigMutation>;
+export type UpdateGithubConfigMutationResult = Apollo.MutationResult<UpdateGithubConfigMutation>;
+export type UpdateGithubConfigMutationOptions = Apollo.BaseMutationOptions<UpdateGithubConfigMutation, UpdateGithubConfigMutationVariables>;
+export const DeleteGithubConfigDocument = gql`
+    mutation DeleteGithubConfig($id: ID!) {
+  deleteGithubConfig(id: $id)
+}
+    `;
+export type DeleteGithubConfigMutationFn = Apollo.MutationFunction<DeleteGithubConfigMutation, DeleteGithubConfigMutationVariables>;
+
+/**
+ * __useDeleteGithubConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteGithubConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteGithubConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteGithubConfigMutation, { data, loading, error }] = useDeleteGithubConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteGithubConfigMutation(baseOptions?: Apollo.MutationHookOptions<DeleteGithubConfigMutation, DeleteGithubConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteGithubConfigMutation, DeleteGithubConfigMutationVariables>(DeleteGithubConfigDocument, options);
+      }
+export type DeleteGithubConfigMutationHookResult = ReturnType<typeof useDeleteGithubConfigMutation>;
+export type DeleteGithubConfigMutationResult = Apollo.MutationResult<DeleteGithubConfigMutation>;
+export type DeleteGithubConfigMutationOptions = Apollo.BaseMutationOptions<DeleteGithubConfigMutation, DeleteGithubConfigMutationVariables>;
+export const TestGithubConnectionDocument = gql`
+    mutation TestGithubConnection($id: ID!) {
+  testGithubConnection(id: $id)
+}
+    `;
+export type TestGithubConnectionMutationFn = Apollo.MutationFunction<TestGithubConnectionMutation, TestGithubConnectionMutationVariables>;
+
+/**
+ * __useTestGithubConnectionMutation__
+ *
+ * To run a mutation, you first call `useTestGithubConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestGithubConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testGithubConnectionMutation, { data, loading, error }] = useTestGithubConnectionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestGithubConnectionMutation(baseOptions?: Apollo.MutationHookOptions<TestGithubConnectionMutation, TestGithubConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TestGithubConnectionMutation, TestGithubConnectionMutationVariables>(TestGithubConnectionDocument, options);
+      }
+export type TestGithubConnectionMutationHookResult = ReturnType<typeof useTestGithubConnectionMutation>;
+export type TestGithubConnectionMutationResult = Apollo.MutationResult<TestGithubConnectionMutation>;
+export type TestGithubConnectionMutationOptions = Apollo.BaseMutationOptions<TestGithubConnectionMutation, TestGithubConnectionMutationVariables>;
+export const ListSlackChannelsDocument = gql`
+    query ListSlackChannels {
+  listSlackChannels {
+    id
+    name
+    isPrivate
+    isMember
+  }
+}
+    `;
+
+/**
+ * __useListSlackChannelsQuery__
+ *
+ * To run a query within a React component, call `useListSlackChannelsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListSlackChannelsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListSlackChannelsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListSlackChannelsQuery(baseOptions?: Apollo.QueryHookOptions<ListSlackChannelsQuery, ListSlackChannelsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListSlackChannelsQuery, ListSlackChannelsQueryVariables>(ListSlackChannelsDocument, options);
+      }
+export function useListSlackChannelsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListSlackChannelsQuery, ListSlackChannelsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListSlackChannelsQuery, ListSlackChannelsQueryVariables>(ListSlackChannelsDocument, options);
+        }
+// @ts-ignore
+export function useListSlackChannelsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListSlackChannelsQuery, ListSlackChannelsQueryVariables>): Apollo.UseSuspenseQueryResult<ListSlackChannelsQuery, ListSlackChannelsQueryVariables>;
+export function useListSlackChannelsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSlackChannelsQuery, ListSlackChannelsQueryVariables>): Apollo.UseSuspenseQueryResult<ListSlackChannelsQuery | undefined, ListSlackChannelsQueryVariables>;
+export function useListSlackChannelsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSlackChannelsQuery, ListSlackChannelsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListSlackChannelsQuery, ListSlackChannelsQueryVariables>(ListSlackChannelsDocument, options);
+        }
+export type ListSlackChannelsQueryHookResult = ReturnType<typeof useListSlackChannelsQuery>;
+export type ListSlackChannelsLazyQueryHookResult = ReturnType<typeof useListSlackChannelsLazyQuery>;
+export type ListSlackChannelsSuspenseQueryHookResult = ReturnType<typeof useListSlackChannelsSuspenseQuery>;
+export type ListSlackChannelsQueryResult = Apollo.QueryResult<ListSlackChannelsQuery, ListSlackChannelsQueryVariables>;
+export const ListTrackerBuildsDocument = gql`
+    query ListTrackerBuilds {
+  listTrackerBuilds {
+    id
+    status
+    conclusion
+    branch
+    url
+    startedAt
+  }
+}
+    `;
+
+/**
+ * __useListTrackerBuildsQuery__
+ *
+ * To run a query within a React component, call `useListTrackerBuildsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListTrackerBuildsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListTrackerBuildsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListTrackerBuildsQuery(baseOptions?: Apollo.QueryHookOptions<ListTrackerBuildsQuery, ListTrackerBuildsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListTrackerBuildsQuery, ListTrackerBuildsQueryVariables>(ListTrackerBuildsDocument, options);
+      }
+export function useListTrackerBuildsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListTrackerBuildsQuery, ListTrackerBuildsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListTrackerBuildsQuery, ListTrackerBuildsQueryVariables>(ListTrackerBuildsDocument, options);
+        }
+// @ts-ignore
+export function useListTrackerBuildsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListTrackerBuildsQuery, ListTrackerBuildsQueryVariables>): Apollo.UseSuspenseQueryResult<ListTrackerBuildsQuery, ListTrackerBuildsQueryVariables>;
+export function useListTrackerBuildsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListTrackerBuildsQuery, ListTrackerBuildsQueryVariables>): Apollo.UseSuspenseQueryResult<ListTrackerBuildsQuery | undefined, ListTrackerBuildsQueryVariables>;
+export function useListTrackerBuildsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListTrackerBuildsQuery, ListTrackerBuildsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListTrackerBuildsQuery, ListTrackerBuildsQueryVariables>(ListTrackerBuildsDocument, options);
+        }
+export type ListTrackerBuildsQueryHookResult = ReturnType<typeof useListTrackerBuildsQuery>;
+export type ListTrackerBuildsLazyQueryHookResult = ReturnType<typeof useListTrackerBuildsLazyQuery>;
+export type ListTrackerBuildsSuspenseQueryHookResult = ReturnType<typeof useListTrackerBuildsSuspenseQuery>;
+export type ListTrackerBuildsQueryResult = Apollo.QueryResult<ListTrackerBuildsQuery, ListTrackerBuildsQueryVariables>;
+export const TrackerBuildSettingsDocument = gql`
+    query TrackerBuildSettings {
+  trackerBuildSettings {
+    slackChannels
+  }
+}
+    `;
+
+/**
+ * __useTrackerBuildSettingsQuery__
+ *
+ * To run a query within a React component, call `useTrackerBuildSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerBuildSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerBuildSettingsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTrackerBuildSettingsQuery(baseOptions?: Apollo.QueryHookOptions<TrackerBuildSettingsQuery, TrackerBuildSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TrackerBuildSettingsQuery, TrackerBuildSettingsQueryVariables>(TrackerBuildSettingsDocument, options);
+      }
+export function useTrackerBuildSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TrackerBuildSettingsQuery, TrackerBuildSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TrackerBuildSettingsQuery, TrackerBuildSettingsQueryVariables>(TrackerBuildSettingsDocument, options);
+        }
+// @ts-ignore
+export function useTrackerBuildSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TrackerBuildSettingsQuery, TrackerBuildSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerBuildSettingsQuery, TrackerBuildSettingsQueryVariables>;
+export function useTrackerBuildSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerBuildSettingsQuery, TrackerBuildSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerBuildSettingsQuery | undefined, TrackerBuildSettingsQueryVariables>;
+export function useTrackerBuildSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerBuildSettingsQuery, TrackerBuildSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TrackerBuildSettingsQuery, TrackerBuildSettingsQueryVariables>(TrackerBuildSettingsDocument, options);
+        }
+export type TrackerBuildSettingsQueryHookResult = ReturnType<typeof useTrackerBuildSettingsQuery>;
+export type TrackerBuildSettingsLazyQueryHookResult = ReturnType<typeof useTrackerBuildSettingsLazyQuery>;
+export type TrackerBuildSettingsSuspenseQueryHookResult = ReturnType<typeof useTrackerBuildSettingsSuspenseQuery>;
+export type TrackerBuildSettingsQueryResult = Apollo.QueryResult<TrackerBuildSettingsQuery, TrackerBuildSettingsQueryVariables>;
+export const StartTrackerBuildDocument = gql`
+    mutation StartTrackerBuild($platforms: [TrackerPlatform!]!, $ref: String!) {
+  startTrackerBuild(platforms: $platforms, ref: $ref)
+}
+    `;
+export type StartTrackerBuildMutationFn = Apollo.MutationFunction<StartTrackerBuildMutation, StartTrackerBuildMutationVariables>;
+
+/**
+ * __useStartTrackerBuildMutation__
+ *
+ * To run a mutation, you first call `useStartTrackerBuildMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartTrackerBuildMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startTrackerBuildMutation, { data, loading, error }] = useStartTrackerBuildMutation({
+ *   variables: {
+ *      platforms: // value for 'platforms'
+ *      ref: // value for 'ref'
+ *   },
+ * });
+ */
+export function useStartTrackerBuildMutation(baseOptions?: Apollo.MutationHookOptions<StartTrackerBuildMutation, StartTrackerBuildMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<StartTrackerBuildMutation, StartTrackerBuildMutationVariables>(StartTrackerBuildDocument, options);
+      }
+export type StartTrackerBuildMutationHookResult = ReturnType<typeof useStartTrackerBuildMutation>;
+export type StartTrackerBuildMutationResult = Apollo.MutationResult<StartTrackerBuildMutation>;
+export type StartTrackerBuildMutationOptions = Apollo.BaseMutationOptions<StartTrackerBuildMutation, StartTrackerBuildMutationVariables>;
+export const SaveTrackerBuildSettingsDocument = gql`
+    mutation SaveTrackerBuildSettings($slackChannels: [String!]!) {
+  saveTrackerBuildSettings(slackChannels: $slackChannels) {
+    slackChannels
+  }
+}
+    `;
+export type SaveTrackerBuildSettingsMutationFn = Apollo.MutationFunction<SaveTrackerBuildSettingsMutation, SaveTrackerBuildSettingsMutationVariables>;
+
+/**
+ * __useSaveTrackerBuildSettingsMutation__
+ *
+ * To run a mutation, you first call `useSaveTrackerBuildSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveTrackerBuildSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveTrackerBuildSettingsMutation, { data, loading, error }] = useSaveTrackerBuildSettingsMutation({
+ *   variables: {
+ *      slackChannels: // value for 'slackChannels'
+ *   },
+ * });
+ */
+export function useSaveTrackerBuildSettingsMutation(baseOptions?: Apollo.MutationHookOptions<SaveTrackerBuildSettingsMutation, SaveTrackerBuildSettingsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SaveTrackerBuildSettingsMutation, SaveTrackerBuildSettingsMutationVariables>(SaveTrackerBuildSettingsDocument, options);
+      }
+export type SaveTrackerBuildSettingsMutationHookResult = ReturnType<typeof useSaveTrackerBuildSettingsMutation>;
+export type SaveTrackerBuildSettingsMutationResult = Apollo.MutationResult<SaveTrackerBuildSettingsMutation>;
+export type SaveTrackerBuildSettingsMutationOptions = Apollo.BaseMutationOptions<SaveTrackerBuildSettingsMutation, SaveTrackerBuildSettingsMutationVariables>;
 export const TrackerAccessListDocument = gql`
     query TrackerAccessList {
   trackerAccessList {

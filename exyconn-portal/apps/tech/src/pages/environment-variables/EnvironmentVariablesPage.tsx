@@ -3,14 +3,16 @@ import { Box } from '@exyconn/shell/components/ui';
 import ChatIcon from '@mui/icons-material/Chat';
 import ImageIcon from '@mui/icons-material/Image';
 import EmailIcon from '@mui/icons-material/Email';
+import GitHubIcon from '@mui/icons-material/GitHub';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
 import { ImageConfigsPanel } from './ImageConfigsPanel';
 import { EmailConfigsPanel } from './EmailConfigsPanel';
+import { GithubConfigsPanel } from './GithubConfigsPanel';
 
 /** Route the tabs live under; each tab is a slug beneath it. */
-export const ENVIRONMENT_VARIABLES_PATH = '/environment-variables';
+export const ENVIRONMENT_VARIABLES_PATH = '/tech/environment-variables';
 
 /** The card every tab's panel sits in, so the tab strip stays above the card. */
 function GlassPanel({ children }: Readonly<{ children: ReactNode }>) {
@@ -46,6 +48,16 @@ const TABS: TabberItem[] = [
     content: (
       <GlassPanel>
         <EmailConfigsPanel />
+      </GlassPanel>
+    ),
+  },
+  {
+    slug: 'github',
+    label: 'GitHub',
+    icon: <GitHubIcon />,
+    content: (
+      <GlassPanel>
+        <GithubConfigsPanel />
       </GlassPanel>
     ),
   },

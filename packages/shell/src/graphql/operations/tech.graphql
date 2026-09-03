@@ -93,3 +93,70 @@ mutation DeleteSlackConfig($id: ID!) {
 mutation SendTestSlackMessage($id: ID!, $channel: String!) {
   sendTestSlackMessage(id: $id, channel: $channel)
 }
+
+query ListGithubConfigs {
+  listGithubConfigs {
+    id
+    label
+    owner
+    repo
+    token
+    isActive
+  }
+}
+
+mutation CreateGithubConfig($input: GithubConfigInput!) {
+  createGithubConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateGithubConfig($id: ID!, $input: GithubConfigInput!) {
+  updateGithubConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteGithubConfig($id: ID!) {
+  deleteGithubConfig(id: $id)
+}
+
+mutation TestGithubConnection($id: ID!) {
+  testGithubConnection(id: $id)
+}
+
+query ListSlackChannels {
+  listSlackChannels {
+    id
+    name
+    isPrivate
+    isMember
+  }
+}
+
+query ListTrackerBuilds {
+  listTrackerBuilds {
+    id
+    status
+    conclusion
+    branch
+    url
+    startedAt
+  }
+}
+
+query TrackerBuildSettings {
+  trackerBuildSettings {
+    slackChannels
+  }
+}
+
+mutation StartTrackerBuild($platforms: [TrackerPlatform!]!, $ref: String!) {
+  startTrackerBuild(platforms: $platforms, ref: $ref)
+}
+
+mutation SaveTrackerBuildSettings($slackChannels: [String!]!) {
+  saveTrackerBuildSettings(slackChannels: $slackChannels) {
+    slackChannels
+  }
+}

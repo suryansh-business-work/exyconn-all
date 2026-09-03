@@ -85,7 +85,8 @@ export interface ModuleDefinition {
  * Each top-level entry maps to exactly one role and to exactly one micro-frontend
  * (`key` is also its app key); `accessibleModules` filters by the signed-in
  * user's roles, so navigation is fully role-driven (dynamic).
- * Bugs is nested under Projects and Clients + Environment Variables under Admin.
+ * Bugs is nested under Projects and Clients under Admin; Tech owns the
+ * integration credentials and the desktop tracker builds.
  */
 export const MODULES: ModuleDefinition[] = [
   {
@@ -330,12 +331,6 @@ export const MODULES: ModuleDefinition[] = [
       { key: 'admin-users', label: 'Users', path: '/admin', icon: ManageAccountsIcon },
       { key: 'admin-clients', label: 'Clients', path: '/clients', icon: GroupsIcon },
       {
-        key: 'admin-env-vars',
-        label: 'Environment Variables',
-        path: '/environment-variables',
-        icon: TerminalIcon,
-      },
-      {
         key: 'admin-permissions',
         label: 'Roles & Permissions',
         path: '/admin/permissions',
@@ -448,6 +443,35 @@ export const MODULES: ModuleDefinition[] = [
         key: 'tracker-settings',
         label: 'Settings',
         path: '/tracker/settings',
+        icon: TuneIcon,
+      },
+    ],
+  },
+  {
+    key: 'tech',
+    label: 'Tech',
+    path: '/tech/environment-variables',
+    role: ROLES.TECH,
+    icon: TerminalIcon,
+    description: 'Integrations & desktop builds',
+    accent: '#7c3aed',
+    children: [
+      {
+        key: 'tech-env-vars',
+        label: 'Environment Variables',
+        path: '/tech/environment-variables',
+        icon: TerminalIcon,
+      },
+      {
+        key: 'tech-tracker-build',
+        label: 'Tracker Build',
+        path: '/tech/tracker-build',
+        icon: BuildIcon,
+      },
+      {
+        key: 'tech-settings',
+        label: 'Settings',
+        path: '/tech/settings',
         icon: TuneIcon,
       },
     ],
