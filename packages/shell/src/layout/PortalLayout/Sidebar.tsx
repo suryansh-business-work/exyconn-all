@@ -24,6 +24,7 @@ import { useCrossAppNavigate } from '@/hooks/useCrossAppNavigate';
 import type { PortalAppKey } from '@/config/apps';
 import { PortalSwitcher } from '@/layout/PortalSwitcher';
 import { navModules } from './moduleNav';
+import { activeNavPath } from './activeNavPath';
 import { ModuleNavList } from './ModuleNavList';
 
 interface SidebarProps {
@@ -44,12 +45,27 @@ export function Sidebar({ roles, onNavigate }: SidebarProps) {
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
   const isHub = env.portalApp === 'hub';
+  const scoped = useMemo(() => navModules(roles, env.portalApp), [roles]);
   const modules = useMemo(() => {
-    const scoped = navModules(roles, env.portalApp);
     const q = query.trim().toLowerCase();
     if (!q || !isHub) return scoped;
     return scoped.filter((m) => `${m.label} ${m.description}`.toLowerCase().includes(q));
-  }, [roles, query, isHub]);
+  }, [scoped, query, isHub]);
+
+  /**
+   * The URL decides what is highlighted, and it is matched against every entry
+   * at once so the deepest one wins — a tab slug or a detail id below a page
+   * keeps that page selected instead of falling through to a shorter prefix.
+   * Computed from the unfiltered list so searching never changes the highlight.
+   */
+  const active = useMemo(
+    () =>
+      activeNavPath(
+        pathname,
+        scoped.flatMap((m) => [m.path, ...(m.children ?? []).map((c) => c.path)]),
+      ),
+    [pathname, scoped],
+  );
 
   const go = (app: PortalAppKey, path: string) => {
     navigateTo(app, path);
@@ -58,14 +74,14 @@ export function Sidebar({ roles, onNavigate }: SidebarProps) {
 
   const renderParent = (module: ModuleDefinition) => {
     const Icon = module.icon;
-    const childActive = module.children?.some((c) => c.path === pathname) ?? false;
+    const childActive = module.children?.some((c) => c.path === active) ?? false;
     const expanded = open[module.key] ?? childActive;
 
     if (!module.children?.length) {
       return (
         <ListItemButton
           key={module.key}
-          selected={pathname === module.path}
+          selected={active === module.path}
           onClick={() => go(module.key, module.path)}
           sx={{ borderRadius: 2, mb: 0.5 }}
         >
@@ -96,7 +112,7 @@ export function Sidebar({ roles, onNavigate }: SidebarProps) {
               return (
                 <ListItemButton
                   key={child.key}
-                  selected={pathname === child.path}
+                  selected={active === child.path}
                   onClick={() => go(module.key, child.path)}
                   sx={{ borderRadius: 2, mb: 0.5 }}
                 >

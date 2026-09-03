@@ -8,7 +8,9 @@
       "@exyconn/shell/*": ["../shell/src/*"],
       "@exyconn/login": ["../login/src/index.ts"],
       "@exyconn/crud": ["../crud/src/index.ts"],
-      "@exyconn/crud/*": ["../crud/src/*"]
+      "@exyconn/crud/*": ["../crud/src/*"],
+      "@exyconn/tabber": ["../tabber/src/index.ts"],
+      "@exyconn/tabber/*": ["../tabber/src/*"]
     },
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   }

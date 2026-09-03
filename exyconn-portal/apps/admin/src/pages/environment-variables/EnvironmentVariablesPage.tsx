@@ -1,39 +1,70 @@
-import { useState } from 'react';
-import { Box, Tab, Tabs } from '@exyconn/shell/components/ui';
+import type { ReactNode } from 'react';
+import { Box } from '@exyconn/shell/components/ui';
 import ChatIcon from '@mui/icons-material/Chat';
 import ImageIcon from '@mui/icons-material/Image';
 import EmailIcon from '@mui/icons-material/Email';
 import { glass } from '@exyconn/shell/components/glass/glass';
+import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
 import { ImageConfigsPanel } from './ImageConfigsPanel';
 import { EmailConfigsPanel } from './EmailConfigsPanel';
 
+/** Route the tabs live under; each tab is a slug beneath it. */
+export const ENVIRONMENT_VARIABLES_PATH = '/environment-variables';
+
+/** The card every tab's panel sits in, so the tab strip stays above the card. */
+function GlassPanel({ children }: Readonly<{ children: ReactNode }>) {
+  return <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>{children}</Box>;
+}
+
 /** One tab per integration, in the order they appear on the Environment Variables screen. */
-const PANELS = [
-  { key: 'slack', label: 'Slack', icon: <ChatIcon />, Panel: SlackConfigsPanel },
-  { key: 'imagekit', label: 'ImageKit', icon: <ImageIcon />, Panel: ImageConfigsPanel },
-  { key: 'smtp', label: 'SMTP', icon: <EmailIcon />, Panel: EmailConfigsPanel },
+const TABS: TabberItem[] = [
+  {
+    slug: 'slack',
+    label: 'Slack',
+    icon: <ChatIcon />,
+    content: (
+      <GlassPanel>
+        <SlackConfigsPanel />
+      </GlassPanel>
+    ),
+  },
+  {
+    slug: 'imagekit',
+    label: 'ImageKit',
+    icon: <ImageIcon />,
+    content: (
+      <GlassPanel>
+        <ImageConfigsPanel />
+      </GlassPanel>
+    ),
+  },
+  {
+    slug: 'smtp',
+    label: 'SMTP',
+    icon: <EmailIcon />,
+    content: (
+      <GlassPanel>
+        <EmailConfigsPanel />
+      </GlassPanel>
+    ),
+  },
 ];
 
 /**
  * Environment Variables — the integration credentials the whole platform runs on,
  * stored in the database rather than in a .env file so they can be rotated and
- * verified here without a redeploy.
+ * verified here without a redeploy. Which tab is open lives in the URL.
  */
 export function EnvironmentVariablesPage() {
-  const [tab, setTab] = useState(0);
-  const ActivePanel = PANELS[tab].Panel;
-
   return (
     <Box>
-      <Tabs value={tab} onChange={(_e, v) => setTab(v)} sx={{ mb: 2 }}>
-        {PANELS.map((panel) => (
-          <Tab key={panel.key} icon={panel.icon} iconPosition="start" label={panel.label} />
-        ))}
-      </Tabs>
-      <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>
-        <ActivePanel />
-      </Box>
+      <Tabber
+        basePath={ENVIRONMENT_VARIABLES_PATH}
+        items={TABS}
+        ariaLabel="Integration credentials"
+        sx={{ mb: 2 }}
+      />
     </Box>
   );
 }

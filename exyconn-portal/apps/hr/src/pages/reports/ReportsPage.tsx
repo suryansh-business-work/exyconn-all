@@ -1,13 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useApolloClient } from '@apollo/client';
-import { Box, Button, Flex, Tab, Tabs, Text } from '@exyconn/shell/components/ui';
+import { Box } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
-import { toCsv, downloadCsv } from '@exyconn/shell/utils/csv';
-import DownloadIcon from '@mui/icons-material/Download';
+import { Tabber, type TabberItem } from '@exyconn/tabber';
 import type { AnyReport } from './reports.types';
-import { ReportTable } from './ReportTable';
+import { ReportPanel } from './ReportPanel';
 import {
   employeesReport,
   headcountReport,
@@ -31,75 +27,33 @@ const REPORTS: AnyReport[] = [
   exitsReport,
 ];
 
-const PREVIEW_ROWS = 50;
+/** Route the report tabs live under; the chosen report is a slug beneath it. */
+const REPORTS_PATH = '/hr/reports';
 
-/** HR reports: pick one, see it, export every row as CSV (opens in Excel). */
+/** One tab per report; the report's own key is its slug. */
+const TABS: TabberItem[] = REPORTS.map((report) => ({
+  slug: report.key,
+  label: report.label,
+  content: <ReportPanel report={report} />,
+}));
+
+/**
+ * HR reports: pick one, see it, export every row as CSV (opens in Excel). The
+ * chosen report is a slug in the URL, so a report can be linked to and survives
+ * a reload.
+ */
 export function ReportsPage() {
-  const client = useApolloClient();
-  const notify = useNotify();
-  const [activeKey, setActiveKey] = useState(REPORTS[0].key);
-  const [rows, setRows] = useState<unknown[]>([]);
-  const [loading, setLoading] = useState(false);
-  const report = useMemo(() => REPORTS.find((r) => r.key === activeKey) ?? REPORTS[0], [activeKey]);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      setRows(await report.load(client));
-    } catch (error) {
-      setRows([]);
-      notify(error instanceof Error ? error.message : 'Could not load the report', 'error');
-    } finally {
-      setLoading(false);
-    }
-  }, [client, notify, report]);
-
-  useEffect(() => {
-    load().catch(() => undefined);
-  }, [load]);
-
-  const exportCsv = () => {
-    const stamp = new Date().toISOString().slice(0, 10);
-    downloadCsv(`${report.key}-${stamp}`, toCsv(rows, report.columns));
-    notify(`Exported ${rows.length} rows.`, 'success');
-  };
-
   return (
     <Box>
       <PageHeader title="Reports" subtitle="Every HR dataset, on screen and as CSV" />
 
       <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
-        <Tabs
-          value={activeKey}
-          onChange={(_event, value: string) => setActiveKey(value)}
+        <Tabber
+          basePath={REPORTS_PATH}
+          items={TABS}
           variant="scrollable"
-          scrollButtons="auto"
+          ariaLabel="HR reports"
           sx={{ mb: 1.5 }}
-        >
-          {REPORTS.map((r) => (
-            <Tab key={r.key} value={r.key} label={r.label} />
-          ))}
-        </Tabs>
-
-        <Flex direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
-          <Text size="sm" color="text.secondary">
-            {report.description}
-            {!loading && ` · ${rows.length} rows`}
-          </Text>
-          <Button
-            startIcon={<DownloadIcon />}
-            onClick={exportCsv}
-            disabled={loading || rows.length === 0}
-          >
-            Export CSV
-          </Button>
-        </Flex>
-
-        <ReportTable
-          columns={report.columns}
-          rows={rows}
-          loading={loading}
-          previewLimit={PREVIEW_ROWS}
         />
       </Box>
     </Box>

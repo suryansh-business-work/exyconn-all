@@ -80,7 +80,7 @@ export { TimePicker } from '@mui/x-date-pickers/TimePicker';
 // left out of this wildcard — the branded one from `./tokens` below takes
 // that name at the barrel level (nothing imports the raw one from here today;
 // existing call sites reach `@/components/ui/styles` directly).
-export { styled, alpha, useTheme, createTheme, type Theme } from './styles';
+export { styled, alpha, useTheme, createTheme, type Theme, type SxProps } from './styles';
 
 // Design-system additions: tokens (scales + a standalone ThemeProvider for
 // isolated mounts), typography, spacing, layout, inputs, and cards. Each

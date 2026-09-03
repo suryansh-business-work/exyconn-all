@@ -43,7 +43,7 @@ export function App() {
       <Route path="/hr/attendance" element={<AttendanceListPage />} />
       <Route path="/hr/departments" element={<DepartmentsPage />} />
       <Route path="/hr/announcements" element={<AnnouncementsPage />} />
-      <Route path="/hr/reports" element={<ReportsPage />} />
+      <Route path="/hr/reports/:tab?" element={<ReportsPage />} />
       <Route path="/hr/salaries" element={<SalariesPage />} />
       <Route path="/hr/payroll" element={<PayrollPage />} />
       <Route path="/hr/notify" element={<NotifyPage />} />

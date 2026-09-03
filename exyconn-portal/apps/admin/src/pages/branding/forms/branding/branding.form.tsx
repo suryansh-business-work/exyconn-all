@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { useForm, useFormContext, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, Tab, Tabs } from '@exyconn/shell/components/ui';
+import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useUpdateBrandingMutation } from '@exyconn/shell/graphql/generated';
@@ -17,15 +16,19 @@ import {
   type BrandingRow,
 } from './branding.types';
 
-const TAB_LABELS = ['Identity', 'Images', 'Colors', 'Contact & Social'];
+/** Route the branding tabs live under; each group of fields is a slug beneath it. */
+const BRANDING_PATH = '/admin/branding';
 
-/** Renders the fields for the active tab. Values persist across tab switches. */
-function BrandingTabPanel({ tab }: Readonly<{ tab: number }>) {
-  if (tab === 0) return <BrandingIdentityFields />;
-  if (tab === 1) return <BrandingImagesFields />;
-  if (tab === 2) return <BrandingColorsFields />;
-  return <BrandingContactFields />;
-}
+/**
+ * One tab per group of fields. All groups share the one form, so values entered
+ * on a tab survive switching away and back — only the visible fields change.
+ */
+const TABS: TabberItem[] = [
+  { slug: 'identity', label: 'Identity', content: <BrandingIdentityFields /> },
+  { slug: 'images', label: 'Images', content: <BrandingImagesFields /> },
+  { slug: 'colors', label: 'Colors', content: <BrandingColorsFields /> },
+  { slug: 'contact', label: 'Contact & Social', content: <BrandingContactFields /> },
+];
 
 /** Preview fed by the live form values, so edits are visible before saving. */
 function BrandingLivePreview() {
@@ -54,7 +57,6 @@ interface BrandingFormProps {
  */
 export function BrandingForm({ initial }: Readonly<BrandingFormProps>) {
   const notify = useNotify();
-  const [tab, setTab] = useState(0);
   const [updateBranding] = useUpdateBrandingMutation();
   const methods = useForm<BrandingFormValues>({
     resolver: zodResolver(brandingSchema),
@@ -80,14 +82,12 @@ export function BrandingForm({ initial }: Readonly<BrandingFormProps>) {
       onCancel={() => methods.reset(toBrandingValues(initial))}
     >
       <BrandingLivePreview />
-      <Box>
-        <Tabs value={tab} onChange={(_e, v: number) => setTab(v)} variant="scrollable">
-          {TAB_LABELS.map((label) => (
-            <Tab key={label} label={label} />
-          ))}
-        </Tabs>
-      </Box>
-      <BrandingTabPanel tab={tab} />
+      <Tabber
+        basePath={BRANDING_PATH}
+        items={TABS}
+        variant="scrollable"
+        ariaLabel="Branding settings"
+      />
     </EntityForm>
   );
 }
