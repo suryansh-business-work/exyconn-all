@@ -10,13 +10,15 @@ import {
 import { TrackerNotificationsForm } from './forms/tracker-notifications';
 
 /**
- * A channel the bot has not joined is the one thing that silently breaks a build
- * notification — Slack accepts the upload and then refuses to post it — so it is
- * called out here rather than discovered in a failed workflow run.
+ * Only a private channel the bot has not joined actually blocks a build: the
+ * workflow adds the bot to a public channel itself, but Slack does not allow that
+ * for a private one, so those need an /invite before they will accept a post.
  */
 function channelLabel(name: string, isPrivate: boolean, isMember: boolean): string {
-  const notes = [isPrivate ? 'private' : '', isMember ? '' : 'bot not invited'].filter(Boolean);
-  return notes.length ? `#${name} (${notes.join(', ')})` : `#${name}`;
+  if (isPrivate && !isMember) {
+    return `#${name} (private, needs /invite)`;
+  }
+  return isPrivate ? `#${name} (private)` : `#${name}`;
 }
 
 /**

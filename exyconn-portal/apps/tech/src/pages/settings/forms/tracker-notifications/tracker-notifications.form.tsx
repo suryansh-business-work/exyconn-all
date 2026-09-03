@@ -60,8 +60,8 @@ export function TrackerNotificationsForm({
       submitLabel="Save channels"
     >
       <Text size="sm" color="text.secondary">
-        Every channel the Slack bot can see is listed. A channel marked &ldquo;bot not
-        invited&rdquo; will reject the post — run /invite in it first.
+        Every channel the Slack bot can see is listed. It joins a public channel on its own; a
+        private one marked &ldquo;needs /invite&rdquo; has to be joined by hand first.
       </Text>
       <RhfMultiSelect name="slackChannels" label="Channels for tracker builds" options={options} />
     </EntityForm>
