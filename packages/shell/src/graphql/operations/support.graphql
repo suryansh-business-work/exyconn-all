@@ -7,6 +7,8 @@ query ListSupportTickets {
     description
     priority
     status
+    assigneeId
+    assigneeName
     createdAt
   }
 }
@@ -15,5 +17,39 @@ mutation SetSupportTicketStatus($id: ID!, $status: SupportStatus!) {
   setSupportTicketStatus(id: $id, status: $status) {
     id
     status
+  }
+}
+
+query ListSupportReplies($ticketId: ID!) {
+  listSupportReplies(ticketId: $ticketId) {
+    id
+    ticketId
+    authorId
+    authorName
+    body
+    internal
+    createdAt
+  }
+}
+
+query ListSupportAgents {
+  listSupportAgents {
+    id
+    name
+    email
+  }
+}
+
+mutation AssignSupportTicket($id: ID!, $assigneeId: String!) {
+  assignSupportTicket(id: $id, assigneeId: $assigneeId) {
+    id
+    assigneeId
+    assigneeName
+  }
+}
+
+mutation AddSupportReply($ticketId: ID!, $body: String!, $internal: Boolean!) {
+  addSupportReply(ticketId: $ticketId, body: $body, internal: $internal) {
+    id
   }
 }

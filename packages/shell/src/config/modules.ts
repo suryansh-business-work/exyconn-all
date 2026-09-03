@@ -20,6 +20,10 @@ import HubIcon from '@mui/icons-material/Hub';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import TerminalIcon from '@mui/icons-material/Terminal';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import HandshakeIcon from '@mui/icons-material/Handshake';
+import BusinessIcon from '@mui/icons-material/Business';
+import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import InventoryIcon from '@mui/icons-material/Inventory2';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
@@ -162,7 +166,13 @@ export const MODULES: ModuleDefinition[] = [
     description: 'Invoices, billing & reimbursements',
     accent: '#0ea5e9',
     children: [
-      { key: 'finance-invoices', label: 'Invoices', path: '/finance', icon: ReceiptLongIcon },
+      { key: 'finance-overview', label: 'Overview', path: '/finance', icon: DashboardIcon },
+      {
+        key: 'finance-invoices',
+        label: 'Invoices',
+        path: '/finance/invoices',
+        icon: ReceiptLongIcon,
+      },
       { key: 'finance-expenses', label: 'Expense Claims', path: '/expenses', icon: ReceiptIcon },
     ],
   },
@@ -174,6 +184,15 @@ export const MODULES: ModuleDefinition[] = [
     icon: SupportAgentIcon,
     description: 'Employee support tickets',
     accent: '#e11d48',
+    children: [
+      { key: 'support-overview', label: 'Overview', path: '/support', icon: DashboardIcon },
+      {
+        key: 'support-tickets',
+        label: 'Tickets',
+        path: '/support/tickets',
+        icon: SupportAgentIcon,
+      },
+    ],
   },
   {
     key: 'crm',
@@ -183,6 +202,14 @@ export const MODULES: ModuleDefinition[] = [
     icon: HubIcon,
     description: 'Leads & pipeline',
     accent: '#22c55e',
+    children: [
+      { key: 'crm-overview', label: 'Overview', path: '/crm', icon: DashboardIcon },
+      { key: 'crm-leads', label: 'Leads', path: '/crm/leads', icon: ContactPhoneIcon },
+      { key: 'crm-companies', label: 'Companies', path: '/crm/companies', icon: BusinessIcon },
+      { key: 'crm-contacts', label: 'Contacts', path: '/crm/contacts', icon: PersonIcon },
+      { key: 'crm-deals', label: 'Deals', path: '/crm/deals', icon: HandshakeIcon },
+      { key: 'crm-activities', label: 'Activities', path: '/crm/activities', icon: EventNoteIcon },
+    ],
   },
   {
     key: 'products',
@@ -192,6 +219,22 @@ export const MODULES: ModuleDefinition[] = [
     icon: Inventory2Icon,
     description: 'Product catalog',
     accent: '#f97316',
+    children: [
+      { key: 'products-overview', label: 'Overview', path: '/products', icon: DashboardIcon },
+      {
+        key: 'products-catalogue',
+        label: 'Catalogue',
+        path: '/products/catalogue',
+        icon: InventoryIcon,
+      },
+      {
+        key: 'products-suppliers',
+        label: 'Suppliers',
+        path: '/products/suppliers',
+        icon: BusinessIcon,
+      },
+      { key: 'products-stock', label: 'Stock', path: '/products/stock', icon: BuildIcon },
+    ],
   },
   {
     key: 'legal',
@@ -308,6 +351,15 @@ export const MODULES: ModuleDefinition[] = [
     icon: CampaignIcon,
     description: 'Campaigns',
     accent: '#ec4899',
+    children: [
+      { key: 'marketing-overview', label: 'Overview', path: '/marketing', icon: DashboardIcon },
+      {
+        key: 'marketing-campaigns',
+        label: 'Campaigns',
+        path: '/marketing/campaigns',
+        icon: CampaignIcon,
+      },
+    ],
   },
   {
     key: 'projects',
@@ -406,7 +458,8 @@ export const MODULES: ModuleDefinition[] = [
     description: 'AI jobs & prompts',
     accent: '#6366f1',
     children: [
-      { key: 'ai-dashboard', label: 'Dashboard', path: '/ai', icon: DashboardIcon },
+      { key: 'ai-overview', label: 'Overview', path: '/ai', icon: DashboardIcon },
+      { key: 'ai-jobs', label: 'Jobs', path: '/ai/jobs', icon: DashboardIcon },
       {
         key: 'ai-prompts',
         label: 'Prompt Library',
@@ -494,12 +547,15 @@ export const MODULES: ModuleDefinition[] = [
   {
     key: 'it',
     label: 'IT',
-    path: '/it/assets',
+    path: '/it',
     role: ROLES.IT,
     icon: DevicesIcon,
     description: 'Company hardware & licences',
     accent: '#0891b2',
-    children: [{ key: 'it-assets', label: 'Assets', path: '/it/assets', icon: InventoryIcon }],
+    children: [
+      { key: 'it-overview', label: 'Overview', path: '/it', icon: DashboardIcon },
+      { key: 'it-assets', label: 'Assets', path: '/it/assets', icon: InventoryIcon },
+    ],
   },
 ];
 

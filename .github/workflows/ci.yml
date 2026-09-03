@@ -35,6 +35,11 @@ jobs:
       - name: Portal image copies every workspace manifest
         run: node scripts/check-docker-manifests.mjs
 
+      # A bad typeDefs block is a runtime parse error, so tsc passes and then every
+      # server test fails at once with the same message. Name the file instead.
+      - name: GraphQL SDL parses
+        run: node scripts/check-graphql-sdl.cjs
+
       - name: GraphQL codegen is in sync
         run: |
           pnpm codegen

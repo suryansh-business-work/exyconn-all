@@ -95,6 +95,9 @@ export const employeeTypeDefs = gql`
     description: String!
     priority: SupportPriority!
     status: SupportStatus!
+    "Support-team member who owns it. Empty until someone picks it up."
+    assigneeId: String!
+    assigneeName: String!
     createdAt: DateTime!
     updatedAt: DateTime!
   }

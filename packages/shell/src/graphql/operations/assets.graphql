@@ -65,3 +65,9 @@ mutation UpdateAsset($id: ID!, $input: AssetInput!) {
 mutation DeleteAsset($id: ID!) {
   deleteAsset(id: $id)
 }
+
+query ListAssets {
+  listAssets {
+    ...AssetFields
+  }
+}
