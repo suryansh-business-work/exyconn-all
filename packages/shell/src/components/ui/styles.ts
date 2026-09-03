@@ -4,4 +4,4 @@
  * guard). Theme construction lives in `src/config/theme.ts`.
  */
 export { styled, alpha, useTheme, ThemeProvider, createTheme } from '@mui/material/styles';
-export type { Theme } from '@mui/material/styles';
+export type { Theme, SxProps } from '@mui/material/styles';

@@ -14,11 +14,11 @@ export function App() {
   return (
     <PortalApp loginElement={<Login />} moduleRole={ROLES.ADMIN} homePath="/admin">
       <Route path="/admin" element={<AdminPage />} />
-      <Route path="/admin/branding" element={<BrandingPage />} />
-      <Route path="/admin/permissions" element={<PermissionsPage />} />
+      <Route path="/admin/branding/:tab?" element={<BrandingPage />} />
+      <Route path="/admin/permissions/:tab?" element={<PermissionsPage />} />
       <Route path="/admin/users/:id" element={<UserDetailsPage />} />
       <Route path="/clients" element={<ClientsPage />} />
-      <Route path="/environment-variables" element={<EnvironmentVariablesPage />} />
+      <Route path="/environment-variables/:tab?" element={<EnvironmentVariablesPage />} />
     </PortalApp>
   );
 }
