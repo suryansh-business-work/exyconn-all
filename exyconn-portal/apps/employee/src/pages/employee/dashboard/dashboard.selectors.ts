@@ -1,5 +1,6 @@
-import { differenceInCalendarDays, isSameDay, isSameMonth, isAfter } from 'date-fns';
+import { differenceInCalendarDays, isSameDay, isSameMonth } from 'date-fns';
 import { toDate } from '@exyconn/shell/utils/date';
+export { upcomingHolidays } from '@exyconn/shell/utils/upcomingHolidays';
 
 export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'WFH' | 'HALF_DAY';
 export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
@@ -21,11 +22,6 @@ export interface HolidayRecord {
 export interface SalarySlipRecord {
   month: number;
   year: number;
-}
-
-/** Milliseconds for a stored date, or null when it cannot be parsed. */
-function timeOf(value: string): number | null {
-  return toDate(value)?.getTime() ?? null;
 }
 
 /** Today's attendance record, or null when nothing has been marked yet. */
@@ -73,24 +69,6 @@ export function leaveSummary(requests: LeaveRecord[], ref: Date) {
     if (request.status === 'APPROVED' && inYear) approvedDays += leaveDays(request);
   }
   return { pending, approvedDays };
-}
-
-/** The next holidays after `today`, soonest first. */
-export function upcomingHolidays<T extends HolidayRecord>(
-  holidays: T[],
-  today: Date,
-  limit = 3,
-): T[] {
-  return (
-    holidays
-      .filter((h) => {
-        const date = toDate(h.date);
-        return date ? isAfter(date, today) : false;
-      })
-      // filter() already returned a fresh array, so sorting it cannot touch the caller's.
-      .sort((a, b) => (timeOf(a.date) ?? 0) - (timeOf(b.date) ?? 0))
-      .slice(0, limit)
-  );
 }
 
 /** Most recent slip by year then month. */
