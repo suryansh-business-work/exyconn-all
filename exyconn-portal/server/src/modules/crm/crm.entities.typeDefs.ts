@@ -47,7 +47,7 @@ export const crmEntitiesTypeDefs = gql`
     name: String!
     domain: String!
     industry: String!
-    "One of COMPANY_SIZES, e.g. \"11-50\". A string because \"1-10\" is not a valid enum name."
+    "One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name."
     size: String!
     status: CompanyStatus!
     phone: String!
@@ -110,7 +110,7 @@ export const crmEntitiesTypeDefs = gql`
     name: String!
     domain: String!
     industry: String
-    "One of COMPANY_SIZES, e.g. \"11-50\". A string because \"1-10\" is not a valid enum name."
+    "One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name."
     size: String!
     status: CompanyStatus!
     phone: String

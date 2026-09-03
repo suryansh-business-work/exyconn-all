@@ -603,7 +603,7 @@ export type Company = {
   notes: Scalars['String']['output'];
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
-  /** One of COMPANY_SIZES, e.g. "11-50". A string because "1-10" is not a valid enum name. */
+  /** One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name. */
   size: Scalars['String']['output'];
   status: CompanyStatus;
   updatedAt: Scalars['DateTime']['output'];
@@ -630,7 +630,7 @@ export type CompanyInput = {
   notes?: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   phone?: InputMaybe<Scalars['String']['input']>;
-  /** One of COMPANY_SIZES, e.g. "11-50". A string because "1-10" is not a valid enum name. */
+  /** One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name. */
   size: Scalars['String']['input'];
   status: CompanyStatus;
 };
