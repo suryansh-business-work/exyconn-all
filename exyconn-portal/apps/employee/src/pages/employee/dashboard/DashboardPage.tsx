@@ -25,10 +25,12 @@ import {
   leaveSummary,
   upcomingHolidays,
   latestSalarySlip,
+  totalLeaveAvailable,
   type AttendanceRecord,
   type LeaveRecord,
   type HolidayRecord,
   type SalarySlipRecord,
+  type LeaveBalanceRecord,
 } from './dashboard.selectors';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -58,6 +60,10 @@ export function DashboardPage() {
     const month = monthAttendance(attendanceRows, now);
     const leaves = leaveSummary(leaveRows, now);
     const latest = latestSalarySlip(slipRows);
+    const available = totalLeaveAvailable(
+      (balances.data?.myLeaveBalances ?? []) as LeaveBalanceRecord[],
+      now,
+    );
     const structure = payroll.data?.myPayroll;
     // Real entitlement now that leave policies exist, instead of only what was taken.
     const availableLeave = (balances.data?.myLeaveBalances ?? [])
@@ -71,6 +77,11 @@ export function DashboardPage() {
       { label: 'Today', value: today?.status.replace('_', ' ') ?? 'Not marked', accent: '#155dfc' },
       { label: 'Present this month', value: String(month.PRESENT), accent: '#16a34a' },
       { label: 'Work from home', value: String(month.WFH), accent: '#0ea5e9' },
+      {
+        label: 'Leave balance',
+        value: available === null ? 'Not set' : `${available} d`,
+        accent: '#14b8a6',
+      },
       { label: 'Leave pending', value: String(leaves.pending), accent: '#f97316' },
       { label: 'Leave available', value: `${availableLeave} d`, accent: '#a855f7' },
       {

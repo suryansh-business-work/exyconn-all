@@ -23,6 +23,8 @@ const userSchema = new Schema(
     department: { type: String, trim: true, default: null },
     designation: { type: String, trim: true, default: null },
     joinDate: { type: Date, default: null },
+    /** Used for birthday reminders; only the day and month are ever shown. */
+    dateOfBirth: { type: Date, default: null },
     employmentStatus: {
       type: String,
       enum: EMPLOYMENT_STATUSES,

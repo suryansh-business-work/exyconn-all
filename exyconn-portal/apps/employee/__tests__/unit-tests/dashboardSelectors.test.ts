@@ -6,6 +6,7 @@ import {
   leaveSummary,
   upcomingHolidays,
   latestSalarySlip,
+  totalLeaveAvailable,
 } from '../../src/pages/employee/dashboard/dashboard.selectors';
 
 const REF = new Date('2026-03-15T10:00:00.000Z');
@@ -98,5 +99,35 @@ describe('latestSalarySlip', () => {
 
   it('is null when there are no slips', () => {
     expect(latestSalarySlip([])).toBeNull();
+  });
+});
+
+describe('totalLeaveAvailable', () => {
+  it('sums the current year across leave types and ignores other years', () => {
+    const rows = [
+      { leaveTypeCode: 'CL', year: 2026, available: 4 },
+      { leaveTypeCode: 'SL', year: 2026, available: 6 },
+      { leaveTypeCode: 'EL', year: 2025, available: 12 },
+    ];
+    expect(totalLeaveAvailable(rows, REF)).toBe(10);
+  });
+
+  it('clamps a negative (over-used) type to zero instead of hiding other types', () => {
+    expect(
+      totalLeaveAvailable(
+        [
+          { leaveTypeCode: 'CL', year: 2026, available: -2 },
+          { leaveTypeCode: 'SL', year: 2026, available: 3 },
+        ],
+        REF,
+      ),
+    ).toBe(3);
+  });
+
+  it('is null when HR has allocated nothing for the year', () => {
+    expect(
+      totalLeaveAvailable([{ leaveTypeCode: 'CL', year: 2025, available: 5 }], REF),
+    ).toBeNull();
+    expect(totalLeaveAvailable([], REF)).toBeNull();
   });
 });

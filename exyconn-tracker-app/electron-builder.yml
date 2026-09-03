@@ -52,3 +52,9 @@ mac:
 
 dmg:
   sign: false
+
+linux:
+  target:
+    - AppImage
+  category: Office
+  artifactName: ${productName}-${version}.${ext}

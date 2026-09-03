@@ -63,7 +63,14 @@ Requires an employee who has been granted tracker access in the portal.
 ```bash
 pnpm --filter exyconn-tracker-app package:win   # NSIS installer (Windows)
 pnpm --filter exyconn-tracker-app package:mac    # DMG (macOS, must run ON macOS)
+pnpm --filter exyconn-tracker-app package:linux  # AppImage (Linux)
 ```
+
+CI does this for you: every push to `main` that touches `exyconn-tracker-app/` runs
+`.github/workflows/tracker-release.yml`, which builds all three installers, publishes them
+on a GitHub Release tagged `tracker-v<package.json version>`, and uploads the files to Slack
+(secrets `SLACK_BOT_TOKEN` + `SLACK_CHANNEL_ID`). Bump `version` in `package.json` before
+merging so the release gets a new tag.
 
 A macOS DMG can only be built on macOS, and for distribution it must be **code-signed and
 notarized** with your Apple Developer ID — set that up in `electron-builder.yml` / CI. The

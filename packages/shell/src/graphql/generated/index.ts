@@ -544,6 +544,7 @@ export enum ContractType {
 }
 
 export type CreateUserInput = {
+  dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
   department?: InputMaybe<Scalars['String']['input']>;
   designation?: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
@@ -4228,6 +4229,7 @@ export type UpdateSettingsInput = {
 };
 
 export type UpdateUserInput = {
+  dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
   department?: InputMaybe<Scalars['String']['input']>;
   designation?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
@@ -4244,6 +4246,7 @@ export type User = {
   avatarUrl?: Maybe<Scalars['String']['output']>;
   blockReason?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
   department?: Maybe<Scalars['String']['output']>;
   designation?: Maybe<Scalars['String']['output']>;
   email: Scalars['String']['output'];
@@ -4299,14 +4302,14 @@ export type WebsiteSubmissionTriageInput = {
 export type ListUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListUsersQuery = { __typename?: 'Query', listUsers: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, employmentStatus: EmploymentStatus }> };
+export type ListUsersQuery = { __typename?: 'Query', listUsers: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, employmentStatus: EmploymentStatus }> };
 
 export type ListUsersPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListUsersPagedQuery = { __typename?: 'Query', listUsersPaged: { __typename?: 'UserPage', totalCount: number, rows: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, employmentStatus: EmploymentStatus }> } };
+export type ListUsersPagedQuery = { __typename?: 'Query', listUsersPaged: { __typename?: 'UserPage', totalCount: number, rows: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, employmentStatus: EmploymentStatus }> } };
 
 export type ListUsersStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4318,7 +4321,7 @@ export type GetUserQueryVariables = Exact<{
 }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, employmentStatus: EmploymentStatus, createdAt: string, updatedAt: string } };
+export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, employmentStatus: EmploymentStatus, createdAt: string, updatedAt: string } };
 
 export type CreateUserMutationVariables = Exact<{
   input: CreateUserInput;
@@ -6907,6 +6910,7 @@ export const ListUsersDocument = gql`
     department
     designation
     joinDate
+    dateOfBirth
     employmentStatus
   }
 }
@@ -6962,6 +6966,7 @@ export const ListUsersPagedDocument = gql`
       department
       designation
       joinDate
+      dateOfBirth
       employmentStatus
     }
   }
@@ -7070,6 +7075,7 @@ export const GetUserDocument = gql`
     department
     designation
     joinDate
+    dateOfBirth
     employmentStatus
     createdAt
     updatedAt

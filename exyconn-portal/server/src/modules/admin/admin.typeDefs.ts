@@ -37,6 +37,7 @@ export const adminTypeDefs = gql`
     department: String
     designation: String
     joinDate: DateTime
+    dateOfBirth: DateTime
     employmentStatus: EmploymentStatus!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -69,6 +70,7 @@ export const adminTypeDefs = gql`
     department: String
     designation: String
     joinDate: DateTime
+    dateOfBirth: DateTime
     employmentStatus: EmploymentStatus
   }
 
@@ -81,6 +83,7 @@ export const adminTypeDefs = gql`
     department: String
     designation: String
     joinDate: DateTime
+    dateOfBirth: DateTime
     employmentStatus: EmploymentStatus
   }
 
