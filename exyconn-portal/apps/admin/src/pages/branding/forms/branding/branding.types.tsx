@@ -10,6 +10,16 @@ const url = z.string().trim().url('Enter a valid URL').or(z.literal(''));
 const email = z.string().trim().email('Enter a valid email address').or(z.literal(''));
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Use a 6-digit hex colour, e.g. #155dfc');
 
+/** One portal's login screen. `app` is the portal key and is never edited in the UI. */
+const loginPage = z.object({
+  app: text,
+  name: z.string().trim().min(1, 'Portal name is required'),
+  tagline: text,
+  backgroundImageUrl: url,
+  accentColor: color,
+});
+export type LoginPageValues = z.infer<typeof loginPage>;
+
 export const brandingSchema = z.object({
   businessName: z.string().trim().min(1, 'Business name is required'),
   legalName: text,
@@ -42,6 +52,8 @@ export const brandingSchema = z.object({
   githubUrl: url,
 
   copyrightText: text,
+
+  loginPages: z.array(loginPage),
 });
 
 export type BrandingFormValues = z.infer<typeof brandingSchema>;
@@ -79,4 +91,12 @@ export const toBrandingValues = (row: BrandingRow): BrandingFormValues => ({
   githubUrl: row.githubUrl,
 
   copyrightText: row.copyrightText,
+
+  loginPages: row.loginPages.map((page) => ({
+    app: page.app,
+    name: page.name,
+    tagline: page.tagline,
+    backgroundImageUrl: page.backgroundImageUrl,
+    accentColor: page.accentColor,
+  })),
 });

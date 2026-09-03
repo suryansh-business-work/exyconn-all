@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
-import { Box, Button, ImagePreview, ImageUploadDialog, Stack, Typography } from '@/components/ui';
+import {
+  Box,
+  Button,
+  ImagePreview,
+  ImageUploadDialog,
+  Stack,
+  TextField,
+  Typography,
+} from '@/components/ui';
 
 interface RhfImageFieldProps {
   name: string;
@@ -9,13 +17,24 @@ interface RhfImageFieldProps {
   /** Groups the upload on ImageKit (e.g. "branding"). */
   folder?: string;
   helperText?: string;
+  /**
+   * Shows the URL as an editable input instead of a caption, so an image already hosted
+   * elsewhere (a stock photo, a CDN asset) can be pasted in without an upload.
+   */
+  editableUrl?: boolean;
 }
 
 /**
  * React Hook Form-bound image field: previews the current URL and opens the
  * shared ImageUploadDialog, writing the hosted URL back into the form value.
  */
-export function RhfImageField({ name, label, folder, helperText }: Readonly<RhfImageFieldProps>) {
+export function RhfImageField({
+  name,
+  label,
+  folder,
+  helperText,
+  editableUrl = false,
+}: Readonly<RhfImageFieldProps>) {
   const { control } = useFormContext();
   const [open, setOpen] = useState(false);
 
@@ -48,9 +67,22 @@ export function RhfImageField({ name, label, folder, helperText }: Readonly<RhfI
                   </Button>
                 )}
               </Stack>
-              <Typography variant="caption" color={error ? 'error' : 'text.secondary'}>
-                {error ?? helperText ?? url}
-              </Typography>
+              {editableUrl ? (
+                <TextField
+                  name={field.name}
+                  value={url}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  placeholder="https://…"
+                  inputProps={{ 'aria-label': label }}
+                  error={Boolean(error)}
+                  helperText={error ?? helperText}
+                />
+              ) : (
+                <Typography variant="caption" color={error ? 'error' : 'text.secondary'}>
+                  {error ?? helperText ?? url}
+                </Typography>
+              )}
             </Stack>
             <ImageUploadDialog
               open={open}

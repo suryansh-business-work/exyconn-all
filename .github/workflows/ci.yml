@@ -29,6 +29,12 @@ jobs:
       # The codegen output is committed and no build step regenerates it, so a
       # `.graphql` operation added without re-running codegen only surfaces as a
       # type error later, inside the deploy image build. Catch the drift here.
+      # A workspace package the portal image does not copy the manifest for builds
+      # an image with nothing installed, and dies on "tsc: not found" — 20 minutes
+      # into a deploy, pointing nowhere near the cause. Catch it in seconds here.
+      - name: Portal image copies every workspace manifest
+        run: node scripts/check-docker-manifests.mjs
+
       - name: GraphQL codegen is in sync
         run: |
           pnpm codegen

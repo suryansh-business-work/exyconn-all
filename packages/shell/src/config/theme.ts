@@ -62,6 +62,17 @@ export function createAppTheme(mode: ColorMode): Theme {
       MuiButton: { defaultProps: { disableElevation: true, size: 'small' } },
       MuiTextField: { defaultProps: { size: 'small' } },
       MuiLink: { defaultProps: { underline: 'none' } },
+      // Compact density: the portal is dense, data-heavy chrome, so the shared
+      // primitives start small and every screen inherits the tighter rhythm.
+      MuiToolbar: { styleOverrides: { dense: { minHeight: 48 } } },
+      MuiListItemButton: { styleOverrides: { root: { paddingTop: 4, paddingBottom: 4 } } },
+      MuiTable: { defaultProps: { size: 'small' } },
+      MuiChip: { defaultProps: { size: 'small' } },
+      MuiSelect: { defaultProps: { size: 'small' } },
+      MuiCardContent: {
+        styleOverrides: { root: { padding: 12, '&:last-child': { paddingBottom: 12 } } },
+      },
+      MuiDialogContent: { styleOverrides: { root: { paddingTop: 12, paddingBottom: 12 } } },
       // Flat surfaces: no background gradient, a hairline border and a soft shadow.
       MuiPaper: {
         styleOverrides: {

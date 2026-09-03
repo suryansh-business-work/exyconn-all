@@ -53,15 +53,15 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
       })}
     >
       <Toolbar variant="dense">
-        <IconButton edge="start" onClick={onMenuClick} sx={{ mr: 2, display: { md: 'none' } }}>
+        <IconButton edge="start" onClick={onMenuClick} sx={{ mr: 1, display: { md: 'none' } }}>
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }}>
+        <Typography variant="subtitle2" sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }}>
           Exyconn Track
         </Typography>
         {user && <TopbarSearch roles={user.roles} />}
-        <Box sx={{ textAlign: 'right', ml: 2, mr: 2, display: { xs: 'none', sm: 'block' } }}>
-          <Typography variant="body2" fontWeight={600} sx={{ display: 'block' }}>
+        <Box sx={{ textAlign: 'right', mx: 1.5, display: { xs: 'none', sm: 'block' } }}>
+          <Typography variant="caption" fontWeight={700} sx={{ display: 'block', lineHeight: 1.3 }}>
             {user?.name}
           </Typography>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
@@ -74,7 +74,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} aria-label="account menu">
           <Avatar
             src={user?.avatarUrl ?? undefined}
-            sx={{ bgcolor: 'primary.main', width: 36, height: 36 }}
+            sx={{ bgcolor: 'primary.main', width: 30, height: 30, fontSize: 14 }}
           >
             {user?.name?.charAt(0).toUpperCase()}
           </Avatar>

@@ -36,3 +36,29 @@ export function moduleNavItems(module: ModuleDefinition, query = ''): NavItem[] 
   if (!q) return items;
   return items.filter((item) => item.label.toLowerCase().includes(q));
 }
+
+/** A collapsed-sidebar entry: a nav item plus where it goes and how it is tinted. */
+export interface RailItem extends NavItem {
+  app: PortalAppKey;
+  accent: string;
+}
+
+/**
+ * The flat, icon-only list the collapsed sidebar shows. The hub rails one icon per
+ * module (its children live behind the expanded list); a module app rails its own pages.
+ */
+export function railItems(modules: ModuleDefinition[], isHub: boolean): RailItem[] {
+  if (isHub) {
+    return modules.map((module) => ({
+      key: module.key,
+      label: module.label,
+      path: module.path,
+      icon: module.icon,
+      app: module.key,
+      accent: module.accent,
+    }));
+  }
+  return modules.flatMap((module) =>
+    moduleNavItems(module).map((item) => ({ ...item, app: module.key, accent: module.accent })),
+  );
+}

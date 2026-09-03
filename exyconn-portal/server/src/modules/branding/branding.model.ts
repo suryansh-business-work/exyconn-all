@@ -1,6 +1,21 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 
 /**
+ * Login screen of one portal app. Every app signs in through the same form, so only
+ * the artwork and wording differ — keyed by the app key from the portal app registry.
+ */
+const loginPageSchema = new Schema(
+  {
+    app: { type: String, required: true, trim: true },
+    name: { type: String, default: '', trim: true },
+    tagline: { type: String, default: '', trim: true },
+    backgroundImageUrl: { type: String, default: '', trim: true },
+    accentColor: { type: String, default: '#155dfc', trim: true },
+  },
+  { _id: false },
+);
+
+/**
  * Single source of truth for the Exyconn brand, consumed by every surface: the public
  * website, the desktop tracker, the tools apps and transactional email. One document,
  * keyed `global` (same singleton pattern as AppSettings), edited from Admin > Branding.
@@ -48,6 +63,9 @@ const brandingSchema = new Schema(
     githubUrl: { type: String, default: '', trim: true },
 
     copyrightText: { type: String, default: '', trim: true },
+
+    // Per-portal login screens (Admin > Branding > Login Pages).
+    loginPages: { type: [loginPageSchema], default: [] },
   },
   { timestamps: true },
 );

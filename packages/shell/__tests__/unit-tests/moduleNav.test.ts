@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { navModules, moduleNavItems } from '../../src/layout/PortalLayout/moduleNav';
+import { navModules, moduleNavItems, railItems } from '../../src/layout/PortalLayout/moduleNav';
 import { MODULES } from '../../src/config/modules';
 import { ROLES } from '../../src/auth/roles';
 
@@ -54,5 +54,24 @@ describe('moduleNavItems', () => {
     for (const module of MODULES) {
       expect(moduleNavItems(module).length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('railItems', () => {
+  it('rails one entry per module in the hub, carrying its own accent', () => {
+    const modules = navModules([ROLES.ADMIN], 'hub');
+    const items = railItems(modules, true);
+
+    expect(items).toHaveLength(modules.length);
+    expect(items.map((i) => i.app)).toEqual(modules.map((m) => m.key));
+    expect(items.map((i) => i.accent)).toEqual(modules.map((m) => m.accent));
+  });
+
+  it('rails a module app’s own pages, all pointing back at that app', () => {
+    const modules = navModules([ROLES.ADMIN], 'hr');
+    const items = railItems(modules, false);
+
+    expect(items.map((i) => i.path)).toEqual(moduleNavItems(moduleFor('hr')).map((i) => i.path));
+    expect(items.every((i) => i.app === 'hr')).toBe(true);
   });
 });

@@ -329,6 +329,7 @@ export type Branding = {
   instagramUrl: Scalars['String']['output'];
   legalName: Scalars['String']['output'];
   linkedinUrl: Scalars['String']['output'];
+  loginPages: Array<LoginPage>;
   logoDarkUrl: Scalars['String']['output'];
   logoUrl: Scalars['String']['output'];
   ogImageUrl: Scalars['String']['output'];
@@ -358,6 +359,7 @@ export type BrandingInput = {
   instagramUrl?: InputMaybe<Scalars['String']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   linkedinUrl?: InputMaybe<Scalars['String']['input']>;
+  loginPages?: InputMaybe<Array<LoginPageInput>>;
   logoDarkUrl?: InputMaybe<Scalars['String']['input']>;
   logoUrl?: InputMaybe<Scalars['String']['input']>;
   ogImageUrl?: InputMaybe<Scalars['String']['input']>;
@@ -1421,6 +1423,23 @@ export type LocationPage = {
   __typename?: 'LocationPage';
   rows: Array<Location>;
   totalCount: Scalars['Int']['output'];
+};
+
+export type LoginPage = {
+  __typename?: 'LoginPage';
+  accentColor: Scalars['String']['output'];
+  app: Scalars['String']['output'];
+  backgroundImageUrl: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  tagline: Scalars['String']['output'];
+};
+
+export type LoginPageInput = {
+  accentColor: Scalars['String']['input'];
+  app: Scalars['String']['input'];
+  backgroundImageUrl: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  tagline: Scalars['String']['input'];
 };
 
 /** Employee-facing attendance entry — the server sets employeeId. */
@@ -4765,6 +4784,8 @@ export type ResolversTypes = ResolversObject<{
   Location: ResolverTypeWrapper<Location>;
   LocationInput: LocationInput;
   LocationPage: ResolverTypeWrapper<LocationPage>;
+  LoginPage: ResolverTypeWrapper<LoginPage>;
+  LoginPageInput: LoginPageInput;
   MarkAttendanceInput: MarkAttendanceInput;
   Mutation: ResolverTypeWrapper<{}>;
   MyExpenseClaimInput: MyExpenseClaimInput;
@@ -4995,6 +5016,8 @@ export type ResolversParentTypes = ResolversObject<{
   Location: Location;
   LocationInput: LocationInput;
   LocationPage: LocationPage;
+  LoginPage: LoginPage;
+  LoginPageInput: LoginPageInput;
   MarkAttendanceInput: MarkAttendanceInput;
   Mutation: {};
   MyExpenseClaimInput: MyExpenseClaimInput;
@@ -5265,6 +5288,7 @@ export type BrandingResolvers<ContextType = GraphQLContext, ParentType extends R
   instagramUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   legalName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   linkedinUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  loginPages?: Resolver<Array<ResolversTypes['LoginPage']>, ParentType, ContextType>;
   logoDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   logoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   ogImageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -5861,6 +5885,15 @@ export type LocationResolvers<ContextType = GraphQLContext, ParentType extends R
 export type LocationPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LocationPage'] = ResolversParentTypes['LocationPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Location']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LoginPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LoginPage'] = ResolversParentTypes['LoginPage']> = ResolversObject<{
+  accentColor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  app?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  backgroundImageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tagline?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6954,6 +6987,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   LegalDocumentPage?: LegalDocumentPageResolvers<ContextType>;
   Location?: LocationResolvers<ContextType>;
   LocationPage?: LocationPageResolvers<ContextType>;
+  LoginPage?: LoginPageResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   NavLink?: NavLinkResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;

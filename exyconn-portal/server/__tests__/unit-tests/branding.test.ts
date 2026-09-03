@@ -1,6 +1,7 @@
 import { BrandingModel } from '../../src/modules/branding/branding.model';
 import { getBranding, updateBranding } from '../../src/modules/branding/branding.service';
 import { BRANDING_DEFAULTS } from '../../src/modules/branding/branding.constants';
+import { LOGIN_PAGE_DEFAULTS } from '../../src/modules/branding/login-pages.constants';
 
 describe('branding', () => {
   it('creates the global document with defaults on first read', async () => {
@@ -38,6 +39,39 @@ describe('branding', () => {
     expect(branding.primaryColor).toBe('#ff0000');
     // Untouched fields keep their defaults rather than becoming null.
     expect(branding.secondaryColor).toBe(BRANDING_DEFAULTS.secondaryColor);
+  });
+
+  it('returns one login page per portal app, in registry order', async () => {
+    const branding = await getBranding();
+
+    expect(branding.loginPages.map((page) => page.app)).toEqual(
+      LOGIN_PAGE_DEFAULTS.map((page) => page.app),
+    );
+    expect(branding.loginPages.every((page) => page.backgroundImageUrl.length > 0)).toBe(true);
+  });
+
+  it('keeps an edited login page and defaults the portals left alone', async () => {
+    await updateBranding({
+      loginPages: [
+        {
+          app: 'finance',
+          name: 'Finance Desk',
+          tagline: 'Numbers, settled.',
+          backgroundImageUrl: 'https://images.example.com/finance.jpg',
+          accentColor: '#123456',
+        },
+      ],
+    });
+
+    const branding = await getBranding();
+    const finance = branding.loginPages.find((page) => page.app === 'finance');
+    const hr = branding.loginPages.find((page) => page.app === 'hr');
+
+    // The list stays complete even though only one portal was submitted.
+    expect(branding.loginPages).toHaveLength(LOGIN_PAGE_DEFAULTS.length);
+    expect(finance?.name).toBe('Finance Desk');
+    expect(finance?.accentColor).toBe('#123456');
+    expect(hr?.name).toBe(LOGIN_PAGE_DEFAULTS.find((page) => page.app === 'hr')?.name);
   });
 
   it('keeps every non-nullable GraphQL field defined', async () => {

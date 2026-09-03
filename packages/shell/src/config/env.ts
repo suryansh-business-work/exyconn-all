@@ -14,7 +14,6 @@ export const env = Object.freeze({
   /** Icon-only mark (no text) for favicon and the post-login sidebar. */
   iconUrl: '/exyconn-icon.svg',
   brandUrl: 'https://exyconn.com/',
-  loginVideoUrl: 'https://www.pexels.com/download/video/27152555/',
   tokenStorageKey: 'exyconn-track.token',
   userStorageKey: 'exyconn-track.user',
 });

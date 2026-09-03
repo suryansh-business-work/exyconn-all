@@ -23,11 +23,14 @@ is built as a downloadable Windows installer artifact by the same workflow.
 | Portal · AI | 4030 | ai.exyconn.com | `exyconn-portal-ai` |
 | Portal · Website | 4031 | website.exyconn.com | `exyconn-portal-website` |
 | Portal · Time Tracker | 4032 | tracker.exyconn.com | `exyconn-portal-tracker` |
+| Portal · Tech | 4033 | tech.exyconn.com | `exyconn-portal-tech` |
+| Portal · IT | 4034 | it.exyconn.com | `exyconn-portal-it` |
 | Portal API | 4004 | portal-server.exyconn.com | `exyconn-portal-server` |
 | Tracker (desktop) | — | — | Windows installer artifact |
 
 Containers listen only on `127.0.0.1:<port>`; host nginx terminates TLS and proxies each
-public domain to its port.
+public domain to its port. Every portal domain serves the same sign-in at `/login`, styled
+per portal from Admin > Branding > Login Pages — see [docs/portal/portals.md](docs/portal/portals.md).
 
 ## 0. Rotate the leaked secrets FIRST
 
