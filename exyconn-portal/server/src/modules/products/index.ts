@@ -26,3 +26,5 @@ export const productsResolvers = createCrudResolvers(productsService, {
   stats: { countBy: ['status'], sum: ['stock'] },
 });
 export { productsTypeDefs };
+export { productsInventoryTypeDefs } from './products.inventory.typeDefs';
+export { productsInventoryResolvers, suppliersService } from './products.inventory';

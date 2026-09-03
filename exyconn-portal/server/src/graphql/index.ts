@@ -9,6 +9,10 @@ import { bugsTypeDefs, bugsResolvers } from '../modules/bugs';
 import { clientsTypeDefs, clientsResolvers } from '../modules/clients';
 import { assetsTypeDefs, assetsResolvers } from '../modules/assets';
 import { crmEntitiesTypeDefs, crmEntitiesResolvers } from '../modules/crm';
+import {
+  productsInventoryTypeDefs,
+  productsInventoryResolvers,
+} from '../modules/products';
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
 import { employeeTypeDefs, employeeResolvers } from '../modules/employee';
 import { supportTypeDefs, supportResolvers } from '../modules/support';
@@ -76,6 +80,7 @@ export const typeDefs = [
   clientsTypeDefs,
   assetsTypeDefs,
   crmEntitiesTypeDefs,
+  productsInventoryTypeDefs,
   hrTypeDefs,
   employeeTypeDefs,
   supportTypeDefs,
@@ -115,6 +120,7 @@ export const resolvers = mergeResolvers([
   clientsResolvers,
   assetsResolvers,
   crmEntitiesResolvers,
+  productsInventoryResolvers,
   hrResolvers,
   employeeResolvers,
   supportResolvers,

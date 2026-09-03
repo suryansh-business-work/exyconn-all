@@ -30,7 +30,7 @@ const aiJobResolvers = createCrudResolvers(aiService, {
     sortFields: ['name', 'model', 'prompt', 'status', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
-  stats: { countBy: ['status'] },
+  stats: { countBy: ['status', 'model'] },
 });
 
 export const promptService = createCrudService<PromptInput>(PromptModel as never, 'Prompt');

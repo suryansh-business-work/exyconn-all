@@ -1,0 +1,84 @@
+fragment SupplierFields on Supplier {
+  id
+  name
+  code
+  contactName
+  email
+  phone
+  status
+  notes
+}
+
+fragment StockMovementFields on StockMovement {
+  id
+  productId
+  productName
+  reason
+  quantity
+  stockAfter
+  supplierId
+  supplierName
+  reference
+  notes
+  recordedBy
+  createdAt
+}
+
+query ListSuppliers {
+  listSuppliers {
+    ...SupplierFields
+  }
+}
+
+query ListSuppliersPaged($input: TableQueryInput!) {
+  listSuppliersPaged(input: $input) {
+    totalCount
+    rows {
+      ...SupplierFields
+    }
+  }
+}
+
+query ListSuppliersStats {
+  listSuppliersStats {
+    ...CrmStats
+  }
+}
+
+mutation CreateSupplier($input: SupplierInput!) {
+  createSupplier(input: $input) {
+    id
+  }
+}
+
+mutation UpdateSupplier($id: ID!, $input: SupplierInput!) {
+  updateSupplier(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteSupplier($id: ID!) {
+  deleteSupplier(id: $id)
+}
+
+query ListStockMovementsPaged($input: TableQueryInput!) {
+  listStockMovementsPaged(input: $input) {
+    totalCount
+    rows {
+      ...StockMovementFields
+    }
+  }
+}
+
+query ListStockMovementsStats {
+  listStockMovementsStats {
+    ...CrmStats
+  }
+}
+
+mutation RecordStockMovement($input: StockMovementInput!) {
+  recordStockMovement(input: $input) {
+    id
+    stockAfter
+  }
+}

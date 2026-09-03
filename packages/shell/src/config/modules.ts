@@ -227,6 +227,13 @@ export const MODULES: ModuleDefinition[] = [
         path: '/products/catalogue',
         icon: InventoryIcon,
       },
+      {
+        key: 'products-suppliers',
+        label: 'Suppliers',
+        path: '/products/suppliers',
+        icon: BusinessIcon,
+      },
+      { key: 'products-stock', label: 'Stock', path: '/products/stock', icon: BuildIcon },
     ],
   },
   {
@@ -451,7 +458,8 @@ export const MODULES: ModuleDefinition[] = [
     description: 'AI jobs & prompts',
     accent: '#6366f1',
     children: [
-      { key: 'ai-dashboard', label: 'Dashboard', path: '/ai', icon: DashboardIcon },
+      { key: 'ai-overview', label: 'Overview', path: '/ai', icon: DashboardIcon },
+      { key: 'ai-jobs', label: 'Jobs', path: '/ai/jobs', icon: DashboardIcon },
       {
         key: 'ai-prompts',
         label: 'Prompt Library',

@@ -1629,6 +1629,15 @@ export type MarkAttendanceInput = {
   status: AttendanceStatus;
 };
 
+/** Why a product's stock changed. */
+export enum MovementReason {
+  Count = 'COUNT',
+  Issue = 'ISSUE',
+  Receipt = 'RECEIPT',
+  Return = 'RETURN',
+  WriteOff = 'WRITE_OFF'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -1698,6 +1707,7 @@ export type Mutation = {
   createShift: Shift;
   createSlackConfig: SlackConfig;
   createStatusMonitor: StatusMonitor;
+  createSupplier: Supplier;
   /** Self-service: raise a support ticket (status forced to OPEN). */
   createSupportTicket: SupportTicket;
   createTask: Task;
@@ -1756,6 +1766,7 @@ export type Mutation = {
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
   deleteStatusMonitor: Scalars['Boolean']['output'];
+  deleteSupplier: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
@@ -1772,6 +1783,8 @@ export type Mutation = {
   /** Marks every GENERATED slip of the month PAID. Returns how many changed. */
   markPayrollPaid: Scalars['Int']['output'];
   moveTask: Scalars['Boolean']['output'];
+  /** Records a movement and moves the product's stock with it, in one step. */
+  recordStockMovement: StockMovement;
   renameColumn: BoardColumn;
   reorderColumns: Scalars['Boolean']['output'];
   /** Generates a new temporary password, emails it, and returns it once for copying. */
@@ -1892,6 +1905,7 @@ export type Mutation = {
   updateShift: Shift;
   updateSlackConfig: SlackConfig;
   updateStatusMonitor: StatusMonitor;
+  updateSupplier: Supplier;
   updateTask: Task;
   updateTeam: Team;
   updateTool: Tool;
@@ -2185,6 +2199,11 @@ export type MutationCreateStatusMonitorArgs = {
 };
 
 
+export type MutationCreateSupplierArgs = {
+  input: SupplierInput;
+};
+
+
 export type MutationCreateSupportTicketArgs = {
   input: SupportTicketInput;
 };
@@ -2468,6 +2487,11 @@ export type MutationDeleteStatusMonitorArgs = {
 };
 
 
+export type MutationDeleteSupplierArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteTaskArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2534,6 +2558,11 @@ export type MutationMoveTaskArgs = {
   id: Scalars['ID']['input'];
   toColumnId: Scalars['ID']['input'];
   toIndex: Scalars['Int']['input'];
+};
+
+
+export type MutationRecordStockMovementArgs = {
+  input: StockMovementInput;
 };
 
 
@@ -3033,6 +3062,12 @@ export type MutationUpdateStatusMonitorArgs = {
 };
 
 
+export type MutationUpdateSupplierArgs = {
+  id: Scalars['ID']['input'];
+  input: SupplierInput;
+};
+
+
 export type MutationUpdateTaskArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
@@ -3495,6 +3530,7 @@ export type Query = {
   getSalaryStructure: SalaryStructure;
   getShift: Shift;
   getStatusMonitor: StatusMonitor;
+  getSupplier: Supplier;
   getTeam: Team;
   getTool: Tool;
   getToolCategory: ToolCategory;
@@ -3647,6 +3683,12 @@ export type Query = {
   listStatusMonitors: Array<StatusMonitor>;
   listStatusMonitorsPaged: StatusMonitorPage;
   listStatusMonitorsStats: TableStats;
+  listStockMovements: Array<StockMovement>;
+  listStockMovementsPaged: StockMovementPage;
+  listStockMovementsStats: TableStats;
+  listSuppliers: Array<Supplier>;
+  listSuppliersPaged: SupplierPage;
+  listSuppliersStats: TableStats;
   /** SUPPORT/ADMIN: who a ticket can be assigned to. */
   listSupportAgents: Array<SupportAgent>;
   /** SUPPORT/ADMIN: the whole thread on one ticket, internal notes included. */
@@ -3947,6 +3989,11 @@ export type QueryGetStatusMonitorArgs = {
 };
 
 
+export type QueryGetSupplierArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetTeamArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4178,6 +4225,16 @@ export type QueryListShiftsPagedArgs = {
 
 
 export type QueryListStatusMonitorsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListStockMovementsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListSuppliersPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -4617,6 +4674,39 @@ export enum StatusState {
   Unknown = 'UNKNOWN'
 }
 
+export type StockMovement = {
+  __typename?: 'StockMovement';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  notes: Scalars['String']['output'];
+  productId: Scalars['String']['output'];
+  productName: Scalars['String']['output'];
+  /** Always positive; the reason decides the direction. */
+  quantity: Scalars['Int']['output'];
+  reason: MovementReason;
+  recordedBy: Scalars['String']['output'];
+  reference: Scalars['String']['output'];
+  /** The stock level after this movement. */
+  stockAfter: Scalars['Int']['output'];
+  supplierId: Scalars['String']['output'];
+  supplierName: Scalars['String']['output'];
+};
+
+export type StockMovementInput = {
+  notes?: InputMaybe<Scalars['String']['input']>;
+  productId: Scalars['ID']['input'];
+  quantity: Scalars['Int']['input'];
+  reason: MovementReason;
+  reference?: InputMaybe<Scalars['String']['input']>;
+  supplierId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type StockMovementPage = {
+  __typename?: 'StockMovementPage';
+  rows: Array<StockMovement>;
+  totalCount: Scalars['Int']['output'];
+};
+
 /** What the public status page submits. Everything else is set by the server. */
 export type SubmitProblemReportInput = {
   category: ProblemCategory;
@@ -4628,6 +4718,42 @@ export type SubmitProblemReportInput = {
   severity: ProblemSeverity;
   subject: Scalars['String']['input'];
 };
+
+export type Supplier = {
+  __typename?: 'Supplier';
+  code: Scalars['String']['output'];
+  contactName: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  status: SupplierStatus;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type SupplierInput = {
+  code: Scalars['String']['input'];
+  contactName?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
+  status: SupplierStatus;
+};
+
+export type SupplierPage = {
+  __typename?: 'SupplierPage';
+  rows: Array<Supplier>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum SupplierStatus {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+  OnHold = 'ON_HOLD'
+}
 
 /** Somebody the support team can hand a ticket to. */
 export type SupportAgent = {
@@ -7004,6 +7130,68 @@ export type ClearRolePermissionMutationVariables = Exact<{
 
 export type ClearRolePermissionMutation = { __typename?: 'Mutation', clearRolePermission: boolean };
 
+export type SupplierFieldsFragment = { __typename?: 'Supplier', id: string, name: string, code: string, contactName: string, email: string, phone: string, status: SupplierStatus, notes: string };
+
+export type StockMovementFieldsFragment = { __typename?: 'StockMovement', id: string, productId: string, productName: string, reason: MovementReason, quantity: number, stockAfter: number, supplierId: string, supplierName: string, reference: string, notes: string, recordedBy: string, createdAt: string };
+
+export type ListSuppliersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListSuppliersQuery = { __typename?: 'Query', listSuppliers: Array<{ __typename?: 'Supplier', id: string, name: string, code: string, contactName: string, email: string, phone: string, status: SupplierStatus, notes: string }> };
+
+export type ListSuppliersPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListSuppliersPagedQuery = { __typename?: 'Query', listSuppliersPaged: { __typename?: 'SupplierPage', totalCount: number, rows: Array<{ __typename?: 'Supplier', id: string, name: string, code: string, contactName: string, email: string, phone: string, status: SupplierStatus, notes: string }> } };
+
+export type ListSuppliersStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListSuppliersStatsQuery = { __typename?: 'Query', listSuppliersStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreateSupplierMutationVariables = Exact<{
+  input: SupplierInput;
+}>;
+
+
+export type CreateSupplierMutation = { __typename?: 'Mutation', createSupplier: { __typename?: 'Supplier', id: string } };
+
+export type UpdateSupplierMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: SupplierInput;
+}>;
+
+
+export type UpdateSupplierMutation = { __typename?: 'Mutation', updateSupplier: { __typename?: 'Supplier', id: string } };
+
+export type DeleteSupplierMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteSupplierMutation = { __typename?: 'Mutation', deleteSupplier: boolean };
+
+export type ListStockMovementsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListStockMovementsPagedQuery = { __typename?: 'Query', listStockMovementsPaged: { __typename?: 'StockMovementPage', totalCount: number, rows: Array<{ __typename?: 'StockMovement', id: string, productId: string, productName: string, reason: MovementReason, quantity: number, stockAfter: number, supplierId: string, supplierName: string, reference: string, notes: string, recordedBy: string, createdAt: string }> } };
+
+export type ListStockMovementsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListStockMovementsStatsQuery = { __typename?: 'Query', listStockMovementsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type RecordStockMovementMutationVariables = Exact<{
+  input: StockMovementInput;
+}>;
+
+
+export type RecordStockMovementMutation = { __typename?: 'Mutation', recordStockMovement: { __typename?: 'StockMovement', id: string, stockAfter: number } };
+
 export type ListProductsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -8075,6 +8263,34 @@ export const LeaveBalanceFieldsFragmentDoc = gql`
   used
   adjustment
   available
+}
+    `;
+export const SupplierFieldsFragmentDoc = gql`
+    fragment SupplierFields on Supplier {
+  id
+  name
+  code
+  contactName
+  email
+  phone
+  status
+  notes
+}
+    `;
+export const StockMovementFieldsFragmentDoc = gql`
+    fragment StockMovementFields on StockMovement {
+  id
+  productId
+  productName
+  reason
+  quantity
+  stockAfter
+  supplierId
+  supplierName
+  reference
+  notes
+  recordedBy
+  createdAt
 }
     `;
 export const StatusDayFieldsFragmentDoc = gql`
@@ -19086,6 +19302,356 @@ export function useClearRolePermissionMutation(baseOptions?: Apollo.MutationHook
 export type ClearRolePermissionMutationHookResult = ReturnType<typeof useClearRolePermissionMutation>;
 export type ClearRolePermissionMutationResult = Apollo.MutationResult<ClearRolePermissionMutation>;
 export type ClearRolePermissionMutationOptions = Apollo.BaseMutationOptions<ClearRolePermissionMutation, ClearRolePermissionMutationVariables>;
+export const ListSuppliersDocument = gql`
+    query ListSuppliers {
+  listSuppliers {
+    ...SupplierFields
+  }
+}
+    ${SupplierFieldsFragmentDoc}`;
+
+/**
+ * __useListSuppliersQuery__
+ *
+ * To run a query within a React component, call `useListSuppliersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListSuppliersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListSuppliersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListSuppliersQuery(baseOptions?: Apollo.QueryHookOptions<ListSuppliersQuery, ListSuppliersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListSuppliersQuery, ListSuppliersQueryVariables>(ListSuppliersDocument, options);
+      }
+export function useListSuppliersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListSuppliersQuery, ListSuppliersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListSuppliersQuery, ListSuppliersQueryVariables>(ListSuppliersDocument, options);
+        }
+// @ts-ignore
+export function useListSuppliersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListSuppliersQuery, ListSuppliersQueryVariables>): Apollo.UseSuspenseQueryResult<ListSuppliersQuery, ListSuppliersQueryVariables>;
+export function useListSuppliersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSuppliersQuery, ListSuppliersQueryVariables>): Apollo.UseSuspenseQueryResult<ListSuppliersQuery | undefined, ListSuppliersQueryVariables>;
+export function useListSuppliersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSuppliersQuery, ListSuppliersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListSuppliersQuery, ListSuppliersQueryVariables>(ListSuppliersDocument, options);
+        }
+export type ListSuppliersQueryHookResult = ReturnType<typeof useListSuppliersQuery>;
+export type ListSuppliersLazyQueryHookResult = ReturnType<typeof useListSuppliersLazyQuery>;
+export type ListSuppliersSuspenseQueryHookResult = ReturnType<typeof useListSuppliersSuspenseQuery>;
+export type ListSuppliersQueryResult = Apollo.QueryResult<ListSuppliersQuery, ListSuppliersQueryVariables>;
+export const ListSuppliersPagedDocument = gql`
+    query ListSuppliersPaged($input: TableQueryInput!) {
+  listSuppliersPaged(input: $input) {
+    totalCount
+    rows {
+      ...SupplierFields
+    }
+  }
+}
+    ${SupplierFieldsFragmentDoc}`;
+
+/**
+ * __useListSuppliersPagedQuery__
+ *
+ * To run a query within a React component, call `useListSuppliersPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListSuppliersPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListSuppliersPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListSuppliersPagedQuery(baseOptions: Apollo.QueryHookOptions<ListSuppliersPagedQuery, ListSuppliersPagedQueryVariables> & ({ variables: ListSuppliersPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListSuppliersPagedQuery, ListSuppliersPagedQueryVariables>(ListSuppliersPagedDocument, options);
+      }
+export function useListSuppliersPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListSuppliersPagedQuery, ListSuppliersPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListSuppliersPagedQuery, ListSuppliersPagedQueryVariables>(ListSuppliersPagedDocument, options);
+        }
+// @ts-ignore
+export function useListSuppliersPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListSuppliersPagedQuery, ListSuppliersPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListSuppliersPagedQuery, ListSuppliersPagedQueryVariables>;
+export function useListSuppliersPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSuppliersPagedQuery, ListSuppliersPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListSuppliersPagedQuery | undefined, ListSuppliersPagedQueryVariables>;
+export function useListSuppliersPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSuppliersPagedQuery, ListSuppliersPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListSuppliersPagedQuery, ListSuppliersPagedQueryVariables>(ListSuppliersPagedDocument, options);
+        }
+export type ListSuppliersPagedQueryHookResult = ReturnType<typeof useListSuppliersPagedQuery>;
+export type ListSuppliersPagedLazyQueryHookResult = ReturnType<typeof useListSuppliersPagedLazyQuery>;
+export type ListSuppliersPagedSuspenseQueryHookResult = ReturnType<typeof useListSuppliersPagedSuspenseQuery>;
+export type ListSuppliersPagedQueryResult = Apollo.QueryResult<ListSuppliersPagedQuery, ListSuppliersPagedQueryVariables>;
+export const ListSuppliersStatsDocument = gql`
+    query ListSuppliersStats {
+  listSuppliersStats {
+    ...CrmStats
+  }
+}
+    ${CrmStatsFragmentDoc}`;
+
+/**
+ * __useListSuppliersStatsQuery__
+ *
+ * To run a query within a React component, call `useListSuppliersStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListSuppliersStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListSuppliersStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListSuppliersStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListSuppliersStatsQuery, ListSuppliersStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListSuppliersStatsQuery, ListSuppliersStatsQueryVariables>(ListSuppliersStatsDocument, options);
+      }
+export function useListSuppliersStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListSuppliersStatsQuery, ListSuppliersStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListSuppliersStatsQuery, ListSuppliersStatsQueryVariables>(ListSuppliersStatsDocument, options);
+        }
+// @ts-ignore
+export function useListSuppliersStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListSuppliersStatsQuery, ListSuppliersStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListSuppliersStatsQuery, ListSuppliersStatsQueryVariables>;
+export function useListSuppliersStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSuppliersStatsQuery, ListSuppliersStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListSuppliersStatsQuery | undefined, ListSuppliersStatsQueryVariables>;
+export function useListSuppliersStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListSuppliersStatsQuery, ListSuppliersStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListSuppliersStatsQuery, ListSuppliersStatsQueryVariables>(ListSuppliersStatsDocument, options);
+        }
+export type ListSuppliersStatsQueryHookResult = ReturnType<typeof useListSuppliersStatsQuery>;
+export type ListSuppliersStatsLazyQueryHookResult = ReturnType<typeof useListSuppliersStatsLazyQuery>;
+export type ListSuppliersStatsSuspenseQueryHookResult = ReturnType<typeof useListSuppliersStatsSuspenseQuery>;
+export type ListSuppliersStatsQueryResult = Apollo.QueryResult<ListSuppliersStatsQuery, ListSuppliersStatsQueryVariables>;
+export const CreateSupplierDocument = gql`
+    mutation CreateSupplier($input: SupplierInput!) {
+  createSupplier(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateSupplierMutationFn = Apollo.MutationFunction<CreateSupplierMutation, CreateSupplierMutationVariables>;
+
+/**
+ * __useCreateSupplierMutation__
+ *
+ * To run a mutation, you first call `useCreateSupplierMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSupplierMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createSupplierMutation, { data, loading, error }] = useCreateSupplierMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateSupplierMutation(baseOptions?: Apollo.MutationHookOptions<CreateSupplierMutation, CreateSupplierMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateSupplierMutation, CreateSupplierMutationVariables>(CreateSupplierDocument, options);
+      }
+export type CreateSupplierMutationHookResult = ReturnType<typeof useCreateSupplierMutation>;
+export type CreateSupplierMutationResult = Apollo.MutationResult<CreateSupplierMutation>;
+export type CreateSupplierMutationOptions = Apollo.BaseMutationOptions<CreateSupplierMutation, CreateSupplierMutationVariables>;
+export const UpdateSupplierDocument = gql`
+    mutation UpdateSupplier($id: ID!, $input: SupplierInput!) {
+  updateSupplier(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateSupplierMutationFn = Apollo.MutationFunction<UpdateSupplierMutation, UpdateSupplierMutationVariables>;
+
+/**
+ * __useUpdateSupplierMutation__
+ *
+ * To run a mutation, you first call `useUpdateSupplierMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSupplierMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSupplierMutation, { data, loading, error }] = useUpdateSupplierMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateSupplierMutation(baseOptions?: Apollo.MutationHookOptions<UpdateSupplierMutation, UpdateSupplierMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateSupplierMutation, UpdateSupplierMutationVariables>(UpdateSupplierDocument, options);
+      }
+export type UpdateSupplierMutationHookResult = ReturnType<typeof useUpdateSupplierMutation>;
+export type UpdateSupplierMutationResult = Apollo.MutationResult<UpdateSupplierMutation>;
+export type UpdateSupplierMutationOptions = Apollo.BaseMutationOptions<UpdateSupplierMutation, UpdateSupplierMutationVariables>;
+export const DeleteSupplierDocument = gql`
+    mutation DeleteSupplier($id: ID!) {
+  deleteSupplier(id: $id)
+}
+    `;
+export type DeleteSupplierMutationFn = Apollo.MutationFunction<DeleteSupplierMutation, DeleteSupplierMutationVariables>;
+
+/**
+ * __useDeleteSupplierMutation__
+ *
+ * To run a mutation, you first call `useDeleteSupplierMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSupplierMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteSupplierMutation, { data, loading, error }] = useDeleteSupplierMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteSupplierMutation(baseOptions?: Apollo.MutationHookOptions<DeleteSupplierMutation, DeleteSupplierMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteSupplierMutation, DeleteSupplierMutationVariables>(DeleteSupplierDocument, options);
+      }
+export type DeleteSupplierMutationHookResult = ReturnType<typeof useDeleteSupplierMutation>;
+export type DeleteSupplierMutationResult = Apollo.MutationResult<DeleteSupplierMutation>;
+export type DeleteSupplierMutationOptions = Apollo.BaseMutationOptions<DeleteSupplierMutation, DeleteSupplierMutationVariables>;
+export const ListStockMovementsPagedDocument = gql`
+    query ListStockMovementsPaged($input: TableQueryInput!) {
+  listStockMovementsPaged(input: $input) {
+    totalCount
+    rows {
+      ...StockMovementFields
+    }
+  }
+}
+    ${StockMovementFieldsFragmentDoc}`;
+
+/**
+ * __useListStockMovementsPagedQuery__
+ *
+ * To run a query within a React component, call `useListStockMovementsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListStockMovementsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListStockMovementsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListStockMovementsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListStockMovementsPagedQuery, ListStockMovementsPagedQueryVariables> & ({ variables: ListStockMovementsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListStockMovementsPagedQuery, ListStockMovementsPagedQueryVariables>(ListStockMovementsPagedDocument, options);
+      }
+export function useListStockMovementsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListStockMovementsPagedQuery, ListStockMovementsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListStockMovementsPagedQuery, ListStockMovementsPagedQueryVariables>(ListStockMovementsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListStockMovementsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListStockMovementsPagedQuery, ListStockMovementsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListStockMovementsPagedQuery, ListStockMovementsPagedQueryVariables>;
+export function useListStockMovementsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListStockMovementsPagedQuery, ListStockMovementsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListStockMovementsPagedQuery | undefined, ListStockMovementsPagedQueryVariables>;
+export function useListStockMovementsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListStockMovementsPagedQuery, ListStockMovementsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListStockMovementsPagedQuery, ListStockMovementsPagedQueryVariables>(ListStockMovementsPagedDocument, options);
+        }
+export type ListStockMovementsPagedQueryHookResult = ReturnType<typeof useListStockMovementsPagedQuery>;
+export type ListStockMovementsPagedLazyQueryHookResult = ReturnType<typeof useListStockMovementsPagedLazyQuery>;
+export type ListStockMovementsPagedSuspenseQueryHookResult = ReturnType<typeof useListStockMovementsPagedSuspenseQuery>;
+export type ListStockMovementsPagedQueryResult = Apollo.QueryResult<ListStockMovementsPagedQuery, ListStockMovementsPagedQueryVariables>;
+export const ListStockMovementsStatsDocument = gql`
+    query ListStockMovementsStats {
+  listStockMovementsStats {
+    ...CrmStats
+  }
+}
+    ${CrmStatsFragmentDoc}`;
+
+/**
+ * __useListStockMovementsStatsQuery__
+ *
+ * To run a query within a React component, call `useListStockMovementsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListStockMovementsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListStockMovementsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListStockMovementsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListStockMovementsStatsQuery, ListStockMovementsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListStockMovementsStatsQuery, ListStockMovementsStatsQueryVariables>(ListStockMovementsStatsDocument, options);
+      }
+export function useListStockMovementsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListStockMovementsStatsQuery, ListStockMovementsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListStockMovementsStatsQuery, ListStockMovementsStatsQueryVariables>(ListStockMovementsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListStockMovementsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListStockMovementsStatsQuery, ListStockMovementsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListStockMovementsStatsQuery, ListStockMovementsStatsQueryVariables>;
+export function useListStockMovementsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListStockMovementsStatsQuery, ListStockMovementsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListStockMovementsStatsQuery | undefined, ListStockMovementsStatsQueryVariables>;
+export function useListStockMovementsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListStockMovementsStatsQuery, ListStockMovementsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListStockMovementsStatsQuery, ListStockMovementsStatsQueryVariables>(ListStockMovementsStatsDocument, options);
+        }
+export type ListStockMovementsStatsQueryHookResult = ReturnType<typeof useListStockMovementsStatsQuery>;
+export type ListStockMovementsStatsLazyQueryHookResult = ReturnType<typeof useListStockMovementsStatsLazyQuery>;
+export type ListStockMovementsStatsSuspenseQueryHookResult = ReturnType<typeof useListStockMovementsStatsSuspenseQuery>;
+export type ListStockMovementsStatsQueryResult = Apollo.QueryResult<ListStockMovementsStatsQuery, ListStockMovementsStatsQueryVariables>;
+export const RecordStockMovementDocument = gql`
+    mutation RecordStockMovement($input: StockMovementInput!) {
+  recordStockMovement(input: $input) {
+    id
+    stockAfter
+  }
+}
+    `;
+export type RecordStockMovementMutationFn = Apollo.MutationFunction<RecordStockMovementMutation, RecordStockMovementMutationVariables>;
+
+/**
+ * __useRecordStockMovementMutation__
+ *
+ * To run a mutation, you first call `useRecordStockMovementMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRecordStockMovementMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [recordStockMovementMutation, { data, loading, error }] = useRecordStockMovementMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRecordStockMovementMutation(baseOptions?: Apollo.MutationHookOptions<RecordStockMovementMutation, RecordStockMovementMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RecordStockMovementMutation, RecordStockMovementMutationVariables>(RecordStockMovementDocument, options);
+      }
+export type RecordStockMovementMutationHookResult = ReturnType<typeof useRecordStockMovementMutation>;
+export type RecordStockMovementMutationResult = Apollo.MutationResult<RecordStockMovementMutation>;
+export type RecordStockMovementMutationOptions = Apollo.BaseMutationOptions<RecordStockMovementMutation, RecordStockMovementMutationVariables>;
 export const ListProductsDocument = gql`
     query ListProducts {
   listProducts {

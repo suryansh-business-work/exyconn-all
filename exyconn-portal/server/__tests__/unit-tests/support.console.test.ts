@@ -43,7 +43,7 @@ describe('Support console', () => {
       asSupport(String(agent._id)),
     );
 
-    expect((updated as { assigneeName: string }).assigneeName).toBe('Asha Rao');
+    expect((updated as { assigneeName: string }).assigneeName).toBe(agent.name);
   });
 
   it('puts a ticket back in the queue when assigned to nobody', async () => {
@@ -77,7 +77,7 @@ describe('Support console', () => {
     );
 
     const saved = await SupportReplyModel.findOne({ ticketId: String(ticket._id) }).lean();
-    expect(saved?.authorName).toBe('Asha Rao');
+    expect(saved?.authorName).toBe(agent.name);
     expect(saved?.body).toBe('Looking into it now.');
     expect(saved?.internal).toBe(false);
   });

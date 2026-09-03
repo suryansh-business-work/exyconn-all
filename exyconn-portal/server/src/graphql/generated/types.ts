@@ -1629,6 +1629,15 @@ export type MarkAttendanceInput = {
   status: AttendanceStatus;
 };
 
+/** Why a product's stock changed. */
+export enum MovementReason {
+  Count = 'COUNT',
+  Issue = 'ISSUE',
+  Receipt = 'RECEIPT',
+  Return = 'RETURN',
+  WriteOff = 'WRITE_OFF'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -1698,6 +1707,7 @@ export type Mutation = {
   createShift: Shift;
   createSlackConfig: SlackConfig;
   createStatusMonitor: StatusMonitor;
+  createSupplier: Supplier;
   /** Self-service: raise a support ticket (status forced to OPEN). */
   createSupportTicket: SupportTicket;
   createTask: Task;
@@ -1756,6 +1766,7 @@ export type Mutation = {
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
   deleteStatusMonitor: Scalars['Boolean']['output'];
+  deleteSupplier: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
@@ -1772,6 +1783,8 @@ export type Mutation = {
   /** Marks every GENERATED slip of the month PAID. Returns how many changed. */
   markPayrollPaid: Scalars['Int']['output'];
   moveTask: Scalars['Boolean']['output'];
+  /** Records a movement and moves the product's stock with it, in one step. */
+  recordStockMovement: StockMovement;
   renameColumn: BoardColumn;
   reorderColumns: Scalars['Boolean']['output'];
   /** Generates a new temporary password, emails it, and returns it once for copying. */
@@ -1892,6 +1905,7 @@ export type Mutation = {
   updateShift: Shift;
   updateSlackConfig: SlackConfig;
   updateStatusMonitor: StatusMonitor;
+  updateSupplier: Supplier;
   updateTask: Task;
   updateTeam: Team;
   updateTool: Tool;
@@ -2185,6 +2199,11 @@ export type MutationCreateStatusMonitorArgs = {
 };
 
 
+export type MutationCreateSupplierArgs = {
+  input: SupplierInput;
+};
+
+
 export type MutationCreateSupportTicketArgs = {
   input: SupportTicketInput;
 };
@@ -2468,6 +2487,11 @@ export type MutationDeleteStatusMonitorArgs = {
 };
 
 
+export type MutationDeleteSupplierArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteTaskArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2534,6 +2558,11 @@ export type MutationMoveTaskArgs = {
   id: Scalars['ID']['input'];
   toColumnId: Scalars['ID']['input'];
   toIndex: Scalars['Int']['input'];
+};
+
+
+export type MutationRecordStockMovementArgs = {
+  input: StockMovementInput;
 };
 
 
@@ -3033,6 +3062,12 @@ export type MutationUpdateStatusMonitorArgs = {
 };
 
 
+export type MutationUpdateSupplierArgs = {
+  id: Scalars['ID']['input'];
+  input: SupplierInput;
+};
+
+
 export type MutationUpdateTaskArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
@@ -3495,6 +3530,7 @@ export type Query = {
   getSalaryStructure: SalaryStructure;
   getShift: Shift;
   getStatusMonitor: StatusMonitor;
+  getSupplier: Supplier;
   getTeam: Team;
   getTool: Tool;
   getToolCategory: ToolCategory;
@@ -3647,6 +3683,12 @@ export type Query = {
   listStatusMonitors: Array<StatusMonitor>;
   listStatusMonitorsPaged: StatusMonitorPage;
   listStatusMonitorsStats: TableStats;
+  listStockMovements: Array<StockMovement>;
+  listStockMovementsPaged: StockMovementPage;
+  listStockMovementsStats: TableStats;
+  listSuppliers: Array<Supplier>;
+  listSuppliersPaged: SupplierPage;
+  listSuppliersStats: TableStats;
   /** SUPPORT/ADMIN: who a ticket can be assigned to. */
   listSupportAgents: Array<SupportAgent>;
   /** SUPPORT/ADMIN: the whole thread on one ticket, internal notes included. */
@@ -3947,6 +3989,11 @@ export type QueryGetStatusMonitorArgs = {
 };
 
 
+export type QueryGetSupplierArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetTeamArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4178,6 +4225,16 @@ export type QueryListShiftsPagedArgs = {
 
 
 export type QueryListStatusMonitorsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListStockMovementsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListSuppliersPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -4617,6 +4674,39 @@ export enum StatusState {
   Unknown = 'UNKNOWN'
 }
 
+export type StockMovement = {
+  __typename?: 'StockMovement';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  notes: Scalars['String']['output'];
+  productId: Scalars['String']['output'];
+  productName: Scalars['String']['output'];
+  /** Always positive; the reason decides the direction. */
+  quantity: Scalars['Int']['output'];
+  reason: MovementReason;
+  recordedBy: Scalars['String']['output'];
+  reference: Scalars['String']['output'];
+  /** The stock level after this movement. */
+  stockAfter: Scalars['Int']['output'];
+  supplierId: Scalars['String']['output'];
+  supplierName: Scalars['String']['output'];
+};
+
+export type StockMovementInput = {
+  notes?: InputMaybe<Scalars['String']['input']>;
+  productId: Scalars['ID']['input'];
+  quantity: Scalars['Int']['input'];
+  reason: MovementReason;
+  reference?: InputMaybe<Scalars['String']['input']>;
+  supplierId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type StockMovementPage = {
+  __typename?: 'StockMovementPage';
+  rows: Array<StockMovement>;
+  totalCount: Scalars['Int']['output'];
+};
+
 /** What the public status page submits. Everything else is set by the server. */
 export type SubmitProblemReportInput = {
   category: ProblemCategory;
@@ -4628,6 +4718,42 @@ export type SubmitProblemReportInput = {
   severity: ProblemSeverity;
   subject: Scalars['String']['input'];
 };
+
+export type Supplier = {
+  __typename?: 'Supplier';
+  code: Scalars['String']['output'];
+  contactName: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  status: SupplierStatus;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type SupplierInput = {
+  code: Scalars['String']['input'];
+  contactName?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
+  status: SupplierStatus;
+};
+
+export type SupplierPage = {
+  __typename?: 'SupplierPage';
+  rows: Array<Supplier>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum SupplierStatus {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+  OnHold = 'ON_HOLD'
+}
 
 /** Somebody the support team can hand a ticket to. */
 export type SupportAgent = {
@@ -5446,6 +5572,7 @@ export type ResolversTypes = ResolversObject<{
   LoginPage: ResolverTypeWrapper<LoginPage>;
   LoginPageInput: LoginPageInput;
   MarkAttendanceInput: MarkAttendanceInput;
+  MovementReason: MovementReason;
   Mutation: ResolverTypeWrapper<{}>;
   MyExpenseClaimInput: MyExpenseClaimInput;
   MyRequestInput: MyRequestInput;
@@ -5518,8 +5645,15 @@ export type ResolversTypes = ResolversObject<{
   StatusOverview: ResolverTypeWrapper<StatusOverview>;
   StatusServiceSummary: ResolverTypeWrapper<StatusServiceSummary>;
   StatusState: StatusState;
+  StockMovement: ResolverTypeWrapper<StockMovement>;
+  StockMovementInput: StockMovementInput;
+  StockMovementPage: ResolverTypeWrapper<StockMovementPage>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   SubmitProblemReportInput: SubmitProblemReportInput;
+  Supplier: ResolverTypeWrapper<Supplier>;
+  SupplierInput: SupplierInput;
+  SupplierPage: ResolverTypeWrapper<SupplierPage>;
+  SupplierStatus: SupplierStatus;
   SupportAgent: ResolverTypeWrapper<SupportAgent>;
   SupportCategory: SupportCategory;
   SupportPriority: SupportPriority;
@@ -5763,8 +5897,14 @@ export type ResolversParentTypes = ResolversObject<{
   StatusMonitorPage: StatusMonitorPage;
   StatusOverview: StatusOverview;
   StatusServiceSummary: StatusServiceSummary;
+  StockMovement: StockMovement;
+  StockMovementInput: StockMovementInput;
+  StockMovementPage: StockMovementPage;
   String: Scalars['String']['output'];
   SubmitProblemReportInput: SubmitProblemReportInput;
+  Supplier: Supplier;
+  SupplierInput: SupplierInput;
+  SupplierPage: SupplierPage;
   SupportAgent: SupportAgent;
   SupportReply: SupportReply;
   SupportTicket: SupportTicket;
@@ -6748,6 +6888,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationCreateShiftArgs, 'input'>>;
   createSlackConfig?: Resolver<ResolversTypes['SlackConfig'], ParentType, ContextType, RequireFields<MutationCreateSlackConfigArgs, 'input'>>;
   createStatusMonitor?: Resolver<ResolversTypes['StatusMonitor'], ParentType, ContextType, RequireFields<MutationCreateStatusMonitorArgs, 'input'>>;
+  createSupplier?: Resolver<ResolversTypes['Supplier'], ParentType, ContextType, RequireFields<MutationCreateSupplierArgs, 'input'>>;
   createSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationCreateSupportTicketArgs, 'input'>>;
   createTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationCreateTaskArgs, 'columnId' | 'projectId' | 'title'>>;
   createTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<MutationCreateTeamArgs, 'input'>>;
@@ -6804,6 +6945,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteShift?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteShiftArgs, 'id'>>;
   deleteSlackConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSlackConfigArgs, 'id'>>;
   deleteStatusMonitor?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusMonitorArgs, 'id'>>;
+  deleteSupplier?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSupplierArgs, 'id'>>;
   deleteTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaskArgs, 'id'>>;
   deleteTeam?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTeamArgs, 'id'>>;
   deleteTool?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolArgs, 'id'>>;
@@ -6818,6 +6960,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   markNotificationRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMarkNotificationReadArgs, 'id'>>;
   markPayrollPaid?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationMarkPayrollPaidArgs, 'month' | 'year'>>;
   moveTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveTaskArgs, 'id' | 'toColumnId' | 'toIndex'>>;
+  recordStockMovement?: Resolver<ResolversTypes['StockMovement'], ParentType, ContextType, RequireFields<MutationRecordStockMovementArgs, 'input'>>;
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
   reorderColumns?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReorderColumnsArgs, 'columnIds' | 'projectId'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
@@ -6905,6 +7048,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationUpdateShiftArgs, 'id' | 'input'>>;
   updateSlackConfig?: Resolver<ResolversTypes['SlackConfig'], ParentType, ContextType, RequireFields<MutationUpdateSlackConfigArgs, 'id' | 'input'>>;
   updateStatusMonitor?: Resolver<ResolversTypes['StatusMonitor'], ParentType, ContextType, RequireFields<MutationUpdateStatusMonitorArgs, 'id' | 'input'>>;
+  updateSupplier?: Resolver<ResolversTypes['Supplier'], ParentType, ContextType, RequireFields<MutationUpdateSupplierArgs, 'id' | 'input'>>;
   updateTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationUpdateTaskArgs, 'id'>>;
   updateTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<MutationUpdateTeamArgs, 'id' | 'input'>>;
   updateTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<MutationUpdateToolArgs, 'id' | 'input'>>;
@@ -7147,6 +7291,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<QueryGetSalaryStructureArgs, 'id'>>;
   getShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<QueryGetShiftArgs, 'id'>>;
   getStatusMonitor?: Resolver<ResolversTypes['StatusMonitor'], ParentType, ContextType, RequireFields<QueryGetStatusMonitorArgs, 'id'>>;
+  getSupplier?: Resolver<ResolversTypes['Supplier'], ParentType, ContextType, RequireFields<QueryGetSupplierArgs, 'id'>>;
   getTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<QueryGetTeamArgs, 'id'>>;
   getTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<QueryGetToolArgs, 'id'>>;
   getToolCategory?: Resolver<ResolversTypes['ToolCategory'], ParentType, ContextType, RequireFields<QueryGetToolCategoryArgs, 'id'>>;
@@ -7288,6 +7433,12 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listStatusMonitors?: Resolver<Array<ResolversTypes['StatusMonitor']>, ParentType, ContextType>;
   listStatusMonitorsPaged?: Resolver<ResolversTypes['StatusMonitorPage'], ParentType, ContextType, RequireFields<QueryListStatusMonitorsPagedArgs, 'input'>>;
   listStatusMonitorsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listStockMovements?: Resolver<Array<ResolversTypes['StockMovement']>, ParentType, ContextType>;
+  listStockMovementsPaged?: Resolver<ResolversTypes['StockMovementPage'], ParentType, ContextType, RequireFields<QueryListStockMovementsPagedArgs, 'input'>>;
+  listStockMovementsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listSuppliers?: Resolver<Array<ResolversTypes['Supplier']>, ParentType, ContextType>;
+  listSuppliersPaged?: Resolver<ResolversTypes['SupplierPage'], ParentType, ContextType, RequireFields<QueryListSuppliersPagedArgs, 'input'>>;
+  listSuppliersStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listSupportAgents?: Resolver<Array<ResolversTypes['SupportAgent']>, ParentType, ContextType>;
   listSupportReplies?: Resolver<Array<ResolversTypes['SupportReply']>, ParentType, ContextType, RequireFields<QueryListSupportRepliesArgs, 'ticketId'>>;
   listSupportTickets?: Resolver<Array<ResolversTypes['SupportTicket']>, ParentType, ContextType>;
@@ -7544,6 +7695,48 @@ export type StatusServiceSummaryResolvers<ContextType = GraphQLContext, ParentTy
   uptime30d?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   uptimeToday?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type StockMovementResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StockMovement'] = ResolversParentTypes['StockMovement']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  productId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  productName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  quantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['MovementReason'], ParentType, ContextType>;
+  recordedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  stockAfter?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  supplierId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  supplierName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type StockMovementPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StockMovementPage'] = ResolversParentTypes['StockMovementPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['StockMovement']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SupplierResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Supplier'] = ResolversParentTypes['Supplier']> = ResolversObject<{
+  code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  contactName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['SupplierStatus'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SupplierPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SupplierPage'] = ResolversParentTypes['SupplierPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Supplier']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -8010,6 +8203,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   StatusMonitorPage?: StatusMonitorPageResolvers<ContextType>;
   StatusOverview?: StatusOverviewResolvers<ContextType>;
   StatusServiceSummary?: StatusServiceSummaryResolvers<ContextType>;
+  StockMovement?: StockMovementResolvers<ContextType>;
+  StockMovementPage?: StockMovementPageResolvers<ContextType>;
+  Supplier?: SupplierResolvers<ContextType>;
+  SupplierPage?: SupplierPageResolvers<ContextType>;
   SupportAgent?: SupportAgentResolvers<ContextType>;
   SupportReply?: SupportReplyResolvers<ContextType>;
   SupportTicket?: SupportTicketResolvers<ContextType>;
