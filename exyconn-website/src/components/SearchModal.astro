@@ -209,14 +209,23 @@
 <script>
   type Item = { t: string; u: string; d: string; c: string; k: string };
 
-  const overlay = document.getElementById("global-search-overlay");
-  const input = document.getElementById("global-search-input") as HTMLInputElement | null;
-  const closeBtn = document.getElementById("global-search-close");
-  const list = document.getElementById("global-search-list") as HTMLUListElement | null;
-  const empty = document.getElementById("global-search-empty");
-  const noresults = document.getElementById("global-search-noresults");
+  const overlayEl = document.getElementById("global-search-overlay");
+  const inputEl = document.getElementById("global-search-input") as HTMLInputElement | null;
+  const closeBtnEl = document.getElementById("global-search-close");
+  const listEl = document.getElementById("global-search-list") as HTMLUListElement | null;
+  const emptyEl = document.getElementById("global-search-empty");
+  const noresultsEl = document.getElementById("global-search-noresults");
 
-  if (overlay && input && list && empty && noresults && closeBtn) {
+  if (overlayEl && inputEl && listEl && emptyEl && noresultsEl && closeBtnEl) {
+    // Re-bind inside the guard: the helpers below are function declarations, and
+    // their bodies do not see the narrowing applied to the outer consts.
+    const overlay = overlayEl;
+    const input = inputEl;
+    const closeBtn = closeBtnEl;
+    const list = listEl;
+    const empty = emptyEl;
+    const noresults = noresultsEl;
+
     let items: Item[] = [];
     let loaded = false;
     let activeIndex = -1;

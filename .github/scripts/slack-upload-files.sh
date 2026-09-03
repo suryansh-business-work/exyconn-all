@@ -34,35 +34,23 @@ assert_ok() {
   # By far the most common cause, and the one whose Slack error name says least
   # about the fix: the bot has to be invited before it can post anywhere.
   if [ "$err" = "not_in_channel" ] || [ "$err" = "channel_not_found" ]; then
-    echo "::error::Slack rejected the post to ${3:-the channel} with \"$err\" — the bot is not a member of it. Open that channel in Slack and run /invite @<your-bot>, then re-run this workflow."
+    echo "::error::Slack rejected the post to ${3:-the channel} with \"$err\". The bot could not join it either, so it is a private channel or the token is missing the channels:join scope. Fix it in one of two ways: open that channel in Slack and run /invite @<your-bot>, or add the channels:join scope to the bot token and reinstall the app."
   else
     echo "::error::Slack $2 failed: $err"
   fi
   exit 1
 }
 
-# Settles membership before any bytes move. conversations.join is idempotent on a
-# public channel, so this both fixes the common "the bot was never invited" case and
-# turns a wrong channel id into an instant failure instead of one that lands after the
-# installers have been uploaded. A private channel answers
-# method_not_supported_for_channel_type and a token without channels:join answers
-# missing_scope — neither says the bot is absent, so those fall through to the upload
-# and let files.completeUploadExternal give the real verdict.
+# Joins a public channel, so a build does not fail for want of an /invite. Slack
+# only lets a bot add itself to public channels, so a failure here is expected for
+# a private one and is left to the upload to report properly.
 join_channel() {
-  local channel="$1" result err
-  result=$(slack_api conversations.join --data-urlencode "channel=$channel")
-  if [ "$(jq -r '.ok' <<<"$result")" = "true" ]; then
+  local channel="$1" joined
+  joined=$(slack_api conversations.join --data-urlencode "channel=$channel")
+  if [ "$(jq -r '.ok' <<<"$joined")" = "true" ]; then
     return
   fi
-  err=$(jq -r '.error // "unknown error"' <<<"$result")
-  case "$err" in
-    method_not_supported_for_channel_type | missing_scope | not_allowed_token_type)
-      echo "::notice::Cannot self-join $channel ($err) — relying on an existing invite. Grant the bot channels:join, or /invite it to that channel."
-      ;;
-    *)
-      assert_ok "$result" "conversations.join" "$channel"
-      ;;
-  esac
+  echo "Note: could not join $channel ($(jq -r '.error // "unknown error"' <<<"$joined")) — continuing, the bot may already be a member."
 }
 
 # Posts every given file into one channel.
