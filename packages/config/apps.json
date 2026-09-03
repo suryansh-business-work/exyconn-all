@@ -88,5 +88,11 @@
     "port": 4033,
     "title": "Tech · Exyconn Track",
     "description": "Exyconn Track — Tech module."
+  },
+  "it": {
+    "subdomain": "it",
+    "port": 4034,
+    "title": "IT · Exyconn Track",
+    "description": "Exyconn Track — IT module."
   }
 }

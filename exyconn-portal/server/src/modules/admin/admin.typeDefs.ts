@@ -18,6 +18,7 @@ export const adminTypeDefs = gql`
     WEBSITE
     TRACKER
     TECH
+    IT
   }
 
   enum EmploymentStatus {

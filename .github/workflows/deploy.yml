@@ -170,6 +170,14 @@ jobs:
               APP_DIR=exyconn-portal/apps/ai
               PORT=4030
               VITE_PORTAL_APP=ai
+          - service: portal-it
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-it
+              APP_DIR=exyconn-portal/apps/it
+              PORT=4034
+              VITE_PORTAL_APP=it
           - service: portal-tech
             dockerfile: docker/portal-app.Dockerfile
             context: .
@@ -305,6 +313,7 @@ jobs:
             "https://products.exyconn.com"
             "https://legal.exyconn.com"
             "https://tech.exyconn.com"
+            "https://it.exyconn.com"
             "https://hr.exyconn.com"
             "https://marketing.exyconn.com"
             "https://projects.exyconn.com"

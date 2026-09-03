@@ -20,6 +20,7 @@ import HubIcon from '@mui/icons-material/Hub';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import TerminalIcon from '@mui/icons-material/Terminal';
+import InventoryIcon from '@mui/icons-material/Inventory2';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import PersonIcon from '@mui/icons-material/Person';
@@ -475,6 +476,16 @@ export const MODULES: ModuleDefinition[] = [
         icon: TuneIcon,
       },
     ],
+  },
+  {
+    key: 'it',
+    label: 'IT',
+    path: '/it/assets',
+    role: ROLES.IT,
+    icon: DevicesIcon,
+    description: 'Company hardware & licences',
+    accent: '#0891b2',
+    children: [{ key: 'it-assets', label: 'Assets', path: '/it/assets', icon: InventoryIcon }],
   },
 ];
 

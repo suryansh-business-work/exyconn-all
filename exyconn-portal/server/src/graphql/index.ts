@@ -7,6 +7,7 @@ import { adminResolvers } from '../modules/admin/admin.resolvers';
 import { financeTypeDefs, financeResolvers } from '../modules/finance';
 import { bugsTypeDefs, bugsResolvers } from '../modules/bugs';
 import { clientsTypeDefs, clientsResolvers } from '../modules/clients';
+import { assetsTypeDefs, assetsResolvers } from '../modules/assets';
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
 import { employeeTypeDefs, employeeResolvers } from '../modules/employee';
 import { supportTypeDefs, supportResolvers } from '../modules/support';
@@ -71,6 +72,7 @@ export const typeDefs = [
   financeTypeDefs,
   bugsTypeDefs,
   clientsTypeDefs,
+  assetsTypeDefs,
   hrTypeDefs,
   employeeTypeDefs,
   supportTypeDefs,
@@ -107,6 +109,7 @@ export const resolvers = mergeResolvers([
   financeResolvers,
   bugsResolvers,
   clientsResolvers,
+  assetsResolvers,
   hrResolvers,
   employeeResolvers,
   supportResolvers,

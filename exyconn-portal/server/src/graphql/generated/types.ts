@@ -115,6 +115,78 @@ export type ApplyLeaveInput = {
   type: LeaveType;
 };
 
+export type Asset = {
+  __typename?: 'Asset';
+  assetTag: Scalars['String']['output'];
+  assignedToId: Scalars['String']['output'];
+  assignedToName: Scalars['String']['output'];
+  category: AssetCategory;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  location: Scalars['String']['output'];
+  manufacturer: Scalars['String']['output'];
+  modelName: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  purchaseCost: Scalars['Float']['output'];
+  purchaseDate?: Maybe<Scalars['DateTime']['output']>;
+  serialNumber: Scalars['String']['output'];
+  status: AssetStatus;
+  updatedAt: Scalars['DateTime']['output'];
+  warrantyExpiry?: Maybe<Scalars['DateTime']['output']>;
+};
+
+/** Just enough of an employee to put them in the 'assigned to' picker. */
+export type AssetAssignee = {
+  __typename?: 'AssetAssignee';
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
+export enum AssetCategory {
+  Desktop = 'DESKTOP',
+  Laptop = 'LAPTOP',
+  Monitor = 'MONITOR',
+  Network = 'NETWORK',
+  Other = 'OTHER',
+  Peripheral = 'PERIPHERAL',
+  Phone = 'PHONE',
+  SoftwareLicence = 'SOFTWARE_LICENCE',
+  Tablet = 'TABLET'
+}
+
+export type AssetInput = {
+  assetTag: Scalars['String']['input'];
+  assignedToId?: InputMaybe<Scalars['String']['input']>;
+  assignedToName?: InputMaybe<Scalars['String']['input']>;
+  category: AssetCategory;
+  location?: InputMaybe<Scalars['String']['input']>;
+  manufacturer?: InputMaybe<Scalars['String']['input']>;
+  modelName?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  purchaseCost?: InputMaybe<Scalars['Float']['input']>;
+  purchaseDate?: InputMaybe<Scalars['DateTime']['input']>;
+  serialNumber?: InputMaybe<Scalars['String']['input']>;
+  status: AssetStatus;
+  warrantyExpiry?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type AssetPage = {
+  __typename?: 'AssetPage';
+  rows: Array<Asset>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum AssetStatus {
+  Assigned = 'ASSIGNED',
+  InRepair = 'IN_REPAIR',
+  InStock = 'IN_STOCK',
+  Lost = 'LOST',
+  Retired = 'RETIRED'
+}
+
 export type Attendance = {
   __typename?: 'Attendance';
   createdAt: Scalars['DateTime']['output'];
@@ -1367,6 +1439,7 @@ export type Mutation = {
   clearRolePermission: Scalars['Boolean']['output'];
   createAiJob: AiJob;
   createAnnouncement: Announcement;
+  createAsset: Asset;
   createBenefit: Benefit;
   createBlogPost: BlogPost;
   createBug: Bug;
@@ -1428,6 +1501,7 @@ export type Mutation = {
   createWebsiteSubmission: WebsiteSubmission;
   deleteAiJob: Scalars['Boolean']['output'];
   deleteAnnouncement: Scalars['Boolean']['output'];
+  deleteAsset: Scalars['Boolean']['output'];
   deleteBenefit: Scalars['Boolean']['output'];
   deleteBlogPost: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
@@ -1544,6 +1618,7 @@ export type Mutation = {
   triageWebsiteSubmission: WebsiteSubmission;
   updateAiJob: AiJob;
   updateAnnouncement: Announcement;
+  updateAsset: Asset;
   updateBenefit: Benefit;
   updateBlogPost: BlogPost;
   updateBranding: Branding;
@@ -1628,6 +1703,11 @@ export type MutationCreateAiJobArgs = {
 
 export type MutationCreateAnnouncementArgs = {
   input: AnnouncementInput;
+};
+
+
+export type MutationCreateAssetArgs = {
+  input: AssetInput;
 };
 
 
@@ -1886,6 +1966,11 @@ export type MutationDeleteAiJobArgs = {
 
 
 export type MutationDeleteAnnouncementArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteAssetArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2339,6 +2424,12 @@ export type MutationUpdateAiJobArgs = {
 export type MutationUpdateAnnouncementArgs = {
   id: Scalars['ID']['input'];
   input: AnnouncementInput;
+};
+
+
+export type MutationUpdateAssetArgs = {
+  id: Scalars['ID']['input'];
+  input: AssetInput;
 };
 
 
@@ -2945,6 +3036,7 @@ export type Query = {
   branding: Branding;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
+  getAsset: Asset;
   getBenefit: Benefit;
   getBlogPost: BlogPost;
   getBug: Bug;
@@ -2995,6 +3087,11 @@ export type Query = {
   listAnnouncements: Array<Announcement>;
   listAnnouncementsPaged: AnnouncementPage;
   listAnnouncementsStats: TableStats;
+  /** Employees an asset can be handed to. */
+  listAssetAssignees: Array<AssetAssignee>;
+  listAssets: Array<Asset>;
+  listAssetsPaged: AssetPage;
+  listAssetsStats: TableStats;
   /** HR/ADMIN: all attendance records. */
   listAttendance: Array<Attendance>;
   listBenefits: Array<Benefit>;
@@ -3193,6 +3290,11 @@ export type QueryGetAiJobArgs = {
 
 
 export type QueryGetAnnouncementArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetAssetArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -3408,6 +3510,11 @@ export type QueryListAiJobsPagedArgs = {
 
 
 export type QueryListAnnouncementsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListAssetsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -3705,6 +3812,7 @@ export enum Role {
   Employee = 'EMPLOYEE',
   Finance = 'FINANCE',
   Hr = 'HR',
+  It = 'IT',
   Legal = 'LEGAL',
   Marketing = 'MARKETING',
   Products = 'PRODUCTS',
@@ -4525,6 +4633,12 @@ export type ResolversTypes = ResolversObject<{
   AnnouncementPage: ResolverTypeWrapper<AnnouncementPage>;
   AppSettings: ResolverTypeWrapper<AppSettings>;
   ApplyLeaveInput: ApplyLeaveInput;
+  Asset: ResolverTypeWrapper<Asset>;
+  AssetAssignee: ResolverTypeWrapper<AssetAssignee>;
+  AssetCategory: AssetCategory;
+  AssetInput: AssetInput;
+  AssetPage: ResolverTypeWrapper<AssetPage>;
+  AssetStatus: AssetStatus;
   Attendance: ResolverTypeWrapper<Attendance>;
   AttendanceStatus: AttendanceStatus;
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
@@ -4774,6 +4888,10 @@ export type ResolversParentTypes = ResolversObject<{
   AnnouncementPage: AnnouncementPage;
   AppSettings: AppSettings;
   ApplyLeaveInput: ApplyLeaveInput;
+  Asset: Asset;
+  AssetAssignee: AssetAssignee;
+  AssetInput: AssetInput;
+  AssetPage: AssetPage;
   Attendance: Attendance;
   AuthPayload: AuthPayload;
   Benefit: Benefit;
@@ -5016,6 +5134,40 @@ export type AppSettingsResolvers<ContextType = GraphQLContext, ParentType extend
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   timeFormat?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AssetResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Asset'] = ResolversParentTypes['Asset']> = ResolversObject<{
+  assetTag?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  assignedToId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  assignedToName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['AssetCategory'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  location?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  manufacturer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  modelName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  purchaseCost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  purchaseDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  serialNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['AssetStatus'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  warrantyExpiry?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AssetAssigneeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AssetAssignee'] = ResolversParentTypes['AssetAssignee']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AssetPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AssetPage'] = ResolversParentTypes['AssetPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Asset']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -5719,6 +5871,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
   createAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationCreateAiJobArgs, 'input'>>;
   createAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<MutationCreateAnnouncementArgs, 'input'>>;
+  createAsset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType, RequireFields<MutationCreateAssetArgs, 'input'>>;
   createBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationCreateBenefitArgs, 'input'>>;
   createBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationCreateBlogPostArgs, 'input'>>;
   createBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationCreateBugArgs, 'input'>>;
@@ -5770,6 +5923,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationCreateWebsiteSubmissionArgs, 'input'>>;
   deleteAiJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAiJobArgs, 'id'>>;
   deleteAnnouncement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAnnouncementArgs, 'id'>>;
+  deleteAsset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAssetArgs, 'id'>>;
   deleteBenefit?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBenefitArgs, 'id'>>;
   deleteBlogPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBlogPostArgs, 'id'>>;
   deleteBug?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBugArgs, 'id'>>;
@@ -5858,6 +6012,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   triageWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationTriageWebsiteSubmissionArgs, 'id' | 'input'>>;
   updateAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationUpdateAiJobArgs, 'id' | 'input'>>;
   updateAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<MutationUpdateAnnouncementArgs, 'id' | 'input'>>;
+  updateAsset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType, RequireFields<MutationUpdateAssetArgs, 'id' | 'input'>>;
   updateBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationUpdateBenefitArgs, 'id' | 'input'>>;
   updateBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationUpdateBlogPostArgs, 'id' | 'input'>>;
   updateBranding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType, RequireFields<MutationUpdateBrandingArgs, 'input'>>;
@@ -6070,6 +6225,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   branding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
   getAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<QueryGetAiJobArgs, 'id'>>;
   getAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<QueryGetAnnouncementArgs, 'id'>>;
+  getAsset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType, RequireFields<QueryGetAssetArgs, 'id'>>;
   getBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<QueryGetBenefitArgs, 'id'>>;
   getBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<QueryGetBlogPostArgs, 'id'>>;
   getBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<QueryGetBugArgs, 'id'>>;
@@ -6118,6 +6274,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listAnnouncements?: Resolver<Array<ResolversTypes['Announcement']>, ParentType, ContextType>;
   listAnnouncementsPaged?: Resolver<ResolversTypes['AnnouncementPage'], ParentType, ContextType, RequireFields<QueryListAnnouncementsPagedArgs, 'input'>>;
   listAnnouncementsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listAssetAssignees?: Resolver<Array<ResolversTypes['AssetAssignee']>, ParentType, ContextType>;
+  listAssets?: Resolver<Array<ResolversTypes['Asset']>, ParentType, ContextType>;
+  listAssetsPaged?: Resolver<ResolversTypes['AssetPage'], ParentType, ContextType, RequireFields<QueryListAssetsPagedArgs, 'input'>>;
+  listAssetsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listAttendance?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType>;
   listBenefits?: Resolver<Array<ResolversTypes['Benefit']>, ParentType, ContextType>;
   listBenefitsPaged?: Resolver<ResolversTypes['BenefitPage'], ParentType, ContextType, RequireFields<QueryListBenefitsPagedArgs, 'input'>>;
@@ -6726,6 +6886,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Announcement?: AnnouncementResolvers<ContextType>;
   AnnouncementPage?: AnnouncementPageResolvers<ContextType>;
   AppSettings?: AppSettingsResolvers<ContextType>;
+  Asset?: AssetResolvers<ContextType>;
+  AssetAssignee?: AssetAssigneeResolvers<ContextType>;
+  AssetPage?: AssetPageResolvers<ContextType>;
   Attendance?: AttendanceResolvers<ContextType>;
   AuthPayload?: AuthPayloadResolvers<ContextType>;
   Benefit?: BenefitResolvers<ContextType>;

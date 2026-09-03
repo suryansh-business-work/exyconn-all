@@ -115,6 +115,78 @@ export type ApplyLeaveInput = {
   type: LeaveType;
 };
 
+export type Asset = {
+  __typename?: 'Asset';
+  assetTag: Scalars['String']['output'];
+  assignedToId: Scalars['String']['output'];
+  assignedToName: Scalars['String']['output'];
+  category: AssetCategory;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  location: Scalars['String']['output'];
+  manufacturer: Scalars['String']['output'];
+  modelName: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  purchaseCost: Scalars['Float']['output'];
+  purchaseDate?: Maybe<Scalars['DateTime']['output']>;
+  serialNumber: Scalars['String']['output'];
+  status: AssetStatus;
+  updatedAt: Scalars['DateTime']['output'];
+  warrantyExpiry?: Maybe<Scalars['DateTime']['output']>;
+};
+
+/** Just enough of an employee to put them in the 'assigned to' picker. */
+export type AssetAssignee = {
+  __typename?: 'AssetAssignee';
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
+export enum AssetCategory {
+  Desktop = 'DESKTOP',
+  Laptop = 'LAPTOP',
+  Monitor = 'MONITOR',
+  Network = 'NETWORK',
+  Other = 'OTHER',
+  Peripheral = 'PERIPHERAL',
+  Phone = 'PHONE',
+  SoftwareLicence = 'SOFTWARE_LICENCE',
+  Tablet = 'TABLET'
+}
+
+export type AssetInput = {
+  assetTag: Scalars['String']['input'];
+  assignedToId?: InputMaybe<Scalars['String']['input']>;
+  assignedToName?: InputMaybe<Scalars['String']['input']>;
+  category: AssetCategory;
+  location?: InputMaybe<Scalars['String']['input']>;
+  manufacturer?: InputMaybe<Scalars['String']['input']>;
+  modelName?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  purchaseCost?: InputMaybe<Scalars['Float']['input']>;
+  purchaseDate?: InputMaybe<Scalars['DateTime']['input']>;
+  serialNumber?: InputMaybe<Scalars['String']['input']>;
+  status: AssetStatus;
+  warrantyExpiry?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type AssetPage = {
+  __typename?: 'AssetPage';
+  rows: Array<Asset>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum AssetStatus {
+  Assigned = 'ASSIGNED',
+  InRepair = 'IN_REPAIR',
+  InStock = 'IN_STOCK',
+  Lost = 'LOST',
+  Retired = 'RETIRED'
+}
+
 export type Attendance = {
   __typename?: 'Attendance';
   createdAt: Scalars['DateTime']['output'];
@@ -1367,6 +1439,7 @@ export type Mutation = {
   clearRolePermission: Scalars['Boolean']['output'];
   createAiJob: AiJob;
   createAnnouncement: Announcement;
+  createAsset: Asset;
   createBenefit: Benefit;
   createBlogPost: BlogPost;
   createBug: Bug;
@@ -1428,6 +1501,7 @@ export type Mutation = {
   createWebsiteSubmission: WebsiteSubmission;
   deleteAiJob: Scalars['Boolean']['output'];
   deleteAnnouncement: Scalars['Boolean']['output'];
+  deleteAsset: Scalars['Boolean']['output'];
   deleteBenefit: Scalars['Boolean']['output'];
   deleteBlogPost: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
@@ -1544,6 +1618,7 @@ export type Mutation = {
   triageWebsiteSubmission: WebsiteSubmission;
   updateAiJob: AiJob;
   updateAnnouncement: Announcement;
+  updateAsset: Asset;
   updateBenefit: Benefit;
   updateBlogPost: BlogPost;
   updateBranding: Branding;
@@ -1628,6 +1703,11 @@ export type MutationCreateAiJobArgs = {
 
 export type MutationCreateAnnouncementArgs = {
   input: AnnouncementInput;
+};
+
+
+export type MutationCreateAssetArgs = {
+  input: AssetInput;
 };
 
 
@@ -1886,6 +1966,11 @@ export type MutationDeleteAiJobArgs = {
 
 
 export type MutationDeleteAnnouncementArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteAssetArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2339,6 +2424,12 @@ export type MutationUpdateAiJobArgs = {
 export type MutationUpdateAnnouncementArgs = {
   id: Scalars['ID']['input'];
   input: AnnouncementInput;
+};
+
+
+export type MutationUpdateAssetArgs = {
+  id: Scalars['ID']['input'];
+  input: AssetInput;
 };
 
 
@@ -2945,6 +3036,7 @@ export type Query = {
   branding: Branding;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
+  getAsset: Asset;
   getBenefit: Benefit;
   getBlogPost: BlogPost;
   getBug: Bug;
@@ -2995,6 +3087,11 @@ export type Query = {
   listAnnouncements: Array<Announcement>;
   listAnnouncementsPaged: AnnouncementPage;
   listAnnouncementsStats: TableStats;
+  /** Employees an asset can be handed to. */
+  listAssetAssignees: Array<AssetAssignee>;
+  listAssets: Array<Asset>;
+  listAssetsPaged: AssetPage;
+  listAssetsStats: TableStats;
   /** HR/ADMIN: all attendance records. */
   listAttendance: Array<Attendance>;
   listBenefits: Array<Benefit>;
@@ -3193,6 +3290,11 @@ export type QueryGetAiJobArgs = {
 
 
 export type QueryGetAnnouncementArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetAssetArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -3408,6 +3510,11 @@ export type QueryListAiJobsPagedArgs = {
 
 
 export type QueryListAnnouncementsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListAssetsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -3705,6 +3812,7 @@ export enum Role {
   Employee = 'EMPLOYEE',
   Finance = 'FINANCE',
   Hr = 'HR',
+  It = 'IT',
   Legal = 'LEGAL',
   Marketing = 'MARKETING',
   Products = 'PRODUCTS',
@@ -4645,6 +4753,47 @@ export type DeleteAnnouncementMutationVariables = Exact<{
 
 
 export type DeleteAnnouncementMutation = { __typename?: 'Mutation', deleteAnnouncement: boolean };
+
+export type AssetFieldsFragment = { __typename?: 'Asset', id: string, assetTag: string, name: string, category: AssetCategory, status: AssetStatus, manufacturer: string, modelName: string, serialNumber: string, assignedToId: string, assignedToName: string, location: string, purchaseDate?: string | null, warrantyExpiry?: string | null, purchaseCost: number, notes: string };
+
+export type ListAssetsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListAssetsPagedQuery = { __typename?: 'Query', listAssetsPaged: { __typename?: 'AssetPage', totalCount: number, rows: Array<{ __typename?: 'Asset', id: string, assetTag: string, name: string, category: AssetCategory, status: AssetStatus, manufacturer: string, modelName: string, serialNumber: string, assignedToId: string, assignedToName: string, location: string, purchaseDate?: string | null, warrantyExpiry?: string | null, purchaseCost: number, notes: string }> } };
+
+export type ListAssetsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListAssetsStatsQuery = { __typename?: 'Query', listAssetsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type ListAssetAssigneesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListAssetAssigneesQuery = { __typename?: 'Query', listAssetAssignees: Array<{ __typename?: 'AssetAssignee', id: string, name: string, email: string }> };
+
+export type CreateAssetMutationVariables = Exact<{
+  input: AssetInput;
+}>;
+
+
+export type CreateAssetMutation = { __typename?: 'Mutation', createAsset: { __typename?: 'Asset', id: string } };
+
+export type UpdateAssetMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: AssetInput;
+}>;
+
+
+export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset: { __typename?: 'Asset', id: string } };
+
+export type DeleteAssetMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteAssetMutation = { __typename?: 'Mutation', deleteAsset: boolean };
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -6734,6 +6883,25 @@ export const AnnouncementFieldsFragmentDoc = gql`
   employeeIds
 }
     `;
+export const AssetFieldsFragmentDoc = gql`
+    fragment AssetFields on Asset {
+  id
+  assetTag
+  name
+  category
+  status
+  manufacturer
+  modelName
+  serialNumber
+  assignedToId
+  assignedToName
+  location
+  purchaseDate
+  warrantyExpiry
+  purchaseCost
+  notes
+}
+    `;
 export const BrandingFieldsFragmentDoc = gql`
     fragment BrandingFields on Branding {
   id
@@ -8369,6 +8537,247 @@ export function useDeleteAnnouncementMutation(baseOptions?: Apollo.MutationHookO
 export type DeleteAnnouncementMutationHookResult = ReturnType<typeof useDeleteAnnouncementMutation>;
 export type DeleteAnnouncementMutationResult = Apollo.MutationResult<DeleteAnnouncementMutation>;
 export type DeleteAnnouncementMutationOptions = Apollo.BaseMutationOptions<DeleteAnnouncementMutation, DeleteAnnouncementMutationVariables>;
+export const ListAssetsPagedDocument = gql`
+    query ListAssetsPaged($input: TableQueryInput!) {
+  listAssetsPaged(input: $input) {
+    rows {
+      ...AssetFields
+    }
+    totalCount
+  }
+}
+    ${AssetFieldsFragmentDoc}`;
+
+/**
+ * __useListAssetsPagedQuery__
+ *
+ * To run a query within a React component, call `useListAssetsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAssetsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAssetsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListAssetsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListAssetsPagedQuery, ListAssetsPagedQueryVariables> & ({ variables: ListAssetsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListAssetsPagedQuery, ListAssetsPagedQueryVariables>(ListAssetsPagedDocument, options);
+      }
+export function useListAssetsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListAssetsPagedQuery, ListAssetsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListAssetsPagedQuery, ListAssetsPagedQueryVariables>(ListAssetsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListAssetsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListAssetsPagedQuery, ListAssetsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListAssetsPagedQuery, ListAssetsPagedQueryVariables>;
+export function useListAssetsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAssetsPagedQuery, ListAssetsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListAssetsPagedQuery | undefined, ListAssetsPagedQueryVariables>;
+export function useListAssetsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAssetsPagedQuery, ListAssetsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListAssetsPagedQuery, ListAssetsPagedQueryVariables>(ListAssetsPagedDocument, options);
+        }
+export type ListAssetsPagedQueryHookResult = ReturnType<typeof useListAssetsPagedQuery>;
+export type ListAssetsPagedLazyQueryHookResult = ReturnType<typeof useListAssetsPagedLazyQuery>;
+export type ListAssetsPagedSuspenseQueryHookResult = ReturnType<typeof useListAssetsPagedSuspenseQuery>;
+export type ListAssetsPagedQueryResult = Apollo.QueryResult<ListAssetsPagedQuery, ListAssetsPagedQueryVariables>;
+export const ListAssetsStatsDocument = gql`
+    query ListAssetsStats {
+  listAssetsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListAssetsStatsQuery__
+ *
+ * To run a query within a React component, call `useListAssetsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAssetsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAssetsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListAssetsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListAssetsStatsQuery, ListAssetsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListAssetsStatsQuery, ListAssetsStatsQueryVariables>(ListAssetsStatsDocument, options);
+      }
+export function useListAssetsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListAssetsStatsQuery, ListAssetsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListAssetsStatsQuery, ListAssetsStatsQueryVariables>(ListAssetsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListAssetsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListAssetsStatsQuery, ListAssetsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListAssetsStatsQuery, ListAssetsStatsQueryVariables>;
+export function useListAssetsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAssetsStatsQuery, ListAssetsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListAssetsStatsQuery | undefined, ListAssetsStatsQueryVariables>;
+export function useListAssetsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAssetsStatsQuery, ListAssetsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListAssetsStatsQuery, ListAssetsStatsQueryVariables>(ListAssetsStatsDocument, options);
+        }
+export type ListAssetsStatsQueryHookResult = ReturnType<typeof useListAssetsStatsQuery>;
+export type ListAssetsStatsLazyQueryHookResult = ReturnType<typeof useListAssetsStatsLazyQuery>;
+export type ListAssetsStatsSuspenseQueryHookResult = ReturnType<typeof useListAssetsStatsSuspenseQuery>;
+export type ListAssetsStatsQueryResult = Apollo.QueryResult<ListAssetsStatsQuery, ListAssetsStatsQueryVariables>;
+export const ListAssetAssigneesDocument = gql`
+    query ListAssetAssignees {
+  listAssetAssignees {
+    id
+    name
+    email
+  }
+}
+    `;
+
+/**
+ * __useListAssetAssigneesQuery__
+ *
+ * To run a query within a React component, call `useListAssetAssigneesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAssetAssigneesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAssetAssigneesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListAssetAssigneesQuery(baseOptions?: Apollo.QueryHookOptions<ListAssetAssigneesQuery, ListAssetAssigneesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListAssetAssigneesQuery, ListAssetAssigneesQueryVariables>(ListAssetAssigneesDocument, options);
+      }
+export function useListAssetAssigneesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListAssetAssigneesQuery, ListAssetAssigneesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListAssetAssigneesQuery, ListAssetAssigneesQueryVariables>(ListAssetAssigneesDocument, options);
+        }
+// @ts-ignore
+export function useListAssetAssigneesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListAssetAssigneesQuery, ListAssetAssigneesQueryVariables>): Apollo.UseSuspenseQueryResult<ListAssetAssigneesQuery, ListAssetAssigneesQueryVariables>;
+export function useListAssetAssigneesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAssetAssigneesQuery, ListAssetAssigneesQueryVariables>): Apollo.UseSuspenseQueryResult<ListAssetAssigneesQuery | undefined, ListAssetAssigneesQueryVariables>;
+export function useListAssetAssigneesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAssetAssigneesQuery, ListAssetAssigneesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListAssetAssigneesQuery, ListAssetAssigneesQueryVariables>(ListAssetAssigneesDocument, options);
+        }
+export type ListAssetAssigneesQueryHookResult = ReturnType<typeof useListAssetAssigneesQuery>;
+export type ListAssetAssigneesLazyQueryHookResult = ReturnType<typeof useListAssetAssigneesLazyQuery>;
+export type ListAssetAssigneesSuspenseQueryHookResult = ReturnType<typeof useListAssetAssigneesSuspenseQuery>;
+export type ListAssetAssigneesQueryResult = Apollo.QueryResult<ListAssetAssigneesQuery, ListAssetAssigneesQueryVariables>;
+export const CreateAssetDocument = gql`
+    mutation CreateAsset($input: AssetInput!) {
+  createAsset(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateAssetMutationFn = Apollo.MutationFunction<CreateAssetMutation, CreateAssetMutationVariables>;
+
+/**
+ * __useCreateAssetMutation__
+ *
+ * To run a mutation, you first call `useCreateAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAssetMutation, { data, loading, error }] = useCreateAssetMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateAssetMutation(baseOptions?: Apollo.MutationHookOptions<CreateAssetMutation, CreateAssetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateAssetMutation, CreateAssetMutationVariables>(CreateAssetDocument, options);
+      }
+export type CreateAssetMutationHookResult = ReturnType<typeof useCreateAssetMutation>;
+export type CreateAssetMutationResult = Apollo.MutationResult<CreateAssetMutation>;
+export type CreateAssetMutationOptions = Apollo.BaseMutationOptions<CreateAssetMutation, CreateAssetMutationVariables>;
+export const UpdateAssetDocument = gql`
+    mutation UpdateAsset($id: ID!, $input: AssetInput!) {
+  updateAsset(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateAssetMutationFn = Apollo.MutationFunction<UpdateAssetMutation, UpdateAssetMutationVariables>;
+
+/**
+ * __useUpdateAssetMutation__
+ *
+ * To run a mutation, you first call `useUpdateAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAssetMutation, { data, loading, error }] = useUpdateAssetMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAssetMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAssetMutation, UpdateAssetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAssetMutation, UpdateAssetMutationVariables>(UpdateAssetDocument, options);
+      }
+export type UpdateAssetMutationHookResult = ReturnType<typeof useUpdateAssetMutation>;
+export type UpdateAssetMutationResult = Apollo.MutationResult<UpdateAssetMutation>;
+export type UpdateAssetMutationOptions = Apollo.BaseMutationOptions<UpdateAssetMutation, UpdateAssetMutationVariables>;
+export const DeleteAssetDocument = gql`
+    mutation DeleteAsset($id: ID!) {
+  deleteAsset(id: $id)
+}
+    `;
+export type DeleteAssetMutationFn = Apollo.MutationFunction<DeleteAssetMutation, DeleteAssetMutationVariables>;
+
+/**
+ * __useDeleteAssetMutation__
+ *
+ * To run a mutation, you first call `useDeleteAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAssetMutation, { data, loading, error }] = useDeleteAssetMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteAssetMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAssetMutation, DeleteAssetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAssetMutation, DeleteAssetMutationVariables>(DeleteAssetDocument, options);
+      }
+export type DeleteAssetMutationHookResult = ReturnType<typeof useDeleteAssetMutation>;
+export type DeleteAssetMutationResult = Apollo.MutationResult<DeleteAssetMutation>;
+export type DeleteAssetMutationOptions = Apollo.BaseMutationOptions<DeleteAssetMutation, DeleteAssetMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {

@@ -167,6 +167,13 @@ services:
     ports:
       - '127.0.0.1:4033:4033'
 
+  portal-it:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-it:${TAG:-latest}
+    container_name: exyconn-portal-it
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4034:4034'
+
   portal-server:
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-server:${TAG:-latest}
     container_name: exyconn-portal-server
@@ -180,6 +187,6 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: 7d
       # Every portal micro-frontend calls this API from its own origin.
-      CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com,https://tech.exyconn.com
+      CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com,https://tech.exyconn.com,https://it.exyconn.com
       APP_URL: https://portal.exyconn.com
       TRACKER_DOWNLOAD_URL: https://employee.exyconn.com/me/tracker
