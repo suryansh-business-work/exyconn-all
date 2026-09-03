@@ -1,14 +1,20 @@
 import { supportResolvers } from '../../src/modules/support';
 import { SupportTicketModel } from '../../src/modules/employee/support.model';
 import { SupportReplyModel } from '../../src/modules/support/support-reply.model';
-import { UserModel } from '../../src/modules/admin/user.model';
 import { ROLES } from '../../src/constants/roles';
+import { seedUser } from '../helpers';
 import type { GraphQLContext } from '../../src/middleware/auth';
 
 /** The console is support-team only, so every call needs a context that holds the role. */
 const asSupport = (id: string): GraphQLContext => ({
   user: { id, roles: [ROLES.SUPPORT], email: 'agent@exyconn.com' },
 });
+
+/**
+ * A support-team member. `seedUser` is the shared helper — the model needs a
+ * password hash, so a user cannot be inserted with a plain object.
+ */
+const supportAgent = () => seedUser('asha@exyconn.com', 'a-strong-password', [ROLES.SUPPORT]);
 
 const ticketFor = (employeeId: string) =>
   SupportTicketModel.create({
@@ -28,12 +34,7 @@ describe('Support console', () => {
   });
 
   it('records both the id and the name when a ticket is assigned', async () => {
-    const agent = await UserModel.create({
-      name: 'Asha Rao',
-      email: 'asha@exyconn.com',
-      password: 'x'.repeat(12),
-      roles: [ROLES.SUPPORT],
-    });
+    const agent = await supportAgent();
     const ticket = await ticketFor('emp-1');
 
     const updated = await supportResolvers.Mutation.assignSupportTicket(
@@ -46,12 +47,7 @@ describe('Support console', () => {
   });
 
   it('puts a ticket back in the queue when assigned to nobody', async () => {
-    const agent = await UserModel.create({
-      name: 'Asha Rao',
-      email: 'asha@exyconn.com',
-      password: 'x'.repeat(12),
-      roles: [ROLES.SUPPORT],
-    });
+    const agent = await supportAgent();
     const ticket = await ticketFor('emp-1');
     const ctx = asSupport(String(agent._id));
     await supportResolvers.Mutation.assignSupportTicket(
@@ -71,12 +67,7 @@ describe('Support console', () => {
   });
 
   it('stores the author name on a reply so the thread reads later', async () => {
-    const agent = await UserModel.create({
-      name: 'Asha Rao',
-      email: 'asha@exyconn.com',
-      password: 'x'.repeat(12),
-      roles: [ROLES.SUPPORT],
-    });
+    const agent = await supportAgent();
     const ticket = await ticketFor('emp-1');
 
     await supportResolvers.Mutation.addSupportReply(
@@ -104,8 +95,9 @@ describe('Support console', () => {
   });
 
   it('returns the thread oldest first', async () => {
+    const agent = await supportAgent();
     const ticket = await ticketFor('emp-1');
-    const ctx = asSupport('agent-1');
+    const ctx = asSupport(String(agent._id));
     await supportResolvers.Mutation.addSupportReply(
       null,
       { ticketId: String(ticket._id), body: 'First', internal: false },

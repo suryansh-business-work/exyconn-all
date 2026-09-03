@@ -95,9 +95,13 @@ export const supportResolvers = {
       const ticket = await SupportTicketModel.findById(ticketId).lean();
       if (!ticket) notFound('SupportTicket');
       // The token carries no display name, so the author is resolved once here and
-      // stored on the reply — a thread has to stay readable years later.
+      // stored on the reply — a thread has to stay readable years later. A lookup
+      // that fails must not lose the reply, which is the part that matters.
       const authorId = ctx.user?.id ?? '';
-      const author = authorId ? await UserModel.findById(authorId).select('name').lean() : null;
+      const author = await UserModel.findById(authorId)
+        .select('name')
+        .lean()
+        .catch(() => null);
       const reply = await SupportReplyModel.create({
         ticketId,
         authorId,
