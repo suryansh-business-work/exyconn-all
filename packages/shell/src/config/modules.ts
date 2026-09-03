@@ -57,6 +57,8 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import DevicesIcon from '@mui/icons-material/Devices';
 import TuneIcon from '@mui/icons-material/Tune';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import PaletteIcon from '@mui/icons-material/Palette';
 import { ROLES, type Role } from '@/auth/roles';
 import { appUrl, type PortalAppKey } from './apps';
@@ -468,6 +470,18 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Tracker Build',
         path: '/tech/tracker-build',
         icon: BuildIcon,
+      },
+      {
+        key: 'tech-problem-reports',
+        label: 'Problem Reports',
+        path: '/tech/problem-reports',
+        icon: ReportProblemIcon,
+      },
+      {
+        key: 'tech-status-monitors',
+        label: 'Status Monitors',
+        path: '/tech/status-monitors',
+        icon: MonitorHeartIcon,
       },
       {
         key: 'tech-settings',

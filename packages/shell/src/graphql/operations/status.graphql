@@ -1,0 +1,185 @@
+fragment StatusDayFields on StatusDayPoint {
+  date
+  uptimePercent
+  avgResponseMs
+  checks
+  failures
+}
+
+query StatusOverview($days: Int) {
+  statusOverview(days: $days) {
+    state
+    generatedAt
+    checkIntervalMinutes
+    total
+    operational
+    degraded
+    down
+    uptimeToday
+    uptime30d
+    avgResponseMs
+    services {
+      id
+      key
+      name
+      description
+      category
+      url
+      state
+      responseMs
+      lastCheckedAt
+      lastError
+      uptimeToday
+      uptime30d
+      days {
+        ...StatusDayFields
+      }
+    }
+    daily {
+      ...StatusDayFields
+    }
+    incidents {
+      id
+      serviceKey
+      serviceName
+      state
+      reason
+      startedAt
+      resolvedAt
+      durationMinutes
+    }
+  }
+}
+
+mutation SubmitProblemReport($input: SubmitProblemReportInput!) {
+  submitProblemReport(input: $input) {
+    reference
+    submittedAt
+  }
+}
+
+fragment ProblemReportFields on ProblemReport {
+  id
+  reference
+  serviceKey
+  serviceName
+  category
+  severity
+  status
+  subject
+  description
+  reporterName
+  reporterEmail
+  pageUrl
+  assignee
+  resolutionNotes
+  createdAt
+}
+
+query ListProblemReportsPaged($input: TableQueryInput!) {
+  listProblemReportsPaged(input: $input) {
+    rows {
+      ...ProblemReportFields
+    }
+    totalCount
+  }
+}
+
+query ListProblemReportsStats {
+  listProblemReportsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateProblemReport($input: ProblemReportInput!) {
+  createProblemReport(input: $input) {
+    id
+  }
+}
+
+mutation UpdateProblemReport($id: ID!, $input: ProblemReportInput!) {
+  updateProblemReport(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteProblemReport($id: ID!) {
+  deleteProblemReport(id: $id)
+}
+
+fragment StatusMonitorFields on StatusMonitor {
+  id
+  key
+  name
+  description
+  category
+  url
+  isActive
+  order
+  state
+  lastCheckedAt
+  lastResponseMs
+  lastHttpStatus
+  lastError
+}
+
+query ListStatusMonitors {
+  listStatusMonitors {
+    id
+    key
+    name
+  }
+}
+
+query ListStatusMonitorsPaged($input: TableQueryInput!) {
+  listStatusMonitorsPaged(input: $input) {
+    rows {
+      ...StatusMonitorFields
+    }
+    totalCount
+  }
+}
+
+query ListStatusMonitorsStats {
+  listStatusMonitorsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateStatusMonitor($input: StatusMonitorInput!) {
+  createStatusMonitor(input: $input) {
+    id
+  }
+}
+
+mutation UpdateStatusMonitor($id: ID!, $input: StatusMonitorInput!) {
+  updateStatusMonitor(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteStatusMonitor($id: ID!) {
+  deleteStatusMonitor(id: $id)
+}

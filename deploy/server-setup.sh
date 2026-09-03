@@ -47,6 +47,7 @@ DOMAINS=(
   "tracker.exyconn.com"
   "tech.exyconn.com"
   "it.exyconn.com"
+  "status.exyconn.com"
 )
 
 echo "==> 1/4  Backing up current nginx config to ${BACKUP}"

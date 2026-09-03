@@ -5,6 +5,11 @@ import type { Role } from '../constants/roles';
 
 export interface GraphQLContext {
   user: TokenPayload | null;
+  /**
+   * Caller's address, used only to rate-limit the unauthenticated status-page mutation.
+   * Optional because a resolver can also be called directly (tests, internal jobs).
+   */
+  ip?: string;
 }
 
 /**
@@ -19,17 +24,18 @@ export interface GraphQLContext {
  * lingering until the token expires.
  */
 export async function buildContext({ req }: { req: Request }): Promise<GraphQLContext> {
+  const ip = req.ip ?? 'unknown';
   const header = req.headers.authorization ?? '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
   const decoded = token ? verifyToken(token) : null;
   if (!decoded) {
-    return { user: null };
+    return { user: null, ip };
   }
 
   const fresh = await UserModel.findById(decoded.id).select('roles isActive isBlocked').lean();
   if (!fresh || !fresh.isActive || fresh.isBlocked) {
-    return { user: null };
+    return { user: null, ip };
   }
 
-  return { user: { ...decoded, roles: fresh.roles as Role[] } };
+  return { user: { ...decoded, roles: fresh.roles as Role[] }, ip };
 }

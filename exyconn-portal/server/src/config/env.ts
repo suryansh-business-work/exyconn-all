@@ -35,6 +35,19 @@ export const env = Object.freeze({
   graphqlBodyLimit: process.env.GRAPHQL_BODY_LIMIT ?? '12mb',
   /** Download page for the desktop tracker, used as the CTA in the access-granted email. */
   trackerDownloadUrl: process.env.TRACKER_DOWNLOAD_URL ?? 'https://employee.exyconn.com/me/tracker',
+  /**
+   * Public status page configuration. The monitor probes every active entry in the
+   * `statusmonitors` collection on this interval; a reachable endpoint slower than
+   * `degradedMs` is reported as degraded rather than operational.
+   */
+  status: {
+    enabled: (process.env.STATUS_MONITOR_ENABLED ?? 'true') !== 'false',
+    /** Platform domain the seeded monitor URLs hang off. */
+    domain: process.env.STATUS_DOMAIN ?? 'exyconn.com',
+    intervalMs: Number(process.env.STATUS_CHECK_INTERVAL_MS ?? 300_000),
+    timeoutMs: Number(process.env.STATUS_CHECK_TIMEOUT_MS ?? 10_000),
+    degradedMs: Number(process.env.STATUS_DEGRADED_MS ?? 2_000),
+  },
   seedAdmin: {
     name: process.env.SEED_ADMIN_NAME ?? 'Exyconn Admin',
     email: process.env.SEED_ADMIN_EMAIL ?? 'admin@exyconn.com',

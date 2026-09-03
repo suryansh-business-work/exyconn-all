@@ -1502,12 +1502,14 @@ export type Mutation = {
   createNavLink: NavLink;
   createPerformanceReview: PerformanceReview;
   createPosition: Position;
+  createProblemReport: ProblemReport;
   createProduct: Product;
   createProject: Project;
   createPrompt: Prompt;
   createSalaryStructure: SalaryStructure;
   createShift: Shift;
   createSlackConfig: SlackConfig;
+  createStatusMonitor: StatusMonitor;
   /** Self-service: raise a support ticket (status forced to OPEN). */
   createSupportTicket: SupportTicket;
   createTask: Task;
@@ -1554,12 +1556,14 @@ export type Mutation = {
   deleteNavLink: Scalars['Boolean']['output'];
   deletePerformanceReview: Scalars['Boolean']['output'];
   deletePosition: Scalars['Boolean']['output'];
+  deleteProblemReport: Scalars['Boolean']['output'];
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
   deleteSalaryStructure: Scalars['Boolean']['output'];
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
+  deleteStatusMonitor: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
@@ -1618,6 +1622,8 @@ export type Mutation = {
   signContract: Contract;
   /** Asks GitHub to build the chosen installers off the given branch. */
   startTrackerBuild: Scalars['Boolean']['output'];
+  /** Public: filed from the status page's report form, triaged in the Tech portal. */
+  submitProblemReport: ProblemReportReceipt;
   /**
    * The employee's own half of the appraisal. Allowed only while the cycle is
    * still OPEN, and it never touches the manager's assessment or the rating.
@@ -1678,6 +1684,7 @@ export type Mutation = {
   updateNavLink: NavLink;
   updatePerformanceReview: PerformanceReview;
   updatePosition: Position;
+  updateProblemReport: ProblemReport;
   updateProduct: Product;
   updateProfile: User;
   updateProject: Project;
@@ -1686,6 +1693,7 @@ export type Mutation = {
   updateSettings: AppSettings;
   updateShift: Shift;
   updateSlackConfig: SlackConfig;
+  updateStatusMonitor: StatusMonitor;
   updateTask: Task;
   updateTeam: Team;
   updateTool: Tool;
@@ -1906,6 +1914,11 @@ export type MutationCreatePositionArgs = {
 };
 
 
+export type MutationCreateProblemReportArgs = {
+  input: ProblemReportInput;
+};
+
+
 export type MutationCreateProductArgs = {
   input: ProductInput;
 };
@@ -1933,6 +1946,11 @@ export type MutationCreateShiftArgs = {
 
 export type MutationCreateSlackConfigArgs = {
   input: SlackConfigInput;
+};
+
+
+export type MutationCreateStatusMonitorArgs = {
+  input: StatusMonitorInput;
 };
 
 
@@ -2159,6 +2177,11 @@ export type MutationDeletePositionArgs = {
 };
 
 
+export type MutationDeleteProblemReportArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteProductArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2185,6 +2208,11 @@ export type MutationDeleteShiftArgs = {
 
 
 export type MutationDeleteSlackConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteStatusMonitorArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2373,6 +2401,11 @@ export type MutationSignContractArgs = {
 export type MutationStartTrackerBuildArgs = {
   platforms: Array<TrackerPlatform>;
   ref: Scalars['String']['input'];
+};
+
+
+export type MutationSubmitProblemReportArgs = {
+  input: SubmitProblemReportInput;
 };
 
 
@@ -2661,6 +2694,12 @@ export type MutationUpdatePositionArgs = {
 };
 
 
+export type MutationUpdateProblemReportArgs = {
+  id: Scalars['ID']['input'];
+  input: ProblemReportInput;
+};
+
+
 export type MutationUpdateProductArgs = {
   id: Scalars['ID']['input'];
   input: ProductInput;
@@ -2704,6 +2743,12 @@ export type MutationUpdateShiftArgs = {
 export type MutationUpdateSlackConfigArgs = {
   id: Scalars['ID']['input'];
   input: SlackConfigInput;
+};
+
+
+export type MutationUpdateStatusMonitorArgs = {
+  id: Scalars['ID']['input'];
+  input: StatusMonitorInput;
 };
 
 
@@ -2930,6 +2975,79 @@ export type PositionInput = {
   name: Scalars['String']['input'];
 };
 
+export enum ProblemCategory {
+  Data = 'DATA',
+  Login = 'LOGIN',
+  Other = 'OTHER',
+  Outage = 'OUTAGE',
+  Slowness = 'SLOWNESS',
+  Ui = 'UI'
+}
+
+export type ProblemReport = {
+  __typename?: 'ProblemReport';
+  assignee: Scalars['String']['output'];
+  category: ProblemCategory;
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  pageUrl: Scalars['String']['output'];
+  reference: Scalars['String']['output'];
+  reporterEmail: Scalars['String']['output'];
+  reporterName: Scalars['String']['output'];
+  resolutionNotes: Scalars['String']['output'];
+  serviceKey: Scalars['String']['output'];
+  serviceName: Scalars['String']['output'];
+  severity: ProblemSeverity;
+  status: ProblemStatus;
+  subject: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** Triage fields the Tech portal owns; the public form never sends these. */
+export type ProblemReportInput = {
+  assignee: Scalars['String']['input'];
+  category: ProblemCategory;
+  description: Scalars['String']['input'];
+  pageUrl: Scalars['String']['input'];
+  reporterEmail: Scalars['String']['input'];
+  reporterName: Scalars['String']['input'];
+  resolutionNotes: Scalars['String']['input'];
+  serviceKey: Scalars['String']['input'];
+  serviceName: Scalars['String']['input'];
+  severity: ProblemSeverity;
+  status: ProblemStatus;
+  subject: Scalars['String']['input'];
+};
+
+export type ProblemReportPage = {
+  __typename?: 'ProblemReportPage';
+  rows: Array<ProblemReport>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** Only the reference comes back — a reporter never reads anyone else's report. */
+export type ProblemReportReceipt = {
+  __typename?: 'ProblemReportReceipt';
+  reference: Scalars['String']['output'];
+  submittedAt: Scalars['DateTime']['output'];
+};
+
+export enum ProblemSeverity {
+  Critical = 'CRITICAL',
+  High = 'HIGH',
+  Low = 'LOW',
+  Medium = 'MEDIUM'
+}
+
+export enum ProblemStatus {
+  Closed = 'CLOSED',
+  InProgress = 'IN_PROGRESS',
+  New = 'NEW',
+  Resolved = 'RESOLVED',
+  Triaged = 'TRIAGED'
+}
+
 export type Product = {
   __typename?: 'Product';
   category: Scalars['String']['output'];
@@ -3085,11 +3203,13 @@ export type Query = {
   getNavLink: NavLink;
   getPerformanceReview: PerformanceReview;
   getPosition: Position;
+  getProblemReport: ProblemReport;
   getProduct: Product;
   getProject: Project;
   getPrompt: Prompt;
   getSalaryStructure: SalaryStructure;
   getShift: Shift;
+  getStatusMonitor: StatusMonitor;
   getTeam: Team;
   getTool: Tool;
   getToolCategory: ToolCategory;
@@ -3202,6 +3322,9 @@ export type Query = {
   listPolicies: Array<Policy>;
   /** HR/ADMIN: job positions / designations. */
   listPositions: Array<Position>;
+  listProblemReports: Array<ProblemReport>;
+  listProblemReportsPaged: ProblemReportPage;
+  listProblemReportsStats: TableStats;
   listProducts: Array<Product>;
   listProductsPaged: ProductPage;
   listProductsStats: TableStats;
@@ -3224,6 +3347,9 @@ export type Query = {
   /** Every channel the active Slack bot token can see. */
   listSlackChannels: Array<SlackChannel>;
   listSlackConfigs: Array<SlackConfig>;
+  listStatusMonitors: Array<StatusMonitor>;
+  listStatusMonitorsPaged: StatusMonitorPage;
+  listStatusMonitorsStats: TableStats;
   /** SUPPORT/ADMIN: every employee support ticket, newest first. */
   listSupportTickets: Array<SupportTicket>;
   listTeams: Array<Team>;
@@ -3287,6 +3413,8 @@ export type Query = {
   publicTool?: Maybe<Tool>;
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
+  /** Public: no sign-in, this is what status.exyconn.com reads. */
+  statusOverview: StatusOverview;
   trackerAccessList: Array<TrackerAccess>;
   trackerBuildSettings: TrackerBuildSettings;
   trackerCalendar: Array<TrackerDayBucket>;
@@ -3463,6 +3591,11 @@ export type QueryGetPositionArgs = {
 };
 
 
+export type QueryGetProblemReportArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetProductArgs = {
   id: Scalars['ID']['input'];
 };
@@ -3484,6 +3617,11 @@ export type QueryGetSalaryStructureArgs = {
 
 
 export type QueryGetShiftArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetStatusMonitorArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -3663,6 +3801,11 @@ export type QueryListPerformanceReviewsPagedArgs = {
 };
 
 
+export type QueryListProblemReportsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListProductsPagedArgs = {
   input: TableQueryInput;
 };
@@ -3689,6 +3832,11 @@ export type QueryListSalaryStructuresPagedArgs = {
 
 
 export type QueryListShiftsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListStatusMonitorsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -3774,6 +3922,11 @@ export type QueryPublicToolArgs = {
 
 export type QueryPublicToolsArgs = {
   categorySlug?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryStatusOverviewArgs = {
+  days?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -4008,6 +4161,126 @@ export type StatFieldSum = {
   __typename?: 'StatFieldSum';
   field: Scalars['String']['output'];
   total: Scalars['Float']['output'];
+};
+
+export enum StatusCategory {
+  Api = 'API',
+  DesktopApp = 'DESKTOP_APP',
+  Portal = 'PORTAL',
+  Tool = 'TOOL',
+  Website = 'WEBSITE'
+}
+
+/** One UTC day of a service's history. A day with checks: 0 was never measured. */
+export type StatusDayPoint = {
+  __typename?: 'StatusDayPoint';
+  avgResponseMs: Scalars['Int']['output'];
+  checks: Scalars['Int']['output'];
+  date: Scalars['String']['output'];
+  failures: Scalars['Int']['output'];
+  uptimePercent: Scalars['Float']['output'];
+};
+
+export type StatusIncident = {
+  __typename?: 'StatusIncident';
+  durationMinutes: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  reason: Scalars['String']['output'];
+  resolvedAt?: Maybe<Scalars['DateTime']['output']>;
+  serviceKey: Scalars['String']['output'];
+  serviceName: Scalars['String']['output'];
+  startedAt: Scalars['DateTime']['output'];
+  state: StatusState;
+};
+
+/** A monitored endpoint, maintained from Tech > Status Monitors. */
+export type StatusMonitor = {
+  __typename?: 'StatusMonitor';
+  category: StatusCategory;
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  key: Scalars['String']['output'];
+  lastCheckedAt?: Maybe<Scalars['DateTime']['output']>;
+  lastError: Scalars['String']['output'];
+  lastHttpStatus: Scalars['Int']['output'];
+  lastResponseMs: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+  state: StatusState;
+  updatedAt: Scalars['DateTime']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type StatusMonitorInput = {
+  category: StatusCategory;
+  description: Scalars['String']['input'];
+  isActive: Scalars['Boolean']['input'];
+  key: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  order: Scalars['Int']['input'];
+  url: Scalars['String']['input'];
+};
+
+export type StatusMonitorPage = {
+  __typename?: 'StatusMonitorPage';
+  rows: Array<StatusMonitor>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** Everything the public status page renders, resolved in a single read. */
+export type StatusOverview = {
+  __typename?: 'StatusOverview';
+  avgResponseMs: Scalars['Int']['output'];
+  checkIntervalMinutes: Scalars['Int']['output'];
+  daily: Array<StatusDayPoint>;
+  degraded: Scalars['Int']['output'];
+  down: Scalars['Int']['output'];
+  generatedAt: Scalars['DateTime']['output'];
+  incidents: Array<StatusIncident>;
+  operational: Scalars['Int']['output'];
+  services: Array<StatusServiceSummary>;
+  state: StatusState;
+  total: Scalars['Int']['output'];
+  uptime30d: Scalars['Float']['output'];
+  uptimeToday: Scalars['Float']['output'];
+};
+
+export type StatusServiceSummary = {
+  __typename?: 'StatusServiceSummary';
+  category: StatusCategory;
+  days: Array<StatusDayPoint>;
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  lastCheckedAt?: Maybe<Scalars['DateTime']['output']>;
+  lastError: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  responseMs: Scalars['Int']['output'];
+  state: StatusState;
+  uptime30d: Scalars['Float']['output'];
+  uptimeToday: Scalars['Float']['output'];
+  url: Scalars['String']['output'];
+};
+
+export enum StatusState {
+  Degraded = 'DEGRADED',
+  Down = 'DOWN',
+  Operational = 'OPERATIONAL',
+  Unknown = 'UNKNOWN'
+}
+
+/** What the public status page submits. Everything else is set by the server. */
+export type SubmitProblemReportInput = {
+  category: ProblemCategory;
+  description: Scalars['String']['input'];
+  pageUrl: Scalars['String']['input'];
+  reporterEmail: Scalars['String']['input'];
+  reporterName: Scalars['String']['input'];
+  serviceKey: Scalars['String']['input'];
+  severity: ProblemSeverity;
+  subject: Scalars['String']['input'];
 };
 
 export enum SupportCategory {
@@ -4805,6 +5078,13 @@ export type ResolversTypes = ResolversObject<{
   PolicyCategory: PolicyCategory;
   Position: ResolverTypeWrapper<Position>;
   PositionInput: PositionInput;
+  ProblemCategory: ProblemCategory;
+  ProblemReport: ResolverTypeWrapper<ProblemReport>;
+  ProblemReportInput: ProblemReportInput;
+  ProblemReportPage: ResolverTypeWrapper<ProblemReportPage>;
+  ProblemReportReceipt: ResolverTypeWrapper<ProblemReportReceipt>;
+  ProblemSeverity: ProblemSeverity;
+  ProblemStatus: ProblemStatus;
   Product: ResolverTypeWrapper<Product>;
   ProductInput: ProductInput;
   ProductPage: ResolverTypeWrapper<ProductPage>;
@@ -4843,7 +5123,17 @@ export type ResolversTypes = ResolversObject<{
   StatBucket: ResolverTypeWrapper<StatBucket>;
   StatFieldCounts: ResolverTypeWrapper<StatFieldCounts>;
   StatFieldSum: ResolverTypeWrapper<StatFieldSum>;
+  StatusCategory: StatusCategory;
+  StatusDayPoint: ResolverTypeWrapper<StatusDayPoint>;
+  StatusIncident: ResolverTypeWrapper<StatusIncident>;
+  StatusMonitor: ResolverTypeWrapper<StatusMonitor>;
+  StatusMonitorInput: StatusMonitorInput;
+  StatusMonitorPage: ResolverTypeWrapper<StatusMonitorPage>;
+  StatusOverview: ResolverTypeWrapper<StatusOverview>;
+  StatusServiceSummary: ResolverTypeWrapper<StatusServiceSummary>;
+  StatusState: StatusState;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  SubmitProblemReportInput: SubmitProblemReportInput;
   SupportCategory: SupportCategory;
   SupportPriority: SupportPriority;
   SupportStatus: SupportStatus;
@@ -5033,6 +5323,10 @@ export type ResolversParentTypes = ResolversObject<{
   Policy: Policy;
   Position: Position;
   PositionInput: PositionInput;
+  ProblemReport: ProblemReport;
+  ProblemReportInput: ProblemReportInput;
+  ProblemReportPage: ProblemReportPage;
+  ProblemReportReceipt: ProblemReportReceipt;
   Product: Product;
   ProductInput: ProductInput;
   ProductPage: ProductPage;
@@ -5062,7 +5356,15 @@ export type ResolversParentTypes = ResolversObject<{
   StatBucket: StatBucket;
   StatFieldCounts: StatFieldCounts;
   StatFieldSum: StatFieldSum;
+  StatusDayPoint: StatusDayPoint;
+  StatusIncident: StatusIncident;
+  StatusMonitor: StatusMonitor;
+  StatusMonitorInput: StatusMonitorInput;
+  StatusMonitorPage: StatusMonitorPage;
+  StatusOverview: StatusOverview;
+  StatusServiceSummary: StatusServiceSummary;
   String: Scalars['String']['output'];
+  SubmitProblemReportInput: SubmitProblemReportInput;
   SupportTicket: SupportTicket;
   SupportTicketInput: SupportTicketInput;
   TableFilterInput: TableFilterInput;
@@ -5940,12 +6242,14 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationCreateNavLinkArgs, 'input'>>;
   createPerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationCreatePerformanceReviewArgs, 'input'>>;
   createPosition?: Resolver<ResolversTypes['Position'], ParentType, ContextType, RequireFields<MutationCreatePositionArgs, 'input'>>;
+  createProblemReport?: Resolver<ResolversTypes['ProblemReport'], ParentType, ContextType, RequireFields<MutationCreateProblemReportArgs, 'input'>>;
   createProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'input'>>;
   createProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
   createPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationCreatePromptArgs, 'input'>>;
   createSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationCreateSalaryStructureArgs, 'input'>>;
   createShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationCreateShiftArgs, 'input'>>;
   createSlackConfig?: Resolver<ResolversTypes['SlackConfig'], ParentType, ContextType, RequireFields<MutationCreateSlackConfigArgs, 'input'>>;
+  createStatusMonitor?: Resolver<ResolversTypes['StatusMonitor'], ParentType, ContextType, RequireFields<MutationCreateStatusMonitorArgs, 'input'>>;
   createSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationCreateSupportTicketArgs, 'input'>>;
   createTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationCreateTaskArgs, 'columnId' | 'projectId' | 'title'>>;
   createTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<MutationCreateTeamArgs, 'input'>>;
@@ -5990,12 +6294,14 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteNavLink?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNavLinkArgs, 'id'>>;
   deletePerformanceReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePerformanceReviewArgs, 'id'>>;
   deletePosition?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePositionArgs, 'id'>>;
+  deleteProblemReport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProblemReportArgs, 'id'>>;
   deleteProduct?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'id'>>;
   deleteProject?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'id'>>;
   deletePrompt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePromptArgs, 'id'>>;
   deleteSalaryStructure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSalaryStructureArgs, 'id'>>;
   deleteShift?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteShiftArgs, 'id'>>;
   deleteSlackConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSlackConfigArgs, 'id'>>;
+  deleteStatusMonitor?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusMonitorArgs, 'id'>>;
   deleteTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaskArgs, 'id'>>;
   deleteTeam?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTeamArgs, 'id'>>;
   deleteTool?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolArgs, 'id'>>;
@@ -6031,6 +6337,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setUserBlocked?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserBlockedArgs, 'id' | 'isBlocked'>>;
   signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id' | 'signedBy'>>;
   startTrackerBuild?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationStartTrackerBuildArgs, 'platforms' | 'ref'>>;
+  submitProblemReport?: Resolver<ResolversTypes['ProblemReportReceipt'], ParentType, ContextType, RequireFields<MutationSubmitProblemReportArgs, 'input'>>;
   submitSelfAssessment?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationSubmitSelfAssessmentArgs, 'id' | 'text'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
@@ -6081,6 +6388,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationUpdateNavLinkArgs, 'id' | 'input'>>;
   updatePerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationUpdatePerformanceReviewArgs, 'id' | 'input'>>;
   updatePosition?: Resolver<ResolversTypes['Position'], ParentType, ContextType, RequireFields<MutationUpdatePositionArgs, 'id' | 'input'>>;
+  updateProblemReport?: Resolver<ResolversTypes['ProblemReport'], ParentType, ContextType, RequireFields<MutationUpdateProblemReportArgs, 'id' | 'input'>>;
   updateProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<MutationUpdateProductArgs, 'id' | 'input'>>;
   updateProfile?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'input'>>;
   updateProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationUpdateProjectArgs, 'id' | 'input'>>;
@@ -6089,6 +6397,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType, RequireFields<MutationUpdateSettingsArgs, 'input'>>;
   updateShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationUpdateShiftArgs, 'id' | 'input'>>;
   updateSlackConfig?: Resolver<ResolversTypes['SlackConfig'], ParentType, ContextType, RequireFields<MutationUpdateSlackConfigArgs, 'id' | 'input'>>;
+  updateStatusMonitor?: Resolver<ResolversTypes['StatusMonitor'], ParentType, ContextType, RequireFields<MutationUpdateStatusMonitorArgs, 'id' | 'input'>>;
   updateTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationUpdateTaskArgs, 'id'>>;
   updateTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<MutationUpdateTeamArgs, 'id' | 'input'>>;
   updateTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<MutationUpdateToolArgs, 'id' | 'input'>>;
@@ -6185,6 +6494,38 @@ export type PositionResolvers<ContextType = GraphQLContext, ParentType extends R
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProblemReportResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProblemReport'] = ResolversParentTypes['ProblemReport']> = ResolversObject<{
+  assignee?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['ProblemCategory'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  pageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reporterEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reporterName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  resolutionNotes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  serviceKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  serviceName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  severity?: Resolver<ResolversTypes['ProblemSeverity'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ProblemStatus'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProblemReportPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProblemReportPage'] = ResolversParentTypes['ProblemReportPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ProblemReport']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProblemReportReceiptResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProblemReportReceipt'] = ResolversParentTypes['ProblemReportReceipt']> = ResolversObject<{
+  reference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  submittedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6288,11 +6629,13 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<QueryGetNavLinkArgs, 'id'>>;
   getPerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<QueryGetPerformanceReviewArgs, 'id'>>;
   getPosition?: Resolver<ResolversTypes['Position'], ParentType, ContextType, RequireFields<QueryGetPositionArgs, 'id'>>;
+  getProblemReport?: Resolver<ResolversTypes['ProblemReport'], ParentType, ContextType, RequireFields<QueryGetProblemReportArgs, 'id'>>;
   getProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<QueryGetProductArgs, 'id'>>;
   getProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<QueryGetProjectArgs, 'id'>>;
   getPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<QueryGetPromptArgs, 'id'>>;
   getSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<QueryGetSalaryStructureArgs, 'id'>>;
   getShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<QueryGetShiftArgs, 'id'>>;
+  getStatusMonitor?: Resolver<ResolversTypes['StatusMonitor'], ParentType, ContextType, RequireFields<QueryGetStatusMonitorArgs, 'id'>>;
   getTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<QueryGetTeamArgs, 'id'>>;
   getTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<QueryGetToolArgs, 'id'>>;
   getToolCategory?: Resolver<ResolversTypes['ToolCategory'], ParentType, ContextType, RequireFields<QueryGetToolCategoryArgs, 'id'>>;
@@ -6396,6 +6739,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPermissionModules?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   listPolicies?: Resolver<Array<ResolversTypes['Policy']>, ParentType, ContextType>;
   listPositions?: Resolver<Array<ResolversTypes['Position']>, ParentType, ContextType>;
+  listProblemReports?: Resolver<Array<ResolversTypes['ProblemReport']>, ParentType, ContextType>;
+  listProblemReportsPaged?: Resolver<ResolversTypes['ProblemReportPage'], ParentType, ContextType, RequireFields<QueryListProblemReportsPagedArgs, 'input'>>;
+  listProblemReportsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listProducts?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType>;
   listProductsPaged?: Resolver<ResolversTypes['ProductPage'], ParentType, ContextType, RequireFields<QueryListProductsPagedArgs, 'input'>>;
   listProductsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -6416,6 +6762,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listShiftsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listSlackChannels?: Resolver<Array<ResolversTypes['SlackChannel']>, ParentType, ContextType>;
   listSlackConfigs?: Resolver<Array<ResolversTypes['SlackConfig']>, ParentType, ContextType>;
+  listStatusMonitors?: Resolver<Array<ResolversTypes['StatusMonitor']>, ParentType, ContextType>;
+  listStatusMonitorsPaged?: Resolver<ResolversTypes['StatusMonitorPage'], ParentType, ContextType, RequireFields<QueryListStatusMonitorsPagedArgs, 'input'>>;
+  listStatusMonitorsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listSupportTickets?: Resolver<Array<ResolversTypes['SupportTicket']>, ParentType, ContextType>;
   listTeams?: Resolver<Array<ResolversTypes['Team']>, ParentType, ContextType>;
   listTeamsPaged?: Resolver<ResolversTypes['TeamPage'], ParentType, ContextType, RequireFields<QueryListTeamsPagedArgs, 'input'>>;
@@ -6470,6 +6819,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicTool?: Resolver<Maybe<ResolversTypes['Tool']>, ParentType, ContextType, RequireFields<QueryPublicToolArgs, 'toolCode'>>;
   publicToolCategories?: Resolver<Array<ResolversTypes['ToolCategory']>, ParentType, ContextType>;
   publicTools?: Resolver<Array<ResolversTypes['Tool']>, ParentType, ContextType, Partial<QueryPublicToolsArgs>>;
+  statusOverview?: Resolver<ResolversTypes['StatusOverview'], ParentType, ContextType, Partial<QueryStatusOverviewArgs>>;
   trackerAccessList?: Resolver<Array<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
   trackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType>;
   trackerCalendar?: Resolver<Array<ResolversTypes['TrackerDayBucket']>, ParentType, ContextType, RequireFields<QueryTrackerCalendarArgs, 'from' | 'timezone' | 'to' | 'userId'>>;
@@ -6589,6 +6939,86 @@ export type StatFieldCountsResolvers<ContextType = GraphQLContext, ParentType ex
 export type StatFieldSumResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StatFieldSum'] = ResolversParentTypes['StatFieldSum']> = ResolversObject<{
   field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   total?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type StatusDayPointResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StatusDayPoint'] = ResolversParentTypes['StatusDayPoint']> = ResolversObject<{
+  avgResponseMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  checks?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  failures?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  uptimePercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type StatusIncidentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StatusIncident'] = ResolversParentTypes['StatusIncident']> = ResolversObject<{
+  durationMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  resolvedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  serviceKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  serviceName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  startedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['StatusState'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type StatusMonitorResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StatusMonitor'] = ResolversParentTypes['StatusMonitor']> = ResolversObject<{
+  category?: Resolver<ResolversTypes['StatusCategory'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastCheckedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  lastError?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastHttpStatus?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastResponseMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['StatusState'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type StatusMonitorPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StatusMonitorPage'] = ResolversParentTypes['StatusMonitorPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['StatusMonitor']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type StatusOverviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StatusOverview'] = ResolversParentTypes['StatusOverview']> = ResolversObject<{
+  avgResponseMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  checkIntervalMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  daily?: Resolver<Array<ResolversTypes['StatusDayPoint']>, ParentType, ContextType>;
+  degraded?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  down?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  generatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  incidents?: Resolver<Array<ResolversTypes['StatusIncident']>, ParentType, ContextType>;
+  operational?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  services?: Resolver<Array<ResolversTypes['StatusServiceSummary']>, ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['StatusState'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  uptime30d?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  uptimeToday?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type StatusServiceSummaryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StatusServiceSummary'] = ResolversParentTypes['StatusServiceSummary']> = ResolversObject<{
+  category?: Resolver<ResolversTypes['StatusCategory'], ParentType, ContextType>;
+  days?: Resolver<Array<ResolversTypes['StatusDayPoint']>, ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastCheckedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  lastError?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  responseMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['StatusState'], ParentType, ContextType>;
+  uptime30d?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  uptimeToday?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6997,6 +7427,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   PerformanceReviewPage?: PerformanceReviewPageResolvers<ContextType>;
   Policy?: PolicyResolvers<ContextType>;
   Position?: PositionResolvers<ContextType>;
+  ProblemReport?: ProblemReportResolvers<ContextType>;
+  ProblemReportPage?: ProblemReportPageResolvers<ContextType>;
+  ProblemReportReceipt?: ProblemReportReceiptResolvers<ContextType>;
   Product?: ProductResolvers<ContextType>;
   ProductPage?: ProductPageResolvers<ContextType>;
   Project?: ProjectResolvers<ContextType>;
@@ -7018,6 +7451,12 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   StatBucket?: StatBucketResolvers<ContextType>;
   StatFieldCounts?: StatFieldCountsResolvers<ContextType>;
   StatFieldSum?: StatFieldSumResolvers<ContextType>;
+  StatusDayPoint?: StatusDayPointResolvers<ContextType>;
+  StatusIncident?: StatusIncidentResolvers<ContextType>;
+  StatusMonitor?: StatusMonitorResolvers<ContextType>;
+  StatusMonitorPage?: StatusMonitorPageResolvers<ContextType>;
+  StatusOverview?: StatusOverviewResolvers<ContextType>;
+  StatusServiceSummary?: StatusServiceSummaryResolvers<ContextType>;
   SupportTicket?: SupportTicketResolvers<ContextType>;
   TableStats?: TableStatsResolvers<ContextType>;
   Task?: TaskResolvers<ContextType>;

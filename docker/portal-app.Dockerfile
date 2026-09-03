@@ -2,8 +2,8 @@
 # Exyconn Portal micro-frontend (React + Vite + MUI)
 #
 # One image definition for every portal app: the hub (portal.exyconn.com) and the
-# 15 module apps (hr.exyconn.com, ai.exyconn.com, ...). APP_DIR/APP_PKG select
-# which workspace package to build, PORT is the host port nginx proxies to, and
+# module apps (hr.exyconn.com, ai.exyconn.com, ...), including the public status page.
+# APP_DIR/APP_PKG select which package to build, PORT is the host port nginx proxies to, and
 # VITE_PORTAL_APP tells the shell which app it is so cross-app links resolve.
 #
 # Build context: the monorepo ROOT (pnpm workspace). Static build served by nginx.
@@ -40,6 +40,7 @@ COPY exyconn-portal/apps/legal/package.json exyconn-portal/apps/legal/
 COPY exyconn-portal/apps/marketing/package.json exyconn-portal/apps/marketing/
 COPY exyconn-portal/apps/products/package.json exyconn-portal/apps/products/
 COPY exyconn-portal/apps/projects/package.json exyconn-portal/apps/projects/
+COPY exyconn-portal/apps/status/package.json exyconn-portal/apps/status/
 COPY exyconn-portal/apps/support/package.json exyconn-portal/apps/support/
 COPY exyconn-portal/apps/tech/package.json exyconn-portal/apps/tech/
 COPY exyconn-portal/apps/tracker/package.json exyconn-portal/apps/tracker/
