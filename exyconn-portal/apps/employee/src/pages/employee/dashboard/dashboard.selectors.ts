@@ -78,3 +78,19 @@ export function latestSalarySlip<T extends SalarySlipRecord>(slips: T[]): T | nu
     slip.year * 12 + slip.month > latest.year * 12 + latest.month ? slip : latest,
   );
 }
+
+export interface LeaveBalanceRecord {
+  leaveTypeCode: string;
+  year: number;
+  available: number;
+}
+
+/**
+ * Days still available across every leave type for the year `ref` is in, or null
+ * when HR has not allocated anything yet — the tile then says so rather than "0".
+ */
+export function totalLeaveAvailable(balances: LeaveBalanceRecord[], ref: Date): number | null {
+  const thisYear = balances.filter((b) => b.year === ref.getFullYear());
+  if (thisYear.length === 0) return null;
+  return thisYear.reduce((sum, b) => sum + Math.max(b.available, 0), 0);
+}
