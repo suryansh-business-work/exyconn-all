@@ -1,6 +1,7 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 
 export const ANNOUNCEMENT_CATEGORIES = ['NOTICE', 'POLICY', 'EVENT', 'UPDATE'] as const;
+export const ANNOUNCEMENT_AUDIENCES = ['ALL', 'DEPARTMENT', 'EMPLOYEES'] as const;
 
 const announcementSchema = new Schema(
   {
@@ -12,6 +13,10 @@ const announcementSchema = new Schema(
     publishedAt: { type: Date, required: true, default: Date.now },
     /** Null means it never stops showing. */
     expiresAt: { type: Date, default: null },
+    /** Who sees it. DEPARTMENT needs `department`, EMPLOYEES needs `employeeIds`. */
+    audience: { type: String, enum: ANNOUNCEMENT_AUDIENCES, required: true, default: 'ALL' },
+    department: { type: String, default: null },
+    employeeIds: { type: [String], default: [] },
   },
   { timestamps: true },
 );

@@ -30,3 +30,35 @@ export async function notifyEveryone(payload: NotifyPayload): Promise<void> {
     logger.error(error, 'Failed to fan out notification');
   }
 }
+
+export interface BroadcastInput extends NotifyPayload {
+  audience: 'ALL' | 'DEPARTMENT' | 'EMPLOYEES';
+  department?: string | null;
+  employeeIds?: string[] | null;
+}
+
+/** Who a broadcast reaches. Always active users only; a deactivated account never gets one. */
+export async function resolveRecipients(input: BroadcastInput): Promise<string[]> {
+  const base: Record<string, unknown> = { isActive: true };
+  if (input.audience === 'DEPARTMENT') {
+    if (!input.department) throw new Error('department is required for a DEPARTMENT audience');
+    base.department = input.department;
+  } else if (input.audience === 'EMPLOYEES') {
+    if (!input.employeeIds?.length)
+      throw new Error('employeeIds is required for an EMPLOYEES audience');
+    base._id = { $in: input.employeeIds };
+  }
+  const users = await UserModel.find(base).select('_id').lean();
+  return users.map((u) => String(u._id));
+}
+
+/** HR broadcast. Unlike notifyEveryone this throws, because the sender is waiting for a count. */
+export async function broadcast(input: BroadcastInput): Promise<number> {
+  const recipients = await resolveRecipients(input);
+  if (recipients.length === 0) return 0;
+  const { kind, title, body, link } = input;
+  await NotificationModel.insertMany(
+    recipients.map((employeeId) => ({ employeeId, kind, title, body, link })),
+  );
+  return recipients.length;
+}

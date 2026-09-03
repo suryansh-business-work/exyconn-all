@@ -22,6 +22,7 @@ import {
   todayAttendance,
   pendingLeave,
   newJoiners,
+  upcomingAnniversaries,
   type AttendanceRow,
   type LeaveRow,
   type UserRow,
@@ -31,6 +32,7 @@ import { HrPendingLeave } from './dashboard/HrPendingLeave';
 import { HrUpcomingHolidays } from './dashboard/HrUpcomingHolidays';
 import { HrNewJoiners } from './dashboard/HrNewJoiners';
 import { HrAnnouncements } from './dashboard/HrAnnouncements';
+import { HrAnniversaries } from './dashboard/HrAnniversaries';
 
 const policy = { fetchPolicy: 'cache-and-network' } as const;
 
@@ -57,6 +59,7 @@ export function HrDashboardPage() {
     return {
       userRows,
       joiners: newJoiners(userRows, now),
+      anniversaries: upcomingAnniversaries(userRows, now),
       today: todayAttendance((attendance.data?.listAttendance ?? []) as AttendanceRow[], now),
       pending: pendingLeave((leave.data?.listLeaveRequests ?? []) as LeaveRow[], userRows),
       nextHolidays: upcomingHolidays(holidays.data?.listHolidays ?? [], now, 4),
@@ -121,10 +124,20 @@ export function HrDashboardPage() {
           </Box>
         </Grid>
         <Grid item xs={12} md={5}>
-          <HrAnnouncements
-            rows={(announcements.data?.activeAnnouncements ?? []).slice(0, 5)}
-            formatDate={formatDate}
-          />
+          <Grid container spacing={1.5}>
+            <Grid item xs={12}>
+              <HrAnnouncements
+                rows={(announcements.data?.activeAnnouncements ?? []).slice(0, 4)}
+                formatDate={formatDate}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <HrAnniversaries
+                anniversaries={derived.anniversaries.slice(0, 5)}
+                formatDate={(d) => formatDate(d.toISOString())}
+              />
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </Box>

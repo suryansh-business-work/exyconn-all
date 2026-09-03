@@ -22,6 +22,29 @@ export const notificationsTypeDefs = gql`
     createdAt: DateTime!
   }
 
+  enum NotificationAudience {
+    ALL
+    DEPARTMENT
+    EMPLOYEES
+  }
+
+  input SendNotificationInput {
+    kind: NotificationKind!
+    title: String!
+    body: String
+    "In-portal path the notification opens, e.g. /me/announcements."
+    link: String
+    audience: NotificationAudience!
+    "Required when audience is DEPARTMENT."
+    department: String
+    "Required when audience is EMPLOYEES."
+    employeeIds: [String!]
+  }
+
+  type SendNotificationResult {
+    recipients: Int!
+  }
+
   extend type Query {
     myNotifications: [Notification!]!
     myUnreadNotificationCount: Int!
@@ -30,5 +53,7 @@ export const notificationsTypeDefs = gql`
   extend type Mutation {
     markNotificationRead(id: ID!): Boolean!
     markAllNotificationsRead: Int!
+    "HR broadcast to every active employee, one department, or a chosen list."
+    sendNotification(input: SendNotificationInput!): SendNotificationResult!
   }
 `;

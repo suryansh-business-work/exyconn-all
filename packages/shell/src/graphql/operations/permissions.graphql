@@ -1,0 +1,28 @@
+# Admin: per-role, per-module permission matrix.
+
+query ListPermissionModules {
+  listPermissionModules
+}
+
+query ListRolePermissions {
+  listRolePermissions {
+    id
+    role
+    module
+    actions
+    updatedAt
+  }
+}
+
+mutation SetRolePermission($role: Role!, $module: String!, $actions: [PermissionAction!]!) {
+  setRolePermission(role: $role, module: $module, actions: $actions) {
+    id
+    role
+    module
+    actions
+  }
+}
+
+mutation ClearRolePermission($role: Role!, $module: String!) {
+  clearRolePermission(role: $role, module: $module)
+}

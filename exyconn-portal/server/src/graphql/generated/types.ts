@@ -52,9 +52,12 @@ export enum AiJobStatus {
 
 export type Announcement = {
   __typename?: 'Announcement';
+  audience: AnnouncementAudience;
   body: Scalars['String']['output'];
   category: AnnouncementCategory;
   createdAt: Scalars['DateTime']['output'];
+  department?: Maybe<Scalars['String']['output']>;
+  employeeIds: Array<Scalars['String']['output']>;
   expiresAt?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
   pinned: Scalars['Boolean']['output'];
@@ -62,6 +65,12 @@ export type Announcement = {
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
+
+export enum AnnouncementAudience {
+  All = 'ALL',
+  Department = 'DEPARTMENT',
+  Employees = 'EMPLOYEES'
+}
 
 export enum AnnouncementCategory {
   Event = 'EVENT',
@@ -71,8 +80,13 @@ export enum AnnouncementCategory {
 }
 
 export type AnnouncementInput = {
+  audience: AnnouncementAudience;
   body: Scalars['String']['input'];
   category: AnnouncementCategory;
+  /** Required when audience is DEPARTMENT. */
+  department?: InputMaybe<Scalars['String']['input']>;
+  /** Required when audience is EMPLOYEES. */
+  employeeIds?: InputMaybe<Array<Scalars['String']['input']>>;
   expiresAt?: InputMaybe<Scalars['DateTime']['input']>;
   pinned: Scalars['Boolean']['input'];
   publishedAt: Scalars['DateTime']['input'];
@@ -1329,6 +1343,7 @@ export type Mutation = {
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
   changePassword: Scalars['Boolean']['output'];
+  clearRolePermission: Scalars['Boolean']['output'];
   createAiJob: AiJob;
   createAnnouncement: Announcement;
   createBenefit: Benefit;
@@ -1376,6 +1391,7 @@ export type Mutation = {
   createProduct: Product;
   createProject: Project;
   createPrompt: Prompt;
+  createSalaryStructure: SalaryStructure;
   createShift: Shift;
   /** Self-service: raise a support ticket (status forced to OPEN). */
   createSupportTicket: SupportTicket;
@@ -1424,6 +1440,7 @@ export type Mutation = {
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
+  deleteSalaryStructure: Scalars['Boolean']['output'];
   deleteShift: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
@@ -1438,6 +1455,8 @@ export type Mutation = {
   /** Self-service: mark today's (or a given day's) attendance — upserts per day. */
   markAttendance: Attendance;
   markNotificationRead: Scalars['Boolean']['output'];
+  /** Marks every GENERATED slip of the month PAID. Returns how many changed. */
+  markPayrollPaid: Scalars['Int']['output'];
   moveTask: Scalars['Boolean']['output'];
   renameColumn: BoardColumn;
   reorderColumns: Scalars['Boolean']['output'];
@@ -1445,6 +1464,12 @@ export type Mutation = {
   resetUserPassword: Scalars['String']['output'];
   revokeTrackerAccess: TrackerAccess;
   revokeTrackerDevice: TrackerDevice;
+  /**
+   * Generates (or recomputes) every active employee's slip for the month from their
+   * salary structure and approved unpaid leave. Idempotent: running it twice
+   * recomputes GENERATED slips and never touches PAID ones.
+   */
+  runPayroll: PayrollRunResult;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
    * configured admin account to that configured address. A no-op once any ADMIN
@@ -1454,10 +1479,18 @@ export type Mutation = {
   /** Emails the campaign's subject/body to the selected clients. */
   sendCampaign: CampaignSendResult;
   sendContract: Contract;
+  /** HR broadcast to every active employee, one department, or a chosen list. */
+  sendNotification: SendNotificationResult;
   sendTestEmail: Scalars['Boolean']['output'];
   sendUserMail: Scalars['Boolean']['output'];
   /** HR/ADMIN: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
+  /**
+   * Sets exactly what a role may do in a module. An empty list blocks the role
+   * from the module entirely; deleting the row (clearRolePermission) restores
+   * the default of everything the role's module access allows.
+   */
+  setRolePermission: RolePermission;
   /** SUPPORT/ADMIN: move a ticket through its lifecycle. */
   setSupportTicketStatus: SupportTicket;
   setUserActive: User;
@@ -1524,6 +1557,7 @@ export type Mutation = {
   updateProfile: User;
   updateProject: Project;
   updatePrompt: Prompt;
+  updateSalaryStructure: SalaryStructure;
   updateSettings: AppSettings;
   updateShift: Shift;
   updateTask: Task;
@@ -1546,6 +1580,12 @@ export type MutationApplyLeaveArgs = {
 export type MutationChangePasswordArgs = {
   currentPassword: Scalars['String']['input'];
   newPassword: Scalars['String']['input'];
+};
+
+
+export type MutationClearRolePermissionArgs = {
+  module: Scalars['String']['input'];
+  role: Role;
 };
 
 
@@ -1742,6 +1782,11 @@ export type MutationCreateProjectArgs = {
 
 export type MutationCreatePromptArgs = {
   input: PromptInput;
+};
+
+
+export type MutationCreateSalaryStructureArgs = {
+  input: SalaryStructureInput;
 };
 
 
@@ -1978,6 +2023,11 @@ export type MutationDeletePromptArgs = {
 };
 
 
+export type MutationDeleteSalaryStructureArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteShiftArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2039,6 +2089,12 @@ export type MutationMarkNotificationReadArgs = {
 };
 
 
+export type MutationMarkPayrollPaidArgs = {
+  month: Scalars['Int']['input'];
+  year: Scalars['Int']['input'];
+};
+
+
 export type MutationMoveTaskArgs = {
   id: Scalars['ID']['input'];
   toColumnId: Scalars['ID']['input'];
@@ -2073,6 +2129,12 @@ export type MutationRevokeTrackerDeviceArgs = {
 };
 
 
+export type MutationRunPayrollArgs = {
+  month: Scalars['Int']['input'];
+  year: Scalars['Int']['input'];
+};
+
+
 export type MutationSendCampaignArgs = {
   clientIds: Array<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
@@ -2083,6 +2145,11 @@ export type MutationSendContractArgs = {
   email: Scalars['String']['input'];
   id: Scalars['ID']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSendNotificationArgs = {
+  input: SendNotificationInput;
 };
 
 
@@ -2101,6 +2168,13 @@ export type MutationSendUserMailArgs = {
 export type MutationSetLeaveStatusArgs = {
   id: Scalars['ID']['input'];
   status: LeaveStatus;
+};
+
+
+export type MutationSetRolePermissionArgs = {
+  actions: Array<PermissionAction>;
+  module: Scalars['String']['input'];
+  role: Role;
 };
 
 
@@ -2420,6 +2494,12 @@ export type MutationUpdatePromptArgs = {
 };
 
 
+export type MutationUpdateSalaryStructureArgs = {
+  id: Scalars['ID']['input'];
+  input: SalaryStructureInput;
+};
+
+
 export type MutationUpdateSettingsArgs = {
   input: UpdateSettingsInput;
 };
@@ -2534,6 +2614,12 @@ export type Notification = {
   title: Scalars['String']['output'];
 };
 
+export enum NotificationAudience {
+  All = 'ALL',
+  Department = 'DEPARTMENT',
+  Employees = 'EMPLOYEES'
+}
+
 export enum NotificationKind {
   Announcement = 'ANNOUNCEMENT',
   General = 'GENERAL',
@@ -2544,6 +2630,32 @@ export enum NotificationKind {
   Request = 'REQUEST',
   Training = 'TRAINING'
 }
+
+/** What one payroll run did. */
+export type PayrollRunResult = {
+  __typename?: 'PayrollRunResult';
+  /** Slips created for the first time. */
+  generated: Scalars['Int']['output'];
+  month: Scalars['Int']['output'];
+  /** Employees skipped: no salary structure, inactive, or slip already PAID. */
+  skipped: Scalars['Int']['output'];
+  totalNet: Scalars['Float']['output'];
+  /** Slips that already existed and were recomputed (only while still GENERATED). */
+  updated: Scalars['Int']['output'];
+  year: Scalars['Int']['output'];
+};
+
+/** The month at a glance, for review before marking paid. */
+export type PayrollSummary = {
+  __typename?: 'PayrollSummary';
+  month: Scalars['Int']['output'];
+  paid: Scalars['Int']['output'];
+  slips: Scalars['Int']['output'];
+  totalDeductions: Scalars['Float']['output'];
+  totalGross: Scalars['Float']['output'];
+  totalNet: Scalars['Float']['output'];
+  year: Scalars['Int']['output'];
+};
 
 export type PerformanceReview = {
   __typename?: 'PerformanceReview';
@@ -2578,6 +2690,15 @@ export type PerformanceReviewPage = {
   rows: Array<PerformanceReview>;
   totalCount: Scalars['Int']['output'];
 };
+
+export enum PermissionAction {
+  Approve = 'APPROVE',
+  Create = 'CREATE',
+  Delete = 'DELETE',
+  Edit = 'EDIT',
+  Export = 'EXPORT',
+  View = 'VIEW'
+}
 
 export type Policy = {
   __typename?: 'Policy';
@@ -2725,8 +2846,9 @@ export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
   /**
-   * The employee-facing feed: everything published and not yet expired, pinned
-   * first then newest. Readable by any signed-in user, unlike the HR CRUD above.
+   * The employee-facing feed: everything published, not yet expired and aimed at
+   * the caller (company-wide, their department, or them by name), pinned first
+   * then newest. Readable by any signed-in user, unlike the HR CRUD above.
    */
   activeAnnouncements: Array<Announcement>;
   /** Leave types an employee can pick from when applying. */
@@ -2769,6 +2891,7 @@ export type Query = {
   getProduct: Product;
   getProject: Project;
   getPrompt: Prompt;
+  getSalaryStructure: SalaryStructure;
   getShift: Shift;
   getTeam: Team;
   getTool: Tool;
@@ -2870,6 +2993,8 @@ export type Query = {
   listPerformanceReviews: Array<PerformanceReview>;
   listPerformanceReviewsPaged: PerformanceReviewPage;
   listPerformanceReviewsStats: TableStats;
+  /** Every module that can be restricted, as registered by the server. */
+  listPermissionModules: Array<Scalars['String']['output']>;
   /** Company-wide HR policies, readable by any authenticated employee. */
   listPolicies: Array<Policy>;
   /** HR/ADMIN: job positions / designations. */
@@ -2883,6 +3008,13 @@ export type Query = {
   listPrompts: Array<Prompt>;
   listPromptsPaged: PromptPage;
   listPromptsStats: TableStats;
+  /** Only restrictions that exist; a missing (role, module) pair means everything is allowed. */
+  listRolePermissions: Array<RolePermission>;
+  listSalarySlipsPaged: SalarySlipPage;
+  listSalarySlipsStats: TableStats;
+  listSalaryStructures: Array<SalaryStructure>;
+  listSalaryStructuresPaged: SalaryStructurePage;
+  listSalaryStructuresStats: TableStats;
   listShifts: Array<Shift>;
   listShiftsPaged: ShiftPage;
   listShiftsStats: TableStats;
@@ -2931,6 +3063,7 @@ export type Query = {
   myTrackerTotals: TrackerTotals;
   myTrainings: Array<Training>;
   myUnreadNotificationCount: Scalars['Int']['output'];
+  payrollSummary: PayrollSummary;
   projectBoard: ProjectBoard;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
@@ -3132,6 +3265,11 @@ export type QueryGetPromptArgs = {
 };
 
 
+export type QueryGetSalaryStructureArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetShiftArgs = {
   id: Scalars['ID']['input'];
 };
@@ -3322,6 +3460,16 @@ export type QueryListPromptsPagedArgs = {
 };
 
 
+export type QueryListSalarySlipsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListSalaryStructuresPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListShiftsPagedArgs = {
   input: TableQueryInput;
 };
@@ -3357,6 +3505,12 @@ export type QueryMyTrackerCalendarArgs = {
 export type QueryMyTrackerDayArgs = {
   end: Scalars['DateTime']['input'];
   start: Scalars['DateTime']['input'];
+};
+
+
+export type QueryPayrollSummaryArgs = {
+  month: Scalars['Int']['input'];
+  year: Scalars['Int']['input'];
 };
 
 
@@ -3468,6 +3622,15 @@ export enum Role {
   Website = 'WEBSITE'
 }
 
+export type RolePermission = {
+  __typename?: 'RolePermission';
+  actions: Array<PermissionAction>;
+  id: Scalars['ID']['output'];
+  module: Scalars['String']['output'];
+  role: Role;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type SalarySlip = {
   __typename?: 'SalarySlip';
   currency: Scalars['String']['output'];
@@ -3480,6 +3643,12 @@ export type SalarySlip = {
   net: Scalars['Float']['output'];
   status: SlipStatus;
   year: Scalars['Int']['output'];
+};
+
+export type SalarySlipPage = {
+  __typename?: 'SalarySlipPage';
+  rows: Array<SalarySlip>;
+  totalCount: Scalars['Int']['output'];
 };
 
 /** The signed-in employee's salary structure. gross/net are derived server-side. */
@@ -3498,9 +3667,43 @@ export type SalaryStructure = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type SalaryStructureInput = {
+  allowances: Scalars['Float']['input'];
+  basic: Scalars['Float']['input'];
+  currency: Scalars['String']['input'];
+  deductions: Scalars['Float']['input'];
+  effectiveFrom: Scalars['DateTime']['input'];
+  employeeId: Scalars['String']['input'];
+  hra: Scalars['Float']['input'];
+};
+
+export type SalaryStructurePage = {
+  __typename?: 'SalaryStructurePage';
+  rows: Array<SalaryStructure>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type SendMailInput = {
   message: Scalars['String']['input'];
   subject: Scalars['String']['input'];
+};
+
+export type SendNotificationInput = {
+  audience: NotificationAudience;
+  body?: InputMaybe<Scalars['String']['input']>;
+  /** Required when audience is DEPARTMENT. */
+  department?: InputMaybe<Scalars['String']['input']>;
+  /** Required when audience is EMPLOYEES. */
+  employeeIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  kind: NotificationKind;
+  /** In-portal path the notification opens, e.g. /me/announcements. */
+  link?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+export type SendNotificationResult = {
+  __typename?: 'SendNotificationResult';
+  recipients: Scalars['Int']['output'];
 };
 
 export type Shift = {
@@ -4170,6 +4373,7 @@ export type ResolversTypes = ResolversObject<{
   AiJobPage: ResolverTypeWrapper<AiJobPage>;
   AiJobStatus: AiJobStatus;
   Announcement: ResolverTypeWrapper<Announcement>;
+  AnnouncementAudience: AnnouncementAudience;
   AnnouncementCategory: AnnouncementCategory;
   AnnouncementInput: AnnouncementInput;
   AnnouncementPage: ResolverTypeWrapper<AnnouncementPage>;
@@ -4306,10 +4510,14 @@ export type ResolversTypes = ResolversObject<{
   NavLink: ResolverTypeWrapper<NavLink>;
   NavLinkInput: NavLinkInput;
   Notification: ResolverTypeWrapper<Notification>;
+  NotificationAudience: NotificationAudience;
   NotificationKind: NotificationKind;
+  PayrollRunResult: ResolverTypeWrapper<PayrollRunResult>;
+  PayrollSummary: ResolverTypeWrapper<PayrollSummary>;
   PerformanceReview: ResolverTypeWrapper<PerformanceReview>;
   PerformanceReviewInput: PerformanceReviewInput;
   PerformanceReviewPage: ResolverTypeWrapper<PerformanceReviewPage>;
+  PermissionAction: PermissionAction;
   Policy: ResolverTypeWrapper<Policy>;
   PolicyCategory: PolicyCategory;
   Position: ResolverTypeWrapper<Position>;
@@ -4332,9 +4540,15 @@ export type ResolversTypes = ResolversObject<{
   RequestType: RequestType;
   ReviewStatus: ReviewStatus;
   Role: Role;
+  RolePermission: ResolverTypeWrapper<RolePermission>;
   SalarySlip: ResolverTypeWrapper<SalarySlip>;
+  SalarySlipPage: ResolverTypeWrapper<SalarySlipPage>;
   SalaryStructure: ResolverTypeWrapper<SalaryStructure>;
+  SalaryStructureInput: SalaryStructureInput;
+  SalaryStructurePage: ResolverTypeWrapper<SalaryStructurePage>;
   SendMailInput: SendMailInput;
+  SendNotificationInput: SendNotificationInput;
+  SendNotificationResult: ResolverTypeWrapper<SendNotificationResult>;
   Shift: ResolverTypeWrapper<Shift>;
   ShiftInput: ShiftInput;
   ShiftPage: ResolverTypeWrapper<ShiftPage>;
@@ -4514,6 +4728,8 @@ export type ResolversParentTypes = ResolversObject<{
   NavLink: NavLink;
   NavLinkInput: NavLinkInput;
   Notification: Notification;
+  PayrollRunResult: PayrollRunResult;
+  PayrollSummary: PayrollSummary;
   PerformanceReview: PerformanceReview;
   PerformanceReviewInput: PerformanceReviewInput;
   PerformanceReviewPage: PerformanceReviewPage;
@@ -4531,9 +4747,15 @@ export type ResolversParentTypes = ResolversObject<{
   PromptInput: PromptInput;
   PromptPage: PromptPage;
   Query: {};
+  RolePermission: RolePermission;
   SalarySlip: SalarySlip;
+  SalarySlipPage: SalarySlipPage;
   SalaryStructure: SalaryStructure;
+  SalaryStructureInput: SalaryStructureInput;
+  SalaryStructurePage: SalaryStructurePage;
   SendMailInput: SendMailInput;
+  SendNotificationInput: SendNotificationInput;
+  SendNotificationResult: SendNotificationResult;
   Shift: Shift;
   ShiftInput: ShiftInput;
   ShiftPage: ShiftPage;
@@ -4607,9 +4829,12 @@ export type AiJobPageResolvers<ContextType = GraphQLContext, ParentType extends 
 }>;
 
 export type AnnouncementResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Announcement'] = ResolversParentTypes['Announcement']> = ResolversObject<{
+  audience?: Resolver<ResolversTypes['AnnouncementAudience'], ParentType, ContextType>;
   body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   category?: Resolver<ResolversTypes['AnnouncementCategory'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  department?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  employeeIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   expiresAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   pinned?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -5318,6 +5543,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   applyLeave?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationApplyLeaveArgs, 'input'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
+  clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
   createAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationCreateAiJobArgs, 'input'>>;
   createAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<MutationCreateAnnouncementArgs, 'input'>>;
   createBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationCreateBenefitArgs, 'input'>>;
@@ -5357,6 +5583,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'input'>>;
   createProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
   createPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationCreatePromptArgs, 'input'>>;
+  createSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationCreateSalaryStructureArgs, 'input'>>;
   createShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationCreateShiftArgs, 'input'>>;
   createSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationCreateSupportTicketArgs, 'input'>>;
   createTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationCreateTaskArgs, 'columnId' | 'projectId' | 'title'>>;
@@ -5403,6 +5630,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteProduct?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'id'>>;
   deleteProject?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'id'>>;
   deletePrompt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePromptArgs, 'id'>>;
+  deleteSalaryStructure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSalaryStructureArgs, 'id'>>;
   deleteShift?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteShiftArgs, 'id'>>;
   deleteTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaskArgs, 'id'>>;
   deleteTeam?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTeamArgs, 'id'>>;
@@ -5416,18 +5644,22 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   markAllNotificationsRead?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   markAttendance?: Resolver<ResolversTypes['Attendance'], ParentType, ContextType, RequireFields<MutationMarkAttendanceArgs, 'input'>>;
   markNotificationRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMarkNotificationReadArgs, 'id'>>;
+  markPayrollPaid?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationMarkPayrollPaidArgs, 'month' | 'year'>>;
   moveTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveTaskArgs, 'id' | 'toColumnId' | 'toIndex'>>;
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
   reorderColumns?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReorderColumnsArgs, 'columnIds' | 'projectId'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
   revokeTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationRevokeTrackerAccessArgs, 'userId'>>;
   revokeTrackerDevice?: Resolver<ResolversTypes['TrackerDevice'], ParentType, ContextType, RequireFields<MutationRevokeTrackerDeviceArgs, 'deviceId'>>;
+  runPayroll?: Resolver<ResolversTypes['PayrollRunResult'], ParentType, ContextType, RequireFields<MutationRunPayrollArgs, 'month' | 'year'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'clientIds' | 'id'>>;
   sendContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSendContractArgs, 'email' | 'id'>>;
+  sendNotification?: Resolver<ResolversTypes['SendNotificationResult'], ParentType, ContextType, RequireFields<MutationSendNotificationArgs, 'input'>>;
   sendTestEmail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestEmailArgs, 'id' | 'to'>>;
   sendUserMail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendUserMailArgs, 'id' | 'input'>>;
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
+  setRolePermission?: Resolver<ResolversTypes['RolePermission'], ParentType, ContextType, RequireFields<MutationSetRolePermissionArgs, 'actions' | 'module' | 'role'>>;
   setSupportTicketStatus?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationSetSupportTicketStatusArgs, 'id' | 'status'>>;
   setUserActive?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserActiveArgs, 'id' | 'isActive'>>;
   setUserBlocked?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserBlockedArgs, 'id' | 'isBlocked'>>;
@@ -5483,6 +5715,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateProfile?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'input'>>;
   updateProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationUpdateProjectArgs, 'id' | 'input'>>;
   updatePrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationUpdatePromptArgs, 'id' | 'input'>>;
+  updateSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationUpdateSalaryStructureArgs, 'id' | 'input'>>;
   updateSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType, RequireFields<MutationUpdateSettingsArgs, 'input'>>;
   updateShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationUpdateShiftArgs, 'id' | 'input'>>;
   updateTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationUpdateTaskArgs, 'id'>>;
@@ -5518,6 +5751,27 @@ export type NotificationResolvers<ContextType = GraphQLContext, ParentType exten
   link?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   read?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PayrollRunResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayrollRunResult'] = ResolversParentTypes['PayrollRunResult']> = ResolversObject<{
+  generated?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalNet?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  updated?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PayrollSummaryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayrollSummary'] = ResolversParentTypes['PayrollSummary']> = ResolversObject<{
+  month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  paid?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  slips?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalDeductions?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  totalGross?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  totalNet?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -5665,6 +5919,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<QueryGetProductArgs, 'id'>>;
   getProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<QueryGetProjectArgs, 'id'>>;
   getPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<QueryGetPromptArgs, 'id'>>;
+  getSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<QueryGetSalaryStructureArgs, 'id'>>;
   getShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<QueryGetShiftArgs, 'id'>>;
   getTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<QueryGetTeamArgs, 'id'>>;
   getTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<QueryGetToolArgs, 'id'>>;
@@ -5761,6 +6016,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
   listPerformanceReviewsPaged?: Resolver<ResolversTypes['PerformanceReviewPage'], ParentType, ContextType, RequireFields<QueryListPerformanceReviewsPagedArgs, 'input'>>;
   listPerformanceReviewsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listPermissionModules?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   listPolicies?: Resolver<Array<ResolversTypes['Policy']>, ParentType, ContextType>;
   listPositions?: Resolver<Array<ResolversTypes['Position']>, ParentType, ContextType>;
   listProducts?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType>;
@@ -5772,6 +6028,12 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPrompts?: Resolver<Array<ResolversTypes['Prompt']>, ParentType, ContextType>;
   listPromptsPaged?: Resolver<ResolversTypes['PromptPage'], ParentType, ContextType, RequireFields<QueryListPromptsPagedArgs, 'input'>>;
   listPromptsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listRolePermissions?: Resolver<Array<ResolversTypes['RolePermission']>, ParentType, ContextType>;
+  listSalarySlipsPaged?: Resolver<ResolversTypes['SalarySlipPage'], ParentType, ContextType, RequireFields<QueryListSalarySlipsPagedArgs, 'input'>>;
+  listSalarySlipsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listSalaryStructures?: Resolver<Array<ResolversTypes['SalaryStructure']>, ParentType, ContextType>;
+  listSalaryStructuresPaged?: Resolver<ResolversTypes['SalaryStructurePage'], ParentType, ContextType, RequireFields<QueryListSalaryStructuresPagedArgs, 'input'>>;
+  listSalaryStructuresStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listShifts?: Resolver<Array<ResolversTypes['Shift']>, ParentType, ContextType>;
   listShiftsPaged?: Resolver<ResolversTypes['ShiftPage'], ParentType, ContextType, RequireFields<QueryListShiftsPagedArgs, 'input'>>;
   listShiftsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -5811,6 +6073,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myTrackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType>;
   myTrainings?: Resolver<Array<ResolversTypes['Training']>, ParentType, ContextType>;
   myUnreadNotificationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  payrollSummary?: Resolver<ResolversTypes['PayrollSummary'], ParentType, ContextType, RequireFields<QueryPayrollSummaryArgs, 'month' | 'year'>>;
   projectBoard?: Resolver<ResolversTypes['ProjectBoard'], ParentType, ContextType, RequireFields<QueryProjectBoardArgs, 'projectId'>>;
   publicBlogPost?: Resolver<Maybe<ResolversTypes['BlogPost']>, ParentType, ContextType, RequireFields<QueryPublicBlogPostArgs, 'slug'>>;
   publicBlogPosts?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType>;
@@ -5836,6 +6099,15 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType, RequireFields<QueryTrackerTotalsArgs, 'userId'>>;
 }>;
 
+export type RolePermissionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['RolePermission'] = ResolversParentTypes['RolePermission']> = ResolversObject<{
+  actions?: Resolver<Array<ResolversTypes['PermissionAction']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  module?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['Role'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type SalarySlipResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SalarySlip'] = ResolversParentTypes['SalarySlip']> = ResolversObject<{
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   deductions?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
@@ -5847,6 +6119,12 @@ export type SalarySlipResolvers<ContextType = GraphQLContext, ParentType extends
   net?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['SlipStatus'], ParentType, ContextType>;
   year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SalarySlipPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SalarySlipPage'] = ResolversParentTypes['SalarySlipPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['SalarySlip']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -5862,6 +6140,17 @@ export type SalaryStructureResolvers<ContextType = GraphQLContext, ParentType ex
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   net?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SalaryStructurePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SalaryStructurePage'] = ResolversParentTypes['SalaryStructurePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['SalaryStructure']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SendNotificationResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SendNotificationResult'] = ResolversParentTypes['SendNotificationResult']> = ResolversObject<{
+  recipients?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6281,6 +6570,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Mutation?: MutationResolvers<ContextType>;
   NavLink?: NavLinkResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;
+  PayrollRunResult?: PayrollRunResultResolvers<ContextType>;
+  PayrollSummary?: PayrollSummaryResolvers<ContextType>;
   PerformanceReview?: PerformanceReviewResolvers<ContextType>;
   PerformanceReviewPage?: PerformanceReviewPageResolvers<ContextType>;
   Policy?: PolicyResolvers<ContextType>;
@@ -6293,8 +6584,12 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  RolePermission?: RolePermissionResolvers<ContextType>;
   SalarySlip?: SalarySlipResolvers<ContextType>;
+  SalarySlipPage?: SalarySlipPageResolvers<ContextType>;
   SalaryStructure?: SalaryStructureResolvers<ContextType>;
+  SalaryStructurePage?: SalaryStructurePageResolvers<ContextType>;
+  SendNotificationResult?: SendNotificationResultResolvers<ContextType>;
   Shift?: ShiftResolvers<ContextType>;
   ShiftPage?: ShiftPageResolvers<ContextType>;
   StatBucket?: StatBucketResolvers<ContextType>;

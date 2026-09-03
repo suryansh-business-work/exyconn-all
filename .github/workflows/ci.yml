@@ -6,6 +6,12 @@ on:
   push:
     branches-ignore: [main]
 
+# One run per branch at a time: a new push cancels the still-running one for the same
+# branch, and a push + pull_request pair for the same commit collapses to one run.
+concurrency:
+  group: ci-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   workspace:
     name: Typecheck · Lint · Test

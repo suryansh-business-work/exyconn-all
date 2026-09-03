@@ -29,6 +29,9 @@ import GroupsIcon2 from '@mui/icons-material/Diversity3';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import LogoutIcon from '@mui/icons-material/Logout';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import PaidIcon from '@mui/icons-material/Paid';
+import LockPersonIcon from '@mui/icons-material/LockPerson';
 import WorkIcon from '@mui/icons-material/Work';
 import DescriptionIcon from '@mui/icons-material/Description';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
@@ -262,6 +265,10 @@ export const MODULES: ModuleDefinition[] = [
       },
       { key: 'hr-shifts', label: 'Shifts', path: '/hr/shifts', icon: ScheduleIcon },
       { key: 'hr-exits', label: 'Exits', path: '/hr/exits', icon: LogoutIcon },
+      { key: 'hr-salaries', label: 'Salaries', path: '/hr/salaries', icon: PaymentsIcon },
+      { key: 'hr-payroll', label: 'Payroll', path: '/hr/payroll', icon: PaidIcon },
+      { key: 'hr-notify', label: 'Send Notification', path: '/hr/notify', icon: NotificationsIcon },
+      { key: 'hr-reports', label: 'Reports', path: '/hr/reports', icon: AssessmentIcon },
       { key: 'hr-holidays', label: 'Holidays', path: '/hr/holidays', icon: CelebrationIcon },
       {
         key: 'hr-leave-policies',
@@ -323,6 +330,12 @@ export const MODULES: ModuleDefinition[] = [
       { key: 'admin-users', label: 'Users', path: '/admin', icon: ManageAccountsIcon },
       { key: 'admin-clients', label: 'Clients', path: '/clients', icon: GroupsIcon },
       { key: 'admin-tech', label: 'Tech', path: '/tech', icon: TerminalIcon },
+      {
+        key: 'admin-permissions',
+        label: 'Roles & Permissions',
+        path: '/admin/permissions',
+        icon: LockPersonIcon,
+      },
       {
         key: 'admin-branding',
         label: 'Branding',
