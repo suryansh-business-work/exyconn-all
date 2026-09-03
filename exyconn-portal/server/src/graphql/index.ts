@@ -12,6 +12,7 @@ import {
   financeCompanyTypeDefs,
   financeCompanyResolvers,
 } from '../modules/finance';
+import { emailTypeDefs, emailResolvers } from '../modules/email';
 import { bugsTypeDefs, bugsResolvers } from '../modules/bugs';
 import { clientsTypeDefs, clientsResolvers } from '../modules/clients';
 import { assetsTypeDefs, assetsResolvers } from '../modules/assets';
@@ -21,7 +22,7 @@ import { hrTypeDefs, hrResolvers } from '../modules/hr';
 import { employeeTypeDefs, employeeResolvers } from '../modules/employee';
 import { supportTypeDefs, supportResolvers } from '../modules/support';
 import { marketingTypeDefs, marketingResolvers } from '../modules/marketing';
-import { legalTypeDefs, legalResolvers } from '../modules/legal';
+import { legalTypeDefs, legalResolvers, policyTypeDefs, policyResolvers } from '../modules/legal';
 import { aiTypeDefs, aiResolvers } from '../modules/ai';
 import { crmTypeDefs, crmResolvers } from '../modules/crm';
 import { productsTypeDefs, productsResolvers } from '../modules/products';
@@ -82,6 +83,8 @@ export const typeDefs = [
   financeTypeDefs,
   financeBillingTypeDefs,
   financeCompanyTypeDefs,
+  emailTypeDefs,
+  policyTypeDefs,
   bugsTypeDefs,
   clientsTypeDefs,
   assetsTypeDefs,
@@ -124,6 +127,8 @@ export const resolvers = mergeResolvers([
   financeResolvers,
   financeBillingResolvers,
   financeCompanyResolvers,
+  emailResolvers,
+  policyResolvers,
   bugsResolvers,
   clientsResolvers,
   assetsResolvers,

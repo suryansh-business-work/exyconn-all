@@ -63,3 +63,5 @@ export const legalResolvers = {
 };
 
 export { legalTypeDefs };
+export { policyTypeDefs } from './policy.typeDefs';
+export { policyResolvers, policiesService } from './policy.resolvers';

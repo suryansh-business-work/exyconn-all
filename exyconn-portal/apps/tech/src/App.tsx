@@ -3,6 +3,7 @@ import { PortalApp } from '@exyconn/shell';
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
 import { EnvironmentVariablesPage } from './pages/environment-variables';
+import { EmailPage } from './pages/email';
 import { TrackerBuildPage } from './pages/tracker-build';
 import { SettingsPage } from './pages/settings';
 import { ProblemReportsPage } from './pages/problem-reports';
@@ -17,6 +18,7 @@ export function App() {
       homePath="/tech/environment-variables"
     >
       <Route path="/tech/environment-variables/:tab?" element={<EnvironmentVariablesPage />} />
+      <Route path="/tech/email/:tab?" element={<EmailPage />} />
       <Route path="/tech/tracker-build" element={<TrackerBuildPage />} />
       <Route path="/tech/problem-reports" element={<ProblemReportsPage />} />
       <Route path="/tech/status-monitors" element={<StatusMonitorsPage />} />

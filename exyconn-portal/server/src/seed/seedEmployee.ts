@@ -1,7 +1,7 @@
 import { UserModel } from '../modules/admin/user.model';
 import { SalaryStructureModel } from '../modules/employee/salary.model';
 import { SalarySlipModel } from '../modules/employee/salarySlip.model';
-import { PolicyModel } from '../modules/employee/policy.model';
+import { PolicyModel } from '../modules/legal/policy.model';
 import { HolidayModel } from '../modules/employee/holiday.model';
 import { SupportTicketModel } from '../modules/employee/support.model';
 import { DepartmentModel } from '../modules/hr/department.model';
@@ -24,36 +24,63 @@ const POSITIONS = [
   { name: 'HR Manager', department: 'People' },
 ];
 
+/**
+ * Sample policies, in the Legal module's shape.
+ *
+ * `requiresAcknowledgement` is on for the two that carry obligations a person has to accept
+ * — conduct and IT use — and off for the informational ones, which is the distinction the
+ * signing flow exists to make.
+ */
 const POLICIES = [
   {
     title: 'Leave & Time-Off Policy',
-    category: 'LEAVE',
+    slug: 'leave-and-time-off',
     summary: 'Casual, sick and earned leave entitlements, accrual and the approval workflow.',
+    body: '<p>Casual, sick and earned leave entitlements, how they accrue, and how to get leave approved.</p>',
+    audience: 'ALL_STAFF',
+    status: 'PUBLISHED',
     effectiveDate: new Date(YEAR, 0, 1),
+    requiresAcknowledgement: false,
   },
   {
     title: 'Code of Conduct',
-    category: 'CONDUCT',
+    slug: 'code-of-conduct',
     summary: 'Expected workplace behaviour, anti-harassment and conflict-of-interest rules.',
+    body: '<p>Expected workplace behaviour, anti-harassment rules, and how to declare a conflict of interest.</p>',
+    audience: 'ALL_STAFF',
+    status: 'PUBLISHED',
     effectiveDate: new Date(YEAR, 0, 1),
+    requiresAcknowledgement: true,
   },
   {
     title: 'Acceptable Use of IT',
-    category: 'IT',
+    slug: 'acceptable-use-of-it',
     summary: 'Rules for company devices, accounts, data handling and security hygiene.',
+    body: '<p>Rules for company devices and accounts, how to handle company and customer data, and basic security hygiene.</p>',
+    audience: 'ALL_STAFF',
+    status: 'PUBLISHED',
     effectiveDate: new Date(YEAR, 2, 15),
+    requiresAcknowledgement: true,
   },
   {
     title: 'Reimbursement & Expenses',
-    category: 'FINANCE',
+    slug: 'reimbursement-and-expenses',
     summary: 'What is reimbursable, claim limits and the submission process.',
+    body: '<p>What the company reimburses, the limits that apply, and how to submit a claim.</p>',
+    audience: 'ALL_STAFF',
+    status: 'PUBLISHED',
     effectiveDate: new Date(YEAR, 3, 1),
+    requiresAcknowledgement: false,
   },
   {
     title: 'Remote & Hybrid Work',
-    category: 'GENERAL',
+    slug: 'remote-and-hybrid-work',
     summary: 'Eligibility, expectations and attendance rules for remote and hybrid work.',
+    body: '<p>Who is eligible to work remotely, what is expected while doing so, and the attendance rules that still apply.</p>',
+    audience: 'ALL_STAFF',
+    status: 'PUBLISHED',
     effectiveDate: new Date(YEAR, 5, 1),
+    requiresAcknowledgement: false,
   },
 ];
 

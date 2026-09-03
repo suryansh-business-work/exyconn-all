@@ -1,0 +1,47 @@
+---
+import Page from "../../layouts/Page.astro";
+import { getPublicPolicies } from "../../lib/portal";
+
+/** Every policy Legal has published publicly. The list is the portal's, not this repo's. */
+const policies = await getPublicPolicies();
+
+const asDate = (value: string) =>
+  new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+---
+
+<Page
+  metaTitle="Policies | Exyconn"
+  metaDescription="Exyconn's published company policies, including privacy, cookies and terms."
+  metaKeywords="policies, privacy policy, terms, exyconn"
+>
+  <main class="bg-white min-h-screen">
+    <section class="py-16 px-6 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">Policies</h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          The commitments we publish, and when each one took effect.
+        </p>
+      </div>
+    </section>
+
+    <section class="py-14 px-6">
+      <div class="max-w-3xl mx-auto grid gap-4">
+        {policies.length === 0 && <p class="text-gray-600">No policies have been published yet.</p>}
+        {
+          policies.map((policy) => (
+            <a
+              href={`/policies/${policy.slug}`}
+              class="block p-6 border border-gray-200 rounded-2xl hover:border-blue-300 hover:shadow-sm transition"
+            >
+              <h2 class="text-xl font-semibold text-gray-900">{policy.title}</h2>
+              {policy.summary && <p class="mt-2 text-gray-600">{policy.summary}</p>}
+              <p class="mt-3 text-sm text-gray-500">
+                Version {policy.version} · Effective {asDate(policy.effectiveDate)}
+              </p>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+  </main>
+</Page>

@@ -129,3 +129,20 @@ export interface JobWithCompany {
   job: Job;
   company: JobCompany;
 }
+
+/**
+ * A published, public company policy, authored in the portal's Legal module.
+ *
+ * The site renders these rather than carrying its own copy: a privacy policy that lives in
+ * two places is a privacy policy that will eventually say two different things, and only one
+ * of them will have been reviewed.
+ */
+export interface PublicPolicy {
+  title: string;
+  slug: string;
+  summary: string;
+  body: string;
+  version: number;
+  effectiveDate: string;
+  updatedAt: string;
+}

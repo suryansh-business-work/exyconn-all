@@ -22,15 +22,6 @@ fragment SalarySlipFields on SalarySlip {
   issuedDate
 }
 
-fragment PolicyFields on Policy {
-  id
-  title
-  category
-  summary
-  url
-  effectiveDate
-}
-
 fragment HolidayFields on Holiday {
   id
   name
@@ -58,12 +49,6 @@ query MyPayroll {
 query MySalarySlips {
   mySalarySlips {
     ...SalarySlipFields
-  }
-}
-
-query ListPolicies {
-  listPolicies {
-    ...PolicyFields
   }
 }
 

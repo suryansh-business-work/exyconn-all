@@ -9,13 +9,6 @@ export const employeeTypeDefs = gql`
     GENERATED
     PAID
   }
-  enum PolicyCategory {
-    LEAVE
-    CONDUCT
-    IT
-    FINANCE
-    GENERAL
-  }
   enum HolidayType {
     PUBLIC
     OPTIONAL
@@ -68,15 +61,6 @@ export const employeeTypeDefs = gql`
     issuedDate: DateTime!
   }
 
-  type Policy {
-    id: ID!
-    title: String!
-    category: PolicyCategory!
-    summary: String!
-    url: String
-    effectiveDate: DateTime!
-  }
-
   type Holiday {
     id: ID!
     name: String!
@@ -117,8 +101,6 @@ export const employeeTypeDefs = gql`
     mySalarySlips: [SalarySlip!]!
     "The signed-in employee's own support tickets."
     mySupportTickets: [SupportTicket!]!
-    "Company-wide HR policies, readable by any authenticated employee."
-    listPolicies: [Policy!]!
     "Company-wide holidays, readable by any authenticated employee."
     listHolidays: [Holiday!]!
   }

@@ -1,0 +1,54 @@
+---
+import Page from "../../layouts/Page.astro";
+import { getPublicPolicy } from "../../lib/portal";
+
+/**
+ * A company policy, rendered from the portal.
+ *
+ * The wording lives in Legal, not in this repository: a privacy policy kept in two places
+ * eventually says two different things, and only one of them will have been reviewed. A slug
+ * Legal has not published is a genuine 404 rather than an empty page.
+ */
+const { slug } = Astro.params;
+const policy = slug ? await getPublicPolicy(slug) : null;
+
+if (!policy) {
+  return Astro.redirect("/404", 404);
+}
+
+const asDate = (value: string) =>
+  new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+---
+
+<Page
+  metaTitle={`${policy.title} | Exyconn`}
+  metaDescription={policy.summary}
+  metaKeywords={`${policy.title.toLowerCase()}, exyconn, policy`}
+>
+  <main class="bg-white min-h-screen">
+    <section class="py-16 px-6 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+          {policy.title}
+        </h1>
+        {
+          policy.summary && (
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">{policy.summary}</p>
+          )
+        }
+        <p class="mt-6 text-sm text-gray-500">
+          Version {policy.version} · Effective {asDate(policy.effectiveDate)} · Last updated {
+            asDate(policy.updatedAt)
+          }
+        </p>
+      </div>
+    </section>
+
+    <section class="py-14 px-6">
+      <article
+        class="max-w-3xl mx-auto prose prose-lg prose-headings:text-gray-900 prose-p:text-gray-600 prose-a:text-blue-600"
+        set:html={policy.body}
+      />
+    </section>
+  </main>
+</Page>

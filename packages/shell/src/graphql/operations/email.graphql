@@ -1,0 +1,161 @@
+fragment EmailFragmentFields on EmailFragment {
+  id
+  key
+  name
+  description
+  mjml
+  updatedBy
+  updatedAt
+}
+
+fragment EmailTemplateFields on EmailTemplate {
+  id
+  key
+  name
+  description
+  subject
+  mjml
+  isActive
+  updatedBy
+  updatedAt
+  variables
+  fragments
+}
+
+fragment EmailLogFields on EmailLog {
+  id
+  templateKey
+  templateName
+  to
+  subject
+  status
+  error
+  triggeredBy
+  sentAt
+}
+
+query ListEmailFragments {
+  listEmailFragments {
+    ...EmailFragmentFields
+  }
+}
+
+query ListEmailFragmentsPaged($input: TableQueryInput!) {
+  listEmailFragmentsPaged(input: $input) {
+    totalCount
+    rows {
+      ...EmailFragmentFields
+    }
+  }
+}
+
+query ListEmailTemplates {
+  listEmailTemplates {
+    ...EmailTemplateFields
+  }
+}
+
+query ListEmailTemplatesPaged($input: TableQueryInput!) {
+  listEmailTemplatesPaged(input: $input) {
+    totalCount
+    rows {
+      ...EmailTemplateFields
+    }
+  }
+}
+
+query ListEmailLogsPaged($input: TableQueryInput!) {
+  listEmailLogsPaged(input: $input) {
+    totalCount
+    rows {
+      ...EmailLogFields
+    }
+  }
+}
+
+query ListEmailLogsStats {
+  listEmailLogsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query EmailDashboard($days: Int) {
+  emailDashboard(days: $days) {
+    templates
+    activeTemplates
+    fragments
+    sent
+    failed
+    configured
+    days {
+      date
+      sent
+      failed
+    }
+    byTemplate {
+      key
+      name
+      sent
+      failed
+    }
+    recentFailures {
+      ...EmailLogFields
+    }
+  }
+}
+
+query PreviewEmailTemplate($key: String!, $variables: [EmailVariableInput!]) {
+  previewEmailTemplate(key: $key, variables: $variables) {
+    subject
+    html
+    variables
+    fragments
+  }
+}
+
+mutation CreateEmailFragment($input: EmailFragmentInput!) {
+  createEmailFragment(input: $input) {
+    id
+  }
+}
+
+mutation UpdateEmailFragment($id: ID!, $input: EmailFragmentInput!) {
+  updateEmailFragment(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteEmailFragment($id: ID!) {
+  deleteEmailFragment(id: $id)
+}
+
+mutation CreateEmailTemplate($input: EmailTemplateInput!) {
+  createEmailTemplate(input: $input) {
+    id
+  }
+}
+
+mutation UpdateEmailTemplate($id: ID!, $input: EmailTemplateInput!) {
+  updateEmailTemplate(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteEmailTemplate($id: ID!) {
+  deleteEmailTemplate(id: $id)
+}
+
+mutation SendTestEmailTemplate($key: String!, $to: String!, $variables: [EmailVariableInput!]) {
+  sendTestEmailTemplate(key: $key, to: $to, variables: $variables)
+}
