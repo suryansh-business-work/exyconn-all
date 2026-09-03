@@ -81,7 +81,6 @@ describe('permissions', () => {
       admin,
     );
     // FINANCE shares the payroll module and has no restriction row, so it keeps full access.
-    const { payrollResolvers } = await import('../../src/modules/payroll');
     const create = (payrollResolvers.Mutation as unknown as Record<string, Resolver>)
       .createSalaryStructure;
     await expect(
