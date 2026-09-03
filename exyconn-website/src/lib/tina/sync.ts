@@ -9,6 +9,26 @@ type SchemaConfig = ConstructorParameters<typeof TinaSchema>[0];
 
 const isLocal = process.env.TINA_PUBLIC_IS_LOCAL === "true";
 
+// A database that cannot be reached leaves the level adapter's open() pending forever, which
+// would hang every editor request instead of failing it.
+const INDEX_TIMEOUT_MS = 30_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error instanceof Error ? error : new Error(String(error)));
+      }
+    );
+  });
+}
+
 let indexing: Promise<void> | undefined;
 
 /**
@@ -24,12 +44,15 @@ export function ensureIndexed(): Promise<void> {
   if (isLocal) {
     return Promise.resolve();
   }
-  indexing ??= database
-    .indexContent({
+  indexing ??= withTimeout(
+    database.indexContent({
       graphQLSchema: graphQLSchema as IndexArgs["graphQLSchema"],
       tinaSchema: new TinaSchema(schema as unknown as SchemaConfig),
       lookup,
-    })
+    }),
+    INDEX_TIMEOUT_MS,
+    `Indexing the content into the database did not finish within ${INDEX_TIMEOUT_MS / 1000}s`
+  )
     .then(() => undefined)
     .catch((error: unknown) => {
       // Let the next request retry instead of serving a cached failure.

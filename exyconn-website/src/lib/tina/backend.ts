@@ -1,5 +1,5 @@
 import { LocalBackendAuthProvider, TinaNodeBackend } from "@tinacms/datalayer";
-import databaseClient from "../../../tina/__generated__/databaseClient";
+import { databaseClient } from "./database-client";
 import { authJsBackendAuthProvider, tinaAuthOptions } from "./authjs";
 
 const isLocal = process.env.TINA_PUBLIC_IS_LOCAL === "true";
