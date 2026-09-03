@@ -48,6 +48,30 @@ export const techTypeDefs = gql`
     updatedAt: DateTime!
   }
 
+  "The Pexels API credential behind the shared upload dialog's stock tabs."
+  type PexelsConfig {
+    id: ID!
+    label: String!
+    apiKey: String!
+    isActive: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
+  "One Pexels result — a photo or a video — flattened to what the upload dialog renders."
+  type PexelsMedia {
+    id: String!
+    "Still frame for the grid: the photo thumbnail, or the video's poster."
+    previewUrl: String!
+    "The URL stored when the item is picked."
+    url: String!
+    alt: String!
+    "Photographer / videographer, credited under the grid as Pexels requires."
+    credit: String!
+    "Seconds. Zero for photos."
+    duration: Int!
+  }
+
   type SlackChannel {
     id: String!
     name: String!
@@ -105,6 +129,12 @@ export const techTypeDefs = gql`
     isActive: Boolean
   }
 
+  input PexelsConfigInput {
+    label: String!
+    apiKey: String!
+    isActive: Boolean
+  }
+
   input GithubConfigInput {
     label: String!
     owner: String!
@@ -118,6 +148,11 @@ export const techTypeDefs = gql`
     listImageConfigs: [ImageConfig!]!
     listSlackConfigs: [SlackConfig!]!
     listGithubConfigs: [GithubConfig!]!
+    listPexelsConfigs: [PexelsConfig!]!
+    "Stock photos for the shared upload dialog. Any signed-in user may search."
+    searchPexelsPhotos(query: String!, page: Int): [PexelsMedia!]!
+    "Stock videos for the shared upload dialog. Any signed-in user may search."
+    searchPexelsVideos(query: String!, page: Int): [PexelsMedia!]!
     "Every channel the active Slack bot token can see."
     listSlackChannels: [SlackChannel!]!
     listTrackerBuilds: [TrackerBuild!]!
@@ -141,6 +176,10 @@ export const techTypeDefs = gql`
     updateGithubConfig(id: ID!, input: GithubConfigInput!): GithubConfig!
     deleteGithubConfig(id: ID!): Boolean!
     testGithubConnection(id: ID!): Boolean!
+    createPexelsConfig(input: PexelsConfigInput!): PexelsConfig!
+    updatePexelsConfig(id: ID!, input: PexelsConfigInput!): PexelsConfig!
+    deletePexelsConfig(id: ID!): Boolean!
+    testPexelsConnection(id: ID!): Boolean!
     "Asks GitHub to build the chosen installers off the given branch."
     startTrackerBuild(platforms: [TrackerPlatform!]!, ref: String!): Boolean!
     saveTrackerBuildSettings(slackChannels: [String!]!): TrackerBuildSettings!

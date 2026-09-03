@@ -1961,6 +1961,7 @@ export type Mutation = {
   createMyRequest: EmployeeRequest;
   createNavLink: NavLink;
   createPerformanceReview: PerformanceReview;
+  createPexelsConfig: PexelsConfig;
   createPolicy: Policy;
   createPosition: Position;
   createProblemReport: ProblemReport;
@@ -2024,6 +2025,7 @@ export type Mutation = {
   deleteLocation: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
   deletePerformanceReview: Scalars['Boolean']['output'];
+  deletePexelsConfig: Scalars['Boolean']['output'];
   deletePolicy: Scalars['Boolean']['output'];
   deletePosition: Scalars['Boolean']['output'];
   deleteProblemReport: Scalars['Boolean']['output'];
@@ -2117,6 +2119,7 @@ export type Mutation = {
   submitSelfAssessment: PerformanceReview;
   testGithubConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
+  testPexelsConnection: Scalars['Boolean']['output'];
   trackerAcceptConsent: Scalars['Boolean']['output'];
   /**
    * Desktop keep-alive, called on a timer for as long as the app is signed in.
@@ -2184,6 +2187,7 @@ export type Mutation = {
   updateMyTrainingStatus: Training;
   updateNavLink: NavLink;
   updatePerformanceReview: PerformanceReview;
+  updatePexelsConfig: PexelsConfig;
   updatePolicy: Policy;
   updatePosition: Position;
   updateProblemReport: ProblemReport;
@@ -2468,6 +2472,11 @@ export type MutationCreateNavLinkArgs = {
 
 export type MutationCreatePerformanceReviewArgs = {
   input: PerformanceReviewInput;
+};
+
+
+export type MutationCreatePexelsConfigArgs = {
+  input: PexelsConfigInput;
 };
 
 
@@ -2779,6 +2788,11 @@ export type MutationDeletePerformanceReviewArgs = {
 };
 
 
+export type MutationDeletePexelsConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeletePolicyArgs = {
   id: Scalars['ID']['input'];
 };
@@ -3075,6 +3089,11 @@ export type MutationTestGithubConnectionArgs = {
 export type MutationTestImageUploadArgs = {
   file: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestPexelsConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -3384,6 +3403,12 @@ export type MutationUpdateNavLinkArgs = {
 export type MutationUpdatePerformanceReviewArgs = {
   id: Scalars['ID']['input'];
   input: PerformanceReviewInput;
+};
+
+
+export type MutationUpdatePexelsConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: PexelsConfigInput;
 };
 
 
@@ -3711,6 +3736,38 @@ export enum PermissionAction {
   Export = 'EXPORT',
   View = 'VIEW'
 }
+
+/** The Pexels API credential behind the shared upload dialog's stock tabs. */
+export type PexelsConfig = {
+  __typename?: 'PexelsConfig';
+  apiKey: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PexelsConfigInput = {
+  apiKey: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
+
+/** One Pexels result — a photo or a video — flattened to what the upload dialog renders. */
+export type PexelsMedia = {
+  __typename?: 'PexelsMedia';
+  alt: Scalars['String']['output'];
+  /** Photographer / videographer, credited under the grid as Pexels requires. */
+  credit: Scalars['String']['output'];
+  /** Seconds. Zero for photos. */
+  duration: Scalars['Int']['output'];
+  id: Scalars['String']['output'];
+  /** Still frame for the grid: the photo thumbnail, or the video's poster. */
+  previewUrl: Scalars['String']['output'];
+  /** The URL stored when the item is picked. */
+  url: Scalars['String']['output'];
+};
 
 export type Policy = {
   __typename?: 'Policy';
@@ -4190,6 +4247,7 @@ export type Query = {
   listPerformanceReviewsStats: TableStats;
   /** Every module that can be restricted, as registered by the server. */
   listPermissionModules: Array<Scalars['String']['output']>;
+  listPexelsConfigs: Array<PexelsConfig>;
   listPolicies: Array<Policy>;
   listPoliciesPaged: PolicyPage;
   listPoliciesStats: TableStats;
@@ -4306,6 +4364,10 @@ export type Query = {
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
   receivables: Receivables;
+  /** Stock photos for the shared upload dialog. Any signed-in user may search. */
+  searchPexelsPhotos: Array<PexelsMedia>;
+  /** Stock videos for the shared upload dialog. Any signed-in user may search. */
+  searchPexelsVideos: Array<PexelsMedia>;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
   statusOverview: StatusOverview;
   trackerAccessList: Array<TrackerAccess>;
@@ -4962,6 +5024,18 @@ export type QueryPublicToolArgs = {
 
 export type QueryPublicToolsArgs = {
   categorySlug?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QuerySearchPexelsPhotosArgs = {
+  page?: InputMaybe<Scalars['Int']['input']>;
+  query: Scalars['String']['input'];
+};
+
+
+export type QuerySearchPexelsVideosArgs = {
+  page?: InputMaybe<Scalars['Int']['input']>;
+  query: Scalars['String']['input'];
 };
 
 
@@ -6280,6 +6354,9 @@ export type ResolversTypes = ResolversObject<{
   PerformanceReviewInput: PerformanceReviewInput;
   PerformanceReviewPage: ResolverTypeWrapper<PerformanceReviewPage>;
   PermissionAction: PermissionAction;
+  PexelsConfig: ResolverTypeWrapper<PexelsConfig>;
+  PexelsConfigInput: PexelsConfigInput;
+  PexelsMedia: ResolverTypeWrapper<PexelsMedia>;
   Policy: ResolverTypeWrapper<Policy>;
   PolicyAcknowledgement: ResolverTypeWrapper<PolicyAcknowledgement>;
   PolicyAudience: PolicyAudience;
@@ -6577,6 +6654,9 @@ export type ResolversParentTypes = ResolversObject<{
   PerformanceReview: PerformanceReview;
   PerformanceReviewInput: PerformanceReviewInput;
   PerformanceReviewPage: PerformanceReviewPage;
+  PexelsConfig: PexelsConfig;
+  PexelsConfigInput: PexelsConfigInput;
+  PexelsMedia: PexelsMedia;
   Policy: Policy;
   PolicyAcknowledgement: PolicyAcknowledgement;
   PolicyInput: PolicyInput;
@@ -7768,6 +7848,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createMyRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationCreateMyRequestArgs, 'input'>>;
   createNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationCreateNavLinkArgs, 'input'>>;
   createPerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationCreatePerformanceReviewArgs, 'input'>>;
+  createPexelsConfig?: Resolver<ResolversTypes['PexelsConfig'], ParentType, ContextType, RequireFields<MutationCreatePexelsConfigArgs, 'input'>>;
   createPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationCreatePolicyArgs, 'input'>>;
   createPosition?: Resolver<ResolversTypes['Position'], ParentType, ContextType, RequireFields<MutationCreatePositionArgs, 'input'>>;
   createProblemReport?: Resolver<ResolversTypes['ProblemReport'], ParentType, ContextType, RequireFields<MutationCreateProblemReportArgs, 'input'>>;
@@ -7829,6 +7910,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLocationArgs, 'id'>>;
   deleteNavLink?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNavLinkArgs, 'id'>>;
   deletePerformanceReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePerformanceReviewArgs, 'id'>>;
+  deletePexelsConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePexelsConfigArgs, 'id'>>;
   deletePolicy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePolicyArgs, 'id'>>;
   deletePosition?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePositionArgs, 'id'>>;
   deleteProblemReport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProblemReportArgs, 'id'>>;
@@ -7885,6 +7967,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   submitSelfAssessment?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationSubmitSelfAssessmentArgs, 'id' | 'text'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
+  testPexelsConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestPexelsConnectionArgs, 'id'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
   trackerLogin?: Resolver<ResolversTypes['TrackerLoginPayload'], ParentType, ContextType, RequireFields<MutationTrackerLoginArgs, 'device' | 'email' | 'password'>>;
@@ -7938,6 +8021,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateMyTrainingStatus?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationUpdateMyTrainingStatusArgs, 'id' | 'status'>>;
   updateNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationUpdateNavLinkArgs, 'id' | 'input'>>;
   updatePerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationUpdatePerformanceReviewArgs, 'id' | 'input'>>;
+  updatePexelsConfig?: Resolver<ResolversTypes['PexelsConfig'], ParentType, ContextType, RequireFields<MutationUpdatePexelsConfigArgs, 'id' | 'input'>>;
   updatePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationUpdatePolicyArgs, 'id' | 'input'>>;
   updatePosition?: Resolver<ResolversTypes['Position'], ParentType, ContextType, RequireFields<MutationUpdatePositionArgs, 'id' | 'input'>>;
   updateProblemReport?: Resolver<ResolversTypes['ProblemReport'], ParentType, ContextType, RequireFields<MutationUpdateProblemReportArgs, 'id' | 'input'>>;
@@ -8063,6 +8147,26 @@ export type PerformanceReviewResolvers<ContextType = GraphQLContext, ParentType 
 export type PerformanceReviewPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PerformanceReviewPage'] = ResolversParentTypes['PerformanceReviewPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PexelsConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PexelsConfig'] = ResolversParentTypes['PexelsConfig']> = ResolversObject<{
+  apiKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PexelsMediaResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PexelsMedia'] = ResolversParentTypes['PexelsMedia']> = ResolversObject<{
+  alt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  credit?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  duration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  previewUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -8402,6 +8506,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPerformanceReviewsPaged?: Resolver<ResolversTypes['PerformanceReviewPage'], ParentType, ContextType, RequireFields<QueryListPerformanceReviewsPagedArgs, 'input'>>;
   listPerformanceReviewsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listPermissionModules?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  listPexelsConfigs?: Resolver<Array<ResolversTypes['PexelsConfig']>, ParentType, ContextType>;
   listPolicies?: Resolver<Array<ResolversTypes['Policy']>, ParentType, ContextType>;
   listPoliciesPaged?: Resolver<ResolversTypes['PolicyPage'], ParentType, ContextType, RequireFields<QueryListPoliciesPagedArgs, 'input'>>;
   listPoliciesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -8501,6 +8606,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicToolCategories?: Resolver<Array<ResolversTypes['ToolCategory']>, ParentType, ContextType>;
   publicTools?: Resolver<Array<ResolversTypes['Tool']>, ParentType, ContextType, Partial<QueryPublicToolsArgs>>;
   receivables?: Resolver<ResolversTypes['Receivables'], ParentType, ContextType>;
+  searchPexelsPhotos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsPhotosArgs, 'query'>>;
+  searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
   statusOverview?: Resolver<ResolversTypes['StatusOverview'], ParentType, ContextType, Partial<QueryStatusOverviewArgs>>;
   trackerAccessList?: Resolver<Array<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
   trackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType>;
@@ -9212,6 +9319,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   PayrollSummary?: PayrollSummaryResolvers<ContextType>;
   PerformanceReview?: PerformanceReviewResolvers<ContextType>;
   PerformanceReviewPage?: PerformanceReviewPageResolvers<ContextType>;
+  PexelsConfig?: PexelsConfigResolvers<ContextType>;
+  PexelsMedia?: PexelsMediaResolvers<ContextType>;
   Policy?: PolicyResolvers<ContextType>;
   PolicyAcknowledgement?: PolicyAcknowledgementResolvers<ContextType>;
   PolicyPage?: PolicyPageResolvers<ContextType>;

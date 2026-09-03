@@ -1,5 +1,5 @@
 import { techService } from './tech.service';
-import { assertRole } from '../../middleware/roleGuard';
+import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -7,12 +7,16 @@ import type {
   EmailConfigInput,
   GithubConfigInput,
   ImageConfigInput,
+  PexelsConfigInput,
   SlackConfigInput,
   TrackerPlatform,
 } from './tech.service';
 
 /** The Tech module owns these screens; ADMIN passes every guard anyway. */
 const techOnly = [ROLES.TECH];
+
+/** Pexels pages one screenful at a time; page 1 is what the dialog opens on. */
+const FIRST_PAGE = 1;
 
 export const techResolvers = {
   Query: {
@@ -31,6 +35,28 @@ export const techResolvers = {
     listGithubConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       assertRole(ctx, techOnly);
       return withIds(await techService.listGithubConfigs());
+    },
+    listPexelsConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertRole(ctx, techOnly);
+      return withIds(await techService.listPexelsConfigs());
+    },
+    // The stock tabs live in the shared upload dialog, which every portal renders, so
+    // these two are authenticated-only — the credential itself stays Tech-only above.
+    searchPexelsPhotos: async (
+      _p: unknown,
+      { query, page }: { query: string; page?: number | null },
+      ctx: GraphQLContext,
+    ) => {
+      assertAuthenticated(ctx);
+      return techService.searchPexelsPhotos(query, page ?? FIRST_PAGE);
+    },
+    searchPexelsVideos: async (
+      _p: unknown,
+      { query, page }: { query: string; page?: number | null },
+      ctx: GraphQLContext,
+    ) => {
+      assertAuthenticated(ctx);
+      return techService.searchPexelsVideos(query, page ?? FIRST_PAGE);
     },
     listSlackChannels: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       assertRole(ctx, techOnly);
@@ -153,6 +179,30 @@ export const techResolvers = {
     testGithubConnection: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       assertRole(ctx, techOnly);
       return techService.testGithubConnection(id);
+    },
+    createPexelsConfig: async (
+      _p: unknown,
+      { input }: { input: PexelsConfigInput },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, techOnly);
+      return withId(await techService.createPexelsConfig(input));
+    },
+    updatePexelsConfig: async (
+      _p: unknown,
+      { id, input }: { id: string; input: PexelsConfigInput },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, techOnly);
+      return withId(await techService.updatePexelsConfig(id, input));
+    },
+    deletePexelsConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      assertRole(ctx, techOnly);
+      return techService.deletePexelsConfig(id);
+    },
+    testPexelsConnection: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      assertRole(ctx, techOnly);
+      return techService.testPexelsConnection(id);
     },
     startTrackerBuild: async (
       _p: unknown,

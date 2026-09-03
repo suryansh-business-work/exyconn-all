@@ -1961,6 +1961,7 @@ export type Mutation = {
   createMyRequest: EmployeeRequest;
   createNavLink: NavLink;
   createPerformanceReview: PerformanceReview;
+  createPexelsConfig: PexelsConfig;
   createPolicy: Policy;
   createPosition: Position;
   createProblemReport: ProblemReport;
@@ -2024,6 +2025,7 @@ export type Mutation = {
   deleteLocation: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
   deletePerformanceReview: Scalars['Boolean']['output'];
+  deletePexelsConfig: Scalars['Boolean']['output'];
   deletePolicy: Scalars['Boolean']['output'];
   deletePosition: Scalars['Boolean']['output'];
   deleteProblemReport: Scalars['Boolean']['output'];
@@ -2117,6 +2119,7 @@ export type Mutation = {
   submitSelfAssessment: PerformanceReview;
   testGithubConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
+  testPexelsConnection: Scalars['Boolean']['output'];
   trackerAcceptConsent: Scalars['Boolean']['output'];
   /**
    * Desktop keep-alive, called on a timer for as long as the app is signed in.
@@ -2184,6 +2187,7 @@ export type Mutation = {
   updateMyTrainingStatus: Training;
   updateNavLink: NavLink;
   updatePerformanceReview: PerformanceReview;
+  updatePexelsConfig: PexelsConfig;
   updatePolicy: Policy;
   updatePosition: Position;
   updateProblemReport: ProblemReport;
@@ -2468,6 +2472,11 @@ export type MutationCreateNavLinkArgs = {
 
 export type MutationCreatePerformanceReviewArgs = {
   input: PerformanceReviewInput;
+};
+
+
+export type MutationCreatePexelsConfigArgs = {
+  input: PexelsConfigInput;
 };
 
 
@@ -2779,6 +2788,11 @@ export type MutationDeletePerformanceReviewArgs = {
 };
 
 
+export type MutationDeletePexelsConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeletePolicyArgs = {
   id: Scalars['ID']['input'];
 };
@@ -3075,6 +3089,11 @@ export type MutationTestGithubConnectionArgs = {
 export type MutationTestImageUploadArgs = {
   file: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestPexelsConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -3384,6 +3403,12 @@ export type MutationUpdateNavLinkArgs = {
 export type MutationUpdatePerformanceReviewArgs = {
   id: Scalars['ID']['input'];
   input: PerformanceReviewInput;
+};
+
+
+export type MutationUpdatePexelsConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: PexelsConfigInput;
 };
 
 
@@ -3711,6 +3736,38 @@ export enum PermissionAction {
   Export = 'EXPORT',
   View = 'VIEW'
 }
+
+/** The Pexels API credential behind the shared upload dialog's stock tabs. */
+export type PexelsConfig = {
+  __typename?: 'PexelsConfig';
+  apiKey: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PexelsConfigInput = {
+  apiKey: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
+
+/** One Pexels result — a photo or a video — flattened to what the upload dialog renders. */
+export type PexelsMedia = {
+  __typename?: 'PexelsMedia';
+  alt: Scalars['String']['output'];
+  /** Photographer / videographer, credited under the grid as Pexels requires. */
+  credit: Scalars['String']['output'];
+  /** Seconds. Zero for photos. */
+  duration: Scalars['Int']['output'];
+  id: Scalars['String']['output'];
+  /** Still frame for the grid: the photo thumbnail, or the video's poster. */
+  previewUrl: Scalars['String']['output'];
+  /** The URL stored when the item is picked. */
+  url: Scalars['String']['output'];
+};
 
 export type Policy = {
   __typename?: 'Policy';
@@ -4190,6 +4247,7 @@ export type Query = {
   listPerformanceReviewsStats: TableStats;
   /** Every module that can be restricted, as registered by the server. */
   listPermissionModules: Array<Scalars['String']['output']>;
+  listPexelsConfigs: Array<PexelsConfig>;
   listPolicies: Array<Policy>;
   listPoliciesPaged: PolicyPage;
   listPoliciesStats: TableStats;
@@ -4306,6 +4364,10 @@ export type Query = {
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
   receivables: Receivables;
+  /** Stock photos for the shared upload dialog. Any signed-in user may search. */
+  searchPexelsPhotos: Array<PexelsMedia>;
+  /** Stock videos for the shared upload dialog. Any signed-in user may search. */
+  searchPexelsVideos: Array<PexelsMedia>;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
   statusOverview: StatusOverview;
   trackerAccessList: Array<TrackerAccess>;
@@ -4962,6 +5024,18 @@ export type QueryPublicToolArgs = {
 
 export type QueryPublicToolsArgs = {
   categorySlug?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QuerySearchPexelsPhotosArgs = {
+  page?: InputMaybe<Scalars['Int']['input']>;
+  query: Scalars['String']['input'];
+};
+
+
+export type QuerySearchPexelsVideosArgs = {
+  page?: InputMaybe<Scalars['Int']['input']>;
+  query: Scalars['String']['input'];
 };
 
 
@@ -8534,6 +8608,58 @@ export type SaveTrackerBuildSettingsMutationVariables = Exact<{
 
 export type SaveTrackerBuildSettingsMutation = { __typename?: 'Mutation', saveTrackerBuildSettings: { __typename?: 'TrackerBuildSettings', slackChannels: Array<string> } };
 
+export type ListPexelsConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListPexelsConfigsQuery = { __typename?: 'Query', listPexelsConfigs: Array<{ __typename?: 'PexelsConfig', id: string, label: string, apiKey: string, isActive: boolean }> };
+
+export type CreatePexelsConfigMutationVariables = Exact<{
+  input: PexelsConfigInput;
+}>;
+
+
+export type CreatePexelsConfigMutation = { __typename?: 'Mutation', createPexelsConfig: { __typename?: 'PexelsConfig', id: string } };
+
+export type UpdatePexelsConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: PexelsConfigInput;
+}>;
+
+
+export type UpdatePexelsConfigMutation = { __typename?: 'Mutation', updatePexelsConfig: { __typename?: 'PexelsConfig', id: string } };
+
+export type DeletePexelsConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeletePexelsConfigMutation = { __typename?: 'Mutation', deletePexelsConfig: boolean };
+
+export type TestPexelsConnectionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestPexelsConnectionMutation = { __typename?: 'Mutation', testPexelsConnection: boolean };
+
+export type PexelsMediaFieldsFragment = { __typename?: 'PexelsMedia', id: string, previewUrl: string, url: string, alt: string, credit: string, duration: number };
+
+export type SearchPexelsPhotosQueryVariables = Exact<{
+  query: Scalars['String']['input'];
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type SearchPexelsPhotosQuery = { __typename?: 'Query', searchPexelsPhotos: Array<{ __typename?: 'PexelsMedia', id: string, previewUrl: string, url: string, alt: string, credit: string, duration: number }> };
+
+export type SearchPexelsVideosQueryVariables = Exact<{
+  query: Scalars['String']['input'];
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type SearchPexelsVideosQuery = { __typename?: 'Query', searchPexelsVideos: Array<{ __typename?: 'PexelsMedia', id: string, previewUrl: string, url: string, alt: string, credit: string, duration: number }> };
+
 export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: string, userId: string, grantedBy: string, grantedAt: string, revokedAt?: string | null, isActive: boolean, consentedAt?: string | null, timezone: string };
 
 export type TrackerDeviceFieldsFragment = { __typename?: 'TrackerDevice', id: string, userId: string, deviceId: string, platform: string, hostname: string, appVersion: string, machineId: string, osName: string, osVersion: string, arch: string, cpuModel: string, cpuCores: number, totalMemoryMb: number, locale: string, timezone: string, screenCount: number, screenResolution: string, issuedAt: string, lastSeenAt: string, revokedAt?: string | null, isActive: boolean };
@@ -9366,6 +9492,16 @@ export const StatusMonitorFieldsFragmentDoc = gql`
   lastResponseMs
   lastHttpStatus
   lastError
+}
+    `;
+export const PexelsMediaFieldsFragmentDoc = gql`
+    fragment PexelsMediaFields on PexelsMedia {
+  id
+  previewUrl
+  url
+  alt
+  credit
+  duration
 }
     `;
 export const TrackerAccessFieldsFragmentDoc = gql`
@@ -24567,6 +24703,268 @@ export function useSaveTrackerBuildSettingsMutation(baseOptions?: Apollo.Mutatio
 export type SaveTrackerBuildSettingsMutationHookResult = ReturnType<typeof useSaveTrackerBuildSettingsMutation>;
 export type SaveTrackerBuildSettingsMutationResult = Apollo.MutationResult<SaveTrackerBuildSettingsMutation>;
 export type SaveTrackerBuildSettingsMutationOptions = Apollo.BaseMutationOptions<SaveTrackerBuildSettingsMutation, SaveTrackerBuildSettingsMutationVariables>;
+export const ListPexelsConfigsDocument = gql`
+    query ListPexelsConfigs {
+  listPexelsConfigs {
+    id
+    label
+    apiKey
+    isActive
+  }
+}
+    `;
+
+/**
+ * __useListPexelsConfigsQuery__
+ *
+ * To run a query within a React component, call `useListPexelsConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPexelsConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPexelsConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListPexelsConfigsQuery(baseOptions?: Apollo.QueryHookOptions<ListPexelsConfigsQuery, ListPexelsConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPexelsConfigsQuery, ListPexelsConfigsQueryVariables>(ListPexelsConfigsDocument, options);
+      }
+export function useListPexelsConfigsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPexelsConfigsQuery, ListPexelsConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPexelsConfigsQuery, ListPexelsConfigsQueryVariables>(ListPexelsConfigsDocument, options);
+        }
+// @ts-ignore
+export function useListPexelsConfigsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListPexelsConfigsQuery, ListPexelsConfigsQueryVariables>): Apollo.UseSuspenseQueryResult<ListPexelsConfigsQuery, ListPexelsConfigsQueryVariables>;
+export function useListPexelsConfigsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPexelsConfigsQuery, ListPexelsConfigsQueryVariables>): Apollo.UseSuspenseQueryResult<ListPexelsConfigsQuery | undefined, ListPexelsConfigsQueryVariables>;
+export function useListPexelsConfigsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPexelsConfigsQuery, ListPexelsConfigsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPexelsConfigsQuery, ListPexelsConfigsQueryVariables>(ListPexelsConfigsDocument, options);
+        }
+export type ListPexelsConfigsQueryHookResult = ReturnType<typeof useListPexelsConfigsQuery>;
+export type ListPexelsConfigsLazyQueryHookResult = ReturnType<typeof useListPexelsConfigsLazyQuery>;
+export type ListPexelsConfigsSuspenseQueryHookResult = ReturnType<typeof useListPexelsConfigsSuspenseQuery>;
+export type ListPexelsConfigsQueryResult = Apollo.QueryResult<ListPexelsConfigsQuery, ListPexelsConfigsQueryVariables>;
+export const CreatePexelsConfigDocument = gql`
+    mutation CreatePexelsConfig($input: PexelsConfigInput!) {
+  createPexelsConfig(input: $input) {
+    id
+  }
+}
+    `;
+export type CreatePexelsConfigMutationFn = Apollo.MutationFunction<CreatePexelsConfigMutation, CreatePexelsConfigMutationVariables>;
+
+/**
+ * __useCreatePexelsConfigMutation__
+ *
+ * To run a mutation, you first call `useCreatePexelsConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePexelsConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPexelsConfigMutation, { data, loading, error }] = useCreatePexelsConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePexelsConfigMutation(baseOptions?: Apollo.MutationHookOptions<CreatePexelsConfigMutation, CreatePexelsConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePexelsConfigMutation, CreatePexelsConfigMutationVariables>(CreatePexelsConfigDocument, options);
+      }
+export type CreatePexelsConfigMutationHookResult = ReturnType<typeof useCreatePexelsConfigMutation>;
+export type CreatePexelsConfigMutationResult = Apollo.MutationResult<CreatePexelsConfigMutation>;
+export type CreatePexelsConfigMutationOptions = Apollo.BaseMutationOptions<CreatePexelsConfigMutation, CreatePexelsConfigMutationVariables>;
+export const UpdatePexelsConfigDocument = gql`
+    mutation UpdatePexelsConfig($id: ID!, $input: PexelsConfigInput!) {
+  updatePexelsConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdatePexelsConfigMutationFn = Apollo.MutationFunction<UpdatePexelsConfigMutation, UpdatePexelsConfigMutationVariables>;
+
+/**
+ * __useUpdatePexelsConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdatePexelsConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePexelsConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePexelsConfigMutation, { data, loading, error }] = useUpdatePexelsConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePexelsConfigMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePexelsConfigMutation, UpdatePexelsConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePexelsConfigMutation, UpdatePexelsConfigMutationVariables>(UpdatePexelsConfigDocument, options);
+      }
+export type UpdatePexelsConfigMutationHookResult = ReturnType<typeof useUpdatePexelsConfigMutation>;
+export type UpdatePexelsConfigMutationResult = Apollo.MutationResult<UpdatePexelsConfigMutation>;
+export type UpdatePexelsConfigMutationOptions = Apollo.BaseMutationOptions<UpdatePexelsConfigMutation, UpdatePexelsConfigMutationVariables>;
+export const DeletePexelsConfigDocument = gql`
+    mutation DeletePexelsConfig($id: ID!) {
+  deletePexelsConfig(id: $id)
+}
+    `;
+export type DeletePexelsConfigMutationFn = Apollo.MutationFunction<DeletePexelsConfigMutation, DeletePexelsConfigMutationVariables>;
+
+/**
+ * __useDeletePexelsConfigMutation__
+ *
+ * To run a mutation, you first call `useDeletePexelsConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePexelsConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePexelsConfigMutation, { data, loading, error }] = useDeletePexelsConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePexelsConfigMutation(baseOptions?: Apollo.MutationHookOptions<DeletePexelsConfigMutation, DeletePexelsConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePexelsConfigMutation, DeletePexelsConfigMutationVariables>(DeletePexelsConfigDocument, options);
+      }
+export type DeletePexelsConfigMutationHookResult = ReturnType<typeof useDeletePexelsConfigMutation>;
+export type DeletePexelsConfigMutationResult = Apollo.MutationResult<DeletePexelsConfigMutation>;
+export type DeletePexelsConfigMutationOptions = Apollo.BaseMutationOptions<DeletePexelsConfigMutation, DeletePexelsConfigMutationVariables>;
+export const TestPexelsConnectionDocument = gql`
+    mutation TestPexelsConnection($id: ID!) {
+  testPexelsConnection(id: $id)
+}
+    `;
+export type TestPexelsConnectionMutationFn = Apollo.MutationFunction<TestPexelsConnectionMutation, TestPexelsConnectionMutationVariables>;
+
+/**
+ * __useTestPexelsConnectionMutation__
+ *
+ * To run a mutation, you first call `useTestPexelsConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestPexelsConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testPexelsConnectionMutation, { data, loading, error }] = useTestPexelsConnectionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestPexelsConnectionMutation(baseOptions?: Apollo.MutationHookOptions<TestPexelsConnectionMutation, TestPexelsConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TestPexelsConnectionMutation, TestPexelsConnectionMutationVariables>(TestPexelsConnectionDocument, options);
+      }
+export type TestPexelsConnectionMutationHookResult = ReturnType<typeof useTestPexelsConnectionMutation>;
+export type TestPexelsConnectionMutationResult = Apollo.MutationResult<TestPexelsConnectionMutation>;
+export type TestPexelsConnectionMutationOptions = Apollo.BaseMutationOptions<TestPexelsConnectionMutation, TestPexelsConnectionMutationVariables>;
+export const SearchPexelsPhotosDocument = gql`
+    query SearchPexelsPhotos($query: String!, $page: Int) {
+  searchPexelsPhotos(query: $query, page: $page) {
+    ...PexelsMediaFields
+  }
+}
+    ${PexelsMediaFieldsFragmentDoc}`;
+
+/**
+ * __useSearchPexelsPhotosQuery__
+ *
+ * To run a query within a React component, call `useSearchPexelsPhotosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchPexelsPhotosQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchPexelsPhotosQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useSearchPexelsPhotosQuery(baseOptions: Apollo.QueryHookOptions<SearchPexelsPhotosQuery, SearchPexelsPhotosQueryVariables> & ({ variables: SearchPexelsPhotosQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SearchPexelsPhotosQuery, SearchPexelsPhotosQueryVariables>(SearchPexelsPhotosDocument, options);
+      }
+export function useSearchPexelsPhotosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchPexelsPhotosQuery, SearchPexelsPhotosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SearchPexelsPhotosQuery, SearchPexelsPhotosQueryVariables>(SearchPexelsPhotosDocument, options);
+        }
+// @ts-ignore
+export function useSearchPexelsPhotosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SearchPexelsPhotosQuery, SearchPexelsPhotosQueryVariables>): Apollo.UseSuspenseQueryResult<SearchPexelsPhotosQuery, SearchPexelsPhotosQueryVariables>;
+export function useSearchPexelsPhotosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SearchPexelsPhotosQuery, SearchPexelsPhotosQueryVariables>): Apollo.UseSuspenseQueryResult<SearchPexelsPhotosQuery | undefined, SearchPexelsPhotosQueryVariables>;
+export function useSearchPexelsPhotosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SearchPexelsPhotosQuery, SearchPexelsPhotosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SearchPexelsPhotosQuery, SearchPexelsPhotosQueryVariables>(SearchPexelsPhotosDocument, options);
+        }
+export type SearchPexelsPhotosQueryHookResult = ReturnType<typeof useSearchPexelsPhotosQuery>;
+export type SearchPexelsPhotosLazyQueryHookResult = ReturnType<typeof useSearchPexelsPhotosLazyQuery>;
+export type SearchPexelsPhotosSuspenseQueryHookResult = ReturnType<typeof useSearchPexelsPhotosSuspenseQuery>;
+export type SearchPexelsPhotosQueryResult = Apollo.QueryResult<SearchPexelsPhotosQuery, SearchPexelsPhotosQueryVariables>;
+export const SearchPexelsVideosDocument = gql`
+    query SearchPexelsVideos($query: String!, $page: Int) {
+  searchPexelsVideos(query: $query, page: $page) {
+    ...PexelsMediaFields
+  }
+}
+    ${PexelsMediaFieldsFragmentDoc}`;
+
+/**
+ * __useSearchPexelsVideosQuery__
+ *
+ * To run a query within a React component, call `useSearchPexelsVideosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchPexelsVideosQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchPexelsVideosQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useSearchPexelsVideosQuery(baseOptions: Apollo.QueryHookOptions<SearchPexelsVideosQuery, SearchPexelsVideosQueryVariables> & ({ variables: SearchPexelsVideosQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SearchPexelsVideosQuery, SearchPexelsVideosQueryVariables>(SearchPexelsVideosDocument, options);
+      }
+export function useSearchPexelsVideosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchPexelsVideosQuery, SearchPexelsVideosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SearchPexelsVideosQuery, SearchPexelsVideosQueryVariables>(SearchPexelsVideosDocument, options);
+        }
+// @ts-ignore
+export function useSearchPexelsVideosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SearchPexelsVideosQuery, SearchPexelsVideosQueryVariables>): Apollo.UseSuspenseQueryResult<SearchPexelsVideosQuery, SearchPexelsVideosQueryVariables>;
+export function useSearchPexelsVideosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SearchPexelsVideosQuery, SearchPexelsVideosQueryVariables>): Apollo.UseSuspenseQueryResult<SearchPexelsVideosQuery | undefined, SearchPexelsVideosQueryVariables>;
+export function useSearchPexelsVideosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SearchPexelsVideosQuery, SearchPexelsVideosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SearchPexelsVideosQuery, SearchPexelsVideosQueryVariables>(SearchPexelsVideosDocument, options);
+        }
+export type SearchPexelsVideosQueryHookResult = ReturnType<typeof useSearchPexelsVideosQuery>;
+export type SearchPexelsVideosLazyQueryHookResult = ReturnType<typeof useSearchPexelsVideosLazyQuery>;
+export type SearchPexelsVideosSuspenseQueryHookResult = ReturnType<typeof useSearchPexelsVideosSuspenseQuery>;
+export type SearchPexelsVideosQueryResult = Apollo.QueryResult<SearchPexelsVideosQuery, SearchPexelsVideosQueryVariables>;
 export const TrackerAccessListDocument = gql`
     query TrackerAccessList {
   trackerAccessList {

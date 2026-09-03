@@ -89,6 +89,7 @@ export function RhfImageField({
               title={label}
               folder={folder}
               currentUrl={url || null}
+              media="image"
               onClose={() => setOpen(false)}
               onUploaded={(uploaded) => field.onChange(uploaded)}
             />

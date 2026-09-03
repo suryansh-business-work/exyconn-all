@@ -5,7 +5,7 @@
  */
 export * from '@exyconn/ui';
 
-// Shared image picker + ImageKit uploader used by every image field (moves to
-// `@exyconn/uploader` next; it depends on the shell's Apollo client, so it cannot
-// live in the design system).
-export { ImageUploadDialog, ImagePreview } from './ImageUploadDialog';
+// The platform's single upload dialog — device file, Pexels photo or Pexels clip —
+// used by every image field (moves to `@exyconn/uploader` next; it depends on the
+// shell's Apollo client, so it cannot live in the design system).
+export { ImageUploadDialog, ImagePreview, type UploadMediaKind } from './ImageUploadDialog';

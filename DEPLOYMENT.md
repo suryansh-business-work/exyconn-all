@@ -79,9 +79,10 @@ done
   in the editor is committed to `main` with it. `NEXTAUTH_SECRET` signs the editor's login
   session (`openssl rand -base64 32`). The editor's content index reuses `MONGODB_URI`
   (database `tinacms`).
-- **SMTP, ImageKit and Slack are not secrets any more.** All three are stored in MongoDB and
-  managed in the portal under **Admin › Environment Variables**, where each has a
-  test-connection action. The Portal API, the Tools API and the website's form notifications
+- **SMTP, ImageKit, Slack and Pexels are not secrets any more.** All four are stored in
+  MongoDB and managed in the portal under **Admin › Environment Variables**, where each has
+  a test-connection action. Pexels is the stock-media key behind the shared upload dialog's
+  photo and video tabs. The Portal API, the Tools API and the website's form notifications
   all read the active configuration from there, so rotating a credential needs no redeploy.
   `SLACK_WEBHOOK` stays a GitHub secret because CI posts deploy results before any app is up.
 
