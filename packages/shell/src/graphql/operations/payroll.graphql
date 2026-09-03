@@ -1,0 +1,95 @@
+# Payroll administration (HR / Finance).
+
+query ListSalaryStructuresPaged($input: TableQueryInput!) {
+  listSalaryStructuresPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      currency
+      basic
+      hra
+      allowances
+      deductions
+      gross
+      net
+      effectiveFrom
+    }
+  }
+}
+
+query ListSalaryStructuresStats {
+  listSalaryStructuresStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateSalaryStructure($input: SalaryStructureInput!) {
+  createSalaryStructure(input: $input) {
+    id
+  }
+}
+
+mutation UpdateSalaryStructure($id: ID!, $input: SalaryStructureInput!) {
+  updateSalaryStructure(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteSalaryStructure($id: ID!) {
+  deleteSalaryStructure(id: $id)
+}
+
+query ListSalarySlipsPaged($input: TableQueryInput!) {
+  listSalarySlipsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      month
+      year
+      currency
+      gross
+      deductions
+      net
+      status
+      issuedDate
+    }
+  }
+}
+
+query PayrollSummary($month: Int!, $year: Int!) {
+  payrollSummary(month: $month, year: $year) {
+    month
+    year
+    slips
+    paid
+    totalGross
+    totalDeductions
+    totalNet
+  }
+}
+
+mutation RunPayroll($month: Int!, $year: Int!) {
+  runPayroll(month: $month, year: $year) {
+    generated
+    updated
+    skipped
+    totalNet
+  }
+}
+
+mutation MarkPayrollPaid($month: Int!, $year: Int!) {
+  markPayrollPaid(month: $month, year: $year)
+}

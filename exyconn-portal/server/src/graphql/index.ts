@@ -38,6 +38,7 @@ import { documentsTypeDefs, documentsResolvers } from '../modules/documents';
 import { hrMasterTypeDefs, hrMasterResolvers } from '../modules/hrmaster';
 import { orgMasterTypeDefs, orgMasterResolvers } from '../modules/orgmaster';
 import { exitTypeDefs, exitResolvers } from '../modules/exit';
+import { payrollTypeDefs, payrollResolvers } from '../modules/payroll';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = Record<string, Record<string, unknown> | undefined>;
@@ -95,6 +96,7 @@ export const typeDefs = [
   hrMasterTypeDefs,
   orgMasterTypeDefs,
   exitTypeDefs,
+  payrollTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -129,4 +131,5 @@ export const resolvers = mergeResolvers([
   hrMasterResolvers,
   orgMasterResolvers,
   exitResolvers,
+  payrollResolvers,
 ]);

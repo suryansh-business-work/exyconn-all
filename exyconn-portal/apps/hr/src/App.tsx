@@ -13,6 +13,8 @@ import {
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
 import { AnnouncementsPage } from './pages/announcements';
 import { ReportsPage } from './pages/reports';
+import { SalariesPage } from './pages/salaries';
+import { PayrollPage } from './pages/payroll';
 import { LocationsPage } from './pages/locations';
 import { TeamsPage } from './pages/teams';
 import { GradesPage } from './pages/grades';
@@ -41,6 +43,8 @@ export function App() {
       <Route path="/hr/departments" element={<DepartmentsPage />} />
       <Route path="/hr/announcements" element={<AnnouncementsPage />} />
       <Route path="/hr/reports" element={<ReportsPage />} />
+      <Route path="/hr/salaries" element={<SalariesPage />} />
+      <Route path="/hr/payroll" element={<PayrollPage />} />
       <Route path="/hr/locations" element={<LocationsPage />} />
       <Route path="/hr/teams" element={<TeamsPage />} />
       <Route path="/hr/grades" element={<GradesPage />} />

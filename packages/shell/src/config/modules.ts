@@ -30,6 +30,7 @@ import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import PaidIcon from '@mui/icons-material/Paid';
 import WorkIcon from '@mui/icons-material/Work';
 import DescriptionIcon from '@mui/icons-material/Description';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
@@ -263,6 +264,8 @@ export const MODULES: ModuleDefinition[] = [
       },
       { key: 'hr-shifts', label: 'Shifts', path: '/hr/shifts', icon: ScheduleIcon },
       { key: 'hr-exits', label: 'Exits', path: '/hr/exits', icon: LogoutIcon },
+      { key: 'hr-salaries', label: 'Salaries', path: '/hr/salaries', icon: PaymentsIcon },
+      { key: 'hr-payroll', label: 'Payroll', path: '/hr/payroll', icon: PaidIcon },
       { key: 'hr-reports', label: 'Reports', path: '/hr/reports', icon: AssessmentIcon },
       { key: 'hr-holidays', label: 'Holidays', path: '/hr/holidays', icon: CelebrationIcon },
       {
