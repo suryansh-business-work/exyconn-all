@@ -7,6 +7,7 @@ import type {
   EmailConfigInput,
   GithubConfigInput,
   ImageConfigInput,
+  OpenAiConfigInput,
   PexelsConfigInput,
   SlackConfigInput,
   TrackerPlatform,
@@ -39,6 +40,10 @@ export const techResolvers = {
     listPexelsConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       assertRole(ctx, techOnly);
       return withIds(await techService.listPexelsConfigs());
+    },
+    listOpenAiConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertRole(ctx, techOnly);
+      return withIds(await techService.listOpenAiConfigs());
     },
     // The stock tabs live in the shared upload dialog, which every portal renders, so
     // these two are authenticated-only — the credential itself stays Tech-only above.
@@ -203,6 +208,30 @@ export const techResolvers = {
     testPexelsConnection: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       assertRole(ctx, techOnly);
       return techService.testPexelsConnection(id);
+    },
+    createOpenAiConfig: async (
+      _p: unknown,
+      { input }: { input: OpenAiConfigInput },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, techOnly);
+      return withId(await techService.createOpenAiConfig(input));
+    },
+    updateOpenAiConfig: async (
+      _p: unknown,
+      { id, input }: { id: string; input: OpenAiConfigInput },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, techOnly);
+      return withId(await techService.updateOpenAiConfig(id, input));
+    },
+    deleteOpenAiConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      assertRole(ctx, techOnly);
+      return techService.deleteOpenAiConfig(id);
+    },
+    testOpenAiConnection: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      assertRole(ctx, techOnly);
+      return techService.testOpenAiConnection(id);
     },
     startTrackerBuild: async (
       _p: unknown,

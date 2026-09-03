@@ -5,6 +5,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import EmailIcon from '@mui/icons-material/Email';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
@@ -12,6 +13,7 @@ import { ImageConfigsPanel } from './ImageConfigsPanel';
 import { EmailConfigsPanel } from './EmailConfigsPanel';
 import { GithubConfigsPanel } from './GithubConfigsPanel';
 import { PexelsConfigsPanel } from './PexelsConfigsPanel';
+import { OpenAiConfigsPanel } from './OpenAiConfigsPanel';
 
 /** Route the tabs live under; each tab is a slug beneath it. */
 export const ENVIRONMENT_VARIABLES_PATH = '/tech/environment-variables';
@@ -50,6 +52,16 @@ const TABS: TabberItem[] = [
     content: (
       <GlassPanel>
         <PexelsConfigsPanel />
+      </GlassPanel>
+    ),
+  },
+  {
+    slug: 'openai',
+    label: 'OpenAI',
+    icon: <SmartToyIcon />,
+    content: (
+      <GlassPanel>
+        <OpenAiConfigsPanel />
       </GlassPanel>
     ),
   },

@@ -1960,6 +1960,7 @@ export type Mutation = {
    */
   createMyRequest: EmployeeRequest;
   createNavLink: NavLink;
+  createOpenAiConfig: OpenAiConfig;
   createPerformanceReview: PerformanceReview;
   createPexelsConfig: PexelsConfig;
   createPolicy: Policy;
@@ -2024,6 +2025,7 @@ export type Mutation = {
   deleteLegalDocument: Scalars['Boolean']['output'];
   deleteLocation: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
+  deleteOpenAiConfig: Scalars['Boolean']['output'];
   deletePerformanceReview: Scalars['Boolean']['output'];
   deletePexelsConfig: Scalars['Boolean']['output'];
   deletePolicy: Scalars['Boolean']['output'];
@@ -2119,6 +2121,7 @@ export type Mutation = {
   submitSelfAssessment: PerformanceReview;
   testGithubConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
+  testOpenAiConnection: Scalars['Boolean']['output'];
   testPexelsConnection: Scalars['Boolean']['output'];
   trackerAcceptConsent: Scalars['Boolean']['output'];
   /**
@@ -2186,6 +2189,7 @@ export type Mutation = {
   /** The employee marking their own progress. Completing it stamps completedOn. */
   updateMyTrainingStatus: Training;
   updateNavLink: NavLink;
+  updateOpenAiConfig: OpenAiConfig;
   updatePerformanceReview: PerformanceReview;
   updatePexelsConfig: PexelsConfig;
   updatePolicy: Policy;
@@ -2467,6 +2471,11 @@ export type MutationCreateMyRequestArgs = {
 
 export type MutationCreateNavLinkArgs = {
   input: NavLinkInput;
+};
+
+
+export type MutationCreateOpenAiConfigArgs = {
+  input: OpenAiConfigInput;
 };
 
 
@@ -2783,6 +2792,11 @@ export type MutationDeleteNavLinkArgs = {
 };
 
 
+export type MutationDeleteOpenAiConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeletePerformanceReviewArgs = {
   id: Scalars['ID']['input'];
 };
@@ -3089,6 +3103,11 @@ export type MutationTestGithubConnectionArgs = {
 export type MutationTestImageUploadArgs = {
   file: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestOpenAiConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -3400,6 +3419,12 @@ export type MutationUpdateNavLinkArgs = {
 };
 
 
+export type MutationUpdateOpenAiConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: OpenAiConfigInput;
+};
+
+
 export type MutationUpdatePerformanceReviewArgs = {
   id: Scalars['ID']['input'];
   input: PerformanceReviewInput;
@@ -3626,6 +3651,26 @@ export enum NotificationKind {
   Request = 'REQUEST',
   Training = 'TRAINING'
 }
+
+/** The OpenAI credential the platform's AI features run on. */
+export type OpenAiConfig = {
+  __typename?: 'OpenAiConfig';
+  apiKey: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** The model requests default to, e.g. gpt-4o-mini. */
+  defaultModel: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type OpenAiConfigInput = {
+  apiKey: Scalars['String']['input'];
+  defaultModel: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
 
 /** One receipt against one invoice. Negative for a refund. */
 export type Payment = {
@@ -4239,6 +4284,7 @@ export type Query = {
   listLocationsPaged: LocationPage;
   listLocationsStats: TableStats;
   listNavLinks: Array<NavLink>;
+  listOpenAiConfigs: Array<OpenAiConfig>;
   listPayments: Array<Payment>;
   listPaymentsPaged: PaymentPage;
   listPaymentsStats: TableStats;
@@ -8659,6 +8705,40 @@ export type SearchPexelsVideosQueryVariables = Exact<{
 
 
 export type SearchPexelsVideosQuery = { __typename?: 'Query', searchPexelsVideos: Array<{ __typename?: 'PexelsMedia', id: string, previewUrl: string, url: string, alt: string, credit: string, duration: number }> };
+
+export type ListOpenAiConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListOpenAiConfigsQuery = { __typename?: 'Query', listOpenAiConfigs: Array<{ __typename?: 'OpenAiConfig', id: string, label: string, apiKey: string, defaultModel: string, isActive: boolean }> };
+
+export type CreateOpenAiConfigMutationVariables = Exact<{
+  input: OpenAiConfigInput;
+}>;
+
+
+export type CreateOpenAiConfigMutation = { __typename?: 'Mutation', createOpenAiConfig: { __typename?: 'OpenAiConfig', id: string } };
+
+export type UpdateOpenAiConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: OpenAiConfigInput;
+}>;
+
+
+export type UpdateOpenAiConfigMutation = { __typename?: 'Mutation', updateOpenAiConfig: { __typename?: 'OpenAiConfig', id: string } };
+
+export type DeleteOpenAiConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteOpenAiConfigMutation = { __typename?: 'Mutation', deleteOpenAiConfig: boolean };
+
+export type TestOpenAiConnectionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestOpenAiConnectionMutation = { __typename?: 'Mutation', testOpenAiConnection: boolean };
 
 export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: string, userId: string, grantedBy: string, grantedAt: string, revokedAt?: string | null, isActive: boolean, consentedAt?: string | null, timezone: string };
 
@@ -24965,6 +25045,181 @@ export type SearchPexelsVideosQueryHookResult = ReturnType<typeof useSearchPexel
 export type SearchPexelsVideosLazyQueryHookResult = ReturnType<typeof useSearchPexelsVideosLazyQuery>;
 export type SearchPexelsVideosSuspenseQueryHookResult = ReturnType<typeof useSearchPexelsVideosSuspenseQuery>;
 export type SearchPexelsVideosQueryResult = Apollo.QueryResult<SearchPexelsVideosQuery, SearchPexelsVideosQueryVariables>;
+export const ListOpenAiConfigsDocument = gql`
+    query ListOpenAiConfigs {
+  listOpenAiConfigs {
+    id
+    label
+    apiKey
+    defaultModel
+    isActive
+  }
+}
+    `;
+
+/**
+ * __useListOpenAiConfigsQuery__
+ *
+ * To run a query within a React component, call `useListOpenAiConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListOpenAiConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListOpenAiConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListOpenAiConfigsQuery(baseOptions?: Apollo.QueryHookOptions<ListOpenAiConfigsQuery, ListOpenAiConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListOpenAiConfigsQuery, ListOpenAiConfigsQueryVariables>(ListOpenAiConfigsDocument, options);
+      }
+export function useListOpenAiConfigsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListOpenAiConfigsQuery, ListOpenAiConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListOpenAiConfigsQuery, ListOpenAiConfigsQueryVariables>(ListOpenAiConfigsDocument, options);
+        }
+// @ts-ignore
+export function useListOpenAiConfigsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListOpenAiConfigsQuery, ListOpenAiConfigsQueryVariables>): Apollo.UseSuspenseQueryResult<ListOpenAiConfigsQuery, ListOpenAiConfigsQueryVariables>;
+export function useListOpenAiConfigsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListOpenAiConfigsQuery, ListOpenAiConfigsQueryVariables>): Apollo.UseSuspenseQueryResult<ListOpenAiConfigsQuery | undefined, ListOpenAiConfigsQueryVariables>;
+export function useListOpenAiConfigsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListOpenAiConfigsQuery, ListOpenAiConfigsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListOpenAiConfigsQuery, ListOpenAiConfigsQueryVariables>(ListOpenAiConfigsDocument, options);
+        }
+export type ListOpenAiConfigsQueryHookResult = ReturnType<typeof useListOpenAiConfigsQuery>;
+export type ListOpenAiConfigsLazyQueryHookResult = ReturnType<typeof useListOpenAiConfigsLazyQuery>;
+export type ListOpenAiConfigsSuspenseQueryHookResult = ReturnType<typeof useListOpenAiConfigsSuspenseQuery>;
+export type ListOpenAiConfigsQueryResult = Apollo.QueryResult<ListOpenAiConfigsQuery, ListOpenAiConfigsQueryVariables>;
+export const CreateOpenAiConfigDocument = gql`
+    mutation CreateOpenAiConfig($input: OpenAiConfigInput!) {
+  createOpenAiConfig(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateOpenAiConfigMutationFn = Apollo.MutationFunction<CreateOpenAiConfigMutation, CreateOpenAiConfigMutationVariables>;
+
+/**
+ * __useCreateOpenAiConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateOpenAiConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateOpenAiConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createOpenAiConfigMutation, { data, loading, error }] = useCreateOpenAiConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateOpenAiConfigMutation(baseOptions?: Apollo.MutationHookOptions<CreateOpenAiConfigMutation, CreateOpenAiConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateOpenAiConfigMutation, CreateOpenAiConfigMutationVariables>(CreateOpenAiConfigDocument, options);
+      }
+export type CreateOpenAiConfigMutationHookResult = ReturnType<typeof useCreateOpenAiConfigMutation>;
+export type CreateOpenAiConfigMutationResult = Apollo.MutationResult<CreateOpenAiConfigMutation>;
+export type CreateOpenAiConfigMutationOptions = Apollo.BaseMutationOptions<CreateOpenAiConfigMutation, CreateOpenAiConfigMutationVariables>;
+export const UpdateOpenAiConfigDocument = gql`
+    mutation UpdateOpenAiConfig($id: ID!, $input: OpenAiConfigInput!) {
+  updateOpenAiConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateOpenAiConfigMutationFn = Apollo.MutationFunction<UpdateOpenAiConfigMutation, UpdateOpenAiConfigMutationVariables>;
+
+/**
+ * __useUpdateOpenAiConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateOpenAiConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOpenAiConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOpenAiConfigMutation, { data, loading, error }] = useUpdateOpenAiConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOpenAiConfigMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOpenAiConfigMutation, UpdateOpenAiConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOpenAiConfigMutation, UpdateOpenAiConfigMutationVariables>(UpdateOpenAiConfigDocument, options);
+      }
+export type UpdateOpenAiConfigMutationHookResult = ReturnType<typeof useUpdateOpenAiConfigMutation>;
+export type UpdateOpenAiConfigMutationResult = Apollo.MutationResult<UpdateOpenAiConfigMutation>;
+export type UpdateOpenAiConfigMutationOptions = Apollo.BaseMutationOptions<UpdateOpenAiConfigMutation, UpdateOpenAiConfigMutationVariables>;
+export const DeleteOpenAiConfigDocument = gql`
+    mutation DeleteOpenAiConfig($id: ID!) {
+  deleteOpenAiConfig(id: $id)
+}
+    `;
+export type DeleteOpenAiConfigMutationFn = Apollo.MutationFunction<DeleteOpenAiConfigMutation, DeleteOpenAiConfigMutationVariables>;
+
+/**
+ * __useDeleteOpenAiConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteOpenAiConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteOpenAiConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteOpenAiConfigMutation, { data, loading, error }] = useDeleteOpenAiConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteOpenAiConfigMutation(baseOptions?: Apollo.MutationHookOptions<DeleteOpenAiConfigMutation, DeleteOpenAiConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteOpenAiConfigMutation, DeleteOpenAiConfigMutationVariables>(DeleteOpenAiConfigDocument, options);
+      }
+export type DeleteOpenAiConfigMutationHookResult = ReturnType<typeof useDeleteOpenAiConfigMutation>;
+export type DeleteOpenAiConfigMutationResult = Apollo.MutationResult<DeleteOpenAiConfigMutation>;
+export type DeleteOpenAiConfigMutationOptions = Apollo.BaseMutationOptions<DeleteOpenAiConfigMutation, DeleteOpenAiConfigMutationVariables>;
+export const TestOpenAiConnectionDocument = gql`
+    mutation TestOpenAiConnection($id: ID!) {
+  testOpenAiConnection(id: $id)
+}
+    `;
+export type TestOpenAiConnectionMutationFn = Apollo.MutationFunction<TestOpenAiConnectionMutation, TestOpenAiConnectionMutationVariables>;
+
+/**
+ * __useTestOpenAiConnectionMutation__
+ *
+ * To run a mutation, you first call `useTestOpenAiConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestOpenAiConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testOpenAiConnectionMutation, { data, loading, error }] = useTestOpenAiConnectionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestOpenAiConnectionMutation(baseOptions?: Apollo.MutationHookOptions<TestOpenAiConnectionMutation, TestOpenAiConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TestOpenAiConnectionMutation, TestOpenAiConnectionMutationVariables>(TestOpenAiConnectionDocument, options);
+      }
+export type TestOpenAiConnectionMutationHookResult = ReturnType<typeof useTestOpenAiConnectionMutation>;
+export type TestOpenAiConnectionMutationResult = Apollo.MutationResult<TestOpenAiConnectionMutation>;
+export type TestOpenAiConnectionMutationOptions = Apollo.BaseMutationOptions<TestOpenAiConnectionMutation, TestOpenAiConnectionMutationVariables>;
 export const TrackerAccessListDocument = gql`
     query TrackerAccessList {
   trackerAccessList {

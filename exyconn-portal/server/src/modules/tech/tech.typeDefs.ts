@@ -58,6 +58,18 @@ export const techTypeDefs = gql`
     updatedAt: DateTime!
   }
 
+  "The OpenAI credential the platform's AI features run on."
+  type OpenAiConfig {
+    id: ID!
+    label: String!
+    apiKey: String!
+    "The model requests default to, e.g. gpt-4o-mini."
+    defaultModel: String!
+    isActive: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
   "One Pexels result — a photo or a video — flattened to what the upload dialog renders."
   type PexelsMedia {
     id: String!
@@ -135,6 +147,13 @@ export const techTypeDefs = gql`
     isActive: Boolean
   }
 
+  input OpenAiConfigInput {
+    label: String!
+    apiKey: String!
+    defaultModel: String!
+    isActive: Boolean
+  }
+
   input GithubConfigInput {
     label: String!
     owner: String!
@@ -149,6 +168,7 @@ export const techTypeDefs = gql`
     listSlackConfigs: [SlackConfig!]!
     listGithubConfigs: [GithubConfig!]!
     listPexelsConfigs: [PexelsConfig!]!
+    listOpenAiConfigs: [OpenAiConfig!]!
     "Stock photos for the shared upload dialog. Any signed-in user may search."
     searchPexelsPhotos(query: String!, page: Int): [PexelsMedia!]!
     "Stock videos for the shared upload dialog. Any signed-in user may search."
@@ -180,6 +200,10 @@ export const techTypeDefs = gql`
     updatePexelsConfig(id: ID!, input: PexelsConfigInput!): PexelsConfig!
     deletePexelsConfig(id: ID!): Boolean!
     testPexelsConnection(id: ID!): Boolean!
+    createOpenAiConfig(input: OpenAiConfigInput!): OpenAiConfig!
+    updateOpenAiConfig(id: ID!, input: OpenAiConfigInput!): OpenAiConfig!
+    deleteOpenAiConfig(id: ID!): Boolean!
+    testOpenAiConnection(id: ID!): Boolean!
     "Asks GitHub to build the chosen installers off the given branch."
     startTrackerBuild(platforms: [TrackerPlatform!]!, ref: String!): Boolean!
     saveTrackerBuildSettings(slackChannels: [String!]!): TrackerBuildSettings!
