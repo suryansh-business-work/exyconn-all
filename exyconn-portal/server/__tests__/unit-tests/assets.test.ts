@@ -12,6 +12,11 @@ const asset = {
 };
 
 describe('Assets', () => {
+  // Connecting does not wait for indexes — Mongoose builds them in the background — so the
+  // unique constraint on `assetTag` can still be missing when the duplicate test inserts.
+  // `init()` resolves once this model's indexes exist.
+  beforeAll(() => AssetModel.init());
+
   it('defaults a new asset to unassigned and in stock', async () => {
     const created = await assetsService.create(asset);
 
