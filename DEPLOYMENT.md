@@ -84,17 +84,26 @@ done
   all read the active configuration from there, so rotating a credential needs no redeploy.
   `SLACK_WEBHOOK` stays a GitHub secret because CI posts deploy results before any app is up.
 
-## 3. One-time server setup (nginx + TLS)
+## 3. Server setup (nginx + TLS)
 
-This is the only manual step on the server:
+Run the **Provision nginx & TLS** workflow from the Actions tab and type `provision`
+in the confirm box. It copies `deploy/` to the server, runs `server-setup.sh`, then
+health-checks every portal domain.
+
+Run it whenever a new subdomain is added: the deploy workflow starts the new
+container but only ever copies the compose file, so nginx has no vhost for the new
+host and the domain answers nothing until this runs. It is kept manual because it
+rewrites nginx config and talks to Let's Encrypt, which rate-limits.
+
+The same thing by hand, if you have SSH:
 
 ```bash
 scp -r deploy root@148.135.136.107:/opt/exyconn-deploy
 ssh root@148.135.136.107 'bash /opt/exyconn-deploy/server-setup.sh'
 ```
 
-It backs up nginx, installs the five Exyconn vhosts, and runs certbot. It is **additive
-and idempotent** — safe to re-run.
+It backs up nginx, installs the vhosts, and runs certbot. It is **additive and
+idempotent** — safe to re-run, and certbot skips any certificate still valid.
 
 > ⚠️ **This box also hosts duncit** (`duncit.com` + ~10 `duncit-staging-*` containers).
 > The script deliberately does **not** wipe `sites-enabled`; doing so would take duncit
