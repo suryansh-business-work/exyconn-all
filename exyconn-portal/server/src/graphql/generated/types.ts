@@ -544,6 +544,7 @@ export enum ContractType {
 }
 
 export type CreateUserInput = {
+  dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
   department?: InputMaybe<Scalars['String']['input']>;
   designation?: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
@@ -4228,6 +4229,7 @@ export type UpdateSettingsInput = {
 };
 
 export type UpdateUserInput = {
+  dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
   department?: InputMaybe<Scalars['String']['input']>;
   designation?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
@@ -4244,6 +4246,7 @@ export type User = {
   avatarUrl?: Maybe<Scalars['String']['output']>;
   blockReason?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
   department?: Maybe<Scalars['String']['output']>;
   designation?: Maybe<Scalars['String']['output']>;
   email: Scalars['String']['output'];
@@ -6459,6 +6462,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   avatarUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   blockReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  dateOfBirth?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   department?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   designation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

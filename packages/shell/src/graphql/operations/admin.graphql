@@ -11,6 +11,7 @@ query ListUsers {
     department
     designation
     joinDate
+  dateOfBirth
     employmentStatus
   }
 }
@@ -30,6 +31,7 @@ query ListUsersPaged($input: TableQueryInput!) {
       department
       designation
       joinDate
+  dateOfBirth
       employmentStatus
     }
   }
@@ -65,6 +67,7 @@ query GetUser($id: ID!) {
     department
     designation
     joinDate
+  dateOfBirth
     employmentStatus
     createdAt
     updatedAt

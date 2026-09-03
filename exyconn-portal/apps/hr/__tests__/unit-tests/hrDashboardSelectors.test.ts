@@ -5,6 +5,7 @@ import {
   newJoiners,
   activeSplit,
   upcomingAnniversaries,
+  upcomingBirthdays,
 } from '../../src/pages/hr/dashboard/hrDashboard.selectors';
 
 const REF = new Date('2026-03-15T10:00:00.000Z');
@@ -122,5 +123,37 @@ describe('upcomingAnniversaries', () => {
     expect(out).toHaveLength(1);
     expect(out[0].daysAway).toBe(10);
     expect(out[0].years).toBe(7);
+  });
+});
+
+describe('upcomingBirthdays', () => {
+  const today = new Date('2026-03-15T00:00:00.000Z');
+
+  it('uses only day and month, and ignores the birth year', () => {
+    const rows = [
+      { id: 'a', name: 'Asha', dateOfBirth: '1990-03-18T00:00:00.000Z', isActive: true },
+      { id: 'b', name: 'Bilal', dateOfBirth: '2001-03-16T00:00:00.000Z', isActive: true },
+    ];
+    expect(upcomingBirthdays(rows, today).map((b) => [b.user.id, b.daysAway])).toEqual([
+      ['b', 1],
+      ['a', 3],
+    ]);
+  });
+
+  it('includes a birthday today and skips one that has just passed', () => {
+    const rows = [
+      { id: 'now', name: 'Now', dateOfBirth: '1995-03-15T00:00:00.000Z', isActive: true },
+      { id: 'past', name: 'Past', dateOfBirth: '1995-03-14T00:00:00.000Z', isActive: true },
+    ];
+    expect(upcomingBirthdays(rows, today).map((b) => b.user.id)).toEqual(['now']);
+  });
+
+  it('skips inactive people and missing dates', () => {
+    const rows = [
+      { id: 'x', name: 'X', dateOfBirth: '1990-03-16T00:00:00.000Z', isActive: false },
+      { id: 'y', name: 'Y', dateOfBirth: null, isActive: true },
+      { id: 'z', name: 'Z', isActive: true },
+    ];
+    expect(upcomingBirthdays(rows, today)).toEqual([]);
   });
 });

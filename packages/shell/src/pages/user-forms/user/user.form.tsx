@@ -41,6 +41,7 @@ const schema = z.object({
   department: z.string().trim().min(1, 'Department is required'),
   designation: z.string().trim().min(1, 'Designation is required'),
   joinDate: z.string().min(1, 'Join date is required'),
+  dateOfBirth: z.string(),
   employmentStatus: z.nativeEnum(EmploymentStatus),
 });
 type Values = z.infer<typeof schema>;
@@ -54,6 +55,7 @@ const toInitial = (row: UserRow | null): Values => ({
   department: row?.department ?? '',
   designation: row?.designation ?? '',
   joinDate: row?.joinDate ?? '',
+  dateOfBirth: row?.dateOfBirth ?? '',
   employmentStatus: row?.employmentStatus ?? EmploymentStatus.Active,
 });
 
@@ -165,6 +167,7 @@ export function UserForm({ initial, onDone, onCancel, onCreated }: UserFormProps
         helperText={positionOptions.length ? undefined : 'Add positions in HR → Positions first.'}
       />
       <RhfDatePicker name="joinDate" label="Join date" />
+      <RhfDatePicker name="dateOfBirth" label="Date of birth (optional)" />
       <RhfSelect
         name="employmentStatus"
         label="Employment status"
