@@ -622,6 +622,85 @@ export type CompanyBenefitInput = {
   title: Scalars['String']['input'];
 };
 
+/** A cost the company incurred — a vendor bill, rent, a subscription. */
+export type CompanyExpense = {
+  __typename?: 'CompanyExpense';
+  amount: Scalars['Float']['output'];
+  category: ExpenseCategory;
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  dueDate: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  /** When the cost was incurred. Profit is measured on this date. */
+  incurredOn: Scalars['DateTime']['output'];
+  /** When the money actually left. Cash flow is measured on this date. Null until paid. */
+  paidOn?: Maybe<Scalars['DateTime']['output']>;
+  recordedBy: Scalars['String']['output'];
+  reference: Scalars['String']['output'];
+  status: ExpenseState;
+  updatedAt: Scalars['DateTime']['output'];
+  vendor: Scalars['String']['output'];
+};
+
+export type CompanyExpenseInput = {
+  amount: Scalars['Float']['input'];
+  category: ExpenseCategory;
+  currency: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  dueDate: Scalars['DateTime']['input'];
+  incurredOn: Scalars['DateTime']['input'];
+  reference?: InputMaybe<Scalars['String']['input']>;
+  vendor: Scalars['String']['input'];
+};
+
+export type CompanyExpensePage = {
+  __typename?: 'CompanyExpensePage';
+  rows: Array<CompanyExpense>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/**
+ * The company's finances over a period.
+ *
+ * Two different questions live here and they are answered separately on purpose. The
+ * ACCRUAL figures (invoiced, expenses, payroll, reimbursements, profit) say what the period
+ * earned and what it cost, whenever the money happens to move. The CASH figures (collected,
+ * paidOut, netCash) say what actually moved. A dashboard that shows one number called
+ * "revenue" without saying which of the two it is invites an argument nobody can settle.
+ */
+export type CompanyFinance = {
+  __typename?: 'CompanyFinance';
+  byCategory: Array<FinanceBucket>;
+  /** Cash: customer payments received in the period. */
+  collected: Scalars['Float']['output'];
+  /** Accrual: company bills incurred in the period. */
+  expenses: Scalars['Float']['output'];
+  from: Scalars['DateTime']['output'];
+  /** Accrual: invoices issued in the period. */
+  invoiced: Scalars['Float']['output'];
+  months: Array<FinanceMonth>;
+  /** collected - paidOut. */
+  netCash: Scalars['Float']['output'];
+  /** Owed by the company right now, regardless of the period. */
+  outstandingPayable: Scalars['Float']['output'];
+  /** Owed to the company right now, regardless of the period. */
+  outstandingReceivable: Scalars['Float']['output'];
+  /** The part of outstandingPayable already past its due date. */
+  overduePayable: Scalars['Float']['output'];
+  /** Cash: bills settled in the period. */
+  paidOut: Scalars['Float']['output'];
+  /** Accrual: payslips issued in the period. */
+  payroll: Scalars['Float']['output'];
+  /** invoiced - totalCost. */
+  profit: Scalars['Float']['output'];
+  /** Accrual: employee expense claims incurred in the period, once approved. */
+  reimbursements: Scalars['Float']['output'];
+  to: Scalars['DateTime']['output'];
+  /** expenses + payroll + reimbursements. */
+  totalCost: Scalars['Float']['output'];
+};
+
 export type CompanyInput = {
   domain: Scalars['String']['input'];
   industry?: InputMaybe<Scalars['String']['input']>;
@@ -1010,6 +1089,19 @@ export enum ExitStage {
   Withdrawn = 'WITHDRAWN'
 }
 
+export enum ExpenseCategory {
+  Hardware = 'HARDWARE',
+  Marketing = 'MARKETING',
+  Other = 'OTHER',
+  Rent = 'RENT',
+  Salaries = 'SALARIES',
+  Services = 'SERVICES',
+  Software = 'SOFTWARE',
+  Taxes = 'TAXES',
+  Travel = 'TRAVEL',
+  Utilities = 'UTILITIES'
+}
+
 export type ExpenseClaim = {
   __typename?: 'ExpenseClaim';
   amount: Scalars['Float']['output'];
@@ -1044,6 +1136,11 @@ export type ExpenseClaimPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export enum ExpenseState {
+  Paid = 'PAID',
+  Unpaid = 'UNPAID'
+}
+
 export enum ExpenseStatus {
   Approved = 'APPROVED',
   Paid = 'PAID',
@@ -1058,6 +1155,25 @@ export enum FilterOp {
   Lt = 'LT',
   StartsWith = 'STARTS_WITH'
 }
+
+/** One slice of spend, for the category breakdown. */
+export type FinanceBucket = {
+  __typename?: 'FinanceBucket';
+  amount: Scalars['Float']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
+/** One month of the trend. Revenue and cost are accrual figures, not cash. */
+export type FinanceMonth = {
+  __typename?: 'FinanceMonth';
+  cost: Scalars['Float']['output'];
+  label: Scalars['String']['output'];
+  /** YYYY-MM. */
+  month: Scalars['String']['output'];
+  profit: Scalars['Float']['output'];
+  revenue: Scalars['Float']['output'];
+};
 
 export type Gig = {
   __typename?: 'Gig';
@@ -1665,6 +1781,7 @@ export type Mutation = {
   createClient: Client;
   createColumn: BoardColumn;
   createCompany: Company;
+  createCompanyExpense: CompanyExpense;
   createContact: Contact;
   createContract: Contract;
   createDeal: Deal;
@@ -1734,6 +1851,7 @@ export type Mutation = {
   deleteClient: Scalars['Boolean']['output'];
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
+  deleteCompanyExpense: Scalars['Boolean']['output'];
   deleteContact: Scalars['Boolean']['output'];
   deleteContract: Scalars['Boolean']['output'];
   deleteDeal: Scalars['Boolean']['output'];
@@ -1783,6 +1901,8 @@ export type Mutation = {
   markAllNotificationsRead: Scalars['Int']['output'];
   /** Self-service: mark today's (or a given day's) attendance — upserts per day. */
   markAttendance: Attendance;
+  /** Settles a bill: records when the money left and moves it to PAID. */
+  markExpensePaid: CompanyExpense;
   markNotificationRead: Scalars['Boolean']['output'];
   /** Marks every GENERATED slip of the month PAID. Returns how many changed. */
   markPayrollPaid: Scalars['Int']['output'];
@@ -1874,6 +1994,7 @@ export type Mutation = {
   updateCaseStudy: CaseStudy;
   updateClient: Client;
   updateCompany: Company;
+  updateCompanyExpense: CompanyExpense;
   updateContact: Contact;
   updateContract: Contract;
   updateDeal: Deal;
@@ -2020,6 +2141,11 @@ export type MutationCreateColumnArgs = {
 
 export type MutationCreateCompanyArgs = {
   input: CompanyInput;
+};
+
+
+export type MutationCreateCompanyExpenseArgs = {
+  input: CompanyExpenseInput;
 };
 
 
@@ -2321,6 +2447,11 @@ export type MutationDeleteCompanyArgs = {
 };
 
 
+export type MutationDeleteCompanyExpenseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteContactArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2554,6 +2685,12 @@ export type MutationLoginArgs = {
 
 export type MutationMarkAttendanceArgs = {
   input: MarkAttendanceInput;
+};
+
+
+export type MutationMarkExpensePaidArgs = {
+  id: Scalars['ID']['input'];
+  paidOn?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
 
@@ -2845,6 +2982,12 @@ export type MutationUpdateClientArgs = {
 export type MutationUpdateCompanyArgs = {
   id: Scalars['ID']['input'];
   input: CompanyInput;
+};
+
+
+export type MutationUpdateCompanyExpenseArgs = {
+  id: Scalars['ID']['input'];
+  input: CompanyExpenseInput;
 };
 
 
@@ -3552,6 +3695,11 @@ export type Query = {
   /** HR/ADMIN: a specific employee's attendance records. */
   attendanceByEmployee: Array<Attendance>;
   branding: Branding;
+  /**
+   * The company's finances between two dates. Both bounds are inclusive of the days they
+   * fall on, as the caller sends them.
+   */
+  companyFinance: CompanyFinance;
   getActivity: Activity;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
@@ -3563,6 +3711,7 @@ export type Query = {
   getCaseStudy: CaseStudy;
   getClient: Client;
   getCompany: Company;
+  getCompanyExpense: CompanyExpense;
   getContact: Contact;
   getContract: Contract;
   getDeal: Deal;
@@ -3645,6 +3794,9 @@ export type Query = {
   listCompanies: Array<Company>;
   listCompaniesPaged: CompanyPage;
   listCompaniesStats: TableStats;
+  listCompanyExpenses: Array<CompanyExpense>;
+  listCompanyExpensesPaged: CompanyExpensePage;
+  listCompanyExpensesStats: TableStats;
   listContacts: Array<Contact>;
   listContactsPaged: ContactPage;
   listContactsStats: TableStats;
@@ -3845,6 +3997,12 @@ export type QueryAttendanceByEmployeeArgs = {
 };
 
 
+export type QueryCompanyFinanceArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryGetActivityArgs = {
   id: Scalars['ID']['input'];
 };
@@ -3896,6 +4054,11 @@ export type QueryGetClientArgs = {
 
 
 export type QueryGetCompanyArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetCompanyExpenseArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4156,6 +4319,11 @@ export type QueryListClientsPagedArgs = {
 
 
 export type QueryListCompaniesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListCompanyExpensesPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -5578,6 +5746,10 @@ export type ResolversTypes = ResolversObject<{
   Company: ResolverTypeWrapper<Company>;
   CompanyBenefit: ResolverTypeWrapper<CompanyBenefit>;
   CompanyBenefitInput: CompanyBenefitInput;
+  CompanyExpense: ResolverTypeWrapper<CompanyExpense>;
+  CompanyExpenseInput: CompanyExpenseInput;
+  CompanyExpensePage: ResolverTypeWrapper<CompanyExpensePage>;
+  CompanyFinance: ResolverTypeWrapper<CompanyFinance>;
   CompanyInput: CompanyInput;
   CompanyPage: ResolverTypeWrapper<CompanyPage>;
   CompanySocialLinks: ResolverTypeWrapper<CompanySocialLinks>;
@@ -5619,11 +5791,15 @@ export type ResolversTypes = ResolversObject<{
   ExitRecordInput: ExitRecordInput;
   ExitRecordPage: ResolverTypeWrapper<ExitRecordPage>;
   ExitStage: ExitStage;
+  ExpenseCategory: ExpenseCategory;
   ExpenseClaim: ResolverTypeWrapper<ExpenseClaim>;
   ExpenseClaimInput: ExpenseClaimInput;
   ExpenseClaimPage: ResolverTypeWrapper<ExpenseClaimPage>;
+  ExpenseState: ExpenseState;
   ExpenseStatus: ExpenseStatus;
   FilterOp: FilterOp;
+  FinanceBucket: ResolverTypeWrapper<FinanceBucket>;
+  FinanceMonth: ResolverTypeWrapper<FinanceMonth>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Gig: ResolverTypeWrapper<Gig>;
   GigInput: GigInput;
@@ -5874,6 +6050,10 @@ export type ResolversParentTypes = ResolversObject<{
   Company: Company;
   CompanyBenefit: CompanyBenefit;
   CompanyBenefitInput: CompanyBenefitInput;
+  CompanyExpense: CompanyExpense;
+  CompanyExpenseInput: CompanyExpenseInput;
+  CompanyExpensePage: CompanyExpensePage;
+  CompanyFinance: CompanyFinance;
   CompanyInput: CompanyInput;
   CompanyPage: CompanyPage;
   CompanySocialLinks: CompanySocialLinks;
@@ -5908,6 +6088,8 @@ export type ResolversParentTypes = ResolversObject<{
   ExpenseClaim: ExpenseClaim;
   ExpenseClaimInput: ExpenseClaimInput;
   ExpenseClaimPage: ExpenseClaimPage;
+  FinanceBucket: FinanceBucket;
+  FinanceMonth: FinanceMonth;
   Float: Scalars['Float']['output'];
   Gig: Gig;
   GigInput: GigInput;
@@ -6405,6 +6587,50 @@ export type CompanyBenefitResolvers<ContextType = GraphQLContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CompanyExpenseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CompanyExpense'] = ResolversParentTypes['CompanyExpense']> = ResolversObject<{
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['ExpenseCategory'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dueDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  incurredOn?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  paidOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  recordedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ExpenseState'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  vendor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CompanyExpensePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CompanyExpensePage'] = ResolversParentTypes['CompanyExpensePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['CompanyExpense']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CompanyFinanceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CompanyFinance'] = ResolversParentTypes['CompanyFinance']> = ResolversObject<{
+  byCategory?: Resolver<Array<ResolversTypes['FinanceBucket']>, ParentType, ContextType>;
+  collected?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  expenses?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  from?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  invoiced?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  months?: Resolver<Array<ResolversTypes['FinanceMonth']>, ParentType, ContextType>;
+  netCash?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  outstandingPayable?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  outstandingReceivable?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  overduePayable?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  paidOut?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  payroll?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  profit?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  reimbursements?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  to?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  totalCost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type CompanyPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CompanyPage'] = ResolversParentTypes['CompanyPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Company']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -6615,6 +6841,22 @@ export type ExpenseClaimResolvers<ContextType = GraphQLContext, ParentType exten
 export type ExpenseClaimPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ExpenseClaimPage'] = ResolversParentTypes['ExpenseClaimPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['ExpenseClaim']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FinanceBucketResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['FinanceBucket'] = ResolversParentTypes['FinanceBucket']> = ResolversObject<{
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FinanceMonthResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['FinanceMonth'] = ResolversParentTypes['FinanceMonth']> = ResolversObject<{
+  cost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  month?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  profit?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  revenue?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6973,6 +7215,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationCreateClientArgs, 'input'>>;
   createColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationCreateColumnArgs, 'name' | 'projectId'>>;
   createCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationCreateCompanyArgs, 'input'>>;
+  createCompanyExpense?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<MutationCreateCompanyExpenseArgs, 'input'>>;
   createContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationCreateContactArgs, 'input'>>;
   createContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationCreateContractArgs, 'input'>>;
   createDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationCreateDealArgs, 'input'>>;
@@ -7032,6 +7275,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientArgs, 'id'>>;
   deleteColumn?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteColumnArgs, 'id'>>;
   deleteCompany?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCompanyArgs, 'id'>>;
+  deleteCompanyExpense?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCompanyExpenseArgs, 'id'>>;
   deleteContact?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteContactArgs, 'id'>>;
   deleteContract?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteContractArgs, 'id'>>;
   deleteDeal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDealArgs, 'id'>>;
@@ -7080,6 +7324,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   login?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   markAllNotificationsRead?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   markAttendance?: Resolver<ResolversTypes['Attendance'], ParentType, ContextType, RequireFields<MutationMarkAttendanceArgs, 'input'>>;
+  markExpensePaid?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<MutationMarkExpensePaidArgs, 'id'>>;
   markNotificationRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMarkNotificationReadArgs, 'id'>>;
   markPayrollPaid?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationMarkPayrollPaidArgs, 'month' | 'year'>>;
   moveTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveTaskArgs, 'id' | 'toColumnId' | 'toIndex'>>;
@@ -7132,6 +7377,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationUpdateCaseStudyArgs, 'id' | 'input'>>;
   updateClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationUpdateClientArgs, 'id' | 'input'>>;
   updateCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationUpdateCompanyArgs, 'id' | 'input'>>;
+  updateCompanyExpense?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<MutationUpdateCompanyExpenseArgs, 'id' | 'input'>>;
   updateContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationUpdateContactArgs, 'id' | 'input'>>;
   updateContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationUpdateContractArgs, 'id' | 'input'>>;
   updateDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationUpdateDealArgs, 'id' | 'input'>>;
@@ -7394,6 +7640,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   appSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType>;
   attendanceByEmployee?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType, RequireFields<QueryAttendanceByEmployeeArgs, 'employeeId'>>;
   branding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
+  companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
   getActivity?: Resolver<ResolversTypes['Activity'], ParentType, ContextType, RequireFields<QueryGetActivityArgs, 'id'>>;
   getAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<QueryGetAiJobArgs, 'id'>>;
   getAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<QueryGetAnnouncementArgs, 'id'>>;
@@ -7405,6 +7652,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<QueryGetCaseStudyArgs, 'id'>>;
   getClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<QueryGetClientArgs, 'id'>>;
   getCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<QueryGetCompanyArgs, 'id'>>;
+  getCompanyExpense?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<QueryGetCompanyExpenseArgs, 'id'>>;
   getContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<QueryGetContactArgs, 'id'>>;
   getContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<QueryGetContractArgs, 'id'>>;
   getDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<QueryGetDealArgs, 'id'>>;
@@ -7482,6 +7730,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listCompanies?: Resolver<Array<ResolversTypes['Company']>, ParentType, ContextType>;
   listCompaniesPaged?: Resolver<ResolversTypes['CompanyPage'], ParentType, ContextType, RequireFields<QueryListCompaniesPagedArgs, 'input'>>;
   listCompaniesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listCompanyExpenses?: Resolver<Array<ResolversTypes['CompanyExpense']>, ParentType, ContextType>;
+  listCompanyExpensesPaged?: Resolver<ResolversTypes['CompanyExpensePage'], ParentType, ContextType, RequireFields<QueryListCompanyExpensesPagedArgs, 'input'>>;
+  listCompanyExpensesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listContacts?: Resolver<Array<ResolversTypes['Contact']>, ParentType, ContextType>;
   listContactsPaged?: Resolver<ResolversTypes['ContactPage'], ParentType, ContextType, RequireFields<QueryListContactsPagedArgs, 'input'>>;
   listContactsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -8280,6 +8531,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ClientPage?: ClientPageResolvers<ContextType>;
   Company?: CompanyResolvers<ContextType>;
   CompanyBenefit?: CompanyBenefitResolvers<ContextType>;
+  CompanyExpense?: CompanyExpenseResolvers<ContextType>;
+  CompanyExpensePage?: CompanyExpensePageResolvers<ContextType>;
+  CompanyFinance?: CompanyFinanceResolvers<ContextType>;
   CompanyPage?: CompanyPageResolvers<ContextType>;
   CompanySocialLinks?: CompanySocialLinksResolvers<ContextType>;
   Contact?: ContactResolvers<ContextType>;
@@ -8301,6 +8555,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ExitRecordPage?: ExitRecordPageResolvers<ContextType>;
   ExpenseClaim?: ExpenseClaimResolvers<ContextType>;
   ExpenseClaimPage?: ExpenseClaimPageResolvers<ContextType>;
+  FinanceBucket?: FinanceBucketResolvers<ContextType>;
+  FinanceMonth?: FinanceMonthResolvers<ContextType>;
   Gig?: GigResolvers<ContextType>;
   GigPage?: GigPageResolvers<ContextType>;
   GithubConfig?: GithubConfigResolvers<ContextType>;

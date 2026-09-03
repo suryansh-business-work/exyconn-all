@@ -9,6 +9,8 @@ import {
   financeResolvers,
   financeBillingTypeDefs,
   financeBillingResolvers,
+  financeCompanyTypeDefs,
+  financeCompanyResolvers,
 } from '../modules/finance';
 import { bugsTypeDefs, bugsResolvers } from '../modules/bugs';
 import { clientsTypeDefs, clientsResolvers } from '../modules/clients';
@@ -79,6 +81,7 @@ export const typeDefs = [
   adminTypeDefs,
   financeTypeDefs,
   financeBillingTypeDefs,
+  financeCompanyTypeDefs,
   bugsTypeDefs,
   clientsTypeDefs,
   assetsTypeDefs,
@@ -120,6 +123,7 @@ export const resolvers = mergeResolvers([
   adminResolvers,
   financeResolvers,
   financeBillingResolvers,
+  financeCompanyResolvers,
   bugsResolvers,
   clientsResolvers,
   assetsResolvers,
