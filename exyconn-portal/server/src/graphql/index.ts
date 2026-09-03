@@ -23,6 +23,7 @@ import {
   boardResolvers,
 } from '../modules/projects';
 import { techTypeDefs, techResolvers } from '../modules/tech';
+import { statusTypeDefs, statusResolvers } from '../modules/status';
 // The website module splits its SDL across one file per content entity, so it exports an array.
 import { websiteTypeDefs, websiteResolvers } from '../modules/website';
 import { trackerTypeDefs, trackerResolvers } from '../modules/tracker';
@@ -101,6 +102,7 @@ export const typeDefs = [
   exitTypeDefs,
   payrollTypeDefs,
   permissionsTypeDefs,
+  statusTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -138,4 +140,5 @@ export const resolvers = mergeResolvers([
   exitResolvers,
   payrollResolvers,
   permissionsResolvers,
+  statusResolvers,
 ]);

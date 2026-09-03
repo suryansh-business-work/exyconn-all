@@ -25,6 +25,7 @@ is built as a downloadable Windows installer artifact by the same workflow.
 | Portal · Time Tracker | 4032 | tracker.exyconn.com | `exyconn-portal-tracker` |
 | Portal · Tech | 4033 | tech.exyconn.com | `exyconn-portal-tech` |
 | Portal · IT | 4034 | it.exyconn.com | `exyconn-portal-it` |
+| Status page (public, no sign-in) | 4035 | status.exyconn.com | `exyconn-portal-status` |
 | Portal API | 4004 | portal-server.exyconn.com | `exyconn-portal-server` |
 | Tracker (desktop) | — | — | Windows installer artifact |
 

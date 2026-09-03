@@ -94,5 +94,11 @@
     "port": 4034,
     "title": "IT · Exyconn Track",
     "description": "Exyconn Track — IT module."
+  },
+  "status": {
+    "subdomain": "status",
+    "port": 4035,
+    "title": "Exyconn Status",
+    "description": "Live availability of every Exyconn service — portals, website, API and the desktop tracker."
   }
 }

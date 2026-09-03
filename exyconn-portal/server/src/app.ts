@@ -15,6 +15,9 @@ export async function createApp(): Promise<Express> {
   await apollo.start();
 
   const app = express();
+  // One proxy hop (the host nginx), so `req.ip` is the real caller rather than 127.0.0.1 —
+  // the public status-page mutation rate-limits on it.
+  app.set('trust proxy', 1);
   app.use(cors({ origin: env.corsOrigins, credentials: true }));
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok' });

@@ -39,6 +39,12 @@ Not portal apps, but part of the same deployment:
 | Tools UI | https://tools.exyconn.com | 4001 |
 | Tools API | https://tools-api.exyconn.com | 4002 |
 | Portal GraphQL API | https://portal-server.exyconn.com/graphql | 1002 |
+| Status page (public, no sign-in) | https://status.exyconn.com | 4035 |
+
+The status page is built from the same packages but is deliberately **not** a portal app:
+it has no login, no role and no portal chrome, because an outage is exactly when nobody can
+sign in. Its catalogue and the problems reported on it are managed from the Tech portal
+(**Status Monitors** and **Problem Reports**).
 
 `ADMIN` opens every portal; any other role opens the launcher plus the portals its role
 covers. A user who reaches a portal their roles do not cover is redirected to the launcher.

@@ -62,7 +62,7 @@ jobs:
             "https://products.exyconn.com" "https://legal.exyconn.com" "https://hr.exyconn.com"
             "https://marketing.exyconn.com" "https://projects.exyconn.com" "https://ai.exyconn.com"
             "https://website.exyconn.com" "https://tracker.exyconn.com" "https://tech.exyconn.com"
-            "https://it.exyconn.com"
+            "https://it.exyconn.com" "https://status.exyconn.com"
           )
           fail=0
           for url in "${urls[@]}"; do
