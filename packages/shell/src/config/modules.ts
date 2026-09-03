@@ -24,6 +24,11 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import PersonIcon from '@mui/icons-material/Person';
 import ApartmentIcon from '@mui/icons-material/Apartment';
+import PlaceIcon from '@mui/icons-material/Place';
+import GroupsIcon2 from '@mui/icons-material/Diversity3';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import LogoutIcon from '@mui/icons-material/Logout';
 import WorkIcon from '@mui/icons-material/Work';
 import DescriptionIcon from '@mui/icons-material/Description';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
@@ -246,6 +251,30 @@ export const MODULES: ModuleDefinition[] = [
         icon: ApartmentIcon,
       },
       { key: 'hr-positions', label: 'Positions', path: '/hr/positions', icon: WorkIcon },
+      { key: 'hr-locations', label: 'Locations', path: '/hr/locations', icon: PlaceIcon },
+      { key: 'hr-teams', label: 'Teams', path: '/hr/teams', icon: GroupsIcon2 },
+      { key: 'hr-grades', label: 'Grades', path: '/hr/grades', icon: MilitaryTechIcon },
+      {
+        key: 'hr-employment-types',
+        label: 'Employment Types',
+        path: '/hr/employment-types',
+        icon: BadgeIcon,
+      },
+      { key: 'hr-shifts', label: 'Shifts', path: '/hr/shifts', icon: ScheduleIcon },
+      { key: 'hr-exits', label: 'Exits', path: '/hr/exits', icon: LogoutIcon },
+      { key: 'hr-holidays', label: 'Holidays', path: '/hr/holidays', icon: CelebrationIcon },
+      {
+        key: 'hr-leave-policies',
+        label: 'Leave Policies',
+        path: '/hr/leave-policies',
+        icon: PolicyIcon,
+      },
+      {
+        key: 'hr-leave-balances',
+        label: 'Leave Balances',
+        path: '/hr/leave-balances',
+        icon: EventAvailableIcon,
+      },
       { key: 'hr-requests', label: 'Requests', path: '/hr/requests', icon: AssignmentIcon },
       { key: 'hr-goals', label: 'Goals', path: '/hr/goals', icon: TrackChangesIcon },
       { key: 'hr-performance', label: 'Performance', path: '/hr/performance', icon: StarIcon },

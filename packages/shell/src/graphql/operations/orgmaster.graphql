@@ -1,0 +1,311 @@
+# Organisation master data and offboarding.
+
+query ListLocationsPaged($input: TableQueryInput!) {
+  listLocationsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      code
+      city
+      state
+      country
+      timezone
+      address
+      active
+    }
+  }
+}
+
+query ListLocationsStats {
+  listLocationsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateLocation($input: LocationInput!) {
+  createLocation(input: $input) {
+    id
+  }
+}
+
+mutation UpdateLocation($id: ID!, $input: LocationInput!) {
+  updateLocation(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteLocation($id: ID!) {
+  deleteLocation(id: $id)
+}
+
+query ListTeamsPaged($input: TableQueryInput!) {
+  listTeamsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      department
+      leadEmployeeId
+      description
+      active
+    }
+  }
+}
+
+query ListTeamsStats {
+  listTeamsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateTeam($input: TeamInput!) {
+  createTeam(input: $input) {
+    id
+  }
+}
+
+mutation UpdateTeam($id: ID!, $input: TeamInput!) {
+  updateTeam(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteTeam($id: ID!) {
+  deleteTeam(id: $id)
+}
+
+query ListGradesPaged($input: TableQueryInput!) {
+  listGradesPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      code
+      level
+      minSalary
+      maxSalary
+      active
+    }
+  }
+}
+
+query ListGradesStats {
+  listGradesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateGrade($input: GradeInput!) {
+  createGrade(input: $input) {
+    id
+  }
+}
+
+mutation UpdateGrade($id: ID!, $input: GradeInput!) {
+  updateGrade(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteGrade($id: ID!) {
+  deleteGrade(id: $id)
+}
+
+query ListEmploymentTypesPaged($input: TableQueryInput!) {
+  listEmploymentTypesPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      code
+      description
+      payrollEligible
+      active
+    }
+  }
+}
+
+query ListEmploymentTypesStats {
+  listEmploymentTypesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateEmploymentType($input: EmploymentTypeInput!) {
+  createEmploymentType(input: $input) {
+    id
+  }
+}
+
+mutation UpdateEmploymentType($id: ID!, $input: EmploymentTypeInput!) {
+  updateEmploymentType(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteEmploymentType($id: ID!) {
+  deleteEmploymentType(id: $id)
+}
+
+query ListShiftsPaged($input: TableQueryInput!) {
+  listShiftsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      code
+      startTime
+      endTime
+      breakMinutes
+      graceMinutes
+      active
+    }
+  }
+}
+
+query ListShiftsStats {
+  listShiftsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateShift($input: ShiftInput!) {
+  createShift(input: $input) {
+    id
+  }
+}
+
+mutation UpdateShift($id: ID!, $input: ShiftInput!) {
+  updateShift(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteShift($id: ID!) {
+  deleteShift(id: $id)
+}
+
+query ListExitRecordsPaged($input: TableQueryInput!) {
+  listExitRecordsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      resignationDate
+      lastWorkingDate
+      noticePeriodDays
+      reason
+      stage
+      assetsReturned
+      knowledgeTransferDone
+      exitInterviewNotes
+      finalSettlementAmount
+      documentsIssued
+      daysToLastWorkingDay
+    }
+  }
+}
+
+query ListExitRecordsStats {
+  listExitRecordsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateExitRecord($input: ExitRecordInput!) {
+  createExitRecord(input: $input) {
+    id
+  }
+}
+
+mutation UpdateExitRecord($id: ID!, $input: ExitRecordInput!) {
+  updateExitRecord(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteExitRecord($id: ID!) {
+  deleteExitRecord(id: $id)
+}
+
+query MyExitRecord {
+  myExitRecord {
+    id
+    resignationDate
+    lastWorkingDate
+    noticePeriodDays
+    reason
+    stage
+    assetsReturned
+    knowledgeTransferDone
+    documentsIssued
+    daysToLastWorkingDay
+  }
+}

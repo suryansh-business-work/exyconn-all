@@ -1,0 +1,166 @@
+# HR master data: holidays, leave policies and leave balances.
+
+query ListHolidaysPaged($input: TableQueryInput!) {
+  listHolidaysPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      name
+      date
+      type
+      description
+    }
+  }
+}
+
+query ListHolidaysStats {
+  listHolidaysStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateHoliday($input: HolidayInput!) {
+  createHoliday(input: $input) {
+    id
+  }
+}
+
+mutation UpdateHoliday($id: ID!, $input: HolidayInput!) {
+  updateHoliday(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteHoliday($id: ID!) {
+  deleteHoliday(id: $id)
+}
+
+fragment LeavePolicyFields on LeavePolicy {
+  id
+  name
+  code
+  annualQuota
+  paid
+  halfDayAllowed
+  carryForwardCap
+  active
+}
+
+query ActiveLeavePolicies {
+  activeLeavePolicies {
+    ...LeavePolicyFields
+  }
+}
+
+query ListLeavePoliciesPaged($input: TableQueryInput!) {
+  listLeavePoliciesPaged(input: $input) {
+    totalCount
+    rows {
+      ...LeavePolicyFields
+    }
+  }
+}
+
+query ListLeavePoliciesStats {
+  listLeavePoliciesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateLeavePolicy($input: LeavePolicyInput!) {
+  createLeavePolicy(input: $input) {
+    id
+  }
+}
+
+mutation UpdateLeavePolicy($id: ID!, $input: LeavePolicyInput!) {
+  updateLeavePolicy(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteLeavePolicy($id: ID!) {
+  deleteLeavePolicy(id: $id)
+}
+
+fragment LeaveBalanceFields on LeaveBalance {
+  id
+  employeeId
+  leaveTypeCode
+  year
+  allocated
+  carriedForward
+  used
+  adjustment
+  available
+}
+
+query MyLeaveBalances {
+  myLeaveBalances {
+    ...LeaveBalanceFields
+  }
+}
+
+query ListLeaveBalancesPaged($input: TableQueryInput!) {
+  listLeaveBalancesPaged(input: $input) {
+    totalCount
+    rows {
+      ...LeaveBalanceFields
+    }
+  }
+}
+
+query ListLeaveBalancesStats {
+  listLeaveBalancesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateLeaveBalance($input: LeaveBalanceInput!) {
+  createLeaveBalance(input: $input) {
+    id
+  }
+}
+
+mutation UpdateLeaveBalance($id: ID!, $input: LeaveBalanceInput!) {
+  updateLeaveBalance(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteLeaveBalance($id: ID!) {
+  deleteLeaveBalance(id: $id)
+}

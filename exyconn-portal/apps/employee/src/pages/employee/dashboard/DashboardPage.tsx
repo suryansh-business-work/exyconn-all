@@ -13,6 +13,7 @@ import {
   useMyPayrollQuery,
   useMySupportTicketsQuery,
   useActiveAnnouncementsQuery,
+  useMyLeaveBalancesQuery,
 } from '@exyconn/shell/graphql/generated';
 import { DashboardTiles } from './DashboardTiles';
 import { UpcomingHolidays } from './UpcomingHolidays';
@@ -45,6 +46,7 @@ export function DashboardPage() {
   const payroll = useMyPayrollQuery(policy);
   const tickets = useMySupportTicketsQuery(policy);
   const announcements = useActiveAnnouncementsQuery(policy);
+  const balances = useMyLeaveBalancesQuery(policy);
 
   const stats = useMemo<StatItem[]>(() => {
     const now = new Date();
@@ -57,6 +59,10 @@ export function DashboardPage() {
     const leaves = leaveSummary(leaveRows, now);
     const latest = latestSalarySlip(slipRows);
     const structure = payroll.data?.myPayroll;
+    // Real entitlement now that leave policies exist, instead of only what was taken.
+    const availableLeave = (balances.data?.myLeaveBalances ?? [])
+      .filter((b) => b.year === now.getFullYear())
+      .reduce((total, b) => total + b.available, 0);
     const openTickets = (tickets.data?.mySupportTickets ?? []).filter(
       (t) => t.status !== 'CLOSED',
     ).length;
@@ -66,10 +72,11 @@ export function DashboardPage() {
       { label: 'Present this month', value: String(month.PRESENT), accent: '#16a34a' },
       { label: 'Work from home', value: String(month.WFH), accent: '#0ea5e9' },
       { label: 'Leave pending', value: String(leaves.pending), accent: '#f97316' },
+      { label: 'Leave available', value: `${availableLeave} d`, accent: '#a855f7' },
       {
         label: `Leave taken ${now.getFullYear()}`,
         value: `${leaves.approvedDays} d`,
-        accent: '#a855f7',
+        accent: '#c084fc',
       },
       {
         label: 'Latest slip',
@@ -83,7 +90,7 @@ export function DashboardPage() {
       },
       { label: 'Open tickets', value: String(openTickets), accent: '#ef4444' },
     ];
-  }, [attendance.data, leave.data, slips.data, payroll.data, tickets.data]);
+  }, [attendance.data, leave.data, slips.data, payroll.data, tickets.data, balances.data]);
 
   const nextHolidays = useMemo(
     () => upcomingHolidays((holidays.data?.listHolidays ?? []) as HolidayRecord[], new Date()),

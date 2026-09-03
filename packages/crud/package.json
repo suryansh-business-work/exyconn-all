@@ -1,6 +1,6 @@
 {
   "name": "@exyconn/crud",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "description": "Server-paged CRUD building blocks: ag-grid column factories, a paged fetcher, the create/edit/delete resource hook and the module dashboard that composes them.",

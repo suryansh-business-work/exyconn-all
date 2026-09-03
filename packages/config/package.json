@@ -1,6 +1,6 @@
 {
   "name": "@exyconn/config",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "description": "Portal app registry plus the build, lint, format and test presets every portal package extends.",

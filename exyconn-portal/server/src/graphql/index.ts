@@ -35,22 +35,31 @@ import { expensesTypeDefs, expensesResolvers } from '../modules/expenses';
 import { benefitsTypeDefs, benefitsResolvers } from '../modules/benefits';
 import { trainingTypeDefs, trainingResolvers } from '../modules/training';
 import { documentsTypeDefs, documentsResolvers } from '../modules/documents';
+import { hrMasterTypeDefs, hrMasterResolvers } from '../modules/hrmaster';
+import { orgMasterTypeDefs, orgMasterResolvers } from '../modules/orgmaster';
+import { exitTypeDefs, exitResolvers } from '../modules/exit';
 import { JSONScalar } from './jsonScalar';
 
-type ResolverGroup = {
-  Query?: Record<string, unknown>;
-  Mutation?: Record<string, unknown>;
-};
+type ResolverGroup = Record<string, Record<string, unknown> | undefined>;
 
-/** Deep-merges the Query/Mutation maps from every module resolver group. */
+/**
+ * Merges every module's resolver group. Query and Mutation are flattened
+ * together; any other key is a type resolver map (computed fields), merged per
+ * type so two modules can both contribute fields to the same type.
+ */
 function mergeResolvers(groups: ResolverGroup[]) {
   const Query: Record<string, unknown> = {};
   const Mutation: Record<string, unknown> = {};
+  const types: Record<string, Record<string, unknown>> = {};
   for (const group of groups) {
     Object.assign(Query, group.Query ?? {});
     Object.assign(Mutation, group.Mutation ?? {});
+    for (const [name, fields] of Object.entries(group)) {
+      if (name === 'Query' || name === 'Mutation' || !fields) continue;
+      types[name] = { ...types[name], ...fields };
+    }
   }
-  return { DateTime: DateTimeResolver, JSON: JSONScalar, Query, Mutation };
+  return { DateTime: DateTimeResolver, JSON: JSONScalar, Query, Mutation, ...types };
 }
 
 export const typeDefs = [
@@ -83,6 +92,9 @@ export const typeDefs = [
   benefitsTypeDefs,
   trainingTypeDefs,
   documentsTypeDefs,
+  hrMasterTypeDefs,
+  orgMasterTypeDefs,
+  exitTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -114,4 +126,7 @@ export const resolvers = mergeResolvers([
   benefitsResolvers,
   trainingResolvers,
   documentsResolvers,
+  hrMasterResolvers,
+  orgMasterResolvers,
+  exitResolvers,
 ]);

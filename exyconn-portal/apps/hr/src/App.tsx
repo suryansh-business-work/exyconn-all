@@ -12,6 +12,15 @@ import {
 } from './pages/hr';
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
 import { AnnouncementsPage } from './pages/announcements';
+import { LocationsPage } from './pages/locations';
+import { TeamsPage } from './pages/teams';
+import { GradesPage } from './pages/grades';
+import { EmploymentTypesPage } from './pages/employment-types';
+import { ShiftsPage } from './pages/shifts';
+import { ExitsPage } from './pages/exits';
+import { HolidaysPage } from './pages/holidays';
+import { LeavePoliciesPage } from './pages/leave-policies';
+import { LeaveBalancesPage } from './pages/leave-balances';
 import { RequestsPage } from './pages/requests';
 import { GoalsPage } from './pages/goals';
 import { PerformancePage } from './pages/performance';
@@ -30,6 +39,15 @@ export function App() {
       <Route path="/hr/attendance" element={<AttendanceListPage />} />
       <Route path="/hr/departments" element={<DepartmentsPage />} />
       <Route path="/hr/announcements" element={<AnnouncementsPage />} />
+      <Route path="/hr/locations" element={<LocationsPage />} />
+      <Route path="/hr/teams" element={<TeamsPage />} />
+      <Route path="/hr/grades" element={<GradesPage />} />
+      <Route path="/hr/employment-types" element={<EmploymentTypesPage />} />
+      <Route path="/hr/shifts" element={<ShiftsPage />} />
+      <Route path="/hr/exits" element={<ExitsPage />} />
+      <Route path="/hr/holidays" element={<HolidaysPage />} />
+      <Route path="/hr/leave-policies" element={<LeavePoliciesPage />} />
+      <Route path="/hr/leave-balances" element={<LeaveBalancesPage />} />
       <Route path="/hr/requests" element={<RequestsPage />} />
       <Route path="/hr/goals" element={<GoalsPage />} />
       <Route path="/hr/performance" element={<PerformancePage />} />

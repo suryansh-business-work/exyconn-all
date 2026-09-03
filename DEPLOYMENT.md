@@ -106,6 +106,14 @@ Push to `main` (or run the workflow manually). `.github/workflows/deploy.yml` th
 4. builds the Tracker Windows installer (download it from the run's Artifacts),
 5. posts the result to Slack.
 
+## Branch flow
+
+Two long-lived branches. All work lands on `staging` first — push there and CI
+(`.github/workflows/ci.yml`) typechecks, lints and tests the workspace and the tools
+project. When staging is green and verified, merge `staging → main`; a push to `main` is
+what runs `deploy.yml` (build every image, push to Docker Hub, roll the server, verify every
+domain). Nothing is pushed straight to `main`.
+
 ## Local development
 
 `pnpm run:all` runs website (4000), portal hub (4003), portal API (4004). A module app is
