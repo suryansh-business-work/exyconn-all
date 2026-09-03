@@ -7,6 +7,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# One deploy at a time: two runs racing `compose down`/`up` on the same host can
+# fight over container names and leave a half-swapped stack. Queue instead of
+# cancelling — a cancelled deploy would abandon the server mid-rollout.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 env:
   REGISTRY: docker.io
   OWNER: ${{ secrets.DOCKERHUB_USERNAME }}
