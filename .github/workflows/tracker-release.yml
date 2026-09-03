@@ -46,8 +46,12 @@ jobs:
             {"os":"macos-latest","key":"macos","label":"macOS","script":"package:mac","glob":"*.dmg"},
             {"os":"ubuntu-latest","key":"linux","label":"Linux","script":"package:linux","glob":"*.AppImage"}
           ]'
-          chosen=$(jq -c --arg want "$PLATFORMS" \
-            '[.[] | select(($want | split(",") | map(gsub("^\\s+|\\s+$";"")) ) | index(.key))]' <<<"$all")
+          # `.key` has to be bound before the lookup: inside `index(...)` the input is
+          # already the wanted-keys array, so a bare `.key` indexes that array and fails.
+          chosen=$(jq -c --arg want "$PLATFORMS" '
+            ($want | ascii_downcase | split(",") | map(gsub("^\\s+|\\s+$"; ""))) as $keys
+            | [ .[] | select(.key as $k | $keys | index($k)) ]
+          ' <<<"$all")
           if [ "$(jq 'length' <<<"$chosen")" -eq 0 ]; then
             echo "::error::No known platform in \"$PLATFORMS\" — expected windows, macos or linux."
             exit 1
@@ -128,7 +132,7 @@ jobs:
             echo "configured=true" >> "$GITHUB_OUTPUT"
           else
             echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping the Slack upload — set SLACK_BOT_TOKEN (scopes files:write, chat:write) and either SLACK_CHANNEL_ID or the channels in Tech > Settings, and invite the bot to them."
+            echo "::notice::Skipping the Slack upload. The bot token is always a repository secret — CI cannot read the portal database — so set SLACK_BOT_TOKEN (scopes files:write, chat:write). Channels come from Tech > Settings for a build started in the portal, and from SLACK_CHANNEL_ID for a push. Invite the bot to them."
           fi
       - name: Upload installers to Slack
         if: steps.slack.outputs.configured == 'true'
