@@ -82,7 +82,24 @@ jobs:
           target_commitish: ${{ github.sha }}
           files: installers/*
           make_latest: true
+      # Posting to Slack needs a bot token (an incoming webhook cannot carry files).
+      # Until those secrets exist the release itself still succeeds — the installers
+      # are on the GitHub Release either way, so a missing notification is a notice,
+      # not a failed release.
+      - name: Check Slack credentials
+        id: slack
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+        run: |
+          if [ -n "$SLACK_BOT_TOKEN" ] && [ -n "$SLACK_CHANNEL_ID" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping the Slack upload — set SLACK_BOT_TOKEN (scopes files:write, chat:write) and SLACK_CHANNEL_ID, and invite the bot to the channel."
+          fi
       - name: Upload installers to Slack
+        if: steps.slack.outputs.configured == 'true'
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
