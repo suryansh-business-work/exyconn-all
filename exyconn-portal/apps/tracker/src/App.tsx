@@ -7,6 +7,7 @@ import {
   TrackerAccessPage,
   TrackerDevicesPage,
   TrackerBillingPage,
+  TrackerApprovalsPage,
   TrackerSettingsPage,
 } from './pages/tracker';
 import { TrackerDownloadPage } from './pages/download';
@@ -19,6 +20,7 @@ export function App() {
       <Route path="/tracker/access" element={<TrackerAccessPage />} />
       <Route path="/tracker/devices" element={<TrackerDevicesPage />} />
       <Route path="/tracker/billing" element={<TrackerBillingPage />} />
+      <Route path="/tracker/approvals" element={<TrackerApprovalsPage />} />
       <Route path="/tracker/settings" element={<TrackerSettingsPage />} />
       <Route path="/tracker/download" element={<TrackerDownloadPage />} />
     </PortalApp>

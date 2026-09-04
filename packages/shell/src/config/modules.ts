@@ -43,6 +43,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import PaymentsIcon from '@mui/icons-material/Payments';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
@@ -532,6 +533,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Devices',
         path: '/tracker/devices',
         icon: DevicesIcon,
+      },
+      {
+        key: 'tracker-approvals',
+        label: 'Off-computer time',
+        path: '/tracker/approvals',
+        icon: FactCheckIcon,
       },
       {
         key: 'tracker-billing',

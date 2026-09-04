@@ -2,6 +2,7 @@ import { UserModel } from '../admin/user.model';
 import { SalaryStructureModel } from '../employee/salary.model';
 import { DEFAULT_CURRENCY, DEFAULT_PAY_TYPE } from '../../constants/pay';
 import { TrackerIntervalModel } from './models';
+import { trackerManualService } from './tracker.manual.service';
 
 const MS_PER_HOUR = 3_600_000;
 
@@ -25,6 +26,10 @@ function hoursOf(activeMs: number): number {
  *
  * Active milliseconds only, matching the desktop app's own progress bar: idle time is time
  * at a desk, and billing a customer for it would be indefensible.
+ *
+ * APPROVED off-computer time is billed alongside it. A client meeting is work the customer
+ * owes for, and leaving it out was the reason people kept a spreadsheet next to the tracker.
+ * Only approved entries count — a pending claim is nobody's invoice yet.
  */
 class TrackerBillingService {
   /**
@@ -35,11 +40,23 @@ class TrackerBillingService {
    * tracked time in the range are left out — a report full of zero rows hides the work.
    */
   async billing(from: Date, to: Date) {
-    const worked = await TrackerIntervalModel.aggregate<{ _id: string; activeMs: number }>([
-      { $match: { startedAt: { $gte: from, $lt: to } } },
-      { $group: { _id: '$userId', activeMs: { $sum: '$activeMs' } } },
-      { $sort: { activeMs: -1 } },
+    const [tracked, manualByUser] = await Promise.all([
+      TrackerIntervalModel.aggregate<{ _id: string; activeMs: number }>([
+        { $match: { startedAt: { $gte: from, $lt: to } } },
+        { $group: { _id: '$userId', activeMs: { $sum: '$activeMs' } } },
+      ]),
+      trackerManualService.approvedByUser(from, to),
     ]);
+
+    // An employee who spent the whole range in meetings has approved time and no intervals,
+    // so the billable set is the union of both — not the tracked rows with manual added on.
+    const billableMs = new Map(tracked.map((row) => [row._id, row.activeMs]));
+    for (const [userId, manualMs] of manualByUser) {
+      billableMs.set(userId, (billableMs.get(userId) ?? 0) + manualMs);
+    }
+    const worked = [...billableMs.entries()]
+      .map(([id, activeMs]) => ({ _id: id, activeMs, manualMs: manualByUser.get(id) ?? 0 }))
+      .sort((a, b) => b.activeMs - a.activeMs);
 
     if (worked.length === 0) {
       return { from, to, rows: [], totalHours: 0, totalAmount: 0, currency: DEFAULT_CURRENCY };
@@ -70,7 +87,10 @@ class TrackerBillingService {
         payType: structure?.payType ?? DEFAULT_PAY_TYPE,
         currency: structure?.currency ?? DEFAULT_CURRENCY,
         billingRate,
+        // `activeMs` here is billable time: measured active time plus approved off-computer
+        // time. `manualMs` says how much of it was claimed rather than measured.
         activeMs: entry.activeMs,
+        manualMs: entry.manualMs,
         hours,
         amount: round(hours * billingRate),
         // Says out loud why an amount is zero, so nobody reads a missing rate as free work.

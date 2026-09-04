@@ -15,6 +15,16 @@ export interface TrackerSettingsInput {
   screenshotMaxWidth?: number;
   /** 0-100; 100 is lossless at native resolution. */
   screenshotQuality?: number;
+  /** Days a screenshot is kept; 0 keeps them indefinitely. */
+  screenshotRetentionDays?: number;
+  autoStartEnabled?: boolean;
+  /** Local hours, 0-23. A stop at or before the start means the window crosses midnight. */
+  autoStartHour?: number;
+  autoStopHour?: number;
+  dailyDigestEnabled?: boolean;
+  weeklyDigestEnabled?: boolean;
+  /** Local hour, 0-23. */
+  digestHour?: number;
   webcamEnabled?: boolean;
   /** One of WEBCAM_CORNERS. */
   webcamCorner?: string;

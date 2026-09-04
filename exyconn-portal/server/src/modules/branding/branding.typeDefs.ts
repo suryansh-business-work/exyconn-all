@@ -110,5 +110,8 @@ export const brandingTypeDefs = gql`
     # Uploads a base64 data-URL image to ImageKit and returns its hosted URL. The folder
     # arg just groups uploads (branding, blog...); any authenticated user may call it.
     uploadImage(file: String!, fileName: String!, folder: String): String!
+    # Imports a Pexels media URL (a stock clip, too big to send as base64) into ImageKit
+    # and returns the hosted URL. Only pexels.com URLs are accepted.
+    importMediaFromUrl(url: String!, fileName: String!, folder: String): String!
   }
 `;

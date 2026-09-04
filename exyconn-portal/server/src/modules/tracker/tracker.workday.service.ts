@@ -6,6 +6,7 @@ import { DEFAULT_WORK_HOURS_PER_DAY, workTargetMs } from '../../constants/work';
 import { GLOBAL_PROJECT, TRACKER_WORKDAY } from './tracker.constants';
 import { zonedDateKey, zonedDayStartUtc } from './tracker.timezone';
 import { TrackerIntervalModel } from './models';
+import { trackerManualService } from './tracker.manual.service';
 
 /** The employee fields the workday reads. A lean User document satisfies this. */
 export interface WorkProfileSource {
@@ -92,12 +93,32 @@ class TrackerWorkdayService {
     ).lean();
   }
 
+  /**
+   * Approved off-computer milliseconds on the employee's current local day.
+   *
+   * Kept apart from `activeMs` on purpose. Active time was measured — the app counted the
+   * input and took the screenshots; this was claimed by a person and signed off by another.
+   * Summing them into one number would make the day's progress bar assert more than the
+   * tracker can actually evidence, so the two travel separately and the client adds them.
+   */
+  async manualMsOn(userId: string, timezone: string, dateKey: string): Promise<number> {
+    const since = new Date(Date.now() - TRACKER_WORKDAY.lookbackMs);
+    const buckets = await trackerManualService.approvedByDay(
+      userId,
+      since,
+      new Date(Date.now() + TRACKER_WORKDAY.lookbackMs),
+      timezone,
+    );
+    return buckets.find((bucket) => bucket.date === dateKey)?.manualMs ?? 0;
+  }
+
   /** Target, progress and attendance for the employee's current local day, in one object. */
   async workday(userId: string, user: WorkProfileSource, timezone: string) {
     const now = new Date();
     const dateKey = zonedDateKey(now, timezone);
-    const [activeMs, attendance] = await Promise.all([
+    const [activeMs, manualMs, attendance] = await Promise.all([
       this.activeMsOn(userId, timezone, dateKey),
+      this.manualMsOn(userId, timezone, dateKey),
       this.attendanceOn(userId, zonedDayStartUtc(now, timezone)),
     ]);
 
@@ -105,6 +126,7 @@ class TrackerWorkdayService {
       date: dateKey,
       targetMs: workProfile(user).targetMs,
       activeMs,
+      manualMs,
       attendanceStatus: attendance?.status ?? null,
       attendanceNote: attendance?.note ?? null,
       attendanceMarked: attendance !== null,

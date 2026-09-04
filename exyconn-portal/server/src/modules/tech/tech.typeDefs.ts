@@ -141,6 +141,22 @@ export const techTypeDefs = gql`
     isActive: Boolean
   }
 
+  """
+  The Pexels search filters the upload dialog exposes. Colour is photo-only; the duration
+  bounds (in seconds) are video-only. An omitted field means "any".
+  """
+  input PexelsSearchFilters {
+    "landscape | portrait | square"
+    orientation: String
+    "large | medium | small"
+    size: String
+    "A Pexels colour name, or a #rrggbb value. Photos only."
+    color: String
+    "Videos only, in seconds."
+    minDuration: Int
+    maxDuration: Int
+  }
+
   input PexelsConfigInput {
     label: String!
     apiKey: String!
@@ -170,9 +186,9 @@ export const techTypeDefs = gql`
     listPexelsConfigs: [PexelsConfig!]!
     listOpenAiConfigs: [OpenAiConfig!]!
     "Stock photos for the shared upload dialog. Any signed-in user may search."
-    searchPexelsPhotos(query: String!, page: Int): [PexelsMedia!]!
+    searchPexelsPhotos(query: String!, page: Int, filters: PexelsSearchFilters): [PexelsMedia!]!
     "Stock videos for the shared upload dialog. Any signed-in user may search."
-    searchPexelsVideos(query: String!, page: Int): [PexelsMedia!]!
+    searchPexelsVideos(query: String!, page: Int, filters: PexelsSearchFilters): [PexelsMedia!]!
     "Every channel the active Slack bot token can see."
     listSlackChannels: [SlackChannel!]!
     listTrackerBuilds: [TrackerBuild!]!

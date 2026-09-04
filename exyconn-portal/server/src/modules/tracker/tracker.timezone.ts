@@ -77,6 +77,21 @@ export function zonedDateKey(instant: Date, timeZone: string): string {
 }
 
 /**
+ * The hour (0-23) an instant reads as on a clock in `timeZone`.
+ *
+ * The scheduled digest is set in local time — "send at 9" means nine where the workspace
+ * is, and comparing against a UTC hour would post the morning summary in the afternoon.
+ */
+export function zonedHour(instant: Date, timeZone: string): number {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    hour: '2-digit',
+    hour12: false,
+  }).formatToParts(instant);
+  return Number(parts.find((part) => part.type === 'hour')?.value ?? '0');
+}
+
+/**
  * Midnight UTC of the calendar date `instant` falls on in `timeZone`.
  *
  * This is the shape attendance is keyed on (HrService normalises every attendance date to

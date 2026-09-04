@@ -2259,6 +2259,11 @@ export type Mutation = {
   createTeam: Team;
   createTool: Tool;
   createToolCategory: ToolCategory;
+  /**
+   * Claims work done away from the computer. Always lands PENDING; it counts for nothing
+   * until a reviewer approves it.
+   */
+  createTrackerManualEntry: TrackerManualEntry;
   createTraining: Training;
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
@@ -2331,6 +2336,7 @@ export type Mutation = {
   deleteUser: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
   grantTrackerAccess: TrackerAccess;
+  importMediaFromUrl: Scalars['String']['output'];
   login: AuthPayload;
   markAllNotificationsRead: Scalars['Int']['output'];
   /** Self-service: mark today's (or a given day's) attendance — upserts per day. */
@@ -2356,6 +2362,12 @@ export type Mutation = {
   reorderColumns: Scalars['Boolean']['output'];
   /** Generates a new temporary password, emails it, and returns it once for copying. */
   resetUserPassword: Scalars['String']['output'];
+  /**
+   * Approves or rejects an off-computer claim (TRACKER role). A decision is final — an
+   * entry that has already been decided is refused rather than flipped, so hours somebody
+   * has been paid against cannot quietly leave a timesheet.
+   */
+  reviewTrackerManualEntry: TrackerManualEntry;
   revokeTrackerAccess: TrackerAccess;
   revokeTrackerDevice: TrackerDevice;
   /** Sends the job's prompt to OpenAI and stores the answer, the tokens and the timing. */
@@ -2534,6 +2546,8 @@ export type Mutation = {
   updateUser: User;
   uploadAvatar: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
+  /** Withdraws one of the caller's OWN entries, and only while it is still pending. */
+  withdrawTrackerManualEntry: Scalars['Boolean']['output'];
 };
 
 
@@ -2914,6 +2928,11 @@ export type MutationCreateToolCategoryArgs = {
 };
 
 
+export type MutationCreateTrackerManualEntryArgs = {
+  input: TrackerManualEntryInput;
+};
+
+
 export type MutationCreateTrainingArgs = {
   input: TrainingInput;
 };
@@ -3264,6 +3283,13 @@ export type MutationGrantTrackerAccessArgs = {
 };
 
 
+export type MutationImportMediaFromUrlArgs = {
+  fileName: Scalars['String']['input'];
+  folder?: InputMaybe<Scalars['String']['input']>;
+  url: Scalars['String']['input'];
+};
+
+
 export type MutationLoginArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -3336,6 +3362,13 @@ export type MutationReorderColumnsArgs = {
 
 export type MutationResetUserPasswordArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationReviewTrackerManualEntryArgs = {
+  id: Scalars['ID']['input'];
+  reviewNote?: InputMaybe<Scalars['String']['input']>;
+  status: TrackerManualEntryStatus;
 };
 
 
@@ -3993,6 +4026,11 @@ export type MutationUploadImageArgs = {
   folder?: InputMaybe<Scalars['String']['input']>;
 };
 
+
+export type MutationWithdrawTrackerManualEntryArgs = {
+  id: Scalars['ID']['input'];
+};
+
 export type MyExpenseClaimInput = {
   amount: Scalars['Float']['input'];
   category: Scalars['String']['input'];
@@ -4285,6 +4323,22 @@ export type PexelsMedia = {
   previewUrl: Scalars['String']['output'];
   /** The URL stored when the item is picked. */
   url: Scalars['String']['output'];
+};
+
+/**
+ * The Pexels search filters the upload dialog exposes. Colour is photo-only; the duration
+ * bounds (in seconds) are video-only. An omitted field means "any".
+ */
+export type PexelsSearchFilters = {
+  /** A Pexels colour name, or a #rrggbb value. Photos only. */
+  color?: InputMaybe<Scalars['String']['input']>;
+  maxDuration?: InputMaybe<Scalars['Int']['input']>;
+  /** Videos only, in seconds. */
+  minDuration?: InputMaybe<Scalars['Int']['input']>;
+  /** landscape | portrait | square */
+  orientation?: InputMaybe<Scalars['String']['input']>;
+  /** large | medium | small */
+  size?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Policy = {
@@ -4892,6 +4946,8 @@ export type Query = {
   myTrackerAccess?: Maybe<TrackerAccess>;
   myTrackerCalendar: Array<TrackerDayBucket>;
   myTrackerDay: TrackerDay;
+  /** The caller's own off-computer entries in a range, any status. */
+  myTrackerManualEntries: Array<TrackerManualEntry>;
   /** The calling device's own employee, all-time. Device token, not a portal session. */
   myTrackerTotals: TrackerTotals;
   myTrainings: Array<Training>;
@@ -4955,7 +5011,17 @@ export type Query = {
    * themselves live on a public GitHub release. Null until a release exists.
    */
   trackerLatestRelease?: Maybe<TrackerRelease>;
+  /** One employee's off-computer entries in a range, any status (TRACKER role). */
+  trackerManualEntries: Array<TrackerManualEntry>;
   trackerMe: TrackerMe;
+  /** Every off-computer entry waiting on a decision, oldest first (TRACKER role). */
+  trackerPendingManualEntries: Array<TrackerManualEntry>;
+  /**
+   * Projects time may be booked against, the house-wide one first. The desktop app gets
+   * the same list inside trackerMe; this is the portal's way in, for the off-computer
+   * time form. Any signed-in employee may read it — it is a list of project names.
+   */
+  trackerProjectOptions: Array<TrackerProject>;
   trackerSettings: TrackerSettings;
   trackerTotals: TrackerTotals;
 };
@@ -5580,6 +5646,12 @@ export type QueryMyTrackerDayArgs = {
 };
 
 
+export type QueryMyTrackerManualEntriesArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryPayrollSummaryArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
@@ -5663,12 +5735,14 @@ export type QuerySalarySlipPdfArgs = {
 
 
 export type QuerySearchPexelsPhotosArgs = {
+  filters?: InputMaybe<PexelsSearchFilters>;
   page?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
 };
 
 
 export type QuerySearchPexelsVideosArgs = {
+  filters?: InputMaybe<PexelsSearchFilters>;
   page?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
 };
@@ -5712,6 +5786,13 @@ export type QueryTrackerDayArgs = {
 
 export type QueryTrackerDevicesArgs = {
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryTrackerManualEntriesArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -6504,6 +6585,7 @@ export type TrackerBilling = {
 /** One employee's tracked time over a range, priced at the rate on their HR salary structure. */
 export type TrackerBillingRow = {
   __typename?: 'TrackerBillingRow';
+  /** Billable time: measured active time plus approved off-computer time. */
   activeMs: Scalars['Float']['output'];
   amount: Scalars['Float']['output'];
   /** Per hour, from the employee's salary structure in HR. Zero when HR has not set one. */
@@ -6514,6 +6596,8 @@ export type TrackerBillingRow = {
   hours: Scalars['Float']['output'];
   /** The employee's user id — one row per employee, so this is the row's identity. */
   id: Scalars['ID']['output'];
+  /** How much of activeMs was claimed off-computer rather than measured. */
+  manualMs: Scalars['Float']['output'];
   name: Scalars['String']['output'];
   payType: PayType;
   /** False when no rate is set — the amount is zero because nobody priced the work, not because the work was free. */
@@ -6570,6 +6654,8 @@ export type TrackerDayBucket = {
   date: Scalars['String']['output'];
   idleMs: Scalars['Float']['output'];
   keyCount: Scalars['Int']['output'];
+  /** Approved off-computer time on this day. Measured time and claimed time stay apart. */
+  manualMs: Scalars['Float']['output'];
   mouseCount: Scalars['Int']['output'];
   sessions: Scalars['Int']['output'];
 };
@@ -6647,6 +6733,47 @@ export type TrackerLoginPayload = {
   token: Scalars['String']['output'];
   user: User;
 };
+
+/**
+ * Work done away from the computer, claimed by the employee and signed off by a reviewer.
+ *
+ * Deliberately separate from a session: everything in a session was measured, this was
+ * claimed. Only an APPROVED entry counts towards a calendar, a total or an invoice.
+ */
+export type TrackerManualEntry = {
+  __typename?: 'TrackerManualEntry';
+  createdAt: Scalars['DateTime']['output'];
+  durationMs: Scalars['Float']['output'];
+  endedAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  /** What the time was for. Always present — unexplained claimed time is not reviewable. */
+  note: Scalars['String']['output'];
+  projectId: Scalars['ID']['output'];
+  /** The project's name as it was when the entry was filed. */
+  projectName: Scalars['String']['output'];
+  reviewNote: Scalars['String']['output'];
+  reviewedAt?: Maybe<Scalars['DateTime']['output']>;
+  reviewedBy: Scalars['ID']['output'];
+  startedAt: Scalars['DateTime']['output'];
+  status: TrackerManualEntryStatus;
+  userId: Scalars['ID']['output'];
+  /** Employee's name, resolved for the review queue. Empty on an employee's own list. */
+  userName: Scalars['String']['output'];
+};
+
+export type TrackerManualEntryInput = {
+  endedAt: Scalars['DateTime']['input'];
+  note: Scalars['String']['input'];
+  /** Omit to book against the house-wide Global Project. */
+  projectId?: InputMaybe<Scalars['ID']['input']>;
+  startedAt: Scalars['DateTime']['input'];
+};
+
+export enum TrackerManualEntryStatus {
+  Approved = 'APPROVED',
+  Pending = 'PENDING',
+  Rejected = 'REJECTED'
+}
 
 export type TrackerMe = {
   __typename?: 'TrackerMe';
@@ -6750,6 +6877,15 @@ export type TrackerSession = {
 
 export type TrackerSettings = {
   __typename?: 'TrackerSettings';
+  /**
+   * Start and stop tracking on a schedule rather than waiting for the employee to press
+   * start. The consent gate still applies before the first session.
+   */
+  autoStartEnabled: Scalars['Boolean']['output'];
+  /** Local hour (0-23) tracking starts, in the EMPLOYEE's own timezone. */
+  autoStartHour: Scalars['Int']['output'];
+  /** Local hour (0-23) tracking stops. At or before the start hour means it crosses midnight. */
+  autoStopHour: Scalars['Int']['output'];
   blurScreenshots: Scalars['Boolean']['output'];
   /**
    * Slug of the Legal policy used as the disclosure instead of consentText. Empty means
@@ -6757,11 +6893,15 @@ export type TrackerSettings = {
    */
   consentPolicySlug: Scalars['String']['output'];
   consentText: Scalars['String']['output'];
+  /** Email yesterday's tracked time to everyone holding the TRACKER role. */
+  dailyDigestEnabled: Scalars['Boolean']['output'];
   /**
    * House default IANA zone (e.g. "Asia/Kolkata"), chosen by an admin.
    * An empty string means "no house default" — fall back to the device's own zone.
    */
   defaultTimezone: Scalars['String']['output'];
+  /** Local hour (0-23) the digests go out at, read in the workspace's own timezone. */
+  digestHour: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   idleThresholdSeconds: Scalars['Int']['output'];
   intervalMinutes: Scalars['Int']['output'];
@@ -6772,6 +6912,11 @@ export type TrackerSettings = {
    * downscale. Below 100 is a JPEG at that quality, downscaled to screenshotMaxWidth.
    */
   screenshotQuality: Scalars['Int']['output'];
+  /**
+   * Days a screenshot is kept before it is deleted from the portal AND from storage.
+   * 0 keeps them indefinitely, which is the default — a workspace opts in to expiry.
+   */
+  screenshotRetentionDays: Scalars['Int']['output'];
   screenshotsPerInterval: Scalars['Int']['output'];
   syncIntervalMinutes: Scalars['Int']['output'];
   trackWindowTitles: Scalars['Boolean']['output'];
@@ -6779,23 +6924,32 @@ export type TrackerSettings = {
   webcamCorner: Scalars['String']['output'];
   /** Capture a webcam photo with each screenshot and composite it into a corner of the shot. */
   webcamEnabled: Scalars['Boolean']['output'];
+  /** The same summary for the last seven days, sent on a Monday. */
+  weeklyDigestEnabled: Scalars['Boolean']['output'];
 };
 
 export type TrackerSettingsInput = {
+  autoStartEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  autoStartHour?: InputMaybe<Scalars['Int']['input']>;
+  autoStopHour?: InputMaybe<Scalars['Int']['input']>;
   blurScreenshots?: InputMaybe<Scalars['Boolean']['input']>;
   consentPolicySlug?: InputMaybe<Scalars['String']['input']>;
   consentText?: InputMaybe<Scalars['String']['input']>;
+  dailyDigestEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   defaultTimezone?: InputMaybe<Scalars['String']['input']>;
+  digestHour?: InputMaybe<Scalars['Int']['input']>;
   idleThresholdSeconds?: InputMaybe<Scalars['Int']['input']>;
   intervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   randomizeScreenshotTiming?: InputMaybe<Scalars['Boolean']['input']>;
   screenshotMaxWidth?: InputMaybe<Scalars['Int']['input']>;
   screenshotQuality?: InputMaybe<Scalars['Int']['input']>;
+  screenshotRetentionDays?: InputMaybe<Scalars['Int']['input']>;
   screenshotsPerInterval?: InputMaybe<Scalars['Int']['input']>;
   syncIntervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   trackWindowTitles?: InputMaybe<Scalars['Boolean']['input']>;
   webcamCorner?: InputMaybe<Scalars['String']['input']>;
   webcamEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  weeklyDigestEnabled?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** All-time tracker totals for one employee. */
@@ -6804,6 +6958,8 @@ export type TrackerTotals = {
   /** Float, not Int: all-time milliseconds overflow a 32-bit Int. */
   activeMs: Scalars['Float']['output'];
   idleMs: Scalars['Float']['output'];
+  /** All-time approved off-computer time, kept apart from the measured total. */
+  manualMs: Scalars['Float']['output'];
   screenshots: Scalars['Int']['output'];
   sessions: Scalars['Int']['output'];
 };
@@ -6844,6 +7000,11 @@ export type TrackerWorkday = {
   attendanceStatus?: Maybe<AttendanceStatus>;
   /** The employee's local calendar date, YYYY-MM-DD. */
   date: Scalars['String']['output'];
+  /**
+   * Approved off-computer milliseconds today. Separate from activeMs because that was
+   * measured and this was claimed; a client adding them must say which is which.
+   */
+  manualMs: Scalars['Float']['output'];
   targetMs: Scalars['Float']['output'];
 };
 
@@ -7315,6 +7476,7 @@ export type ResolversTypes = ResolversObject<{
   PexelsConfig: ResolverTypeWrapper<PexelsConfig>;
   PexelsConfigInput: PexelsConfigInput;
   PexelsMedia: ResolverTypeWrapper<PexelsMedia>;
+  PexelsSearchFilters: PexelsSearchFilters;
   Policy: ResolverTypeWrapper<Policy>;
   PolicyAcknowledgement: ResolverTypeWrapper<PolicyAcknowledgement>;
   PolicyAudience: PolicyAudience;
@@ -7433,6 +7595,9 @@ export type ResolversTypes = ResolversObject<{
   TrackerInterval: ResolverTypeWrapper<TrackerInterval>;
   TrackerIntervalInput: TrackerIntervalInput;
   TrackerLoginPayload: ResolverTypeWrapper<TrackerLoginPayload>;
+  TrackerManualEntry: ResolverTypeWrapper<TrackerManualEntry>;
+  TrackerManualEntryInput: TrackerManualEntryInput;
+  TrackerManualEntryStatus: TrackerManualEntryStatus;
   TrackerMe: ResolverTypeWrapper<TrackerMe>;
   TrackerPlatform: TrackerPlatform;
   TrackerProject: ResolverTypeWrapper<TrackerProject>;
@@ -7658,6 +7823,7 @@ export type ResolversParentTypes = ResolversObject<{
   PexelsConfig: PexelsConfig;
   PexelsConfigInput: PexelsConfigInput;
   PexelsMedia: PexelsMedia;
+  PexelsSearchFilters: PexelsSearchFilters;
   Policy: Policy;
   PolicyAcknowledgement: PolicyAcknowledgement;
   PolicyInput: PolicyInput;
@@ -7754,6 +7920,8 @@ export type ResolversParentTypes = ResolversObject<{
   TrackerInterval: TrackerInterval;
   TrackerIntervalInput: TrackerIntervalInput;
   TrackerLoginPayload: TrackerLoginPayload;
+  TrackerManualEntry: TrackerManualEntry;
+  TrackerManualEntryInput: TrackerManualEntryInput;
   TrackerMe: TrackerMe;
   TrackerProject: TrackerProject;
   TrackerRelease: TrackerRelease;
@@ -9086,6 +9254,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<MutationCreateTeamArgs, 'input'>>;
   createTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<MutationCreateToolArgs, 'input'>>;
   createToolCategory?: Resolver<ResolversTypes['ToolCategory'], ParentType, ContextType, RequireFields<MutationCreateToolCategoryArgs, 'input'>>;
+  createTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationCreateTrackerManualEntryArgs, 'input'>>;
   createTraining?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationCreateTrainingArgs, 'input'>>;
   createUser?: Resolver<ResolversTypes['UserCredentials'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
   createWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationCreateWebsiteSubmissionArgs, 'input'>>;
@@ -9156,6 +9325,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   deleteWebsiteSubmission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteSubmissionArgs, 'id'>>;
   grantTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationGrantTrackerAccessArgs, 'userId'>>;
+  importMediaFromUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationImportMediaFromUrlArgs, 'fileName' | 'url'>>;
   login?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   markAllNotificationsRead?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   markAttendance?: Resolver<ResolversTypes['Attendance'], ParentType, ContextType, RequireFields<MutationMarkAttendanceArgs, 'input'>>;
@@ -9170,6 +9340,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
   reorderColumns?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReorderColumnsArgs, 'columnIds' | 'projectId'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
+  reviewTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationReviewTrackerManualEntryArgs, 'id' | 'status'>>;
   revokeTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationRevokeTrackerAccessArgs, 'userId'>>;
   revokeTrackerDevice?: Resolver<ResolversTypes['TrackerDevice'], ParentType, ContextType, RequireFields<MutationRevokeTrackerDeviceArgs, 'deviceId'>>;
   runAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunAiJobArgs, 'id'>>;
@@ -9282,6 +9453,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id' | 'input'>>;
   uploadAvatar?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'file'>>;
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
+  withdrawTrackerManualEntry?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationWithdrawTrackerManualEntryArgs, 'id'>>;
 }>;
 
 export type MyPolicyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MyPolicy'] = ResolversParentTypes['MyPolicy']> = ResolversObject<{
@@ -9878,6 +10050,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myTrackerAccess?: Resolver<Maybe<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
   myTrackerCalendar?: Resolver<Array<ResolversTypes['TrackerDayBucket']>, ParentType, ContextType, RequireFields<QueryMyTrackerCalendarArgs, 'from' | 'timezone' | 'to'>>;
   myTrackerDay?: Resolver<ResolversTypes['TrackerDay'], ParentType, ContextType, RequireFields<QueryMyTrackerDayArgs, 'end' | 'start'>>;
+  myTrackerManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType, RequireFields<QueryMyTrackerManualEntriesArgs, 'from' | 'to'>>;
   myTrackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType>;
   myTrainings?: Resolver<Array<ResolversTypes['Training']>, ParentType, ContextType>;
   myUnreadNotificationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -9919,7 +10092,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerDay?: Resolver<ResolversTypes['TrackerDay'], ParentType, ContextType, RequireFields<QueryTrackerDayArgs, 'end' | 'start' | 'userId'>>;
   trackerDevices?: Resolver<Array<ResolversTypes['TrackerDevice']>, ParentType, ContextType, Partial<QueryTrackerDevicesArgs>>;
   trackerLatestRelease?: Resolver<Maybe<ResolversTypes['TrackerRelease']>, ParentType, ContextType>;
+  trackerManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType, RequireFields<QueryTrackerManualEntriesArgs, 'from' | 'to' | 'userId'>>;
   trackerMe?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType>;
+  trackerPendingManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType>;
+  trackerProjectOptions?: Resolver<Array<ResolversTypes['TrackerProject']>, ParentType, ContextType>;
   trackerSettings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
   trackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType, RequireFields<QueryTrackerTotalsArgs, 'userId'>>;
 }>;
@@ -10390,6 +10566,7 @@ export type TrackerBillingRowResolvers<ContextType = GraphQLContext, ParentType 
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  manualMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   payType?: Resolver<ResolversTypes['PayType'], ParentType, ContextType>;
   rated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -10437,6 +10614,7 @@ export type TrackerDayBucketResolvers<ContextType = GraphQLContext, ParentType e
   date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   idleMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   keyCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  manualMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   mouseCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   sessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -10485,6 +10663,24 @@ export type TrackerLoginPayloadResolvers<ContextType = GraphQLContext, ParentTyp
   settings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerManualEntryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerManualEntry'] = ResolversParentTypes['TrackerManualEntry']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  durationMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  endedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  note?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  projectId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  projectName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reviewNote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reviewedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  reviewedBy?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  startedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['TrackerManualEntryStatus'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -10556,27 +10752,35 @@ export type TrackerSessionResolvers<ContextType = GraphQLContext, ParentType ext
 }>;
 
 export type TrackerSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerSettings'] = ResolversParentTypes['TrackerSettings']> = ResolversObject<{
+  autoStartEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  autoStartHour?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  autoStopHour?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   blurScreenshots?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   consentPolicySlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   consentText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dailyDigestEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   defaultTimezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  digestHour?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   idleThresholdSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   intervalMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   randomizeScreenshotTiming?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   screenshotMaxWidth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   screenshotQuality?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  screenshotRetentionDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   screenshotsPerInterval?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   syncIntervalMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   trackWindowTitles?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   webcamCorner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   webcamEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  weeklyDigestEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type TrackerTotalsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerTotals'] = ResolversParentTypes['TrackerTotals']> = ResolversObject<{
   activeMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   idleMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  manualMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   screenshots?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   sessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -10598,6 +10802,7 @@ export type TrackerWorkdayResolvers<ContextType = GraphQLContext, ParentType ext
   attendanceNote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   attendanceStatus?: Resolver<Maybe<ResolversTypes['AttendanceStatus']>, ParentType, ContextType>;
   date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  manualMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   targetMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -10873,6 +11078,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TrackerDevice?: TrackerDeviceResolvers<ContextType>;
   TrackerInterval?: TrackerIntervalResolvers<ContextType>;
   TrackerLoginPayload?: TrackerLoginPayloadResolvers<ContextType>;
+  TrackerManualEntry?: TrackerManualEntryResolvers<ContextType>;
   TrackerMe?: TrackerMeResolvers<ContextType>;
   TrackerProject?: TrackerProjectResolvers<ContextType>;
   TrackerRelease?: TrackerReleaseResolvers<ContextType>;

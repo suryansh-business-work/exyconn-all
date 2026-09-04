@@ -1,25 +1,19 @@
-import { Button, LinearProgress, Stack, Typography } from '@exyconn/ui';
+import { Button, Stack, Typography } from '@exyconn/ui';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { ImagePreview } from './ImagePreview';
-import { MAX_MB } from './useDeviceUpload';
+import { MAX_MB } from './useMediaUpload';
 
 interface DeviceUploadTabProps {
-  previewUrl: string | null;
-  uploading: boolean;
+  currentUrl: string | null;
   inputRef: React.RefObject<HTMLInputElement | null>;
   onPick: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-/** "From your device" tab: file picker, preview and upload progress. */
-export function DeviceUploadTab({
-  previewUrl,
-  uploading,
-  inputRef,
-  onPick,
-}: Readonly<DeviceUploadTabProps>) {
+/** "From your device" tab: shows what the field holds today and opens the file picker. */
+export function DeviceUploadTab({ currentUrl, inputRef, onPick }: Readonly<DeviceUploadTabProps>) {
   return (
     <Stack spacing={2} alignItems="center">
-      <ImagePreview url={previewUrl} />
+      <ImagePreview url={currentUrl} />
       <input
         ref={inputRef}
         type="file"
@@ -31,15 +25,13 @@ export function DeviceUploadTab({
       <Button
         variant="outlined"
         startIcon={<UploadFileIcon />}
-        disabled={uploading}
         onClick={() => inputRef.current?.click()}
       >
         Choose image
       </Button>
       <Typography variant="caption" color="text.secondary">
-        PNG, JPG or SVG · up to {MAX_MB} MB
+        PNG, JPG or SVG · up to {MAX_MB} MB · you can crop it before uploading
       </Typography>
-      {uploading && <LinearProgress sx={{ width: '100%' }} />}
     </Stack>
   );
 }

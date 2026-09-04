@@ -56,3 +56,7 @@ mutation UpdateBranding($input: BrandingInput!) {
 mutation UploadImage($file: String!, $fileName: String!, $folder: String) {
   uploadImage(file: $file, fileName: $fileName, folder: $folder)
 }
+
+mutation ImportMediaFromUrl($url: String!, $fileName: String!, $folder: String) {
+  importMediaFromUrl(url: $url, fileName: $fileName, folder: $folder)
+}

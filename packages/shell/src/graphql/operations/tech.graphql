@@ -199,14 +199,14 @@ fragment PexelsMediaFields on PexelsMedia {
   duration
 }
 
-query SearchPexelsPhotos($query: String!, $page: Int) {
-  searchPexelsPhotos(query: $query, page: $page) {
+query SearchPexelsPhotos($query: String!, $page: Int, $filters: PexelsSearchFilters) {
+  searchPexelsPhotos(query: $query, page: $page, filters: $filters) {
     ...PexelsMediaFields
   }
 }
 
-query SearchPexelsVideos($query: String!, $page: Int) {
-  searchPexelsVideos(query: $query, page: $page) {
+query SearchPexelsVideos($query: String!, $page: Int, $filters: PexelsSearchFilters) {
+  searchPexelsVideos(query: $query, page: $page, filters: $filters) {
     ...PexelsMediaFields
   }
 }

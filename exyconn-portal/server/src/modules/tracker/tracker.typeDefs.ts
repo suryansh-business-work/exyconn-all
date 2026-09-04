@@ -23,6 +23,26 @@ export const trackerTypeDefs = gql`
     """
     screenshotQuality: Int!
     """
+    Days a screenshot is kept before it is deleted from the portal AND from storage.
+    0 keeps them indefinitely, which is the default — a workspace opts in to expiry.
+    """
+    screenshotRetentionDays: Int!
+    """
+    Start and stop tracking on a schedule rather than waiting for the employee to press
+    start. The consent gate still applies before the first session.
+    """
+    autoStartEnabled: Boolean!
+    "Local hour (0-23) tracking starts, in the EMPLOYEE's own timezone."
+    autoStartHour: Int!
+    "Local hour (0-23) tracking stops. At or before the start hour means it crosses midnight."
+    autoStopHour: Int!
+    "Email yesterday's tracked time to everyone holding the TRACKER role."
+    dailyDigestEnabled: Boolean!
+    "The same summary for the last seven days, sent on a Monday."
+    weeklyDigestEnabled: Boolean!
+    "Local hour (0-23) the digests go out at, read in the workspace's own timezone."
+    digestHour: Int!
+    """
     Capture a webcam photo with each screenshot and composite it into a corner of the shot.
     """
     webcamEnabled: Boolean!
@@ -53,6 +73,13 @@ export const trackerTypeDefs = gql`
     idleThresholdSeconds: Int
     screenshotMaxWidth: Int
     screenshotQuality: Int
+    screenshotRetentionDays: Int
+    autoStartEnabled: Boolean
+    autoStartHour: Int
+    autoStopHour: Int
+    dailyDigestEnabled: Boolean
+    weeklyDigestEnabled: Boolean
+    digestHour: Int
     webcamEnabled: Boolean
     webcamCorner: String
     syncIntervalMinutes: Int
@@ -153,8 +180,50 @@ export const trackerTypeDefs = gql`
     """
     activeMs: Float!
     idleMs: Float!
+    "All-time approved off-computer time, kept apart from the measured total."
+    manualMs: Float!
     screenshots: Int!
     sessions: Int!
+  }
+
+  """
+  Work done away from the computer, claimed by the employee and signed off by a reviewer.
+
+  Deliberately separate from a session: everything in a session was measured, this was
+  claimed. Only an APPROVED entry counts towards a calendar, a total or an invoice.
+  """
+  type TrackerManualEntry {
+    id: ID!
+    userId: ID!
+    "Employee's name, resolved for the review queue. Empty on an employee's own list."
+    userName: String!
+    projectId: ID!
+    "The project's name as it was when the entry was filed."
+    projectName: String!
+    startedAt: DateTime!
+    endedAt: DateTime!
+    durationMs: Float!
+    "What the time was for. Always present — unexplained claimed time is not reviewable."
+    note: String!
+    status: TrackerManualEntryStatus!
+    reviewedBy: ID!
+    reviewedAt: DateTime
+    reviewNote: String!
+    createdAt: DateTime!
+  }
+
+  enum TrackerManualEntryStatus {
+    PENDING
+    APPROVED
+    REJECTED
+  }
+
+  input TrackerManualEntryInput {
+    "Omit to book against the house-wide Global Project."
+    projectId: ID
+    startedAt: DateTime!
+    endedAt: DateTime!
+    note: String!
   }
 
   type TrackerAppUsage {
@@ -169,6 +238,8 @@ export const trackerTypeDefs = gql`
     keyCount: Int!
     mouseCount: Int!
     sessions: Int!
+    "Approved off-computer time on this day. Measured time and claimed time stay apart."
+    manualMs: Float!
   }
 
   type TrackerDay {
@@ -210,6 +281,11 @@ export const trackerTypeDefs = gql`
     targetMs: Float!
     "Active milliseconds recorded today. Idle time is excluded — this is time worked."
     activeMs: Float!
+    """
+    Approved off-computer milliseconds today. Separate from activeMs because that was
+    measured and this was claimed; a client adding them must say which is which.
+    """
+    manualMs: Float!
     attendanceStatus: AttendanceStatus
     attendanceNote: String
     "Tracking cannot start until this is true."
@@ -245,7 +321,10 @@ export const trackerTypeDefs = gql`
     currency: String!
     "Per hour, from the employee's salary structure in HR. Zero when HR has not set one."
     billingRate: Float!
+    "Billable time: measured active time plus approved off-computer time."
     activeMs: Float!
+    "How much of activeMs was claimed off-computer rather than measured."
+    manualMs: Float!
     "activeMs as hours, to two places."
     hours: Float!
     amount: Float!
@@ -383,6 +462,10 @@ export const trackerTypeDefs = gql`
     """
     trackerLatestRelease: TrackerRelease
     trackerTotals(userId: ID!): TrackerTotals!
+    "One employee's off-computer entries in a range, any status (TRACKER role)."
+    trackerManualEntries(userId: ID!, from: DateTime!, to: DateTime!): [TrackerManualEntry!]!
+    "Every off-computer entry waiting on a decision, oldest first (TRACKER role)."
+    trackerPendingManualEntries: [TrackerManualEntry!]!
     """
     Billing for tracked time over a range. Active time only — idle minutes are time at a
     desk, and the rate comes from the employee's HR salary structure, never from here.
@@ -400,6 +483,14 @@ export const trackerTypeDefs = gql`
     myTrackerAccess: TrackerAccess
     myTrackerCalendar(from: DateTime!, to: DateTime!, timezone: String!): [TrackerDayBucket!]!
     myTrackerDay(start: DateTime!, end: DateTime!): TrackerDay!
+    "The caller's own off-computer entries in a range, any status."
+    myTrackerManualEntries(from: DateTime!, to: DateTime!): [TrackerManualEntry!]!
+    """
+    Projects time may be booked against, the house-wide one first. The desktop app gets
+    the same list inside trackerMe; this is the portal's way in, for the off-computer
+    time form. Any signed-in employee may read it — it is a list of project names.
+    """
+    trackerProjectOptions: [TrackerProject!]!
   }
 
   extend type Mutation {
@@ -408,6 +499,25 @@ export const trackerTypeDefs = gql`
     revokeTrackerAccess(userId: ID!): TrackerAccess!
     revokeTrackerDevice(deviceId: String!): TrackerDevice!
     updateTrackerSettings(input: TrackerSettingsInput!): TrackerSettings!
+    """
+    Approves or rejects an off-computer claim (TRACKER role). A decision is final — an
+    entry that has already been decided is refused rather than flipped, so hours somebody
+    has been paid against cannot quietly leave a timesheet.
+    """
+    reviewTrackerManualEntry(
+      id: ID!
+      status: TrackerManualEntryStatus!
+      reviewNote: String
+    ): TrackerManualEntry!
+
+    # Employee self-service
+    """
+    Claims work done away from the computer. Always lands PENDING; it counts for nothing
+    until a reviewer approves it.
+    """
+    createTrackerManualEntry(input: TrackerManualEntryInput!): TrackerManualEntry!
+    "Withdraws one of the caller's OWN entries, and only while it is still pending."
+    withdrawTrackerManualEntry(id: ID!): Boolean!
 
     # Desktop app (device token, except trackerLogin which authenticates)
     trackerLogin(

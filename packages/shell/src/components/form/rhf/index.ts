@@ -4,6 +4,7 @@ export { RhfMultiSelect } from './RhfMultiSelect';
 export { RhfChipsInput } from './RhfChipsInput';
 export { RhfSwitch } from './RhfSwitch';
 export { RhfDatePicker } from './RhfDatePicker';
+export { RhfDateTimePicker } from './RhfDateTimePicker';
 export { RhfAutocomplete } from './RhfAutocomplete';
 export { RhfRichText } from './RhfRichText';
 export { RhfImageField } from './RhfImageField';

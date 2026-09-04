@@ -10,7 +10,7 @@ import { mailer } from '../../utils/mailer';
 import { imageUploader } from '../../utils/imagekit';
 import { slackNotifier } from '../../utils/slack';
 import { githubActions } from '../../utils/github';
-import { pexelsClient } from '../../utils/pexels';
+import { pexelsClient, type PexelsSearchFilters } from '../../utils/pexels';
 import { openAiClient } from '../../utils/openai';
 
 export interface EmailConfigInput {
@@ -282,13 +282,13 @@ class TechService {
   }
 
   /** Stock photos for the shared upload dialog, through the active Pexels key. */
-  searchPexelsPhotos(query: string, page: number) {
-    return pexelsClient.searchPhotos(query, page);
+  searchPexelsPhotos(query: string, page: number, filters: PexelsSearchFilters) {
+    return pexelsClient.searchPhotos(query, page, filters);
   }
 
   /** Stock videos for the shared upload dialog, through the active Pexels key. */
-  searchPexelsVideos(query: string, page: number) {
-    return pexelsClient.searchVideos(query, page);
+  searchPexelsVideos(query: string, page: number, filters: PexelsSearchFilters) {
+    return pexelsClient.searchVideos(query, page, filters);
   }
 
   listOpenAiConfigs() {
