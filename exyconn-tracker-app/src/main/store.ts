@@ -17,6 +17,7 @@ interface PersistedState {
    * forgets is a picker that gets ignored until the timesheet is wrong.
    */
   selectedProjectId?: string;
+  selectedTaskId?: string;
 }
 
 /**
@@ -126,6 +127,19 @@ class SecureStore {
 
   setSelectedProject(projectId: string): void {
     this.state.selectedProjectId = projectId;
+    // The ticket belonged to the old project's board, so it cannot survive the change —
+    // keeping it would file the next session's time under a ticket from another project.
+    this.state.selectedTaskId = '';
+    this.persist();
+  }
+
+  /** The ticket the next session books against. Empty means "the project, no ticket". */
+  get selectedTaskId(): string {
+    return this.state.selectedTaskId ?? '';
+  }
+
+  setSelectedTask(taskId: string): void {
+    this.state.selectedTaskId = taskId;
     this.persist();
   }
 

@@ -60,6 +60,7 @@ vi.mock('./device-info', () => ({ collectDeviceInfo: () => ({ deviceId: 'device-
 // stub: the controller reads back what it wrote to decide which project a session books to.
 const storeState = {
   selectedProjectId: '',
+  selectedTaskId: '',
   preferences: { closeToTray: true, themeMode: 'system' },
 };
 
@@ -77,6 +78,14 @@ vi.mock('./store', () => ({
     },
     setSelectedProject: (id: string) => {
       storeState.selectedProjectId = id;
+      // Mirrors the real store: the ticket belonged to the old board.
+      storeState.selectedTaskId = '';
+    },
+    get selectedTaskId() {
+      return storeState.selectedTaskId;
+    },
+    setSelectedTask: (id: string) => {
+      storeState.selectedTaskId = id;
     },
   }),
 }));
@@ -90,6 +99,9 @@ vi.mock('./portal-client', async () => {
     heartbeat: vi.fn(),
     markAttendance: vi.fn(),
     startSession: vi.fn(() => Promise.resolve('session-1')),
+    // Spread from `actual` this would be the real implementation, and every signed-in test
+    // would attempt a network call the controller then swallows.
+    fetchTasks: vi.fn(() => Promise.resolve([])),
   };
 });
 
@@ -281,7 +293,48 @@ describe('the working day', () => {
     expect(controller.getState().workday?.attendanceMarked).toBe(true);
 
     await controller.start();
-    expect(vi.mocked(portal.startSession)).toHaveBeenCalledWith(expect.any(String), 'p-global');
+    // No ticket picked, so the session books to the project alone — '' is the real value
+    // the portal is sent, not an omission.
+    expect(vi.mocked(portal.startSession)).toHaveBeenCalledWith(expect.any(String), 'p-global', '');
+  });
+
+  it('books the picked ticket onto the session', async () => {
+    vi.mocked(portal.fetchTasks).mockResolvedValue([
+      { id: 't-1', key: 'EXY-14', title: 'Fix the thing', assignedToMe: true },
+    ]);
+    const { controller } = await signedInController();
+    await vi.waitFor(() => expect(controller.getState().tasks).toHaveLength(1));
+
+    controller.setTask('t-1');
+    await controller.start();
+
+    expect(vi.mocked(portal.startSession)).toHaveBeenCalledWith(
+      expect.any(String),
+      'p-global',
+      't-1',
+    );
+  });
+
+  it('drops a ticket that is not on the current board rather than sending it', async () => {
+    vi.mocked(portal.fetchTasks).mockResolvedValue([]);
+    const { controller } = await signedInController();
+
+    controller.setTask('t-from-another-project');
+
+    expect(controller.getState().selectedTaskId).toBe('');
+  });
+
+  it('forgets the ticket when the project changes, so it cannot cross boards', async () => {
+    vi.mocked(portal.fetchTasks).mockResolvedValue([
+      { id: 't-1', key: 'EXY-14', title: 'Fix the thing', assignedToMe: true },
+    ]);
+    const { controller } = await signedInController();
+    await vi.waitFor(() => expect(controller.getState().tasks).toHaveLength(1));
+    controller.setTask('t-1');
+
+    controller.setProject('p-global');
+
+    expect(controller.getState().selectedTaskId).toBe('');
   });
 
   it('books to the house-wide project when the stored pick is no longer offered', async () => {

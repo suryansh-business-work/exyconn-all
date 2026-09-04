@@ -133,6 +133,10 @@ export const trackerTypeDefs = gql`
     deviceId: String!
     "The project this run booked its time against."
     projectId: String!
+    "The ticket this run was against; empty when the time was booked to the project only."
+    taskId: String!
+    taskKey: String!
+    taskTitle: String!
     "The project's name as it was when the session opened, so a rename cannot rewrite it."
     projectName: String!
     startedAt: DateTime!
@@ -200,6 +204,10 @@ export const trackerTypeDefs = gql`
     projectId: ID!
     "The project's name as it was when the entry was filed."
     projectName: String!
+    "The ticket the time was against; empty when it was booked to the project only."
+    taskId: ID!
+    taskKey: String!
+    taskTitle: String!
     startedAt: DateTime!
     endedAt: DateTime!
     durationMs: Float!
@@ -221,9 +229,83 @@ export const trackerTypeDefs = gql`
   input TrackerManualEntryInput {
     "Omit to book against the house-wide Global Project."
     projectId: ID
+    "Optional ticket. Ignored when it does not belong to the project above."
+    taskId: ID
     startedAt: DateTime!
     endedAt: DateTime!
     note: String!
+  }
+
+  "One ticket the desktop app may book a session against."
+  type TrackerTask {
+    id: ID!
+    "The human handle, e.g. EXY-14."
+    key: String!
+    title: String!
+    "Assigned to the calling employee. The picker leads with these."
+    assignedToMe: Boolean!
+  }
+
+  """
+  One person's time on one ticket within a project.
+
+  Measured time (activeMs/idleMs) and claimed time (manualMs) stay separate here for the
+  same reason they do everywhere else in the tracker: one was recorded, the other was
+  asserted by a person and approved by another.
+  """
+  type ProjectTimeLogRow {
+    "userId:taskId — the pair this row aggregates."
+    id: ID!
+    userId: ID!
+    userName: String!
+    "Empty when the time was booked to the project without picking a ticket."
+    taskId: ID!
+    taskKey: String!
+    taskTitle: String!
+    activeMs: Float!
+    idleMs: Float!
+    "Approved off-computer time claimed against the same ticket."
+    manualMs: Float!
+    sessions: Int!
+    screenshots: Int!
+  }
+
+  """
+  A project's time log, plus whether THIS viewer may open the screenshots behind it.
+
+  Time is project-management data and any PROJECTS user may read it. A screenshot is a
+  picture of somebody's screen, so it stays behind the TRACKER role — the flag lets the
+  UI say the images are withheld rather than render an empty gallery.
+  """
+  type ProjectTimeLog {
+    rows: [ProjectTimeLogRow!]!
+    totalActiveMs: Float!
+    totalManualMs: Float!
+    "True only when the caller also holds TRACKER (or ADMIN)."
+    canViewScreenshots: Boolean!
+  }
+
+  "One tracked run behind a time-log row."
+  type ProjectTimeLogSession {
+    id: ID!
+    userId: ID!
+    userName: String!
+    taskKey: String!
+    taskTitle: String!
+    startedAt: DateTime!
+    "Null while the session is still running."
+    endedAt: DateTime
+    activeMs: Float!
+    idleMs: Float!
+    screenshotCount: Int!
+  }
+
+  "A screenshot captured during a session, for the time log's evidence drawer."
+  type ProjectTimeLogScreenshot {
+    id: ID!
+    capturedAt: DateTime!
+    imageUrl: String!
+    blurred: Boolean!
   }
 
   type TrackerAppUsage {
@@ -466,6 +548,29 @@ export const trackerTypeDefs = gql`
     trackerManualEntries(userId: ID!, from: DateTime!, to: DateTime!): [TrackerManualEntry!]!
     "Every off-computer entry waiting on a decision, oldest first (TRACKER role)."
     trackerPendingManualEntries: [TrackerManualEntry!]!
+
+    # Project time log (PROJECTS role; screenshots additionally need TRACKER)
+    """
+    Who worked on which ticket in this project, and for how long. Readable by the PROJECTS
+    role — hours against a ticket are how a project is managed.
+    """
+    projectTimeLog(projectId: ID!, from: DateTime!, to: DateTime!): ProjectTimeLog!
+    """
+    The individual runs behind a time-log row. Pass taskId: "" for the rows of time booked
+    to the project without a ticket.
+    """
+    projectTimeLogSessions(
+      projectId: ID!
+      from: DateTime!
+      to: DateTime!
+      userId: ID
+      taskId: ID
+    ): [ProjectTimeLogSession!]!
+    """
+    Screenshots captured during one session of this project. TRACKER (or ADMIN) only: a
+    screenshot is a picture of an employee's screen, not a project metric.
+    """
+    projectTimeLogScreenshots(projectId: ID!, sessionId: ID!): [ProjectTimeLogScreenshot!]!
     """
     Billing for tracked time over a range. Active time only — idle minutes are time at a
     desk, and the rate comes from the employee's HR salary structure, never from here.
@@ -491,6 +596,11 @@ export const trackerTypeDefs = gql`
     time form. Any signed-in employee may read it — it is a list of project names.
     """
     trackerProjectOptions: [TrackerProject!]!
+    """
+    Tickets the CALLER may book time against on a project, their own assigned ones first.
+    Used by the desktop picker and by the off-computer time form.
+    """
+    trackerTaskOptions(projectId: ID!): [TrackerTask!]!
   }
 
   extend type Mutation {
@@ -547,7 +657,7 @@ export const trackerTypeDefs = gql`
     marked their attendance for the day. An unknown or missing projectId books the time
     against the house-wide Global Project rather than failing the start.
     """
-    trackerStartSession(startedAt: DateTime!, projectId: ID): TrackerSession!
+    trackerStartSession(startedAt: DateTime!, projectId: ID, taskId: ID): TrackerSession!
     trackerStopSession(sessionId: ID!, endedAt: DateTime!): TrackerSession!
     trackerSyncIntervals(sessionId: ID!, intervals: [TrackerIntervalInput!]!): Int!
     trackerUploadScreenshot(input: TrackerScreenshotInput!): TrackerScreenshot!

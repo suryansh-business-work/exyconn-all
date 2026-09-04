@@ -30,6 +30,7 @@ const api = {
     ipcRenderer.invoke(IPC.markAttendance, status, note),
   /** Chooses the project the next session books against; resolves to the project now in force. */
   setProject: (projectId: string): Promise<string> => ipcRenderer.invoke(IPC.setProject, projectId),
+  setTask: (taskId: string): Promise<string> => ipcRenderer.invoke(IPC.setTask, taskId),
   start: (): Promise<void> => ipcRenderer.invoke(IPC.start),
   pause: (): Promise<void> => ipcRenderer.invoke(IPC.pause),
   resume: (): Promise<void> => ipcRenderer.invoke(IPC.resume),

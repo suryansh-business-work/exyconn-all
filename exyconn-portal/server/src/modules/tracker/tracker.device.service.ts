@@ -338,7 +338,13 @@ class TrackerDeviceService {
    * mutation is what actually enforces it, and a timesheet for a day nobody attended is a
    * payroll question nobody can answer.
    */
-  async startSession(userId: string, deviceId: string, startedAt: Date, projectId?: string | null) {
+  async startSession(
+    userId: string,
+    deviceId: string,
+    startedAt: Date,
+    projectId?: string | null,
+    taskId?: string | null,
+  ) {
     const access = await TrackerAccessModel.findOne({ userId, isActive: true }).lean();
     if (!access?.consentedAt) {
       forbidden('You must accept the tracking disclosure before tracking can start.');
@@ -354,6 +360,9 @@ class TrackerDeviceService {
     }
 
     const project = await trackerWorkdayService.bookableProject(projectId);
+    // Resolved against the project the session actually books to, not the one the client
+    // claimed, so a stale picker cannot file EXY-14 under somebody else's project.
+    const task = await trackerWorkdayService.bookableTask(project.id, taskId);
 
     const session = await TrackerSessionModel.create({
       userId,
@@ -362,6 +371,9 @@ class TrackerDeviceService {
       status: 'active',
       projectId: project.id,
       projectName: project.name,
+      taskId: task?.id ?? '',
+      taskKey: task?.key ?? '',
+      taskTitle: task?.title ?? '',
     });
     return session.toObject();
   }

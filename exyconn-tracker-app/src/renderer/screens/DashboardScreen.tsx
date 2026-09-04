@@ -5,6 +5,7 @@ import Surface from '../components/Surface';
 import AttendanceGate from '../components/AttendanceGate';
 import DayProgress from '../components/DayProgress';
 import ProjectPicker from '../components/ProjectPicker';
+import TicketPicker from '../components/TicketPicker';
 import StatGrid from '../components/StatGrid';
 import StatusChip from '../components/StatusChip';
 import SyncBar from '../components/SyncBar';
@@ -59,6 +60,11 @@ export default function DashboardScreen({ state }: Readonly<Props>): ReactElemen
           <ProjectPicker
             projects={state.projects}
             selectedProjectId={state.selectedProjectId}
+            disabled={tracking}
+          />
+          <TicketPicker
+            tasks={state.tasks}
+            selectedTaskId={state.selectedTaskId}
             disabled={tracking}
           />
           <Divider />

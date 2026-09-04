@@ -13,6 +13,7 @@ import {
 import { trackerAdminService } from './tracker.admin.service';
 import { trackerBillingService } from './tracker.billing.service';
 import { trackerManualService, type ManualEntryInput } from './tracker.manual.service';
+import { trackerTimeLogService } from './tracker.timelog.service';
 import { trackerWorkdayService } from './tracker.workday.service';
 import type { ManualEntryStatus } from './tracker.constants';
 import {
@@ -22,6 +23,33 @@ import {
 } from './tracker.settings.service';
 
 const TRACKER_ROLES = [ROLES.TRACKER];
+
+/** How many tickets the desktop picker offers. A board can have thousands; a menu cannot. */
+const TASK_PICKER_LIMIT = 100;
+
+/**
+ * Who may read a project's time log.
+ *
+ * Hours against a ticket are how a project is run, so the PROJECTS role is enough — this is
+ * the module that owns the board the ticket lives on.
+ */
+const TIME_LOG_ROLES = [ROLES.PROJECTS, ROLES.TRACKER];
+
+/**
+ * Who may open the screenshots behind it.
+ *
+ * Deliberately narrower. A screenshot is a picture of an employee's screen, not a project
+ * metric, and putting the tracker's evidence inside the Projects module would otherwise
+ * widen who can watch staff from "the people who administer monitoring" to "anyone with a
+ * board". `assertRole` already lets ADMIN through every list.
+ */
+const SCREENSHOT_ROLES = [ROLES.TRACKER];
+
+/** Whether this caller passes the narrower screenshot check, without throwing if they do not. */
+function canViewScreenshots(ctx: GraphQLContext): boolean {
+  const roles = ctx.user?.roles ?? [];
+  return roles.includes(ROLES.ADMIN) || roles.includes(ROLES.TRACKER);
+}
 
 type LeanDoc = { _id: unknown };
 
@@ -165,6 +193,52 @@ export const trackerResolvers = {
       assertAuthenticated(ctx);
       return trackerWorkdayService.projects();
     },
+    trackerTaskOptions: async (
+      _p: unknown,
+      { projectId }: { projectId: string },
+      ctx: GraphQLContext,
+    ) => {
+      const user = assertAuthenticated(ctx);
+      return trackerWorkdayService.tasksFor(user.id, projectId, TASK_PICKER_LIMIT);
+    },
+
+    projectTimeLog: async (
+      _p: unknown,
+      { projectId, from, to }: { projectId: string; from: Date; to: Date },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, TIME_LOG_ROLES);
+      const rows = await trackerTimeLogService.summary(projectId, from, to);
+      return {
+        rows,
+        totalActiveMs: rows.reduce((sum, row) => sum + row.activeMs, 0),
+        totalManualMs: rows.reduce((sum, row) => sum + row.manualMs, 0),
+        canViewScreenshots: canViewScreenshots(ctx),
+      };
+    },
+    projectTimeLogSessions: async (
+      _p: unknown,
+      {
+        projectId,
+        from,
+        to,
+        userId,
+        taskId,
+      }: { projectId: string; from: Date; to: Date; userId?: string; taskId?: string },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, TIME_LOG_ROLES);
+      return trackerTimeLogService.sessions(projectId, from, to, userId, taskId);
+    },
+    projectTimeLogScreenshots: async (
+      _p: unknown,
+      { projectId, sessionId }: { projectId: string; sessionId: string },
+      ctx: GraphQLContext,
+    ) => {
+      // The narrow check: a board role is not a licence to look at somebody's screen.
+      assertRole(ctx, SCREENSHOT_ROLES);
+      return trackerTimeLogService.screenshots(projectId, sessionId);
+    },
     myTrackerManualEntries: async (
       _p: unknown,
       { from, to }: { from: Date; to: Date },
@@ -220,7 +294,8 @@ export const trackerResolvers = {
       // The project is resolved here so the manual service stays free of the workday
       // service, which itself reads approved manual time — see BookedProject.
       const project = await trackerWorkdayService.bookableProject(input.projectId);
-      return withId(await trackerManualService.create(user.id, input, project));
+      const task = await trackerWorkdayService.bookableTask(project?.id ?? '', input.taskId);
+      return withId(await trackerManualService.create(user.id, input, project, task));
     },
     withdrawTrackerManualEntry: async (
       _p: unknown,
@@ -282,12 +357,16 @@ export const trackerResolvers = {
     },
     trackerStartSession: async (
       _p: unknown,
-      { startedAt, projectId }: { startedAt: Date; projectId?: string | null },
+      {
+        startedAt,
+        projectId,
+        taskId,
+      }: { startedAt: Date; projectId?: string | null; taskId?: string | null },
       ctx: GraphQLContext,
     ) => {
       const { userId, deviceId } = await assertTrackerDevice(ctx);
       return withId(
-        await trackerDeviceService.startSession(userId, deviceId, startedAt, projectId),
+        await trackerDeviceService.startSession(userId, deviceId, startedAt, projectId, taskId),
       );
     },
     trackerStopSession: async (

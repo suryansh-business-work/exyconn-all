@@ -131,6 +131,7 @@ function registerIpc(ctrl: TrackerController): void {
     ctrl.markAttendance(status, note),
   );
   ipcMain.handle(IPC.setProject, (_e, projectId: string) => ctrl.setProject(projectId));
+  ipcMain.handle(IPC.setTask, (_e, taskId: string) => ctrl.setTask(taskId));
   ipcMain.handle(IPC.start, () => ctrl.start());
   ipcMain.handle(IPC.pause, () => ctrl.pause());
   ipcMain.handle(IPC.resume, () => ctrl.resume());

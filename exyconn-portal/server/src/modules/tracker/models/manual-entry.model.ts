@@ -16,6 +16,18 @@ const trackerManualEntrySchema = new Schema(
     projectId: { type: String, default: '', index: true },
     /** Denormalised, so a renamed project cannot rewrite an approved timesheet. */
     projectName: { type: String, default: '', trim: true },
+    /**
+     * The ticket this off-computer time is against, when the employee picked one — a meeting about a ticket.
+     *
+     * Empty is a real answer — time can belong to a project without belonging to any one
+     * ticket, and refusing to track until somebody picks a card would cost the time. The key
+     * and title are denormalised for the same reason the project's name is: a time log is
+     * read long after a ticket may have been renamed, moved or deleted, and a row that says
+     * EXY-14 is worth more than an id that no longer resolves.
+     */
+    taskId: { type: String, default: '', index: true },
+    taskKey: { type: String, default: '', trim: true },
+    taskTitle: { type: String, default: '', trim: true },
     startedAt: { type: Date, required: true, index: true },
     endedAt: { type: Date, required: true },
     /** Derived from the window on write, so reports never re-derive it inconsistently. */

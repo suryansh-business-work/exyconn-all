@@ -12,6 +12,7 @@ import type {
   ReportDay,
   TrackerProject,
   TrackerSettings,
+  TrackerTask,
   TrackerState,
   TrackerStatus,
   TrackerTotals,
@@ -49,6 +50,8 @@ export class TrackerController {
   private workProfile: WorkProfile | null = null;
   private workday: Workday | null = null;
   private projects: TrackerProject[] = [];
+  /** Tickets on the SELECTED project. Reloaded when that changes, not on every heartbeat. */
+  private tasks: TrackerTask[] = [];
   private consentPolicy: ConsentPolicy | null = null;
   private engine: TrackerEngine | null = null;
   private status: TrackerStatus = 'signed-out';
@@ -96,6 +99,8 @@ export class TrackerController {
       workday: this.workday,
       projects: this.projects,
       selectedProjectId: this.selectedProjectId(),
+      tasks: this.tasks,
+      selectedTaskId: this.selectedTaskId(),
       consentPolicy: this.consentPolicy,
       preferences: secureStore().preferences,
       rememberMe: secureStore().remembered,
@@ -131,6 +136,7 @@ export class TrackerController {
 
     try {
       this.applyPortalState(await portal.trackerMe());
+      this.loadTasks().catch((error: unknown) => console.error('Loading tickets failed', error));
       this.buildEngine();
       this.startPolling();
     } catch {
@@ -185,6 +191,7 @@ export class TrackerController {
   private async syncFromPortal(): Promise<void> {
     try {
       this.applyPortalState(await portal.trackerMe());
+      this.loadTasks().catch((error: unknown) => console.error('Loading tickets failed', error));
       this.emit();
     } catch (error) {
       console.error('Could not read the portal after sign-in; using this device’s zone', error);
@@ -261,11 +268,44 @@ export class TrackerController {
     return known ? stored : (this.projects[0]?.id ?? '');
   }
 
+  /**
+   * The ticket the next session books against, or '' for "the project, no ticket".
+   *
+   * A stored id that is not on the current board resolves to '' rather than being sent
+   * anyway: the portal would refuse it, and losing the ticket is better than losing the
+   * session it was attached to.
+   */
+  private selectedTaskId(): string {
+    const stored = secureStore().selectedTaskId;
+    return this.tasks.some((task) => task.id === stored) ? stored : '';
+  }
+
   /** Records which project the employee wants their next session booked against. */
   setProject(projectId: string): string {
     secureStore().setSelectedProject(projectId);
     this.emit();
+    // The board changed, so the ticket list has to as well. Fire-and-forget: the picker
+    // shows "no ticket" until it lands, which is exactly what is booked in the meantime.
+    this.loadTasks().catch((error: unknown) => console.error('Loading tickets failed', error));
     return this.selectedProjectId();
+  }
+
+  /** Records which ticket the employee wants their next session booked against. */
+  setTask(taskId: string): string {
+    secureStore().setSelectedTask(taskId);
+    this.emit();
+    return this.selectedTaskId();
+  }
+
+  /** Loads the selected project's tickets. Never throws into a caller — the picker degrades. */
+  private async loadTasks(): Promise<void> {
+    const projectId = this.selectedProjectId();
+    if (!this.user || projectId === '') {
+      this.tasks = [];
+      return;
+    }
+    this.tasks = await portal.fetchTasks(projectId);
+    this.emit();
   }
 
   /**
@@ -386,6 +426,7 @@ export class TrackerController {
     this.workProfile = null;
     this.workday = null;
     this.projects = [];
+    this.tasks = [];
     this.consentPolicy = null;
     this.engine = null;
     this.status = 'signed-out';
@@ -414,7 +455,7 @@ export class TrackerController {
     // said they are working again, and the schedule should stop holding yesterday's answer.
     this.autoOverride = false;
     this.engine.setDayBase(this.workday.activeMs);
-    await this.engine.start(this.selectedProjectId());
+    await this.engine.start(this.selectedProjectId(), this.selectedTaskId());
     this.status = 'tracking';
     this.emit();
   }

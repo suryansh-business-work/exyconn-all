@@ -280,3 +280,73 @@ query TrackerProjectOptions {
     key
   }
 }
+
+fragment ProjectTimeLogRowFields on ProjectTimeLogRow {
+  id
+  userId
+  userName
+  taskId
+  taskKey
+  taskTitle
+  activeMs
+  idleMs
+  manualMs
+  sessions
+  screenshots
+}
+
+query ProjectTimeLog($projectId: ID!, $from: DateTime!, $to: DateTime!) {
+  projectTimeLog(projectId: $projectId, from: $from, to: $to) {
+    rows {
+      ...ProjectTimeLogRowFields
+    }
+    totalActiveMs
+    totalManualMs
+    canViewScreenshots
+  }
+}
+
+query ProjectTimeLogSessions(
+  $projectId: ID!
+  $from: DateTime!
+  $to: DateTime!
+  $userId: ID
+  $taskId: ID
+) {
+  projectTimeLogSessions(
+    projectId: $projectId
+    from: $from
+    to: $to
+    userId: $userId
+    taskId: $taskId
+  ) {
+    id
+    userId
+    userName
+    taskKey
+    taskTitle
+    startedAt
+    endedAt
+    activeMs
+    idleMs
+    screenshotCount
+  }
+}
+
+query ProjectTimeLogScreenshots($projectId: ID!, $sessionId: ID!) {
+  projectTimeLogScreenshots(projectId: $projectId, sessionId: $sessionId) {
+    id
+    capturedAt
+    imageUrl
+    blurred
+  }
+}
+
+query TrackerTaskOptions($projectId: ID!) {
+  trackerTaskOptions(projectId: $projectId) {
+    id
+    key
+    title
+    assignedToMe
+  }
+}

@@ -6,6 +6,7 @@ import type {
   ReportDay,
   TrackerProject,
   TrackerSettings,
+  TrackerTask,
   TrackerTotals,
   WorkProfile,
   Workday,
@@ -245,6 +246,7 @@ export const WORKDAY_ONLY_FIELDS = `
   date targetMs activeMs attendanceStatus attendanceNote attendanceMarked
 `;
 export const PROJECT_FIELDS = `id name key`;
+export const TASK_FIELDS = `id key title assignedToMe`;
 export const CONSENT_POLICY_FIELDS = `
   id title slug summary body version requiresAcknowledgement acknowledged
 `;
@@ -370,14 +372,35 @@ export async function heartbeat(device: DeviceInfo): Promise<TrackerMeResponse> 
  * the disclosure AND marked their attendance for the day — the app's greyed-out Start button
  * is a courtesy; this is the rule.
  */
-export async function startSession(startedAt: string, projectId: string): Promise<string> {
+export async function startSession(
+  startedAt: string,
+  projectId: string,
+  taskId: string,
+): Promise<string> {
   const data = await authed<{ trackerStartSession: { id: string } }>(
-    `mutation Start($startedAt: DateTime!, $projectId: ID) {
-       trackerStartSession(startedAt: $startedAt, projectId: $projectId) { id }
+    `mutation Start($startedAt: DateTime!, $projectId: ID, $taskId: ID) {
+       trackerStartSession(startedAt: $startedAt, projectId: $projectId, taskId: $taskId) { id }
      }`,
-    { startedAt, projectId },
+    { startedAt, projectId, taskId },
   );
   return data.trackerStartSession.id;
+}
+
+/**
+ * Tickets the employee may book against on a project, their own first.
+ *
+ * Fetched per project rather than shipped inside the heartbeat: a board can have thousands
+ * of cards, and putting them in the once-a-minute keep-alive would make the poll grow with
+ * the size of the project.
+ */
+export async function fetchTasks(projectId: string): Promise<TrackerTask[]> {
+  const data = await authed<{ trackerTaskOptions: TrackerTask[] }>(
+    `query Tasks($projectId: ID!) {
+       trackerTaskOptions(projectId: $projectId) { ${TASK_FIELDS} }
+     }`,
+    { projectId },
+  );
+  return data.trackerTaskOptions;
 }
 
 export function stopSession(sessionId: string, endedAt: string): Promise<unknown> {

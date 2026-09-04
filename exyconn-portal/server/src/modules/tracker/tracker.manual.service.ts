@@ -5,6 +5,7 @@ import { TRACKER_MANUAL_LIMITS, type ManualEntryStatus } from './tracker.constan
 
 /** What an employee submits when claiming work done away from the computer. */
 export interface ManualEntryInput {
+  taskId?: string | null;
   startedAt: Date;
   endedAt: Date;
   note: string;
@@ -20,6 +21,13 @@ export interface ManualEntryInput {
 export interface BookedProject {
   id: string;
   name: string;
+}
+
+/** The ticket a claim is against, already resolved and checked against its project. */
+export interface BookedTask {
+  id: string;
+  key: string;
+  title: string;
 }
 
 /** A manual entry as `.lean()` returns it. */
@@ -74,7 +82,12 @@ class TrackerManualService {
    * so off-computer time lands on the projects tracked time does and an archived project
    * cannot leave a claim unattributable.
    */
-  async create(userId: string, input: ManualEntryInput, project: BookedProject | undefined) {
+  async create(
+    userId: string,
+    input: ManualEntryInput,
+    project: BookedProject | undefined,
+    task: BookedTask | null = null,
+  ) {
     const durationMs = assertUsableWindow(input.startedAt, input.endedAt);
     const note = input.note.trim();
     if (note === '') {
@@ -85,6 +98,9 @@ class TrackerManualService {
       userId,
       projectId: project?.id ?? '',
       projectName: project?.name ?? '',
+      taskId: task?.id ?? '',
+      taskKey: task?.key ?? '',
+      taskTitle: task?.title ?? '',
       startedAt: input.startedAt,
       endedAt: input.endedAt,
       durationMs,

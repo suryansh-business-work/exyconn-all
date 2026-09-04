@@ -2,11 +2,15 @@ import { AttendanceModel } from '../hr/attendance.model';
 import { PolicyModel } from '../legal/policy.model';
 import { PolicyAcknowledgementModel } from '../legal/policy-acknowledgement.model';
 import { ProjectModel } from '../projects/projects.model';
+import { TaskModel } from '../projects/board.model';
 import { DEFAULT_WORK_HOURS_PER_DAY, workTargetMs } from '../../constants/work';
 import { GLOBAL_PROJECT, TRACKER_WORKDAY } from './tracker.constants';
 import { zonedDateKey, zonedDayStartUtc } from './tracker.timezone';
 import { TrackerIntervalModel } from './models';
 import { trackerManualService } from './tracker.manual.service';
+
+/** Mongo throws on a malformed id rather than returning nothing, so check before querying. */
+const isObjectId = (value: string): boolean => /^[a-f\d]{24}$/i.test(value);
 
 /** The employee fields the workday reads. A lean User document satisfies this. */
 export interface WorkProfileSource {
@@ -194,6 +198,52 @@ class TrackerWorkdayService {
   async bookableProject(projectId?: string | null) {
     const bookable = await this.projects();
     return bookable.find((project) => project.id === projectId) ?? bookable[0];
+  }
+
+  /**
+   * Tickets an employee may book time against on a project, theirs first.
+   *
+   * Assigned-to-me leads the list because that is what somebody is about to work on; the rest
+   * of the board follows, because pairing on a colleague's ticket is normal and a picker that
+   * hid it would push that time onto no ticket at all.
+   */
+  async tasksFor(userId: string, projectId: string, limit: number) {
+    if (!isObjectId(projectId)) {
+      return [];
+    }
+    const tasks = await TaskModel.find({ projectId })
+      .select('key title assigneeId')
+      .sort({ updatedAt: -1 })
+      .limit(limit)
+      .lean();
+
+    const mine = tasks.filter((task) => task.assigneeId === userId);
+    const others = tasks.filter((task) => task.assigneeId !== userId);
+    return [...mine, ...others].map((task) => ({
+      id: String(task._id),
+      key: task.key,
+      title: task.title,
+      assignedToMe: task.assigneeId === userId,
+    }));
+  }
+
+  /**
+   * The ticket a session or a claim may be booked against, or null.
+   *
+   * A ticket from ANOTHER project is refused rather than silently accepted: a time log that
+   * shows EXY-14 under a project the ticket does not belong to is worse than no ticket at
+   * all. An unknown id resolves to null for the same reason the project falls back — losing
+   * the ticket is survivable, losing the time is not.
+   */
+  async bookableTask(projectId: string, taskId?: string | null) {
+    if (!taskId || !isObjectId(taskId)) {
+      return null;
+    }
+    const task = await TaskModel.findById(taskId).select('key title projectId').lean();
+    if (!task || String(task.projectId) !== projectId) {
+      return null;
+    }
+    return { id: String(task._id), key: task.key, title: task.title };
   }
 
   /**
