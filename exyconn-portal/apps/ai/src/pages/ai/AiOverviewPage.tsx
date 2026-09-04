@@ -5,7 +5,7 @@ import {
   type OverviewBreakdown,
 } from '@exyconn/shell/components/dashboard/ModuleOverview';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
+import { statCount, statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
 import {
   useListAiJobsQuery,
   useListAiJobsStatsQuery,
@@ -28,12 +28,12 @@ export function AiOverviewPage() {
 
   const statItems: StatItem[] = [
     { label: 'Jobs', value: String(statTotal(jobStats)), accent: '#4f8cff' },
+    { label: 'Failed', value: String(statCount(jobStats, 'status', 'FAILED')), accent: '#ff6b6b' },
     {
-      label: 'Running',
-      value: String(statCount(jobStats, 'status', 'RUNNING')),
+      label: 'Tokens used',
+      value: statSum(jobStats, 'totalTokens').toLocaleString(),
       accent: '#f59e0b',
     },
-    { label: 'Failed', value: String(statCount(jobStats, 'status', 'FAILED')), accent: '#ff6b6b' },
     {
       label: 'Prompts',
       value: String(statTotal(promptStatsData?.listPromptsStats)),
@@ -58,6 +58,7 @@ export function AiOverviewPage() {
     { key: 'name', label: 'Job' },
     { key: 'model', label: 'Model' },
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
+    { key: 'totalTokens', label: 'Tokens', render: (r) => r.totalTokens.toLocaleString() },
   ];
 
   const rows = failed.length > 0 ? failed : jobs;

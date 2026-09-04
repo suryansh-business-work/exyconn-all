@@ -1,25 +1,39 @@
 import { MockedProvider } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
-import { AiJobForm } from './ai-job.form';
+import { RunPromptForm } from './run-prompt.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
+import type { RunPromptTarget } from './run-prompt.types';
+
+const prompt: RunPromptTarget = {
+  id: 'prompt-1',
+  title: 'Weekly digest',
+  category: 'WRITING',
+  content: 'Summarise the week',
+  description: null,
+  tags: [],
+};
 
 const mount = () =>
   cy.mount(
     <MockedProvider mocks={[]} addTypename={false}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
-          <AiJobForm initial={null} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />
+          <RunPromptForm prompt={prompt} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />
         </NotificationProvider>
       </ThemeProvider>
     </MockedProvider>,
   );
 
-describe('AiJobForm', () => {
-  it('validates required fields', () => {
+describe('RunPromptForm', () => {
+  it('shows the prompt that is about to run', () => {
     mount();
-    cy.contains('button', 'Create').click();
-    cy.contains('Name is required').should('be.visible');
+    cy.contains('Summarise the week').should('be.visible');
+  });
+
+  it('will not run without a model', () => {
+    mount();
+    cy.contains('button', 'Run').click();
     cy.contains('Pick the model to run this on').should('be.visible');
   });
 

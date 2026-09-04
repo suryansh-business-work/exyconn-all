@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -8,15 +9,20 @@ import {
   ListPromptsPagedDocument,
   type ListPromptsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
+import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { PromptForm, type PromptRow } from './forms/prompt';
+import { RunPromptForm, type RunPromptTarget } from './forms/run-prompt';
+import { AiJobResult } from './AiJobResult';
 import { PROMPT_COLUMNS, type PagedPromptRow, type PromptsGridContext } from './prompts-grid';
 
-/** AI → Prompt Library: reusable prompts with a server-side grid, CRUD and one-click copy. */
+/** AI → Prompt Library: reusable prompts, each runnable against OpenAI without leaving the page. */
 export function PromptLibraryPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListPromptsStatsQuery();
   const [deletePrompt] = useDeletePromptMutation();
   const notify = useNotify();
+  const [runTarget, setRunTarget] = useState<RunPromptTarget | null>(null);
+  const [resultId, setResultId] = useState<string | null>(null);
   const crud = useCrudResource<PromptRow, PagedPromptRow>({
     label: 'Prompt',
     onDelete: (row) => deletePrompt({ variables: { id: row.id } }),
@@ -50,7 +56,13 @@ export function PromptLibraryPage() {
   };
 
   const gridContext: PromptsGridContext = {
-    actions: { copy: copyPrompt, edit: crud.openEdit, delete: crud.remove },
+    actions: { run: setRunTarget, copy: copyPrompt, edit: crud.openEdit, delete: crud.remove },
+  };
+
+  // The run finished by the time the mutation resolves, so its result opens straight away.
+  const onRunDone = (jobId: string) => {
+    setRunTarget(null);
+    setResultId(jobId);
   };
 
   return (
@@ -67,6 +79,27 @@ export function PromptLibraryPage() {
       fetchRows={fetchRows}
       context={gridContext}
       searchPlaceholder="Search prompts…"
+      extraDialogs={
+        <>
+          <CrudDialog
+            open={Boolean(runTarget)}
+            title="Run prompt"
+            onClose={() => setRunTarget(null)}
+          >
+            {runTarget && (
+              <RunPromptForm
+                prompt={runTarget}
+                onDone={onRunDone}
+                onCancel={() => setRunTarget(null)}
+              />
+            )}
+          </CrudDialog>
+
+          <CrudDialog open={Boolean(resultId)} title="Run result" onClose={() => setResultId(null)}>
+            {resultId && <AiJobResult id={resultId} />}
+          </CrudDialog>
+        </>
+      }
     />
   );
 }

@@ -67,22 +67,33 @@ export enum ActivityType {
   Task = 'TASK'
 }
 
+/** One prompt sent to OpenAI, with the answer and the tokens it cost. */
 export type AiJob = {
   __typename?: 'AiJob';
+  completionTokens: Scalars['Int']['output'];
   createdAt: Scalars['DateTime']['output'];
+  /** Why the run failed, in the words the API gave. Empty unless the status is FAILED. */
+  error: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  latencyMs: Scalars['Int']['output'];
   model: Scalars['String']['output'];
   name: Scalars['String']['output'];
   prompt: Scalars['String']['output'];
+  /** The prompt-library entry this job was started from, when it was. */
+  promptId: Scalars['String']['output'];
+  promptTokens: Scalars['Int']['output'];
+  ranAt?: Maybe<Scalars['DateTime']['output']>;
+  response: Scalars['String']['output'];
   status: AiJobStatus;
+  totalTokens: Scalars['Int']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/** A job is always created QUEUED — only running it moves the status on. */
 export type AiJobInput = {
   model: Scalars['String']['input'];
   name: Scalars['String']['input'];
   prompt: Scalars['String']['input'];
-  status: AiJobStatus;
 };
 
 export type AiJobPage = {
@@ -97,6 +108,13 @@ export enum AiJobStatus {
   Running = 'RUNNING',
   Succeeded = 'SUCCEEDED'
 }
+
+/** The model picker's options and the value it should open on. */
+export type AiModelOptions = {
+  __typename?: 'AiModelOptions';
+  defaultModel: Scalars['String']['output'];
+  models: Array<Scalars['String']['output']>;
+};
 
 export type Announcement = {
   __typename?: 'Announcement';
@@ -2095,12 +2113,16 @@ export type Mutation = {
   resetUserPassword: Scalars['String']['output'];
   revokeTrackerAccess: TrackerAccess;
   revokeTrackerDevice: TrackerDevice;
+  /** Sends the job's prompt to OpenAI and stores the answer, the tokens and the timing. */
+  runAiJob: AiJob;
   /**
    * Generates (or recomputes) every active employee's slip for the month from their
    * salary structure and approved unpaid leave. Idempotent: running it twice
    * recomputes GENERATED slips and never touches PAID ones.
    */
   runPayroll: PayrollRunResult;
+  /** Runs a prompt-library entry as a new job, so the run keeps its own history. */
+  runPrompt: AiJob;
   saveTrackerBuildSettings: TrackerBuildSettings;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
@@ -3033,9 +3055,20 @@ export type MutationRevokeTrackerDeviceArgs = {
 };
 
 
+export type MutationRunAiJobArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationRunPayrollArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
+};
+
+
+export type MutationRunPromptArgs = {
+  id: Scalars['ID']['input'];
+  model: Scalars['String']['input'];
 };
 
 
@@ -4167,6 +4200,8 @@ export type Query = {
   activeAnnouncements: Array<Announcement>;
   /** Leave types an employee can pick from when applying. */
   activeLeavePolicies: Array<LeavePolicy>;
+  /** Read live from OpenAI with the active key, so the list is what the account can reach. */
+  aiModels: AiModelOptions;
   appSettings: AppSettings;
   /** HR/ADMIN: a specific employee's attendance records. */
   attendanceByEmployee: Array<Attendance>;
@@ -6360,14 +6395,26 @@ export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: 
 export type ListAiJobsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListAiJobsQuery = { __typename?: 'Query', listAiJobs: Array<{ __typename?: 'AiJob', id: string, name: string, model: string, prompt: string, status: AiJobStatus }> };
+export type ListAiJobsQuery = { __typename?: 'Query', listAiJobs: Array<{ __typename?: 'AiJob', id: string, name: string, model: string, prompt: string, status: AiJobStatus, totalTokens: number }> };
+
+export type GetAiJobQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetAiJobQuery = { __typename?: 'Query', getAiJob: { __typename?: 'AiJob', id: string, name: string, model: string, prompt: string, status: AiJobStatus, response: string, error: string, promptTokens: number, completionTokens: number, totalTokens: number, latencyMs: number, ranAt?: string | null } };
+
+export type AiModelsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AiModelsQuery = { __typename?: 'Query', aiModels: { __typename?: 'AiModelOptions', models: Array<string>, defaultModel: string } };
 
 export type ListAiJobsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListAiJobsPagedQuery = { __typename?: 'Query', listAiJobsPaged: { __typename?: 'AiJobPage', totalCount: number, rows: Array<{ __typename?: 'AiJob', id: string, name: string, model: string, prompt: string, status: AiJobStatus }> } };
+export type ListAiJobsPagedQuery = { __typename?: 'Query', listAiJobsPaged: { __typename?: 'AiJobPage', totalCount: number, rows: Array<{ __typename?: 'AiJob', id: string, name: string, model: string, prompt: string, status: AiJobStatus, totalTokens: number, latencyMs: number, ranAt?: string | null }> } };
 
 export type ListAiJobsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6395,6 +6442,21 @@ export type DeleteAiJobMutationVariables = Exact<{
 
 
 export type DeleteAiJobMutation = { __typename?: 'Mutation', deleteAiJob: boolean };
+
+export type RunAiJobMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type RunAiJobMutation = { __typename?: 'Mutation', runAiJob: { __typename?: 'AiJob', id: string, status: AiJobStatus, error: string } };
+
+export type RunPromptMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  model: Scalars['String']['input'];
+}>;
+
+
+export type RunPromptMutation = { __typename?: 'Mutation', runPrompt: { __typename?: 'AiJob', id: string, name: string, status: AiJobStatus, response: string, error: string, totalTokens: number, latencyMs: number } };
 
 export type ListPromptsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -10625,6 +10687,7 @@ export const ListAiJobsDocument = gql`
     model
     prompt
     status
+    totalTokens
   }
 }
     `;
@@ -10663,6 +10726,103 @@ export type ListAiJobsQueryHookResult = ReturnType<typeof useListAiJobsQuery>;
 export type ListAiJobsLazyQueryHookResult = ReturnType<typeof useListAiJobsLazyQuery>;
 export type ListAiJobsSuspenseQueryHookResult = ReturnType<typeof useListAiJobsSuspenseQuery>;
 export type ListAiJobsQueryResult = Apollo.QueryResult<ListAiJobsQuery, ListAiJobsQueryVariables>;
+export const GetAiJobDocument = gql`
+    query GetAiJob($id: ID!) {
+  getAiJob(id: $id) {
+    id
+    name
+    model
+    prompt
+    status
+    response
+    error
+    promptTokens
+    completionTokens
+    totalTokens
+    latencyMs
+    ranAt
+  }
+}
+    `;
+
+/**
+ * __useGetAiJobQuery__
+ *
+ * To run a query within a React component, call `useGetAiJobQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAiJobQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAiJobQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAiJobQuery(baseOptions: Apollo.QueryHookOptions<GetAiJobQuery, GetAiJobQueryVariables> & ({ variables: GetAiJobQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAiJobQuery, GetAiJobQueryVariables>(GetAiJobDocument, options);
+      }
+export function useGetAiJobLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAiJobQuery, GetAiJobQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAiJobQuery, GetAiJobQueryVariables>(GetAiJobDocument, options);
+        }
+// @ts-ignore
+export function useGetAiJobSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAiJobQuery, GetAiJobQueryVariables>): Apollo.UseSuspenseQueryResult<GetAiJobQuery, GetAiJobQueryVariables>;
+export function useGetAiJobSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAiJobQuery, GetAiJobQueryVariables>): Apollo.UseSuspenseQueryResult<GetAiJobQuery | undefined, GetAiJobQueryVariables>;
+export function useGetAiJobSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAiJobQuery, GetAiJobQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAiJobQuery, GetAiJobQueryVariables>(GetAiJobDocument, options);
+        }
+export type GetAiJobQueryHookResult = ReturnType<typeof useGetAiJobQuery>;
+export type GetAiJobLazyQueryHookResult = ReturnType<typeof useGetAiJobLazyQuery>;
+export type GetAiJobSuspenseQueryHookResult = ReturnType<typeof useGetAiJobSuspenseQuery>;
+export type GetAiJobQueryResult = Apollo.QueryResult<GetAiJobQuery, GetAiJobQueryVariables>;
+export const AiModelsDocument = gql`
+    query AiModels {
+  aiModels {
+    models
+    defaultModel
+  }
+}
+    `;
+
+/**
+ * __useAiModelsQuery__
+ *
+ * To run a query within a React component, call `useAiModelsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAiModelsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAiModelsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAiModelsQuery(baseOptions?: Apollo.QueryHookOptions<AiModelsQuery, AiModelsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AiModelsQuery, AiModelsQueryVariables>(AiModelsDocument, options);
+      }
+export function useAiModelsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AiModelsQuery, AiModelsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AiModelsQuery, AiModelsQueryVariables>(AiModelsDocument, options);
+        }
+// @ts-ignore
+export function useAiModelsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AiModelsQuery, AiModelsQueryVariables>): Apollo.UseSuspenseQueryResult<AiModelsQuery, AiModelsQueryVariables>;
+export function useAiModelsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AiModelsQuery, AiModelsQueryVariables>): Apollo.UseSuspenseQueryResult<AiModelsQuery | undefined, AiModelsQueryVariables>;
+export function useAiModelsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AiModelsQuery, AiModelsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AiModelsQuery, AiModelsQueryVariables>(AiModelsDocument, options);
+        }
+export type AiModelsQueryHookResult = ReturnType<typeof useAiModelsQuery>;
+export type AiModelsLazyQueryHookResult = ReturnType<typeof useAiModelsLazyQuery>;
+export type AiModelsSuspenseQueryHookResult = ReturnType<typeof useAiModelsSuspenseQuery>;
+export type AiModelsQueryResult = Apollo.QueryResult<AiModelsQuery, AiModelsQueryVariables>;
 export const ListAiJobsPagedDocument = gql`
     query ListAiJobsPaged($input: TableQueryInput!) {
   listAiJobsPaged(input: $input) {
@@ -10673,6 +10833,9 @@ export const ListAiJobsPagedDocument = gql`
       model
       prompt
       status
+      totalTokens
+      latencyMs
+      ranAt
     }
   }
 }
@@ -10864,6 +11027,81 @@ export function useDeleteAiJobMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAiJobMutationHookResult = ReturnType<typeof useDeleteAiJobMutation>;
 export type DeleteAiJobMutationResult = Apollo.MutationResult<DeleteAiJobMutation>;
 export type DeleteAiJobMutationOptions = Apollo.BaseMutationOptions<DeleteAiJobMutation, DeleteAiJobMutationVariables>;
+export const RunAiJobDocument = gql`
+    mutation RunAiJob($id: ID!) {
+  runAiJob(id: $id) {
+    id
+    status
+    error
+  }
+}
+    `;
+export type RunAiJobMutationFn = Apollo.MutationFunction<RunAiJobMutation, RunAiJobMutationVariables>;
+
+/**
+ * __useRunAiJobMutation__
+ *
+ * To run a mutation, you first call `useRunAiJobMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRunAiJobMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [runAiJobMutation, { data, loading, error }] = useRunAiJobMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRunAiJobMutation(baseOptions?: Apollo.MutationHookOptions<RunAiJobMutation, RunAiJobMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RunAiJobMutation, RunAiJobMutationVariables>(RunAiJobDocument, options);
+      }
+export type RunAiJobMutationHookResult = ReturnType<typeof useRunAiJobMutation>;
+export type RunAiJobMutationResult = Apollo.MutationResult<RunAiJobMutation>;
+export type RunAiJobMutationOptions = Apollo.BaseMutationOptions<RunAiJobMutation, RunAiJobMutationVariables>;
+export const RunPromptDocument = gql`
+    mutation RunPrompt($id: ID!, $model: String!) {
+  runPrompt(id: $id, model: $model) {
+    id
+    name
+    status
+    response
+    error
+    totalTokens
+    latencyMs
+  }
+}
+    `;
+export type RunPromptMutationFn = Apollo.MutationFunction<RunPromptMutation, RunPromptMutationVariables>;
+
+/**
+ * __useRunPromptMutation__
+ *
+ * To run a mutation, you first call `useRunPromptMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRunPromptMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [runPromptMutation, { data, loading, error }] = useRunPromptMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      model: // value for 'model'
+ *   },
+ * });
+ */
+export function useRunPromptMutation(baseOptions?: Apollo.MutationHookOptions<RunPromptMutation, RunPromptMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RunPromptMutation, RunPromptMutationVariables>(RunPromptDocument, options);
+      }
+export type RunPromptMutationHookResult = ReturnType<typeof useRunPromptMutation>;
+export type RunPromptMutationResult = Apollo.MutationResult<RunPromptMutation>;
+export type RunPromptMutationOptions = Apollo.BaseMutationOptions<RunPromptMutation, RunPromptMutationVariables>;
 export const ListPromptsDocument = gql`
     query ListPrompts {
   listPrompts {

@@ -8,21 +8,38 @@ export const aiTypeDefs = gql`
     FAILED
   }
 
+  "One prompt sent to OpenAI, with the answer and the tokens it cost."
   type AiJob {
     id: ID!
     name: String!
     model: String!
     prompt: String!
     status: AiJobStatus!
+    "The prompt-library entry this job was started from, when it was."
+    promptId: String!
+    response: String!
+    "Why the run failed, in the words the API gave. Empty unless the status is FAILED."
+    error: String!
+    promptTokens: Int!
+    completionTokens: Int!
+    totalTokens: Int!
+    latencyMs: Int!
+    ranAt: DateTime
     createdAt: DateTime!
     updatedAt: DateTime!
   }
 
+  "A job is always created QUEUED — only running it moves the status on."
   input AiJobInput {
     name: String!
     model: String!
     prompt: String!
-    status: AiJobStatus!
+  }
+
+  "The model picker's options and the value it should open on."
+  type AiModelOptions {
+    models: [String!]!
+    defaultModel: String!
   }
 
   enum PromptCategory {
@@ -68,6 +85,8 @@ export const aiTypeDefs = gql`
     listAiJobsPaged(input: TableQueryInput!): AiJobPage!
     listAiJobsStats: TableStats!
     getAiJob(id: ID!): AiJob!
+    "Read live from OpenAI with the active key, so the list is what the account can reach."
+    aiModels: AiModelOptions!
     listPrompts: [Prompt!]!
     listPromptsPaged(input: TableQueryInput!): PromptPage!
     listPromptsStats: TableStats!
@@ -78,6 +97,10 @@ export const aiTypeDefs = gql`
     createAiJob(input: AiJobInput!): AiJob!
     updateAiJob(id: ID!, input: AiJobInput!): AiJob!
     deleteAiJob(id: ID!): Boolean!
+    "Sends the job's prompt to OpenAI and stores the answer, the tokens and the timing."
+    runAiJob(id: ID!): AiJob!
+    "Runs a prompt-library entry as a new job, so the run keeps its own history."
+    runPrompt(id: ID!, model: String!): AiJob!
     createPrompt(input: PromptInput!): Prompt!
     updatePrompt(id: ID!, input: PromptInput!): Prompt!
     deletePrompt(id: ID!): Boolean!
