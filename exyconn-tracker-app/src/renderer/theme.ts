@@ -1,6 +1,5 @@
-import { alpha, createTheme, type CSSObject, type Theme } from '@mui/material/styles';
-// Teaches `createTheme` about the MUI X picker slots (needed for the MuiPickersDay override).
-import type {} from '@mui/x-date-pickers/themeAugmentation';
+import { alpha, createTheme } from '@exyconn/ui';
+import type { CSSObject, Theme } from '@exyconn/ui';
 import type { Branding, ThemeMode } from '@shared/types';
 
 /** Exyconn defaults, used until the portal branding arrives (or if it fails to load). */

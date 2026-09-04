@@ -12,3 +12,9 @@ export { styled, alpha, useTheme, ThemeProvider, createTheme } from '@mui/materi
 export { default as CssBaseline } from '@mui/material/CssBaseline';
 export type { Theme, SxProps, CSSObject } from '@mui/material/styles';
 export type { SystemStyleObject } from '@mui/system';
+/**
+ * CSS keyframes for a `styled`/`sx` animation. Comes from `@mui/system` rather than
+ * `@mui/material/styles`, which does not re-export it — and it belongs here for the same
+ * reason `styled` does: nothing outside this package imports an emotion API directly.
+ */
+export { keyframes } from '@mui/system';

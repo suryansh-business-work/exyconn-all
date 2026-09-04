@@ -1,8 +1,5 @@
-import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Skeleton from '@mui/material/Skeleton';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { Alert, Box, Skeleton, Stack, Typography } from '@exyconn/ui';
 import useTotals from '../hooks/useTotals';
 import { totalTiles } from '../tiles';
 import StatGrid from './StatGrid';
@@ -15,7 +12,7 @@ interface Props {
 const SKELETONS = ['a', 'b', 'c', 'd'] as const;
 
 /** Placeholder tiles at the real grid's shape, so the panel does not jump when they land. */
-function LoadingTiles(): JSX.Element {
+function LoadingTiles(): ReactElement {
   return (
     <Box
       sx={{
@@ -39,7 +36,7 @@ function LoadingTiles(): JSX.Element {
  * in had no way to tell whether that meant "you have worked two minutes today" or "everything
  * you have ever logged is gone". Two headings, two meanings, no ambiguity.
  */
-export default function TotalsPanel({ lastSyncAt }: Readonly<Props>): JSX.Element {
+export default function TotalsPanel({ lastSyncAt }: Readonly<Props>): ReactElement {
   const { totals, loading, error } = useTotals(lastSyncAt);
 
   return (

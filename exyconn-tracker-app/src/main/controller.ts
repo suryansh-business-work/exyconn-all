@@ -1,17 +1,22 @@
 import type {
   AppPreferences,
+  AttendanceStatus,
   AuthUser,
   Branding,
+  ConsentPolicy,
   DayDetail,
   LiveStats,
   LoginResult,
   PermissionKind,
   PermissionState,
   ReportDay,
+  TrackerProject,
   TrackerSettings,
   TrackerState,
   TrackerStatus,
   TrackerTotals,
+  WorkProfile,
+  Workday,
 } from '@shared/types';
 import { deviceTimezone, effectiveTimezone } from '@shared/timezone';
 import { secureStore } from './store';
@@ -40,6 +45,10 @@ export class TrackerController {
   private user: AuthUser | null = null;
   private settings: TrackerSettings | null = null;
   private branding: Branding | null = null;
+  private workProfile: WorkProfile | null = null;
+  private workday: Workday | null = null;
+  private projects: TrackerProject[] = [];
+  private consentPolicy: ConsentPolicy | null = null;
   private engine: TrackerEngine | null = null;
   private status: TrackerStatus = 'signed-out';
   private permissions: PermissionState = getPermissions();
@@ -74,12 +83,29 @@ export class TrackerController {
       settings: this.settings,
       branding: this.branding,
       permissions: this.permissions,
-      stats: { ...this.stats, status: this.status },
+      stats: { ...this.stats, status: this.status, dayActiveMs: this.dayActiveMs() },
+      workProfile: this.workProfile,
+      workday: this.workday,
+      projects: this.projects,
+      selectedProjectId: this.selectedProjectId(),
+      consentPolicy: this.consentPolicy,
       preferences: secureStore().preferences,
       rememberMe: secureStore().remembered,
       signedOutReason: this.signedOutReason,
       timezone: this.timezone,
     };
+  }
+
+  /**
+   * Active ms worked today, live.
+   *
+   * The engine owns it once one exists, because only it knows the session in progress. Before
+   * that — a just-restored app, or one sitting idle — the portal's number for the day is the
+   * whole answer, and reading it here is what stops the progress bar showing zero until the
+   * first tick lands.
+   */
+  private dayActiveMs(): number {
+    return this.engine?.dayActiveMs ?? this.workday?.activeMs ?? 0;
   }
 
   /**
@@ -171,6 +197,10 @@ export class TrackerController {
 
     this.user = me.user;
     this.settings = me.settings;
+    this.workProfile = me.workProfile;
+    this.projects = me.projects;
+    this.consentPolicy = me.consentPolicy;
+    this.adoptWorkday(me.workday);
     this.timezone = effectiveTimezone(me.timezone);
     this.status = this.statusFor(me.consentRequired);
     this.engine?.updateSettings(me.settings);
@@ -182,7 +212,66 @@ export class TrackerController {
 
   /** The portal-owned slice of the state, for spotting a change without comparing by hand. */
   private stateSignature(): string {
-    return JSON.stringify([this.user, this.settings, this.timezone, this.status, this.permissions]);
+    return JSON.stringify([
+      this.user,
+      this.settings,
+      this.timezone,
+      this.status,
+      this.permissions,
+      this.workProfile,
+      this.workday,
+      this.projects,
+      this.consentPolicy,
+    ]);
+  }
+
+  /**
+   * Takes the portal's view of today, and decides whether it may reset the day's baseline.
+   *
+   * Mid-session it may not: the portal's number already includes the intervals this very
+   * session has uploaded, and adding the live session on top of that would count those
+   * minutes twice. A new calendar date is the exception — the day has genuinely restarted,
+   * and yesterday's session is not today's progress.
+   */
+  private adoptWorkday(next: Workday): void {
+    const rolledOver = this.workday !== null && this.workday.date !== next.date;
+    const running = this.status === 'tracking' || this.status === 'paused';
+    this.workday = next;
+    if (!running || rolledOver) {
+      this.engine?.setDayBase(next.activeMs);
+    }
+  }
+
+  /**
+   * The project the next session books against: the employee's own pick if it is still one
+   * they may book to, else the first project the portal offered — which is the house-wide
+   * Global Project. Never empty once the portal has answered.
+   */
+  private selectedProjectId(): string {
+    const stored = secureStore().selectedProjectId;
+    const known = this.projects.some((project) => project.id === stored);
+    return known ? stored : (this.projects[0]?.id ?? '');
+  }
+
+  /** Records which project the employee wants their next session booked against. */
+  setProject(projectId: string): string {
+    secureStore().setSelectedProject(projectId);
+    this.emit();
+    return this.selectedProjectId();
+  }
+
+  /**
+   * Marks the employee in for their local day, which is what unlocks tracking.
+   *
+   * The portal decides which day that is (from the zone it resolved for them) and upserts the
+   * same record HR's own page writes — so somebody who marked in from the portal this morning
+   * is already marked in here.
+   */
+  async markAttendance(status: AttendanceStatus, note: string | null): Promise<Workday> {
+    const workday = await portal.markAttendance(status, note);
+    this.adoptWorkday(workday);
+    this.emit();
+    return workday;
   }
 
   /**
@@ -252,12 +341,16 @@ export class TrackerController {
     return portal.fetchMyTotals();
   }
 
-  async acceptConsent(): Promise<void> {
-    await portal.acceptConsent();
-    if (this.status === 'consent-required') {
-      this.status = 'idle';
-      this.emit();
-    }
+  /**
+   * Records the employee's acceptance. `signedName` is their typed signature, which the
+   * portal also files in Legal's ledger when the workspace has chosen a policy.
+   *
+   * The portal is re-read afterwards rather than assumed: it owns whether consent is still
+   * required, and a signature that failed to land must not leave the app believing it did.
+   */
+  async acceptConsent(signedName: string): Promise<void> {
+    await portal.acceptConsent(signedName);
+    await this.syncFromPortal();
   }
 
   /**
@@ -281,6 +374,10 @@ export class TrackerController {
     secureStore().clearToken();
     this.user = null;
     this.settings = null;
+    this.workProfile = null;
+    this.workday = null;
+    this.projects = [];
+    this.consentPolicy = null;
     this.engine = null;
     this.status = 'signed-out';
     this.stats = idleStats();
@@ -291,11 +388,21 @@ export class TrackerController {
     this.emit();
   }
 
+  /**
+   * Starts tracking, against the chosen project.
+   *
+   * Attendance is checked here as well as on the portal so the refusal is instant and says
+   * what to do about it — but the portal is the one that actually enforces it.
+   */
   async start(): Promise<void> {
     if (!this.engine || this.status === 'consent-required') {
       return;
     }
-    await this.engine.start();
+    if (!this.workday?.attendanceMarked) {
+      throw new Error('Mark your attendance for today before tracking can start.');
+    }
+    this.engine.setDayBase(this.workday.activeMs);
+    await this.engine.start(this.selectedProjectId());
     this.status = 'tracking';
     this.emit();
   }
@@ -373,6 +480,13 @@ export class TrackerController {
       },
       composeWithWebcam: (input) => this.composeWithWebcam(input),
     });
+    // The portal's view of the day is usually already in hand by the time an engine exists
+    // (applyPortalState runs first, on a controller that has none), so the new engine has to
+    // be told where the day stands — otherwise the progress bar restarts from zero on every
+    // launch and only recovers at the next heartbeat.
+    if (this.workday !== null) {
+      this.engine.setDayBase(this.workday.activeMs);
+    }
   }
 
   private emit(): void {
@@ -392,6 +506,7 @@ function idleStats(): LiveStats {
     pendingSync: 0,
     lastSyncAt: null,
     syncing: false,
+    dayActiveMs: 0,
     lastSyncOutcome: null,
   };
 }

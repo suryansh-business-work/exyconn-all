@@ -1,6 +1,5 @@
-import Box from '@mui/material/Box';
-import { alpha } from '@mui/material/styles';
-
+import type { ReactElement } from 'react';
+import { Box, alpha } from '@exyconn/ui';
 interface Props {
   html: string;
 }
@@ -10,7 +9,7 @@ interface Props {
  * (workspace admin, not end-user input), which is why injecting it is acceptable here.
  * Scrolls inside its own panel so the agree/decline buttons always stay reachable.
  */
-export default function ConsentBody({ html }: Readonly<Props>): JSX.Element {
+export default function ConsentBody({ html }: Readonly<Props>): ReactElement {
   return (
     <Box
       sx={(theme) => ({

@@ -1,6 +1,6 @@
+import type { ReactElement } from 'react';
 import { useState } from 'react';
-import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
+import { Button, CircularProgress } from '@exyconn/ui';
 import LogoutRounded from '@mui/icons-material/LogoutRounded';
 import { run } from '../run';
 
@@ -8,7 +8,7 @@ import { run } from '../run';
  * Sign out. The main process stops tracking and flushes the outbox BEFORE dropping the token,
  * so the wait is a real upload — show it as one instead of a frozen button.
  */
-export default function SignOutButton(): JSX.Element {
+export default function SignOutButton(): ReactElement {
   const [busy, setBusy] = useState(false);
 
   async function signOut(): Promise<void> {

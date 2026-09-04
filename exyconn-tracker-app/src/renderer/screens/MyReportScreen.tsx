@@ -1,11 +1,14 @@
+import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
-import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
-import Typography from '@mui/material/Typography';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import {
+  Alert,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+  LocalizationProvider,
+  AdapterDateFns,
+} from '@exyconn/ui';
 import DayDetailPanel from '../components/DayDetailPanel';
 import MonthSwitcher from '../components/MonthSwitcher';
 import ReportCalendar from '../components/ReportCalendar';
@@ -29,7 +32,7 @@ function startOfMonth(date: Date): Date {
  * The employee's own tracked time. "Calendar" browses it date by date, with that day's
  * screenshots; "Days" keeps the month-at-a-glance table. Nobody else's data is reachable here.
  */
-export default function MyReportScreen({ timezone }: Readonly<Props>): JSX.Element {
+export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElement {
   const today = useMemo(() => new Date(), []);
   const [tab, setTab] = useState<TabId>('calendar');
   const [month, setMonth] = useState<Date>(() => startOfMonth(today));

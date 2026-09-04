@@ -80,11 +80,13 @@ describe('tracker device auth', () => {
 });
 
 describe('tracker sync', () => {
+  /** A signed-in employee who has cleared BOTH gates: the disclosure and today's attendance. */
   async function grantedSession() {
     const user = await makeEmployee();
     await trackerAdminService.grantAccess(user.id, 'admin');
     await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
     await trackerDeviceService.acceptConsent(user.id);
+    await trackerDeviceService.markAttendance(user.id, 'UTC', 'PRESENT', null);
     const session = await trackerDeviceService.startSession(user.id, 'device-1', new Date());
     return { user, sessionId: String((session as { _id: unknown })._id) };
   }
@@ -96,6 +98,26 @@ describe('tracker sync', () => {
     await expect(
       trackerDeviceService.startSession(user.id, 'device-1', new Date()),
     ).rejects.toThrow(/disclosure/i);
+  });
+
+  it('gates session start on attendance, even once the disclosure is accepted', async () => {
+    // A timesheet for a day nobody said they worked is a payroll question with no answer.
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
+    await trackerDeviceService.acceptConsent(user.id);
+
+    await expect(
+      trackerDeviceService.startSession(user.id, 'device-1', new Date()),
+    ).rejects.toThrow(/attendance/i);
+  });
+
+  it('books the session to the house-wide project when none is chosen', async () => {
+    const { sessionId } = await grantedSession();
+
+    const session = await TrackerSessionModel.findById(sessionId).lean();
+    expect(session?.projectName).toBe('Global Project');
+    expect(session?.projectId).not.toBe('');
   });
 
   it('stores intervals and rolls totals up onto the session', async () => {

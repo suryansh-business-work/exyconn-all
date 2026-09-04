@@ -1,9 +1,6 @@
+import type { ReactElement } from 'react';
 import type { SvgIconComponent } from '@mui/icons-material';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { alpha } from '@mui/material/styles';
+import { Box, Button, Stack, Typography, alpha } from '@exyconn/ui';
 import Surface from './Surface';
 
 interface Props {
@@ -21,7 +18,7 @@ export default function PermissionRow({
   icon,
   busy,
   onGrant,
-}: Readonly<Props>): JSX.Element {
+}: Readonly<Props>): ReactElement {
   const Icon = icon;
   return (
     <Surface sx={{ p: 2 }}>

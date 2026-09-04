@@ -1,18 +1,29 @@
+fragment UserFields on User {
+  id
+  name
+  email
+  roles
+  avatarUrl
+  isActive
+  isBlocked
+  blockReason
+  department
+  designation
+  joinDate
+  dateOfBirth
+  employmentStatus
+  address
+  brief
+  workingTime
+  workingTimeNote
+  workLocation
+  workLocationNote
+  workHoursPerDay
+}
+
 query ListUsers {
   listUsers {
-    id
-    name
-    email
-    roles
-    avatarUrl
-    isActive
-    isBlocked
-    blockReason
-    department
-    designation
-    joinDate
-  dateOfBirth
-    employmentStatus
+    ...UserFields
   }
 }
 
@@ -20,19 +31,7 @@ query ListUsersPaged($input: TableQueryInput!) {
   listUsersPaged(input: $input) {
     totalCount
     rows {
-      id
-      name
-      email
-      roles
-      avatarUrl
-      isActive
-      isBlocked
-      blockReason
-      department
-      designation
-      joinDate
-  dateOfBirth
-      employmentStatus
+      ...UserFields
     }
   }
 }
@@ -56,19 +55,7 @@ query ListUsersStats {
 
 query GetUser($id: ID!) {
   getUser(id: $id) {
-    id
-    name
-    email
-    roles
-    avatarUrl
-    isActive
-    isBlocked
-    blockReason
-    department
-    designation
-    joinDate
-  dateOfBirth
-    employmentStatus
+    ...UserFields
     createdAt
     updatedAt
   }

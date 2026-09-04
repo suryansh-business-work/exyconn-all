@@ -1,16 +1,14 @@
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { Alert, Button, Divider, Stack, Typography } from '@exyconn/ui';
 import OpenInNewRounded from '@mui/icons-material/OpenInNewRounded';
-import type { AppPreferences, Branding, TrackerSettings } from '@shared/types';
+import type { AppPreferences, Branding, TrackerSettings, WorkProfile } from '@shared/types';
 import Surface from '../components/Surface';
 import SettingsList from '../components/SettingsList';
 import SignOutButton from '../components/SignOutButton';
 import TimezonePicker from '../components/TimezonePicker';
 import TrayPreference from '../components/TrayPreference';
 import ThemeModePicker from '../components/ThemeModePicker';
+import WorkArrangementCard from '../components/WorkArrangementCard';
 import { buildSettingRows } from '../settings-rows';
 import { run } from '../run';
 
@@ -20,6 +18,8 @@ interface Props {
   timezone: string;
   /** This install's own preferences — the employee's, not the administrator's. */
   preferences: AppPreferences;
+  /** What HR contracted this employee to work — read-only here. */
+  workProfile: WorkProfile | null;
 }
 
 /** Read-only view of what the workspace configured, plus the privacy + sign-out actions. */
@@ -28,7 +28,8 @@ export default function SettingsScreen({
   branding,
   timezone,
   preferences,
-}: Readonly<Props>): JSX.Element {
+  workProfile,
+}: Readonly<Props>): ReactElement {
   const supportEmail = branding?.supportEmail ?? '';
   const legalName = branding?.legalName ?? branding?.businessName ?? '';
 
@@ -56,6 +57,8 @@ export default function SettingsScreen({
         </Typography>
         <ThemeModePicker mode={preferences.themeMode} />
       </Surface>
+
+      <WorkArrangementCard workProfile={workProfile} />
 
       <Surface sx={{ p: 2.5 }}>
         <Typography variant="h6">Settings</Typography>

@@ -6,6 +6,7 @@ import {
   HrPage,
   HrDashboardPage,
   EmployeeRecordsPage,
+  EmployeeFormPage,
   AttendanceListPage,
   DepartmentsPage,
   PositionsPage,
@@ -39,7 +40,9 @@ export function App() {
     <PortalApp loginElement={<Login />} moduleRole={ROLES.HR} homePath="/hr">
       <Route path="/hr" element={<HrDashboardPage />} />
       <Route path="/hr/employees" element={<EmployeeRecordsPage />} />
+      <Route path="/hr/employees/new" element={<EmployeeFormPage />} />
       <Route path="/hr/employees/:id" element={<UserDetailsPage />} />
+      <Route path="/hr/employees/:id/edit" element={<EmployeeFormPage />} />
       <Route path="/hr/leave" element={<HrPage />} />
       <Route path="/hr/attendance" element={<AttendanceListPage />} />
       <Route path="/hr/departments" element={<DepartmentsPage />} />

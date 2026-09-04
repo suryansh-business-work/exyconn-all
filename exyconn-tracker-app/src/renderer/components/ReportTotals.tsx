@@ -1,6 +1,5 @@
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import { alpha } from '@mui/material/styles';
+import type { ReactElement } from 'react';
+import { Box, Typography, alpha } from '@exyconn/ui';
 import Surface from './Surface';
 import type { ReportTotals as Totals } from '../hooks/useMyReport';
 import { formatHoursMinutes } from '../format';
@@ -24,7 +23,7 @@ function summaries(totals: Totals): Summary[] {
 }
 
 /** The month's headline numbers, above the day-by-day table. */
-export default function ReportTotals({ totals }: Readonly<Props>): JSX.Element {
+export default function ReportTotals({ totals }: Readonly<Props>): ReactElement {
   return (
     <Surface
       sx={{

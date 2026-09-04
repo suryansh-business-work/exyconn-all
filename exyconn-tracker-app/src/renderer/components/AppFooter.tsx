@@ -1,6 +1,6 @@
+import type { ReactElement } from 'react';
 import { getYear } from 'date-fns';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import { Box, Typography } from '@exyconn/ui';
 import type { Branding } from '@shared/types';
 
 const DEFAULT_OWNER = 'Exyconn';
@@ -32,7 +32,7 @@ function noticeOf(branding: Branding | null): string {
   return `© ${getYear(new Date())} ${ownerOf(branding)}. All rights reserved.`;
 }
 
-export default function AppFooter({ branding }: Readonly<Props>): JSX.Element {
+export default function AppFooter({ branding }: Readonly<Props>): ReactElement {
   return (
     <Box sx={{ flexShrink: 0, px: 2, pb: 1.5, textAlign: 'center' }}>
       <Typography variant="caption" color="text.secondary">

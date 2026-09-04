@@ -33,3 +33,19 @@ query AppSettings {
 mutation SendAdminCredentials {
   sendAdminCredentials
 }
+
+# The signed-in person's own working arrangement. Separate from `Me` on purpose: `Me` runs on
+# every page load in every portal to establish the session, and it should not grow HR fields
+# only two screens read.
+query MyWorkProfile {
+  me {
+    id
+    address
+    brief
+    workingTime
+    workingTimeNote
+    workLocation
+    workLocationNote
+    workHoursPerDay
+  }
+}

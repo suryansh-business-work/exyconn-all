@@ -10,6 +10,7 @@ import {
 import { useTrackerMonth } from '@exyconn/shell/pages/tracker-view/useTrackerMonth';
 import { buildTrackerMonth } from '@exyconn/shell/pages/tracker-view/buildTrackerMonth';
 import { TrackerView } from '@exyconn/shell/pages/tracker-view/TrackerView';
+import { MyWorkArrangementCard } from '@exyconn/shell/components/work';
 import { MyTrackerAccessBanner } from './MyTrackerAccessBanner';
 
 /** Employee self-view of their own tracker activity — no employee picker. */
@@ -36,6 +37,7 @@ export function MyTrackerPage() {
         access={accessQuery.data?.myTrackerAccess ?? null}
         formatDate={formatDate}
       />
+      <MyWorkArrangementCard />
       <TrackerView
         monthLabel={month.monthLabel}
         onPrev={month.prev}

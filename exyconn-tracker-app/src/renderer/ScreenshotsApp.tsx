@@ -1,7 +1,5 @@
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
-import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider } from '@mui/material/styles';
+import type { ReactElement } from 'react';
+import { Box, CircularProgress, ThemeProvider } from '@exyconn/ui';
 import AppFrame from './components/AppFrame';
 import TitleBar from './components/TitleBar';
 import ScreenshotsScreen from './screens/ScreenshotsScreen';
@@ -18,7 +16,7 @@ const START = params.get('start') ?? '';
 const END = params.get('end') ?? '';
 
 /** Full-bleed spinner shown until the first state snapshot lands (we need the zone and theme). */
-function Loading(): JSX.Element {
+function Loading(): ReactElement {
   return (
     <Box sx={{ flex: 1, display: 'grid', placeItems: 'center' }}>
       <CircularProgress />
@@ -31,13 +29,12 @@ function Loading(): JSX.Element {
  * reaches the portal the same way everything else does: through the main process, over IPC.
  * It never holds a token and never talks to the portal itself.
  */
-export default function ScreenshotsApp(): JSX.Element {
+export default function ScreenshotsApp(): ReactElement {
   const state = useTrackerState();
   const theme = useBrandTheme(state?.branding ?? null, state?.preferences.themeMode);
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
       <AppFrame>
         {/* The window is frameless, so without this it could not be moved or closed. */}
         <TitleBar title="My screenshots — Exyconn Tracker" />

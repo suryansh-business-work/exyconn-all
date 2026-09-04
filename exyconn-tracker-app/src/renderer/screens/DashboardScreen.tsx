@@ -1,8 +1,10 @@
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { Box, Divider, Stack, Typography } from '@exyconn/ui';
 import type { TrackerState } from '@shared/types';
 import Surface from '../components/Surface';
+import AttendanceGate from '../components/AttendanceGate';
+import DayProgress from '../components/DayProgress';
+import ProjectPicker from '../components/ProjectPicker';
 import StatGrid from '../components/StatGrid';
 import StatusChip from '../components/StatusChip';
 import SyncBar from '../components/SyncBar';
@@ -15,16 +17,24 @@ interface Props {
 }
 
 /**
- * Tracking controls, sync status, and TWO clearly separated blocks of numbers: the live
- * counters for the session in progress, and the employee's all-time totals from the portal.
- * They are never merged into one grid — a number that resets and a number that never does are
+ * The day, then the controls, then TWO clearly separated blocks of numbers: the live counters
+ * for the session in progress, and the employee's all-time totals from the portal. They are
+ * never merged into one grid — a number that resets and a number that never does are
  * different facts, and each block's heading says which it is.
+ *
+ * The day's progress sits at the very top because it is the one number the employee is
+ * actually working towards; everything below it explains how that number is being made.
  */
-export default function DashboardScreen({ state }: Readonly<Props>): JSX.Element {
-  const { stats, status, settings, user, timezone } = state;
+export default function DashboardScreen({ state }: Readonly<Props>): ReactElement {
+  const { stats, status, settings, user, timezone, workday, workProfile } = state;
+  const tracking = status === 'tracking' || status === 'paused';
 
   return (
     <Stack spacing={2.5}>
+      <Surface sx={{ p: 2.5 }}>
+        <DayProgress workday={workday} workProfile={workProfile} activeMs={stats.dayActiveMs} />
+      </Surface>
+
       <Surface sx={{ p: 2.5 }}>
         <Stack
           direction="row"
@@ -43,7 +53,17 @@ export default function DashboardScreen({ state }: Readonly<Props>): JSX.Element
           </Box>
           <StatusChip status={status} />
         </Stack>
-        <TrackingControls status={status} />
+
+        <Stack spacing={1.75}>
+          <AttendanceGate workday={workday} />
+          <ProjectPicker
+            projects={state.projects}
+            selectedProjectId={state.selectedProjectId}
+            disabled={tracking}
+          />
+          <Divider />
+          <TrackingControls status={status} attendanceMarked={workday?.attendanceMarked ?? false} />
+        </Stack>
       </Surface>
 
       <SyncBar stats={stats} settings={settings} timezone={timezone} />

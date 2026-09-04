@@ -21,6 +21,8 @@ export interface TrackerSettingsInput {
   syncIntervalMinutes?: number;
   /** Rich text (HTML) disclosure shown in the desktop app before tracking starts. */
   consentText?: string;
+  /** Slug of the Legal policy to use as the disclosure instead; '' falls back to consentText. */
+  consentPolicySlug?: string;
   /** House default IANA zone; '' means "use each employee's own device zone". */
   defaultTimezone?: string;
 }

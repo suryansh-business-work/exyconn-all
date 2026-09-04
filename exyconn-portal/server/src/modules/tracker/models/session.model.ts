@@ -9,6 +9,13 @@ const trackerSessionSchema = new Schema(
     startedAt: { type: Date, required: true, index: true },
     endedAt: { type: Date, default: null },
     status: { type: String, required: true, enum: SESSION_STATUSES, default: 'active' },
+    /** The project this run of the tracker books its time against. */
+    projectId: { type: String, default: '', index: true },
+    /**
+     * The project's name as it was when the session opened. Denormalised so a renamed or
+     * deleted project cannot rewrite what an already-recorded timesheet says it was for.
+     */
+    projectName: { type: String, default: '', trim: true },
     /** Rolled up from the session's intervals as they sync, so day views stay cheap. */
     activeMs: { type: Number, required: true, default: 0, min: 0 },
     idleMs: { type: Number, required: true, default: 0, min: 0 },

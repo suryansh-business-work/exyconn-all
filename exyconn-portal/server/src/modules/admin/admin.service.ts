@@ -12,12 +12,21 @@ import {
   type TableQueryInput,
 } from '../../utils/tableQuery';
 import type { Role } from '../../constants/roles';
+import type { WorkLocation, WorkingTime } from '../../constants/work';
 
 /** Whitelist of the columns the Users grid may search / filter / sort. */
 const USER_TABLE_CONFIG: TableConfig = {
   searchFields: ['name', 'email', 'department', 'designation'],
   filterFields: ['name', 'email', 'department', 'designation', 'employmentStatus'],
-  sortFields: ['name', 'email', 'department', 'designation', 'employmentStatus', 'createdAt', 'joinDate'],
+  sortFields: [
+    'name',
+    'email',
+    'department',
+    'designation',
+    'employmentStatus',
+    'createdAt',
+    'joinDate',
+  ],
   defaultSort: { field: 'createdAt', dir: 'DESC' },
 };
 
@@ -53,7 +62,36 @@ export interface HrFields {
   department?: string;
   designation?: string;
   joinDate?: Date;
+  dateOfBirth?: Date;
   employmentStatus?: EmploymentStatus;
+  /** Profile photo, hosted on ImageKit by the portal's upload dialog. */
+  avatarUrl?: string;
+  address?: string;
+  brief?: string;
+  workingTime?: WorkingTime;
+  workingTimeNote?: string;
+  workLocation?: WorkLocation;
+  workLocationNote?: string;
+  workHoursPerDay?: number;
+}
+
+/** The HR fields, as they go onto a new user document. */
+function hrFields(input: HrFields) {
+  return {
+    department: input.department,
+    designation: input.designation,
+    joinDate: input.joinDate,
+    dateOfBirth: input.dateOfBirth,
+    employmentStatus: input.employmentStatus ?? 'ACTIVE',
+    avatarUrl: input.avatarUrl,
+    address: input.address,
+    brief: input.brief,
+    workingTime: input.workingTime,
+    workingTimeNote: input.workingTimeNote,
+    workLocation: input.workLocation,
+    workLocationNote: input.workLocationNote,
+    workHoursPerDay: input.workHoursPerDay,
+  };
 }
 
 export interface CreateUserInput extends HrFields {
@@ -112,10 +150,7 @@ class AdminService {
       passwordHash,
       roles: input.roles,
       isActive: input.isActive ?? true,
-      department: input.department,
-      designation: input.designation,
-      joinDate: input.joinDate,
-      employmentStatus: input.employmentStatus ?? 'ACTIVE',
+      ...hrFields(input),
     });
 
     tryEmail('Welcome', () =>

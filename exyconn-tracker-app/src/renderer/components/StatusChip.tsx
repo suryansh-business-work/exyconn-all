@@ -1,6 +1,5 @@
-import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
-import { alpha } from '@mui/material/styles';
+import type { ReactElement } from 'react';
+import { Box, Chip, alpha } from '@exyconn/ui';
 import type { TrackerStatus } from '@shared/types';
 
 type StatusTone = 'idle' | 'live' | 'paused';
@@ -30,7 +29,7 @@ interface DotProps {
 }
 
 /** The status dot — it breathes only while tracking is actually running. */
-function StatusDot({ color, pulsing }: Readonly<DotProps>): JSX.Element {
+function StatusDot({ color, pulsing }: Readonly<DotProps>): ReactElement {
   return (
     <Box
       sx={{
@@ -56,7 +55,7 @@ interface Props {
 }
 
 /** Status pill with a pulsing dot. */
-export default function StatusChip({ status }: Readonly<Props>): JSX.Element {
+export default function StatusChip({ status }: Readonly<Props>): ReactElement {
   const meta = STATUS_META[status];
   const color = TONE_COLOR[meta.tone];
 

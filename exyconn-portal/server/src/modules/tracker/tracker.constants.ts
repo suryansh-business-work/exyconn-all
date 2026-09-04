@@ -66,6 +66,13 @@ export const TRACKER_DEFAULTS = Object.freeze({
    * employee's own machine reports. See tracker.timezone.ts for the resolution order.
    */
   defaultTimezone: '',
+  /**
+   * Slug of the Legal policy the desktop app shows as its tracking disclosure. Empty means
+   * "no policy chosen" — the app falls back to `consentText` below. Pointing this at a
+   * published policy is what makes one acceptance count in Legal, HR and the tracker at
+   * once, and what makes changed wording ask everybody again.
+   */
+  consentPolicySlug: '',
 
   /**
    * The disclosure shown in the desktop app before tracking can start. Rich text (HTML),
@@ -99,6 +106,29 @@ export const TRACKER_LIMITS = Object.freeze({
    * screenshots, it produced no screenshots. Sized for a lossless retina capture now.
    */
   maxScreenshotBytes: 24 * 1024 * 1024,
+});
+
+/**
+ * The house-wide project every employee can book time against, created on demand.
+ *
+ * Tracking has to be able to start before anybody has set a project up, and time booked
+ * against nothing is time nobody can report on — so there is always this one.
+ */
+export const GLOBAL_PROJECT = Object.freeze({
+  name: 'Global Project',
+  key: 'GLBL',
+  description: 'Default project for time that does not belong to a specific project.',
+});
+
+/** Rules for reading an employee's working day. */
+export const TRACKER_WORKDAY = Object.freeze({
+  /**
+   * How far back the day-total aggregation looks. Two days covers every zone offset from
+   * UTC in both directions, so the employee's local "today" is always inside the window.
+   */
+  lookbackMs: 48 * 60 * 60 * 1000,
+  /** Project states time may be booked against. A finished project is not one of them. */
+  bookableProjectStatuses: ['PLANNING', 'ACTIVE', 'ON_HOLD'],
 });
 
 export type DevicePlatform = (typeof DEVICE_PLATFORMS)[number];

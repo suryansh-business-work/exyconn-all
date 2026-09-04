@@ -1,7 +1,6 @@
+import type { ReactElement } from 'react';
 import { useState } from 'react';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import TextField from '@mui/material/TextField';
+import { IconButton, InputAdornment, TextField } from '@exyconn/ui';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
@@ -21,7 +20,7 @@ export default function PasswordField({
   error,
   helperText,
   onChange,
-}: Readonly<Props>): JSX.Element {
+}: Readonly<Props>): ReactElement {
   const [visible, setVisible] = useState(false);
   const label = visible ? 'Hide password' : 'Show password';
 

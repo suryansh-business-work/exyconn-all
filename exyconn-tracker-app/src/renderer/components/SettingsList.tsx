@@ -1,7 +1,5 @@
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { List, ListItem, ListItemText, Typography } from '@exyconn/ui';
 import type { SettingRow } from '../settings-rows';
 
 interface Props {
@@ -9,7 +7,7 @@ interface Props {
 }
 
 /** Read-only label/value list of the workspace's tracker settings. */
-export default function SettingsList({ rows }: Readonly<Props>): JSX.Element {
+export default function SettingsList({ rows }: Readonly<Props>): ReactElement {
   return (
     <List disablePadding>
       {rows.map((row) => (

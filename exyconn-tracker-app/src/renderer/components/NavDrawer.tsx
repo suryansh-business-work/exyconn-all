@@ -1,13 +1,16 @@
-import Avatar from '@mui/material/Avatar';
-import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import {
+  Avatar,
+  Box,
+  Divider,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Stack,
+  Typography,
+} from '@exyconn/ui';
 import type { AuthUser } from '@shared/types';
 import { NAV_ITEMS, type Section } from '../sections';
 
@@ -36,7 +39,7 @@ export default function NavDrawer({
   user,
   onClose,
   onSelect,
-}: Readonly<Props>): JSX.Element {
+}: Readonly<Props>): ReactElement {
   const name = user?.name ?? 'Signed in';
 
   return (

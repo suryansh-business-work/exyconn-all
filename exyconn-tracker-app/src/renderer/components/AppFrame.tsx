@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react';
-import Box from '@mui/material/Box';
-
+import type { ReactElement, ReactNode } from 'react';
+import { Box } from '@exyconn/ui';
 interface Props {
   children: ReactNode;
 }
@@ -10,7 +9,7 @@ interface Props {
  * their own scrolling. Plain and opaque on purpose — the brand colour is an accent here, not
  * a wash over every surface.
  */
-export default function AppFrame({ children }: Readonly<Props>): JSX.Element {
+export default function AppFrame({ children }: Readonly<Props>): ReactElement {
   return (
     <Box
       sx={(theme) => ({

@@ -1,11 +1,14 @@
+import type { ReactElement } from 'react';
 import { useMemo, useState, type HTMLAttributes } from 'react';
-import Alert from '@mui/material/Alert';
-import Autocomplete from '@mui/material/Autocomplete';
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
+import {
+  Alert,
+  Autocomplete,
+  Box,
+  CircularProgress,
+  Stack,
+  TextField,
+  Typography,
+} from '@exyconn/ui';
 import { formatTimeOfDay, offsetLabel, timezoneNames } from '../time';
 
 interface Props {
@@ -27,7 +30,7 @@ const SAVE_FAILED = 'Your timezone could not be saved. Check your connection and
  * choice is persisted to the portal, which is what makes it follow the employee to the web
  * portal and to their next device.
  */
-export default function TimezonePicker({ timezone }: Readonly<Props>): JSX.Element {
+export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElement {
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
 

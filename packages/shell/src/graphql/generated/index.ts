@@ -905,6 +905,9 @@ export enum ContractType {
 }
 
 export type CreateUserInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  avatarUrl?: InputMaybe<Scalars['String']['input']>;
+  brief?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
   department?: InputMaybe<Scalars['String']['input']>;
   designation?: InputMaybe<Scalars['String']['input']>;
@@ -914,6 +917,11 @@ export type CreateUserInput = {
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
   name: Scalars['String']['input'];
   roles: Array<Role>;
+  workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
+  workLocation?: InputMaybe<WorkLocation>;
+  workLocationNote?: InputMaybe<Scalars['String']['input']>;
+  workingTime?: InputMaybe<WorkingTime>;
+  workingTimeNote?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** The MongoDB this server is connected to, reported by the database server. */
@@ -2396,6 +2404,11 @@ export type Mutation = {
   testImageUpload: Scalars['String']['output'];
   testOpenAiConnection: Scalars['Boolean']['output'];
   testPexelsConnection: Scalars['Boolean']['output'];
+  /**
+   * Accepts the disclosure. When the workspace has pointed the tracker at a Legal policy,
+   * signedName is required and the acceptance is also recorded in Legal's versioned
+   * signature ledger — so one press of "I agree" counts in Legal, HR and the tracker at once.
+   */
   trackerAcceptConsent: Scalars['Boolean']['output'];
   /**
    * Desktop keep-alive, called on a timer for as long as the app is signed in.
@@ -2407,8 +2420,15 @@ export type Mutation = {
    */
   trackerHeartbeat: TrackerMe;
   trackerLogin: TrackerLoginPayload;
+  /** Marks the caller in for their current local day. Tracking cannot start until they have. */
+  trackerMarkAttendance: TrackerWorkday;
   /** Sets the CALLER's own timezone. Must be a resolvable IANA zone name. */
   trackerSetTimezone: TrackerAccess;
+  /**
+   * Opens a tracking session. Refused until the employee has accepted the disclosure AND
+   * marked their attendance for the day. An unknown or missing projectId books the time
+   * against the house-wide Global Project rather than failing the start.
+   */
   trackerStartSession: TrackerSession;
   trackerStopSession: TrackerSession;
   trackerSyncIntervals: Scalars['Int']['output'];
@@ -3461,6 +3481,11 @@ export type MutationTestPexelsConnectionArgs = {
 };
 
 
+export type MutationTrackerAcceptConsentArgs = {
+  signedName?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type MutationTrackerHeartbeatArgs = {
   device?: InputMaybe<TrackerDeviceInput>;
 };
@@ -3473,12 +3498,19 @@ export type MutationTrackerLoginArgs = {
 };
 
 
+export type MutationTrackerMarkAttendanceArgs = {
+  note?: InputMaybe<Scalars['String']['input']>;
+  status: AttendanceStatus;
+};
+
+
 export type MutationTrackerSetTimezoneArgs = {
   timezone: Scalars['String']['input'];
 };
 
 
 export type MutationTrackerStartSessionArgs = {
+  projectId?: InputMaybe<Scalars['ID']['input']>;
   startedAt: Scalars['DateTime']['input'];
 };
 
@@ -6398,6 +6430,24 @@ export type TrackerBuildSettings = {
   slackChannels: Array<Scalars['String']['output']>;
 };
 
+/**
+ * The Legal policy the workspace uses as its tracking disclosure, with THIS employee's
+ * signature state on the version now published. Null when no policy is configured.
+ */
+export type TrackerConsentPolicy = {
+  __typename?: 'TrackerConsentPolicy';
+  /** True only when this person has signed the version currently published. */
+  acknowledged: Scalars['Boolean']['output'];
+  acknowledgedAt?: Maybe<Scalars['DateTime']['output']>;
+  body: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  requiresAcknowledgement: Scalars['Boolean']['output'];
+  slug: Scalars['String']['output'];
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
+};
+
 export type TrackerDay = {
   __typename?: 'TrackerDay';
   appUsage: Array<TrackerAppUsage>;
@@ -6492,7 +6542,10 @@ export type TrackerLoginPayload = {
 
 export type TrackerMe = {
   __typename?: 'TrackerMe';
+  consentPolicy?: Maybe<TrackerConsentPolicy>;
   consentRequired: Scalars['Boolean']['output'];
+  /** Projects this employee may book time against, the house-wide one first. */
+  projects: Array<TrackerProject>;
   settings: TrackerSettings;
   /**
    * The EFFECTIVE zone: the employee's own pick, else the admin default, else the zone this
@@ -6500,6 +6553,8 @@ export type TrackerMe = {
    */
   timezone: Scalars['String']['output'];
   user: User;
+  workProfile: TrackerWorkProfile;
+  workday: TrackerWorkday;
 };
 
 /** The installers a build can produce. */
@@ -6508,6 +6563,14 @@ export enum TrackerPlatform {
   Macos = 'MACOS',
   Windows = 'WINDOWS'
 }
+
+/** One project time may be booked against. */
+export type TrackerProject = {
+  __typename?: 'TrackerProject';
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+};
 
 /** The newest published desktop tracker build, with its installers. */
 export type TrackerRelease = {
@@ -6568,6 +6631,10 @@ export type TrackerSession = {
   idleMs: Scalars['Float']['output'];
   keyCount: Scalars['Int']['output'];
   mouseCount: Scalars['Int']['output'];
+  /** The project this run booked its time against. */
+  projectId: Scalars['String']['output'];
+  /** The project's name as it was when the session opened, so a rename cannot rewrite it. */
+  projectName: Scalars['String']['output'];
   startedAt: Scalars['DateTime']['output'];
   status: Scalars['String']['output'];
   userId: Scalars['ID']['output'];
@@ -6576,6 +6643,11 @@ export type TrackerSession = {
 export type TrackerSettings = {
   __typename?: 'TrackerSettings';
   blurScreenshots: Scalars['Boolean']['output'];
+  /**
+   * Slug of the Legal policy used as the disclosure instead of consentText. Empty means
+   * no policy is chosen; the app then falls back to the text above.
+   */
+  consentPolicySlug: Scalars['String']['output'];
   consentText: Scalars['String']['output'];
   /**
    * House default IANA zone (e.g. "Asia/Kolkata"), chosen by an admin.
@@ -6603,6 +6675,7 @@ export type TrackerSettings = {
 
 export type TrackerSettingsInput = {
   blurScreenshots?: InputMaybe<Scalars['Boolean']['input']>;
+  consentPolicySlug?: InputMaybe<Scalars['String']['input']>;
   consentText?: InputMaybe<Scalars['String']['input']>;
   defaultTimezone?: InputMaybe<Scalars['String']['input']>;
   idleThresholdSeconds?: InputMaybe<Scalars['Int']['input']>;
@@ -6631,6 +6704,39 @@ export type TrackerWindowUsageInput = {
   appName: Scalars['String']['input'];
   durationMs: Scalars['Float']['input'];
   windowTitle?: InputMaybe<Scalars['String']['input']>;
+};
+
+/**
+ * What an employee is contracted to work: when, from where, and for how long a day. Set on
+ * the employee record in HR; the tracker measures the day against it.
+ */
+export type TrackerWorkProfile = {
+  __typename?: 'TrackerWorkProfile';
+  /** The contracted day in milliseconds — the unit every tracker total is in. */
+  targetMs: Scalars['Float']['output'];
+  workHoursPerDay: Scalars['Int']['output'];
+  workLocation: WorkLocation;
+  workLocationNote: Scalars['String']['output'];
+  workingTime: WorkingTime;
+  /** What OTHER means for this person; empty for the named arrangements. */
+  workingTimeNote: Scalars['String']['output'];
+};
+
+/**
+ * The employee's CURRENT local day: what they are contracted to work, how much of it they
+ * have worked, and whether they have marked themselves in.
+ */
+export type TrackerWorkday = {
+  __typename?: 'TrackerWorkday';
+  /** Active milliseconds recorded today. Idle time is excluded — this is time worked. */
+  activeMs: Scalars['Float']['output'];
+  /** Tracking cannot start until this is true. */
+  attendanceMarked: Scalars['Boolean']['output'];
+  attendanceNote?: Maybe<Scalars['String']['output']>;
+  attendanceStatus?: Maybe<AttendanceStatus>;
+  /** The employee's local calendar date, YYYY-MM-DD. */
+  date: Scalars['String']['output'];
+  targetMs: Scalars['Float']['output'];
 };
 
 export type Training = {
@@ -6685,6 +6791,9 @@ export type UpdateSettingsInput = {
 };
 
 export type UpdateUserInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  avatarUrl?: InputMaybe<Scalars['String']['input']>;
+  brief?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
   department?: InputMaybe<Scalars['String']['input']>;
   designation?: InputMaybe<Scalars['String']['input']>;
@@ -6695,12 +6804,20 @@ export type UpdateUserInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
   roles?: InputMaybe<Array<Role>>;
+  workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
+  workLocation?: InputMaybe<WorkLocation>;
+  workLocationNote?: InputMaybe<Scalars['String']['input']>;
+  workingTime?: InputMaybe<WorkingTime>;
+  workingTimeNote?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type User = {
   __typename?: 'User';
+  address?: Maybe<Scalars['String']['output']>;
   avatarUrl?: Maybe<Scalars['String']['output']>;
   blockReason?: Maybe<Scalars['String']['output']>;
+  /** A few lines about the person, shown on their profile across the portals. */
+  brief?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
   department?: Maybe<Scalars['String']['output']>;
@@ -6714,6 +6831,17 @@ export type User = {
   name: Scalars['String']['output'];
   roles: Array<Role>;
   updatedAt: Scalars['DateTime']['output'];
+  /**
+   * The contracted working day, in hours. Every arrangement has one — flexible moves the
+   * clock time, not the length of the day. Null on accounts that predate the field; readers
+   * fall back to the house default of 8.
+   */
+  workHoursPerDay?: Maybe<Scalars['Int']['output']>;
+  workLocation?: Maybe<WorkLocation>;
+  workLocationNote?: Maybe<Scalars['String']['output']>;
+  /** Nullable because accounts created before the working arrangement existed have none. */
+  workingTime?: Maybe<WorkingTime>;
+  workingTimeNote?: Maybe<Scalars['String']['output']>;
 };
 
 /** A newly-created user together with the one-time temporary password (also emailed). */
@@ -6755,17 +6883,34 @@ export type WebsiteSubmissionTriageInput = {
   status: Scalars['String']['input'];
 };
 
+/** Where an employee is expected to work from. OTHER is described in workLocationNote. */
+export enum WorkLocation {
+  Home = 'HOME',
+  Hybrid = 'HYBRID',
+  Office = 'OFFICE',
+  Other = 'OTHER'
+}
+
+/** When an employee is expected to work. OTHER is described in workingTimeNote. */
+export enum WorkingTime {
+  Fixed = 'FIXED',
+  Flexible = 'FLEXIBLE',
+  Other = 'OTHER'
+}
+
+export type UserFieldsFragment = { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null };
+
 export type ListUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListUsersQuery = { __typename?: 'Query', listUsers: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, employmentStatus: EmploymentStatus }> };
+export type ListUsersQuery = { __typename?: 'Query', listUsers: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null }> };
 
 export type ListUsersPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListUsersPagedQuery = { __typename?: 'Query', listUsersPaged: { __typename?: 'UserPage', totalCount: number, rows: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, employmentStatus: EmploymentStatus }> } };
+export type ListUsersPagedQuery = { __typename?: 'Query', listUsersPaged: { __typename?: 'UserPage', totalCount: number, rows: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null }> } };
 
 export type ListUsersStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6777,7 +6922,7 @@ export type GetUserQueryVariables = Exact<{
 }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, employmentStatus: EmploymentStatus, createdAt: string, updatedAt: string } };
+export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User', createdAt: string, updatedAt: string, id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null } };
 
 export type CreateUserMutationVariables = Exact<{
   input: CreateUserInput;
@@ -7054,6 +7199,11 @@ export type SendAdminCredentialsMutationVariables = Exact<{ [key: string]: never
 
 
 export type SendAdminCredentialsMutation = { __typename?: 'Mutation', sendAdminCredentials: string };
+
+export type MyWorkProfileQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyWorkProfileQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, address?: string | null, brief?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null } };
 
 export type TaskFieldsFragment = { __typename?: 'Task', id: string, columnId: string, key: string, title: string, description?: string | null, type: TaskType, priority: TaskPriority, assigneeId: string, assigneeName: string, reporterName: string, labels: Array<string>, storyPoints?: number | null, dueDate?: string | null, order: number, createdAt: string, updatedAt: string };
 
@@ -9627,11 +9777,11 @@ export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: st
 
 export type TrackerDeviceFieldsFragment = { __typename?: 'TrackerDevice', id: string, userId: string, deviceId: string, platform: string, hostname: string, appVersion: string, machineId: string, osName: string, osVersion: string, arch: string, cpuModel: string, cpuCores: number, totalMemoryMb: number, locale: string, timezone: string, screenCount: number, screenResolution: string, issuedAt: string, lastSeenAt: string, revokedAt?: string | null, isActive: boolean };
 
-export type TrackerSettingsFieldsFragment = { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, defaultTimezone: string };
+export type TrackerSettingsFieldsFragment = { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string };
 
 export type TrackerDayBucketFieldsFragment = { __typename?: 'TrackerDayBucket', date: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number, sessions: number };
 
-export type TrackerDayFieldsFragment = { __typename?: 'TrackerDay', intervals: Array<{ __typename?: 'TrackerInterval', id: string, sessionId: string, startedAt: string, endedAt: string, keyCount: number, mouseCount: number, activeMs: number, idleMs: number, activityPercent: number }>, screenshots: Array<{ __typename?: 'TrackerScreenshot', id: string, sessionId: string, intervalStartedAt: string, capturedAt: string, imageUrl: string, displayId: string, blurred: boolean, activityPercent: number }>, sessions: Array<{ __typename?: 'TrackerSession', id: string, startedAt: string, endedAt?: string | null, status: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number }>, appUsage: Array<{ __typename?: 'TrackerAppUsage', appName: string, durationMs: number }> };
+export type TrackerDayFieldsFragment = { __typename?: 'TrackerDay', intervals: Array<{ __typename?: 'TrackerInterval', id: string, sessionId: string, startedAt: string, endedAt: string, keyCount: number, mouseCount: number, activeMs: number, idleMs: number, activityPercent: number }>, screenshots: Array<{ __typename?: 'TrackerScreenshot', id: string, sessionId: string, intervalStartedAt: string, capturedAt: string, imageUrl: string, displayId: string, blurred: boolean, activityPercent: number }>, sessions: Array<{ __typename?: 'TrackerSession', id: string, startedAt: string, endedAt?: string | null, status: string, projectId: string, projectName: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number }>, appUsage: Array<{ __typename?: 'TrackerAppUsage', appName: string, durationMs: number }> };
 
 export type TrackerAccessListQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9648,7 +9798,7 @@ export type TrackerDevicesQuery = { __typename?: 'Query', trackerDevices: Array<
 export type TrackerSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TrackerSettingsQuery = { __typename?: 'Query', trackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, defaultTimezone: string } };
+export type TrackerSettingsQuery = { __typename?: 'Query', trackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
 
 export type TrackerCalendarQueryVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -9667,7 +9817,7 @@ export type TrackerDayQueryVariables = Exact<{
 }>;
 
 
-export type TrackerDayQuery = { __typename?: 'Query', trackerDay: { __typename?: 'TrackerDay', intervals: Array<{ __typename?: 'TrackerInterval', id: string, sessionId: string, startedAt: string, endedAt: string, keyCount: number, mouseCount: number, activeMs: number, idleMs: number, activityPercent: number }>, screenshots: Array<{ __typename?: 'TrackerScreenshot', id: string, sessionId: string, intervalStartedAt: string, capturedAt: string, imageUrl: string, displayId: string, blurred: boolean, activityPercent: number }>, sessions: Array<{ __typename?: 'TrackerSession', id: string, startedAt: string, endedAt?: string | null, status: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number }>, appUsage: Array<{ __typename?: 'TrackerAppUsage', appName: string, durationMs: number }> } };
+export type TrackerDayQuery = { __typename?: 'Query', trackerDay: { __typename?: 'TrackerDay', intervals: Array<{ __typename?: 'TrackerInterval', id: string, sessionId: string, startedAt: string, endedAt: string, keyCount: number, mouseCount: number, activeMs: number, idleMs: number, activityPercent: number }>, screenshots: Array<{ __typename?: 'TrackerScreenshot', id: string, sessionId: string, intervalStartedAt: string, capturedAt: string, imageUrl: string, displayId: string, blurred: boolean, activityPercent: number }>, sessions: Array<{ __typename?: 'TrackerSession', id: string, startedAt: string, endedAt?: string | null, status: string, projectId: string, projectName: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number }>, appUsage: Array<{ __typename?: 'TrackerAppUsage', appName: string, durationMs: number }> } };
 
 export type MyTrackerAccessQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9689,7 +9839,7 @@ export type MyTrackerDayQueryVariables = Exact<{
 }>;
 
 
-export type MyTrackerDayQuery = { __typename?: 'Query', myTrackerDay: { __typename?: 'TrackerDay', intervals: Array<{ __typename?: 'TrackerInterval', id: string, sessionId: string, startedAt: string, endedAt: string, keyCount: number, mouseCount: number, activeMs: number, idleMs: number, activityPercent: number }>, screenshots: Array<{ __typename?: 'TrackerScreenshot', id: string, sessionId: string, intervalStartedAt: string, capturedAt: string, imageUrl: string, displayId: string, blurred: boolean, activityPercent: number }>, sessions: Array<{ __typename?: 'TrackerSession', id: string, startedAt: string, endedAt?: string | null, status: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number }>, appUsage: Array<{ __typename?: 'TrackerAppUsage', appName: string, durationMs: number }> } };
+export type MyTrackerDayQuery = { __typename?: 'Query', myTrackerDay: { __typename?: 'TrackerDay', intervals: Array<{ __typename?: 'TrackerInterval', id: string, sessionId: string, startedAt: string, endedAt: string, keyCount: number, mouseCount: number, activeMs: number, idleMs: number, activityPercent: number }>, screenshots: Array<{ __typename?: 'TrackerScreenshot', id: string, sessionId: string, intervalStartedAt: string, capturedAt: string, imageUrl: string, displayId: string, blurred: boolean, activityPercent: number }>, sessions: Array<{ __typename?: 'TrackerSession', id: string, startedAt: string, endedAt?: string | null, status: string, projectId: string, projectName: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number }>, appUsage: Array<{ __typename?: 'TrackerAppUsage', appName: string, durationMs: number }> } };
 
 export type GrantTrackerAccessMutationVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -9717,7 +9867,7 @@ export type UpdateTrackerSettingsMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTrackerSettingsMutation = { __typename?: 'Mutation', updateTrackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, defaultTimezone: string } };
+export type UpdateTrackerSettingsMutation = { __typename?: 'Mutation', updateTrackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
 
 export type TrackerLatestReleaseQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -10050,6 +10200,30 @@ export type DeleteWebsiteSubmissionMutationVariables = Exact<{
 
 export type DeleteWebsiteSubmissionMutation = { __typename?: 'Mutation', deleteWebsiteSubmission: boolean };
 
+export const UserFieldsFragmentDoc = gql`
+    fragment UserFields on User {
+  id
+  name
+  email
+  roles
+  avatarUrl
+  isActive
+  isBlocked
+  blockReason
+  department
+  designation
+  joinDate
+  dateOfBirth
+  employmentStatus
+  address
+  brief
+  workingTime
+  workingTimeNote
+  workLocation
+  workLocationNote
+  workHoursPerDay
+}
+    `;
 export const AnnouncementFieldsFragmentDoc = gql`
     fragment AnnouncementFields on Announcement {
   id
@@ -10577,6 +10751,7 @@ export const TrackerSettingsFieldsFragmentDoc = gql`
   webcamCorner
   syncIntervalMinutes
   consentText
+  consentPolicySlug
   defaultTimezone
 }
     `;
@@ -10618,6 +10793,8 @@ export const TrackerDayFieldsFragmentDoc = gql`
     startedAt
     endedAt
     status
+    projectId
+    projectName
     activeMs
     idleMs
     keyCount
@@ -10801,22 +10978,10 @@ export const WebsiteSubmissionFieldsFragmentDoc = gql`
 export const ListUsersDocument = gql`
     query ListUsers {
   listUsers {
-    id
-    name
-    email
-    roles
-    avatarUrl
-    isActive
-    isBlocked
-    blockReason
-    department
-    designation
-    joinDate
-    dateOfBirth
-    employmentStatus
+    ...UserFields
   }
 }
-    `;
+    ${UserFieldsFragmentDoc}`;
 
 /**
  * __useListUsersQuery__
@@ -10857,23 +11022,11 @@ export const ListUsersPagedDocument = gql`
   listUsersPaged(input: $input) {
     totalCount
     rows {
-      id
-      name
-      email
-      roles
-      avatarUrl
-      isActive
-      isBlocked
-      blockReason
-      department
-      designation
-      joinDate
-      dateOfBirth
-      employmentStatus
+      ...UserFields
     }
   }
 }
-    `;
+    ${UserFieldsFragmentDoc}`;
 
 /**
  * __useListUsersPagedQuery__
@@ -10966,24 +11119,12 @@ export type ListUsersStatsQueryResult = Apollo.QueryResult<ListUsersStatsQuery, 
 export const GetUserDocument = gql`
     query GetUser($id: ID!) {
   getUser(id: $id) {
-    id
-    name
-    email
-    roles
-    avatarUrl
-    isActive
-    isBlocked
-    blockReason
-    department
-    designation
-    joinDate
-    dateOfBirth
-    employmentStatus
+    ...UserFields
     createdAt
     updatedAt
   }
 }
-    `;
+    ${UserFieldsFragmentDoc}`;
 
 /**
  * __useGetUserQuery__
@@ -12650,6 +12791,55 @@ export function useSendAdminCredentialsMutation(baseOptions?: Apollo.MutationHoo
 export type SendAdminCredentialsMutationHookResult = ReturnType<typeof useSendAdminCredentialsMutation>;
 export type SendAdminCredentialsMutationResult = Apollo.MutationResult<SendAdminCredentialsMutation>;
 export type SendAdminCredentialsMutationOptions = Apollo.BaseMutationOptions<SendAdminCredentialsMutation, SendAdminCredentialsMutationVariables>;
+export const MyWorkProfileDocument = gql`
+    query MyWorkProfile {
+  me {
+    id
+    address
+    brief
+    workingTime
+    workingTimeNote
+    workLocation
+    workLocationNote
+    workHoursPerDay
+  }
+}
+    `;
+
+/**
+ * __useMyWorkProfileQuery__
+ *
+ * To run a query within a React component, call `useMyWorkProfileQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyWorkProfileQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyWorkProfileQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyWorkProfileQuery(baseOptions?: Apollo.QueryHookOptions<MyWorkProfileQuery, MyWorkProfileQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyWorkProfileQuery, MyWorkProfileQueryVariables>(MyWorkProfileDocument, options);
+      }
+export function useMyWorkProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyWorkProfileQuery, MyWorkProfileQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyWorkProfileQuery, MyWorkProfileQueryVariables>(MyWorkProfileDocument, options);
+        }
+// @ts-ignore
+export function useMyWorkProfileSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyWorkProfileQuery, MyWorkProfileQueryVariables>): Apollo.UseSuspenseQueryResult<MyWorkProfileQuery, MyWorkProfileQueryVariables>;
+export function useMyWorkProfileSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyWorkProfileQuery, MyWorkProfileQueryVariables>): Apollo.UseSuspenseQueryResult<MyWorkProfileQuery | undefined, MyWorkProfileQueryVariables>;
+export function useMyWorkProfileSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyWorkProfileQuery, MyWorkProfileQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyWorkProfileQuery, MyWorkProfileQueryVariables>(MyWorkProfileDocument, options);
+        }
+export type MyWorkProfileQueryHookResult = ReturnType<typeof useMyWorkProfileQuery>;
+export type MyWorkProfileLazyQueryHookResult = ReturnType<typeof useMyWorkProfileLazyQuery>;
+export type MyWorkProfileSuspenseQueryHookResult = ReturnType<typeof useMyWorkProfileSuspenseQuery>;
+export type MyWorkProfileQueryResult = Apollo.QueryResult<MyWorkProfileQuery, MyWorkProfileQueryVariables>;
 export const ProjectBoardDocument = gql`
     query ProjectBoard($projectId: ID!) {
   projectBoard(projectId: $projectId) {

@@ -1,7 +1,5 @@
-import Alert from '@mui/material/Alert';
-import LinearProgress from '@mui/material/LinearProgress';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { Alert, LinearProgress, Stack, Typography } from '@exyconn/ui';
 import CloudDoneOutlined from '@mui/icons-material/CloudDoneOutlined';
 import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
 import type { LiveStats, TrackerSettings } from '@shared/types';
@@ -44,7 +42,7 @@ function pendingText(stats: LiveStats): string {
  * out until the timesheet was empty. Now it simply happens, on the workspace's cadence, and
  * this says when it last did and what is still queued.
  */
-export default function SyncBar({ stats, settings, timezone }: Readonly<Props>): JSX.Element {
+export default function SyncBar({ stats, settings, timezone }: Readonly<Props>): ReactElement {
   const settled = stats.pendingSync === 0 && !stats.syncing;
   const StatusIcon = settled ? CloudDoneOutlined : CloudUploadOutlined;
   const message = syncMessage(stats.lastSyncOutcome);

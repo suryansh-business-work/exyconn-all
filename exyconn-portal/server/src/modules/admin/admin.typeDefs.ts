@@ -27,6 +27,21 @@ export const adminTypeDefs = gql`
     TERMINATED
   }
 
+  "When an employee is expected to work. OTHER is described in workingTimeNote."
+  enum WorkingTime {
+    FLEXIBLE
+    FIXED
+    OTHER
+  }
+
+  "Where an employee is expected to work from. OTHER is described in workLocationNote."
+  enum WorkLocation {
+    OFFICE
+    HOME
+    HYBRID
+    OTHER
+  }
+
   type User {
     id: ID!
     name: String!
@@ -41,6 +56,20 @@ export const adminTypeDefs = gql`
     joinDate: DateTime
     dateOfBirth: DateTime
     employmentStatus: EmploymentStatus!
+    address: String
+    "A few lines about the person, shown on their profile across the portals."
+    brief: String
+    "Nullable because accounts created before the working arrangement existed have none."
+    workingTime: WorkingTime
+    workingTimeNote: String
+    workLocation: WorkLocation
+    workLocationNote: String
+    """
+    The contracted working day, in hours. Every arrangement has one — flexible moves the
+    clock time, not the length of the day. Null on accounts that predate the field; readers
+    fall back to the house default of 8.
+    """
+    workHoursPerDay: Int
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -74,6 +103,14 @@ export const adminTypeDefs = gql`
     joinDate: DateTime
     dateOfBirth: DateTime
     employmentStatus: EmploymentStatus
+    avatarUrl: String
+    address: String
+    brief: String
+    workingTime: WorkingTime
+    workingTimeNote: String
+    workLocation: WorkLocation
+    workLocationNote: String
+    workHoursPerDay: Int
   }
 
   input UpdateUserInput {
@@ -87,6 +124,14 @@ export const adminTypeDefs = gql`
     joinDate: DateTime
     dateOfBirth: DateTime
     employmentStatus: EmploymentStatus
+    avatarUrl: String
+    address: String
+    brief: String
+    workingTime: WorkingTime
+    workingTimeNote: String
+    workLocation: WorkLocation
+    workLocationNote: String
+    workHoursPerDay: Int
   }
 
   input UpdateSettingsInput {

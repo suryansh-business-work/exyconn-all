@@ -1,12 +1,15 @@
+import type { ReactElement } from 'react';
 import { useState, type FormEvent } from 'react';
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import CircularProgress from '@mui/material/CircularProgress';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
+import {
+  Alert,
+  Button,
+  Checkbox,
+  CircularProgress,
+  FormControlLabel,
+  Stack,
+  TextField,
+  Typography,
+} from '@exyconn/ui';
 import type { Branding, ThemeMode } from '@shared/types';
 import AppFooter from '../components/AppFooter';
 import BrandMark from '../components/BrandMark';
@@ -33,7 +36,7 @@ export default function LoginScreen({
   rememberMe,
   signedOutReason,
   themeMode,
-}: Readonly<Props>): JSX.Element {
+}: Readonly<Props>): ReactElement {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(rememberMe);

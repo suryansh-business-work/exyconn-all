@@ -1,20 +1,15 @@
 import { PolicyModel, type PolicyAudience } from './policy.model';
 import { PolicyAcknowledgementModel } from './policy-acknowledgement.model';
-import { UserModel } from '../admin/user.model';
-import { emailer } from '../email';
+import { policyAcknowledgementService } from './policy-acknowledgement.service';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertRole, assertAuthenticated } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
-import { badRequest, notFound } from '../../utils/errors';
-import { logger } from '../../utils/logger';
+import { notFound } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
 
 const legalRoles = [ROLES.LEGAL];
-
-/** The template Legal sends when somebody signs. Authored in Tech → Email. */
-const ACKNOWLEDGED_TEMPLATE = 'policy-acknowledged';
 
 interface PolicyInput {
   title: string;
@@ -103,7 +98,8 @@ async function archivePolicy(_p: unknown, { id }: { id: string }, ctx: GraphQLCo
  *
  * The identity comes from the token, never from the arguments: `signedName` is what the
  * person typed as their signature, and letting a caller also choose WHOSE signature it was
- * would make the whole record worthless.
+ * would make the whole record worthless. The audience check is this resolver's own — the
+ * signing itself is shared with the desktop tracker's consent screen.
  */
 async function acknowledgePolicy(
   _p: unknown,
@@ -113,64 +109,11 @@ async function acknowledgePolicy(
   const user = assertAuthenticated(ctx);
 
   const policy = await PolicyModel.findById(policyId).lean();
-  if (!policy || policy.status !== 'PUBLISHED') {
+  if (!policy || !audiencesFor(user.roles).includes(policy.audience)) {
     notFound('Policy');
   }
-  if (!audiencesFor(user.roles).includes(policy.audience)) {
-    notFound('Policy');
-  }
-  if (signedName.trim() === '') {
-    badRequest('Type your name to sign.');
-  }
 
-  const existing = await PolicyAcknowledgementModel.findOne({
-    policyId,
-    userId: user.id,
-    version: policy.version,
-  }).lean();
-  if (existing) {
-    badRequest(`You have already signed version ${policy.version} of "${policy.title}".`);
-  }
-
-  // The token carries an id and an email, not a name — and a signature record that says
-  // only "user-64f2…" is no use to whoever reads it back in two years.
-  const account = await UserModel.findById(user.id).select('name email').lean();
-
-  const record = await PolicyAcknowledgementModel.create({
-    policyId,
-    policyTitle: policy.title,
-    version: policy.version,
-    userId: user.id,
-    userName: account?.name ?? '',
-    userEmail: account?.email ?? user.email,
-    signedName: signedName.trim(),
-    signedAt: new Date(),
-  });
-
-  // The confirmation is the signer's own copy of what they agreed to and when. A mail
-  // server that is down must not undo a signature that has already been recorded, so the
-  // failure is logged and the signature stands.
-  const recipient = account?.email ?? user.email;
-  if (recipient) {
-    await emailer
-      .send({
-        template: ACKNOWLEDGED_TEMPLATE,
-        to: recipient,
-        variables: {
-          name: account?.name ?? recipient,
-          policyTitle: policy.title,
-          version: String(policy.version),
-          signedName: signedName.trim(),
-          signedAt: record.signedAt.toISOString(),
-        },
-        triggeredBy: recipient,
-      })
-      .catch((error: unknown) => {
-        logger.error({ err: error }, `Policy acknowledgement email to ${recipient} failed`);
-      });
-  }
-
-  return withId(record.toObject());
+  return withId(await policyAcknowledgementService.sign(user.id, policyId, signedName));
 }
 
 export const policyResolvers = {

@@ -1,4 +1,15 @@
-import type { Branding, DayDetail, ReportDay, TrackerSettings, TrackerTotals } from '@shared/types';
+import type {
+  AttendanceStatus,
+  Branding,
+  ConsentPolicy,
+  DayDetail,
+  ReportDay,
+  TrackerProject,
+  TrackerSettings,
+  TrackerTotals,
+  WorkProfile,
+  Workday,
+} from '@shared/types';
 import { secureStore } from './store';
 import { summarizeDay, type RawDay } from './day-summary';
 
@@ -220,11 +231,36 @@ export async function fetchMyDay(start: string, end: string): Promise<DayDetail>
  * `trackerHeartbeat` return the same type, so they select the same fields — the app must
  * never learn less from a heartbeat than it did at sign-in.
  */
+/**
+ * The workday half of the state payload: what the employee is contracted to work, how far
+ * into today they are, whether they have marked in, and what they may book time against.
+ * Selected alongside the settings for the same reason — three operations return this type,
+ * and a field that drifts from the portal's schema fails all three.
+ */
+export const WORK_PROFILE_FIELDS = `
+  workingTime workingTimeNote workLocation workLocationNote workHoursPerDay targetMs
+`;
+export const WORKDAY_ONLY_FIELDS = `
+  date targetMs activeMs attendanceStatus attendanceNote attendanceMarked
+`;
+export const PROJECT_FIELDS = `id name key`;
+export const CONSENT_POLICY_FIELDS = `
+  id title slug summary body version requiresAcknowledgement acknowledged
+`;
+
+const WORKDAY_FIELDS = `
+  workProfile { ${WORK_PROFILE_FIELDS} }
+  workday { ${WORKDAY_ONLY_FIELDS} }
+  projects { ${PROJECT_FIELDS} }
+  consentPolicy { ${CONSENT_POLICY_FIELDS} }
+`;
+
 const ME_FIELDS = `
   user { id name email }
   consentRequired
   timezone
   settings { ${SETTINGS_FIELDS} }
+  ${WORKDAY_FIELDS}
 `;
 
 const TRACKER_ME = `query { trackerMe { ${ME_FIELDS} } }`;
@@ -240,6 +276,10 @@ export interface TrackerMeResponse {
   settings: TrackerSettings;
   /** The EFFECTIVE zone the portal resolved: this employee's pick, else the admin default. */
   timezone: string;
+  workProfile: WorkProfile;
+  workday: Workday;
+  projects: TrackerProject[];
+  consentPolicy: ConsentPolicy | null;
 }
 
 /** Rebuilds a remembered session from the stored device token (no password prompt). */
@@ -280,8 +320,36 @@ export async function fetchMyTotals(): Promise<TrackerTotals> {
   return data.myTrackerTotals;
 }
 
-export function acceptConsent(): Promise<{ trackerAcceptConsent: boolean }> {
-  return authed(`mutation { trackerAcceptConsent }`);
+/**
+ * Records the employee's acceptance of the disclosure.
+ *
+ * `signedName` is what they typed as their signature. When the workspace has pointed the
+ * tracker at a Legal policy, the portal writes it into Legal's versioned ledger as well —
+ * WHO signed comes from the device token, never from here.
+ */
+export function acceptConsent(signedName: string): Promise<{ trackerAcceptConsent: boolean }> {
+  return authed(
+    `mutation AcceptConsent($signedName: String) { trackerAcceptConsent(signedName: $signedName) }`,
+    { signedName },
+  );
+}
+
+const MARK_ATTENDANCE = `
+  mutation MarkAttendance($status: AttendanceStatus!, $note: String) {
+    trackerMarkAttendance(status: $status, note: $note) { ${WORKDAY_ONLY_FIELDS} }
+  }
+`;
+
+/**
+ * Marks the employee in for their own local day. The portal upserts the same record HR's
+ * self-service page writes, so marking in here and marking in there are one day, not two.
+ */
+export async function markAttendance(
+  status: AttendanceStatus,
+  note: string | null,
+): Promise<Workday> {
+  const data = await authed<{ trackerMarkAttendance: Workday }>(MARK_ATTENDANCE, { status, note });
+  return data.trackerMarkAttendance;
 }
 
 /**
@@ -296,10 +364,17 @@ export async function heartbeat(device: DeviceInfo): Promise<TrackerMeResponse> 
   return data.trackerHeartbeat;
 }
 
-export async function startSession(startedAt: string): Promise<string> {
+/**
+ * Opens a session against a project. The portal refuses this until the employee has accepted
+ * the disclosure AND marked their attendance for the day — the app's greyed-out Start button
+ * is a courtesy; this is the rule.
+ */
+export async function startSession(startedAt: string, projectId: string): Promise<string> {
   const data = await authed<{ trackerStartSession: { id: string } }>(
-    `mutation Start($startedAt: DateTime!) { trackerStartSession(startedAt: $startedAt) { id } }`,
-    { startedAt },
+    `mutation Start($startedAt: DateTime!, $projectId: ID) {
+       trackerStartSession(startedAt: $startedAt, projectId: $projectId) { id }
+     }`,
+    { startedAt, projectId },
   );
   return data.trackerStartSession.id;
 }

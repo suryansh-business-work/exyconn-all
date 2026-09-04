@@ -1,11 +1,10 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
-  RhfTextField,
-  RhfSelect,
-  RhfMultiSelect,
   RhfDatePicker,
+  RhfMultiSelect,
+  RhfSelect,
+  RhfTextField,
   type SelectOption,
 } from '@/components/form/rhf';
 import { EntityForm } from '@/components/form/EntityForm';
@@ -13,12 +12,13 @@ import { enumOptions } from '@/utils/enumOptions';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import {
   Role,
-  EmploymentStatus,
   useCreateUserMutation,
   useUpdateUserMutation,
   useListDepartmentsQuery,
   useListPositionsQuery,
 } from '@/graphql/generated';
+import { EmploymentFields, ProfileFields, WorkArrangementFields } from './user.fields';
+import { toFormValues, toUserInput, userSchema, type UserValues } from './user.schema';
 import type { UserRow } from './user.types';
 
 const ACTIVE_OPTIONS: SelectOption[] = [
@@ -32,41 +32,6 @@ const nameOptions = (names: string[], current?: string | null): SelectOption[] =
   return unique.map((value) => ({ value, label: value }));
 };
 
-const schema = z.object({
-  name: z.string().trim().min(1, 'Name is required'),
-  email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
-  password: z.string().refine((v) => !v || v.length >= 6, 'Minimum 6 characters'),
-  roles: z.array(z.nativeEnum(Role)).min(1, 'Select at least one role'),
-  isActive: z.enum(['true', 'false']),
-  department: z.string().trim().min(1, 'Department is required'),
-  designation: z.string().trim().min(1, 'Designation is required'),
-  joinDate: z.string().min(1, 'Join date is required'),
-  dateOfBirth: z.string(),
-  employmentStatus: z.nativeEnum(EmploymentStatus),
-});
-type Values = z.infer<typeof schema>;
-
-const toInitial = (row: UserRow | null): Values => ({
-  name: row?.name ?? '',
-  email: row?.email ?? '',
-  password: '',
-  roles: row?.roles ?? [Role.Employee],
-  isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
-  department: row?.department ?? '',
-  designation: row?.designation ?? '',
-  joinDate: row?.joinDate ?? '',
-  dateOfBirth: row?.dateOfBirth ?? '',
-  employmentStatus: row?.employmentStatus ?? EmploymentStatus.Active,
-});
-
-/** Maps form values to the HR portion of the GraphQL input. */
-const hrInput = (v: Values) => ({
-  department: v.department,
-  designation: v.designation,
-  joinDate: v.joinDate,
-  employmentStatus: v.employmentStatus,
-});
-
 interface UserFormProps {
   initial: UserRow | null;
   onDone: () => void;
@@ -76,16 +41,16 @@ interface UserFormProps {
 }
 
 /** React Hook Form + Zod form to create or update a portal user. */
-export function UserForm({ initial, onDone, onCancel, onCreated }: UserFormProps) {
+export function UserForm({ initial, onDone, onCancel, onCreated }: Readonly<UserFormProps>) {
   const notify = useNotify();
   const [createUser] = useCreateUserMutation();
   const [updateUser] = useUpdateUserMutation();
   const { data: deptData } = useListDepartmentsQuery();
   const { data: posData } = useListPositionsQuery();
   const isEdit = Boolean(initial);
-  const methods = useForm<Values>({
-    resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+  const methods = useForm<UserValues>({
+    resolver: zodResolver(userSchema),
+    defaultValues: toFormValues(initial),
   });
 
   const departmentOptions = nameOptions(
@@ -97,7 +62,7 @@ export function UserForm({ initial, onDone, onCancel, onCreated }: UserFormProps
     initial?.designation,
   );
 
-  const onSubmit = async (values: Values) => {
+  const onSubmit = async (values: UserValues) => {
     const isActive = values.isActive === 'true';
     try {
       if (isEdit && initial) {
@@ -109,7 +74,7 @@ export function UserForm({ initial, onDone, onCancel, onCreated }: UserFormProps
               email: values.email,
               roles: values.roles,
               isActive,
-              ...hrInput(values),
+              ...toUserInput(values),
               ...(values.password ? { password: values.password } : {}),
             },
           },
@@ -122,7 +87,7 @@ export function UserForm({ initial, onDone, onCancel, onCreated }: UserFormProps
               email: values.email,
               roles: values.roles,
               isActive,
-              ...hrInput(values),
+              ...toUserInput(values),
             },
           },
         });
@@ -152,27 +117,11 @@ export function UserForm({ initial, onDone, onCancel, onCreated }: UserFormProps
         options={enumOptions(Object.values(Role))}
         helperText={isEdit ? undefined : 'A temporary password will be emailed to the user.'}
       />
-      <RhfSelect
-        name="department"
-        label="Department"
-        options={departmentOptions}
-        helperText={
-          departmentOptions.length ? undefined : 'Add departments in HR → Departments first.'
-        }
-      />
-      <RhfSelect
-        name="designation"
-        label="Designation"
-        options={positionOptions}
-        helperText={positionOptions.length ? undefined : 'Add positions in HR → Positions first.'}
-      />
+      <ProfileFields />
+      <EmploymentFields departmentOptions={departmentOptions} positionOptions={positionOptions} />
       <RhfDatePicker name="joinDate" label="Join date" />
       <RhfDatePicker name="dateOfBirth" label="Date of birth (optional)" />
-      <RhfSelect
-        name="employmentStatus"
-        label="Employment status"
-        options={enumOptions(Object.values(EmploymentStatus))}
-      />
+      <WorkArrangementFields />
       <RhfSelect name="isActive" label="Account access" options={ACTIVE_OPTIONS} />
     </EntityForm>
   );

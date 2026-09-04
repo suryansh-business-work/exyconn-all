@@ -1,10 +1,5 @@
-import Box from '@mui/material/Box';
-import ButtonBase from '@mui/material/ButtonBase';
-import Chip from '@mui/material/Chip';
-import LinearProgress from '@mui/material/LinearProgress';
-import Stack from '@mui/material/Stack';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { Box, ButtonBase, Chip, LinearProgress, Stack, Tooltip, Typography } from '@exyconn/ui';
 import BlurOnRounded from '@mui/icons-material/BlurOnRounded';
 import type { DayScreenshot } from '@shared/types';
 import { activityColor, activityLabel } from '../activity';
@@ -22,7 +17,7 @@ const PENDING_HINT =
   'Activity is measured over the interval this screenshot belongs to. A screenshot is uploaded from inside its interval, so a shot that has landed before its interval reads 0% until the next sync.';
 
 /** One screenshot, with the activity level of its interval and the time it was captured. */
-export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Props>): JSX.Element {
+export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Props>): ReactElement {
   const capturedAt = formatDateTime(shot.capturedAt, timezone);
 
   return (

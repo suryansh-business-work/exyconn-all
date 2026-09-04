@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import type { ReactElement, ReactNode } from 'react';
+import { Box, Typography } from '@exyconn/ui';
 import WindowControls from './WindowControls';
 import { DRAG } from '../window-drag';
 
@@ -17,7 +16,7 @@ interface Props {
  * signed-out screens have no header, and a frameless window without one cannot be dragged or
  * closed at all.
  */
-export default function TitleBar({ title, actions }: Readonly<Props>): JSX.Element {
+export default function TitleBar({ title, actions }: Readonly<Props>): ReactElement {
   return (
     <Box
       sx={(theme) => ({

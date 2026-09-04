@@ -1,9 +1,6 @@
+import type { ReactElement } from 'react';
 import { useState } from 'react';
-import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Skeleton from '@mui/material/Skeleton';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import { Alert, Box, Skeleton, Stack, Typography } from '@exyconn/ui';
 import { useDayDetail } from '../hooks/useMyDay';
 import { formatCount } from '../format';
 import { formatDayInZone, offsetLabel } from '../time';
@@ -34,7 +31,7 @@ export default function ScreenshotsScreen({
   startISO,
   endISO,
   timezone,
-}: Readonly<Props>): JSX.Element {
+}: Readonly<Props>): ReactElement {
   const { detail, loading, error } = useDayDetail(startISO, endISO);
   const shots = detail?.screenshots ?? [];
   /** Index of the shot open full screen, or null. Held here so paging can walk the day. */

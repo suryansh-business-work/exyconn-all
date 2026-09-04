@@ -7,7 +7,6 @@ import {
   RhfTextField,
   RhfSwitch,
   RhfSelect,
-  RhfRichText,
   RhfAutocomplete,
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -16,6 +15,7 @@ import { useUpdateTrackerSettingsMutation } from '@exyconn/shell/graphql/generat
 import { isValidTimezone } from '../../tracker.timezone';
 import { buildTimezoneOptions } from './timezone.options';
 import { WEBCAM_CORNERS, WEBCAM_CORNER_OPTIONS } from './webcam.options';
+import { ConsentDisclosureFields } from './consent-disclosure';
 import type { TrackerSettingsRow } from './tracker-settings.types';
 
 const schema = z.object({
@@ -32,6 +32,7 @@ const schema = z.object({
   webcamEnabled: z.boolean(),
   webcamCorner: z.enum(WEBCAM_CORNERS as [string, ...string[]]),
   consentText: z.string().min(1, 'Consent text is required'),
+  consentPolicySlug: z.string(),
   defaultTimezone: z
     .string()
     .refine((value) => value === '' || isValidTimezone(value), 'Choose a valid IANA timezone'),
@@ -51,6 +52,7 @@ const toInitial = (row: TrackerSettingsRow): Values => ({
   webcamEnabled: row.webcamEnabled,
   webcamCorner: row.webcamCorner,
   consentText: row.consentText,
+  consentPolicySlug: row.consentPolicySlug,
   defaultTimezone: row.defaultTimezone,
 });
 
@@ -143,11 +145,7 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
           helperText="Where the photo sits on the screenshot."
         />
       ) : null}
-      <RhfRichText
-        name="consentText"
-        label="Consent disclosure (shown in the desktop app)"
-        helperText="The employee must read and accept this before any tracking starts."
-      />
+      <ConsentDisclosureFields />
     </EntityForm>
   );
 }

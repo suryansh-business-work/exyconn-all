@@ -1,5 +1,6 @@
+import type { ReactElement } from 'react';
 import { useState } from 'react';
-import Box from '@mui/material/Box';
+import { Box } from '@exyconn/ui';
 import type { Tile } from '../tiles';
 import StatTile from './StatTile';
 import TileDetailDialog from './TileDetailDialog';
@@ -15,7 +16,7 @@ interface Props {
  * the same way, and neither block has to know a dialog exists. The tile is looked up by id on
  * every render so an open detail keeps ticking with the live stats behind it.
  */
-export default function StatGrid({ tiles }: Readonly<Props>): JSX.Element {
+export default function StatGrid({ tiles }: Readonly<Props>): ReactElement {
   const [openId, setOpenId] = useState<string | null>(null);
   const open = tiles.find((tile) => tile.id === openId) ?? null;
 

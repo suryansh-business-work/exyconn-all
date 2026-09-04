@@ -32,6 +32,67 @@ export interface TrackerSettings {
   consentText: string;
 }
 
+/** When an employee is contracted to work. Mirrors the portal's WorkingTime enum. */
+export type WorkingTime = 'FLEXIBLE' | 'FIXED' | 'OTHER';
+
+/** Where an employee is contracted to work from. Mirrors the portal's WorkLocation enum. */
+export type WorkLocation = 'OFFICE' | 'HOME' | 'HYBRID' | 'OTHER';
+
+/** How an employee can mark themselves in for a day. Mirrors the portal's AttendanceStatus. */
+export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'WFH' | 'HALF_DAY';
+
+/**
+ * What this employee is contracted to work, set by HR on their employee record.
+ *
+ * The app never invents these — an arrangement the tracker made up is one HR has not agreed
+ * to. `targetMs` is the day the progress bar fills against.
+ */
+export interface WorkProfile {
+  workingTime: WorkingTime;
+  /** What "Other" means for this person; empty for the named arrangements. */
+  workingTimeNote: string;
+  workLocation: WorkLocation;
+  workLocationNote: string;
+  workHoursPerDay: number;
+  /** The contracted day in milliseconds — the same unit as every tracked total. */
+  targetMs: number;
+}
+
+/** The employee's current local day: the target, the progress, and the attendance gate. */
+export interface Workday {
+  /** The employee's local calendar date, YYYY-MM-DD. */
+  date: string;
+  targetMs: number;
+  /** Active ms the PORTAL has recorded for today. The live session is added on top locally. */
+  activeMs: number;
+  attendanceStatus: AttendanceStatus | null;
+  attendanceNote: string | null;
+  /** Tracking cannot start until this is true. */
+  attendanceMarked: boolean;
+}
+
+/** One project the employee may book time against. */
+export interface TrackerProject {
+  id: string;
+  name: string;
+  key: string;
+}
+
+/**
+ * The Legal policy the workspace uses as its tracking disclosure, and whether THIS employee
+ * has signed the version now published. Null when the workspace has not chosen one.
+ */
+export interface ConsentPolicy {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string;
+  body: string;
+  version: number;
+  requiresAcknowledgement: boolean;
+  acknowledged: boolean;
+}
+
 /** Brand identity pulled from the portal (publicBranding) — drives logo, name and colours. */
 export interface Branding {
   businessName: string;
@@ -122,6 +183,13 @@ export interface LiveStats {
   lastSyncAt: string | null;
   /** True while an upload is in flight. */
   syncing: boolean;
+  /**
+   * Active ms worked TODAY, across every session — what the day's progress bar shows.
+   *
+   * Held here rather than derived in the renderer because it is the portal's number for the
+   * day plus the live session on top, and only the main process knows both.
+   */
+  dayActiveMs: number;
   /** What the last sync attempt did, and why, if it did nothing. */
   lastSyncOutcome: SyncOutcome | null;
 }
@@ -188,6 +256,8 @@ export const IPC = {
   login: 'tracker:login',
   logout: 'tracker:logout',
   acceptConsent: 'tracker:accept-consent',
+  markAttendance: 'tracker:mark-attendance',
+  setProject: 'tracker:set-project',
   start: 'tracker:start',
   pause: 'tracker:pause',
   resume: 'tracker:resume',
@@ -237,6 +307,16 @@ export interface TrackerState {
   stats: LiveStats;
   /** This install's own preferences (tray behaviour), not the workspace's settings. */
   preferences: AppPreferences;
+  /** What HR contracted this employee to work. Null until the portal has been read. */
+  workProfile: WorkProfile | null;
+  /** Today's target, progress and attendance gate. Null until the portal has been read. */
+  workday: Workday | null;
+  /** Projects time may be booked against, the house-wide "Global Project" first. */
+  projects: TrackerProject[];
+  /** The project the next session will book against. Empty means "the first one". */
+  selectedProjectId: string;
+  /** The Legal policy behind the consent screen, when the workspace has chosen one. */
+  consentPolicy: ConsentPolicy | null;
   /** Whether the stored session was remembered (drives the login checkbox default). */
   rememberMe: boolean;
   /** Why the app signed the employee out on its own (revoked access), shown on the login screen. */

@@ -1,6 +1,5 @@
-import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
-import { keyframes } from '@mui/material/styles';
+import type { ReactElement } from 'react';
+import { Box, Tooltip, keyframes } from '@exyconn/ui';
 import type { TrackerStatus } from '@shared/types';
 
 /**
@@ -33,7 +32,7 @@ interface Props {
  * the window, on every page. Only `tracking` animates — a dot that pulses while paused would
  * say the opposite of the truth, which is the one thing a monitoring app cannot afford.
  */
-export default function TrackingPulse({ status }: Readonly<Props>): JSX.Element {
+export default function TrackingPulse({ status }: Readonly<Props>): ReactElement {
   const look = LOOK[status];
 
   return (

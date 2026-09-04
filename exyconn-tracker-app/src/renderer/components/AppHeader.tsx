@@ -1,8 +1,5 @@
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { AppBar, Box, IconButton, Toolbar, Typography } from '@exyconn/ui';
 import MenuIcon from '@mui/icons-material/Menu';
 import type { Branding, TrackerStatus } from '@shared/types';
 import BrandMark from './BrandMark';
@@ -29,7 +26,7 @@ export default function AppHeader({
   title,
   status,
   onOpenMenu,
-}: Readonly<Props>): JSX.Element {
+}: Readonly<Props>): ReactElement {
   return (
     <AppBar
       position="static"

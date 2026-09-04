@@ -1,7 +1,5 @@
-import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { IconButton, Stack, Tooltip, Typography } from '@exyconn/ui';
 import ChevronLeftRounded from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded';
 import { formatMonthLabel } from '../time';
@@ -21,7 +19,7 @@ export default function MonthSwitcher({
   month,
   canGoForward,
   onChange,
-}: Readonly<Props>): JSX.Element {
+}: Readonly<Props>): ReactElement {
   return (
     <Stack direction="row" spacing={1} alignItems="center">
       <Tooltip title="Previous month">
