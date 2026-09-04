@@ -1,13 +1,16 @@
-import Chip from '@mui/material/Chip';
-import Skeleton from '@mui/material/Skeleton';
-import Stack from '@mui/material/Stack';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import {
+  Chip,
+  Skeleton,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@exyconn/ui';
 import type { ReportDay } from '@shared/types';
 import { activityPercent, formatCount, formatHoursMinutes } from '../format';
 import { activityColor } from '../activity';
@@ -23,7 +26,7 @@ interface Props {
 }
 
 /** Day-by-day table of the employee's own tracked time. */
-export default function ReportTable({ days, loading }: Readonly<Props>): JSX.Element {
+export default function ReportTable({ days, loading }: Readonly<Props>): ReactElement {
   if (loading) {
     return (
       <Surface sx={{ p: 2 }}>

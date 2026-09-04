@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, Flex, Paper, Text } from '@/components/ui';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import EditIcon from '@mui/icons-material/Edit';
@@ -20,11 +21,20 @@ type ActiveDialog = 'edit' | 'mail' | 'block' | null;
 interface UserActionsProps {
   user: UserDetail;
   onChanged: () => void;
+  /**
+   * Where "Edit details" goes instead of opening the dialog.
+   *
+   * HR's employee record is a full page — a photo, an address, a brief and the working
+   * arrangement do not fit a modal — so HR passes its edit route and Admin, whose record is
+   * still short enough to edit in place, does not.
+   */
+  editPath?: string;
 }
 
 /** Administrative action panel for a single user (credentials, status, mail). */
-export function UserActions({ user, onChanged }: UserActionsProps) {
+export function UserActions({ user, onChanged, editPath }: Readonly<UserActionsProps>) {
   const [dialog, setDialog] = useState<ActiveDialog>(null);
+  const navigate = useNavigate();
   const { handleResetPassword, handleToggleActive, handleUnblock } = useUserActions(
     user.id,
     user.name,
@@ -48,7 +58,11 @@ export function UserActions({ user, onChanged }: UserActionsProps) {
         <Button startIcon={<EmailIcon />} variant="outlined" onClick={() => setDialog('mail')}>
           Send custom email
         </Button>
-        <Button startIcon={<EditIcon />} variant="outlined" onClick={() => setDialog('edit')}>
+        <Button
+          startIcon={<EditIcon />}
+          variant="outlined"
+          onClick={() => (editPath ? navigate(editPath) : setDialog('edit'))}
+        >
           Edit details
         </Button>
         <Button

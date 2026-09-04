@@ -1,10 +1,6 @@
+import type { ReactElement } from 'react';
 import { useCallback, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
-import Dialog from '@mui/material/Dialog';
-import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import { Box, Chip, Dialog, IconButton, Stack, Typography } from '@exyconn/ui';
 import CloseRounded from '@mui/icons-material/CloseRounded';
 import ChevronLeftRounded from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded';
@@ -43,7 +39,7 @@ export default function ScreenshotLightbox({
   timezone,
   onClose,
   onNavigate,
-}: Readonly<Props>): JSX.Element | null {
+}: Readonly<Props>): ReactElement | null {
   const shot = index === null ? null : shots[index];
 
   const step = useCallback(

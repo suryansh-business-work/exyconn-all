@@ -1,5 +1,6 @@
+import type { ReactElement } from 'react';
 import { useState } from 'react';
-import Box from '@mui/material/Box';
+import { Box } from '@exyconn/ui';
 import type { TrackerState } from '@shared/types';
 import AppHeader from './components/AppHeader';
 import NavDrawer from './components/NavDrawer';
@@ -14,7 +15,7 @@ interface SectionProps {
 }
 
 /** Renders the pane for the selected section (module scope — never nested in AppShell). */
-function SectionView({ section, state }: Readonly<SectionProps>): JSX.Element {
+function SectionView({ section, state }: Readonly<SectionProps>): ReactElement {
   if (section === 'report') {
     return <MyReportScreen timezone={state.timezone} />;
   }
@@ -25,6 +26,7 @@ function SectionView({ section, state }: Readonly<SectionProps>): JSX.Element {
         branding={state.branding}
         timezone={state.timezone}
         preferences={state.preferences}
+        workProfile={state.workProfile}
       />
     );
   }
@@ -41,7 +43,7 @@ interface Props {
 }
 
 /** The signed-in shell: glass app bar, hamburger drawer, and a scrollable content pane. */
-export default function AppShell({ state }: Readonly<Props>): JSX.Element {
+export default function AppShell({ state }: Readonly<Props>): ReactElement {
   const [section, setSection] = useState<Section>('dashboard');
   const [menuOpen, setMenuOpen] = useState(false);
 

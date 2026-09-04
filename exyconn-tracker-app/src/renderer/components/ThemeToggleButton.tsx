@@ -1,5 +1,5 @@
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
+import type { ReactElement } from 'react';
+import { IconButton, Tooltip } from '@exyconn/ui';
 import BrightnessAutoOutlined from '@mui/icons-material/BrightnessAutoOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
@@ -30,7 +30,7 @@ interface Props {
  * one button that cycles system → light → dark. It writes the same install preference, so a
  * choice made here is the choice the whole app (and the next launch) uses.
  */
-export default function ThemeToggleButton({ mode }: Readonly<Props>): JSX.Element {
+export default function ThemeToggleButton({ mode }: Readonly<Props>): ReactElement {
   const step = STEPS[mode];
   const Icon = step.icon;
   const hint = `Theme: ${step.label}. Switch to ${STEPS[step.next].label.toLowerCase()}.`;

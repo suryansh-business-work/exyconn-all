@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Theme } from '@mui/material/styles';
+import type { Theme } from '@exyconn/ui';
 import type { Branding, ThemeMode } from '@shared/types';
 import { buildTheme } from '../theme';
 

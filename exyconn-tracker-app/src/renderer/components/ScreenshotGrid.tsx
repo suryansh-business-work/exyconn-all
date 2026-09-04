@@ -1,6 +1,5 @@
-import Box from '@mui/material/Box';
-import ButtonBase from '@mui/material/ButtonBase';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { Box, ButtonBase, Typography } from '@exyconn/ui';
 import type { DayScreenshot } from '@shared/types';
 import { activityLabel } from '../activity';
 import { formatTimeOfDay } from '../time';
@@ -14,7 +13,7 @@ interface Props {
 }
 
 /** Thumbnails of one day's screenshots. Clicking one opens the separate gallery window. */
-export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Props>): JSX.Element {
+export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Props>): ReactElement {
   if (shots.length === 0) {
     return (
       <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ py: 3 }}>

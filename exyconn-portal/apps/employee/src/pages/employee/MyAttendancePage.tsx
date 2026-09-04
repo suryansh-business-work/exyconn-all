@@ -7,6 +7,7 @@ import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useMyAttendanceQuery } from '@exyconn/shell/graphql/generated';
+import { MyWorkArrangementCard } from '@exyconn/shell/components/work';
 import { MarkAttendanceForm } from './forms/mark-attendance';
 
 type AttendanceRow = { id: string; date: string; status: string; note?: string | null };
@@ -33,6 +34,7 @@ export function MyAttendancePage() {
         actionLabel="Mark attendance"
         onAction={() => setOpen(true)}
       />
+      <MyWorkArrangementCard />
       <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
         <DataTable
           columns={columns}

@@ -19,6 +19,7 @@ const initial: TrackerSettingsRow = {
   webcamCorner: 'bottom-right',
   syncIntervalMinutes: 5,
   consentText: '<p>We track activity during work hours.</p>',
+  consentPolicySlug: '',
   defaultTimezone: 'Asia/Kolkata',
 };
 

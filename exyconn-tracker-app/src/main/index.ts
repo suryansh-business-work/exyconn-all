@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import {
   IPC,
   type AppPreferences,
+  type AttendanceStatus,
   type PermissionKind,
   type ScreenshotsRange,
   type TrackerState,
@@ -125,7 +126,11 @@ function registerIpc(ctrl: TrackerController): void {
     closeScreenshotsWindow();
     await ctrl.logout();
   });
-  ipcMain.handle(IPC.acceptConsent, () => ctrl.acceptConsent());
+  ipcMain.handle(IPC.acceptConsent, (_e, signedName: string) => ctrl.acceptConsent(signedName));
+  ipcMain.handle(IPC.markAttendance, (_e, status: AttendanceStatus, note: string | null) =>
+    ctrl.markAttendance(status, note),
+  );
+  ipcMain.handle(IPC.setProject, (_e, projectId: string) => ctrl.setProject(projectId));
   ipcMain.handle(IPC.start, () => ctrl.start());
   ipcMain.handle(IPC.pause, () => ctrl.pause());
   ipcMain.handle(IPC.resume, () => ctrl.resume());
@@ -181,7 +186,11 @@ if (!app.requestSingleInstanceLock()) {
     );
     window = createWindow();
     tray = new TrackerTray(window, {
-      start: () => void controller?.start(),
+      // Start can now be refused — attendance has to be marked for the day first — so the
+      // tray's own Start must not drop that rejection on the floor.
+      start: () => {
+        controller?.start().catch((error: unknown) => console.error('Tray start refused', error));
+      },
       pause: () => controller?.pause(),
       resume: () => controller?.resume(),
       stop: () => void controller?.stop(),

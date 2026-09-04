@@ -1,8 +1,6 @@
+import type { ReactElement } from 'react';
 import { useMemo } from 'react';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { Stack, Typography, DateCalendar, DatePicker } from '@exyconn/ui';
 import type { ReportDay } from '@shared/types';
 import Surface from './Surface';
 import TrackedDay, { TrackedDatesContext } from './TrackedDay';
@@ -24,7 +22,7 @@ export default function ReportCalendar({
   maxDate,
   onSelect,
   onMonthChange,
-}: Readonly<Props>): JSX.Element {
+}: Readonly<Props>): ReactElement {
   const trackedDates = useMemo(
     () =>
       new Set(

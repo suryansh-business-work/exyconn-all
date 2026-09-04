@@ -109,6 +109,7 @@ export * from './pickers';
 // takes that name at the barrel level; reach `@exyconn/ui/styles` for the raw one.
 export {
   styled,
+  keyframes,
   alpha,
   useTheme,
   createTheme,

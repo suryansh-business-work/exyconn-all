@@ -6,7 +6,9 @@ import { unauthenticated, forbidden, notFound, badRequest } from '../../utils/er
 import { hashToken } from './tracker.auth';
 import { TRACKER_LIMITS } from './tracker.constants';
 import { getTrackerSettings } from './tracker.settings.service';
-import { isValidTimezone, resolveEffectiveTimezone } from './tracker.timezone';
+import { isValidTimezone, resolveEffectiveTimezone, zonedDayStartUtc } from './tracker.timezone';
+import { trackerWorkdayService } from './tracker.workday.service';
+import { policyAcknowledgementService } from '../legal/policy-acknowledgement.service';
 import type { Role } from '../../constants/roles';
 import {
   TrackerAccessModel,
@@ -165,6 +167,25 @@ class TrackerDeviceService {
   }
 
   /**
+   * Whether the employee still has to accept the disclosure.
+   *
+   * Two gates, not one: the access grant records that they pressed "agree" in this app, and
+   * — when the workspace has pointed the tracker at a Legal policy — the versioned signature
+   * records what they agreed TO. Re-publishing the policy with changed wording raises its
+   * version, which drops the signature and brings this back to true, so nobody keeps
+   * tracking under wording they never saw.
+   */
+  private consentRequired(
+    consentedAt: Date | null | undefined,
+    policy: { requiresAcknowledgement: boolean; acknowledged: boolean } | null,
+  ): boolean {
+    if (!consentedAt) {
+      return true;
+    }
+    return policy !== null && policy.requiresAcknowledgement && !policy.acknowledged;
+  }
+
+  /**
    * Rebuilds a desktop session from a stored device token. This is what makes "Remember me"
    * work: on relaunch the app has a token but no user/settings in memory, and asking the
    * portal who it belongs to avoids prompting for the password again.
@@ -184,15 +205,27 @@ class TrackerDeviceService {
       TrackerDeviceModel.findOne({ deviceId, userId }).lean(),
     ]);
 
+    const timezone = resolveEffectiveTimezone({
+      employeeTimezone: access.timezone,
+      defaultTimezone: settings.defaultTimezone,
+      deviceTimezone: device?.timezone,
+    });
+
+    const [workday, projects, consentPolicy] = await Promise.all([
+      trackerWorkdayService.workday(userId, user, timezone),
+      trackerWorkdayService.projects(),
+      trackerWorkdayService.consentPolicy(userId, settings.consentPolicySlug ?? ''),
+    ]);
+
     return {
       user,
-      consentRequired: !access.consentedAt,
+      consentRequired: this.consentRequired(access.consentedAt, consentPolicy),
       settings,
-      timezone: resolveEffectiveTimezone({
-        employeeTimezone: access.timezone,
-        defaultTimezone: settings.defaultTimezone,
-        deviceTimezone: device?.timezone,
-      }),
+      timezone,
+      workProfile: trackerWorkdayService.workProfileOf(user),
+      workday,
+      projects,
+      consentPolicy,
     };
   }
 
@@ -218,8 +251,29 @@ class TrackerDeviceService {
     return access;
   }
 
-  /** Records that the employee accepted the in-app disclosure. Tracking is gated on this. */
-  async acceptConsent(userId: string) {
+  /**
+   * Records that the employee accepted the in-app disclosure.
+   *
+   * When the workspace has pointed the tracker at a Legal policy, the acceptance is ALSO
+   * written into Legal's versioned signature ledger under the employee's own identity — the
+   * same record HR and Legal read, and the same one the employee sees on their Policies page.
+   * One press of "I agree" therefore counts everywhere, rather than in this app alone.
+   */
+  async acceptConsent(userId: string, signedName?: string | null) {
+    const settings = await getTrackerSettings();
+    const policy = await trackerWorkdayService.consentPolicy(
+      userId,
+      settings.consentPolicySlug ?? '',
+    );
+
+    if (policy?.requiresAcknowledgement && !policy.acknowledged) {
+      const name = signedName?.trim() ?? '';
+      if (name === '') {
+        badRequest('Type your name to sign the tracking policy.');
+      }
+      await policyAcknowledgementService.sign(userId, policy.id, name);
+    }
+
     const access = await TrackerAccessModel.findOneAndUpdate(
       { userId, isActive: true },
       { consentedAt: new Date() },
@@ -229,6 +283,30 @@ class TrackerDeviceService {
       forbidden('Your tracker access has been revoked.');
     }
     return true;
+  }
+
+  /**
+   * Marks the employee in for their current local day, from the desktop app.
+   *
+   * The same record HR's own self-service mutation writes — one day, one attendance row —
+   * so an employee who marked in from the portal this morning is not asked again here.
+   */
+  async markAttendance(userId: string, timezone: string, status: string, note?: string | null) {
+    const access = await TrackerAccessModel.findOne({ userId, isActive: true }).lean();
+    if (!access) {
+      forbidden('Your tracker access has been revoked.');
+    }
+    await trackerWorkdayService.markAttendance(
+      userId,
+      zonedDayStartUtc(new Date(), timezone),
+      status,
+      note,
+    );
+    const user = await UserModel.findById(userId).lean();
+    if (!user) {
+      unauthenticated('Account no longer exists');
+    }
+    return trackerWorkdayService.workday(userId, user, timezone);
   }
 
   /**
@@ -251,20 +329,54 @@ class TrackerDeviceService {
     return this.me(userId, deviceId);
   }
 
-  /** Opens a tracking session. The employee must have accepted the disclosure first. */
-  async startSession(userId: string, deviceId: string, startedAt: Date) {
+  /**
+   * Opens a tracking session.
+   *
+   * Three things have to be true first: the employee has accepted the disclosure, they have
+   * marked themselves in for the day, and the time has somewhere to go. Attendance is checked
+   * server-side as well as in the app — the desktop client greys its Start button, but the
+   * mutation is what actually enforces it, and a timesheet for a day nobody attended is a
+   * payroll question nobody can answer.
+   */
+  async startSession(userId: string, deviceId: string, startedAt: Date, projectId?: string | null) {
     const access = await TrackerAccessModel.findOne({ userId, isActive: true }).lean();
     if (!access?.consentedAt) {
       forbidden('You must accept the tracking disclosure before tracking can start.');
     }
+
+    const timezone = await this.timezoneFor(userId, deviceId, access.timezone);
+    const attendance = await trackerWorkdayService.attendanceOn(
+      userId,
+      zonedDayStartUtc(startedAt, timezone),
+    );
+    if (!attendance) {
+      forbidden('Mark your attendance for today before tracking can start.');
+    }
+
+    const project = await trackerWorkdayService.bookableProject(projectId);
 
     const session = await TrackerSessionModel.create({
       userId,
       deviceId,
       startedAt,
       status: 'active',
+      projectId: project.id,
+      projectName: project.name,
     });
     return session.toObject();
+  }
+
+  /** The zone this employee's days are read in, for a caller that has their access row. */
+  private async timezoneFor(userId: string, deviceId: string, employeeTimezone: string) {
+    const [settings, device] = await Promise.all([
+      getTrackerSettings(),
+      TrackerDeviceModel.findOne({ deviceId, userId }).lean(),
+    ]);
+    return resolveEffectiveTimezone({
+      employeeTimezone,
+      defaultTimezone: settings.defaultTimezone,
+      deviceTimezone: device?.timezone,
+    });
   }
 
   async stopSession(userId: string, sessionId: string, endedAt: Date) {

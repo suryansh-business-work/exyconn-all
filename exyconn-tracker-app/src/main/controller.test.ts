@@ -2,7 +2,13 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { TrackerSettings, TrackerState } from '@shared/types';
+import type {
+  TrackerProject,
+  TrackerSettings,
+  TrackerState,
+  WorkProfile,
+  Workday,
+} from '@shared/types';
 
 const tempDir = mkdtempSync(join(tmpdir(), 'controller-'));
 
@@ -50,13 +56,28 @@ vi.mock('./trackers/screenshotter', () => ({
 }));
 vi.mock('./device-info', () => ({ collectDeviceInfo: () => ({ deviceId: 'device-1' }) }));
 
-// A signed-in app, without touching the OS keychain.
+// A signed-in app, without touching the OS keychain. The project pick is real state, not a
+// stub: the controller reads back what it wrote to decide which project a session books to.
+const storeState = {
+  selectedProjectId: '',
+  preferences: { closeToTray: true, themeMode: 'system' },
+};
+
 vi.mock('./store', () => ({
   secureStore: () => ({
     getToken: () => 'device-token',
     clearToken: vi.fn(),
     setToken: vi.fn(),
     remembered: true,
+    get preferences() {
+      return storeState.preferences;
+    },
+    get selectedProjectId() {
+      return storeState.selectedProjectId;
+    },
+    setSelectedProject: (id: string) => {
+      storeState.selectedProjectId = id;
+    },
   }),
 }));
 
@@ -67,6 +88,8 @@ vi.mock('./portal-client', async () => {
     fetchBranding: vi.fn(() => Promise.reject(new Error('no branding in tests'))),
     trackerMe: vi.fn(),
     heartbeat: vi.fn(),
+    markAttendance: vi.fn(),
+    startSession: vi.fn(() => Promise.resolve('session-1')),
   };
 });
 
@@ -89,12 +112,37 @@ const SETTINGS: TrackerSettings = {
   consentText: '<p>Disclosure</p>',
 };
 
+const WORK_PROFILE: WorkProfile = {
+  workingTime: 'FLEXIBLE',
+  workingTimeNote: '',
+  workLocation: 'OFFICE',
+  workLocationNote: '',
+  workHoursPerDay: 8,
+  targetMs: 8 * 3_600_000,
+};
+
+/** An employee who has already marked themselves in, which is what lets tracking start. */
+const WORKDAY: Workday = {
+  date: '2026-09-04',
+  targetMs: WORK_PROFILE.targetMs,
+  activeMs: 0,
+  attendanceStatus: 'PRESENT',
+  attendanceNote: null,
+  attendanceMarked: true,
+};
+
+const PROJECTS: TrackerProject[] = [{ id: 'p-global', name: 'Global Project', key: 'GLBL' }];
+
 function portalState(overrides: Partial<portal.TrackerMeResponse> = {}): portal.TrackerMeResponse {
   return {
     user: { id: 'u1', name: 'Emp', email: 'emp@exyconn.com' },
     consentRequired: false,
     settings: SETTINGS,
     timezone: 'Asia/Kolkata',
+    workProfile: WORK_PROFILE,
+    workday: WORKDAY,
+    projects: PROJECTS,
+    consentPolicy: null,
     ...overrides,
   };
 }
@@ -194,5 +242,63 @@ describe('portal sync', () => {
     await vi.advanceTimersByTimeAsync(180_000);
 
     expect(vi.mocked(portal.heartbeat)).not.toHaveBeenCalled();
+  });
+});
+
+describe('the working day', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.mocked(portal.trackerMe).mockResolvedValue(portalState());
+    vi.mocked(portal.heartbeat).mockResolvedValue(portalState());
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllMocks();
+  });
+
+  it('refuses to start until attendance is marked for the day', async () => {
+    const unmarked = { ...WORKDAY, attendanceMarked: false, attendanceStatus: null };
+    vi.mocked(portal.trackerMe).mockResolvedValue(portalState({ workday: unmarked }));
+    const { controller } = await signedInController();
+
+    // The portal enforces this too, but a session that opens and is then rejected has already
+    // told the employee they were being tracked when they were not.
+    await expect(controller.start()).rejects.toThrow(/Mark your attendance/);
+    expect(vi.mocked(portal.startSession)).not.toHaveBeenCalled();
+  });
+
+  it('starts once the employee marks in, and books the session to a project', async () => {
+    const unmarked = { ...WORKDAY, attendanceMarked: false, attendanceStatus: null };
+    vi.mocked(portal.trackerMe).mockResolvedValue(portalState({ workday: unmarked }));
+    vi.mocked(portal.markAttendance).mockResolvedValue(WORKDAY);
+    const { controller } = await signedInController();
+
+    await controller.markAttendance('PRESENT', null);
+    expect(controller.getState().workday?.attendanceMarked).toBe(true);
+
+    await controller.start();
+    expect(vi.mocked(portal.startSession)).toHaveBeenCalledWith(expect.any(String), 'p-global');
+  });
+
+  it('books to the house-wide project when the stored pick is no longer offered', async () => {
+    const { controller } = await signedInController();
+
+    controller.setProject('p-deleted');
+
+    // Falling back beats failing: unattributed time is a smaller problem than lost time.
+    expect(controller.getState().selectedProjectId).toBe('p-global');
+  });
+
+  it('carries the day’s target and progress through to the renderer', async () => {
+    vi.mocked(portal.trackerMe).mockResolvedValue(
+      portalState({ workday: { ...WORKDAY, activeMs: 3_600_000 } }),
+    );
+    const { controller } = await signedInController();
+    const state = controller.getState();
+
+    expect(state.workProfile?.workHoursPerDay).toBe(8);
+    expect(state.workday?.targetMs).toBe(8 * 3_600_000);
+    expect(state.stats.dayActiveMs).toBe(3_600_000);
   });
 });

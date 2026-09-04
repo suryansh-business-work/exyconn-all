@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { formatInTimeZone, getTimezoneOffset, zonedTimeToUtc } from 'date-fns-tz';
+import { formatInTimeZone, fromZonedTime, getTimezoneOffset } from 'date-fns-tz';
 import { deviceTimezone, isValidTimezone } from '@shared/timezone';
 
 /**
@@ -126,9 +126,9 @@ function relative(elapsedMs: number): string {
 
 /** Midnight-to-midnight of `date`'s calendar day, IN the chosen zone, as ISO instants. */
 export function dayBounds(date: Date, zone: string): { startISO: string; endISO: string } {
-  const start = zonedTimeToUtc(`${format(date, 'yyyy-MM-dd')}T00:00:00`, zone);
+  const start = fromZonedTime(`${format(date, 'yyyy-MM-dd')}T00:00:00`, zone);
   const next = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-  const end = zonedTimeToUtc(`${format(next, 'yyyy-MM-dd')}T00:00:00`, zone);
+  const end = fromZonedTime(`${format(next, 'yyyy-MM-dd')}T00:00:00`, zone);
   return { startISO: start.toISOString(), endISO: end.toISOString() };
 }
 
@@ -136,7 +136,7 @@ export function dayBounds(date: Date, zone: string): { startISO: string; endISO:
 export function monthBounds(month: Date, zone: string): { fromISO: string; toISO: string } {
   const first = new Date(month.getFullYear(), month.getMonth(), 1);
   const nextFirst = new Date(month.getFullYear(), month.getMonth() + 1, 1);
-  const from = zonedTimeToUtc(`${format(first, 'yyyy-MM-dd')}T00:00:00`, zone);
-  const to = zonedTimeToUtc(`${format(nextFirst, 'yyyy-MM-dd')}T00:00:00`, zone);
+  const from = fromZonedTime(`${format(first, 'yyyy-MM-dd')}T00:00:00`, zone);
+  const to = fromZonedTime(`${format(nextFirst, 'yyyy-MM-dd')}T00:00:00`, zone);
   return { fromISO: from.toISOString(), toISO: to.toISOString() };
 }

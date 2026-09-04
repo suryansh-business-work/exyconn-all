@@ -47,6 +47,7 @@ fragment TrackerSettingsFields on TrackerSettings {
   webcamCorner
   syncIntervalMinutes
   consentText
+  consentPolicySlug
   defaultTimezone
 }
 
@@ -86,6 +87,8 @@ fragment TrackerDayFields on TrackerDay {
     startedAt
     endedAt
     status
+    projectId
+    projectName
     activeMs
     idleMs
     keyCount

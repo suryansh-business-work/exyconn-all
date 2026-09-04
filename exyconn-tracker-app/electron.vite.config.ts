@@ -31,7 +31,14 @@ export default defineConfig({
   renderer: {
     root: resolve(__dirname, 'src/renderer'),
     plugins: [react()],
-    resolve: { alias: sharedAlias },
+    resolve: {
+      alias: sharedAlias,
+      // @exyconn/ui is a linked workspace package that Vite compiles from source, so it
+      // resolves React, emotion and MUI from ITS OWN node_modules. Two copies of React in
+      // one renderer means hooks called against a context that does not exist — dedupe
+      // pins every shared runtime to this app's copy.
+      dedupe: ['react', 'react-dom', '@mui/material', '@emotion/react', '@emotion/styled'],
+    },
     // The tracker's dev renderer owns port 4005 (main process picks it up via
     // ELECTRON_RENDERER_URL). strictPort so a silent fallback can't shift it.
     server: { port: 4005, strictPort: true },

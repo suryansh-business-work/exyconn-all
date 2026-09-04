@@ -1,7 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { BRANDING_FIELDS, SETTINGS_FIELDS } from './portal-client';
+import {
+  BRANDING_FIELDS,
+  CONSENT_POLICY_FIELDS,
+  PROJECT_FIELDS,
+  SETTINGS_FIELDS,
+  WORKDAY_ONLY_FIELDS,
+  WORK_PROFILE_FIELDS,
+} from './portal-client';
 
 /**
  * The desktop app hand-writes its GraphQL, so nothing but this test stops a selection from
@@ -13,8 +20,14 @@ import { BRANDING_FIELDS, SETTINGS_FIELDS } from './portal-client';
  */
 const PORTAL_SRC = fileURLToPath(new URL('../../../exyconn-portal/server/src', import.meta.url));
 
+const TRACKER_TYPEDEFS = `${PORTAL_SRC}/modules/tracker/tracker.typeDefs.ts`;
+
 const SOURCES: Readonly<Record<string, string>> = {
-  TrackerSettings: `${PORTAL_SRC}/modules/tracker/tracker.typeDefs.ts`,
+  TrackerSettings: TRACKER_TYPEDEFS,
+  TrackerWorkProfile: TRACKER_TYPEDEFS,
+  TrackerWorkday: TRACKER_TYPEDEFS,
+  TrackerProject: TRACKER_TYPEDEFS,
+  TrackerConsentPolicy: TRACKER_TYPEDEFS,
   Branding: `${PORTAL_SRC}/modules/branding/branding.typeDefs.ts`,
 };
 
@@ -41,6 +54,10 @@ function selectedFields(selection: string): string[] {
 
 describe.each([
   { typeName: 'TrackerSettings', selection: SETTINGS_FIELDS },
+  { typeName: 'TrackerWorkProfile', selection: WORK_PROFILE_FIELDS },
+  { typeName: 'TrackerWorkday', selection: WORKDAY_ONLY_FIELDS },
+  { typeName: 'TrackerProject', selection: PROJECT_FIELDS },
+  { typeName: 'TrackerConsentPolicy', selection: CONSENT_POLICY_FIELDS },
   { typeName: 'Branding', selection: BRANDING_FIELDS },
 ])('$typeName selection', ({ typeName, selection }) => {
   it('asks the portal only for fields the portal actually has', () => {

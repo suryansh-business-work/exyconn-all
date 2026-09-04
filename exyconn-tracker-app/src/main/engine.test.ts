@@ -108,7 +108,7 @@ const SHOT = {
 /** Runs a session long enough for the (non-randomised) screenshot to fire. */
 async function captureOnce(built: Built): Promise<void> {
   vi.useFakeTimers();
-  await built.engine.start();
+  await built.engine.start('p-global');
   // Long enough for the (non-randomised) screenshot to fire and for the auto-sync that
   // follows it to drain the outbox, so the assertion reads what the portal was actually sent.
   await vi.advanceTimersByTimeAsync(5_000);
@@ -150,7 +150,7 @@ describe('TrackerEngine sync', () => {
   it('uploads the in-progress interval instead of waiting for the interval timer', async () => {
     vi.useFakeTimers();
     const { engine } = build();
-    await engine.start();
+    await engine.start('p-global');
 
     // Two minutes of tracking — far short of the 10-minute interval that would flush it.
     await vi.advanceTimersByTimeAsync(120_000);
@@ -165,7 +165,7 @@ describe('TrackerEngine sync', () => {
   it('does not let a manual sync postpone the employee’s screenshot', async () => {
     vi.useFakeTimers();
     const { engine } = build();
-    await engine.start();
+    await engine.start('p-global');
     await vi.advanceTimersByTimeAsync(60_000);
 
     const before = Reflect.get(engine, 'nextScreenshotAt') as number | null;
@@ -182,7 +182,7 @@ describe('TrackerEngine sync', () => {
     vi.useFakeTimers();
     vi.mocked(portal.syncIntervals).mockRejectedValueOnce(new TypeError('fetch failed'));
     const { engine, stats } = build();
-    await engine.start();
+    await engine.start('p-global');
     await vi.advanceTimersByTimeAsync(120_000);
 
     const outcome = await engine.syncNow();

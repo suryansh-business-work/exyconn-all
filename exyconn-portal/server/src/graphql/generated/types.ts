@@ -905,6 +905,9 @@ export enum ContractType {
 }
 
 export type CreateUserInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  avatarUrl?: InputMaybe<Scalars['String']['input']>;
+  brief?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
   department?: InputMaybe<Scalars['String']['input']>;
   designation?: InputMaybe<Scalars['String']['input']>;
@@ -914,6 +917,11 @@ export type CreateUserInput = {
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
   name: Scalars['String']['input'];
   roles: Array<Role>;
+  workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
+  workLocation?: InputMaybe<WorkLocation>;
+  workLocationNote?: InputMaybe<Scalars['String']['input']>;
+  workingTime?: InputMaybe<WorkingTime>;
+  workingTimeNote?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** The MongoDB this server is connected to, reported by the database server. */
@@ -2396,6 +2404,11 @@ export type Mutation = {
   testImageUpload: Scalars['String']['output'];
   testOpenAiConnection: Scalars['Boolean']['output'];
   testPexelsConnection: Scalars['Boolean']['output'];
+  /**
+   * Accepts the disclosure. When the workspace has pointed the tracker at a Legal policy,
+   * signedName is required and the acceptance is also recorded in Legal's versioned
+   * signature ledger — so one press of "I agree" counts in Legal, HR and the tracker at once.
+   */
   trackerAcceptConsent: Scalars['Boolean']['output'];
   /**
    * Desktop keep-alive, called on a timer for as long as the app is signed in.
@@ -2407,8 +2420,15 @@ export type Mutation = {
    */
   trackerHeartbeat: TrackerMe;
   trackerLogin: TrackerLoginPayload;
+  /** Marks the caller in for their current local day. Tracking cannot start until they have. */
+  trackerMarkAttendance: TrackerWorkday;
   /** Sets the CALLER's own timezone. Must be a resolvable IANA zone name. */
   trackerSetTimezone: TrackerAccess;
+  /**
+   * Opens a tracking session. Refused until the employee has accepted the disclosure AND
+   * marked their attendance for the day. An unknown or missing projectId books the time
+   * against the house-wide Global Project rather than failing the start.
+   */
   trackerStartSession: TrackerSession;
   trackerStopSession: TrackerSession;
   trackerSyncIntervals: Scalars['Int']['output'];
@@ -3461,6 +3481,11 @@ export type MutationTestPexelsConnectionArgs = {
 };
 
 
+export type MutationTrackerAcceptConsentArgs = {
+  signedName?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type MutationTrackerHeartbeatArgs = {
   device?: InputMaybe<TrackerDeviceInput>;
 };
@@ -3473,12 +3498,19 @@ export type MutationTrackerLoginArgs = {
 };
 
 
+export type MutationTrackerMarkAttendanceArgs = {
+  note?: InputMaybe<Scalars['String']['input']>;
+  status: AttendanceStatus;
+};
+
+
 export type MutationTrackerSetTimezoneArgs = {
   timezone: Scalars['String']['input'];
 };
 
 
 export type MutationTrackerStartSessionArgs = {
+  projectId?: InputMaybe<Scalars['ID']['input']>;
   startedAt: Scalars['DateTime']['input'];
 };
 
@@ -6398,6 +6430,24 @@ export type TrackerBuildSettings = {
   slackChannels: Array<Scalars['String']['output']>;
 };
 
+/**
+ * The Legal policy the workspace uses as its tracking disclosure, with THIS employee's
+ * signature state on the version now published. Null when no policy is configured.
+ */
+export type TrackerConsentPolicy = {
+  __typename?: 'TrackerConsentPolicy';
+  /** True only when this person has signed the version currently published. */
+  acknowledged: Scalars['Boolean']['output'];
+  acknowledgedAt?: Maybe<Scalars['DateTime']['output']>;
+  body: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  requiresAcknowledgement: Scalars['Boolean']['output'];
+  slug: Scalars['String']['output'];
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
+};
+
 export type TrackerDay = {
   __typename?: 'TrackerDay';
   appUsage: Array<TrackerAppUsage>;
@@ -6492,7 +6542,10 @@ export type TrackerLoginPayload = {
 
 export type TrackerMe = {
   __typename?: 'TrackerMe';
+  consentPolicy?: Maybe<TrackerConsentPolicy>;
   consentRequired: Scalars['Boolean']['output'];
+  /** Projects this employee may book time against, the house-wide one first. */
+  projects: Array<TrackerProject>;
   settings: TrackerSettings;
   /**
    * The EFFECTIVE zone: the employee's own pick, else the admin default, else the zone this
@@ -6500,6 +6553,8 @@ export type TrackerMe = {
    */
   timezone: Scalars['String']['output'];
   user: User;
+  workProfile: TrackerWorkProfile;
+  workday: TrackerWorkday;
 };
 
 /** The installers a build can produce. */
@@ -6508,6 +6563,14 @@ export enum TrackerPlatform {
   Macos = 'MACOS',
   Windows = 'WINDOWS'
 }
+
+/** One project time may be booked against. */
+export type TrackerProject = {
+  __typename?: 'TrackerProject';
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+};
 
 /** The newest published desktop tracker build, with its installers. */
 export type TrackerRelease = {
@@ -6568,6 +6631,10 @@ export type TrackerSession = {
   idleMs: Scalars['Float']['output'];
   keyCount: Scalars['Int']['output'];
   mouseCount: Scalars['Int']['output'];
+  /** The project this run booked its time against. */
+  projectId: Scalars['String']['output'];
+  /** The project's name as it was when the session opened, so a rename cannot rewrite it. */
+  projectName: Scalars['String']['output'];
   startedAt: Scalars['DateTime']['output'];
   status: Scalars['String']['output'];
   userId: Scalars['ID']['output'];
@@ -6576,6 +6643,11 @@ export type TrackerSession = {
 export type TrackerSettings = {
   __typename?: 'TrackerSettings';
   blurScreenshots: Scalars['Boolean']['output'];
+  /**
+   * Slug of the Legal policy used as the disclosure instead of consentText. Empty means
+   * no policy is chosen; the app then falls back to the text above.
+   */
+  consentPolicySlug: Scalars['String']['output'];
   consentText: Scalars['String']['output'];
   /**
    * House default IANA zone (e.g. "Asia/Kolkata"), chosen by an admin.
@@ -6603,6 +6675,7 @@ export type TrackerSettings = {
 
 export type TrackerSettingsInput = {
   blurScreenshots?: InputMaybe<Scalars['Boolean']['input']>;
+  consentPolicySlug?: InputMaybe<Scalars['String']['input']>;
   consentText?: InputMaybe<Scalars['String']['input']>;
   defaultTimezone?: InputMaybe<Scalars['String']['input']>;
   idleThresholdSeconds?: InputMaybe<Scalars['Int']['input']>;
@@ -6631,6 +6704,39 @@ export type TrackerWindowUsageInput = {
   appName: Scalars['String']['input'];
   durationMs: Scalars['Float']['input'];
   windowTitle?: InputMaybe<Scalars['String']['input']>;
+};
+
+/**
+ * What an employee is contracted to work: when, from where, and for how long a day. Set on
+ * the employee record in HR; the tracker measures the day against it.
+ */
+export type TrackerWorkProfile = {
+  __typename?: 'TrackerWorkProfile';
+  /** The contracted day in milliseconds — the unit every tracker total is in. */
+  targetMs: Scalars['Float']['output'];
+  workHoursPerDay: Scalars['Int']['output'];
+  workLocation: WorkLocation;
+  workLocationNote: Scalars['String']['output'];
+  workingTime: WorkingTime;
+  /** What OTHER means for this person; empty for the named arrangements. */
+  workingTimeNote: Scalars['String']['output'];
+};
+
+/**
+ * The employee's CURRENT local day: what they are contracted to work, how much of it they
+ * have worked, and whether they have marked themselves in.
+ */
+export type TrackerWorkday = {
+  __typename?: 'TrackerWorkday';
+  /** Active milliseconds recorded today. Idle time is excluded — this is time worked. */
+  activeMs: Scalars['Float']['output'];
+  /** Tracking cannot start until this is true. */
+  attendanceMarked: Scalars['Boolean']['output'];
+  attendanceNote?: Maybe<Scalars['String']['output']>;
+  attendanceStatus?: Maybe<AttendanceStatus>;
+  /** The employee's local calendar date, YYYY-MM-DD. */
+  date: Scalars['String']['output'];
+  targetMs: Scalars['Float']['output'];
 };
 
 export type Training = {
@@ -6685,6 +6791,9 @@ export type UpdateSettingsInput = {
 };
 
 export type UpdateUserInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  avatarUrl?: InputMaybe<Scalars['String']['input']>;
+  brief?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
   department?: InputMaybe<Scalars['String']['input']>;
   designation?: InputMaybe<Scalars['String']['input']>;
@@ -6695,12 +6804,20 @@ export type UpdateUserInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
   roles?: InputMaybe<Array<Role>>;
+  workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
+  workLocation?: InputMaybe<WorkLocation>;
+  workLocationNote?: InputMaybe<Scalars['String']['input']>;
+  workingTime?: InputMaybe<WorkingTime>;
+  workingTimeNote?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type User = {
   __typename?: 'User';
+  address?: Maybe<Scalars['String']['output']>;
   avatarUrl?: Maybe<Scalars['String']['output']>;
   blockReason?: Maybe<Scalars['String']['output']>;
+  /** A few lines about the person, shown on their profile across the portals. */
+  brief?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
   department?: Maybe<Scalars['String']['output']>;
@@ -6714,6 +6831,17 @@ export type User = {
   name: Scalars['String']['output'];
   roles: Array<Role>;
   updatedAt: Scalars['DateTime']['output'];
+  /**
+   * The contracted working day, in hours. Every arrangement has one — flexible moves the
+   * clock time, not the length of the day. Null on accounts that predate the field; readers
+   * fall back to the house default of 8.
+   */
+  workHoursPerDay?: Maybe<Scalars['Int']['output']>;
+  workLocation?: Maybe<WorkLocation>;
+  workLocationNote?: Maybe<Scalars['String']['output']>;
+  /** Nullable because accounts created before the working arrangement existed have none. */
+  workingTime?: Maybe<WorkingTime>;
+  workingTimeNote?: Maybe<Scalars['String']['output']>;
 };
 
 /** A newly-created user together with the one-time temporary password (also emailed). */
@@ -6754,6 +6882,21 @@ export type WebsiteSubmissionTriageInput = {
   notes?: InputMaybe<Scalars['String']['input']>;
   status: Scalars['String']['input'];
 };
+
+/** Where an employee is expected to work from. OTHER is described in workLocationNote. */
+export enum WorkLocation {
+  Home = 'HOME',
+  Hybrid = 'HYBRID',
+  Office = 'OFFICE',
+  Other = 'OTHER'
+}
+
+/** When an employee is expected to work. OTHER is described in workingTimeNote. */
+export enum WorkingTime {
+  Fixed = 'FIXED',
+  Flexible = 'FLEXIBLE',
+  Other = 'OTHER'
+}
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
@@ -7170,6 +7313,7 @@ export type ResolversTypes = ResolversObject<{
   TrackerAppUsage: ResolverTypeWrapper<TrackerAppUsage>;
   TrackerBuild: ResolverTypeWrapper<TrackerBuild>;
   TrackerBuildSettings: ResolverTypeWrapper<TrackerBuildSettings>;
+  TrackerConsentPolicy: ResolverTypeWrapper<TrackerConsentPolicy>;
   TrackerDay: ResolverTypeWrapper<TrackerDay>;
   TrackerDayBucket: ResolverTypeWrapper<TrackerDayBucket>;
   TrackerDevice: ResolverTypeWrapper<TrackerDevice>;
@@ -7179,6 +7323,7 @@ export type ResolversTypes = ResolversObject<{
   TrackerLoginPayload: ResolverTypeWrapper<TrackerLoginPayload>;
   TrackerMe: ResolverTypeWrapper<TrackerMe>;
   TrackerPlatform: TrackerPlatform;
+  TrackerProject: ResolverTypeWrapper<TrackerProject>;
   TrackerRelease: ResolverTypeWrapper<TrackerRelease>;
   TrackerReleaseAsset: ResolverTypeWrapper<TrackerReleaseAsset>;
   TrackerScreenshot: ResolverTypeWrapper<TrackerScreenshot>;
@@ -7188,6 +7333,8 @@ export type ResolversTypes = ResolversObject<{
   TrackerSettingsInput: TrackerSettingsInput;
   TrackerTotals: ResolverTypeWrapper<TrackerTotals>;
   TrackerWindowUsageInput: TrackerWindowUsageInput;
+  TrackerWorkProfile: ResolverTypeWrapper<TrackerWorkProfile>;
+  TrackerWorkday: ResolverTypeWrapper<TrackerWorkday>;
   Training: ResolverTypeWrapper<Training>;
   TrainingInput: TrainingInput;
   TrainingPage: ResolverTypeWrapper<TrainingPage>;
@@ -7201,6 +7348,8 @@ export type ResolversTypes = ResolversObject<{
   WebsiteSubmission: ResolverTypeWrapper<WebsiteSubmission>;
   WebsiteSubmissionInput: WebsiteSubmissionInput;
   WebsiteSubmissionTriageInput: WebsiteSubmissionTriageInput;
+  WorkLocation: WorkLocation;
+  WorkingTime: WorkingTime;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -7482,6 +7631,7 @@ export type ResolversParentTypes = ResolversObject<{
   TrackerAppUsage: TrackerAppUsage;
   TrackerBuild: TrackerBuild;
   TrackerBuildSettings: TrackerBuildSettings;
+  TrackerConsentPolicy: TrackerConsentPolicy;
   TrackerDay: TrackerDay;
   TrackerDayBucket: TrackerDayBucket;
   TrackerDevice: TrackerDevice;
@@ -7490,6 +7640,7 @@ export type ResolversParentTypes = ResolversObject<{
   TrackerIntervalInput: TrackerIntervalInput;
   TrackerLoginPayload: TrackerLoginPayload;
   TrackerMe: TrackerMe;
+  TrackerProject: TrackerProject;
   TrackerRelease: TrackerRelease;
   TrackerReleaseAsset: TrackerReleaseAsset;
   TrackerScreenshot: TrackerScreenshot;
@@ -7499,6 +7650,8 @@ export type ResolversParentTypes = ResolversObject<{
   TrackerSettingsInput: TrackerSettingsInput;
   TrackerTotals: TrackerTotals;
   TrackerWindowUsageInput: TrackerWindowUsageInput;
+  TrackerWorkProfile: TrackerWorkProfile;
+  TrackerWorkday: TrackerWorkday;
   Training: Training;
   TrainingInput: TrainingInput;
   TrainingPage: TrainingPage;
@@ -8931,9 +9084,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
   testOpenAiConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestOpenAiConnectionArgs, 'id'>>;
   testPexelsConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestPexelsConnectionArgs, 'id'>>;
-  trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationTrackerAcceptConsentArgs>>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
   trackerLogin?: Resolver<ResolversTypes['TrackerLoginPayload'], ParentType, ContextType, RequireFields<MutationTrackerLoginArgs, 'device' | 'email' | 'password'>>;
+  trackerMarkAttendance?: Resolver<ResolversTypes['TrackerWorkday'], ParentType, ContextType, RequireFields<MutationTrackerMarkAttendanceArgs, 'status'>>;
   trackerSetTimezone?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationTrackerSetTimezoneArgs, 'timezone'>>;
   trackerStartSession?: Resolver<ResolversTypes['TrackerSession'], ParentType, ContextType, RequireFields<MutationTrackerStartSessionArgs, 'startedAt'>>;
   trackerStopSession?: Resolver<ResolversTypes['TrackerSession'], ParentType, ContextType, RequireFields<MutationTrackerStopSessionArgs, 'endedAt' | 'sessionId'>>;
@@ -10111,6 +10265,19 @@ export type TrackerBuildSettingsResolvers<ContextType = GraphQLContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TrackerConsentPolicyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerConsentPolicy'] = ResolversParentTypes['TrackerConsentPolicy']> = ResolversObject<{
+  acknowledged?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  acknowledgedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  requiresAcknowledgement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TrackerDayResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerDay'] = ResolversParentTypes['TrackerDay']> = ResolversObject<{
   appUsage?: Resolver<Array<ResolversTypes['TrackerAppUsage']>, ParentType, ContextType>;
   intervals?: Resolver<Array<ResolversTypes['TrackerInterval']>, ParentType, ContextType>;
@@ -10176,10 +10343,21 @@ export type TrackerLoginPayloadResolvers<ContextType = GraphQLContext, ParentTyp
 }>;
 
 export type TrackerMeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerMe'] = ResolversParentTypes['TrackerMe']> = ResolversObject<{
+  consentPolicy?: Resolver<Maybe<ResolversTypes['TrackerConsentPolicy']>, ParentType, ContextType>;
   consentRequired?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  projects?: Resolver<Array<ResolversTypes['TrackerProject']>, ParentType, ContextType>;
   settings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  workProfile?: Resolver<ResolversTypes['TrackerWorkProfile'], ParentType, ContextType>;
+  workday?: Resolver<ResolversTypes['TrackerWorkday'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerProjectResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerProject'] = ResolversParentTypes['TrackerProject']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -10223,6 +10401,8 @@ export type TrackerSessionResolvers<ContextType = GraphQLContext, ParentType ext
   idleMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   keyCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   mouseCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  projectId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  projectName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   startedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -10231,6 +10411,7 @@ export type TrackerSessionResolvers<ContextType = GraphQLContext, ParentType ext
 
 export type TrackerSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerSettings'] = ResolversParentTypes['TrackerSettings']> = ResolversObject<{
   blurScreenshots?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  consentPolicySlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   consentText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   defaultTimezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -10252,6 +10433,26 @@ export type TrackerTotalsResolvers<ContextType = GraphQLContext, ParentType exte
   idleMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   screenshots?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   sessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerWorkProfileResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerWorkProfile'] = ResolversParentTypes['TrackerWorkProfile']> = ResolversObject<{
+  targetMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  workHoursPerDay?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  workLocation?: Resolver<ResolversTypes['WorkLocation'], ParentType, ContextType>;
+  workLocationNote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  workingTime?: Resolver<ResolversTypes['WorkingTime'], ParentType, ContextType>;
+  workingTimeNote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerWorkdayResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerWorkday'] = ResolversParentTypes['TrackerWorkday']> = ResolversObject<{
+  activeMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  attendanceMarked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  attendanceNote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  attendanceStatus?: Resolver<Maybe<ResolversTypes['AttendanceStatus']>, ParentType, ContextType>;
+  date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  targetMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -10278,8 +10479,10 @@ export type TrainingPageResolvers<ContextType = GraphQLContext, ParentType exten
 }>;
 
 export type UserResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
+  address?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   avatarUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   blockReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  brief?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   dateOfBirth?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   department?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -10293,6 +10496,11 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  workHoursPerDay?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  workLocation?: Resolver<Maybe<ResolversTypes['WorkLocation']>, ParentType, ContextType>;
+  workLocationNote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  workingTime?: Resolver<Maybe<ResolversTypes['WorkingTime']>, ParentType, ContextType>;
+  workingTimeNote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -10511,18 +10719,22 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TrackerAppUsage?: TrackerAppUsageResolvers<ContextType>;
   TrackerBuild?: TrackerBuildResolvers<ContextType>;
   TrackerBuildSettings?: TrackerBuildSettingsResolvers<ContextType>;
+  TrackerConsentPolicy?: TrackerConsentPolicyResolvers<ContextType>;
   TrackerDay?: TrackerDayResolvers<ContextType>;
   TrackerDayBucket?: TrackerDayBucketResolvers<ContextType>;
   TrackerDevice?: TrackerDeviceResolvers<ContextType>;
   TrackerInterval?: TrackerIntervalResolvers<ContextType>;
   TrackerLoginPayload?: TrackerLoginPayloadResolvers<ContextType>;
   TrackerMe?: TrackerMeResolvers<ContextType>;
+  TrackerProject?: TrackerProjectResolvers<ContextType>;
   TrackerRelease?: TrackerReleaseResolvers<ContextType>;
   TrackerReleaseAsset?: TrackerReleaseAssetResolvers<ContextType>;
   TrackerScreenshot?: TrackerScreenshotResolvers<ContextType>;
   TrackerSession?: TrackerSessionResolvers<ContextType>;
   TrackerSettings?: TrackerSettingsResolvers<ContextType>;
   TrackerTotals?: TrackerTotalsResolvers<ContextType>;
+  TrackerWorkProfile?: TrackerWorkProfileResolvers<ContextType>;
+  TrackerWorkday?: TrackerWorkdayResolvers<ContextType>;
   Training?: TrainingResolvers<ContextType>;
   TrainingPage?: TrainingPageResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

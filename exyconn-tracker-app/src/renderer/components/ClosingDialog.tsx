@@ -1,10 +1,6 @@
+import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
-import Alert from '@mui/material/Alert';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import LinearProgress from '@mui/material/LinearProgress';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import { Alert, Dialog, DialogContent, LinearProgress, Stack, Typography } from '@exyconn/ui';
 import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
 import { formatCount } from '../format';
 
@@ -16,7 +12,7 @@ import { formatCount } from '../format';
  * finished strands the session's last bucket. The upload is seconds away; the app waits for
  * it and quits on its own, and this says so rather than appearing to have ignored the click.
  */
-export default function ClosingDialog(): JSX.Element | null {
+export default function ClosingDialog(): ReactElement | null {
   const [pending, setPending] = useState<number | null>(null);
 
   useEffect(() => window.tracker.onCloseBlocked((count) => setPending(count)), []);

@@ -1,10 +1,5 @@
-import Alert from '@mui/material/Alert';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { Alert, Dialog, DialogContent, Divider, IconButton, Stack, Typography } from '@exyconn/ui';
 import CloseRounded from '@mui/icons-material/CloseRounded';
 import type { Tile } from '../tiles';
 
@@ -21,7 +16,7 @@ interface Props {
  * it, and the rule or the privacy promise behind it — so nothing on this screen has to be
  * taken on trust.
  */
-export default function TileDetailDialog({ tile, onClose }: Readonly<Props>): JSX.Element | null {
+export default function TileDetailDialog({ tile, onClose }: Readonly<Props>): ReactElement | null {
   if (tile === null) {
     return null;
   }

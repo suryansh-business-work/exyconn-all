@@ -51,7 +51,11 @@ export function UserDetailsPage() {
               <UserProfileCard user={user} />
             </Grid>
             <Grid item xs={12} md={5}>
-              <UserActions user={user} onChanged={() => void refetch()} />
+              <UserActions
+                user={user}
+                onChanged={() => void refetch()}
+                editPath={fromHr ? `/hr/employees/${user.id}/edit` : undefined}
+              />
             </Grid>
             <Grid item xs={12} md={7}>
               <EmployeeLeavePanel employeeId={user.id} />

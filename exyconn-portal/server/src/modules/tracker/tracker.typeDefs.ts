@@ -33,6 +33,11 @@ export const trackerTypeDefs = gql`
     syncIntervalMinutes: Int!
     consentText: String!
     """
+    Slug of the Legal policy used as the disclosure instead of consentText. Empty means
+    no policy is chosen; the app then falls back to the text above.
+    """
+    consentPolicySlug: String!
+    """
     House default IANA zone (e.g. "Asia/Kolkata"), chosen by an admin.
     An empty string means "no house default" — fall back to the device's own zone.
     """
@@ -52,6 +57,7 @@ export const trackerTypeDefs = gql`
     webcamCorner: String
     syncIntervalMinutes: Int
     consentText: String
+    consentPolicySlug: String
     defaultTimezone: String
   }
 
@@ -98,6 +104,10 @@ export const trackerTypeDefs = gql`
     id: ID!
     userId: ID!
     deviceId: String!
+    "The project this run booked its time against."
+    projectId: String!
+    "The project's name as it was when the session opened, so a rename cannot rewrite it."
+    projectName: String!
     startedAt: DateTime!
     endedAt: DateTime
     status: String!
@@ -168,6 +178,61 @@ export const trackerTypeDefs = gql`
     appUsage: [TrackerAppUsage!]!
   }
 
+  """
+  What an employee is contracted to work: when, from where, and for how long a day. Set on
+  the employee record in HR; the tracker measures the day against it.
+  """
+  type TrackerWorkProfile {
+    workingTime: WorkingTime!
+    "What OTHER means for this person; empty for the named arrangements."
+    workingTimeNote: String!
+    workLocation: WorkLocation!
+    workLocationNote: String!
+    workHoursPerDay: Int!
+    "The contracted day in milliseconds — the unit every tracker total is in."
+    targetMs: Float!
+  }
+
+  "One project time may be booked against."
+  type TrackerProject {
+    id: ID!
+    name: String!
+    key: String!
+  }
+
+  """
+  The employee's CURRENT local day: what they are contracted to work, how much of it they
+  have worked, and whether they have marked themselves in.
+  """
+  type TrackerWorkday {
+    "The employee's local calendar date, YYYY-MM-DD."
+    date: String!
+    targetMs: Float!
+    "Active milliseconds recorded today. Idle time is excluded — this is time worked."
+    activeMs: Float!
+    attendanceStatus: AttendanceStatus
+    attendanceNote: String
+    "Tracking cannot start until this is true."
+    attendanceMarked: Boolean!
+  }
+
+  """
+  The Legal policy the workspace uses as its tracking disclosure, with THIS employee's
+  signature state on the version now published. Null when no policy is configured.
+  """
+  type TrackerConsentPolicy {
+    id: ID!
+    title: String!
+    slug: String!
+    summary: String!
+    body: String!
+    version: Int!
+    requiresAcknowledgement: Boolean!
+    "True only when this person has signed the version currently published."
+    acknowledged: Boolean!
+    acknowledgedAt: DateTime
+  }
+
   # ── Desktop app payloads ──────────────────────────────────────────────
   input TrackerDeviceInput {
     deviceId: String!
@@ -230,6 +295,11 @@ export const trackerTypeDefs = gql`
     device reported at sign-in, else UTC. Never empty.
     """
     timezone: String!
+    workProfile: TrackerWorkProfile!
+    workday: TrackerWorkday!
+    "Projects this employee may book time against, the house-wide one first."
+    projects: [TrackerProject!]!
+    consentPolicy: TrackerConsentPolicy
   }
 
   """
@@ -310,7 +380,14 @@ export const trackerTypeDefs = gql`
       password: String!
       device: TrackerDeviceInput!
     ): TrackerLoginPayload!
-    trackerAcceptConsent: Boolean!
+    """
+    Accepts the disclosure. When the workspace has pointed the tracker at a Legal policy,
+    signedName is required and the acceptance is also recorded in Legal's versioned
+    signature ledger — so one press of "I agree" counts in Legal, HR and the tracker at once.
+    """
+    trackerAcceptConsent(signedName: String): Boolean!
+    "Marks the caller in for their current local day. Tracking cannot start until they have."
+    trackerMarkAttendance(status: AttendanceStatus!, note: String): TrackerWorkday!
     """
     Desktop keep-alive, called on a timer for as long as the app is signed in.
 
@@ -320,7 +397,12 @@ export const trackerTypeDefs = gql`
     with an auth error the moment the device or the access grant is revoked.
     """
     trackerHeartbeat(device: TrackerDeviceInput): TrackerMe!
-    trackerStartSession(startedAt: DateTime!): TrackerSession!
+    """
+    Opens a tracking session. Refused until the employee has accepted the disclosure AND
+    marked their attendance for the day. An unknown or missing projectId books the time
+    against the house-wide Global Project rather than failing the start.
+    """
+    trackerStartSession(startedAt: DateTime!, projectId: ID): TrackerSession!
     trackerStopSession(sessionId: ID!, endedAt: DateTime!): TrackerSession!
     trackerSyncIntervals(sessionId: ID!, intervals: [TrackerIntervalInput!]!): Int!
     trackerUploadScreenshot(input: TrackerScreenshotInput!): TrackerScreenshot!

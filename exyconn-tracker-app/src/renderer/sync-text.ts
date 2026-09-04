@@ -1,4 +1,4 @@
-import type { AlertColor } from '@mui/material/Alert';
+import type { AlertColor } from '@exyconn/ui';
 import type { SyncOutcome } from '@shared/types';
 
 export interface SyncMessage {

@@ -1,7 +1,7 @@
+import type { ReactElement } from 'react';
 import { createContext, useContext } from 'react';
-import Badge from '@mui/material/Badge';
-import { PickersDay, type PickersDayProps } from '@mui/x-date-pickers/PickersDay';
-
+import { Badge, PickersDay } from '@exyconn/ui';
+import type { PickersDayProps } from '@exyconn/ui';
 /**
  * The `yyyy-MM-dd` keys of the days that have tracked time. Passed by context rather than
  * `slotProps.day` because MUI types that slot as exactly `PickersDayProps` — smuggling an
@@ -21,7 +21,7 @@ export default function TrackedDay({
   day,
   outsideCurrentMonth,
   ...rest
-}: Readonly<PickersDayProps<Date>>): JSX.Element {
+}: Readonly<PickersDayProps<Date>>): ReactElement {
   const tracked = useContext(TrackedDatesContext);
   const isTracked = !outsideCurrentMonth && tracked.has(dateKey(day));
 

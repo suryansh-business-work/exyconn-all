@@ -1,8 +1,7 @@
+import type { ReactElement } from 'react';
 import { useState } from 'react';
 import type { SvgIconComponent } from '@mui/icons-material';
-import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import { Button, Stack, Typography } from '@exyconn/ui';
 import AccessibilityNewOutlined from '@mui/icons-material/AccessibilityNewOutlined';
 import RefreshRounded from '@mui/icons-material/RefreshRounded';
 import ScreenshotMonitorOutlined from '@mui/icons-material/ScreenshotMonitorOutlined';
@@ -49,7 +48,7 @@ interface Props {
 }
 
 /** macOS-only screen prompting for the TCC grants the tracker still needs. */
-export default function PermissionsScreen({ permissions }: Readonly<Props>): JSX.Element {
+export default function PermissionsScreen({ permissions }: Readonly<Props>): ReactElement {
   const [busy, setBusy] = useState(false);
   const missing = PERMISSIONS.filter((row) => !permissions[row.kind]);
 

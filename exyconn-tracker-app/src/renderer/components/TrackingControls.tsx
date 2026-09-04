@@ -1,5 +1,5 @@
-import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
+import type { ReactElement } from 'react';
+import { Button, Stack } from '@exyconn/ui';
 import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
 import PauseRounded from '@mui/icons-material/PauseRounded';
 import ReplayRounded from '@mui/icons-material/ReplayRounded';
@@ -9,10 +9,19 @@ import { run } from '../run';
 
 interface Props {
   status: TrackerStatus;
+  /**
+   * Whether the employee has marked themselves in today. Start stays disabled until they
+   * have — the portal refuses to open a session either way, and a button that fails is worse
+   * than one that plainly cannot be pressed yet.
+   */
+  attendanceMarked: boolean;
 }
 
 /** Start / Pause / Resume / Stop — each enabled only in the status where it applies. */
-export default function TrackingControls({ status }: Readonly<Props>): JSX.Element {
+export default function TrackingControls({
+  status,
+  attendanceMarked,
+}: Readonly<Props>): ReactElement {
   const isIdle = status === 'idle';
   const isTracking = status === 'tracking';
   const isPaused = status === 'paused';
@@ -22,7 +31,7 @@ export default function TrackingControls({ status }: Readonly<Props>): JSX.Eleme
       <Button
         variant="contained"
         startIcon={<PlayArrowRounded />}
-        disabled={!isIdle}
+        disabled={!isIdle || !attendanceMarked}
         onClick={() => run(() => window.tracker.start())}
       >
         Start

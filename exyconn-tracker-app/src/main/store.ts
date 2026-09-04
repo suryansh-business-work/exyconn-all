@@ -11,6 +11,12 @@ interface PersistedState {
   deviceId: string;
   /** This install's own preferences. Absent in state files written before they existed. */
   preferences?: Partial<AppPreferences>;
+  /**
+   * The project the employee last booked time against. Held per install rather than asked
+   * for every morning: people work on the same thing for weeks at a time, and a picker that
+   * forgets is a picker that gets ignored until the timesheet is wrong.
+   */
+  selectedProjectId?: string;
 }
 
 /**
@@ -111,6 +117,16 @@ class SecureStore {
     this.state.preferences = { ...this.preferences, ...update };
     this.persist();
     return this.preferences;
+  }
+
+  /** The project the next session books against. Empty until the employee has chosen one. */
+  get selectedProjectId(): string {
+    return this.state.selectedProjectId ?? '';
+  }
+
+  setSelectedProject(projectId: string): void {
+    this.state.selectedProjectId = projectId;
+    this.persist();
   }
 
   clearToken(): void {

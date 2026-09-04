@@ -1,6 +1,7 @@
 import { Box, Divider, Flex, Grid, Heading, Text, CircularProgress } from '@/components/ui';
 import { formatDuration, activityPercent } from './tracker.format';
 import { TrackerAppUsageList } from './TrackerAppUsageList';
+import { TrackerDayProjects } from './TrackerDayProjects';
 import { TrackerScreenshotGallery } from './TrackerScreenshotGallery';
 import type { DateTimeFormatter, TrackerDayData } from './tracker.types';
 
@@ -89,6 +90,12 @@ export function TrackerDayPanel({
           <Metric label="Mouse events" value={totals.mouseCount.toLocaleString()} />
         </Grid>
       </Grid>
+
+      <Divider sx={{ my: 1.5 }} />
+      <Heading level={6} sx={{ mb: 1 }}>
+        Projects
+      </Heading>
+      <TrackerDayProjects sessions={day.sessions} />
 
       <Divider sx={{ my: 1.5 }} />
       <Heading level={6} sx={{ mb: 1 }}>

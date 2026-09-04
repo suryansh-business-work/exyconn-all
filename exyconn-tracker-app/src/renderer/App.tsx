@@ -1,7 +1,5 @@
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
-import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider } from '@mui/material/styles';
+import type { ReactElement } from 'react';
+import { Box, CircularProgress, ThemeProvider } from '@exyconn/ui';
 import type { TrackerState } from '@shared/types';
 import AppFrame from './components/AppFrame';
 import ClosingDialog from './components/ClosingDialog';
@@ -22,7 +20,7 @@ interface RouterProps {
  * One screen per status. `permissions.allGranted` is always true on Windows, so the
  * permissions screen only appears on macOS when a grant is still missing.
  */
-function ScreenRouter({ state }: Readonly<RouterProps>): JSX.Element {
+function ScreenRouter({ state }: Readonly<RouterProps>): ReactElement {
   if (state.status === 'signed-out') {
     return (
       <LoginScreen
@@ -34,7 +32,13 @@ function ScreenRouter({ state }: Readonly<RouterProps>): JSX.Element {
     );
   }
   if (state.status === 'consent-required') {
-    return <ConsentScreen branding={state.branding} settings={state.settings} />;
+    return (
+      <ConsentScreen
+        branding={state.branding}
+        settings={state.settings}
+        policy={state.consentPolicy}
+      />
+    );
   }
   if (!state.permissions.allGranted) {
     return <PermissionsScreen permissions={state.permissions} />;
@@ -43,7 +47,7 @@ function ScreenRouter({ state }: Readonly<RouterProps>): JSX.Element {
 }
 
 /** Full-bleed spinner shown until the first state snapshot lands. */
-function Loading(): JSX.Element {
+function Loading(): ReactElement {
   return (
     <Box sx={{ flex: 1, display: 'grid', placeItems: 'center' }}>
       <CircularProgress />
@@ -52,7 +56,7 @@ function Loading(): JSX.Element {
 }
 
 /** Subscribes to the tracker state, themes the app from the portal branding, and routes. */
-export default function App(): JSX.Element {
+export default function App(): ReactElement {
   const state = useTrackerState();
   const theme = useBrandTheme(state?.branding ?? null, state?.preferences.themeMode);
 
@@ -65,7 +69,6 @@ export default function App(): JSX.Element {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
       <AppFrame>{state === null ? <Loading /> : <ScreenRouter state={state} />}</AppFrame>
       {/* At the root: a quit can be asked for from any page, and from the tray. */}
       <ClosingDialog />

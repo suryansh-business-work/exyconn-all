@@ -1,6 +1,5 @@
-import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { Stack, Switch, Typography } from '@exyconn/ui';
 import type { AppPreferences } from '@shared/types';
 import { run } from '../run';
 
@@ -13,7 +12,7 @@ interface Props {
  * which is how it is meant to be used — the tray icon and menu stay the visible indicator
  * that it is still recording. Off: close means quit, and tracking stops with the app.
  */
-export default function TrayPreference({ preferences }: Readonly<Props>): JSX.Element {
+export default function TrayPreference({ preferences }: Readonly<Props>): ReactElement {
   return (
     <Stack direction="row" spacing={2} alignItems="flex-start">
       <Stack spacing={0.25} sx={{ flex: 1, minWidth: 0 }}>

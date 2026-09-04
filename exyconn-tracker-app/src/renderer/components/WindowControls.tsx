@@ -1,6 +1,6 @@
+import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
+import { Box, IconButton } from '@exyconn/ui';
 import RemoveRounded from '@mui/icons-material/RemoveRounded';
 import CropSquareRounded from '@mui/icons-material/CropSquareRounded';
 import FilterNoneRounded from '@mui/icons-material/FilterNoneRounded';
@@ -24,7 +24,7 @@ const BUTTON_SX = {
  * Each acts on the window it is rendered in — the tracker window and the screenshot gallery
  * share this bar, and main routes every command back to the sender.
  */
-export default function WindowControls(): JSX.Element {
+export default function WindowControls(): ReactElement {
   const [maximized, setMaximized] = useState(false);
 
   // Main is the authority: the window can also be maximised by a double-click on the title

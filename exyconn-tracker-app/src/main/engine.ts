@@ -54,6 +54,12 @@ export class TrackerEngine {
   private sessionKeys = 0;
   private sessionMouse = 0;
   private screenshotCount = 0;
+  /**
+   * Active ms already worked today OUTSIDE this session — the portal's number for the day,
+   * captured when the session opened. The day's progress is this plus the live session, which
+   * is what stops a bar that has to wait for the next upload to move.
+   */
+  private dayBaseMs = 0;
   private lastSyncAt: string | null = null;
   private lastSyncOutcome: SyncOutcome | null = null;
   private syncing = false;
@@ -80,11 +86,31 @@ export class TrackerEngine {
     this.settings = settings;
   }
 
-  async start(): Promise<void> {
+  /**
+   * Sets the day's starting point: everything already worked today that this session will not
+   * count. Re-stated whenever the portal's view of the day changes and no session is running,
+   * and once more as a session opens — never mid-session, where it would double-count the
+   * minutes the portal has just received from this very session.
+   */
+  setDayBase(activeMs: number): void {
+    this.dayBaseMs = activeMs;
+  }
+
+  /** What this session added to the day, kept when the session ends so the bar does not drop. */
+  get dayActiveMs(): number {
+    return this.dayBaseMs + this.sessionActiveMs;
+  }
+
+  /**
+   * Opens a session against `projectId`. The portal refuses to open one until the employee
+   * has accepted the disclosure and marked their attendance, so a rejection here is a real
+   * answer to show them, not something to swallow.
+   */
+  async start(projectId: string): Promise<void> {
     if (this.status === 'tracking') {
       return;
     }
-    this.sessionId = await portal.startSession(new Date().toISOString());
+    this.sessionId = await portal.startSession(new Date().toISOString(), projectId);
     this.input.start();
     this.beginInterval(Date.now());
     this.status = 'tracking';
@@ -125,6 +151,10 @@ export class TrackerEngine {
       await this.sync();
       await portal.stopSession(this.sessionId, new Date().toISOString()).catch(() => undefined);
     }
+    // The finished session's time stays in the day's total. Rolling it into the base before
+    // the counters reset is what keeps the progress bar where it was rather than snapping
+    // back to whatever the portal last confirmed.
+    this.dayBaseMs += this.sessionActiveMs;
     this.sessionId = null;
     this.status = 'idle';
     this.resetSessionTotals();
@@ -380,6 +410,7 @@ export class TrackerEngine {
       pendingSync: this.outbox.size,
       lastSyncAt: this.lastSyncAt,
       syncing: this.syncing,
+      dayActiveMs: this.dayActiveMs,
       lastSyncOutcome: this.lastSyncOutcome,
     };
   }

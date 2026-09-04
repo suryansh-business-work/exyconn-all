@@ -1,8 +1,5 @@
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
-import Skeleton from '@mui/material/Skeleton';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { Alert, Button, Skeleton, Stack, Typography } from '@exyconn/ui';
 import OpenInNewRounded from '@mui/icons-material/OpenInNewRounded';
 import type { DayDetail } from '@shared/types';
 import { activityPercent, formatCount } from '../format';
@@ -37,7 +34,7 @@ export default function DayDetailPanel({
   loading,
   error,
   timezone,
-}: Readonly<Props>): JSX.Element {
+}: Readonly<Props>): ReactElement {
   const heading = (
     <Typography variant="subtitle1" fontWeight={700}>
       {formatDayLabel(date)}

@@ -31,6 +31,10 @@ function serializeDeviceState(state: DeviceState) {
     consentRequired: state.consentRequired,
     settings: withId(state.settings),
     timezone: state.timezone,
+    workProfile: state.workProfile,
+    workday: state.workday,
+    projects: state.projects,
+    consentPolicy: state.consentPolicy,
   };
 }
 
@@ -177,9 +181,23 @@ export const trackerResolvers = {
         settings: withId(result.settings),
       };
     },
-    trackerAcceptConsent: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+    trackerAcceptConsent: async (
+      _p: unknown,
+      { signedName }: { signedName?: string | null },
+      ctx: GraphQLContext,
+    ) => {
       const { userId } = await assertTrackerDevice(ctx);
-      return trackerDeviceService.acceptConsent(userId);
+      return trackerDeviceService.acceptConsent(userId, signedName);
+    },
+    /** Marks the caller in for their own local day — the device token decides whose day. */
+    trackerMarkAttendance: async (
+      _p: unknown,
+      { status, note }: { status: string; note?: string | null },
+      ctx: GraphQLContext,
+    ) => {
+      const { userId, deviceId } = await assertTrackerDevice(ctx);
+      const state = await trackerDeviceService.me(userId, deviceId);
+      return trackerDeviceService.markAttendance(userId, state.timezone, status, note);
     },
     /** Keep-alive: touches lastSeenAt and answers with the state the app should adopt. */
     trackerHeartbeat: async (
@@ -192,11 +210,13 @@ export const trackerResolvers = {
     },
     trackerStartSession: async (
       _p: unknown,
-      { startedAt }: { startedAt: Date },
+      { startedAt, projectId }: { startedAt: Date; projectId?: string | null },
       ctx: GraphQLContext,
     ) => {
       const { userId, deviceId } = await assertTrackerDevice(ctx);
-      return withId(await trackerDeviceService.startSession(userId, deviceId, startedAt));
+      return withId(
+        await trackerDeviceService.startSession(userId, deviceId, startedAt, projectId),
+      );
     },
     trackerStopSession: async (
       _p: unknown,

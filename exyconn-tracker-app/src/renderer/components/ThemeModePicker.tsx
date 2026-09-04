@@ -1,7 +1,5 @@
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import type { ReactElement } from 'react';
+import { ToggleButton, ToggleButtonGroup, Stack, Typography } from '@exyconn/ui';
 import BrightnessAutoOutlined from '@mui/icons-material/BrightnessAutoOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
@@ -31,7 +29,7 @@ interface Props {
  * `System` is the default and stays first: a tracker that sits open all day should match the
  * desk it is sitting on without being asked. The other two are for when it should not.
  */
-export default function ThemeModePicker({ mode }: Readonly<Props>): JSX.Element {
+export default function ThemeModePicker({ mode }: Readonly<Props>): ReactElement {
   return (
     <Stack spacing={1}>
       <ToggleButtonGroup

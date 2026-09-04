@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import {
   IPC,
   type AppPreferences,
+  type AttendanceStatus,
   type CaptureRequest,
   type CaptureResult,
   type DayDetail,
@@ -12,6 +13,7 @@ import {
   type ScreenshotsRange,
   type TrackerState,
   type TrackerTotals,
+  type Workday,
 } from '@shared/types';
 
 /** The typed API exposed to the renderer over the context bridge (no Node access). */
@@ -20,7 +22,14 @@ const api = {
   login: (email: string, password: string, rememberMe: boolean): Promise<LoginResult> =>
     ipcRenderer.invoke(IPC.login, email, password, rememberMe),
   logout: (): Promise<void> => ipcRenderer.invoke(IPC.logout),
-  acceptConsent: (): Promise<void> => ipcRenderer.invoke(IPC.acceptConsent),
+  /** `signedName` is the employee's typed signature on the disclosure. */
+  acceptConsent: (signedName: string): Promise<void> =>
+    ipcRenderer.invoke(IPC.acceptConsent, signedName),
+  /** Marks the employee in for today; resolves to the day as the portal now sees it. */
+  markAttendance: (status: AttendanceStatus, note: string | null): Promise<Workday> =>
+    ipcRenderer.invoke(IPC.markAttendance, status, note),
+  /** Chooses the project the next session books against; resolves to the project now in force. */
+  setProject: (projectId: string): Promise<string> => ipcRenderer.invoke(IPC.setProject, projectId),
   start: (): Promise<void> => ipcRenderer.invoke(IPC.start),
   pause: (): Promise<void> => ipcRenderer.invoke(IPC.pause),
   resume: (): Promise<void> => ipcRenderer.invoke(IPC.resume),

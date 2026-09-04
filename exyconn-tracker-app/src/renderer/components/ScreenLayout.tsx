@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react';
-import Box from '@mui/material/Box';
-
+import type { ReactElement, ReactNode } from 'react';
+import { Box } from '@exyconn/ui';
 interface Props {
   children: ReactNode;
   maxWidth?: number;
@@ -10,7 +9,7 @@ interface Props {
  * A scrollable, vertically centred column. `margin: auto` (not `align-items: center`)
  * so tall content still scrolls to its top instead of being clipped in a small window.
  */
-export default function ScreenLayout({ children, maxWidth = 460 }: Readonly<Props>): JSX.Element {
+export default function ScreenLayout({ children, maxWidth = 460 }: Readonly<Props>): ReactElement {
   return (
     <Box
       sx={{

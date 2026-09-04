@@ -34,19 +34,30 @@ export class TrackerTray {
 
   update(state: TrackerState): void {
     this.tray.setToolTip(`Exyconn Tracker — ${STATUS_LABEL[state.status]}`);
-    this.tray.setContextMenu(this.buildMenu(state.status));
+    this.tray.setContextMenu(
+      this.buildMenu(state.status, state.workday?.attendanceMarked ?? false),
+    );
   }
 
-  private buildMenu(status: TrackerStatus): Menu {
+  /**
+   * `attendanceMarked` is the same gate the dashboard's Start button honours. The tray must
+   * not be the way around it: a menu entry that opens a session the portal then refuses tells
+   * the employee they are being tracked when they are not, and the tray has nowhere to show
+   * the error.
+   */
+  private buildMenu(status: TrackerStatus, attendanceMarked: boolean): Menu {
     const tracking = status === 'tracking';
     const paused = status === 'paused';
-    const canStart = status === 'idle';
+    const canStart = status === 'idle' && attendanceMarked;
+    const startLabel = attendanceMarked
+      ? 'Start tracking'
+      : 'Start tracking (mark attendance first)';
 
     return Menu.buildFromTemplate([
       { label: `Exyconn Tracker — ${STATUS_LABEL[status]}`, enabled: false },
       { type: 'separator' },
       { label: 'Open', click: () => this.showWindow() },
-      { label: 'Start tracking', enabled: canStart, click: this.actions.start },
+      { label: startLabel, enabled: canStart, click: this.actions.start },
       { label: 'Pause', enabled: tracking, click: this.actions.pause },
       { label: 'Resume', enabled: paused, click: this.actions.resume },
       { label: 'Stop', enabled: tracking || paused, click: this.actions.stop },

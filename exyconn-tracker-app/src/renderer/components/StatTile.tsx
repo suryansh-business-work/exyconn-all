@@ -1,8 +1,6 @@
+import type { ReactElement } from 'react';
 import type { SvgIconComponent } from '@mui/icons-material';
-import ButtonBase from '@mui/material/ButtonBase';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { alpha } from '@mui/material/styles';
+import { ButtonBase, Stack, Typography, alpha } from '@exyconn/ui';
 import Surface from './Surface';
 
 interface Props {
@@ -14,7 +12,7 @@ interface Props {
 }
 
 /** A single labelled stat in the dashboard grid. Clicking it explains the number. */
-export default function StatTile({ label, value, icon, onOpen }: Readonly<Props>): JSX.Element {
+export default function StatTile({ label, value, icon, onOpen }: Readonly<Props>): ReactElement {
   const Icon = icon;
   return (
     <ButtonBase

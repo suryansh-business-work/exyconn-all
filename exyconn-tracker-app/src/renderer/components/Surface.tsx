@@ -1,5 +1,6 @@
-import Paper, { type PaperProps } from '@mui/material/Paper';
-import type { SxProps, Theme } from '@mui/material/styles';
+import type { ReactElement } from 'react';
+import { Paper, type PaperProps } from '@exyconn/ui';
+import type { SxProps, Theme } from '@exyconn/ui';
 import { surface } from '../theme';
 
 /** MUI's `sx` is either a single style or an array of them. */
@@ -23,7 +24,7 @@ function toArray(sx: SxProps<Theme> | undefined): readonly SxEntry[] {
 }
 
 /** Every panel in the app is one of these: an opaque MUI Paper with a hairline border. */
-export default function Surface({ sx, ...rest }: Readonly<PaperProps>): JSX.Element {
+export default function Surface({ sx, ...rest }: Readonly<PaperProps>): ReactElement {
   return (
     <Paper
       {...rest}

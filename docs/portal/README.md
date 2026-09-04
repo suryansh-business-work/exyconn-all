@@ -84,3 +84,5 @@ pnpm codegen                              # regenerate GraphQL hooks after a .gr
 - [packages.md](./packages.md) — what lives in each package and what it exports.
 - [crud-kit.md](./crud-kit.md) — the CRUD kit, with a full worked module.
 - [adding-a-module.md](./adding-a-module.md) — adding a screen, and adding a whole app.
+- [working-day.md](./working-day.md) — the employee working day: which module owns each
+  fact, and how HR, Legal, Projects and the desktop tracker share it.

@@ -1,8 +1,6 @@
+import type { ReactElement } from 'react';
 import { useState } from 'react';
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { useTheme } from '@mui/material/styles';
+import { Box, Stack, Typography, useTheme } from '@exyconn/ui';
 import type { Branding } from '@shared/types';
 
 const DEFAULT_NAME = 'Exyconn Tracker';
@@ -29,7 +27,7 @@ export default function BrandMark({
   branding,
   height = 28,
   showName = false,
-}: Readonly<Props>): JSX.Element {
+}: Readonly<Props>): ReactElement {
   const theme = useTheme();
   const [broken, setBroken] = useState(false);
   const name = branding?.businessName ?? DEFAULT_NAME;

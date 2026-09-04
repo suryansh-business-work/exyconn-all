@@ -80,6 +80,17 @@ const trackerSettingsSchema = new Schema(
       required: true,
       default: TRACKER_DEFAULTS.consentText,
     },
+    /**
+     * Slug of the Legal policy used as the tracking disclosure. Not `required` — '' is the
+     * meaningful value "no policy chosen; fall back to consentText", and Mongoose's
+     * `required` validator rejects an empty string.
+     */
+    consentPolicySlug: {
+      type: String,
+      default: TRACKER_DEFAULTS.consentPolicySlug,
+      trim: true,
+      lowercase: true,
+    },
     syncIntervalMinutes: {
       type: Number,
       required: true,
