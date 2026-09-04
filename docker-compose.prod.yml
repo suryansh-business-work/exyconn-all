@@ -198,7 +198,47 @@ services:
       CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com,https://tech.exyconn.com,https://it.exyconn.com,https://status.exyconn.com
       APP_URL: https://portal.exyconn.com
       TRACKER_DOWNLOAD_URL: https://employee.exyconn.com/me/tracker
+      # Where the payslip email sends an employee for the rest of their payslips.
+      SALARY_SLIPS_URL: https://employee.exyconn.com/me/salary-slips
       # Public status page: the domain the seeded monitors hang off, and how often
       # this process probes them. The catalogue itself lives in the database.
       STATUS_DOMAIN: exyconn.com
       STATUS_CHECK_INTERVAL_MS: 300000
+      # Tech > Infrastructure reads the live stack through the read-only socket proxy
+      # below. Never the raw socket: /var/run/docker.sock is root on the host.
+      DOCKER_API_URL: http://docker-proxy:2375
+    depends_on:
+      - docker-proxy
+
+  # A GET-only window onto the Docker engine for portal-server's Infrastructure screen.
+  # Everything that could change the host — POST, exec, build, swarm, the secrets and
+  # configs endpoints — stays off, so a compromise of the API can read the stack but
+  # never touch it. Not published to the host: only the compose network can reach it.
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:0.3.0
+    container_name: exyconn-docker-proxy
+    restart: unless-stopped
+    environment:
+      INFO: 1
+      VERSION: 1
+      CONTAINERS: 1
+      IMAGES: 1
+      NETWORKS: 1
+      VOLUMES: 1
+      SYSTEM: 1
+      # Explicitly off: anything that mutates the host or leaks credentials.
+      POST: 0
+      EXEC: 0
+      BUILD: 0
+      COMMIT: 0
+      AUTH: 0
+      SECRETS: 0
+      CONFIGS: 0
+      SWARM: 0
+      NODES: 0
+      SERVICES: 0
+      TASKS: 0
+      PLUGINS: 0
+      SESSION: 0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro

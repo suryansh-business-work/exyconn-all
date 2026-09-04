@@ -1,0 +1,1 @@
+export { PayslipSchedulePage } from './PayslipSchedulePage';

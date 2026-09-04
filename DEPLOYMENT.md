@@ -27,7 +27,13 @@ is built as a downloadable Windows installer artifact by the same workflow.
 | Portal · IT | 4034 | it.exyconn.com | `exyconn-portal-it` |
 | Status page (public, no sign-in) | 4035 | status.exyconn.com | `exyconn-portal-status` |
 | Portal API | 4004 | portal-server.exyconn.com | `exyconn-portal-server` |
+| Docker socket proxy (internal, GET-only) | — | — | `tecnativa/docker-socket-proxy` |
 | Tracker (desktop) | — | — | Windows installer artifact |
+
+The socket proxy publishes no host port at all: only the compose network reaches it, and it
+answers GET requests for `/info`, `/version`, `/containers`, `/images` and `/system/df` only.
+It exists so Tech > Infrastructure can show the live stack without portal-server ever holding
+`/var/run/docker.sock` — that socket is root on the host.
 
 Containers listen only on `127.0.0.1:<port>`; host nginx terminates TLS and proxies each
 public domain to its port. Every portal domain serves the same sign-in at `/login`, styled

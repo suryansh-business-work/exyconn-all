@@ -2,6 +2,7 @@ import type { GraphQLContext } from '../../middleware/auth';
 import { ROLES } from '../../constants/roles';
 import { assertRole, assertAuthenticated } from '../../middleware/roleGuard';
 import { withId, withIds } from '../../utils/serialize';
+import { githubActions } from '../../utils/github';
 import { assertTrackerDevice } from './tracker.auth';
 import {
   trackerDeviceService,
@@ -81,6 +82,16 @@ export const trackerResolvers = {
     trackerTotals: async (_p: unknown, { userId }: { userId: string }, ctx: GraphQLContext) => {
       assertRole(ctx, TRACKER_ROLES);
       return trackerAdminService.totals(userId);
+    },
+
+    /**
+     * Latest desktop installers. Guarded by a session only, not the TRACKER role:
+     * the people who need to install the app are the employees being tracked, not
+     * the managers who administer it.
+     */
+    trackerLatestRelease: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertAuthenticated(ctx);
+      return githubActions.latestTrackerRelease();
     },
 
     /** Desktop app rehydrating a remembered (non-expiring) session. */

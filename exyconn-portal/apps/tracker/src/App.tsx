@@ -8,6 +8,7 @@ import {
   TrackerDevicesPage,
   TrackerSettingsPage,
 } from './pages/tracker';
+import { TrackerDownloadPage } from './pages/download';
 
 /** Time Tracker micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -17,6 +18,7 @@ export function App() {
       <Route path="/tracker/access" element={<TrackerAccessPage />} />
       <Route path="/tracker/devices" element={<TrackerDevicesPage />} />
       <Route path="/tracker/settings" element={<TrackerSettingsPage />} />
+      <Route path="/tracker/download" element={<TrackerDownloadPage />} />
     </PortalApp>
   );
 }

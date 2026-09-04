@@ -8888,6 +8888,33 @@ export type MarkPayrollPaidMutationVariables = Exact<{
 
 export type MarkPayrollPaidMutation = { __typename?: 'Mutation', markPayrollPaid: number };
 
+export type SalarySlipPdfQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type SalarySlipPdfQuery = { __typename?: 'Query', salarySlipPdf: { __typename?: 'SalarySlipDownload', filename: string, contentType: string, contentBase64: string } };
+
+export type PayrollScheduleQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PayrollScheduleQuery = { __typename?: 'Query', payrollSchedule: { __typename?: 'PayrollSchedule', enabled: boolean, dayOfMonth: number, hour: number, minute: number, period: string, lastRunAt?: string | null, lastRunPeriod: string, lastSent: number, lastFailed: number, lastSkipped: number } };
+
+export type UpdatePayrollScheduleMutationVariables = Exact<{
+  input: PayrollScheduleInput;
+}>;
+
+
+export type UpdatePayrollScheduleMutation = { __typename?: 'Mutation', updatePayrollSchedule: { __typename?: 'PayrollSchedule', enabled: boolean, dayOfMonth: number, hour: number, minute: number, period: string, lastRunAt?: string | null, lastRunPeriod: string, lastSent: number, lastFailed: number, lastSkipped: number } };
+
+export type SendSalarySlipsMutationVariables = Exact<{
+  month: Scalars['Int']['input'];
+  year: Scalars['Int']['input'];
+}>;
+
+
+export type SendSalarySlipsMutation = { __typename?: 'Mutation', sendSalarySlips: { __typename?: 'PayrollDispatchResult', month: number, year: number, sent: number, failed: number, skipped: number } };
+
 export type ListPermissionModulesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -23597,6 +23624,182 @@ export function useMarkPayrollPaidMutation(baseOptions?: Apollo.MutationHookOpti
 export type MarkPayrollPaidMutationHookResult = ReturnType<typeof useMarkPayrollPaidMutation>;
 export type MarkPayrollPaidMutationResult = Apollo.MutationResult<MarkPayrollPaidMutation>;
 export type MarkPayrollPaidMutationOptions = Apollo.BaseMutationOptions<MarkPayrollPaidMutation, MarkPayrollPaidMutationVariables>;
+export const SalarySlipPdfDocument = gql`
+    query SalarySlipPdf($id: ID!) {
+  salarySlipPdf(id: $id) {
+    filename
+    contentType
+    contentBase64
+  }
+}
+    `;
+
+/**
+ * __useSalarySlipPdfQuery__
+ *
+ * To run a query within a React component, call `useSalarySlipPdfQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSalarySlipPdfQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSalarySlipPdfQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useSalarySlipPdfQuery(baseOptions: Apollo.QueryHookOptions<SalarySlipPdfQuery, SalarySlipPdfQueryVariables> & ({ variables: SalarySlipPdfQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SalarySlipPdfQuery, SalarySlipPdfQueryVariables>(SalarySlipPdfDocument, options);
+      }
+export function useSalarySlipPdfLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SalarySlipPdfQuery, SalarySlipPdfQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SalarySlipPdfQuery, SalarySlipPdfQueryVariables>(SalarySlipPdfDocument, options);
+        }
+// @ts-ignore
+export function useSalarySlipPdfSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SalarySlipPdfQuery, SalarySlipPdfQueryVariables>): Apollo.UseSuspenseQueryResult<SalarySlipPdfQuery, SalarySlipPdfQueryVariables>;
+export function useSalarySlipPdfSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SalarySlipPdfQuery, SalarySlipPdfQueryVariables>): Apollo.UseSuspenseQueryResult<SalarySlipPdfQuery | undefined, SalarySlipPdfQueryVariables>;
+export function useSalarySlipPdfSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SalarySlipPdfQuery, SalarySlipPdfQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SalarySlipPdfQuery, SalarySlipPdfQueryVariables>(SalarySlipPdfDocument, options);
+        }
+export type SalarySlipPdfQueryHookResult = ReturnType<typeof useSalarySlipPdfQuery>;
+export type SalarySlipPdfLazyQueryHookResult = ReturnType<typeof useSalarySlipPdfLazyQuery>;
+export type SalarySlipPdfSuspenseQueryHookResult = ReturnType<typeof useSalarySlipPdfSuspenseQuery>;
+export type SalarySlipPdfQueryResult = Apollo.QueryResult<SalarySlipPdfQuery, SalarySlipPdfQueryVariables>;
+export const PayrollScheduleDocument = gql`
+    query PayrollSchedule {
+  payrollSchedule {
+    enabled
+    dayOfMonth
+    hour
+    minute
+    period
+    lastRunAt
+    lastRunPeriod
+    lastSent
+    lastFailed
+    lastSkipped
+  }
+}
+    `;
+
+/**
+ * __usePayrollScheduleQuery__
+ *
+ * To run a query within a React component, call `usePayrollScheduleQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePayrollScheduleQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePayrollScheduleQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function usePayrollScheduleQuery(baseOptions?: Apollo.QueryHookOptions<PayrollScheduleQuery, PayrollScheduleQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PayrollScheduleQuery, PayrollScheduleQueryVariables>(PayrollScheduleDocument, options);
+      }
+export function usePayrollScheduleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PayrollScheduleQuery, PayrollScheduleQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PayrollScheduleQuery, PayrollScheduleQueryVariables>(PayrollScheduleDocument, options);
+        }
+// @ts-ignore
+export function usePayrollScheduleSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PayrollScheduleQuery, PayrollScheduleQueryVariables>): Apollo.UseSuspenseQueryResult<PayrollScheduleQuery, PayrollScheduleQueryVariables>;
+export function usePayrollScheduleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PayrollScheduleQuery, PayrollScheduleQueryVariables>): Apollo.UseSuspenseQueryResult<PayrollScheduleQuery | undefined, PayrollScheduleQueryVariables>;
+export function usePayrollScheduleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PayrollScheduleQuery, PayrollScheduleQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PayrollScheduleQuery, PayrollScheduleQueryVariables>(PayrollScheduleDocument, options);
+        }
+export type PayrollScheduleQueryHookResult = ReturnType<typeof usePayrollScheduleQuery>;
+export type PayrollScheduleLazyQueryHookResult = ReturnType<typeof usePayrollScheduleLazyQuery>;
+export type PayrollScheduleSuspenseQueryHookResult = ReturnType<typeof usePayrollScheduleSuspenseQuery>;
+export type PayrollScheduleQueryResult = Apollo.QueryResult<PayrollScheduleQuery, PayrollScheduleQueryVariables>;
+export const UpdatePayrollScheduleDocument = gql`
+    mutation UpdatePayrollSchedule($input: PayrollScheduleInput!) {
+  updatePayrollSchedule(input: $input) {
+    enabled
+    dayOfMonth
+    hour
+    minute
+    period
+    lastRunAt
+    lastRunPeriod
+    lastSent
+    lastFailed
+    lastSkipped
+  }
+}
+    `;
+export type UpdatePayrollScheduleMutationFn = Apollo.MutationFunction<UpdatePayrollScheduleMutation, UpdatePayrollScheduleMutationVariables>;
+
+/**
+ * __useUpdatePayrollScheduleMutation__
+ *
+ * To run a mutation, you first call `useUpdatePayrollScheduleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePayrollScheduleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePayrollScheduleMutation, { data, loading, error }] = useUpdatePayrollScheduleMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePayrollScheduleMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePayrollScheduleMutation, UpdatePayrollScheduleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePayrollScheduleMutation, UpdatePayrollScheduleMutationVariables>(UpdatePayrollScheduleDocument, options);
+      }
+export type UpdatePayrollScheduleMutationHookResult = ReturnType<typeof useUpdatePayrollScheduleMutation>;
+export type UpdatePayrollScheduleMutationResult = Apollo.MutationResult<UpdatePayrollScheduleMutation>;
+export type UpdatePayrollScheduleMutationOptions = Apollo.BaseMutationOptions<UpdatePayrollScheduleMutation, UpdatePayrollScheduleMutationVariables>;
+export const SendSalarySlipsDocument = gql`
+    mutation SendSalarySlips($month: Int!, $year: Int!) {
+  sendSalarySlips(month: $month, year: $year) {
+    month
+    year
+    sent
+    failed
+    skipped
+  }
+}
+    `;
+export type SendSalarySlipsMutationFn = Apollo.MutationFunction<SendSalarySlipsMutation, SendSalarySlipsMutationVariables>;
+
+/**
+ * __useSendSalarySlipsMutation__
+ *
+ * To run a mutation, you first call `useSendSalarySlipsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendSalarySlipsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendSalarySlipsMutation, { data, loading, error }] = useSendSalarySlipsMutation({
+ *   variables: {
+ *      month: // value for 'month'
+ *      year: // value for 'year'
+ *   },
+ * });
+ */
+export function useSendSalarySlipsMutation(baseOptions?: Apollo.MutationHookOptions<SendSalarySlipsMutation, SendSalarySlipsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendSalarySlipsMutation, SendSalarySlipsMutationVariables>(SendSalarySlipsDocument, options);
+      }
+export type SendSalarySlipsMutationHookResult = ReturnType<typeof useSendSalarySlipsMutation>;
+export type SendSalarySlipsMutationResult = Apollo.MutationResult<SendSalarySlipsMutation>;
+export type SendSalarySlipsMutationOptions = Apollo.BaseMutationOptions<SendSalarySlipsMutation, SendSalarySlipsMutationVariables>;
 export const ListPermissionModulesDocument = gql`
     query ListPermissionModules {
   listPermissionModules

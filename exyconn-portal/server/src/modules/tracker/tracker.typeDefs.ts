@@ -232,6 +232,39 @@ export const trackerTypeDefs = gql`
     timezone: String!
   }
 
+  """
+  One installer file published on a tracker release.
+  """
+  type TrackerReleaseAsset {
+    name: String!
+    """
+    One of: windows, macos, linux.
+    """
+    platform: String!
+    sizeBytes: Float!
+    downloadCount: Int!
+    """
+    Direct download URL on the public GitHub release.
+    """
+    url: String!
+  }
+
+  """
+  The newest published desktop tracker build, with its installers.
+  """
+  type TrackerRelease {
+    version: String!
+    tag: String!
+    name: String!
+    """
+    Release notes, as Markdown.
+    """
+    notes: String!
+    url: String!
+    publishedAt: DateTime!
+    assets: [TrackerReleaseAsset!]!
+  }
+
   extend type Query {
     # Portal (TRACKER role)
     trackerSettings: TrackerSettings!
@@ -244,6 +277,11 @@ export const trackerTypeDefs = gql`
       timezone: String!
     ): [TrackerDayBucket!]!
     trackerDay(userId: ID!, start: DateTime!, end: DateTime!): TrackerDay!
+    """
+    The latest desktop installers. Any signed-in employee may read it — the files
+    themselves live on a public GitHub release. Null until a release exists.
+    """
+    trackerLatestRelease: TrackerRelease
     trackerTotals(userId: ID!): TrackerTotals!
 
     # Desktop app (device token) — rehydrates a remembered session

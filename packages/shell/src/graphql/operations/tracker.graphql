@@ -168,3 +168,21 @@ mutation UpdateTrackerSettings($input: TrackerSettingsInput!) {
     ...TrackerSettingsFields
   }
 }
+
+query TrackerLatestRelease {
+  trackerLatestRelease {
+    version
+    tag
+    name
+    notes
+    url
+    publishedAt
+    assets {
+      name
+      platform
+      sizeBytes
+      downloadCount
+      url
+    }
+  }
+}

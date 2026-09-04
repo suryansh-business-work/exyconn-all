@@ -3,6 +3,7 @@ import { database } from './config/database';
 import { ensureAdminAccess } from './seed/ensureAdminAccess';
 import { ensureStatusMonitors, startStatusMonitor } from './modules/status';
 import { ensureEmailDefaults } from './modules/email';
+import { startPayrollDispatch } from './modules/payroll';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 
@@ -19,6 +20,9 @@ async function bootstrap(): Promise<void> {
   // fails on a fresh install. Seeded only when absent, so portal edits survive a restart.
   await ensureEmailDefaults();
   startStatusMonitor();
+  // Payslips go out on the schedule HR sets in the portal, so the loop has to be running
+  // even in a month nobody signs in.
+  startPayrollDispatch();
   const app = await createApp();
   app.listen(env.port, () => {
     logger.info(`GraphQL server ready at http://localhost:${env.port}/graphql`);

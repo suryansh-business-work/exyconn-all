@@ -41,6 +41,7 @@ import {
 } from '../modules/projects';
 import { techTypeDefs, techResolvers } from '../modules/tech';
 import { statusTypeDefs, statusResolvers } from '../modules/status';
+import { infraTypeDefs, infraResolvers } from '../modules/infra';
 // The website module splits its SDL across one file per content entity, so it exports an array.
 import { websiteTypeDefs, websiteResolvers } from '../modules/website';
 import { trackerTypeDefs, trackerResolvers } from '../modules/tracker';
@@ -128,6 +129,7 @@ export const typeDefs = [
   payrollTypeDefs,
   permissionsTypeDefs,
   statusTypeDefs,
+  infraTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -174,4 +176,5 @@ export const resolvers = mergeResolvers([
   payrollResolvers,
   permissionsResolvers,
   statusResolvers,
+  infraResolvers,
 ]);
