@@ -66,8 +66,8 @@ mutation DeleteCampaign($id: ID!) {
   deleteCampaign(id: $id)
 }
 
-mutation SendCampaign($id: ID!, $clientIds: [ID!]!) {
-  sendCampaign(id: $id, clientIds: $clientIds) {
+mutation SendCampaign($id: ID!, $audienceListId: ID!) {
+  sendCampaign(id: $id, audienceListId: $audienceListId) {
     sent
     failed
     campaign {
@@ -75,5 +75,54 @@ mutation SendCampaign($id: ID!, $clientIds: [ID!]!) {
       lastSentAt
       recipientsCount
     }
+  }
+}
+
+fragment AudienceListFields on AudienceList {
+  id
+  name
+  description
+  clientIds
+}
+
+query ListAudienceLists {
+  listAudienceLists {
+    ...AudienceListFields
+  }
+}
+
+query ListAudienceListsPaged($input: TableQueryInput!) {
+  listAudienceListsPaged(input: $input) {
+    totalCount
+    rows {
+      ...AudienceListFields
+    }
+  }
+}
+
+mutation CreateAudienceList($input: AudienceListInput!) {
+  createAudienceList(input: $input) {
+    id
+  }
+}
+
+mutation UpdateAudienceList($id: ID!, $input: AudienceListInput!) {
+  updateAudienceList(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteAudienceList($id: ID!) {
+  deleteAudienceList(id: $id)
+}
+
+query ListCampaignSends($campaignId: ID!) {
+  listCampaignSends(campaignId: $campaignId) {
+    id
+    to
+    recipientName
+    status
+    error
+    sentAt
   }
 }

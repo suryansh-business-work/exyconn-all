@@ -49,6 +49,44 @@ export const marketingTypeDefs = gql`
     campaign: Campaign!
   }
 
+  "A saved set of clients a campaign can be sent to."
+  type AudienceList {
+    id: ID!
+    name: String!
+    description: String!
+    clientIds: [String!]!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
+  input AudienceListInput {
+    name: String!
+    description: String
+    clientIds: [String!]
+  }
+
+  type AudienceListPage {
+    rows: [AudienceList!]!
+    totalCount: Int!
+  }
+
+  enum CampaignSendStatus {
+    SENT
+    FAILED
+  }
+
+  "One recipient's copy of one campaign send, kept whether it worked or not."
+  type CampaignSend {
+    id: ID!
+    campaignId: String!
+    audienceListId: String!
+    to: String!
+    recipientName: String!
+    status: CampaignSendStatus!
+    error: String!
+    sentAt: DateTime!
+  }
+
   type CampaignPage {
     rows: [Campaign!]!
     totalCount: Int!
@@ -59,13 +97,21 @@ export const marketingTypeDefs = gql`
     listCampaignsPaged(input: TableQueryInput!): CampaignPage!
     listCampaignsStats: TableStats!
     getCampaign(id: ID!): Campaign!
+    listAudienceLists: [AudienceList!]!
+    listAudienceListsPaged(input: TableQueryInput!): AudienceListPage!
+    getAudienceList(id: ID!): AudienceList!
+    "Every recipient of a campaign's sends, newest first."
+    listCampaignSends(campaignId: ID!): [CampaignSend!]!
   }
 
   extend type Mutation {
     createCampaign(input: CampaignInput!): Campaign!
     updateCampaign(id: ID!, input: CampaignInput!): Campaign!
     deleteCampaign(id: ID!): Boolean!
-    "Emails the campaign's subject/body to the selected clients."
-    sendCampaign(id: ID!, clientIds: [ID!]!): CampaignSendResult!
+    createAudienceList(input: AudienceListInput!): AudienceList!
+    updateAudienceList(id: ID!, input: AudienceListInput!): AudienceList!
+    deleteAudienceList(id: ID!): Boolean!
+    "Emails the campaign's subject/body to every client in the audience list."
+    sendCampaign(id: ID!, audienceListId: ID!): CampaignSendResult!
   }
 `;

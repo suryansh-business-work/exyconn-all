@@ -374,7 +374,7 @@ export const MODULES: ModuleDefinition[] = [
     path: '/marketing',
     role: ROLES.MARKETING,
     icon: CampaignIcon,
-    description: 'Campaigns',
+    description: 'Campaigns & audiences',
     accent: '#ec4899',
     children: [
       { key: 'marketing-overview', label: 'Overview', path: '/marketing', icon: DashboardIcon },
@@ -383,6 +383,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Campaigns',
         path: '/marketing/campaigns',
         icon: CampaignIcon,
+      },
+      {
+        key: 'marketing-audiences',
+        label: 'Audiences',
+        path: '/marketing/audiences',
+        icon: GroupsIcon,
       },
     ],
   },
