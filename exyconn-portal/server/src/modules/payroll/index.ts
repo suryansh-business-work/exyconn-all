@@ -7,7 +7,7 @@ import { computeSlip, grossOf, unpaidLeaveDays, type LeaveSpan } from './payroll
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
-import { badRequest } from '../../utils/errors';
+import { badRequest, notFound } from '../../utils/errors';
 import { withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
 import { notify } from '../notifications';
@@ -220,10 +220,14 @@ async function sendSalarySlips(
  */
 async function salarySlipPdf(_p: unknown, { id }: { id: string }, ctx: GraphQLContext) {
   const user = assertAuthenticated(ctx);
-  const payslip = await renderPayslip(id);
-  if (payslip.employeeId !== user.id) {
+  const slip = await SalarySlipModel.findById(id).select('employeeId').lean();
+  if (!slip) {
+    notFound('Salary slip');
+  }
+  if (slip.employeeId !== user.id) {
     assertRole(ctx, PAYROLL_ROLES);
   }
+  const payslip = await renderPayslip(id);
   return {
     filename: payslip.filename,
     contentType: 'application/pdf',

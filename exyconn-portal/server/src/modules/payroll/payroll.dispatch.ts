@@ -157,6 +157,8 @@ export async function dispatchSalarySlips(
     }
   }
 
-  logger.info(`Payslip dispatch for ${month}/${year}: ${sent} sent, ${failed} failed, ${skipped} skipped`);
+  logger.info(
+    `Payslip dispatch for ${month}/${year}: ${sent} sent, ${failed} failed, ${skipped} skipped`,
+  );
   return { month, year, sent, failed, skipped };
 }

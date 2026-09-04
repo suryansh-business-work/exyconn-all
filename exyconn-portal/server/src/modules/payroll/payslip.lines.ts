@@ -52,7 +52,10 @@ export function payslipLines(
 
 /** `Payslip-Ravi-Kumar-2026-08.pdf` — safe on every filesystem and mail client. */
 export function payslipFilename(employeeName: string, year: number, month: number): string {
-  const slug = employeeName.trim().replaceAll(/[^a-zA-Z0-9]+/g, '-').replaceAll(/^-|-$/g, '');
+  const slug = employeeName
+    .trim()
+    .replaceAll(/[^a-zA-Z0-9]+/g, '-')
+    .replaceAll(/^-|-$/g, '');
   const paddedMonth = String(month).padStart(2, '0');
   return `Payslip-${slug || 'employee'}-${year}-${paddedMonth}.pdf`;
 }

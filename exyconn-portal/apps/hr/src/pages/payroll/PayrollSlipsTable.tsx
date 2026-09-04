@@ -2,11 +2,7 @@ import { useEffect, useState } from 'react';
 import { useApolloClient } from '@apollo/client';
 import DownloadIcon from '@mui/icons-material/Download';
 import { Box, Text } from '@exyconn/shell/components/ui';
-import {
-  DataTable,
-  type Column,
-  type RowAction,
-} from '@exyconn/shell/components/data/DataTable';
+import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { formatMoney } from '@exyconn/shell/utils/money';

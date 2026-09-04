@@ -32,8 +32,7 @@ export function zonedParts(at: Date, timeZone: string): ZonedParts {
     minute: '2-digit',
     hour12: false,
   }).formatToParts(at);
-  const value = (type: string) =>
-    Number(parts.find((part) => part.type === type)?.value ?? '0');
+  const value = (type: string) => Number(parts.find((part) => part.type === type)?.value ?? '0');
   return {
     year: value('year'),
     month: value('month'),
@@ -49,10 +48,7 @@ export function periodKey(month: number, year: number): string {
 }
 
 /** Which month a run fires for, relative to the day it fires on. */
-export function targetPeriod(
-  period: string,
-  now: ZonedParts,
-): { month: number; year: number } {
+export function targetPeriod(period: string, now: ZonedParts): { month: number; year: number } {
   if (period === 'CURRENT_MONTH') {
     return { month: now.month, year: now.year };
   }

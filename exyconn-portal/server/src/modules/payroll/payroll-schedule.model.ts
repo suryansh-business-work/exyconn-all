@@ -38,5 +38,7 @@ const payrollScheduleSchema = new Schema(
 
 export type PayrollScheduleDocument = InferSchemaType<typeof payrollScheduleSchema>;
 
-export const PayrollScheduleModel: Model<PayrollScheduleDocument> =
-  model<PayrollScheduleDocument>('PayrollSchedule', payrollScheduleSchema);
+export const PayrollScheduleModel: Model<PayrollScheduleDocument> = model<PayrollScheduleDocument>(
+  'PayrollSchedule',
+  payrollScheduleSchema,
+);

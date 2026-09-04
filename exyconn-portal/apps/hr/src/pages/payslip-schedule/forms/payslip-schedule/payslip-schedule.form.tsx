@@ -90,8 +90,8 @@ export function PayslipScheduleForm({
       submitLabel="Save schedule"
     >
       <Text size="sm" color="text.secondary">
-        Every employee with a payslip for the chosen month is emailed their own PDF. A month
-        already sent is never sent again, so a restart cannot email anybody twice.
+        Every employee with a payslip for the chosen month is emailed their own PDF. A month already
+        sent is never sent again, so a restart cannot email anybody twice.
       </Text>
       <RhfSwitch name="enabled" label="Email payslips automatically" />
       <RhfSelect name="dayOfMonth" label="Day of the month" options={DAY_OPTIONS} />

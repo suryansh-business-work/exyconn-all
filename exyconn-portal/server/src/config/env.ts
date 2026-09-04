@@ -51,8 +51,7 @@ export const env = Object.freeze({
     degradedMs: Number(process.env.STATUS_DEGRADED_MS ?? 2_000),
   },
   /** Where the payslip email sends an employee to see the rest of their payslips. */
-  salarySlipsUrl:
-    process.env.SALARY_SLIPS_URL ?? 'https://employee.exyconn.com/me/salary-slips',
+  salarySlipsUrl: process.env.SALARY_SLIPS_URL ?? 'https://employee.exyconn.com/me/salary-slips',
   /**
    * Read-only Docker Engine API the Tech portal's Infrastructure screen reads the host
    * and the running stack from. Points at the socket proxy (GET-only) rather than at

@@ -8,7 +8,17 @@ import { usePayrollScheduleQuery } from '@exyconn/shell/graphql/generated';
 import { PayslipScheduleForm } from './forms/payslip-schedule';
 
 /** What the last scheduled run did, so HR can see it worked without opening the email log. */
-function LastRun({ schedule }: Readonly<{ schedule: { lastRunAt?: string | null; lastRunPeriod: string; lastSent: number; lastFailed: number; lastSkipped: number } }>) {
+function LastRun({
+  schedule,
+}: Readonly<{
+  schedule: {
+    lastRunAt?: string | null;
+    lastRunPeriod: string;
+    lastSent: number;
+    lastFailed: number;
+    lastSkipped: number;
+  };
+}>) {
   if (!schedule.lastRunAt) {
     return (
       <Text size="sm" color="text.secondary">
