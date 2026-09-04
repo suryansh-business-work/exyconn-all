@@ -25,6 +25,7 @@ import HandshakeIcon from '@mui/icons-material/Handshake';
 import BusinessIcon from '@mui/icons-material/Business';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import InventoryIcon from '@mui/icons-material/Inventory2';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import PersonIcon from '@mui/icons-material/Person';
@@ -63,9 +64,11 @@ import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import DevicesIcon from '@mui/icons-material/Devices';
+import DownloadIcon from '@mui/icons-material/Download';
 import TuneIcon from '@mui/icons-material/Tune';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import DnsIcon from '@mui/icons-material/Dns';
 import PaletteIcon from '@mui/icons-material/Palette';
 import { ROLES, type Role } from '@/auth/roles';
 import { appUrl, type PortalAppKey } from './apps';
@@ -518,6 +521,12 @@ export const MODULES: ModuleDefinition[] = [
         icon: DevicesIcon,
       },
       {
+        key: 'tracker-download',
+        label: 'Download',
+        path: '/tracker/download',
+        icon: DownloadIcon,
+      },
+      {
         key: 'tracker-settings',
         label: 'Settings',
         path: '/tracker/settings',
@@ -528,12 +537,13 @@ export const MODULES: ModuleDefinition[] = [
   {
     key: 'tech',
     label: 'Tech',
-    path: '/tech/environment-variables',
+    path: '/tech',
     role: ROLES.TECH,
     icon: TerminalIcon,
     description: 'Integrations, email & desktop builds',
     accent: '#7c3aed',
     children: [
+      { key: 'tech-overview', label: 'Overview', path: '/tech', icon: DashboardIcon },
       {
         key: 'tech-env-vars',
         label: 'Environment Variables',
@@ -552,6 +562,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Problem Reports',
         path: '/tech/problem-reports',
         icon: ReportProblemIcon,
+      },
+      {
+        key: 'tech-infrastructure',
+        label: 'Infrastructure',
+        path: '/tech/infrastructure',
+        icon: DnsIcon,
       },
       {
         key: 'tech-status-monitors',
@@ -578,6 +594,7 @@ export const MODULES: ModuleDefinition[] = [
     children: [
       { key: 'it-overview', label: 'Overview', path: '/it', icon: DashboardIcon },
       { key: 'it-assets', label: 'Assets', path: '/it/assets', icon: InventoryIcon },
+      { key: 'it-licences', label: 'Licences', path: '/it/licences', icon: VpnKeyIcon },
     ],
   },
 ];

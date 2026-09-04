@@ -7,8 +7,14 @@ import {
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { useListAssetsQuery, useListAssetsStatsQuery } from '@exyconn/shell/graphql/generated';
+import {
+  useListAssetsQuery,
+  useListAssetsStatsQuery,
+  useListLicencesQuery,
+} from '@exyconn/shell/graphql/generated';
 import type { AssetRow } from '../assets/forms/asset';
+import { renewalsDueWithin } from '../licences';
+import { RENEWAL_WINDOW_DAYS } from '../licences/licences.constants';
 
 /** How many assets the overview lists before sending you to the register. */
 const RECENT_ASSETS = 8;
@@ -28,17 +34,24 @@ function warrantyEndingSoon(asset: { warrantyExpiry?: string | null }): boolean 
 export function ItOverviewPage() {
   const { data: statsData } = useListAssetsStatsQuery();
   const { data: assetsData, loading } = useListAssetsQuery();
+  const { data: licencesData } = useListLicencesQuery();
   const { formatDate } = useSettings();
 
   const stats = statsData?.listAssetsStats;
   const assets = assetsData?.listAssets ?? [];
   const expiring = assets.filter(warrantyEndingSoon);
+  const licences = licencesData?.listLicences ?? [];
+  const renewing = renewalsDueWithin(licences, RENEWAL_WINDOW_DAYS);
 
   const statItems: StatItem[] = [
     { label: 'Assets', value: String(statTotal(stats)), accent: '#4f8cff' },
     { label: 'Assigned', value: String(statCount(stats, 'status', 'ASSIGNED')), accent: '#22c55e' },
-    { label: 'In stock', value: String(statCount(stats, 'status', 'IN_STOCK')), accent: '#f59e0b' },
-    { label: 'Warranty ending', value: String(expiring.length), accent: '#ff6b6b' },
+    { label: 'Licences', value: String(licences.length), accent: '#0891b2' },
+    {
+      label: `Renews in ${RENEWAL_WINDOW_DAYS}d`,
+      value: String(renewing.length),
+      accent: '#f59e0b',
+    },
   ];
 
   const breakdowns: OverviewBreakdown[] = [
@@ -70,7 +83,10 @@ export function ItOverviewPage() {
       subtitle="Company hardware & licences at a glance"
       stats={statItems}
       breakdowns={breakdowns}
-      links={[{ label: 'Open asset register', to: '/it/assets' }]}
+      links={[
+        { label: 'Open asset register', to: '/it/assets' },
+        { label: 'Open licences', to: '/it/licences' },
+      ]}
       recentTitle={expiring.length > 0 ? 'Warranty ending soon' : 'Newest assets'}
     >
       <DataTable

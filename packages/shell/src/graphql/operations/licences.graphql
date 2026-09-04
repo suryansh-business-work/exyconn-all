@@ -1,0 +1,60 @@
+fragment LicenceFields on Licence {
+  id
+  name
+  vendor
+  seatsTotal
+  assigneeIds
+  cost
+  billingCycle
+  renewalDate
+  status
+  notes
+}
+
+query ListLicences {
+  listLicences {
+    ...LicenceFields
+  }
+}
+
+query ListLicencesPaged($input: TableQueryInput!) {
+  listLicencesPaged(input: $input) {
+    rows {
+      ...LicenceFields
+    }
+    totalCount
+  }
+}
+
+query ListLicencesStats {
+  listLicencesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateLicence($input: LicenceInput!) {
+  createLicence(input: $input) {
+    id
+  }
+}
+
+mutation UpdateLicence($id: ID!, $input: LicenceInput!) {
+  updateLicence(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteLicence($id: ID!) {
+  deleteLicence(id: $id)
+}

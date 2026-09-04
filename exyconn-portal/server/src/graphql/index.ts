@@ -15,7 +15,12 @@ import {
 import { emailTypeDefs, emailResolvers } from '../modules/email';
 import { bugsTypeDefs, bugsResolvers } from '../modules/bugs';
 import { clientsTypeDefs, clientsResolvers } from '../modules/clients';
-import { assetsTypeDefs, assetsResolvers } from '../modules/assets';
+import {
+  assetsTypeDefs,
+  assetsResolvers,
+  licencesTypeDefs,
+  licencesResolvers,
+} from '../modules/assets';
 import { crmEntitiesTypeDefs, crmEntitiesResolvers } from '../modules/crm';
 import { productsInventoryTypeDefs, productsInventoryResolvers } from '../modules/products';
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
@@ -90,6 +95,7 @@ export const typeDefs = [
   bugsTypeDefs,
   clientsTypeDefs,
   assetsTypeDefs,
+  licencesTypeDefs,
   crmEntitiesTypeDefs,
   productsInventoryTypeDefs,
   hrTypeDefs,
@@ -135,6 +141,7 @@ export const resolvers = mergeResolvers([
   bugsResolvers,
   clientsResolvers,
   assetsResolvers,
+  licencesResolvers,
   crmEntitiesResolvers,
   productsInventoryResolvers,
   hrResolvers,
