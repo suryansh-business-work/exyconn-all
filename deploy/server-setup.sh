@@ -6,7 +6,8 @@
 #   ssh root@148.135.136.107 'bash /opt/exyconn-deploy/server-setup.sh'
 #
 # Adds/updates ONLY the Exyconn vhosts and their TLS certs:
-#   exyconn.com(4000) tools(4001) tools-api(4002) portal(4003) portal-server(4004)
+#   exyconn.com(4000, also tina-cms -> its /admin editor) tools(4001) tools-api(4002)
+#   portal(4003) portal-server(4004)
 #   plus one portal micro-frontend per module: admin(4020) employee(4021)
 #   finance(4022) support(4023) crm(4024) products(4025) legal(4026) hr(4027)
 #   marketing(4028) projects(4029) ai(4030) website(4031) tracker(4032)
@@ -44,6 +45,7 @@ DOMAINS=(
   "projects.exyconn.com"
   "ai.exyconn.com"
   "website.exyconn.com"
+  "tina-cms.exyconn.com"
   "tracker.exyconn.com"
   "tech.exyconn.com"
   "it.exyconn.com"
