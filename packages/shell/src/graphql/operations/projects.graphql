@@ -2,6 +2,7 @@ query ListProjects {
   listProjects {
     id
     name
+    key
     description
     status
     startDate
@@ -15,6 +16,7 @@ query ListProjectsPaged($input: TableQueryInput!) {
     rows {
       id
       name
+      key
       description
       status
       startDate

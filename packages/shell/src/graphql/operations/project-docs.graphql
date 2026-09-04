@@ -1,0 +1,42 @@
+fragment DocPageFields on DocPage {
+  id
+  projectId
+  parentId
+  title
+  order
+  updatedByName
+  updatedAt
+}
+
+query ProjectDocPages($projectId: ID!) {
+  projectDocPages(projectId: $projectId) {
+    ...DocPageFields
+  }
+}
+
+query DocPage($id: ID!) {
+  docPage(id: $id) {
+    ...DocPageFields
+    body
+  }
+}
+
+mutation CreateDocPage($projectId: ID!, $parentId: ID, $title: String!) {
+  createDocPage(projectId: $projectId, parentId: $parentId, title: $title) {
+    id
+  }
+}
+
+mutation UpdateDocPage($id: ID!, $title: String, $body: String) {
+  updateDocPage(id: $id, title: $title, body: $body) {
+    id
+  }
+}
+
+mutation DeleteDocPage($id: ID!) {
+  deleteDocPage(id: $id)
+}
+
+mutation MoveDocPage($id: ID!, $parentId: ID, $toIndex: Int!) {
+  moveDocPage(id: $id, parentId: $parentId, toIndex: $toIndex)
+}

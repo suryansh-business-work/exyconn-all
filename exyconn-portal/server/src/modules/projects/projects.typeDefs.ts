@@ -11,6 +11,8 @@ export const projectsTypeDefs = gql`
   type Project {
     id: ID!
     name: String!
+    "The prefix every ticket key carries, e.g. EXY in EXY-14. Derived from the name."
+    key: String!
     description: String
     status: ProjectStatus!
     startDate: DateTime

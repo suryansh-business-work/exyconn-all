@@ -31,6 +31,8 @@ import {
   projectsResolvers,
   boardTypeDefs,
   boardResolvers,
+  docsTypeDefs,
+  docsResolvers,
 } from '../modules/projects';
 import { techTypeDefs, techResolvers } from '../modules/tech';
 import { statusTypeDefs, statusResolvers } from '../modules/status';
@@ -100,6 +102,7 @@ export const typeDefs = [
   productsTypeDefs,
   projectsTypeDefs,
   boardTypeDefs,
+  docsTypeDefs,
   techTypeDefs,
   ...websiteTypeDefs,
   trackerTypeDefs,
@@ -143,6 +146,7 @@ export const resolvers = mergeResolvers([
   productsResolvers,
   projectsResolvers,
   boardResolvers,
+  docsResolvers,
   crmResolvers,
   techResolvers,
   websiteResolvers,

@@ -17,9 +17,9 @@ export const projectsResolvers = createCrudResolvers(projectsService, {
   name: 'Project',
   roles: [ROLES.PROJECTS],
   table: {
-    searchFields: ['name', 'description'],
-    filterFields: ['name', 'description', 'status'],
-    sortFields: ['name', 'description', 'status', 'startDate', 'endDate', 'createdAt'],
+    searchFields: ['name', 'description', 'key'],
+    filterFields: ['name', 'description', 'status', 'key'],
+    sortFields: ['name', 'key', 'description', 'status', 'startDate', 'endDate', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
   stats: { countBy: ['status'] },
@@ -27,3 +27,5 @@ export const projectsResolvers = createCrudResolvers(projectsService, {
 export { projectsTypeDefs };
 export { boardTypeDefs } from './board.typeDefs';
 export { boardResolvers } from './board.resolvers';
+export { docsTypeDefs } from './docs.typeDefs';
+export { docsResolvers } from './docs.resolvers';

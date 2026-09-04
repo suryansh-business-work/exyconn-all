@@ -1,3 +1,22 @@
+fragment TaskFields on Task {
+  id
+  columnId
+  key
+  title
+  description
+  type
+  priority
+  assigneeId
+  assigneeName
+  reporterName
+  labels
+  storyPoints
+  dueDate
+  order
+  createdAt
+  updatedAt
+}
+
 query ProjectBoard($projectId: ID!) {
   projectBoard(projectId: $projectId) {
     columns {
@@ -6,12 +25,32 @@ query ProjectBoard($projectId: ID!) {
       order
     }
     tasks {
-      id
-      columnId
-      title
-      description
-      order
+      ...TaskFields
     }
+  }
+}
+
+query ProjectTasks($projectId: ID!) {
+  projectTasks(projectId: $projectId) {
+    ...TaskFields
+  }
+}
+
+query TaskComments($taskId: ID!) {
+  taskComments(taskId: $taskId) {
+    id
+    authorId
+    authorName
+    body
+    createdAt
+  }
+}
+
+query ListProjectMembers {
+  listProjectMembers {
+    id
+    name
+    email
   }
 }
 
@@ -35,14 +74,14 @@ mutation ReorderColumns($projectId: ID!, $columnIds: [ID!]!) {
   reorderColumns(projectId: $projectId, columnIds: $columnIds)
 }
 
-mutation CreateTask($projectId: ID!, $columnId: ID!, $title: String!, $description: String) {
-  createTask(projectId: $projectId, columnId: $columnId, title: $title, description: $description) {
+mutation CreateTask($projectId: ID!, $columnId: ID!, $input: TaskInput!) {
+  createTask(projectId: $projectId, columnId: $columnId, input: $input) {
     id
   }
 }
 
-mutation UpdateTask($id: ID!, $title: String, $description: String) {
-  updateTask(id: $id, title: $title, description: $description) {
+mutation UpdateTask($id: ID!, $input: TaskInput!) {
+  updateTask(id: $id, input: $input) {
     id
   }
 }
@@ -55,10 +94,21 @@ mutation MoveTask($id: ID!, $toColumnId: ID!, $toIndex: Int!) {
   moveTask(id: $id, toColumnId: $toColumnId, toIndex: $toIndex)
 }
 
+mutation AddTaskComment($taskId: ID!, $body: String!) {
+  addTaskComment(taskId: $taskId, body: $body) {
+    id
+  }
+}
+
+mutation DeleteTaskComment($id: ID!) {
+  deleteTaskComment(id: $id)
+}
+
 query GetProject($id: ID!) {
   getProject(id: $id) {
     id
     name
+    key
     description
     status
   }

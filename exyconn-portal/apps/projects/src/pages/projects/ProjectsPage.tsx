@@ -30,7 +30,7 @@ export function ProjectsPage() {
     (data: ListProjectsPagedQuery) => data.listProjectsPaged,
   );
 
-  const openBoard = (row: PagedProjectRow) => navigate(`/projects/${row.id}/board`);
+  const openProject = (row: PagedProjectRow) => navigate(`/projects/${row.id}/board`);
 
   const stats = statsData?.listProjectsStats;
   const statItems: StatItem[] = [
@@ -45,7 +45,7 @@ export function ProjectsPage() {
   ];
 
   const gridContext: ProjectsGridContext = {
-    actions: { board: openBoard, edit: crud.openEdit, delete: crud.remove },
+    actions: { board: openProject, edit: crud.openEdit, delete: crud.remove },
     formatDate,
   };
 
@@ -63,7 +63,7 @@ export function ProjectsPage() {
       fetchRows={fetchRows}
       context={gridContext}
       searchPlaceholder="Search projects…"
-      onRowClick={openBoard}
+      onRowClick={openProject}
     />
   );
 }
