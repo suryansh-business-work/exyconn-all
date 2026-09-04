@@ -1,7 +1,7 @@
 import { UserModel } from './user.model';
 import { AppSettingsModel } from './settings.model';
 import { hashPassword, generateTempPassword } from '../../utils/password';
-import { notFound, badRequest } from '../../utils/errors';
+import { notFound, badRequest, forbidden } from '../../utils/errors';
 import { mailer } from '../../utils/mailer';
 import { logger } from '../../utils/logger';
 import {
@@ -11,7 +11,7 @@ import {
   type TableConfig,
   type TableQueryInput,
 } from '../../utils/tableQuery';
-import type { Role } from '../../constants/roles';
+import { ROLES, type Role } from '../../constants/roles';
 import type { WorkLocation, WorkingTime } from '../../constants/work';
 
 /** Whitelist of the columns the Users grid may search / filter / sort. */
@@ -32,6 +32,30 @@ const USER_TABLE_CONFIG: TableConfig = {
 
 /** `isActive` -> active/inactive counts; `roles` unwound -> per-role counts (admins, distinct). */
 const USER_STATS_CONFIG: StatsConfig = { countBy: ['isActive'], unwindCountBy: ['roles'] };
+
+/**
+ * Stops a non-ADMIN from handing out — or taking — the ADMIN role.
+ *
+ * HR creates and edits employees, which is the whole point of one shared user database. But
+ * "create a user" and "make somebody an administrator" are different powers, and the roles
+ * field on the form is the only thing between them. An HR user may not mint an admin, and
+ * may not touch an existing admin's account at all.
+ */
+export function assertMayAssignRoles(
+  actorRoles: readonly string[],
+  roles: readonly string[] | undefined,
+  targetRoles: readonly string[] = [],
+): void {
+  if (actorRoles.includes(ROLES.ADMIN)) {
+    return;
+  }
+  if (targetRoles.includes(ROLES.ADMIN)) {
+    forbidden('Only an administrator can change an administrator’s account.');
+  }
+  if (roles?.includes(ROLES.ADMIN)) {
+    forbidden('Only an administrator can grant the ADMIN role.');
+  }
+}
 
 /**
  * Fire-and-forget, best-effort email: the admin always gets the temp password

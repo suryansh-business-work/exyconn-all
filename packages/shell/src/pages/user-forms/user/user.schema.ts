@@ -7,6 +7,7 @@ import {
   type CreateUserInput,
 } from '@/graphql/generated';
 import { DEFAULT_WORK_HOURS } from '@/components/work';
+import { compensationSchema, toCompensationValues, type EmployeeSalary } from '@/components/pay';
 import type { UserRow } from './user.types';
 
 const MIN_WORK_HOURS = 1;
@@ -15,7 +16,7 @@ const MAX_WORK_HOURS = 24;
 /** Arrangements whose meaning is written out in a note rather than named by the enum. */
 const NEEDS_NOTE = 'OTHER';
 
-export const userSchema = z
+const identitySchema = z
   .object({
     name: z.string().trim().min(1, 'Name is required'),
     email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
@@ -53,11 +54,24 @@ export const userSchema = z
     message: 'Describe the work location',
   });
 
+/**
+ * The whole employee record: who they are, how they work, and how they are paid.
+ *
+ * Compensation is merged in rather than kept as a separate form because it is saved in the
+ * same submit — an employee created without a pay type is one payroll and the tracker's
+ * billing report both have nothing to say about.
+ */
+export const userSchema = z.intersection(identitySchema, compensationSchema);
+
 export type UserValues = z.infer<typeof userSchema>;
 
 /** Form defaults for a new employee, or the stored values of an existing one. */
-export function toFormValues(row: UserRow | null): UserValues {
+export function toFormValues(
+  row: UserRow | null,
+  salary: EmployeeSalary | null = null,
+): UserValues {
   return {
+    ...toCompensationValues(salary, row?.joinDate),
     name: row?.name ?? '',
     email: row?.email ?? '',
     password: '',

@@ -1,20 +1,41 @@
 # Payroll administration (HR / Finance).
 
+fragment SalaryStructureFields on SalaryStructure {
+  id
+  employeeId
+  currency
+  payType
+  payTypeNote
+  basic
+  hra
+  allowances
+  deductions
+  rate
+  billingRate
+  gross
+  net
+  effectiveFrom
+}
+
 query ListSalaryStructuresPaged($input: TableQueryInput!) {
   listSalaryStructuresPaged(input: $input) {
     totalCount
     rows {
-      id
-      employeeId
-      currency
-      basic
-      hra
-      allowances
-      deductions
-      gross
-      net
-      effectiveFrom
+      ...SalaryStructureFields
     }
+  }
+}
+
+# One employee's compensation, for the HR employee record. Null until HR sets it up.
+query EmployeeSalary($employeeId: ID!) {
+  employeeSalary(employeeId: $employeeId) {
+    ...SalaryStructureFields
+  }
+}
+
+mutation SaveEmployeeSalary($employeeId: ID!, $input: EmployeeSalaryInput!) {
+  saveEmployeeSalary(employeeId: $employeeId, input: $input) {
+    ...SalaryStructureFields
   }
 }
 

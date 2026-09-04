@@ -11,6 +11,7 @@ import {
   type ScreenshotInput,
 } from './tracker.device.service';
 import { trackerAdminService } from './tracker.admin.service';
+import { trackerBillingService } from './tracker.billing.service';
 import {
   getTrackerSettings,
   updateTrackerSettings,
@@ -86,6 +87,15 @@ export const trackerResolvers = {
     trackerTotals: async (_p: unknown, { userId }: { userId: string }, ctx: GraphQLContext) => {
       assertRole(ctx, TRACKER_ROLES);
       return trackerAdminService.totals(userId);
+    },
+    /** What the workspace's tracked time is worth, priced from HR's salary structures. */
+    trackerBilling: async (
+      _p: unknown,
+      { from, to }: { from: Date; to: Date },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, TRACKER_ROLES);
+      return trackerBillingService.billing(from, to);
     },
 
     /**

@@ -10,6 +10,44 @@ export interface StructureParts {
   deductions: number;
 }
 
+/** A stored salary structure, as much of it as the arithmetic here needs. */
+export interface PaySource extends Partial<StructureParts> {
+  payType?: string | null;
+  /** Per hour for HOURLY, per month for STIPEND and OTHER. Unused by FIXED. */
+  rate?: number | null;
+}
+
+/**
+ * The monthly earning components a slip is built from, whatever the pay type.
+ *
+ * FIXED keeps its own components. STIPEND and OTHER are a flat monthly figure, so the whole
+ * of it becomes `basic` — which also makes unpaid leave prorate against it, exactly as it
+ * does for a salary. HOURLY earns nothing monthly by construction: an hourly employee is
+ * paid for the hours they tracked, so a monthly structure would invent money nobody agreed
+ * to. Deductions apply to every type.
+ *
+ * Reading the defaults here rather than trusting the stored document is deliberate:
+ * `.lean()` skips Mongoose defaults, so a structure written before `payType` existed comes
+ * back without it and must still behave exactly as it did — as FIXED.
+ */
+export function monthlyEarnings(structure: PaySource): StructureParts {
+  const deductions = structure.deductions ?? 0;
+  const payType = structure.payType ?? 'FIXED';
+
+  if (payType === 'HOURLY') {
+    return { basic: 0, hra: 0, allowances: 0, deductions };
+  }
+  if (payType === 'STIPEND' || payType === 'OTHER') {
+    return { basic: structure.rate ?? 0, hra: 0, allowances: 0, deductions };
+  }
+  return {
+    basic: structure.basic ?? 0,
+    hra: structure.hra ?? 0,
+    allowances: structure.allowances ?? 0,
+    deductions,
+  };
+}
+
 export interface LeaveSpan {
   fromDate: Date;
   toDate: Date;

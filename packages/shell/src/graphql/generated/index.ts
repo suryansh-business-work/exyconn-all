@@ -1348,6 +1348,20 @@ export type EmployeeRequestPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** The same fields without employeeId, which saveEmployeeSalary takes as its own argument. */
+export type EmployeeSalaryInput = {
+  allowances: Scalars['Float']['input'];
+  basic: Scalars['Float']['input'];
+  billingRate?: InputMaybe<Scalars['Float']['input']>;
+  currency: Scalars['String']['input'];
+  deductions: Scalars['Float']['input'];
+  effectiveFrom: Scalars['DateTime']['input'];
+  hra: Scalars['Float']['input'];
+  payType?: InputMaybe<PayType>;
+  payTypeNote?: InputMaybe<Scalars['String']['input']>;
+  rate?: InputMaybe<Scalars['Float']['input']>;
+};
+
 export enum EmploymentStatus {
   Active = 'ACTIVE',
   OnLeave = 'ON_LEAVE',
@@ -2354,6 +2368,14 @@ export type Mutation = {
   runPayroll: PayrollRunResult;
   /** Runs a prompt-library entry as a new job, so the run keeps its own history. */
   runPrompt: AiJob;
+  /**
+   * Creates or replaces ONE employee's salary structure, keyed on the employee.
+   *
+   * An upsert, because employeeId is unique and the HR employee form saves compensation
+   * alongside the rest of the record — it has no business knowing whether a structure
+   * already exists, and guessing wrong would fail the save on a duplicate key.
+   */
+  saveEmployeeSalary: SalaryStructure;
   saveTrackerBuildSettings: TrackerBuildSettings;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
@@ -3344,6 +3366,12 @@ export type MutationRunPromptArgs = {
 };
 
 
+export type MutationSaveEmployeeSalaryArgs = {
+  employeeId: Scalars['ID']['input'];
+  input: EmployeeSalaryInput;
+};
+
+
 export type MutationSaveTrackerBuildSettingsArgs = {
   slackChannels: Array<Scalars['String']['input']>;
 };
@@ -4071,6 +4099,14 @@ export type OpenAiConfigInput = {
   label: Scalars['String']['input'];
 };
 
+/** How an employee is paid. Decides which amounts on the salary structure mean anything. */
+export enum PayType {
+  Fixed = 'FIXED',
+  Hourly = 'HOURLY',
+  Other = 'OTHER',
+  Stipend = 'STIPEND'
+}
+
 /** One receipt against one invoice. Negative for a refund. */
 export type Payment = {
   __typename?: 'Payment';
@@ -4564,6 +4600,11 @@ export type Query = {
   /** Images on the host and what the engine's disk is spent on. */
   dockerStorage: DockerStorage;
   emailDashboard: EmailDashboard;
+  /**
+   * ONE employee's salary structure, looked up by the employee rather than by structure id.
+   * Null until HR has set one up. This is what the employee record reads.
+   */
+  employeeSalary?: Maybe<SalaryStructure>;
   getActivity: Activity;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
@@ -4900,6 +4941,11 @@ export type Query = {
   taskActivity: Array<TaskActivity>;
   taskComments: Array<TaskComment>;
   trackerAccessList: Array<TrackerAccess>;
+  /**
+   * Billing for tracked time over a range. Active time only — idle minutes are time at a
+   * desk, and the rate comes from the employee's HR salary structure, never from here.
+   */
+  trackerBilling: TrackerBilling;
   trackerBuildSettings: TrackerBuildSettings;
   trackerCalendar: Array<TrackerDayBucket>;
   trackerDay: TrackerDay;
@@ -4938,6 +4984,11 @@ export type QueryDockerContainerDetailArgs = {
 
 export type QueryEmailDashboardArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryEmployeeSalaryArgs = {
+  employeeId: Scalars['ID']['input'];
 };
 
 
@@ -5638,6 +5689,12 @@ export type QueryTaskCommentsArgs = {
 };
 
 
+export type QueryTrackerBillingArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryTrackerCalendarArgs = {
   from: Scalars['DateTime']['input'];
   timezone: Scalars['String']['input'];
@@ -5765,26 +5822,47 @@ export type SalarySlipPage = {
 export type SalaryStructure = {
   __typename?: 'SalaryStructure';
   allowances: Scalars['Float']['output'];
+  /** FIXED only: the monthly components. Zero for every other pay type. */
   basic: Scalars['Float']['output'];
+  /**
+   * What an hour of this person's tracked time is BILLED at — always per hour, whatever they
+   * are paid. This is the number the tracker's billing report multiplies hours by.
+   */
+  billingRate: Scalars['Float']['output'];
   currency: Scalars['String']['output'];
   deductions: Scalars['Float']['output'];
   effectiveFrom: Scalars['DateTime']['output'];
   employeeId: Scalars['String']['output'];
+  /** Monthly gross for the pay type. Zero for HOURLY, which earns per tracked hour. */
   gross: Scalars['Float']['output'];
   hra: Scalars['Float']['output'];
   id: Scalars['ID']['output'];
   net: Scalars['Float']['output'];
+  payType: PayType;
+  /** What OTHER means for this person; empty for the named pay types. */
+  payTypeNote?: Maybe<Scalars['String']['output']>;
+  /**
+   * The single amount the non-FIXED types are paid at: per HOUR for HOURLY, per MONTH for
+   * STIPEND and OTHER. Ignored for FIXED, whose money is in the components above.
+   */
+  rate: Scalars['Float']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export type SalaryStructureInput = {
   allowances: Scalars['Float']['input'];
   basic: Scalars['Float']['input'];
+  /** Per hour, always — what the tracker bills this person's time at. */
+  billingRate?: InputMaybe<Scalars['Float']['input']>;
   currency: Scalars['String']['input'];
   deductions: Scalars['Float']['input'];
   effectiveFrom: Scalars['DateTime']['input'];
   employeeId: Scalars['String']['input'];
   hra: Scalars['Float']['input'];
+  payType?: InputMaybe<PayType>;
+  payTypeNote?: InputMaybe<Scalars['String']['input']>;
+  /** Per hour for HOURLY, per month for STIPEND and OTHER. Ignored by FIXED. */
+  rate?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type SalaryStructurePage = {
@@ -6410,6 +6488,36 @@ export type TrackerAppUsage = {
   __typename?: 'TrackerAppUsage';
   appName: Scalars['String']['output'];
   durationMs: Scalars['Float']['output'];
+};
+
+/** Tracked time priced for a date range. Employees with no time in the range are omitted. */
+export type TrackerBilling = {
+  __typename?: 'TrackerBilling';
+  currency: Scalars['String']['output'];
+  from: Scalars['DateTime']['output'];
+  rows: Array<TrackerBillingRow>;
+  to: Scalars['DateTime']['output'];
+  totalAmount: Scalars['Float']['output'];
+  totalHours: Scalars['Float']['output'];
+};
+
+/** One employee's tracked time over a range, priced at the rate on their HR salary structure. */
+export type TrackerBillingRow = {
+  __typename?: 'TrackerBillingRow';
+  activeMs: Scalars['Float']['output'];
+  amount: Scalars['Float']['output'];
+  /** Per hour, from the employee's salary structure in HR. Zero when HR has not set one. */
+  billingRate: Scalars['Float']['output'];
+  currency: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  /** activeMs as hours, to two places. */
+  hours: Scalars['Float']['output'];
+  /** The employee's user id — one row per employee, so this is the row's identity. */
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  payType: PayType;
+  /** False when no rate is set — the amount is zero because nobody priced the work, not because the work was free. */
+  rated: Scalars['Boolean']['output'];
 };
 
 /** One run of the tracker build workflow. */
@@ -8973,12 +9081,29 @@ export type MyExitRecordQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MyExitRecordQuery = { __typename?: 'Query', myExitRecord?: { __typename?: 'ExitRecord', id: string, resignationDate: string, lastWorkingDate?: string | null, noticePeriodDays: number, reason: string, stage: ExitStage, assetsReturned: boolean, knowledgeTransferDone: boolean, documentsIssued: boolean, daysToLastWorkingDay?: number | null } | null };
 
+export type SalaryStructureFieldsFragment = { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, effectiveFrom: string };
+
 export type ListSalaryStructuresPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListSalaryStructuresPagedQuery = { __typename?: 'Query', listSalaryStructuresPaged: { __typename?: 'SalaryStructurePage', totalCount: number, rows: Array<{ __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, basic: number, hra: number, allowances: number, deductions: number, gross: number, net: number, effectiveFrom: string }> } };
+export type ListSalaryStructuresPagedQuery = { __typename?: 'Query', listSalaryStructuresPaged: { __typename?: 'SalaryStructurePage', totalCount: number, rows: Array<{ __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, effectiveFrom: string }> } };
+
+export type EmployeeSalaryQueryVariables = Exact<{
+  employeeId: Scalars['ID']['input'];
+}>;
+
+
+export type EmployeeSalaryQuery = { __typename?: 'Query', employeeSalary?: { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, effectiveFrom: string } | null };
+
+export type SaveEmployeeSalaryMutationVariables = Exact<{
+  employeeId: Scalars['ID']['input'];
+  input: EmployeeSalaryInput;
+}>;
+
+
+export type SaveEmployeeSalaryMutation = { __typename?: 'Mutation', saveEmployeeSalary: { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, effectiveFrom: string } };
 
 export type ListSalaryStructuresStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9874,6 +9999,14 @@ export type TrackerLatestReleaseQueryVariables = Exact<{ [key: string]: never; }
 
 export type TrackerLatestReleaseQuery = { __typename?: 'Query', trackerLatestRelease?: { __typename?: 'TrackerRelease', version: string, tag: string, name: string, notes: string, url: string, publishedAt: string, assets: Array<{ __typename?: 'TrackerReleaseAsset', name: string, platform: string, sizeBytes: number, downloadCount: number, url: string }> } | null };
 
+export type TrackerBillingQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type TrackerBillingQuery = { __typename?: 'Query', trackerBilling: { __typename?: 'TrackerBilling', from: string, to: string, totalHours: number, totalAmount: number, currency: string, rows: Array<{ __typename?: 'TrackerBillingRow', id: string, name: string, email: string, payType: PayType, currency: string, billingRate: number, hours: number, amount: number, rated: boolean }> } };
+
 export type BlogPostFieldsFragment = { __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } };
 
 export type ListBlogPostsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -10571,6 +10704,24 @@ export const AudienceListFieldsFragmentDoc = gql`
   name
   description
   clientIds
+}
+    `;
+export const SalaryStructureFieldsFragmentDoc = gql`
+    fragment SalaryStructureFields on SalaryStructure {
+  id
+  employeeId
+  currency
+  payType
+  payTypeNote
+  basic
+  hra
+  allowances
+  deductions
+  rate
+  billingRate
+  gross
+  net
+  effectiveFrom
 }
     `;
 export const PolicyFieldsFragmentDoc = gql`
@@ -23439,20 +23590,11 @@ export const ListSalaryStructuresPagedDocument = gql`
   listSalaryStructuresPaged(input: $input) {
     totalCount
     rows {
-      id
-      employeeId
-      currency
-      basic
-      hra
-      allowances
-      deductions
-      gross
-      net
-      effectiveFrom
+      ...SalaryStructureFields
     }
   }
 }
-    `;
+    ${SalaryStructureFieldsFragmentDoc}`;
 
 /**
  * __useListSalaryStructuresPagedQuery__
@@ -23489,6 +23631,83 @@ export type ListSalaryStructuresPagedQueryHookResult = ReturnType<typeof useList
 export type ListSalaryStructuresPagedLazyQueryHookResult = ReturnType<typeof useListSalaryStructuresPagedLazyQuery>;
 export type ListSalaryStructuresPagedSuspenseQueryHookResult = ReturnType<typeof useListSalaryStructuresPagedSuspenseQuery>;
 export type ListSalaryStructuresPagedQueryResult = Apollo.QueryResult<ListSalaryStructuresPagedQuery, ListSalaryStructuresPagedQueryVariables>;
+export const EmployeeSalaryDocument = gql`
+    query EmployeeSalary($employeeId: ID!) {
+  employeeSalary(employeeId: $employeeId) {
+    ...SalaryStructureFields
+  }
+}
+    ${SalaryStructureFieldsFragmentDoc}`;
+
+/**
+ * __useEmployeeSalaryQuery__
+ *
+ * To run a query within a React component, call `useEmployeeSalaryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEmployeeSalaryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEmployeeSalaryQuery({
+ *   variables: {
+ *      employeeId: // value for 'employeeId'
+ *   },
+ * });
+ */
+export function useEmployeeSalaryQuery(baseOptions: Apollo.QueryHookOptions<EmployeeSalaryQuery, EmployeeSalaryQueryVariables> & ({ variables: EmployeeSalaryQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<EmployeeSalaryQuery, EmployeeSalaryQueryVariables>(EmployeeSalaryDocument, options);
+      }
+export function useEmployeeSalaryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<EmployeeSalaryQuery, EmployeeSalaryQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<EmployeeSalaryQuery, EmployeeSalaryQueryVariables>(EmployeeSalaryDocument, options);
+        }
+// @ts-ignore
+export function useEmployeeSalarySuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<EmployeeSalaryQuery, EmployeeSalaryQueryVariables>): Apollo.UseSuspenseQueryResult<EmployeeSalaryQuery, EmployeeSalaryQueryVariables>;
+export function useEmployeeSalarySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<EmployeeSalaryQuery, EmployeeSalaryQueryVariables>): Apollo.UseSuspenseQueryResult<EmployeeSalaryQuery | undefined, EmployeeSalaryQueryVariables>;
+export function useEmployeeSalarySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<EmployeeSalaryQuery, EmployeeSalaryQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<EmployeeSalaryQuery, EmployeeSalaryQueryVariables>(EmployeeSalaryDocument, options);
+        }
+export type EmployeeSalaryQueryHookResult = ReturnType<typeof useEmployeeSalaryQuery>;
+export type EmployeeSalaryLazyQueryHookResult = ReturnType<typeof useEmployeeSalaryLazyQuery>;
+export type EmployeeSalarySuspenseQueryHookResult = ReturnType<typeof useEmployeeSalarySuspenseQuery>;
+export type EmployeeSalaryQueryResult = Apollo.QueryResult<EmployeeSalaryQuery, EmployeeSalaryQueryVariables>;
+export const SaveEmployeeSalaryDocument = gql`
+    mutation SaveEmployeeSalary($employeeId: ID!, $input: EmployeeSalaryInput!) {
+  saveEmployeeSalary(employeeId: $employeeId, input: $input) {
+    ...SalaryStructureFields
+  }
+}
+    ${SalaryStructureFieldsFragmentDoc}`;
+export type SaveEmployeeSalaryMutationFn = Apollo.MutationFunction<SaveEmployeeSalaryMutation, SaveEmployeeSalaryMutationVariables>;
+
+/**
+ * __useSaveEmployeeSalaryMutation__
+ *
+ * To run a mutation, you first call `useSaveEmployeeSalaryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveEmployeeSalaryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveEmployeeSalaryMutation, { data, loading, error }] = useSaveEmployeeSalaryMutation({
+ *   variables: {
+ *      employeeId: // value for 'employeeId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveEmployeeSalaryMutation(baseOptions?: Apollo.MutationHookOptions<SaveEmployeeSalaryMutation, SaveEmployeeSalaryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SaveEmployeeSalaryMutation, SaveEmployeeSalaryMutationVariables>(SaveEmployeeSalaryDocument, options);
+      }
+export type SaveEmployeeSalaryMutationHookResult = ReturnType<typeof useSaveEmployeeSalaryMutation>;
+export type SaveEmployeeSalaryMutationResult = Apollo.MutationResult<SaveEmployeeSalaryMutation>;
+export type SaveEmployeeSalaryMutationOptions = Apollo.BaseMutationOptions<SaveEmployeeSalaryMutation, SaveEmployeeSalaryMutationVariables>;
 export const ListSalaryStructuresStatsDocument = gql`
     query ListSalaryStructuresStats {
   listSalaryStructuresStats {
@@ -28440,6 +28659,65 @@ export type TrackerLatestReleaseQueryHookResult = ReturnType<typeof useTrackerLa
 export type TrackerLatestReleaseLazyQueryHookResult = ReturnType<typeof useTrackerLatestReleaseLazyQuery>;
 export type TrackerLatestReleaseSuspenseQueryHookResult = ReturnType<typeof useTrackerLatestReleaseSuspenseQuery>;
 export type TrackerLatestReleaseQueryResult = Apollo.QueryResult<TrackerLatestReleaseQuery, TrackerLatestReleaseQueryVariables>;
+export const TrackerBillingDocument = gql`
+    query TrackerBilling($from: DateTime!, $to: DateTime!) {
+  trackerBilling(from: $from, to: $to) {
+    from
+    to
+    totalHours
+    totalAmount
+    currency
+    rows {
+      id
+      name
+      email
+      payType
+      currency
+      billingRate
+      hours
+      amount
+      rated
+    }
+  }
+}
+    `;
+
+/**
+ * __useTrackerBillingQuery__
+ *
+ * To run a query within a React component, call `useTrackerBillingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerBillingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerBillingQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useTrackerBillingQuery(baseOptions: Apollo.QueryHookOptions<TrackerBillingQuery, TrackerBillingQueryVariables> & ({ variables: TrackerBillingQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TrackerBillingQuery, TrackerBillingQueryVariables>(TrackerBillingDocument, options);
+      }
+export function useTrackerBillingLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TrackerBillingQuery, TrackerBillingQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TrackerBillingQuery, TrackerBillingQueryVariables>(TrackerBillingDocument, options);
+        }
+// @ts-ignore
+export function useTrackerBillingSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TrackerBillingQuery, TrackerBillingQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerBillingQuery, TrackerBillingQueryVariables>;
+export function useTrackerBillingSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerBillingQuery, TrackerBillingQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerBillingQuery | undefined, TrackerBillingQueryVariables>;
+export function useTrackerBillingSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerBillingQuery, TrackerBillingQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TrackerBillingQuery, TrackerBillingQueryVariables>(TrackerBillingDocument, options);
+        }
+export type TrackerBillingQueryHookResult = ReturnType<typeof useTrackerBillingQuery>;
+export type TrackerBillingLazyQueryHookResult = ReturnType<typeof useTrackerBillingLazyQuery>;
+export type TrackerBillingSuspenseQueryHookResult = ReturnType<typeof useTrackerBillingSuspenseQuery>;
+export type TrackerBillingQueryResult = Apollo.QueryResult<TrackerBillingQuery, TrackerBillingQueryVariables>;
 export const ListBlogPostsDocument = gql`
     query ListBlogPosts {
   listBlogPosts {

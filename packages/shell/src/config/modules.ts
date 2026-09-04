@@ -534,6 +534,12 @@ export const MODULES: ModuleDefinition[] = [
         icon: DevicesIcon,
       },
       {
+        key: 'tracker-billing',
+        label: 'Billing',
+        path: '/tracker/billing',
+        icon: PaymentsIcon,
+      },
+      {
         key: 'tracker-download',
         label: 'Download',
         path: '/tracker/download',

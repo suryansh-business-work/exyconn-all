@@ -233,6 +233,36 @@ export const trackerTypeDefs = gql`
     acknowledgedAt: DateTime
   }
 
+  """
+  One employee's tracked time over a range, priced at the rate on their HR salary structure.
+  """
+  type TrackerBillingRow {
+    "The employee's user id — one row per employee, so this is the row's identity."
+    id: ID!
+    name: String!
+    email: String!
+    payType: PayType!
+    currency: String!
+    "Per hour, from the employee's salary structure in HR. Zero when HR has not set one."
+    billingRate: Float!
+    activeMs: Float!
+    "activeMs as hours, to two places."
+    hours: Float!
+    amount: Float!
+    "False when no rate is set — the amount is zero because nobody priced the work, not because the work was free."
+    rated: Boolean!
+  }
+
+  "Tracked time priced for a date range. Employees with no time in the range are omitted."
+  type TrackerBilling {
+    from: DateTime!
+    to: DateTime!
+    rows: [TrackerBillingRow!]!
+    totalHours: Float!
+    totalAmount: Float!
+    currency: String!
+  }
+
   # ── Desktop app payloads ──────────────────────────────────────────────
   input TrackerDeviceInput {
     deviceId: String!
@@ -353,6 +383,11 @@ export const trackerTypeDefs = gql`
     """
     trackerLatestRelease: TrackerRelease
     trackerTotals(userId: ID!): TrackerTotals!
+    """
+    Billing for tracked time over a range. Active time only — idle minutes are time at a
+    desk, and the rate comes from the employee's HR salary structure, never from here.
+    """
+    trackerBilling(from: DateTime!, to: DateTime!): TrackerBilling!
 
     # Desktop app (device token) — rehydrates a remembered session
     trackerMe: TrackerMe!
