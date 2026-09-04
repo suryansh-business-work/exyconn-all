@@ -1,4 +1,6 @@
 export { TicketDialog } from './TicketDialog';
+export { TicketActivity } from './TicketActivity';
+export { TicketComments } from './TicketComments';
 export { TicketFacetIcon } from './TicketFacetIcon';
 export {
   TICKET_PRIORITIES,

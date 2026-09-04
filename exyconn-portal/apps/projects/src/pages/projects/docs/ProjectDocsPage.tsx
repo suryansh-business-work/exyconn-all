@@ -1,3 +1,12 @@
+import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Box, Button, CircularProgress, Flex, Grid2, Text } from '@exyconn/shell/components/ui';
 import AddIcon from '@mui/icons-material/Add';
 import { useProjectDocs } from './useProjectDocs';
@@ -15,6 +24,15 @@ interface ProjectDocsPageProps {
  */
 export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
   const docs = useProjectDocs(projectId);
+  // A few pixels of travel before a drag starts, so clicking a page still opens it.
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  const onDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over) {
+      docs.reorderPage(String(active.id), String(over.id));
+    }
+  };
 
   if (docs.loading && docs.pages.length === 0) {
     return (
@@ -41,12 +59,21 @@ export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
             No pages yet. Start the space with one.
           </Text>
         ) : (
-          <DocTree
-            nodes={docs.tree}
-            selectedId={docs.selectedId}
-            onSelect={docs.setSelectedId}
-            onAddChild={(parentId) => docs.addPage(parentId)}
-          />
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+            {/* Every page of the space is sortable, at whatever depth it sits: the drop rule
+                decides whether a drop reorders within a parent or re-files under another. */}
+            <SortableContext
+              items={docs.pages.map((page) => page.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <DocTree
+                nodes={docs.tree}
+                selectedId={docs.selectedId}
+                onSelect={docs.setSelectedId}
+                onAddChild={(parentId) => docs.addPage(parentId)}
+              />
+            </SortableContext>
+          </DndContext>
         )}
       </Grid2>
 

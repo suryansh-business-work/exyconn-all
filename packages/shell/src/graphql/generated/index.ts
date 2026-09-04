@@ -271,6 +271,29 @@ export enum AttendanceStatus {
   Wfh = 'WFH'
 }
 
+/** A saved set of clients a campaign can be sent to. */
+export type AudienceList = {
+  __typename?: 'AudienceList';
+  clientIds: Array<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type AudienceListInput = {
+  clientIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
+export type AudienceListPage = {
+  __typename?: 'AudienceListPage';
+  rows: Array<AudienceList>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type AuthPayload = {
   __typename?: 'AuthPayload';
   token: Scalars['String']['output'];
@@ -523,6 +546,19 @@ export type CampaignPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** One recipient's copy of one campaign send, kept whether it worked or not. */
+export type CampaignSend = {
+  __typename?: 'CampaignSend';
+  audienceListId: Scalars['String']['output'];
+  campaignId: Scalars['String']['output'];
+  error: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  recipientName: Scalars['String']['output'];
+  sentAt: Scalars['DateTime']['output'];
+  status: CampaignSendStatus;
+  to: Scalars['String']['output'];
+};
+
 /** Outcome of a campaign email blast. */
 export type CampaignSendResult = {
   __typename?: 'CampaignSendResult';
@@ -530,6 +566,11 @@ export type CampaignSendResult = {
   failed: Scalars['Int']['output'];
   sent: Scalars['Int']['output'];
 };
+
+export enum CampaignSendStatus {
+  Failed = 'FAILED',
+  Sent = 'SENT'
+}
 
 export enum CampaignStatus {
   Active = 'ACTIVE',
@@ -801,6 +842,23 @@ export enum ContactStatus {
   Unsubscribed = 'UNSUBSCRIBED'
 }
 
+export type ContainerMount = {
+  __typename?: 'ContainerMount';
+  destination: Scalars['String']['output'];
+  readOnly: Scalars['Boolean']['output'];
+  source: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
+/** A published port: the host side is what nginx proxies a public domain to. */
+export type ContainerPort = {
+  __typename?: 'ContainerPort';
+  ip: Scalars['String']['output'];
+  privatePort: Scalars['Int']['output'];
+  protocol: Scalars['String']['output'];
+  publicPort: Scalars['Int']['output'];
+};
+
 export type Contract = {
   __typename?: 'Contract';
   createdAt: Scalars['DateTime']['output'];
@@ -856,6 +914,22 @@ export type CreateUserInput = {
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
   name: Scalars['String']['input'];
   roles: Array<Role>;
+};
+
+/** The MongoDB this server is connected to, reported by the database server. */
+export type DatabaseInfo = {
+  __typename?: 'DatabaseInfo';
+  collections: Scalars['Int']['output'];
+  connectionsAvailable: Scalars['Int']['output'];
+  connectionsCurrent: Scalars['Int']['output'];
+  dataSizeBytes: Scalars['Float']['output'];
+  host: Scalars['String']['output'];
+  indexSizeBytes: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+  objects: Scalars['Float']['output'];
+  storageSizeBytes: Scalars['Float']['output'];
+  uptimeSeconds: Scalars['Int']['output'];
+  version: Scalars['String']['output'];
 };
 
 export type Deal = {
@@ -934,6 +1008,97 @@ export type DocPage = {
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   updatedByName: Scalars['String']['output'];
+};
+
+export type DockerContainer = {
+  __typename?: 'DockerContainer';
+  createdAt: Scalars['DateTime']['output'];
+  health: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  image: Scalars['String']['output'];
+  /** The image's :tag — for this stack, the commit SHA that was deployed. */
+  imageTag: Scalars['String']['output'];
+  ipAddress: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  networks: Array<Scalars['String']['output']>;
+  ports: Array<ContainerPort>;
+  state: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+};
+
+/** Everything docker inspect says about one container, plus a live resource sample. */
+export type DockerContainerDetail = {
+  __typename?: 'DockerContainerDetail';
+  command: Scalars['String']['output'];
+  /** CPU limit in cores. 0 means unlimited. */
+  cpuLimit: Scalars['Float']['output'];
+  cpuPercent: Scalars['Float']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  exitCode: Scalars['Int']['output'];
+  health: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  image: Scalars['String']['output'];
+  imageId: Scalars['String']['output'];
+  imageTag: Scalars['String']['output'];
+  ipAddress: Scalars['String']['output'];
+  logDriver: Scalars['String']['output'];
+  memoryBytes: Scalars['Float']['output'];
+  memoryLimitBytes: Scalars['Float']['output'];
+  mounts: Array<ContainerMount>;
+  name: Scalars['String']['output'];
+  networks: Array<Scalars['String']['output']>;
+  restartCount: Scalars['Int']['output'];
+  restartPolicy: Scalars['String']['output'];
+  startedAt?: Maybe<Scalars['DateTime']['output']>;
+  state: Scalars['String']['output'];
+};
+
+export type DockerDiskUsage = {
+  __typename?: 'DockerDiskUsage';
+  buildCacheBytes: Scalars['Float']['output'];
+  containersBytes: Scalars['Float']['output'];
+  layersBytes: Scalars['Float']['output'];
+  volumesBytes: Scalars['Float']['output'];
+};
+
+/** The Docker engine and the machine hosting it. Unreadable is a state, not an error. */
+export type DockerHost = {
+  __typename?: 'DockerHost';
+  apiVersion: Scalars['String']['output'];
+  architecture: Scalars['String']['output'];
+  containersPaused: Scalars['Int']['output'];
+  containersRunning: Scalars['Int']['output'];
+  containersStopped: Scalars['Int']['output'];
+  cpus: Scalars['Int']['output'];
+  dockerRootDir: Scalars['String']['output'];
+  /** Why the engine could not be read. Empty when reachable. */
+  error: Scalars['String']['output'];
+  imagesCount: Scalars['Int']['output'];
+  kernelVersion: Scalars['String']['output'];
+  loggingDriver: Scalars['String']['output'];
+  memoryBytes: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+  operatingSystem: Scalars['String']['output'];
+  osType: Scalars['String']['output'];
+  reachable: Scalars['Boolean']['output'];
+  serverTime?: Maybe<Scalars['DateTime']['output']>;
+  serverVersion: Scalars['String']['output'];
+  storageDriver: Scalars['String']['output'];
+};
+
+export type DockerImage = {
+  __typename?: 'DockerImage';
+  containers: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  repoTags: Array<Scalars['String']['output']>;
+  sizeBytes: Scalars['Float']['output'];
+};
+
+export type DockerStorage = {
+  __typename?: 'DockerStorage';
+  images: Array<DockerImage>;
+  usage: DockerDiskUsage;
 };
 
 export enum DocumentCategory {
@@ -1546,6 +1711,13 @@ export type ImageConfigInput = {
   urlEndpoint: Scalars['String']['input'];
 };
 
+export type InfrastructureOverview = {
+  __typename?: 'InfrastructureOverview';
+  database: DatabaseInfo;
+  docker: DockerHost;
+  runtime: ServerRuntime;
+};
+
 export type Invoice = {
   __typename?: 'Invoice';
   amount: Scalars['Float']['output'];
@@ -1861,6 +2033,53 @@ export type LegalDocumentPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** A software subscription IT pays for: a pot of seats that renews on a date. */
+export type Licence = {
+  __typename?: 'Licence';
+  /** Employees holding a seat. Its length is the seats used. */
+  assigneeIds: Array<Scalars['String']['output']>;
+  billingCycle: LicenceBillingCycle;
+  cost: Scalars['Float']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  renewalDate: Scalars['DateTime']['output'];
+  seatsTotal: Scalars['Int']['output'];
+  status: LicenceStatus;
+  updatedAt: Scalars['DateTime']['output'];
+  vendor: Scalars['String']['output'];
+};
+
+export enum LicenceBillingCycle {
+  Monthly = 'MONTHLY',
+  Quarterly = 'QUARTERLY',
+  Yearly = 'YEARLY'
+}
+
+export type LicenceInput = {
+  assigneeIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  billingCycle: LicenceBillingCycle;
+  cost: Scalars['Float']['input'];
+  name: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  renewalDate: Scalars['DateTime']['input'];
+  seatsTotal: Scalars['Int']['input'];
+  status: LicenceStatus;
+  vendor: Scalars['String']['input'];
+};
+
+export type LicencePage = {
+  __typename?: 'LicencePage';
+  rows: Array<Licence>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum LicenceStatus {
+  Active = 'ACTIVE',
+  Cancelled = 'CANCELLED'
+}
+
 export type Location = {
   __typename?: 'Location';
   active: Scalars['Boolean']['output'];
@@ -1948,6 +2167,7 @@ export type Mutation = {
   createAiJob: AiJob;
   createAnnouncement: Announcement;
   createAsset: Asset;
+  createAudienceList: AudienceList;
   createBenefit: Benefit;
   createBlogPost: BlogPost;
   createBug: Bug;
@@ -1984,6 +2204,7 @@ export type Mutation = {
   createLeavePolicy: LeavePolicy;
   createLeaveRequest: LeaveRequest;
   createLegalDocument: LegalDocument;
+  createLicence: Licence;
   createLocation: Location;
   /**
    * Filed by the employee for themselves: id from the token, always SUBMITTED,
@@ -2024,6 +2245,7 @@ export type Mutation = {
   deleteAiJob: Scalars['Boolean']['output'];
   deleteAnnouncement: Scalars['Boolean']['output'];
   deleteAsset: Scalars['Boolean']['output'];
+  deleteAudienceList: Scalars['Boolean']['output'];
   deleteBenefit: Scalars['Boolean']['output'];
   deleteBlogPost: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
@@ -2061,6 +2283,7 @@ export type Mutation = {
   deleteLeavePolicy: Scalars['Boolean']['output'];
   deleteLeaveRequest: Scalars['Boolean']['output'];
   deleteLegalDocument: Scalars['Boolean']['output'];
+  deleteLicence: Scalars['Boolean']['output'];
   deleteLocation: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
   deleteOpenAiConfig: Scalars['Boolean']['output'];
@@ -2130,11 +2353,16 @@ export type Mutation = {
    * exists. Returns a message safe to show the caller.
    */
   sendAdminCredentials: Scalars['String']['output'];
-  /** Emails the campaign's subject/body to the selected clients. */
+  /** Emails the campaign's subject/body to every client in the audience list. */
   sendCampaign: CampaignSendResult;
   sendContract: Contract;
   /** HR broadcast to every active employee, one department, or a chosen list. */
   sendNotification: SendNotificationResult;
+  /**
+   * Emails every payslip of the month to its employee, PDF attached, right now.
+   * Does not wait for the schedule and does not change it.
+   */
+  sendSalarySlips: PayrollDispatchResult;
   sendTestEmail: Scalars['Boolean']['output'];
   /** Sends the real thing to one address, and logs it like any other send. */
   sendTestEmailTemplate: Scalars['Boolean']['output'];
@@ -2190,6 +2418,7 @@ export type Mutation = {
   updateAiJob: AiJob;
   updateAnnouncement: Announcement;
   updateAsset: Asset;
+  updateAudienceList: AudienceList;
   updateBenefit: Benefit;
   updateBlogPost: BlogPost;
   updateBranding: Branding;
@@ -2226,6 +2455,7 @@ export type Mutation = {
   updateLeavePolicy: LeavePolicy;
   updateLeaveRequest: LeaveRequest;
   updateLegalDocument: LegalDocument;
+  updateLicence: Licence;
   updateLocation: Location;
   /**
    * Employee self-update. Only progress moves; weightage, dates and the manager's
@@ -2236,6 +2466,8 @@ export type Mutation = {
   updateMyTrainingStatus: Training;
   updateNavLink: NavLink;
   updateOpenAiConfig: OpenAiConfig;
+  /** Saves when payslip emails go out. Turning it off stops the scheduled run. */
+  updatePayrollSchedule: PayrollSchedule;
   updatePerformanceReview: PerformanceReview;
   updatePexelsConfig: PexelsConfig;
   updatePolicy: Policy;
@@ -2327,6 +2559,11 @@ export type MutationCreateAnnouncementArgs = {
 
 export type MutationCreateAssetArgs = {
   input: AssetInput;
+};
+
+
+export type MutationCreateAudienceListArgs = {
+  input: AudienceListInput;
 };
 
 
@@ -2513,6 +2750,11 @@ export type MutationCreateLegalDocumentArgs = {
 };
 
 
+export type MutationCreateLicenceArgs = {
+  input: LicenceInput;
+};
+
+
 export type MutationCreateLocationArgs = {
   input: LocationInput;
 };
@@ -2661,6 +2903,11 @@ export type MutationDeleteAnnouncementArgs = {
 
 
 export type MutationDeleteAssetArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteAudienceListArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2841,6 +3088,11 @@ export type MutationDeleteLeaveRequestArgs = {
 
 
 export type MutationDeleteLegalDocumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteLicenceArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -3078,7 +3330,7 @@ export type MutationSaveTrackerBuildSettingsArgs = {
 
 
 export type MutationSendCampaignArgs = {
-  clientIds: Array<Scalars['ID']['input']>;
+  audienceListId: Scalars['ID']['input'];
   id: Scalars['ID']['input'];
 };
 
@@ -3092,6 +3344,12 @@ export type MutationSendContractArgs = {
 
 export type MutationSendNotificationArgs = {
   input: SendNotificationInput;
+};
+
+
+export type MutationSendSalarySlipsArgs = {
+  month: Scalars['Int']['input'];
+  year: Scalars['Int']['input'];
 };
 
 
@@ -3269,6 +3527,12 @@ export type MutationUpdateAnnouncementArgs = {
 export type MutationUpdateAssetArgs = {
   id: Scalars['ID']['input'];
   input: AssetInput;
+};
+
+
+export type MutationUpdateAudienceListArgs = {
+  id: Scalars['ID']['input'];
+  input: AudienceListInput;
 };
 
 
@@ -3488,6 +3752,12 @@ export type MutationUpdateLegalDocumentArgs = {
 };
 
 
+export type MutationUpdateLicenceArgs = {
+  id: Scalars['ID']['input'];
+  input: LicenceInput;
+};
+
+
 export type MutationUpdateLocationArgs = {
   id: Scalars['ID']['input'];
   input: LocationInput;
@@ -3515,6 +3785,11 @@ export type MutationUpdateNavLinkArgs = {
 export type MutationUpdateOpenAiConfigArgs = {
   id: Scalars['ID']['input'];
   input: OpenAiConfigInput;
+};
+
+
+export type MutationUpdatePayrollScheduleArgs = {
+  input: PayrollScheduleInput;
 };
 
 
@@ -3805,6 +4080,18 @@ export type PaymentPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** What one payslip email run did, per employee outcome. */
+export type PayrollDispatchResult = {
+  __typename?: 'PayrollDispatchResult';
+  /** Employees whose payslip email was refused; the run carried on past each one. */
+  failed: Scalars['Int']['output'];
+  month: Scalars['Int']['output'];
+  sent: Scalars['Int']['output'];
+  /** Employees with no email address on file. */
+  skipped: Scalars['Int']['output'];
+  year: Scalars['Int']['output'];
+};
+
 /** What one payroll run did. */
 export type PayrollRunResult = {
   __typename?: 'PayrollRunResult';
@@ -3817,6 +4104,32 @@ export type PayrollRunResult = {
   /** Slips that already existed and were recomputed (only while still GENERATED). */
   updated: Scalars['Int']['output'];
   year: Scalars['Int']['output'];
+};
+
+/** When payslip emails go out, as HR configures them. */
+export type PayrollSchedule = {
+  __typename?: 'PayrollSchedule';
+  /** Day of the month the run fires on. Capped at 28 so every month has it. */
+  dayOfMonth: Scalars['Int']['output'];
+  enabled: Scalars['Boolean']['output'];
+  hour: Scalars['Int']['output'];
+  lastFailed: Scalars['Int']['output'];
+  lastRunAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The period the last run sent for, as YYYY-MM. Empty until the first run. */
+  lastRunPeriod: Scalars['String']['output'];
+  lastSent: Scalars['Int']['output'];
+  lastSkipped: Scalars['Int']['output'];
+  minute: Scalars['Int']['output'];
+  /** Which month the run sends: PREVIOUS_MONTH or CURRENT_MONTH. */
+  period: Scalars['String']['output'];
+};
+
+export type PayrollScheduleInput = {
+  dayOfMonth: Scalars['Int']['input'];
+  enabled: Scalars['Boolean']['input'];
+  hour: Scalars['Int']['input'];
+  minute: Scalars['Int']['input'];
+  period: Scalars['String']['input'];
 };
 
 /** The month at a glance, for review before marking paid. */
@@ -4212,11 +4525,18 @@ export type Query = {
    */
   companyFinance: CompanyFinance;
   docPage: DocPage;
+  /** One container in full, including a live CPU/memory sample (takes ~2s to measure). */
+  dockerContainerDetail: DockerContainerDetail;
+  /** Every container on the host, running or not. */
+  dockerContainers: Array<DockerContainer>;
+  /** Images on the host and what the engine's disk is spent on. */
+  dockerStorage: DockerStorage;
   emailDashboard: EmailDashboard;
   getActivity: Activity;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
   getAsset: Asset;
+  getAudienceList: AudienceList;
   getBenefit: Benefit;
   getBlogPost: BlogPost;
   getBug: Bug;
@@ -4248,6 +4568,7 @@ export type Query = {
   getLeavePolicy: LeavePolicy;
   getLeaveRequest: LeaveRequest;
   getLegalDocument: LegalDocument;
+  getLicence: Licence;
   getLocation: Location;
   getNavLink: NavLink;
   getPerformanceReview: PerformanceReview;
@@ -4269,6 +4590,8 @@ export type Query = {
   getWebsiteSubmission: WebsiteSubmission;
   /** HR/ADMIN: workforce counts + headcount-over-time series. */
   hrDashboard: HrDashboard;
+  /** Host, this process and the database in one read — the Infrastructure overview. */
+  infrastructureOverview: InfrastructureOverview;
   /** Payments against one invoice, newest first. */
   invoicePayments: Array<Payment>;
   /** HR/ADMIN: a specific employee's leave requests. */
@@ -4289,6 +4612,8 @@ export type Query = {
   listAssetsStats: TableStats;
   /** HR/ADMIN: all attendance records. */
   listAttendance: Array<Attendance>;
+  listAudienceLists: Array<AudienceList>;
+  listAudienceListsPaged: AudienceListPage;
   listBenefits: Array<Benefit>;
   listBenefitsPaged: BenefitPage;
   listBenefitsStats: TableStats;
@@ -4298,6 +4623,8 @@ export type Query = {
   listBugs: Array<Bug>;
   listBugsPaged: BugPage;
   listBugsStats: TableStats;
+  /** Every recipient of a campaign's sends, newest first. */
+  listCampaignSends: Array<CampaignSend>;
   listCampaigns: Array<Campaign>;
   listCampaignsPaged: CampaignPage;
   listCampaignsStats: TableStats;
@@ -4385,6 +4712,9 @@ export type Query = {
   listLegalDocuments: Array<LegalDocument>;
   listLegalDocumentsPaged: LegalDocumentPage;
   listLegalDocumentsStats: TableStats;
+  listLicences: Array<Licence>;
+  listLicencesPaged: LicencePage;
+  listLicencesStats: TableStats;
   listLocations: Array<Location>;
   listLocationsPaged: LocationPage;
   listLocationsStats: TableStats;
@@ -4493,6 +4823,8 @@ export type Query = {
   myTrackerTotals: TrackerTotals;
   myTrainings: Array<Training>;
   myUnreadNotificationCount: Scalars['Int']['output'];
+  /** The payslip email schedule. Created with its defaults on first read. */
+  payrollSchedule: PayrollSchedule;
   payrollSummary: PayrollSummary;
   /** Who has signed a policy, newest first. */
   policyAcknowledgements: Array<PolicyAcknowledgement>;
@@ -4521,18 +4853,30 @@ export type Query = {
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
   receivables: Receivables;
+  /**
+   * One payslip as a PDF. An employee may download their own; HR and Finance may
+   * download anyone's.
+   */
+  salarySlipPdf: SalarySlipDownload;
   /** Stock photos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsPhotos: Array<PexelsMedia>;
   /** Stock videos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsVideos: Array<PexelsMedia>;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
   statusOverview: StatusOverview;
+  /** The ticket's history, newest first. */
+  taskActivity: Array<TaskActivity>;
   taskComments: Array<TaskComment>;
   trackerAccessList: Array<TrackerAccess>;
   trackerBuildSettings: TrackerBuildSettings;
   trackerCalendar: Array<TrackerDayBucket>;
   trackerDay: TrackerDay;
   trackerDevices: Array<TrackerDevice>;
+  /**
+   * The latest desktop installers. Any signed-in employee may read it — the files
+   * themselves live on a public GitHub release. Null until a release exists.
+   */
+  trackerLatestRelease?: Maybe<TrackerRelease>;
   trackerMe: TrackerMe;
   trackerSettings: TrackerSettings;
   trackerTotals: TrackerTotals;
@@ -4551,6 +4895,11 @@ export type QueryCompanyFinanceArgs = {
 
 
 export type QueryDocPageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryDockerContainerDetailArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4576,6 +4925,11 @@ export type QueryGetAnnouncementArgs = {
 
 
 export type QueryGetAssetArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetAudienceListArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4735,6 +5089,11 @@ export type QueryGetLegalDocumentArgs = {
 };
 
 
+export type QueryGetLicenceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetLocationArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4860,6 +5219,11 @@ export type QueryListAssetsPagedArgs = {
 };
 
 
+export type QueryListAudienceListsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListBenefitsPagedArgs = {
   input: TableQueryInput;
 };
@@ -4872,6 +5236,11 @@ export type QueryListBlogPostsPagedArgs = {
 
 export type QueryListBugsPagedArgs = {
   input: TableQueryInput;
+};
+
+
+export type QueryListCampaignSendsArgs = {
+  campaignId: Scalars['ID']['input'];
 };
 
 
@@ -5006,6 +5375,11 @@ export type QueryListLeavePoliciesPagedArgs = {
 
 
 export type QueryListLegalDocumentsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListLicencesPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -5200,6 +5574,11 @@ export type QueryPublicToolsArgs = {
 };
 
 
+export type QuerySalarySlipPdfArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QuerySearchPexelsPhotosArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
@@ -5214,6 +5593,11 @@ export type QuerySearchPexelsVideosArgs = {
 
 export type QueryStatusOverviewArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryTaskActivityArgs = {
+  taskId: Scalars['ID']['input'];
 };
 
 
@@ -5331,6 +5715,14 @@ export type SalarySlip = {
   year: Scalars['Int']['output'];
 };
 
+/** A payslip PDF, base64 encoded so the browser can save it straight from the response. */
+export type SalarySlipDownload = {
+  __typename?: 'SalarySlipDownload';
+  contentBase64: Scalars['String']['output'];
+  contentType: Scalars['String']['output'];
+  filename: Scalars['String']['output'];
+};
+
 export type SalarySlipPage = {
   __typename?: 'SalarySlipPage';
   rows: Array<SalarySlip>;
@@ -5390,6 +5782,24 @@ export type SendNotificationInput = {
 export type SendNotificationResult = {
   __typename?: 'SendNotificationResult';
   recipients: Scalars['Int']['output'];
+};
+
+/** The API process itself, as it sees the world from inside its own container. */
+export type ServerRuntime = {
+  __typename?: 'ServerRuntime';
+  arch: Scalars['String']['output'];
+  environment: Scalars['String']['output'];
+  heapTotalBytes: Scalars['Float']['output'];
+  heapUsedBytes: Scalars['Float']['output'];
+  hostname: Scalars['String']['output'];
+  load1: Scalars['Float']['output'];
+  load5: Scalars['Float']['output'];
+  load15: Scalars['Float']['output'];
+  nodeVersion: Scalars['String']['output'];
+  platform: Scalars['String']['output'];
+  processUptimeSeconds: Scalars['Int']['output'];
+  rssBytes: Scalars['Float']['output'];
+  startedAt: Scalars['DateTime']['output'];
 };
 
 export type Shift = {
@@ -5783,6 +6193,19 @@ export type Task = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/** One recorded change to a ticket: who changed what, from what, to what. */
+export type TaskActivity = {
+  __typename?: 'TaskActivity';
+  actorName: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** The field that changed: a ticket field name, or column, or created. */
+  field: Scalars['String']['output'];
+  fromValue: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  taskId: Scalars['ID']['output'];
+  toValue: Scalars['String']['output'];
+};
+
 export type TaskComment = {
   __typename?: 'TaskComment';
   authorId: Scalars['String']['output'];
@@ -6085,6 +6508,31 @@ export enum TrackerPlatform {
   Macos = 'MACOS',
   Windows = 'WINDOWS'
 }
+
+/** The newest published desktop tracker build, with its installers. */
+export type TrackerRelease = {
+  __typename?: 'TrackerRelease';
+  assets: Array<TrackerReleaseAsset>;
+  name: Scalars['String']['output'];
+  /** Release notes, as Markdown. */
+  notes: Scalars['String']['output'];
+  publishedAt: Scalars['DateTime']['output'];
+  tag: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+  version: Scalars['String']['output'];
+};
+
+/** One installer file published on a tracker release. */
+export type TrackerReleaseAsset = {
+  __typename?: 'TrackerReleaseAsset';
+  downloadCount: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  /** One of: windows, macos, linux. */
+  platform: Scalars['String']['output'];
+  sizeBytes: Scalars['Float']['output'];
+  /** Direct download URL on the public GitHub release. */
+  url: Scalars['String']['output'];
+};
 
 export type TrackerScreenshot = {
   __typename?: 'TrackerScreenshot';
@@ -6720,6 +7168,13 @@ export type GetProjectQueryVariables = Exact<{
 
 
 export type GetProjectQuery = { __typename?: 'Query', getProject: { __typename?: 'Project', id: string, name: string, key: string, description?: string | null, status: ProjectStatus } };
+
+export type TaskActivityQueryVariables = Exact<{
+  taskId: Scalars['ID']['input'];
+}>;
+
+
+export type TaskActivityQuery = { __typename?: 'Query', taskActivity: Array<{ __typename?: 'TaskActivity', id: string, actorName: string, field: string, fromValue: string, toValue: string, createdAt: string }> };
 
 export type BrandingFieldsFragment = { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> };
 
@@ -7911,6 +8366,28 @@ export type DeleteLeaveBalanceMutationVariables = Exact<{
 
 export type DeleteLeaveBalanceMutation = { __typename?: 'Mutation', deleteLeaveBalance: boolean };
 
+export type InfrastructureOverviewQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type InfrastructureOverviewQuery = { __typename?: 'Query', infrastructureOverview: { __typename?: 'InfrastructureOverview', docker: { __typename?: 'DockerHost', reachable: boolean, error: string, name: string, serverVersion: string, apiVersion: string, operatingSystem: string, osType: string, kernelVersion: string, architecture: string, cpus: number, memoryBytes: number, dockerRootDir: string, storageDriver: string, loggingDriver: string, containersRunning: number, containersPaused: number, containersStopped: number, imagesCount: number, serverTime?: string | null }, runtime: { __typename?: 'ServerRuntime', nodeVersion: string, platform: string, arch: string, hostname: string, environment: string, processUptimeSeconds: number, startedAt: string, rssBytes: number, heapUsedBytes: number, heapTotalBytes: number, load1: number, load5: number, load15: number }, database: { __typename?: 'DatabaseInfo', name: string, version: string, host: string, uptimeSeconds: number, connectionsCurrent: number, connectionsAvailable: number, collections: number, objects: number, dataSizeBytes: number, storageSizeBytes: number, indexSizeBytes: number } } };
+
+export type DockerContainersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DockerContainersQuery = { __typename?: 'Query', dockerContainers: Array<{ __typename?: 'DockerContainer', id: string, name: string, image: string, imageTag: string, state: string, status: string, health: string, createdAt: string, networks: Array<string>, ipAddress: string, ports: Array<{ __typename?: 'ContainerPort', ip: string, privatePort: number, publicPort: number, protocol: string }> }> };
+
+export type DockerContainerDetailQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DockerContainerDetailQuery = { __typename?: 'Query', dockerContainerDetail: { __typename?: 'DockerContainerDetail', id: string, name: string, image: string, imageTag: string, imageId: string, state: string, health: string, command: string, createdAt: string, startedAt?: string | null, exitCode: number, restartCount: number, restartPolicy: string, logDriver: string, memoryLimitBytes: number, cpuLimit: number, networks: Array<string>, ipAddress: string, cpuPercent: number, memoryBytes: number, mounts: Array<{ __typename?: 'ContainerMount', type: string, source: string, destination: string, readOnly: boolean }> } };
+
+export type DockerStorageQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DockerStorageQuery = { __typename?: 'Query', dockerStorage: { __typename?: 'DockerStorage', images: Array<{ __typename?: 'DockerImage', id: string, repoTags: Array<string>, sizeBytes: number, createdAt: string, containers: number }>, usage: { __typename?: 'DockerDiskUsage', layersBytes: number, containersBytes: number, volumesBytes: number, buildCacheBytes: number } } };
+
 export type ListContractsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -8006,6 +8483,47 @@ export type DeleteLegalDocumentMutationVariables = Exact<{
 
 export type DeleteLegalDocumentMutation = { __typename?: 'Mutation', deleteLegalDocument: boolean };
 
+export type LicenceFieldsFragment = { __typename?: 'Licence', id: string, name: string, vendor: string, seatsTotal: number, assigneeIds: Array<string>, cost: number, billingCycle: LicenceBillingCycle, renewalDate: string, status: LicenceStatus, notes: string };
+
+export type ListLicencesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListLicencesQuery = { __typename?: 'Query', listLicences: Array<{ __typename?: 'Licence', id: string, name: string, vendor: string, seatsTotal: number, assigneeIds: Array<string>, cost: number, billingCycle: LicenceBillingCycle, renewalDate: string, status: LicenceStatus, notes: string }> };
+
+export type ListLicencesPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListLicencesPagedQuery = { __typename?: 'Query', listLicencesPaged: { __typename?: 'LicencePage', totalCount: number, rows: Array<{ __typename?: 'Licence', id: string, name: string, vendor: string, seatsTotal: number, assigneeIds: Array<string>, cost: number, billingCycle: LicenceBillingCycle, renewalDate: string, status: LicenceStatus, notes: string }> } };
+
+export type ListLicencesStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListLicencesStatsQuery = { __typename?: 'Query', listLicencesStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreateLicenceMutationVariables = Exact<{
+  input: LicenceInput;
+}>;
+
+
+export type CreateLicenceMutation = { __typename?: 'Mutation', createLicence: { __typename?: 'Licence', id: string } };
+
+export type UpdateLicenceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: LicenceInput;
+}>;
+
+
+export type UpdateLicenceMutation = { __typename?: 'Mutation', updateLicence: { __typename?: 'Licence', id: string } };
+
+export type DeleteLicenceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteLicenceMutation = { __typename?: 'Mutation', deleteLicence: boolean };
+
 export type ListCampaignsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -8047,11 +8565,54 @@ export type DeleteCampaignMutation = { __typename?: 'Mutation', deleteCampaign: 
 
 export type SendCampaignMutationVariables = Exact<{
   id: Scalars['ID']['input'];
-  clientIds: Array<Scalars['ID']['input']> | Scalars['ID']['input'];
+  audienceListId: Scalars['ID']['input'];
 }>;
 
 
 export type SendCampaignMutation = { __typename?: 'Mutation', sendCampaign: { __typename?: 'CampaignSendResult', sent: number, failed: number, campaign: { __typename?: 'Campaign', id: string, lastSentAt?: string | null, recipientsCount?: number | null } } };
+
+export type AudienceListFieldsFragment = { __typename?: 'AudienceList', id: string, name: string, description: string, clientIds: Array<string> };
+
+export type ListAudienceListsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListAudienceListsQuery = { __typename?: 'Query', listAudienceLists: Array<{ __typename?: 'AudienceList', id: string, name: string, description: string, clientIds: Array<string> }> };
+
+export type ListAudienceListsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListAudienceListsPagedQuery = { __typename?: 'Query', listAudienceListsPaged: { __typename?: 'AudienceListPage', totalCount: number, rows: Array<{ __typename?: 'AudienceList', id: string, name: string, description: string, clientIds: Array<string> }> } };
+
+export type CreateAudienceListMutationVariables = Exact<{
+  input: AudienceListInput;
+}>;
+
+
+export type CreateAudienceListMutation = { __typename?: 'Mutation', createAudienceList: { __typename?: 'AudienceList', id: string } };
+
+export type UpdateAudienceListMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: AudienceListInput;
+}>;
+
+
+export type UpdateAudienceListMutation = { __typename?: 'Mutation', updateAudienceList: { __typename?: 'AudienceList', id: string } };
+
+export type DeleteAudienceListMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteAudienceListMutation = { __typename?: 'Mutation', deleteAudienceList: boolean };
+
+export type ListCampaignSendsQueryVariables = Exact<{
+  campaignId: Scalars['ID']['input'];
+}>;
+
+
+export type ListCampaignSendsQuery = { __typename?: 'Query', listCampaignSends: Array<{ __typename?: 'CampaignSend', id: string, to: string, recipientName: string, status: CampaignSendStatus, error: string, sentAt: string }> };
 
 export type ListLocationsPagedQueryVariables = Exact<{
   input: TableQueryInput;
@@ -9131,6 +9692,11 @@ export type UpdateTrackerSettingsMutationVariables = Exact<{
 
 export type UpdateTrackerSettingsMutation = { __typename?: 'Mutation', updateTrackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, defaultTimezone: string } };
 
+export type TrackerLatestReleaseQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TrackerLatestReleaseQuery = { __typename?: 'Query', trackerLatestRelease?: { __typename?: 'TrackerRelease', version: string, tag: string, name: string, notes: string, url: string, publishedAt: string, assets: Array<{ __typename?: 'TrackerReleaseAsset', name: string, platform: string, sizeBytes: number, downloadCount: number, url: string }> } | null };
+
 export type BlogPostFieldsFragment = { __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } };
 
 export type ListBlogPostsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -9782,6 +10348,28 @@ export const LeaveBalanceFieldsFragmentDoc = gql`
   used
   adjustment
   available
+}
+    `;
+export const LicenceFieldsFragmentDoc = gql`
+    fragment LicenceFields on Licence {
+  id
+  name
+  vendor
+  seatsTotal
+  assigneeIds
+  cost
+  billingCycle
+  renewalDate
+  status
+  notes
+}
+    `;
+export const AudienceListFieldsFragmentDoc = gql`
+    fragment AudienceListFields on AudienceList {
+  id
+  name
+  description
+  clientIds
 }
     `;
 export const PolicyFieldsFragmentDoc = gql`
@@ -12595,6 +13183,54 @@ export type GetProjectQueryHookResult = ReturnType<typeof useGetProjectQuery>;
 export type GetProjectLazyQueryHookResult = ReturnType<typeof useGetProjectLazyQuery>;
 export type GetProjectSuspenseQueryHookResult = ReturnType<typeof useGetProjectSuspenseQuery>;
 export type GetProjectQueryResult = Apollo.QueryResult<GetProjectQuery, GetProjectQueryVariables>;
+export const TaskActivityDocument = gql`
+    query TaskActivity($taskId: ID!) {
+  taskActivity(taskId: $taskId) {
+    id
+    actorName
+    field
+    fromValue
+    toValue
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useTaskActivityQuery__
+ *
+ * To run a query within a React component, call `useTaskActivityQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTaskActivityQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTaskActivityQuery({
+ *   variables: {
+ *      taskId: // value for 'taskId'
+ *   },
+ * });
+ */
+export function useTaskActivityQuery(baseOptions: Apollo.QueryHookOptions<TaskActivityQuery, TaskActivityQueryVariables> & ({ variables: TaskActivityQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TaskActivityQuery, TaskActivityQueryVariables>(TaskActivityDocument, options);
+      }
+export function useTaskActivityLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TaskActivityQuery, TaskActivityQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TaskActivityQuery, TaskActivityQueryVariables>(TaskActivityDocument, options);
+        }
+// @ts-ignore
+export function useTaskActivitySuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TaskActivityQuery, TaskActivityQueryVariables>): Apollo.UseSuspenseQueryResult<TaskActivityQuery, TaskActivityQueryVariables>;
+export function useTaskActivitySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TaskActivityQuery, TaskActivityQueryVariables>): Apollo.UseSuspenseQueryResult<TaskActivityQuery | undefined, TaskActivityQueryVariables>;
+export function useTaskActivitySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TaskActivityQuery, TaskActivityQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TaskActivityQuery, TaskActivityQueryVariables>(TaskActivityDocument, options);
+        }
+export type TaskActivityQueryHookResult = ReturnType<typeof useTaskActivityQuery>;
+export type TaskActivityLazyQueryHookResult = ReturnType<typeof useTaskActivityLazyQuery>;
+export type TaskActivitySuspenseQueryHookResult = ReturnType<typeof useTaskActivitySuspenseQuery>;
+export type TaskActivityQueryResult = Apollo.QueryResult<TaskActivityQuery, TaskActivityQueryVariables>;
 export const BrandingDocument = gql`
     query Branding {
   branding {
@@ -19685,6 +20321,275 @@ export function useDeleteLeaveBalanceMutation(baseOptions?: Apollo.MutationHookO
 export type DeleteLeaveBalanceMutationHookResult = ReturnType<typeof useDeleteLeaveBalanceMutation>;
 export type DeleteLeaveBalanceMutationResult = Apollo.MutationResult<DeleteLeaveBalanceMutation>;
 export type DeleteLeaveBalanceMutationOptions = Apollo.BaseMutationOptions<DeleteLeaveBalanceMutation, DeleteLeaveBalanceMutationVariables>;
+export const InfrastructureOverviewDocument = gql`
+    query InfrastructureOverview {
+  infrastructureOverview {
+    docker {
+      reachable
+      error
+      name
+      serverVersion
+      apiVersion
+      operatingSystem
+      osType
+      kernelVersion
+      architecture
+      cpus
+      memoryBytes
+      dockerRootDir
+      storageDriver
+      loggingDriver
+      containersRunning
+      containersPaused
+      containersStopped
+      imagesCount
+      serverTime
+    }
+    runtime {
+      nodeVersion
+      platform
+      arch
+      hostname
+      environment
+      processUptimeSeconds
+      startedAt
+      rssBytes
+      heapUsedBytes
+      heapTotalBytes
+      load1
+      load5
+      load15
+    }
+    database {
+      name
+      version
+      host
+      uptimeSeconds
+      connectionsCurrent
+      connectionsAvailable
+      collections
+      objects
+      dataSizeBytes
+      storageSizeBytes
+      indexSizeBytes
+    }
+  }
+}
+    `;
+
+/**
+ * __useInfrastructureOverviewQuery__
+ *
+ * To run a query within a React component, call `useInfrastructureOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useInfrastructureOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useInfrastructureOverviewQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useInfrastructureOverviewQuery(baseOptions?: Apollo.QueryHookOptions<InfrastructureOverviewQuery, InfrastructureOverviewQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<InfrastructureOverviewQuery, InfrastructureOverviewQueryVariables>(InfrastructureOverviewDocument, options);
+      }
+export function useInfrastructureOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<InfrastructureOverviewQuery, InfrastructureOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<InfrastructureOverviewQuery, InfrastructureOverviewQueryVariables>(InfrastructureOverviewDocument, options);
+        }
+// @ts-ignore
+export function useInfrastructureOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<InfrastructureOverviewQuery, InfrastructureOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<InfrastructureOverviewQuery, InfrastructureOverviewQueryVariables>;
+export function useInfrastructureOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<InfrastructureOverviewQuery, InfrastructureOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<InfrastructureOverviewQuery | undefined, InfrastructureOverviewQueryVariables>;
+export function useInfrastructureOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<InfrastructureOverviewQuery, InfrastructureOverviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<InfrastructureOverviewQuery, InfrastructureOverviewQueryVariables>(InfrastructureOverviewDocument, options);
+        }
+export type InfrastructureOverviewQueryHookResult = ReturnType<typeof useInfrastructureOverviewQuery>;
+export type InfrastructureOverviewLazyQueryHookResult = ReturnType<typeof useInfrastructureOverviewLazyQuery>;
+export type InfrastructureOverviewSuspenseQueryHookResult = ReturnType<typeof useInfrastructureOverviewSuspenseQuery>;
+export type InfrastructureOverviewQueryResult = Apollo.QueryResult<InfrastructureOverviewQuery, InfrastructureOverviewQueryVariables>;
+export const DockerContainersDocument = gql`
+    query DockerContainers {
+  dockerContainers {
+    id
+    name
+    image
+    imageTag
+    state
+    status
+    health
+    createdAt
+    ports {
+      ip
+      privatePort
+      publicPort
+      protocol
+    }
+    networks
+    ipAddress
+  }
+}
+    `;
+
+/**
+ * __useDockerContainersQuery__
+ *
+ * To run a query within a React component, call `useDockerContainersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDockerContainersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDockerContainersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useDockerContainersQuery(baseOptions?: Apollo.QueryHookOptions<DockerContainersQuery, DockerContainersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<DockerContainersQuery, DockerContainersQueryVariables>(DockerContainersDocument, options);
+      }
+export function useDockerContainersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DockerContainersQuery, DockerContainersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<DockerContainersQuery, DockerContainersQueryVariables>(DockerContainersDocument, options);
+        }
+// @ts-ignore
+export function useDockerContainersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<DockerContainersQuery, DockerContainersQueryVariables>): Apollo.UseSuspenseQueryResult<DockerContainersQuery, DockerContainersQueryVariables>;
+export function useDockerContainersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<DockerContainersQuery, DockerContainersQueryVariables>): Apollo.UseSuspenseQueryResult<DockerContainersQuery | undefined, DockerContainersQueryVariables>;
+export function useDockerContainersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<DockerContainersQuery, DockerContainersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<DockerContainersQuery, DockerContainersQueryVariables>(DockerContainersDocument, options);
+        }
+export type DockerContainersQueryHookResult = ReturnType<typeof useDockerContainersQuery>;
+export type DockerContainersLazyQueryHookResult = ReturnType<typeof useDockerContainersLazyQuery>;
+export type DockerContainersSuspenseQueryHookResult = ReturnType<typeof useDockerContainersSuspenseQuery>;
+export type DockerContainersQueryResult = Apollo.QueryResult<DockerContainersQuery, DockerContainersQueryVariables>;
+export const DockerContainerDetailDocument = gql`
+    query DockerContainerDetail($id: ID!) {
+  dockerContainerDetail(id: $id) {
+    id
+    name
+    image
+    imageTag
+    imageId
+    state
+    health
+    command
+    createdAt
+    startedAt
+    exitCode
+    restartCount
+    restartPolicy
+    logDriver
+    memoryLimitBytes
+    cpuLimit
+    networks
+    ipAddress
+    mounts {
+      type
+      source
+      destination
+      readOnly
+    }
+    cpuPercent
+    memoryBytes
+  }
+}
+    `;
+
+/**
+ * __useDockerContainerDetailQuery__
+ *
+ * To run a query within a React component, call `useDockerContainerDetailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDockerContainerDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDockerContainerDetailQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDockerContainerDetailQuery(baseOptions: Apollo.QueryHookOptions<DockerContainerDetailQuery, DockerContainerDetailQueryVariables> & ({ variables: DockerContainerDetailQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<DockerContainerDetailQuery, DockerContainerDetailQueryVariables>(DockerContainerDetailDocument, options);
+      }
+export function useDockerContainerDetailLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DockerContainerDetailQuery, DockerContainerDetailQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<DockerContainerDetailQuery, DockerContainerDetailQueryVariables>(DockerContainerDetailDocument, options);
+        }
+// @ts-ignore
+export function useDockerContainerDetailSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<DockerContainerDetailQuery, DockerContainerDetailQueryVariables>): Apollo.UseSuspenseQueryResult<DockerContainerDetailQuery, DockerContainerDetailQueryVariables>;
+export function useDockerContainerDetailSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<DockerContainerDetailQuery, DockerContainerDetailQueryVariables>): Apollo.UseSuspenseQueryResult<DockerContainerDetailQuery | undefined, DockerContainerDetailQueryVariables>;
+export function useDockerContainerDetailSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<DockerContainerDetailQuery, DockerContainerDetailQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<DockerContainerDetailQuery, DockerContainerDetailQueryVariables>(DockerContainerDetailDocument, options);
+        }
+export type DockerContainerDetailQueryHookResult = ReturnType<typeof useDockerContainerDetailQuery>;
+export type DockerContainerDetailLazyQueryHookResult = ReturnType<typeof useDockerContainerDetailLazyQuery>;
+export type DockerContainerDetailSuspenseQueryHookResult = ReturnType<typeof useDockerContainerDetailSuspenseQuery>;
+export type DockerContainerDetailQueryResult = Apollo.QueryResult<DockerContainerDetailQuery, DockerContainerDetailQueryVariables>;
+export const DockerStorageDocument = gql`
+    query DockerStorage {
+  dockerStorage {
+    images {
+      id
+      repoTags
+      sizeBytes
+      createdAt
+      containers
+    }
+    usage {
+      layersBytes
+      containersBytes
+      volumesBytes
+      buildCacheBytes
+    }
+  }
+}
+    `;
+
+/**
+ * __useDockerStorageQuery__
+ *
+ * To run a query within a React component, call `useDockerStorageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDockerStorageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDockerStorageQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useDockerStorageQuery(baseOptions?: Apollo.QueryHookOptions<DockerStorageQuery, DockerStorageQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<DockerStorageQuery, DockerStorageQueryVariables>(DockerStorageDocument, options);
+      }
+export function useDockerStorageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DockerStorageQuery, DockerStorageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<DockerStorageQuery, DockerStorageQueryVariables>(DockerStorageDocument, options);
+        }
+// @ts-ignore
+export function useDockerStorageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<DockerStorageQuery, DockerStorageQueryVariables>): Apollo.UseSuspenseQueryResult<DockerStorageQuery, DockerStorageQueryVariables>;
+export function useDockerStorageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<DockerStorageQuery, DockerStorageQueryVariables>): Apollo.UseSuspenseQueryResult<DockerStorageQuery | undefined, DockerStorageQueryVariables>;
+export function useDockerStorageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<DockerStorageQuery, DockerStorageQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<DockerStorageQuery, DockerStorageQueryVariables>(DockerStorageDocument, options);
+        }
+export type DockerStorageQueryHookResult = ReturnType<typeof useDockerStorageQuery>;
+export type DockerStorageLazyQueryHookResult = ReturnType<typeof useDockerStorageLazyQuery>;
+export type DockerStorageSuspenseQueryHookResult = ReturnType<typeof useDockerStorageSuspenseQuery>;
+export type DockerStorageQueryResult = Apollo.QueryResult<DockerStorageQuery, DockerStorageQueryVariables>;
 export const ListContractsDocument = gql`
     query ListContracts {
   listContracts {
@@ -20264,6 +21169,245 @@ export function useDeleteLegalDocumentMutation(baseOptions?: Apollo.MutationHook
 export type DeleteLegalDocumentMutationHookResult = ReturnType<typeof useDeleteLegalDocumentMutation>;
 export type DeleteLegalDocumentMutationResult = Apollo.MutationResult<DeleteLegalDocumentMutation>;
 export type DeleteLegalDocumentMutationOptions = Apollo.BaseMutationOptions<DeleteLegalDocumentMutation, DeleteLegalDocumentMutationVariables>;
+export const ListLicencesDocument = gql`
+    query ListLicences {
+  listLicences {
+    ...LicenceFields
+  }
+}
+    ${LicenceFieldsFragmentDoc}`;
+
+/**
+ * __useListLicencesQuery__
+ *
+ * To run a query within a React component, call `useListLicencesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListLicencesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListLicencesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListLicencesQuery(baseOptions?: Apollo.QueryHookOptions<ListLicencesQuery, ListLicencesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListLicencesQuery, ListLicencesQueryVariables>(ListLicencesDocument, options);
+      }
+export function useListLicencesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListLicencesQuery, ListLicencesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListLicencesQuery, ListLicencesQueryVariables>(ListLicencesDocument, options);
+        }
+// @ts-ignore
+export function useListLicencesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListLicencesQuery, ListLicencesQueryVariables>): Apollo.UseSuspenseQueryResult<ListLicencesQuery, ListLicencesQueryVariables>;
+export function useListLicencesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListLicencesQuery, ListLicencesQueryVariables>): Apollo.UseSuspenseQueryResult<ListLicencesQuery | undefined, ListLicencesQueryVariables>;
+export function useListLicencesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListLicencesQuery, ListLicencesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListLicencesQuery, ListLicencesQueryVariables>(ListLicencesDocument, options);
+        }
+export type ListLicencesQueryHookResult = ReturnType<typeof useListLicencesQuery>;
+export type ListLicencesLazyQueryHookResult = ReturnType<typeof useListLicencesLazyQuery>;
+export type ListLicencesSuspenseQueryHookResult = ReturnType<typeof useListLicencesSuspenseQuery>;
+export type ListLicencesQueryResult = Apollo.QueryResult<ListLicencesQuery, ListLicencesQueryVariables>;
+export const ListLicencesPagedDocument = gql`
+    query ListLicencesPaged($input: TableQueryInput!) {
+  listLicencesPaged(input: $input) {
+    rows {
+      ...LicenceFields
+    }
+    totalCount
+  }
+}
+    ${LicenceFieldsFragmentDoc}`;
+
+/**
+ * __useListLicencesPagedQuery__
+ *
+ * To run a query within a React component, call `useListLicencesPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListLicencesPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListLicencesPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListLicencesPagedQuery(baseOptions: Apollo.QueryHookOptions<ListLicencesPagedQuery, ListLicencesPagedQueryVariables> & ({ variables: ListLicencesPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListLicencesPagedQuery, ListLicencesPagedQueryVariables>(ListLicencesPagedDocument, options);
+      }
+export function useListLicencesPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListLicencesPagedQuery, ListLicencesPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListLicencesPagedQuery, ListLicencesPagedQueryVariables>(ListLicencesPagedDocument, options);
+        }
+// @ts-ignore
+export function useListLicencesPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListLicencesPagedQuery, ListLicencesPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListLicencesPagedQuery, ListLicencesPagedQueryVariables>;
+export function useListLicencesPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListLicencesPagedQuery, ListLicencesPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListLicencesPagedQuery | undefined, ListLicencesPagedQueryVariables>;
+export function useListLicencesPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListLicencesPagedQuery, ListLicencesPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListLicencesPagedQuery, ListLicencesPagedQueryVariables>(ListLicencesPagedDocument, options);
+        }
+export type ListLicencesPagedQueryHookResult = ReturnType<typeof useListLicencesPagedQuery>;
+export type ListLicencesPagedLazyQueryHookResult = ReturnType<typeof useListLicencesPagedLazyQuery>;
+export type ListLicencesPagedSuspenseQueryHookResult = ReturnType<typeof useListLicencesPagedSuspenseQuery>;
+export type ListLicencesPagedQueryResult = Apollo.QueryResult<ListLicencesPagedQuery, ListLicencesPagedQueryVariables>;
+export const ListLicencesStatsDocument = gql`
+    query ListLicencesStats {
+  listLicencesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListLicencesStatsQuery__
+ *
+ * To run a query within a React component, call `useListLicencesStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListLicencesStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListLicencesStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListLicencesStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListLicencesStatsQuery, ListLicencesStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListLicencesStatsQuery, ListLicencesStatsQueryVariables>(ListLicencesStatsDocument, options);
+      }
+export function useListLicencesStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListLicencesStatsQuery, ListLicencesStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListLicencesStatsQuery, ListLicencesStatsQueryVariables>(ListLicencesStatsDocument, options);
+        }
+// @ts-ignore
+export function useListLicencesStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListLicencesStatsQuery, ListLicencesStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListLicencesStatsQuery, ListLicencesStatsQueryVariables>;
+export function useListLicencesStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListLicencesStatsQuery, ListLicencesStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListLicencesStatsQuery | undefined, ListLicencesStatsQueryVariables>;
+export function useListLicencesStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListLicencesStatsQuery, ListLicencesStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListLicencesStatsQuery, ListLicencesStatsQueryVariables>(ListLicencesStatsDocument, options);
+        }
+export type ListLicencesStatsQueryHookResult = ReturnType<typeof useListLicencesStatsQuery>;
+export type ListLicencesStatsLazyQueryHookResult = ReturnType<typeof useListLicencesStatsLazyQuery>;
+export type ListLicencesStatsSuspenseQueryHookResult = ReturnType<typeof useListLicencesStatsSuspenseQuery>;
+export type ListLicencesStatsQueryResult = Apollo.QueryResult<ListLicencesStatsQuery, ListLicencesStatsQueryVariables>;
+export const CreateLicenceDocument = gql`
+    mutation CreateLicence($input: LicenceInput!) {
+  createLicence(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateLicenceMutationFn = Apollo.MutationFunction<CreateLicenceMutation, CreateLicenceMutationVariables>;
+
+/**
+ * __useCreateLicenceMutation__
+ *
+ * To run a mutation, you first call `useCreateLicenceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateLicenceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createLicenceMutation, { data, loading, error }] = useCreateLicenceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateLicenceMutation(baseOptions?: Apollo.MutationHookOptions<CreateLicenceMutation, CreateLicenceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateLicenceMutation, CreateLicenceMutationVariables>(CreateLicenceDocument, options);
+      }
+export type CreateLicenceMutationHookResult = ReturnType<typeof useCreateLicenceMutation>;
+export type CreateLicenceMutationResult = Apollo.MutationResult<CreateLicenceMutation>;
+export type CreateLicenceMutationOptions = Apollo.BaseMutationOptions<CreateLicenceMutation, CreateLicenceMutationVariables>;
+export const UpdateLicenceDocument = gql`
+    mutation UpdateLicence($id: ID!, $input: LicenceInput!) {
+  updateLicence(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateLicenceMutationFn = Apollo.MutationFunction<UpdateLicenceMutation, UpdateLicenceMutationVariables>;
+
+/**
+ * __useUpdateLicenceMutation__
+ *
+ * To run a mutation, you first call `useUpdateLicenceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateLicenceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateLicenceMutation, { data, loading, error }] = useUpdateLicenceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateLicenceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateLicenceMutation, UpdateLicenceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateLicenceMutation, UpdateLicenceMutationVariables>(UpdateLicenceDocument, options);
+      }
+export type UpdateLicenceMutationHookResult = ReturnType<typeof useUpdateLicenceMutation>;
+export type UpdateLicenceMutationResult = Apollo.MutationResult<UpdateLicenceMutation>;
+export type UpdateLicenceMutationOptions = Apollo.BaseMutationOptions<UpdateLicenceMutation, UpdateLicenceMutationVariables>;
+export const DeleteLicenceDocument = gql`
+    mutation DeleteLicence($id: ID!) {
+  deleteLicence(id: $id)
+}
+    `;
+export type DeleteLicenceMutationFn = Apollo.MutationFunction<DeleteLicenceMutation, DeleteLicenceMutationVariables>;
+
+/**
+ * __useDeleteLicenceMutation__
+ *
+ * To run a mutation, you first call `useDeleteLicenceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteLicenceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteLicenceMutation, { data, loading, error }] = useDeleteLicenceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteLicenceMutation(baseOptions?: Apollo.MutationHookOptions<DeleteLicenceMutation, DeleteLicenceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteLicenceMutation, DeleteLicenceMutationVariables>(DeleteLicenceDocument, options);
+      }
+export type DeleteLicenceMutationHookResult = ReturnType<typeof useDeleteLicenceMutation>;
+export type DeleteLicenceMutationResult = Apollo.MutationResult<DeleteLicenceMutation>;
+export type DeleteLicenceMutationOptions = Apollo.BaseMutationOptions<DeleteLicenceMutation, DeleteLicenceMutationVariables>;
 export const ListCampaignsDocument = gql`
     query ListCampaigns {
   listCampaigns {
@@ -20524,8 +21668,8 @@ export type DeleteCampaignMutationHookResult = ReturnType<typeof useDeleteCampai
 export type DeleteCampaignMutationResult = Apollo.MutationResult<DeleteCampaignMutation>;
 export type DeleteCampaignMutationOptions = Apollo.BaseMutationOptions<DeleteCampaignMutation, DeleteCampaignMutationVariables>;
 export const SendCampaignDocument = gql`
-    mutation SendCampaign($id: ID!, $clientIds: [ID!]!) {
-  sendCampaign(id: $id, clientIds: $clientIds) {
+    mutation SendCampaign($id: ID!, $audienceListId: ID!) {
+  sendCampaign(id: $id, audienceListId: $audienceListId) {
     sent
     failed
     campaign {
@@ -20552,7 +21696,7 @@ export type SendCampaignMutationFn = Apollo.MutationFunction<SendCampaignMutatio
  * const [sendCampaignMutation, { data, loading, error }] = useSendCampaignMutation({
  *   variables: {
  *      id: // value for 'id'
- *      clientIds: // value for 'clientIds'
+ *      audienceListId: // value for 'audienceListId'
  *   },
  * });
  */
@@ -20563,6 +21707,240 @@ export function useSendCampaignMutation(baseOptions?: Apollo.MutationHookOptions
 export type SendCampaignMutationHookResult = ReturnType<typeof useSendCampaignMutation>;
 export type SendCampaignMutationResult = Apollo.MutationResult<SendCampaignMutation>;
 export type SendCampaignMutationOptions = Apollo.BaseMutationOptions<SendCampaignMutation, SendCampaignMutationVariables>;
+export const ListAudienceListsDocument = gql`
+    query ListAudienceLists {
+  listAudienceLists {
+    ...AudienceListFields
+  }
+}
+    ${AudienceListFieldsFragmentDoc}`;
+
+/**
+ * __useListAudienceListsQuery__
+ *
+ * To run a query within a React component, call `useListAudienceListsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAudienceListsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAudienceListsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListAudienceListsQuery(baseOptions?: Apollo.QueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListAudienceListsQuery, ListAudienceListsQueryVariables>(ListAudienceListsDocument, options);
+      }
+export function useListAudienceListsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListAudienceListsQuery, ListAudienceListsQueryVariables>(ListAudienceListsDocument, options);
+        }
+// @ts-ignore
+export function useListAudienceListsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>): Apollo.UseSuspenseQueryResult<ListAudienceListsQuery, ListAudienceListsQueryVariables>;
+export function useListAudienceListsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>): Apollo.UseSuspenseQueryResult<ListAudienceListsQuery | undefined, ListAudienceListsQueryVariables>;
+export function useListAudienceListsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAudienceListsQuery, ListAudienceListsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListAudienceListsQuery, ListAudienceListsQueryVariables>(ListAudienceListsDocument, options);
+        }
+export type ListAudienceListsQueryHookResult = ReturnType<typeof useListAudienceListsQuery>;
+export type ListAudienceListsLazyQueryHookResult = ReturnType<typeof useListAudienceListsLazyQuery>;
+export type ListAudienceListsSuspenseQueryHookResult = ReturnType<typeof useListAudienceListsSuspenseQuery>;
+export type ListAudienceListsQueryResult = Apollo.QueryResult<ListAudienceListsQuery, ListAudienceListsQueryVariables>;
+export const ListAudienceListsPagedDocument = gql`
+    query ListAudienceListsPaged($input: TableQueryInput!) {
+  listAudienceListsPaged(input: $input) {
+    totalCount
+    rows {
+      ...AudienceListFields
+    }
+  }
+}
+    ${AudienceListFieldsFragmentDoc}`;
+
+/**
+ * __useListAudienceListsPagedQuery__
+ *
+ * To run a query within a React component, call `useListAudienceListsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAudienceListsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAudienceListsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListAudienceListsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables> & ({ variables: ListAudienceListsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>(ListAudienceListsPagedDocument, options);
+      }
+export function useListAudienceListsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>(ListAudienceListsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListAudienceListsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>;
+export function useListAudienceListsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListAudienceListsPagedQuery | undefined, ListAudienceListsPagedQueryVariables>;
+export function useListAudienceListsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>(ListAudienceListsPagedDocument, options);
+        }
+export type ListAudienceListsPagedQueryHookResult = ReturnType<typeof useListAudienceListsPagedQuery>;
+export type ListAudienceListsPagedLazyQueryHookResult = ReturnType<typeof useListAudienceListsPagedLazyQuery>;
+export type ListAudienceListsPagedSuspenseQueryHookResult = ReturnType<typeof useListAudienceListsPagedSuspenseQuery>;
+export type ListAudienceListsPagedQueryResult = Apollo.QueryResult<ListAudienceListsPagedQuery, ListAudienceListsPagedQueryVariables>;
+export const CreateAudienceListDocument = gql`
+    mutation CreateAudienceList($input: AudienceListInput!) {
+  createAudienceList(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateAudienceListMutationFn = Apollo.MutationFunction<CreateAudienceListMutation, CreateAudienceListMutationVariables>;
+
+/**
+ * __useCreateAudienceListMutation__
+ *
+ * To run a mutation, you first call `useCreateAudienceListMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAudienceListMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAudienceListMutation, { data, loading, error }] = useCreateAudienceListMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateAudienceListMutation(baseOptions?: Apollo.MutationHookOptions<CreateAudienceListMutation, CreateAudienceListMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateAudienceListMutation, CreateAudienceListMutationVariables>(CreateAudienceListDocument, options);
+      }
+export type CreateAudienceListMutationHookResult = ReturnType<typeof useCreateAudienceListMutation>;
+export type CreateAudienceListMutationResult = Apollo.MutationResult<CreateAudienceListMutation>;
+export type CreateAudienceListMutationOptions = Apollo.BaseMutationOptions<CreateAudienceListMutation, CreateAudienceListMutationVariables>;
+export const UpdateAudienceListDocument = gql`
+    mutation UpdateAudienceList($id: ID!, $input: AudienceListInput!) {
+  updateAudienceList(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateAudienceListMutationFn = Apollo.MutationFunction<UpdateAudienceListMutation, UpdateAudienceListMutationVariables>;
+
+/**
+ * __useUpdateAudienceListMutation__
+ *
+ * To run a mutation, you first call `useUpdateAudienceListMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAudienceListMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAudienceListMutation, { data, loading, error }] = useUpdateAudienceListMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAudienceListMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAudienceListMutation, UpdateAudienceListMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAudienceListMutation, UpdateAudienceListMutationVariables>(UpdateAudienceListDocument, options);
+      }
+export type UpdateAudienceListMutationHookResult = ReturnType<typeof useUpdateAudienceListMutation>;
+export type UpdateAudienceListMutationResult = Apollo.MutationResult<UpdateAudienceListMutation>;
+export type UpdateAudienceListMutationOptions = Apollo.BaseMutationOptions<UpdateAudienceListMutation, UpdateAudienceListMutationVariables>;
+export const DeleteAudienceListDocument = gql`
+    mutation DeleteAudienceList($id: ID!) {
+  deleteAudienceList(id: $id)
+}
+    `;
+export type DeleteAudienceListMutationFn = Apollo.MutationFunction<DeleteAudienceListMutation, DeleteAudienceListMutationVariables>;
+
+/**
+ * __useDeleteAudienceListMutation__
+ *
+ * To run a mutation, you first call `useDeleteAudienceListMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAudienceListMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAudienceListMutation, { data, loading, error }] = useDeleteAudienceListMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteAudienceListMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAudienceListMutation, DeleteAudienceListMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAudienceListMutation, DeleteAudienceListMutationVariables>(DeleteAudienceListDocument, options);
+      }
+export type DeleteAudienceListMutationHookResult = ReturnType<typeof useDeleteAudienceListMutation>;
+export type DeleteAudienceListMutationResult = Apollo.MutationResult<DeleteAudienceListMutation>;
+export type DeleteAudienceListMutationOptions = Apollo.BaseMutationOptions<DeleteAudienceListMutation, DeleteAudienceListMutationVariables>;
+export const ListCampaignSendsDocument = gql`
+    query ListCampaignSends($campaignId: ID!) {
+  listCampaignSends(campaignId: $campaignId) {
+    id
+    to
+    recipientName
+    status
+    error
+    sentAt
+  }
+}
+    `;
+
+/**
+ * __useListCampaignSendsQuery__
+ *
+ * To run a query within a React component, call `useListCampaignSendsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCampaignSendsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCampaignSendsQuery({
+ *   variables: {
+ *      campaignId: // value for 'campaignId'
+ *   },
+ * });
+ */
+export function useListCampaignSendsQuery(baseOptions: Apollo.QueryHookOptions<ListCampaignSendsQuery, ListCampaignSendsQueryVariables> & ({ variables: ListCampaignSendsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListCampaignSendsQuery, ListCampaignSendsQueryVariables>(ListCampaignSendsDocument, options);
+      }
+export function useListCampaignSendsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListCampaignSendsQuery, ListCampaignSendsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListCampaignSendsQuery, ListCampaignSendsQueryVariables>(ListCampaignSendsDocument, options);
+        }
+// @ts-ignore
+export function useListCampaignSendsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListCampaignSendsQuery, ListCampaignSendsQueryVariables>): Apollo.UseSuspenseQueryResult<ListCampaignSendsQuery, ListCampaignSendsQueryVariables>;
+export function useListCampaignSendsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCampaignSendsQuery, ListCampaignSendsQueryVariables>): Apollo.UseSuspenseQueryResult<ListCampaignSendsQuery | undefined, ListCampaignSendsQueryVariables>;
+export function useListCampaignSendsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCampaignSendsQuery, ListCampaignSendsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListCampaignSendsQuery, ListCampaignSendsQueryVariables>(ListCampaignSendsDocument, options);
+        }
+export type ListCampaignSendsQueryHookResult = ReturnType<typeof useListCampaignSendsQuery>;
+export type ListCampaignSendsLazyQueryHookResult = ReturnType<typeof useListCampaignSendsLazyQuery>;
+export type ListCampaignSendsSuspenseQueryHookResult = ReturnType<typeof useListCampaignSendsSuspenseQuery>;
+export type ListCampaignSendsQueryResult = Apollo.QueryResult<ListCampaignSendsQuery, ListCampaignSendsQueryVariables>;
 export const ListLocationsPagedDocument = gql`
     query ListLocationsPaged($input: TableQueryInput!) {
   listLocationsPaged(input: $input) {
@@ -26615,6 +27993,60 @@ export function useUpdateTrackerSettingsMutation(baseOptions?: Apollo.MutationHo
 export type UpdateTrackerSettingsMutationHookResult = ReturnType<typeof useUpdateTrackerSettingsMutation>;
 export type UpdateTrackerSettingsMutationResult = Apollo.MutationResult<UpdateTrackerSettingsMutation>;
 export type UpdateTrackerSettingsMutationOptions = Apollo.BaseMutationOptions<UpdateTrackerSettingsMutation, UpdateTrackerSettingsMutationVariables>;
+export const TrackerLatestReleaseDocument = gql`
+    query TrackerLatestRelease {
+  trackerLatestRelease {
+    version
+    tag
+    name
+    notes
+    url
+    publishedAt
+    assets {
+      name
+      platform
+      sizeBytes
+      downloadCount
+      url
+    }
+  }
+}
+    `;
+
+/**
+ * __useTrackerLatestReleaseQuery__
+ *
+ * To run a query within a React component, call `useTrackerLatestReleaseQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerLatestReleaseQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerLatestReleaseQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTrackerLatestReleaseQuery(baseOptions?: Apollo.QueryHookOptions<TrackerLatestReleaseQuery, TrackerLatestReleaseQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TrackerLatestReleaseQuery, TrackerLatestReleaseQueryVariables>(TrackerLatestReleaseDocument, options);
+      }
+export function useTrackerLatestReleaseLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TrackerLatestReleaseQuery, TrackerLatestReleaseQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TrackerLatestReleaseQuery, TrackerLatestReleaseQueryVariables>(TrackerLatestReleaseDocument, options);
+        }
+// @ts-ignore
+export function useTrackerLatestReleaseSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TrackerLatestReleaseQuery, TrackerLatestReleaseQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerLatestReleaseQuery, TrackerLatestReleaseQueryVariables>;
+export function useTrackerLatestReleaseSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerLatestReleaseQuery, TrackerLatestReleaseQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerLatestReleaseQuery | undefined, TrackerLatestReleaseQueryVariables>;
+export function useTrackerLatestReleaseSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerLatestReleaseQuery, TrackerLatestReleaseQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TrackerLatestReleaseQuery, TrackerLatestReleaseQueryVariables>(TrackerLatestReleaseDocument, options);
+        }
+export type TrackerLatestReleaseQueryHookResult = ReturnType<typeof useTrackerLatestReleaseQuery>;
+export type TrackerLatestReleaseLazyQueryHookResult = ReturnType<typeof useTrackerLatestReleaseLazyQuery>;
+export type TrackerLatestReleaseSuspenseQueryHookResult = ReturnType<typeof useTrackerLatestReleaseSuspenseQuery>;
+export type TrackerLatestReleaseQueryResult = Apollo.QueryResult<TrackerLatestReleaseQuery, TrackerLatestReleaseQueryVariables>;
 export const ListBlogPostsDocument = gql`
     query ListBlogPosts {
   listBlogPosts {

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   Box,
   Collapse,
@@ -11,6 +13,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import type { DocNode } from './doc-tree';
 
 interface DocTreeProps {
@@ -25,6 +28,9 @@ interface DocTreeProps {
  * The page tree beside a space, the way a wiki reads: a page, the pages filed under it, and
  * a `+` on each row that files a new page under that one. Branches start expanded — a tree
  * that hides where you were is a tree you navigate twice.
+ *
+ * Rows drag: onto a sibling to reorder, onto a page elsewhere to file it under that page.
+ * The grip drags, not the row, so a click still opens the page.
  */
 export function DocTree({
   nodes,
@@ -57,20 +63,42 @@ interface DocTreeRowProps {
   onAddChild: (parentId: string) => void;
 }
 
-/** One row of the tree: its own disclosure, its title, and its "add child" button. */
+/** One row of the tree: its grip, its disclosure, its title, and its "add child" button. */
 function DocTreeRow({ node, depth, selectedId, onSelect, onAddChild }: Readonly<DocTreeRowProps>) {
   const [open, setOpen] = useState(true);
   const hasChildren = node.children.length > 0;
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } =
+    useSortable({ id: node.page.id, data: { type: 'doc-page' } });
 
   return (
-    <Box>
+    <Box
+      ref={setNodeRef}
+      sx={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.4 : 1,
+        borderRadius: 1,
+        outline: isOver && !isDragging ? '2px solid' : 'none',
+        outlineColor: 'primary.main',
+      }}
+    >
       <Flex direction="row" alignItems="center">
+        <IconButton
+          size="small"
+          aria-label={`Move ${node.page.title}`}
+          sx={{ cursor: 'grab', ml: depth * 1.5 }}
+          {...attributes}
+          {...listeners}
+        >
+          <DragIndicatorIcon fontSize="small" />
+        </IconButton>
+
         <IconButton
           size="small"
           aria-label={open ? `Collapse ${node.page.title}` : `Expand ${node.page.title}`}
           disabled={!hasChildren}
           onClick={() => setOpen((was) => !was)}
-          sx={{ ml: depth * 1.5, visibility: hasChildren ? 'visible' : 'hidden' }}
+          sx={{ visibility: hasChildren ? 'visible' : 'hidden' }}
         >
           {open ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
         </IconButton>

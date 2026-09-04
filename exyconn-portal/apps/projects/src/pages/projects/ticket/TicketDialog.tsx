@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Box,
   Chip,
@@ -7,6 +8,8 @@ import {
   Divider,
   Flex,
   IconButton,
+  Tab,
+  Tabs,
   Text,
 } from '@exyconn/shell/components/ui';
 import CloseIcon from '@mui/icons-material/Close';
@@ -18,7 +21,11 @@ import { TicketForm, type TicketRow } from '../forms/ticket';
 import { TICKET_PRIORITIES, TICKET_TYPES } from './ticket-meta';
 import { TicketFacetIcon } from './TicketFacetIcon';
 import { TicketComments } from './TicketComments';
+import { TicketActivity } from './TicketActivity';
 import { useTicket } from './useTicket';
+
+/** The two ways to read what has happened to a ticket. */
+type TicketTrail = 'comments' | 'history';
 
 interface TicketDialogProps {
   ticket: TicketRow | null;
@@ -34,6 +41,7 @@ interface TicketDialogProps {
  */
 export function TicketDialog({ ticket, onClose, onChanged }: Readonly<TicketDialogProps>) {
   const confirm = useConfirm();
+  const [trail, setTrail] = useState<TicketTrail>('comments');
   const { formatDateTime } = useSettings();
   const { data: memberData } = useListProjectMembersQuery();
   const { save, remove } = useTicket(onChanged);
@@ -89,7 +97,22 @@ export function TicketDialog({ ticket, onClose, onChanged }: Readonly<TicketDial
       <DialogContent dividers>
         <TicketForm initial={ticket} assignees={assignees} onSubmit={submit} onCancel={onClose} />
         <Divider sx={{ my: 3 }} />
-        <TicketComments taskId={ticket.id} />
+
+        <Tabs
+          value={trail}
+          onChange={(_event, next: TicketTrail) => setTrail(next)}
+          aria-label="Ticket conversation and history"
+          sx={{ mb: 2 }}
+        >
+          <Tab value="comments" label="Comments" />
+          <Tab value="history" label="History" />
+        </Tabs>
+
+        {trail === 'comments' ? (
+          <TicketComments taskId={ticket.id} />
+        ) : (
+          <TicketActivity taskId={ticket.id} />
+        )}
       </DialogContent>
     </Dialog>
   );

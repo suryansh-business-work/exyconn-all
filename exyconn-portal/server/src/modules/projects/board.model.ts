@@ -58,9 +58,30 @@ const taskCommentSchema = new Schema(
   { timestamps: true },
 );
 
+/**
+ * One recorded change to a ticket — who changed what, from what, to what.
+ *
+ * Values are stored as short display strings rather than as ids: the trail is read, never
+ * queried, and a name that was right at the time is more use than an id that has to be
+ * resolved (and may since have been deleted) every time the history is opened.
+ */
+const taskActivitySchema = new Schema(
+  {
+    taskId: { type: Schema.Types.ObjectId, ref: 'Task', required: true, index: true },
+    actorId: { type: String, required: true },
+    actorName: { type: String, required: true },
+    /** What changed: a ticket field name, `column`, or `created`. */
+    field: { type: String, required: true },
+    fromValue: { type: String, default: '' },
+    toValue: { type: String, default: '' },
+  },
+  { timestamps: true },
+);
+
 export type BoardColumnDocument = InferSchemaType<typeof boardColumnSchema>;
 export type TaskDocument = InferSchemaType<typeof taskSchema>;
 export type TaskCommentDocument = InferSchemaType<typeof taskCommentSchema>;
+export type TaskActivityDocument = InferSchemaType<typeof taskActivitySchema>;
 
 export const BoardColumnModel: Model<BoardColumnDocument> = model<BoardColumnDocument>(
   'BoardColumn',
@@ -70,6 +91,11 @@ export const TaskModel: Model<TaskDocument> = model<TaskDocument>('Task', taskSc
 export const TaskCommentModel: Model<TaskCommentDocument> = model<TaskCommentDocument>(
   'TaskComment',
   taskCommentSchema,
+);
+
+export const TaskActivityModel: Model<TaskActivityDocument> = model<TaskActivityDocument>(
+  'TaskActivity',
+  taskActivitySchema,
 );
 
 export { Types };

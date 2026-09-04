@@ -66,6 +66,18 @@ export const boardTypeDefs = gql`
     createdAt: DateTime!
   }
 
+  "One recorded change to a ticket: who changed what, from what, to what."
+  type TaskActivity {
+    id: ID!
+    taskId: ID!
+    actorName: String!
+    "The field that changed: a ticket field name, or column, or created."
+    field: String!
+    fromValue: String!
+    toValue: String!
+    createdAt: DateTime!
+  }
+
   "Somebody a ticket can be assigned to."
   type ProjectMember {
     id: ID!
@@ -83,6 +95,8 @@ export const boardTypeDefs = gql`
     "Every ticket in a project, newest first — the list view behind the board."
     projectTasks(projectId: ID!): [Task!]!
     taskComments(taskId: ID!): [TaskComment!]!
+    "The ticket's history, newest first."
+    taskActivity(taskId: ID!): [TaskActivity!]!
     "Who tickets can be assigned to: everyone who can open this module."
     listProjectMembers: [ProjectMember!]!
   }

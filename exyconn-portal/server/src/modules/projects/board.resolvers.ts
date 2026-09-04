@@ -10,10 +10,11 @@ const guard = (ctx: GraphQLContext) => assertRole(ctx, [ROLES.PROJECTS]);
 
 type WithId = { _id: unknown };
 type TaskShape = WithId & { columnId: { toString(): string } };
-type CommentShape = WithId & { taskId: { toString(): string } };
+type TaskChildShape = WithId & { taskId: { toString(): string } };
 
 /**
- * Tickets and comments carry ObjectId references that must be strings for a GraphQL ID.
+ * Tickets, and the comments and history hanging off them, carry ObjectId references that
+ * must be strings for a GraphQL ID.
  * Generic so the document's own fields survive: a serializer that narrowed its result to the
  * ids would hide every ticket field from the callers that read them.
  */
@@ -22,7 +23,7 @@ const serializeTask = <T extends TaskShape>(t: T) => ({
   columnId: t.columnId.toString(),
 });
 const serializeTasks = <T extends TaskShape>(tasks: T[]) => tasks.map((t) => serializeTask(t));
-const serializeComment = <T extends CommentShape>(c: T) => ({
+const serializeTaskChild = <T extends TaskChildShape>(c: T) => ({
   ...withId(c),
   taskId: c.taskId.toString(),
 });
@@ -70,7 +71,11 @@ export const boardResolvers = {
     },
     taskComments: async (_p: unknown, { taskId }: { taskId: string }, ctx: GraphQLContext) => {
       guard(ctx);
-      return (await boardService.comments(taskId)).map((c) => serializeComment(c));
+      return (await boardService.comments(taskId)).map((c) => serializeTaskChild(c));
+    },
+    taskActivity: async (_p: unknown, { taskId }: { taskId: string }, ctx: GraphQLContext) => {
+      guard(ctx);
+      return (await boardService.activity(taskId)).map((entry) => serializeTaskChild(entry));
     },
     listProjectMembers: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       guard(ctx);
@@ -135,8 +140,11 @@ export const boardResolvers = {
       ctx: GraphQLContext,
     ) => {
       guard(ctx);
-      const assigneeName = await assigneeNameOf(input.assigneeId);
-      return serializeTask(await boardService.updateTask(id, input, assigneeName));
+      const [actor, assigneeName] = await Promise.all([
+        actorOf(ctx),
+        assigneeNameOf(input.assigneeId),
+      ]);
+      return serializeTask(await boardService.updateTask(id, input, assigneeName, actor));
     },
     deleteTask: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       guard(ctx);
@@ -148,7 +156,7 @@ export const boardResolvers = {
       ctx: GraphQLContext,
     ) => {
       guard(ctx);
-      return boardService.moveTask(id, toColumnId, toIndex);
+      return boardService.moveTask(id, toColumnId, toIndex, await actorOf(ctx));
     },
     addTaskComment: async (
       _p: unknown,
@@ -157,7 +165,7 @@ export const boardResolvers = {
     ) => {
       guard(ctx);
       const author = await actorOf(ctx);
-      return serializeComment(await boardService.addComment(taskId, body, author));
+      return serializeTaskChild(await boardService.addComment(taskId, body, author));
     },
     deleteTaskComment: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       guard(ctx);

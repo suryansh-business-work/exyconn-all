@@ -4,9 +4,10 @@ import {
   useCreateDocPageMutation,
   useUpdateDocPageMutation,
   useDeleteDocPageMutation,
+  useMoveDocPageMutation,
 } from '@exyconn/shell/graphql/generated';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
-import { buildDocTree, trailOf } from './doc-tree';
+import { buildDocTree, dropTarget, trailOf } from './doc-tree';
 
 /** A new page needs a name before it exists; this is the one it is born with. */
 const NEW_PAGE_TITLE = 'Untitled page';
@@ -25,6 +26,7 @@ export function useProjectDocs(projectId: string) {
   const [createPage] = useCreateDocPageMutation();
   const [updatePage] = useUpdateDocPageMutation();
   const [deletePage] = useDeleteDocPageMutation();
+  const [movePage] = useMoveDocPageMutation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const pages = useMemo(() => data?.projectDocPages ?? [], [data]);
@@ -79,6 +81,26 @@ export function useProjectDocs(projectId: string) {
     [deletePage, refetch, fail],
   );
 
+  /**
+   * Drops a dragged page on another one. The rule lives in `dropTarget`; a drop that would
+   * put a page inside its own branch is refused there and simply does nothing here.
+   */
+  const reorderPage = useCallback(
+    async (draggedId: string, overId: string) => {
+      const target = dropTarget(pages, draggedId, overId);
+      if (!target) {
+        return;
+      }
+      try {
+        await movePage({ variables: { id: draggedId, ...target } });
+        await refetch();
+      } catch (error) {
+        fail(error);
+      }
+    },
+    [pages, movePage, refetch, fail],
+  );
+
   return {
     loading,
     pages,
@@ -89,5 +111,6 @@ export function useProjectDocs(projectId: string) {
     addPage,
     savePage,
     removePage,
+    reorderPage,
   };
 }
