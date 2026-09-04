@@ -24,8 +24,9 @@ const BOARD_ACTION: RowActionSpec = {
   color: 'primary',
 };
 
-/** Column model for the server-side Projects grid. Name/Description hit the server filter. */
+/** Column model for the server-side Projects grid. Key/Name/Description hit the server filter. */
 export const PROJECT_COLUMNS: ColDef<PagedProjectRow>[] = [
+  textColumn('key', 'Key'),
   textColumn('name', 'Name'),
   statusColumn('status', 'Status'),
   dateColumn('startDate', 'Start', '—'),

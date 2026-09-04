@@ -902,6 +902,22 @@ export type DepartmentInput = {
   name: Scalars['String']['input'];
 };
 
+/** One page of a project's documentation. Pages nest through parentId. */
+export type DocPage = {
+  __typename?: 'DocPage';
+  /** Rich text (HTML). Empty until somebody writes the page. */
+  body: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  order: Scalars['Int']['output'];
+  /** Null for a top-level page; the parent's id for a page filed under another. */
+  parentId?: Maybe<Scalars['ID']['output']>;
+  projectId: Scalars['ID']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  updatedByName: Scalars['String']['output'];
+};
+
 export enum DocumentCategory {
   Compliance = 'COMPLIANCE',
   Contract = 'CONTRACT',
@@ -1902,6 +1918,7 @@ export type Mutation = {
   acknowledgePolicy: PolicyAcknowledgement;
   /** SUPPORT/ADMIN: reply on a ticket, or leave an internal note. */
   addSupportReply: SupportReply;
+  addTaskComment: TaskComment;
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
   archivePolicy: Policy;
@@ -1926,6 +1943,7 @@ export type Mutation = {
   createContract: Contract;
   createDeal: Deal;
   createDepartment: Department;
+  createDocPage: DocPage;
   createEmailConfig: EmailConfig;
   createEmailFragment: EmailFragment;
   createEmailTemplate: EmailTemplate;
@@ -2001,6 +2019,8 @@ export type Mutation = {
   deleteContract: Scalars['Boolean']['output'];
   deleteDeal: Scalars['Boolean']['output'];
   deleteDepartment: Scalars['Boolean']['output'];
+  /** Deletes the page and everything filed under it. */
+  deleteDocPage: Scalars['Boolean']['output'];
   deleteEmailConfig: Scalars['Boolean']['output'];
   deleteEmailFragment: Scalars['Boolean']['output'];
   deleteEmailTemplate: Scalars['Boolean']['output'];
@@ -2040,6 +2060,7 @@ export type Mutation = {
   deleteStatusMonitor: Scalars['Boolean']['output'];
   deleteSupplier: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
+  deleteTaskComment: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
   deleteToolCategory: Scalars['Boolean']['output'];
@@ -2056,6 +2077,8 @@ export type Mutation = {
   markNotificationRead: Scalars['Boolean']['output'];
   /** Marks every GENERATED slip of the month PAID. Returns how many changed. */
   markPayrollPaid: Scalars['Int']['output'];
+  /** Re-files a page under a new parent (null for top level) at a given position. */
+  moveDocPage: Scalars['Boolean']['output'];
   moveTask: Scalars['Boolean']['output'];
   /**
    * Publishes a policy. raiseVersion asks everybody who already signed to sign again,
@@ -2158,6 +2181,7 @@ export type Mutation = {
   updateContract: Contract;
   updateDeal: Deal;
   updateDepartment: Department;
+  updateDocPage: DocPage;
   updateEmailConfig: EmailConfig;
   updateEmailFragment: EmailFragment;
   updateEmailTemplate: EmailTemplate;
@@ -2227,6 +2251,12 @@ export type MutationAddSupportReplyArgs = {
   body: Scalars['String']['input'];
   internal: Scalars['Boolean']['input'];
   ticketId: Scalars['ID']['input'];
+};
+
+
+export type MutationAddTaskCommentArgs = {
+  body: Scalars['String']['input'];
+  taskId: Scalars['ID']['input'];
 };
 
 
@@ -2341,6 +2371,13 @@ export type MutationCreateDealArgs = {
 
 export type MutationCreateDepartmentArgs = {
   input: DepartmentInput;
+};
+
+
+export type MutationCreateDocPageArgs = {
+  parentId?: InputMaybe<Scalars['ID']['input']>;
+  projectId: Scalars['ID']['input'];
+  title: Scalars['String']['input'];
 };
 
 
@@ -2551,9 +2588,8 @@ export type MutationCreateSupportTicketArgs = {
 
 export type MutationCreateTaskArgs = {
   columnId: Scalars['ID']['input'];
-  description?: InputMaybe<Scalars['String']['input']>;
+  input: TaskInput;
   projectId: Scalars['ID']['input'];
-  title: Scalars['String']['input'];
 };
 
 
@@ -2668,6 +2704,11 @@ export type MutationDeleteDealArgs = {
 
 
 export type MutationDeleteDepartmentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteDocPageArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2867,6 +2908,11 @@ export type MutationDeleteTaskArgs = {
 };
 
 
+export type MutationDeleteTaskCommentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteTeamArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2927,6 +2973,13 @@ export type MutationMarkNotificationReadArgs = {
 export type MutationMarkPayrollPaidArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
+};
+
+
+export type MutationMoveDocPageArgs = {
+  id: Scalars['ID']['input'];
+  parentId?: InputMaybe<Scalars['ID']['input']>;
+  toIndex: Scalars['Int']['input'];
 };
 
 
@@ -3263,6 +3316,13 @@ export type MutationUpdateDepartmentArgs = {
 };
 
 
+export type MutationUpdateDocPageArgs = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type MutationUpdateEmailConfigArgs = {
   id: Scalars['ID']['input'];
   input: EmailConfigInput;
@@ -3514,9 +3574,8 @@ export type MutationUpdateSupplierArgs = {
 
 
 export type MutationUpdateTaskArgs = {
-  description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
-  title?: InputMaybe<Scalars['String']['input']>;
+  input: TaskInput;
 };
 
 
@@ -4007,6 +4066,8 @@ export type Project = {
   description?: Maybe<Scalars['String']['output']>;
   endDate?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
+  /** The prefix every ticket key carries, e.g. EXY in EXY-14. Derived from the name. */
+  key: Scalars['String']['output'];
   name: Scalars['String']['output'];
   startDate?: Maybe<Scalars['DateTime']['output']>;
   status: ProjectStatus;
@@ -4025,6 +4086,14 @@ export type ProjectInput = {
   name: Scalars['String']['input'];
   startDate?: InputMaybe<Scalars['DateTime']['input']>;
   status: ProjectStatus;
+};
+
+/** Somebody a ticket can be assigned to. */
+export type ProjectMember = {
+  __typename?: 'ProjectMember';
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type ProjectPage = {
@@ -4107,6 +4176,7 @@ export type Query = {
    * fall on, as the caller sends them.
    */
   companyFinance: CompanyFinance;
+  docPage: DocPage;
   emailDashboard: EmailDashboard;
   getActivity: Activity;
   getAiJob: AiJob;
@@ -4305,6 +4375,8 @@ export type Query = {
   listProducts: Array<Product>;
   listProductsPaged: ProductPage;
   listProductsStats: TableStats;
+  /** Who tickets can be assigned to: everyone who can open this module. */
+  listProjectMembers: Array<ProjectMember>;
   listProjects: Array<Project>;
   listProjectsPaged: ProjectPage;
   listProjectsStats: TableStats;
@@ -4392,6 +4464,10 @@ export type Query = {
   /** Renders a stored template with the values given, through the very code that sends it. */
   previewEmailTemplate: EmailPreview;
   projectBoard: ProjectBoard;
+  /** Every page in a project's space, flat. The sidebar builds the tree from parentId. */
+  projectDocPages: Array<DocPage>;
+  /** Every ticket in a project, newest first — the list view behind the board. */
+  projectTasks: Array<Task>;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
   publicBranding: Branding;
@@ -4416,6 +4492,7 @@ export type Query = {
   searchPexelsVideos: Array<PexelsMedia>;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
   statusOverview: StatusOverview;
+  taskComments: Array<TaskComment>;
   trackerAccessList: Array<TrackerAccess>;
   trackerBuildSettings: TrackerBuildSettings;
   trackerCalendar: Array<TrackerDayBucket>;
@@ -4435,6 +4512,11 @@ export type QueryAttendanceByEmployeeArgs = {
 export type QueryCompanyFinanceArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryDocPageArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -5028,6 +5110,16 @@ export type QueryProjectBoardArgs = {
 };
 
 
+export type QueryProjectDocPagesArgs = {
+  projectId: Scalars['ID']['input'];
+};
+
+
+export type QueryProjectTasksArgs = {
+  projectId: Scalars['ID']['input'];
+};
+
+
 export type QueryPublicBlogPostArgs = {
   slug: Scalars['String']['input'];
 };
@@ -5087,6 +5179,11 @@ export type QuerySearchPexelsVideosArgs = {
 
 export type QueryStatusOverviewArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryTaskCommentsArgs = {
+  taskId: Scalars['ID']['input'];
 };
 
 
@@ -5627,14 +5724,66 @@ export type TableStats = {
   total: Scalars['Int']['output'];
 };
 
+/** One ticket on a project board. */
 export type Task = {
   __typename?: 'Task';
+  assigneeId: Scalars['String']['output'];
+  assigneeName: Scalars['String']['output'];
   columnId: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** Rich text (HTML) written in the ticket editor. */
   description?: Maybe<Scalars['String']['output']>;
+  dueDate?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
+  /** The ticket's human handle, e.g. EXY-14. Fixed for the life of the ticket. */
+  key: Scalars['String']['output'];
+  labels: Array<Scalars['String']['output']>;
   order: Scalars['Int']['output'];
+  priority: TaskPriority;
+  reporterName: Scalars['String']['output'];
+  /** Estimate in points. Null means nobody has sized it, which is not the same as zero. */
+  storyPoints?: Maybe<Scalars['Int']['output']>;
   title: Scalars['String']['output'];
+  type: TaskType;
+  updatedAt: Scalars['DateTime']['output'];
 };
+
+export type TaskComment = {
+  __typename?: 'TaskComment';
+  authorId: Scalars['String']['output'];
+  authorName: Scalars['String']['output'];
+  body: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  taskId: Scalars['ID']['output'];
+};
+
+/** Everything a ticket carries that a person can edit. Only the title is required. */
+export type TaskInput = {
+  assigneeId?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>;
+  labels?: InputMaybe<Array<Scalars['String']['input']>>;
+  priority?: InputMaybe<TaskPriority>;
+  storyPoints?: InputMaybe<Scalars['Int']['input']>;
+  title: Scalars['String']['input'];
+  type?: InputMaybe<TaskType>;
+};
+
+export enum TaskPriority {
+  High = 'HIGH',
+  Highest = 'HIGHEST',
+  Low = 'LOW',
+  Lowest = 'LOWEST',
+  Medium = 'MEDIUM'
+}
+
+export enum TaskType {
+  Bug = 'BUG',
+  Epic = 'EPIC',
+  Story = 'STORY',
+  Task = 'TASK'
+}
 
 export type Team = {
   __typename?: 'Team';
@@ -6396,12 +6545,33 @@ export type SendAdminCredentialsMutationVariables = Exact<{ [key: string]: never
 
 export type SendAdminCredentialsMutation = { __typename?: 'Mutation', sendAdminCredentials: string };
 
+export type TaskFieldsFragment = { __typename?: 'Task', id: string, columnId: string, key: string, title: string, description?: string | null, type: TaskType, priority: TaskPriority, assigneeId: string, assigneeName: string, reporterName: string, labels: Array<string>, storyPoints?: number | null, dueDate?: string | null, order: number, createdAt: string, updatedAt: string };
+
 export type ProjectBoardQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
 }>;
 
 
-export type ProjectBoardQuery = { __typename?: 'Query', projectBoard: { __typename?: 'ProjectBoard', columns: Array<{ __typename?: 'BoardColumn', id: string, name: string, order: number }>, tasks: Array<{ __typename?: 'Task', id: string, columnId: string, title: string, description?: string | null, order: number }> } };
+export type ProjectBoardQuery = { __typename?: 'Query', projectBoard: { __typename?: 'ProjectBoard', columns: Array<{ __typename?: 'BoardColumn', id: string, name: string, order: number }>, tasks: Array<{ __typename?: 'Task', id: string, columnId: string, key: string, title: string, description?: string | null, type: TaskType, priority: TaskPriority, assigneeId: string, assigneeName: string, reporterName: string, labels: Array<string>, storyPoints?: number | null, dueDate?: string | null, order: number, createdAt: string, updatedAt: string }> } };
+
+export type ProjectTasksQueryVariables = Exact<{
+  projectId: Scalars['ID']['input'];
+}>;
+
+
+export type ProjectTasksQuery = { __typename?: 'Query', projectTasks: Array<{ __typename?: 'Task', id: string, columnId: string, key: string, title: string, description?: string | null, type: TaskType, priority: TaskPriority, assigneeId: string, assigneeName: string, reporterName: string, labels: Array<string>, storyPoints?: number | null, dueDate?: string | null, order: number, createdAt: string, updatedAt: string }> };
+
+export type TaskCommentsQueryVariables = Exact<{
+  taskId: Scalars['ID']['input'];
+}>;
+
+
+export type TaskCommentsQuery = { __typename?: 'Query', taskComments: Array<{ __typename?: 'TaskComment', id: string, authorId: string, authorName: string, body: string, createdAt: string }> };
+
+export type ListProjectMembersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListProjectMembersQuery = { __typename?: 'Query', listProjectMembers: Array<{ __typename?: 'ProjectMember', id: string, name: string, email: string }> };
 
 export type CreateColumnMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -6437,8 +6607,7 @@ export type ReorderColumnsMutation = { __typename?: 'Mutation', reorderColumns: 
 export type CreateTaskMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
   columnId: Scalars['ID']['input'];
-  title: Scalars['String']['input'];
-  description?: InputMaybe<Scalars['String']['input']>;
+  input: TaskInput;
 }>;
 
 
@@ -6446,8 +6615,7 @@ export type CreateTaskMutation = { __typename?: 'Mutation', createTask: { __type
 
 export type UpdateTaskMutationVariables = Exact<{
   id: Scalars['ID']['input'];
-  title?: InputMaybe<Scalars['String']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
+  input: TaskInput;
 }>;
 
 
@@ -6469,12 +6637,27 @@ export type MoveTaskMutationVariables = Exact<{
 
 export type MoveTaskMutation = { __typename?: 'Mutation', moveTask: boolean };
 
+export type AddTaskCommentMutationVariables = Exact<{
+  taskId: Scalars['ID']['input'];
+  body: Scalars['String']['input'];
+}>;
+
+
+export type AddTaskCommentMutation = { __typename?: 'Mutation', addTaskComment: { __typename?: 'TaskComment', id: string } };
+
+export type DeleteTaskCommentMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteTaskCommentMutation = { __typename?: 'Mutation', deleteTaskComment: boolean };
+
 export type GetProjectQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetProjectQuery = { __typename?: 'Query', getProject: { __typename?: 'Project', id: string, name: string, description?: string | null, status: ProjectStatus } };
+export type GetProjectQuery = { __typename?: 'Query', getProject: { __typename?: 'Project', id: string, name: string, key: string, description?: string | null, status: ProjectStatus } };
 
 export type BrandingFieldsFragment = { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> };
 
@@ -8310,17 +8493,67 @@ export type UploadAvatarMutationVariables = Exact<{
 
 export type UploadAvatarMutation = { __typename?: 'Mutation', uploadAvatar: string };
 
+export type DocPageFieldsFragment = { __typename?: 'DocPage', id: string, projectId: string, parentId?: string | null, title: string, order: number, updatedByName: string, updatedAt: string };
+
+export type ProjectDocPagesQueryVariables = Exact<{
+  projectId: Scalars['ID']['input'];
+}>;
+
+
+export type ProjectDocPagesQuery = { __typename?: 'Query', projectDocPages: Array<{ __typename?: 'DocPage', id: string, projectId: string, parentId?: string | null, title: string, order: number, updatedByName: string, updatedAt: string }> };
+
+export type DocPageQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DocPageQuery = { __typename?: 'Query', docPage: { __typename?: 'DocPage', body: string, id: string, projectId: string, parentId?: string | null, title: string, order: number, updatedByName: string, updatedAt: string } };
+
+export type CreateDocPageMutationVariables = Exact<{
+  projectId: Scalars['ID']['input'];
+  parentId?: InputMaybe<Scalars['ID']['input']>;
+  title: Scalars['String']['input'];
+}>;
+
+
+export type CreateDocPageMutation = { __typename?: 'Mutation', createDocPage: { __typename?: 'DocPage', id: string } };
+
+export type UpdateDocPageMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  body?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type UpdateDocPageMutation = { __typename?: 'Mutation', updateDocPage: { __typename?: 'DocPage', id: string } };
+
+export type DeleteDocPageMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteDocPageMutation = { __typename?: 'Mutation', deleteDocPage: boolean };
+
+export type MoveDocPageMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  parentId?: InputMaybe<Scalars['ID']['input']>;
+  toIndex: Scalars['Int']['input'];
+}>;
+
+
+export type MoveDocPageMutation = { __typename?: 'Mutation', moveDocPage: boolean };
+
 export type ListProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListProjectsQuery = { __typename?: 'Query', listProjects: Array<{ __typename?: 'Project', id: string, name: string, description?: string | null, status: ProjectStatus, startDate?: string | null, endDate?: string | null }> };
+export type ListProjectsQuery = { __typename?: 'Query', listProjects: Array<{ __typename?: 'Project', id: string, name: string, key: string, description?: string | null, status: ProjectStatus, startDate?: string | null, endDate?: string | null }> };
 
 export type ListProjectsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListProjectsPagedQuery = { __typename?: 'Query', listProjectsPaged: { __typename?: 'ProjectPage', totalCount: number, rows: Array<{ __typename?: 'Project', id: string, name: string, description?: string | null, status: ProjectStatus, startDate?: string | null, endDate?: string | null }> } };
+export type ListProjectsPagedQuery = { __typename?: 'Query', listProjectsPaged: { __typename?: 'ProjectPage', totalCount: number, rows: Array<{ __typename?: 'Project', id: string, name: string, key: string, description?: string | null, status: ProjectStatus, startDate?: string | null, endDate?: string | null }> } };
 
 export type ListProjectsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9195,6 +9428,26 @@ export const AssetFieldsFragmentDoc = gql`
   notes
 }
     `;
+export const TaskFieldsFragmentDoc = gql`
+    fragment TaskFields on Task {
+  id
+  columnId
+  key
+  title
+  description
+  type
+  priority
+  assigneeId
+  assigneeName
+  reporterName
+  labels
+  storyPoints
+  dueDate
+  order
+  createdAt
+  updatedAt
+}
+    `;
 export const BrandingFieldsFragmentDoc = gql`
     fragment BrandingFields on Branding {
   id
@@ -9527,6 +9780,17 @@ export const StockMovementFieldsFragmentDoc = gql`
   notes
   recordedBy
   createdAt
+}
+    `;
+export const DocPageFieldsFragmentDoc = gql`
+    fragment DocPageFields on DocPage {
+  id
+  projectId
+  parentId
+  title
+  order
+  updatedByName
+  updatedAt
 }
     `;
 export const StatusDayFieldsFragmentDoc = gql`
@@ -11542,15 +11806,11 @@ export const ProjectBoardDocument = gql`
       order
     }
     tasks {
-      id
-      columnId
-      title
-      description
-      order
+      ...TaskFields
     }
   }
 }
-    `;
+    ${TaskFieldsFragmentDoc}`;
 
 /**
  * __useProjectBoardQuery__
@@ -11587,6 +11847,140 @@ export type ProjectBoardQueryHookResult = ReturnType<typeof useProjectBoardQuery
 export type ProjectBoardLazyQueryHookResult = ReturnType<typeof useProjectBoardLazyQuery>;
 export type ProjectBoardSuspenseQueryHookResult = ReturnType<typeof useProjectBoardSuspenseQuery>;
 export type ProjectBoardQueryResult = Apollo.QueryResult<ProjectBoardQuery, ProjectBoardQueryVariables>;
+export const ProjectTasksDocument = gql`
+    query ProjectTasks($projectId: ID!) {
+  projectTasks(projectId: $projectId) {
+    ...TaskFields
+  }
+}
+    ${TaskFieldsFragmentDoc}`;
+
+/**
+ * __useProjectTasksQuery__
+ *
+ * To run a query within a React component, call `useProjectTasksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectTasksQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useProjectTasksQuery(baseOptions: Apollo.QueryHookOptions<ProjectTasksQuery, ProjectTasksQueryVariables> & ({ variables: ProjectTasksQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectTasksQuery, ProjectTasksQueryVariables>(ProjectTasksDocument, options);
+      }
+export function useProjectTasksLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectTasksQuery, ProjectTasksQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectTasksQuery, ProjectTasksQueryVariables>(ProjectTasksDocument, options);
+        }
+// @ts-ignore
+export function useProjectTasksSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProjectTasksQuery, ProjectTasksQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectTasksQuery, ProjectTasksQueryVariables>;
+export function useProjectTasksSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectTasksQuery, ProjectTasksQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectTasksQuery | undefined, ProjectTasksQueryVariables>;
+export function useProjectTasksSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectTasksQuery, ProjectTasksQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectTasksQuery, ProjectTasksQueryVariables>(ProjectTasksDocument, options);
+        }
+export type ProjectTasksQueryHookResult = ReturnType<typeof useProjectTasksQuery>;
+export type ProjectTasksLazyQueryHookResult = ReturnType<typeof useProjectTasksLazyQuery>;
+export type ProjectTasksSuspenseQueryHookResult = ReturnType<typeof useProjectTasksSuspenseQuery>;
+export type ProjectTasksQueryResult = Apollo.QueryResult<ProjectTasksQuery, ProjectTasksQueryVariables>;
+export const TaskCommentsDocument = gql`
+    query TaskComments($taskId: ID!) {
+  taskComments(taskId: $taskId) {
+    id
+    authorId
+    authorName
+    body
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useTaskCommentsQuery__
+ *
+ * To run a query within a React component, call `useTaskCommentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTaskCommentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTaskCommentsQuery({
+ *   variables: {
+ *      taskId: // value for 'taskId'
+ *   },
+ * });
+ */
+export function useTaskCommentsQuery(baseOptions: Apollo.QueryHookOptions<TaskCommentsQuery, TaskCommentsQueryVariables> & ({ variables: TaskCommentsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TaskCommentsQuery, TaskCommentsQueryVariables>(TaskCommentsDocument, options);
+      }
+export function useTaskCommentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TaskCommentsQuery, TaskCommentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TaskCommentsQuery, TaskCommentsQueryVariables>(TaskCommentsDocument, options);
+        }
+// @ts-ignore
+export function useTaskCommentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TaskCommentsQuery, TaskCommentsQueryVariables>): Apollo.UseSuspenseQueryResult<TaskCommentsQuery, TaskCommentsQueryVariables>;
+export function useTaskCommentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TaskCommentsQuery, TaskCommentsQueryVariables>): Apollo.UseSuspenseQueryResult<TaskCommentsQuery | undefined, TaskCommentsQueryVariables>;
+export function useTaskCommentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TaskCommentsQuery, TaskCommentsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TaskCommentsQuery, TaskCommentsQueryVariables>(TaskCommentsDocument, options);
+        }
+export type TaskCommentsQueryHookResult = ReturnType<typeof useTaskCommentsQuery>;
+export type TaskCommentsLazyQueryHookResult = ReturnType<typeof useTaskCommentsLazyQuery>;
+export type TaskCommentsSuspenseQueryHookResult = ReturnType<typeof useTaskCommentsSuspenseQuery>;
+export type TaskCommentsQueryResult = Apollo.QueryResult<TaskCommentsQuery, TaskCommentsQueryVariables>;
+export const ListProjectMembersDocument = gql`
+    query ListProjectMembers {
+  listProjectMembers {
+    id
+    name
+    email
+  }
+}
+    `;
+
+/**
+ * __useListProjectMembersQuery__
+ *
+ * To run a query within a React component, call `useListProjectMembersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListProjectMembersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListProjectMembersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListProjectMembersQuery(baseOptions?: Apollo.QueryHookOptions<ListProjectMembersQuery, ListProjectMembersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListProjectMembersQuery, ListProjectMembersQueryVariables>(ListProjectMembersDocument, options);
+      }
+export function useListProjectMembersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListProjectMembersQuery, ListProjectMembersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListProjectMembersQuery, ListProjectMembersQueryVariables>(ListProjectMembersDocument, options);
+        }
+// @ts-ignore
+export function useListProjectMembersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListProjectMembersQuery, ListProjectMembersQueryVariables>): Apollo.UseSuspenseQueryResult<ListProjectMembersQuery, ListProjectMembersQueryVariables>;
+export function useListProjectMembersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListProjectMembersQuery, ListProjectMembersQueryVariables>): Apollo.UseSuspenseQueryResult<ListProjectMembersQuery | undefined, ListProjectMembersQueryVariables>;
+export function useListProjectMembersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListProjectMembersQuery, ListProjectMembersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListProjectMembersQuery, ListProjectMembersQueryVariables>(ListProjectMembersDocument, options);
+        }
+export type ListProjectMembersQueryHookResult = ReturnType<typeof useListProjectMembersQuery>;
+export type ListProjectMembersLazyQueryHookResult = ReturnType<typeof useListProjectMembersLazyQuery>;
+export type ListProjectMembersSuspenseQueryHookResult = ReturnType<typeof useListProjectMembersSuspenseQuery>;
+export type ListProjectMembersQueryResult = Apollo.QueryResult<ListProjectMembersQuery, ListProjectMembersQueryVariables>;
 export const CreateColumnDocument = gql`
     mutation CreateColumn($projectId: ID!, $name: String!) {
   createColumn(projectId: $projectId, name: $name) {
@@ -11719,13 +12113,8 @@ export type ReorderColumnsMutationHookResult = ReturnType<typeof useReorderColum
 export type ReorderColumnsMutationResult = Apollo.MutationResult<ReorderColumnsMutation>;
 export type ReorderColumnsMutationOptions = Apollo.BaseMutationOptions<ReorderColumnsMutation, ReorderColumnsMutationVariables>;
 export const CreateTaskDocument = gql`
-    mutation CreateTask($projectId: ID!, $columnId: ID!, $title: String!, $description: String) {
-  createTask(
-    projectId: $projectId
-    columnId: $columnId
-    title: $title
-    description: $description
-  ) {
+    mutation CreateTask($projectId: ID!, $columnId: ID!, $input: TaskInput!) {
+  createTask(projectId: $projectId, columnId: $columnId, input: $input) {
     id
   }
 }
@@ -11747,8 +12136,7 @@ export type CreateTaskMutationFn = Apollo.MutationFunction<CreateTaskMutation, C
  *   variables: {
  *      projectId: // value for 'projectId'
  *      columnId: // value for 'columnId'
- *      title: // value for 'title'
- *      description: // value for 'description'
+ *      input: // value for 'input'
  *   },
  * });
  */
@@ -11760,8 +12148,8 @@ export type CreateTaskMutationHookResult = ReturnType<typeof useCreateTaskMutati
 export type CreateTaskMutationResult = Apollo.MutationResult<CreateTaskMutation>;
 export type CreateTaskMutationOptions = Apollo.BaseMutationOptions<CreateTaskMutation, CreateTaskMutationVariables>;
 export const UpdateTaskDocument = gql`
-    mutation UpdateTask($id: ID!, $title: String, $description: String) {
-  updateTask(id: $id, title: $title, description: $description) {
+    mutation UpdateTask($id: ID!, $input: TaskInput!) {
+  updateTask(id: $id, input: $input) {
     id
   }
 }
@@ -11782,8 +12170,7 @@ export type UpdateTaskMutationFn = Apollo.MutationFunction<UpdateTaskMutation, U
  * const [updateTaskMutation, { data, loading, error }] = useUpdateTaskMutation({
  *   variables: {
  *      id: // value for 'id'
- *      title: // value for 'title'
- *      description: // value for 'description'
+ *      input: // value for 'input'
  *   },
  * });
  */
@@ -11858,11 +12245,77 @@ export function useMoveTaskMutation(baseOptions?: Apollo.MutationHookOptions<Mov
 export type MoveTaskMutationHookResult = ReturnType<typeof useMoveTaskMutation>;
 export type MoveTaskMutationResult = Apollo.MutationResult<MoveTaskMutation>;
 export type MoveTaskMutationOptions = Apollo.BaseMutationOptions<MoveTaskMutation, MoveTaskMutationVariables>;
+export const AddTaskCommentDocument = gql`
+    mutation AddTaskComment($taskId: ID!, $body: String!) {
+  addTaskComment(taskId: $taskId, body: $body) {
+    id
+  }
+}
+    `;
+export type AddTaskCommentMutationFn = Apollo.MutationFunction<AddTaskCommentMutation, AddTaskCommentMutationVariables>;
+
+/**
+ * __useAddTaskCommentMutation__
+ *
+ * To run a mutation, you first call `useAddTaskCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddTaskCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addTaskCommentMutation, { data, loading, error }] = useAddTaskCommentMutation({
+ *   variables: {
+ *      taskId: // value for 'taskId'
+ *      body: // value for 'body'
+ *   },
+ * });
+ */
+export function useAddTaskCommentMutation(baseOptions?: Apollo.MutationHookOptions<AddTaskCommentMutation, AddTaskCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddTaskCommentMutation, AddTaskCommentMutationVariables>(AddTaskCommentDocument, options);
+      }
+export type AddTaskCommentMutationHookResult = ReturnType<typeof useAddTaskCommentMutation>;
+export type AddTaskCommentMutationResult = Apollo.MutationResult<AddTaskCommentMutation>;
+export type AddTaskCommentMutationOptions = Apollo.BaseMutationOptions<AddTaskCommentMutation, AddTaskCommentMutationVariables>;
+export const DeleteTaskCommentDocument = gql`
+    mutation DeleteTaskComment($id: ID!) {
+  deleteTaskComment(id: $id)
+}
+    `;
+export type DeleteTaskCommentMutationFn = Apollo.MutationFunction<DeleteTaskCommentMutation, DeleteTaskCommentMutationVariables>;
+
+/**
+ * __useDeleteTaskCommentMutation__
+ *
+ * To run a mutation, you first call `useDeleteTaskCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTaskCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteTaskCommentMutation, { data, loading, error }] = useDeleteTaskCommentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteTaskCommentMutation(baseOptions?: Apollo.MutationHookOptions<DeleteTaskCommentMutation, DeleteTaskCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteTaskCommentMutation, DeleteTaskCommentMutationVariables>(DeleteTaskCommentDocument, options);
+      }
+export type DeleteTaskCommentMutationHookResult = ReturnType<typeof useDeleteTaskCommentMutation>;
+export type DeleteTaskCommentMutationResult = Apollo.MutationResult<DeleteTaskCommentMutation>;
+export type DeleteTaskCommentMutationOptions = Apollo.BaseMutationOptions<DeleteTaskCommentMutation, DeleteTaskCommentMutationVariables>;
 export const GetProjectDocument = gql`
     query GetProject($id: ID!) {
   getProject(id: $id) {
     id
     name
+    key
     description
     status
   }
@@ -22820,11 +23273,233 @@ export function useUploadAvatarMutation(baseOptions?: Apollo.MutationHookOptions
 export type UploadAvatarMutationHookResult = ReturnType<typeof useUploadAvatarMutation>;
 export type UploadAvatarMutationResult = Apollo.MutationResult<UploadAvatarMutation>;
 export type UploadAvatarMutationOptions = Apollo.BaseMutationOptions<UploadAvatarMutation, UploadAvatarMutationVariables>;
+export const ProjectDocPagesDocument = gql`
+    query ProjectDocPages($projectId: ID!) {
+  projectDocPages(projectId: $projectId) {
+    ...DocPageFields
+  }
+}
+    ${DocPageFieldsFragmentDoc}`;
+
+/**
+ * __useProjectDocPagesQuery__
+ *
+ * To run a query within a React component, call `useProjectDocPagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectDocPagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectDocPagesQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useProjectDocPagesQuery(baseOptions: Apollo.QueryHookOptions<ProjectDocPagesQuery, ProjectDocPagesQueryVariables> & ({ variables: ProjectDocPagesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectDocPagesQuery, ProjectDocPagesQueryVariables>(ProjectDocPagesDocument, options);
+      }
+export function useProjectDocPagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectDocPagesQuery, ProjectDocPagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectDocPagesQuery, ProjectDocPagesQueryVariables>(ProjectDocPagesDocument, options);
+        }
+// @ts-ignore
+export function useProjectDocPagesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProjectDocPagesQuery, ProjectDocPagesQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectDocPagesQuery, ProjectDocPagesQueryVariables>;
+export function useProjectDocPagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectDocPagesQuery, ProjectDocPagesQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectDocPagesQuery | undefined, ProjectDocPagesQueryVariables>;
+export function useProjectDocPagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectDocPagesQuery, ProjectDocPagesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectDocPagesQuery, ProjectDocPagesQueryVariables>(ProjectDocPagesDocument, options);
+        }
+export type ProjectDocPagesQueryHookResult = ReturnType<typeof useProjectDocPagesQuery>;
+export type ProjectDocPagesLazyQueryHookResult = ReturnType<typeof useProjectDocPagesLazyQuery>;
+export type ProjectDocPagesSuspenseQueryHookResult = ReturnType<typeof useProjectDocPagesSuspenseQuery>;
+export type ProjectDocPagesQueryResult = Apollo.QueryResult<ProjectDocPagesQuery, ProjectDocPagesQueryVariables>;
+export const DocPageDocument = gql`
+    query DocPage($id: ID!) {
+  docPage(id: $id) {
+    ...DocPageFields
+    body
+  }
+}
+    ${DocPageFieldsFragmentDoc}`;
+
+/**
+ * __useDocPageQuery__
+ *
+ * To run a query within a React component, call `useDocPageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDocPageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDocPageQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDocPageQuery(baseOptions: Apollo.QueryHookOptions<DocPageQuery, DocPageQueryVariables> & ({ variables: DocPageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<DocPageQuery, DocPageQueryVariables>(DocPageDocument, options);
+      }
+export function useDocPageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DocPageQuery, DocPageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<DocPageQuery, DocPageQueryVariables>(DocPageDocument, options);
+        }
+// @ts-ignore
+export function useDocPageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<DocPageQuery, DocPageQueryVariables>): Apollo.UseSuspenseQueryResult<DocPageQuery, DocPageQueryVariables>;
+export function useDocPageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<DocPageQuery, DocPageQueryVariables>): Apollo.UseSuspenseQueryResult<DocPageQuery | undefined, DocPageQueryVariables>;
+export function useDocPageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<DocPageQuery, DocPageQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<DocPageQuery, DocPageQueryVariables>(DocPageDocument, options);
+        }
+export type DocPageQueryHookResult = ReturnType<typeof useDocPageQuery>;
+export type DocPageLazyQueryHookResult = ReturnType<typeof useDocPageLazyQuery>;
+export type DocPageSuspenseQueryHookResult = ReturnType<typeof useDocPageSuspenseQuery>;
+export type DocPageQueryResult = Apollo.QueryResult<DocPageQuery, DocPageQueryVariables>;
+export const CreateDocPageDocument = gql`
+    mutation CreateDocPage($projectId: ID!, $parentId: ID, $title: String!) {
+  createDocPage(projectId: $projectId, parentId: $parentId, title: $title) {
+    id
+  }
+}
+    `;
+export type CreateDocPageMutationFn = Apollo.MutationFunction<CreateDocPageMutation, CreateDocPageMutationVariables>;
+
+/**
+ * __useCreateDocPageMutation__
+ *
+ * To run a mutation, you first call `useCreateDocPageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateDocPageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createDocPageMutation, { data, loading, error }] = useCreateDocPageMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      parentId: // value for 'parentId'
+ *      title: // value for 'title'
+ *   },
+ * });
+ */
+export function useCreateDocPageMutation(baseOptions?: Apollo.MutationHookOptions<CreateDocPageMutation, CreateDocPageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateDocPageMutation, CreateDocPageMutationVariables>(CreateDocPageDocument, options);
+      }
+export type CreateDocPageMutationHookResult = ReturnType<typeof useCreateDocPageMutation>;
+export type CreateDocPageMutationResult = Apollo.MutationResult<CreateDocPageMutation>;
+export type CreateDocPageMutationOptions = Apollo.BaseMutationOptions<CreateDocPageMutation, CreateDocPageMutationVariables>;
+export const UpdateDocPageDocument = gql`
+    mutation UpdateDocPage($id: ID!, $title: String, $body: String) {
+  updateDocPage(id: $id, title: $title, body: $body) {
+    id
+  }
+}
+    `;
+export type UpdateDocPageMutationFn = Apollo.MutationFunction<UpdateDocPageMutation, UpdateDocPageMutationVariables>;
+
+/**
+ * __useUpdateDocPageMutation__
+ *
+ * To run a mutation, you first call `useUpdateDocPageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateDocPageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateDocPageMutation, { data, loading, error }] = useUpdateDocPageMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      title: // value for 'title'
+ *      body: // value for 'body'
+ *   },
+ * });
+ */
+export function useUpdateDocPageMutation(baseOptions?: Apollo.MutationHookOptions<UpdateDocPageMutation, UpdateDocPageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateDocPageMutation, UpdateDocPageMutationVariables>(UpdateDocPageDocument, options);
+      }
+export type UpdateDocPageMutationHookResult = ReturnType<typeof useUpdateDocPageMutation>;
+export type UpdateDocPageMutationResult = Apollo.MutationResult<UpdateDocPageMutation>;
+export type UpdateDocPageMutationOptions = Apollo.BaseMutationOptions<UpdateDocPageMutation, UpdateDocPageMutationVariables>;
+export const DeleteDocPageDocument = gql`
+    mutation DeleteDocPage($id: ID!) {
+  deleteDocPage(id: $id)
+}
+    `;
+export type DeleteDocPageMutationFn = Apollo.MutationFunction<DeleteDocPageMutation, DeleteDocPageMutationVariables>;
+
+/**
+ * __useDeleteDocPageMutation__
+ *
+ * To run a mutation, you first call `useDeleteDocPageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteDocPageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteDocPageMutation, { data, loading, error }] = useDeleteDocPageMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteDocPageMutation(baseOptions?: Apollo.MutationHookOptions<DeleteDocPageMutation, DeleteDocPageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteDocPageMutation, DeleteDocPageMutationVariables>(DeleteDocPageDocument, options);
+      }
+export type DeleteDocPageMutationHookResult = ReturnType<typeof useDeleteDocPageMutation>;
+export type DeleteDocPageMutationResult = Apollo.MutationResult<DeleteDocPageMutation>;
+export type DeleteDocPageMutationOptions = Apollo.BaseMutationOptions<DeleteDocPageMutation, DeleteDocPageMutationVariables>;
+export const MoveDocPageDocument = gql`
+    mutation MoveDocPage($id: ID!, $parentId: ID, $toIndex: Int!) {
+  moveDocPage(id: $id, parentId: $parentId, toIndex: $toIndex)
+}
+    `;
+export type MoveDocPageMutationFn = Apollo.MutationFunction<MoveDocPageMutation, MoveDocPageMutationVariables>;
+
+/**
+ * __useMoveDocPageMutation__
+ *
+ * To run a mutation, you first call `useMoveDocPageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMoveDocPageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [moveDocPageMutation, { data, loading, error }] = useMoveDocPageMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      parentId: // value for 'parentId'
+ *      toIndex: // value for 'toIndex'
+ *   },
+ * });
+ */
+export function useMoveDocPageMutation(baseOptions?: Apollo.MutationHookOptions<MoveDocPageMutation, MoveDocPageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<MoveDocPageMutation, MoveDocPageMutationVariables>(MoveDocPageDocument, options);
+      }
+export type MoveDocPageMutationHookResult = ReturnType<typeof useMoveDocPageMutation>;
+export type MoveDocPageMutationResult = Apollo.MutationResult<MoveDocPageMutation>;
+export type MoveDocPageMutationOptions = Apollo.BaseMutationOptions<MoveDocPageMutation, MoveDocPageMutationVariables>;
 export const ListProjectsDocument = gql`
     query ListProjects {
   listProjects {
     id
     name
+    key
     description
     status
     startDate
@@ -22874,6 +23549,7 @@ export const ListProjectsPagedDocument = gql`
     rows {
       id
       name
+      key
       description
       status
       startDate

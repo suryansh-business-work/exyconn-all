@@ -6,18 +6,22 @@ import {
   useDeleteColumnMutation,
   useReorderColumnsMutation,
   useCreateTaskMutation,
-  useUpdateTaskMutation,
-  useDeleteTaskMutation,
   useMoveTaskMutation,
 } from '@exyconn/shell/graphql/generated';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import type { ColumnView, TaskView } from './types';
 
-/** Loads a project's board into local state and exposes CRUD + persistence
- *  helpers used by the drag-and-drop layer. */
+/**
+ * Loads a project's board into local state and exposes the column CRUD, the quick-add and
+ * the two persistence calls the drag-and-drop layer needs.
+ *
+ * Local state is what makes a drag feel instant: the card moves on drop and the mutation
+ * follows. Everything a ticket dialog changes goes back through `reload`, because a saved
+ * ticket can change fields this hook does not track field by field.
+ */
 export function useProjectBoard(projectId: string) {
   const notify = useNotify();
-  const { data, loading } = useProjectBoardQuery({
+  const { data, loading, refetch } = useProjectBoardQuery({
     variables: { projectId },
     fetchPolicy: 'cache-and-network',
   });
@@ -29,14 +33,7 @@ export function useProjectBoard(projectId: string) {
     const board = data?.projectBoard;
     if (!board) return;
     setColumns(board.columns.map((c) => ({ id: c.id, name: c.name })));
-    setTasks(
-      board.tasks.map((t) => ({
-        id: t.id,
-        columnId: t.columnId,
-        title: t.title,
-        description: t.description,
-      })),
-    );
+    setTasks(board.tasks);
   }, [data]);
 
   const [createColumn] = useCreateColumnMutation();
@@ -44,8 +41,6 @@ export function useProjectBoard(projectId: string) {
   const [deleteColumn] = useDeleteColumnMutation();
   const [reorderColumns] = useReorderColumnsMutation();
   const [createTask] = useCreateTaskMutation();
-  const [updateTask] = useUpdateTaskMutation();
-  const [deleteTask] = useDeleteTaskMutation();
   const [moveTask] = useMoveTaskMutation();
 
   const fail = useCallback(
@@ -53,15 +48,16 @@ export function useProjectBoard(projectId: string) {
     [notify],
   );
 
+  const reload = useCallback(() => {
+    refetch().catch(fail);
+  }, [refetch, fail]);
+
   const addColumn = useCallback(
     async (name: string) => {
-      const { data: res } = await createColumn({ variables: { projectId, name } }).catch((e) => {
-        fail(e);
-        return { data: null };
-      });
-      if (res?.createColumn) setColumns((p) => [...p, { id: res.createColumn.id, name }]);
+      await createColumn({ variables: { projectId, name } }).catch(fail);
+      reload();
     },
-    [createColumn, projectId, fail],
+    [createColumn, projectId, fail, reload],
   );
 
   const editColumn = useCallback(
@@ -81,47 +77,25 @@ export function useProjectBoard(projectId: string) {
     [deleteColumn, fail],
   );
 
+  /** The board's quick-add: a title in a column, everything else on the ticket's defaults. */
   const addTask = useCallback(
     async (columnId: string, title: string) => {
-      const { data: res } = await createTask({
-        variables: { projectId, columnId, title },
-      }).catch((e) => {
-        fail(e);
-        return { data: null };
-      });
-      if (res?.createTask) {
-        setTasks((p) => [...p, { id: res.createTask.id, columnId, title, description: null }]);
-      }
+      await createTask({ variables: { projectId, columnId, input: { title } } }).catch(fail);
+      reload();
     },
-    [createTask, projectId, fail],
-  );
-
-  const editTask = useCallback(
-    async (id: string, patch: { title?: string; description?: string | null }) => {
-      setTasks((p) => p.map((t) => (t.id === id ? { ...t, ...patch } : t)));
-      await updateTask({ variables: { id, ...patch } }).catch(fail);
-    },
-    [updateTask, fail],
-  );
-
-  const removeTask = useCallback(
-    async (id: string) => {
-      setTasks((p) => p.filter((t) => t.id !== id));
-      await deleteTask({ variables: { id } }).catch(fail);
-    },
-    [deleteTask, fail],
+    [createTask, projectId, fail, reload],
   );
 
   const persistColumnOrder = useCallback(
     (columnIds: string[]) => {
-      void reorderColumns({ variables: { projectId, columnIds } }).catch(fail);
+      reorderColumns({ variables: { projectId, columnIds } }).catch(fail);
     },
     [reorderColumns, projectId, fail],
   );
 
   const persistTaskMove = useCallback(
     (id: string, toColumnId: string, toIndex: number) => {
-      void moveTask({ variables: { id, toColumnId, toIndex } }).catch(fail);
+      moveTask({ variables: { id, toColumnId, toIndex } }).catch(fail);
     },
     [moveTask, fail],
   );
@@ -136,10 +110,9 @@ export function useProjectBoard(projectId: string) {
     editColumn,
     removeColumn,
     addTask,
-    editTask,
-    removeTask,
     persistColumnOrder,
     persistTaskMove,
+    reload,
   };
 }
 

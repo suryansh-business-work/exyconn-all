@@ -15,18 +15,18 @@ interface BoardColumnCardProps {
   onRename: (id: string, name: string) => void;
   onDelete: (id: string) => void;
   onAddTask: (columnId: string, title: string) => void;
-  onDeleteTask: (id: string) => void;
+  onOpenTask: (id: string) => void;
 }
 
-/** A draggable kanban column hosting a vertical sortable list of tasks. */
+/** A draggable kanban column hosting a vertical sortable list of tickets. */
 export function BoardColumnCard({
   column,
   tasks,
   onRename,
   onDelete,
   onAddTask,
-  onDeleteTask,
-}: BoardColumnCardProps) {
+  onOpenTask,
+}: Readonly<BoardColumnCardProps>) {
   const confirm = useConfirm();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(column.name);
@@ -44,7 +44,7 @@ export function BoardColumnCard({
 
   const remove = async () => {
     const ok = await confirm({
-      message: `Delete column "${column.name}" and its tasks?`,
+      message: `Delete column "${column.name}" and its tickets?`,
       confirmText: 'Delete',
     });
     if (ok) onDelete(column.id);
@@ -104,15 +104,15 @@ export function BoardColumnCard({
       >
         <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} onDelete={onDeleteTask} />
+            <TaskCard key={task.id} task={task} onOpen={onOpenTask} />
           ))}
         </SortableContext>
       </Flex>
 
       <Box sx={{ mt: 1 }}>
         <AddItemInput
-          label="Add task"
-          placeholder="Task title"
+          label="Add ticket"
+          placeholder="Ticket summary"
           onAdd={(v) => onAddTask(column.id, v)}
         />
       </Box>

@@ -23,6 +23,7 @@
     "@exyconn/crud": "workspace:*",
     "@exyconn/login": "workspace:*",
     "@exyconn/shell": "workspace:*",
+    "@exyconn/tabber": "workspace:*",
     "@hookform/resolvers": "^5.9.1",
     "@mui/icons-material": "^6.4.0",
     "@mui/material": "^6.4.0",
