@@ -135,6 +135,136 @@ describe('tickets', () => {
   });
 });
 
+describe('ticket history', () => {
+  it('records the ticket being created', async () => {
+    const lead = await seedUser('lead@exyconn.com', 'a-strong-password', [ROLES.PROJECTS]);
+    const ctx = asProjects(lead.id);
+    const created = await project('Billing');
+    const todo = await column(ctx, created.id);
+    const raised = await ticket(ctx, created.id, todo.id, 'Invoice PDF is blank');
+
+    const trail = await boardResolvers.Query.taskActivity(null, { taskId: raised.id }, ctx);
+
+    expect(trail).toHaveLength(1);
+    expect(trail[0]).toMatchObject({ field: 'created', toValue: 'BILL-1', actorName: 'lead' });
+  });
+
+  it('records one line per field that actually changed', async () => {
+    const lead = await seedUser('lead@exyconn.com', 'a-strong-password', [ROLES.PROJECTS]);
+    const ctx = asProjects(lead.id);
+    const created = await project('Billing');
+    const todo = await column(ctx, created.id);
+    const raised = await ticket(ctx, created.id, todo.id, 'Invoice PDF is blank');
+
+    await boardResolvers.Mutation.updateTask(
+      null,
+      { id: raised.id, input: { title: raised.title, priority: 'HIGHEST', storyPoints: 3 } },
+      ctx,
+    );
+
+    const trail = await boardResolvers.Query.taskActivity(null, { taskId: raised.id }, ctx);
+    const changes = trail.filter((entry) => entry.field !== 'created');
+
+    expect(changes.map((entry) => entry.field).sort()).toEqual(['priority', 'story points']);
+    expect(changes.find((entry) => entry.field === 'priority')).toMatchObject({
+      fromValue: 'MEDIUM',
+      toValue: 'HIGHEST',
+    });
+  });
+
+  it('records nothing when a save changes nothing', async () => {
+    const lead = await seedUser('lead@exyconn.com', 'a-strong-password', [ROLES.PROJECTS]);
+    const ctx = asProjects(lead.id);
+    const created = await project('Billing');
+    const todo = await column(ctx, created.id);
+    const raised = await ticket(ctx, created.id, todo.id, 'Invoice PDF is blank');
+
+    await boardResolvers.Mutation.updateTask(
+      null,
+      { id: raised.id, input: { title: raised.title } },
+      ctx,
+    );
+
+    const trail = await boardResolvers.Query.taskActivity(null, { taskId: raised.id }, ctx);
+
+    expect(trail.filter((entry) => entry.field !== 'created')).toHaveLength(0);
+  });
+
+  it('records a move by column name, not by id', async () => {
+    const lead = await seedUser('lead@exyconn.com', 'a-strong-password', [ROLES.PROJECTS]);
+    const ctx = asProjects(lead.id);
+    const created = await project('Billing');
+    const todo = await column(ctx, created.id, 'To do');
+    const doing = await column(ctx, created.id, 'Doing');
+    const raised = await ticket(ctx, created.id, todo.id, 'Invoice PDF is blank');
+
+    await boardResolvers.Mutation.moveTask(
+      null,
+      { id: raised.id, toColumnId: doing.id, toIndex: 0 },
+      ctx,
+    );
+
+    const trail = await boardResolvers.Query.taskActivity(null, { taskId: raised.id }, ctx);
+
+    expect(trail[0]).toMatchObject({ field: 'column', fromValue: 'To do', toValue: 'Doing' });
+  });
+
+  it('records nothing for a move within the same column', async () => {
+    const lead = await seedUser('lead@exyconn.com', 'a-strong-password', [ROLES.PROJECTS]);
+    const ctx = asProjects(lead.id);
+    const created = await project('Billing');
+    const todo = await column(ctx, created.id, 'To do');
+    const first = await ticket(ctx, created.id, todo.id, 'First');
+    await ticket(ctx, created.id, todo.id, 'Second');
+
+    await boardResolvers.Mutation.moveTask(
+      null,
+      { id: first.id, toColumnId: todo.id, toIndex: 1 },
+      ctx,
+    );
+
+    const trail = await boardResolvers.Query.taskActivity(null, { taskId: first.id }, ctx);
+
+    expect(trail.filter((entry) => entry.field === 'column')).toHaveLength(0);
+  });
+
+  it('strips the markup out of a description change', async () => {
+    const lead = await seedUser('lead@exyconn.com', 'a-strong-password', [ROLES.PROJECTS]);
+    const ctx = asProjects(lead.id);
+    const created = await project('Billing');
+    const todo = await column(ctx, created.id);
+    const raised = await ticket(ctx, created.id, todo.id, 'Invoice PDF is blank');
+
+    await boardResolvers.Mutation.updateTask(
+      null,
+      {
+        id: raised.id,
+        input: { title: raised.title, description: '<p>Only on <b>Safari</b>.</p>' },
+      },
+      ctx,
+    );
+
+    const trail = await boardResolvers.Query.taskActivity(null, { taskId: raised.id }, ctx);
+    const change = trail.find((entry) => entry.field === 'description');
+
+    expect(change?.toValue).toBe('Only on Safari .');
+  });
+
+  it('takes the history with it when the ticket is deleted', async () => {
+    const lead = await seedUser('lead@exyconn.com', 'a-strong-password', [ROLES.PROJECTS]);
+    const ctx = asProjects(lead.id);
+    const created = await project('Billing');
+    const todo = await column(ctx, created.id);
+    const raised = await ticket(ctx, created.id, todo.id, 'Invoice PDF is blank');
+
+    await boardResolvers.Mutation.deleteTask(null, { id: raised.id }, ctx);
+
+    await expect(
+      boardResolvers.Query.taskActivity(null, { taskId: raised.id }, ctx),
+    ).resolves.toHaveLength(0);
+  });
+});
+
 describe('documentation space', () => {
   it('deletes a page together with everything filed under it', async () => {
     const lead = await seedUser('lead@exyconn.com', 'a-strong-password', [ROLES.PROJECTS]);

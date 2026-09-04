@@ -24,10 +24,15 @@ const mount = () =>
   );
 
 describe('SendCampaignForm', () => {
-  it('requires at least one recipient', () => {
+  it('requires an audience', () => {
     mount();
     cy.contains('button', 'Send').click();
-    cy.contains('Select at least one client').should('be.visible');
+    cy.contains('Choose the audience to send to').should('be.visible');
+  });
+
+  it('says when there are no audiences to send to', () => {
+    mount();
+    cy.contains('No audiences yet — create one first.').should('be.visible');
   });
 
   it('calls onCancel', () => {

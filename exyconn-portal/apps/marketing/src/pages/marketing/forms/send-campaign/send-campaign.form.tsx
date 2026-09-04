@@ -2,14 +2,18 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Alert, Text } from '@exyconn/shell/components/ui';
-import { RhfMultiSelect } from '@exyconn/shell/components/form/rhf';
+import { RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
-import { useListClientsQuery, useSendCampaignMutation } from '@exyconn/shell/graphql/generated';
+import { errorMessage } from '@exyconn/shell/utils/errorMessage';
+import {
+  useListAudienceListsQuery,
+  useSendCampaignMutation,
+} from '@exyconn/shell/graphql/generated';
 import type { SendCampaignTarget } from './send-campaign.types';
 
 const schema = z.object({
-  clientIds: z.array(z.string()).min(1, 'Select at least one client'),
+  audienceListId: z.string().min(1, 'Choose the audience to send to'),
 });
 type Values = z.infer<typeof schema>;
 
@@ -19,34 +23,37 @@ interface SendCampaignFormProps {
   onCancel: () => void;
 }
 
-/** Emails a campaign's subject/body to the selected clients via the active SMTP config. */
-export function SendCampaignForm({ campaign, onDone, onCancel }: SendCampaignFormProps) {
+/**
+ * Emails a campaign's subject/body to a saved audience via the active SMTP config.
+ * Recipients come from an audience rather than a hand-picked list so the same send can
+ * be repeated, and so who was written to is answerable afterwards.
+ */
+export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCampaignFormProps>) {
   const notify = useNotify();
-  const { data } = useListClientsQuery();
+  const { data } = useListAudienceListsQuery();
   const [sendCampaign] = useSendCampaignMutation();
   const methods = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: { clientIds: [] },
+    defaultValues: { audienceListId: '' },
   });
 
-  const options = (data?.listClients ?? []).map((c) => ({
-    value: c.id,
-    label: `${c.name} · ${c.email}`,
+  const options: SelectOption[] = (data?.listAudienceLists ?? []).map((audience) => ({
+    value: audience.id,
+    label: `${audience.name} · ${audience.clientIds.length} client(s)`,
   }));
   const ready = Boolean(campaign.subject && campaign.body);
 
   const onSubmit = async (values: Values) => {
     try {
       const res = await sendCampaign({
-        variables: { id: campaign.id, clientIds: values.clientIds },
+        variables: { id: campaign.id, audienceListId: values.audienceListId },
       });
-      const r = res.data?.sendCampaign;
-      notify(
-        `Campaign sent to ${r?.sent ?? 0} client(s)${r?.failed ? ` · ${r.failed} failed` : ''}`,
-      );
+      const result = res.data?.sendCampaign;
+      const failed = result?.failed ? ` · ${result.failed} failed` : '';
+      notify(`Campaign sent to ${result?.sent ?? 0} client(s)${failed}`);
       onDone();
     } catch (err) {
-      notify(err instanceof Error ? err.message : 'Send failed', 'error');
+      notify(errorMessage(err, 'Send failed'), 'error');
     }
   };
 
@@ -66,11 +73,11 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: SendCampaignFor
           Add an email subject and body to this campaign before sending.
         </Alert>
       )}
-      <RhfMultiSelect
-        name="clientIds"
-        label="Recipients (clients)"
+      <RhfSelect
+        name="audienceListId"
+        label="Audience"
         options={options}
-        helperText={options.length ? undefined : 'No clients found — add clients first.'}
+        helperText={options.length ? undefined : 'No audiences yet — create one first.'}
       />
     </EntityForm>
   );

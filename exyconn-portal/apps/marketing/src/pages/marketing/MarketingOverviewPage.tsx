@@ -62,10 +62,13 @@ export function MarketingOverviewPage() {
   return (
     <ModuleOverview
       title="Marketing"
-      subtitle="Campaigns at a glance"
+      subtitle="Campaigns and audiences at a glance"
       stats={statItems}
       breakdowns={breakdowns}
-      links={[{ label: 'Open campaigns', to: '/marketing/campaigns' }]}
+      links={[
+        { label: 'Open campaigns', to: '/marketing/campaigns' },
+        { label: 'Open audiences', to: '/marketing/audiences' },
+      ]}
       recentTitle="Newest campaigns"
     >
       <DataTable

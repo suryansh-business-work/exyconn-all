@@ -18,6 +18,14 @@ export interface SendTemplateInput {
   replyTo?: string;
   /** Who asked for this, for the log. An email address, or a description of the process. */
   triggeredBy?: string;
+  /** Files to attach. The log records their names so a delivery can be explained later. */
+  attachments?: EmailAttachment[];
+}
+
+/** One file attached to a templated email — already rendered, never a path on disk. */
+export interface EmailAttachment {
+  filename: string;
+  content: Buffer;
 }
 
 export interface RenderedEmail {
@@ -152,6 +160,7 @@ export async function sendTemplateEmail(input: SendTemplateInput): Promise<void>
     subject: rendered.subject,
     variables: input.variables,
     triggeredBy: input.triggeredBy ?? '',
+    attachments: (input.attachments ?? []).map((file) => file.filename),
     sentAt: new Date(),
   };
 
@@ -162,6 +171,7 @@ export async function sendTemplateEmail(input: SendTemplateInput): Promise<void>
       subject: rendered.subject,
       html: rendered.html,
       replyTo: input.replyTo,
+      attachments: input.attachments,
     });
   } catch (error) {
     const reason = error instanceof Error ? error.message : 'The transport refused the message.';

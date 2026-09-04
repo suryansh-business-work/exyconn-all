@@ -93,3 +93,51 @@ mutation RunPayroll($month: Int!, $year: Int!) {
 mutation MarkPayrollPaid($month: Int!, $year: Int!) {
   markPayrollPaid(month: $month, year: $year)
 }
+
+query SalarySlipPdf($id: ID!) {
+  salarySlipPdf(id: $id) {
+    filename
+    contentType
+    contentBase64
+  }
+}
+
+query PayrollSchedule {
+  payrollSchedule {
+    enabled
+    dayOfMonth
+    hour
+    minute
+    period
+    lastRunAt
+    lastRunPeriod
+    lastSent
+    lastFailed
+    lastSkipped
+  }
+}
+
+mutation UpdatePayrollSchedule($input: PayrollScheduleInput!) {
+  updatePayrollSchedule(input: $input) {
+    enabled
+    dayOfMonth
+    hour
+    minute
+    period
+    lastRunAt
+    lastRunPeriod
+    lastSent
+    lastFailed
+    lastSkipped
+  }
+}
+
+mutation SendSalarySlips($month: Int!, $year: Int!) {
+  sendSalarySlips(month: $month, year: $year) {
+    month
+    year
+    sent
+    failed
+    skipped
+  }
+}

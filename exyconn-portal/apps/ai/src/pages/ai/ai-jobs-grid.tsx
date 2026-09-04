@@ -1,20 +1,41 @@
 import type { ColDef } from 'ag-grid-community';
-import { actionsColumn, statusColumn, textColumn, type CrudGridContext } from '@exyconn/crud';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import {
+  DELETE_ACTION,
+  EDIT_ACTION,
+  actionsColumn,
+  dateColumn,
+  statusColumn,
+  textColumn,
+  valueColumn,
+  type DatedCrudGridContext,
+  type RowActionSpec,
+} from '@exyconn/crud';
 import type { ListAiJobsPagedQuery } from '@exyconn/shell/graphql/generated';
 
 export type PagedAiJobRow = ListAiJobsPagedQuery['listAiJobsPaged']['rows'][number];
 
-/** Row handlers ag-grid hands to the shared action cells via its `context`. */
-export type AiJobsGridContext = CrudGridContext<PagedAiJobRow>;
+/** Row handlers and date formatting ag-grid hands to the shared cells via its `context`. */
+export type AiJobsGridContext = DatedCrudGridContext<PagedAiJobRow>;
 
-/** How much of a prompt fits in the grid cell before it is truncated. */
-const PROMPT_PREVIEW_CHARS = 48;
+const RUN_ACTION: RowActionSpec = {
+  key: 'run',
+  label: 'run job',
+  icon: PlayArrowIcon,
+  color: 'primary',
+  // A job already in flight would be sent to OpenAI twice.
+  hidden: (row: PagedAiJobRow) => row.status === 'RUNNING',
+};
 
-/** Column model for the server-side AI Jobs grid. Name/Model/Prompt hit the server filter. */
+const VIEW_ACTION: RowActionSpec = { key: 'view', label: 'view result', icon: VisibilityIcon };
+
+/** Column model for the server-side AI Jobs grid. Name and Model hit the server filter. */
 export const AI_JOB_COLUMNS: ColDef<PagedAiJobRow>[] = [
   textColumn('name', 'Name'),
   textColumn('model', 'Model'),
-  textColumn('prompt', 'Prompt', (row) => row.prompt.slice(0, PROMPT_PREVIEW_CHARS)),
   statusColumn('status', 'Status'),
-  actionsColumn(),
+  valueColumn('totalTokens', 'Tokens', (row) => row.totalTokens.toLocaleString()),
+  dateColumn('ranAt', 'Last run', '—'),
+  actionsColumn([RUN_ACTION, VIEW_ACTION, EDIT_ACTION, DELETE_ACTION], 150),
 ];

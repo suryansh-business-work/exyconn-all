@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { buildDocTree, trailOf } from '../../src/pages/projects/docs/doc-tree';
+import {
+  buildDocTree,
+  dropTarget,
+  isDescendant,
+  trailOf,
+} from '../../src/pages/projects/docs/doc-tree';
 import type { DocPageFieldsFragment } from '@exyconn/shell/graphql/generated';
 
 const page = (id: string, parentId: string | null, title: string): DocPageFieldsFragment => ({
@@ -61,5 +66,41 @@ describe('trailOf', () => {
 
   it('is empty for a page that is not in the space', () => {
     expect(trailOf(SPACE, 'nope')).toEqual([]);
+  });
+});
+
+describe('isDescendant', () => {
+  it('sees a grandchild as part of the branch', () => {
+    expect(isDescendant(SPACE, 'rollback', 'runbooks')).toBe(true);
+  });
+
+  it('does not see a page in another branch as part of it', () => {
+    expect(isDescendant(SPACE, 'decisions', 'runbooks')).toBe(false);
+  });
+});
+
+describe('dropTarget', () => {
+  it('reorders to the position of a sibling it is dropped on', () => {
+    // Both are top level, so this is a sort, not a re-home.
+    expect(dropTarget(SPACE, 'decisions', 'runbooks')).toEqual({ parentId: null, toIndex: 0 });
+  });
+
+  it('files a page under the page it is dropped on when they are not siblings', () => {
+    expect(dropTarget(SPACE, 'decisions', 'releasing')).toEqual({
+      parentId: 'releasing',
+      toIndex: 1,
+    });
+  });
+
+  it('refuses a drop on the page itself', () => {
+    expect(dropTarget(SPACE, 'runbooks', 'runbooks')).toBeNull();
+  });
+
+  it('refuses a drop inside the page’s own branch, which would orphan it', () => {
+    expect(dropTarget(SPACE, 'runbooks', 'rollback')).toBeNull();
+  });
+
+  it('refuses a drop involving a page that is not in the space', () => {
+    expect(dropTarget(SPACE, 'runbooks', 'nope')).toBeNull();
   });
 });

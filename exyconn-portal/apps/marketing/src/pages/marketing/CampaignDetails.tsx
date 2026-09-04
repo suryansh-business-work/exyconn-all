@@ -1,22 +1,12 @@
-import type { ReactNode } from 'react';
-import { Box, Divider, Flex, Text } from '@exyconn/shell/components/ui';
+import { Divider, Flex, Text } from '@exyconn/shell/components/ui';
+import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { CampaignDeliveryLog } from './CampaignDeliveryLog';
 import type { CampaignRow } from './forms/campaign';
 
-function DetailRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <Flex direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
-      <Text size="sm" color="text.secondary">
-        {label}
-      </Text>
-      <Box sx={{ textAlign: 'right' }}>{children}</Box>
-    </Flex>
-  );
-}
-
-/** Read-only summary of a campaign, including its email content and delivery status. */
-export function CampaignDetails({ campaign }: { campaign: CampaignRow }) {
+/** Read-only summary of a campaign: its email content, and who each send reached. */
+export function CampaignDetails({ campaign }: Readonly<{ campaign: CampaignRow }>) {
   const { formatDate } = useSettings();
   return (
     <Flex direction="column" spacing={1.5}>
@@ -59,6 +49,9 @@ export function CampaignDetails({ campaign }: { campaign: CampaignRow }) {
       <Text size="sm" sx={{ whiteSpace: 'pre-wrap' }}>
         {campaign.body || '— none —'}
       </Text>
+
+      <Divider />
+      <CampaignDeliveryLog campaignId={campaign.id} />
     </Flex>
   );
 }

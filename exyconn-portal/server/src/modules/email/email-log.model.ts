@@ -24,6 +24,8 @@ const emailLogSchema = new Schema(
     /** The failure reason, in the words the transport gave. Empty on success. */
     error: { type: String, default: '', trim: true },
     variables: { type: Schema.Types.Mixed, default: {} },
+    /** Filenames sent with the message, e.g. a payslip PDF. Empty for a plain email. */
+    attachments: { type: [String], default: [] },
     /** Who or what triggered it — an email address, or the system process. */
     triggeredBy: { type: String, default: '', trim: true },
     sentAt: { type: Date, required: true, default: Date.now, index: true },

@@ -67,22 +67,33 @@ export enum ActivityType {
   Task = 'TASK'
 }
 
+/** One prompt sent to OpenAI, with the answer and the tokens it cost. */
 export type AiJob = {
   __typename?: 'AiJob';
+  completionTokens: Scalars['Int']['output'];
   createdAt: Scalars['DateTime']['output'];
+  /** Why the run failed, in the words the API gave. Empty unless the status is FAILED. */
+  error: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  latencyMs: Scalars['Int']['output'];
   model: Scalars['String']['output'];
   name: Scalars['String']['output'];
   prompt: Scalars['String']['output'];
+  /** The prompt-library entry this job was started from, when it was. */
+  promptId: Scalars['String']['output'];
+  promptTokens: Scalars['Int']['output'];
+  ranAt?: Maybe<Scalars['DateTime']['output']>;
+  response: Scalars['String']['output'];
   status: AiJobStatus;
+  totalTokens: Scalars['Int']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/** A job is always created QUEUED — only running it moves the status on. */
 export type AiJobInput = {
   model: Scalars['String']['input'];
   name: Scalars['String']['input'];
   prompt: Scalars['String']['input'];
-  status: AiJobStatus;
 };
 
 export type AiJobPage = {
@@ -97,6 +108,13 @@ export enum AiJobStatus {
   Running = 'RUNNING',
   Succeeded = 'SUCCEEDED'
 }
+
+/** The model picker's options and the value it should open on. */
+export type AiModelOptions = {
+  __typename?: 'AiModelOptions';
+  defaultModel: Scalars['String']['output'];
+  models: Array<Scalars['String']['output']>;
+};
 
 export type Announcement = {
   __typename?: 'Announcement';
@@ -252,6 +270,29 @@ export enum AttendanceStatus {
   Present = 'PRESENT',
   Wfh = 'WFH'
 }
+
+/** A saved set of clients a campaign can be sent to. */
+export type AudienceList = {
+  __typename?: 'AudienceList';
+  clientIds: Array<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type AudienceListInput = {
+  clientIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
+export type AudienceListPage = {
+  __typename?: 'AudienceListPage';
+  rows: Array<AudienceList>;
+  totalCount: Scalars['Int']['output'];
+};
 
 export type AuthPayload = {
   __typename?: 'AuthPayload';
@@ -505,6 +546,19 @@ export type CampaignPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** One recipient's copy of one campaign send, kept whether it worked or not. */
+export type CampaignSend = {
+  __typename?: 'CampaignSend';
+  audienceListId: Scalars['String']['output'];
+  campaignId: Scalars['String']['output'];
+  error: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  recipientName: Scalars['String']['output'];
+  sentAt: Scalars['DateTime']['output'];
+  status: CampaignSendStatus;
+  to: Scalars['String']['output'];
+};
+
 /** Outcome of a campaign email blast. */
 export type CampaignSendResult = {
   __typename?: 'CampaignSendResult';
@@ -512,6 +566,11 @@ export type CampaignSendResult = {
   failed: Scalars['Int']['output'];
   sent: Scalars['Int']['output'];
 };
+
+export enum CampaignSendStatus {
+  Failed = 'FAILED',
+  Sent = 'SENT'
+}
 
 export enum CampaignStatus {
   Active = 'ACTIVE',
@@ -783,6 +842,23 @@ export enum ContactStatus {
   Unsubscribed = 'UNSUBSCRIBED'
 }
 
+export type ContainerMount = {
+  __typename?: 'ContainerMount';
+  destination: Scalars['String']['output'];
+  readOnly: Scalars['Boolean']['output'];
+  source: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
+/** A published port: the host side is what nginx proxies a public domain to. */
+export type ContainerPort = {
+  __typename?: 'ContainerPort';
+  ip: Scalars['String']['output'];
+  privatePort: Scalars['Int']['output'];
+  protocol: Scalars['String']['output'];
+  publicPort: Scalars['Int']['output'];
+};
+
 export type Contract = {
   __typename?: 'Contract';
   createdAt: Scalars['DateTime']['output'];
@@ -838,6 +914,22 @@ export type CreateUserInput = {
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
   name: Scalars['String']['input'];
   roles: Array<Role>;
+};
+
+/** The MongoDB this server is connected to, reported by the database server. */
+export type DatabaseInfo = {
+  __typename?: 'DatabaseInfo';
+  collections: Scalars['Int']['output'];
+  connectionsAvailable: Scalars['Int']['output'];
+  connectionsCurrent: Scalars['Int']['output'];
+  dataSizeBytes: Scalars['Float']['output'];
+  host: Scalars['String']['output'];
+  indexSizeBytes: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+  objects: Scalars['Float']['output'];
+  storageSizeBytes: Scalars['Float']['output'];
+  uptimeSeconds: Scalars['Int']['output'];
+  version: Scalars['String']['output'];
 };
 
 export type Deal = {
@@ -916,6 +1008,97 @@ export type DocPage = {
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   updatedByName: Scalars['String']['output'];
+};
+
+export type DockerContainer = {
+  __typename?: 'DockerContainer';
+  createdAt: Scalars['DateTime']['output'];
+  health: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  image: Scalars['String']['output'];
+  /** The image's :tag — for this stack, the commit SHA that was deployed. */
+  imageTag: Scalars['String']['output'];
+  ipAddress: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  networks: Array<Scalars['String']['output']>;
+  ports: Array<ContainerPort>;
+  state: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+};
+
+/** Everything docker inspect says about one container, plus a live resource sample. */
+export type DockerContainerDetail = {
+  __typename?: 'DockerContainerDetail';
+  command: Scalars['String']['output'];
+  /** CPU limit in cores. 0 means unlimited. */
+  cpuLimit: Scalars['Float']['output'];
+  cpuPercent: Scalars['Float']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  exitCode: Scalars['Int']['output'];
+  health: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  image: Scalars['String']['output'];
+  imageId: Scalars['String']['output'];
+  imageTag: Scalars['String']['output'];
+  ipAddress: Scalars['String']['output'];
+  logDriver: Scalars['String']['output'];
+  memoryBytes: Scalars['Float']['output'];
+  memoryLimitBytes: Scalars['Float']['output'];
+  mounts: Array<ContainerMount>;
+  name: Scalars['String']['output'];
+  networks: Array<Scalars['String']['output']>;
+  restartCount: Scalars['Int']['output'];
+  restartPolicy: Scalars['String']['output'];
+  startedAt?: Maybe<Scalars['DateTime']['output']>;
+  state: Scalars['String']['output'];
+};
+
+export type DockerDiskUsage = {
+  __typename?: 'DockerDiskUsage';
+  buildCacheBytes: Scalars['Float']['output'];
+  containersBytes: Scalars['Float']['output'];
+  layersBytes: Scalars['Float']['output'];
+  volumesBytes: Scalars['Float']['output'];
+};
+
+/** The Docker engine and the machine hosting it. Unreadable is a state, not an error. */
+export type DockerHost = {
+  __typename?: 'DockerHost';
+  apiVersion: Scalars['String']['output'];
+  architecture: Scalars['String']['output'];
+  containersPaused: Scalars['Int']['output'];
+  containersRunning: Scalars['Int']['output'];
+  containersStopped: Scalars['Int']['output'];
+  cpus: Scalars['Int']['output'];
+  dockerRootDir: Scalars['String']['output'];
+  /** Why the engine could not be read. Empty when reachable. */
+  error: Scalars['String']['output'];
+  imagesCount: Scalars['Int']['output'];
+  kernelVersion: Scalars['String']['output'];
+  loggingDriver: Scalars['String']['output'];
+  memoryBytes: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+  operatingSystem: Scalars['String']['output'];
+  osType: Scalars['String']['output'];
+  reachable: Scalars['Boolean']['output'];
+  serverTime?: Maybe<Scalars['DateTime']['output']>;
+  serverVersion: Scalars['String']['output'];
+  storageDriver: Scalars['String']['output'];
+};
+
+export type DockerImage = {
+  __typename?: 'DockerImage';
+  containers: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  repoTags: Array<Scalars['String']['output']>;
+  sizeBytes: Scalars['Float']['output'];
+};
+
+export type DockerStorage = {
+  __typename?: 'DockerStorage';
+  images: Array<DockerImage>;
+  usage: DockerDiskUsage;
 };
 
 export enum DocumentCategory {
@@ -1528,6 +1711,13 @@ export type ImageConfigInput = {
   urlEndpoint: Scalars['String']['input'];
 };
 
+export type InfrastructureOverview = {
+  __typename?: 'InfrastructureOverview';
+  database: DatabaseInfo;
+  docker: DockerHost;
+  runtime: ServerRuntime;
+};
+
 export type Invoice = {
   __typename?: 'Invoice';
   amount: Scalars['Float']['output'];
@@ -1843,6 +2033,53 @@ export type LegalDocumentPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** A software subscription IT pays for: a pot of seats that renews on a date. */
+export type Licence = {
+  __typename?: 'Licence';
+  /** Employees holding a seat. Its length is the seats used. */
+  assigneeIds: Array<Scalars['String']['output']>;
+  billingCycle: LicenceBillingCycle;
+  cost: Scalars['Float']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  renewalDate: Scalars['DateTime']['output'];
+  seatsTotal: Scalars['Int']['output'];
+  status: LicenceStatus;
+  updatedAt: Scalars['DateTime']['output'];
+  vendor: Scalars['String']['output'];
+};
+
+export enum LicenceBillingCycle {
+  Monthly = 'MONTHLY',
+  Quarterly = 'QUARTERLY',
+  Yearly = 'YEARLY'
+}
+
+export type LicenceInput = {
+  assigneeIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  billingCycle: LicenceBillingCycle;
+  cost: Scalars['Float']['input'];
+  name: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  renewalDate: Scalars['DateTime']['input'];
+  seatsTotal: Scalars['Int']['input'];
+  status: LicenceStatus;
+  vendor: Scalars['String']['input'];
+};
+
+export type LicencePage = {
+  __typename?: 'LicencePage';
+  rows: Array<Licence>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum LicenceStatus {
+  Active = 'ACTIVE',
+  Cancelled = 'CANCELLED'
+}
+
 export type Location = {
   __typename?: 'Location';
   active: Scalars['Boolean']['output'];
@@ -1930,6 +2167,7 @@ export type Mutation = {
   createAiJob: AiJob;
   createAnnouncement: Announcement;
   createAsset: Asset;
+  createAudienceList: AudienceList;
   createBenefit: Benefit;
   createBlogPost: BlogPost;
   createBug: Bug;
@@ -1966,6 +2204,7 @@ export type Mutation = {
   createLeavePolicy: LeavePolicy;
   createLeaveRequest: LeaveRequest;
   createLegalDocument: LegalDocument;
+  createLicence: Licence;
   createLocation: Location;
   /**
    * Filed by the employee for themselves: id from the token, always SUBMITTED,
@@ -2006,6 +2245,7 @@ export type Mutation = {
   deleteAiJob: Scalars['Boolean']['output'];
   deleteAnnouncement: Scalars['Boolean']['output'];
   deleteAsset: Scalars['Boolean']['output'];
+  deleteAudienceList: Scalars['Boolean']['output'];
   deleteBenefit: Scalars['Boolean']['output'];
   deleteBlogPost: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
@@ -2043,6 +2283,7 @@ export type Mutation = {
   deleteLeavePolicy: Scalars['Boolean']['output'];
   deleteLeaveRequest: Scalars['Boolean']['output'];
   deleteLegalDocument: Scalars['Boolean']['output'];
+  deleteLicence: Scalars['Boolean']['output'];
   deleteLocation: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
   deleteOpenAiConfig: Scalars['Boolean']['output'];
@@ -2095,12 +2336,16 @@ export type Mutation = {
   resetUserPassword: Scalars['String']['output'];
   revokeTrackerAccess: TrackerAccess;
   revokeTrackerDevice: TrackerDevice;
+  /** Sends the job's prompt to OpenAI and stores the answer, the tokens and the timing. */
+  runAiJob: AiJob;
   /**
    * Generates (or recomputes) every active employee's slip for the month from their
    * salary structure and approved unpaid leave. Idempotent: running it twice
    * recomputes GENERATED slips and never touches PAID ones.
    */
   runPayroll: PayrollRunResult;
+  /** Runs a prompt-library entry as a new job, so the run keeps its own history. */
+  runPrompt: AiJob;
   saveTrackerBuildSettings: TrackerBuildSettings;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
@@ -2108,11 +2353,16 @@ export type Mutation = {
    * exists. Returns a message safe to show the caller.
    */
   sendAdminCredentials: Scalars['String']['output'];
-  /** Emails the campaign's subject/body to the selected clients. */
+  /** Emails the campaign's subject/body to every client in the audience list. */
   sendCampaign: CampaignSendResult;
   sendContract: Contract;
   /** HR broadcast to every active employee, one department, or a chosen list. */
   sendNotification: SendNotificationResult;
+  /**
+   * Emails every payslip of the month to its employee, PDF attached, right now.
+   * Does not wait for the schedule and does not change it.
+   */
+  sendSalarySlips: PayrollDispatchResult;
   sendTestEmail: Scalars['Boolean']['output'];
   /** Sends the real thing to one address, and logs it like any other send. */
   sendTestEmailTemplate: Scalars['Boolean']['output'];
@@ -2168,6 +2418,7 @@ export type Mutation = {
   updateAiJob: AiJob;
   updateAnnouncement: Announcement;
   updateAsset: Asset;
+  updateAudienceList: AudienceList;
   updateBenefit: Benefit;
   updateBlogPost: BlogPost;
   updateBranding: Branding;
@@ -2204,6 +2455,7 @@ export type Mutation = {
   updateLeavePolicy: LeavePolicy;
   updateLeaveRequest: LeaveRequest;
   updateLegalDocument: LegalDocument;
+  updateLicence: Licence;
   updateLocation: Location;
   /**
    * Employee self-update. Only progress moves; weightage, dates and the manager's
@@ -2214,6 +2466,8 @@ export type Mutation = {
   updateMyTrainingStatus: Training;
   updateNavLink: NavLink;
   updateOpenAiConfig: OpenAiConfig;
+  /** Saves when payslip emails go out. Turning it off stops the scheduled run. */
+  updatePayrollSchedule: PayrollSchedule;
   updatePerformanceReview: PerformanceReview;
   updatePexelsConfig: PexelsConfig;
   updatePolicy: Policy;
@@ -2305,6 +2559,11 @@ export type MutationCreateAnnouncementArgs = {
 
 export type MutationCreateAssetArgs = {
   input: AssetInput;
+};
+
+
+export type MutationCreateAudienceListArgs = {
+  input: AudienceListInput;
 };
 
 
@@ -2491,6 +2750,11 @@ export type MutationCreateLegalDocumentArgs = {
 };
 
 
+export type MutationCreateLicenceArgs = {
+  input: LicenceInput;
+};
+
+
 export type MutationCreateLocationArgs = {
   input: LocationInput;
 };
@@ -2639,6 +2903,11 @@ export type MutationDeleteAnnouncementArgs = {
 
 
 export type MutationDeleteAssetArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteAudienceListArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2819,6 +3088,11 @@ export type MutationDeleteLeaveRequestArgs = {
 
 
 export type MutationDeleteLegalDocumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteLicenceArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -3033,9 +3307,20 @@ export type MutationRevokeTrackerDeviceArgs = {
 };
 
 
+export type MutationRunAiJobArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationRunPayrollArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
+};
+
+
+export type MutationRunPromptArgs = {
+  id: Scalars['ID']['input'];
+  model: Scalars['String']['input'];
 };
 
 
@@ -3045,7 +3330,7 @@ export type MutationSaveTrackerBuildSettingsArgs = {
 
 
 export type MutationSendCampaignArgs = {
-  clientIds: Array<Scalars['ID']['input']>;
+  audienceListId: Scalars['ID']['input'];
   id: Scalars['ID']['input'];
 };
 
@@ -3059,6 +3344,12 @@ export type MutationSendContractArgs = {
 
 export type MutationSendNotificationArgs = {
   input: SendNotificationInput;
+};
+
+
+export type MutationSendSalarySlipsArgs = {
+  month: Scalars['Int']['input'];
+  year: Scalars['Int']['input'];
 };
 
 
@@ -3236,6 +3527,12 @@ export type MutationUpdateAnnouncementArgs = {
 export type MutationUpdateAssetArgs = {
   id: Scalars['ID']['input'];
   input: AssetInput;
+};
+
+
+export type MutationUpdateAudienceListArgs = {
+  id: Scalars['ID']['input'];
+  input: AudienceListInput;
 };
 
 
@@ -3455,6 +3752,12 @@ export type MutationUpdateLegalDocumentArgs = {
 };
 
 
+export type MutationUpdateLicenceArgs = {
+  id: Scalars['ID']['input'];
+  input: LicenceInput;
+};
+
+
 export type MutationUpdateLocationArgs = {
   id: Scalars['ID']['input'];
   input: LocationInput;
@@ -3482,6 +3785,11 @@ export type MutationUpdateNavLinkArgs = {
 export type MutationUpdateOpenAiConfigArgs = {
   id: Scalars['ID']['input'];
   input: OpenAiConfigInput;
+};
+
+
+export type MutationUpdatePayrollScheduleArgs = {
+  input: PayrollScheduleInput;
 };
 
 
@@ -3772,6 +4080,18 @@ export type PaymentPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** What one payslip email run did, per employee outcome. */
+export type PayrollDispatchResult = {
+  __typename?: 'PayrollDispatchResult';
+  /** Employees whose payslip email was refused; the run carried on past each one. */
+  failed: Scalars['Int']['output'];
+  month: Scalars['Int']['output'];
+  sent: Scalars['Int']['output'];
+  /** Employees with no email address on file. */
+  skipped: Scalars['Int']['output'];
+  year: Scalars['Int']['output'];
+};
+
 /** What one payroll run did. */
 export type PayrollRunResult = {
   __typename?: 'PayrollRunResult';
@@ -3784,6 +4104,32 @@ export type PayrollRunResult = {
   /** Slips that already existed and were recomputed (only while still GENERATED). */
   updated: Scalars['Int']['output'];
   year: Scalars['Int']['output'];
+};
+
+/** When payslip emails go out, as HR configures them. */
+export type PayrollSchedule = {
+  __typename?: 'PayrollSchedule';
+  /** Day of the month the run fires on. Capped at 28 so every month has it. */
+  dayOfMonth: Scalars['Int']['output'];
+  enabled: Scalars['Boolean']['output'];
+  hour: Scalars['Int']['output'];
+  lastFailed: Scalars['Int']['output'];
+  lastRunAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The period the last run sent for, as YYYY-MM. Empty until the first run. */
+  lastRunPeriod: Scalars['String']['output'];
+  lastSent: Scalars['Int']['output'];
+  lastSkipped: Scalars['Int']['output'];
+  minute: Scalars['Int']['output'];
+  /** Which month the run sends: PREVIOUS_MONTH or CURRENT_MONTH. */
+  period: Scalars['String']['output'];
+};
+
+export type PayrollScheduleInput = {
+  dayOfMonth: Scalars['Int']['input'];
+  enabled: Scalars['Boolean']['input'];
+  hour: Scalars['Int']['input'];
+  minute: Scalars['Int']['input'];
+  period: Scalars['String']['input'];
 };
 
 /** The month at a glance, for review before marking paid. */
@@ -4167,6 +4513,8 @@ export type Query = {
   activeAnnouncements: Array<Announcement>;
   /** Leave types an employee can pick from when applying. */
   activeLeavePolicies: Array<LeavePolicy>;
+  /** Read live from OpenAI with the active key, so the list is what the account can reach. */
+  aiModels: AiModelOptions;
   appSettings: AppSettings;
   /** HR/ADMIN: a specific employee's attendance records. */
   attendanceByEmployee: Array<Attendance>;
@@ -4177,11 +4525,18 @@ export type Query = {
    */
   companyFinance: CompanyFinance;
   docPage: DocPage;
+  /** One container in full, including a live CPU/memory sample (takes ~2s to measure). */
+  dockerContainerDetail: DockerContainerDetail;
+  /** Every container on the host, running or not. */
+  dockerContainers: Array<DockerContainer>;
+  /** Images on the host and what the engine's disk is spent on. */
+  dockerStorage: DockerStorage;
   emailDashboard: EmailDashboard;
   getActivity: Activity;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
   getAsset: Asset;
+  getAudienceList: AudienceList;
   getBenefit: Benefit;
   getBlogPost: BlogPost;
   getBug: Bug;
@@ -4213,6 +4568,7 @@ export type Query = {
   getLeavePolicy: LeavePolicy;
   getLeaveRequest: LeaveRequest;
   getLegalDocument: LegalDocument;
+  getLicence: Licence;
   getLocation: Location;
   getNavLink: NavLink;
   getPerformanceReview: PerformanceReview;
@@ -4234,6 +4590,8 @@ export type Query = {
   getWebsiteSubmission: WebsiteSubmission;
   /** HR/ADMIN: workforce counts + headcount-over-time series. */
   hrDashboard: HrDashboard;
+  /** Host, this process and the database in one read — the Infrastructure overview. */
+  infrastructureOverview: InfrastructureOverview;
   /** Payments against one invoice, newest first. */
   invoicePayments: Array<Payment>;
   /** HR/ADMIN: a specific employee's leave requests. */
@@ -4254,6 +4612,8 @@ export type Query = {
   listAssetsStats: TableStats;
   /** HR/ADMIN: all attendance records. */
   listAttendance: Array<Attendance>;
+  listAudienceLists: Array<AudienceList>;
+  listAudienceListsPaged: AudienceListPage;
   listBenefits: Array<Benefit>;
   listBenefitsPaged: BenefitPage;
   listBenefitsStats: TableStats;
@@ -4263,6 +4623,8 @@ export type Query = {
   listBugs: Array<Bug>;
   listBugsPaged: BugPage;
   listBugsStats: TableStats;
+  /** Every recipient of a campaign's sends, newest first. */
+  listCampaignSends: Array<CampaignSend>;
   listCampaigns: Array<Campaign>;
   listCampaignsPaged: CampaignPage;
   listCampaignsStats: TableStats;
@@ -4350,6 +4712,9 @@ export type Query = {
   listLegalDocuments: Array<LegalDocument>;
   listLegalDocumentsPaged: LegalDocumentPage;
   listLegalDocumentsStats: TableStats;
+  listLicences: Array<Licence>;
+  listLicencesPaged: LicencePage;
+  listLicencesStats: TableStats;
   listLocations: Array<Location>;
   listLocationsPaged: LocationPage;
   listLocationsStats: TableStats;
@@ -4458,6 +4823,8 @@ export type Query = {
   myTrackerTotals: TrackerTotals;
   myTrainings: Array<Training>;
   myUnreadNotificationCount: Scalars['Int']['output'];
+  /** The payslip email schedule. Created with its defaults on first read. */
+  payrollSchedule: PayrollSchedule;
   payrollSummary: PayrollSummary;
   /** Who has signed a policy, newest first. */
   policyAcknowledgements: Array<PolicyAcknowledgement>;
@@ -4486,18 +4853,30 @@ export type Query = {
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
   receivables: Receivables;
+  /**
+   * One payslip as a PDF. An employee may download their own; HR and Finance may
+   * download anyone's.
+   */
+  salarySlipPdf: SalarySlipDownload;
   /** Stock photos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsPhotos: Array<PexelsMedia>;
   /** Stock videos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsVideos: Array<PexelsMedia>;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
   statusOverview: StatusOverview;
+  /** The ticket's history, newest first. */
+  taskActivity: Array<TaskActivity>;
   taskComments: Array<TaskComment>;
   trackerAccessList: Array<TrackerAccess>;
   trackerBuildSettings: TrackerBuildSettings;
   trackerCalendar: Array<TrackerDayBucket>;
   trackerDay: TrackerDay;
   trackerDevices: Array<TrackerDevice>;
+  /**
+   * The latest desktop installers. Any signed-in employee may read it — the files
+   * themselves live on a public GitHub release. Null until a release exists.
+   */
+  trackerLatestRelease?: Maybe<TrackerRelease>;
   trackerMe: TrackerMe;
   trackerSettings: TrackerSettings;
   trackerTotals: TrackerTotals;
@@ -4516,6 +4895,11 @@ export type QueryCompanyFinanceArgs = {
 
 
 export type QueryDocPageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryDockerContainerDetailArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4541,6 +4925,11 @@ export type QueryGetAnnouncementArgs = {
 
 
 export type QueryGetAssetArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetAudienceListArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4700,6 +5089,11 @@ export type QueryGetLegalDocumentArgs = {
 };
 
 
+export type QueryGetLicenceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetLocationArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4825,6 +5219,11 @@ export type QueryListAssetsPagedArgs = {
 };
 
 
+export type QueryListAudienceListsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListBenefitsPagedArgs = {
   input: TableQueryInput;
 };
@@ -4837,6 +5236,11 @@ export type QueryListBlogPostsPagedArgs = {
 
 export type QueryListBugsPagedArgs = {
   input: TableQueryInput;
+};
+
+
+export type QueryListCampaignSendsArgs = {
+  campaignId: Scalars['ID']['input'];
 };
 
 
@@ -4971,6 +5375,11 @@ export type QueryListLeavePoliciesPagedArgs = {
 
 
 export type QueryListLegalDocumentsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListLicencesPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -5165,6 +5574,11 @@ export type QueryPublicToolsArgs = {
 };
 
 
+export type QuerySalarySlipPdfArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QuerySearchPexelsPhotosArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
@@ -5179,6 +5593,11 @@ export type QuerySearchPexelsVideosArgs = {
 
 export type QueryStatusOverviewArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryTaskActivityArgs = {
+  taskId: Scalars['ID']['input'];
 };
 
 
@@ -5296,6 +5715,14 @@ export type SalarySlip = {
   year: Scalars['Int']['output'];
 };
 
+/** A payslip PDF, base64 encoded so the browser can save it straight from the response. */
+export type SalarySlipDownload = {
+  __typename?: 'SalarySlipDownload';
+  contentBase64: Scalars['String']['output'];
+  contentType: Scalars['String']['output'];
+  filename: Scalars['String']['output'];
+};
+
 export type SalarySlipPage = {
   __typename?: 'SalarySlipPage';
   rows: Array<SalarySlip>;
@@ -5355,6 +5782,24 @@ export type SendNotificationInput = {
 export type SendNotificationResult = {
   __typename?: 'SendNotificationResult';
   recipients: Scalars['Int']['output'];
+};
+
+/** The API process itself, as it sees the world from inside its own container. */
+export type ServerRuntime = {
+  __typename?: 'ServerRuntime';
+  arch: Scalars['String']['output'];
+  environment: Scalars['String']['output'];
+  heapTotalBytes: Scalars['Float']['output'];
+  heapUsedBytes: Scalars['Float']['output'];
+  hostname: Scalars['String']['output'];
+  load1: Scalars['Float']['output'];
+  load5: Scalars['Float']['output'];
+  load15: Scalars['Float']['output'];
+  nodeVersion: Scalars['String']['output'];
+  platform: Scalars['String']['output'];
+  processUptimeSeconds: Scalars['Int']['output'];
+  rssBytes: Scalars['Float']['output'];
+  startedAt: Scalars['DateTime']['output'];
 };
 
 export type Shift = {
@@ -5748,6 +6193,19 @@ export type Task = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/** One recorded change to a ticket: who changed what, from what, to what. */
+export type TaskActivity = {
+  __typename?: 'TaskActivity';
+  actorName: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** The field that changed: a ticket field name, or column, or created. */
+  field: Scalars['String']['output'];
+  fromValue: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  taskId: Scalars['ID']['output'];
+  toValue: Scalars['String']['output'];
+};
+
 export type TaskComment = {
   __typename?: 'TaskComment';
   authorId: Scalars['String']['output'];
@@ -6051,6 +6509,31 @@ export enum TrackerPlatform {
   Windows = 'WINDOWS'
 }
 
+/** The newest published desktop tracker build, with its installers. */
+export type TrackerRelease = {
+  __typename?: 'TrackerRelease';
+  assets: Array<TrackerReleaseAsset>;
+  name: Scalars['String']['output'];
+  /** Release notes, as Markdown. */
+  notes: Scalars['String']['output'];
+  publishedAt: Scalars['DateTime']['output'];
+  tag: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+  version: Scalars['String']['output'];
+};
+
+/** One installer file published on a tracker release. */
+export type TrackerReleaseAsset = {
+  __typename?: 'TrackerReleaseAsset';
+  downloadCount: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  /** One of: windows, macos, linux. */
+  platform: Scalars['String']['output'];
+  sizeBytes: Scalars['Float']['output'];
+  /** Direct download URL on the public GitHub release. */
+  url: Scalars['String']['output'];
+};
+
 export type TrackerScreenshot = {
   __typename?: 'TrackerScreenshot';
   /**
@@ -6353,6 +6836,7 @@ export type ResolversTypes = ResolversObject<{
   AiJobInput: AiJobInput;
   AiJobPage: ResolverTypeWrapper<AiJobPage>;
   AiJobStatus: AiJobStatus;
+  AiModelOptions: ResolverTypeWrapper<AiModelOptions>;
   Announcement: ResolverTypeWrapper<Announcement>;
   AnnouncementAudience: AnnouncementAudience;
   AnnouncementCategory: AnnouncementCategory;
@@ -6368,6 +6852,9 @@ export type ResolversTypes = ResolversObject<{
   AssetStatus: AssetStatus;
   Attendance: ResolverTypeWrapper<Attendance>;
   AttendanceStatus: AttendanceStatus;
+  AudienceList: ResolverTypeWrapper<AudienceList>;
+  AudienceListInput: AudienceListInput;
+  AudienceListPage: ResolverTypeWrapper<AudienceListPage>;
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
   Benefit: ResolverTypeWrapper<Benefit>;
   BenefitInput: BenefitInput;
@@ -6391,7 +6878,9 @@ export type ResolversTypes = ResolversObject<{
   CampaignChannel: CampaignChannel;
   CampaignInput: CampaignInput;
   CampaignPage: ResolverTypeWrapper<CampaignPage>;
+  CampaignSend: ResolverTypeWrapper<CampaignSend>;
   CampaignSendResult: ResolverTypeWrapper<CampaignSendResult>;
+  CampaignSendStatus: CampaignSendStatus;
   CampaignStatus: CampaignStatus;
   CaseStudy: ResolverTypeWrapper<CaseStudy>;
   CaseStudyInput: CaseStudyInput;
@@ -6416,12 +6905,15 @@ export type ResolversTypes = ResolversObject<{
   ContactInput: ContactInput;
   ContactPage: ResolverTypeWrapper<ContactPage>;
   ContactStatus: ContactStatus;
+  ContainerMount: ResolverTypeWrapper<ContainerMount>;
+  ContainerPort: ResolverTypeWrapper<ContainerPort>;
   Contract: ResolverTypeWrapper<Contract>;
   ContractInput: ContractInput;
   ContractPage: ResolverTypeWrapper<ContractPage>;
   ContractStatus: ContractStatus;
   ContractType: ContractType;
   CreateUserInput: CreateUserInput;
+  DatabaseInfo: ResolverTypeWrapper<DatabaseInfo>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   Deal: ResolverTypeWrapper<Deal>;
   DealInput: DealInput;
@@ -6430,6 +6922,12 @@ export type ResolversTypes = ResolversObject<{
   Department: ResolverTypeWrapper<Department>;
   DepartmentInput: DepartmentInput;
   DocPage: ResolverTypeWrapper<DocPage>;
+  DockerContainer: ResolverTypeWrapper<DockerContainer>;
+  DockerContainerDetail: ResolverTypeWrapper<DockerContainerDetail>;
+  DockerDiskUsage: ResolverTypeWrapper<DockerDiskUsage>;
+  DockerHost: ResolverTypeWrapper<DockerHost>;
+  DockerImage: ResolverTypeWrapper<DockerImage>;
+  DockerStorage: ResolverTypeWrapper<DockerStorage>;
   DocumentCategory: DocumentCategory;
   DocumentKind: DocumentKind;
   DocumentStatus: DocumentStatus;
@@ -6494,6 +6992,7 @@ export type ResolversTypes = ResolversObject<{
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   ImageConfig: ResolverTypeWrapper<ImageConfig>;
   ImageConfigInput: ImageConfigInput;
+  InfrastructureOverview: ResolverTypeWrapper<InfrastructureOverview>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Invoice: ResolverTypeWrapper<Invoice>;
   InvoiceInput: InvoiceInput;
@@ -6524,6 +7023,11 @@ export type ResolversTypes = ResolversObject<{
   LegalDocument: ResolverTypeWrapper<LegalDocument>;
   LegalDocumentInput: LegalDocumentInput;
   LegalDocumentPage: ResolverTypeWrapper<LegalDocumentPage>;
+  Licence: ResolverTypeWrapper<Licence>;
+  LicenceBillingCycle: LicenceBillingCycle;
+  LicenceInput: LicenceInput;
+  LicencePage: ResolverTypeWrapper<LicencePage>;
+  LicenceStatus: LicenceStatus;
   Location: ResolverTypeWrapper<Location>;
   LocationInput: LocationInput;
   LocationPage: ResolverTypeWrapper<LocationPage>;
@@ -6546,7 +7050,10 @@ export type ResolversTypes = ResolversObject<{
   PaymentInput: PaymentInput;
   PaymentMethod: PaymentMethod;
   PaymentPage: ResolverTypeWrapper<PaymentPage>;
+  PayrollDispatchResult: ResolverTypeWrapper<PayrollDispatchResult>;
   PayrollRunResult: ResolverTypeWrapper<PayrollRunResult>;
+  PayrollSchedule: ResolverTypeWrapper<PayrollSchedule>;
+  PayrollScheduleInput: PayrollScheduleInput;
   PayrollSummary: ResolverTypeWrapper<PayrollSummary>;
   PerformanceReview: ResolverTypeWrapper<PerformanceReview>;
   PerformanceReviewInput: PerformanceReviewInput;
@@ -6594,6 +7101,7 @@ export type ResolversTypes = ResolversObject<{
   Role: Role;
   RolePermission: ResolverTypeWrapper<RolePermission>;
   SalarySlip: ResolverTypeWrapper<SalarySlip>;
+  SalarySlipDownload: ResolverTypeWrapper<SalarySlipDownload>;
   SalarySlipPage: ResolverTypeWrapper<SalarySlipPage>;
   SalaryStructure: ResolverTypeWrapper<SalaryStructure>;
   SalaryStructureInput: SalaryStructureInput;
@@ -6601,6 +7109,7 @@ export type ResolversTypes = ResolversObject<{
   SendMailInput: SendMailInput;
   SendNotificationInput: SendNotificationInput;
   SendNotificationResult: ResolverTypeWrapper<SendNotificationResult>;
+  ServerRuntime: ResolverTypeWrapper<ServerRuntime>;
   Shift: ResolverTypeWrapper<Shift>;
   ShiftInput: ShiftInput;
   ShiftPage: ResolverTypeWrapper<ShiftPage>;
@@ -6642,6 +7151,7 @@ export type ResolversTypes = ResolversObject<{
   TableSortInput: TableSortInput;
   TableStats: ResolverTypeWrapper<TableStats>;
   Task: ResolverTypeWrapper<Task>;
+  TaskActivity: ResolverTypeWrapper<TaskActivity>;
   TaskComment: ResolverTypeWrapper<TaskComment>;
   TaskInput: TaskInput;
   TaskPriority: TaskPriority;
@@ -6669,6 +7179,8 @@ export type ResolversTypes = ResolversObject<{
   TrackerLoginPayload: ResolverTypeWrapper<TrackerLoginPayload>;
   TrackerMe: ResolverTypeWrapper<TrackerMe>;
   TrackerPlatform: TrackerPlatform;
+  TrackerRelease: ResolverTypeWrapper<TrackerRelease>;
+  TrackerReleaseAsset: ResolverTypeWrapper<TrackerReleaseAsset>;
   TrackerScreenshot: ResolverTypeWrapper<TrackerScreenshot>;
   TrackerScreenshotInput: TrackerScreenshotInput;
   TrackerSession: ResolverTypeWrapper<TrackerSession>;
@@ -6699,6 +7211,7 @@ export type ResolversParentTypes = ResolversObject<{
   AiJob: AiJob;
   AiJobInput: AiJobInput;
   AiJobPage: AiJobPage;
+  AiModelOptions: AiModelOptions;
   Announcement: Announcement;
   AnnouncementInput: AnnouncementInput;
   AnnouncementPage: AnnouncementPage;
@@ -6709,6 +7222,9 @@ export type ResolversParentTypes = ResolversObject<{
   AssetInput: AssetInput;
   AssetPage: AssetPage;
   Attendance: Attendance;
+  AudienceList: AudienceList;
+  AudienceListInput: AudienceListInput;
+  AudienceListPage: AudienceListPage;
   AuthPayload: AuthPayload;
   Benefit: Benefit;
   BenefitInput: BenefitInput;
@@ -6728,6 +7244,7 @@ export type ResolversParentTypes = ResolversObject<{
   Campaign: Campaign;
   CampaignInput: CampaignInput;
   CampaignPage: CampaignPage;
+  CampaignSend: CampaignSend;
   CampaignSendResult: CampaignSendResult;
   CaseStudy: CaseStudy;
   CaseStudyInput: CaseStudyInput;
@@ -6749,10 +7266,13 @@ export type ResolversParentTypes = ResolversObject<{
   Contact: Contact;
   ContactInput: ContactInput;
   ContactPage: ContactPage;
+  ContainerMount: ContainerMount;
+  ContainerPort: ContainerPort;
   Contract: Contract;
   ContractInput: ContractInput;
   ContractPage: ContractPage;
   CreateUserInput: CreateUserInput;
+  DatabaseInfo: DatabaseInfo;
   DateTime: Scalars['DateTime']['output'];
   Deal: Deal;
   DealInput: DealInput;
@@ -6760,6 +7280,12 @@ export type ResolversParentTypes = ResolversObject<{
   Department: Department;
   DepartmentInput: DepartmentInput;
   DocPage: DocPage;
+  DockerContainer: DockerContainer;
+  DockerContainerDetail: DockerContainerDetail;
+  DockerDiskUsage: DockerDiskUsage;
+  DockerHost: DockerHost;
+  DockerImage: DockerImage;
+  DockerStorage: DockerStorage;
   EmailConfig: EmailConfig;
   EmailConfigInput: EmailConfigInput;
   EmailDashboard: EmailDashboard;
@@ -6812,6 +7338,7 @@ export type ResolversParentTypes = ResolversObject<{
   ID: Scalars['ID']['output'];
   ImageConfig: ImageConfig;
   ImageConfigInput: ImageConfigInput;
+  InfrastructureOverview: InfrastructureOverview;
   Int: Scalars['Int']['output'];
   Invoice: Invoice;
   InvoiceInput: InvoiceInput;
@@ -6837,6 +7364,9 @@ export type ResolversParentTypes = ResolversObject<{
   LegalDocument: LegalDocument;
   LegalDocumentInput: LegalDocumentInput;
   LegalDocumentPage: LegalDocumentPage;
+  Licence: Licence;
+  LicenceInput: LicenceInput;
+  LicencePage: LicencePage;
   Location: Location;
   LocationInput: LocationInput;
   LocationPage: LocationPage;
@@ -6855,7 +7385,10 @@ export type ResolversParentTypes = ResolversObject<{
   Payment: Payment;
   PaymentInput: PaymentInput;
   PaymentPage: PaymentPage;
+  PayrollDispatchResult: PayrollDispatchResult;
   PayrollRunResult: PayrollRunResult;
+  PayrollSchedule: PayrollSchedule;
+  PayrollScheduleInput: PayrollScheduleInput;
   PayrollSummary: PayrollSummary;
   PerformanceReview: PerformanceReview;
   PerformanceReviewInput: PerformanceReviewInput;
@@ -6890,6 +7423,7 @@ export type ResolversParentTypes = ResolversObject<{
   ReceivablesBucket: ReceivablesBucket;
   RolePermission: RolePermission;
   SalarySlip: SalarySlip;
+  SalarySlipDownload: SalarySlipDownload;
   SalarySlipPage: SalarySlipPage;
   SalaryStructure: SalaryStructure;
   SalaryStructureInput: SalaryStructureInput;
@@ -6897,6 +7431,7 @@ export type ResolversParentTypes = ResolversObject<{
   SendMailInput: SendMailInput;
   SendNotificationInput: SendNotificationInput;
   SendNotificationResult: SendNotificationResult;
+  ServerRuntime: ServerRuntime;
   Shift: Shift;
   ShiftInput: ShiftInput;
   ShiftPage: ShiftPage;
@@ -6930,6 +7465,7 @@ export type ResolversParentTypes = ResolversObject<{
   TableSortInput: TableSortInput;
   TableStats: TableStats;
   Task: Task;
+  TaskActivity: TaskActivity;
   TaskComment: TaskComment;
   TaskInput: TaskInput;
   Team: Team;
@@ -6954,6 +7490,8 @@ export type ResolversParentTypes = ResolversObject<{
   TrackerIntervalInput: TrackerIntervalInput;
   TrackerLoginPayload: TrackerLoginPayload;
   TrackerMe: TrackerMe;
+  TrackerRelease: TrackerRelease;
+  TrackerReleaseAsset: TrackerReleaseAsset;
   TrackerScreenshot: TrackerScreenshot;
   TrackerScreenshotInput: TrackerScreenshotInput;
   TrackerSession: TrackerSession;
@@ -6998,12 +7536,20 @@ export type ActivityPageResolvers<ContextType = GraphQLContext, ParentType exten
 }>;
 
 export type AiJobResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AiJob'] = ResolversParentTypes['AiJob']> = ResolversObject<{
+  completionTokens?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  latencyMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   model?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   prompt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  promptId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  promptTokens?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  ranAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  response?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['AiJobStatus'], ParentType, ContextType>;
+  totalTokens?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -7011,6 +7557,12 @@ export type AiJobResolvers<ContextType = GraphQLContext, ParentType extends Reso
 export type AiJobPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AiJobPage'] = ResolversParentTypes['AiJobPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['AiJob']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AiModelOptionsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AiModelOptions'] = ResolversParentTypes['AiModelOptions']> = ResolversObject<{
+  defaultModel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  models?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -7086,6 +7638,22 @@ export type AttendanceResolvers<ContextType = GraphQLContext, ParentType extends
   note?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['AttendanceStatus'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AudienceListResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceList'] = ResolversParentTypes['AudienceList']> = ResolversObject<{
+  clientIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AudienceListPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceListPage'] = ResolversParentTypes['AudienceListPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['AudienceList']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -7226,6 +7794,18 @@ export type CampaignResolvers<ContextType = GraphQLContext, ParentType extends R
 export type CampaignPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignPage'] = ResolversParentTypes['CampaignPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Campaign']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CampaignSendResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignSend'] = ResolversParentTypes['CampaignSend']> = ResolversObject<{
+  audienceListId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  campaignId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  recipientName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sentAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['CampaignSendStatus'], ParentType, ContextType>;
+  to?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -7382,6 +7962,22 @@ export type ContactPageResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ContainerMountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContainerMount'] = ResolversParentTypes['ContainerMount']> = ResolversObject<{
+  destination?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  readOnly?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ContainerPortResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContainerPort'] = ResolversParentTypes['ContainerPort']> = ResolversObject<{
+  ip?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  privatePort?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  protocol?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  publicPort?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ContractResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Contract'] = ResolversParentTypes['Contract']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -7401,6 +7997,21 @@ export type ContractResolvers<ContextType = GraphQLContext, ParentType extends R
 export type ContractPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractPage'] = ResolversParentTypes['ContractPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Contract']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DatabaseInfoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DatabaseInfo'] = ResolversParentTypes['DatabaseInfo']> = ResolversObject<{
+  collections?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  connectionsAvailable?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  connectionsCurrent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  dataSizeBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  host?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  indexSizeBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  objects?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  storageSizeBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  uptimeSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -7451,6 +8062,92 @@ export type DocPageResolvers<ContextType = GraphQLContext, ParentType extends Re
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   updatedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DockerContainerResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DockerContainer'] = ResolversParentTypes['DockerContainer']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  health?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  imageTag?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ipAddress?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  networks?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  ports?: Resolver<Array<ResolversTypes['ContainerPort']>, ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DockerContainerDetailResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DockerContainerDetail'] = ResolversParentTypes['DockerContainerDetail']> = ResolversObject<{
+  command?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  cpuLimit?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  cpuPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  exitCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  health?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  imageId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  imageTag?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ipAddress?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  logDriver?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  memoryBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  memoryLimitBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  mounts?: Resolver<Array<ResolversTypes['ContainerMount']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  networks?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  restartCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  restartPolicy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  startedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DockerDiskUsageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DockerDiskUsage'] = ResolversParentTypes['DockerDiskUsage']> = ResolversObject<{
+  buildCacheBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  containersBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  layersBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  volumesBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DockerHostResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DockerHost'] = ResolversParentTypes['DockerHost']> = ResolversObject<{
+  apiVersion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  architecture?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  containersPaused?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  containersRunning?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  containersStopped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  cpus?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  dockerRootDir?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  imagesCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  kernelVersion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  loggingDriver?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  memoryBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  operatingSystem?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  osType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reachable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  serverTime?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  serverVersion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  storageDriver?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DockerImageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DockerImage'] = ResolversParentTypes['DockerImage']> = ResolversObject<{
+  containers?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  repoTags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  sizeBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DockerStorageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DockerStorage'] = ResolversParentTypes['DockerStorage']> = ResolversObject<{
+  images?: Resolver<Array<ResolversTypes['DockerImage']>, ParentType, ContextType>;
+  usage?: Resolver<ResolversTypes['DockerDiskUsage'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -7806,6 +8503,13 @@ export type ImageConfigResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type InfrastructureOverviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InfrastructureOverview'] = ResolversParentTypes['InfrastructureOverview']> = ResolversObject<{
+  database?: Resolver<ResolversTypes['DatabaseInfo'], ParentType, ContextType>;
+  docker?: Resolver<ResolversTypes['DockerHost'], ParentType, ContextType>;
+  runtime?: Resolver<ResolversTypes['ServerRuntime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type InvoiceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Invoice'] = ResolversParentTypes['Invoice']> = ResolversObject<{
   amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   amountPaid?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
@@ -7987,6 +8691,28 @@ export type LegalDocumentPageResolvers<ContextType = GraphQLContext, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type LicenceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Licence'] = ResolversParentTypes['Licence']> = ResolversObject<{
+  assigneeIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  billingCycle?: Resolver<ResolversTypes['LicenceBillingCycle'], ParentType, ContextType>;
+  cost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  renewalDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  seatsTotal?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['LicenceStatus'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  vendor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LicencePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LicencePage'] = ResolversParentTypes['LicencePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Licence']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type LocationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Location'] = ResolversParentTypes['Location']> = ResolversObject<{
   active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -8031,6 +8757,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationCreateAiJobArgs, 'input'>>;
   createAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<MutationCreateAnnouncementArgs, 'input'>>;
   createAsset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType, RequireFields<MutationCreateAssetArgs, 'input'>>;
+  createAudienceList?: Resolver<ResolversTypes['AudienceList'], ParentType, ContextType, RequireFields<MutationCreateAudienceListArgs, 'input'>>;
   createBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationCreateBenefitArgs, 'input'>>;
   createBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationCreateBlogPostArgs, 'input'>>;
   createBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationCreateBugArgs, 'input'>>;
@@ -8067,6 +8794,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createLeavePolicy?: Resolver<ResolversTypes['LeavePolicy'], ParentType, ContextType, RequireFields<MutationCreateLeavePolicyArgs, 'input'>>;
   createLeaveRequest?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationCreateLeaveRequestArgs, 'input'>>;
   createLegalDocument?: Resolver<ResolversTypes['LegalDocument'], ParentType, ContextType, RequireFields<MutationCreateLegalDocumentArgs, 'input'>>;
+  createLicence?: Resolver<ResolversTypes['Licence'], ParentType, ContextType, RequireFields<MutationCreateLicenceArgs, 'input'>>;
   createLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationCreateLocationArgs, 'input'>>;
   createMyExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationCreateMyExpenseClaimArgs, 'input'>>;
   createMyRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationCreateMyRequestArgs, 'input'>>;
@@ -8097,6 +8825,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteAiJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAiJobArgs, 'id'>>;
   deleteAnnouncement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAnnouncementArgs, 'id'>>;
   deleteAsset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAssetArgs, 'id'>>;
+  deleteAudienceList?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAudienceListArgs, 'id'>>;
   deleteBenefit?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBenefitArgs, 'id'>>;
   deleteBlogPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBlogPostArgs, 'id'>>;
   deleteBug?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBugArgs, 'id'>>;
@@ -8133,6 +8862,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteLeavePolicy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLeavePolicyArgs, 'id'>>;
   deleteLeaveRequest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLeaveRequestArgs, 'id'>>;
   deleteLegalDocument?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLegalDocumentArgs, 'id'>>;
+  deleteLicence?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLicenceArgs, 'id'>>;
   deleteLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLocationArgs, 'id'>>;
   deleteNavLink?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNavLinkArgs, 'id'>>;
   deleteOpenAiConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteOpenAiConfigArgs, 'id'>>;
@@ -8174,12 +8904,15 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
   revokeTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationRevokeTrackerAccessArgs, 'userId'>>;
   revokeTrackerDevice?: Resolver<ResolversTypes['TrackerDevice'], ParentType, ContextType, RequireFields<MutationRevokeTrackerDeviceArgs, 'deviceId'>>;
+  runAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunAiJobArgs, 'id'>>;
   runPayroll?: Resolver<ResolversTypes['PayrollRunResult'], ParentType, ContextType, RequireFields<MutationRunPayrollArgs, 'month' | 'year'>>;
+  runPrompt?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunPromptArgs, 'id' | 'model'>>;
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'clientIds' | 'id'>>;
+  sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'audienceListId' | 'id'>>;
   sendContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSendContractArgs, 'email' | 'id'>>;
   sendNotification?: Resolver<ResolversTypes['SendNotificationResult'], ParentType, ContextType, RequireFields<MutationSendNotificationArgs, 'input'>>;
+  sendSalarySlips?: Resolver<ResolversTypes['PayrollDispatchResult'], ParentType, ContextType, RequireFields<MutationSendSalarySlipsArgs, 'month' | 'year'>>;
   sendTestEmail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestEmailArgs, 'id' | 'to'>>;
   sendTestEmailTemplate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestEmailTemplateArgs, 'key' | 'to'>>;
   sendTestSlackMessage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestSlackMessageArgs, 'channel' | 'id'>>;
@@ -8211,6 +8944,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationUpdateAiJobArgs, 'id' | 'input'>>;
   updateAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<MutationUpdateAnnouncementArgs, 'id' | 'input'>>;
   updateAsset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType, RequireFields<MutationUpdateAssetArgs, 'id' | 'input'>>;
+  updateAudienceList?: Resolver<ResolversTypes['AudienceList'], ParentType, ContextType, RequireFields<MutationUpdateAudienceListArgs, 'id' | 'input'>>;
   updateBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationUpdateBenefitArgs, 'id' | 'input'>>;
   updateBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationUpdateBlogPostArgs, 'id' | 'input'>>;
   updateBranding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType, RequireFields<MutationUpdateBrandingArgs, 'input'>>;
@@ -8247,11 +8981,13 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateLeavePolicy?: Resolver<ResolversTypes['LeavePolicy'], ParentType, ContextType, RequireFields<MutationUpdateLeavePolicyArgs, 'id' | 'input'>>;
   updateLeaveRequest?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationUpdateLeaveRequestArgs, 'id' | 'input'>>;
   updateLegalDocument?: Resolver<ResolversTypes['LegalDocument'], ParentType, ContextType, RequireFields<MutationUpdateLegalDocumentArgs, 'id' | 'input'>>;
+  updateLicence?: Resolver<ResolversTypes['Licence'], ParentType, ContextType, RequireFields<MutationUpdateLicenceArgs, 'id' | 'input'>>;
   updateLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationUpdateLocationArgs, 'id' | 'input'>>;
   updateMyGoalProgress?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateMyGoalProgressArgs, 'id' | 'progress'>>;
   updateMyTrainingStatus?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationUpdateMyTrainingStatusArgs, 'id' | 'status'>>;
   updateNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationUpdateNavLinkArgs, 'id' | 'input'>>;
   updateOpenAiConfig?: Resolver<ResolversTypes['OpenAiConfig'], ParentType, ContextType, RequireFields<MutationUpdateOpenAiConfigArgs, 'id' | 'input'>>;
+  updatePayrollSchedule?: Resolver<ResolversTypes['PayrollSchedule'], ParentType, ContextType, RequireFields<MutationUpdatePayrollScheduleArgs, 'input'>>;
   updatePerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationUpdatePerformanceReviewArgs, 'id' | 'input'>>;
   updatePexelsConfig?: Resolver<ResolversTypes['PexelsConfig'], ParentType, ContextType, RequireFields<MutationUpdatePexelsConfigArgs, 'id' | 'input'>>;
   updatePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationUpdatePolicyArgs, 'id' | 'input'>>;
@@ -8350,6 +9086,15 @@ export type PaymentPageResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PayrollDispatchResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayrollDispatchResult'] = ResolversParentTypes['PayrollDispatchResult']> = ResolversObject<{
+  failed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PayrollRunResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayrollRunResult'] = ResolversParentTypes['PayrollRunResult']> = ResolversObject<{
   generated?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8357,6 +9102,20 @@ export type PayrollRunResultResolvers<ContextType = GraphQLContext, ParentType e
   totalNet?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   updated?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PayrollScheduleResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayrollSchedule'] = ResolversParentTypes['PayrollSchedule']> = ResolversObject<{
+  dayOfMonth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hour?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastFailed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastRunAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  lastRunPeriod?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastSent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastSkipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  minute?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  period?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -8576,16 +9335,21 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   activeAnnouncements?: Resolver<Array<ResolversTypes['Announcement']>, ParentType, ContextType>;
   activeLeavePolicies?: Resolver<Array<ResolversTypes['LeavePolicy']>, ParentType, ContextType>;
+  aiModels?: Resolver<ResolversTypes['AiModelOptions'], ParentType, ContextType>;
   appSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType>;
   attendanceByEmployee?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType, RequireFields<QueryAttendanceByEmployeeArgs, 'employeeId'>>;
   branding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
   companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
   docPage?: Resolver<ResolversTypes['DocPage'], ParentType, ContextType, RequireFields<QueryDocPageArgs, 'id'>>;
+  dockerContainerDetail?: Resolver<ResolversTypes['DockerContainerDetail'], ParentType, ContextType, RequireFields<QueryDockerContainerDetailArgs, 'id'>>;
+  dockerContainers?: Resolver<Array<ResolversTypes['DockerContainer']>, ParentType, ContextType>;
+  dockerStorage?: Resolver<ResolversTypes['DockerStorage'], ParentType, ContextType>;
   emailDashboard?: Resolver<ResolversTypes['EmailDashboard'], ParentType, ContextType, Partial<QueryEmailDashboardArgs>>;
   getActivity?: Resolver<ResolversTypes['Activity'], ParentType, ContextType, RequireFields<QueryGetActivityArgs, 'id'>>;
   getAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<QueryGetAiJobArgs, 'id'>>;
   getAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<QueryGetAnnouncementArgs, 'id'>>;
   getAsset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType, RequireFields<QueryGetAssetArgs, 'id'>>;
+  getAudienceList?: Resolver<ResolversTypes['AudienceList'], ParentType, ContextType, RequireFields<QueryGetAudienceListArgs, 'id'>>;
   getBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<QueryGetBenefitArgs, 'id'>>;
   getBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<QueryGetBlogPostArgs, 'id'>>;
   getBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<QueryGetBugArgs, 'id'>>;
@@ -8617,6 +9381,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getLeavePolicy?: Resolver<ResolversTypes['LeavePolicy'], ParentType, ContextType, RequireFields<QueryGetLeavePolicyArgs, 'id'>>;
   getLeaveRequest?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<QueryGetLeaveRequestArgs, 'id'>>;
   getLegalDocument?: Resolver<ResolversTypes['LegalDocument'], ParentType, ContextType, RequireFields<QueryGetLegalDocumentArgs, 'id'>>;
+  getLicence?: Resolver<ResolversTypes['Licence'], ParentType, ContextType, RequireFields<QueryGetLicenceArgs, 'id'>>;
   getLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<QueryGetLocationArgs, 'id'>>;
   getNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<QueryGetNavLinkArgs, 'id'>>;
   getPerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<QueryGetPerformanceReviewArgs, 'id'>>;
@@ -8637,6 +9402,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryGetUserArgs, 'id'>>;
   getWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<QueryGetWebsiteSubmissionArgs, 'id'>>;
   hrDashboard?: Resolver<ResolversTypes['HrDashboard'], ParentType, ContextType>;
+  infrastructureOverview?: Resolver<ResolversTypes['InfrastructureOverview'], ParentType, ContextType>;
   invoicePayments?: Resolver<Array<ResolversTypes['Payment']>, ParentType, ContextType, RequireFields<QueryInvoicePaymentsArgs, 'invoiceId'>>;
   leaveRequestsByEmployee?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType, RequireFields<QueryLeaveRequestsByEmployeeArgs, 'employeeId'>>;
   listActivities?: Resolver<Array<ResolversTypes['Activity']>, ParentType, ContextType>;
@@ -8653,6 +9419,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listAssetsPaged?: Resolver<ResolversTypes['AssetPage'], ParentType, ContextType, RequireFields<QueryListAssetsPagedArgs, 'input'>>;
   listAssetsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listAttendance?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType>;
+  listAudienceLists?: Resolver<Array<ResolversTypes['AudienceList']>, ParentType, ContextType>;
+  listAudienceListsPaged?: Resolver<ResolversTypes['AudienceListPage'], ParentType, ContextType, RequireFields<QueryListAudienceListsPagedArgs, 'input'>>;
   listBenefits?: Resolver<Array<ResolversTypes['Benefit']>, ParentType, ContextType>;
   listBenefitsPaged?: Resolver<ResolversTypes['BenefitPage'], ParentType, ContextType, RequireFields<QueryListBenefitsPagedArgs, 'input'>>;
   listBenefitsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -8662,6 +9430,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listBugs?: Resolver<Array<ResolversTypes['Bug']>, ParentType, ContextType>;
   listBugsPaged?: Resolver<ResolversTypes['BugPage'], ParentType, ContextType, RequireFields<QueryListBugsPagedArgs, 'input'>>;
   listBugsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listCampaignSends?: Resolver<Array<ResolversTypes['CampaignSend']>, ParentType, ContextType, RequireFields<QueryListCampaignSendsArgs, 'campaignId'>>;
   listCampaigns?: Resolver<Array<ResolversTypes['Campaign']>, ParentType, ContextType>;
   listCampaignsPaged?: Resolver<ResolversTypes['CampaignPage'], ParentType, ContextType, RequireFields<QueryListCampaignsPagedArgs, 'input'>>;
   listCampaignsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -8747,6 +9516,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listLegalDocuments?: Resolver<Array<ResolversTypes['LegalDocument']>, ParentType, ContextType>;
   listLegalDocumentsPaged?: Resolver<ResolversTypes['LegalDocumentPage'], ParentType, ContextType, RequireFields<QueryListLegalDocumentsPagedArgs, 'input'>>;
   listLegalDocumentsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listLicences?: Resolver<Array<ResolversTypes['Licence']>, ParentType, ContextType>;
+  listLicencesPaged?: Resolver<ResolversTypes['LicencePage'], ParentType, ContextType, RequireFields<QueryListLicencesPagedArgs, 'input'>>;
+  listLicencesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listLocations?: Resolver<Array<ResolversTypes['Location']>, ParentType, ContextType>;
   listLocationsPaged?: Resolver<ResolversTypes['LocationPage'], ParentType, ContextType, RequireFields<QueryListLocationsPagedArgs, 'input'>>;
   listLocationsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -8838,6 +9610,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myTrackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType>;
   myTrainings?: Resolver<Array<ResolversTypes['Training']>, ParentType, ContextType>;
   myUnreadNotificationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  payrollSchedule?: Resolver<ResolversTypes['PayrollSchedule'], ParentType, ContextType>;
   payrollSummary?: Resolver<ResolversTypes['PayrollSummary'], ParentType, ContextType, RequireFields<QueryPayrollSummaryArgs, 'month' | 'year'>>;
   policyAcknowledgements?: Resolver<Array<ResolversTypes['PolicyAcknowledgement']>, ParentType, ContextType, RequireFields<QueryPolicyAcknowledgementsArgs, 'policyId'>>;
   previewEmailTemplate?: Resolver<ResolversTypes['EmailPreview'], ParentType, ContextType, RequireFields<QueryPreviewEmailTemplateArgs, 'key'>>;
@@ -8862,15 +9635,18 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicToolCategories?: Resolver<Array<ResolversTypes['ToolCategory']>, ParentType, ContextType>;
   publicTools?: Resolver<Array<ResolversTypes['Tool']>, ParentType, ContextType, Partial<QueryPublicToolsArgs>>;
   receivables?: Resolver<ResolversTypes['Receivables'], ParentType, ContextType>;
+  salarySlipPdf?: Resolver<ResolversTypes['SalarySlipDownload'], ParentType, ContextType, RequireFields<QuerySalarySlipPdfArgs, 'id'>>;
   searchPexelsPhotos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsPhotosArgs, 'query'>>;
   searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
   statusOverview?: Resolver<ResolversTypes['StatusOverview'], ParentType, ContextType, Partial<QueryStatusOverviewArgs>>;
+  taskActivity?: Resolver<Array<ResolversTypes['TaskActivity']>, ParentType, ContextType, RequireFields<QueryTaskActivityArgs, 'taskId'>>;
   taskComments?: Resolver<Array<ResolversTypes['TaskComment']>, ParentType, ContextType, RequireFields<QueryTaskCommentsArgs, 'taskId'>>;
   trackerAccessList?: Resolver<Array<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
   trackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType>;
   trackerCalendar?: Resolver<Array<ResolversTypes['TrackerDayBucket']>, ParentType, ContextType, RequireFields<QueryTrackerCalendarArgs, 'from' | 'timezone' | 'to' | 'userId'>>;
   trackerDay?: Resolver<ResolversTypes['TrackerDay'], ParentType, ContextType, RequireFields<QueryTrackerDayArgs, 'end' | 'start' | 'userId'>>;
   trackerDevices?: Resolver<Array<ResolversTypes['TrackerDevice']>, ParentType, ContextType, Partial<QueryTrackerDevicesArgs>>;
+  trackerLatestRelease?: Resolver<Maybe<ResolversTypes['TrackerRelease']>, ParentType, ContextType>;
   trackerMe?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType>;
   trackerSettings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
   trackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType, RequireFields<QueryTrackerTotalsArgs, 'userId'>>;
@@ -8915,6 +9691,13 @@ export type SalarySlipResolvers<ContextType = GraphQLContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type SalarySlipDownloadResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SalarySlipDownload'] = ResolversParentTypes['SalarySlipDownload']> = ResolversObject<{
+  contentBase64?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  contentType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  filename?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type SalarySlipPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SalarySlipPage'] = ResolversParentTypes['SalarySlipPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['SalarySlip']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8944,6 +9727,23 @@ export type SalaryStructurePageResolvers<ContextType = GraphQLContext, ParentTyp
 
 export type SendNotificationResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SendNotificationResult'] = ResolversParentTypes['SendNotificationResult']> = ResolversObject<{
   recipients?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ServerRuntimeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ServerRuntime'] = ResolversParentTypes['ServerRuntime']> = ResolversObject<{
+  arch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  environment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  heapTotalBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  heapUsedBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  hostname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  load1?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  load5?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  load15?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  nodeVersion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  platform?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  processUptimeSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  rssBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  startedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -9187,6 +9987,17 @@ export type TaskResolvers<ContextType = GraphQLContext, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TaskActivityResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TaskActivity'] = ResolversParentTypes['TaskActivity']> = ResolversObject<{
+  actorName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fromValue?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  taskId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  toValue?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TaskCommentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TaskComment'] = ResolversParentTypes['TaskComment']> = ResolversObject<{
   authorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   authorName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -9372,6 +10183,26 @@ export type TrackerMeResolvers<ContextType = GraphQLContext, ParentType extends 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TrackerReleaseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerRelease'] = ResolversParentTypes['TrackerRelease']> = ResolversObject<{
+  assets?: Resolver<Array<ResolversTypes['TrackerReleaseAsset']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  publishedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  tag?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerReleaseAssetResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerReleaseAsset'] = ResolversParentTypes['TrackerReleaseAsset']> = ResolversObject<{
+  downloadCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  platform?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sizeBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TrackerScreenshotResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerScreenshot'] = ResolversParentTypes['TrackerScreenshot']> = ResolversObject<{
   activityPercent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   blurred?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -9494,6 +10325,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ActivityPage?: ActivityPageResolvers<ContextType>;
   AiJob?: AiJobResolvers<ContextType>;
   AiJobPage?: AiJobPageResolvers<ContextType>;
+  AiModelOptions?: AiModelOptionsResolvers<ContextType>;
   Announcement?: AnnouncementResolvers<ContextType>;
   AnnouncementPage?: AnnouncementPageResolvers<ContextType>;
   AppSettings?: AppSettingsResolvers<ContextType>;
@@ -9501,6 +10333,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AssetAssignee?: AssetAssigneeResolvers<ContextType>;
   AssetPage?: AssetPageResolvers<ContextType>;
   Attendance?: AttendanceResolvers<ContextType>;
+  AudienceList?: AudienceListResolvers<ContextType>;
+  AudienceListPage?: AudienceListPageResolvers<ContextType>;
   AuthPayload?: AuthPayloadResolvers<ContextType>;
   Benefit?: BenefitResolvers<ContextType>;
   BenefitPage?: BenefitPageResolvers<ContextType>;
@@ -9513,6 +10347,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   BugPage?: BugPageResolvers<ContextType>;
   Campaign?: CampaignResolvers<ContextType>;
   CampaignPage?: CampaignPageResolvers<ContextType>;
+  CampaignSend?: CampaignSendResolvers<ContextType>;
   CampaignSendResult?: CampaignSendResultResolvers<ContextType>;
   CaseStudy?: CaseStudyResolvers<ContextType>;
   CaseStudyPage?: CaseStudyPageResolvers<ContextType>;
@@ -9527,13 +10362,22 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CompanySocialLinks?: CompanySocialLinksResolvers<ContextType>;
   Contact?: ContactResolvers<ContextType>;
   ContactPage?: ContactPageResolvers<ContextType>;
+  ContainerMount?: ContainerMountResolvers<ContextType>;
+  ContainerPort?: ContainerPortResolvers<ContextType>;
   Contract?: ContractResolvers<ContextType>;
   ContractPage?: ContractPageResolvers<ContextType>;
+  DatabaseInfo?: DatabaseInfoResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   Deal?: DealResolvers<ContextType>;
   DealPage?: DealPageResolvers<ContextType>;
   Department?: DepartmentResolvers<ContextType>;
   DocPage?: DocPageResolvers<ContextType>;
+  DockerContainer?: DockerContainerResolvers<ContextType>;
+  DockerContainerDetail?: DockerContainerDetailResolvers<ContextType>;
+  DockerDiskUsage?: DockerDiskUsageResolvers<ContextType>;
+  DockerHost?: DockerHostResolvers<ContextType>;
+  DockerImage?: DockerImageResolvers<ContextType>;
+  DockerStorage?: DockerStorageResolvers<ContextType>;
   EmailConfig?: EmailConfigResolvers<ContextType>;
   EmailDashboard?: EmailDashboardResolvers<ContextType>;
   EmailDayCount?: EmailDayCountResolvers<ContextType>;
@@ -9569,6 +10413,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   HolidayPage?: HolidayPageResolvers<ContextType>;
   HrDashboard?: HrDashboardResolvers<ContextType>;
   ImageConfig?: ImageConfigResolvers<ContextType>;
+  InfrastructureOverview?: InfrastructureOverviewResolvers<ContextType>;
   Invoice?: InvoiceResolvers<ContextType>;
   InvoicePage?: InvoicePageResolvers<ContextType>;
   JSON?: GraphQLScalarType;
@@ -9585,6 +10430,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   LeaveRequest?: LeaveRequestResolvers<ContextType>;
   LegalDocument?: LegalDocumentResolvers<ContextType>;
   LegalDocumentPage?: LegalDocumentPageResolvers<ContextType>;
+  Licence?: LicenceResolvers<ContextType>;
+  LicencePage?: LicencePageResolvers<ContextType>;
   Location?: LocationResolvers<ContextType>;
   LocationPage?: LocationPageResolvers<ContextType>;
   LoginPage?: LoginPageResolvers<ContextType>;
@@ -9595,7 +10442,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   OpenAiConfig?: OpenAiConfigResolvers<ContextType>;
   Payment?: PaymentResolvers<ContextType>;
   PaymentPage?: PaymentPageResolvers<ContextType>;
+  PayrollDispatchResult?: PayrollDispatchResultResolvers<ContextType>;
   PayrollRunResult?: PayrollRunResultResolvers<ContextType>;
+  PayrollSchedule?: PayrollScheduleResolvers<ContextType>;
   PayrollSummary?: PayrollSummaryResolvers<ContextType>;
   PerformanceReview?: PerformanceReviewResolvers<ContextType>;
   PerformanceReviewPage?: PerformanceReviewPageResolvers<ContextType>;
@@ -9622,10 +10471,12 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ReceivablesBucket?: ReceivablesBucketResolvers<ContextType>;
   RolePermission?: RolePermissionResolvers<ContextType>;
   SalarySlip?: SalarySlipResolvers<ContextType>;
+  SalarySlipDownload?: SalarySlipDownloadResolvers<ContextType>;
   SalarySlipPage?: SalarySlipPageResolvers<ContextType>;
   SalaryStructure?: SalaryStructureResolvers<ContextType>;
   SalaryStructurePage?: SalaryStructurePageResolvers<ContextType>;
   SendNotificationResult?: SendNotificationResultResolvers<ContextType>;
+  ServerRuntime?: ServerRuntimeResolvers<ContextType>;
   Shift?: ShiftResolvers<ContextType>;
   ShiftPage?: ShiftPageResolvers<ContextType>;
   SlackChannel?: SlackChannelResolvers<ContextType>;
@@ -9648,6 +10499,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   SupportTicket?: SupportTicketResolvers<ContextType>;
   TableStats?: TableStatsResolvers<ContextType>;
   Task?: TaskResolvers<ContextType>;
+  TaskActivity?: TaskActivityResolvers<ContextType>;
   TaskComment?: TaskCommentResolvers<ContextType>;
   Team?: TeamResolvers<ContextType>;
   TeamPage?: TeamPageResolvers<ContextType>;
@@ -9665,6 +10517,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TrackerInterval?: TrackerIntervalResolvers<ContextType>;
   TrackerLoginPayload?: TrackerLoginPayloadResolvers<ContextType>;
   TrackerMe?: TrackerMeResolvers<ContextType>;
+  TrackerRelease?: TrackerReleaseResolvers<ContextType>;
+  TrackerReleaseAsset?: TrackerReleaseAssetResolvers<ContextType>;
   TrackerScreenshot?: TrackerScreenshotResolvers<ContextType>;
   TrackerSession?: TrackerSessionResolvers<ContextType>;
   TrackerSettings?: TrackerSettingsResolvers<ContextType>;

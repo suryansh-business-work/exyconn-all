@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Box, Flex, Text } from '@exyconn/shell/components/ui';
+import DownloadIcon from '@mui/icons-material/Download';
+import { Box, Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
@@ -10,6 +11,7 @@ import { glass } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { useMySalarySlipsQuery } from '@exyconn/shell/graphql/generated';
+import { usePayslipDownload } from '@exyconn/shell/hooks/usePayslipDownload';
 
 type SalarySlipRow = {
   id: string;
@@ -41,6 +43,7 @@ function DetailRow({ label, value, strong }: { label: string; value: string; str
 export function SalarySlipsPage() {
   const { data, loading } = useMySalarySlipsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
+  const { download, downloading } = usePayslipDownload();
   const [selected, setSelected] = useState<SalarySlipRow | null>(null);
 
   const rows = (data?.mySalarySlips ?? []) as SalarySlipRow[];
@@ -73,6 +76,14 @@ export function SalarySlipsPage() {
       ariaLabel: 'view',
       onClick: (r) => setSelected(r),
     },
+    {
+      icon: <DownloadIcon fontSize="small" />,
+      tooltip: 'Download PDF',
+      ariaLabel: 'download payslip',
+      onClick: (r) => {
+        download(r.id).catch(() => undefined);
+      },
+    },
   ];
 
   return (
@@ -99,6 +110,15 @@ export function SalarySlipsPage() {
               value={formatMoney(selected.deductions, selected.currency)}
             />
             <DetailRow label="Net" value={formatMoney(selected.net, selected.currency)} strong />
+            <Button
+              startIcon={<DownloadIcon />}
+              disabled={downloading}
+              onClick={() => {
+                download(selected.id).catch(() => undefined);
+              }}
+            >
+              {downloading ? 'Preparing…' : 'Download PDF'}
+            </Button>
           </Flex>
         )}
       </CrudDialog>

@@ -50,6 +50,49 @@ export const payrollTypeDefs = gql`
     totalNet: Float!
   }
 
+  "When payslip emails go out, as HR configures them."
+  type PayrollSchedule {
+    enabled: Boolean!
+    "Day of the month the run fires on. Capped at 28 so every month has it."
+    dayOfMonth: Int!
+    hour: Int!
+    minute: Int!
+    "Which month the run sends: PREVIOUS_MONTH or CURRENT_MONTH."
+    period: String!
+    lastRunAt: DateTime
+    "The period the last run sent for, as YYYY-MM. Empty until the first run."
+    lastRunPeriod: String!
+    lastSent: Int!
+    lastFailed: Int!
+    lastSkipped: Int!
+  }
+
+  input PayrollScheduleInput {
+    enabled: Boolean!
+    dayOfMonth: Int!
+    hour: Int!
+    minute: Int!
+    period: String!
+  }
+
+  "What one payslip email run did, per employee outcome."
+  type PayrollDispatchResult {
+    month: Int!
+    year: Int!
+    sent: Int!
+    "Employees whose payslip email was refused; the run carried on past each one."
+    failed: Int!
+    "Employees with no email address on file."
+    skipped: Int!
+  }
+
+  "A payslip PDF, base64 encoded so the browser can save it straight from the response."
+  type SalarySlipDownload {
+    filename: String!
+    contentType: String!
+    contentBase64: String!
+  }
+
   extend type Query {
     listSalaryStructures: [SalaryStructure!]!
     listSalaryStructuresPaged(input: TableQueryInput!): SalaryStructurePage!
@@ -58,6 +101,13 @@ export const payrollTypeDefs = gql`
     listSalarySlipsPaged(input: TableQueryInput!): SalarySlipPage!
     listSalarySlipsStats: TableStats!
     payrollSummary(month: Int!, year: Int!): PayrollSummary!
+    "The payslip email schedule. Created with its defaults on first read."
+    payrollSchedule: PayrollSchedule!
+    """
+    One payslip as a PDF. An employee may download their own; HR and Finance may
+    download anyone's.
+    """
+    salarySlipPdf(id: ID!): SalarySlipDownload!
   }
 
   extend type Mutation {
@@ -72,5 +122,12 @@ export const payrollTypeDefs = gql`
     runPayroll(month: Int!, year: Int!): PayrollRunResult!
     "Marks every GENERATED slip of the month PAID. Returns how many changed."
     markPayrollPaid(month: Int!, year: Int!): Int!
+    "Saves when payslip emails go out. Turning it off stops the scheduled run."
+    updatePayrollSchedule(input: PayrollScheduleInput!): PayrollSchedule!
+    """
+    Emails every payslip of the month to its employee, PDF attached, right now.
+    Does not wait for the schedule and does not change it.
+    """
+    sendSalarySlips(month: Int!, year: Int!): PayrollDispatchResult!
   }
 `;

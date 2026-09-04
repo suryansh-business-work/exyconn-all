@@ -58,3 +58,5 @@ export const assetsResolvers = {
 };
 
 export { assetsTypeDefs, AssetModel };
+export { licencesTypeDefs } from './licences.typeDefs';
+export { licencesResolvers, licencesService } from './licences';

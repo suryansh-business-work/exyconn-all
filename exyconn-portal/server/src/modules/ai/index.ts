@@ -1,6 +1,7 @@
 import { AiJobModel } from './ai.model';
 import { PromptModel } from './prompt.model';
 import { aiTypeDefs } from './ai.typeDefs';
+import { aiCustomResolvers } from './ai.resolvers';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
@@ -9,7 +10,6 @@ interface AiJobInput {
   name: string;
   model: string;
   prompt: string;
-  status: string;
 }
 
 interface PromptInput {
@@ -27,10 +27,10 @@ const aiJobResolvers = createCrudResolvers(aiService, {
   table: {
     searchFields: ['name', 'model', 'prompt'],
     filterFields: ['name', 'model', 'prompt', 'status'],
-    sortFields: ['name', 'model', 'prompt', 'status', 'createdAt'],
+    sortFields: ['name', 'model', 'status', 'totalTokens', 'ranAt', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
-  stats: { countBy: ['status', 'model'] },
+  stats: { countBy: ['status', 'model'], sum: ['totalTokens'] },
 });
 
 export const promptService = createCrudService<PromptInput>(PromptModel as never, 'Prompt');
@@ -46,10 +46,14 @@ const promptResolvers = createCrudResolvers(promptService, {
   stats: { countBy: ['category'] },
 });
 
-/** Merges AI-job CRUD with the Prompt Library CRUD. */
+/** Merges AI-job CRUD, the Prompt Library CRUD and the resolvers that call OpenAI. */
 export const aiResolvers = {
-  Query: { ...aiJobResolvers.Query, ...promptResolvers.Query },
-  Mutation: { ...aiJobResolvers.Mutation, ...promptResolvers.Mutation },
+  Query: { ...aiJobResolvers.Query, ...promptResolvers.Query, ...aiCustomResolvers.Query },
+  Mutation: {
+    ...aiJobResolvers.Mutation,
+    ...promptResolvers.Mutation,
+    ...aiCustomResolvers.Mutation,
+  },
 };
 
 export { aiTypeDefs };

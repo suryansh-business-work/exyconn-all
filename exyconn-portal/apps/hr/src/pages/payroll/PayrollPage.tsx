@@ -8,10 +8,12 @@ import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PaidIcon from '@mui/icons-material/Paid';
+import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import {
   usePayrollSummaryQuery,
   useRunPayrollMutation,
   useMarkPayrollPaidMutation,
+  useSendSalarySlipsMutation,
 } from '@exyconn/shell/graphql/generated';
 import { PayrollSlipsTable } from './PayrollSlipsTable';
 
@@ -47,6 +49,7 @@ export function PayrollPage() {
   });
   const [runPayroll, { loading: running }] = useRunPayrollMutation();
   const [markPaid, { loading: paying }] = useMarkPayrollPaidMutation();
+  const [sendSlips, { loading: sending }] = useSendSalarySlipsMutation();
   const s = summary.data?.payrollSummary;
 
   const tiles = useMemo<StatItem[]>(
@@ -96,6 +99,25 @@ export function PayrollPage() {
     }
   };
 
+  const email = async () => {
+    const ok = await confirm({
+      title: `Email payslips for ${MONTHS[month - 1]} ${year}?`,
+      message:
+        'Every employee with a slip for this month is emailed their own payslip as a PDF. This does not wait for the schedule.',
+    });
+    if (!ok) return;
+    try {
+      const { data } = await sendSlips({ variables: { month, year } });
+      const r = data?.sendSalarySlips;
+      notify(
+        `Emailed ${r?.sent ?? 0} payslips — ${r?.failed ?? 0} failed, ${r?.skipped ?? 0} without an address.`,
+        'success',
+      );
+    } catch (error) {
+      notify(error instanceof Error ? error.message : 'Could not email the payslips', 'error');
+    }
+  };
+
   return (
     <Box>
       <PageHeader title="Payroll" subtitle="Generate, review and pay the month" />
@@ -134,6 +156,13 @@ export function PayrollPage() {
             disabled={paying || (s?.slips ?? 0) === 0 || (s?.paid ?? 0) === (s?.slips ?? 0)}
           >
             Mark paid
+          </Button>
+          <Button
+            startIcon={<ForwardToInboxIcon />}
+            onClick={email}
+            disabled={sending || (s?.slips ?? 0) === 0}
+          >
+            {sending ? 'Emailing…' : 'Email payslips'}
           </Button>
         </Flex>
       </Box>

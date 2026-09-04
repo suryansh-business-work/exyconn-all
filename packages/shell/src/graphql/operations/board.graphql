@@ -113,3 +113,14 @@ query GetProject($id: ID!) {
     status
   }
 }
+
+query TaskActivity($taskId: ID!) {
+  taskActivity(taskId: $taskId) {
+    id
+    actorName
+    field
+    fromValue
+    toValue
+    createdAt
+  }
+}

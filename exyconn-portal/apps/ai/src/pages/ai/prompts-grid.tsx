@@ -1,5 +1,6 @@
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import {
   DELETE_ACTION,
   EDIT_ACTION,
@@ -20,11 +21,17 @@ export type PromptsGridContext = CrudGridContext<PagedPromptRow>;
 /** How much of a prompt body fits in the grid cell before it is truncated. */
 const CONTENT_PREVIEW_CHARS = 60;
 
+const RUN_ACTION: RowActionSpec = {
+  key: 'run',
+  label: 'run prompt',
+  icon: PlayArrowIcon,
+  color: 'primary',
+};
+
 const COPY_ACTION: RowActionSpec = {
   key: 'copy',
   label: 'copy prompt',
   icon: ContentCopyIcon,
-  color: 'primary',
 };
 
 function TagsCell(params: Readonly<ICellRendererParams<PagedPromptRow>>) {
@@ -57,5 +64,5 @@ export const PROMPT_COLUMNS: ColDef<PagedPromptRow>[] = [
     filter: false,
     floatingFilter: false,
   },
-  actionsColumn([COPY_ACTION, EDIT_ACTION, DELETE_ACTION]),
+  actionsColumn([RUN_ACTION, COPY_ACTION, EDIT_ACTION, DELETE_ACTION], 150),
 ];

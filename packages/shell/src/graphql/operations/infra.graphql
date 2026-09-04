@@ -1,0 +1,123 @@
+query InfrastructureOverview {
+  infrastructureOverview {
+    docker {
+      reachable
+      error
+      name
+      serverVersion
+      apiVersion
+      operatingSystem
+      osType
+      kernelVersion
+      architecture
+      cpus
+      memoryBytes
+      dockerRootDir
+      storageDriver
+      loggingDriver
+      containersRunning
+      containersPaused
+      containersStopped
+      imagesCount
+      serverTime
+    }
+    runtime {
+      nodeVersion
+      platform
+      arch
+      hostname
+      environment
+      processUptimeSeconds
+      startedAt
+      rssBytes
+      heapUsedBytes
+      heapTotalBytes
+      load1
+      load5
+      load15
+    }
+    database {
+      name
+      version
+      host
+      uptimeSeconds
+      connectionsCurrent
+      connectionsAvailable
+      collections
+      objects
+      dataSizeBytes
+      storageSizeBytes
+      indexSizeBytes
+    }
+  }
+}
+
+query DockerContainers {
+  dockerContainers {
+    id
+    name
+    image
+    imageTag
+    state
+    status
+    health
+    createdAt
+    ports {
+      ip
+      privatePort
+      publicPort
+      protocol
+    }
+    networks
+    ipAddress
+  }
+}
+
+query DockerContainerDetail($id: ID!) {
+  dockerContainerDetail(id: $id) {
+    id
+    name
+    image
+    imageTag
+    imageId
+    state
+    health
+    command
+    createdAt
+    startedAt
+    exitCode
+    restartCount
+    restartPolicy
+    logDriver
+    memoryLimitBytes
+    cpuLimit
+    networks
+    ipAddress
+    mounts {
+      type
+      source
+      destination
+      readOnly
+    }
+    cpuPercent
+    memoryBytes
+  }
+}
+
+query DockerStorage {
+  dockerStorage {
+    images {
+      id
+      repoTags
+      sizeBytes
+      createdAt
+      containers
+    }
+    usage {
+      layersBytes
+      containersBytes
+      volumesBytes
+      buildCacheBytes
+    }
+  }
+}

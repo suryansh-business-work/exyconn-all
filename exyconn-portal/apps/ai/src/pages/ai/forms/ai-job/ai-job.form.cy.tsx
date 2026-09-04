@@ -20,7 +20,7 @@ describe('AiJobForm', () => {
     mount();
     cy.contains('button', 'Create').click();
     cy.contains('Name is required').should('be.visible');
-    cy.contains('Model is required').should('be.visible');
+    cy.contains('Pick the model to run this on').should('be.visible');
   });
 
   it('calls onCancel', () => {

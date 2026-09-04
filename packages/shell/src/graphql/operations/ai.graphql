@@ -5,6 +5,31 @@ query ListAiJobs {
     model
     prompt
     status
+    totalTokens
+  }
+}
+
+query GetAiJob($id: ID!) {
+  getAiJob(id: $id) {
+    id
+    name
+    model
+    prompt
+    status
+    response
+    error
+    promptTokens
+    completionTokens
+    totalTokens
+    latencyMs
+    ranAt
+  }
+}
+
+query AiModels {
+  aiModels {
+    models
+    defaultModel
   }
 }
 
@@ -17,6 +42,9 @@ query ListAiJobsPaged($input: TableQueryInput!) {
       model
       prompt
       status
+      totalTokens
+      latencyMs
+      ranAt
     }
   }
 }
@@ -52,6 +80,26 @@ mutation UpdateAiJob($id: ID!, $input: AiJobInput!) {
 
 mutation DeleteAiJob($id: ID!) {
   deleteAiJob(id: $id)
+}
+
+mutation RunAiJob($id: ID!) {
+  runAiJob(id: $id) {
+    id
+    status
+    error
+  }
+}
+
+mutation RunPrompt($id: ID!, $model: String!) {
+  runPrompt(id: $id, model: $model) {
+    id
+    name
+    status
+    response
+    error
+    totalTokens
+    latencyMs
+  }
 }
 
 query ListPrompts {

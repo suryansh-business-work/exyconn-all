@@ -50,6 +50,15 @@ export const env = Object.freeze({
     timeoutMs: Number(process.env.STATUS_CHECK_TIMEOUT_MS ?? 10_000),
     degradedMs: Number(process.env.STATUS_DEGRADED_MS ?? 2_000),
   },
+  /** Where the payslip email sends an employee to see the rest of their payslips. */
+  salarySlipsUrl: process.env.SALARY_SLIPS_URL ?? 'https://employee.exyconn.com/me/salary-slips',
+  /**
+   * Read-only Docker Engine API the Tech portal's Infrastructure screen reads the host
+   * and the running stack from. Points at the socket proxy (GET-only) rather than at
+   * /var/run/docker.sock: the socket is root on the host, and this process must never
+   * be able to change what runs there.
+   */
+  dockerApiUrl: (process.env.DOCKER_API_URL ?? '').replace(/\/$/, ''),
   seedAdmin: {
     name: process.env.SEED_ADMIN_NAME ?? 'Exyconn Admin',
     email: process.env.SEED_ADMIN_EMAIL ?? 'admin@exyconn.com',

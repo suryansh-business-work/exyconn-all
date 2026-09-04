@@ -15,7 +15,12 @@ import {
 import { emailTypeDefs, emailResolvers } from '../modules/email';
 import { bugsTypeDefs, bugsResolvers } from '../modules/bugs';
 import { clientsTypeDefs, clientsResolvers } from '../modules/clients';
-import { assetsTypeDefs, assetsResolvers } from '../modules/assets';
+import {
+  assetsTypeDefs,
+  assetsResolvers,
+  licencesTypeDefs,
+  licencesResolvers,
+} from '../modules/assets';
 import { crmEntitiesTypeDefs, crmEntitiesResolvers } from '../modules/crm';
 import { productsInventoryTypeDefs, productsInventoryResolvers } from '../modules/products';
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
@@ -36,6 +41,7 @@ import {
 } from '../modules/projects';
 import { techTypeDefs, techResolvers } from '../modules/tech';
 import { statusTypeDefs, statusResolvers } from '../modules/status';
+import { infraTypeDefs, infraResolvers } from '../modules/infra';
 // The website module splits its SDL across one file per content entity, so it exports an array.
 import { websiteTypeDefs, websiteResolvers } from '../modules/website';
 import { trackerTypeDefs, trackerResolvers } from '../modules/tracker';
@@ -90,6 +96,7 @@ export const typeDefs = [
   bugsTypeDefs,
   clientsTypeDefs,
   assetsTypeDefs,
+  licencesTypeDefs,
   crmEntitiesTypeDefs,
   productsInventoryTypeDefs,
   hrTypeDefs,
@@ -122,6 +129,7 @@ export const typeDefs = [
   payrollTypeDefs,
   permissionsTypeDefs,
   statusTypeDefs,
+  infraTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -135,6 +143,7 @@ export const resolvers = mergeResolvers([
   bugsResolvers,
   clientsResolvers,
   assetsResolvers,
+  licencesResolvers,
   crmEntitiesResolvers,
   productsInventoryResolvers,
   hrResolvers,
@@ -167,4 +176,5 @@ export const resolvers = mergeResolvers([
   payrollResolvers,
   permissionsResolvers,
   statusResolvers,
+  infraResolvers,
 ]);

@@ -6,11 +6,14 @@ import { payrollTypeDefs } from './payroll.typeDefs';
 import { computeSlip, grossOf, unpaidLeaveDays, type LeaveSpan } from './payroll.compute';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
-import { assertRole } from '../../middleware/roleGuard';
-import { badRequest } from '../../utils/errors';
+import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
+import { badRequest, notFound } from '../../utils/errors';
 import { withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
 import { notify } from '../notifications';
+import { PayrollScheduleModel, MAX_SCHEDULE_DAY } from './payroll-schedule.model';
+import { readSchedule } from './payroll.schedule';
+import { dispatchSalarySlips, renderPayslip } from './payroll.dispatch';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { TableQueryInput } from '../../utils/tableQuery';
 
@@ -166,6 +169,72 @@ async function payrollSummary(
   };
 }
 
+/** HR chooses the day, hour and minute; anything outside the clock is a mistake, not a policy. */
+interface PayrollScheduleInput {
+  enabled: boolean;
+  dayOfMonth: number;
+  hour: number;
+  minute: number;
+  period: string;
+}
+
+const DISPATCH_PERIODS = new Set(['PREVIOUS_MONTH', 'CURRENT_MONTH']);
+
+function assertSchedule(input: PayrollScheduleInput) {
+  if (input.dayOfMonth < 1 || input.dayOfMonth > MAX_SCHEDULE_DAY) {
+    badRequest(`dayOfMonth must be 1-${MAX_SCHEDULE_DAY} so it exists in every month`);
+  }
+  if (input.hour < 0 || input.hour > 23) badRequest('hour must be 0-23');
+  if (input.minute < 0 || input.minute > 59) badRequest('minute must be 0-59');
+  if (!DISPATCH_PERIODS.has(input.period)) {
+    badRequest('period must be PREVIOUS_MONTH or CURRENT_MONTH');
+  }
+}
+
+async function updatePayrollSchedule(
+  _p: unknown,
+  { input }: { input: PayrollScheduleInput },
+  ctx: GraphQLContext,
+) {
+  assertRole(ctx, PAYROLL_ROLES);
+  assertSchedule(input);
+  return PayrollScheduleModel.findOneAndUpdate({ key: 'global' }, input, {
+    new: true,
+    upsert: true,
+  }).lean();
+}
+
+async function sendSalarySlips(
+  _p: unknown,
+  { month, year }: { month: number; year: number },
+  ctx: GraphQLContext,
+) {
+  const user = assertRole(ctx, PAYROLL_ROLES);
+  assertMonth(month, year);
+  return dispatchSalarySlips(month, year, user.email);
+}
+
+/**
+ * An employee may download their own payslip; HR and Finance may download anyone's.
+ * The ownership check comes first so an employee never needs a payroll role to be paid.
+ */
+async function salarySlipPdf(_p: unknown, { id }: { id: string }, ctx: GraphQLContext) {
+  const user = assertAuthenticated(ctx);
+  const slip = await SalarySlipModel.findById(id).select('employeeId').lean();
+  if (!slip) {
+    notFound('Salary slip');
+  }
+  if (slip.employeeId !== user.id) {
+    assertRole(ctx, PAYROLL_ROLES);
+  }
+  const payslip = await renderPayslip(id);
+  return {
+    filename: payslip.filename,
+    contentType: 'application/pdf',
+    contentBase64: payslip.pdf.toString('base64'),
+  };
+}
+
 export const payrollResolvers = {
   Query: {
     ...structureCrud.Query,
@@ -183,8 +252,19 @@ export const payrollResolvers = {
       return slipService.stats({ countBy: ['status'], sum: ['gross', 'net'] });
     },
     payrollSummary,
+    payrollSchedule: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertRole(ctx, PAYROLL_ROLES);
+      return readSchedule();
+    },
+    salarySlipPdf,
   },
-  Mutation: { ...structureCrud.Mutation, runPayroll, markPayrollPaid },
+  Mutation: {
+    ...structureCrud.Mutation,
+    runPayroll,
+    markPayrollPaid,
+    updatePayrollSchedule,
+    sendSalarySlips,
+  },
   /** Derived so the HR list shows the same numbers the employee's own view does. */
   SalaryStructure: {
     gross: (s: { basic: number; hra: number; allowances: number; gross?: number }) =>
@@ -199,3 +279,6 @@ export const payrollResolvers = {
   },
 };
 export { payrollTypeDefs };
+export { PayrollScheduleModel, MAX_SCHEDULE_DAY } from './payroll-schedule.model';
+export { startPayrollDispatch } from './payroll.schedule';
+export { dispatchSalarySlips, renderPayslip } from './payroll.dispatch';
