@@ -43,6 +43,13 @@ fragment TrackerSettingsFields on TrackerSettings {
   idleThresholdSeconds
   screenshotMaxWidth
   screenshotQuality
+  screenshotRetentionDays
+  autoStartEnabled
+  autoStartHour
+  autoStopHour
+  dailyDigestEnabled
+  weeklyDigestEnabled
+  digestHour
   webcamEnabled
   webcamCorner
   syncIntervalMinutes
@@ -55,6 +62,7 @@ fragment TrackerDayBucketFields on TrackerDayBucket {
   date
   activeMs
   idleMs
+  manualMs
   keyCount
   mouseCount
   sessions
@@ -208,5 +216,67 @@ query TrackerBilling($from: DateTime!, $to: DateTime!) {
       amount
       rated
     }
+  }
+}
+
+fragment TrackerManualEntryFields on TrackerManualEntry {
+  id
+  userId
+  userName
+  projectId
+  projectName
+  startedAt
+  endedAt
+  durationMs
+  note
+  status
+  reviewedAt
+  reviewNote
+  createdAt
+}
+
+query TrackerPendingManualEntries {
+  trackerPendingManualEntries {
+    ...TrackerManualEntryFields
+  }
+}
+
+query TrackerManualEntries($userId: ID!, $from: DateTime!, $to: DateTime!) {
+  trackerManualEntries(userId: $userId, from: $from, to: $to) {
+    ...TrackerManualEntryFields
+  }
+}
+
+query MyTrackerManualEntries($from: DateTime!, $to: DateTime!) {
+  myTrackerManualEntries(from: $from, to: $to) {
+    ...TrackerManualEntryFields
+  }
+}
+
+mutation ReviewTrackerManualEntry(
+  $id: ID!
+  $status: TrackerManualEntryStatus!
+  $reviewNote: String
+) {
+  reviewTrackerManualEntry(id: $id, status: $status, reviewNote: $reviewNote) {
+    ...TrackerManualEntryFields
+  }
+}
+
+mutation CreateTrackerManualEntry($input: TrackerManualEntryInput!) {
+  createTrackerManualEntry(input: $input) {
+    ...TrackerManualEntryFields
+  }
+}
+
+mutation WithdrawTrackerManualEntry($id: ID!) {
+  withdrawTrackerManualEntry(id: $id)
+}
+
+query TrackerProjectOptions {
+  trackerProjectOptions {
+    id
+    name
+    key
   }
 }

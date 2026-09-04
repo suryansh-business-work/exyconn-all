@@ -61,6 +61,31 @@ ${body}
 
 const TEMPLATES = [
   {
+    key: 'tracker-digest',
+    name: 'Tracker digest — daily / weekly summary',
+    description:
+      'Tracked hours per employee for the period, emailed to everyone holding the Tracker role. Sent by the tracker digest schedule; the {{rows}} value is a finished table body.',
+    subject: 'Tracked time {{periodLabel}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Tracked time {{periodLabel}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          <strong>{{employeeCount}}</strong> people tracked <strong>{{totalHours}} hours</strong> {{periodLabel}}.
+        </mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-table font-size="14px" color="#0b0a12">
+          <tr style="border-bottom:1px solid #e2e8f0;text-align:left;color:#64748b;font-size:12px;text-transform:uppercase;">
+            <th style="padding:6px 0;">Employee</th>
+            <th style="padding:6px 0;text-align:right;">Tracked</th>
+            <th style="padding:6px 0;text-align:right;">Off-computer</th>
+          </tr>
+          {{rows}}
+        </mj-table>
+        <mj-text font-size="13px" color="#94a3b8">
+          Off-computer time is work claimed away from the computer and approved by a reviewer.
+          Open the Tracker console for screenshots, activity levels and the full day.
+        </mj-text>`),
+  },
+  {
     key: 'policy-acknowledged',
     name: 'Policy signed — confirmation',
     description:

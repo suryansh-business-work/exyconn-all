@@ -3,6 +3,7 @@ import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
+import type { PexelsSearchFilters } from '../../utils/pexels';
 import type {
   EmailConfigInput,
   GithubConfigInput,
@@ -15,6 +16,13 @@ import type {
 
 /** The Tech module owns these screens; ADMIN passes every guard anyway. */
 const techOnly = [ROLES.TECH];
+
+/** Arguments both stock searches take: the term, the page and the dialog's filter row. */
+interface PexelsSearchArgs {
+  query: string;
+  page?: number | null;
+  filters?: PexelsSearchFilters | null;
+}
 
 /** Pexels pages one screenful at a time; page 1 is what the dialog opens on. */
 const FIRST_PAGE = 1;
@@ -49,19 +57,19 @@ export const techResolvers = {
     // these two are authenticated-only — the credential itself stays Tech-only above.
     searchPexelsPhotos: async (
       _p: unknown,
-      { query, page }: { query: string; page?: number | null },
+      { query, page, filters }: PexelsSearchArgs,
       ctx: GraphQLContext,
     ) => {
       assertAuthenticated(ctx);
-      return techService.searchPexelsPhotos(query, page ?? FIRST_PAGE);
+      return techService.searchPexelsPhotos(query, page ?? FIRST_PAGE, filters ?? {});
     },
     searchPexelsVideos: async (
       _p: unknown,
-      { query, page }: { query: string; page?: number | null },
+      { query, page, filters }: PexelsSearchArgs,
       ctx: GraphQLContext,
     ) => {
       assertAuthenticated(ctx);
-      return techService.searchPexelsVideos(query, page ?? FIRST_PAGE);
+      return techService.searchPexelsVideos(query, page ?? FIRST_PAGE, filters ?? {});
     },
     listSlackChannels: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       assertRole(ctx, techOnly);

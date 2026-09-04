@@ -6,12 +6,14 @@ import {
   useMyTrackerAccessQuery,
   useMyTrackerCalendarQuery,
   useMyTrackerDayQuery,
+  useTrackerProjectOptionsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { useTrackerMonth } from '@exyconn/shell/pages/tracker-view/useTrackerMonth';
 import { buildTrackerMonth } from '@exyconn/shell/pages/tracker-view/buildTrackerMonth';
 import { TrackerView } from '@exyconn/shell/pages/tracker-view/TrackerView';
 import { MyWorkArrangementCard } from '@exyconn/shell/components/work';
 import { MyTrackerAccessBanner } from './MyTrackerAccessBanner';
+import { MyOffComputerTime } from './MyOffComputerTime';
 
 /** Employee self-view of their own tracker activity — no employee picker. */
 export function MyTrackerPage() {
@@ -21,6 +23,7 @@ export function MyTrackerPage() {
   const calendarQuery = useMyTrackerCalendarQuery({
     variables: { from: month.range.from, to: month.range.to, timezone: settings.timezone },
   });
+  const projectsQuery = useTrackerProjectOptionsQuery();
   const dayQuery = useMyTrackerDayQuery(
     month.dayRange ? { variables: month.dayRange } : { skip: true },
   );
@@ -50,6 +53,11 @@ export function MyTrackerPage() {
         dayLoading={dayQuery.loading}
         dayLabel={month.selectedDate ? formatDate(month.selectedDate) : ''}
         formatDateTime={formatDateTime}
+      />
+      <MyOffComputerTime
+        from={month.range.from}
+        to={month.range.to}
+        projects={projectsQuery.data?.trackerProjectOptions ?? []}
       />
     </Box>
   );

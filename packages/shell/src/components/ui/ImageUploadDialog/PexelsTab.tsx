@@ -16,6 +16,8 @@ import {
   type PexelsMediaFieldsFragment,
 } from '@/graphql/generated';
 import { PexelsGrid } from './PexelsGrid';
+import { PexelsFilters } from './PexelsFilters';
+import { EMPTY_FILTERS, toApiFilters, type PexelsFilterState } from './pexels-filters';
 
 /** Which half of the Pexels library a tab searches. */
 export type PexelsKind = 'photos' | 'videos';
@@ -26,23 +28,20 @@ interface PexelsTabProps {
 }
 
 /**
- * Stock photo / stock video tab. The search runs on submit rather than on every
- * keystroke so a Pexels quota is not spent typing, and the API key it goes through is
- * the active one in Tech > Environment Variables > Pexels.
+ * Stock photo / stock video tab. The search runs on submit rather than on every keystroke
+ * so a Pexels quota is not spent typing — and it is deliberately not a `<form>`: the dialog
+ * renders inside the host's form, and a submit event would bubble up the React tree and
+ * save (and close) that form. Enter is handled here and stopped here.
  */
 export function PexelsTab({ kind, onPick }: Readonly<PexelsTabProps>) {
   const [term, setTerm] = useState('');
   const [submitted, setSubmitted] = useState('');
+  const [filters, setFilters] = useState<PexelsFilterState>(EMPTY_FILTERS);
   const isPhotos = kind === 'photos';
+  const variables = { query: submitted, filters: toApiFilters(kind, filters) };
 
-  const photos = useSearchPexelsPhotosQuery({
-    variables: { query: submitted },
-    skip: !submitted || !isPhotos,
-  });
-  const videos = useSearchPexelsVideosQuery({
-    variables: { query: submitted },
-    skip: !submitted || isPhotos,
-  });
+  const photos = useSearchPexelsPhotosQuery({ variables, skip: !submitted || !isPhotos });
+  const videos = useSearchPexelsVideosQuery({ variables, skip: !submitted || isPhotos });
 
   const active = isPhotos ? photos : videos;
   const items = isPhotos
@@ -52,31 +51,41 @@ export function PexelsTab({ kind, onPick }: Readonly<PexelsTabProps>) {
   const noun = isPhotos ? 'photos' : 'videos';
   const creditLine = isPhotos ? 'Photos provided by Pexels.' : 'Videos provided by Pexels.';
 
-  const search = (event: React.FormEvent) => {
+  const search = () => setSubmitted(term.trim());
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key !== 'Enter') return;
     event.preventDefault();
-    setSubmitted(term.trim());
+    event.stopPropagation();
+    search();
   };
 
   return (
     <Stack spacing={1.5}>
-      <form onSubmit={search}>
-        <TextField
-          value={term}
-          onChange={(event) => setTerm(event.target.value)}
-          placeholder={`Search Pexels ${noun}`}
-          inputProps={{ 'aria-label': `Search Pexels ${noun}` }}
-          fullWidth
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton type="submit" size="small" aria-label={`search pexels ${noun}`}>
-                  <SearchIcon fontSize="small" />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </form>
+      <TextField
+        value={term}
+        onChange={(event) => setTerm(event.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={`Search Pexels ${noun}`}
+        inputProps={{ 'aria-label': `Search Pexels ${noun}` }}
+        fullWidth
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                type="button"
+                size="small"
+                onClick={search}
+                aria-label={`search pexels ${noun}`}
+              >
+                <SearchIcon fontSize="small" />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+
+      <PexelsFilters kind={kind} value={filters} onChange={setFilters} />
 
       <Box sx={{ minHeight: 240, maxHeight: 320, overflowY: 'auto' }}>
         <PexelsPanel

@@ -4,6 +4,7 @@ import { ensureAdminAccess } from './seed/ensureAdminAccess';
 import { ensureStatusMonitors, startStatusMonitor } from './modules/status';
 import { ensureEmailDefaults } from './modules/email';
 import { startPayrollDispatch } from './modules/payroll';
+import { startTrackerDigest, startTrackerRetention } from './modules/tracker';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 
@@ -23,6 +24,12 @@ async function bootstrap(): Promise<void> {
   // Payslips go out on the schedule HR sets in the portal, so the loop has to be running
   // even in a month nobody signs in.
   startPayrollDispatch();
+  // Screenshots expire on the workspace's own retention window, so the purge has to run
+  // even in a week nobody opens the Tracker console.
+  startTrackerRetention();
+  // The daily/weekly tracker summary is a scheduled email like the payslips above, so it
+  // needs the loop running whether or not anyone opens the portal.
+  startTrackerDigest();
   const app = await createApp();
   app.listen(env.port, () => {
     logger.info(`GraphQL server ready at http://localhost:${env.port}/graphql`);

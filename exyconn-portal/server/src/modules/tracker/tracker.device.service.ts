@@ -509,14 +509,15 @@ class TrackerDeviceService {
     }
 
     const fileName = `shot-${userId}-${input.capturedAt.getTime()}`;
-    const imageUrl = await imageUploader.uploadTrackerScreenshot(input.image, fileName, userId);
+    const upload = await imageUploader.uploadTrackerScreenshot(input.image, fileName, userId);
 
     const screenshot = await TrackerScreenshotModel.create({
       userId,
       sessionId: input.sessionId,
       intervalStartedAt: input.intervalStartedAt,
       capturedAt: input.capturedAt,
-      imageUrl,
+      imageUrl: upload.url,
+      fileId: upload.fileId,
       displayId: input.displayId ?? '',
       blurred: input.blurred ?? false,
     });

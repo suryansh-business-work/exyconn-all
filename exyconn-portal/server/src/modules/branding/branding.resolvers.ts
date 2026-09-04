@@ -4,6 +4,7 @@ import { assertRole, assertAuthenticated } from '../../middleware/roleGuard';
 import { withId } from '../../utils/serialize';
 import { imageUploader } from '../../utils/imagekit';
 import { badRequest } from '../../utils/errors';
+import { isPexelsMediaUrl } from '../../utils/pexels';
 import { getBranding, updateBranding, type BrandingInput } from './branding.service';
 
 /** Guards a single 12 MB image, matching the /graphql body limit. */
@@ -40,6 +41,18 @@ export const brandingResolvers = {
         badRequest('Image is too large (max 12 MB).');
       }
       return imageUploader.uploadImage(file, fileName, folder);
+    },
+
+    importMediaFromUrl: async (
+      _p: unknown,
+      { url, fileName, folder }: { url: string; fileName: string; folder?: string },
+      ctx: GraphQLContext,
+    ) => {
+      assertAuthenticated(ctx);
+      if (!isPexelsMediaUrl(url)) {
+        badRequest('Only Pexels media URLs can be imported.');
+      }
+      return imageUploader.uploadFromUrl(url, fileName, folder);
     },
   },
 };

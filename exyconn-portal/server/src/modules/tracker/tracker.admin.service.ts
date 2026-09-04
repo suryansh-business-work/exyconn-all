@@ -12,6 +12,7 @@ import {
   type TrackerAccessDocument,
   type TrackerScreenshotDocument,
 } from './models';
+import { trackerManualService } from './tracker.manual.service';
 
 /** Fire-and-forget email — mirrors the admin module's tryEmail helper. */
 function tryEmail(action: string, send: () => Promise<void>): void {
@@ -164,7 +165,44 @@ class TrackerAdminService {
    * 00:30 local isn't bucketed onto the previous UTC day.
    */
   async calendar(userId: string, from: Date, to: Date, timezone: string) {
-    return TrackerSessionModel.aggregate([
+    const [tracked, manual] = await Promise.all([
+      this.trackedByDay(userId, from, to, timezone),
+      trackerManualService.approvedByDay(userId, from, to, timezone),
+    ]);
+
+    // A day can have approved off-computer time and no tracked session at all, so the two
+    // lists are merged by date rather than the manual figures being stitched onto tracked
+    // rows — otherwise a day spent entirely in meetings would vanish from the calendar.
+    const byDate = new Map(tracked.map((day) => [day.date, { ...day, manualMs: 0 }]));
+    for (const day of manual) {
+      const existing = byDate.get(day.date);
+      if (existing) {
+        existing.manualMs = day.manualMs;
+      } else {
+        byDate.set(day.date, {
+          date: day.date,
+          activeMs: 0,
+          idleMs: 0,
+          keyCount: 0,
+          mouseCount: 0,
+          sessions: 0,
+          manualMs: day.manualMs,
+        });
+      }
+    }
+    return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+  }
+
+  /** Per-day totals from tracked sessions alone, before off-computer time is merged in. */
+  private async trackedByDay(userId: string, from: Date, to: Date, timezone: string) {
+    return TrackerSessionModel.aggregate<{
+      date: string;
+      activeMs: number;
+      idleMs: number;
+      keyCount: number;
+      mouseCount: number;
+      sessions: number;
+    }>([
       { $match: { userId, startedAt: { $gte: from, $lt: to } } },
       {
         $group: {
@@ -235,7 +273,7 @@ class TrackerAdminService {
    * the schema on purpose: a year of tracked time in milliseconds overflows a 32-bit Int.
    */
   async totals(userId: string) {
-    const [summed, screenshots, sessions] = await Promise.all([
+    const [summed, screenshots, sessions, manualMs] = await Promise.all([
       TrackerIntervalModel.aggregate<{ activeMs: number; idleMs: number }>([
         { $match: { userId } },
         {
@@ -248,12 +286,14 @@ class TrackerAdminService {
       ]),
       TrackerScreenshotModel.countDocuments({ userId }),
       TrackerSessionModel.countDocuments({ userId }),
+      trackerManualService.approvedTotal(userId),
     ]);
 
     // An employee with no intervals yet aggregates to no rows at all, not to zeroes.
     return {
       activeMs: summed[0]?.activeMs ?? 0,
       idleMs: summed[0]?.idleMs ?? 0,
+      manualMs,
       screenshots,
       sessions,
     };

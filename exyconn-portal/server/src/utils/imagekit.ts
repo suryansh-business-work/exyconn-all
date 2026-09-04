@@ -41,6 +41,11 @@ class ImageUploader {
     return result.url;
   }
 
+  /** Keeps a caller-supplied folder inside the portal's media namespace. */
+  private mediaFolder(folder: string): string {
+    return `${MEDIA_FOLDER}/${folder.replaceAll(/[^a-zA-Z0-9_-]/g, '') || 'misc'}`;
+  }
+
   /**
    * Uploads any base64/data-URL image and returns its hosted URL. This is the single path
    * behind the portal's shared ImageUploadDialog — `folder` just groups the uploads
@@ -48,21 +53,45 @@ class ImageUploader {
    */
   async uploadImage(file: string, fileName: string, folder = 'misc'): Promise<string> {
     const client = await this.getClient();
-    const safeFolder = folder.replaceAll(/[^a-zA-Z0-9_-]/g, '') || 'misc';
     const result = await client.upload({
       file,
       fileName,
-      folder: `${MEDIA_FOLDER}/${safeFolder}`,
+      folder: this.mediaFolder(folder),
       useUniqueFileName: true,
     });
     return result.url;
   }
 
   /**
-   * Uploads a desktop-tracker screenshot and returns its hosted URL. Screenshots are
-   * foldered per employee so they can be found (and purged) per person.
+   * Imports a remote media URL (a Pexels clip, which is far too big to round-trip through
+   * the browser as base64) — ImageKit fetches it itself — and returns the hosted URL, so
+   * nothing the portal stores points at a third-party CDN.
    */
-  async uploadTrackerScreenshot(file: string, fileName: string, userId: string): Promise<string> {
+  async uploadFromUrl(url: string, fileName: string, folder = 'misc'): Promise<string> {
+    const client = await this.getClient();
+    const result = await client.upload({
+      file: url,
+      fileName,
+      folder: this.mediaFolder(folder),
+      useUniqueFileName: true,
+    });
+    return result.url;
+  }
+
+  /**
+   * Uploads a desktop-tracker screenshot. Screenshots are foldered per employee so they can
+   * be found (and purged) per person.
+   *
+   * Returns the provider's `fileId` alongside the URL because a URL cannot be deleted —
+   * ImageKit only removes a file by its id. Retention is what needs that: without the id
+   * stored next to the row, expiring a screenshot would delete our record and leave the
+   * image on the CDN forever.
+   */
+  async uploadTrackerScreenshot(
+    file: string,
+    fileName: string,
+    userId: string,
+  ): Promise<{ url: string; fileId: string }> {
     const client = await this.getClient();
     const result = await client.upload({
       file,
@@ -70,7 +99,23 @@ class ImageUploader {
       folder: `${TRACKER_FOLDER}/${userId}`,
       useUniqueFileName: true,
     });
-    return result.url;
+    return { url: result.url, fileId: result.fileId };
+  }
+
+  /**
+   * Permanently deletes one uploaded file. Used by screenshot retention; a file that is
+   * already gone is treated as success, since the caller's goal is that it no longer exists.
+   */
+  async deleteFile(fileId: string): Promise<void> {
+    const client = await this.getClient();
+    try {
+      await client.deleteFile(fileId);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!message.toLowerCase().includes('does not exist')) {
+        throw error;
+      }
+    }
   }
 
   /**

@@ -5,3 +5,4 @@ export { TrackerIntervalModel, type TrackerIntervalDocument } from './interval.m
 export { TrackerWindowUsageModel, type TrackerWindowUsageDocument } from './window-usage.model';
 export { TrackerScreenshotModel, type TrackerScreenshotDocument } from './screenshot.model';
 export { TrackerSettingsModel, type TrackerSettingsDocument } from './settings.model';
+export { TrackerManualEntryModel, type TrackerManualEntryDocument } from './manual-entry.model';

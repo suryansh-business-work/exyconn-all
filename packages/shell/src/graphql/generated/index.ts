@@ -2259,6 +2259,11 @@ export type Mutation = {
   createTeam: Team;
   createTool: Tool;
   createToolCategory: ToolCategory;
+  /**
+   * Claims work done away from the computer. Always lands PENDING; it counts for nothing
+   * until a reviewer approves it.
+   */
+  createTrackerManualEntry: TrackerManualEntry;
   createTraining: Training;
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
@@ -2331,6 +2336,7 @@ export type Mutation = {
   deleteUser: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
   grantTrackerAccess: TrackerAccess;
+  importMediaFromUrl: Scalars['String']['output'];
   login: AuthPayload;
   markAllNotificationsRead: Scalars['Int']['output'];
   /** Self-service: mark today's (or a given day's) attendance — upserts per day. */
@@ -2356,6 +2362,12 @@ export type Mutation = {
   reorderColumns: Scalars['Boolean']['output'];
   /** Generates a new temporary password, emails it, and returns it once for copying. */
   resetUserPassword: Scalars['String']['output'];
+  /**
+   * Approves or rejects an off-computer claim (TRACKER role). A decision is final — an
+   * entry that has already been decided is refused rather than flipped, so hours somebody
+   * has been paid against cannot quietly leave a timesheet.
+   */
+  reviewTrackerManualEntry: TrackerManualEntry;
   revokeTrackerAccess: TrackerAccess;
   revokeTrackerDevice: TrackerDevice;
   /** Sends the job's prompt to OpenAI and stores the answer, the tokens and the timing. */
@@ -2534,6 +2546,8 @@ export type Mutation = {
   updateUser: User;
   uploadAvatar: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
+  /** Withdraws one of the caller's OWN entries, and only while it is still pending. */
+  withdrawTrackerManualEntry: Scalars['Boolean']['output'];
 };
 
 
@@ -2914,6 +2928,11 @@ export type MutationCreateToolCategoryArgs = {
 };
 
 
+export type MutationCreateTrackerManualEntryArgs = {
+  input: TrackerManualEntryInput;
+};
+
+
 export type MutationCreateTrainingArgs = {
   input: TrainingInput;
 };
@@ -3264,6 +3283,13 @@ export type MutationGrantTrackerAccessArgs = {
 };
 
 
+export type MutationImportMediaFromUrlArgs = {
+  fileName: Scalars['String']['input'];
+  folder?: InputMaybe<Scalars['String']['input']>;
+  url: Scalars['String']['input'];
+};
+
+
 export type MutationLoginArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -3336,6 +3362,13 @@ export type MutationReorderColumnsArgs = {
 
 export type MutationResetUserPasswordArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationReviewTrackerManualEntryArgs = {
+  id: Scalars['ID']['input'];
+  reviewNote?: InputMaybe<Scalars['String']['input']>;
+  status: TrackerManualEntryStatus;
 };
 
 
@@ -3993,6 +4026,11 @@ export type MutationUploadImageArgs = {
   folder?: InputMaybe<Scalars['String']['input']>;
 };
 
+
+export type MutationWithdrawTrackerManualEntryArgs = {
+  id: Scalars['ID']['input'];
+};
+
 export type MyExpenseClaimInput = {
   amount: Scalars['Float']['input'];
   category: Scalars['String']['input'];
@@ -4285,6 +4323,22 @@ export type PexelsMedia = {
   previewUrl: Scalars['String']['output'];
   /** The URL stored when the item is picked. */
   url: Scalars['String']['output'];
+};
+
+/**
+ * The Pexels search filters the upload dialog exposes. Colour is photo-only; the duration
+ * bounds (in seconds) are video-only. An omitted field means "any".
+ */
+export type PexelsSearchFilters = {
+  /** A Pexels colour name, or a #rrggbb value. Photos only. */
+  color?: InputMaybe<Scalars['String']['input']>;
+  maxDuration?: InputMaybe<Scalars['Int']['input']>;
+  /** Videos only, in seconds. */
+  minDuration?: InputMaybe<Scalars['Int']['input']>;
+  /** landscape | portrait | square */
+  orientation?: InputMaybe<Scalars['String']['input']>;
+  /** large | medium | small */
+  size?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Policy = {
@@ -4892,6 +4946,8 @@ export type Query = {
   myTrackerAccess?: Maybe<TrackerAccess>;
   myTrackerCalendar: Array<TrackerDayBucket>;
   myTrackerDay: TrackerDay;
+  /** The caller's own off-computer entries in a range, any status. */
+  myTrackerManualEntries: Array<TrackerManualEntry>;
   /** The calling device's own employee, all-time. Device token, not a portal session. */
   myTrackerTotals: TrackerTotals;
   myTrainings: Array<Training>;
@@ -4955,7 +5011,17 @@ export type Query = {
    * themselves live on a public GitHub release. Null until a release exists.
    */
   trackerLatestRelease?: Maybe<TrackerRelease>;
+  /** One employee's off-computer entries in a range, any status (TRACKER role). */
+  trackerManualEntries: Array<TrackerManualEntry>;
   trackerMe: TrackerMe;
+  /** Every off-computer entry waiting on a decision, oldest first (TRACKER role). */
+  trackerPendingManualEntries: Array<TrackerManualEntry>;
+  /**
+   * Projects time may be booked against, the house-wide one first. The desktop app gets
+   * the same list inside trackerMe; this is the portal's way in, for the off-computer
+   * time form. Any signed-in employee may read it — it is a list of project names.
+   */
+  trackerProjectOptions: Array<TrackerProject>;
   trackerSettings: TrackerSettings;
   trackerTotals: TrackerTotals;
 };
@@ -5580,6 +5646,12 @@ export type QueryMyTrackerDayArgs = {
 };
 
 
+export type QueryMyTrackerManualEntriesArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryPayrollSummaryArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
@@ -5663,12 +5735,14 @@ export type QuerySalarySlipPdfArgs = {
 
 
 export type QuerySearchPexelsPhotosArgs = {
+  filters?: InputMaybe<PexelsSearchFilters>;
   page?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
 };
 
 
 export type QuerySearchPexelsVideosArgs = {
+  filters?: InputMaybe<PexelsSearchFilters>;
   page?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
 };
@@ -5712,6 +5786,13 @@ export type QueryTrackerDayArgs = {
 
 export type QueryTrackerDevicesArgs = {
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryTrackerManualEntriesArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -6504,6 +6585,7 @@ export type TrackerBilling = {
 /** One employee's tracked time over a range, priced at the rate on their HR salary structure. */
 export type TrackerBillingRow = {
   __typename?: 'TrackerBillingRow';
+  /** Billable time: measured active time plus approved off-computer time. */
   activeMs: Scalars['Float']['output'];
   amount: Scalars['Float']['output'];
   /** Per hour, from the employee's salary structure in HR. Zero when HR has not set one. */
@@ -6514,6 +6596,8 @@ export type TrackerBillingRow = {
   hours: Scalars['Float']['output'];
   /** The employee's user id — one row per employee, so this is the row's identity. */
   id: Scalars['ID']['output'];
+  /** How much of activeMs was claimed off-computer rather than measured. */
+  manualMs: Scalars['Float']['output'];
   name: Scalars['String']['output'];
   payType: PayType;
   /** False when no rate is set — the amount is zero because nobody priced the work, not because the work was free. */
@@ -6570,6 +6654,8 @@ export type TrackerDayBucket = {
   date: Scalars['String']['output'];
   idleMs: Scalars['Float']['output'];
   keyCount: Scalars['Int']['output'];
+  /** Approved off-computer time on this day. Measured time and claimed time stay apart. */
+  manualMs: Scalars['Float']['output'];
   mouseCount: Scalars['Int']['output'];
   sessions: Scalars['Int']['output'];
 };
@@ -6647,6 +6733,47 @@ export type TrackerLoginPayload = {
   token: Scalars['String']['output'];
   user: User;
 };
+
+/**
+ * Work done away from the computer, claimed by the employee and signed off by a reviewer.
+ *
+ * Deliberately separate from a session: everything in a session was measured, this was
+ * claimed. Only an APPROVED entry counts towards a calendar, a total or an invoice.
+ */
+export type TrackerManualEntry = {
+  __typename?: 'TrackerManualEntry';
+  createdAt: Scalars['DateTime']['output'];
+  durationMs: Scalars['Float']['output'];
+  endedAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  /** What the time was for. Always present — unexplained claimed time is not reviewable. */
+  note: Scalars['String']['output'];
+  projectId: Scalars['ID']['output'];
+  /** The project's name as it was when the entry was filed. */
+  projectName: Scalars['String']['output'];
+  reviewNote: Scalars['String']['output'];
+  reviewedAt?: Maybe<Scalars['DateTime']['output']>;
+  reviewedBy: Scalars['ID']['output'];
+  startedAt: Scalars['DateTime']['output'];
+  status: TrackerManualEntryStatus;
+  userId: Scalars['ID']['output'];
+  /** Employee's name, resolved for the review queue. Empty on an employee's own list. */
+  userName: Scalars['String']['output'];
+};
+
+export type TrackerManualEntryInput = {
+  endedAt: Scalars['DateTime']['input'];
+  note: Scalars['String']['input'];
+  /** Omit to book against the house-wide Global Project. */
+  projectId?: InputMaybe<Scalars['ID']['input']>;
+  startedAt: Scalars['DateTime']['input'];
+};
+
+export enum TrackerManualEntryStatus {
+  Approved = 'APPROVED',
+  Pending = 'PENDING',
+  Rejected = 'REJECTED'
+}
 
 export type TrackerMe = {
   __typename?: 'TrackerMe';
@@ -6750,6 +6877,15 @@ export type TrackerSession = {
 
 export type TrackerSettings = {
   __typename?: 'TrackerSettings';
+  /**
+   * Start and stop tracking on a schedule rather than waiting for the employee to press
+   * start. The consent gate still applies before the first session.
+   */
+  autoStartEnabled: Scalars['Boolean']['output'];
+  /** Local hour (0-23) tracking starts, in the EMPLOYEE's own timezone. */
+  autoStartHour: Scalars['Int']['output'];
+  /** Local hour (0-23) tracking stops. At or before the start hour means it crosses midnight. */
+  autoStopHour: Scalars['Int']['output'];
   blurScreenshots: Scalars['Boolean']['output'];
   /**
    * Slug of the Legal policy used as the disclosure instead of consentText. Empty means
@@ -6757,11 +6893,15 @@ export type TrackerSettings = {
    */
   consentPolicySlug: Scalars['String']['output'];
   consentText: Scalars['String']['output'];
+  /** Email yesterday's tracked time to everyone holding the TRACKER role. */
+  dailyDigestEnabled: Scalars['Boolean']['output'];
   /**
    * House default IANA zone (e.g. "Asia/Kolkata"), chosen by an admin.
    * An empty string means "no house default" — fall back to the device's own zone.
    */
   defaultTimezone: Scalars['String']['output'];
+  /** Local hour (0-23) the digests go out at, read in the workspace's own timezone. */
+  digestHour: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   idleThresholdSeconds: Scalars['Int']['output'];
   intervalMinutes: Scalars['Int']['output'];
@@ -6772,6 +6912,11 @@ export type TrackerSettings = {
    * downscale. Below 100 is a JPEG at that quality, downscaled to screenshotMaxWidth.
    */
   screenshotQuality: Scalars['Int']['output'];
+  /**
+   * Days a screenshot is kept before it is deleted from the portal AND from storage.
+   * 0 keeps them indefinitely, which is the default — a workspace opts in to expiry.
+   */
+  screenshotRetentionDays: Scalars['Int']['output'];
   screenshotsPerInterval: Scalars['Int']['output'];
   syncIntervalMinutes: Scalars['Int']['output'];
   trackWindowTitles: Scalars['Boolean']['output'];
@@ -6779,23 +6924,32 @@ export type TrackerSettings = {
   webcamCorner: Scalars['String']['output'];
   /** Capture a webcam photo with each screenshot and composite it into a corner of the shot. */
   webcamEnabled: Scalars['Boolean']['output'];
+  /** The same summary for the last seven days, sent on a Monday. */
+  weeklyDigestEnabled: Scalars['Boolean']['output'];
 };
 
 export type TrackerSettingsInput = {
+  autoStartEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  autoStartHour?: InputMaybe<Scalars['Int']['input']>;
+  autoStopHour?: InputMaybe<Scalars['Int']['input']>;
   blurScreenshots?: InputMaybe<Scalars['Boolean']['input']>;
   consentPolicySlug?: InputMaybe<Scalars['String']['input']>;
   consentText?: InputMaybe<Scalars['String']['input']>;
+  dailyDigestEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   defaultTimezone?: InputMaybe<Scalars['String']['input']>;
+  digestHour?: InputMaybe<Scalars['Int']['input']>;
   idleThresholdSeconds?: InputMaybe<Scalars['Int']['input']>;
   intervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   randomizeScreenshotTiming?: InputMaybe<Scalars['Boolean']['input']>;
   screenshotMaxWidth?: InputMaybe<Scalars['Int']['input']>;
   screenshotQuality?: InputMaybe<Scalars['Int']['input']>;
+  screenshotRetentionDays?: InputMaybe<Scalars['Int']['input']>;
   screenshotsPerInterval?: InputMaybe<Scalars['Int']['input']>;
   syncIntervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   trackWindowTitles?: InputMaybe<Scalars['Boolean']['input']>;
   webcamCorner?: InputMaybe<Scalars['String']['input']>;
   webcamEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  weeklyDigestEnabled?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** All-time tracker totals for one employee. */
@@ -6804,6 +6958,8 @@ export type TrackerTotals = {
   /** Float, not Int: all-time milliseconds overflow a 32-bit Int. */
   activeMs: Scalars['Float']['output'];
   idleMs: Scalars['Float']['output'];
+  /** All-time approved off-computer time, kept apart from the measured total. */
+  manualMs: Scalars['Float']['output'];
   screenshots: Scalars['Int']['output'];
   sessions: Scalars['Int']['output'];
 };
@@ -6844,6 +7000,11 @@ export type TrackerWorkday = {
   attendanceStatus?: Maybe<AttendanceStatus>;
   /** The employee's local calendar date, YYYY-MM-DD. */
   date: Scalars['String']['output'];
+  /**
+   * Approved off-computer milliseconds today. Separate from activeMs because that was
+   * measured and this was claimed; a client adding them must say which is which.
+   */
+  manualMs: Scalars['Float']['output'];
   targetMs: Scalars['Float']['output'];
 };
 
@@ -7461,6 +7622,15 @@ export type UploadImageMutationVariables = Exact<{
 
 
 export type UploadImageMutation = { __typename?: 'Mutation', uploadImage: string };
+
+export type ImportMediaFromUrlMutationVariables = Exact<{
+  url: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
+  folder?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type ImportMediaFromUrlMutation = { __typename?: 'Mutation', importMediaFromUrl: string };
 
 export type ListBugsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9851,6 +10021,7 @@ export type PexelsMediaFieldsFragment = { __typename?: 'PexelsMedia', id: string
 export type SearchPexelsPhotosQueryVariables = Exact<{
   query: Scalars['String']['input'];
   page?: InputMaybe<Scalars['Int']['input']>;
+  filters?: InputMaybe<PexelsSearchFilters>;
 }>;
 
 
@@ -9859,6 +10030,7 @@ export type SearchPexelsPhotosQuery = { __typename?: 'Query', searchPexelsPhotos
 export type SearchPexelsVideosQueryVariables = Exact<{
   query: Scalars['String']['input'];
   page?: InputMaybe<Scalars['Int']['input']>;
+  filters?: InputMaybe<PexelsSearchFilters>;
 }>;
 
 
@@ -9902,9 +10074,9 @@ export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: st
 
 export type TrackerDeviceFieldsFragment = { __typename?: 'TrackerDevice', id: string, userId: string, deviceId: string, platform: string, hostname: string, appVersion: string, machineId: string, osName: string, osVersion: string, arch: string, cpuModel: string, cpuCores: number, totalMemoryMb: number, locale: string, timezone: string, screenCount: number, screenResolution: string, issuedAt: string, lastSeenAt: string, revokedAt?: string | null, isActive: boolean };
 
-export type TrackerSettingsFieldsFragment = { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string };
+export type TrackerSettingsFieldsFragment = { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string };
 
-export type TrackerDayBucketFieldsFragment = { __typename?: 'TrackerDayBucket', date: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number, sessions: number };
+export type TrackerDayBucketFieldsFragment = { __typename?: 'TrackerDayBucket', date: string, activeMs: number, idleMs: number, manualMs: number, keyCount: number, mouseCount: number, sessions: number };
 
 export type TrackerDayFieldsFragment = { __typename?: 'TrackerDay', intervals: Array<{ __typename?: 'TrackerInterval', id: string, sessionId: string, startedAt: string, endedAt: string, keyCount: number, mouseCount: number, activeMs: number, idleMs: number, activityPercent: number }>, screenshots: Array<{ __typename?: 'TrackerScreenshot', id: string, sessionId: string, intervalStartedAt: string, capturedAt: string, imageUrl: string, displayId: string, blurred: boolean, activityPercent: number }>, sessions: Array<{ __typename?: 'TrackerSession', id: string, startedAt: string, endedAt?: string | null, status: string, projectId: string, projectName: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number }>, appUsage: Array<{ __typename?: 'TrackerAppUsage', appName: string, durationMs: number }> };
 
@@ -9923,7 +10095,7 @@ export type TrackerDevicesQuery = { __typename?: 'Query', trackerDevices: Array<
 export type TrackerSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TrackerSettingsQuery = { __typename?: 'Query', trackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
+export type TrackerSettingsQuery = { __typename?: 'Query', trackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
 
 export type TrackerCalendarQueryVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -9933,7 +10105,7 @@ export type TrackerCalendarQueryVariables = Exact<{
 }>;
 
 
-export type TrackerCalendarQuery = { __typename?: 'Query', trackerCalendar: Array<{ __typename?: 'TrackerDayBucket', date: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number, sessions: number }> };
+export type TrackerCalendarQuery = { __typename?: 'Query', trackerCalendar: Array<{ __typename?: 'TrackerDayBucket', date: string, activeMs: number, idleMs: number, manualMs: number, keyCount: number, mouseCount: number, sessions: number }> };
 
 export type TrackerDayQueryVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -9956,7 +10128,7 @@ export type MyTrackerCalendarQueryVariables = Exact<{
 }>;
 
 
-export type MyTrackerCalendarQuery = { __typename?: 'Query', myTrackerCalendar: Array<{ __typename?: 'TrackerDayBucket', date: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number, sessions: number }> };
+export type MyTrackerCalendarQuery = { __typename?: 'Query', myTrackerCalendar: Array<{ __typename?: 'TrackerDayBucket', date: string, activeMs: number, idleMs: number, manualMs: number, keyCount: number, mouseCount: number, sessions: number }> };
 
 export type MyTrackerDayQueryVariables = Exact<{
   start: Scalars['DateTime']['input'];
@@ -9992,7 +10164,7 @@ export type UpdateTrackerSettingsMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTrackerSettingsMutation = { __typename?: 'Mutation', updateTrackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
+export type UpdateTrackerSettingsMutation = { __typename?: 'Mutation', updateTrackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
 
 export type TrackerLatestReleaseQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -10006,6 +10178,58 @@ export type TrackerBillingQueryVariables = Exact<{
 
 
 export type TrackerBillingQuery = { __typename?: 'Query', trackerBilling: { __typename?: 'TrackerBilling', from: string, to: string, totalHours: number, totalAmount: number, currency: string, rows: Array<{ __typename?: 'TrackerBillingRow', id: string, name: string, email: string, payType: PayType, currency: string, billingRate: number, hours: number, amount: number, rated: boolean }> } };
+
+export type TrackerManualEntryFieldsFragment = { __typename?: 'TrackerManualEntry', id: string, userId: string, userName: string, projectId: string, projectName: string, startedAt: string, endedAt: string, durationMs: number, note: string, status: TrackerManualEntryStatus, reviewedAt?: string | null, reviewNote: string, createdAt: string };
+
+export type TrackerPendingManualEntriesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TrackerPendingManualEntriesQuery = { __typename?: 'Query', trackerPendingManualEntries: Array<{ __typename?: 'TrackerManualEntry', id: string, userId: string, userName: string, projectId: string, projectName: string, startedAt: string, endedAt: string, durationMs: number, note: string, status: TrackerManualEntryStatus, reviewedAt?: string | null, reviewNote: string, createdAt: string }> };
+
+export type TrackerManualEntriesQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type TrackerManualEntriesQuery = { __typename?: 'Query', trackerManualEntries: Array<{ __typename?: 'TrackerManualEntry', id: string, userId: string, userName: string, projectId: string, projectName: string, startedAt: string, endedAt: string, durationMs: number, note: string, status: TrackerManualEntryStatus, reviewedAt?: string | null, reviewNote: string, createdAt: string }> };
+
+export type MyTrackerManualEntriesQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type MyTrackerManualEntriesQuery = { __typename?: 'Query', myTrackerManualEntries: Array<{ __typename?: 'TrackerManualEntry', id: string, userId: string, userName: string, projectId: string, projectName: string, startedAt: string, endedAt: string, durationMs: number, note: string, status: TrackerManualEntryStatus, reviewedAt?: string | null, reviewNote: string, createdAt: string }> };
+
+export type ReviewTrackerManualEntryMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  status: TrackerManualEntryStatus;
+  reviewNote?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type ReviewTrackerManualEntryMutation = { __typename?: 'Mutation', reviewTrackerManualEntry: { __typename?: 'TrackerManualEntry', id: string, userId: string, userName: string, projectId: string, projectName: string, startedAt: string, endedAt: string, durationMs: number, note: string, status: TrackerManualEntryStatus, reviewedAt?: string | null, reviewNote: string, createdAt: string } };
+
+export type CreateTrackerManualEntryMutationVariables = Exact<{
+  input: TrackerManualEntryInput;
+}>;
+
+
+export type CreateTrackerManualEntryMutation = { __typename?: 'Mutation', createTrackerManualEntry: { __typename?: 'TrackerManualEntry', id: string, userId: string, userName: string, projectId: string, projectName: string, startedAt: string, endedAt: string, durationMs: number, note: string, status: TrackerManualEntryStatus, reviewedAt?: string | null, reviewNote: string, createdAt: string } };
+
+export type WithdrawTrackerManualEntryMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type WithdrawTrackerManualEntryMutation = { __typename?: 'Mutation', withdrawTrackerManualEntry: boolean };
+
+export type TrackerProjectOptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TrackerProjectOptionsQuery = { __typename?: 'Query', trackerProjectOptions: Array<{ __typename?: 'TrackerProject', id: string, name: string, key: string }> };
 
 export type BlogPostFieldsFragment = { __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } };
 
@@ -10898,6 +11122,13 @@ export const TrackerSettingsFieldsFragmentDoc = gql`
   idleThresholdSeconds
   screenshotMaxWidth
   screenshotQuality
+  screenshotRetentionDays
+  autoStartEnabled
+  autoStartHour
+  autoStopHour
+  dailyDigestEnabled
+  weeklyDigestEnabled
+  digestHour
   webcamEnabled
   webcamCorner
   syncIntervalMinutes
@@ -10911,6 +11142,7 @@ export const TrackerDayBucketFieldsFragmentDoc = gql`
   date
   activeMs
   idleMs
+  manualMs
   keyCount
   mouseCount
   sessions
@@ -10955,6 +11187,23 @@ export const TrackerDayFieldsFragmentDoc = gql`
     appName
     durationMs
   }
+}
+    `;
+export const TrackerManualEntryFieldsFragmentDoc = gql`
+    fragment TrackerManualEntryFields on TrackerManualEntry {
+  id
+  userId
+  userName
+  projectId
+  projectName
+  startedAt
+  endedAt
+  durationMs
+  note
+  status
+  reviewedAt
+  reviewNote
+  createdAt
 }
     `;
 export const BlogPostFieldsFragmentDoc = gql`
@@ -13749,6 +13998,39 @@ export function useUploadImageMutation(baseOptions?: Apollo.MutationHookOptions<
 export type UploadImageMutationHookResult = ReturnType<typeof useUploadImageMutation>;
 export type UploadImageMutationResult = Apollo.MutationResult<UploadImageMutation>;
 export type UploadImageMutationOptions = Apollo.BaseMutationOptions<UploadImageMutation, UploadImageMutationVariables>;
+export const ImportMediaFromUrlDocument = gql`
+    mutation ImportMediaFromUrl($url: String!, $fileName: String!, $folder: String) {
+  importMediaFromUrl(url: $url, fileName: $fileName, folder: $folder)
+}
+    `;
+export type ImportMediaFromUrlMutationFn = Apollo.MutationFunction<ImportMediaFromUrlMutation, ImportMediaFromUrlMutationVariables>;
+
+/**
+ * __useImportMediaFromUrlMutation__
+ *
+ * To run a mutation, you first call `useImportMediaFromUrlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useImportMediaFromUrlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [importMediaFromUrlMutation, { data, loading, error }] = useImportMediaFromUrlMutation({
+ *   variables: {
+ *      url: // value for 'url'
+ *      fileName: // value for 'fileName'
+ *      folder: // value for 'folder'
+ *   },
+ * });
+ */
+export function useImportMediaFromUrlMutation(baseOptions?: Apollo.MutationHookOptions<ImportMediaFromUrlMutation, ImportMediaFromUrlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ImportMediaFromUrlMutation, ImportMediaFromUrlMutationVariables>(ImportMediaFromUrlDocument, options);
+      }
+export type ImportMediaFromUrlMutationHookResult = ReturnType<typeof useImportMediaFromUrlMutation>;
+export type ImportMediaFromUrlMutationResult = Apollo.MutationResult<ImportMediaFromUrlMutation>;
+export type ImportMediaFromUrlMutationOptions = Apollo.BaseMutationOptions<ImportMediaFromUrlMutation, ImportMediaFromUrlMutationVariables>;
 export const ListBugsDocument = gql`
     query ListBugs {
   listBugs {
@@ -27862,8 +28144,8 @@ export type TestPexelsConnectionMutationHookResult = ReturnType<typeof useTestPe
 export type TestPexelsConnectionMutationResult = Apollo.MutationResult<TestPexelsConnectionMutation>;
 export type TestPexelsConnectionMutationOptions = Apollo.BaseMutationOptions<TestPexelsConnectionMutation, TestPexelsConnectionMutationVariables>;
 export const SearchPexelsPhotosDocument = gql`
-    query SearchPexelsPhotos($query: String!, $page: Int) {
-  searchPexelsPhotos(query: $query, page: $page) {
+    query SearchPexelsPhotos($query: String!, $page: Int, $filters: PexelsSearchFilters) {
+  searchPexelsPhotos(query: $query, page: $page, filters: $filters) {
     ...PexelsMediaFields
   }
 }
@@ -27883,6 +28165,7 @@ export const SearchPexelsPhotosDocument = gql`
  *   variables: {
  *      query: // value for 'query'
  *      page: // value for 'page'
+ *      filters: // value for 'filters'
  *   },
  * });
  */
@@ -27906,8 +28189,8 @@ export type SearchPexelsPhotosLazyQueryHookResult = ReturnType<typeof useSearchP
 export type SearchPexelsPhotosSuspenseQueryHookResult = ReturnType<typeof useSearchPexelsPhotosSuspenseQuery>;
 export type SearchPexelsPhotosQueryResult = Apollo.QueryResult<SearchPexelsPhotosQuery, SearchPexelsPhotosQueryVariables>;
 export const SearchPexelsVideosDocument = gql`
-    query SearchPexelsVideos($query: String!, $page: Int) {
-  searchPexelsVideos(query: $query, page: $page) {
+    query SearchPexelsVideos($query: String!, $page: Int, $filters: PexelsSearchFilters) {
+  searchPexelsVideos(query: $query, page: $page, filters: $filters) {
     ...PexelsMediaFields
   }
 }
@@ -27927,6 +28210,7 @@ export const SearchPexelsVideosDocument = gql`
  *   variables: {
  *      query: // value for 'query'
  *      page: // value for 'page'
+ *      filters: // value for 'filters'
  *   },
  * });
  */
@@ -28718,6 +29002,280 @@ export type TrackerBillingQueryHookResult = ReturnType<typeof useTrackerBillingQ
 export type TrackerBillingLazyQueryHookResult = ReturnType<typeof useTrackerBillingLazyQuery>;
 export type TrackerBillingSuspenseQueryHookResult = ReturnType<typeof useTrackerBillingSuspenseQuery>;
 export type TrackerBillingQueryResult = Apollo.QueryResult<TrackerBillingQuery, TrackerBillingQueryVariables>;
+export const TrackerPendingManualEntriesDocument = gql`
+    query TrackerPendingManualEntries {
+  trackerPendingManualEntries {
+    ...TrackerManualEntryFields
+  }
+}
+    ${TrackerManualEntryFieldsFragmentDoc}`;
+
+/**
+ * __useTrackerPendingManualEntriesQuery__
+ *
+ * To run a query within a React component, call `useTrackerPendingManualEntriesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerPendingManualEntriesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerPendingManualEntriesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTrackerPendingManualEntriesQuery(baseOptions?: Apollo.QueryHookOptions<TrackerPendingManualEntriesQuery, TrackerPendingManualEntriesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TrackerPendingManualEntriesQuery, TrackerPendingManualEntriesQueryVariables>(TrackerPendingManualEntriesDocument, options);
+      }
+export function useTrackerPendingManualEntriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TrackerPendingManualEntriesQuery, TrackerPendingManualEntriesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TrackerPendingManualEntriesQuery, TrackerPendingManualEntriesQueryVariables>(TrackerPendingManualEntriesDocument, options);
+        }
+// @ts-ignore
+export function useTrackerPendingManualEntriesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TrackerPendingManualEntriesQuery, TrackerPendingManualEntriesQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerPendingManualEntriesQuery, TrackerPendingManualEntriesQueryVariables>;
+export function useTrackerPendingManualEntriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerPendingManualEntriesQuery, TrackerPendingManualEntriesQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerPendingManualEntriesQuery | undefined, TrackerPendingManualEntriesQueryVariables>;
+export function useTrackerPendingManualEntriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerPendingManualEntriesQuery, TrackerPendingManualEntriesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TrackerPendingManualEntriesQuery, TrackerPendingManualEntriesQueryVariables>(TrackerPendingManualEntriesDocument, options);
+        }
+export type TrackerPendingManualEntriesQueryHookResult = ReturnType<typeof useTrackerPendingManualEntriesQuery>;
+export type TrackerPendingManualEntriesLazyQueryHookResult = ReturnType<typeof useTrackerPendingManualEntriesLazyQuery>;
+export type TrackerPendingManualEntriesSuspenseQueryHookResult = ReturnType<typeof useTrackerPendingManualEntriesSuspenseQuery>;
+export type TrackerPendingManualEntriesQueryResult = Apollo.QueryResult<TrackerPendingManualEntriesQuery, TrackerPendingManualEntriesQueryVariables>;
+export const TrackerManualEntriesDocument = gql`
+    query TrackerManualEntries($userId: ID!, $from: DateTime!, $to: DateTime!) {
+  trackerManualEntries(userId: $userId, from: $from, to: $to) {
+    ...TrackerManualEntryFields
+  }
+}
+    ${TrackerManualEntryFieldsFragmentDoc}`;
+
+/**
+ * __useTrackerManualEntriesQuery__
+ *
+ * To run a query within a React component, call `useTrackerManualEntriesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerManualEntriesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerManualEntriesQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useTrackerManualEntriesQuery(baseOptions: Apollo.QueryHookOptions<TrackerManualEntriesQuery, TrackerManualEntriesQueryVariables> & ({ variables: TrackerManualEntriesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TrackerManualEntriesQuery, TrackerManualEntriesQueryVariables>(TrackerManualEntriesDocument, options);
+      }
+export function useTrackerManualEntriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TrackerManualEntriesQuery, TrackerManualEntriesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TrackerManualEntriesQuery, TrackerManualEntriesQueryVariables>(TrackerManualEntriesDocument, options);
+        }
+// @ts-ignore
+export function useTrackerManualEntriesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TrackerManualEntriesQuery, TrackerManualEntriesQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerManualEntriesQuery, TrackerManualEntriesQueryVariables>;
+export function useTrackerManualEntriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerManualEntriesQuery, TrackerManualEntriesQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerManualEntriesQuery | undefined, TrackerManualEntriesQueryVariables>;
+export function useTrackerManualEntriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerManualEntriesQuery, TrackerManualEntriesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TrackerManualEntriesQuery, TrackerManualEntriesQueryVariables>(TrackerManualEntriesDocument, options);
+        }
+export type TrackerManualEntriesQueryHookResult = ReturnType<typeof useTrackerManualEntriesQuery>;
+export type TrackerManualEntriesLazyQueryHookResult = ReturnType<typeof useTrackerManualEntriesLazyQuery>;
+export type TrackerManualEntriesSuspenseQueryHookResult = ReturnType<typeof useTrackerManualEntriesSuspenseQuery>;
+export type TrackerManualEntriesQueryResult = Apollo.QueryResult<TrackerManualEntriesQuery, TrackerManualEntriesQueryVariables>;
+export const MyTrackerManualEntriesDocument = gql`
+    query MyTrackerManualEntries($from: DateTime!, $to: DateTime!) {
+  myTrackerManualEntries(from: $from, to: $to) {
+    ...TrackerManualEntryFields
+  }
+}
+    ${TrackerManualEntryFieldsFragmentDoc}`;
+
+/**
+ * __useMyTrackerManualEntriesQuery__
+ *
+ * To run a query within a React component, call `useMyTrackerManualEntriesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyTrackerManualEntriesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyTrackerManualEntriesQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useMyTrackerManualEntriesQuery(baseOptions: Apollo.QueryHookOptions<MyTrackerManualEntriesQuery, MyTrackerManualEntriesQueryVariables> & ({ variables: MyTrackerManualEntriesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyTrackerManualEntriesQuery, MyTrackerManualEntriesQueryVariables>(MyTrackerManualEntriesDocument, options);
+      }
+export function useMyTrackerManualEntriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyTrackerManualEntriesQuery, MyTrackerManualEntriesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyTrackerManualEntriesQuery, MyTrackerManualEntriesQueryVariables>(MyTrackerManualEntriesDocument, options);
+        }
+// @ts-ignore
+export function useMyTrackerManualEntriesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyTrackerManualEntriesQuery, MyTrackerManualEntriesQueryVariables>): Apollo.UseSuspenseQueryResult<MyTrackerManualEntriesQuery, MyTrackerManualEntriesQueryVariables>;
+export function useMyTrackerManualEntriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyTrackerManualEntriesQuery, MyTrackerManualEntriesQueryVariables>): Apollo.UseSuspenseQueryResult<MyTrackerManualEntriesQuery | undefined, MyTrackerManualEntriesQueryVariables>;
+export function useMyTrackerManualEntriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyTrackerManualEntriesQuery, MyTrackerManualEntriesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyTrackerManualEntriesQuery, MyTrackerManualEntriesQueryVariables>(MyTrackerManualEntriesDocument, options);
+        }
+export type MyTrackerManualEntriesQueryHookResult = ReturnType<typeof useMyTrackerManualEntriesQuery>;
+export type MyTrackerManualEntriesLazyQueryHookResult = ReturnType<typeof useMyTrackerManualEntriesLazyQuery>;
+export type MyTrackerManualEntriesSuspenseQueryHookResult = ReturnType<typeof useMyTrackerManualEntriesSuspenseQuery>;
+export type MyTrackerManualEntriesQueryResult = Apollo.QueryResult<MyTrackerManualEntriesQuery, MyTrackerManualEntriesQueryVariables>;
+export const ReviewTrackerManualEntryDocument = gql`
+    mutation ReviewTrackerManualEntry($id: ID!, $status: TrackerManualEntryStatus!, $reviewNote: String) {
+  reviewTrackerManualEntry(id: $id, status: $status, reviewNote: $reviewNote) {
+    ...TrackerManualEntryFields
+  }
+}
+    ${TrackerManualEntryFieldsFragmentDoc}`;
+export type ReviewTrackerManualEntryMutationFn = Apollo.MutationFunction<ReviewTrackerManualEntryMutation, ReviewTrackerManualEntryMutationVariables>;
+
+/**
+ * __useReviewTrackerManualEntryMutation__
+ *
+ * To run a mutation, you first call `useReviewTrackerManualEntryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReviewTrackerManualEntryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [reviewTrackerManualEntryMutation, { data, loading, error }] = useReviewTrackerManualEntryMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      status: // value for 'status'
+ *      reviewNote: // value for 'reviewNote'
+ *   },
+ * });
+ */
+export function useReviewTrackerManualEntryMutation(baseOptions?: Apollo.MutationHookOptions<ReviewTrackerManualEntryMutation, ReviewTrackerManualEntryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ReviewTrackerManualEntryMutation, ReviewTrackerManualEntryMutationVariables>(ReviewTrackerManualEntryDocument, options);
+      }
+export type ReviewTrackerManualEntryMutationHookResult = ReturnType<typeof useReviewTrackerManualEntryMutation>;
+export type ReviewTrackerManualEntryMutationResult = Apollo.MutationResult<ReviewTrackerManualEntryMutation>;
+export type ReviewTrackerManualEntryMutationOptions = Apollo.BaseMutationOptions<ReviewTrackerManualEntryMutation, ReviewTrackerManualEntryMutationVariables>;
+export const CreateTrackerManualEntryDocument = gql`
+    mutation CreateTrackerManualEntry($input: TrackerManualEntryInput!) {
+  createTrackerManualEntry(input: $input) {
+    ...TrackerManualEntryFields
+  }
+}
+    ${TrackerManualEntryFieldsFragmentDoc}`;
+export type CreateTrackerManualEntryMutationFn = Apollo.MutationFunction<CreateTrackerManualEntryMutation, CreateTrackerManualEntryMutationVariables>;
+
+/**
+ * __useCreateTrackerManualEntryMutation__
+ *
+ * To run a mutation, you first call `useCreateTrackerManualEntryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTrackerManualEntryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createTrackerManualEntryMutation, { data, loading, error }] = useCreateTrackerManualEntryMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateTrackerManualEntryMutation(baseOptions?: Apollo.MutationHookOptions<CreateTrackerManualEntryMutation, CreateTrackerManualEntryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateTrackerManualEntryMutation, CreateTrackerManualEntryMutationVariables>(CreateTrackerManualEntryDocument, options);
+      }
+export type CreateTrackerManualEntryMutationHookResult = ReturnType<typeof useCreateTrackerManualEntryMutation>;
+export type CreateTrackerManualEntryMutationResult = Apollo.MutationResult<CreateTrackerManualEntryMutation>;
+export type CreateTrackerManualEntryMutationOptions = Apollo.BaseMutationOptions<CreateTrackerManualEntryMutation, CreateTrackerManualEntryMutationVariables>;
+export const WithdrawTrackerManualEntryDocument = gql`
+    mutation WithdrawTrackerManualEntry($id: ID!) {
+  withdrawTrackerManualEntry(id: $id)
+}
+    `;
+export type WithdrawTrackerManualEntryMutationFn = Apollo.MutationFunction<WithdrawTrackerManualEntryMutation, WithdrawTrackerManualEntryMutationVariables>;
+
+/**
+ * __useWithdrawTrackerManualEntryMutation__
+ *
+ * To run a mutation, you first call `useWithdrawTrackerManualEntryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useWithdrawTrackerManualEntryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [withdrawTrackerManualEntryMutation, { data, loading, error }] = useWithdrawTrackerManualEntryMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useWithdrawTrackerManualEntryMutation(baseOptions?: Apollo.MutationHookOptions<WithdrawTrackerManualEntryMutation, WithdrawTrackerManualEntryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<WithdrawTrackerManualEntryMutation, WithdrawTrackerManualEntryMutationVariables>(WithdrawTrackerManualEntryDocument, options);
+      }
+export type WithdrawTrackerManualEntryMutationHookResult = ReturnType<typeof useWithdrawTrackerManualEntryMutation>;
+export type WithdrawTrackerManualEntryMutationResult = Apollo.MutationResult<WithdrawTrackerManualEntryMutation>;
+export type WithdrawTrackerManualEntryMutationOptions = Apollo.BaseMutationOptions<WithdrawTrackerManualEntryMutation, WithdrawTrackerManualEntryMutationVariables>;
+export const TrackerProjectOptionsDocument = gql`
+    query TrackerProjectOptions {
+  trackerProjectOptions {
+    id
+    name
+    key
+  }
+}
+    `;
+
+/**
+ * __useTrackerProjectOptionsQuery__
+ *
+ * To run a query within a React component, call `useTrackerProjectOptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerProjectOptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerProjectOptionsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTrackerProjectOptionsQuery(baseOptions?: Apollo.QueryHookOptions<TrackerProjectOptionsQuery, TrackerProjectOptionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TrackerProjectOptionsQuery, TrackerProjectOptionsQueryVariables>(TrackerProjectOptionsDocument, options);
+      }
+export function useTrackerProjectOptionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TrackerProjectOptionsQuery, TrackerProjectOptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TrackerProjectOptionsQuery, TrackerProjectOptionsQueryVariables>(TrackerProjectOptionsDocument, options);
+        }
+// @ts-ignore
+export function useTrackerProjectOptionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TrackerProjectOptionsQuery, TrackerProjectOptionsQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerProjectOptionsQuery, TrackerProjectOptionsQueryVariables>;
+export function useTrackerProjectOptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerProjectOptionsQuery, TrackerProjectOptionsQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerProjectOptionsQuery | undefined, TrackerProjectOptionsQueryVariables>;
+export function useTrackerProjectOptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerProjectOptionsQuery, TrackerProjectOptionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TrackerProjectOptionsQuery, TrackerProjectOptionsQueryVariables>(TrackerProjectOptionsDocument, options);
+        }
+export type TrackerProjectOptionsQueryHookResult = ReturnType<typeof useTrackerProjectOptionsQuery>;
+export type TrackerProjectOptionsLazyQueryHookResult = ReturnType<typeof useTrackerProjectOptionsLazyQuery>;
+export type TrackerProjectOptionsSuspenseQueryHookResult = ReturnType<typeof useTrackerProjectOptionsSuspenseQuery>;
+export type TrackerProjectOptionsQueryResult = Apollo.QueryResult<TrackerProjectOptionsQuery, TrackerProjectOptionsQueryVariables>;
 export const ListBlogPostsDocument = gql`
     query ListBlogPosts {
   listBlogPosts {

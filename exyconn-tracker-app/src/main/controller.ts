@@ -27,6 +27,7 @@ import { collectDeviceInfo } from './device-info';
 import { describeLoginFailure } from './login-message';
 import { describeSyncFailure } from './sync-message';
 import { getPermissions, requestPermission } from './trackers/permissions';
+import { decideAutoAction, hourIn, isWithinWindow } from './auto-start';
 import type { ComposeInput } from './capture-bridge';
 
 /**
@@ -63,6 +64,13 @@ export class TrackerController {
   private timezone: string = deviceTimezone();
   /** The keep-alive/settings poll; runs only while somebody is signed in. */
   private pollTimer: NodeJS.Timeout | null = null;
+  /**
+   * The employee stopped or paused tracking themselves inside the scheduled window.
+   *
+   * Without it the schedule would restart within the minute and there would be no way to
+   * finish early. Cleared as soon as the window ends, so tomorrow starts on schedule again.
+   */
+  private autoOverride = false;
 
   constructor(
     private readonly onChange: (state: TrackerState) => void,
@@ -314,6 +322,7 @@ export class TrackerController {
       if (this.applyPortalState(await portal.heartbeat(collectDeviceInfo()))) {
         this.emit();
       }
+      await this.runSchedule();
     } catch (error) {
       if (error instanceof TrackerAuthError) {
         await this.logout(describeSyncFailure(error));
@@ -364,7 +373,7 @@ export class TrackerController {
     if (this.status === 'signed-out') {
       return; // an auth error during the sign-out flush would otherwise re-enter here
     }
-    await this.stop();
+    await this.stopTracking();
     try {
       await this.engine?.syncNow();
     } catch (error) {
@@ -401,6 +410,9 @@ export class TrackerController {
     if (!this.workday?.attendanceMarked) {
       throw new Error('Mark your attendance for today before tracking can start.');
     }
+    // Starting by hand inside the window clears an earlier early-finish: the employee has
+    // said they are working again, and the schedule should stop holding yesterday's answer.
+    this.autoOverride = false;
     this.engine.setDayBase(this.workday.activeMs);
     await this.engine.start(this.selectedProjectId());
     this.status = 'tracking';
@@ -408,23 +420,71 @@ export class TrackerController {
   }
 
   pause(): void {
+    this.autoOverride = true;
     this.engine?.pause();
     this.status = 'paused';
     this.emit();
   }
 
   resume(): void {
+    this.autoOverride = false;
     this.engine?.resume();
     this.status = 'tracking';
     this.emit();
   }
 
+  /** Stopped by the employee: the schedule must not restart it before the window ends. */
   async stop(): Promise<void> {
+    this.autoOverride = true;
+    await this.stopTracking();
+  }
+
+  /** Stops without recording an override — used by sign-out and by the schedule itself. */
+  private async stopTracking(): Promise<void> {
     await this.engine?.stop();
     if (this.user) {
       this.status = 'idle';
     }
     this.emit();
+  }
+
+  /**
+   * Applies the workspace's tracking schedule. Called on sign-in and on every portal poll,
+   * so a change to the window lands within the minute without a restart.
+   */
+  private async runSchedule(): Promise<void> {
+    const settings = this.settings;
+    if (!settings?.autoStartEnabled || !this.user) {
+      return;
+    }
+    const hour = hourIn(this.timezone);
+    // Leaving the window is what forgives an early finish; without this the override would
+    // outlive the day it was made on and the schedule would never start again.
+    if (!isWithinWindow(settings.autoStartHour, settings.autoStopHour, hour)) {
+      this.autoOverride = false;
+    }
+
+    const action = decideAutoAction({
+      enabled: settings.autoStartEnabled,
+      startHour: settings.autoStartHour,
+      stopHour: settings.autoStopHour,
+      hour,
+      status: this.status,
+      attendanceMarked: this.workday?.attendanceMarked ?? false,
+      overridden: this.autoOverride,
+    });
+
+    try {
+      if (action === 'start') {
+        await this.start();
+      } else if (action === 'stop') {
+        await this.stopTracking();
+      }
+    } catch (error) {
+      // A schedule that cannot start (no permission yet, portal briefly down) must not throw
+      // into the poll timer — it simply tries again on the next check-in.
+      console.error('Scheduled tracking action failed', error);
+    }
   }
 
   /**

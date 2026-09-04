@@ -60,6 +60,57 @@ const trackerSettingsSchema = new Schema(
       min: 0,
       max: 100,
     },
+    /** 0 = keep indefinitely. Otherwise the age at which a screenshot is purged. */
+    screenshotRetentionDays: {
+      type: Number,
+      required: true,
+      default: TRACKER_DEFAULTS.screenshotRetentionDays,
+      min: 0,
+      max: 3650,
+    },
+    autoStartEnabled: {
+      type: Boolean,
+      required: true,
+      default: TRACKER_DEFAULTS.autoStartEnabled,
+    },
+    autoStartHour: {
+      type: Number,
+      required: true,
+      default: TRACKER_DEFAULTS.autoStartHour,
+      min: 0,
+      max: 23,
+    },
+    autoStopHour: {
+      type: Number,
+      required: true,
+      default: TRACKER_DEFAULTS.autoStopHour,
+      min: 0,
+      max: 23,
+    },
+    dailyDigestEnabled: {
+      type: Boolean,
+      required: true,
+      default: TRACKER_DEFAULTS.dailyDigestEnabled,
+    },
+    weeklyDigestEnabled: {
+      type: Boolean,
+      required: true,
+      default: TRACKER_DEFAULTS.weeklyDigestEnabled,
+    },
+    digestHour: {
+      type: Number,
+      required: true,
+      default: TRACKER_DEFAULTS.digestHour,
+      min: 0,
+      max: 23,
+    },
+    /**
+     * Run state, not configuration: the local date each digest last went out, so a restart
+     * or a second app instance cannot mail the same summary twice. Not exposed in the
+     * settings input, so an admin's save never rewrites it.
+     */
+    dailyDigestLastRun: { type: String, default: '' },
+    weeklyDigestLastRun: { type: String, default: '' },
     webcamEnabled: {
       type: Boolean,
       required: true,

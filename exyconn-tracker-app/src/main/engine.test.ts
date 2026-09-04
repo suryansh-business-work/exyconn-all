@@ -74,6 +74,9 @@ const SETTINGS: TrackerSettings = {
   webcamEnabled: false,
   webcamCorner: 'bottom-right',
   syncIntervalMinutes: 5,
+  autoStartEnabled: false,
+  autoStartHour: 9,
+  autoStopHour: 18,
   consentText: '<p>ok</p>',
 };
 

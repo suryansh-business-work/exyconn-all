@@ -92,6 +92,8 @@ describe('trackerTotals (all-time)', () => {
     await expect(trackerAdminService.totals(userId)).resolves.toEqual({
       activeMs: 780_000,
       idleMs: 420_000,
+      // No approved off-computer entries, so claimed time contributes nothing.
+      manualMs: 0,
       screenshots: 2,
       sessions: 2,
     });
@@ -105,6 +107,7 @@ describe('trackerTotals (all-time)', () => {
     await expect(trackerAdminService.totals(mine)).resolves.toEqual({
       activeMs: 0,
       idleMs: 0,
+      manualMs: 0,
       screenshots: 0,
       sessions: 0,
     });
@@ -116,6 +119,7 @@ describe('trackerTotals (all-time)', () => {
     await expect(trackerAdminService.totals(userId)).resolves.toEqual({
       activeMs: 0,
       idleMs: 0,
+      manualMs: 0,
       screenshots: 0,
       sessions: 0,
     });

@@ -19,6 +19,32 @@ export interface PexelsMedia {
   duration: number;
 }
 
+/**
+ * The subset of Pexels' search filters the upload dialog exposes. Colour is photo-only and
+ * duration is video-only; the dialog sends only the ones its tab supports.
+ */
+export interface PexelsSearchFilters {
+  /** `landscape` | `portrait` | `square`. */
+  orientation?: string | null;
+  /** `large` | `medium` | `small`. */
+  size?: string | null;
+  /** A Pexels colour name or a `#rrggbb` value. Photos only. */
+  color?: string | null;
+  /** Seconds. Videos only. */
+  minDuration?: number | null;
+  maxDuration?: number | null;
+}
+
+/** Pexels serves every asset from its own CDN; nothing else may be imported by URL. */
+export function isPexelsMediaUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' && parsed.hostname.endsWith('.pexels.com');
+  } catch {
+    return false;
+  }
+}
+
 interface PhotoPayload {
   id: number;
   alt: string;
@@ -71,20 +97,41 @@ class PexelsClient {
     return config.apiKey;
   }
 
-  private searchPath(kind: 'v1/search' | 'videos/search', query: string, page: number): string {
+  private searchPath(
+    kind: 'v1/search' | 'videos/search',
+    query: string,
+    page: number,
+    filters: PexelsSearchFilters,
+  ): string {
     const params = new URLSearchParams({
       query,
       per_page: String(PER_PAGE),
       page: String(page),
     });
+    const optional: ReadonlyArray<readonly [string, string | number | null | undefined]> = [
+      ['orientation', filters.orientation],
+      ['size', filters.size],
+      ['color', filters.color],
+      ['min_duration', filters.minDuration],
+      ['max_duration', filters.maxDuration],
+    ];
+    for (const [name, value] of optional) {
+      if (value !== null && value !== undefined && value !== '') {
+        params.set(name, String(value));
+      }
+    }
     return `/${kind}?${params.toString()}`;
   }
 
-  async searchPhotos(query: string, page: number): Promise<PexelsMedia[]> {
+  async searchPhotos(
+    query: string,
+    page: number,
+    filters: PexelsSearchFilters,
+  ): Promise<PexelsMedia[]> {
     const apiKey = await this.getActiveKey();
     const data = await this.request<{ photos: PhotoPayload[] }>(
       apiKey,
-      this.searchPath('v1/search', query, page),
+      this.searchPath('v1/search', query, page, filters),
     );
     return data.photos.map((photo) => ({
       id: String(photo.id),
@@ -96,11 +143,15 @@ class PexelsClient {
     }));
   }
 
-  async searchVideos(query: string, page: number): Promise<PexelsMedia[]> {
+  async searchVideos(
+    query: string,
+    page: number,
+    filters: PexelsSearchFilters,
+  ): Promise<PexelsMedia[]> {
     const apiKey = await this.getActiveKey();
     const data = await this.request<{ videos: VideoPayload[] }>(
       apiKey,
-      this.searchPath('videos/search', query, page),
+      this.searchPath('videos/search', query, page, filters),
     );
     return data.videos.flatMap((video) => {
       const file = bestVideoFile(video.video_files);

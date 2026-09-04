@@ -23,6 +23,11 @@ export interface TrackerSettings {
   webcamEnabled: boolean;
   /** Which corner that photo goes in. */
   webcamCorner: WebcamCorner;
+  /** Start and stop tracking on the workspace's schedule instead of waiting for a press. */
+  autoStartEnabled: boolean;
+  /** Local hours, 0-23. A stop at or before the start means the window crosses midnight. */
+  autoStartHour: number;
+  autoStopHour: number;
   /**
    * How often the outbox is flushed to the portal, in minutes. Syncing is automatic and
    * always on — there is no manual path, and so no switch to leave off by accident.

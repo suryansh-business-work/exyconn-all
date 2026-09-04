@@ -12,6 +12,9 @@ import {
 } from './tracker.device.service';
 import { trackerAdminService } from './tracker.admin.service';
 import { trackerBillingService } from './tracker.billing.service';
+import { trackerManualService, type ManualEntryInput } from './tracker.manual.service';
+import { trackerWorkdayService } from './tracker.workday.service';
+import type { ManualEntryStatus } from './tracker.constants';
 import {
   getTrackerSettings,
   updateTrackerSettings,
@@ -119,6 +122,23 @@ export const trackerResolvers = {
       return trackerAdminService.totals(userId);
     },
 
+    trackerManualEntries: async (
+      _p: unknown,
+      { userId, from, to }: { userId: string; from: Date; to: Date },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, TRACKER_ROLES);
+      return withIds(
+        await trackerManualService.withNames(await trackerManualService.list(userId, from, to)),
+      );
+    },
+    trackerPendingManualEntries: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertRole(ctx, TRACKER_ROLES);
+      return withIds(
+        await trackerManualService.withNames(await trackerManualService.listPending()),
+      );
+    },
+
     myTrackerAccess: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       const user = assertAuthenticated(ctx);
       const list = await trackerAdminService.listAccess();
@@ -140,6 +160,19 @@ export const trackerResolvers = {
     ) => {
       const user = assertAuthenticated(ctx);
       return serializeDay(await trackerAdminService.day(user.id, start, end));
+    },
+    trackerProjectOptions: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertAuthenticated(ctx);
+      return trackerWorkdayService.projects();
+    },
+    myTrackerManualEntries: async (
+      _p: unknown,
+      { from, to }: { from: Date; to: Date },
+      ctx: GraphQLContext,
+    ) => {
+      const user = assertAuthenticated(ctx);
+      // Scoped to the caller's own id, never one supplied by the client.
+      return withIds(await trackerManualService.list(user.id, from, to));
     },
   },
 
@@ -169,6 +202,35 @@ export const trackerResolvers = {
       assertRole(ctx, TRACKER_ROLES);
       return withId((await trackerAdminService.revokeDevice(deviceId)) as LeanDoc);
     },
+    reviewTrackerManualEntry: async (
+      _p: unknown,
+      { id, status, reviewNote }: { id: string; status: ManualEntryStatus; reviewNote?: string },
+      ctx: GraphQLContext,
+    ) => {
+      const reviewer = assertRole(ctx, TRACKER_ROLES);
+      return withId(await trackerManualService.review(id, status, reviewer.id, reviewNote));
+    },
+
+    createTrackerManualEntry: async (
+      _p: unknown,
+      { input }: { input: ManualEntryInput & { projectId?: string | null } },
+      ctx: GraphQLContext,
+    ) => {
+      const user = assertAuthenticated(ctx);
+      // The project is resolved here so the manual service stays free of the workday
+      // service, which itself reads approved manual time — see BookedProject.
+      const project = await trackerWorkdayService.bookableProject(input.projectId);
+      return withId(await trackerManualService.create(user.id, input, project));
+    },
+    withdrawTrackerManualEntry: async (
+      _p: unknown,
+      { id }: { id: string },
+      ctx: GraphQLContext,
+    ) => {
+      const user = assertAuthenticated(ctx);
+      return trackerManualService.withdraw(id, user.id);
+    },
+
     updateTrackerSettings: async (
       _p: unknown,
       { input }: { input: TrackerSettingsInput },

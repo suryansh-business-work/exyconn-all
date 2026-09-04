@@ -14,6 +14,13 @@ export const DEVICE_PLATFORMS = ['win32', 'darwin'] as const;
 /** Lifecycle of a tracking session. */
 export const SESSION_STATUSES = ['active', 'stopped'] as const;
 
+/**
+ * Lifecycle of an off-computer time entry. Claimed time counts for nothing until a reviewer
+ * approves it, so PENDING is where every entry starts and APPROVED is the only state any
+ * report adds up.
+ */
+export const MANUAL_ENTRY_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;
+
 /** Where the webcam photo is composited onto the screenshot, when webcam capture is on. */
 export const WEBCAM_CORNERS = ['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const;
 
@@ -60,6 +67,41 @@ export const TRACKER_DEFAULTS = Object.freeze({
    * path, on a cadence an admin sets.
    */
   syncIntervalMinutes: 5,
+  /**
+   * How many days a screenshot is kept before it is deleted, image and row together.
+   *
+   * ZERO MEANS KEEP INDEFINITELY, and that is the default on purpose: shipping a retention
+   * window as the default would silently destroy screenshots an existing workspace is
+   * holding for a reason, on the deploy that introduced the feature. An admin opts in, and
+   * once they do the purge is irreversible — which is the point of a retention policy.
+   */
+  screenshotRetentionDays: 0,
+  /**
+   * Start and stop tracking on a schedule instead of waiting for the employee to press start.
+   *
+   * Off by default. A workspace turning this on is changing what the app does without being
+   * asked to, so it is a decision an admin makes deliberately — and the consent screen still
+   * gates the first session either way.
+   */
+  autoStartEnabled: false,
+  /** Local hour (0-23) tracking starts at, read in the EMPLOYEE's own timezone. */
+  autoStartHour: 9,
+  /**
+   * Local hour (0-23) tracking stops at. A stop hour at or before the start hour means the
+   * window runs past midnight — a night shift is a working day like any other.
+   */
+  autoStopHour: 18,
+  /**
+   * Email a summary of yesterday's tracked time to everyone holding the TRACKER role.
+   *
+   * Off by default: a workspace that has just switched the tracker on should not start
+   * mailing its managers because of a deploy.
+   */
+  dailyDigestEnabled: false,
+  /** The same summary for the last seven days, sent on a Monday. */
+  weeklyDigestEnabled: false,
+  /** Local hour (0-23) the digests are sent at, read in the workspace's own timezone. */
+  digestHour: 9,
   /**
    * IANA zone (e.g. "Asia/Kolkata") every employee's tracker times are read in unless they
    * pick their own. Empty string means "no house default" — fall back to whatever zone the
@@ -131,6 +173,17 @@ export const TRACKER_WORKDAY = Object.freeze({
   bookableProjectStatuses: ['PLANNING', 'ACTIVE', 'ON_HOLD'],
 });
 
+/** Bounds on one off-computer claim, so a typo cannot book a month to a single day. */
+export const TRACKER_MANUAL_LIMITS = Object.freeze({
+  /** Longest single entry. A day of off-computer work is a day; more is a data-entry slip. */
+  maxDurationMs: 16 * 60 * 60 * 1000,
+  /** Shortest entry worth a review. */
+  minDurationMs: 60 * 1000,
+  /** How far back an entry may be claimed, so last quarter cannot be re-opened. */
+  maxBackdateMs: 90 * 24 * 60 * 60 * 1000,
+});
+
 export type DevicePlatform = (typeof DEVICE_PLATFORMS)[number];
+export type ManualEntryStatus = (typeof MANUAL_ENTRY_STATUSES)[number];
 export type WebcamCorner = (typeof WEBCAM_CORNERS)[number];
 export type SessionStatus = (typeof SESSION_STATUSES)[number];

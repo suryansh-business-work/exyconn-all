@@ -16,6 +16,8 @@ import { isValidTimezone } from '../../tracker.timezone';
 import { buildTimezoneOptions } from './timezone.options';
 import { WEBCAM_CORNERS, WEBCAM_CORNER_OPTIONS } from './webcam.options';
 import { ConsentDisclosureFields } from './consent-disclosure';
+import { DigestScheduleFields } from './digest-schedule';
+import { AutoStartScheduleFields } from './auto-start-schedule';
 import type { TrackerSettingsRow } from './tracker-settings.types';
 
 const schema = z.object({
@@ -25,12 +27,20 @@ const schema = z.object({
   screenshotMaxWidth: z.coerce.number({ message: 'Enter a number' }).int().min(320).max(3840),
   // 0-100. 100 is the honest top of the scale: native resolution, encoded losslessly.
   screenshotQuality: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(100),
+  // 0 means "keep indefinitely" — the only value that deletes nothing.
+  screenshotRetentionDays: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(3650),
   syncIntervalMinutes: z.coerce.number({ message: 'Enter a number' }).int().min(1).max(60),
   randomizeScreenshotTiming: z.boolean(),
   blurScreenshots: z.boolean(),
   trackWindowTitles: z.boolean(),
   webcamEnabled: z.boolean(),
   webcamCorner: z.enum(WEBCAM_CORNERS as [string, ...string[]]),
+  autoStartEnabled: z.boolean(),
+  autoStartHour: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(23),
+  autoStopHour: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(23),
+  dailyDigestEnabled: z.boolean(),
+  weeklyDigestEnabled: z.boolean(),
+  digestHour: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(23),
   consentText: z.string().min(1, 'Consent text is required'),
   consentPolicySlug: z.string(),
   defaultTimezone: z
@@ -45,12 +55,19 @@ const toInitial = (row: TrackerSettingsRow): Values => ({
   idleThresholdSeconds: row.idleThresholdSeconds,
   screenshotMaxWidth: row.screenshotMaxWidth,
   screenshotQuality: row.screenshotQuality,
+  screenshotRetentionDays: row.screenshotRetentionDays,
   syncIntervalMinutes: row.syncIntervalMinutes,
   randomizeScreenshotTiming: row.randomizeScreenshotTiming,
   blurScreenshots: row.blurScreenshots,
   trackWindowTitles: row.trackWindowTitles,
   webcamEnabled: row.webcamEnabled,
   webcamCorner: row.webcamCorner,
+  autoStartEnabled: row.autoStartEnabled,
+  autoStartHour: row.autoStartHour,
+  autoStopHour: row.autoStopHour,
+  dailyDigestEnabled: row.dailyDigestEnabled,
+  weeklyDigestEnabled: row.weeklyDigestEnabled,
+  digestHour: row.digestHour,
   consentText: row.consentText,
   consentPolicySlug: row.consentPolicySlug,
   defaultTimezone: row.defaultTimezone,
@@ -114,6 +131,14 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
         </Grid>
         <Grid item xs={12} sm={6}>
           <RhfTextField
+            name="screenshotRetentionDays"
+            label="Delete screenshots after (days)"
+            type="number"
+            helperText="0 keeps them forever. Any other value deletes the image and its record once it is that old — permanently, and on a schedule."
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <RhfTextField
             name="syncIntervalMinutes"
             label="Auto-sync every (minutes)"
             type="number"
@@ -145,6 +170,8 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
           helperText="Where the photo sits on the screenshot."
         />
       ) : null}
+      <AutoStartScheduleFields />
+      <DigestScheduleFields />
       <ConsentDisclosureFields />
     </EntityForm>
   );
