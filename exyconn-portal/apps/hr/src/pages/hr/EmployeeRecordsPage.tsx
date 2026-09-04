@@ -18,8 +18,10 @@ export function EmployeeRecordsPage() {
   const navigate = useNavigate();
   const { formatDate } = useSettings();
   const { user } = useAuth();
-  // New employee creation provisions an account (welcome email) — ADMIN only.
-  const canCreate = user?.roles.includes(ROLES.ADMIN) ?? false;
+  // Creating an employee provisions the portal ACCOUNT too — it is one user record, listed
+  // by the Admin console with the same roles. HR owns the workforce, so HR may add to it;
+  // the server stops a non-admin granting the ADMIN role.
+  const canCreate = user?.roles.some((role) => role === ROLES.ADMIN || role === ROLES.HR) ?? false;
 
   const rows = data?.listUsers ?? [];
 

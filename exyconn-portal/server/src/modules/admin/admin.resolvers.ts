@@ -1,4 +1,4 @@
-import { adminService } from './admin.service';
+import { adminService, assertMayAssignRoles } from './admin.service';
 import { assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
@@ -14,6 +14,14 @@ import type {
 type LeanDoc = { _id: unknown };
 
 const adminOnly = [ROLES.ADMIN];
+/**
+ * Who may add and edit an employee record.
+ *
+ * HR is in here so there is genuinely ONE user database: an employee added in HR is the same
+ * row the Admin console lists, with the same roles, rather than a shadow record someone has
+ * to re-key. `assertMayAssignRoles` is what keeps that from also being a way to mint admins.
+ */
+const userWriters = [ROLES.ADMIN, ROLES.HR];
 /** Employee records are readable by HR too (ADMIN always passes assertRole). */
 const userReaders = [ROLES.HR];
 
@@ -47,7 +55,8 @@ export const adminResolvers = {
   },
   Mutation: {
     createUser: async (_p: unknown, { input }: { input: CreateUserInput }, ctx: GraphQLContext) => {
-      assertRole(ctx, adminOnly);
+      const actor = assertRole(ctx, userWriters);
+      assertMayAssignRoles(actor.roles ?? [], input.roles);
       const { user, password } = await adminService.createUser(input);
       return { user: withId(user.toObject()), password };
     },
@@ -56,7 +65,9 @@ export const adminResolvers = {
       { id, input }: { id: string; input: UpdateUserInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, adminOnly);
+      const actor = assertRole(ctx, userWriters);
+      const target = await adminService.getUser(id);
+      assertMayAssignRoles(actor.roles ?? [], input.roles, target.roles);
       return withId(await adminService.updateUser(id, input));
     },
     deleteUser: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {

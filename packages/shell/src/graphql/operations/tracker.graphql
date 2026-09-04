@@ -189,3 +189,24 @@ query TrackerLatestRelease {
     }
   }
 }
+
+query TrackerBilling($from: DateTime!, $to: DateTime!) {
+  trackerBilling(from: $from, to: $to) {
+    from
+    to
+    totalHours
+    totalAmount
+    currency
+    rows {
+      id
+      name
+      email
+      payType
+      currency
+      billingRate
+      hours
+      amount
+      rated
+    }
+  }
+}

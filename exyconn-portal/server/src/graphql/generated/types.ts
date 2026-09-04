@@ -1348,6 +1348,20 @@ export type EmployeeRequestPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** The same fields without employeeId, which saveEmployeeSalary takes as its own argument. */
+export type EmployeeSalaryInput = {
+  allowances: Scalars['Float']['input'];
+  basic: Scalars['Float']['input'];
+  billingRate?: InputMaybe<Scalars['Float']['input']>;
+  currency: Scalars['String']['input'];
+  deductions: Scalars['Float']['input'];
+  effectiveFrom: Scalars['DateTime']['input'];
+  hra: Scalars['Float']['input'];
+  payType?: InputMaybe<PayType>;
+  payTypeNote?: InputMaybe<Scalars['String']['input']>;
+  rate?: InputMaybe<Scalars['Float']['input']>;
+};
+
 export enum EmploymentStatus {
   Active = 'ACTIVE',
   OnLeave = 'ON_LEAVE',
@@ -2354,6 +2368,14 @@ export type Mutation = {
   runPayroll: PayrollRunResult;
   /** Runs a prompt-library entry as a new job, so the run keeps its own history. */
   runPrompt: AiJob;
+  /**
+   * Creates or replaces ONE employee's salary structure, keyed on the employee.
+   *
+   * An upsert, because employeeId is unique and the HR employee form saves compensation
+   * alongside the rest of the record — it has no business knowing whether a structure
+   * already exists, and guessing wrong would fail the save on a duplicate key.
+   */
+  saveEmployeeSalary: SalaryStructure;
   saveTrackerBuildSettings: TrackerBuildSettings;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
@@ -3344,6 +3366,12 @@ export type MutationRunPromptArgs = {
 };
 
 
+export type MutationSaveEmployeeSalaryArgs = {
+  employeeId: Scalars['ID']['input'];
+  input: EmployeeSalaryInput;
+};
+
+
 export type MutationSaveTrackerBuildSettingsArgs = {
   slackChannels: Array<Scalars['String']['input']>;
 };
@@ -4071,6 +4099,14 @@ export type OpenAiConfigInput = {
   label: Scalars['String']['input'];
 };
 
+/** How an employee is paid. Decides which amounts on the salary structure mean anything. */
+export enum PayType {
+  Fixed = 'FIXED',
+  Hourly = 'HOURLY',
+  Other = 'OTHER',
+  Stipend = 'STIPEND'
+}
+
 /** One receipt against one invoice. Negative for a refund. */
 export type Payment = {
   __typename?: 'Payment';
@@ -4564,6 +4600,11 @@ export type Query = {
   /** Images on the host and what the engine's disk is spent on. */
   dockerStorage: DockerStorage;
   emailDashboard: EmailDashboard;
+  /**
+   * ONE employee's salary structure, looked up by the employee rather than by structure id.
+   * Null until HR has set one up. This is what the employee record reads.
+   */
+  employeeSalary?: Maybe<SalaryStructure>;
   getActivity: Activity;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
@@ -4900,6 +4941,11 @@ export type Query = {
   taskActivity: Array<TaskActivity>;
   taskComments: Array<TaskComment>;
   trackerAccessList: Array<TrackerAccess>;
+  /**
+   * Billing for tracked time over a range. Active time only — idle minutes are time at a
+   * desk, and the rate comes from the employee's HR salary structure, never from here.
+   */
+  trackerBilling: TrackerBilling;
   trackerBuildSettings: TrackerBuildSettings;
   trackerCalendar: Array<TrackerDayBucket>;
   trackerDay: TrackerDay;
@@ -4938,6 +4984,11 @@ export type QueryDockerContainerDetailArgs = {
 
 export type QueryEmailDashboardArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryEmployeeSalaryArgs = {
+  employeeId: Scalars['ID']['input'];
 };
 
 
@@ -5638,6 +5689,12 @@ export type QueryTaskCommentsArgs = {
 };
 
 
+export type QueryTrackerBillingArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryTrackerCalendarArgs = {
   from: Scalars['DateTime']['input'];
   timezone: Scalars['String']['input'];
@@ -5765,26 +5822,47 @@ export type SalarySlipPage = {
 export type SalaryStructure = {
   __typename?: 'SalaryStructure';
   allowances: Scalars['Float']['output'];
+  /** FIXED only: the monthly components. Zero for every other pay type. */
   basic: Scalars['Float']['output'];
+  /**
+   * What an hour of this person's tracked time is BILLED at — always per hour, whatever they
+   * are paid. This is the number the tracker's billing report multiplies hours by.
+   */
+  billingRate: Scalars['Float']['output'];
   currency: Scalars['String']['output'];
   deductions: Scalars['Float']['output'];
   effectiveFrom: Scalars['DateTime']['output'];
   employeeId: Scalars['String']['output'];
+  /** Monthly gross for the pay type. Zero for HOURLY, which earns per tracked hour. */
   gross: Scalars['Float']['output'];
   hra: Scalars['Float']['output'];
   id: Scalars['ID']['output'];
   net: Scalars['Float']['output'];
+  payType: PayType;
+  /** What OTHER means for this person; empty for the named pay types. */
+  payTypeNote?: Maybe<Scalars['String']['output']>;
+  /**
+   * The single amount the non-FIXED types are paid at: per HOUR for HOURLY, per MONTH for
+   * STIPEND and OTHER. Ignored for FIXED, whose money is in the components above.
+   */
+  rate: Scalars['Float']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export type SalaryStructureInput = {
   allowances: Scalars['Float']['input'];
   basic: Scalars['Float']['input'];
+  /** Per hour, always — what the tracker bills this person's time at. */
+  billingRate?: InputMaybe<Scalars['Float']['input']>;
   currency: Scalars['String']['input'];
   deductions: Scalars['Float']['input'];
   effectiveFrom: Scalars['DateTime']['input'];
   employeeId: Scalars['String']['input'];
   hra: Scalars['Float']['input'];
+  payType?: InputMaybe<PayType>;
+  payTypeNote?: InputMaybe<Scalars['String']['input']>;
+  /** Per hour for HOURLY, per month for STIPEND and OTHER. Ignored by FIXED. */
+  rate?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type SalaryStructurePage = {
@@ -6410,6 +6488,36 @@ export type TrackerAppUsage = {
   __typename?: 'TrackerAppUsage';
   appName: Scalars['String']['output'];
   durationMs: Scalars['Float']['output'];
+};
+
+/** Tracked time priced for a date range. Employees with no time in the range are omitted. */
+export type TrackerBilling = {
+  __typename?: 'TrackerBilling';
+  currency: Scalars['String']['output'];
+  from: Scalars['DateTime']['output'];
+  rows: Array<TrackerBillingRow>;
+  to: Scalars['DateTime']['output'];
+  totalAmount: Scalars['Float']['output'];
+  totalHours: Scalars['Float']['output'];
+};
+
+/** One employee's tracked time over a range, priced at the rate on their HR salary structure. */
+export type TrackerBillingRow = {
+  __typename?: 'TrackerBillingRow';
+  activeMs: Scalars['Float']['output'];
+  amount: Scalars['Float']['output'];
+  /** Per hour, from the employee's salary structure in HR. Zero when HR has not set one. */
+  billingRate: Scalars['Float']['output'];
+  currency: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  /** activeMs as hours, to two places. */
+  hours: Scalars['Float']['output'];
+  /** The employee's user id — one row per employee, so this is the row's identity. */
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  payType: PayType;
+  /** False when no rate is set — the amount is zero because nobody priced the work, not because the work was free. */
+  rated: Scalars['Boolean']['output'];
 };
 
 /** One run of the tracker build workflow. */
@@ -7096,6 +7204,7 @@ export type ResolversTypes = ResolversObject<{
   EmployeeRequest: ResolverTypeWrapper<EmployeeRequest>;
   EmployeeRequestInput: EmployeeRequestInput;
   EmployeeRequestPage: ResolverTypeWrapper<EmployeeRequestPage>;
+  EmployeeSalaryInput: EmployeeSalaryInput;
   EmploymentStatus: EmploymentStatus;
   EmploymentType: ResolverTypeWrapper<EmploymentType>;
   EmploymentTypeInput: EmploymentTypeInput;
@@ -7189,6 +7298,7 @@ export type ResolversTypes = ResolversObject<{
   NotificationKind: NotificationKind;
   OpenAiConfig: ResolverTypeWrapper<OpenAiConfig>;
   OpenAiConfigInput: OpenAiConfigInput;
+  PayType: PayType;
   Payment: ResolverTypeWrapper<Payment>;
   PaymentInput: PaymentInput;
   PaymentMethod: PaymentMethod;
@@ -7311,6 +7421,8 @@ export type ResolversTypes = ResolversObject<{
   ToolPricingInput: ToolPricingInput;
   TrackerAccess: ResolverTypeWrapper<TrackerAccess>;
   TrackerAppUsage: ResolverTypeWrapper<TrackerAppUsage>;
+  TrackerBilling: ResolverTypeWrapper<TrackerBilling>;
+  TrackerBillingRow: ResolverTypeWrapper<TrackerBillingRow>;
   TrackerBuild: ResolverTypeWrapper<TrackerBuild>;
   TrackerBuildSettings: ResolverTypeWrapper<TrackerBuildSettings>;
   TrackerConsentPolicy: ResolverTypeWrapper<TrackerConsentPolicy>;
@@ -7456,6 +7568,7 @@ export type ResolversParentTypes = ResolversObject<{
   EmployeeRequest: EmployeeRequest;
   EmployeeRequestInput: EmployeeRequestInput;
   EmployeeRequestPage: EmployeeRequestPage;
+  EmployeeSalaryInput: EmployeeSalaryInput;
   EmploymentType: EmploymentType;
   EmploymentTypeInput: EmploymentTypeInput;
   EmploymentTypePage: EmploymentTypePage;
@@ -7629,6 +7742,8 @@ export type ResolversParentTypes = ResolversObject<{
   ToolPricingInput: ToolPricingInput;
   TrackerAccess: TrackerAccess;
   TrackerAppUsage: TrackerAppUsage;
+  TrackerBilling: TrackerBilling;
+  TrackerBillingRow: TrackerBillingRow;
   TrackerBuild: TrackerBuild;
   TrackerBuildSettings: TrackerBuildSettings;
   TrackerConsentPolicy: TrackerConsentPolicy;
@@ -9060,6 +9175,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   runAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunAiJobArgs, 'id'>>;
   runPayroll?: Resolver<ResolversTypes['PayrollRunResult'], ParentType, ContextType, RequireFields<MutationRunPayrollArgs, 'month' | 'year'>>;
   runPrompt?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunPromptArgs, 'id' | 'model'>>;
+  saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'audienceListId' | 'id'>>;
@@ -9499,6 +9615,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   dockerContainers?: Resolver<Array<ResolversTypes['DockerContainer']>, ParentType, ContextType>;
   dockerStorage?: Resolver<ResolversTypes['DockerStorage'], ParentType, ContextType>;
   emailDashboard?: Resolver<ResolversTypes['EmailDashboard'], ParentType, ContextType, Partial<QueryEmailDashboardArgs>>;
+  employeeSalary?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType, RequireFields<QueryEmployeeSalaryArgs, 'employeeId'>>;
   getActivity?: Resolver<ResolversTypes['Activity'], ParentType, ContextType, RequireFields<QueryGetActivityArgs, 'id'>>;
   getAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<QueryGetAiJobArgs, 'id'>>;
   getAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<QueryGetAnnouncementArgs, 'id'>>;
@@ -9796,6 +9913,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   taskActivity?: Resolver<Array<ResolversTypes['TaskActivity']>, ParentType, ContextType, RequireFields<QueryTaskActivityArgs, 'taskId'>>;
   taskComments?: Resolver<Array<ResolversTypes['TaskComment']>, ParentType, ContextType, RequireFields<QueryTaskCommentsArgs, 'taskId'>>;
   trackerAccessList?: Resolver<Array<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
+  trackerBilling?: Resolver<ResolversTypes['TrackerBilling'], ParentType, ContextType, RequireFields<QueryTrackerBillingArgs, 'from' | 'to'>>;
   trackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType>;
   trackerCalendar?: Resolver<Array<ResolversTypes['TrackerDayBucket']>, ParentType, ContextType, RequireFields<QueryTrackerCalendarArgs, 'from' | 'timezone' | 'to' | 'userId'>>;
   trackerDay?: Resolver<ResolversTypes['TrackerDay'], ParentType, ContextType, RequireFields<QueryTrackerDayArgs, 'end' | 'start' | 'userId'>>;
@@ -9861,6 +9979,7 @@ export type SalarySlipPageResolvers<ContextType = GraphQLContext, ParentType ext
 export type SalaryStructureResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SalaryStructure'] = ResolversParentTypes['SalaryStructure']> = ResolversObject<{
   allowances?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   basic?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  billingRate?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   deductions?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   effectiveFrom?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -9869,6 +9988,9 @@ export type SalaryStructureResolvers<ContextType = GraphQLContext, ParentType ex
   hra?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   net?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  payType?: Resolver<ResolversTypes['PayType'], ParentType, ContextType>;
+  payTypeNote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  rate?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -10247,6 +10369,30 @@ export type TrackerAccessResolvers<ContextType = GraphQLContext, ParentType exte
 export type TrackerAppUsageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerAppUsage'] = ResolversParentTypes['TrackerAppUsage']> = ResolversObject<{
   appName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   durationMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerBillingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerBilling'] = ResolversParentTypes['TrackerBilling']> = ResolversObject<{
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  from?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  rows?: Resolver<Array<ResolversTypes['TrackerBillingRow']>, ParentType, ContextType>;
+  to?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  totalHours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerBillingRowResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerBillingRow'] = ResolversParentTypes['TrackerBillingRow']> = ResolversObject<{
+  activeMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  billingRate?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  payType?: Resolver<ResolversTypes['PayType'], ParentType, ContextType>;
+  rated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -10717,6 +10863,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ToolPricing?: ToolPricingResolvers<ContextType>;
   TrackerAccess?: TrackerAccessResolvers<ContextType>;
   TrackerAppUsage?: TrackerAppUsageResolvers<ContextType>;
+  TrackerBilling?: TrackerBillingResolvers<ContextType>;
+  TrackerBillingRow?: TrackerBillingRowResolvers<ContextType>;
   TrackerBuild?: TrackerBuildResolvers<ContextType>;
   TrackerBuildSettings?: TrackerBuildSettingsResolvers<ContextType>;
   TrackerConsentPolicy?: TrackerConsentPolicyResolvers<ContextType>;

@@ -9,10 +9,30 @@ export const payrollTypeDefs = gql`
   input SalaryStructureInput {
     employeeId: String!
     currency: String!
+    payType: PayType
+    payTypeNote: String
     basic: Float!
     hra: Float!
     allowances: Float!
     deductions: Float!
+    "Per hour for HOURLY, per month for STIPEND and OTHER. Ignored by FIXED."
+    rate: Float
+    "Per hour, always — what the tracker bills this person's time at."
+    billingRate: Float
+    effectiveFrom: DateTime!
+  }
+
+  "The same fields without employeeId, which saveEmployeeSalary takes as its own argument."
+  input EmployeeSalaryInput {
+    currency: String!
+    payType: PayType
+    payTypeNote: String
+    basic: Float!
+    hra: Float!
+    allowances: Float!
+    deductions: Float!
+    rate: Float
+    billingRate: Float
     effectiveFrom: DateTime!
   }
 
@@ -98,6 +118,11 @@ export const payrollTypeDefs = gql`
     listSalaryStructuresPaged(input: TableQueryInput!): SalaryStructurePage!
     listSalaryStructuresStats: TableStats!
     getSalaryStructure(id: ID!): SalaryStructure!
+    """
+    ONE employee's salary structure, looked up by the employee rather than by structure id.
+    Null until HR has set one up. This is what the employee record reads.
+    """
+    employeeSalary(employeeId: ID!): SalaryStructure
     listSalarySlipsPaged(input: TableQueryInput!): SalarySlipPage!
     listSalarySlipsStats: TableStats!
     payrollSummary(month: Int!, year: Int!): PayrollSummary!
@@ -111,6 +136,14 @@ export const payrollTypeDefs = gql`
   }
 
   extend type Mutation {
+    """
+    Creates or replaces ONE employee's salary structure, keyed on the employee.
+
+    An upsert, because employeeId is unique and the HR employee form saves compensation
+    alongside the rest of the record — it has no business knowing whether a structure
+    already exists, and guessing wrong would fail the save on a duplicate key.
+    """
+    saveEmployeeSalary(employeeId: ID!, input: EmployeeSalaryInput!): SalaryStructure!
     createSalaryStructure(input: SalaryStructureInput!): SalaryStructure!
     updateSalaryStructure(id: ID!, input: SalaryStructureInput!): SalaryStructure!
     deleteSalaryStructure(id: ID!): Boolean!

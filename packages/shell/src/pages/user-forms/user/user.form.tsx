@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { CircularProgress, Flex } from '@/components/ui';
 import {
   RhfDatePicker,
   RhfMultiSelect,
@@ -16,8 +17,11 @@ import {
   useUpdateUserMutation,
   useListDepartmentsQuery,
   useListPositionsQuery,
+  useEmployeeSalaryQuery,
+  useSaveEmployeeSalaryMutation,
 } from '@/graphql/generated';
 import { EmploymentFields, ProfileFields, WorkArrangementFields } from './user.fields';
+import { CompensationFields, toSalaryInput, type EmployeeSalary } from '@/components/pay';
 import { toFormValues, toUserInput, userSchema, type UserValues } from './user.schema';
 import type { UserRow } from './user.types';
 
@@ -40,17 +44,20 @@ interface UserFormProps {
   onCreated?: (creds: { name: string; email: string; password: string }) => void;
 }
 
+type FieldsProps = UserFormProps & { salary: EmployeeSalary | null };
+
 /** React Hook Form + Zod form to create or update a portal user. */
-export function UserForm({ initial, onDone, onCancel, onCreated }: Readonly<UserFormProps>) {
+function UserFormFields({ initial, salary, onDone, onCancel, onCreated }: Readonly<FieldsProps>) {
   const notify = useNotify();
   const [createUser] = useCreateUserMutation();
   const [updateUser] = useUpdateUserMutation();
+  const [saveSalary] = useSaveEmployeeSalaryMutation();
   const { data: deptData } = useListDepartmentsQuery();
   const { data: posData } = useListPositionsQuery();
   const isEdit = Boolean(initial);
   const methods = useForm<UserValues>({
     resolver: zodResolver(userSchema),
-    defaultValues: toFormValues(initial),
+    defaultValues: toFormValues(initial, salary),
   });
 
   const departmentOptions = nameOptions(
@@ -65,6 +72,10 @@ export function UserForm({ initial, onDone, onCancel, onCreated }: Readonly<User
   const onSubmit = async (values: UserValues) => {
     const isActive = values.isActive === 'true';
     try {
+      // The employee the compensation is saved against: the one being edited, or the one the
+      // create returns. Compensation is saved second on purpose — a salary structure for an
+      // account that failed to create would be an orphan nobody ever finds.
+      let employeeId = initial?.id ?? '';
       if (isEdit && initial) {
         await updateUser({
           variables: {
@@ -91,6 +102,7 @@ export function UserForm({ initial, onDone, onCancel, onCreated }: Readonly<User
             },
           },
         });
+        employeeId = data?.createUser?.user.id ?? '';
         if (data?.createUser) {
           onCreated?.({
             name: values.name,
@@ -98,6 +110,10 @@ export function UserForm({ initial, onDone, onCancel, onCreated }: Readonly<User
             password: data.createUser.password,
           });
         }
+      }
+
+      if (employeeId) {
+        await saveSalary({ variables: { employeeId, input: toSalaryInput(values) } });
       }
       notify(isEdit ? 'User updated' : 'User created — credentials emailed');
       onDone();
@@ -115,14 +131,44 @@ export function UserForm({ initial, onDone, onCancel, onCreated }: Readonly<User
         name="roles"
         label="Roles"
         options={enumOptions(Object.values(Role))}
-        helperText={isEdit ? undefined : 'A temporary password will be emailed to the user.'}
+        helperText={
+          isEdit
+            ? 'The same roles the Admin console shows — this is one user record.'
+            : 'A temporary password will be emailed to the user.'
+        }
       />
       <ProfileFields />
       <EmploymentFields departmentOptions={departmentOptions} positionOptions={positionOptions} />
       <RhfDatePicker name="joinDate" label="Join date" />
       <RhfDatePicker name="dateOfBirth" label="Date of birth (optional)" />
       <WorkArrangementFields />
+      <CompensationFields />
       <RhfSelect name="isActive" label="Account access" options={ACTIVE_OPTIONS} />
     </EntityForm>
   );
+}
+
+/**
+ * Loads an existing employee's compensation before the form mounts.
+ *
+ * React Hook Form reads `defaultValues` once, on the first render, so a salary structure that
+ * arrives afterwards would never reach the fields — the pay type would silently show FIXED
+ * for a stipend, and saving would overwrite it. Waiting is the honest fix.
+ */
+export function UserForm(props: Readonly<UserFormProps>) {
+  const { data, loading } = useEmployeeSalaryQuery({
+    variables: { employeeId: props.initial?.id ?? '' },
+    skip: !props.initial,
+    fetchPolicy: 'cache-and-network',
+  });
+
+  if (props.initial && loading && !data) {
+    return (
+      <Flex direction="column" alignItems="center" sx={{ py: 4 }}>
+        <CircularProgress size={22} aria-label="Loading compensation" />
+      </Flex>
+    );
+  }
+
+  return <UserFormFields {...props} salary={data?.employeeSalary ?? null} />;
 }

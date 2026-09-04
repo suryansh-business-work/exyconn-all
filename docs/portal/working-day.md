@@ -24,6 +24,33 @@ house default is 8 hours, defined once on the server (`constants/work.ts`) and m
 Every field is nullable in the GraphQL schema and defaulted **on read**: `.lean()` skips
 Mongoose defaults, so accounts created before these fields existed come back without them.
 
+## One user record, one salary structure
+
+An employee added in HR **is** the row the Admin console lists — same `User` document, same
+roles, same `listUsers`. There was never a second table; what was missing was permission, so
+`createUser` and `updateUser` now accept HR as well as ADMIN. `assertMayAssignRoles` is the
+boundary on that: a non-admin may not grant the ADMIN role, and may not edit an existing
+admin's account at all. Creating an employee provisions their portal account and emails the
+temporary password, exactly as the Admin console always did.
+
+Compensation is one `SalaryStructure` per employee, saved through `saveEmployeeSalary` — an
+upsert keyed on the employee, because the employee form has no business knowing whether a
+structure already exists. Two screens edit it (the employee record, and HR → Salaries) and
+both mount the same `@exyconn/shell/components/pay` fields and schema; a pay type only one of
+them could set would be a field the other silently reset.
+
+`payType` decides which amounts mean anything, and `monthlyEarnings` is the one place that is
+decided:
+
+| Pay type            | What is paid             | What payroll's monthly slip uses                                                                    |
+| ------------------- | ------------------------ | --------------------------------------------------------------------------------------------------- |
+| `FIXED`             | basic + HRA + allowances | those components, unchanged                                                                         |
+| `STIPEND` / `OTHER` | `rate`, per month        | the whole of `rate` as basic, so unpaid leave still prorates it                                     |
+| `HOURLY`            | `rate`, per hour         | nothing — they are paid for hours tracked, and a monthly figure would invent money nobody agreed to |
+
+`billingRate` is separate from all of it, and always per hour. Pay and bill-out are different
+numbers even for an hourly employee, and the tracker needs the second one.
+
 ## What the desktop tracker does with it
 
 `trackerMe` and `trackerHeartbeat` return the whole picture in one round-trip — settings,
@@ -64,7 +91,9 @@ archiving a project cannot rewrite what an old timesheet says it was for.
   Work location and hours are columns on the directory.
 - **Employee portal** — `MyWorkArrangementCard` on My Attendance and My Tracker.
 - **Tracker portal** — per-project time on the day panel; the consent policy picker in
-  Tracker → Settings.
+  Tracker → Settings; **Tracker → Billing**, which prices each employee's active hours over a
+  date range at their `billingRate`. A row with no rate is shown as _unrated_ rather than as a
+  zero amount — the work was not free, nobody priced it.
 - **Desktop tracker** — the day's progress bar at the top of the dashboard, the attendance
   gate and project picker above the controls, and a read-only "Your working day" card in
   Settings.

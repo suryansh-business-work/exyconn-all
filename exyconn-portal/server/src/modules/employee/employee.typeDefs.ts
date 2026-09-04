@@ -33,15 +33,38 @@ export const employeeTypeDefs = gql`
     CLOSED
   }
 
+  "How an employee is paid. Decides which amounts on the salary structure mean anything."
+  enum PayType {
+    FIXED
+    HOURLY
+    STIPEND
+    OTHER
+  }
+
   "The signed-in employee's salary structure. gross/net are derived server-side."
   type SalaryStructure {
     id: ID!
     employeeId: String!
     currency: String!
+    payType: PayType!
+    "What OTHER means for this person; empty for the named pay types."
+    payTypeNote: String
+    "FIXED only: the monthly components. Zero for every other pay type."
     basic: Float!
     hra: Float!
     allowances: Float!
     deductions: Float!
+    """
+    The single amount the non-FIXED types are paid at: per HOUR for HOURLY, per MONTH for
+    STIPEND and OTHER. Ignored for FIXED, whose money is in the components above.
+    """
+    rate: Float!
+    """
+    What an hour of this person's tracked time is BILLED at — always per hour, whatever they
+    are paid. This is the number the tracker's billing report multiplies hours by.
+    """
+    billingRate: Float!
+    "Monthly gross for the pay type. Zero for HOURLY, which earns per tracked hour."
     gross: Float!
     net: Float!
     effectiveFrom: DateTime!

@@ -3,12 +3,20 @@ import { SalarySlipModel } from '../employee/salarySlip.model';
 import { UserModel } from '../admin/user.model';
 import { LeaveRequestModel } from '../hr/hr.model';
 import { payrollTypeDefs } from './payroll.typeDefs';
-import { computeSlip, grossOf, unpaidLeaveDays, type LeaveSpan } from './payroll.compute';
+import {
+  computeSlip,
+  grossOf,
+  monthlyEarnings,
+  unpaidLeaveDays,
+  type LeaveSpan,
+  type PaySource,
+} from './payroll.compute';
+import { DEFAULT_CURRENCY, DEFAULT_PAY_TYPE, type PayType } from '../../constants/pay';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
 import { badRequest, notFound } from '../../utils/errors';
-import { withIds } from '../../utils/serialize';
+import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
 import { notify } from '../notifications';
 import { PayrollScheduleModel, MAX_SCHEDULE_DAY } from './payroll-schedule.model';
@@ -22,11 +30,50 @@ const PAYROLL_ROLES = [ROLES.HR, ROLES.FINANCE];
 interface SalaryStructureInput {
   employeeId: string;
   currency: string;
+  payType?: PayType;
+  payTypeNote?: string;
   basic: number;
   hra: number;
   allowances: number;
   deductions: number;
+  /** Per hour for HOURLY, per month for STIPEND and OTHER. */
+  rate?: number;
+  /** Per hour, always — what the tracker bills this person's time at. */
+  billingRate?: number;
   effectiveFrom: Date;
+}
+
+/** ONE employee's salary structure, by employee. Null until HR has set one up. */
+async function employeeSalary(
+  _p: unknown,
+  { employeeId }: { employeeId: string },
+  ctx: GraphQLContext,
+) {
+  assertRole(ctx, PAYROLL_ROLES);
+  const structure = await SalaryStructureModel.findOne({ employeeId }).lean();
+  return structure ? withId(structure as { _id: unknown }) : null;
+}
+
+/**
+ * Creates or replaces ONE employee's salary structure.
+ *
+ * An upsert rather than create-or-update because `employeeId` is unique: the HR employee
+ * form saves compensation alongside the rest of the record and has no business knowing
+ * whether a structure already exists, and a client that guesses wrong gets a duplicate-key
+ * error instead of a saved employee.
+ */
+async function saveEmployeeSalary(
+  _p: unknown,
+  { employeeId, input }: { employeeId: string; input: Omit<SalaryStructureInput, 'employeeId'> },
+  ctx: GraphQLContext,
+) {
+  assertRole(ctx, PAYROLL_ROLES);
+  const saved = await SalaryStructureModel.findOneAndUpdate(
+    { employeeId },
+    { ...input, employeeId },
+    { new: true, upsert: true, setDefaultsOnInsert: true },
+  ).lean();
+  return withId(saved as { _id: unknown });
 }
 
 const structureCrud = createCrudResolvers(
@@ -35,12 +82,12 @@ const structureCrud = createCrudResolvers(
     name: 'SalaryStructure',
     roles: PAYROLL_ROLES,
     table: {
-      searchFields: ['employeeId', 'currency'],
-      filterFields: ['employeeId', 'currency'],
-      sortFields: ['basic', 'effectiveFrom', 'createdAt'],
+      searchFields: ['employeeId', 'currency', 'payType'],
+      filterFields: ['employeeId', 'currency', 'payType'],
+      sortFields: ['basic', 'rate', 'billingRate', 'payType', 'effectiveFrom', 'createdAt'],
       defaultSort: { field: 'effectiveFrom', dir: 'DESC' },
     },
-    stats: { countBy: ['currency'], sum: ['basic', 'hra', 'allowances', 'deductions'] },
+    stats: { countBy: ['currency', 'payType'], sum: ['basic', 'hra', 'allowances', 'deductions'] },
   },
 );
 
@@ -103,7 +150,7 @@ async function runPayroll(
       continue;
     }
     const unpaidDays = unpaidLeaveDays(await unpaidLeaveFor(employeeId), year, month);
-    const amounts = computeSlip(structure, year, month, unpaidDays);
+    const amounts = computeSlip(monthlyEarnings(structure), year, month, unpaidDays);
     totalNet += amounts.net;
 
     if (existing) {
@@ -238,6 +285,7 @@ async function salarySlipPdf(_p: unknown, { id }: { id: string }, ctx: GraphQLCo
 export const payrollResolvers = {
   Query: {
     ...structureCrud.Query,
+    employeeSalary,
     listSalarySlipsPaged: async (
       _p: unknown,
       { input }: { input: TableQueryInput },
@@ -260,22 +308,28 @@ export const payrollResolvers = {
   },
   Mutation: {
     ...structureCrud.Mutation,
+    saveEmployeeSalary,
     runPayroll,
     markPayrollPaid,
     updatePayrollSchedule,
     sendSalarySlips,
   },
-  /** Derived so the HR list shows the same numbers the employee's own view does. */
+  /**
+   * Derived so the HR list shows the same numbers the employee's own view does.
+   *
+   * Both go through `monthlyEarnings`, so a stipend reads as its monthly figure and an
+   * hourly employee reads as zero monthly gross rather than as a salary nobody agreed to.
+   */
   SalaryStructure: {
-    gross: (s: { basic: number; hra: number; allowances: number; gross?: number }) =>
-      s.gross ?? grossOf(s),
-    net: (s: {
-      basic: number;
-      hra: number;
-      allowances: number;
-      deductions: number;
-      net?: number;
-    }) => s.net ?? grossOf(s) - s.deductions,
+    payType: (s: PaySource) => s.payType ?? DEFAULT_PAY_TYPE,
+    rate: (s: PaySource) => s.rate ?? 0,
+    billingRate: (s: { billingRate?: number | null }) => s.billingRate ?? 0,
+    currency: (s: { currency?: string | null }) => s.currency ?? DEFAULT_CURRENCY,
+    gross: (s: PaySource) => grossOf(monthlyEarnings(s)),
+    net: (s: PaySource) => {
+      const parts = monthlyEarnings(s);
+      return grossOf(parts) - parts.deductions;
+    },
   },
 };
 export { payrollTypeDefs };
