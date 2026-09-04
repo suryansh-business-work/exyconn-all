@@ -83,6 +83,15 @@ export interface TrackerProject {
   key: string;
 }
 
+/** One ticket on that project. `assignedToMe` is why the picker can lead with the right ones. */
+export interface TrackerTask {
+  id: string;
+  /** The human handle, e.g. EXY-14. */
+  key: string;
+  title: string;
+  assignedToMe: boolean;
+}
+
 /**
  * The Legal policy the workspace uses as its tracking disclosure, and whether THIS employee
  * has signed the version now published. Null when the workspace has not chosen one.
@@ -263,6 +272,7 @@ export const IPC = {
   acceptConsent: 'tracker:accept-consent',
   markAttendance: 'tracker:mark-attendance',
   setProject: 'tracker:set-project',
+  setTask: 'tracker:set-task',
   start: 'tracker:start',
   pause: 'tracker:pause',
   resume: 'tracker:resume',
@@ -320,6 +330,10 @@ export interface TrackerState {
   projects: TrackerProject[];
   /** The project the next session will book against. Empty means "the first one". */
   selectedProjectId: string;
+  /** Tickets on the selected project, the employee's own assigned ones first. */
+  tasks: TrackerTask[];
+  /** The ticket the next session books against. '' means "the project, no ticket". */
+  selectedTaskId: string;
   /** The Legal policy behind the consent screen, when the workspace has chosen one. */
   consentPolicy: ConsentPolicy | null;
   /** Whether the stored session was remembered (drives the login checkbox default). */

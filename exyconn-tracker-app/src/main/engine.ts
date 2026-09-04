@@ -102,15 +102,15 @@ export class TrackerEngine {
   }
 
   /**
-   * Opens a session against `projectId`. The portal refuses to open one until the employee
-   * has accepted the disclosure and marked their attendance, so a rejection here is a real
-   * answer to show them, not something to swallow.
+   * Opens a session against `projectId`, optionally against a ticket on it. The portal
+   * refuses to open one until the employee has accepted the disclosure and marked their
+   * attendance, so a rejection here is a real answer to show them, not something to swallow.
    */
-  async start(projectId: string): Promise<void> {
+  async start(projectId: string, taskId = ''): Promise<void> {
     if (this.status === 'tracking') {
       return;
     }
-    this.sessionId = await portal.startSession(new Date().toISOString(), projectId);
+    this.sessionId = await portal.startSession(new Date().toISOString(), projectId, taskId);
     this.input.start();
     this.beginInterval(Date.now());
     this.status = 'tracking';

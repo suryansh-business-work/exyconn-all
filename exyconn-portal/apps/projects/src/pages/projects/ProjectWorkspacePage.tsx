@@ -4,16 +4,18 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { useGetProjectQuery } from '@exyconn/shell/graphql/generated';
 import { ProjectBoardPage } from './board';
 import { ProjectTicketsPage } from './tickets';
 import { ProjectDocsPage } from './docs';
+import { ProjectTimeLogPage } from './time-log';
 
 /**
- * One project, three ways to work on it: the board, the same tickets as a list, and the
- * project's documentation space. Which one is open lives in the URL, so a link to a board
- * or a space is a link somebody else can open.
+ * One project, four ways to work on it: the board, the same tickets as a list, the time
+ * logged against those tickets, and the project's documentation space. Which one is open
+ * lives in the URL, so a link to a board or a space is a link somebody else can open.
  */
 export function ProjectWorkspacePage() {
   const { id = '' } = useParams();
@@ -33,6 +35,12 @@ export function ProjectWorkspacePage() {
       label: 'Tickets',
       icon: <FormatListBulletedIcon />,
       content: <ProjectTicketsPage projectId={id} />,
+    },
+    {
+      slug: 'time-log',
+      label: 'Time log',
+      icon: <ScheduleIcon />,
+      content: <ProjectTimeLogPage projectId={id} />,
     },
     {
       slug: 'docs',

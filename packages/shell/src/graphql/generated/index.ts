@@ -3573,6 +3573,7 @@ export type MutationTrackerSetTimezoneArgs = {
 export type MutationTrackerStartSessionArgs = {
   projectId?: InputMaybe<Scalars['ID']['input']>;
   startedAt: Scalars['DateTime']['input'];
+  taskId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -4577,6 +4578,72 @@ export enum ProjectStatus {
   Planning = 'PLANNING'
 }
 
+/**
+ * A project's time log, plus whether THIS viewer may open the screenshots behind it.
+ *
+ * Time is project-management data and any PROJECTS user may read it. A screenshot is a
+ * picture of somebody's screen, so it stays behind the TRACKER role — the flag lets the
+ * UI say the images are withheld rather than render an empty gallery.
+ */
+export type ProjectTimeLog = {
+  __typename?: 'ProjectTimeLog';
+  /** True only when the caller also holds TRACKER (or ADMIN). */
+  canViewScreenshots: Scalars['Boolean']['output'];
+  rows: Array<ProjectTimeLogRow>;
+  totalActiveMs: Scalars['Float']['output'];
+  totalManualMs: Scalars['Float']['output'];
+};
+
+/**
+ * One person's time on one ticket within a project.
+ *
+ * Measured time (activeMs/idleMs) and claimed time (manualMs) stay separate here for the
+ * same reason they do everywhere else in the tracker: one was recorded, the other was
+ * asserted by a person and approved by another.
+ */
+export type ProjectTimeLogRow = {
+  __typename?: 'ProjectTimeLogRow';
+  activeMs: Scalars['Float']['output'];
+  /** userId:taskId — the pair this row aggregates. */
+  id: Scalars['ID']['output'];
+  idleMs: Scalars['Float']['output'];
+  /** Approved off-computer time claimed against the same ticket. */
+  manualMs: Scalars['Float']['output'];
+  screenshots: Scalars['Int']['output'];
+  sessions: Scalars['Int']['output'];
+  /** Empty when the time was booked to the project without picking a ticket. */
+  taskId: Scalars['ID']['output'];
+  taskKey: Scalars['String']['output'];
+  taskTitle: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+  userName: Scalars['String']['output'];
+};
+
+/** A screenshot captured during a session, for the time log's evidence drawer. */
+export type ProjectTimeLogScreenshot = {
+  __typename?: 'ProjectTimeLogScreenshot';
+  blurred: Scalars['Boolean']['output'];
+  capturedAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  imageUrl: Scalars['String']['output'];
+};
+
+/** One tracked run behind a time-log row. */
+export type ProjectTimeLogSession = {
+  __typename?: 'ProjectTimeLogSession';
+  activeMs: Scalars['Float']['output'];
+  /** Null while the session is still running. */
+  endedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  idleMs: Scalars['Float']['output'];
+  screenshotCount: Scalars['Int']['output'];
+  startedAt: Scalars['DateTime']['output'];
+  taskKey: Scalars['String']['output'];
+  taskTitle: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+  userName: Scalars['String']['output'];
+};
+
 export type Prompt = {
   __typename?: 'Prompt';
   category: PromptCategory;
@@ -4964,6 +5031,21 @@ export type Query = {
   projectDocPages: Array<DocPage>;
   /** Every ticket in a project, newest first — the list view behind the board. */
   projectTasks: Array<Task>;
+  /**
+   * Who worked on which ticket in this project, and for how long. Readable by the PROJECTS
+   * role — hours against a ticket are how a project is managed.
+   */
+  projectTimeLog: ProjectTimeLog;
+  /**
+   * Screenshots captured during one session of this project. TRACKER (or ADMIN) only: a
+   * screenshot is a picture of an employee's screen, not a project metric.
+   */
+  projectTimeLogScreenshots: Array<ProjectTimeLogScreenshot>;
+  /**
+   * The individual runs behind a time-log row. Pass taskId: "" for the rows of time booked
+   * to the project without a ticket.
+   */
+  projectTimeLogSessions: Array<ProjectTimeLogSession>;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
   publicBranding: Branding;
@@ -5023,6 +5105,11 @@ export type Query = {
    */
   trackerProjectOptions: Array<TrackerProject>;
   trackerSettings: TrackerSettings;
+  /**
+   * Tickets the CALLER may book time against on a project, their own assigned ones first.
+   * Used by the desktop picker and by the off-computer time form.
+   */
+  trackerTaskOptions: Array<TrackerTask>;
   trackerTotals: TrackerTotals;
 };
 
@@ -5684,6 +5771,28 @@ export type QueryProjectTasksArgs = {
 };
 
 
+export type QueryProjectTimeLogArgs = {
+  from: Scalars['DateTime']['input'];
+  projectId: Scalars['ID']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryProjectTimeLogScreenshotsArgs = {
+  projectId: Scalars['ID']['input'];
+  sessionId: Scalars['ID']['input'];
+};
+
+
+export type QueryProjectTimeLogSessionsArgs = {
+  from: Scalars['DateTime']['input'];
+  projectId: Scalars['ID']['input'];
+  taskId?: InputMaybe<Scalars['ID']['input']>;
+  to: Scalars['DateTime']['input'];
+  userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
 export type QueryPublicBlogPostArgs = {
   slug: Scalars['String']['input'];
 };
@@ -5793,6 +5902,11 @@ export type QueryTrackerManualEntriesArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
   userId: Scalars['ID']['input'];
+};
+
+
+export type QueryTrackerTaskOptionsArgs = {
+  projectId: Scalars['ID']['input'];
 };
 
 
@@ -6756,6 +6870,10 @@ export type TrackerManualEntry = {
   reviewedBy: Scalars['ID']['output'];
   startedAt: Scalars['DateTime']['output'];
   status: TrackerManualEntryStatus;
+  /** The ticket the time was against; empty when it was booked to the project only. */
+  taskId: Scalars['ID']['output'];
+  taskKey: Scalars['String']['output'];
+  taskTitle: Scalars['String']['output'];
   userId: Scalars['ID']['output'];
   /** Employee's name, resolved for the review queue. Empty on an employee's own list. */
   userName: Scalars['String']['output'];
@@ -6767,6 +6885,8 @@ export type TrackerManualEntryInput = {
   /** Omit to book against the house-wide Global Project. */
   projectId?: InputMaybe<Scalars['ID']['input']>;
   startedAt: Scalars['DateTime']['input'];
+  /** Optional ticket. Ignored when it does not belong to the project above. */
+  taskId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export enum TrackerManualEntryStatus {
@@ -6872,6 +6992,10 @@ export type TrackerSession = {
   projectName: Scalars['String']['output'];
   startedAt: Scalars['DateTime']['output'];
   status: Scalars['String']['output'];
+  /** The ticket this run was against; empty when the time was booked to the project only. */
+  taskId: Scalars['String']['output'];
+  taskKey: Scalars['String']['output'];
+  taskTitle: Scalars['String']['output'];
   userId: Scalars['ID']['output'];
 };
 
@@ -6950,6 +7074,17 @@ export type TrackerSettingsInput = {
   webcamCorner?: InputMaybe<Scalars['String']['input']>;
   webcamEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   weeklyDigestEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** One ticket the desktop app may book a session against. */
+export type TrackerTask = {
+  __typename?: 'TrackerTask';
+  /** Assigned to the calling employee. The picker leads with these. */
+  assignedToMe: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  /** The human handle, e.g. EXY-14. */
+  key: Scalars['String']['output'];
+  title: Scalars['String']['output'];
 };
 
 /** All-time tracker totals for one employee. */
@@ -10231,6 +10366,43 @@ export type TrackerProjectOptionsQueryVariables = Exact<{ [key: string]: never; 
 
 export type TrackerProjectOptionsQuery = { __typename?: 'Query', trackerProjectOptions: Array<{ __typename?: 'TrackerProject', id: string, name: string, key: string }> };
 
+export type ProjectTimeLogRowFieldsFragment = { __typename?: 'ProjectTimeLogRow', id: string, userId: string, userName: string, taskId: string, taskKey: string, taskTitle: string, activeMs: number, idleMs: number, manualMs: number, sessions: number, screenshots: number };
+
+export type ProjectTimeLogQueryVariables = Exact<{
+  projectId: Scalars['ID']['input'];
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type ProjectTimeLogQuery = { __typename?: 'Query', projectTimeLog: { __typename?: 'ProjectTimeLog', totalActiveMs: number, totalManualMs: number, canViewScreenshots: boolean, rows: Array<{ __typename?: 'ProjectTimeLogRow', id: string, userId: string, userName: string, taskId: string, taskKey: string, taskTitle: string, activeMs: number, idleMs: number, manualMs: number, sessions: number, screenshots: number }> } };
+
+export type ProjectTimeLogSessionsQueryVariables = Exact<{
+  projectId: Scalars['ID']['input'];
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+  userId?: InputMaybe<Scalars['ID']['input']>;
+  taskId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type ProjectTimeLogSessionsQuery = { __typename?: 'Query', projectTimeLogSessions: Array<{ __typename?: 'ProjectTimeLogSession', id: string, userId: string, userName: string, taskKey: string, taskTitle: string, startedAt: string, endedAt?: string | null, activeMs: number, idleMs: number, screenshotCount: number }> };
+
+export type ProjectTimeLogScreenshotsQueryVariables = Exact<{
+  projectId: Scalars['ID']['input'];
+  sessionId: Scalars['ID']['input'];
+}>;
+
+
+export type ProjectTimeLogScreenshotsQuery = { __typename?: 'Query', projectTimeLogScreenshots: Array<{ __typename?: 'ProjectTimeLogScreenshot', id: string, capturedAt: string, imageUrl: string, blurred: boolean }> };
+
+export type TrackerTaskOptionsQueryVariables = Exact<{
+  projectId: Scalars['ID']['input'];
+}>;
+
+
+export type TrackerTaskOptionsQuery = { __typename?: 'Query', trackerTaskOptions: Array<{ __typename?: 'TrackerTask', id: string, key: string, title: string, assignedToMe: boolean }> };
+
 export type BlogPostFieldsFragment = { __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } };
 
 export type ListBlogPostsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -11204,6 +11376,21 @@ export const TrackerManualEntryFieldsFragmentDoc = gql`
   reviewedAt
   reviewNote
   createdAt
+}
+    `;
+export const ProjectTimeLogRowFieldsFragmentDoc = gql`
+    fragment ProjectTimeLogRowFields on ProjectTimeLogRow {
+  id
+  userId
+  userName
+  taskId
+  taskKey
+  taskTitle
+  activeMs
+  idleMs
+  manualMs
+  sessions
+  screenshots
 }
     `;
 export const BlogPostFieldsFragmentDoc = gql`
@@ -29276,6 +29463,211 @@ export type TrackerProjectOptionsQueryHookResult = ReturnType<typeof useTrackerP
 export type TrackerProjectOptionsLazyQueryHookResult = ReturnType<typeof useTrackerProjectOptionsLazyQuery>;
 export type TrackerProjectOptionsSuspenseQueryHookResult = ReturnType<typeof useTrackerProjectOptionsSuspenseQuery>;
 export type TrackerProjectOptionsQueryResult = Apollo.QueryResult<TrackerProjectOptionsQuery, TrackerProjectOptionsQueryVariables>;
+export const ProjectTimeLogDocument = gql`
+    query ProjectTimeLog($projectId: ID!, $from: DateTime!, $to: DateTime!) {
+  projectTimeLog(projectId: $projectId, from: $from, to: $to) {
+    rows {
+      ...ProjectTimeLogRowFields
+    }
+    totalActiveMs
+    totalManualMs
+    canViewScreenshots
+  }
+}
+    ${ProjectTimeLogRowFieldsFragmentDoc}`;
+
+/**
+ * __useProjectTimeLogQuery__
+ *
+ * To run a query within a React component, call `useProjectTimeLogQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectTimeLogQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectTimeLogQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useProjectTimeLogQuery(baseOptions: Apollo.QueryHookOptions<ProjectTimeLogQuery, ProjectTimeLogQueryVariables> & ({ variables: ProjectTimeLogQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectTimeLogQuery, ProjectTimeLogQueryVariables>(ProjectTimeLogDocument, options);
+      }
+export function useProjectTimeLogLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectTimeLogQuery, ProjectTimeLogQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectTimeLogQuery, ProjectTimeLogQueryVariables>(ProjectTimeLogDocument, options);
+        }
+// @ts-ignore
+export function useProjectTimeLogSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProjectTimeLogQuery, ProjectTimeLogQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectTimeLogQuery, ProjectTimeLogQueryVariables>;
+export function useProjectTimeLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectTimeLogQuery, ProjectTimeLogQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectTimeLogQuery | undefined, ProjectTimeLogQueryVariables>;
+export function useProjectTimeLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectTimeLogQuery, ProjectTimeLogQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectTimeLogQuery, ProjectTimeLogQueryVariables>(ProjectTimeLogDocument, options);
+        }
+export type ProjectTimeLogQueryHookResult = ReturnType<typeof useProjectTimeLogQuery>;
+export type ProjectTimeLogLazyQueryHookResult = ReturnType<typeof useProjectTimeLogLazyQuery>;
+export type ProjectTimeLogSuspenseQueryHookResult = ReturnType<typeof useProjectTimeLogSuspenseQuery>;
+export type ProjectTimeLogQueryResult = Apollo.QueryResult<ProjectTimeLogQuery, ProjectTimeLogQueryVariables>;
+export const ProjectTimeLogSessionsDocument = gql`
+    query ProjectTimeLogSessions($projectId: ID!, $from: DateTime!, $to: DateTime!, $userId: ID, $taskId: ID) {
+  projectTimeLogSessions(
+    projectId: $projectId
+    from: $from
+    to: $to
+    userId: $userId
+    taskId: $taskId
+  ) {
+    id
+    userId
+    userName
+    taskKey
+    taskTitle
+    startedAt
+    endedAt
+    activeMs
+    idleMs
+    screenshotCount
+  }
+}
+    `;
+
+/**
+ * __useProjectTimeLogSessionsQuery__
+ *
+ * To run a query within a React component, call `useProjectTimeLogSessionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectTimeLogSessionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectTimeLogSessionsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *      userId: // value for 'userId'
+ *      taskId: // value for 'taskId'
+ *   },
+ * });
+ */
+export function useProjectTimeLogSessionsQuery(baseOptions: Apollo.QueryHookOptions<ProjectTimeLogSessionsQuery, ProjectTimeLogSessionsQueryVariables> & ({ variables: ProjectTimeLogSessionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectTimeLogSessionsQuery, ProjectTimeLogSessionsQueryVariables>(ProjectTimeLogSessionsDocument, options);
+      }
+export function useProjectTimeLogSessionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectTimeLogSessionsQuery, ProjectTimeLogSessionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectTimeLogSessionsQuery, ProjectTimeLogSessionsQueryVariables>(ProjectTimeLogSessionsDocument, options);
+        }
+// @ts-ignore
+export function useProjectTimeLogSessionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProjectTimeLogSessionsQuery, ProjectTimeLogSessionsQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectTimeLogSessionsQuery, ProjectTimeLogSessionsQueryVariables>;
+export function useProjectTimeLogSessionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectTimeLogSessionsQuery, ProjectTimeLogSessionsQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectTimeLogSessionsQuery | undefined, ProjectTimeLogSessionsQueryVariables>;
+export function useProjectTimeLogSessionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectTimeLogSessionsQuery, ProjectTimeLogSessionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectTimeLogSessionsQuery, ProjectTimeLogSessionsQueryVariables>(ProjectTimeLogSessionsDocument, options);
+        }
+export type ProjectTimeLogSessionsQueryHookResult = ReturnType<typeof useProjectTimeLogSessionsQuery>;
+export type ProjectTimeLogSessionsLazyQueryHookResult = ReturnType<typeof useProjectTimeLogSessionsLazyQuery>;
+export type ProjectTimeLogSessionsSuspenseQueryHookResult = ReturnType<typeof useProjectTimeLogSessionsSuspenseQuery>;
+export type ProjectTimeLogSessionsQueryResult = Apollo.QueryResult<ProjectTimeLogSessionsQuery, ProjectTimeLogSessionsQueryVariables>;
+export const ProjectTimeLogScreenshotsDocument = gql`
+    query ProjectTimeLogScreenshots($projectId: ID!, $sessionId: ID!) {
+  projectTimeLogScreenshots(projectId: $projectId, sessionId: $sessionId) {
+    id
+    capturedAt
+    imageUrl
+    blurred
+  }
+}
+    `;
+
+/**
+ * __useProjectTimeLogScreenshotsQuery__
+ *
+ * To run a query within a React component, call `useProjectTimeLogScreenshotsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectTimeLogScreenshotsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectTimeLogScreenshotsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      sessionId: // value for 'sessionId'
+ *   },
+ * });
+ */
+export function useProjectTimeLogScreenshotsQuery(baseOptions: Apollo.QueryHookOptions<ProjectTimeLogScreenshotsQuery, ProjectTimeLogScreenshotsQueryVariables> & ({ variables: ProjectTimeLogScreenshotsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectTimeLogScreenshotsQuery, ProjectTimeLogScreenshotsQueryVariables>(ProjectTimeLogScreenshotsDocument, options);
+      }
+export function useProjectTimeLogScreenshotsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectTimeLogScreenshotsQuery, ProjectTimeLogScreenshotsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectTimeLogScreenshotsQuery, ProjectTimeLogScreenshotsQueryVariables>(ProjectTimeLogScreenshotsDocument, options);
+        }
+// @ts-ignore
+export function useProjectTimeLogScreenshotsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProjectTimeLogScreenshotsQuery, ProjectTimeLogScreenshotsQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectTimeLogScreenshotsQuery, ProjectTimeLogScreenshotsQueryVariables>;
+export function useProjectTimeLogScreenshotsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectTimeLogScreenshotsQuery, ProjectTimeLogScreenshotsQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectTimeLogScreenshotsQuery | undefined, ProjectTimeLogScreenshotsQueryVariables>;
+export function useProjectTimeLogScreenshotsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectTimeLogScreenshotsQuery, ProjectTimeLogScreenshotsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectTimeLogScreenshotsQuery, ProjectTimeLogScreenshotsQueryVariables>(ProjectTimeLogScreenshotsDocument, options);
+        }
+export type ProjectTimeLogScreenshotsQueryHookResult = ReturnType<typeof useProjectTimeLogScreenshotsQuery>;
+export type ProjectTimeLogScreenshotsLazyQueryHookResult = ReturnType<typeof useProjectTimeLogScreenshotsLazyQuery>;
+export type ProjectTimeLogScreenshotsSuspenseQueryHookResult = ReturnType<typeof useProjectTimeLogScreenshotsSuspenseQuery>;
+export type ProjectTimeLogScreenshotsQueryResult = Apollo.QueryResult<ProjectTimeLogScreenshotsQuery, ProjectTimeLogScreenshotsQueryVariables>;
+export const TrackerTaskOptionsDocument = gql`
+    query TrackerTaskOptions($projectId: ID!) {
+  trackerTaskOptions(projectId: $projectId) {
+    id
+    key
+    title
+    assignedToMe
+  }
+}
+    `;
+
+/**
+ * __useTrackerTaskOptionsQuery__
+ *
+ * To run a query within a React component, call `useTrackerTaskOptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerTaskOptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerTaskOptionsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useTrackerTaskOptionsQuery(baseOptions: Apollo.QueryHookOptions<TrackerTaskOptionsQuery, TrackerTaskOptionsQueryVariables> & ({ variables: TrackerTaskOptionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TrackerTaskOptionsQuery, TrackerTaskOptionsQueryVariables>(TrackerTaskOptionsDocument, options);
+      }
+export function useTrackerTaskOptionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TrackerTaskOptionsQuery, TrackerTaskOptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TrackerTaskOptionsQuery, TrackerTaskOptionsQueryVariables>(TrackerTaskOptionsDocument, options);
+        }
+// @ts-ignore
+export function useTrackerTaskOptionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TrackerTaskOptionsQuery, TrackerTaskOptionsQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerTaskOptionsQuery, TrackerTaskOptionsQueryVariables>;
+export function useTrackerTaskOptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerTaskOptionsQuery, TrackerTaskOptionsQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerTaskOptionsQuery | undefined, TrackerTaskOptionsQueryVariables>;
+export function useTrackerTaskOptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerTaskOptionsQuery, TrackerTaskOptionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TrackerTaskOptionsQuery, TrackerTaskOptionsQueryVariables>(TrackerTaskOptionsDocument, options);
+        }
+export type TrackerTaskOptionsQueryHookResult = ReturnType<typeof useTrackerTaskOptionsQuery>;
+export type TrackerTaskOptionsLazyQueryHookResult = ReturnType<typeof useTrackerTaskOptionsLazyQuery>;
+export type TrackerTaskOptionsSuspenseQueryHookResult = ReturnType<typeof useTrackerTaskOptionsSuspenseQuery>;
+export type TrackerTaskOptionsQueryResult = Apollo.QueryResult<TrackerTaskOptionsQuery, TrackerTaskOptionsQueryVariables>;
 export const ListBlogPostsDocument = gql`
     query ListBlogPosts {
   listBlogPosts {

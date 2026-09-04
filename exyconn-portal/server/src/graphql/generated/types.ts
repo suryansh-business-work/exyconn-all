@@ -3573,6 +3573,7 @@ export type MutationTrackerSetTimezoneArgs = {
 export type MutationTrackerStartSessionArgs = {
   projectId?: InputMaybe<Scalars['ID']['input']>;
   startedAt: Scalars['DateTime']['input'];
+  taskId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -4577,6 +4578,72 @@ export enum ProjectStatus {
   Planning = 'PLANNING'
 }
 
+/**
+ * A project's time log, plus whether THIS viewer may open the screenshots behind it.
+ *
+ * Time is project-management data and any PROJECTS user may read it. A screenshot is a
+ * picture of somebody's screen, so it stays behind the TRACKER role — the flag lets the
+ * UI say the images are withheld rather than render an empty gallery.
+ */
+export type ProjectTimeLog = {
+  __typename?: 'ProjectTimeLog';
+  /** True only when the caller also holds TRACKER (or ADMIN). */
+  canViewScreenshots: Scalars['Boolean']['output'];
+  rows: Array<ProjectTimeLogRow>;
+  totalActiveMs: Scalars['Float']['output'];
+  totalManualMs: Scalars['Float']['output'];
+};
+
+/**
+ * One person's time on one ticket within a project.
+ *
+ * Measured time (activeMs/idleMs) and claimed time (manualMs) stay separate here for the
+ * same reason they do everywhere else in the tracker: one was recorded, the other was
+ * asserted by a person and approved by another.
+ */
+export type ProjectTimeLogRow = {
+  __typename?: 'ProjectTimeLogRow';
+  activeMs: Scalars['Float']['output'];
+  /** userId:taskId — the pair this row aggregates. */
+  id: Scalars['ID']['output'];
+  idleMs: Scalars['Float']['output'];
+  /** Approved off-computer time claimed against the same ticket. */
+  manualMs: Scalars['Float']['output'];
+  screenshots: Scalars['Int']['output'];
+  sessions: Scalars['Int']['output'];
+  /** Empty when the time was booked to the project without picking a ticket. */
+  taskId: Scalars['ID']['output'];
+  taskKey: Scalars['String']['output'];
+  taskTitle: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+  userName: Scalars['String']['output'];
+};
+
+/** A screenshot captured during a session, for the time log's evidence drawer. */
+export type ProjectTimeLogScreenshot = {
+  __typename?: 'ProjectTimeLogScreenshot';
+  blurred: Scalars['Boolean']['output'];
+  capturedAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  imageUrl: Scalars['String']['output'];
+};
+
+/** One tracked run behind a time-log row. */
+export type ProjectTimeLogSession = {
+  __typename?: 'ProjectTimeLogSession';
+  activeMs: Scalars['Float']['output'];
+  /** Null while the session is still running. */
+  endedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  idleMs: Scalars['Float']['output'];
+  screenshotCount: Scalars['Int']['output'];
+  startedAt: Scalars['DateTime']['output'];
+  taskKey: Scalars['String']['output'];
+  taskTitle: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+  userName: Scalars['String']['output'];
+};
+
 export type Prompt = {
   __typename?: 'Prompt';
   category: PromptCategory;
@@ -4964,6 +5031,21 @@ export type Query = {
   projectDocPages: Array<DocPage>;
   /** Every ticket in a project, newest first — the list view behind the board. */
   projectTasks: Array<Task>;
+  /**
+   * Who worked on which ticket in this project, and for how long. Readable by the PROJECTS
+   * role — hours against a ticket are how a project is managed.
+   */
+  projectTimeLog: ProjectTimeLog;
+  /**
+   * Screenshots captured during one session of this project. TRACKER (or ADMIN) only: a
+   * screenshot is a picture of an employee's screen, not a project metric.
+   */
+  projectTimeLogScreenshots: Array<ProjectTimeLogScreenshot>;
+  /**
+   * The individual runs behind a time-log row. Pass taskId: "" for the rows of time booked
+   * to the project without a ticket.
+   */
+  projectTimeLogSessions: Array<ProjectTimeLogSession>;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
   publicBranding: Branding;
@@ -5023,6 +5105,11 @@ export type Query = {
    */
   trackerProjectOptions: Array<TrackerProject>;
   trackerSettings: TrackerSettings;
+  /**
+   * Tickets the CALLER may book time against on a project, their own assigned ones first.
+   * Used by the desktop picker and by the off-computer time form.
+   */
+  trackerTaskOptions: Array<TrackerTask>;
   trackerTotals: TrackerTotals;
 };
 
@@ -5684,6 +5771,28 @@ export type QueryProjectTasksArgs = {
 };
 
 
+export type QueryProjectTimeLogArgs = {
+  from: Scalars['DateTime']['input'];
+  projectId: Scalars['ID']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryProjectTimeLogScreenshotsArgs = {
+  projectId: Scalars['ID']['input'];
+  sessionId: Scalars['ID']['input'];
+};
+
+
+export type QueryProjectTimeLogSessionsArgs = {
+  from: Scalars['DateTime']['input'];
+  projectId: Scalars['ID']['input'];
+  taskId?: InputMaybe<Scalars['ID']['input']>;
+  to: Scalars['DateTime']['input'];
+  userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
 export type QueryPublicBlogPostArgs = {
   slug: Scalars['String']['input'];
 };
@@ -5793,6 +5902,11 @@ export type QueryTrackerManualEntriesArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
   userId: Scalars['ID']['input'];
+};
+
+
+export type QueryTrackerTaskOptionsArgs = {
+  projectId: Scalars['ID']['input'];
 };
 
 
@@ -6756,6 +6870,10 @@ export type TrackerManualEntry = {
   reviewedBy: Scalars['ID']['output'];
   startedAt: Scalars['DateTime']['output'];
   status: TrackerManualEntryStatus;
+  /** The ticket the time was against; empty when it was booked to the project only. */
+  taskId: Scalars['ID']['output'];
+  taskKey: Scalars['String']['output'];
+  taskTitle: Scalars['String']['output'];
   userId: Scalars['ID']['output'];
   /** Employee's name, resolved for the review queue. Empty on an employee's own list. */
   userName: Scalars['String']['output'];
@@ -6767,6 +6885,8 @@ export type TrackerManualEntryInput = {
   /** Omit to book against the house-wide Global Project. */
   projectId?: InputMaybe<Scalars['ID']['input']>;
   startedAt: Scalars['DateTime']['input'];
+  /** Optional ticket. Ignored when it does not belong to the project above. */
+  taskId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export enum TrackerManualEntryStatus {
@@ -6872,6 +6992,10 @@ export type TrackerSession = {
   projectName: Scalars['String']['output'];
   startedAt: Scalars['DateTime']['output'];
   status: Scalars['String']['output'];
+  /** The ticket this run was against; empty when the time was booked to the project only. */
+  taskId: Scalars['String']['output'];
+  taskKey: Scalars['String']['output'];
+  taskTitle: Scalars['String']['output'];
   userId: Scalars['ID']['output'];
 };
 
@@ -6950,6 +7074,17 @@ export type TrackerSettingsInput = {
   webcamCorner?: InputMaybe<Scalars['String']['input']>;
   webcamEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   weeklyDigestEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** One ticket the desktop app may book a session against. */
+export type TrackerTask = {
+  __typename?: 'TrackerTask';
+  /** Assigned to the calling employee. The picker leads with these. */
+  assignedToMe: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  /** The human handle, e.g. EXY-14. */
+  key: Scalars['String']['output'];
+  title: Scalars['String']['output'];
 };
 
 /** All-time tracker totals for one employee. */
@@ -7502,6 +7637,10 @@ export type ResolversTypes = ResolversObject<{
   ProjectMember: ResolverTypeWrapper<ProjectMember>;
   ProjectPage: ResolverTypeWrapper<ProjectPage>;
   ProjectStatus: ProjectStatus;
+  ProjectTimeLog: ResolverTypeWrapper<ProjectTimeLog>;
+  ProjectTimeLogRow: ResolverTypeWrapper<ProjectTimeLogRow>;
+  ProjectTimeLogScreenshot: ResolverTypeWrapper<ProjectTimeLogScreenshot>;
+  ProjectTimeLogSession: ResolverTypeWrapper<ProjectTimeLogSession>;
   Prompt: ResolverTypeWrapper<Prompt>;
   PromptCategory: PromptCategory;
   PromptInput: PromptInput;
@@ -7608,6 +7747,7 @@ export type ResolversTypes = ResolversObject<{
   TrackerSession: ResolverTypeWrapper<TrackerSession>;
   TrackerSettings: ResolverTypeWrapper<TrackerSettings>;
   TrackerSettingsInput: TrackerSettingsInput;
+  TrackerTask: ResolverTypeWrapper<TrackerTask>;
   TrackerTotals: ResolverTypeWrapper<TrackerTotals>;
   TrackerWindowUsageInput: TrackerWindowUsageInput;
   TrackerWorkProfile: ResolverTypeWrapper<TrackerWorkProfile>;
@@ -7842,6 +7982,10 @@ export type ResolversParentTypes = ResolversObject<{
   ProjectInput: ProjectInput;
   ProjectMember: ProjectMember;
   ProjectPage: ProjectPage;
+  ProjectTimeLog: ProjectTimeLog;
+  ProjectTimeLogRow: ProjectTimeLogRow;
+  ProjectTimeLogScreenshot: ProjectTimeLogScreenshot;
+  ProjectTimeLogSession: ProjectTimeLogSession;
   Prompt: Prompt;
   PromptInput: PromptInput;
   PromptPage: PromptPage;
@@ -7931,6 +8075,7 @@ export type ResolversParentTypes = ResolversObject<{
   TrackerSession: TrackerSession;
   TrackerSettings: TrackerSettings;
   TrackerSettingsInput: TrackerSettingsInput;
+  TrackerTask: TrackerTask;
   TrackerTotals: TrackerTotals;
   TrackerWindowUsageInput: TrackerWindowUsageInput;
   TrackerWorkProfile: TrackerWorkProfile;
@@ -9744,6 +9889,51 @@ export type ProjectPageResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ProjectTimeLogResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProjectTimeLog'] = ResolversParentTypes['ProjectTimeLog']> = ResolversObject<{
+  canViewScreenshots?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  rows?: Resolver<Array<ResolversTypes['ProjectTimeLogRow']>, ParentType, ContextType>;
+  totalActiveMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  totalManualMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProjectTimeLogRowResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProjectTimeLogRow'] = ResolversParentTypes['ProjectTimeLogRow']> = ResolversObject<{
+  activeMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  idleMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  manualMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  screenshots?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  taskId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  taskKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  taskTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProjectTimeLogScreenshotResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProjectTimeLogScreenshot'] = ResolversParentTypes['ProjectTimeLogScreenshot']> = ResolversObject<{
+  blurred?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  capturedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  imageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProjectTimeLogSessionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProjectTimeLogSession'] = ResolversParentTypes['ProjectTimeLogSession']> = ResolversObject<{
+  activeMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  endedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  idleMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  screenshotCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  startedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  taskKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  taskTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PromptResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Prompt'] = ResolversParentTypes['Prompt']> = ResolversObject<{
   category?: Resolver<ResolversTypes['PromptCategory'], ParentType, ContextType>;
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -10061,6 +10251,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   projectBoard?: Resolver<ResolversTypes['ProjectBoard'], ParentType, ContextType, RequireFields<QueryProjectBoardArgs, 'projectId'>>;
   projectDocPages?: Resolver<Array<ResolversTypes['DocPage']>, ParentType, ContextType, RequireFields<QueryProjectDocPagesArgs, 'projectId'>>;
   projectTasks?: Resolver<Array<ResolversTypes['Task']>, ParentType, ContextType, RequireFields<QueryProjectTasksArgs, 'projectId'>>;
+  projectTimeLog?: Resolver<ResolversTypes['ProjectTimeLog'], ParentType, ContextType, RequireFields<QueryProjectTimeLogArgs, 'from' | 'projectId' | 'to'>>;
+  projectTimeLogScreenshots?: Resolver<Array<ResolversTypes['ProjectTimeLogScreenshot']>, ParentType, ContextType, RequireFields<QueryProjectTimeLogScreenshotsArgs, 'projectId' | 'sessionId'>>;
+  projectTimeLogSessions?: Resolver<Array<ResolversTypes['ProjectTimeLogSession']>, ParentType, ContextType, RequireFields<QueryProjectTimeLogSessionsArgs, 'from' | 'projectId' | 'to'>>;
   publicBlogPost?: Resolver<Maybe<ResolversTypes['BlogPost']>, ParentType, ContextType, RequireFields<QueryPublicBlogPostArgs, 'slug'>>;
   publicBlogPosts?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType>;
   publicBranding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
@@ -10097,6 +10290,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerPendingManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType>;
   trackerProjectOptions?: Resolver<Array<ResolversTypes['TrackerProject']>, ParentType, ContextType>;
   trackerSettings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
+  trackerTaskOptions?: Resolver<Array<ResolversTypes['TrackerTask']>, ParentType, ContextType, RequireFields<QueryTrackerTaskOptionsArgs, 'projectId'>>;
   trackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType, RequireFields<QueryTrackerTotalsArgs, 'userId'>>;
 }>;
 
@@ -10679,6 +10873,9 @@ export type TrackerManualEntryResolvers<ContextType = GraphQLContext, ParentType
   reviewedBy?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   startedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['TrackerManualEntryStatus'], ParentType, ContextType>;
+  taskId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  taskKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  taskTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -10747,6 +10944,9 @@ export type TrackerSessionResolvers<ContextType = GraphQLContext, ParentType ext
   projectName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   startedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  taskId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  taskKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  taskTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -10774,6 +10974,14 @@ export type TrackerSettingsResolvers<ContextType = GraphQLContext, ParentType ex
   webcamCorner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   webcamEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   weeklyDigestEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerTaskResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerTask'] = ResolversParentTypes['TrackerTask']> = ResolversObject<{
+  assignedToMe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -11022,6 +11230,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ProjectBoard?: ProjectBoardResolvers<ContextType>;
   ProjectMember?: ProjectMemberResolvers<ContextType>;
   ProjectPage?: ProjectPageResolvers<ContextType>;
+  ProjectTimeLog?: ProjectTimeLogResolvers<ContextType>;
+  ProjectTimeLogRow?: ProjectTimeLogRowResolvers<ContextType>;
+  ProjectTimeLogScreenshot?: ProjectTimeLogScreenshotResolvers<ContextType>;
+  ProjectTimeLogSession?: ProjectTimeLogSessionResolvers<ContextType>;
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
   PublicPolicy?: PublicPolicyResolvers<ContextType>;
@@ -11086,6 +11298,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TrackerScreenshot?: TrackerScreenshotResolvers<ContextType>;
   TrackerSession?: TrackerSessionResolvers<ContextType>;
   TrackerSettings?: TrackerSettingsResolvers<ContextType>;
+  TrackerTask?: TrackerTaskResolvers<ContextType>;
   TrackerTotals?: TrackerTotalsResolvers<ContextType>;
   TrackerWorkProfile?: TrackerWorkProfileResolvers<ContextType>;
   TrackerWorkday?: TrackerWorkdayResolvers<ContextType>;
