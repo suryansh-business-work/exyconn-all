@@ -40,7 +40,7 @@ export interface ServerDataGridProps<T> {
   searchPlaceholder?: string;
   onRowClick?: (row: T) => void;
   /** Passed to ag-grid so cell renderers can reach page-level handlers. */
-  context?: unknown;
+  context?: object;
   /** Bump to force a reload after a create/update/delete elsewhere on the page. */
   refreshSignal?: number;
   height?: number | string;

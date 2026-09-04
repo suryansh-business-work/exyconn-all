@@ -1,5 +1,7 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import { Box, CircularProgress } from '@/components/ui';
+import { useSettings } from '@/hooks/useSettings';
+import { gridContextWith } from './gridContext';
 import type { ServerDataGridProps } from './ServerDataGrid.impl';
 
 export type { TablePageResult } from './ServerDataGrid.impl';
@@ -10,7 +12,13 @@ const ServerDataGridImpl = lazy(() => import('./ServerDataGrid.impl'));
 
 /** Public, generic entry point that renders the lazily-loaded ag-grid implementation. */
 export function ServerDataGrid<T>(props: Readonly<ServerDataGridProps<T>>) {
+  const { formatDate } = useSettings();
   const height = props.height ?? 560;
+  // Date columns format through the admin-configured settings, whatever the page passed.
+  const context = useMemo(
+    () => gridContextWith(props.context, formatDate),
+    [props.context, formatDate],
+  );
   return (
     <Suspense
       fallback={
@@ -19,7 +27,10 @@ export function ServerDataGrid<T>(props: Readonly<ServerDataGridProps<T>>) {
         </Box>
       }
     >
-      <ServerDataGridImpl {...(props as unknown as ServerDataGridProps<unknown>)} />
+      <ServerDataGridImpl
+        {...(props as unknown as ServerDataGridProps<unknown>)}
+        context={context}
+      />
     </Suspense>
   );
 }

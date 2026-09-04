@@ -24,7 +24,7 @@ interface CrudDashboardProps<TRow, TPaged> {
   columnDefs: ColDef<TPaged>[];
   fetchRows: (input: TableQueryInput) => Promise<TablePageResult<TPaged>>;
   /** Handed to ag-grid so the shared cells can reach this page's row handlers. */
-  context: unknown;
+  context: object;
   searchPlaceholder: string;
   onRowClick?: (row: TPaged) => void;
   /** Secondary drawers this module opens from a row action (send, details, …). */

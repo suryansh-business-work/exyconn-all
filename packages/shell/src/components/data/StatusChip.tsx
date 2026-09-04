@@ -40,6 +40,15 @@ const COLOR_MAP: Record<string, 'default' | 'success' | 'warning' | 'error' | 'i
     IN_REVIEW: 'warning',
     ARCHIVED: 'default',
     CANCELLED: 'error',
+    // Tech > Infrastructure: Docker container and health states.
+    RUNNING: 'success',
+    HEALTHY: 'success',
+    RESTARTING: 'warning',
+    STARTING: 'warning',
+    EXITED: 'default',
+    UNHEALTHY: 'error',
+    DEAD: 'error',
+    NONE: 'default',
   };
 
 /** Renders an enum status value as a color-coded MUI chip. */
