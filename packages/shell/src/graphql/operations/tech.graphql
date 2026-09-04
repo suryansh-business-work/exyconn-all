@@ -210,3 +210,33 @@ query SearchPexelsVideos($query: String!, $page: Int) {
     ...PexelsMediaFields
   }
 }
+
+query ListOpenAiConfigs {
+  listOpenAiConfigs {
+    id
+    label
+    apiKey
+    defaultModel
+    isActive
+  }
+}
+
+mutation CreateOpenAiConfig($input: OpenAiConfigInput!) {
+  createOpenAiConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateOpenAiConfig($id: ID!, $input: OpenAiConfigInput!) {
+  updateOpenAiConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteOpenAiConfig($id: ID!) {
+  deleteOpenAiConfig(id: $id)
+}
+
+mutation TestOpenAiConnection($id: ID!) {
+  testOpenAiConnection(id: $id)
+}

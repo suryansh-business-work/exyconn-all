@@ -3,6 +3,7 @@ import { ImageConfigModel } from './image-config.model';
 import { SlackConfigModel } from './slack-config.model';
 import { GithubConfigModel } from './github-config.model';
 import { PexelsConfigModel } from './pexels-config.model';
+import { OpenAiConfigModel } from './openai-config.model';
 import { TrackerBuildSettingsModel } from './tracker-build-settings.model';
 import { badRequest, notFound } from '../../utils/errors';
 import { mailer } from '../../utils/mailer';
@@ -10,6 +11,7 @@ import { imageUploader } from '../../utils/imagekit';
 import { slackNotifier } from '../../utils/slack';
 import { githubActions } from '../../utils/github';
 import { pexelsClient } from '../../utils/pexels';
+import { openAiClient } from '../../utils/openai';
 
 export interface EmailConfigInput {
   label: string;
@@ -42,6 +44,13 @@ export interface GithubConfigInput {
 export interface PexelsConfigInput {
   label: string;
   apiKey: string;
+  isActive?: boolean;
+}
+
+export interface OpenAiConfigInput {
+  label: string;
+  apiKey: string;
+  defaultModel: string;
   isActive?: boolean;
 }
 
@@ -280,6 +289,38 @@ class TechService {
   /** Stock videos for the shared upload dialog, through the active Pexels key. */
   searchPexelsVideos(query: string, page: number) {
     return pexelsClient.searchVideos(query, page);
+  }
+
+  listOpenAiConfigs() {
+    return OpenAiConfigModel.find().sort({ createdAt: -1 }).lean();
+  }
+
+  async createOpenAiConfig(input: OpenAiConfigInput) {
+    if (input.isActive) await OpenAiConfigModel.updateMany({}, { isActive: false });
+    return (await OpenAiConfigModel.create(input)).toObject();
+  }
+
+  async updateOpenAiConfig(id: string, input: OpenAiConfigInput) {
+    if (input.isActive) {
+      await OpenAiConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
+    }
+    const doc = await OpenAiConfigModel.findByIdAndUpdate(id, input, { new: true }).lean();
+    if (!doc) notFound('OpenAI config');
+    return doc;
+  }
+
+  async deleteOpenAiConfig(id: string) {
+    const doc = await OpenAiConfigModel.findByIdAndDelete(id).lean();
+    if (!doc) notFound('OpenAI config');
+    return true;
+  }
+
+  /** Asks OpenAI for the config's own model, so key and model are validated together. */
+  async testOpenAiConnection(id: string) {
+    const config = await OpenAiConfigModel.findById(id);
+    if (!config) notFound('OpenAI config');
+    await openAiClient.verify(config);
+    return true;
   }
 }
 

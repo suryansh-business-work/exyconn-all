@@ -1960,6 +1960,7 @@ export type Mutation = {
    */
   createMyRequest: EmployeeRequest;
   createNavLink: NavLink;
+  createOpenAiConfig: OpenAiConfig;
   createPerformanceReview: PerformanceReview;
   createPexelsConfig: PexelsConfig;
   createPolicy: Policy;
@@ -2024,6 +2025,7 @@ export type Mutation = {
   deleteLegalDocument: Scalars['Boolean']['output'];
   deleteLocation: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
+  deleteOpenAiConfig: Scalars['Boolean']['output'];
   deletePerformanceReview: Scalars['Boolean']['output'];
   deletePexelsConfig: Scalars['Boolean']['output'];
   deletePolicy: Scalars['Boolean']['output'];
@@ -2119,6 +2121,7 @@ export type Mutation = {
   submitSelfAssessment: PerformanceReview;
   testGithubConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
+  testOpenAiConnection: Scalars['Boolean']['output'];
   testPexelsConnection: Scalars['Boolean']['output'];
   trackerAcceptConsent: Scalars['Boolean']['output'];
   /**
@@ -2186,6 +2189,7 @@ export type Mutation = {
   /** The employee marking their own progress. Completing it stamps completedOn. */
   updateMyTrainingStatus: Training;
   updateNavLink: NavLink;
+  updateOpenAiConfig: OpenAiConfig;
   updatePerformanceReview: PerformanceReview;
   updatePexelsConfig: PexelsConfig;
   updatePolicy: Policy;
@@ -2467,6 +2471,11 @@ export type MutationCreateMyRequestArgs = {
 
 export type MutationCreateNavLinkArgs = {
   input: NavLinkInput;
+};
+
+
+export type MutationCreateOpenAiConfigArgs = {
+  input: OpenAiConfigInput;
 };
 
 
@@ -2783,6 +2792,11 @@ export type MutationDeleteNavLinkArgs = {
 };
 
 
+export type MutationDeleteOpenAiConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeletePerformanceReviewArgs = {
   id: Scalars['ID']['input'];
 };
@@ -3089,6 +3103,11 @@ export type MutationTestGithubConnectionArgs = {
 export type MutationTestImageUploadArgs = {
   file: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestOpenAiConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -3400,6 +3419,12 @@ export type MutationUpdateNavLinkArgs = {
 };
 
 
+export type MutationUpdateOpenAiConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: OpenAiConfigInput;
+};
+
+
 export type MutationUpdatePerformanceReviewArgs = {
   id: Scalars['ID']['input'];
   input: PerformanceReviewInput;
@@ -3626,6 +3651,26 @@ export enum NotificationKind {
   Request = 'REQUEST',
   Training = 'TRAINING'
 }
+
+/** The OpenAI credential the platform's AI features run on. */
+export type OpenAiConfig = {
+  __typename?: 'OpenAiConfig';
+  apiKey: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** The model requests default to, e.g. gpt-4o-mini. */
+  defaultModel: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type OpenAiConfigInput = {
+  apiKey: Scalars['String']['input'];
+  defaultModel: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
 
 /** One receipt against one invoice. Negative for a refund. */
 export type Payment = {
@@ -4239,6 +4284,7 @@ export type Query = {
   listLocationsPaged: LocationPage;
   listLocationsStats: TableStats;
   listNavLinks: Array<NavLink>;
+  listOpenAiConfigs: Array<OpenAiConfig>;
   listPayments: Array<Payment>;
   listPaymentsPaged: PaymentPage;
   listPaymentsStats: TableStats;
@@ -6344,6 +6390,8 @@ export type ResolversTypes = ResolversObject<{
   Notification: ResolverTypeWrapper<Notification>;
   NotificationAudience: NotificationAudience;
   NotificationKind: NotificationKind;
+  OpenAiConfig: ResolverTypeWrapper<OpenAiConfig>;
+  OpenAiConfigInput: OpenAiConfigInput;
   Payment: ResolverTypeWrapper<Payment>;
   PaymentInput: PaymentInput;
   PaymentMethod: PaymentMethod;
@@ -6646,6 +6694,8 @@ export type ResolversParentTypes = ResolversObject<{
   NavLink: NavLink;
   NavLinkInput: NavLinkInput;
   Notification: Notification;
+  OpenAiConfig: OpenAiConfig;
+  OpenAiConfigInput: OpenAiConfigInput;
   Payment: Payment;
   PaymentInput: PaymentInput;
   PaymentPage: PaymentPage;
@@ -7847,6 +7897,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createMyExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationCreateMyExpenseClaimArgs, 'input'>>;
   createMyRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationCreateMyRequestArgs, 'input'>>;
   createNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationCreateNavLinkArgs, 'input'>>;
+  createOpenAiConfig?: Resolver<ResolversTypes['OpenAiConfig'], ParentType, ContextType, RequireFields<MutationCreateOpenAiConfigArgs, 'input'>>;
   createPerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationCreatePerformanceReviewArgs, 'input'>>;
   createPexelsConfig?: Resolver<ResolversTypes['PexelsConfig'], ParentType, ContextType, RequireFields<MutationCreatePexelsConfigArgs, 'input'>>;
   createPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationCreatePolicyArgs, 'input'>>;
@@ -7909,6 +7960,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteLegalDocument?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLegalDocumentArgs, 'id'>>;
   deleteLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLocationArgs, 'id'>>;
   deleteNavLink?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNavLinkArgs, 'id'>>;
+  deleteOpenAiConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteOpenAiConfigArgs, 'id'>>;
   deletePerformanceReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePerformanceReviewArgs, 'id'>>;
   deletePexelsConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePexelsConfigArgs, 'id'>>;
   deletePolicy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePolicyArgs, 'id'>>;
@@ -7967,6 +8019,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   submitSelfAssessment?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationSubmitSelfAssessmentArgs, 'id' | 'text'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
+  testOpenAiConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestOpenAiConnectionArgs, 'id'>>;
   testPexelsConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestPexelsConnectionArgs, 'id'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
@@ -8020,6 +8073,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateMyGoalProgress?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateMyGoalProgressArgs, 'id' | 'progress'>>;
   updateMyTrainingStatus?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationUpdateMyTrainingStatusArgs, 'id' | 'status'>>;
   updateNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationUpdateNavLinkArgs, 'id' | 'input'>>;
+  updateOpenAiConfig?: Resolver<ResolversTypes['OpenAiConfig'], ParentType, ContextType, RequireFields<MutationUpdateOpenAiConfigArgs, 'id' | 'input'>>;
   updatePerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationUpdatePerformanceReviewArgs, 'id' | 'input'>>;
   updatePexelsConfig?: Resolver<ResolversTypes['PexelsConfig'], ParentType, ContextType, RequireFields<MutationUpdatePexelsConfigArgs, 'id' | 'input'>>;
   updatePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationUpdatePolicyArgs, 'id' | 'input'>>;
@@ -8082,6 +8136,17 @@ export type NotificationResolvers<ContextType = GraphQLContext, ParentType exten
   link?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   read?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type OpenAiConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['OpenAiConfig'] = ResolversParentTypes['OpenAiConfig']> = ResolversObject<{
+  apiKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  defaultModel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -8499,6 +8564,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listLocationsPaged?: Resolver<ResolversTypes['LocationPage'], ParentType, ContextType, RequireFields<QueryListLocationsPagedArgs, 'input'>>;
   listLocationsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listNavLinks?: Resolver<Array<ResolversTypes['NavLink']>, ParentType, ContextType>;
+  listOpenAiConfigs?: Resolver<Array<ResolversTypes['OpenAiConfig']>, ParentType, ContextType>;
   listPayments?: Resolver<Array<ResolversTypes['Payment']>, ParentType, ContextType>;
   listPaymentsPaged?: Resolver<ResolversTypes['PaymentPage'], ParentType, ContextType, RequireFields<QueryListPaymentsPagedArgs, 'input'>>;
   listPaymentsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -9313,6 +9379,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   MyPolicy?: MyPolicyResolvers<ContextType>;
   NavLink?: NavLinkResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;
+  OpenAiConfig?: OpenAiConfigResolvers<ContextType>;
   Payment?: PaymentResolvers<ContextType>;
   PaymentPage?: PaymentPageResolvers<ContextType>;
   PayrollRunResult?: PayrollRunResultResolvers<ContextType>;

@@ -6,4 +6,5 @@ export { ImageConfigModel } from './image-config.model';
 export { SlackConfigModel } from './slack-config.model';
 export { GithubConfigModel } from './github-config.model';
 export { PexelsConfigModel } from './pexels-config.model';
+export { OpenAiConfigModel } from './openai-config.model';
 export { TrackerBuildSettingsModel } from './tracker-build-settings.model';
