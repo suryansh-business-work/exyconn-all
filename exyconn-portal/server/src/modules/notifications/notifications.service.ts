@@ -15,6 +15,19 @@ export async function notify(employeeId: string, payload: NotifyPayload): Promis
 }
 
 /**
+ * `notify` for a decision that has already been made — an approved leave, a
+ * rejected claim. The record is updated by then, so a notification store hiccup
+ * is logged rather than thrown: it must never undo or mask the decision itself.
+ */
+export async function notifyBestEffort(employeeId: string, payload: NotifyPayload): Promise<void> {
+  try {
+    await notify(employeeId, payload);
+  } catch (error) {
+    logger.error(error, 'Failed to notify employee of a decision');
+  }
+}
+
+/**
  * Fans a notification out to every active employee. Used for company-wide events
  * like a new announcement. Failure is logged, never thrown — a notification is
  * never important enough to fail the action that triggered it.

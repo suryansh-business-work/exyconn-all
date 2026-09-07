@@ -11,6 +11,7 @@ import {
 import { websiteTypeDefs } from './typeDefs';
 import { websitePublicResolvers } from './website.public.resolvers';
 import { websiteSubmissionResolvers } from './website.submissions.resolvers';
+import { convertWebsiteSubmissionToLead } from './website.lead';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
@@ -215,6 +216,7 @@ export const websiteResolvers = {
     ...toolResolvers.Mutation,
     ...navLinkResolvers.Mutation,
     ...websiteSubmissionResolvers.Mutation,
+    convertWebsiteSubmissionToLead,
   },
 };
 

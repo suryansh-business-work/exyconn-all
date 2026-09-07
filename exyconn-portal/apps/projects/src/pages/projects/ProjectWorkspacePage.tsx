@@ -40,7 +40,7 @@ export function ProjectWorkspacePage() {
       slug: 'time-log',
       label: 'Time log',
       icon: <ScheduleIcon />,
-      content: <ProjectTimeLogPage projectId={id} />,
+      content: <ProjectTimeLogPage projectId={id} budgetHours={project?.budgetHours ?? null} />,
     },
     {
       slug: 'docs',
@@ -59,6 +59,9 @@ export function ProjectWorkspacePage() {
         <Heading level={5}>{project?.name ?? 'Project'}</Heading>
         {project?.key ? <Chip size="small" label={project.key} /> : null}
         {project?.status ? <Chip size="small" label={project.status} /> : null}
+        {project?.clientName ? (
+          <Chip size="small" variant="outlined" label={project.clientName} />
+        ) : null}
       </Flex>
 
       <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>

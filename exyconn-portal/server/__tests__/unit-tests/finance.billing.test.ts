@@ -1,7 +1,8 @@
-import { financeBillingResolvers } from '../../src/modules/finance';
+import { financeBillingResolvers, financeResolvers } from '../../src/modules/finance';
 import { settleStatus, daysLate, bandFor } from '../../src/modules/finance/finance.billing';
 import { InvoiceModel } from '../../src/modules/finance/finance.model';
 import { PaymentModel } from '../../src/modules/finance/payment.model';
+import { ClientModel } from '../../src/modules/clients/clients.model';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
 
@@ -198,5 +199,105 @@ describe('receivables', () => {
     expect(band('D31_60')).toMatchObject({ invoices: 1, amount: 1000 });
     expect(band('CURRENT')).toMatchObject({ invoices: 1, amount: 250 });
     expect(band('D60_PLUS')).toMatchObject({ invoices: 0, amount: 0 });
+  });
+});
+
+describe('invoice client', () => {
+  interface SavedInvoice {
+    id: string;
+    clientId: string;
+    clientName: string;
+    amount: number;
+  }
+
+  const seedClient = (name: string) =>
+    ClientModel.create({
+      name,
+      email: `${name.toLowerCase()}@acme.test`,
+      phone: '000',
+      company: 'Acme',
+      status: 'ACTIVE',
+    });
+
+  const baseInput = {
+    number: 'INV-100',
+    currency: 'INR',
+    status: 'DRAFT',
+    issuedDate: new Date('2026-09-01T00:00:00.000Z'),
+    dueDate: new Date('2026-09-30T00:00:00.000Z'),
+  };
+
+  const create = (input: Record<string, unknown>) =>
+    financeResolvers.Mutation.createInvoice(
+      null,
+      { input: { ...baseInput, ...input } } as never,
+      asFinance,
+    ) as Promise<SavedInvoice>;
+
+  const update = (id: string, input: Record<string, unknown>) =>
+    financeResolvers.Mutation.updateInvoice(
+      null,
+      { id, input: { ...baseInput, ...input } } as never,
+      asFinance,
+    ) as Promise<SavedInvoice>;
+
+  it('writes the client name next to its id, so the grid never joins to read it', async () => {
+    const client = await seedClient('Priya');
+
+    const saved = await create({ clientId: String(client._id), amount: 500 });
+
+    expect(saved).toMatchObject({ clientId: String(client._id), clientName: 'Priya' });
+  });
+
+  it('refreshes the name when the invoice is moved to another client', async () => {
+    const first = await seedClient('Priya');
+    const second = await seedClient('Rahul');
+    const saved = await create({ clientId: String(first._id), amount: 500 });
+
+    const moved = await update(saved.id, { clientId: String(second._id), amount: 500 });
+
+    expect(moved.clientName).toBe('Rahul');
+  });
+
+  it('refuses a client that does not exist rather than storing a blank name', async () => {
+    await expect(create({ clientId: '64b7f9c2f1a2b3c4d5e6f7a8', amount: 500 })).rejects.toThrow(
+      /client does not exist/i,
+    );
+    await expect(create({ clientId: 'not-an-id', amount: 500 })).rejects.toThrow(
+      /client does not exist/i,
+    );
+  });
+
+  it('takes the amount from the lines when there are any, whatever was typed', async () => {
+    const client = await seedClient('Priya');
+
+    const saved = await create({
+      clientId: String(client._id),
+      amount: 1,
+      lines: [
+        { description: 'Design', quantity: 2, rate: 1000, taxPercent: 18 },
+        { description: 'Hosting', quantity: 1, rate: 500, taxPercent: 0 },
+      ],
+    });
+
+    expect(saved.amount).toBe(2860);
+    const stored = await InvoiceModel.findById(saved.id).lean();
+    expect(stored?.lines).toHaveLength(2);
+  });
+
+  it('still accepts a single typed figure for an invoice with no lines', async () => {
+    const client = await seedClient('Priya');
+
+    const saved = await create({ clientId: String(client._id), amount: 750 });
+
+    expect(saved.amount).toBe(750);
+  });
+
+  it('refuses an invoice that has neither an amount nor a line', async () => {
+    const client = await seedClient('Priya');
+
+    await expect(create({ clientId: String(client._id), lines: [] })).rejects.toThrow(
+      /Enter an amount, or add at least one line/i,
+    );
   });
 });

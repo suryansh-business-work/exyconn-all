@@ -11,6 +11,14 @@ export const exitTypeDefs = gql`
     WITHDRAWN
   }
 
+  "An asset still checked out to the leaver — what clearance has to collect."
+  type HeldAsset {
+    id: ID!
+    assetTag: String!
+    name: String!
+    status: AssetStatus!
+  }
+
   type ExitRecord {
     id: ID!
     employeeId: String!
@@ -26,6 +34,8 @@ export const exitTypeDefs = gql`
     documentsIssued: Boolean!
     "Days left until the last working day; null once it has passed or is unset."
     daysToLastWorkingDay: Int
+    "Assets the register still shows assigned to this employee."
+    heldAssets: [HeldAsset!]!
     createdAt: DateTime!
     updatedAt: DateTime!
   }

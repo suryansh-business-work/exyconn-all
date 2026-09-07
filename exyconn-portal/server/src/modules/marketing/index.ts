@@ -45,7 +45,7 @@ const campaignResolvers = createCrudResolvers(marketingService, {
     ],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
-  stats: { countBy: ['status', 'lastSentAt'], sum: ['budget'] },
+  stats: { countBy: ['status', 'channel', 'lastSentAt'], sum: ['budget'] },
 });
 
 export const audienceListsService = createCrudService<AudienceListInput>(

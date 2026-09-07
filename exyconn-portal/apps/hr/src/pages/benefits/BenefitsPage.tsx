@@ -2,6 +2,7 @@ import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { useEmployeeNames } from '../../hooks/useEmployeeNames';
 import {
   useListBenefitsStatsQuery,
   useDeleteBenefitMutation,
@@ -16,6 +17,7 @@ export function BenefitsPage() {
   const { data: statsData, refetch: refetchStats } = useListBenefitsStatsQuery();
   const [deleteBenefit] = useDeleteBenefitMutation();
   const { formatDate } = useSettings();
+  const nameOf = useEmployeeNames();
 
   const crud = useCrudResource<BenefitRow, PagedBenefitRow>({
     label: 'Benefit',
@@ -39,6 +41,7 @@ export function BenefitsPage() {
   const gridContext: BenefitGridContext = {
     actions: { edit: crud.openEdit, delete: crud.remove },
     formatDate,
+    nameOf,
   };
 
   return (

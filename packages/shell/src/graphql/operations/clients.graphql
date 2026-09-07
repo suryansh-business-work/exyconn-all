@@ -55,3 +55,12 @@ mutation UpdateClient($id: ID!, $input: ClientInput!) {
 mutation DeleteClient($id: ID!) {
   deleteClient(id: $id)
 }
+
+query GetClient($id: ID!) {
+  getClient(id: $id) {
+    id
+    name
+    email
+    company
+  }
+}

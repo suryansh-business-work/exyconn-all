@@ -42,4 +42,4 @@ export const notificationsResolvers = {
   },
 };
 export { notificationsTypeDefs, NotificationModel };
-export { notify, notifyEveryone } from './notifications.service';
+export { notify, notifyBestEffort, notifyEveryone } from './notifications.service';

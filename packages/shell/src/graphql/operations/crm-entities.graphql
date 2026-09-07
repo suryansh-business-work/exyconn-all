@@ -156,6 +156,14 @@ query ListDealsPaged($input: TableQueryInput!) {
   }
 }
 
+query DealForecast {
+  dealForecast {
+    openCount
+    openValue
+    weightedValue
+  }
+}
+
 query ListDealsStats {
   listDealsStats {
     ...CrmStats

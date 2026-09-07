@@ -12,7 +12,7 @@ import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
   ExpenseStatus,
-  useListUsersQuery,
+  useListEmployeeOptionsQuery,
   useCreateExpenseClaimMutation,
   useUpdateExpenseClaimMutation,
 } from '@exyconn/shell/graphql/generated';
@@ -60,9 +60,9 @@ interface ExpenseClaimFormProps {
 export function ExpenseClaimForm({ initial, onDone, onCancel }: Readonly<ExpenseClaimFormProps>) {
   const [createExpenseClaim] = useCreateExpenseClaimMutation();
   const [updateExpenseClaim] = useUpdateExpenseClaimMutation();
-  const { data } = useListUsersQuery();
+  const { data } = useListEmployeeOptionsQuery();
 
-  const employeeOptions = (data?.listUsers ?? []).map((user) => ({
+  const employeeOptions = (data?.listEmployeeOptions ?? []).map((user) => ({
     value: user.id,
     label: `${user.name} (${user.email})`,
   }));

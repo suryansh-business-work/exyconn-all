@@ -6,7 +6,8 @@ import { createMyRecordsResolver } from '../../lib/employeeScope';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { withId } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
-import { notify } from '../notifications';
+import { notify, notifyBestEffort } from '../notifications';
+import { setExpenseClaimStatus } from './expense-status';
 import type { GraphQLContext } from '../../middleware/auth';
 
 interface ExpenseClaimInput {
@@ -61,11 +62,29 @@ async function createMyExpenseClaim(
   return withId(created.toObject() as { _id: unknown });
 }
 
+/** Finance's edit wraps the generated update so a decision reaches the claimant. */
+const updateExpenseClaim = async (p: unknown, args: never, ctx: GraphQLContext) => {
+  const { id, input } = args as unknown as { id: string; input: ExpenseClaimInput };
+  const before = await ExpenseClaimModel.findById(id).select('status').lean();
+  const updated = await crud.Mutation.updateExpenseClaim(p, args, ctx);
+  if (before && before.status !== input.status) {
+    const outcome = input.status.toLowerCase();
+    const cleared = input.approvedAmount ?? input.amount;
+    await notifyBestEffort(input.employeeId, {
+      kind: 'REQUEST',
+      title: `Expense claim ${outcome}: ${input.category}`,
+      body: `${input.currency} ${cleared} — your claim was ${outcome}.`,
+      link: '/me/expenses',
+    });
+  }
+  return updated;
+};
+
 export const expensesResolvers = {
   Query: {
     ...crud.Query,
     myExpenseClaims: createMyRecordsResolver(ExpenseClaimModel as never, { incurredOn: -1 }),
   },
-  Mutation: { ...crud.Mutation, createMyExpenseClaim },
+  Mutation: { ...crud.Mutation, createMyExpenseClaim, updateExpenseClaim, setExpenseClaimStatus },
 };
 export { expensesTypeDefs };

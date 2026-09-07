@@ -22,9 +22,9 @@ function channelLabel(name: string, isPrivate: boolean, isMember: boolean): stri
 }
 
 /**
- * Tech settings. Today that is where a finished tracker build is announced: the
- * Slack channel list comes from the bot token configured under Environment
- * Variables, so every channel the bot can see is offered.
+ * Tech settings: where a finished tracker build is announced, and where a status
+ * incident is raised. The Slack channel list comes from the bot token configured
+ * under Environment Variables, so every channel the bot can see is offered.
  */
 export function SettingsPage() {
   const channels = useListSlackChannelsQuery({ fetchPolicy: 'cache-and-network' });
@@ -39,12 +39,15 @@ export function SettingsPage() {
     [channels.data],
   );
 
-  const saved = settings.data?.trackerBuildSettings.slackChannels ?? [];
+  const saved = {
+    slackChannels: settings.data?.trackerBuildSettings.slackChannels ?? [],
+    statusAlertChannels: settings.data?.trackerBuildSettings.statusAlertChannels ?? [],
+  };
   const ready = !channels.loading && !settings.loading;
 
   return (
     <Box>
-      <PageHeader title="Settings" subtitle="Where tracker builds are announced" />
+      <PageHeader title="Settings" subtitle="Where tracker builds and status alerts go" />
       <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>
         {channels.error && (
           <Text size="sm" color="error.main" sx={{ mb: 2 }}>

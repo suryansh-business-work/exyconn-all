@@ -12,6 +12,12 @@ const projectSchema = new Schema(
     status: { type: String, enum: PROJECT_STATUSES, required: true, default: 'PLANNING' },
     startDate: { type: Date, default: null },
     endDate: { type: Date, default: null },
+    /** The client this work is for, if any. `clientName` is denormalised from it on write. */
+    clientId: { type: String, default: null, trim: true },
+    clientName: { type: String, default: '', trim: true },
+    /** What was agreed, in money and in hours. Null means no budget was set. */
+    budgetAmount: { type: Number, default: null, min: 0 },
+    budgetHours: { type: Number, default: null, min: 0 },
     /** The prefix every ticket key carries, e.g. `EXY` in `EXY-14`. */
     key: { type: String, trim: true, uppercase: true, default: '' },
     /** Last ticket number handed out. Incremented atomically, so numbers are never reused. */

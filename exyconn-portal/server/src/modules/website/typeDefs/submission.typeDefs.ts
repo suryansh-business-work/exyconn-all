@@ -12,6 +12,8 @@ export const submissionTypeDefs = gql`
     submissionData: JSON!
     status: String!
     notes: String!
+    "The CRM lead this enquiry became, once it has been converted."
+    leadId: String
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -38,5 +40,7 @@ export const submissionTypeDefs = gql`
     createWebsiteSubmission(input: WebsiteSubmissionInput!): WebsiteSubmission!
     triageWebsiteSubmission(id: ID!, input: WebsiteSubmissionTriageInput!): WebsiteSubmission!
     deleteWebsiteSubmission(id: ID!): Boolean!
+    "Files the enquiry as a CRM lead. Once only: the submission remembers the lead it became."
+    convertWebsiteSubmissionToLead(id: ID!): Lead!
   }
 `;

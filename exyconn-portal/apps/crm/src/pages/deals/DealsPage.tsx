@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { DealForm, type DealRow } from './forms/deal';
 import { DealColumn } from './DealColumn';
+import { DealsViewToggle } from './DealsViewToggle';
 import { PIPELINE_STAGES, STAGE_ACCENTS, stageLabel } from './deals.constants';
 
 /**
@@ -58,6 +59,7 @@ export function DealsPage() {
 
   return (
     <Box>
+      <DealsViewToggle />
       <PageHeader
         title="Deals"
         subtitle={loading ? 'Loading pipeline…' : `${deals.length} open and closed opportunities`}

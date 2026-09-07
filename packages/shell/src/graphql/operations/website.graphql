@@ -487,6 +487,7 @@ fragment WebsiteSubmissionFields on WebsiteSubmission {
   submissionData
   status
   notes
+  leadId
   createdAt
 }
 
@@ -506,4 +507,11 @@ mutation TriageWebsiteSubmission($id: ID!, $input: WebsiteSubmissionTriageInput!
 
 mutation DeleteWebsiteSubmission($id: ID!) {
   deleteWebsiteSubmission(id: $id)
+}
+
+mutation ConvertWebsiteSubmissionToLead($id: ID!) {
+  convertWebsiteSubmissionToLead(id: $id) {
+    id
+    name
+  }
 }

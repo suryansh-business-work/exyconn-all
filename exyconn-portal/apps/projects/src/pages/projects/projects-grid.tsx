@@ -28,6 +28,7 @@ const BOARD_ACTION: RowActionSpec = {
 export const PROJECT_COLUMNS: ColDef<PagedProjectRow>[] = [
   textColumn('key', 'Key'),
   textColumn('name', 'Name'),
+  textColumn('clientName', 'Client', (row) => row.clientName || '—'),
   statusColumn('status', 'Status'),
   dateColumn('startDate', 'Start', '—'),
   dateColumn('endDate', 'End', '—'),

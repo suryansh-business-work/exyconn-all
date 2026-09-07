@@ -30,6 +30,20 @@ describe('SendCampaignForm', () => {
     cy.contains('Choose the audience to send to').should('be.visible');
   });
 
+  it('needs an address before a test send, and does not require an audience for it', () => {
+    mount();
+    cy.contains('button', 'Send test').click();
+    cy.contains('Enter the address to send the test to').should('be.visible');
+    cy.contains('Choose the audience to send to').should('not.exist');
+  });
+
+  it('rejects a malformed test address', () => {
+    mount();
+    cy.get('input[name="testEmail"]').type('not-an-email');
+    cy.contains('button', 'Send test').click();
+    cy.contains('Enter a valid email').should('be.visible');
+  });
+
   it('says when there are no audiences to send to', () => {
     mount();
     cy.contains('No audiences yet — create one first.').should('be.visible');

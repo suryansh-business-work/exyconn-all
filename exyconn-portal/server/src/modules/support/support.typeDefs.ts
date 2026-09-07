@@ -25,9 +25,18 @@ export const supportTypeDefs = gql`
     email: String!
   }
 
+  type SupportTicketPage {
+    rows: [SupportTicket!]!
+    totalCount: Int!
+  }
+
   extend type Query {
     "SUPPORT/ADMIN: every employee support ticket, newest first."
     listSupportTickets: [SupportTicket!]!
+    "SUPPORT/ADMIN: one server-side page of tickets, with the employee's name resolved."
+    listSupportTicketsPaged(input: TableQueryInput!): SupportTicketPage!
+    "SUPPORT/ADMIN: ticket counts by status, priority and category in one aggregation."
+    listSupportTicketsStats: TableStats!
     "SUPPORT/ADMIN: the whole thread on one ticket, internal notes included."
     listSupportReplies(ticketId: ID!): [SupportReply!]!
     "SUPPORT/ADMIN: who a ticket can be assigned to."
@@ -37,6 +46,8 @@ export const supportTypeDefs = gql`
   extend type Mutation {
     "SUPPORT/ADMIN: move a ticket through its lifecycle."
     setSupportTicketStatus(id: ID!, status: SupportStatus!): SupportTicket!
+    "SUPPORT/ADMIN: re-triage a ticket — the team it belongs to and how urgent it is."
+    setSupportTicketTriage(id: ID!, category: SupportCategory!, priority: SupportPriority!): SupportTicket!
     "SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it."
     assignSupportTicket(id: ID!, assigneeId: String!): SupportTicket!
     "SUPPORT/ADMIN: reply on a ticket, or leave an internal note."

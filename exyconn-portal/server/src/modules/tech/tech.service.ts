@@ -223,10 +223,11 @@ class TechService {
     return doc;
   }
 
-  async saveTrackerBuildSettings(slackChannels: string[]) {
+  /** `statusAlertChannels` is optional so an older client saving only build channels keeps its alerts. */
+  async saveTrackerBuildSettings(slackChannels: string[], statusAlertChannels?: string[] | null) {
     const doc = await TrackerBuildSettingsModel.findOneAndUpdate(
       { key: SETTINGS_KEY },
-      { slackChannels },
+      statusAlertChannels ? { slackChannels, statusAlertChannels } : { slackChannels },
       { new: true, upsert: true },
     ).lean();
     return doc;

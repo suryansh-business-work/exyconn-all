@@ -4,6 +4,7 @@ import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { TicketAssignee } from './TicketAssignee';
 import { TicketThread } from './TicketThread';
+import { TicketTriage } from './TicketTriage';
 import { SupportReplyForm } from './forms/support-reply';
 
 export interface DetailTicket {
@@ -11,6 +12,7 @@ export interface DetailTicket {
   subject: string;
   description: string;
   status: string;
+  category: string;
   priority: string;
   assigneeId: string;
   employeeName?: string | null;
@@ -50,6 +52,12 @@ export function TicketDetailDialog({
           {ticket.description}
         </Text>
 
+        <TicketTriage
+          ticketId={ticket.id}
+          category={ticket.category}
+          priority={ticket.priority}
+          onChanged={onChanged}
+        />
         <TicketAssignee
           ticketId={ticket.id}
           assigneeId={ticket.assigneeId}

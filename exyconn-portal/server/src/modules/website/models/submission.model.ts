@@ -13,6 +13,8 @@ const websiteSubmissionSchema = new Schema(
     submissionData: { type: Schema.Types.Mixed, required: true, default: {} },
     status: { type: String, required: true, enum: SUBMISSION_STATUSES, default: 'new' },
     notes: { type: String, default: '' },
+    /** The CRM lead this enquiry became, once it has been converted. */
+    leadId: { type: String, default: null },
   },
   { timestamps: true },
 );

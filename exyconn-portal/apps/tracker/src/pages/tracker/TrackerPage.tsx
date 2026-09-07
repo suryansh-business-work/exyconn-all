@@ -5,7 +5,7 @@ import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { withParam } from '@exyconn/shell/utils/searchParams';
 import {
-  useListUsersQuery,
+  useListEmployeeOptionsQuery,
   useTrackerCalendarQuery,
   useTrackerDayQuery,
 } from '@exyconn/shell/graphql/generated';
@@ -25,7 +25,7 @@ const EMPLOYEE_PARAM = 'employee';
 export function TrackerPage() {
   const { settings, formatDate, formatDateTime } = useSettings();
   const month = useTrackerMonth();
-  const usersQuery = useListUsersQuery();
+  const usersQuery = useListEmployeeOptionsQuery();
   const [searchParams, setSearchParams] = useSearchParams();
   const employeeId = searchParams.get(EMPLOYEE_PARAM);
 
@@ -36,7 +36,7 @@ export function TrackerPage() {
     [setSearchParams],
   );
 
-  const options = (usersQuery.data?.listUsers ?? []).map((user) => ({
+  const options = (usersQuery.data?.listEmployeeOptions ?? []).map((user) => ({
     id: user.id,
     label: `${user.name} (${user.email})`,
   }));

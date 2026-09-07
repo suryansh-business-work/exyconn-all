@@ -2,6 +2,7 @@ import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { useEmployeeNames } from '../../hooks/useEmployeeNames';
 import {
   useListGoalsStatsQuery,
   useDeleteGoalMutation,
@@ -16,6 +17,7 @@ export function GoalsPage() {
   const { data: statsData, refetch: refetchStats } = useListGoalsStatsQuery();
   const [deleteGoal] = useDeleteGoalMutation();
   const { formatDate } = useSettings();
+  const nameOf = useEmployeeNames();
 
   const crud = useCrudResource<GoalRow, PagedGoalRow>({
     label: 'Goal',
@@ -43,6 +45,7 @@ export function GoalsPage() {
   const gridContext: GoalGridContext = {
     actions: { edit: crud.openEdit, delete: crud.remove },
     formatDate,
+    nameOf,
   };
 
   return (

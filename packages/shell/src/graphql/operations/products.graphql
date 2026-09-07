@@ -6,6 +6,7 @@ query ListProducts {
     price
     category
     stock
+    reorderLevel
     status
   }
 }
@@ -20,6 +21,7 @@ query ListProductsPaged($input: TableQueryInput!) {
       price
       category
       stock
+      reorderLevel
       status
     }
   }
@@ -56,4 +58,8 @@ mutation UpdateProduct($id: ID!, $input: ProductInput!) {
 
 mutation DeleteProduct($id: ID!) {
   deleteProduct(id: $id)
+}
+
+query InventoryValue {
+  inventoryValue
 }

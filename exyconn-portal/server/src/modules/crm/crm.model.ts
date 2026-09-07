@@ -11,6 +11,9 @@ const leadSchema = new Schema(
     stage: { type: String, enum: LEAD_STAGES, required: true, default: 'NEW' },
     value: { type: Number, required: true, min: 0 },
     owner: { type: String, required: true, trim: true },
+    notes: { type: String, default: '' },
+    /** Set once the lead has been converted; the deal it became. */
+    convertedDealId: { type: String, default: null },
   },
   { timestamps: true },
 );

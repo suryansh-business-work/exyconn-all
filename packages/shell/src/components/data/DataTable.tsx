@@ -28,6 +28,8 @@ export interface RowAction<T> {
   ariaLabel: string;
   onClick: (row: T) => void;
   color?: 'inherit' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
+  /** Hides the button on rows it cannot act on — a "convert" that has already converted. */
+  hidden?: (row: T) => boolean;
 }
 
 interface DataTableProps<T extends { id: string }> {
@@ -98,18 +100,20 @@ export function DataTable<T extends { id: string }>({
               {hasActions && (
                 <TableCell align="right" onClick={(e) => e.stopPropagation()}>
                   <Stack direction="row" spacing={0.5} justifyContent="flex-end">
-                    {actions?.map((action) => (
-                      <Tooltip key={action.ariaLabel} title={action.tooltip}>
-                        <IconButton
-                          size="small"
-                          color={action.color ?? 'default'}
-                          onClick={() => action.onClick(row)}
-                          aria-label={action.ariaLabel}
-                        >
-                          {action.icon}
-                        </IconButton>
-                      </Tooltip>
-                    ))}
+                    {actions
+                      ?.filter((action) => !action.hidden?.(row))
+                      .map((action) => (
+                        <Tooltip key={action.ariaLabel} title={action.tooltip}>
+                          <IconButton
+                            size="small"
+                            color={action.color ?? 'default'}
+                            onClick={() => action.onClick(row)}
+                            aria-label={action.ariaLabel}
+                          >
+                            {action.icon}
+                          </IconButton>
+                        </Tooltip>
+                      ))}
                     {onEdit && (
                       <Tooltip title="Edit">
                         <IconButton size="small" onClick={() => onEdit(row)} aria-label="edit">

@@ -90,6 +90,11 @@ One network-only query per page, sort and filter the grid asks for. **Annotate t
 is referentially stable even though `select` is written inline, so the grid does not
 rebuild its datasource on every render.
 
+An optional third argument, `extraFilters: TableFilterInput[]`, is appended to every page
+request — a quick-filter toggle above the grid, or a drawer scoped to one parent record
+(the product stock history filters on `productId`). They are read at fetch time, so a
+page that changes them bumps its `refreshSignal` to make the grid re-read.
+
 ---
 
 ## `useCrudResource`
@@ -138,8 +143,13 @@ an unhandled promise rejection in the console.
 
 Optional props: `actionLabel` overrides the `New {entityLabel}` button (Blog uses
 `"New post"` with an `"Edit blog post"` drawer), `onRowClick` navigates from a row,
-`extraDialogs` holds secondary drawers a row action opens (send, details), and
+`toolbar` renders between the stat tiles and the grid (the support console's quick
+filters), `extraDialogs` holds secondary drawers a row action opens (send, details), and
 `children` renders under the grid.
+
+`crud` and `renderForm` may be omitted for a grid whose rows are made elsewhere — the
+support console lists tickets employees raise. There is then no "New …" button and no
+create drawer, and the page passes its own `refreshSignal`.
 
 ---
 

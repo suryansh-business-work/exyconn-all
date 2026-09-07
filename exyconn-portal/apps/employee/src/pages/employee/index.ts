@@ -1,4 +1,3 @@
-export { NotificationsPage } from './NotificationsPage';
 export { RequestsPage } from './RequestsPage';
 export { GoalsPage } from './GoalsPage';
 export { PerformancePage } from './PerformancePage';
@@ -15,5 +14,6 @@ export { SalarySlipsPage } from './SalarySlipsPage';
 export { HolidaysPage } from './HolidaysPage';
 export { PoliciesPage } from './PoliciesPage';
 export { SupportPage } from './SupportPage';
+export { MyExitPage } from './MyExitPage';
 export { CalendarPage } from './calendar';
 export { MyTrackerPage } from './MyTrackerPage';

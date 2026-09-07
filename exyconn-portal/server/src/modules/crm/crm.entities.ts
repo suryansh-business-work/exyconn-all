@@ -1,7 +1,8 @@
 import { CompanyModel } from './company.model';
 import { ContactModel } from './contact.model';
-import { DealModel } from './deal.model';
+import { CLOSED_DEAL_STAGES, DealModel } from './deal.model';
 import { ActivityModel } from './activity.model';
+import { convertLead } from './crm.convert';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertRole } from '../../middleware/roleGuard';
@@ -138,8 +139,34 @@ const setDealStage = async (
   return withId(updated as { _id: unknown });
 };
 
+/**
+ * The open pipeline weighted by probability — the number a forecast is built on. One
+ * aggregation, because the overview should not fetch every deal to add them up.
+ */
+const dealForecast = async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+  assertRole(ctx, crmRoles);
+  const [row] = await DealModel.aggregate<{
+    openCount: number;
+    openValue: number;
+    weightedValue: number;
+  }>([
+    { $match: { stage: { $nin: [...CLOSED_DEAL_STAGES] } } },
+    {
+      $group: {
+        _id: null,
+        openCount: { $sum: 1 },
+        openValue: { $sum: '$value' },
+        weightedValue: { $sum: { $multiply: ['$value', { $divide: ['$probability', 100] }] } },
+      },
+    },
+    { $project: { _id: 0 } },
+  ]);
+  return row ?? { openCount: 0, openValue: 0, weightedValue: 0 };
+};
+
 export const crmEntitiesResolvers = {
   Query: {
+    dealForecast,
     ...companies.Query,
     ...contacts.Query,
     ...deals.Query,
@@ -151,5 +178,6 @@ export const crmEntitiesResolvers = {
     ...deals.Mutation,
     ...activities.Mutation,
     setDealStage,
+    convertLead,
   },
 };

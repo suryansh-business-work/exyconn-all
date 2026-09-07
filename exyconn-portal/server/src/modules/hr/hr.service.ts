@@ -2,6 +2,8 @@ import { LeaveRequestModel } from './hr.model';
 import { AttendanceModel } from './attendance.model';
 import { UserModel } from '../admin/user.model';
 import { notFound } from '../../utils/errors';
+import { creditLeaveBalance, debitLeaveBalance } from './leave-balance.service';
+import { notifyBestEffort } from '../notifications/notifications.service';
 
 export interface ApplyLeaveInput {
   type: string;
@@ -22,6 +24,9 @@ function dayKey(date: Date): Date {
   d.setUTCHours(0, 0, 0, 0);
   return d;
 }
+
+/** ISO calendar date for a notification body; the client cannot format it per viewer. */
+const dayLabel = (date: Date) => new Date(date).toISOString().slice(0, 10);
 
 /** Builds a cumulative monthly headcount series from each user's start date. */
 function headcountSeries(starts: Date[]): Array<{ label: string; count: number }> {
@@ -53,10 +58,31 @@ class HrService {
     );
   }
 
-  setLeaveStatus(id: string, status: string) {
-    return LeaveRequestModel.findByIdAndUpdate(id, { status }, { new: true })
-      .lean()
-      .then((doc) => doc ?? notFound('LeaveRequest'));
+  /**
+   * Moves a request between PENDING / APPROVED / REJECTED. Approval consumes the
+   * employee's balance first, so an over-quota request is refused before anything
+   * is written; leaving APPROVED gives the days back. The employee is told either way.
+   */
+  async setLeaveStatus(id: string, status: string) {
+    const current = await LeaveRequestModel.findById(id).lean();
+    if (!current) notFound('LeaveRequest');
+    if (current.status === status) return current;
+    if (status === 'APPROVED') {
+      await debitLeaveBalance(current);
+    } else if (current.status === 'APPROVED') {
+      await creditLeaveBalance(current);
+    }
+    const updated = await LeaveRequestModel.findByIdAndUpdate(id, { status }, { new: true }).lean();
+    if (!updated) notFound('LeaveRequest');
+    const outcome = status.toLowerCase();
+    const span = `${dayLabel(updated.fromDate)} to ${dayLabel(updated.toDate)}`;
+    await notifyBestEffort(updated.employeeId, {
+      kind: 'LEAVE',
+      title: `Leave request ${outcome}`,
+      body: `Your ${updated.type} leave from ${span} was ${outcome}.`,
+      link: '/me/leave',
+    });
+    return updated;
   }
 
   leavesByEmployee(employeeId: string) {
