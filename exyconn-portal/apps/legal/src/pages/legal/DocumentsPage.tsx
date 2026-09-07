@@ -52,6 +52,7 @@ export function DocumentsPage() {
       renderForm={(initial) => (
         <DocumentForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
+      permissionModule="LegalDocument"
       columnDefs={DOCUMENT_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

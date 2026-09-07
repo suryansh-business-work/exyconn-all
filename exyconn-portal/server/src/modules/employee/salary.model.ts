@@ -32,6 +32,19 @@ const salaryStructureSchema = new Schema(
      * even for an hourly employee, and the tracker needs the second one.
      */
     billingRate: { type: Number, min: 0, default: 0 },
+    /**
+     * This employee's own statutory position, overriding the company-wide payroll settings.
+     * Null on structures written before statutory deductions existed, which is why every
+     * reader defaults them rather than trusting the stored document.
+     */
+    pfApplicable: { type: Boolean, default: true },
+    esiApplicable: { type: Boolean, default: true },
+    /** Percent of taxable pay withheld for this person; 0 falls back to the company rate. */
+    tdsPercent: { type: Number, min: 0, max: 100, default: 0 },
+    // Statutory identifiers, printed on the payslip when they are on file.
+    pfNumber: { type: String, trim: true, default: null },
+    esiNumber: { type: String, trim: true, default: null },
+    panNumber: { type: String, trim: true, default: null },
     effectiveFrom: { type: Date, required: true },
   },
   { timestamps: true },

@@ -66,6 +66,14 @@ export function UserProfileCard({ user }: { user: UserDetail }) {
           </Text>
           <Text size="sm">{user.joinDate ? formatDateTime(user.joinDate) : '—'}</Text>
         </Box>
+        <Box>
+          <Text size="overline" color="text.secondary">
+            Probation ends
+          </Text>
+          <Text size="sm">
+            {user.probationEndDate ? formatDateTime(user.probationEndDate) : 'Not on probation'}
+          </Text>
+        </Box>
       </Flex>
 
       <Divider sx={{ my: 2 }} />

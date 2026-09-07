@@ -46,7 +46,18 @@ export const licencesTypeDefs = gql`
     totalCount: Int!
   }
 
+  "A licence seat one employee holds, shown beside the assets they hold."
+  type EmployeeLicenceSeat {
+    id: ID!
+    name: String!
+    vendor: String!
+    renewalDate: DateTime!
+    status: LicenceStatus!
+  }
+
   extend type Query {
+    "The licences this employee holds a seat on."
+    licenceSeatsFor(employeeId: String!): [EmployeeLicenceSeat!]!
     listLicences: [Licence!]!
     listLicencesPaged(input: TableQueryInput!): LicencePage!
     listLicencesStats: TableStats!

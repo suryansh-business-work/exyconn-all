@@ -109,7 +109,7 @@ describe('Sending a campaign to an audience', () => {
     const audience = await AudienceListModel.create({ name: 'Empty', clientIds: [] });
 
     await expect(send(String(campaign._id), String(audience._id))).rejects.toThrow(
-      /has no clients in it/,
+      /has nobody in it/,
     );
     expect(sendCustomEmail).not.toHaveBeenCalled();
   });

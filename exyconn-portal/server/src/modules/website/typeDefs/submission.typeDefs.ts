@@ -28,6 +28,11 @@ export const submissionTypeDefs = gql`
     notes: String
   }
 
+  type WebsiteSubmissionPage {
+    rows: [WebsiteSubmission!]!
+    totalCount: Int!
+  }
+
   input WebsiteSubmissionTriageInput {
     status: String!
     notes: String
@@ -35,6 +40,10 @@ export const submissionTypeDefs = gql`
 
   extend type Query {
     listWebsiteSubmissions: [WebsiteSubmission!]!
+    listWebsiteSubmissionsPaged(input: TableQueryInput!): WebsiteSubmissionPage!
+    listWebsiteSubmissionsStats: TableStats!
+    "The form identifiers the public website may submit under — the one allow-list."
+    websiteFormTypes: [String!]!
     getWebsiteSubmission(id: ID!): WebsiteSubmission!
   }
 

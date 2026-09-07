@@ -2,6 +2,8 @@ import { statusResolvers } from '../../src/modules/status';
 import { StatusMonitorModel } from '../../src/modules/status/status-monitor.model';
 import { StatusIncidentModel } from '../../src/modules/status/status-incident.model';
 import { StatusMaintenanceModel } from '../../src/modules/status/status-maintenance.model';
+import { StatusSubscriberModel } from '../../src/modules/status/status-subscriber.model';
+import { subscribeLimiter } from '../../src/modules/status/status.subscribers';
 import { ProblemReportModel } from '../../src/modules/status/problem-report.model';
 import { resetReportLimits } from '../../src/modules/status/report-rate-limit';
 import { TrackerBuildSettingsModel } from '../../src/modules/tech/tracker-build-settings.model';
@@ -58,6 +60,32 @@ const addUpdate = (id: string, status: string, body: string, ctx = tech) =>
 
 const createMaintenance = (input: Record<string, unknown>, ctx = tech) =>
   statusResolvers.Mutation.createStatusMaintenance(null, { input } as never, ctx);
+
+const subscribe = (email: string) =>
+  statusResolvers.Mutation.subscribeToStatus(null, { email }, { user: null });
+
+/** The confirm link's token, read back from the send the mailer mock recorded. */
+const confirmTokenFromEmail = (): string => {
+  const call = sendTemplate.mock.calls.at(-1)?.[0] as {
+    variables: { confirmUrl: string; unsubscribeUrl: string };
+  };
+  return new URL(call.variables.confirmUrl).searchParams.get('token') ?? '';
+};
+
+const unsubscribeTokenFromEmail = (): string => {
+  const call = sendTemplate.mock.calls.at(-1)?.[0] as {
+    variables: { unsubscribeUrl: string };
+  };
+  return new URL(call.variables.unsubscribeUrl).searchParams.get('token') ?? '';
+};
+
+/** An address that has already followed its confirm link. */
+const seedConfirmed = async (email: string) => {
+  await subscribe(email);
+  const token = confirmTokenFromEmail();
+  await statusResolvers.Mutation.confirmStatusSubscription(null, { token });
+  sendTemplate.mockClear();
+};
 
 beforeEach(async () => {
   await StatusMonitorModel.create(monitors);
@@ -285,5 +313,129 @@ describe('Problem report follow-up', () => {
     await expect(
       statusResolvers.Query.problemReportStatus(null, { reference: 'EXY-X' }, ctx),
     ).rejects.toThrow('Too many lookups');
+  });
+});
+
+describe('Status page subscribers', () => {
+  beforeEach(async () => {
+    subscribeLimiter.reset();
+    await StatusSubscriberModel.init();
+  });
+
+  it('records the address unconfirmed and emails a confirm link', async () => {
+    await expect(subscribe('Asha@Example.com')).resolves.toBe(true);
+
+    const saved = await StatusSubscriberModel.findOne().lean();
+    expect(saved).toMatchObject({ email: 'asha@example.com', confirmedAt: null });
+    expect(sendTemplate.mock.calls[0][0]).toMatchObject({
+      template: 'status-subscribe-confirm',
+      to: 'asha@example.com',
+    });
+  });
+
+  it('answers true for an address that is already subscribed, and sends nothing', async () => {
+    await seedConfirmed('asha@example.com');
+
+    await expect(subscribe('asha@example.com')).resolves.toBe(true);
+    expect(sendTemplate).not.toHaveBeenCalled();
+  });
+
+  it('answers true for a flood without sending past the limit', async () => {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await expect(subscribe('flood@example.com')).resolves.toBe(true);
+    }
+
+    expect(sendTemplate).toHaveBeenCalledTimes(3);
+  });
+
+  it('confirms once and refuses the same link a second time', async () => {
+    await subscribe('asha@example.com');
+    const token = confirmTokenFromEmail();
+
+    await expect(
+      statusResolvers.Mutation.confirmStatusSubscription(null, { token }),
+    ).resolves.toBe(true);
+    expect((await StatusSubscriberModel.findOne().lean())?.confirmedAt).toBeInstanceOf(Date);
+
+    await expect(
+      statusResolvers.Mutation.confirmStatusSubscription(null, { token }),
+    ).rejects.toThrow(/invalid or has already been used/i);
+  });
+
+  it('unsubscribes, and says the same thing when there is nothing left to remove', async () => {
+    await subscribe('asha@example.com');
+    const token = unsubscribeTokenFromEmail();
+
+    await expect(statusResolvers.Mutation.unsubscribeFromStatus(null, { token })).resolves.toBe(
+      true,
+    );
+    expect(await StatusSubscriberModel.countDocuments()).toBe(0);
+
+    await expect(statusResolvers.Mutation.unsubscribeFromStatus(null, { token })).resolves.toBe(
+      true,
+    );
+  });
+
+  it('emails confirmed subscribers when an incident resolves, and nobody else', async () => {
+    await seedConfirmed('asha@example.com');
+    await subscribe('pending@example.com');
+    sendTemplate.mockClear();
+
+    const incident = await createIncident(tech);
+    await addUpdate(incident.id, 'RESOLVED', 'Certificate renewed');
+
+    const notices = sendTemplate.mock.calls.filter(
+      (call) => call[0].template === 'status-incident-notice',
+    );
+    expect(notices).toHaveLength(1);
+    expect(notices[0][0]).toMatchObject({ to: 'asha@example.com' });
+    expect(notices[0][0].variables.headline).toContain('back up');
+  });
+
+  it('emails confirmed subscribers when the monitor opens an incident', async () => {
+    await StatusMonitorModel.deleteMany({ key: 'api' });
+    await seedConfirmed('asha@example.com');
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValue({ ok: false, status: 503 }) as unknown as typeof fetch;
+
+    await runStatusChecks();
+    await runStatusChecks();
+
+    const notices = sendTemplate.mock.calls.filter(
+      (call) => call[0].template === 'status-incident-notice',
+    );
+    expect(notices).toHaveLength(1);
+    expect(notices[0][0].variables.headline).toContain('HR Portal is down');
+  });
+
+  it('tells subscribers about a maintenance window when it is planned', async () => {
+    await seedConfirmed('asha@example.com');
+
+    await createMaintenance({
+      title: 'Database upgrade',
+      body: 'The API will be read-only.',
+      affectedServiceKeys: ['api'],
+      startsAt: at(HOUR),
+      endsAt: at(2 * HOUR),
+    });
+
+    const notices = sendTemplate.mock.calls.filter(
+      (call) => call[0].template === 'status-incident-notice',
+    );
+    expect(notices).toHaveLength(1);
+    expect(notices[0][0].variables.headline).toBe('Planned maintenance: Database upgrade');
+  });
+
+  it('keeps a bounced notice away from the incident it is about', async () => {
+    await seedConfirmed('asha@example.com');
+    sendTemplate.mockRejectedValueOnce(new Error('mailbox full'));
+
+    const incident = await createIncident(tech);
+    await expect(addUpdate(incident.id, 'RESOLVED', 'Fixed')).resolves.toBeDefined();
+
+    expect(
+      (await StatusIncidentModel.findById(incident.id).lean())?.resolvedAt,
+    ).toBeInstanceOf(Date);
   });
 });

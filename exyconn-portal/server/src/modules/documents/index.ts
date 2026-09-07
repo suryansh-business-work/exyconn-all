@@ -37,4 +37,5 @@ export const documentsResolvers = {
   },
   Mutation: crud.Mutation,
 };
-export { documentsTypeDefs };
+export { documentsTypeDefs, EmployeeDocumentModel };
+export { ensurePayslipDocument } from './payslip-document';

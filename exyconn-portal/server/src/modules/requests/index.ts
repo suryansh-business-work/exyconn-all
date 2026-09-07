@@ -4,6 +4,7 @@ import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver } from '../../lib/employeeScope';
 import { assertAuthenticated } from '../../middleware/roleGuard';
+import { assertApprovePermission } from '../../lib/permissions';
 import { notFound } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
@@ -97,6 +98,7 @@ async function decideEmployeeRequest(_p: unknown, args: DecideArgs, ctx: GraphQL
   const row = await EmployeeRequestModel.findById(args.id).lean();
   if (!row) notFound('EmployeeRequest');
   await assertMayActFor(ctx, row.employeeId, [ROLES.HR]);
+  await assertApprovePermission(ctx, 'EmployeeRequest', [ROLES.HR]);
   const updated = await EmployeeRequestModel.findByIdAndUpdate(
     args.id,
     { status: args.status, decisionNote: args.decisionNote ?? null, decidedAt: new Date() },

@@ -1,5 +1,6 @@
 import { CampaignModel } from './marketing.model';
 import { AudienceListModel } from './audience.model';
+import { MarketingSuppressionModel } from './suppression.model';
 import { marketingTypeDefs } from './marketing.typeDefs';
 import { marketingCustomResolvers } from './marketing.resolvers';
 import { createCrudService } from '../../lib/crudService';
@@ -15,12 +16,24 @@ interface CampaignInput {
   status: string;
   subject?: string;
   body?: string;
+  templateKey?: string;
+  scheduledAt?: Date | null;
+  scheduledAudienceListId?: string;
 }
 
 interface AudienceListInput {
   name: string;
   description?: string;
   clientIds?: string[];
+  contactIds?: string[];
+  dynamicSegment?: string;
+  segmentValue?: string;
+}
+
+interface MarketingSuppressionInput {
+  email: string;
+  reason: string;
+  source?: string;
 }
 
 export const marketingService = createCrudService<CampaignInput>(
@@ -63,18 +76,38 @@ const audienceResolvers = createCrudResolvers(audienceListsService, {
   },
 });
 
-/** Merges campaign CRUD, audience-list CRUD and the send that ties the two together. */
+export const marketingSuppressionsService = createCrudService<MarketingSuppressionInput>(
+  MarketingSuppressionModel as never,
+  'MarketingSuppression',
+);
+const suppressionResolvers = createCrudResolvers(marketingSuppressionsService, {
+  name: 'MarketingSuppression',
+  roles: [ROLES.MARKETING],
+  table: {
+    searchFields: ['email', 'source'],
+    filterFields: ['email', 'reason', 'source'],
+    sortFields: ['email', 'reason', 'createdAt'],
+    defaultSort: { field: 'createdAt', dir: 'DESC' },
+  },
+  stats: { countBy: ['reason'] },
+});
+
+/** Merges campaign CRUD, audience-list CRUD, suppression CRUD and the send that ties them together. */
 export const marketingResolvers = {
+  AudienceList: marketingCustomResolvers.AudienceList,
   Query: {
     ...campaignResolvers.Query,
     ...audienceResolvers.Query,
+    ...suppressionResolvers.Query,
     ...marketingCustomResolvers.Query,
   },
   Mutation: {
     ...campaignResolvers.Mutation,
     ...audienceResolvers.Mutation,
+    ...suppressionResolvers.Mutation,
     ...marketingCustomResolvers.Mutation,
   },
 };
 
 export { marketingTypeDefs };
+export { startCampaignSchedule } from './marketing.schedule';

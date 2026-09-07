@@ -19,6 +19,8 @@ export interface MarkAttendanceInput {
   note?: string;
 }
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 /** Normalizes a date to midnight UTC so one day = one attendance record. */
 function dayKey(date: Date): Date {
   const d = new Date(date);
@@ -121,6 +123,24 @@ class HrService {
       { employeeId, date, status: input.status, note: input.note ?? null },
       { new: true, upsert: true, setDefaultsOnInsert: true },
     ).lean();
+  }
+
+  /**
+   * Who comes off probation inside the next `days`, soonest first.
+   *
+   * Bounded at BOTH ends on purpose: a window that started at the epoch would bury the
+   * next confirmation under every probation that ended and was dealt with years ago.
+   * Only active employees — a leaver's probation date is nobody's decision any more.
+   */
+  probationsEnding(days: number, now: Date = new Date()) {
+    const from = dayKey(now);
+    const to = new Date(from.getTime() + days * MS_PER_DAY);
+    return UserModel.find({
+      isActive: true,
+      probationEndDate: { $ne: null, $gte: from, $lte: to },
+    })
+      .sort({ probationEndDate: 1 })
+      .lean();
   }
 
   async dashboard() {

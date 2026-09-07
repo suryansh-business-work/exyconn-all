@@ -1,11 +1,16 @@
 import { RolePermissionModel } from './permission.model';
 import { permissionsTypeDefs } from './permissions.typeDefs';
-import { PERMISSION_MODULES, invalidatePermissionCache } from '../../lib/permissions';
-import { assertRole } from '../../middleware/roleGuard';
+import {
+  PERMISSION_MODULES,
+  invalidatePermissionCache,
+  isAllowed,
+  permissionsFor,
+} from '../../lib/permissions';
+import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
 import { badRequest } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import { recordAudit } from '../audit';
-import { ROLES } from '../../constants/roles';
+import { ROLES, type Role } from '../../constants/roles';
 import type { GraphQLContext } from '../../middleware/auth';
 
 type Args = { role: string; module: string; actions?: string[] };
@@ -27,6 +32,21 @@ export const permissionsResolvers = {
           _id: unknown;
         }[],
       );
+    },
+    /** The caller's own matrix — what the client hides buttons with. */
+    myPermissions: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      const user = assertAuthenticated(ctx);
+      return permissionsFor((user.roles ?? []) as Role[]);
+    },
+    /**
+     * The export guard. `usePagedFetcher` reads an export's pages through the module's
+     * own list resolver, so EXPORT has no request of its own to hang off — this is that
+     * request, asked once before the first page.
+     */
+    canExport: async (_p: unknown, { module }: { module: string }, ctx: GraphQLContext) => {
+      const user = assertAuthenticated(ctx);
+      assertKnownModule(module);
+      return isAllowed((user.roles ?? []) as Role[], module, 'EXPORT');
     },
   },
   Mutation: {

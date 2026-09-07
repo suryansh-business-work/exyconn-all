@@ -85,6 +85,7 @@ export function AdminPage() {
           onDone={crud.onDone}
         />
       )}
+      permissionModule="User"
       columnDefs={USER_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

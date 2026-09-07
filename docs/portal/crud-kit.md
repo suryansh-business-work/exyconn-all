@@ -147,6 +147,15 @@ Optional props: `actionLabel` overrides the `New {entityLabel}` button (Blog use
 filters), `extraDialogs` holds secondary drawers a row action opens (send, details), and
 `children` renders under the grid.
 
+`permissionModule` names the module this screen is restricted under in
+Admin › Roles & Permissions. Set it and the "New …" button, the edit/delete row actions
+and the "Export CSV" button each disappear for a role that has that action switched off —
+the handler keys come out of the grid context, so the buttons stop rendering without the
+column model changing. The export also asks the server `canExport(module)` once before it
+starts paging, because an export is served by the module's own list resolver and would
+otherwise have no request of its own to guard. The server enforces all of this
+independently; the prop only stops a screen offering what would be refused.
+
 `crud` and `renderForm` may be omitted for a grid whose rows are made elsewhere — the
 support console lists tickets employees raise. There is then no "New …" button and no
 create drawer, and the page passes its own `refreshSignal`.

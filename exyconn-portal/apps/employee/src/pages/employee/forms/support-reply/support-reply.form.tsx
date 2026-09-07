@@ -1,9 +1,15 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import {
+  AttachmentPicker,
+  SUPPORT_UPLOAD_FOLDER,
+  type AttachmentItem,
+} from '@exyconn/shell/components/upload';
 import { useAddMySupportReplyMutation } from '@exyconn/shell/graphql/generated';
 import type { SupportReplyFormValues } from './support-reply.types';
 
@@ -23,6 +29,8 @@ interface SupportReplyFormProps {
 export function SupportReplyForm({ ticketId, onCancel, onDone }: Readonly<SupportReplyFormProps>) {
   const notify = useNotify();
   const [addReply] = useAddMySupportReplyMutation();
+  // Files upload as they are picked, so they live beside the form rather than in it.
+  const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const methods = useForm<SupportReplyFormValues>({
     resolver: zodResolver(schema),
     defaultValues: INITIAL,
@@ -30,9 +38,10 @@ export function SupportReplyForm({ ticketId, onCancel, onDone }: Readonly<Suppor
 
   const onSubmit = async (values: SupportReplyFormValues) => {
     try {
-      await addReply({ variables: { ticketId, body: values.body } });
+      await addReply({ variables: { ticketId, body: values.body, attachments } });
       notify('Reply sent');
       methods.reset();
+      setAttachments([]);
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not send the reply', 'error');
@@ -48,6 +57,11 @@ export function SupportReplyForm({ ticketId, onCancel, onDone }: Readonly<Suppor
       submitLabel="Send reply"
     >
       <RhfTextField name="body" label="Your reply" multiline minRows={3} />
+      <AttachmentPicker
+        value={attachments}
+        onChange={setAttachments}
+        folder={SUPPORT_UPLOAD_FOLDER}
+      />
     </EntityForm>
   );
 }

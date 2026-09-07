@@ -56,6 +56,8 @@ const STATIC_PAGES = [
   "/case-studies",
   // Order Agents
   "/order-agents",
+  // Tools directory (portal-driven; /tools is a 301 to tools.exyconn.com)
+  "/our-tools",
 ];
 
 describe("Astro Pages Build Verification", () => {
@@ -140,6 +142,10 @@ describe("Page Routes Configuration", () => {
   it("should have career pages", () => {
     const careerPages = STATIC_PAGES.filter((p) => p.startsWith("/career"));
     expect(careerPages.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("should have the portal-driven tools directory", () => {
+    expect(STATIC_PAGES).toContain("/our-tools");
   });
 
   it("should have legal pages", () => {

@@ -52,6 +52,7 @@ export function ProductsPage() {
       renderForm={(initial) => (
         <ProductForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
+      permissionModule="Product"
       columnDefs={PRODUCT_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

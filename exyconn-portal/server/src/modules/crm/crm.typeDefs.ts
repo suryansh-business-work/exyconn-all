@@ -24,6 +24,9 @@ export const crmTypeDefs = gql`
     value: Float!
     owner: String!
     notes: String!
+    "The campaign that produced this lead, when it came from one."
+    campaignId: String!
+    campaignName: String!
     "The deal this lead was converted into, once it has been."
     convertedDealId: String
     createdAt: DateTime!
@@ -38,6 +41,8 @@ export const crmTypeDefs = gql`
     value: Float!
     owner: String!
     notes: String
+    "Attribution. The campaign's name is filled in by the server from this id."
+    campaignId: String
   }
 
   "What a lead becomes: an account, a person at it and an opportunity."

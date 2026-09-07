@@ -151,6 +151,7 @@ function UserFormFields({ initial, salary, onDone, onCancel, onCreated }: Readon
       />
       <RhfDatePicker name="joinDate" label="Join date" />
       <RhfDatePicker name="dateOfBirth" label="Date of birth (optional)" />
+      <RhfDatePicker name="probationEndDate" label="Probation ends (optional)" />
       <WorkArrangementFields />
       <CompensationFields />
       <RhfSelect name="isActive" label="Account access" options={ACTIVE_OPTIONS} />

@@ -1,5 +1,6 @@
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
+import { recordJobRun } from '../../utils/jobHeartbeat';
 import { StatusMonitorModel } from './status-monitor.model';
 import { StatusDailyModel } from './status-daily.model';
 import { StatusIncidentModel } from './status-incident.model';
@@ -162,6 +163,7 @@ async function checkMonitor(monitor: MonitorTarget): Promise<void> {
 export async function runStatusChecks(): Promise<number> {
   const monitors = await StatusMonitorModel.find({ isActive: true }).select('key name url').lean();
   await Promise.all(monitors.map((monitor) => checkMonitor(monitor)));
+  recordJobRun('statusMonitor', `Probed ${monitors.length} services`);
   return monitors.length;
 }
 

@@ -8,6 +8,7 @@ import { StatusCharts } from './StatusCharts';
 import { ServiceGroup } from './ServiceGroup';
 import { IncidentList } from './IncidentList';
 import { MaintenanceNotice } from './MaintenanceNotice';
+import { SubscribeCard } from '../subscribe';
 import type { StatusMaintenance, StatusService } from './status.types';
 
 /** Groups the flat service list into the page's sections, dropping empty categories. */
@@ -79,6 +80,8 @@ export function StatusPage() {
         </Typography>
         <IncidentList incidents={overview.incidents} />
       </Box>
+
+      <SubscribeCard />
     </Flex>
   );
 }

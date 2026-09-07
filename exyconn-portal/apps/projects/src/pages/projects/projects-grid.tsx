@@ -1,5 +1,6 @@
 import type { ColDef } from 'ag-grid-community';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
+import ShareIcon from '@mui/icons-material/Share';
 import {
   DELETE_ACTION,
   EDIT_ACTION,
@@ -24,6 +25,12 @@ const BOARD_ACTION: RowActionSpec = {
   color: 'primary',
 };
 
+const SHARE_ACTION: RowActionSpec = {
+  key: 'share',
+  label: 'manage client links',
+  icon: ShareIcon,
+};
+
 /** Column model for the server-side Projects grid. Key/Name/Description hit the server filter. */
 export const PROJECT_COLUMNS: ColDef<PagedProjectRow>[] = [
   textColumn('key', 'Key'),
@@ -33,5 +40,5 @@ export const PROJECT_COLUMNS: ColDef<PagedProjectRow>[] = [
   dateColumn('startDate', 'Start', '—'),
   dateColumn('endDate', 'End', '—'),
   textColumn('description', 'Description', (row) => row.description ?? '—'),
-  actionsColumn([BOARD_ACTION, EDIT_ACTION, DELETE_ACTION]),
+  actionsColumn([BOARD_ACTION, SHARE_ACTION, EDIT_ACTION, DELETE_ACTION]),
 ];

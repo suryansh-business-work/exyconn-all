@@ -40,6 +40,13 @@ const COLOR_MAP: Record<string, 'default' | 'success' | 'warning' | 'error' | 'i
     IN_REVIEW: 'warning',
     ARCHIVED: 'default',
     CANCELLED: 'error',
+    // Support desk: SLA states and who raised the ticket.
+    MET: 'success',
+    ON_TRACK: 'info',
+    DUE_SOON: 'warning',
+    BREACHED: 'error',
+    EMPLOYEE: 'default',
+    CLIENT: 'primary',
     // Tech > Infrastructure: Docker container and health states.
     RUNNING: 'success',
     HEALTHY: 'success',

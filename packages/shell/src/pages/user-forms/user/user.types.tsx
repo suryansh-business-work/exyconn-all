@@ -23,6 +23,8 @@ export interface UserFormValues {
   designation: string;
   joinDate: string;
   dateOfBirth: string;
+  /** The day they come off probation; '' when they are not on one. */
+  probationEndDate: string;
   employmentStatus: EmploymentStatus;
   workingTime: WorkingTime;
   workingTimeNote: string;

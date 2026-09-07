@@ -1,5 +1,5 @@
 import { listAuditLogsPaged, listAuditLogsStats } from './audit.service';
-import { assertRole } from '../../middleware/roleGuard';
+import { assertPermission } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import { withIds } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -9,6 +9,9 @@ type LeanDoc = { _id: unknown };
 
 const adminOnly = [ROLES.ADMIN];
 
+/** The log is read-only, so VIEW is the only action the matrix has to restrict. */
+const guard = (ctx: GraphQLContext) => assertPermission(ctx, 'AuditLog', adminOnly, 'VIEW');
+
 export const auditResolvers = {
   Query: {
     listAuditLogsPaged: async (
@@ -16,12 +19,12 @@ export const auditResolvers = {
       { input }: { input: TableQueryInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, adminOnly);
+      await guard(ctx);
       const page = await listAuditLogsPaged(input);
       return { rows: withIds(page.rows as LeanDoc[]), totalCount: page.totalCount };
     },
-    listAuditLogsStats: (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, adminOnly);
+    listAuditLogsStats: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await guard(ctx);
       return listAuditLogsStats();
     },
   },

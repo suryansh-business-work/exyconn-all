@@ -8,6 +8,8 @@ query ListLeads {
     value
     owner
     notes
+    campaignId
+    campaignName
     convertedDealId
   }
 }
@@ -24,6 +26,8 @@ query ListLeadsPaged($input: TableQueryInput!) {
       value
       owner
       notes
+      campaignId
+      campaignName
       convertedDealId
     }
   }

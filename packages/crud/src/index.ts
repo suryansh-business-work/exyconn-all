@@ -38,3 +38,4 @@ export {
   type GridQueryTracker,
 } from './page/ExportCsvButton';
 export { csvColumnsFromDefs, fetchAllRows, EXPORT_PAGE_SIZE } from './page/export';
+export { assertExportAllowed, contextWithoutActions, deniedActionKeys } from './page/permissions';

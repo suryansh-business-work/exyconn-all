@@ -21,8 +21,19 @@ query GetAiJob($id: ID!) {
     promptTokens
     completionTokens
     totalTokens
+    costUsd
     latencyMs
+    queuedAt
     ranAt
+    createdByName
+  }
+}
+
+query AiJobsInFlight {
+  listAiJobs {
+    id
+    status
+    queuedAt
   }
 }
 
@@ -43,8 +54,11 @@ query ListAiJobsPaged($input: TableQueryInput!) {
       prompt
       status
       totalTokens
+      costUsd
       latencyMs
+      queuedAt
       ranAt
+      createdByName
     }
   }
 }
@@ -90,15 +104,74 @@ mutation RunAiJob($id: ID!) {
   }
 }
 
-mutation RunPrompt($id: ID!, $model: String!) {
-  runPrompt(id: $id, model: $model) {
+mutation RunPrompt($id: ID!, $model: String!, $variables: [PromptVariableInput!]) {
+  runPrompt(id: $id, model: $model, variables: $variables) {
     id
     name
     status
-    response
     error
-    totalTokens
-    latencyMs
+  }
+}
+
+mutation AiSummarise($text: String!, $style: SummaryStyle) {
+  aiSummarise(text: $text, style: $style)
+}
+
+mutation AiDraft($kind: AiDraftKind!, $context: String!) {
+  aiDraft(kind: $kind, context: $context)
+}
+
+query AiSpendSummary($from: DateTime!, $to: DateTime!) {
+  aiSpendSummary(from: $from, to: $to) {
+    totalUsd
+    byUser {
+      userId
+      name
+      usd
+      jobs
+    }
+    byModel {
+      model
+      usd
+      jobs
+    }
+  }
+}
+
+query AiSpendLimit {
+  aiSpendLimit {
+    monthlyUsdCap
+    perUserDailyUsdCap
+    enabled
+  }
+}
+
+query ListAiModelPrices {
+  listAiModelPrices {
+    id
+    model
+    inputPer1kUsd
+    outputPer1kUsd
+    active
+    updatedAt
+  }
+}
+
+mutation SaveAiModelPrice($input: AiModelPriceInput!) {
+  saveAiModelPrice(input: $input) {
+    id
+  }
+}
+
+mutation DeleteAiModelPrice($id: ID!) {
+  deleteAiModelPrice(id: $id)
+}
+
+mutation SaveAiSpendLimit($input: AiSpendLimitInput!) {
+  saveAiSpendLimit(input: $input) {
+    monthlyUsdCap
+    perUserDailyUsdCap
+    enabled
   }
 }
 
@@ -110,6 +183,7 @@ query ListPrompts {
     content
     description
     tags
+    variables
   }
 }
 
@@ -123,6 +197,7 @@ query ListPromptsPaged($input: TableQueryInput!) {
       content
       description
       tags
+      variables
     }
   }
 }

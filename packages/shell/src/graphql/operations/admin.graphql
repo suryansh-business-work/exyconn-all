@@ -11,6 +11,7 @@ fragment UserFields on User {
   designation
   joinDate
   dateOfBirth
+  probationEndDate
   employmentStatus
   address
   brief

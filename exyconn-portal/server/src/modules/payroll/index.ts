@@ -4,22 +4,27 @@ import { UserModel } from '../admin/user.model';
 import { LeaveRequestModel } from '../hr/hr.model';
 import { payrollTypeDefs } from './payroll.typeDefs';
 import {
-  computeSlip,
+  computeMonthlySlip,
   grossOf,
   monthlyEarnings,
   unpaidLeaveDays,
   type LeaveSpan,
   type PaySource,
+  type StatutorySettings,
 } from './payroll.compute';
 import { DEFAULT_CURRENCY, DEFAULT_PAY_TYPE, type PayType } from '../../constants/pay';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
+import { assertPermission } from '../../lib/permissions';
 import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
 import { badRequest, notFound } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
 import { notify } from '../notifications';
 import { PayrollScheduleModel, MAX_SCHEDULE_DAY } from './payroll-schedule.model';
+import { PayrollSettingsModel, readPayrollSettings, TDS_MODES } from './payroll-settings.model';
+import { ensurePayslipDocument } from '../documents';
+import { periodLabel } from './payslip.pdf';
 import { readSchedule } from './payroll.schedule';
 import { dispatchSalarySlips, renderPayslip } from './payroll.dispatch';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -40,6 +45,13 @@ interface SalaryStructureInput {
   rate?: number;
   /** Per hour, always — what the tracker bills this person's time at. */
   billingRate?: number;
+  /** This employee's own statutory position, overriding the company payroll settings. */
+  pfApplicable?: boolean;
+  esiApplicable?: boolean;
+  tdsPercent?: number;
+  pfNumber?: string;
+  esiNumber?: string;
+  panNumber?: string;
   effectiveFrom: Date;
 }
 
@@ -119,6 +131,55 @@ async function unpaidLeaveFor(employeeId: string): Promise<LeaveSpan[]> {
   }));
 }
 
+/** The stored figures of one slip, whichever way the run arrived at them. */
+type SlipFigures = ReturnType<typeof computeMonthlySlip>;
+
+/** The amount columns a slip carries, so a create and a recompute write the same set. */
+function slipFields(amounts: SlipFigures, currency: string) {
+  return {
+    currency,
+    gross: amounts.gross,
+    deductions: amounts.deductions,
+    pf: amounts.pf,
+    esi: amounts.esi,
+    professionalTax: amounts.professionalTax,
+    tds: amounts.tds,
+    otherDeductions: amounts.otherDeductions,
+    net: amounts.net,
+  };
+}
+
+/** A slip's own document title, as the employee will find it under My Documents. */
+function payslipTitle(month: number, year: number): string {
+  return `Payslip ${periodLabel(month, year)}`;
+}
+
+/** What ONE employee's slip is worked out from, gathered before any arithmetic happens. */
+async function slipFor(
+  employeeId: string,
+  structure: {
+    payType?: string | null;
+    rate?: number | null;
+    basic: number;
+    hra: number;
+    allowances: number;
+    deductions: number;
+    pfApplicable?: boolean | null;
+    esiApplicable?: boolean | null;
+    tdsPercent?: number | null;
+  },
+  month: number,
+  year: number,
+  settings: StatutorySettings,
+): Promise<SlipFigures> {
+  const unpaidDays = unpaidLeaveDays(await unpaidLeaveFor(employeeId), year, month);
+  return computeMonthlySlip(monthlyEarnings(structure), year, month, unpaidDays, settings, {
+    pfApplicable: structure.pfApplicable,
+    esiApplicable: structure.esiApplicable,
+    tdsPercent: structure.tdsPercent,
+  });
+}
+
 async function runPayroll(
   _p: unknown,
   { month, year }: { month: number; year: number },
@@ -126,6 +187,7 @@ async function runPayroll(
 ) {
   assertRole(ctx, PAYROLL_ROLES);
   assertMonth(month, year);
+  const settings = await readPayrollSettings();
   const users = await UserModel.find({ isActive: true }).select('_id name').lean();
   const structures = await SalaryStructureModel.find({
     employeeId: { $in: users.map((u) => String(u._id)) },
@@ -149,29 +211,28 @@ async function runPayroll(
       skipped += 1;
       continue;
     }
-    const unpaidDays = unpaidLeaveDays(await unpaidLeaveFor(employeeId), year, month);
-    const amounts = computeSlip(monthlyEarnings(structure), year, month, unpaidDays);
+    const amounts = await slipFor(employeeId, structure, month, year, settings);
     totalNet += amounts.net;
 
+    let slipId: string;
+    let issuedDate: Date;
     if (existing) {
-      existing.gross = amounts.gross;
-      existing.deductions = amounts.deductions;
-      existing.net = amounts.net;
-      existing.currency = structure.currency;
+      existing.set(slipFields(amounts, structure.currency));
       await existing.save();
+      slipId = String(existing._id);
+      issuedDate = existing.issuedDate;
       updated += 1;
     } else {
-      await SalarySlipModel.create({
+      issuedDate = new Date();
+      const created = await SalarySlipModel.create({
         employeeId,
         month,
         year,
-        currency: structure.currency,
-        gross: amounts.gross,
-        deductions: amounts.deductions,
-        net: amounts.net,
+        ...slipFields(amounts, structure.currency),
         status: 'GENERATED',
-        issuedDate: new Date(),
+        issuedDate,
       });
+      slipId = String(created._id);
       generated += 1;
       await notify(employeeId, {
         kind: 'PAYROLL',
@@ -179,6 +240,9 @@ async function runPayroll(
         link: '/me/salary-slips',
       });
     }
+    // Filed against the payslip's own id, so re-running a month never gives an employee a
+    // second copy of the same payslip in My Documents.
+    await ensurePayslipDocument(employeeId, slipId, payslipTitle(month, year), issuedDate);
   }
   return { month, year, generated, updated, skipped, totalNet };
 }
@@ -188,11 +252,13 @@ async function markPayrollPaid(
   { month, year }: { month: number; year: number },
   ctx: GraphQLContext,
 ) {
-  assertRole(ctx, PAYROLL_ROLES);
+  await assertPermission(ctx, 'SalarySlip', PAYROLL_ROLES, 'APPROVE');
   assertMonth(month, year);
+  // The pay date is stamped with the status, because a slip that is PAID with no date is a
+  // salary the cash-flow summary can see was paid but not when — so it counts it in no month.
   const res = await SalarySlipModel.updateMany(
     { month, year, status: 'GENERATED' },
-    { status: 'PAID' },
+    { status: 'PAID', paidOn: new Date() },
   );
   return res.modifiedCount;
 }
@@ -282,6 +348,57 @@ async function salarySlipPdf(_p: unknown, { id }: { id: string }, ctx: GraphQLCo
   };
 }
 
+/** Every percentage is a percentage, every amount is money, and TDS has a mode we know. */
+interface PayrollSettingsInput extends StatutorySettings {
+  tdsMode: string;
+}
+
+const PERCENT_FIELDS = ['pfEmployeePercent', 'esiEmployeePercent', 'tdsFlatPercent'] as const;
+const AMOUNT_FIELDS = ['pfWageCeiling', 'esiWageLimit', 'professionalTaxMonthly'] as const;
+const TDS_MODE_SET = new Set<string>(TDS_MODES);
+
+function assertPayrollSettings(input: PayrollSettingsInput) {
+  for (const field of PERCENT_FIELDS) {
+    const value = input[field];
+    if (value < 0 || value > 100) badRequest(`${field} must be between 0 and 100`);
+  }
+  for (const field of AMOUNT_FIELDS) {
+    if (input[field] < 0) badRequest(`${field} cannot be negative`);
+  }
+  if (!TDS_MODE_SET.has(input.tdsMode)) badRequest('tdsMode must be NONE, FLAT_PERCENT or SLAB');
+}
+
+/**
+ * Saves the statutory policy. It applies to the NEXT run: a slip already generated keeps
+ * the figures it was generated with, because those are the ones that were withheld.
+ */
+async function updatePayrollSettings(
+  _p: unknown,
+  { input }: { input: PayrollSettingsInput },
+  ctx: GraphQLContext,
+) {
+  assertRole(ctx, [ROLES.HR]);
+  assertPayrollSettings(input);
+  return PayrollSettingsModel.findOneAndUpdate({ key: 'global' }, input, {
+    new: true,
+    upsert: true,
+    setDefaultsOnInsert: true,
+  }).lean();
+}
+
+/**
+ * Statutory figures default to zero on read rather than being trusted from the document:
+ * `.lean()` skips Mongoose defaults, so a slip generated before statutory deductions
+ * existed comes back without them and must still read as a complete payslip.
+ */
+const SLIP_STATUTORY_DEFAULTS = {
+  pf: (slip: { pf?: number | null }) => slip.pf ?? 0,
+  esi: (slip: { esi?: number | null }) => slip.esi ?? 0,
+  professionalTax: (slip: { professionalTax?: number | null }) => slip.professionalTax ?? 0,
+  tds: (slip: { tds?: number | null }) => slip.tds ?? 0,
+  otherDeductions: (slip: { otherDeductions?: number | null }) => slip.otherDeductions ?? 0,
+};
+
 export const payrollResolvers = {
   Query: {
     ...structureCrud.Query,
@@ -304,6 +421,10 @@ export const payrollResolvers = {
       assertRole(ctx, PAYROLL_ROLES);
       return readSchedule();
     },
+    payrollSettings: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertRole(ctx, PAYROLL_ROLES);
+      return readPayrollSettings();
+    },
     salarySlipPdf,
   },
   Mutation: {
@@ -313,7 +434,9 @@ export const payrollResolvers = {
     markPayrollPaid,
     updatePayrollSchedule,
     sendSalarySlips,
+    updatePayrollSettings,
   },
+  SalarySlip: SLIP_STATUTORY_DEFAULTS,
   /**
    * Derived so the HR list shows the same numbers the employee's own view does.
    *
@@ -330,9 +453,15 @@ export const payrollResolvers = {
       const parts = monthlyEarnings(s);
       return grossOf(parts) - parts.deductions;
     },
+    // Defaulted on read for the same reason as the slip's: structures written before the
+    // statutory fields existed come back without them and must still read as "applies".
+    pfApplicable: (s: { pfApplicable?: boolean | null }) => s.pfApplicable ?? true,
+    esiApplicable: (s: { esiApplicable?: boolean | null }) => s.esiApplicable ?? true,
+    tdsPercent: (s: { tdsPercent?: number | null }) => s.tdsPercent ?? 0,
   },
 };
 export { payrollTypeDefs };
 export { PayrollScheduleModel, MAX_SCHEDULE_DAY } from './payroll-schedule.model';
+export { PayrollSettingsModel, readPayrollSettings } from './payroll-settings.model';
 export { startPayrollDispatch } from './payroll.schedule';
 export { dispatchSalarySlips, renderPayslip } from './payroll.dispatch';

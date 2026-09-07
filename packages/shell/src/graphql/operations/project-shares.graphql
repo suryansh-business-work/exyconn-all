@@ -1,0 +1,52 @@
+fragment ProjectShareFields on ProjectShare {
+  id
+  projectId
+  label
+  expiresAt
+  createdByName
+  revokedAt
+  isLive
+  createdAt
+}
+
+query ProjectShares($projectId: ID!) {
+  projectShares(projectId: $projectId) {
+    ...ProjectShareFields
+  }
+}
+
+mutation CreateProjectShare($projectId: ID!, $label: String!, $expiresInDays: Int!) {
+  createProjectShare(projectId: $projectId, label: $label, expiresInDays: $expiresInDays) {
+    url
+    share {
+      ...ProjectShareFields
+    }
+  }
+}
+
+mutation RevokeProjectShare($id: ID!) {
+  revokeProjectShare(id: $id) {
+    ...ProjectShareFields
+  }
+}
+
+query SharedProject($token: String!) {
+  sharedProject(token: $token) {
+    name
+    clientName
+    status
+    startDate
+    endDate
+    budgetHours
+    trackedHours
+    milestones {
+      name
+      dueOn
+      state
+    }
+    ticketCounts {
+      status
+      count
+    }
+  }
+}

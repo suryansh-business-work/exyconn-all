@@ -1,4 +1,5 @@
 import { Box, Divider, Flex, Text } from '@exyconn/shell/components/ui';
+import { AttachmentList, type AttachmentItem } from '@exyconn/shell/components/upload';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useMySupportRepliesQuery } from '@exyconn/shell/graphql/generated';
 import { SupportReplyForm, type SupportReplyRow } from './forms/support-reply';
@@ -21,6 +22,7 @@ function ReplyBubble({ reply, when }: Readonly<ReplyBubbleProps>) {
         </Text>
       </Flex>
       <Text sx={{ whiteSpace: 'pre-wrap' }}>{reply.body}</Text>
+      <AttachmentList items={reply.attachments} />
     </Box>
   );
 }
@@ -28,11 +30,18 @@ function ReplyBubble({ reply, when }: Readonly<ReplyBubbleProps>) {
 interface SupportThreadProps {
   ticketId: string;
   description: string;
+  /** What the employee attached when they raised it. */
+  attachments: readonly AttachmentItem[];
   onClose: () => void;
 }
 
 /** The public conversation on one of the employee's tickets, and a box to continue it. */
-export function SupportThread({ ticketId, description, onClose }: Readonly<SupportThreadProps>) {
+export function SupportThread({
+  ticketId,
+  description,
+  attachments,
+  onClose,
+}: Readonly<SupportThreadProps>) {
   const { data, loading, refetch } = useMySupportRepliesQuery({
     variables: { ticketId },
     fetchPolicy: 'cache-and-network',
@@ -56,6 +65,7 @@ export function SupportThread({ ticketId, description, onClose }: Readonly<Suppo
   return (
     <Flex direction="column" spacing={2}>
       <Text sx={{ whiteSpace: 'pre-wrap' }}>{description}</Text>
+      <AttachmentList items={attachments} />
       <Divider />
       {thread}
       <SupportReplyForm

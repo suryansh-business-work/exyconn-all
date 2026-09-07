@@ -12,6 +12,12 @@ import { getStatusOverview } from './status.service';
 import { submitProblemReport, type ProblemReportInput } from './problem-report.service';
 import { notifyReporterOfStatus, problemReportStatus } from './problem-report.notify';
 import {
+  confirmStatusSubscription,
+  subscribeToStatus,
+  unsubscribeFromStatus,
+} from './status.subscribers';
+import { announceMaintenance } from './status.alerts';
+import {
   addStatusIncidentUpdate,
   createStatusIncident,
   type CreateIncidentInput,
@@ -148,6 +154,16 @@ export const statusResolvers = {
       ctx: GraphQLContext,
     ) => submitProblemReport(input, ctx.ip ?? 'unknown'),
 
+    /** Unauthenticated — following a status page needs no account. Double opt-in. */
+    subscribeToStatus: (_p: unknown, { email }: { email: string }, ctx: GraphQLContext) =>
+      subscribeToStatus(email, ctx.origin),
+
+    /** Unauthenticated — the emailed link is the only credential either of these needs. */
+    confirmStatusSubscription: (_p: unknown, { token }: { token: string }) =>
+      confirmStatusSubscription(token),
+    unsubscribeFromStatus: (_p: unknown, { token }: { token: string }) =>
+      unsubscribeFromStatus(token),
+
     /** The generated update, plus a word to the reporter when the status moved. */
     updateProblemReport: async (
       p: unknown,
@@ -192,7 +208,20 @@ export const statusResolvers = {
       const user = await assertPermission(ctx, 'StatusMaintenance', techOnly, 'CREATE');
       assertWindow(input);
       const stamped = { input: { ...input, createdBy: user.email } };
-      return maintenanceCrud.Mutation.createStatusMaintenance(p, stamped as never, ctx);
+      const created = await maintenanceCrud.Mutation.createStatusMaintenance(
+        p,
+        stamped as never,
+        ctx,
+      );
+      // Planned work people only hear about once it starts is not planned work as far as
+      // they are concerned, so subscribers are told the same way an incident tells them.
+      await announceMaintenance({
+        title: input.title,
+        body: input.body,
+        startsAt: new Date(input.startsAt),
+        endsAt: new Date(input.endsAt),
+      });
+      return created;
     },
 
     updateStatusMaintenance: (

@@ -166,6 +166,26 @@ const TEMPLATES = [
         <mj-button background-color="#155dfc" border-radius="10px" href="{{link}}" padding="24px 0 8px">Open my tickets</mj-button>`),
   },
   {
+    key: 'support-reply-client',
+    name: 'Support reply — customer ticket',
+    description:
+      'Sent to the customer who raised a ticket on the public form when the team replies. Carries the reference so they can follow it up. Internal notes never trigger it.',
+    subject: 'Reply on your support ticket {{reference}}: {{ticketSubject}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Your ticket has a reply</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Our support team has replied on <strong>{{ticketSubject}}</strong>:
+        </mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="15px" color="#0b0a12" line-height="24px">{{replyBody}}</mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Your reference</mj-text>
+        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{reference}}</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          Reply to this email to continue the conversation, and quote the reference above.
+        </mj-text>`),
+  },
+  {
     key: 'password-reset',
     name: 'Password reset — self-service link',
     description:
@@ -214,6 +234,40 @@ const TEMPLATES = [
         <mj-text font-size="15px" color="#0b0a12" line-height="24px" padding-top="0">{{resolutionNotes}}</mj-text>
         <mj-text font-size="13px" color="#94a3b8">
           You can check this report at any time by quoting its reference on the status page.
+        </mj-text>`),
+  },
+  {
+    key: 'status-subscribe-confirm',
+    name: 'Status page — confirm your subscription',
+    description:
+      'Double opt-in for the public status page. Sent the moment somebody enters an address; nothing else is sent until they follow {{confirmUrl}}.',
+    subject: 'Confirm your {{companyName}} status updates',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">One click and you are subscribed</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Somebody asked for {{companyName}} status updates at this address. If it was you, confirm below and
+          we will email you when something breaks and again when it is fixed.
+        </mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{confirmUrl}}" padding="24px 0 8px">Confirm my subscription</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          If you did not ask for this, ignore this email — nothing further will be sent. You can also
+          <a href="{{unsubscribeUrl}}">remove this address</a> right away.
+        </mj-text>`),
+  },
+  {
+    key: 'status-incident-notice',
+    name: 'Status page — incident and maintenance notice',
+    description:
+      'Sent to every confirmed status subscriber when an incident opens or resolves, and when a maintenance window is planned. {{headline}} is also the subject line.',
+    subject: '{{headline}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">{{headline}}</mj-text>
+        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Service</mj-text>
+        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{serviceName}}</mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="15px" color="#334155" line-height="24px">{{detail}}</mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{statusUrl}}" padding="24px 0 8px">See the live status page</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          You are getting this because you subscribed to {{companyName}} status updates.
+          <a href="{{unsubscribeUrl}}">Unsubscribe</a>.
         </mj-text>`),
   },
   {

@@ -51,6 +51,7 @@ export function SuppliersPage() {
       renderForm={(initial) => (
         <SupplierForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
+      permissionModule="Supplier"
       columnDefs={SUPPLIER_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

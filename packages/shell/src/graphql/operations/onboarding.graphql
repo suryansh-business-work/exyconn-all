@@ -1,0 +1,131 @@
+# Onboarding: the templates HR keeps, and one checklist per joiner made from one.
+
+fragment OnboardingTemplateFields on OnboardingTemplate {
+  id
+  name
+  active
+  taskCount
+  tasks {
+    key
+    label
+    owner
+    dueDaysFromJoin
+  }
+  createdAt
+}
+
+fragment OnboardingChecklistFields on OnboardingChecklist {
+  id
+  employeeId
+  employeeName
+  templateName
+  joinDate
+  progressPercent
+  complete
+  items {
+    key
+    label
+    owner
+    dueOn
+    done
+    doneAt
+    doneByName
+    notes
+  }
+}
+
+query ListOnboardingTemplates {
+  listOnboardingTemplates {
+    ...OnboardingTemplateFields
+  }
+}
+
+query ListOnboardingTemplatesPaged($input: TableQueryInput!) {
+  listOnboardingTemplatesPaged(input: $input) {
+    totalCount
+    rows {
+      ...OnboardingTemplateFields
+    }
+  }
+}
+
+query ListOnboardingTemplatesStats {
+  listOnboardingTemplatesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateOnboardingTemplate($input: OnboardingTemplateInput!) {
+  createOnboardingTemplate(input: $input) {
+    id
+  }
+}
+
+mutation UpdateOnboardingTemplate($id: ID!, $input: OnboardingTemplateInput!) {
+  updateOnboardingTemplate(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteOnboardingTemplate($id: ID!) {
+  deleteOnboardingTemplate(id: $id)
+}
+
+query ListOnboardingChecklistsPaged($input: TableQueryInput!) {
+  listOnboardingChecklistsPaged(input: $input) {
+    totalCount
+    rows {
+      ...OnboardingChecklistFields
+    }
+  }
+}
+
+query ListOnboardingChecklistsStats {
+  listOnboardingChecklistsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query MyOnboarding {
+  myOnboarding {
+    ...OnboardingChecklistFields
+  }
+}
+
+mutation StartOnboarding($employeeId: ID!, $templateId: ID!) {
+  startOnboarding(employeeId: $employeeId, templateId: $templateId) {
+    id
+  }
+}
+
+mutation SetOnboardingItem($checklistId: ID!, $key: String!, $done: Boolean!, $notes: String) {
+  setOnboardingItem(checklistId: $checklistId, key: $key, done: $done, notes: $notes) {
+    ...OnboardingChecklistFields
+  }
+}
+
+mutation DeleteOnboardingChecklist($id: ID!) {
+  deleteOnboardingChecklist(id: $id)
+}

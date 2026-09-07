@@ -2,6 +2,7 @@ import { AppSettingsModel } from '../admin/settings.model';
 import { PayrollScheduleModel, type PayrollScheduleDocument } from './payroll-schedule.model';
 import { dispatchSalarySlips } from './payroll.dispatch';
 import { logger } from '../../utils/logger';
+import { recordJobRun } from '../../utils/jobHeartbeat';
 
 /** How often the process asks whether a scheduled dispatch is due. */
 const TICK_MS = 60_000;
@@ -104,6 +105,7 @@ async function runIfDue(): Promise<void> {
   }
   const target = targetPeriod(schedule.period, now);
   const result = await dispatchSalarySlips(target.month, target.year, 'payroll schedule');
+  recordJobRun('payrollDispatch', `Sent ${result.sent}, failed ${result.failed}`);
   await PayrollScheduleModel.updateOne(
     { key: 'global' },
     {

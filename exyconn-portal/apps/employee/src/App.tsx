@@ -21,6 +21,7 @@ import {
   BenefitsPage,
   TrainingPage,
   DocumentsPage,
+  MyOnboardingPage,
   MyExitPage,
   MyTeamPage,
 } from './pages/employee';
@@ -49,6 +50,7 @@ export function App() {
       <Route path="/me/expenses" element={<ExpensesPage />} />
       <Route path="/me/benefits" element={<BenefitsPage />} />
       <Route path="/me/training" element={<TrainingPage />} />
+      <Route path="/me/onboarding" element={<MyOnboardingPage />} />
       <Route path="/me/documents" element={<DocumentsPage />} />
       <Route path="/me/exit" element={<MyExitPage />} />
     </PortalApp>

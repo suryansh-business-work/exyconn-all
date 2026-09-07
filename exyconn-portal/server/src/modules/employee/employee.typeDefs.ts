@@ -67,6 +67,17 @@ export const employeeTypeDefs = gql`
     "Monthly gross for the pay type. Zero for HOURLY, which earns per tracked hour."
     gross: Float!
     net: Float!
+    """
+    This employee's own statutory position, each overriding the company payroll settings:
+    whether PF and ESI apply to them at all, and their own TDS rate (0 = use the company's).
+    """
+    pfApplicable: Boolean!
+    esiApplicable: Boolean!
+    tdsPercent: Float!
+    "Statutory identifiers, printed on the payslip when they are on file."
+    pfNumber: String
+    esiNumber: String
+    panNumber: String
     effectiveFrom: DateTime!
     updatedAt: DateTime!
   }
@@ -78,10 +89,25 @@ export const employeeTypeDefs = gql`
     year: Int!
     currency: String!
     gross: Float!
+    """
+    The deductions total: the employee's own fixed deductions, loss of pay, and every
+    statutory line below. Kept as the single total so every existing reader stays correct.
+    """
     deductions: Float!
+    "Employee provident fund withheld this month."
+    pf: Float!
+    "Employee state insurance withheld this month."
+    esi: Float!
+    professionalTax: Float!
+    "Income tax withheld at source."
+    tds: Float!
+    "The employee's own fixed deductions, from their salary structure."
+    otherDeductions: Float!
     net: Float!
     status: SlipStatus!
     issuedDate: DateTime!
+    "The day the salary actually left the company. Null until the month is marked paid."
+    paidOn: DateTime
   }
 
   type Holiday {
@@ -115,6 +141,8 @@ export const employeeTypeDefs = gql`
     category: SupportCategory!
     description: String!
     priority: SupportPriority!
+    "Screenshots or documents, already uploaded through uploadImage."
+    attachments: [TicketAttachmentInput!]
   }
 
   extend type Query {
@@ -134,6 +162,10 @@ export const employeeTypeDefs = gql`
     "Self-service: raise a support ticket (status forced to OPEN)."
     createSupportTicket(input: SupportTicketInput!): SupportTicket!
     "Self-service: continue the conversation on one of the employee's own tickets."
-    addMySupportReply(ticketId: ID!, body: String!): SupportReply!
+    addMySupportReply(
+      ticketId: ID!
+      body: String!
+      attachments: [TicketAttachmentInput!]
+    ): SupportReply!
   }
 `;
