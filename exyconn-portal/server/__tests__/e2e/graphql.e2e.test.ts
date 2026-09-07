@@ -3,6 +3,7 @@ import type { Express } from 'express';
 import { createApp } from '../../src/app';
 import { ROLES } from '../../src/constants/roles';
 import { UserModel } from '../../src/modules/admin/user.model';
+import { ClientModel } from '../../src/modules/clients/clients.model';
 import { seedUser } from '../helpers';
 
 let app: Express;
@@ -16,6 +17,18 @@ const gql = (query: string, variables?: Record<string, unknown>, token?: string)
 beforeAll(async () => {
   app = await createApp();
 });
+
+/** An invoice must bill a real client, so the CRUD tests create one to bill. */
+async function seedClient(): Promise<string> {
+  const client = await ClientModel.create({
+    name: 'Acme Ltd',
+    email: 'billing@acme.example',
+    phone: '+91 98765 43210',
+    company: 'Acme',
+    status: 'ACTIVE',
+  });
+  return String(client._id);
+}
 
 async function loginAsAdmin(): Promise<string> {
   await seedUser('admin@exyconn.com', 'Admin@1234', [ROLES.ADMIN]);
@@ -35,13 +48,14 @@ describe('GraphQL e2e', () => {
   it('logs in and performs invoice CRUD as ADMIN', async () => {
     const token = await loginAsAdmin();
     expect(token).toEqual(expect.any(String));
+    const clientId = await seedClient();
 
     const create = await gql(
       `mutation($i:InvoiceInput!){ createInvoice(input:$i){ id number status amount } }`,
       {
         i: {
           number: 'INV-001',
-          clientId: 'c1',
+          clientId,
           amount: 1500,
           currency: 'INR',
           status: 'DRAFT',
@@ -64,7 +78,7 @@ describe('GraphQL e2e', () => {
         id,
         i: {
           number: 'INV-001',
-          clientId: 'c1',
+          clientId,
           amount: 1500,
           currency: 'INR',
           status: 'PAID',
@@ -138,13 +152,14 @@ describe('GraphQL e2e', () => {
 
   it('summarises a module in one server-side stats aggregation', async () => {
     const token = await loginAsAdmin();
+    const clientId = await seedClient();
     const make = (number: string, status: string, amount: number) =>
       gql(
         `mutation($i:InvoiceInput!){ createInvoice(input:$i){ id } }`,
         {
           i: {
             number,
-            clientId: 'c1',
+            clientId,
             amount,
             currency: 'INR',
             status,

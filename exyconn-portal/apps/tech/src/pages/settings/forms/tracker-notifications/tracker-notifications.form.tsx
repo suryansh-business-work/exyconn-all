@@ -6,23 +6,26 @@ import { RhfMultiSelect, type SelectOption } from '@exyconn/shell/components/for
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSaveTrackerBuildSettingsMutation } from '@exyconn/shell/graphql/generated';
+import type { TrackerNotificationsFormValues } from './tracker-notifications.types';
 
 const schema = z.object({
   slackChannels: z.array(z.string()),
+  statusAlertChannels: z.array(z.string()),
 });
 type Values = z.infer<typeof schema>;
 
 interface TrackerNotificationsFormProps {
   options: SelectOption[];
-  initial: string[];
+  initial: TrackerNotificationsFormValues;
   onDone: () => void;
   onCancel: () => void;
 }
 
 /**
  * React Hook Form + Zod form choosing which Slack channels a finished tracker
- * build is posted to. Saving no channels is allowed and means the build still
- * publishes its release, it just goes unannounced.
+ * build is posted to, and which ones hear when a status incident opens or
+ * resolves. Saving no channels is allowed: the build still publishes its release
+ * and the incident is still recorded, they just go unannounced on Slack.
  */
 export function TrackerNotificationsForm({
   options,
@@ -34,17 +37,13 @@ export function TrackerNotificationsForm({
   const [saveSettings] = useSaveTrackerBuildSettingsMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
-    values: { slackChannels: initial },
+    values: initial,
   });
 
-  const onSubmit = async ({ slackChannels }: Values) => {
+  const onSubmit = async ({ slackChannels, statusAlertChannels }: Values) => {
     try {
-      await saveSettings({ variables: { slackChannels } });
-      notify(
-        slackChannels.length
-          ? `Builds will be posted to ${slackChannels.length} channel(s)`
-          : 'Builds will not be announced on Slack',
-      );
+      await saveSettings({ variables: { slackChannels, statusAlertChannels } });
+      notify('Notification channels saved');
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not save', 'error');
@@ -64,6 +63,7 @@ export function TrackerNotificationsForm({
         private one marked &ldquo;needs /invite&rdquo; has to be joined by hand first.
       </Text>
       <RhfMultiSelect name="slackChannels" label="Channels for tracker builds" options={options} />
+      <RhfMultiSelect name="statusAlertChannels" label="Status alerts" options={options} />
     </EntityForm>
   );
 }

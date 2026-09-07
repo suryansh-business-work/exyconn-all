@@ -14,7 +14,6 @@ import {
   MyTrackerPage,
   DashboardPage,
   AnnouncementsPage,
-  NotificationsPage,
   RequestsPage,
   GoalsPage,
   PerformancePage,
@@ -22,7 +21,9 @@ import {
   BenefitsPage,
   TrainingPage,
   DocumentsPage,
+  MyExitPage,
 } from './pages/employee';
+import { NotificationsPage } from '@exyconn/shell/pages/Notifications';
 
 /** My Workspace micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -47,6 +48,7 @@ export function App() {
       <Route path="/me/benefits" element={<BenefitsPage />} />
       <Route path="/me/training" element={<TrainingPage />} />
       <Route path="/me/documents" element={<DocumentsPage />} />
+      <Route path="/me/exit" element={<MyExitPage />} />
     </PortalApp>
   );
 }

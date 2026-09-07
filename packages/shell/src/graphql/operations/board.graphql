@@ -111,6 +111,8 @@ query GetProject($id: ID!) {
     key
     description
     status
+    clientName
+    budgetHours
   }
 }
 

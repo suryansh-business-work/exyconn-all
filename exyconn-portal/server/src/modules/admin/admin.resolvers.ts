@@ -1,5 +1,5 @@
 import { adminService, assertMayAssignRoles } from './admin.service';
-import { assertRole } from '../../middleware/roleGuard';
+import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -48,8 +48,12 @@ export const adminResolvers = {
       assertRole(ctx, userReaders);
       return withId(await adminService.getUser(id));
     },
+    listEmployeeOptions: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertAuthenticated(ctx); // any signed-in user may fill an employee picker
+      return withIds(await adminService.listEmployeeOptions());
+    },
     appSettings: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, []); // any authenticated user may read formatting settings
+      assertAuthenticated(ctx); // any signed-in user reads the formatting settings
       return withId(await adminService.getSettings());
     },
   },

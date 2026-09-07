@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -10,15 +9,17 @@ import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
   useListLeaveRequestsQuery,
   useDeleteLeaveRequestMutation,
-  useListUsersQuery,
 } from '@exyconn/shell/graphql/generated';
+import { useEmployeeNames } from '../../hooks/useEmployeeNames';
 import { LeaveRequestForm, type LeaveRequestRow } from './forms/leave-request';
+import { LeaveDecisionCell, useLeaveDecision } from './leave-actions';
 
 /** HR Leave Requests — apply, approve & track leave (real counts). */
 export function HrPage() {
   const { data, loading, refetch } = useListLeaveRequestsQuery();
-  const { data: usersData } = useListUsersQuery();
+  const nameOf = useEmployeeNames();
   const [deleteLeaveRequest] = useDeleteLeaveRequestMutation();
+  const decide = useLeaveDecision(refetch);
   const navigate = useNavigate();
   const crud = useCrudResource<LeaveRequestRow>({
     label: 'Leave request',
@@ -29,11 +30,6 @@ export function HrPage() {
   const { formatDate } = useSettings();
 
   const rows = data?.listLeaveRequests ?? [];
-  const nameById = useMemo(() => {
-    const map = new Map<string, string>();
-    (usersData?.listUsers ?? []).forEach((u) => map.set(u.id, u.name));
-    return map;
-  }, [usersData]);
 
   const stats: StatItem[] = [
     { label: 'Requests', value: String(rows.length), accent: '#4f8cff' },
@@ -55,15 +51,16 @@ export function HrPage() {
   ];
 
   const columns: Column<LeaveRequestRow>[] = [
-    {
-      key: 'employeeId',
-      label: 'Employee',
-      render: (r) => nameById.get(r.employeeId) ?? r.employeeId,
-    },
+    { key: 'employeeId', label: 'Employee', render: (r) => nameOf(r.employeeId) },
     { key: 'type', label: 'Type', render: (r) => <StatusChip value={r.type} /> },
     { key: 'fromDate', label: 'From', render: (r) => formatDate(r.fromDate) },
     { key: 'toDate', label: 'To', render: (r) => formatDate(r.toDate) },
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
+    {
+      key: 'decision',
+      label: 'Decision',
+      render: (r) => <LeaveDecisionCell row={r} onDecide={decide} />,
+    },
   ];
 
   return (

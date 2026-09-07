@@ -1,15 +1,28 @@
+fragment InvoiceFields on Invoice {
+  id
+  number
+  clientId
+  clientName
+  lines {
+    description
+    quantity
+    rate
+    taxPercent
+    amount
+  }
+  amount
+  currency
+  status
+  issuedDate
+  dueDate
+  sentAt
+  amountPaid
+  balanceDue
+}
+
 query ListInvoices {
   listInvoices {
-    id
-    number
-    clientId
-    amount
-    currency
-    status
-    issuedDate
-    dueDate
-    amountPaid
-    balanceDue
+    ...InvoiceFields
   }
 }
 
@@ -17,16 +30,7 @@ query ListInvoicesPaged($input: TableQueryInput!) {
   listInvoicesPaged(input: $input) {
     totalCount
     rows {
-      id
-      number
-      clientId
-      amount
-      currency
-      status
-      issuedDate
-      dueDate
-      amountPaid
-      balanceDue
+      ...InvoiceFields
     }
   }
 }
@@ -62,4 +66,16 @@ mutation UpdateInvoice($id: ID!, $input: InvoiceInput!) {
 
 mutation DeleteInvoice($id: ID!) {
   deleteInvoice(id: $id)
+}
+
+query InvoicePdf($id: ID!) {
+  invoicePdf(id: $id)
+}
+
+mutation SendInvoice($id: ID!, $email: String!, $message: String) {
+  sendInvoice(id: $id, email: $email, message: $message) {
+    id
+    status
+    sentAt
+  }
 }

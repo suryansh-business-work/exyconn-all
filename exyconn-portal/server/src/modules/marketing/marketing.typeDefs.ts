@@ -111,7 +111,11 @@ export const marketingTypeDefs = gql`
     createAudienceList(input: AudienceListInput!): AudienceList!
     updateAudienceList(id: ID!, input: AudienceListInput!): AudienceList!
     deleteAudienceList(id: ID!): Boolean!
-    "Emails the campaign's subject/body to every client in the audience list."
-    sendCampaign(id: ID!, audienceListId: ID!): CampaignSendResult!
+    """
+    Emails the campaign's subject/body to every client in the audience list. With
+    testEmail it goes to that one address only — a preview that needs no audience and
+    leaves no send log or last-sent stamp behind.
+    """
+    sendCampaign(id: ID!, audienceListId: ID, testEmail: String): CampaignSendResult!
   }
 `;

@@ -99,3 +99,12 @@ mutation MarkExpensePaid($id: ID!, $paidOn: DateTime) {
     paidOn
   }
 }
+
+mutation SetExpenseClaimStatus($id: ID!, $status: ExpenseStatus!, $approvedAmount: Float) {
+  setExpenseClaimStatus(id: $id, status: $status, approvedAmount: $approvedAmount) {
+    id
+    status
+    approvedAmount
+    paidOn
+  }
+}

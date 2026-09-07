@@ -35,6 +35,9 @@ const seedClient = (name: string, email: string) =>
 const send = (id: string, audienceListId: string) =>
   marketingCustomResolvers.Mutation.sendCampaign(null, { id, audienceListId }, asMarketing);
 
+const sendTest = (id: string, testEmail: string) =>
+  marketingCustomResolvers.Mutation.sendCampaign(null, { id, testEmail }, asMarketing);
+
 describe('Sending a campaign to an audience', () => {
   beforeAll(async () => {
     await AudienceListModel.init();
@@ -125,6 +128,36 @@ describe('Sending a campaign to an audience', () => {
     await expect(send(String(campaign._id), String(audience._id))).rejects.toThrow(
       /subject and body/,
     );
+  });
+
+  it('sends a test copy to one address without logging or stamping the campaign', async () => {
+    const campaign = await seedCampaign();
+    sendCustomEmail.mockResolvedValue(undefined);
+
+    const result = (await sendTest(String(campaign._id), 'me@exyconn.com')) as { sent: number };
+
+    expect(result.sent).toBe(1);
+    expect(sendCustomEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'me@exyconn.com', subject: 'Spring news' }),
+    );
+    await expect(CampaignSendModel.countDocuments()).resolves.toBe(0);
+    const saved = await CampaignModel.findById(campaign._id).lean();
+    expect(saved?.lastSentAt).toBeNull();
+  });
+
+  it('surfaces a failed test send instead of reporting it as sent', async () => {
+    const campaign = await seedCampaign();
+    sendCustomEmail.mockRejectedValue(new Error('550 mailbox unavailable'));
+
+    await expect(sendTest(String(campaign._id), 'me@exyconn.com')).rejects.toThrow(/550/);
+  });
+
+  it('needs an audience when there is no test address', async () => {
+    const campaign = await seedCampaign();
+
+    await expect(
+      marketingCustomResolvers.Mutation.sendCampaign(null, { id: String(campaign._id) }, asMarketing),
+    ).rejects.toThrow(/Choose an audience/);
   });
 
   it('reports the delivery log newest first', async () => {

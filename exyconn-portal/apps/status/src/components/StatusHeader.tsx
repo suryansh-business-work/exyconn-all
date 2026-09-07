@@ -13,6 +13,18 @@ import {
   Typography,
 } from '@exyconn/shell/components/ui';
 import { useColorMode } from '@exyconn/shell/theme/ColorModeContext';
+import { usePublicBrandingQuery } from '@exyconn/shell/graphql/generated';
+
+/** Shown only until Branding has answered; never as a substitute for it. */
+const LOADING_TITLE = 'Exyconn Status';
+
+/** The company mark, or the generic heartbeat while branding is still loading. */
+function BrandMark({ logoUrl, name }: Readonly<{ logoUrl: string; name: string }>) {
+  if (!logoUrl) {
+    return <MonitorHeartIcon color="primary" />;
+  }
+  return <Box component="img" src={logoUrl} alt={name} sx={{ height: 28, width: 'auto' }} />;
+}
 
 /** Brand bar of the public status site: identity, colour mode and the report action. */
 export function StatusHeader() {
@@ -20,6 +32,10 @@ export function StatusHeader() {
   const navigate = useNavigate();
   const onReportPage = useLocation().pathname === '/report';
   const isDark = mode === 'dark';
+  const { data } = usePublicBrandingQuery();
+  const branding = data?.publicBranding;
+  const title = branding ? `${branding.businessName} Status` : LOADING_TITLE;
+  const logoUrl = (isDark ? branding?.logoDarkUrl : branding?.logoUrl) ?? '';
 
   return (
     <Box
@@ -36,10 +52,10 @@ export function StatusHeader() {
       <Container>
         <Flex alignItems="center" justifyContent="space-between" spacing={2} sx={{ py: 1.5 }}>
           <Flex alignItems="center" spacing={1.5}>
-            <MonitorHeartIcon color="primary" />
+            <BrandMark logoUrl={logoUrl} name={title} />
             <Box>
               <Typography variant="subtitle1" fontWeight={700} lineHeight={1.2}>
-                Exyconn Status
+                {title}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 Live availability of every service

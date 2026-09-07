@@ -16,15 +16,19 @@ function round2(value: number): number {
  */
 type Aggregatable = Pick<Model<Record<string, unknown>>, 'aggregate'>;
 
-/** Sums one numeric field over a match, returning 0 rather than undefined for an empty set. */
+/**
+ * Sums one numeric field — or one aggregation expression — over a match, returning 0 rather
+ * than undefined for an empty set.
+ */
 async function sumOf(
   model: Aggregatable,
   match: Record<string, unknown>,
-  field: string,
+  field: string | Record<string, unknown>,
 ): Promise<number> {
+  const value = typeof field === 'string' ? `$${field}` : field;
   const [result] = await model.aggregate<{ total: number }>([
     { $match: match },
-    { $group: { _id: null, total: { $sum: `$${field}` } } },
+    { $group: { _id: null, total: { $sum: value } } },
     { $project: { _id: 0 } },
   ]);
   return round2(result?.total ?? 0);
@@ -72,13 +76,24 @@ async function accrual(period: Period) {
   };
 }
 
-/** The cash half: what actually moved, whenever it was earned or incurred. */
+/** What a paid claim actually cost: the cleared figure, or the claim where none was set. */
+const CLAIM_PAID_AMOUNT = { $ifNull: ['$approvedAmount', '$amount'] };
+
+/**
+ * The cash half: what actually moved, whenever it was earned or incurred.
+ *
+ * Money out is the settled bills plus the reimbursements that were paid, each on the day it
+ * left. A net cash figure that ignored reimbursements would say the company kept money it
+ * had already handed to its staff.
+ */
 async function cash(period: Period) {
   const window = { $gte: period.from, $lte: period.to };
-  const [collected, paidOut] = await Promise.all([
+  const [collected, billsPaid, claimsPaid] = await Promise.all([
     sumOf(PaymentModel, { receivedAt: window }, 'amount'),
     sumOf(CompanyExpenseModel, { paidOn: window, status: 'PAID' }, 'amount'),
+    sumOf(ExpenseClaimModel, { paidOn: window, status: 'PAID' }, CLAIM_PAID_AMOUNT),
   ]);
+  const paidOut = round2(billsPaid + claimsPaid);
   return { collected, paidOut, netCash: round2(collected - paidOut) };
 }
 

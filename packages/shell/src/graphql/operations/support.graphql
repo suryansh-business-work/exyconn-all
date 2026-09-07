@@ -53,3 +53,51 @@ mutation AddSupportReply($ticketId: ID!, $body: String!, $internal: Boolean!) {
     id
   }
 }
+
+fragment SupportConsoleTicketFields on SupportTicket {
+  id
+  employeeId
+  employeeName
+  subject
+  category
+  description
+  priority
+  status
+  assigneeId
+  assigneeName
+  createdAt
+}
+
+query ListSupportTicketsPaged($input: TableQueryInput!) {
+  listSupportTicketsPaged(input: $input) {
+    totalCount
+    rows {
+      ...SupportConsoleTicketFields
+    }
+  }
+}
+
+query ListSupportTicketsStats {
+  listSupportTicketsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation SetSupportTicketTriage($id: ID!, $category: SupportCategory!, $priority: SupportPriority!) {
+  setSupportTicketTriage(id: $id, category: $category, priority: $priority) {
+    id
+    category
+    priority
+  }
+}

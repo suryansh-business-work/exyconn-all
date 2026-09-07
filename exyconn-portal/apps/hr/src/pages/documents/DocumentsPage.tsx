@@ -2,6 +2,7 @@ import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { useEmployeeNames } from '../../hooks/useEmployeeNames';
 import {
   useListEmployeeDocumentsStatsQuery,
   useDeleteEmployeeDocumentMutation,
@@ -20,6 +21,7 @@ export function DocumentsPage() {
   const { data: statsData, refetch: refetchStats } = useListEmployeeDocumentsStatsQuery();
   const [deleteEmployeeDocument] = useDeleteEmployeeDocumentMutation();
   const { formatDate } = useSettings();
+  const nameOf = useEmployeeNames();
 
   const crud = useCrudResource<EmployeeDocumentRow, PagedEmployeeDocumentRow>({
     label: 'EmployeeDocument',
@@ -47,6 +49,7 @@ export function DocumentsPage() {
   const gridContext: EmployeeDocumentGridContext = {
     actions: { edit: crud.openEdit, delete: crud.remove },
     formatDate,
+    nameOf,
   };
 
   return (

@@ -18,14 +18,22 @@ interface CrudDashboardProps<TRow, TPaged> {
   /** Overrides the "New {entityLabel}" header button label. */
   actionLabel?: string;
   stats: StatItem[];
-  crud: CrudResource<TRow, TPaged>;
+  /**
+   * Create/edit/delete state. Omit it for a grid whose rows are made elsewhere — the
+   * support console, say — and there is no "New …" button and no create drawer.
+   */
+  crud?: CrudResource<TRow, TPaged>;
   /** Renders the create/edit form for whichever row the dialog holds. */
-  renderForm: (initial: TRow | null) => ReactNode;
+  renderForm?: (initial: TRow | null) => ReactNode;
+  /** Re-reads the grid when there is no `crud` to carry the signal. */
+  refreshSignal?: number;
   columnDefs: ColDef<TPaged>[];
   fetchRows: (input: TableQueryInput) => Promise<TablePageResult<TPaged>>;
   /** Handed to ag-grid so the shared cells can reach this page's row handlers. */
   context: object;
   searchPlaceholder: string;
+  /** Rendered between the stat tiles and the grid — quick filters, mostly. */
+  toolbar?: ReactNode;
   onRowClick?: (row: TPaged) => void;
   /** Secondary drawers this module opens from a row action (send, details, …). */
   extraDialogs?: ReactNode;
@@ -46,36 +54,44 @@ export function CrudDashboard<TRow, TPaged>({
   stats,
   crud,
   renderForm,
+  refreshSignal,
   columnDefs,
   fetchRows,
   context,
   searchPlaceholder,
+  toolbar,
   onRowClick,
   extraDialogs,
   children,
 }: Readonly<CrudDashboardProps<TRow, TPaged>>) {
-  const dialogTitle = `${crud.editing ? 'Edit' : 'New'} ${entityLabel}`;
+  const dialogTitle = `${crud?.editing ? 'Edit' : 'New'} ${entityLabel}`;
+  const createAction = crud
+    ? { label: actionLabel ?? `New ${entityLabel}`, open: crud.openCreate }
+    : null;
   return (
     <ModuleDashboard
       title={title}
       subtitle={subtitle}
-      actionLabel={actionLabel ?? `New ${entityLabel}`}
-      onAction={crud.openCreate}
+      actionLabel={createAction?.label}
+      onAction={createAction?.open}
       stats={stats}
       dialog={
         <>
-          <CrudDialog open={crud.open} title={dialogTitle} onClose={crud.close}>
-            {renderForm(crud.editing)}
-          </CrudDialog>
+          {crud && renderForm && (
+            <CrudDialog open={crud.open} title={dialogTitle} onClose={crud.close}>
+              {renderForm(crud.editing)}
+            </CrudDialog>
+          )}
           {extraDialogs}
         </>
       }
     >
+      {toolbar}
       <ServerDataGrid<TPaged>
         columnDefs={columnDefs}
         fetchRows={fetchRows}
         context={context}
-        refreshSignal={crud.refreshSignal}
+        refreshSignal={crud?.refreshSignal ?? refreshSignal}
         onRowClick={onRowClick}
         searchPlaceholder={searchPlaceholder}
       />

@@ -305,7 +305,21 @@ query MyExitRecord {
     stage
     assetsReturned
     knowledgeTransferDone
+    exitInterviewNotes
+    finalSettlementAmount
     documentsIssued
     daysToLastWorkingDay
+  }
+}
+
+query ExitRecordHeldAssets($id: ID!) {
+  getExitRecord(id: $id) {
+    id
+    heldAssets {
+      id
+      assetTag
+      name
+      status
+    }
   }
 }

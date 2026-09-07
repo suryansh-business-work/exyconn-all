@@ -150,6 +150,41 @@ const TEMPLATES = [
         <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Contract</mj-text>
         <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{contractTitle}}</mj-text>`),
   },
+  {
+    key: 'support-reply',
+    name: 'Support reply — your ticket has an answer',
+    description:
+      'Sent to the employee who raised a support ticket when the team replies. Internal notes never trigger it.',
+    subject: 'Reply on your support ticket: {{ticketSubject}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Your ticket has a reply</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{employeeName}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Support has replied on <strong>{{ticketSubject}}</strong>:
+        </mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="15px" color="#0b0a12" line-height="24px">{{replyBody}}</mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{link}}" padding="24px 0 8px">Open my tickets</mj-button>`),
+  },
+  {
+    key: 'invoice-sent',
+    name: 'Invoice sent to client',
+    description:
+      'Sent to a client when Finance sends an invoice out. The PDF is attached automatically.',
+    subject: 'Invoice {{invoiceNumber}} from {{companyName}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Invoice {{invoiceNumber}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{clientName}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">{{message}}</mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Total</mj-text>
+        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{total}}</mj-text>
+        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Balance due</mj-text>
+        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{balanceDue}}</mj-text>
+        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Due by</mj-text>
+        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{dueDate}}</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          The invoice is attached to this email as a PDF. Reply to this email with any questions.
+        </mj-text>`),
+  },
 ];
 
 /**

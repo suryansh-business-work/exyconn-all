@@ -16,13 +16,14 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { useAuth } from '@/auth/AuthContext';
 import { useColorMode } from '@/theme/ColorModeContext';
 import { TopbarSearch } from './TopbarSearch';
+import { NotificationBell } from './NotificationBell';
 
 interface TopbarProps {
   drawerWidth: number;
   onMenuClick: () => void;
 }
 
-/** Top app bar with global search and the user account menu. */
+/** Top app bar with global search, the notification bell and the user account menu. */
 export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
   const { user, signOut } = useAuth();
   const { mode, toggle } = useColorMode();
@@ -68,6 +69,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
             {user?.roles.join(', ')}
           </Typography>
         </Box>
+        <NotificationBell />
         <IconButton onClick={toggle} aria-label="toggle color mode" sx={{ mr: 0.5 }}>
           {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
         </IconButton>

@@ -1,15 +1,16 @@
-import { Box, Button, Flex, Text } from '@exyconn/shell/components/ui';
-import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
-import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { Box, Button, Flex, Text } from '@/components/ui';
+import { DataTable, type Column } from '@/components/data/DataTable';
+import { StatusChip } from '@/components/data/StatusChip';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { glass } from '@/components/glass/glass';
+import { useSettings } from '@/hooks/useSettings';
+import { useNotify } from '@/components/feedback/NotificationProvider';
 import {
+  MyUnreadNotificationCountDocument,
   useMyNotificationsQuery,
   useMarkNotificationReadMutation,
   useMarkAllNotificationsReadMutation,
-} from '@exyconn/shell/graphql/generated';
+} from '@/graphql/generated';
 
 type Row = {
   id: string;
@@ -20,11 +21,14 @@ type Row = {
   createdAt: string;
 };
 
-/** Employee self-service: the notification centre. */
+/** Marking anything read must also update the topbar bell, which watches the unread count. */
+const REFRESH_UNREAD = { refetchQueries: [MyUnreadNotificationCountDocument] };
+
+/** The signed-in user's notification centre, shared by every portal. */
 export function NotificationsPage() {
   const { data, loading, refetch } = useMyNotificationsQuery({ fetchPolicy: 'cache-and-network' });
-  const [markRead] = useMarkNotificationReadMutation();
-  const [markAllRead] = useMarkAllNotificationsReadMutation();
+  const [markRead] = useMarkNotificationReadMutation(REFRESH_UNREAD);
+  const [markAllRead] = useMarkAllNotificationsReadMutation(REFRESH_UNREAD);
   const { formatDate } = useSettings();
   const notify = useNotify();
   const rows = (data?.myNotifications ?? []) as Row[];

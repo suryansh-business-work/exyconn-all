@@ -66,8 +66,8 @@ mutation DeleteCampaign($id: ID!) {
   deleteCampaign(id: $id)
 }
 
-mutation SendCampaign($id: ID!, $audienceListId: ID!) {
-  sendCampaign(id: $id, audienceListId: $audienceListId) {
+mutation SendCampaign($id: ID!, $audienceListId: ID, $testEmail: String) {
+  sendCampaign(id: $id, audienceListId: $audienceListId, testEmail: $testEmail) {
     sent
     failed
     campaign {

@@ -4,6 +4,7 @@ import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
 import { AdminPage } from './pages/admin';
 import { BrandingPage } from './pages/branding';
+import { AppSettingsPage } from './pages/app-settings';
 import { ClientsPage } from './pages/clients';
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
 import { PermissionsPage } from './pages/permissions';
@@ -14,6 +15,7 @@ export function App() {
     <PortalApp loginElement={<Login />} moduleRole={ROLES.ADMIN} homePath="/admin">
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/admin/branding/:tab?" element={<BrandingPage />} />
+      <Route path="/admin/settings" element={<AppSettingsPage />} />
       <Route path="/admin/permissions/:tab?" element={<PermissionsPage />} />
       <Route path="/admin/users/:id" element={<UserDetailsPage />} />
       <Route path="/clients" element={<ClientsPage />} />

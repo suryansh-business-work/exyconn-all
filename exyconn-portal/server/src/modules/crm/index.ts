@@ -11,6 +11,7 @@ interface LeadInput {
   stage: string;
   value: number;
   owner: string;
+  notes?: string;
 }
 
 export const crmService = createCrudService<LeadInput>(LeadModel as never, 'Lead');

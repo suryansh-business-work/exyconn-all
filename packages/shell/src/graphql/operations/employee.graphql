@@ -69,3 +69,20 @@ mutation CreateSupportTicket($input: SupportTicketInput!) {
     id
   }
 }
+
+query MySupportReplies($ticketId: ID!) {
+  mySupportReplies(ticketId: $ticketId) {
+    id
+    ticketId
+    authorId
+    authorName
+    body
+    createdAt
+  }
+}
+
+mutation AddMySupportReply($ticketId: ID!, $body: String!) {
+  addMySupportReply(ticketId: $ticketId, body: $body) {
+    id
+  }
+}

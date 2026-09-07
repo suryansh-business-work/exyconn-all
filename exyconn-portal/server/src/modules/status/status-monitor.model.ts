@@ -24,6 +24,8 @@ const statusMonitorSchema = new Schema(
     lastResponseMs: { type: Number, required: true, default: 0 },
     lastHttpStatus: { type: Number, required: true, default: 0 },
     lastError: { type: String, default: '', trim: true },
+    /** Failed probes in a row; an incident opens once this reaches the configured threshold. */
+    consecutiveFailures: { type: Number, required: true, default: 0 },
   },
   { timestamps: true },
 );

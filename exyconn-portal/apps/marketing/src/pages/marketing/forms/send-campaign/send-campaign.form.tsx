@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Alert, Text } from '@exyconn/shell/components/ui';
-import { RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import { Alert, Button, Stack, Text } from '@exyconn/shell/components/ui';
+import { RhfSelect, RhfTextField, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -14,6 +15,7 @@ import type { SendCampaignTarget } from './send-campaign.types';
 
 const schema = z.object({
   audienceListId: z.string().min(1, 'Choose the audience to send to'),
+  testEmail: z.string().trim().email('Enter a valid email').or(z.literal('')),
 });
 type Values = z.infer<typeof schema>;
 
@@ -26,15 +28,17 @@ interface SendCampaignFormProps {
 /**
  * Emails a campaign's subject/body to a saved audience via the active SMTP config.
  * Recipients come from an audience rather than a hand-picked list so the same send can
- * be repeated, and so who was written to is answerable afterwards.
+ * be repeated, and so who was written to is answerable afterwards. A test send goes to
+ * one address first, so the blast is never the first time anyone sees the email.
  */
 export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCampaignFormProps>) {
   const notify = useNotify();
   const { data } = useListAudienceListsQuery();
   const [sendCampaign] = useSendCampaignMutation();
+  const [testing, setTesting] = useState(false);
   const methods = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: { audienceListId: '' },
+    defaultValues: { audienceListId: '', testEmail: '' },
   });
 
   const options: SelectOption[] = (data?.listAudienceLists ?? []).map((audience) => ({
@@ -57,6 +61,27 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
     }
   };
 
+  const sendTest = async () => {
+    const valid = await methods.trigger('testEmail');
+    const testEmail = methods.getValues('testEmail').trim();
+    if (!valid) {
+      return;
+    }
+    if (!testEmail) {
+      methods.setError('testEmail', { message: 'Enter the address to send the test to' });
+      return;
+    }
+    setTesting(true);
+    try {
+      await sendCampaign({ variables: { id: campaign.id, testEmail } });
+      notify(`Test email sent to ${testEmail}`);
+    } catch (err) {
+      notify(errorMessage(err, 'Test send failed'), 'error');
+    } finally {
+      setTesting(false);
+    }
+  };
+
   return (
     <EntityForm
       methods={methods}
@@ -73,6 +98,17 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
           Add an email subject and body to this campaign before sending.
         </Alert>
       )}
+      <Stack direction="row" spacing={1} alignItems="flex-start">
+        <RhfTextField
+          name="testEmail"
+          label="Test address"
+          type="email"
+          helperText="Preview the email in one inbox before it goes to the audience."
+        />
+        <Button variant="outlined" onClick={sendTest} disabled={!ready || testing} sx={{ mt: 1 }}>
+          Send test
+        </Button>
+      </Stack>
       <RhfSelect
         name="audienceListId"
         label="Audience"

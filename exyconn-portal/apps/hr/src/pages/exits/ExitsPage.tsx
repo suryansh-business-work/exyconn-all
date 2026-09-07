@@ -2,6 +2,7 @@ import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { useEmployeeNames } from '../../hooks/useEmployeeNames';
 import {
   useListExitRecordsStatsQuery,
   useDeleteExitRecordMutation,
@@ -9,6 +10,7 @@ import {
   type ListExitRecordsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { ExitRecordForm, type ExitRecordRow } from './forms/exit-record';
+import { HeldAssetsPanel } from './HeldAssetsPanel';
 import {
   EXIT_RECORD_COLUMNS,
   type PagedExitRecordRow,
@@ -20,6 +22,7 @@ export function ExitsPage() {
   const { data: statsData, refetch: refetchStats } = useListExitRecordsStatsQuery();
   const [deleteExitRecord] = useDeleteExitRecordMutation();
   const { formatDate } = useSettings();
+  const nameOf = useEmployeeNames();
 
   const crud = useCrudResource<ExitRecordRow, PagedExitRecordRow>({
     label: 'ExitRecord',
@@ -51,6 +54,7 @@ export function ExitsPage() {
   const gridContext: ExitRecordGridContext = {
     actions: { edit: crud.openEdit, delete: crud.remove },
     formatDate,
+    nameOf,
   };
 
   return (
@@ -61,7 +65,12 @@ export function ExitsPage() {
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (
-        <ExitRecordForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+        <>
+          {initial && (
+            <HeldAssetsPanel exitId={initial.id} assetsReturned={initial.assetsReturned} />
+          )}
+          <ExitRecordForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+        </>
       )}
       columnDefs={EXIT_RECORD_COLUMNS}
       fetchRows={fetchRows}

@@ -19,6 +19,8 @@ export const expensesTypeDefs = gql`
     receiptUrl: String
     status: ExpenseStatus!
     approvedAmount: Float
+    "When the reimbursement was paid out. Cash flow is measured on this date. Null until paid."
+    paidOn: DateTime
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -66,5 +68,10 @@ export const expensesTypeDefs = gql`
     and the approved amount stays finance's to set.
     """
     createMyExpenseClaim(input: MyExpenseClaimInput!): ExpenseClaim!
+    """
+    Finance's decision on a claim. APPROVED takes an approved amount (defaults to the claim);
+    PAID stamps paidOn, the date the reimbursement reaches the cash figures.
+    """
+    setExpenseClaimStatus(id: ID!, status: ExpenseStatus!, approvedAmount: Float): ExpenseClaim!
   }
 `;

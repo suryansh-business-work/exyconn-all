@@ -17,6 +17,13 @@ export const projectsTypeDefs = gql`
     status: ProjectStatus!
     startDate: DateTime
     endDate: DateTime
+    clientId: String
+    "The client's name at the time it was picked, so the grid never joins to read it."
+    clientName: String!
+    "Agreed budget in money. Null when none was set."
+    budgetAmount: Float
+    "Agreed budget in hours. Null when none was set."
+    budgetHours: Float
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -27,6 +34,9 @@ export const projectsTypeDefs = gql`
     status: ProjectStatus!
     startDate: DateTime
     endDate: DateTime
+    clientId: String
+    budgetAmount: Float
+    budgetHours: Float
   }
 
   type ProjectPage {

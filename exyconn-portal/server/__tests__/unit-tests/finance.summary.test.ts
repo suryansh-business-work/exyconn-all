@@ -44,6 +44,18 @@ function seedBill(amount: number, incurredOn: string, extra: Record<string, unkn
   });
 }
 
+function seedClaim(amount: number, incurredOn: string, extra: Record<string, unknown> = {}) {
+  return ExpenseClaimModel.create({
+    employeeId: 'emp-1',
+    category: 'Travel',
+    description: 'Client visit',
+    amount,
+    currency: 'INR',
+    incurredOn: day(incurredOn),
+    ...extra,
+  });
+}
+
 describe('month bucketing', () => {
   it('keys a date by its UTC month', () => {
     expect(monthKey(day('2026-09-04'))).toBe('2026-09');
@@ -177,6 +189,30 @@ describe('companyFinance — cash', () => {
       paidOut: 20_000,
       netCash: 30_000,
     });
+  });
+
+  it('counts a reimbursement in the month it was paid out, at the amount that was cleared', async () => {
+    // August claim, cleared for less than was asked, paid in September: September cash.
+    await seedClaim(3_000, '2026-08-25', {
+      status: 'PAID',
+      approvedAmount: 2_500,
+      paidOn: day('2026-09-06'),
+    });
+    await seedBill(20_000, '2026-09-02', { status: 'PAID', paidOn: day('2026-09-20') });
+
+    await expect(summary()).resolves.toMatchObject({ paidOut: 22_500, netCash: -22_500 });
+  });
+
+  it('pays a claim in full when no approved amount was ever set', async () => {
+    await seedClaim(1_200, '2026-09-01', { status: 'PAID', paidOn: day('2026-09-10') });
+
+    await expect(summary()).resolves.toMatchObject({ paidOut: 1_200 });
+  });
+
+  it('keeps an approved-but-unpaid claim out of cash, though it is already a cost', async () => {
+    await seedClaim(3_000, '2026-09-12', { status: 'APPROVED' });
+
+    await expect(summary()).resolves.toMatchObject({ reimbursements: 3_000, paidOut: 0 });
   });
 });
 

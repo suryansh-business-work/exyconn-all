@@ -1,4 +1,8 @@
-import { productsInventoryResolvers, suppliersService } from '../../src/modules/products';
+import {
+  productsInventoryResolvers,
+  productsResolvers,
+  suppliersService,
+} from '../../src/modules/products';
 import { ProductModel } from '../../src/modules/products/products.model';
 import { StockMovementModel } from '../../src/modules/products/stock-movement.model';
 import { SupplierModel } from '../../src/modules/products/supplier.model';
@@ -25,6 +29,34 @@ const seedProduct = (stock: number) =>
 describe('Stock movements', () => {
   beforeAll(async () => {
     await SupplierModel.init();
+  });
+
+  it('lists one product\'s history through the productId filter', async () => {
+    const lamp = await seedProduct(10);
+    const chair = await ProductModel.create({
+      name: 'Chair',
+      sku: 'CHAIR-1',
+      price: 3000,
+      category: 'Office',
+      stock: 2,
+    });
+    await record({ productId: String(lamp._id), reason: 'RECEIPT', quantity: 1 });
+    await record({ productId: String(chair._id), reason: 'RECEIPT', quantity: 1 });
+
+    const page = (await productsInventoryResolvers.Query.listStockMovementsPaged(
+      null,
+      {
+        input: {
+          page: 0,
+          pageSize: 20,
+          filters: [{ field: 'productId', op: 'EQUALS', value: String(lamp._id) }],
+        },
+      },
+      asProducts,
+    )) as unknown as { rows: Array<{ productName: string }>; totalCount: number };
+
+    expect(page.totalCount).toBe(1);
+    expect(page.rows[0].productName).toBe('Desk lamp');
   });
 
   it('adds to the level on a receipt and records what it became', async () => {
@@ -100,5 +132,74 @@ describe('Stock movements', () => {
     await expect(
       suppliersService.create({ name: 'Acme Trading', code: 'ACME-01', status: 'ACTIVE' }),
     ).rejects.toThrow();
+  });
+});
+
+describe('Product catalogue', () => {
+  beforeAll(async () => {
+    await ProductModel.init();
+  });
+
+  const create = (input: Record<string, unknown>) =>
+    productsResolvers.Mutation.createProduct(null, { input } as never, asProducts);
+
+  const base = { name: 'Desk lamp', sku: 'LAMP-1', price: 1200, category: 'Office', status: 'ACTIVE' };
+
+  it('refuses a second product on the same SKU with a readable message', async () => {
+    await create({ ...base, stock: 1 });
+
+    await expect(create({ ...base, name: 'Other lamp' })).rejects.toThrow('LAMP-1');
+  });
+
+  it('takes opening stock on create and defaults the reorder level', async () => {
+    const product = (await create({ ...base, stock: 4 })) as { stock: number; reorderLevel: number };
+
+    expect(product.stock).toBe(4);
+    expect(product.reorderLevel).toBe(5);
+  });
+
+  it('ignores stock on update so the ledger stays the only way to move it', async () => {
+    const product = (await create({ ...base, stock: 4 })) as { id: string };
+
+    const updated = (await productsResolvers.Mutation.updateProduct(
+      null,
+      { id: product.id, input: { ...base, stock: 99, reorderLevel: 2 } } as never,
+      asProducts,
+    )) as { stock: number; reorderLevel: number };
+
+    expect(updated.stock).toBe(4);
+    expect(updated.reorderLevel).toBe(2);
+  });
+
+  it('values the inventory as price times stock over active products only', async () => {
+    await create({ ...base, stock: 2 });
+    await create({ ...base, sku: 'LAMP-2', price: 100, stock: 3, status: 'DRAFT' });
+
+    const value = await productsResolvers.Query.inventoryValue(null, {}, asProducts);
+
+    expect(value).toBe(2400);
+  });
+
+  it('counts products by category for the overview', async () => {
+    await create({ ...base, stock: 1 });
+    await create({ ...base, sku: 'PEN-1', category: 'Stationery', stock: 1 });
+
+    const listStats = (
+      productsResolvers.Query as unknown as Record<
+        string,
+        (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>
+      >
+    ).listProductsStats;
+    const stats = (await listStats(null, {}, asProducts)) as {
+      counts: Array<{ field: string; buckets: Array<{ value: string; count: number }> }>;
+    };
+
+    const categories = stats.counts.find((c) => c.field === 'category')?.buckets ?? [];
+    expect(categories).toEqual(
+      expect.arrayContaining([
+        { value: 'Office', count: 1 },
+        { value: 'Stationery', count: 1 },
+      ]),
+    );
   });
 });

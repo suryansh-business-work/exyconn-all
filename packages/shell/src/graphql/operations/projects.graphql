@@ -1,12 +1,20 @@
+fragment ProjectFields on Project {
+  id
+  name
+  key
+  description
+  status
+  startDate
+  endDate
+  clientId
+  clientName
+  budgetAmount
+  budgetHours
+}
+
 query ListProjects {
   listProjects {
-    id
-    name
-    key
-    description
-    status
-    startDate
-    endDate
+    ...ProjectFields
   }
 }
 
@@ -14,13 +22,7 @@ query ListProjectsPaged($input: TableQueryInput!) {
   listProjectsPaged(input: $input) {
     totalCount
     rows {
-      id
-      name
-      key
-      description
-      status
-      startDate
-      endDate
+      ...ProjectFields
     }
   }
 }
