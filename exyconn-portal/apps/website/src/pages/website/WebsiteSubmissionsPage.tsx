@@ -18,12 +18,15 @@ import {
 import { SubmissionTriageForm, type WebsiteSubmissionRow } from './forms/submission-triage';
 import { SubmissionPayload } from './SubmissionPayload';
 
-/** Whether the enquiry has already been handed to sales. */
+/** Where the enquiry went: to sales as a lead, or to HR as an applicant. */
 function LeadCell({ row }: Readonly<{ row: WebsiteSubmissionRow }>) {
-  if (!row.leadId) {
-    return <>—</>;
+  if (row.leadId) {
+    return <Chip size="small" color="success" variant="outlined" label="Lead" />;
   }
-  return <Chip size="small" color="success" variant="outlined" label="Lead" />;
+  if (row.applicantId) {
+    return <Chip size="small" color="info" variant="outlined" label="Applicant" />;
+  }
+  return <>—</>;
 }
 
 /** Website module — inbox for forms submitted on exyconn.com. Triage, or hand off to the CRM. */
@@ -72,7 +75,7 @@ export function WebsiteSubmissionsPage() {
     { key: 'formType', label: 'Form' },
     { key: 'source', label: 'Source' },
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
-    { key: 'leadId', label: 'Lead', render: (r) => <LeadCell row={r} /> },
+    { key: 'leadId', label: 'Filed as', render: (r) => <LeadCell row={r} /> },
     { key: 'createdAt', label: 'Received', render: (r) => formatDate(r.createdAt) },
   ];
 

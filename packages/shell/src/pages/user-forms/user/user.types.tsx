@@ -18,6 +18,8 @@ export interface UserFormValues {
   address: string;
   brief: string;
   department: string;
+  /** The user this person reports to; '' when nobody is set. */
+  managerId: string;
   designation: string;
   joinDate: string;
   dateOfBirth: string;

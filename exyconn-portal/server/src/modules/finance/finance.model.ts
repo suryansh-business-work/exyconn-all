@@ -19,6 +19,8 @@ const invoiceLineSchema = new Schema(
     quantity: { type: Number, required: true, min: 0 },
     rate: { type: Number, required: true, min: 0 },
     taxPercent: { type: Number, required: true, min: 0, default: 0 },
+    /** HSN (goods) or SAC (services) code, printed per line on a GST invoice. */
+    hsnSac: { type: String, default: '', trim: true },
   },
   { _id: false },
 );
@@ -43,6 +45,19 @@ const invoiceSchema = new Schema(
     dueDate: { type: Date, required: true },
     /** When the invoice was last emailed to the client. Null until `sendInvoice`. */
     sentAt: { type: Date, default: null },
+    /** The won deal this invoice bills, so the same deal is never invoiced twice. */
+    dealId: { type: String, default: '', trim: true },
+    /** Two-digit GST state code of the client's place of supply. */
+    placeOfSupplyStateCode: { type: String, default: '', trim: true },
+    /**
+     * Our GST state code at the time of writing, copied from Branding. Stored, not joined,
+     * so the tax split an issued invoice shows cannot change if the business later moves.
+     */
+    supplierStateCode: { type: String, default: '', trim: true },
+    /** Set when the invoice was raised from a project's time log — see invoice.from-timelog.ts. */
+    projectId: { type: String, default: null, trim: true },
+    periodFrom: { type: Date, default: null },
+    periodTo: { type: Date, default: null },
   },
   { timestamps: true },
 );

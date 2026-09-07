@@ -1,2 +1,9 @@
 export { StatusPage } from './StatusPage';
-export type { StatusOverview, StatusService, StatusDay, StatusIncident } from './status.types';
+export type {
+  StatusOverview,
+  StatusService,
+  StatusDay,
+  StatusIncident,
+  StatusIncidentUpdate,
+  StatusMaintenance,
+} from './status.types';

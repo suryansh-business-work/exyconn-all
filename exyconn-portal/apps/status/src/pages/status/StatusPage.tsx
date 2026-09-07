@@ -7,7 +7,8 @@ import { StatusStats } from './StatusStats';
 import { StatusCharts } from './StatusCharts';
 import { ServiceGroup } from './ServiceGroup';
 import { IncidentList } from './IncidentList';
-import type { StatusService } from './status.types';
+import { MaintenanceNotice } from './MaintenanceNotice';
+import type { StatusMaintenance, StatusService } from './status.types';
 
 /** Groups the flat service list into the page's sections, dropping empty categories. */
 function groupByCategory(services: StatusService[]) {
@@ -15,6 +16,15 @@ function groupByCategory(services: StatusService[]) {
     category,
     services: services.filter((service) => service.category === category),
   })).filter((group) => group.services.length > 0);
+}
+
+/** Every service key a window that has already started covers. */
+function liveMaintenanceKeys(maintenance: StatusMaintenance[]): ReadonlySet<string> {
+  return new Set(
+    maintenance
+      .filter((window) => window.inProgress)
+      .flatMap((window) => window.affectedServiceKeys),
+  );
 }
 
 /**
@@ -40,10 +50,12 @@ export function StatusPage() {
   }
 
   const overview = data.statusOverview;
+  const maintenanceKeys = liveMaintenanceKeys(overview.maintenance);
 
   return (
     <Flex direction="column" spacing={4}>
       <OverallBanner overview={overview} />
+      <MaintenanceNotice maintenance={overview.maintenance} services={overview.services} />
       <StatusStats overview={overview} />
       <StatusCharts daily={overview.daily} />
 
@@ -56,6 +68,7 @@ export function StatusPage() {
             key={group.category}
             title={CATEGORY_LABELS[group.category]}
             services={group.services}
+            maintenanceKeys={maintenanceKeys}
           />
         ))}
       </Box>

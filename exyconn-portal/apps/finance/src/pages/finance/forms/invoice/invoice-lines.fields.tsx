@@ -6,7 +6,13 @@ import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { lineAmount, linesTotal, type InvoiceLineValues } from './invoice.types';
 
-const EMPTY_LINE: InvoiceLineValues = { description: '', quantity: 1, rate: 0, taxPercent: 0 };
+const EMPTY_LINE: InvoiceLineValues = {
+  description: '',
+  quantity: 1,
+  rate: 0,
+  taxPercent: 0,
+  hsnSac: '',
+};
 
 /** The lines as they are being typed: numbers may still be strings until Zod coerces them. */
 type DraftLine = { [K in keyof InvoiceLineValues]: InvoiceLineValues[K] | string };
@@ -16,6 +22,7 @@ const toLine = (draft: DraftLine): InvoiceLineValues => ({
   quantity: Number(draft.quantity) || 0,
   rate: Number(draft.rate) || 0,
   taxPercent: Number(draft.taxPercent) || 0,
+  hsnSac: String(draft.hsnSac ?? ''),
 });
 
 interface LineRowProps {
@@ -29,6 +36,12 @@ function LineRow({ index, amount, onRemove }: Readonly<LineRowProps>) {
   return (
     <Flex direction="row" spacing={1} alignItems="flex-start">
       <RhfTextField name={`lines.${index}.description`} label="Description" size="small" />
+      <RhfTextField
+        name={`lines.${index}.hsnSac`}
+        label="HSN/SAC"
+        size="small"
+        sx={{ maxWidth: 100 }}
+      />
       <RhfTextField
         name={`lines.${index}.quantity`}
         label="Qty"

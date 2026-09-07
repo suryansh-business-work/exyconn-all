@@ -1,20 +1,43 @@
-import { UserModel } from '../admin/user.model';
-import { SalaryStructureModel } from '../employee/salary.model';
-import { DEFAULT_CURRENCY, DEFAULT_PAY_TYPE } from '../../constants/pay';
-import { TrackerIntervalModel } from './models';
+import { isValidObjectId } from 'mongoose';
+import { DEFAULT_CURRENCY } from '../../constants/pay';
+import { ProjectModel } from '../projects/projects.model';
+import { TrackerIntervalModel, TrackerManualEntryModel, TrackerSessionModel } from './models';
+import { employeeRates, priceTime, round } from './tracker.billing.pricing';
 import { trackerManualService } from './tracker.manual.service';
 
-const MS_PER_HOUR = 3_600_000;
-
-/** Money is rounded to two places once, at the end — never accumulated pre-rounded. */
-function round(value: number): number {
-  return Math.round(value * 100) / 100;
+/** One employee's priced time on one project. */
+export interface ProjectBillingEmployee {
+  employeeId: string;
+  employeeName: string;
+  hours: number;
+  /** Per hour, from HR. Zero means nobody priced the work, not that it was free. */
+  rate: number;
+  amount: number;
 }
 
-/** Hours, to two places, from the milliseconds every tracker total is kept in. */
-function hoursOf(activeMs: number): number {
-  return round(activeMs / MS_PER_HOUR);
+/** A project's priced time over a range, and what was agreed for it. */
+export interface ProjectBillingRow {
+  projectId: string;
+  projectName: string;
+  clientId: string | null;
+  clientName: string;
+  currency: string;
+  employees: ProjectBillingEmployee[];
+  hours: number;
+  amount: number;
+  budgetHours: number | null;
+  budgetAmount: number | null;
 }
+
+/** Billable milliseconds per employee, gathered under the project they were booked to. */
+interface ProjectGroup {
+  projectId: string;
+  projectName: string;
+  byUser: Map<string, number>;
+}
+
+/** Label for time booked before every session carried a project. */
+const NO_PROJECT = 'No project';
 
 /**
  * Billing for tracked time.
@@ -62,39 +85,23 @@ class TrackerBillingService {
       return { from, to, rows: [], totalHours: 0, totalAmount: 0, currency: DEFAULT_CURRENCY };
     }
 
-    const userIds = worked.map((row) => row._id);
-    const [users, structures] = await Promise.all([
-      UserModel.find({ _id: { $in: userIds } })
-        .select('name email')
-        .lean(),
-      SalaryStructureModel.find({ employeeId: { $in: userIds } }).lean(),
-    ]);
-
-    const byUser = new Map(users.map((user) => [String(user._id), user]));
-    const byEmployee = new Map(structures.map((structure) => [structure.employeeId, structure]));
+    const rates = await employeeRates(worked.map((row) => row._id));
 
     const rows = worked.map((entry) => {
-      const user = byUser.get(entry._id);
-      const structure = byEmployee.get(entry._id);
-      const billingRate = structure?.billingRate ?? 0;
-      const hours = hoursOf(entry.activeMs);
+      const employee = rates.get(entry._id);
+      const billingRate = employee?.billingRate ?? 0;
       return {
         id: entry._id,
-        // An account deleted since the time was tracked still has hours on the books, and a
-        // report that silently dropped them would understate the total.
-        name: user?.name ?? 'Deleted employee',
-        email: user?.email ?? '',
-        payType: structure?.payType ?? DEFAULT_PAY_TYPE,
-        currency: structure?.currency ?? DEFAULT_CURRENCY,
+        name: employee?.name ?? '',
+        email: employee?.email ?? '',
+        payType: employee?.payType ?? '',
+        currency: employee?.currency ?? DEFAULT_CURRENCY,
         billingRate,
         // `activeMs` here is billable time: measured active time plus approved off-computer
         // time. `manualMs` says how much of it was claimed rather than measured.
         activeMs: entry.activeMs,
         manualMs: entry.manualMs,
-        hours,
-        amount: round(hours * billingRate),
-        // Says out loud why an amount is zero, so nobody reads a missing rate as free work.
-        rated: billingRate > 0,
+        ...priceTime(entry.activeMs, billingRate),
       };
     });
 
@@ -108,6 +115,107 @@ class TrackerBillingService {
       // workspace's own problem; the total is only meaningful when they agree.
       currency: rows[0]?.currency ?? DEFAULT_CURRENCY,
     };
+  }
+
+  /**
+   * The same billable time, grouped by the project it was booked to and then by employee.
+   *
+   * Intervals carry the time and sessions carry the project, so the range clips intervals
+   * (as the per-employee report does) and each session's total is filed under its project.
+   * Approved off-computer time carries its own project. Pass `projectId` for one project.
+   */
+  async billingByProject(
+    from: Date,
+    to: Date,
+    projectId?: string | null,
+  ): Promise<ProjectBillingRow[]> {
+    const tracked = await TrackerIntervalModel.aggregate<{ _id: string; activeMs: number }>([
+      { $match: { startedAt: { $gte: from, $lt: to } } },
+      { $group: { _id: '$sessionId', activeMs: { $sum: '$activeMs' } } },
+    ]);
+    const msOfSession = new Map(tracked.map((row) => [row._id, row.activeMs]));
+
+    const sessionFilter: Record<string, unknown> = {
+      _id: { $in: [...msOfSession.keys()].filter((id) => isValidObjectId(id)) },
+    };
+    const manualFilter: Record<string, unknown> = {
+      status: 'APPROVED',
+      startedAt: { $gte: from, $lt: to },
+    };
+    if (projectId) {
+      sessionFilter.projectId = projectId;
+      manualFilter.projectId = projectId;
+    }
+    const [sessions, manual] = await Promise.all([
+      TrackerSessionModel.find(sessionFilter).select('userId projectId projectName').lean(),
+      TrackerManualEntryModel.find(manualFilter)
+        .select('userId projectId projectName durationMs')
+        .lean(),
+    ]);
+
+    const groups = new Map<string, ProjectGroup>();
+    const book = (project: string, projectName: string, userId: string, ms: number) => {
+      if (ms <= 0) {
+        return;
+      }
+      const group = groups.get(project) ?? { projectId: project, projectName, byUser: new Map() };
+      group.byUser.set(userId, (group.byUser.get(userId) ?? 0) + ms);
+      groups.set(project, group);
+    };
+    for (const session of sessions) {
+      const ms = msOfSession.get(String(session._id)) ?? 0;
+      book(session.projectId ?? '', session.projectName ?? '', session.userId, ms);
+    }
+    for (const entry of manual) {
+      book(entry.projectId ?? '', entry.projectName ?? '', entry.userId, entry.durationMs);
+    }
+    if (groups.size === 0) {
+      return [];
+    }
+
+    const userIds = [...new Set([...groups.values()].flatMap((g) => [...g.byUser.keys()]))];
+    const projectIds = [...groups.keys()].filter((id) => isValidObjectId(id));
+    const [rates, projects] = await Promise.all([
+      employeeRates(userIds),
+      ProjectModel.find({ _id: { $in: projectIds } })
+        .select('name clientId clientName budgetAmount budgetHours')
+        .lean(),
+    ]);
+    const projectOf = new Map(projects.map((project) => [String(project._id), project]));
+
+    return [...groups.values()]
+      .map((group) => {
+        const project = projectOf.get(group.projectId);
+        const employees = [...group.byUser.entries()]
+          .map(([employeeId, ms]) => {
+            const employee = rates.get(employeeId);
+            const rate = employee?.billingRate ?? 0;
+            const priced = priceTime(ms, rate);
+            return {
+              employeeId,
+              employeeName: employee?.name ?? '',
+              hours: priced.hours,
+              rate,
+              amount: priced.amount,
+            };
+          })
+          .sort((a, b) => b.hours - a.hours);
+        return {
+          projectId: group.projectId,
+          // The live name when the project still exists; the name the session recorded when
+          // it does not — and a plain label for time booked before projects existed.
+          projectName: project?.name ?? (group.projectName || NO_PROJECT),
+          clientId: project?.clientId ?? null,
+          clientName: project?.clientName ?? '',
+          currency: rates.get(employees[0]?.employeeId ?? '')?.currency ?? DEFAULT_CURRENCY,
+          employees,
+          hours: round(employees.reduce((sum, row) => sum + row.hours, 0)),
+          amount: round(employees.reduce((sum, row) => sum + row.amount, 0)),
+          budgetHours: project?.budgetHours ?? null,
+          budgetAmount: project?.budgetAmount ?? null,
+        };
+      })
+      .sort((a, b) => b.amount - a.amount || b.hours - a.hours);
   }
 }
 

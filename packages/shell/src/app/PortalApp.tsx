@@ -14,6 +14,12 @@ import { ProfilePage } from '@/pages/Profile';
 import { SettingsPage } from '@/pages/Settings';
 import { NotificationsPage } from '@/pages/Notifications';
 
+/**
+ * Where a password reset email sends people. Public, like /login, and served by the same
+ * login element so every portal gets it without wiring a second screen.
+ */
+export const RESET_PASSWORD_PATH = '/reset-password';
+
 interface PortalAppProps {
   /** Login screen. Injected so the shell never has to depend on the login package. */
   loginElement: ReactNode;
@@ -46,6 +52,7 @@ export function PortalApp({
                 <AuthProvider>
                   <Routes>
                     <Route path="/login" element={loginElement} />
+                    <Route path={RESET_PASSWORD_PATH} element={loginElement} />
                     <Route
                       element={
                         <ProtectedRoute requiredRole={moduleRole}>

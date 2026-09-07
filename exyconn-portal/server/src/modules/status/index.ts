@@ -4,3 +4,6 @@ export { ensureStatusMonitors } from './status.seed';
 export { startStatusMonitor, runStatusChecks, probe, dayKey } from './status.monitor';
 export { getStatusOverview, dayKeysBack } from './status.service';
 export { submitProblemReport } from './problem-report.service';
+export { problemReportStatus, notifyReporterOfStatus } from './problem-report.notify';
+export { createStatusIncident, addStatusIncidentUpdate } from './status.incidents';
+export { StatusMaintenanceModel } from './status-maintenance.model';

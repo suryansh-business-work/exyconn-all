@@ -3,6 +3,7 @@ import { ContactModel } from './contact.model';
 import { CLOSED_DEAL_STAGES, DealModel } from './deal.model';
 import { ActivityModel } from './activity.model';
 import { convertLead } from './crm.convert';
+import { clientForDeal, promoteCompanyToClient } from './crm.promote';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertRole } from '../../middleware/roleGuard';
@@ -124,7 +125,8 @@ const activities = createCrudResolvers(activitiesService, {
 /**
  * Moving a card on the pipeline board. A dedicated mutation rather than a full
  * update, so a drag sends the one field that changed and cannot silently
- * overwrite an edit someone made in the form at the same time.
+ * overwrite an edit someone made in the form at the same time. Dropping a deal on
+ * Won is the moment the account becomes a client.
  */
 const setDealStage = async (
   _p: unknown,
@@ -132,11 +134,31 @@ const setDealStage = async (
   ctx: GraphQLContext,
 ) => {
   assertRole(ctx, crmRoles);
-  const updated = await DealModel.findByIdAndUpdate(id, { stage }, { new: true }).lean();
+  const deal = await DealModel.findById(id).lean();
+  if (!deal) {
+    notFound('Deal');
+  }
+  const clientId = stage === 'WON' ? await clientForDeal(deal) : (deal.clientId ?? '');
+  const updated = await DealModel.findByIdAndUpdate(id, { stage, clientId }, { new: true }).lean();
   if (!updated) {
     notFound('Deal');
   }
-  return withId(updated as { _id: unknown });
+  return withId(updated);
+};
+
+/** The form's save, with the same client hand-off a drag onto Won gets. */
+const updateDeal = async (p: unknown, args: never, ctx: GraphQLContext) => {
+  const { id, input } = args as unknown as { id: string; input: DealInput };
+  if (input.stage !== 'WON') {
+    return deals.Mutation.updateDeal(p, args, ctx);
+  }
+  const deal = await DealModel.findById(id).lean();
+  if (!deal) {
+    notFound('Deal');
+  }
+  const clientId = await clientForDeal({ ...deal, ...input });
+  const completed = { id, input: { ...input, clientId } } as unknown as never;
+  return deals.Mutation.updateDeal(p, completed, ctx);
 };
 
 /**
@@ -165,6 +187,14 @@ const dealForecast = async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
 };
 
 export const crmEntitiesResolvers = {
+  /** Written before the field existed, a `.lean()` row comes back without it. */
+  Company: {
+    clientId: (company: { clientId?: string | null }) => company.clientId ?? '',
+    isClient: (company: { clientId?: string | null }) => Boolean(company.clientId),
+  },
+  Deal: {
+    clientId: (deal: { clientId?: string | null }) => deal.clientId ?? '',
+  },
   Query: {
     dealForecast,
     ...companies.Query,
@@ -177,7 +207,9 @@ export const crmEntitiesResolvers = {
     ...contacts.Mutation,
     ...deals.Mutation,
     ...activities.Mutation,
+    updateDeal,
     setDealStage,
+    promoteCompanyToClient,
     convertLead,
   },
 };

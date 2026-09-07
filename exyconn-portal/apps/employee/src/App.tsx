@@ -22,6 +22,7 @@ import {
   TrainingPage,
   DocumentsPage,
   MyExitPage,
+  MyTeamPage,
 } from './pages/employee';
 import { NotificationsPage } from '@exyconn/shell/pages/Notifications';
 
@@ -30,6 +31,7 @@ export function App() {
   return (
     <PortalApp loginElement={<Login />} moduleRole={ROLES.EMPLOYEE} homePath="/me">
       <Route path="/me" element={<DashboardPage />} />
+      <Route path="/me/team" element={<MyTeamPage />} />
       <Route path="/me/payroll" element={<PayrollPage />} />
       <Route path="/me/salary-slips" element={<SalarySlipsPage />} />
       <Route path="/me/leave" element={<MyLeavePage />} />

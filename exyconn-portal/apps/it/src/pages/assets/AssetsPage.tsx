@@ -55,6 +55,7 @@ export function AssetsPage() {
       title="Assets"
       subtitle="Every device and licence the company owns, and who holds it"
       entityLabel="asset"
+      exportFileName="assets"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (

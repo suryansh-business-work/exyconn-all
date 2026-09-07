@@ -8,4 +8,7 @@ export interface ClientFormValues {
   phone: string;
   company: string;
   status: ClientStatus;
+  gstin: string;
+  stateCode: string;
+  billingAddress: string;
 }

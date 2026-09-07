@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { gstStateCodeField, gstinField } from '@exyconn/shell/utils/gstFields';
 import type { BrandingQuery } from '@exyconn/shell/graphql/generated';
 
 /** The branding record as returned by the codegen'd `Branding` query. */
@@ -53,9 +54,21 @@ export const brandingSchema = z.object({
 
   copyrightText: text,
 
+  gstin: gstinField,
+  stateCode: gstStateCodeField,
+  addressLine: text,
+  invoicePrefix: z.string().trim().min(1, 'Invoice prefix is required'),
+  defaultTaxPercent: z.coerce
+    .number({ message: 'Must be a number' })
+    .min(0, 'Must be ≥ 0')
+    .max(100, 'Must be ≤ 100'),
+  bankDetails: z.string().trim(),
+
   loginPages: z.array(loginPage),
 });
 
+/** What the fields hold while being typed — a number field is a string until Zod coerces it. */
+export type BrandingFormInput = z.input<typeof brandingSchema>;
 export type BrandingFormValues = z.infer<typeof brandingSchema>;
 
 /** Maps the loaded record onto form values (drops `id`/`__typename`). */
@@ -91,6 +104,13 @@ export const toBrandingValues = (row: BrandingRow): BrandingFormValues => ({
   githubUrl: row.githubUrl,
 
   copyrightText: row.copyrightText,
+
+  gstin: row.gstin,
+  stateCode: row.stateCode,
+  addressLine: row.addressLine,
+  invoicePrefix: row.invoicePrefix,
+  defaultTaxPercent: row.defaultTaxPercent,
+  bankDetails: row.bankDetails,
 
   loginPages: row.loginPages.map((page) => ({
     app: page.app,

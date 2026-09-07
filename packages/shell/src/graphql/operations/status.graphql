@@ -42,12 +42,45 @@ query StatusOverview($days: Int) {
       id
       serviceKey
       serviceName
+      title
+      source
+      impact
+      affectedServiceKeys
       state
       reason
+      updates {
+        ...StatusIncidentUpdateFields
+      }
       startedAt
       resolvedAt
       durationMinutes
     }
+    maintenance {
+      id
+      title
+      body
+      affectedServiceKeys
+      startsAt
+      endsAt
+      inProgress
+    }
+  }
+}
+
+fragment StatusIncidentUpdateFields on StatusIncidentUpdate {
+  id
+  status
+  body
+  authorName
+  createdAt
+}
+
+query ProblemReportStatus($reference: String!) {
+  problemReportStatus(reference: $reference) {
+    reference
+    status
+    serviceName
+    updatedAt
   }
 }
 
@@ -182,4 +215,118 @@ mutation UpdateStatusMonitor($id: ID!, $input: StatusMonitorInput!) {
 
 mutation DeleteStatusMonitor($id: ID!) {
   deleteStatusMonitor(id: $id)
+}
+
+fragment StatusIncidentFields on StatusIncident {
+  id
+  serviceKey
+  serviceName
+  title
+  source
+  impact
+  affectedServiceKeys
+  state
+  reason
+  updates {
+    ...StatusIncidentUpdateFields
+  }
+  startedAt
+  resolvedAt
+  durationMinutes
+}
+
+query ListStatusIncidentsPaged($input: TableQueryInput!) {
+  listStatusIncidentsPaged(input: $input) {
+    rows {
+      ...StatusIncidentFields
+    }
+    totalCount
+  }
+}
+
+query ListStatusIncidentsStats {
+  listStatusIncidentsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateStatusIncident($input: StatusIncidentInput!) {
+  createStatusIncident(input: $input) {
+    id
+  }
+}
+
+mutation AddStatusIncidentUpdate($id: ID!, $status: IncidentUpdateStatus!, $body: String!) {
+  addStatusIncidentUpdate(id: $id, status: $status, body: $body) {
+    id
+    resolvedAt
+  }
+}
+
+mutation DeleteStatusIncident($id: ID!) {
+  deleteStatusIncident(id: $id)
+}
+
+fragment StatusMaintenanceFields on StatusMaintenance {
+  id
+  title
+  body
+  affectedServiceKeys
+  startsAt
+  endsAt
+  createdBy
+  createdAt
+}
+
+query ListStatusMaintenanceWindowsPaged($input: TableQueryInput!) {
+  listStatusMaintenanceWindowsPaged(input: $input) {
+    rows {
+      ...StatusMaintenanceFields
+    }
+    totalCount
+  }
+}
+
+query ListStatusMaintenanceWindowsStats {
+  listStatusMaintenanceWindowsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateStatusMaintenance($input: StatusMaintenanceInput!) {
+  createStatusMaintenance(input: $input) {
+    id
+  }
+}
+
+mutation UpdateStatusMaintenance($id: ID!, $input: StatusMaintenanceInput!) {
+  updateStatusMaintenance(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteStatusMaintenance($id: ID!) {
+  deleteStatusMaintenance(id: $id)
 }

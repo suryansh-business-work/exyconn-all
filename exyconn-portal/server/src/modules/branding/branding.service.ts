@@ -29,6 +29,12 @@ export interface BrandingInput {
   youtubeUrl?: string;
   githubUrl?: string;
   copyrightText?: string;
+  gstin?: string;
+  stateCode?: string;
+  addressLine?: string;
+  invoicePrefix?: string;
+  defaultTaxPercent?: number;
+  bankDetails?: string;
   loginPages?: LoginPageConfig[];
 }
 
@@ -58,14 +64,18 @@ function withDefaults(doc: BrandingLean): BrandingLean {
   return { ...merged, loginPages: withLoginPageDefaults(merged.loginPages) };
 }
 
-/** Reads the single global branding document, creating it with defaults on first use. */
+/**
+ * Reads the single global branding document, creating it with defaults on first use.
+ * An atomic upsert rather than find-then-create, so two readers on a fresh database — an
+ * invoice number and the invoice it numbers are drawn side by side — cannot both insert.
+ */
 export async function getBranding(): Promise<BrandingLean> {
-  const existing = await BrandingModel.findOne({ key: 'global' }).lean();
-  if (existing) {
-    return withDefaults(existing as BrandingLean);
-  }
-  const created = await BrandingModel.create({ key: 'global' });
-  return withDefaults(created.toObject() as BrandingLean);
+  const doc = await BrandingModel.findOneAndUpdate(
+    { key: 'global' },
+    { $setOnInsert: { key: 'global' } },
+    { new: true, upsert: true, setDefaultsOnInsert: true },
+  ).lean();
+  return withDefaults(doc as BrandingLean);
 }
 
 /** Updates the global branding (ADMIN only). */

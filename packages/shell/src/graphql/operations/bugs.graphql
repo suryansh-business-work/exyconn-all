@@ -5,7 +5,12 @@ query ListBugs {
     description
     severity
     status
-    assignee
+    projectId
+    projectName
+    assigneeId
+    assigneeName
+    taskId
+    taskKey
     dueDate
   }
 }
@@ -19,7 +24,12 @@ query ListBugsPaged($input: TableQueryInput!) {
       description
       severity
       status
-      assignee
+      projectId
+      projectName
+      assigneeId
+      assigneeName
+      taskId
+      taskKey
       dueDate
     }
   }
@@ -56,4 +66,11 @@ mutation UpdateBug($id: ID!, $input: BugInput!) {
 
 mutation DeleteBug($id: ID!) {
   deleteBug(id: $id)
+}
+
+mutation PromoteBugToTask($id: ID!) {
+  promoteBugToTask(id: $id) {
+    id
+    key
+  }
 }

@@ -1,4 +1,5 @@
 import { assertPermission, PERMISSION_MODULES } from './permissions';
+import { diffChanges, entityLabelOf, recordAudit } from '../modules/audit';
 import { withId, withIds } from '../utils/serialize';
 import type { CrudService } from './crudService';
 import type { Role } from '../constants/roles';
@@ -73,15 +74,45 @@ export function createCrudResolvers<TInput extends object>(
     Mutation: {
       [`create${name}`]: async (_p, { input }: { input: TInput }, ctx) => {
         await guard(ctx, 'CREATE');
-        return withId((await service.create(input)) as { _id: unknown });
+        const created = withId((await service.create(input)) as LeanDoc);
+        await recordAudit(ctx, {
+          action: 'CREATE',
+          module: name,
+          entityId: created.id,
+          entityLabel: entityLabelOf(created),
+          summary: `Created ${name}`,
+        });
+        return created;
       },
       [`update${name}`]: async (_p, { id, input }: { id: string; input: Partial<TInput> }, ctx) => {
         await guard(ctx, 'EDIT');
-        return withId((await service.update(id, input)) as { _id: unknown });
+        // Read before writing so the log can say what changed, not just that something did.
+        const before = await service.get(id);
+        const updated = withId((await service.update(id, input)) as LeanDoc);
+        const changes = diffChanges(before, input);
+        const fields = Object.keys(changes);
+        await recordAudit(ctx, {
+          action: 'UPDATE',
+          module: name,
+          entityId: id,
+          entityLabel: entityLabelOf(updated),
+          summary: fields.length > 0 ? `Updated ${name} (${fields.join(', ')})` : `Updated ${name}`,
+          changes,
+        });
+        return updated;
       },
       [`delete${name}`]: async (_p, { id }: { id: string }, ctx) => {
         await guard(ctx, 'DELETE');
-        return service.remove(id);
+        const before = await service.get(id);
+        const removed = await service.remove(id);
+        await recordAudit(ctx, {
+          action: 'DELETE',
+          module: name,
+          entityId: id,
+          entityLabel: entityLabelOf(before),
+          summary: `Deleted ${name}`,
+        });
+        return removed;
       },
     } as ResolverMap,
   };

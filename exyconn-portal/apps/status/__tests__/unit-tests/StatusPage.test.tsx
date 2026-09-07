@@ -70,13 +70,28 @@ const overview = {
       id: 'i1',
       serviceKey: 'hr',
       serviceName: 'HR Portal',
+      title: 'HR Portal is down',
+      source: 'MONITOR',
+      impact: 'MAJOR',
+      affectedServiceKeys: ['hr'],
       state: 'DOWN',
       reason: 'HTTP 502',
+      updates: [
+        {
+          __typename: 'StatusIncidentUpdate',
+          id: 'u1',
+          status: 'RESOLVED',
+          body: 'HTTP 502 cleared',
+          authorName: 'Monitor',
+          createdAt: '2026-09-02T04:20:00.000Z',
+        },
+      ],
       startedAt: '2026-09-02T04:00:00.000Z',
       resolvedAt: '2026-09-02T04:20:00.000Z',
       durationMinutes: 20,
     },
   ],
+  maintenance: [],
 };
 
 const mocks = [

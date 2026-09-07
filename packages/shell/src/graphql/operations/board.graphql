@@ -113,6 +113,7 @@ query GetProject($id: ID!) {
     status
     clientName
     budgetHours
+    budgetAmount
   }
 }
 

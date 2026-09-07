@@ -1,12 +1,17 @@
 import { InvoiceModel } from './finance.model';
 import { financeTypeDefs } from './finance.typeDefs';
-import { invoiceAmount, lineAmount, type InvoiceLineInput } from './invoice.lines';
+import { gstBreakdown, invoiceAmount, lineAmount, type InvoiceLineInput } from './invoice.lines';
 import { invoicePdf, sendInvoice } from './invoice.send';
+import { createInvoiceFromDeal } from './invoice.from-deal';
+import { createInvoiceFromTimeLog } from './invoice.from-timelog';
+import { GST_STATES } from './gst.constants';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
+import { assertAuthenticated } from '../../middleware/roleGuard';
 import { badRequest } from '../../utils/errors';
 import { clientNameFor } from '../clients';
+import { getBranding } from '../branding/branding.service';
 import type { GraphQLContext } from '../../middleware/auth';
 
 interface InvoiceInput {
@@ -19,6 +24,8 @@ interface InvoiceInput {
   status: string;
   issuedDate: Date;
   dueDate: Date;
+  placeOfSupplyStateCode?: string | null;
+  supplierStateCode?: string;
 }
 
 /**
@@ -49,22 +56,35 @@ const crud = createCrudResolvers(financeService, {
 });
 
 /**
- * What the form sends, made whole: the client's name looked up from its id and the amount
- * settled from the lines. Both are decided here rather than trusted from the client, so an
- * invoice can never carry a name or a total that its own rows disagree with.
+ * What the form sends, made whole: the client's name looked up from its id, the amount
+ * settled from the lines and our GST state copied from Branding. All are decided here
+ * rather than trusted from the client, so an invoice can never carry a name, a total or a
+ * tax split that its own rows disagree with.
  */
 async function completeInput(input: InvoiceInput): Promise<InvoiceInput> {
   const amount = invoiceAmount(input);
   if (amount === null) {
     badRequest('Enter an amount, or add at least one line.');
   }
+  const [clientName, branding] = await Promise.all([clientNameFor(input.clientId), getBranding()]);
   return {
     ...input,
     lines: input.lines ?? [],
     amount,
-    clientName: await clientNameFor(input.clientId),
+    clientName,
+    placeOfSupplyStateCode: input.placeOfSupplyStateCode ?? '',
+    supplierStateCode: branding.stateCode,
   };
 }
+
+/** A read-only, business-configured list; any signed-in user may pick from it. */
+const gstStates = (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+  assertAuthenticated(ctx);
+  return GST_STATES;
+};
+
+/** The stored fields the GST split is computed from. */
+type GstRow = Parameters<typeof gstBreakdown>[0];
 
 const createInvoice = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { input } = args as unknown as { input: InvoiceInput };
@@ -79,16 +99,36 @@ const updateInvoice = async (p: unknown, args: never, ctx: GraphQLContext) => {
 };
 
 export const financeResolvers = {
-  InvoiceLine: { amount: lineAmount },
+  InvoiceLine: {
+    amount: lineAmount,
+    hsnSac: (line: { hsnSac?: string | null }) => line.hsnSac ?? '',
+  },
   /** Written before these fields existed, a `.lean()` row comes back without them. */
   Invoice: {
     clientName: (invoice: { clientName?: string | null }) => invoice.clientName ?? '',
     lines: (invoice: { lines?: InvoiceLineInput[] | null }) => invoice.lines ?? [],
+    dealId: (invoice: { dealId?: string | null }) => invoice.dealId ?? '',
+    placeOfSupplyStateCode: (invoice: GstRow) => invoice.placeOfSupplyStateCode ?? '',
+    supplierStateCode: (invoice: GstRow) => invoice.supplierStateCode ?? '',
+    subtotal: (invoice: GstRow) => gstBreakdown(invoice).subtotal,
+    taxTotal: (invoice: GstRow) => gstBreakdown(invoice).taxTotal,
+    cgst: (invoice: GstRow) => gstBreakdown(invoice).cgst,
+    sgst: (invoice: GstRow) => gstBreakdown(invoice).sgst,
+    igst: (invoice: GstRow) => gstBreakdown(invoice).igst,
   },
-  Query: { ...crud.Query, invoicePdf },
-  Mutation: { ...crud.Mutation, createInvoice, updateInvoice, sendInvoice },
+  Query: { ...crud.Query, invoicePdf, gstStates },
+  Mutation: {
+    ...crud.Mutation,
+    createInvoice,
+    updateInvoice,
+    sendInvoice,
+    createInvoiceFromDeal,
+    createInvoiceFromTimeLog,
+  },
 };
 export { financeTypeDefs };
+export { nextInvoiceNumber } from './invoice.number';
+export { GST_STATES, gstStateLabel } from './gst.constants';
 export { financeBillingTypeDefs } from './finance.billing.typeDefs';
 export { financeBillingResolvers } from './finance.billing';
 export { financeCompanyTypeDefs } from './finance.company.typeDefs';

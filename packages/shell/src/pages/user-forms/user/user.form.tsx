@@ -16,6 +16,7 @@ import {
   useCreateUserMutation,
   useUpdateUserMutation,
   useListDepartmentsQuery,
+  useListEmployeeOptionsQuery,
   useListPositionsQuery,
   useEmployeeSalaryQuery,
   useSaveEmployeeSalaryMutation,
@@ -54,6 +55,7 @@ function UserFormFields({ initial, salary, onDone, onCancel, onCreated }: Readon
   const [saveSalary] = useSaveEmployeeSalaryMutation();
   const { data: deptData } = useListDepartmentsQuery();
   const { data: posData } = useListPositionsQuery();
+  const { data: peopleData } = useListEmployeeOptionsQuery();
   const isEdit = Boolean(initial);
   const methods = useForm<UserValues>({
     resolver: zodResolver(userSchema),
@@ -68,6 +70,10 @@ function UserFormFields({ initial, salary, onDone, onCancel, onCreated }: Readon
     (posData?.listPositions ?? []).map((p) => p.name),
     initial?.designation,
   );
+  // Nobody reports to themself, so the person being edited is not offered.
+  const managerOptions: SelectOption[] = (peopleData?.listEmployeeOptions ?? [])
+    .filter((person) => person.id !== initial?.id)
+    .map((person) => ({ value: person.id, label: person.name }));
 
   const onSubmit = async (values: UserValues) => {
     const isActive = values.isActive === 'true';
@@ -138,7 +144,11 @@ function UserFormFields({ initial, salary, onDone, onCancel, onCreated }: Readon
         }
       />
       <ProfileFields />
-      <EmploymentFields departmentOptions={departmentOptions} positionOptions={positionOptions} />
+      <EmploymentFields
+        departmentOptions={departmentOptions}
+        positionOptions={positionOptions}
+        managerOptions={managerOptions}
+      />
       <RhfDatePicker name="joinDate" label="Join date" />
       <RhfDatePicker name="dateOfBirth" label="Date of birth (optional)" />
       <WorkArrangementFields />

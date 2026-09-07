@@ -23,6 +23,13 @@ describe('BugForm', () => {
     cy.contains('Assignee is required').should('be.visible');
   });
 
+  it('offers the project and assignee as pickers, not free text', () => {
+    mount();
+    cy.get('input[role="combobox"]').should('have.length', 2);
+    cy.contains('label', 'Project').should('be.visible');
+    cy.contains('label', 'Assignee').should('be.visible');
+  });
+
   it('calls onCancel', () => {
     mount();
     cy.contains('button', 'Cancel').click();

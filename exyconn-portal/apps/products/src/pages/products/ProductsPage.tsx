@@ -46,6 +46,7 @@ export function ProductsPage() {
       title="Products"
       subtitle="Product catalog"
       entityLabel="product"
+      exportFileName="products"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (

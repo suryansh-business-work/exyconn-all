@@ -121,6 +121,8 @@ export const hrTypeDefs = gql`
     attendanceByEmployee(employeeId: ID!): [Attendance!]!
     "HR/ADMIN: workforce counts + headcount-over-time series."
     hrDashboard: HrDashboard!
+    "Manager: pending and recently decided leave requests from direct reports."
+    teamLeaveRequests: [LeaveRequest!]!
     "HR/ADMIN: organizational departments."
     listDepartments: [Department!]!
     getDepartment(id: ID!): Department!
@@ -137,7 +139,7 @@ export const hrTypeDefs = gql`
     applyLeave(input: ApplyLeaveInput!): LeaveRequest!
     "Self-service: mark today's (or a given day's) attendance — upserts per day."
     markAttendance(input: MarkAttendanceInput!): Attendance!
-    "HR/ADMIN: approve or reject a leave request."
+    "HR/ADMIN or the employee's manager: approve or reject a leave request."
     setLeaveStatus(id: ID!, status: LeaveStatus!): LeaveRequest!
     createDepartment(input: DepartmentInput!): Department!
     updateDepartment(id: ID!, input: DepartmentInput!): Department!

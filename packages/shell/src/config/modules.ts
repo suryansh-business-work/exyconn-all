@@ -38,6 +38,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import PaidIcon from '@mui/icons-material/Paid';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
+import HistoryIcon from '@mui/icons-material/History';
 import WorkIcon from '@mui/icons-material/Work';
 import DescriptionIcon from '@mui/icons-material/Description';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
@@ -115,6 +116,7 @@ export const MODULES: ModuleDefinition[] = [
     accent: '#14b8a6',
     children: [
       { key: 'me-dashboard', label: 'Dashboard', path: '/me', icon: DashboardIcon },
+      { key: 'me-team', label: 'My Team', path: '/me/team', icon: GroupsIcon },
       {
         key: 'me-announcements',
         label: 'Announcements',
@@ -312,6 +314,13 @@ export const MODULES: ModuleDefinition[] = [
         path: '/hr/employees',
         icon: BadgeIcon,
       },
+      { key: 'hr-org-chart', label: 'Org Chart', path: '/hr/org-chart', icon: AccountTreeIcon },
+      {
+        key: 'hr-applicants',
+        label: 'Applicants',
+        path: '/hr/applicants',
+        icon: HowToRegIcon,
+      },
       {
         key: 'hr-leave',
         label: 'Leave Requests',
@@ -445,6 +454,7 @@ export const MODULES: ModuleDefinition[] = [
         path: '/admin/settings',
         icon: TuneIcon,
       },
+      { key: 'admin-audit', label: 'Audit Log', path: '/admin/audit', icon: HistoryIcon },
     ],
   },
   {
@@ -609,6 +619,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Status Monitors',
         path: '/tech/status-monitors',
         icon: MonitorHeartIcon,
+      },
+      {
+        key: 'tech-incidents',
+        label: 'Incidents',
+        path: '/tech/incidents',
+        icon: ReportProblemIcon,
       },
       {
         key: 'tech-settings',

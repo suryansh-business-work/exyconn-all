@@ -3,9 +3,11 @@ import { goalsTypeDefs } from './goals.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver, findOwnRecord } from '../../lib/employeeScope';
-import { badRequest } from '../../utils/errors';
-import { withId } from '../../utils/serialize';
+import { assertAuthenticated } from '../../middleware/roleGuard';
+import { badRequest, notFound } from '../../utils/errors';
+import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
+import { assertMayActFor, directReportIds, teamScope } from '../admin/reporting';
 import type { GraphQLContext } from '../../middleware/auth';
 
 interface GoalInput {
@@ -52,8 +54,34 @@ async function updateMyGoalProgress(
   return withId(goal.toObject() as { _id: unknown });
 }
 
+/** The manager's note on a direct report's goal; the rest of the goal stays HR-owned. */
+async function commentOnTeamGoal(
+  _p: unknown,
+  { id, comment }: { id: string; comment: string },
+  ctx: GraphQLContext,
+) {
+  const goal = await GoalModel.findById(id);
+  if (!goal) notFound('Goal');
+  await assertMayActFor(ctx, goal.employeeId, [ROLES.HR]);
+  goal.managerComment = comment;
+  await goal.save();
+  return withId(goal.toObject());
+}
+
+/** Every goal of the signed-in user's direct reports. */
+async function teamGoals(_p: unknown, _a: unknown, ctx: GraphQLContext) {
+  const user = assertAuthenticated(ctx);
+  const ids = await directReportIds(user.id);
+  if (ids.length === 0) return [];
+  return withIds(await GoalModel.find(teamScope(ids)).sort({ endDate: -1 }).lean());
+}
+
 export const goalsResolvers = {
-  Query: { ...crud.Query, myGoals: createMyRecordsResolver(GoalModel as never, { endDate: -1 }) },
-  Mutation: { ...crud.Mutation, updateMyGoalProgress },
+  Query: {
+    ...crud.Query,
+    myGoals: createMyRecordsResolver(GoalModel as never, { endDate: -1 }),
+    teamGoals,
+  },
+  Mutation: { ...crud.Mutation, updateMyGoalProgress, commentOnTeamGoal },
 };
 export { goalsTypeDefs };

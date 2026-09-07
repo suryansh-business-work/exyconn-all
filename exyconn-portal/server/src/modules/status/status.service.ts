@@ -1,6 +1,7 @@
 import { StatusMonitorModel } from './status-monitor.model';
 import { StatusDailyModel, type StatusDailyDocument } from './status-daily.model';
-import { StatusIncidentModel } from './status-incident.model';
+import { StatusIncidentModel, type StatusIncidentDocument } from './status-incident.model';
+import { StatusMaintenanceModel } from './status-maintenance.model';
 import { dayKey } from './status.monitor';
 import { env } from '../../config/env';
 import type { StatusState } from './status.constants';
@@ -116,10 +117,12 @@ function clampDays(days?: number | null): number {
 export async function getStatusOverview(days?: number | null) {
   const window = clampDays(days);
   const dates = dayKeysBack(window);
-  const [monitors, rollups, incidents] = await Promise.all([
+  const now = new Date();
+  const [monitors, rollups, incidents, maintenance] = await Promise.all([
     StatusMonitorModel.find({ isActive: true }).sort({ order: 1 }).lean(),
     StatusDailyModel.find({ date: { $gte: dates[0] } }).lean(),
     StatusIncidentModel.find().sort({ startedAt: -1 }).limit(INCIDENT_LIMIT).lean(),
+    StatusMaintenanceModel.find({ endsAt: { $gte: now } }).sort({ startsAt: 1 }).lean(),
   ]);
 
   const byService = indexRollups(rollups as StatusDailyDocument[]);
@@ -170,11 +173,27 @@ export async function getStatusOverview(days?: number | null) {
     avgResponseMs: averageOf(today),
     services,
     daily,
-    incidents: incidents.map((incident) => ({
-      ...incident,
-      id: String(incident._id),
-      durationMinutes: incidentMinutes(incident.startedAt, incident.resolvedAt),
+    incidents: (incidents as LeanIncident[]).map(toIncident),
+    maintenance: maintenance.map((window) => ({
+      ...window,
+      id: String(window._id),
+      inProgress: window.startsAt <= now,
     })),
+  };
+}
+
+type LeanIncident = StatusIncidentDocument & { _id: unknown };
+
+/** An incident as the page shows it: timeline newest first, duration measured. */
+function toIncident(incident: LeanIncident) {
+  return {
+    ...incident,
+    id: String(incident._id),
+    title: incident.title || `${incident.serviceName} is down`,
+    updates: [...incident.updates]
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .map((update) => ({ ...update, id: String(update._id) })),
+    durationMinutes: incidentMinutes(incident.startedAt, incident.resolvedAt),
   };
 }
 

@@ -86,6 +86,24 @@ query AttendanceByEmployee($employeeId: ID!) {
   }
 }
 
+query TeamLeaveRequests {
+  teamLeaveRequests {
+    ...LeaveFields
+    createdAt
+  }
+}
+
+query OrgChart {
+  orgChart {
+    id
+    name
+    designation
+    department
+    avatarUrl
+    managerId
+  }
+}
+
 mutation SetLeaveStatus($id: ID!, $status: LeaveStatus!) {
   setLeaveStatus(id: $id, status: $status) {
     id
