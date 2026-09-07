@@ -2,6 +2,7 @@ import type { GraphQLContext } from '../../middleware/auth';
 import { ROLES } from '../../constants/roles';
 import { assertRole, assertAuthenticated } from '../../middleware/roleGuard';
 import { withId, withIds } from '../../utils/serialize';
+import { recordAudit } from '../audit';
 import { githubActions } from '../../utils/github';
 import { assertTrackerDevice } from './tracker.auth';
 import {
@@ -44,6 +45,12 @@ const TIME_LOG_ROLES = [ROLES.PROJECTS, ROLES.TRACKER];
  * board". `assertRole` already lets ADMIN through every list.
  */
 const SCREENSHOT_ROLES = [ROLES.TRACKER];
+
+/**
+ * Who may read billing grouped by project. Finance raises the invoice and Projects runs
+ * the budget, so both need the figure the tracker computes — the rate itself stays in HR.
+ */
+const PROJECT_BILLING_ROLES = [ROLES.TRACKER, ROLES.FINANCE, ROLES.PROJECTS];
 
 /** Whether this caller passes the narrower screenshot check, without throwing if they do not. */
 function canViewScreenshots(ctx: GraphQLContext): boolean {
@@ -127,6 +134,15 @@ export const trackerResolvers = {
     ) => {
       assertRole(ctx, TRACKER_ROLES);
       return trackerBillingService.billing(from, to);
+    },
+    /** The same figures filed under the project each session was booked to. */
+    trackerBillingByProject: async (
+      _p: unknown,
+      { from, to, projectId }: { from: Date; to: Date; projectId?: string | null },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, PROJECT_BILLING_ROLES);
+      return trackerBillingService.billingByProject(from, to, projectId);
     },
 
     /**
@@ -258,7 +274,14 @@ export const trackerResolvers = {
       ctx: GraphQLContext,
     ) => {
       const actor = assertRole(ctx, TRACKER_ROLES);
-      return withId((await trackerAdminService.grantAccess(userId, actor.id)) as LeanDoc);
+      const access = withId((await trackerAdminService.grantAccess(userId, actor.id)) as LeanDoc);
+      await recordAudit(ctx, {
+        action: 'ACCESS',
+        module: 'Tracker',
+        entityId: userId,
+        summary: `Granted tracker access to user ${userId}`,
+      });
+      return access;
     },
     revokeTrackerAccess: async (
       _p: unknown,
@@ -266,7 +289,14 @@ export const trackerResolvers = {
       ctx: GraphQLContext,
     ) => {
       const actor = assertRole(ctx, TRACKER_ROLES);
-      return withId((await trackerAdminService.revokeAccess(userId, actor.id)) as LeanDoc);
+      const access = withId((await trackerAdminService.revokeAccess(userId, actor.id)) as LeanDoc);
+      await recordAudit(ctx, {
+        action: 'ACCESS',
+        module: 'Tracker',
+        entityId: userId,
+        summary: `Revoked tracker access from user ${userId}`,
+      });
+      return access;
     },
     revokeTrackerDevice: async (
       _p: unknown,
@@ -274,7 +304,15 @@ export const trackerResolvers = {
       ctx: GraphQLContext,
     ) => {
       assertRole(ctx, TRACKER_ROLES);
-      return withId((await trackerAdminService.revokeDevice(deviceId)) as LeanDoc);
+      const device = withId((await trackerAdminService.revokeDevice(deviceId)) as LeanDoc);
+      await recordAudit(ctx, {
+        action: 'ACCESS',
+        module: 'Tracker',
+        entityId: deviceId,
+        entityLabel: deviceId,
+        summary: `Revoked tracker device ${deviceId}`,
+      });
+      return device;
     },
     reviewTrackerManualEntry: async (
       _p: unknown,

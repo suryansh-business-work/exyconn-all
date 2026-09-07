@@ -1,0 +1,36 @@
+query ListAuditLogsPaged($input: TableQueryInput!) {
+  listAuditLogsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      actorId
+      actorName
+      actorEmail
+      action
+      module
+      entityId
+      entityLabel
+      summary
+      changes
+      ip
+      createdAt
+    }
+  }
+}
+
+query ListAuditLogsStats {
+  listAuditLogsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}

@@ -79,6 +79,7 @@ export function CompanyExpensesPage() {
       title="Company expenses"
       subtitle="What the business spends, and what it still owes"
       entityLabel="expense"
+      exportFileName="company-expenses"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (

@@ -9,28 +9,29 @@ import {
   type IDatasource,
   type IGetRowsParams,
   type RowClickedEvent,
-  type SortModelItem,
 } from 'ag-grid-community';
 import { Box, TextField, useTheme } from '@/components/ui';
+import type { TableQueryInput } from '@/graphql/generated';
 import {
-  FilterOp,
-  SortDir,
-  type TableFilterInput,
-  type TableQueryInput,
-  type TableSortInput,
-} from '@/graphql/generated';
+  SEARCH_DEBOUNCE_MS,
+  TEXT_FILTER_PARAMS,
+  toFilters,
+  toSort,
+  type GridQuery,
+} from './serverGridQuery';
 
 // ag-grid v33+ requires explicit module registration; the Community bundle covers the
 // infinite row model, sorting and column text filters this grid relies on.
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const SEARCH_DEBOUNCE_MS = 300;
 const DEFAULT_PAGE_SIZE = 25;
 
 export interface TablePageResult<T> {
   rows: T[];
   totalCount: number;
 }
+
+export type { GridQuery } from './serverGridQuery';
 
 export interface ServerDataGridProps<T> {
   columnDefs: ColDef<T>[];
@@ -44,44 +45,11 @@ export interface ServerDataGridProps<T> {
   /** Bump to force a reload after a create/update/delete elsewhere on the page. */
   refreshSignal?: number;
   height?: number | string;
-}
-
-const TEXT_FILTER_PARAMS = {
-  filterOptions: ['contains', 'equals', 'startsWith'],
-  maxNumConditions: 1,
-  debounceMs: SEARCH_DEBOUNCE_MS,
-};
-
-/** Maps an ag-grid text-filter type to the server's FilterOp (defaulting to CONTAINS). */
-function toFilterOp(type: string | undefined): FilterOp {
-  if (type === 'equals') {
-    return FilterOp.Equals;
-  }
-  if (type === 'startsWith') {
-    return FilterOp.StartsWith;
-  }
-  return FilterOp.Contains;
-}
-
-/** Flattens ag-grid's per-column filter model into the server's filter list. */
-function toFilters(model: Record<string, { type?: string; filter?: unknown }>): TableFilterInput[] {
-  const filters: TableFilterInput[] = [];
-  for (const [field, def] of Object.entries(model)) {
-    const value = def.filter == null ? '' : String(def.filter);
-    if (value !== '') {
-      filters.push({ field, op: toFilterOp(def.type), value });
-    }
-  }
-  return filters;
-}
-
-/** ag-grid allows multi-sort; the server sorts by a single column, so take the first. */
-function toSort(sortModel: SortModelItem[]): TableSortInput | null {
-  const first = sortModel[0];
-  if (!first) {
-    return null;
-  }
-  return { field: first.colId, dir: first.sort === 'desc' ? SortDir.Desc : SortDir.Asc };
+  /**
+   * Told the search/sort/filters behind every page the grid loads, so an export can fetch
+   * ALL rows with exactly the query the person is looking at.
+   */
+  onQuery?: (query: GridQuery) => void;
 }
 
 /**
@@ -98,6 +66,7 @@ function ServerDataGridImpl({
   context,
   refreshSignal = 0,
   height = 560,
+  onQuery,
 }: Readonly<ServerDataGridProps<unknown>>) {
   const theme = useTheme();
   const gridRef = useRef<AgGridReact<unknown>>(null);
@@ -140,21 +109,25 @@ function ServerDataGridImpl({
     () => ({
       getRows: (params: IGetRowsParams) => {
         const searchValue = searchRef.current.trim();
-        const input: TableQueryInput = {
-          page: Math.floor(params.startRow / pageSize),
-          pageSize,
+        const query: GridQuery = {
           search: searchValue === '' ? null : searchValue,
           sort: toSort(params.sortModel),
           filters: toFilters(
             params.filterModel as Record<string, { type?: string; filter?: unknown }>,
           ),
         };
+        onQuery?.(query);
+        const input: TableQueryInput = {
+          ...query,
+          page: Math.floor(params.startRow / pageSize),
+          pageSize,
+        };
         fetchRows(input)
           .then((page) => params.successCallback(page.rows, page.totalCount))
           .catch(() => params.failCallback());
       },
     }),
-    [fetchRows, pageSize],
+    [fetchRows, pageSize, onQuery],
   );
 
   const onGridReady = useCallback(

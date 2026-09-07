@@ -40,7 +40,13 @@ export function ProjectWorkspacePage() {
       slug: 'time-log',
       label: 'Time log',
       icon: <ScheduleIcon />,
-      content: <ProjectTimeLogPage projectId={id} budgetHours={project?.budgetHours ?? null} />,
+      content: (
+        <ProjectTimeLogPage
+          projectId={id}
+          budgetHours={project?.budgetHours ?? null}
+          budgetAmount={project?.budgetAmount ?? null}
+        />
+      ),
     },
     {
       slug: 'docs',

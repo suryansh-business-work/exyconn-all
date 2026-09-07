@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Box } from '@exyconn/shell/components/ui';
+import { Box, Flex } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { ServerDataGrid } from '@exyconn/shell/components/data/ServerDataGrid';
-import { usePagedFetcher } from '@exyconn/crud';
+import { GridExportButton, useGridQuery, usePagedFetcher } from '@exyconn/crud';
 import {
   ListPaymentsPagedDocument,
   type ListPaymentsPagedQuery,
@@ -19,6 +19,7 @@ import { PAYMENT_COLUMNS } from './payments-grid';
 export function PaymentsPage() {
   const [recording, setRecording] = useState(false);
   const [refreshSignal, setRefreshSignal] = useState(0);
+  const gridQuery = useGridQuery();
   const fetchRows = usePagedFetcher(
     ListPaymentsPagedDocument,
     (data: ListPaymentsPagedQuery) => data.listPaymentsPaged,
@@ -33,10 +34,19 @@ export function PaymentsPage() {
         onAction={() => setRecording(true)}
       />
       <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+        <Flex direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
+          <GridExportButton
+            fileName="payments"
+            columnDefs={PAYMENT_COLUMNS}
+            fetchRows={fetchRows}
+            getQuery={gridQuery.getQuery}
+          />
+        </Flex>
         <ServerDataGrid
           columnDefs={PAYMENT_COLUMNS}
           fetchRows={fetchRows}
           refreshSignal={refreshSignal}
+          onQuery={gridQuery.onQuery}
           searchPlaceholder="Search by invoice, client or reference…"
         />
       </Box>

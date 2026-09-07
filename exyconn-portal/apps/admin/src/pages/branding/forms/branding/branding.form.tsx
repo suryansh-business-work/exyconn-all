@@ -9,10 +9,12 @@ import { BrandingIdentityFields } from './branding-identity.fields';
 import { BrandingImagesFields } from './branding-images.fields';
 import { BrandingColorsFields } from './branding-colors.fields';
 import { BrandingContactFields } from './branding-contact.fields';
+import { BrandingInvoicingFields } from './branding-invoicing.fields';
 import { BrandingLoginPagesFields } from './branding-login-pages.fields';
 import {
   brandingSchema,
   toBrandingValues,
+  type BrandingFormInput,
   type BrandingFormValues,
   type BrandingRow,
 } from './branding.types';
@@ -29,6 +31,7 @@ const TABS: TabberItem[] = [
   { slug: 'images', label: 'Images', content: <BrandingImagesFields /> },
   { slug: 'colors', label: 'Colors', content: <BrandingColorsFields /> },
   { slug: 'contact', label: 'Contact & Social', content: <BrandingContactFields /> },
+  { slug: 'invoicing', label: 'Invoicing', content: <BrandingInvoicingFields /> },
   { slug: 'login-pages', label: 'Login Pages', content: <BrandingLoginPagesFields /> },
 ];
 
@@ -60,7 +63,7 @@ interface BrandingFormProps {
 export function BrandingForm({ initial }: Readonly<BrandingFormProps>) {
   const notify = useNotify();
   const [updateBranding] = useUpdateBrandingMutation();
-  const methods = useForm<BrandingFormValues>({
+  const methods = useForm<BrandingFormInput, unknown, BrandingFormValues>({
     resolver: zodResolver(brandingSchema),
     defaultValues: toBrandingValues(initial),
   });

@@ -18,7 +18,7 @@ type TaskChildShape = WithId & { taskId: { toString(): string } };
  * Generic so the document's own fields survive: a serializer that narrowed its result to the
  * ids would hide every ticket field from the callers that read them.
  */
-const serializeTask = <T extends TaskShape>(t: T) => ({
+export const serializeTask = <T extends TaskShape>(t: T) => ({
   ...withId(t),
   columnId: t.columnId.toString(),
 });
@@ -29,7 +29,7 @@ const serializeTaskChild = <T extends TaskChildShape>(c: T) => ({
 });
 
 /** Who is acting, from the request's own token — never from anything the client sent. */
-async function actorOf(ctx: GraphQLContext): Promise<Actor> {
+export async function actorOf(ctx: GraphQLContext): Promise<Actor> {
   const id = ctx.user?.id;
   if (!id) {
     unauthenticated();

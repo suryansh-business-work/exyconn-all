@@ -488,6 +488,7 @@ fragment WebsiteSubmissionFields on WebsiteSubmission {
   status
   notes
   leadId
+  applicantId
   createdAt
 }
 

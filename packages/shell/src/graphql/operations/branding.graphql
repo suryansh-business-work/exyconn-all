@@ -26,6 +26,12 @@ fragment BrandingFields on Branding {
   youtubeUrl
   githubUrl
   copyrightText
+  gstin
+  stateCode
+  addressLine
+  invoicePrefix
+  defaultTaxPercent
+  bankDetails
   loginPages {
     app
     name

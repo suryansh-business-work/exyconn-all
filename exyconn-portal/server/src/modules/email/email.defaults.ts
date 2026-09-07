@@ -166,6 +166,57 @@ const TEMPLATES = [
         <mj-button background-color="#155dfc" border-radius="10px" href="{{link}}" padding="24px 0 8px">Open my tickets</mj-button>`),
   },
   {
+    key: 'password-reset',
+    name: 'Password reset — self-service link',
+    description:
+      'Sent when somebody asks for a reset link from a portal login screen. The link works once and expires after {{expiresIn}}.',
+    subject: 'Reset your {{companyName}} portal password',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Reset your password</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Somebody asked to reset the password for this address. If it was you, choose a new one below.
+          The link works once and expires in {{expiresIn}}.
+        </mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{link}}" padding="24px 0 8px">Choose a new password</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          If you did not ask for this, ignore this email — your password stays as it is.
+        </mj-text>`),
+  },
+  {
+    key: 'applicant-stage',
+    name: 'Applicant — your application has moved',
+    description:
+      'Sent to a job applicant when HR moves them to Interview, Offer or Rejected. {{message}} is the stage-specific wording, decided by the pipeline.',
+    subject: 'Your application for {{jobTitle}}: {{stageLabel}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Your application for {{jobTitle}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">{{message}}</mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Stage</mj-text>
+        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{stageLabel}}</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          Reply to this email if you have any questions about your application.
+        </mj-text>`),
+  },
+  {
+    key: 'problem-report-update',
+    name: 'Problem report — status update',
+    description:
+      'Sent to whoever filed a problem report from the status page when Tech changes its status. {{resolutionNotes}} is what Tech wrote, or a placeholder when empty.',
+    subject: 'Update on your report {{reference}}: {{status}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Update on your report</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Your report <strong>{{reference}}</strong> about <strong>{{serviceName}}</strong> is now <strong>{{status}}</strong>.
+        </mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Notes from the team</mj-text>
+        <mj-text font-size="15px" color="#0b0a12" line-height="24px" padding-top="0">{{resolutionNotes}}</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          You can check this report at any time by quoting its reference on the status page.
+        </mj-text>`),
+  },
+  {
     key: 'invoice-sent',
     name: 'Invoice sent to client',
     description:

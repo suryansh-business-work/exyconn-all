@@ -17,3 +17,4 @@ export { SupportPage } from './SupportPage';
 export { MyExitPage } from './MyExitPage';
 export { CalendarPage } from './calendar';
 export { MyTrackerPage } from './MyTrackerPage';
+export { MyTeamPage } from './team';

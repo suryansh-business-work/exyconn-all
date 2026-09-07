@@ -4,6 +4,7 @@ import { UserModel } from '../admin/user.model';
 import { notFound } from '../../utils/errors';
 import { creditLeaveBalance, debitLeaveBalance } from './leave-balance.service';
 import { notifyBestEffort } from '../notifications/notifications.service';
+import { pendingOrRecent } from '../admin/reporting';
 
 export interface ApplyLeaveInput {
   type: string;
@@ -50,6 +51,18 @@ function headcountSeries(starts: Date[]): Array<{ label: string; count: number }
 class HrService {
   myLeaves(employeeId: string) {
     return LeaveRequestModel.find({ employeeId }).sort({ createdAt: -1 }).lean();
+  }
+
+  async getLeave(id: string) {
+    const leave = await LeaveRequestModel.findById(id).lean();
+    if (!leave) notFound('LeaveRequest');
+    return leave;
+  }
+
+  /** A manager's queue: their reports' pending requests, plus what was decided lately. */
+  async teamLeaves(employeeIds: string[]) {
+    if (employeeIds.length === 0) return [];
+    return LeaveRequestModel.find(pendingOrRecent(employeeIds)).sort({ createdAt: -1 }).lean();
   }
 
   applyLeave(employeeId: string, input: ApplyLeaveInput) {

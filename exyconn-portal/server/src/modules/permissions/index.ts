@@ -4,6 +4,7 @@ import { PERMISSION_MODULES, invalidatePermissionCache } from '../../lib/permiss
 import { assertRole } from '../../middleware/roleGuard';
 import { badRequest } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
+import { recordAudit } from '../audit';
 import { ROLES } from '../../constants/roles';
 import type { GraphQLContext } from '../../middleware/auth';
 
@@ -43,12 +44,26 @@ export const permissionsResolvers = {
         { upsert: true, new: true, runValidators: true },
       ).lean();
       invalidatePermissionCache();
+      await recordAudit(ctx, {
+        action: 'PERMISSION',
+        module: 'Permission',
+        entityId: `${role}:${module}`,
+        entityLabel: `${role} on ${module}`,
+        summary: `Restricted ${role} on ${module} to [${[...new Set(actions)].join(', ')}]`,
+      });
       return withId(row as { _id: unknown });
     },
     clearRolePermission: async (_p: unknown, { role, module }: Args, ctx: GraphQLContext) => {
       assertRole(ctx, [ROLES.ADMIN]);
       const res = await RolePermissionModel.deleteOne({ role, module });
       invalidatePermissionCache();
+      await recordAudit(ctx, {
+        action: 'PERMISSION',
+        module: 'Permission',
+        entityId: `${role}:${module}`,
+        entityLabel: `${role} on ${module}`,
+        summary: `Cleared the restriction on ${role} for ${module}`,
+      });
       return res.deletedCount > 0;
     },
   },

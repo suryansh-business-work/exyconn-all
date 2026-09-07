@@ -42,6 +42,8 @@ const userSchema = new Schema(
     address: { type: String, trim: true, default: null },
     /** A few lines about the person, shown on their profile across the portals. */
     brief: { type: String, trim: true, default: null },
+    /** The user this person reports to — the manager who may approve their leave and requests. */
+    managerId: { type: String, default: null, index: true },
     // Working arrangement — read by the tracker to measure a day, and by the employee
     // portal to show people their own terms. Defaults apply to accounts that predate them.
     workingTime: { type: String, enum: WORKING_TIMES, default: 'FLEXIBLE' },

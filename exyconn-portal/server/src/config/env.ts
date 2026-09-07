@@ -29,6 +29,11 @@ export const env = Object.freeze({
   /** Public portal URL used as the login CTA inside transactional emails. */
   appUrl: process.env.APP_URL ?? 'https://portal.exyconn.com',
   /**
+   * Where a self-service password reset link opens when the request did not come from a
+   * portal origin CORS trusts (a curl, say). A request from a portal links back to itself.
+   */
+  portalHubUrl: process.env.PORTAL_HUB_URL ?? 'https://portal.exyconn.com',
+  /**
    * Body limit for /graphql. Raised well above Express's 100kb default because the
    * desktop tracker posts base64 screenshots through it. It has to clear
    * TRACKER_LIMITS.maxScreenshotBytes with room for base64's 4/3 inflation, or a capture

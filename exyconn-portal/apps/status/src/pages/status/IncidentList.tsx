@@ -1,11 +1,22 @@
 import { Box, Card, Chip, Divider, Flex, Typography } from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
+import { IncidentImpact } from '@exyconn/shell/graphql/generated';
 import { TIME_FORMAT } from '../../status.constants';
+import { IncidentUpdates } from './IncidentUpdates';
 import type { StatusIncident } from './status.types';
 
 interface IncidentListProps {
   incidents: StatusIncident[];
 }
+
+type ImpactTone = 'error' | 'warning' | 'info';
+
+/** How loudly each impact level is coloured. */
+const IMPACT_TONES: Record<IncidentImpact, ImpactTone> = {
+  [IncidentImpact.Critical]: 'error',
+  [IncidentImpact.Major]: 'warning',
+  [IncidentImpact.Minor]: 'info',
+};
 
 /** Minutes rendered the way people say them out loud. */
 function duration(minutes: number): string {
@@ -33,29 +44,39 @@ export function IncidentList({ incidents }: Readonly<IncidentListProps>) {
       {incidents.map((incident, index) => (
         <Box key={incident.id}>
           {index > 0 && <Divider />}
-          <Flex
-            direction={{ xs: 'column', sm: 'row' }}
-            justifyContent="space-between"
-            alignItems={{ xs: 'flex-start', sm: 'center' }}
-            spacing={1}
-            sx={{ py: 1.75 }}
-          >
-            <Box>
-              <Typography variant="subtitle2" fontWeight={700}>
-                {incident.serviceName}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {formatWith(incident.startedAt, TIME_FORMAT)} · {duration(incident.durationMinutes)}
-                {incident.reason ? ` · ${incident.reason}` : ''}
-              </Typography>
-            </Box>
-            <Chip
-              size="small"
-              color={incident.resolvedAt ? 'success' : 'error'}
-              variant="outlined"
-              label={incident.resolvedAt ? 'Resolved' : 'Ongoing'}
-            />
-          </Flex>
+          <Box sx={{ py: 1.75 }}>
+            <Flex
+              direction={{ xs: 'column', sm: 'row' }}
+              justifyContent="space-between"
+              alignItems={{ xs: 'flex-start', sm: 'center' }}
+              spacing={1}
+            >
+              <Box>
+                <Typography variant="subtitle2" fontWeight={700}>
+                  {incident.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {incident.serviceName} · {formatWith(incident.startedAt, TIME_FORMAT)} ·{' '}
+                  {duration(incident.durationMinutes)}
+                </Typography>
+              </Box>
+              <Flex alignItems="center" spacing={1}>
+                <Chip
+                  size="small"
+                  color={IMPACT_TONES[incident.impact]}
+                  variant="outlined"
+                  label={`${incident.impact.toLowerCase()} impact`}
+                />
+                <Chip
+                  size="small"
+                  color={incident.resolvedAt ? 'success' : 'error'}
+                  variant="outlined"
+                  label={incident.resolvedAt ? 'Resolved' : 'Ongoing'}
+                />
+              </Flex>
+            </Flex>
+            <IncidentUpdates updates={incident.updates} />
+          </Box>
         </Box>
       ))}
     </Card>

@@ -8,6 +8,8 @@ export interface InvoiceLineValues {
   quantity: number;
   rate: number;
   taxPercent: number;
+  /** HSN (goods) or SAC (services) code, printed per line on a GST invoice. */
+  hsnSac: string;
 }
 
 export interface InvoiceFormValues {
@@ -19,6 +21,8 @@ export interface InvoiceFormValues {
   status: InvoiceStatus;
   issuedDate: string;
   dueDate: string;
+  /** Two-digit GST state code of the client's place of supply; blank when not set. */
+  placeOfSupplyStateCode: string;
 }
 
 /** What one line bills, tax included — the same arithmetic the server settles the invoice on. */

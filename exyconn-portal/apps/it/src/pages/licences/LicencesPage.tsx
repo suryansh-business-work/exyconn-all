@@ -61,6 +61,7 @@ export function LicencesPage() {
       title="Licences"
       subtitle="Software the company subscribes to, and who holds a seat"
       entityLabel="licence"
+      exportFileName="licences"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (

@@ -4,6 +4,7 @@ import { authTypeDefs } from '../modules/auth/auth.typeDefs';
 import { authResolvers } from '../modules/auth/auth.resolvers';
 import { adminTypeDefs } from '../modules/admin/admin.typeDefs';
 import { adminResolvers } from '../modules/admin/admin.resolvers';
+import { reportingResolvers } from '../modules/admin/reporting';
 import {
   financeTypeDefs,
   financeResolvers,
@@ -41,6 +42,7 @@ import {
 } from '../modules/projects';
 import { techTypeDefs, techResolvers } from '../modules/tech';
 import { statusTypeDefs, statusResolvers } from '../modules/status';
+import { recruitingTypeDefs, recruitingResolvers } from '../modules/recruiting';
 import { infraTypeDefs, infraResolvers } from '../modules/infra';
 // The website module splits its SDL across one file per content entity, so it exports an array.
 import { websiteTypeDefs, websiteResolvers } from '../modules/website';
@@ -60,6 +62,7 @@ import { orgMasterTypeDefs, orgMasterResolvers } from '../modules/orgmaster';
 import { exitTypeDefs, exitResolvers } from '../modules/exit';
 import { payrollTypeDefs, payrollResolvers } from '../modules/payroll';
 import { permissionsTypeDefs, permissionsResolvers } from '../modules/permissions';
+import { auditTypeDefs, auditResolvers } from '../modules/audit';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = Record<string, Record<string, unknown> | undefined>;
@@ -128,13 +131,16 @@ export const typeDefs = [
   exitTypeDefs,
   payrollTypeDefs,
   permissionsTypeDefs,
+  auditTypeDefs,
   statusTypeDefs,
+  recruitingTypeDefs,
   infraTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
   authResolvers,
   adminResolvers,
+  reportingResolvers,
   financeResolvers,
   financeBillingResolvers,
   financeCompanyResolvers,
@@ -175,6 +181,8 @@ export const resolvers = mergeResolvers([
   exitResolvers,
   payrollResolvers,
   permissionsResolvers,
+  auditResolvers,
   statusResolvers,
+  recruitingResolvers,
   infraResolvers,
 ]);

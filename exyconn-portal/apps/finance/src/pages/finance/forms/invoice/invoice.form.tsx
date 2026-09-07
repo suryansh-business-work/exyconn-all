@@ -10,6 +10,8 @@ import {
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
+import { gstStateCodeField } from '@exyconn/shell/utils/gstFields';
+import { useGstStateOptions } from '@exyconn/shell/hooks/useGstStateOptions';
 import {
   InvoiceStatus,
   useCreateInvoiceMutation,
@@ -27,6 +29,7 @@ const lineSchema = z.object({
     .number({ message: 'Must be a number' })
     .min(0, 'Must be ≥ 0')
     .max(100, 'Must be ≤ 100'),
+  hsnSac: z.string().trim(),
 });
 
 const schema = z.object({
@@ -38,23 +41,26 @@ const schema = z.object({
   status: z.nativeEnum(InvoiceStatus),
   issuedDate: z.string().min(1, 'Issued date is required'),
   dueDate: z.string().min(1, 'Due date is required'),
+  placeOfSupplyStateCode: gstStateCodeField,
 });
 type Values = z.infer<typeof schema>;
 
 const toInitial = (row: InvoiceRow | null): Values => ({
   number: row?.number ?? '',
   clientId: row?.clientId ?? '',
-  lines: (row?.lines ?? []).map(({ description, quantity, rate, taxPercent }) => ({
+  lines: (row?.lines ?? []).map(({ description, quantity, rate, taxPercent, hsnSac }) => ({
     description,
     quantity,
     rate,
     taxPercent,
+    hsnSac,
   })),
   amount: row?.amount ?? 0,
   currency: row?.currency ?? 'INR',
   status: row?.status ?? InvoiceStatus.Draft,
   issuedDate: row?.issuedDate ?? '',
   dueDate: row?.dueDate ?? '',
+  placeOfSupplyStateCode: row?.placeOfSupplyStateCode ?? '',
 });
 
 interface InvoiceFormProps {
@@ -78,6 +84,7 @@ export function InvoiceForm({ initial, onDone, onCancel }: Readonly<InvoiceFormP
     defaultValues: toInitial(initial),
   });
   const currency = useWatch({ control: methods.control, name: 'currency' }) || 'INR';
+  const stateOptions = useGstStateOptions();
 
   const clientOptions = (clientsData?.listClients ?? []).map((client) => ({
     value: client.id,
@@ -96,6 +103,12 @@ export function InvoiceForm({ initial, onDone, onCancel }: Readonly<InvoiceFormP
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="number" label="Invoice number" />
       <RhfAutocomplete name="clientId" label="Client" options={clientOptions} />
+      <RhfSelect
+        name="placeOfSupplyStateCode"
+        label="Place of supply"
+        options={stateOptions}
+        helperText="The client's GST state. Same as ours: CGST + SGST; otherwise IGST."
+      />
       <RhfTextField name="currency" label="Currency" />
       <InvoiceLinesFields currency={currency} />
       <RhfSelect name="status" label="Status" options={enumOptions(Object.values(InvoiceStatus))} />

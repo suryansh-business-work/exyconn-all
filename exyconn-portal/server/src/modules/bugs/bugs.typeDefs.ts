@@ -20,7 +20,15 @@ export const bugsTypeDefs = gql`
     description: String!
     severity: BugSeverity!
     status: BugStatus!
-    assignee: String!
+    "The project the bug was found in. Null for bugs filed before bugs had a project."
+    projectId: String
+    projectName: String!
+    "Empty for bugs filed before the assignee was a user; assigneeName still shows the name."
+    assigneeId: String!
+    assigneeName: String!
+    "The board ticket this bug became, once promoted."
+    taskId: String
+    taskKey: String!
     dueDate: DateTime!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -31,7 +39,8 @@ export const bugsTypeDefs = gql`
     description: String!
     severity: BugSeverity!
     status: BugStatus!
-    assignee: String!
+    projectId: String
+    assigneeId: String!
     dueDate: DateTime!
   }
 
@@ -51,5 +60,10 @@ export const bugsTypeDefs = gql`
     createBug(input: BugInput!): Bug!
     updateBug(id: ID!, input: BugInput!): Bug!
     deleteBug(id: ID!): Boolean!
+    """
+    Makes the bug a BUG ticket in the first column of its project's board and records the
+    ticket on the bug. Refused when the bug has no project, or was already promoted.
+    """
+    promoteBugToTask(id: ID!): Task!
   }
 `;

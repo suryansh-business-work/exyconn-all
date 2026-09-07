@@ -55,3 +55,12 @@ mutation RecordPayment($input: PaymentInput!) {
     invoiceNumber
   }
 }
+
+mutation CreateInvoiceFromTimeLog($projectId: ID!, $from: DateTime!, $to: DateTime!) {
+  createInvoiceFromTimeLog(projectId: $projectId, from: $from, to: $to) {
+    id
+    number
+    amount
+    currency
+  }
+}

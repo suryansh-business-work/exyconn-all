@@ -17,11 +17,11 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useLoginMutation } from '@exyconn/shell/graphql/generated';
 import { useAuth, type AuthUser } from '@exyconn/shell/auth/AuthContext';
 import { safeNext } from '@exyconn/shell/utils/redirect';
 import { AdminRecovery } from './AdminRecovery';
+import { ForgotPasswordDialog } from '../forgot-password';
 
 const schema = z.object({
   email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
@@ -38,11 +38,11 @@ interface LoginFormProps {
 export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const notify = useNotify();
   const { signIn } = useAuth();
   const [login] = useLoginMutation();
   const [error, setError] = useState<string | null>(null);
   const [show, setShow] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
   const methods = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
@@ -124,9 +124,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
               type="button"
               variant="caption"
               sx={{ color: 'text.secondary' }}
-              onClick={() =>
-                notify('Please contact your administrator to reset your password.', 'info')
-              }
+              onClick={() => setForgotOpen(true)}
             >
               Forgot password?
             </Link>
@@ -135,6 +133,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
         </Flex>
         <Box sx={{ display: 'none' }} data-testid="login-form-ready" />
       </form>
+      <ForgotPasswordDialog open={forgotOpen} onClose={() => setForgotOpen(false)} />
     </FormProvider>
   );
 }

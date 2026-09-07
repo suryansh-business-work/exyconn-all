@@ -56,6 +56,7 @@ export function CrmPage() {
       title="CRM"
       subtitle="Leads & pipeline"
       entityLabel="lead"
+      exportFileName="leads"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (

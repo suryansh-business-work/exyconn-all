@@ -7,6 +7,8 @@ import { withId, withIds } from '../../utils/serialize';
 import { badRequest, notFound } from '../../utils/errors';
 import { mailer } from '../../utils/mailer';
 import { logger } from '../../utils/logger';
+import { createApplicantFromSubmission } from '../recruiting/recruiting.service';
+import { JOB_APPLICATION_FORM_TYPE } from '../recruiting/recruiting.constants';
 
 const ALLOWED_FORM_TYPES = new Set<string>(SUBMISSION_FORM_TYPES);
 const ALLOWED_STATUSES = new Set<string>(SUBMISSION_STATUSES);
@@ -31,6 +33,25 @@ interface TriageInput {
 function replyToOf(submissionData: Record<string, unknown>): string | undefined {
   const email = submissionData.email;
   return typeof email === 'string' && email ? email : undefined;
+}
+
+/**
+ * Files a job application as an HR applicant and links the two. Best-effort: the
+ * submission is the durable record, so a bad payload is logged and the visitor still
+ * gets their confirmation.
+ */
+async function fileApplicant(submissionId: string, data: Record<string, unknown>) {
+  try {
+    const applicant = await createApplicantFromSubmission(submissionId, data);
+    await WebsiteSubmissionModel.updateOne(
+      { _id: submissionId },
+      { applicantId: String(applicant._id) },
+    );
+    return String(applicant._id);
+  } catch (error) {
+    logger.error({ error }, `Submission ${submissionId} stored, but its applicant failed`);
+    return null;
+  }
 }
 
 /**
@@ -76,6 +97,10 @@ export const websiteSubmissionResolvers = {
         notes: '',
       });
       const submissionData = (input.submissionData ?? {}) as Record<string, unknown>;
+      const applicantId =
+        input.formType === JOB_APPLICATION_FORM_TYPE
+          ? await fileApplicant(String(created._id), submissionData)
+          : null;
       try {
         await mailer.sendFormSubmissionEmail({
           formType: input.formType,
@@ -85,7 +110,7 @@ export const websiteSubmissionResolvers = {
       } catch (error) {
         logger.error({ error }, `Submission ${input.formType} stored, but its email failed`);
       }
-      return withId(created.toObject());
+      return withId({ ...created.toObject(), applicantId });
     },
 
     triageWebsiteSubmission: async (

@@ -59,6 +59,10 @@ export const adminTypeDefs = gql`
     address: String
     "A few lines about the person, shown on their profile across the portals."
     brief: String
+    "The user this person reports to; their manager may approve leave and requests."
+    managerId: String
+    "Resolved from managerId for display; null when nobody is set."
+    managerName: String
     "Nullable because accounts created before the working arrangement existed have none."
     workingTime: WorkingTime
     workingTimeNote: String
@@ -86,6 +90,17 @@ export const adminTypeDefs = gql`
     id: ID!
     name: String!
     email: String!
+    designation: String
+  }
+
+  "One person in the org chart; the client nests them by managerId."
+  type OrgNode {
+    id: ID!
+    name: String!
+    designation: String
+    department: String
+    avatarUrl: String
+    managerId: String
   }
 
   "A newly-created user together with the one-time temporary password (also emailed)."
@@ -113,6 +128,7 @@ export const adminTypeDefs = gql`
     avatarUrl: String
     address: String
     brief: String
+    managerId: String
     workingTime: WorkingTime
     workingTimeNote: String
     workLocation: WorkLocation
@@ -134,6 +150,7 @@ export const adminTypeDefs = gql`
     avatarUrl: String
     address: String
     brief: String
+    managerId: String
     workingTime: WorkingTime
     workingTimeNote: String
     workLocation: WorkLocation
@@ -159,6 +176,12 @@ export const adminTypeDefs = gql`
     getUser(id: ID!): User!
     "Active employees for pickers in any portal; the full employee record stays HR's (listUsers)."
     listEmployeeOptions: [EmployeeOption!]!
+    "The signed-in user's manager, if one is set."
+    myManager: EmployeeOption
+    "Everyone who reports to the signed-in user."
+    myDirectReports: [EmployeeOption!]!
+    "HR/ADMIN: every active user with their managerId, for the org chart."
+    orgChart: [OrgNode!]!
     appSettings: AppSettings!
   }
 

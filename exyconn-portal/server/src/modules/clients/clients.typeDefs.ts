@@ -14,6 +14,11 @@ export const clientsTypeDefs = gql`
     phone: String!
     company: String!
     status: ClientStatus!
+    "The client's GST registration, printed on invoices to them."
+    gstin: String!
+    "Two-digit GST state code — the default place of supply on their invoices."
+    stateCode: String!
+    billingAddress: String!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -24,6 +29,9 @@ export const clientsTypeDefs = gql`
     phone: String!
     company: String!
     status: ClientStatus!
+    gstin: String
+    stateCode: String
+    billingAddress: String
   }
 
   type ClientPage {

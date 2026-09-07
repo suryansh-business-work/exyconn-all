@@ -59,6 +59,7 @@ export function FinancePage() {
       title="Finance"
       subtitle="Invoices & billing"
       entityLabel="invoice"
+      exportFileName="invoices"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (

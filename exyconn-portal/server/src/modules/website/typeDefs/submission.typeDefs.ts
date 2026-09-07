@@ -14,6 +14,8 @@ export const submissionTypeDefs = gql`
     notes: String!
     "The CRM lead this enquiry became, once it has been converted."
     leadId: String
+    "The HR applicant a job application became, filed automatically on submission."
+    applicantId: String
     createdAt: DateTime!
     updatedAt: DateTime!
   }
