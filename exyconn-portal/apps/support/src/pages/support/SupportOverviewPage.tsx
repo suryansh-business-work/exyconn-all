@@ -5,63 +5,69 @@ import {
   type OverviewBreakdown,
 } from '@exyconn/shell/components/dashboard/ModuleOverview';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
+import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
-  SupportPriority,
-  useListSupportTicketsQuery,
-  type ListSupportTicketsQuery,
+  FilterOp,
+  SupportStatus,
+  useListSupportTicketsPagedQuery,
+  useListSupportTicketsStatsQuery,
+  type ListSupportTicketsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
-import { OPEN_TICKET_STATUSES } from './support.constants';
 
-type TicketRow = ListSupportTicketsQuery['listSupportTickets'][number];
+type TicketRow = ListSupportTicketsPagedQuery['listSupportTicketsPaged']['rows'][number];
 
 /** How many tickets the overview lists before sending you to the console. */
 const RECENT_TICKETS = 8;
 
-/** Counts rows per value of one field, for the breakdown bars. */
-function bucketsOf(rows: TicketRow[], pick: (row: TicketRow) => string) {
-  const counts = new Map<string, number>();
-  for (const row of rows) {
-    const key = pick(row);
-    counts.set(key, (counts.get(key) ?? 0) + 1);
-  }
-  return [...counts].map(([value, count]) => ({ value, count }));
-}
+/** Newest tickets nobody has started on yet. */
+const OPEN_PAGE = {
+  page: 0,
+  pageSize: RECENT_TICKETS,
+  filters: [{ field: 'status', op: FilterOp.Equals, value: SupportStatus.Open }],
+};
 
 /**
- * Support → Overview: how many tickets are waiting and what they are about.
- * The counts are computed here rather than server-side, because the support
- * module exposes the ticket list and no aggregation.
+ * Support → Overview: how many tickets are waiting and what they are about. The
+ * numbers come from one server aggregation; only the short list of open tickets
+ * is fetched as rows.
  */
 export function SupportOverviewPage() {
-  const { data, loading } = useListSupportTicketsQuery({ fetchPolicy: 'cache-and-network' });
+  const { data: statsData } = useListSupportTicketsStatsQuery({ fetchPolicy: 'cache-and-network' });
+  const { data: openData, loading } = useListSupportTicketsPagedQuery({
+    variables: { input: OPEN_PAGE },
+    fetchPolicy: 'cache-and-network',
+  });
   const { formatDate } = useSettings();
 
-  const tickets = data?.listSupportTickets ?? [];
-  const open = tickets.filter((t) => OPEN_TICKET_STATUSES.has(t.status));
-  const urgent = open.filter((t) => t.priority === SupportPriority.High);
+  const stats = statsData?.listSupportTicketsStats;
+  const total = statTotal(stats);
+  const open = statCount(stats, 'status', 'OPEN') + statCount(stats, 'status', 'IN_PROGRESS');
 
   const statItems: StatItem[] = [
-    { label: 'Tickets', value: String(tickets.length), accent: '#4f8cff' },
-    { label: 'Open', value: String(open.length), accent: '#f59e0b' },
-    { label: 'High priority', value: String(urgent.length), accent: '#ff6b6b' },
-    { label: 'Resolved', value: String(tickets.length - open.length), accent: '#22c55e' },
+    { label: 'Tickets', value: String(total), accent: '#4f8cff' },
+    { label: 'Open', value: String(open), accent: '#f59e0b' },
+    {
+      label: 'High priority',
+      value: String(statCount(stats, 'priority', 'HIGH')),
+      accent: '#ff6b6b',
+    },
+    { label: 'Resolved', value: String(total - open), accent: '#22c55e' },
   ];
 
+  const bucketsFor = (field: string) => stats?.counts.find((c) => c.field === field)?.buckets ?? [];
   const breakdowns: OverviewBreakdown[] = [
-    { title: 'By status', buckets: bucketsOf(tickets, (t) => t.status), accent: '#4f8cff' },
-    { title: 'By category', buckets: bucketsOf(tickets, (t) => t.category), accent: '#8b5cf6' },
+    { title: 'By status', buckets: bucketsFor('status'), accent: '#4f8cff' },
+    { title: 'By category', buckets: bucketsFor('category'), accent: '#8b5cf6' },
   ];
 
   const columns: Column<TicketRow>[] = [
     { key: 'subject', label: 'Subject' },
-    { key: 'employeeName', label: 'Raised by' },
+    { key: 'employeeName', label: 'Raised by', render: (r) => r.employeeName ?? '—' },
     { key: 'priority', label: 'Priority', render: (r) => <StatusChip value={r.priority} /> },
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
     { key: 'createdAt', label: 'Raised', render: (r) => formatDate(r.createdAt) },
   ];
-
-  const rows = urgent.length > 0 ? urgent : open;
 
   return (
     <ModuleOverview
@@ -70,11 +76,11 @@ export function SupportOverviewPage() {
       stats={statItems}
       breakdowns={breakdowns}
       links={[{ label: 'Open ticket console', to: '/support/tickets' }]}
-      recentTitle={urgent.length > 0 ? 'Needs attention first' : 'Open tickets'}
+      recentTitle="Open tickets"
     >
       <DataTable
         columns={columns}
-        rows={rows.slice(0, RECENT_TICKETS)}
+        rows={openData?.listSupportTicketsPaged.rows ?? []}
         emptyMessage={loading ? 'Loading…' : 'No open tickets.'}
       />
     </ModuleOverview>

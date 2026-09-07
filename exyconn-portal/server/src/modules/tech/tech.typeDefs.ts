@@ -105,6 +105,8 @@ export const techTypeDefs = gql`
 
   type TrackerBuildSettings {
     slackChannels: [String!]!
+    "Where a status incident opening or resolving is announced."
+    statusAlertChannels: [String!]!
   }
 
   "The installers a build can produce."
@@ -222,6 +224,9 @@ export const techTypeDefs = gql`
     testOpenAiConnection(id: ID!): Boolean!
     "Asks GitHub to build the chosen installers off the given branch."
     startTrackerBuild(platforms: [TrackerPlatform!]!, ref: String!): Boolean!
-    saveTrackerBuildSettings(slackChannels: [String!]!): TrackerBuildSettings!
+    saveTrackerBuildSettings(
+      slackChannels: [String!]!
+      statusAlertChannels: [String!]
+    ): TrackerBuildSettings!
   }
 `;

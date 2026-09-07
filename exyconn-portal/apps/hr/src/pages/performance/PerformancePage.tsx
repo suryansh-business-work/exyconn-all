@@ -2,6 +2,7 @@ import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { useEmployeeNames } from '../../hooks/useEmployeeNames';
 import {
   useListPerformanceReviewsStatsQuery,
   useDeletePerformanceReviewMutation,
@@ -20,6 +21,7 @@ export function PerformancePage() {
   const { data: statsData, refetch: refetchStats } = useListPerformanceReviewsStatsQuery();
   const [deletePerformanceReview] = useDeletePerformanceReviewMutation();
   const { formatDate } = useSettings();
+  const nameOf = useEmployeeNames();
 
   const crud = useCrudResource<PerformanceReviewRow, PagedPerformanceReviewRow>({
     label: 'PerformanceReview',
@@ -47,6 +49,7 @@ export function PerformancePage() {
   const gridContext: PerformanceReviewGridContext = {
     actions: { edit: crud.openEdit, delete: crud.remove },
     formatDate,
+    nameOf,
   };
 
   return (

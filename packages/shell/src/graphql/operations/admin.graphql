@@ -53,6 +53,14 @@ query ListUsersStats {
   }
 }
 
+query ListEmployeeOptions {
+  listEmployeeOptions {
+    id
+    name
+    email
+  }
+}
+
 query GetUser($id: ID!) {
   getUser(id: $id) {
     ...UserFields

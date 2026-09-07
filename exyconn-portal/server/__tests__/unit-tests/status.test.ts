@@ -3,6 +3,11 @@ import { StatusDailyModel } from '../../src/modules/status/status-daily.model';
 import { StatusIncidentModel } from '../../src/modules/status/status-incident.model';
 import { ProblemReportModel } from '../../src/modules/status/problem-report.model';
 import { resetReportLimits } from '../../src/modules/status/report-rate-limit';
+import { TrackerBuildSettingsModel } from '../../src/modules/tech/tracker-build-settings.model';
+import { ROLES } from '../../src/constants/roles';
+import { slackNotifier } from '../../src/utils/slack';
+import { mailer } from '../../src/utils/mailer';
+import { seedUser } from '../helpers';
 import {
   dayKeysBack,
   ensureStatusMonitors,
@@ -30,6 +35,16 @@ const report = {
   reporterEmail: 'asha@example.com',
   pageUrl: 'https://exyconn.com',
 };
+
+jest.mock('../../src/utils/slack', () => ({
+  slackNotifier: { sendMessage: jest.fn() },
+}));
+jest.mock('../../src/utils/mailer', () => ({
+  mailer: { sendCustomEmail: jest.fn() },
+}));
+
+const sendSlack = slackNotifier.sendMessage as jest.Mock;
+const sendEmail = mailer.sendCustomEmail as jest.Mock;
 
 /** Replaces the network for one probe round. */
 function mockFetch(response: { ok: boolean; status: number }) {
@@ -138,6 +153,71 @@ describe('Status monitor round', () => {
     expect(await StatusIncidentModel.countDocuments({ serviceKey: 'website' })).toBe(1);
     const day = await StatusDailyModel.findOne({ serviceKey: 'website' }).lean();
     expect(day).toMatchObject({ checks: 2, failures: 2 });
+  });
+
+  it('does not open an incident on a single failed probe', async () => {
+    await StatusMonitorModel.create(monitor);
+    mockFetch({ ok: false, status: 502 });
+
+    await runStatusChecks();
+
+    const saved = await StatusMonitorModel.findOne({ key: 'website' }).lean();
+    expect(saved?.state).toBe('DOWN');
+    expect(saved?.consecutiveFailures).toBe(1);
+    expect(await StatusIncidentModel.countDocuments({ serviceKey: 'website' })).toBe(0);
+    expect(sendSlack).not.toHaveBeenCalled();
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('resets the failure streak on a healthy probe', async () => {
+    await StatusMonitorModel.create({ ...monitor, consecutiveFailures: 1 });
+    mockFetch({ ok: true, status: 200 });
+
+    await runStatusChecks();
+
+    const saved = await StatusMonitorModel.findOne({ key: 'website' }).lean();
+    expect(saved?.consecutiveFailures).toBe(0);
+  });
+
+  it('alerts Slack and the Tech team when an incident opens, then when it resolves', async () => {
+    await StatusMonitorModel.create(monitor);
+    await TrackerBuildSettingsModel.create({ key: 'default', statusAlertChannels: ['C1', 'C2'] });
+    await seedUser('ops@exyconn.com', 'a-strong-password', [ROLES.TECH]);
+    await seedUser('sales@exyconn.com', 'a-strong-password', [ROLES.CRM]);
+    mockFetch({ ok: false, status: 503 });
+
+    await runStatusChecks();
+    await runStatusChecks();
+
+    expect(await StatusIncidentModel.countDocuments({ serviceKey: 'website' })).toBe(1);
+    expect(sendSlack).toHaveBeenCalledTimes(2);
+    expect(sendSlack.mock.calls.map((call) => call[1])).toEqual(['C1', 'C2']);
+    expect(sendSlack.mock.calls[0][0]).toContain('Website is down');
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+    expect(sendEmail.mock.calls[0][0]).toMatchObject({ email: 'ops@exyconn.com' });
+
+    mockFetch({ ok: true, status: 200 });
+    await runStatusChecks();
+
+    const incident = await StatusIncidentModel.findOne({ serviceKey: 'website' }).lean();
+    expect(incident?.resolvedAt).toBeInstanceOf(Date);
+    expect(sendSlack).toHaveBeenCalledTimes(4);
+    expect(sendSlack.mock.calls[2][0]).toContain('Website is back up');
+    expect(sendEmail).toHaveBeenCalledTimes(2);
+  });
+
+  it('records the incident even when every alert fails', async () => {
+    await StatusMonitorModel.create(monitor);
+    await TrackerBuildSettingsModel.create({ key: 'default', statusAlertChannels: ['C1'] });
+    await seedUser('ops@exyconn.com', 'a-strong-password', [ROLES.TECH]);
+    sendSlack.mockRejectedValue(new Error('invalid_auth'));
+    sendEmail.mockRejectedValue(new Error('SMTP down'));
+    mockFetch({ ok: false, status: 503 });
+
+    await runStatusChecks();
+    await expect(runStatusChecks()).resolves.toBe(1);
+
+    expect(await StatusIncidentModel.countDocuments({ serviceKey: 'website' })).toBe(1);
   });
 
   it('treats an unreachable host as down rather than throwing', async () => {

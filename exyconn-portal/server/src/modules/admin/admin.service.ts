@@ -145,6 +145,11 @@ class AdminService {
     return UserModel.find().sort({ createdAt: -1 }).lean();
   }
 
+  /** Active employees, name + email only — the picker projection every portal may read. */
+  listEmployeeOptions() {
+    return UserModel.find({ isActive: true }).select('name email').sort({ name: 1 }).lean();
+  }
+
   /** One page of users for the server-side Users grid (search/filter/sort/paginate). */
   listUsersPaged(input: TableQueryInput) {
     return tableQuery(UserModel, input, USER_TABLE_CONFIG);
@@ -259,7 +264,10 @@ class AdminService {
 
   async getSettings() {
     const existing = await AppSettingsModel.findOne({ key: 'global' }).lean();
-    return existing ?? AppSettingsModel.create({ key: 'global' });
+    if (existing) return existing;
+    // A plain object, like the lean read: `withId` spreads its input, which strips a document's fields.
+    const created = await AppSettingsModel.create({ key: 'global' });
+    return created.toObject();
   }
 
   async updateSettings(input: UpdateSettingsInput) {

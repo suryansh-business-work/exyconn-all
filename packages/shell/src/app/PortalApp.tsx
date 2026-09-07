@@ -12,6 +12,7 @@ import { PortalLayout } from '@/layout/PortalLayout';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
 import { ProfilePage } from '@/pages/Profile';
 import { SettingsPage } from '@/pages/Settings';
+import { NotificationsPage } from '@/pages/Notifications';
 
 interface PortalAppProps {
   /** Login screen. Injected so the shell never has to depend on the login package. */
@@ -26,7 +27,7 @@ interface PortalAppProps {
 
 /**
  * Composes every provider a portal micro-frontend needs and mounts the shared
- * chrome around its module routes. Login, profile and settings live here, so
+ * chrome around its module routes. Login, profile, settings and notifications live here, so
  * each app gets them identically without owning any of that code.
  */
 export function PortalApp({
@@ -54,6 +55,7 @@ export function PortalApp({
                     >
                       <Route path="/profile" element={<ProfilePage />} />
                       <Route path="/settings" element={<SettingsPage />} />
+                      <Route path="/notifications" element={<NotificationsPage />} />
                       {children}
                     </Route>
                     <Route path="*" element={<Navigate to={homePath} replace />} />

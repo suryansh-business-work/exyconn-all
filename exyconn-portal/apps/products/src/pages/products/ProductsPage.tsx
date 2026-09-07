@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -8,6 +9,7 @@ import {
   type ListProductsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { ProductForm, type ProductRow } from './forms/product';
+import { ProductHistoryDrawer } from './ProductHistoryDrawer';
 import { PRODUCT_COLUMNS, type PagedProductRow, type ProductsGridContext } from './products-grid';
 
 /** Products module — catalog dashboard with a server-side products grid. */
@@ -15,6 +17,7 @@ export function ProductsPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListProductsStatsQuery();
   const [deleteProduct] = useDeleteProductMutation();
+  const [history, setHistory] = useState<PagedProductRow | null>(null);
   const crud = useCrudResource<ProductRow, PagedProductRow>({
     label: 'Product',
     onDelete: (row) => deleteProduct({ variables: { id: row.id } }),
@@ -35,7 +38,7 @@ export function ProductsPage() {
   ];
 
   const gridContext: ProductsGridContext = {
-    actions: { edit: crud.openEdit, delete: crud.remove },
+    actions: { edit: crud.openEdit, history: setHistory, delete: crud.remove },
   };
 
   return (
@@ -52,6 +55,7 @@ export function ProductsPage() {
       fetchRows={fetchRows}
       context={gridContext}
       searchPlaceholder="Search products…"
+      extraDialogs={<ProductHistoryDrawer product={history} onClose={() => setHistory(null)} />}
     />
   );
 }

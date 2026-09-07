@@ -2,6 +2,7 @@ import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { useEmployeeNames } from '../../hooks/useEmployeeNames';
 import {
   useListTrainingsStatsQuery,
   useDeleteTrainingMutation,
@@ -16,6 +17,7 @@ export function TrainingPage() {
   const { data: statsData, refetch: refetchStats } = useListTrainingsStatsQuery();
   const [deleteTraining] = useDeleteTrainingMutation();
   const { formatDate } = useSettings();
+  const nameOf = useEmployeeNames();
 
   const crud = useCrudResource<TrainingRow, PagedTrainingRow>({
     label: 'Training',
@@ -51,6 +53,7 @@ export function TrainingPage() {
   const gridContext: TrainingGridContext = {
     actions: { edit: crud.openEdit, delete: crud.remove },
     formatDate,
+    nameOf,
   };
 
   return (

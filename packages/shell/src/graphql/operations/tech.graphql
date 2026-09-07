@@ -148,6 +148,7 @@ query ListTrackerBuilds {
 query TrackerBuildSettings {
   trackerBuildSettings {
     slackChannels
+    statusAlertChannels
   }
 }
 
@@ -155,9 +156,10 @@ mutation StartTrackerBuild($platforms: [TrackerPlatform!]!, $ref: String!) {
   startTrackerBuild(platforms: $platforms, ref: $ref)
 }
 
-mutation SaveTrackerBuildSettings($slackChannels: [String!]!) {
-  saveTrackerBuildSettings(slackChannels: $slackChannels) {
+mutation SaveTrackerBuildSettings($slackChannels: [String!]!, $statusAlertChannels: [String!]) {
+  saveTrackerBuildSettings(slackChannels: $slackChannels, statusAlertChannels: $statusAlertChannels) {
     slackChannels
+    statusAlertChannels
   }
 }
 

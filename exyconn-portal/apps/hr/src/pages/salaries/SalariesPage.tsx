@@ -2,6 +2,7 @@ import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { useEmployeeNames } from '../../hooks/useEmployeeNames';
 import {
   useListSalaryStructuresStatsQuery,
   useDeleteSalaryStructureMutation,
@@ -20,6 +21,7 @@ export function SalariesPage() {
   const { data: statsData, refetch: refetchStats } = useListSalaryStructuresStatsQuery();
   const [deleteSalaryStructure] = useDeleteSalaryStructureMutation();
   const { formatDate } = useSettings();
+  const nameOf = useEmployeeNames();
 
   const crud = useCrudResource<SalaryStructureRow, PagedSalaryStructureRow>({
     label: 'SalaryStructure',
@@ -47,6 +49,7 @@ export function SalariesPage() {
   const gridContext: SalaryStructureGridContext = {
     actions: { edit: crud.openEdit, delete: crud.remove },
     formatDate,
+    nameOf,
   };
 
   return (

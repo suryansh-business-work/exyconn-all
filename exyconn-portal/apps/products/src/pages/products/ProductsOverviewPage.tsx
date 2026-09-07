@@ -7,28 +7,37 @@ import {
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { formatMoney } from '@exyconn/shell/utils/money';
-import { useListProductsQuery, useListProductsStatsQuery } from '@exyconn/shell/graphql/generated';
+import {
+  useInventoryValueQuery,
+  useListProductsQuery,
+  useListProductsStatsQuery,
+} from '@exyconn/shell/graphql/generated';
 import type { ProductRow } from './forms/product';
+import { stockLevel } from './products-grid';
 
 /** How many of the newest products the overview lists before sending you to the catalogue. */
 const RECENT_PRODUCTS = 8;
-/** At or below this, a line is worth restocking rather than reporting. */
-const LOW_STOCK = 5;
 
 /** Products → Overview: what the catalogue holds, and what is running out. */
 export function ProductsOverviewPage() {
   const { data: statsData } = useListProductsStatsQuery();
+  const { data: valueData } = useInventoryValueQuery();
   const { data: productsData, loading } = useListProductsQuery();
 
   const stats = statsData?.listProductsStats;
   const products = productsData?.listProducts ?? [];
-  const lowStock = products.filter((p) => p.stock <= LOW_STOCK);
+  // Each line is read against its own reorder level, not one figure for the catalogue.
+  const lowStock = products.filter((p) => stockLevel(p) === 'CRITICAL');
 
   const statItems: StatItem[] = [
     { label: 'Products', value: String(statTotal(stats)), accent: '#4f8cff' },
     { label: 'Units in stock', value: String(statSum(stats, 'stock')), accent: '#22c55e' },
     { label: 'Low stock', value: String(lowStock.length), accent: '#ff6b6b' },
-    { label: 'Catalogue value', value: formatMoney(statSum(stats, 'price')), accent: '#8b5cf6' },
+    {
+      label: 'Catalogue value',
+      value: formatMoney(valueData?.inventoryValue ?? 0),
+      accent: '#8b5cf6',
+    },
   ];
 
   const breakdowns: OverviewBreakdown[] = [

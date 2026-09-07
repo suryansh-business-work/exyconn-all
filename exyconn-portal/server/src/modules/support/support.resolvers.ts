@@ -1,13 +1,65 @@
-import { SupportTicketModel } from '../employee/support.model';
+import type { FilterQuery } from 'mongoose';
+import { SupportTicketModel, type SupportTicketDocument } from '../employee/support.model';
 import { SupportReplyModel } from './support-reply.model';
+import { notifyEmployeeOfReply } from './support.notify';
 import { UserModel } from '../admin/user.model';
 import { assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { badRequest, notFound } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
+import {
+  tableQuery,
+  tableStats,
+  type TableConfig,
+  type TableQueryInput,
+} from '../../utils/tableQuery';
 import type { GraphQLContext } from '../../middleware/auth';
 
 const supportTeam = [ROLES.SUPPORT];
+
+/** What the console grid may search, filter and sort on. */
+const TICKET_TABLE: TableConfig = {
+  searchFields: ['subject', 'description', 'assigneeName'],
+  filterFields: ['status', 'priority', 'category', 'assigneeId'],
+  sortFields: ['subject', 'category', 'priority', 'status', 'assigneeName', 'createdAt'],
+  defaultSort: { field: 'createdAt', dir: 'DESC' },
+};
+
+const TICKET_STATS = { countBy: ['status', 'priority', 'category'] };
+
+type LeanTicket = SupportTicketDocument & { _id: unknown };
+
+/** Resolves employee display names in one query (avoids N+1). */
+async function withEmployeeNames(tickets: LeanTicket[]) {
+  const ids = [...new Set(tickets.map((t) => t.employeeId))];
+  const users = await UserModel.find({ _id: { $in: ids } })
+    .select('name')
+    .lean();
+  const nameById = new Map(users.map((u) => [u._id.toString(), u.name]));
+  return withIds(
+    tickets.map((t) => ({ ...t, employeeName: nameById.get(t.employeeId) ?? null })),
+  );
+}
+
+/**
+ * The table engine drops a filter whose value is empty, so "unassigned" — which IS
+ * an empty assignee — cannot travel as a normal filter. It is lifted out here into
+ * the base filter instead; every other filter goes through untouched.
+ */
+function splitUnassignedFilter(input: TableQueryInput): {
+  input: TableQueryInput;
+  base: FilterQuery<SupportTicketDocument>;
+} {
+  const filters = input.filters ?? [];
+  const unassigned = filters.some((f) => f.field === 'assigneeId' && f.value === '');
+  if (!unassigned) {
+    return { input, base: {} };
+  }
+  return {
+    input: { ...input, filters: filters.filter((f) => f.field !== 'assigneeId') },
+    base: { assigneeId: '' },
+  };
+}
 
 /**
  * Support-team console: read every ticket, hand it to someone, move it through
@@ -18,17 +70,26 @@ export const supportResolvers = {
     listSupportTickets: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       assertRole(ctx, supportTeam);
       const tickets = await SupportTicketModel.find().sort({ createdAt: -1 }).lean();
+      return withEmployeeNames(tickets);
+    },
 
-      // Resolve employee display names in one query (avoids N+1).
-      const ids = [...new Set(tickets.map((t) => t.employeeId))];
-      const users = await UserModel.find({ _id: { $in: ids } })
-        .select('name')
-        .lean();
-      const nameById = new Map(users.map((u) => [u._id.toString(), u.name]));
+    listSupportTicketsPaged: async (
+      _p: unknown,
+      { input }: { input: TableQueryInput },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, supportTeam);
+      const query = splitUnassignedFilter(input);
+      const page = await tableQuery(SupportTicketModel, query.input, TICKET_TABLE, query.base);
+      return {
+        rows: await withEmployeeNames(page.rows as LeanTicket[]),
+        totalCount: page.totalCount,
+      };
+    },
 
-      return withIds(
-        tickets.map((t) => ({ ...t, employeeName: nameById.get(t.employeeId) ?? null })),
-      );
+    listSupportTicketsStats: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertRole(ctx, supportTeam);
+      return tableStats(SupportTicketModel, TICKET_STATS);
     },
 
     listSupportReplies: async (
@@ -57,6 +118,21 @@ export const supportResolvers = {
     ) => {
       assertRole(ctx, supportTeam);
       const doc = await SupportTicketModel.findByIdAndUpdate(id, { status }, { new: true }).lean();
+      if (!doc) notFound('SupportTicket');
+      return withId(doc);
+    },
+
+    setSupportTicketTriage: async (
+      _p: unknown,
+      { id, category, priority }: { id: string; category: string; priority: string },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, supportTeam);
+      const doc = await SupportTicketModel.findByIdAndUpdate(
+        id,
+        { category, priority },
+        { new: true, runValidators: true },
+      ).lean();
       if (!doc) notFound('SupportTicket');
       return withId(doc);
     },
@@ -109,6 +185,9 @@ export const supportResolvers = {
         body: body.trim(),
         internal,
       });
+      if (!internal) {
+        await notifyEmployeeOfReply(ticket, reply.body);
+      }
       return withId(reply.toObject());
     },
   },

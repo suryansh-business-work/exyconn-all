@@ -7,6 +7,8 @@ query ListLeads {
     stage
     value
     owner
+    notes
+    convertedDealId
   }
 }
 
@@ -21,6 +23,8 @@ query ListLeadsPaged($input: TableQueryInput!) {
       stage
       value
       owner
+      notes
+      convertedDealId
     }
   }
 }
@@ -56,4 +60,11 @@ mutation UpdateLead($id: ID!, $input: LeadInput!) {
 
 mutation DeleteLead($id: ID!) {
   deleteLead(id: $id)
+}
+
+mutation ConvertLead($id: ID!, $input: ConvertLeadInput!) {
+  convertLead(id: $id, input: $input) {
+    id
+    title
+  }
 }

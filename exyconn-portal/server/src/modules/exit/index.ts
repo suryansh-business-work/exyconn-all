@@ -3,9 +3,14 @@ import { exitTypeDefs } from './exit.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertAuthenticated } from '../../middleware/roleGuard';
-import { withId } from '../../utils/serialize';
+import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
+import { isValidObjectId } from 'mongoose';
+import { UserModel } from '../admin/user.model';
+import { AssetModel } from '../assets/asset.model';
 import type { GraphQLContext } from '../../middleware/auth';
+
+const EXITED = 'EXITED';
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -53,10 +58,37 @@ async function myExitRecord(_p: unknown, _a: unknown, ctx: GraphQLContext) {
   return row ? withId(row as { _id: unknown }) : null;
 }
 
+/**
+ * Reaching EXITED is the moment the person stops being an employee, so their
+ * portal access goes with it. Wrapped around the generated update rather than a
+ * model hook, so the same edit HR already makes is what revokes access.
+ */
+const updateExitRecord = async (p: unknown, args: never, ctx: GraphQLContext) => {
+  const { id, input } = args as unknown as { id: string; input: ExitRecordInput };
+  const before = await ExitRecordModel.findById(id).select('stage').lean();
+  const updated = await crud.Mutation.updateExitRecord(p, args, ctx);
+  const becameExited = before?.stage !== EXITED && input.stage === EXITED;
+  if (becameExited && isValidObjectId(input.employeeId)) {
+    await UserModel.updateOne(
+      { _id: input.employeeId },
+      { isActive: false, employmentStatus: 'TERMINATED' },
+    );
+  }
+  return updated;
+};
+
 export const exitResolvers = {
   Query: { ...crud.Query, myExitRecord },
-  Mutation: crud.Mutation,
+  Mutation: { ...crud.Mutation, updateExitRecord },
   ExitRecord: {
+    /** What the leaver still holds, straight from the asset register. */
+    heldAssets: async (record: { employeeId: string }) => {
+      const rows = await AssetModel.find({ assignedToId: record.employeeId, status: 'ASSIGNED' })
+        .select('assetTag name status')
+        .sort({ assetTag: 1 })
+        .lean();
+      return withIds(rows);
+    },
     /** Derived so it is always right, rather than a column that goes stale daily. */
     daysToLastWorkingDay: (record: { lastWorkingDate?: Date | string | null }) => {
       if (!record.lastWorkingDate) return null;

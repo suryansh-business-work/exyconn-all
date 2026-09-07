@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
+import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { statCount, statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
@@ -9,6 +11,8 @@ import {
   type ListInvoicesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { InvoiceForm, type InvoiceRow } from './forms/invoice';
+import { SendInvoiceForm } from './forms/send-invoice';
+import { useInvoiceDownload } from './useInvoiceDownload';
 import { INVOICE_COLUMNS, type PagedInvoiceRow, type InvoicesGridContext } from './invoices-grid';
 
 /** Finance module — invoice dashboard with a server-side invoices grid. */
@@ -16,6 +20,8 @@ export function FinancePage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListInvoicesStatsQuery();
   const [deleteInvoice] = useDeleteInvoiceMutation();
+  const [sendTarget, setSendTarget] = useState<PagedInvoiceRow | null>(null);
+  const { download } = useInvoiceDownload();
   const { formatDate } = useSettings();
   const crud = useCrudResource<InvoiceRow, PagedInvoiceRow>({
     label: 'Invoice',
@@ -37,9 +43,16 @@ export function FinancePage() {
   ];
 
   const gridContext: InvoicesGridContext = {
-    actions: { edit: crud.openEdit, delete: crud.remove },
+    actions: {
+      download: (row) => download(row.id, row.number),
+      send: setSendTarget,
+      edit: crud.openEdit,
+      delete: crud.remove,
+    },
     formatDate,
   };
+
+  const closeSend = () => setSendTarget(null);
 
   return (
     <CrudDashboard
@@ -55,6 +68,20 @@ export function FinancePage() {
       fetchRows={fetchRows}
       context={gridContext}
       searchPlaceholder="Search invoices…"
+      extraDialogs={
+        <CrudDialog open={Boolean(sendTarget)} title="Send invoice" onClose={closeSend}>
+          {sendTarget && (
+            <SendInvoiceForm
+              invoice={sendTarget}
+              onCancel={closeSend}
+              onDone={() => {
+                crud.reload();
+                closeSend();
+              }}
+            />
+          )}
+        </CrudDialog>
+      }
     />
   );
 }

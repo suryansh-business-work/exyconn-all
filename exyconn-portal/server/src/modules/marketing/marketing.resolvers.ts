@@ -40,6 +40,54 @@ async function sendOne(
   }
 }
 
+interface SendArgs {
+  id: string;
+  audienceListId?: string | null;
+  testEmail?: string | null;
+}
+
+type CampaignDoc = InstanceType<typeof CampaignModel>;
+
+const sendResult = (campaign: CampaignDoc, sent: number, failed: number) => ({
+  sent,
+  failed,
+  campaign: withId(campaign.toObject() as { _id: unknown }),
+});
+
+/** A preview to one address. Nothing is logged or stamped: it is not a send of the campaign. */
+async function sendTest(campaign: CampaignDoc, testEmail: string) {
+  const outcome = await sendOne({ name: testEmail, email: testEmail }, campaign);
+  if (outcome.status === 'FAILED') {
+    badRequest(`Test email to ${testEmail} failed: ${outcome.error}`);
+  }
+  return sendResult(campaign, 1, 0);
+}
+
+/** The real send: every client in the audience, each outcome logged, the campaign stamped. */
+async function sendToAudience(campaign: CampaignDoc, audienceListId: string) {
+  const audience = await AudienceListModel.findById(audienceListId).lean();
+  if (!audience) notFound('Audience list');
+  if (!audience.clientIds.length) badRequest(`"${audience.name}" has no clients in it.`);
+
+  const clients = await ClientModel.find({ _id: { $in: audience.clientIds } }).lean();
+  if (!clients.length) badRequest(`No client in "${audience.name}" still exists.`);
+
+  const outcomes: SendOutcome[] = [];
+  for (const client of clients) {
+    outcomes.push(await sendOne(client, campaign));
+  }
+
+  await CampaignSendModel.insertMany(
+    outcomes.map((outcome) => ({ ...outcome, campaignId: String(campaign._id), audienceListId })),
+  );
+
+  const sent = outcomes.filter((outcome) => outcome.status === 'SENT').length;
+  campaign.lastSentAt = new Date();
+  campaign.recipientsCount = sent;
+  await campaign.save();
+  return sendResult(campaign, sent, outcomes.length - sent);
+}
+
 /** Custom Marketing resolvers layered on top of the campaign and audience CRUD. */
 export const marketingCustomResolvers = {
   Query: {
@@ -56,13 +104,13 @@ export const marketingCustomResolvers = {
   },
   Mutation: {
     /**
-     * Emails the campaign to a saved audience. The audience is the only way in: a
-     * hand-picked recipient set could never be repeated, and nobody could say later
-     * who a campaign had gone to.
+     * Emails the campaign to a saved audience, or — with `testEmail` — to one address
+     * as a preview. The audience is the only way to a real send: a hand-picked recipient
+     * set could never be repeated, and nobody could say later who a campaign had gone to.
      */
     sendCampaign: async (
       _p: unknown,
-      { id, audienceListId }: { id: string; audienceListId: string },
+      { id, audienceListId, testEmail }: SendArgs,
       ctx: GraphQLContext,
     ) => {
       guard(ctx);
@@ -71,32 +119,13 @@ export const marketingCustomResolvers = {
       if (!campaign.subject || !campaign.body) {
         badRequest('Add an email subject and body before sending this campaign.');
       }
-
-      const audience = await AudienceListModel.findById(audienceListId).lean();
-      if (!audience) notFound('Audience list');
-      if (!audience.clientIds.length) badRequest(`"${audience.name}" has no clients in it.`);
-
-      const clients = await ClientModel.find({ _id: { $in: audience.clientIds } }).lean();
-      if (!clients.length) badRequest(`No client in "${audience.name}" still exists.`);
-
-      const outcomes: SendOutcome[] = [];
-      for (const client of clients) {
-        outcomes.push(await sendOne(client, campaign));
+      if (testEmail) {
+        return sendTest(campaign, testEmail);
       }
-
-      await CampaignSendModel.insertMany(
-        outcomes.map((outcome) => ({ ...outcome, campaignId: id, audienceListId })),
-      );
-
-      const sent = outcomes.filter((outcome) => outcome.status === 'SENT').length;
-      campaign.lastSentAt = new Date();
-      campaign.recipientsCount = sent;
-      await campaign.save();
-      return {
-        sent,
-        failed: outcomes.length - sent,
-        campaign: withId(campaign.toObject() as { _id: unknown }),
-      };
+      if (!audienceListId) {
+        badRequest('Choose an audience to send to, or an address for a test send.');
+      }
+      return sendToAudience(campaign, audienceListId);
     },
   },
 };

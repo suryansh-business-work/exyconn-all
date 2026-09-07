@@ -1,22 +1,17 @@
 import type { ColDef } from 'ag-grid-community';
-import {
-  actionsColumn,
-  dateColumn,
-  textColumn,
-  valueColumn,
-  type DatedCrudGridContext,
-} from '@exyconn/crud';
+import { actionsColumn, dateColumn, textColumn, valueColumn } from '@exyconn/crud';
+import { employeeNameColumn, type NamedGridContext } from '../../grid/employee-name-column';
 import type { ListSalaryStructuresPagedQuery } from '@exyconn/shell/graphql/generated';
 
 export type PagedSalaryStructureRow =
   ListSalaryStructuresPagedQuery['listSalaryStructuresPaged']['rows'][number];
 
-/** Row handlers plus the date formatter ag-grid hands to shared cells via `context`. */
-export type SalaryStructureGridContext = DatedCrudGridContext<PagedSalaryStructureRow>;
+/** Row handlers, the date formatter and the employee-name lookup ag-grid hands to shared cells. */
+export type SalaryStructureGridContext = NamedGridContext<PagedSalaryStructureRow>;
 
 /** Column model for the server-side Salary Structures grid. */
 export const SALARY_STRUCTURE_COLUMNS: ColDef<PagedSalaryStructureRow>[] = [
-  textColumn('employeeId', 'Employee ID'),
+  employeeNameColumn(),
   textColumn('currency', 'Currency'),
   textColumn('payType', 'Pay type'),
   valueColumn('basic', 'Basic', (row) => String(row.basic ?? '—')),

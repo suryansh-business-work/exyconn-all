@@ -174,7 +174,17 @@ export const crmEntitiesTypeDefs = gql`
     totalCount: Int!
   }
 
+  "The open pipeline, weighted by each deal's probability."
+  type DealForecast {
+    openCount: Int!
+    openValue: Float!
+    weightedValue: Float!
+  }
+
   extend type Query {
+    "Open deals (not won or lost): how many, their face value and the probability-weighted value."
+    dealForecast: DealForecast!
+
     listCompanies: [Company!]!
     listCompaniesPaged(input: TableQueryInput!): CompanyPage!
     listCompaniesStats: TableStats!

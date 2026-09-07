@@ -6,7 +6,7 @@ import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
-  useListUsersQuery,
+  useListEmployeeOptionsQuery,
   useTrackerAccessListQuery,
   useGrantTrackerAccessMutation,
   useRevokeTrackerAccessMutation,
@@ -52,7 +52,7 @@ function AccessActionCell({ active, onGrant, onRevoke }: Readonly<AccessActionPr
 
 /** Tracker access console — grant or revoke desktop tracking per employee. */
 export function TrackerAccessPage() {
-  const usersQuery = useListUsersQuery();
+  const usersQuery = useListEmployeeOptionsQuery();
   const accessQuery = useTrackerAccessListQuery({ fetchPolicy: 'cache-and-network' });
   const [grantAccess] = useGrantTrackerAccessMutation();
   const [revokeAccess] = useRevokeTrackerAccessMutation();
@@ -64,7 +64,7 @@ export function TrackerAccessPage() {
   const accessByUser = new Map(
     (accessQuery.data?.trackerAccessList ?? []).map((entry) => [entry.userId, entry]),
   );
-  const rows: AccessUserRow[] = (usersQuery.data?.listUsers ?? []).map((user) => ({
+  const rows: AccessUserRow[] = (usersQuery.data?.listEmployeeOptions ?? []).map((user) => ({
     id: user.id,
     name: user.name,
     email: user.email,

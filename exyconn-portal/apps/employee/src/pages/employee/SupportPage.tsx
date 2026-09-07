@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import ForumIcon from '@mui/icons-material/Forum';
 import { Box, Chip, Text } from '@exyconn/shell/components/ui';
-import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
+import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
@@ -8,6 +9,7 @@ import { glass } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useMySupportTicketsQuery } from '@exyconn/shell/graphql/generated';
 import { SupportTicketForm } from './forms/support-ticket';
+import { SupportThread } from './SupportThread';
 
 type TicketRow = {
   id: string;
@@ -24,6 +26,7 @@ export function SupportPage() {
   const { data, loading, refetch } = useMySupportTicketsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState<TicketRow | null>(null);
 
   const rows = (data?.mySupportTickets ?? []) as TicketRow[];
 
@@ -43,7 +46,18 @@ export function SupportPage() {
     { key: 'createdAt', label: 'Raised', render: (r) => formatDate(r.createdAt) },
   ];
 
+  const actions: RowAction<TicketRow>[] = [
+    {
+      icon: <ForumIcon fontSize="small" />,
+      tooltip: 'Open conversation',
+      ariaLabel: 'open ticket',
+      color: 'primary',
+      onClick: setActive,
+    },
+  ];
+
   const close = () => setOpen(false);
+  const closeThread = () => setActive(null);
 
   return (
     <Box>
@@ -57,6 +71,7 @@ export function SupportPage() {
         <DataTable
           columns={columns}
           rows={rows}
+          actions={actions}
           emptyMessage={loading ? 'Loading…' : 'You have no support tickets yet.'}
         />
       </Box>
@@ -68,6 +83,15 @@ export function SupportPage() {
             close();
           }}
         />
+      </CrudDialog>
+      <CrudDialog open={active !== null} title={active?.subject ?? ''} onClose={closeThread}>
+        {active && (
+          <SupportThread
+            ticketId={active.id}
+            description={active.description}
+            onClose={closeThread}
+          />
+        )}
       </CrudDialog>
     </Box>
   );

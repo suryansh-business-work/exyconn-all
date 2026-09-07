@@ -124,6 +124,8 @@ export const employeeTypeDefs = gql`
     mySalarySlips: [SalarySlip!]!
     "The signed-in employee's own support tickets."
     mySupportTickets: [SupportTicket!]!
+    "The conversation on one of the employee's own tickets, internal notes excluded."
+    mySupportReplies(ticketId: ID!): [SupportReply!]!
     "Company-wide holidays, readable by any authenticated employee."
     listHolidays: [Holiday!]!
   }
@@ -131,5 +133,7 @@ export const employeeTypeDefs = gql`
   extend type Mutation {
     "Self-service: raise a support ticket (status forced to OPEN)."
     createSupportTicket(input: SupportTicketInput!): SupportTicket!
+    "Self-service: continue the conversation on one of the employee's own tickets."
+    addMySupportReply(ticketId: ID!, body: String!): SupportReply!
   }
 `;

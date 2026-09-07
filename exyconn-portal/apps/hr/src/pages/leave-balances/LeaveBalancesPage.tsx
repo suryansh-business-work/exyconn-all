@@ -2,6 +2,7 @@ import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { useEmployeeNames } from '../../hooks/useEmployeeNames';
 import {
   useListLeaveBalancesStatsQuery,
   useDeleteLeaveBalanceMutation,
@@ -20,6 +21,7 @@ export function LeaveBalancesPage() {
   const { data: statsData, refetch: refetchStats } = useListLeaveBalancesStatsQuery();
   const [deleteLeaveBalance] = useDeleteLeaveBalanceMutation();
   const { formatDate } = useSettings();
+  const nameOf = useEmployeeNames();
 
   const crud = useCrudResource<LeaveBalanceRow, PagedLeaveBalanceRow>({
     label: 'LeaveBalance',
@@ -43,6 +45,7 @@ export function LeaveBalancesPage() {
   const gridContext: LeaveBalanceGridContext = {
     actions: { edit: crud.openEdit, delete: crud.remove },
     formatDate,
+    nameOf,
   };
 
   return (

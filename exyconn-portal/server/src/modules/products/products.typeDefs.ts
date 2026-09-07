@@ -14,6 +14,8 @@ export const productsTypeDefs = gql`
     price: Float!
     category: String!
     stock: Int!
+    "At or below this level the product counts as low stock."
+    reorderLevel: Int!
     status: ProductStatus!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -24,7 +26,9 @@ export const productsTypeDefs = gql`
     sku: String!
     price: Float!
     category: String!
-    stock: Int!
+    "Opening stock. Only honoured on create — afterwards the level moves through stock movements."
+    stock: Int
+    reorderLevel: Int
     status: ProductStatus!
   }
 
@@ -38,6 +42,8 @@ export const productsTypeDefs = gql`
     listProductsPaged(input: TableQueryInput!): ProductPage!
     listProductsStats: TableStats!
     getProduct(id: ID!): Product!
+    "Sum of price × stock over ACTIVE products."
+    inventoryValue: Float!
   }
 
   extend type Mutation {

@@ -49,7 +49,14 @@ export const env = Object.freeze({
     intervalMs: Number(process.env.STATUS_CHECK_INTERVAL_MS ?? 300_000),
     timeoutMs: Number(process.env.STATUS_CHECK_TIMEOUT_MS ?? 10_000),
     degradedMs: Number(process.env.STATUS_DEGRADED_MS ?? 2_000),
+    /**
+     * Consecutive failed probes before an incident opens. One failed probe is often a
+     * blip; alerting on it pages people for nothing.
+     */
+    failuresToOpen: Number(process.env.STATUS_FAILURES_TO_OPEN ?? 2),
   },
+  /** Where a support reply email sends the employee to read the thread. */
+  employeeSupportUrl: process.env.EMPLOYEE_SUPPORT_URL ?? 'https://employee.exyconn.com/me/support',
   /** Where the payslip email sends an employee to see the rest of their payslips. */
   salarySlipsUrl: process.env.SALARY_SLIPS_URL ?? 'https://employee.exyconn.com/me/salary-slips',
   /**

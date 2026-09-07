@@ -251,11 +251,14 @@ export const techResolvers = {
     },
     saveTrackerBuildSettings: async (
       _p: unknown,
-      { slackChannels }: { slackChannels: string[] },
+      {
+        slackChannels,
+        statusAlertChannels,
+      }: { slackChannels: string[]; statusAlertChannels?: string[] | null },
       ctx: GraphQLContext,
     ) => {
       assertRole(ctx, techOnly);
-      return techService.saveTrackerBuildSettings(slackChannels);
+      return techService.saveTrackerBuildSettings(slackChannels, statusAlertChannels);
     },
   },
 };

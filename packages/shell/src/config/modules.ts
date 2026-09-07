@@ -54,6 +54,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
+import TableRowsIcon from '@mui/icons-material/TableRows';
 import LanguageIcon from '@mui/icons-material/Language';
 import ArticleIcon from '@mui/icons-material/Article';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
@@ -163,6 +164,7 @@ export const MODULES: ModuleDefinition[] = [
       { key: 'me-policies', label: 'Policies', path: '/me/policies', icon: PolicyIcon },
       { key: 'me-support', label: 'Support', path: '/me/support', icon: SupportAgentIcon },
       { key: 'me-tracker', label: 'My Tracker', path: '/me/tracker', icon: AccessTimeIcon },
+      { key: 'me-exit', label: 'Exit', path: '/me/exit', icon: LogoutIcon },
     ],
   },
   {
@@ -234,6 +236,7 @@ export const MODULES: ModuleDefinition[] = [
       { key: 'crm-companies', label: 'Companies', path: '/crm/companies', icon: BusinessIcon },
       { key: 'crm-contacts', label: 'Contacts', path: '/crm/contacts', icon: PersonIcon },
       { key: 'crm-deals', label: 'Deals', path: '/crm/deals', icon: HandshakeIcon },
+      { key: 'crm-deals-list', label: 'Deals List', path: '/crm/deals/list', icon: TableRowsIcon },
       { key: 'crm-activities', label: 'Activities', path: '/crm/activities', icon: EventNoteIcon },
     ],
   },
@@ -281,7 +284,7 @@ export const MODULES: ModuleDefinition[] = [
       },
       {
         key: 'legal-contracts',
-        label: 'Legal',
+        label: 'Contracts',
         path: '/legal/contracts',
         icon: GavelIcon,
       },
@@ -435,6 +438,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Branding',
         path: '/admin/branding',
         icon: PaletteIcon,
+      },
+      {
+        key: 'admin-app-settings',
+        label: 'App Settings',
+        path: '/admin/settings',
+        icon: TuneIcon,
       },
     ],
   },

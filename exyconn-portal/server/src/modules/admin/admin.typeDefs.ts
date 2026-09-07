@@ -81,6 +81,13 @@ export const adminTypeDefs = gql`
     timezone: String!
   }
 
+  "Just enough of an active employee to put them in a picker — readable by any signed-in user."
+  type EmployeeOption {
+    id: ID!
+    name: String!
+    email: String!
+  }
+
   "A newly-created user together with the one-time temporary password (also emailed)."
   type UserCredentials {
     user: User!
@@ -150,6 +157,8 @@ export const adminTypeDefs = gql`
     listUsersPaged(input: TableQueryInput!): UserPage!
     listUsersStats: TableStats!
     getUser(id: ID!): User!
+    "Active employees for pickers in any portal; the full employee record stays HR's (listUsers)."
+    listEmployeeOptions: [EmployeeOption!]!
     appSettings: AppSettings!
   }
 

@@ -15,6 +15,8 @@ const expenseSchema = new Schema(
     status: { type: String, enum: EXPENSE_STATUSES, required: true, default: 'SUBMITTED' },
     /** What finance actually cleared, which can differ from the claim. */
     approvedAmount: { type: Number, default: null, min: 0 },
+    /** When the reimbursement actually left. Cash flow is measured on this date. Null until paid. */
+    paidOn: { type: Date, default: null },
   },
   { timestamps: true },
 );

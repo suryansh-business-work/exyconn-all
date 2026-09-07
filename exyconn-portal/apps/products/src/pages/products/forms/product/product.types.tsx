@@ -7,6 +7,8 @@ export interface ProductFormValues {
   sku: string;
   price: number;
   category: string;
-  stock: number;
+  /** Opening stock — only asked for on create; afterwards the ledger moves it. */
+  stock?: number;
+  reorderLevel: number;
   status: ProductStatus;
 }

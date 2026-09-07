@@ -3,6 +3,7 @@ import { logger } from '../../utils/logger';
 import { StatusMonitorModel } from './status-monitor.model';
 import { StatusDailyModel } from './status-daily.model';
 import { StatusIncidentModel } from './status-incident.model';
+import { announceIncident } from './status.alerts';
 import type { StatusState } from './status.constants';
 
 /** Outcome of a single HTTP probe. */
@@ -76,36 +77,53 @@ async function recordDay(serviceKey: string, result: ProbeResult, at: Date): Pro
   );
 }
 
-/** Opens an incident on the first failing probe and closes it on the first healthy one. */
+/** Everything the incident logic needs to know about one monitor. */
+interface MonitorTarget {
+  key: string;
+  name: string;
+  url: string;
+}
+
+/**
+ * Opens an incident once a service has failed `STATUS_FAILURES_TO_OPEN` probes in a
+ * row, and closes it on the first healthy one. The team is told either way.
+ */
 async function syncIncident(
-  serviceKey: string,
-  serviceName: string,
+  monitor: MonitorTarget,
   result: ProbeResult,
+  consecutiveFailures: number,
   at: Date,
 ): Promise<void> {
-  const open = await StatusIncidentModel.findOne({ serviceKey, resolvedAt: null });
+  const open = await StatusIncidentModel.findOne({ serviceKey: monitor.key, resolvedAt: null });
   if (result.state === 'DOWN') {
-    if (!open) {
+    if (!open && consecutiveFailures >= env.status.failuresToOpen) {
       await StatusIncidentModel.create({
-        serviceKey,
-        serviceName,
+        serviceKey: monitor.key,
+        serviceName: monitor.name,
         state: 'DOWN',
         reason: result.error,
         startedAt: at,
       });
+      await announceIncident('OPENED', monitor, result.error);
     }
     return;
   }
   if (open) {
     await StatusIncidentModel.updateOne({ _id: open._id }, { resolvedAt: at });
+    await announceIncident('RESOLVED', monitor, result.error);
   }
 }
 
-/** Probes one monitor and writes the live state, the day bucket and any incident change. */
-async function checkMonitor(monitor: { key: string; name: string; url: string }): Promise<void> {
+/**
+ * Probes one monitor and writes the live state, the day bucket and any incident change.
+ * The failure streak is kept on the monitor row so a restart between two probes does
+ * not forget how long a service has been failing.
+ */
+async function checkMonitor(monitor: MonitorTarget): Promise<void> {
   const at = new Date();
   const result = await probe(monitor.url);
-  await StatusMonitorModel.updateOne(
+  const failed = result.state === 'DOWN';
+  const updated = await StatusMonitorModel.findOneAndUpdate(
     { key: monitor.key },
     {
       state: result.state,
@@ -113,10 +131,14 @@ async function checkMonitor(monitor: { key: string; name: string; url: string })
       lastResponseMs: result.responseMs,
       lastHttpStatus: result.httpStatus,
       lastError: result.error,
+      ...(failed ? { $inc: { consecutiveFailures: 1 } } : { consecutiveFailures: 0 }),
     },
-  );
+    { new: true },
+  )
+    .select('consecutiveFailures')
+    .lean();
   await recordDay(monitor.key, result, at);
-  await syncIncident(monitor.key, monitor.name, result, at);
+  await syncIncident(monitor, result, updated?.consecutiveFailures ?? 0, at);
 }
 
 /** Probes every active monitor once, in parallel. Exported so tests can drive one round. */

@@ -13,10 +13,12 @@ interface ClientInput {
 }
 
 export const clientsService = createCrudService<ClientInput>(ClientModel as never, 'Client');
-// Clients is managed under Admin in the consolidated role model.
+// Clients is managed under Admin in the consolidated role model. Finance and Projects read
+// the list to pick a client for an invoice or a project; the permission matrix can narrow
+// either of them to VIEW only.
 export const clientsResolvers = createCrudResolvers(clientsService, {
   name: 'Client',
-  roles: [ROLES.ADMIN],
+  roles: [ROLES.ADMIN, ROLES.FINANCE, ROLES.PROJECTS],
   table: {
     searchFields: ['name', 'email', 'phone', 'company'],
     filterFields: ['name', 'email', 'phone', 'company', 'status'],
@@ -26,3 +28,4 @@ export const clientsResolvers = createCrudResolvers(clientsService, {
   stats: { countBy: ['status'] },
 });
 export { clientsTypeDefs };
+export { clientNameFor } from './client-name';

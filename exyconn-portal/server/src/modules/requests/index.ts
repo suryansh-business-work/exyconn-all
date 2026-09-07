@@ -6,7 +6,7 @@ import { createMyRecordsResolver } from '../../lib/employeeScope';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { withId } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
-import { notify } from '../notifications';
+import { notify, notifyBestEffort } from '../notifications';
 import type { GraphQLContext } from '../../middleware/auth';
 
 interface EmployeeRequestInput {
@@ -56,11 +56,28 @@ async function createMyRequest(
   return withId(created.toObject() as { _id: unknown });
 }
 
+/** HR's edit wraps the generated update so a decision reaches the employee who asked. */
+const updateEmployeeRequest = async (p: unknown, args: never, ctx: GraphQLContext) => {
+  const { id, input } = args as unknown as { id: string; input: EmployeeRequestInput };
+  const before = await EmployeeRequestModel.findById(id).select('status').lean();
+  const updated = await crud.Mutation.updateEmployeeRequest(p, args, ctx);
+  if (before && before.status !== input.status) {
+    const outcome = input.status.toLowerCase();
+    await notifyBestEffort(input.employeeId, {
+      kind: 'REQUEST',
+      title: `Request ${outcome}: ${input.subject}`,
+      body: input.decisionNote ?? `HR has ${outcome} your request.`,
+      link: '/me/requests',
+    });
+  }
+  return updated;
+};
+
 export const requestsResolvers = {
   Query: {
     ...crud.Query,
     myRequests: createMyRecordsResolver(EmployeeRequestModel as never, { createdAt: -1 }),
   },
-  Mutation: { ...crud.Mutation, createMyRequest },
+  Mutation: { ...crud.Mutation, createMyRequest, updateEmployeeRequest },
 };
 export { requestsTypeDefs };

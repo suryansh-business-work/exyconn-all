@@ -48,7 +48,7 @@ const suppliers = createCrudResolvers(suppliersService, {
 /** Movements are written by `recordStockMovement`, so they are read-only here. */
 const MOVEMENT_TABLE: TableConfig = {
   searchFields: ['productName', 'supplierName', 'reference'],
-  filterFields: ['productName', 'reason', 'supplierName'],
+  filterFields: ['productId', 'productName', 'reason', 'supplierName'],
   sortFields: ['productName', 'reason', 'quantity', 'createdAt'],
   defaultSort: { field: 'createdAt', dir: 'DESC' },
 };
