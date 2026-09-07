@@ -55,6 +55,8 @@ export const adminTypeDefs = gql`
     designation: String
     joinDate: DateTime
     dateOfBirth: DateTime
+    "The day this employee comes off probation. Null when they are not on one."
+    probationEndDate: DateTime
     employmentStatus: EmploymentStatus!
     address: String
     "A few lines about the person, shown on their profile across the portals."
@@ -124,6 +126,7 @@ export const adminTypeDefs = gql`
     designation: String
     joinDate: DateTime
     dateOfBirth: DateTime
+    probationEndDate: DateTime
     employmentStatus: EmploymentStatus
     avatarUrl: String
     address: String
@@ -146,6 +149,7 @@ export const adminTypeDefs = gql`
     designation: String
     joinDate: DateTime
     dateOfBirth: DateTime
+    probationEndDate: DateTime
     employmentStatus: EmploymentStatus
     avatarUrl: String
     address: String

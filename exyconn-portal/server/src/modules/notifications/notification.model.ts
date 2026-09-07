@@ -8,6 +8,7 @@ export const NOTIFICATION_KINDS = [
   'PERFORMANCE',
   'REQUEST',
   'TRAINING',
+  'ONBOARDING',
   'GENERAL',
 ] as const;
 

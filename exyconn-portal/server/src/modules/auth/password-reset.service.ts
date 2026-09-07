@@ -6,7 +6,7 @@ import { recordAudit } from '../audit';
 import { hashPassword } from '../../utils/password';
 import { badRequest } from '../../utils/errors';
 import { createRateLimiter } from '../../utils/rateLimit';
-import { env } from '../../config/env';
+import { portalOrigin } from '../../utils/portalOrigin';
 import { logger } from '../../utils/logger';
 import type { GraphQLContext } from '../../middleware/auth';
 
@@ -27,17 +27,8 @@ function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
 
-/**
- * The portal the emailed link opens. Only an origin CORS already trusts is honoured: the
- * header is caller-supplied, and a spoofed one would mail a live token to somebody else's
- * domain. Anything else goes to the hub.
- */
-export function resetLinkOrigin(origin?: string): string {
-  if (origin && env.corsOrigins.includes(origin)) {
-    return origin;
-  }
-  return env.portalHubUrl;
-}
+/** The portal the emailed link opens. Shared with every other link the server mails out. */
+export const resetLinkOrigin = portalOrigin;
 
 /**
  * Starts a self-service reset. Always resolves true — a different answer for an unknown

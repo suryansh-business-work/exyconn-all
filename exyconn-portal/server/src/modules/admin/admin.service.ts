@@ -88,6 +88,8 @@ export interface HrFields {
   designation?: string;
   joinDate?: Date;
   dateOfBirth?: Date;
+  /** The day they come off probation; null when they are not on one. */
+  probationEndDate?: Date | null;
   employmentStatus?: EmploymentStatus;
   /** Profile photo, hosted on ImageKit by the portal's upload dialog. */
   avatarUrl?: string;
@@ -109,6 +111,7 @@ function hrFields(input: HrFields) {
     designation: input.designation,
     joinDate: input.joinDate,
     dateOfBirth: input.dateOfBirth,
+    probationEndDate: input.probationEndDate ?? null,
     employmentStatus: input.employmentStatus ?? 'ACTIVE',
     avatarUrl: input.avatarUrl,
     address: input.address,

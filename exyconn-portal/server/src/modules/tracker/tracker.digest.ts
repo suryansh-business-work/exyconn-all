@@ -1,4 +1,5 @@
 import { AppSettingsModel } from '../admin/settings.model';
+import { recordJobRun } from '../../utils/jobHeartbeat';
 import { UserModel } from '../admin/user.model';
 import { emailer } from '../email';
 import { ROLES } from '../../constants/roles';
@@ -213,6 +214,7 @@ async function runDueDigests(): Promise<void> {
     await TrackerSettingsModel.updateOne({ key: 'global' }, { dailyDigestLastRun: clock.dateKey });
   }
 
+  recordJobRun('trackerDigest', `Checked digests for ${clock.dateKey}`);
   const isSendDay = now.getUTCDay() === WEEKLY_SEND_DAY;
   const weeklyDue =
     isSendDay &&

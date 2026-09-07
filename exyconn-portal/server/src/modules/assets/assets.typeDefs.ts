@@ -63,6 +63,20 @@ export const assetsTypeDefs = gql`
     totalCount: Int!
   }
 
+  "One spell of an asset being held by one person. Open while returnedAt is null."
+  type AssetAssignment {
+    id: ID!
+    assetId: ID!
+    assetTag: String!
+    employeeId: String!
+    employeeName: String!
+    assignedAt: DateTime!
+    "Null while the person still holds it."
+    returnedAt: DateTime
+    assignedByName: String!
+    note: String!
+  }
+
   "Just enough of an employee to put them in the 'assigned to' picker."
   type AssetAssignee {
     id: ID!
@@ -77,6 +91,8 @@ export const assetsTypeDefs = gql`
     getAsset(id: ID!): Asset!
     "Employees an asset can be handed to."
     listAssetAssignees: [AssetAssignee!]!
+    "Every spell this asset has been held for, most recent first."
+    assetAssignments(assetId: ID!): [AssetAssignment!]!
   }
 
   extend type Mutation {

@@ -5,6 +5,7 @@ export { ExpensesPage } from './ExpensesPage';
 export { BenefitsPage } from './BenefitsPage';
 export { TrainingPage } from './TrainingPage';
 export { DocumentsPage } from './DocumentsPage';
+export { MyOnboardingPage } from './MyOnboardingPage';
 export { AnnouncementsPage } from './AnnouncementsPage';
 export { DashboardPage } from './dashboard';
 export { MyLeavePage } from './MyLeavePage';

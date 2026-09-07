@@ -1,50 +1,72 @@
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { Chip } from '@exyconn/shell/components/ui';
-import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
-import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
+import { useEffect, useState } from 'react';
+import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useCrudResource } from '@exyconn/crud';
+import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
-  useListWebsiteSubmissionsQuery,
-  useDeleteWebsiteSubmissionMutation,
+  FilterOp,
+  ListWebsiteSubmissionsPagedDocument,
   useConvertWebsiteSubmissionToLeadMutation,
+  useDeleteWebsiteSubmissionMutation,
+  useListWebsiteSubmissionsStatsQuery,
+  type ListWebsiteSubmissionsPagedQuery,
+  type TableFilterInput,
 } from '@exyconn/shell/graphql/generated';
+import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { SubmissionTriageForm, type WebsiteSubmissionRow } from './forms/submission-triage';
 import { SubmissionPayload } from './SubmissionPayload';
+import { SubmissionFormTypeFilter } from './SubmissionFormTypeFilter';
+import {
+  SUBMISSION_COLUMNS,
+  type PagedSubmissionRow,
+  type SubmissionsGridContext,
+} from './submissions-grid';
 
-/** Where the enquiry went: to sales as a lead, or to HR as an applicant. */
-function LeadCell({ row }: Readonly<{ row: WebsiteSubmissionRow }>) {
-  if (row.leadId) {
-    return <Chip size="small" color="success" variant="outlined" label="Lead" />;
-  }
-  if (row.applicantId) {
-    return <Chip size="small" color="info" variant="outlined" label="Applicant" />;
-  }
-  return <>—</>;
-}
-
-/** Website module — inbox for forms submitted on exyconn.com. Triage, or hand off to the CRM. */
+/**
+ * Website module — inbox for forms submitted on exyconn.com. Triage, or hand off to the CRM.
+ *
+ * Server-paged rather than a whole-list read: the inbox only ever grows, and an unbounded
+ * `listWebsiteSubmissions` was going to be the first screen to fall over.
+ *
+ * No `crud` prop, so there is no "New submission" button: a submission is something a
+ * visitor makes on the public site, never something the portal creates. The triage drawer is
+ * still the shared one — it just opens from a row action rather than from a header button.
+ */
 export function WebsiteSubmissionsPage() {
-  const { data, loading, refetch } = useListWebsiteSubmissionsQuery();
+  const { data: statsData, refetch: refetchStats } = useListWebsiteSubmissionsStatsQuery();
   const [deleteSubmission] = useDeleteWebsiteSubmissionMutation();
   const [convertToLead] = useConvertWebsiteSubmissionToLeadMutation();
   const confirm = useConfirm();
   const notify = useNotify();
-  const crud = useCrudResource<WebsiteSubmissionRow>({
+  const { formatDate } = useSettings();
+  const [formType, setFormType] = useState('');
+
+  const crud = useCrudResource<WebsiteSubmissionRow, PagedSubmissionRow>({
     label: 'Submission',
     onDelete: (row) => deleteSubmission({ variables: { id: row.id } }),
     confirmMessage: (row) => `Delete this ${row.formType} submission?`,
-    refetch,
+    refetch: refetchStats,
   });
-  const { formatDate } = useSettings();
+  const extraFilters: TableFilterInput[] = formType
+    ? [{ field: 'formType', op: FilterOp.Equals, value: formType }]
+    : [];
+  const fetchRows = usePagedFetcher(
+    ListWebsiteSubmissionsPagedDocument,
+    (data: ListWebsiteSubmissionsPagedQuery) => data.listWebsiteSubmissionsPaged,
+    extraFilters,
+  );
 
-  const convert = async (row: WebsiteSubmissionRow) => {
+  // The fetcher reads its extra filters at fetch time, so picking a form has to tell the
+  // grid to go again — otherwise the chips change and the rows do not.
+  const { reload } = crud;
+  useEffect(() => {
+    reload();
+  }, [formType, reload]);
+
+  const convert = async (row: PagedSubmissionRow) => {
     const ok = await confirm({
       title: 'Convert to lead',
       message: `File this ${row.formType} submission as a CRM lead?`,
@@ -56,46 +78,47 @@ export function WebsiteSubmissionsPage() {
     try {
       const res = await convertToLead({ variables: { id: row.id } });
       notify(`Lead "${res.data?.convertWebsiteSubmissionToLead.name ?? ''}" created in the CRM`);
-      await refetch();
+      crud.reload();
     } catch (err) {
       notify(errorMessage(err, 'Conversion failed'), 'error');
     }
   };
 
-  const rows = data?.listWebsiteSubmissions ?? [];
-  const countOf = (status: string) => String(rows.filter((r) => r.status === status).length);
-  const stats: StatItem[] = [
-    { label: 'Submissions', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'New', value: countOf('new'), accent: '#f9851f' },
-    { label: 'In review', value: countOf('in-review'), accent: '#ffd166' },
-    { label: 'Resolved', value: countOf('resolved'), accent: '#7be37b' },
-  ];
-
-  const columns: Column<WebsiteSubmissionRow>[] = [
-    { key: 'formType', label: 'Form' },
-    { key: 'source', label: 'Source' },
-    { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
-    { key: 'leadId', label: 'Filed as', render: (r) => <LeadCell row={r} /> },
-    { key: 'createdAt', label: 'Received', render: (r) => formatDate(r.createdAt) },
-  ];
-
-  const actions: RowAction<WebsiteSubmissionRow>[] = [
+  const stats = statsData?.listWebsiteSubmissionsStats;
+  const statItems: StatItem[] = [
+    { label: 'Submissions', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'New', value: String(statCount(stats, 'status', 'new')), accent: '#f9851f' },
     {
-      icon: <PersonAddIcon fontSize="small" />,
-      tooltip: 'Convert to lead',
-      ariaLabel: 'convert to lead',
-      color: 'primary',
-      onClick: convert,
-      hidden: (row) => Boolean(row.leadId),
+      label: 'In review',
+      value: String(statCount(stats, 'status', 'in-review')),
+      accent: '#ffd166',
+    },
+    {
+      label: 'Resolved',
+      value: String(statCount(stats, 'status', 'resolved')),
+      accent: '#7be37b',
     },
   ];
 
+  const gridContext: SubmissionsGridContext = {
+    actions: { convert, edit: crud.openEdit, delete: crud.remove },
+    formatDate,
+  };
+
   return (
-    <ModuleDashboard
+    <CrudDashboard
       title="Form submissions"
       subtitle="Enquiries captured by the exyconn.com website"
-      stats={stats}
-      dialog={
+      entityLabel="submission"
+      exportFileName="website-submissions"
+      stats={statItems}
+      refreshSignal={crud.refreshSignal}
+      columnDefs={SUBMISSION_COLUMNS}
+      fetchRows={fetchRows}
+      context={gridContext}
+      searchPlaceholder="Search by form, source, status or notes…"
+      toolbar={<SubmissionFormTypeFilter value={formType} onChange={setFormType} />}
+      extraDialogs={
         <CrudDialog open={crud.open} title="Triage submission" onClose={crud.close}>
           {crud.editing && (
             <>
@@ -109,15 +132,6 @@ export function WebsiteSubmissionsPage() {
           )}
         </CrudDialog>
       }
-    >
-      <DataTable
-        columns={columns}
-        rows={rows}
-        actions={actions}
-        onEdit={crud.openEdit}
-        onDelete={crud.remove}
-        emptyMessage={loading ? 'Loading…' : 'No submissions yet.'}
-      />
-    </ModuleDashboard>
+    />
   );
 }

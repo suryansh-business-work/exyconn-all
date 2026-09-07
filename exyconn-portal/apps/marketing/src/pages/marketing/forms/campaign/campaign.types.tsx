@@ -1,10 +1,10 @@
 import type {
-  ListCampaignsQuery,
+  CampaignFieldsFragment,
   CampaignChannel,
   CampaignStatus,
 } from '@exyconn/shell/graphql/generated';
 
-export type CampaignRow = ListCampaignsQuery['listCampaigns'][number];
+export type CampaignRow = CampaignFieldsFragment;
 
 export interface CampaignFormValues {
   name: string;
@@ -15,4 +15,7 @@ export interface CampaignFormValues {
   status: CampaignStatus;
   subject: string;
   body: string;
+  templateKey: string;
+  scheduledAt: string;
+  scheduledAudienceListId: string;
 }

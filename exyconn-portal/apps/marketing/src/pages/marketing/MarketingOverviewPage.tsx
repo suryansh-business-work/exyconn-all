@@ -9,6 +9,7 @@ import { statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
+  useCampaignLeadCountsQuery,
   useListCampaignsQuery,
   useListCampaignsStatsQuery,
 } from '@exyconn/shell/graphql/generated';
@@ -21,11 +22,15 @@ const RECENT_CAMPAIGNS = 8;
 export function MarketingOverviewPage() {
   const { data: statsData } = useListCampaignsStatsQuery();
   const { data: campaignsData, loading } = useListCampaignsQuery();
+  const { data: leadsData } = useCampaignLeadCountsQuery();
   const { formatDate } = useSettings();
 
   const stats = statsData?.listCampaignsStats;
   const campaigns = campaignsData?.listCampaigns ?? [];
   const reached = campaigns.reduce((sum, c) => sum + (c.recipientsCount ?? 0), 0);
+  const leadCounts = leadsData?.campaignLeadCounts ?? [];
+  const leadsGenerated = leadCounts.reduce((sum, row) => sum + row.leads, 0);
+  const leadsFor = new Map(leadCounts.map((row) => [row.campaignId, row.leads]));
 
   const statItems: StatItem[] = [
     { label: 'Campaigns', value: String(statTotal(stats)), accent: '#4f8cff' },
@@ -35,6 +40,7 @@ export function MarketingOverviewPage() {
       accent: '#22c55e',
     },
     { label: 'Recipients reached', value: String(reached), accent: '#8b5cf6' },
+    { label: 'Leads generated', value: String(leadsGenerated), accent: '#ec4899' },
     { label: 'Budget', value: formatMoney(statSum(stats, 'budget')), accent: '#f59e0b' },
   ];
 
@@ -57,6 +63,7 @@ export function MarketingOverviewPage() {
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
     { key: 'startDate', label: 'Starts', render: (r) => formatDate(r.startDate) },
     { key: 'recipientsCount', label: 'Recipients' },
+    { key: 'leads', label: 'Leads', render: (r) => String(leadsFor.get(r.id) ?? 0) },
   ];
 
   return (
@@ -68,6 +75,7 @@ export function MarketingOverviewPage() {
       links={[
         { label: 'Open campaigns', to: '/marketing/campaigns' },
         { label: 'Open audiences', to: '/marketing/audiences' },
+        { label: 'Open suppression list', to: '/marketing/suppression' },
       ]}
       recentTitle="Newest campaigns"
     >

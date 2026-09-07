@@ -39,6 +39,10 @@ import {
   boardResolvers,
   docsTypeDefs,
   docsResolvers,
+  sprintsTypeDefs,
+  sprintsResolvers,
+  shareTypeDefs,
+  shareResolvers,
 } from '../modules/projects';
 import { techTypeDefs, techResolvers } from '../modules/tech';
 import { statusTypeDefs, statusResolvers } from '../modules/status';
@@ -61,8 +65,10 @@ import { hrMasterTypeDefs, hrMasterResolvers } from '../modules/hrmaster';
 import { orgMasterTypeDefs, orgMasterResolvers } from '../modules/orgmaster';
 import { exitTypeDefs, exitResolvers } from '../modules/exit';
 import { payrollTypeDefs, payrollResolvers } from '../modules/payroll';
+import { onboardingTypeDefs, onboardingResolvers } from '../modules/onboarding';
 import { permissionsTypeDefs, permissionsResolvers } from '../modules/permissions';
 import { auditTypeDefs, auditResolvers } from '../modules/audit';
+import { healthTypeDefs, healthResolvers } from '../modules/health';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = Record<string, Record<string, unknown> | undefined>;
@@ -113,6 +119,8 @@ export const typeDefs = [
   projectsTypeDefs,
   boardTypeDefs,
   docsTypeDefs,
+  sprintsTypeDefs,
+  shareTypeDefs,
   techTypeDefs,
   ...websiteTypeDefs,
   trackerTypeDefs,
@@ -130,8 +138,10 @@ export const typeDefs = [
   orgMasterTypeDefs,
   exitTypeDefs,
   payrollTypeDefs,
+  onboardingTypeDefs,
   permissionsTypeDefs,
   auditTypeDefs,
+  healthTypeDefs,
   statusTypeDefs,
   recruitingTypeDefs,
   infraTypeDefs,
@@ -162,6 +172,8 @@ export const resolvers = mergeResolvers([
   projectsResolvers,
   boardResolvers,
   docsResolvers,
+  sprintsResolvers,
+  shareResolvers,
   crmResolvers,
   techResolvers,
   websiteResolvers,
@@ -180,8 +192,10 @@ export const resolvers = mergeResolvers([
   orgMasterResolvers,
   exitResolvers,
   payrollResolvers,
+  onboardingResolvers,
   permissionsResolvers,
   auditResolvers,
+  healthResolvers,
   statusResolvers,
   recruitingResolvers,
   infraResolvers,

@@ -1,5 +1,6 @@
 import { adminService, assertMayAssignRoles } from './admin.service';
-import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
+import { assertAuthenticated } from '../../middleware/roleGuard';
+import { assertPermission } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import { diffChanges, recordAudit } from '../audit';
@@ -23,17 +24,19 @@ const adminOnly = [ROLES.ADMIN];
  * to re-key. `assertMayAssignRoles` is what keeps that from also being a way to mint admins.
  */
 const userWriters = [ROLES.ADMIN, ROLES.HR];
-/** Employee records are readable by HR too (ADMIN always passes assertRole). */
+/** Employee records are readable by HR too (ADMIN passes every guard). */
 const userReaders = [ROLES.HR];
 
 const USER_MODULE = 'User';
+/** The formatting singleton is its own module in the matrix, not part of User. */
+const SETTINGS_MODULE = 'AppSettings';
 
 const sortedRoles = (roles: readonly string[] | undefined) => [...(roles ?? [])].sort().join(', ');
 
 export const adminResolvers = {
   Query: {
     listUsers: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, userReaders);
+      await assertPermission(ctx, USER_MODULE, userReaders, 'VIEW');
       return withIds(await adminService.listUsers());
     },
     listUsersPaged: async (
@@ -41,16 +44,16 @@ export const adminResolvers = {
       { input }: { input: TableQueryInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, userReaders);
+      await assertPermission(ctx, USER_MODULE, userReaders, 'VIEW');
       const page = await adminService.listUsersPaged(input);
       return { rows: withIds(page.rows as LeanDoc[]), totalCount: page.totalCount };
     },
     listUsersStats: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, userReaders);
+      await assertPermission(ctx, USER_MODULE, userReaders, 'VIEW');
       return adminService.listUsersStats();
     },
     getUser: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, userReaders);
+      await assertPermission(ctx, USER_MODULE, userReaders, 'VIEW');
       return withId(await adminService.getUser(id));
     },
     listEmployeeOptions: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
@@ -64,7 +67,7 @@ export const adminResolvers = {
   },
   Mutation: {
     createUser: async (_p: unknown, { input }: { input: CreateUserInput }, ctx: GraphQLContext) => {
-      const actor = assertRole(ctx, userWriters);
+      const actor = await assertPermission(ctx, USER_MODULE, userWriters, 'CREATE');
       assertMayAssignRoles(actor.roles ?? [], input.roles);
       const { user, password } = await adminService.createUser(input);
       const created = withId(user.toObject());
@@ -82,7 +85,7 @@ export const adminResolvers = {
       { id, input }: { id: string; input: UpdateUserInput },
       ctx: GraphQLContext,
     ) => {
-      const actor = assertRole(ctx, userWriters);
+      const actor = await assertPermission(ctx, USER_MODULE, userWriters, 'EDIT');
       const target = await adminService.getUser(id);
       assertMayAssignRoles(actor.roles ?? [], input.roles, target.roles);
       const updated = withId(await adminService.updateUser(id, input));
@@ -103,7 +106,7 @@ export const adminResolvers = {
       return updated;
     },
     deleteUser: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, adminOnly);
+      await assertPermission(ctx, USER_MODULE, adminOnly, 'DELETE');
       const target = await adminService.getUser(id);
       const removed = await adminService.deleteUser(id);
       await recordAudit(ctx, {
@@ -120,7 +123,7 @@ export const adminResolvers = {
       { id, isActive }: { id: string; isActive: boolean },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, adminOnly);
+      await assertPermission(ctx, USER_MODULE, adminOnly, 'EDIT');
       const user = withId(await adminService.setUserActive(id, isActive));
       await recordAudit(ctx, {
         action: 'UPDATE',
@@ -136,7 +139,7 @@ export const adminResolvers = {
       { id, isBlocked, reason }: { id: string; isBlocked: boolean; reason?: string },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, adminOnly);
+      await assertPermission(ctx, USER_MODULE, adminOnly, 'EDIT');
       const user = withId(await adminService.setUserBlocked(id, isBlocked, reason));
       const blockedSummary = reason
         ? `Blocked user ${user.name}: ${reason}`
@@ -151,7 +154,7 @@ export const adminResolvers = {
       return user;
     },
     resetUserPassword: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, adminOnly);
+      await assertPermission(ctx, USER_MODULE, adminOnly, 'EDIT');
       const target = await adminService.getUser(id);
       const password = await adminService.resetUserPassword(id);
       await recordAudit(ctx, {
@@ -168,7 +171,7 @@ export const adminResolvers = {
       { id, input }: { id: string; input: SendMailInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, adminOnly);
+      await assertPermission(ctx, USER_MODULE, adminOnly, 'EDIT');
       return adminService.sendUserMail(id, input);
     },
     updateSettings: async (
@@ -176,7 +179,7 @@ export const adminResolvers = {
       { input }: { input: UpdateSettingsInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, adminOnly);
+      await assertPermission(ctx, SETTINGS_MODULE, adminOnly, 'EDIT');
       const before = await adminService.getSettings();
       const settings = withId(await adminService.updateSettings(input));
       await recordAudit(ctx, {

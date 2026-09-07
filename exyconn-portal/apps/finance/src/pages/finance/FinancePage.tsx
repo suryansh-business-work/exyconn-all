@@ -65,6 +65,7 @@ export function FinancePage() {
       renderForm={(initial) => (
         <InvoiceForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
+      permissionModule="Invoice"
       columnDefs={INVOICE_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

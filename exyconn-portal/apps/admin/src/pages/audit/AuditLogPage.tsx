@@ -45,6 +45,7 @@ export function AuditLogPage() {
       subtitle="Who changed what, and when"
       entityLabel="entry"
       stats={statItems}
+      permissionModule="AuditLog"
       columnDefs={AUDIT_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

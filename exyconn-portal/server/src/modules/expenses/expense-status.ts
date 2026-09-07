@@ -1,5 +1,5 @@
 import { ExpenseClaimModel } from './expense.model';
-import { assertRole } from '../../middleware/roleGuard';
+import { assertPermission } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import { withId } from '../../utils/serialize';
 import { badRequest, notFound } from '../../utils/errors';
@@ -36,7 +36,7 @@ export async function setExpenseClaimStatus(
   { id, status, approvedAmount }: StatusArgs,
   ctx: GraphQLContext,
 ) {
-  assertRole(ctx, financeRoles);
+  await assertPermission(ctx, 'ExpenseClaim', financeRoles, 'APPROVE');
   if (status === 'SUBMITTED') {
     badRequest('A claim cannot be sent back to submitted. Reject it, or approve it again.');
   }

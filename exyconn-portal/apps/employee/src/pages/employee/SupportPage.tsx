@@ -7,19 +7,14 @@ import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { useMySupportTicketsQuery } from '@exyconn/shell/graphql/generated';
+import {
+  useMySupportTicketsQuery,
+  type MySupportTicketsQuery,
+} from '@exyconn/shell/graphql/generated';
 import { SupportTicketForm } from './forms/support-ticket';
 import { SupportThread } from './SupportThread';
 
-type TicketRow = {
-  id: string;
-  subject: string;
-  category: string;
-  description: string;
-  priority: string;
-  status: string;
-  createdAt: string;
-};
+type TicketRow = MySupportTicketsQuery['mySupportTickets'][number];
 
 /** Employee self-service: raise support tickets and track their status. */
 export function SupportPage() {
@@ -28,9 +23,14 @@ export function SupportPage() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<TicketRow | null>(null);
 
-  const rows = (data?.mySupportTickets ?? []) as TicketRow[];
+  const rows = data?.mySupportTickets ?? [];
 
   const columns: Column<TicketRow>[] = [
+    {
+      key: 'reference',
+      label: 'Reference',
+      render: (r) => <Text size="sm">{r.reference || '—'}</Text>,
+    },
     {
       key: 'subject',
       label: 'Subject',
@@ -89,6 +89,7 @@ export function SupportPage() {
           <SupportThread
             ticketId={active.id}
             description={active.description}
+            attachments={active.attachments}
             onClose={closeThread}
           />
         )}

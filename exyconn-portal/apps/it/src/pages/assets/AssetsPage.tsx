@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -15,6 +16,7 @@ export function AssetsPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListAssetsStatsQuery();
   const [deleteAsset] = useDeleteAssetMutation();
+  const navigate = useNavigate();
   const crud = useCrudResource<AssetRow, PagedAssetRow>({
     label: 'Asset',
     onDelete: (row) => deleteAsset({ variables: { id: row.id } }),
@@ -65,6 +67,7 @@ export function AssetsPage() {
       fetchRows={fetchRows}
       context={gridContext}
       searchPlaceholder="Search by tag, name, serial or holder…"
+      onRowClick={(row) => navigate(`/it/assets/${row.id}`)}
     />
   );
 }

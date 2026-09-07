@@ -121,6 +121,8 @@ export const hrTypeDefs = gql`
     attendanceByEmployee(employeeId: ID!): [Attendance!]!
     "HR/ADMIN: workforce counts + headcount-over-time series."
     hrDashboard: HrDashboard!
+    "HR/ADMIN: active employees whose probation ends inside the next N days, soonest first."
+    probationsEnding(days: Int = 30): [User!]!
     "Manager: pending and recently decided leave requests from direct reports."
     teamLeaveRequests: [LeaveRequest!]!
     "HR/ADMIN: organizational departments."

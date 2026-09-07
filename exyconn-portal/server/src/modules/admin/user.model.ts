@@ -32,6 +32,11 @@ const userSchema = new Schema(
     joinDate: { type: Date, default: null },
     /** Used for birthday reminders; only the day and month are ever shown. */
     dateOfBirth: { type: Date, default: null },
+    /**
+     * The day this employee comes off probation. Null when they are not on one — a
+     * permanent employee, or an account created before probation was recorded.
+     */
+    probationEndDate: { type: Date, default: null },
     employmentStatus: {
       type: String,
       enum: EMPLOYMENT_STATUSES,

@@ -1,5 +1,6 @@
 import { imageUploader } from '../../utils/imagekit';
 import { logger } from '../../utils/logger';
+import { recordJobRun } from '../../utils/jobHeartbeat';
 import { TrackerScreenshotModel } from './models';
 import { getTrackerSettings } from './tracker.settings.service';
 
@@ -78,6 +79,7 @@ async function runIfConfigured(): Promise<void> {
   }
 
   const result = await purgeExpiredScreenshots(expiryCutoff(days, new Date()));
+  recordJobRun('trackerRetention', `Deleted ${result.deleted}, failed ${result.failed}`);
   if (result.deleted + result.orphaned + result.failed === 0) {
     return;
   }

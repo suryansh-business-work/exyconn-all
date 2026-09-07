@@ -94,6 +94,7 @@ export function PoliciesPage() {
       renderForm={(initial) => (
         <PolicyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
+      permissionModule="Policy"
       columnDefs={POLICY_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

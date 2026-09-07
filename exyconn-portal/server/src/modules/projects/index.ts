@@ -68,3 +68,7 @@ export { boardTypeDefs } from './board.typeDefs';
 export { boardResolvers } from './board.resolvers';
 export { docsTypeDefs } from './docs.typeDefs';
 export { docsResolvers } from './docs.resolvers';
+export { sprintsTypeDefs } from './sprints.typeDefs';
+export { sprintsResolvers } from './sprints.resolvers';
+export { shareTypeDefs } from './share.typeDefs';
+export { shareResolvers } from './share.resolvers';

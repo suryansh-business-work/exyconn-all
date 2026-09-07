@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
+import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import {
+  AudienceSegment,
   useListAudienceListsQuery,
   useListClientsQuery,
   useDeleteAudienceListMutation,
@@ -8,19 +11,21 @@ import {
   type ListAudienceListsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { AudienceListForm, type AudienceRow } from './forms/audience-list';
+import { AudienceMembers } from './AudienceMembers';
 import {
   AUDIENCE_COLUMNS,
   type PagedAudienceRow,
   type AudiencesGridContext,
 } from './audiences-grid';
 
-/** Marketing → Audiences: the saved client lists a campaign is sent to. */
+/** Marketing → Audiences: the saved lists and segment rules a campaign is sent to. */
 export function AudiencesPage() {
-  // Audiences are few and their sizes come from an array, which no aggregation can sum —
+  // Audiences are few and their sizes come from arrays, which no aggregation can sum —
   // so the tiles read the full list rather than a stats query.
   const { data, refetch } = useListAudienceListsQuery();
   const { data: clientsData } = useListClientsQuery();
   const [deleteAudienceList] = useDeleteAudienceListMutation();
+  const [membersTarget, setMembersTarget] = useState<PagedAudienceRow | null>(null);
   const crud = useCrudResource<AudienceRow, PagedAudienceRow>({
     label: 'Audience',
     onDelete: (row) => deleteAudienceList({ variables: { id: row.id } }),
@@ -34,26 +39,28 @@ export function AudiencesPage() {
 
   const audiences = data?.listAudienceLists ?? [];
   const reachable = new Set(audiences.flatMap((audience) => audience.clientIds));
-  const clientCount = clientsData?.listClients.length ?? 0;
+  const segmented = audiences.filter(
+    (audience) => audience.dynamicSegment !== AudienceSegment.None,
+  ).length;
+  const namedContacts = new Set(audiences.flatMap((audience) => audience.contactIds));
   const statItems: StatItem[] = [
     { label: 'Audiences', value: String(audiences.length), accent: '#ec4899' },
-    { label: 'Clients reached', value: String(reachable.size), accent: '#4f8cff' },
-    { label: 'Clients total', value: String(clientCount), accent: '#8b5cf6' },
-    {
-      label: 'Not in any list',
-      value: String(Math.max(clientCount - reachable.size, 0)),
-      accent: '#f9851f',
-    },
+    { label: 'Clients named', value: String(reachable.size), accent: '#4f8cff' },
+    { label: 'Contacts named', value: String(namedContacts.size), accent: '#8b5cf6' },
+    { label: 'With a segment rule', value: String(segmented), accent: '#f9851f' },
   ];
 
   const gridContext: AudiencesGridContext = {
-    actions: { edit: crud.openEdit, delete: crud.remove },
+    actions: { members: setMembersTarget, edit: crud.openEdit, delete: crud.remove },
   };
+  const closeMembers = () => setMembersTarget(null);
+
+  const clientCount = clientsData?.listClients.length ?? 0;
 
   return (
     <CrudDashboard
       title="Audiences"
-      subtitle="Saved client lists a campaign can be sent to"
+      subtitle={`Who a campaign goes to — ${String(clientCount)} client(s) available`}
       entityLabel="audience"
       stats={statItems}
       crud={crud}
@@ -64,6 +71,13 @@ export function AudiencesPage() {
       fetchRows={fetchRows}
       context={gridContext}
       searchPlaceholder="Search audiences…"
+      extraDialogs={
+        <CrudDialog open={Boolean(membersTarget)} title="Members" onClose={closeMembers}>
+          {membersTarget && (
+            <AudienceMembers audienceId={membersTarget.id} audienceName={membersTarget.name} />
+          )}
+        </CrudDialog>
+      }
     />
   );
 }

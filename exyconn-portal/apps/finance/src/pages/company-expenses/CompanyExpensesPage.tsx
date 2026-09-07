@@ -85,6 +85,7 @@ export function CompanyExpensesPage() {
       renderForm={(initial) => (
         <CompanyExpenseForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
+      permissionModule="CompanyExpense"
       columnDefs={companyExpenseColumns(formatDate)}
       fetchRows={fetchRows}
       context={gridContext}

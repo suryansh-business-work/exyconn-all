@@ -91,6 +91,18 @@ mutation SubmitProblemReport($input: SubmitProblemReportInput!) {
   }
 }
 
+mutation SubscribeToStatus($email: String!) {
+  subscribeToStatus(email: $email)
+}
+
+mutation ConfirmStatusSubscription($token: String!) {
+  confirmStatusSubscription(token: $token)
+}
+
+mutation UnsubscribeFromStatus($token: String!) {
+  unsubscribeFromStatus(token: $token)
+}
+
 fragment ProblemReportFields on ProblemReport {
   id
   reference

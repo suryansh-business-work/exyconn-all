@@ -18,6 +18,12 @@ const documentSchema = new Schema(
     title: { type: String, required: true, trim: true },
     url: { type: String, required: true, trim: true },
     issuedOn: { type: Date, required: true, default: Date.now },
+    /**
+     * The payslip this document IS, for a SALARY_SLIP row. It is what makes payroll's
+     * document creation idempotent: re-running a month finds the row it already made
+     * instead of filing the employee a second copy of the same payslip.
+     */
+    salarySlipId: { type: String, default: null, index: true },
   },
   { timestamps: true },
 );

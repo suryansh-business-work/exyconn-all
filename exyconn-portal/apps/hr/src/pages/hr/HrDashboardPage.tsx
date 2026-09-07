@@ -17,6 +17,7 @@ import {
   useListPerformanceReviewsStatsQuery,
   useListExitRecordsStatsQuery,
   useActiveAnnouncementsQuery,
+  useProbationsEndingQuery,
 } from '@exyconn/shell/graphql/generated';
 import {
   todayAttendance,
@@ -35,6 +36,7 @@ import { HrNewJoiners } from './dashboard/HrNewJoiners';
 import { HrAnnouncements } from './dashboard/HrAnnouncements';
 import { HrAnniversaries } from './dashboard/HrAnniversaries';
 import { HrBirthdays } from './dashboard/HrBirthdays';
+import { HrProbations } from './dashboard/HrProbations';
 
 const policy = { fetchPolicy: 'cache-and-network' } as const;
 
@@ -50,6 +52,7 @@ export function HrDashboardPage() {
   const reviews = useListPerformanceReviewsStatsQuery(policy);
   const exits = useListExitRecordsStatsQuery(policy);
   const announcements = useActiveAnnouncementsQuery(policy);
+  const probations = useProbationsEndingQuery(policy);
   const { formatDate } = useSettings();
 
   const dash = data?.hrDashboard;
@@ -103,6 +106,15 @@ export function HrDashboardPage() {
         </Grid>
         <Grid item xs={12} md={4}>
           <HrUpcomingHolidays holidays={derived.nextHolidays} formatDate={formatDate} />
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
+        <Grid item xs={12} md={4}>
+          <HrProbations
+            rows={(probations.data?.probationsEnding ?? []).slice(0, 6)}
+            formatDate={formatDate}
+          />
         </Grid>
       </Grid>
 

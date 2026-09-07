@@ -9,6 +9,7 @@ import { ClientsPage } from './pages/clients';
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
 import { PermissionsPage } from './pages/permissions';
 import { AuditLogPage } from './pages/audit';
+import { SystemHealthPage } from './pages/health';
 
 /** Admin micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -19,6 +20,7 @@ export function App() {
       <Route path="/admin/settings" element={<AppSettingsPage />} />
       <Route path="/admin/permissions/:tab?" element={<PermissionsPage />} />
       <Route path="/admin/audit" element={<AuditLogPage />} />
+      <Route path="/admin/health" element={<SystemHealthPage />} />
       <Route path="/admin/users/:id" element={<UserDetailsPage />} />
       <Route path="/clients" element={<ClientsPage />} />
     </PortalApp>

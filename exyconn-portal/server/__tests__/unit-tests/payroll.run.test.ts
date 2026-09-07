@@ -3,6 +3,8 @@ import { SalaryStructureModel } from '../../src/modules/employee/salary.model';
 import { SalarySlipModel } from '../../src/modules/employee/salarySlip.model';
 import { LeaveRequestModel } from '../../src/modules/hr/hr.model';
 import { NotificationModel } from '../../src/modules/notifications';
+import { EmployeeDocumentModel } from '../../src/modules/documents';
+import { PayrollSettingsModel } from '../../src/modules/payroll';
 import { payrollResolvers } from '../../src/modules/payroll';
 import { ROLES } from '../../src/constants/roles';
 import { seedUser } from '../helpers';
@@ -30,7 +32,36 @@ async function employee(email: string) {
   return String(u._id);
 }
 
+/**
+ * The statutory policy a test runs against. Every test states its own, because the figures
+ * the company withholds are a setting — a test that let the default decide them would be
+ * testing the default, not the run.
+ */
+async function setPolicy(overrides: Record<string, unknown> = {}) {
+  await PayrollSettingsModel.updateOne(
+    { key: 'global' },
+    {
+      $set: {
+        key: 'global',
+        pfEnabled: false,
+        pfEmployeePercent: 12,
+        pfWageCeiling: 15_000,
+        esiEnabled: false,
+        esiEmployeePercent: 0.75,
+        esiWageLimit: 21_000,
+        professionalTaxMonthly: 0,
+        tdsMode: 'NONE',
+        tdsFlatPercent: 0,
+        ...overrides,
+      },
+    },
+    { upsert: true },
+  );
+}
+
 describe('runPayroll', () => {
+  // These are about the run itself, so nothing statutory is withheld inside them.
+  beforeEach(() => setPolicy());
   it('generates a slip per active employee with a structure, skips those without one', async () => {
     const a = await employee('a@exyconn.com');
     await employee('b@exyconn.com'); // no salary structure
@@ -133,5 +164,135 @@ describe('runPayroll', () => {
     });
     await expect(M.runPayroll(null, { month: 3, year: 2026 }, emp)).rejects.toThrow();
     await expect(M.runPayroll(null, { month: 13, year: 2026 }, hr)).rejects.toThrow();
+  });
+});
+
+describe('runPayroll — statutory deductions', () => {
+  const withSettings = (overrides: Record<string, unknown> = {}) =>
+    setPolicy({ pfEnabled: true, esiEnabled: true, professionalTaxMonthly: 200, ...overrides });
+
+  it('withholds PF, ESI and professional tax and stores each line beside the total', async () => {
+    await withSettings();
+    const a = await employee('a@exyconn.com');
+    await SalaryStructureModel.create({
+      employeeId: a,
+      basic: 10_000,
+      hra: 4_000,
+      allowances: 2_000,
+      deductions: 0,
+      effectiveFrom: new Date(),
+    });
+
+    await M.runPayroll(null, { month: 3, year: 2026 }, hr);
+    const slip = await SalarySlipModel.findOne({ employeeId: a });
+    expect(slip).toMatchObject({ pf: 1_200, esi: 120, professionalTax: 200, tds: 0 });
+    expect(slip?.deductions).toBe(1_520);
+    expect(slip?.net).toBe(16_000 - 1_520);
+  });
+
+  it("lets an employee's structure opt out of PF and ESI and set their own TDS rate", async () => {
+    await withSettings({ tdsMode: 'FLAT_PERCENT', tdsFlatPercent: 5 });
+    const a = await employee('a@exyconn.com');
+    await SalaryStructureModel.create({
+      employeeId: a,
+      basic: 10_000,
+      hra: 4_000,
+      allowances: 2_000,
+      deductions: 0,
+      pfApplicable: false,
+      esiApplicable: false,
+      tdsPercent: 10,
+      effectiveFrom: new Date(),
+    });
+
+    await M.runPayroll(null, { month: 3, year: 2026 }, hr);
+    // 16,000 − 200 professional tax = 15,800 taxable, at the employee's own 10%.
+    expect(await SalarySlipModel.findOne({ employeeId: a })).toMatchObject({
+      pf: 0,
+      esi: 0,
+      professionalTax: 200,
+      tds: 1_580,
+    });
+  });
+
+  it('files the payslip under the employee documents, exactly once however often it runs', async () => {
+    await setPolicy();
+    const a = await employee('a@exyconn.com');
+    await SalaryStructureModel.create({
+      employeeId: a,
+      basic: 10_000,
+      hra: 0,
+      allowances: 0,
+      deductions: 0,
+      effectiveFrom: new Date(),
+    });
+
+    await M.runPayroll(null, { month: 3, year: 2026 }, hr);
+    await M.runPayroll(null, { month: 3, year: 2026 }, hr);
+
+    const documents = await EmployeeDocumentModel.find({ employeeId: a }).lean();
+    expect(documents).toHaveLength(1);
+    expect(documents[0]).toMatchObject({ kind: 'SALARY_SLIP', title: 'Payslip March 2026' });
+    const slip = await SalarySlipModel.findOne({ employeeId: a });
+    expect(documents[0].salarySlipId).toBe(String(slip?._id));
+  });
+
+  it('stamps the day the salary left the company when the month is marked paid', async () => {
+    await setPolicy();
+    const a = await employee('a@exyconn.com');
+    await SalaryStructureModel.create({
+      employeeId: a,
+      basic: 10_000,
+      hra: 0,
+      allowances: 0,
+      deductions: 0,
+      effectiveFrom: new Date(),
+    });
+    await M.runPayroll(null, { month: 3, year: 2026 }, hr);
+    expect(await SalarySlipModel.findOne({ employeeId: a }).then((s) => s?.paidOn)).toBeNull();
+
+    await M.markPayrollPaid(null, { month: 3, year: 2026 }, hr);
+    const paid = await SalarySlipModel.findOne({ employeeId: a });
+    expect(paid?.status).toBe('PAID');
+    expect(paid?.paidOn).toBeInstanceOf(Date);
+  });
+});
+
+describe('payrollSettings', () => {
+  it('creates the policy with its defaults on first read', async () => {
+    expect(await Q.payrollSettings(null, {}, hr)).toMatchObject({
+      pfEnabled: true,
+      pfEmployeePercent: 12,
+      pfWageCeiling: 15_000,
+      esiWageLimit: 21_000,
+      professionalTaxMonthly: 200,
+      tdsMode: 'NONE',
+    });
+  });
+
+  it('saves a new policy, refuses nonsense, and refuses a plain employee', async () => {
+    const input = {
+      pfEnabled: true,
+      pfEmployeePercent: 10,
+      pfWageCeiling: 20_000,
+      esiEnabled: false,
+      esiEmployeePercent: 0.75,
+      esiWageLimit: 21_000,
+      professionalTaxMonthly: 250,
+      tdsMode: 'FLAT_PERCENT',
+      tdsFlatPercent: 5,
+    };
+    await expect(M.updatePayrollSettings(null, { input }, hr)).resolves.toMatchObject({
+      pfEmployeePercent: 10,
+      esiEnabled: false,
+      tdsMode: 'FLAT_PERCENT',
+    });
+    await expect(
+      M.updatePayrollSettings(null, { input: { ...input, pfEmployeePercent: 120 } }, hr),
+    ).rejects.toThrow(/between 0 and 100/);
+    await expect(
+      M.updatePayrollSettings(null, { input: { ...input, tdsMode: 'GUESS' } }, hr),
+    ).rejects.toThrow(/tdsMode/);
+    await expect(M.updatePayrollSettings(null, { input }, emp)).rejects.toThrow();
   });
 });

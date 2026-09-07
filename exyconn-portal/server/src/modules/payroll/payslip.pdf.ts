@@ -2,6 +2,13 @@ import PDFDocument from 'pdfkit';
 import { payslipLines, type PayslipLine } from './payslip.lines';
 import type { StructureParts } from './payroll.compute';
 
+/** The statutory identifiers printed on a payslip, when the employer holds them. */
+export interface PayslipIdentifiers {
+  pfNumber: string;
+  esiNumber: string;
+  panNumber: string;
+}
+
 /** Everything one payslip prints, already resolved from the database. */
 export interface PayslipData {
   company: { name: string; address: string; supportEmail: string };
@@ -18,11 +25,16 @@ export interface PayslipData {
     currency: string;
     gross: number;
     deductions: number;
+    pf: number;
+    esi: number;
+    professionalTax: number;
+    tds: number;
     net: number;
     status: string;
     issuedDate: Date;
   };
   structure: StructureParts | null;
+  identifiers: PayslipIdentifiers;
 }
 
 const MONTHS = [
@@ -51,7 +63,10 @@ export function formatAmount(amount: number, currency: string): string {
 }
 
 const PAGE_MARGIN = 48;
-const COLUMN_RIGHT = 400;
+const COLUMN_WIDTH = 240;
+const COLUMN_GAP = 19;
+const RIGHT_COLUMN = PAGE_MARGIN + COLUMN_WIDTH + COLUMN_GAP;
+const ROW_HEIGHT = 15;
 const INK = '#0f172a';
 const MUTED = '#64748b';
 
@@ -79,6 +94,18 @@ function drawField(doc: PDFKit.PDFDocument, label: string, value: string): void 
   doc.fillColor(INK).text(`  ${value}`);
 }
 
+/** The statutory numbers, each only when the employer actually holds it. */
+function drawIdentifiers(doc: PDFKit.PDFDocument, identifiers: PayslipIdentifiers): void {
+  const rows: Array<[string, string]> = [
+    ['PF number', identifiers.pfNumber],
+    ['ESI number', identifiers.esiNumber],
+    ['PAN', identifiers.panNumber],
+  ];
+  for (const [label, value] of rows.filter(([, value]) => value)) {
+    drawField(doc, label, value);
+  }
+}
+
 function drawEmployee(doc: PDFKit.PDFDocument, data: PayslipData): void {
   const { employee, slip } = data;
   drawField(doc, 'Employee', employee.name);
@@ -92,46 +119,84 @@ function drawEmployee(doc: PDFKit.PDFDocument, data: PayslipData): void {
   if (employee.joinDate) {
     drawField(doc, 'Joined', employee.joinDate.toISOString().slice(0, 10));
   }
+  drawIdentifiers(doc, data.identifiers);
   drawField(doc, 'Payment status', slip.status);
   drawField(doc, 'Issued', slip.issuedDate.toISOString().slice(0, 10));
   doc.moveDown(1);
 }
 
-/** A titled block of amount rows with its own total. */
-function drawSection(
+/** A label on the left of a column and its amount right-aligned at the column's edge. */
+function drawRow(
   doc: PDFKit.PDFDocument,
+  left: number,
+  top: number,
+  line: PayslipLine,
+  currency: string,
+): void {
+  doc.fillColor(MUTED).text(line.label, left, top, { width: COLUMN_WIDTH - 80 });
+  doc
+    .fillColor(INK)
+    .text(formatAmount(line.amount, currency), left, top, {
+      align: 'right',
+      width: COLUMN_WIDTH,
+    });
+}
+
+/**
+ * One titled column of amount rows with its own total, drawn from a fixed origin so the
+ * Earnings and Deductions columns sit side by side however many rows each of them has.
+ */
+function drawColumn(
+  doc: PDFKit.PDFDocument,
+  left: number,
+  top: number,
   title: string,
   lines: PayslipLine[],
   currency: string,
-): void {
-  doc.fillColor(INK).fontSize(11).text(title);
-  doc.moveDown(0.3);
+): number {
+  doc.fillColor(INK).fontSize(11).text(title, left, top, { width: COLUMN_WIDTH });
   doc.fontSize(10);
+  let cursor = top + 20;
   for (const line of lines) {
-    const top = doc.y;
-    doc.fillColor(MUTED).text(line.label, PAGE_MARGIN, top);
-    doc.fillColor(INK).text(formatAmount(line.amount, currency), COLUMN_RIGHT, top, {
-      align: 'right',
-      width: doc.page.width - COLUMN_RIGHT - PAGE_MARGIN,
-    });
+    drawRow(doc, left, cursor, line, currency);
+    cursor += ROW_HEIGHT;
   }
-  doc.moveDown(0.8);
+  const total = lines.reduce((sum, line) => sum + line.amount, 0);
+  cursor += 4;
+  doc.moveTo(left, cursor).lineTo(left + COLUMN_WIDTH, cursor).strokeColor('#cbd5e1').stroke();
+  cursor += 5;
+  drawRow(doc, left, cursor, { label: `Total ${title.toLowerCase()}`, amount: total }, currency);
+  return cursor + ROW_HEIGHT;
+}
+
+/** Earnings on the left, deductions on the right — a payslip anybody can check by eye. */
+function drawBreakdown(doc: PDFKit.PDFDocument, data: PayslipData): void {
+  const { earnings, deductions } = payslipLines(data.slip, data.structure);
+  const top = doc.y;
+  const currency = data.slip.currency;
+  const earningsBottom = drawColumn(doc, PAGE_MARGIN, top, 'Earnings', earnings, currency);
+  const deductionsBottom = drawColumn(doc, RIGHT_COLUMN, top, 'Deductions', deductions, currency);
+  doc.y = Math.max(earningsBottom, deductionsBottom);
+  doc.moveDown(1.5);
 }
 
 /** The net figure, set apart because it is the number the employee came for. */
 function drawNet(doc: PDFKit.PDFDocument, data: PayslipData): void {
   const top = doc.y;
   doc.fillColor(INK).fontSize(12).text('Net pay', PAGE_MARGIN, top);
-  doc.fontSize(12).text(formatAmount(data.slip.net, data.slip.currency), COLUMN_RIGHT, top, {
-    align: 'right',
-    width: doc.page.width - COLUMN_RIGHT - PAGE_MARGIN,
-  });
+  doc
+    .fontSize(12)
+    .text(formatAmount(data.slip.net, data.slip.currency), RIGHT_COLUMN, top, {
+      align: 'right',
+      width: COLUMN_WIDTH,
+    });
   doc.moveDown(1.5);
   doc
     .fillColor(MUTED)
     .fontSize(8)
-    .text('This payslip is generated by the Exyconn portal and needs no signature.', {
+    .text('This payslip is generated by the Exyconn portal and needs no signature.', PAGE_MARGIN, doc.y, {
       align: 'center',
+      width: doc.page.width - PAGE_MARGIN * 2,
     });
 }
 
@@ -149,11 +214,9 @@ export function buildPayslipPdf(data: PayslipData): Promise<Buffer> {
     doc.on('error', reject);
   });
 
-  const { earnings, deductions } = payslipLines(data.slip, data.structure);
   drawHeader(doc, data);
   drawEmployee(doc, data);
-  drawSection(doc, 'Earnings', earnings, data.slip.currency);
-  drawSection(doc, 'Deductions', deductions, data.slip.currency);
+  drawBreakdown(doc, data);
   drawNet(doc, data);
   doc.end();
 

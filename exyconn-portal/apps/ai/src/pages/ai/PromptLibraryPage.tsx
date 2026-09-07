@@ -59,7 +59,8 @@ export function PromptLibraryPage() {
     actions: { run: setRunTarget, copy: copyPrompt, edit: crud.openEdit, delete: crud.remove },
   };
 
-  // The run finished by the time the mutation resolves, so its result opens straight away.
+  // The run is queued rather than finished, so the result dialog opens on a job that is
+  // still waiting — it polls itself until the worker settles it.
   const onRunDone = (jobId: string) => {
     setRunTarget(null);
     setResultId(jobId);

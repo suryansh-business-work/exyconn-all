@@ -18,6 +18,9 @@ import { ReportsPage } from './pages/reports';
 import { SalariesPage } from './pages/salaries';
 import { PayrollPage } from './pages/payroll';
 import { PayslipSchedulePage } from './pages/payslip-schedule';
+import { PayrollSettingsPage } from './pages/payroll-settings';
+import { OnboardingPage } from './pages/onboarding';
+import { OnboardingTemplatesPage } from './pages/onboarding-templates';
 import { NotifyPage } from './pages/notify';
 import { LocationsPage } from './pages/locations';
 import { TeamsPage } from './pages/teams';
@@ -54,6 +57,9 @@ export function App() {
       <Route path="/hr/salaries" element={<SalariesPage />} />
       <Route path="/hr/payroll" element={<PayrollPage />} />
       <Route path="/hr/payslip-schedule" element={<PayslipSchedulePage />} />
+      <Route path="/hr/payroll-settings" element={<PayrollSettingsPage />} />
+      <Route path="/hr/onboarding" element={<OnboardingPage />} />
+      <Route path="/hr/onboarding-templates" element={<OnboardingTemplatesPage />} />
       <Route path="/hr/notify" element={<NotifyPage />} />
       <Route path="/hr/locations" element={<LocationsPage />} />
       <Route path="/hr/teams" element={<TeamsPage />} />

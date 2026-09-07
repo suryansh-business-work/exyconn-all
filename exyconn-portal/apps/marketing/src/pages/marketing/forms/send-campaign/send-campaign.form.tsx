@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Alert, Button, Stack, Text } from '@exyconn/shell/components/ui';
@@ -11,6 +11,7 @@ import {
   useListAudienceListsQuery,
   useSendCampaignMutation,
 } from '@exyconn/shell/graphql/generated';
+import { SendPreview } from './SendPreview';
 import type { SendCampaignTarget } from './send-campaign.types';
 
 const schema = z.object({
@@ -30,6 +31,9 @@ interface SendCampaignFormProps {
  * Recipients come from an audience rather than a hand-picked list so the same send can
  * be repeated, and so who was written to is answerable afterwards. A test send goes to
  * one address first, so the blast is never the first time anyone sees the email.
+ *
+ * Anyone on the suppression list, and any contact who has withdrawn consent, is skipped by
+ * the server and reported separately from a failure.
  */
 export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCampaignFormProps>) {
   const notify = useNotify();
@@ -41,9 +45,11 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
     defaultValues: { audienceListId: '', testEmail: '' },
   });
 
+  const audienceListId = useWatch({ control: methods.control, name: 'audienceListId' });
+
   const options: SelectOption[] = (data?.listAudienceLists ?? []).map((audience) => ({
     value: audience.id,
-    label: `${audience.name} · ${audience.clientIds.length} client(s)`,
+    label: audience.name,
   }));
   const ready = Boolean(campaign.subject && campaign.body);
 
@@ -54,7 +60,8 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
       });
       const result = res.data?.sendCampaign;
       const failed = result?.failed ? ` · ${result.failed} failed` : '';
-      notify(`Campaign sent to ${result?.sent ?? 0} client(s)${failed}`);
+      const skipped = result?.skipped ? ` · ${result.skipped} skipped` : '';
+      notify(`Campaign sent to ${result?.sent ?? 0} recipient(s)${failed}${skipped}`);
       onDone();
     } catch (err) {
       notify(errorMessage(err, 'Send failed'), 'error');
@@ -115,6 +122,7 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
         options={options}
         helperText={options.length ? undefined : 'No audiences yet — create one first.'}
       />
+      {audienceListId && <SendPreview campaignId={campaign.id} audienceListId={audienceListId} />}
     </EntityForm>
   );
 }

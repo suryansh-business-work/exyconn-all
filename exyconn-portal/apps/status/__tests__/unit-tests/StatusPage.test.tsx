@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
+import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 import { StatusOverviewDocument } from '@exyconn/shell/graphql/generated';
 import { StatusPage } from '../../src/pages/status';
@@ -101,13 +102,17 @@ const mocks = [
   },
 ];
 
+// The page carries the subscribe card, which reports failures through the shared notifier —
+// the same providers the status app itself mounts.
 const renderPage = () =>
   render(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>
-        <MemoryRouter>
-          <StatusPage />
-        </MemoryRouter>
+        <NotificationProvider>
+          <MemoryRouter>
+            <StatusPage />
+          </MemoryRouter>
+        </NotificationProvider>
       </ThemeProvider>
     </MockedProvider>,
   );
@@ -141,5 +146,12 @@ describe('StatusPage', () => {
 
     expect(await screen.findByText('99.5%')).toBeInTheDocument();
     expect(screen.getByText('180 ms')).toBeInTheDocument();
+  });
+
+  it('offers to email updates to anybody, without an account', async () => {
+    renderPage();
+
+    expect(await screen.findByText('Subscribe to updates')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Email me updates' })).toBeInTheDocument();
   });
 });

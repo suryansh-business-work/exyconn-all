@@ -12,14 +12,21 @@ const prompt: RunPromptTarget = {
   content: 'Summarise the week',
   description: null,
   tags: [],
+  variables: [],
 };
 
-const mount = () =>
+const withVariables: RunPromptTarget = {
+  ...prompt,
+  content: 'Write to {{company}} about {{product}}',
+  variables: ['company', 'product'],
+};
+
+const mount = (target: RunPromptTarget = prompt) =>
   cy.mount(
     <MockedProvider mocks={[]} addTypename={false}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
-          <RunPromptForm prompt={prompt} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />
+          <RunPromptForm prompt={target} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />
         </NotificationProvider>
       </ThemeProvider>
     </MockedProvider>,
@@ -35,6 +42,18 @@ describe('RunPromptForm', () => {
     mount();
     cy.contains('button', 'Run').click();
     cy.contains('Pick the model to run this on').should('be.visible');
+  });
+
+  it('asks for one value per placeholder the prompt declares', () => {
+    mount(withVariables);
+    cy.get('input[name="variables.company"]').should('exist');
+    cy.get('input[name="variables.product"]').should('exist');
+  });
+
+  it('previews the prompt as it fills in', () => {
+    mount(withVariables);
+    cy.get('input[name="variables.company"]').type('Acme');
+    cy.contains('Write to Acme about {{product}}').should('be.visible');
   });
 
   it('calls onCancel', () => {

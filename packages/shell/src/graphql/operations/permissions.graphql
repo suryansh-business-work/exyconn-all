@@ -26,3 +26,19 @@ mutation SetRolePermission($role: Role!, $module: String!, $actions: [Permission
 mutation ClearRolePermission($role: Role!, $module: String!) {
   clearRolePermission(role: $role, module: $module)
 }
+
+query MyPermissions {
+  myPermissions {
+    module
+    view
+    create
+    edit
+    delete
+    approve
+    export
+  }
+}
+
+query CanExport($module: String!) {
+  canExport(module: $module)
+}

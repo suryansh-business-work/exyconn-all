@@ -171,3 +171,15 @@ mutation UpdatePosition($id: ID!, $input: PositionInput!) {
 mutation DeletePosition($id: ID!) {
   deletePosition(id: $id)
 }
+
+# HR dashboard: who is coming off probation inside the next N days.
+query ProbationsEnding($days: Int) {
+  probationsEnding(days: $days) {
+    id
+    name
+    designation
+    department
+    avatarUrl
+    probationEndDate
+  }
+}

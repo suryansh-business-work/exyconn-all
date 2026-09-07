@@ -300,6 +300,16 @@ export const statusTypeDefs = gql`
     "Public: filed from the status page's report form, triaged in the Tech portal."
     submitProblemReport(input: SubmitProblemReportInput!): ProblemReportReceipt!
 
+    """
+    Public: asks for incident emails. Always answers true — a different answer would say
+    whether an address is already subscribed. Nothing is sent until the link is confirmed.
+    """
+    subscribeToStatus(email: String!): Boolean!
+    "Public: turns a confirm link into a live subscription. The link works exactly once."
+    confirmStatusSubscription(token: String!): Boolean!
+    "Public: removes a subscription. Answers true whether or not one was there."
+    unsubscribeFromStatus(token: String!): Boolean!
+
     createStatusMonitor(input: StatusMonitorInput!): StatusMonitor!
     updateStatusMonitor(id: ID!, input: StatusMonitorInput!): StatusMonitor!
     deleteStatusMonitor(id: ID!): Boolean!
@@ -314,6 +324,7 @@ export const statusTypeDefs = gql`
     addStatusIncidentUpdate(id: ID!, status: IncidentUpdateStatus!, body: String!): StatusIncident!
     deleteStatusIncident(id: ID!): Boolean!
 
+    "Creating a window also emails every confirmed status subscriber."
     createStatusMaintenance(input: StatusMaintenanceInput!): StatusMaintenance!
     updateStatusMaintenance(id: ID!, input: StatusMaintenanceInput!): StatusMaintenance!
     deleteStatusMaintenance(id: ID!): Boolean!

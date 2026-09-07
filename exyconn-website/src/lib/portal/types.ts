@@ -76,6 +76,44 @@ export interface Gig {
   isUrgent: boolean;
 }
 
+/** A group of tools in the public directory, e.g. "Developer tools". */
+export interface ToolCategory {
+  id: string;
+  slug: string;
+  category: string;
+  description: string;
+  icon: string;
+  color: string;
+  order: number;
+}
+
+/** What a tool costs, when a price has been set for it. */
+export interface ToolPricing {
+  price: number;
+  currency: string;
+  features: string[];
+  alterationNote: string;
+}
+
+/** One tool in the public directory. `toolCode` is its address, the way a gig uses gigCode. */
+export interface Tool {
+  id: string;
+  toolCode: string;
+  categorySlug: string;
+  name: string;
+  description: string;
+  longDescription: string;
+  url: string;
+  icon: string;
+  color: string;
+  features: string[];
+  useCases: string[];
+  keywords: string[];
+  pricing: ToolPricing | null;
+  isMVP: boolean;
+  order: number;
+}
+
 export interface NavLink {
   id: string;
   label: string;

@@ -1,4 +1,5 @@
 import { Box, Chip, Stack, Text } from '@exyconn/shell/components/ui';
+import { AttachmentList } from '@exyconn/shell/components/upload';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useListSupportRepliesQuery } from '@exyconn/shell/graphql/generated';
 
@@ -62,6 +63,7 @@ export function TicketThread({ ticketId }: Readonly<TicketThreadProps>) {
           <Text size="sm" sx={{ whiteSpace: 'pre-wrap' }}>
             {reply.body}
           </Text>
+          <AttachmentList items={reply.attachments} />
         </Box>
       ))}
     </Stack>

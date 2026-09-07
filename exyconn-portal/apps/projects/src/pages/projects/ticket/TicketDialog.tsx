@@ -22,6 +22,7 @@ import { TICKET_PRIORITIES, TICKET_TYPES } from './ticket-meta';
 import { TicketFacetIcon } from './TicketFacetIcon';
 import { TicketComments } from './TicketComments';
 import { TicketActivity } from './TicketActivity';
+import { TicketAttachments } from '../attachments';
 import { useTicket } from './useTicket';
 
 /** The two ways to read what has happened to a ticket. */
@@ -96,6 +97,14 @@ export function TicketDialog({ ticket, onClose, onChanged }: Readonly<TicketDial
 
       <DialogContent dividers>
         <TicketForm initial={ticket} assignees={assignees} onSubmit={submit} onCancel={onClose} />
+        <Divider sx={{ my: 3 }} />
+
+        <TicketAttachments
+          taskId={ticket.id}
+          title={ticket.title}
+          files={ticket.attachments}
+          onChanged={onChanged}
+        />
         <Divider sx={{ my: 3 }} />
 
         <Tabs

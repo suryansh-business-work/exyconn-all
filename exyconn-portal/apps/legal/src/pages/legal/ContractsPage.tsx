@@ -63,6 +63,7 @@ export function ContractsPage() {
       renderForm={(initial) => (
         <ContractForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
+      permissionModule="Contract"
       columnDefs={CONTRACT_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

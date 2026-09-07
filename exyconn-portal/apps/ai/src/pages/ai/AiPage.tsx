@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
+import { Alert } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { statCount, statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -16,6 +17,10 @@ import {
 import { AiJobForm, type AiJobRow } from './forms/ai-job';
 import { AiJobResult } from './AiJobResult';
 import { AI_JOB_COLUMNS, type PagedAiJobRow, type AiJobsGridContext } from './ai-jobs-grid';
+import { useAiJobQueue } from './useAiJobQueue';
+
+/** Total AI spend to date, as the stat tile says it. */
+const USD_DIGITS = 2;
 
 /** AI module — the jobs register, where a prompt is actually sent to OpenAI. */
 export function AiPage() {
@@ -37,6 +42,12 @@ export function AiPage() {
     (data: ListAiJobsPagedQuery) => data.listAiJobsPaged,
   );
 
+  // `reload` is recreated every render, so the queue watcher needs a stable callback or it
+  // would reload the grid on every render rather than on every poll.
+  const { reload } = crud;
+  const onQueueTick = useCallback(() => reload(), [reload]);
+  const queue = useAiJobQueue(onQueueTick);
+
   const stats = statsData?.listAiJobsStats;
   const statItems: StatItem[] = [
     { label: 'Jobs', value: String(statTotal(stats)), accent: '#4f8cff' },
@@ -47,23 +58,18 @@ export function AiPage() {
     },
     { label: 'Failed', value: String(statCount(stats, 'status', 'FAILED')), accent: '#ff6b6b' },
     {
-      label: 'Tokens used',
-      value: statSum(stats, 'totalTokens').toLocaleString(),
+      label: 'Spent',
+      value: `$${statSum(stats, 'costUsd').toFixed(USD_DIGITS)}`,
       accent: '#8b5cf6',
     },
   ];
 
-  // The run is synchronous, so the row is already final when the grid reloads.
+  // The run is queued, not performed: the grid polls until the worker settles the row.
   const run = async (row: PagedAiJobRow) => {
     try {
-      const { data } = await runAiJob({ variables: { id: row.id } });
-      crud.reload();
-      if (data?.runAiJob.status === 'FAILED') {
-        notify(data.runAiJob.error, 'error');
-        return;
-      }
-      notify(`"${row.name}" finished`);
-      setResultId(row.id);
+      await runAiJob({ variables: { id: row.id } });
+      notify(`"${row.name}" queued`);
+      await Promise.all([crud.reload(), queue.refresh()]);
     } catch (error) {
       notify(errorMessage(error, 'The run could not be started'), 'error');
     }
@@ -79,6 +85,14 @@ export function AiPage() {
     formatDate,
   };
 
+  const queueNotice =
+    queue.inFlight > 0 ? (
+      <Alert severity="info" sx={{ mb: 1.5 }}>
+        {queue.inFlight} job{queue.inFlight === 1 ? '' : 's'} waiting on the AI worker. This list
+        refreshes itself until they finish.
+      </Alert>
+    ) : undefined;
+
   return (
     <CrudDashboard
       title="AI"
@@ -93,6 +107,7 @@ export function AiPage() {
       fetchRows={fetchRows}
       context={gridContext}
       searchPlaceholder="Search AI jobs…"
+      toolbar={queueNotice}
       extraDialogs={
         <CrudDialog open={Boolean(resultId)} title="Run result" onClose={() => setResultId(null)}>
           {resultId && <AiJobResult id={resultId} />}
