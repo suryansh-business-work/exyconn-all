@@ -49,6 +49,16 @@ const userSchema = new Schema(
     brief: { type: String, trim: true, default: null },
     /** The user this person reports to — the manager who may approve their leave and requests. */
     managerId: { type: String, default: null, index: true },
+    /**
+     * Where this person is, and what language they read.
+     *
+     * Null means "whatever the workspace default is" — set when HR creates the account and
+     * changeable by the person themselves in their profile. Null rather than a copy of the
+     * default on purpose: an admin moving the house timezone should move everybody who
+     * never expressed a preference, and a copied value would silently not move.
+     */
+    timezone: { type: String, default: null },
+    locale: { type: String, default: null },
     // Working arrangement — read by the tracker to measure a day, and by the employee
     // portal to show people their own terms. Defaults apply to accounts that predate them.
     workingTime: { type: String, enum: WORKING_TIMES, default: 'FLEXIBLE' },

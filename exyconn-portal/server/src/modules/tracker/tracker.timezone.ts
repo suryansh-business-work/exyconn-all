@@ -1,57 +1,17 @@
 /**
- * Timezone rules for the tracker — the ONE place that decides which zone an employee's
- * hours are read in. The portal, the desktop app and the calendar aggregation all depend
- * on agreeing here; if two of them disagree, a day's work lands on the wrong date.
- */
-
-/** Used when nothing else resolves. UTC is the only zone that is always correct-ish. */
-export const FALLBACK_TIMEZONE = 'UTC';
-
-/**
- * Whether `value` is a zone the platform can actually resolve.
+ * Timezone rules for the tracker.
  *
- * Deliberately probes `Intl.DateTimeFormat` rather than testing membership of
- * `Intl.supportedValuesOf('timeZone')`: that list is the ICU zone list *pre-canonicalisation*,
- * so on Node 22 it contains `Asia/Calcutta` but NOT `Asia/Kolkata`, and no `UTC` at all —
- * it would reject perfectly valid, modern IANA names (see the note in the PR description).
+ * The resolution rules themselves are portal-wide and live in `utils/timezone` — the
+ * tracker, the rendered portal and the desktop app all have to agree on which zone a
+ * person is in. What stays here is the tracker's own zoned arithmetic: the day key its
+ * calendar buckets on, the local hour its digests fire at, and the attendance day start.
  */
-export function isValidTimezone(value: string | null | undefined): boolean {
-  if (!value) {
-    return false;
-  }
-  try {
-    Intl.DateTimeFormat('en-US', { timeZone: value });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export interface TimezoneCandidates {
-  /** The zone the employee picked for themselves in the desktop app. */
-  employeeTimezone?: string | null;
-  /** The admin-chosen default from tracker settings. */
-  defaultTimezone?: string | null;
-  /** The zone the employee's machine reported when it signed in. */
-  deviceTimezone?: string | null;
-}
-
-/**
- * The EFFECTIVE zone for an employee, in priority order:
- * their own pick -> the admin default -> their device's zone -> UTC.
- *
- * Each candidate has to be a resolvable zone to win: the device's zone is client-supplied
- * and never validated on the way in, so a machine reporting nonsense must not poison every
- * timestamp the employee sees.
- */
-export function resolveEffectiveTimezone(candidates: TimezoneCandidates): string {
-  const ordered = [
-    candidates.employeeTimezone,
-    candidates.defaultTimezone,
-    candidates.deviceTimezone,
-  ];
-  return ordered.find(isValidTimezone) ?? FALLBACK_TIMEZONE;
-}
+export {
+  FALLBACK_TIMEZONE,
+  isValidTimezone,
+  resolveEffectiveTimezone,
+  type TimezoneCandidates,
+} from '../../utils/timezone';
 
 /** The date parts an instant reads as on a clock in `timeZone`. */
 function zonedParts(instant: Date, timeZone: string): { year: number; month: number; day: number } {

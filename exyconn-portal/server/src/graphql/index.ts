@@ -52,6 +52,7 @@ import { infraTypeDefs, infraResolvers } from '../modules/infra';
 import { websiteTypeDefs, websiteResolvers } from '../modules/website';
 import { trackerTypeDefs, trackerResolvers } from '../modules/tracker';
 import { brandingTypeDefs, brandingResolvers } from '../modules/branding';
+import { i18nTypeDefs, i18nResolvers } from '../modules/i18n';
 import { announcementsTypeDefs, announcementsResolvers } from '../modules/announcements';
 import { notificationsTypeDefs, notificationsResolvers } from '../modules/notifications';
 import { requestsTypeDefs, requestsResolvers } from '../modules/requests';
@@ -125,6 +126,7 @@ export const typeDefs = [
   ...websiteTypeDefs,
   trackerTypeDefs,
   brandingTypeDefs,
+  i18nTypeDefs,
   announcementsTypeDefs,
   notificationsTypeDefs,
   requestsTypeDefs,
@@ -179,6 +181,7 @@ export const resolvers = mergeResolvers([
   websiteResolvers,
   trackerResolvers,
   brandingResolvers,
+  i18nResolvers,
   announcementsResolvers,
   notificationsResolvers,
   requestsResolvers,
