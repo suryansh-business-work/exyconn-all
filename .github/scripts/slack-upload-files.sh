@@ -6,7 +6,11 @@
 # A file set can only be completed once, so each channel gets its own upload pass.
 # Channel counts here are small (a handful at most), which keeps that honest.
 #
-# Env: SLACK_BOT_TOKEN (scopes: files:write, chat:write; bot must be in each channel)
+# The bot joins each public channel before uploading: an upload that ends in
+# "not_in_channel" has already spent minutes pushing installer bytes, so membership is
+# settled first. A private channel cannot be self-joined — invite the bot there.
+#
+# Env: SLACK_BOT_TOKEN (scopes: files:write, chat:write, channels:join)
 #      SLACK_CHANNEL_IDS (one id, or several separated by commas)
 #      SLACK_MESSAGE
 # Usage: slack-upload-files.sh <file> [<file> ...]
@@ -65,7 +69,8 @@ post_to_channel() {
     ticket=$(slack_api files.getUploadURLExternal \
       --data-urlencode "filename=$name" --data-urlencode "length=$size")
     assert_ok "$ticket" "files.getUploadURLExternal" "$channel"
-    curl -sS -X POST "$(jq -r '.upload_url' <<<"$ticket")" -F "file=@$file" >/dev/null
+    curl -sS --fail-with-body -X POST "$(jq -r '.upload_url' <<<"$ticket")" -F "file=@$file" >/dev/null \
+      || { echo "::error::Uploading $name to Slack's file storage failed"; exit 1; }
     uploaded=$(jq -c --arg id "$(jq -r '.file_id' <<<"$ticket")" --arg title "$name" \
       '. + [{id: $id, title: $title}]' <<<"$uploaded")
   done
