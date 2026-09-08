@@ -33,6 +33,12 @@ const INITIAL: BrandingRow = {
   youtubeUrl: '',
   githubUrl: '',
   copyrightText: '',
+  gstin: '',
+  stateCode: '',
+  addressLine: '',
+  invoicePrefix: 'INV-',
+  defaultTaxPercent: 18,
+  bankDetails: '',
   loginPages: [
     {
       app: 'finance',

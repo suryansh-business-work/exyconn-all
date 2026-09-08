@@ -60,6 +60,7 @@ export function ProblemReportsPage() {
       title="Problem Reports"
       subtitle="What people told us broke, straight from status.exyconn.com"
       entityLabel="report"
+      exportFileName="problem-reports"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (

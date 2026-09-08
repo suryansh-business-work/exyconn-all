@@ -11,9 +11,12 @@ fragment UserFields on User {
   designation
   joinDate
   dateOfBirth
+  probationEndDate
   employmentStatus
   address
   brief
+  managerId
+  managerName
   workingTime
   workingTimeNote
   workLocation
@@ -58,6 +61,24 @@ query ListEmployeeOptions {
     id
     name
     email
+  }
+}
+
+query MyManager {
+  myManager {
+    id
+    name
+    email
+    designation
+  }
+}
+
+query MyDirectReports {
+  myDirectReports {
+    id
+    name
+    email
+    designation
   }
 }
 

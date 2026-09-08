@@ -7,7 +7,10 @@ module.exports = {
   moduleFileExtensions: ['ts', 'js', 'json'],
   setupFiles: ['<rootDir>/__tests__/env.setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
-  testTimeout: 30000,
+  // 79 suites each boot their own mongodb-memory-server, so the first test in a suite
+  // pays for that startup while its neighbours are doing the same. 30s was enough at 55
+  // suites and is not at 79.
+  testTimeout: 60000,
   clearMocks: true,
   // Every suite boots its own mongodb-memory-server, so jest's default of one worker
   // per core starves them on a developer machine and the slowest suites time out.

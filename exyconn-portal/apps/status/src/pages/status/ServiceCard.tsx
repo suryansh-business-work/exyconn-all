@@ -1,4 +1,5 @@
-import { Box, Divider, Flex, Link, Typography } from '@exyconn/shell/components/ui';
+import EngineeringIcon from '@mui/icons-material/Engineering';
+import { Box, Chip, Divider, Flex, Link, Typography } from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { TIME_FORMAT } from '../../status.constants';
 import { StateChip } from './StateChip';
@@ -9,10 +10,28 @@ interface ServiceCardProps {
   service: StatusService;
   /** Divider above every row but the first, so the group reads as one card. */
   divided: boolean;
+  /** A maintenance window covering this service is under way right now. */
+  underMaintenance: boolean;
+}
+
+/** A service inside a live maintenance window is "in maintenance", whatever the probe says. */
+function StateBadge({ service, underMaintenance }: Readonly<Omit<ServiceCardProps, 'divided'>>) {
+  if (underMaintenance) {
+    return (
+      <Chip
+        size="small"
+        color="info"
+        variant="outlined"
+        icon={<EngineeringIcon />}
+        label="Maintenance"
+      />
+    );
+  }
+  return <StateChip state={service.state} />;
 }
 
 /** One monitored service: what it is, how it is doing now, and its day-by-day history. */
-export function ServiceCard({ service, divided }: Readonly<ServiceCardProps>) {
+export function ServiceCard({ service, divided, underMaintenance }: Readonly<ServiceCardProps>) {
   const checkedAt = formatWith(service.lastCheckedAt, TIME_FORMAT);
   const uptimeLine = checkedAt ? `Last checked ${checkedAt}` : 'Not checked yet';
   // Before the first probe every number would read as a hard zero, which looks like an
@@ -50,7 +69,7 @@ export function ServiceCard({ service, divided }: Readonly<ServiceCardProps>) {
             <Typography variant="body2" color="text.secondary">
               {figures}
             </Typography>
-            <StateChip state={service.state} />
+            <StateBadge service={service} underMaintenance={underMaintenance} />
           </Flex>
         </Flex>
 

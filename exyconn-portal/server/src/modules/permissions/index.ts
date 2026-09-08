@@ -1,10 +1,16 @@
 import { RolePermissionModel } from './permission.model';
 import { permissionsTypeDefs } from './permissions.typeDefs';
-import { PERMISSION_MODULES, invalidatePermissionCache } from '../../lib/permissions';
-import { assertRole } from '../../middleware/roleGuard';
+import {
+  PERMISSION_MODULES,
+  invalidatePermissionCache,
+  isAllowed,
+  permissionsFor,
+} from '../../lib/permissions';
+import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
 import { badRequest } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
-import { ROLES } from '../../constants/roles';
+import { recordAudit } from '../audit';
+import { ROLES, type Role } from '../../constants/roles';
 import type { GraphQLContext } from '../../middleware/auth';
 
 type Args = { role: string; module: string; actions?: string[] };
@@ -27,6 +33,21 @@ export const permissionsResolvers = {
         }[],
       );
     },
+    /** The caller's own matrix — what the client hides buttons with. */
+    myPermissions: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      const user = assertAuthenticated(ctx);
+      return permissionsFor((user.roles ?? []) as Role[]);
+    },
+    /**
+     * The export guard. `usePagedFetcher` reads an export's pages through the module's
+     * own list resolver, so EXPORT has no request of its own to hang off — this is that
+     * request, asked once before the first page.
+     */
+    canExport: async (_p: unknown, { module }: { module: string }, ctx: GraphQLContext) => {
+      const user = assertAuthenticated(ctx);
+      assertKnownModule(module);
+      return isAllowed((user.roles ?? []) as Role[], module, 'EXPORT');
+    },
   },
   Mutation: {
     setRolePermission: async (
@@ -43,12 +64,26 @@ export const permissionsResolvers = {
         { upsert: true, new: true, runValidators: true },
       ).lean();
       invalidatePermissionCache();
+      await recordAudit(ctx, {
+        action: 'PERMISSION',
+        module: 'Permission',
+        entityId: `${role}:${module}`,
+        entityLabel: `${role} on ${module}`,
+        summary: `Restricted ${role} on ${module} to [${[...new Set(actions)].join(', ')}]`,
+      });
       return withId(row as { _id: unknown });
     },
     clearRolePermission: async (_p: unknown, { role, module }: Args, ctx: GraphQLContext) => {
       assertRole(ctx, [ROLES.ADMIN]);
       const res = await RolePermissionModel.deleteOne({ role, module });
       invalidatePermissionCache();
+      await recordAudit(ctx, {
+        action: 'PERMISSION',
+        module: 'Permission',
+        entityId: `${role}:${module}`,
+        entityLabel: `${role} on ${module}`,
+        summary: `Cleared the restriction on ${role} for ${module}`,
+      });
       return res.deletedCount > 0;
     },
   },

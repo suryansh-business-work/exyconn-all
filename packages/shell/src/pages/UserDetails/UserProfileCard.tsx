@@ -50,6 +50,12 @@ export function UserProfileCard({ user }: { user: UserDetail }) {
         </Box>
         <Box>
           <Text size="overline" color="text.secondary">
+            Reports to
+          </Text>
+          <Text size="sm">{user.managerName ?? '—'}</Text>
+        </Box>
+        <Box>
+          <Text size="overline" color="text.secondary">
             Employment
           </Text>
           <Text size="sm">{user.employmentStatus}</Text>
@@ -59,6 +65,14 @@ export function UserProfileCard({ user }: { user: UserDetail }) {
             Joined
           </Text>
           <Text size="sm">{user.joinDate ? formatDateTime(user.joinDate) : '—'}</Text>
+        </Box>
+        <Box>
+          <Text size="overline" color="text.secondary">
+            Probation ends
+          </Text>
+          <Text size="sm">
+            {user.probationEndDate ? formatDateTime(user.probationEndDate) : 'Not on probation'}
+          </Text>
         </Box>
       </Flex>
 

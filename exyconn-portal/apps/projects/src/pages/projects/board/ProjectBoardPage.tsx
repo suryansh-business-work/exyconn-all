@@ -8,9 +8,12 @@ import { BoardColumnCard } from './BoardColumnCard';
 import { TaskCard } from './TaskCard';
 import { AddItemInput } from './AddItemInput';
 import { TicketDialog } from '../ticket';
+import { tasksForSprint } from '../sprints/sprint-progress';
 
 interface ProjectBoardPageProps {
   projectId: string;
+  /** Which sprint the board is showing: a sprint id, `BACKLOG`, or '' for everything. */
+  sprintFilter: string;
 }
 
 /**
@@ -18,12 +21,15 @@ interface ProjectBoardPageProps {
  * ticket dialog over the top. Columns are the project's own — nothing here assumes a fixed
  * To do / In progress / Done, because no two teams agree on those.
  */
-export function ProjectBoardPage({ projectId }: Readonly<ProjectBoardPageProps>) {
+export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBoardPageProps>) {
   const board = useProjectBoard(projectId);
   const { sensors, activeTask, onDragStart, onDragEnd } = useBoardDnd(board);
   const [openId, setOpenId] = useState<string | null>(null);
 
-  const tasksOf = (columnId: string) => board.tasks.filter((t) => t.columnId === columnId);
+  // Filtering here rather than in the hook keeps drag-and-drop working on the whole board:
+  // the move persists against every ticket's real order, not against the visible subset.
+  const visible = tasksForSprint(board.tasks, sprintFilter);
+  const tasksOf = (columnId: string) => visible.filter((t) => t.columnId === columnId);
   const openTicket = board.tasks.find((task) => task.id === openId) ?? null;
 
   if (board.loading && board.columns.length === 0) {

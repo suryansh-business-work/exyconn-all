@@ -56,6 +56,8 @@ export const requestsTypeDefs = gql`
     listEmployeeRequestsStats: TableStats!
     getEmployeeRequest(id: ID!): EmployeeRequest!
     myRequests: [EmployeeRequest!]!
+    "Manager: pending and recently decided requests from direct reports."
+    teamRequests: [EmployeeRequest!]!
   }
 
   extend type Mutation {
@@ -67,5 +69,7 @@ export const requestsTypeDefs = gql`
     and the status always starts PENDING.
     """
     createMyRequest(input: MyRequestInput!): EmployeeRequest!
+    "HR/ADMIN or the employee's manager: approve or reject, with an optional note."
+    decideEmployeeRequest(id: ID!, status: RequestStatus!, decisionNote: String): EmployeeRequest!
   }
 `;

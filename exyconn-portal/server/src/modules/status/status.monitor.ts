@@ -1,10 +1,11 @@
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
+import { recordJobRun } from '../../utils/jobHeartbeat';
 import { StatusMonitorModel } from './status-monitor.model';
 import { StatusDailyModel } from './status-daily.model';
 import { StatusIncidentModel } from './status-incident.model';
 import { announceIncident } from './status.alerts';
-import type { StatusState } from './status.constants';
+import { MONITOR_AUTHOR, type StatusState } from './status.constants';
 
 /** Outcome of a single HTTP probe. */
 export interface ProbeResult {
@@ -84,6 +85,11 @@ interface MonitorTarget {
   url: string;
 }
 
+/** A timeline entry written by the probe loop rather than a person. */
+function monitorUpdate(status: 'INVESTIGATING' | 'RESOLVED', body: string, at: Date) {
+  return { status, body, authorName: MONITOR_AUTHOR, createdAt: at };
+}
+
 /**
  * Opens an incident once a service has failed `STATUS_FAILURES_TO_OPEN` probes in a
  * row, and closes it on the first healthy one. The team is told either way.
@@ -97,11 +103,17 @@ async function syncIncident(
   const open = await StatusIncidentModel.findOne({ serviceKey: monitor.key, resolvedAt: null });
   if (result.state === 'DOWN') {
     if (!open && consecutiveFailures >= env.status.failuresToOpen) {
+      const reason = result.error || 'no response';
       await StatusIncidentModel.create({
         serviceKey: monitor.key,
         serviceName: monitor.name,
+        title: `${monitor.name} is down`,
+        source: 'MONITOR',
+        impact: 'MAJOR',
+        affectedServiceKeys: [monitor.key],
         state: 'DOWN',
         reason: result.error,
+        updates: [monitorUpdate('INVESTIGATING', `Failed checks: ${reason}`, at)],
         startedAt: at,
       });
       await announceIncident('OPENED', monitor, result.error);
@@ -109,7 +121,13 @@ async function syncIncident(
     return;
   }
   if (open) {
-    await StatusIncidentModel.updateOne({ _id: open._id }, { resolvedAt: at });
+    await StatusIncidentModel.updateOne(
+      { _id: open._id },
+      {
+        resolvedAt: at,
+        $push: { updates: monitorUpdate('RESOLVED', 'The service is answering again.', at) },
+      },
+    );
     await announceIncident('RESOLVED', monitor, result.error);
   }
 }
@@ -145,6 +163,7 @@ async function checkMonitor(monitor: MonitorTarget): Promise<void> {
 export async function runStatusChecks(): Promise<number> {
   const monitors = await StatusMonitorModel.find({ isActive: true }).select('key name url').lean();
   await Promise.all(monitors.map((monitor) => checkMonitor(monitor)));
+  recordJobRun('statusMonitor', `Probed ${monitors.length} services`);
   return monitors.length;
 }
 

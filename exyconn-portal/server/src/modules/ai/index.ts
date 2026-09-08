@@ -2,6 +2,7 @@ import { AiJobModel } from './ai.model';
 import { PromptModel } from './prompt.model';
 import { aiTypeDefs } from './ai.typeDefs';
 import { aiCustomResolvers } from './ai.resolvers';
+import { aiPricingResolvers } from './ai.pricing.resolvers';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
@@ -25,12 +26,21 @@ const aiJobResolvers = createCrudResolvers(aiService, {
   name: 'AiJob',
   roles: [ROLES.AI],
   table: {
-    searchFields: ['name', 'model', 'prompt'],
-    filterFields: ['name', 'model', 'prompt', 'status'],
-    sortFields: ['name', 'model', 'status', 'totalTokens', 'ranAt', 'createdAt'],
+    searchFields: ['name', 'model', 'prompt', 'createdByName'],
+    filterFields: ['name', 'model', 'prompt', 'status', 'createdByName'],
+    sortFields: [
+      'name',
+      'model',
+      'status',
+      'createdByName',
+      'totalTokens',
+      'costUsd',
+      'ranAt',
+      'createdAt',
+    ],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
-  stats: { countBy: ['status', 'model'], sum: ['totalTokens'] },
+  stats: { countBy: ['status', 'model'], sum: ['totalTokens', 'costUsd'] },
 });
 
 export const promptService = createCrudService<PromptInput>(PromptModel as never, 'Prompt');
@@ -48,12 +58,20 @@ const promptResolvers = createCrudResolvers(promptService, {
 
 /** Merges AI-job CRUD, the Prompt Library CRUD and the resolvers that call OpenAI. */
 export const aiResolvers = {
-  Query: { ...aiJobResolvers.Query, ...promptResolvers.Query, ...aiCustomResolvers.Query },
+  Query: {
+    ...aiJobResolvers.Query,
+    ...promptResolvers.Query,
+    ...aiCustomResolvers.Query,
+    ...aiPricingResolvers.Query,
+  },
   Mutation: {
     ...aiJobResolvers.Mutation,
     ...promptResolvers.Mutation,
     ...aiCustomResolvers.Mutation,
+    ...aiPricingResolvers.Mutation,
   },
 };
 
 export { aiTypeDefs };
+export { ensureAiModelPrices } from './ai.pricing';
+export { startAiWorker, runNextAiJob } from './ai.worker';

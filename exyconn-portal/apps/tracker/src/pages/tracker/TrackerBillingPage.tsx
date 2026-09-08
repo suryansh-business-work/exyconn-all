@@ -1,40 +1,36 @@
-import { useMemo, useState } from 'react';
-import { Box, CircularProgress, Flex, Grid, Text } from '@exyconn/shell/components/ui';
-import { DatePicker } from '@exyconn/ui/pickers';
-import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
+import { useState } from 'react';
+import { Box, Grid } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
-import { useTrackerBillingQuery } from '@exyconn/shell/graphql/generated';
-import { TrackerBillingTable } from './TrackerBillingTable';
-import { monthRange, toDateOrNull } from './tracker.billing';
+import { Tabber, type TabberItem } from '@exyconn/tabber';
+import PeopleIcon from '@mui/icons-material/People';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import { BillingRangePicker } from './BillingRangePicker';
+import { TrackerBillingEmployees } from './TrackerBillingEmployees';
+import { TrackerBillingByProject } from './TrackerBillingByProject';
+import { monthRange } from './tracker.billing';
 
 /**
- * What the workspace's tracked time is worth.
- *
- * The rates are not the tracker's: every one of them comes from the employee's salary
- * structure in HR, so this report and payroll can never disagree about what somebody costs.
- * Hours are ACTIVE time only, matching the desktop app's own progress bar — billing a
- * customer for idle minutes would be indefensible.
+ * What the workspace's tracked time is worth — per employee, or per project against its
+ * budget. Hours are ACTIVE time plus approved off-computer time, and every rate comes from
+ * HR; which view is open lives in the URL so a link to it opens on it.
  */
 export function TrackerBillingPage() {
   const [range, setRange] = useState(monthRange);
-  const { data, loading } = useTrackerBillingQuery({
-    variables: { from: range.from, to: range.to },
-    fetchPolicy: 'cache-and-network',
-  });
 
-  const billing = data?.trackerBilling;
-  const money = useMemo(
-    () =>
-      new Intl.NumberFormat(undefined, {
-        style: 'currency',
-        currency: billing?.currency || 'INR',
-        maximumFractionDigits: 2,
-      }),
-    [billing?.currency],
-  );
-
-  const unrated = billing?.rows.filter((row) => !row.rated).length ?? 0;
+  const tabs: TabberItem[] = [
+    {
+      slug: 'employees',
+      label: 'By employee',
+      icon: <PeopleIcon />,
+      content: <TrackerBillingEmployees range={range} />,
+    },
+    {
+      slug: 'projects',
+      label: 'By project',
+      icon: <AccountTreeIcon />,
+      content: <TrackerBillingByProject range={range} />,
+    },
+  ];
 
   return (
     <Box>
@@ -42,63 +38,10 @@ export function TrackerBillingPage() {
         title="Billing"
         subtitle="Tracked hours priced at each employee's billing rate from HR"
       />
-
-      <Grid container spacing={2} sx={{ mb: 2.5 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <DatePicker
-            label="From"
-            value={new Date(range.from)}
-            onChange={(value) => {
-              const next = toDateOrNull(value);
-              if (next) {
-                setRange((current) => ({ ...current, from: next.toISOString() }));
-              }
-            }}
-            slotProps={{ textField: { fullWidth: true, size: 'small' } }}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <DatePicker
-            label="To"
-            value={new Date(range.to)}
-            onChange={(value) => {
-              const next = toDateOrNull(value);
-              if (next) {
-                setRange((current) => ({ ...current, to: next.toISOString() }));
-              }
-            }}
-            slotProps={{ textField: { fullWidth: true, size: 'small' } }}
-          />
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <StatCard label="Hours" value={String(billing?.totalHours ?? 0)} accent="#0ea5e9" />
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <StatCard
-            label="Amount"
-            value={money.format(billing?.totalAmount ?? 0)}
-            accent="#7be37b"
-          />
-        </Grid>
+      <Grid container spacing={2} sx={{ mb: 1 }}>
+        <BillingRangePicker range={range} onChange={setRange} />
       </Grid>
-
-      {unrated > 0 && (
-        <Text size="sm" color="warning.main" sx={{ display: 'block', mb: 1.5 }}>
-          {unrated} {unrated === 1 ? 'employee has' : 'employees have'} tracked time but no billing
-          rate. Set one on their employee record in HR — the amount below is zero because nobody
-          priced the work, not because it was free.
-        </Text>
-      )}
-
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
-        {loading && !billing ? (
-          <Flex justifyContent="center" sx={{ py: 4 }}>
-            <CircularProgress size={22} aria-label="Loading billing" />
-          </Flex>
-        ) : (
-          <TrackerBillingTable rows={billing?.rows ?? []} money={money} />
-        )}
-      </Box>
+      <Tabber basePath="/tracker/billing" items={tabs} ariaLabel="Billing views" />
     </Box>
   );
 }

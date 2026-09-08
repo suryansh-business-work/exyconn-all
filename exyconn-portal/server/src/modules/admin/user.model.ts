@@ -32,6 +32,11 @@ const userSchema = new Schema(
     joinDate: { type: Date, default: null },
     /** Used for birthday reminders; only the day and month are ever shown. */
     dateOfBirth: { type: Date, default: null },
+    /**
+     * The day this employee comes off probation. Null when they are not on one — a
+     * permanent employee, or an account created before probation was recorded.
+     */
+    probationEndDate: { type: Date, default: null },
     employmentStatus: {
       type: String,
       enum: EMPLOYMENT_STATUSES,
@@ -42,6 +47,8 @@ const userSchema = new Schema(
     address: { type: String, trim: true, default: null },
     /** A few lines about the person, shown on their profile across the portals. */
     brief: { type: String, trim: true, default: null },
+    /** The user this person reports to — the manager who may approve their leave and requests. */
+    managerId: { type: String, default: null, index: true },
     // Working arrangement — read by the tracker to measure a day, and by the employee
     // portal to show people their own terms. Defaults apply to accounts that predate them.
     workingTime: { type: String, enum: WORKING_TIMES, default: 'FLEXIBLE' },

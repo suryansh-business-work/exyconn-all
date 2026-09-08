@@ -46,6 +46,8 @@ export const performanceTypeDefs = gql`
     listPerformanceReviewsStats: TableStats!
     getPerformanceReview(id: ID!): PerformanceReview!
     myPerformanceReviews: [PerformanceReview!]!
+    "Manager: every appraisal of their direct reports."
+    teamPerformanceReviews: [PerformanceReview!]!
   }
 
   extend type Mutation {
@@ -57,5 +59,10 @@ export const performanceTypeDefs = gql`
     still OPEN, and it never touches the manager's assessment or the rating.
     """
     submitSelfAssessment(id: ID!, text: String!): PerformanceReview!
+    """
+    The manager's half, by the employee's manager or HR. Allowed only once the employee
+    has submitted (SELF_SUBMITTED), and moves the review to MANAGER_SUBMITTED.
+    """
+    submitManagerAssessment(id: ID!, managerAssessment: String!, score: Int): PerformanceReview!
   }
 `;

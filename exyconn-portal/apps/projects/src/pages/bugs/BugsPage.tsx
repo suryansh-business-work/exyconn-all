@@ -1,10 +1,14 @@
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
+import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
+import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
+import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
   useListBugsStatsQuery,
   useDeleteBugMutation,
+  usePromoteBugToTaskMutation,
   ListBugsPagedDocument,
   type ListBugsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
@@ -16,6 +20,9 @@ export function BugsPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListBugsStatsQuery();
   const [deleteBug] = useDeleteBugMutation();
+  const [promoteBug] = usePromoteBugToTaskMutation();
+  const confirm = useConfirm();
+  const notify = useNotify();
   const { formatDate } = useSettings();
   const crud = useCrudResource<BugRow, PagedBugRow>({
     label: 'Bug',
@@ -27,6 +34,25 @@ export function BugsPage() {
     ListBugsPagedDocument,
     (data: ListBugsPagedQuery) => data.listBugsPaged,
   );
+
+  /** Makes the bug a ticket on its project's board; the row then shows the key instead. */
+  const promote = async (row: PagedBugRow) => {
+    const ok = await confirm({
+      title: 'Promote to ticket',
+      message: `Create a BUG ticket for "${row.title}" on the ${row.projectName || 'project'} board?`,
+      confirmText: 'Promote',
+    });
+    if (!ok) {
+      return;
+    }
+    try {
+      const { data } = await promoteBug({ variables: { id: row.id } });
+      notify(`Ticket ${data?.promoteBugToTask.key ?? ''} created.`, 'success');
+      crud.reload();
+    } catch (error) {
+      notify(errorMessage(error, 'The bug could not be promoted.'), 'error');
+    }
+  };
 
   const stats = statsData?.listBugsStats;
   const statItems: StatItem[] = [
@@ -45,7 +71,7 @@ export function BugsPage() {
   ];
 
   const gridContext: BugsGridContext = {
-    actions: { edit: crud.openEdit, delete: crud.remove },
+    actions: { promote, edit: crud.openEdit, delete: crud.remove },
     formatDate,
   };
 

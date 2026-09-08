@@ -19,6 +19,14 @@ export const payrollTypeDefs = gql`
     rate: Float
     "Per hour, always — what the tracker bills this person's time at."
     billingRate: Float
+    "This employee's own statutory position, overriding the company payroll settings."
+    pfApplicable: Boolean
+    esiApplicable: Boolean
+    "Percent of taxable pay withheld for this person; 0 falls back to the company rate."
+    tdsPercent: Float
+    pfNumber: String
+    esiNumber: String
+    panNumber: String
     effectiveFrom: DateTime!
   }
 
@@ -33,6 +41,12 @@ export const payrollTypeDefs = gql`
     deductions: Float!
     rate: Float
     billingRate: Float
+    pfApplicable: Boolean
+    esiApplicable: Boolean
+    tdsPercent: Float
+    pfNumber: String
+    esiNumber: String
+    panNumber: String
     effectiveFrom: DateTime!
   }
 
@@ -106,6 +120,44 @@ export const payrollTypeDefs = gql`
     skipped: Int!
   }
 
+  """
+  How TDS is worked out. NONE withholds nothing; FLAT_PERCENT takes a percentage of taxable
+  pay; SLAB means the rate is worked out off the portal and recorded per employee, so only
+  an employee with their own rate on file has anything withheld.
+  """
+  enum TdsMode {
+    NONE
+    FLAT_PERCENT
+    SLAB
+  }
+
+  "Company-wide statutory deduction policy. One document; every payslip is worked out from it."
+  type PayrollSettings {
+    pfEnabled: Boolean!
+    pfEmployeePercent: Float!
+    "PF is charged on basic only up to this figure; anything above it is exempt."
+    pfWageCeiling: Float!
+    esiEnabled: Boolean!
+    esiEmployeePercent: Float!
+    "ESI applies only while gross is at or below this figure."
+    esiWageLimit: Float!
+    professionalTaxMonthly: Float!
+    tdsMode: TdsMode!
+    tdsFlatPercent: Float!
+  }
+
+  input PayrollSettingsInput {
+    pfEnabled: Boolean!
+    pfEmployeePercent: Float!
+    pfWageCeiling: Float!
+    esiEnabled: Boolean!
+    esiEmployeePercent: Float!
+    esiWageLimit: Float!
+    professionalTaxMonthly: Float!
+    tdsMode: TdsMode!
+    tdsFlatPercent: Float!
+  }
+
   "A payslip PDF, base64 encoded so the browser can save it straight from the response."
   type SalarySlipDownload {
     filename: String!
@@ -133,6 +185,8 @@ export const payrollTypeDefs = gql`
     download anyone's.
     """
     salarySlipPdf(id: ID!): SalarySlipDownload!
+    "The statutory deduction policy. Created with its defaults on first read."
+    payrollSettings: PayrollSettings!
   }
 
   extend type Mutation {
@@ -162,5 +216,10 @@ export const payrollTypeDefs = gql`
     Does not wait for the schedule and does not change it.
     """
     sendSalarySlips(month: Int!, year: Int!): PayrollDispatchResult!
+    """
+    Saves the statutory deduction policy. Applies to the NEXT payroll run — a slip already
+    generated keeps the figures it was generated with, because that is what was withheld.
+    """
+    updatePayrollSettings(input: PayrollSettingsInput!): PayrollSettings!
   }
 `;

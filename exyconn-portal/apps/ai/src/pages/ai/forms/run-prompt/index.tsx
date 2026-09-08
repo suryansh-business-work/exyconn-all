@@ -1,2 +1,3 @@
 export { RunPromptForm } from './run-prompt.form';
-export type { RunPromptFormValues, RunPromptTarget } from './run-prompt.types';
+export { renderMergeFields, VARIABLE_FIELD_PREFIX } from './run-prompt.merge';
+export type { RunPromptFormValues, RunPromptTarget, RunPromptFormProps } from './run-prompt.types';

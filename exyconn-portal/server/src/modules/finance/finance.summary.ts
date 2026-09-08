@@ -82,18 +82,21 @@ const CLAIM_PAID_AMOUNT = { $ifNull: ['$approvedAmount', '$amount'] };
 /**
  * The cash half: what actually moved, whenever it was earned or incurred.
  *
- * Money out is the settled bills plus the reimbursements that were paid, each on the day it
- * left. A net cash figure that ignored reimbursements would say the company kept money it
- * had already handed to its staff.
+ * Money out is the settled bills, the salaries that were paid and the reimbursements that
+ * were cleared, each on the day it left. Salaries are counted on the slip's `paidOn`, not
+ * its issued date, for exactly the reason a bill is: a payslip issued on the 30th and paid
+ * on the 3rd is next month's cash. A net cash figure that ignored payroll — the largest
+ * thing most companies pay — would say the company kept money it had already handed out.
  */
 async function cash(period: Period) {
   const window = { $gte: period.from, $lte: period.to };
-  const [collected, billsPaid, claimsPaid] = await Promise.all([
+  const [collected, billsPaid, salariesPaid, claimsPaid] = await Promise.all([
     sumOf(PaymentModel, { receivedAt: window }, 'amount'),
     sumOf(CompanyExpenseModel, { paidOn: window, status: 'PAID' }, 'amount'),
+    sumOf(SalarySlipModel, { paidOn: window, status: 'PAID' }, 'net'),
     sumOf(ExpenseClaimModel, { paidOn: window, status: 'PAID' }, CLAIM_PAID_AMOUNT),
   ]);
-  const paidOut = round2(billsPaid + claimsPaid);
+  const paidOut = round2(billsPaid + salariesPaid + claimsPaid);
   return { collected, paidOut, netCash: round2(collected - paidOut) };
 }
 

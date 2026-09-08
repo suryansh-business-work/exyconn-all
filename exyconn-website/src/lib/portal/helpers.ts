@@ -1,4 +1,4 @@
-import type { Gig, Job, JobCompany } from './types';
+import type { Gig, Job, JobCompany } from "./types";
 
 /**
  * Presentation helpers that used to live alongside the hardcoded data files. They
@@ -7,10 +7,10 @@ import type { Gig, Job, JobCompany } from './types';
 
 /** "2 January 2026" — matches the format the blog and case-study cards used. */
 export function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  return new Date(value).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 
@@ -19,17 +19,17 @@ export function getDaysAgo(value: string): string {
   const days = Math.floor((Date.now() - Date.parse(value)) / 86_400_000);
 
   if (days <= 0) {
-    return 'Today';
+    return "Today";
   }
   if (days === 1) {
-    return 'Yesterday';
+    return "Yesterday";
   }
   if (days < 30) {
     return `${days} days ago`;
   }
 
   const months = Math.floor(days / 30);
-  return months === 1 ? '1 month ago' : `${months} months ago`;
+  return months === 1 ? "1 month ago" : `${months} months ago`;
 }
 
 /** Gig category -> number of open gigs in it. */

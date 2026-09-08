@@ -6,6 +6,9 @@ query ListClients {
     phone
     company
     status
+    gstin
+    stateCode
+    billingAddress
   }
 }
 
@@ -19,6 +22,9 @@ query ListClientsPaged($input: TableQueryInput!) {
       phone
       company
       status
+      gstin
+      stateCode
+      billingAddress
     }
   }
 }

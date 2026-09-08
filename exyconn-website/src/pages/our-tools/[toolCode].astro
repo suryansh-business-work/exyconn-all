@@ -1,0 +1,184 @@
+---
+import Page from "../../layouts/Page.astro";
+import { getTool, getToolCategories, getTools } from "../../lib/portal";
+
+const { toolCode } = Astro.params;
+
+if (!toolCode) {
+  return new Response(null, { status: 404 });
+}
+
+const tool = await getTool(toolCode);
+
+if (!tool) {
+  return new Response(null, { status: 404 });
+}
+
+const [categories, siblings] = await Promise.all([
+  getToolCategories(),
+  getTools(tool.categorySlug),
+]);
+
+const category = categories.find((one) => one.slug === tool.categorySlug) ?? null;
+const related = siblings.filter((one) => one.toolCode !== tool.toolCode).slice(0, 3);
+const accent = tool.color || category?.color || "#4f46e5";
+---
+
+<Page title={`${tool.name} | Exyconn Tools`} description={tool.description}>
+  <main class="bg-slate-50 min-h-screen">
+    <section class="border-b border-slate-200 py-6 px-6 bg-white">
+      <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
+        <a
+          href="/our-tools"
+          class="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+          <span class="font-medium">Back to all tools</span>
+        </a>
+        {
+          category && (
+            <a
+              href={`/our-tools#${category.slug}`}
+              class="text-sm font-semibold px-3 py-1.5 rounded-lg"
+              style={`background: ${accent}15; color: ${accent};`}
+            >
+              {category.category}
+            </a>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="py-14 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="flex items-start gap-5 mb-8">
+          <div
+            class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
+            style={`background: ${accent}15;`}
+          >
+            <i class={`fa-solid ${tool.icon || "fa-wrench"} text-2xl`} style={`color: ${accent};`}
+            ></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <h1 class="text-4xl font-black text-slate-900">{tool.name}</h1>
+              {
+                tool.isMVP && (
+                  <span class="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold">
+                    MVP
+                  </span>
+                )
+              }
+            </div>
+            <p class="text-lg text-slate-600">{tool.description}</p>
+            <span
+              class="inline-block mt-3 px-2 py-0.5 bg-slate-200 text-slate-500 rounded text-xs font-mono"
+              >#{tool.toolCode}</span
+            >
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-2 space-y-8">
+            {
+              tool.longDescription && (
+                <div class="bg-white rounded-2xl p-6 border border-slate-100">
+                  <h2 class="text-xl font-bold text-slate-900 mb-3">About this tool</h2>
+                  <p class="text-slate-600 whitespace-pre-line">{tool.longDescription}</p>
+                </div>
+              )
+            }
+
+            {
+              tool.features.length > 0 && (
+                <div class="bg-white rounded-2xl p-6 border border-slate-100">
+                  <h2 class="text-xl font-bold text-slate-900 mb-4">What it does</h2>
+                  <ul class="space-y-2">
+                    {tool.features.map((feature) => (
+                      <li class="flex items-start gap-3 text-slate-600">
+                        <i class="fa-solid fa-check mt-1" style={`color: ${accent};`} />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            }
+
+            {
+              tool.useCases.length > 0 && (
+                <div class="bg-white rounded-2xl p-6 border border-slate-100">
+                  <h2 class="text-xl font-bold text-slate-900 mb-4">Where people use it</h2>
+                  <div class="flex flex-wrap gap-2">
+                    {tool.useCases.map((useCase) => (
+                      <span class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-sm">
+                        {useCase}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+          </div>
+
+          <aside class="space-y-6">
+            {
+              tool.url && (
+                <a
+                  href={tool.url}
+                  class="block text-center px-6 py-4 rounded-2xl text-white font-bold shadow-lg transition hover:opacity-90"
+                  style={`background: ${accent};`}
+                >
+                  Open {tool.name}
+                  <i class="fa-solid fa-arrow-up-right-from-square ml-2" />
+                </a>
+              )
+            }
+
+            {
+              tool.pricing && (
+                <div class="bg-white rounded-2xl p-6 border border-slate-100">
+                  <h2 class="text-lg font-bold text-slate-900 mb-2">Pricing</h2>
+                  <p class="text-3xl font-black text-slate-900">
+                    {tool.pricing.currency} {tool.pricing.price}
+                  </p>
+                  {tool.pricing.alterationNote && (
+                    <p class="text-sm text-slate-500 mt-2">{tool.pricing.alterationNote}</p>
+                  )}
+                  <ul class="mt-4 space-y-1.5">
+                    {tool.pricing.features.map((feature) => (
+                      <li class="text-sm text-slate-600 flex items-start gap-2">
+                        <i class="fa-solid fa-check mt-1 text-emerald-500" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            }
+
+            {
+              related.length > 0 && (
+                <div class="bg-white rounded-2xl p-6 border border-slate-100">
+                  <h2 class="text-lg font-bold text-slate-900 mb-3">More in this category</h2>
+                  <ul class="space-y-2">
+                    {related.map((one) => (
+                      <li>
+                        <a
+                          href={`/our-tools/${one.toolCode}`}
+                          class="text-slate-600 hover:text-indigo-600 transition"
+                        >
+                          {one.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            }
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+</Page>

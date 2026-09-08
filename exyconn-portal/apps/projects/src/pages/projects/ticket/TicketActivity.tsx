@@ -12,6 +12,9 @@ function describe(field: string, fromValue: string, toValue: string): string {
   if (field === 'created') {
     return `created ${toValue}`;
   }
+  if (field === 'attachment') {
+    return toValue === '' ? `removed attachment ${fromValue}` : `attached ${toValue}`;
+  }
   if (fromValue === '') {
     return `set ${field} to ${toValue}`;
   }

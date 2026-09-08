@@ -1,7 +1,12 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 
-/** Whether this recipient's copy reached the SMTP server. */
-export const CAMPAIGN_SEND_STATUSES = ['SENT', 'FAILED'] as const;
+/**
+ * What happened to this recipient's copy. SKIPPED is not a failure: the address was
+ * suppressed or the contact had withdrawn consent, and the row exists so the gap between
+ * the audience's size and the number sent has a name against it rather than being
+ * unexplained arithmetic.
+ */
+export const CAMPAIGN_SEND_STATUSES = ['SENT', 'FAILED', 'SKIPPED'] as const;
 
 /**
  * One recipient's copy of one campaign send.
@@ -17,7 +22,7 @@ const campaignSendSchema = new Schema(
     to: { type: String, required: true, trim: true },
     recipientName: { type: String, default: '', trim: true },
     status: { type: String, enum: CAMPAIGN_SEND_STATUSES, required: true },
-    /** The failure reason, in the words the transport gave. Empty on success. */
+    /** Why it failed, in the transport's own words — or why it was skipped. Empty on success. */
     error: { type: String, default: '', trim: true },
     sentAt: { type: Date, required: true, default: Date.now },
   },

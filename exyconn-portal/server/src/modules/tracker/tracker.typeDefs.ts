@@ -424,6 +424,33 @@ export const trackerTypeDefs = gql`
     currency: String!
   }
 
+  "One employee's priced time on one project."
+  type ProjectBillingEmployee {
+    employeeId: ID!
+    employeeName: String!
+    hours: Float!
+    "Per hour, from the employee's HR salary structure. Zero when HR has not set one."
+    rate: Float!
+    amount: Float!
+  }
+
+  "A project's billable time over a range, priced per employee, beside what was agreed."
+  type ProjectBillingRow {
+    "Empty for time booked before every session carried a project."
+    projectId: ID!
+    projectName: String!
+    clientId: String
+    clientName: String!
+    currency: String!
+    employees: [ProjectBillingEmployee!]!
+    hours: Float!
+    amount: Float!
+    "Agreed hours, from the project. Null when no budget was set."
+    budgetHours: Float
+    "Agreed money, from the project. Null when no budget was set."
+    budgetAmount: Float
+  }
+
   # ── Desktop app payloads ──────────────────────────────────────────────
   input TrackerDeviceInput {
     deviceId: String!
@@ -576,6 +603,11 @@ export const trackerTypeDefs = gql`
     desk, and the rate comes from the employee's HR salary structure, never from here.
     """
     trackerBilling(from: DateTime!, to: DateTime!): TrackerBilling!
+    """
+    The same billable time grouped by project, then by employee, beside each project's
+    budget. TRACKER, FINANCE or PROJECTS. Pass projectId to read one project.
+    """
+    trackerBillingByProject(from: DateTime!, to: DateTime!, projectId: ID): [ProjectBillingRow!]!
 
     # Desktop app (device token) — rehydrates a remembered session
     trackerMe: TrackerMe!

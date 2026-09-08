@@ -101,6 +101,7 @@ export function ExpensesPage() {
       renderForm={(initial) => (
         <ExpenseClaimForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
+      permissionModule="ExpenseClaim"
       columnDefs={EXPENSE_CLAIM_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

@@ -71,3 +71,32 @@ query ListAssets {
     ...AssetFields
   }
 }
+
+query AssetAssignments($assetId: ID!) {
+  assetAssignments(assetId: $assetId) {
+    id
+    assetTag
+    employeeId
+    employeeName
+    assignedAt
+    returnedAt
+    assignedByName
+    note
+  }
+}
+
+query LicenceSeatsFor($employeeId: String!) {
+  licenceSeatsFor(employeeId: $employeeId) {
+    id
+    name
+    vendor
+    renewalDate
+    status
+  }
+}
+
+query GetAsset($id: ID!) {
+  getAsset(id: $id) {
+    ...AssetFields
+  }
+}

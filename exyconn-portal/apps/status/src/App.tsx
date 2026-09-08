@@ -6,6 +6,8 @@ import { NotificationProvider } from '@exyconn/shell/components/feedback/Notific
 import { StatusShell } from './components/StatusShell';
 import { StatusPage } from './pages/status';
 import { ReportPage } from './pages/report';
+import { ConfirmSubscriptionPage, UnsubscribePage } from './pages/subscribe';
+import { SharedProjectPage } from './pages/project';
 
 /**
  * Public status site. Unlike every other micro-frontend it deliberately does not use
@@ -22,6 +24,10 @@ export function App() {
               <Routes>
                 <Route path="/" element={<StatusPage />} />
                 <Route path="/report" element={<ReportPage />} />
+                <Route path="/subscribe/confirm" element={<ConfirmSubscriptionPage />} />
+                <Route path="/unsubscribe" element={<UnsubscribePage />} />
+                {/* A client's read-only view of one project, opened from a share link. */}
+                <Route path="/project/:token" element={<SharedProjectPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </StatusShell>

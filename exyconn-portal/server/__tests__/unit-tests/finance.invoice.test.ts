@@ -86,8 +86,21 @@ describe('invoice pdf', () => {
 
   it('renders a real PDF document with a line table', async () => {
     const pdf = await buildInvoicePdf({
-      company: { name: 'Exyconn', address: 'Indore', supportEmail: 'support@exyconn.com' },
-      client: { name: 'Priya', company: 'Acme', email: 'priya@acme.test' },
+      company: {
+        name: 'Exyconn',
+        address: 'Indore',
+        supportEmail: 'support@exyconn.com',
+        gstin: '23AAACE1234F1Z5',
+        stateCode: '23',
+        bankDetails: 'HDFC Bank · A/C 1234567890',
+      },
+      client: {
+        name: 'Priya',
+        company: 'Acme',
+        email: 'priya@acme.test',
+        gstin: '',
+        billingAddress: 'Mumbai',
+      },
       invoice: {
         number: 'INV-007',
         currency: 'INR',
@@ -97,6 +110,8 @@ describe('invoice pdf', () => {
         lines: LINES,
         amount: 2860,
         amountPaid: 1000,
+        placeOfSupplyStateCode: '27',
+        supplierStateCode: '23',
       },
     });
 

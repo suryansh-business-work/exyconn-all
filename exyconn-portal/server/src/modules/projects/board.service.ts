@@ -2,6 +2,13 @@ import { BoardColumnModel, TaskActivityModel, TaskCommentModel, TaskModel } from
 import { ProjectModel } from './projects.model';
 import { badRequest, notFound } from '../../utils/errors';
 
+/** One file hung off a ticket or a comment, as it arrives from the client. */
+export interface TaskAttachmentInput {
+  url: string;
+  name: string;
+  contentType?: string | null;
+}
+
 /** Everything a person can set on a ticket. Absent fields are left as they are. */
 export interface TaskInput {
   title: string;
@@ -12,6 +19,10 @@ export interface TaskInput {
   labels?: string[] | null;
   storyPoints?: number | null;
   dueDate?: Date | null;
+  sprintId?: string | null;
+  milestoneId?: string | null;
+  parentTaskId?: string | null;
+  attachments?: TaskAttachmentInput[] | null;
 }
 
 /** Who is acting, for the fields a ticket records about people rather than about work. */
@@ -48,6 +59,10 @@ function patchOf(input: TaskInput, assigneeName?: string): Record<string, unknow
     labels: input.labels,
     storyPoints: input.storyPoints,
     dueDate: input.dueDate,
+    sprintId: input.sprintId,
+    milestoneId: input.milestoneId,
+    parentTaskId: input.parentTaskId,
+    attachments: input.attachments,
   };
   for (const [field, value] of Object.entries(optional)) {
     if (value !== undefined) {
@@ -132,6 +147,62 @@ function changesBetween(
   return changes;
 }
 
+/** The field name the trail uses for a file added to or taken off a ticket. */
+const ATTACHMENT_FIELD = 'attachment';
+
+/** The names on a ticket's attachment list, whatever shape the lean document came back in. */
+function attachmentNames(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.map((item) => String((item as { name?: unknown }).name ?? ''));
+}
+
+/**
+ * One trail line per file added and one per file removed.
+ *
+ * Attachments are diffed by name rather than through {@link changesBetween}, because the
+ * generic diff renders a value with `display`, and an array of objects there would record
+ * `[object Object]` — a history entry that says nothing about which file moved.
+ */
+function attachmentChanges(
+  before: unknown,
+  after: unknown,
+): Array<{ from: string; to: string }> {
+  const had = attachmentNames(before);
+  const has = attachmentNames(after);
+  const added = has.filter((name) => !had.includes(name)).map((name) => ({ from: '', to: name }));
+  const removed = had.filter((name) => !has.includes(name)).map((name) => ({ from: name, to: '' }));
+  return [...added, ...removed];
+}
+
+/**
+ * The attachment list to store: a file already on the ticket keeps the uploader and the
+ * moment it was first attached, and anything new is stamped with whoever is saving now.
+ * The client never supplies either — an uploader it could choose is an uploader it could lie
+ * about, and the trail is the whole point of recording one.
+ */
+function mergeAttachments(
+  previous: unknown,
+  incoming: TaskAttachmentInput[],
+  actorName: string,
+): Array<TaskAttachmentInput & { uploadedByName: string; uploadedAt: Date }> {
+  const known = new Map(
+    (Array.isArray(previous) ? previous : []).map((item) => {
+      const file = item as { url?: unknown; uploadedByName?: unknown; uploadedAt?: unknown };
+      return [String(file.url ?? ''), file];
+    }),
+  );
+  return incoming.map((file) => {
+    const existing = known.get(file.url);
+    return {
+      ...file,
+      uploadedByName: String(existing?.uploadedByName ?? actorName),
+      uploadedAt: (existing?.uploadedAt as Date | undefined) ?? new Date(),
+    };
+  });
+}
+
 /** Domain logic for the per-project board: columns, tickets and their comments. */
 export const boardService = {
   async board(projectId: string) {
@@ -182,8 +253,12 @@ export const boardService = {
     assigneeName: string,
   ) {
     const order = await TaskModel.countDocuments({ columnId });
+    const patch = patchOf(input, assigneeName);
+    if (input.attachments) {
+      patch.attachments = mergeAttachments(null, input.attachments, reporter.name);
+    }
     const created = await TaskModel.create({
-      ...patchOf(input, assigneeName),
+      ...patch,
       projectId,
       columnId,
       key: await nextKey(projectId),
@@ -199,13 +274,18 @@ export const boardService = {
     const before = await TaskModel.findById(id).lean();
     if (!before) notFound('Task');
 
-    const doc = await TaskModel.findByIdAndUpdate(id, patchOf(input, assigneeName), {
-      new: true,
-    }).lean();
+    const patch = patchOf(input, assigneeName);
+    if (input.attachments) {
+      patch.attachments = mergeAttachments(before.attachments, input.attachments, actor.name);
+    }
+    const doc = await TaskModel.findByIdAndUpdate(id, patch, { new: true }).lean();
     if (!doc) notFound('Task');
 
     for (const change of changesBetween(before, doc)) {
       await record(id, actor, change.field, change.from, change.to);
+    }
+    for (const change of attachmentChanges(before.attachments, doc.attachments)) {
+      await record(id, actor, ATTACHMENT_FIELD, change.from, change.to);
     }
     return doc;
   },
@@ -253,7 +333,12 @@ export const boardService = {
     return TaskCommentModel.find({ taskId }).sort({ createdAt: 1 }).lean();
   },
 
-  async addComment(taskId: string, body: string, author: Actor) {
+  async addComment(
+    taskId: string,
+    body: string,
+    author: Actor,
+    attachments: TaskAttachmentInput[] = [],
+  ) {
     if (body.trim() === '') {
       badRequest('A comment cannot be empty');
     }
@@ -264,7 +349,11 @@ export const boardService = {
       body,
       authorId: author.id,
       authorName: author.name,
+      attachments: attachments.map((file) => ({ ...file, uploadedByName: author.name })),
     });
+    for (const file of attachments) {
+      await record(taskId, author, ATTACHMENT_FIELD, '', file.name);
+    }
     return created.toObject();
   },
 

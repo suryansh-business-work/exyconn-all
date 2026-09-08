@@ -9,11 +9,14 @@ import { useProjectTimeLogQuery } from '@exyconn/shell/graphql/generated';
 import { timeLogColumns, type TimeLogRow } from './time-log-columns';
 import { TimeLogSessions } from './TimeLogSessions';
 import { BudgetBar } from './BudgetBar';
+import { TimeLogBilling } from './TimeLogBilling';
 
 interface ProjectTimeLogPageProps {
   projectId: string;
   /** The hours agreed for the project, or null when no budget was set. */
   budgetHours: number | null;
+  /** The money agreed for the project, or null when no budget was set. */
+  budgetAmount: number | null;
 }
 
 /**
@@ -23,7 +26,11 @@ interface ProjectTimeLogPageProps {
  * month there mean the same window — including across a timezone change, which is the sort
  * of thing two independent date helpers quietly disagree about.
  */
-export function ProjectTimeLogPage({ projectId, budgetHours }: Readonly<ProjectTimeLogPageProps>) {
+export function ProjectTimeLogPage({
+  projectId,
+  budgetHours,
+  budgetAmount,
+}: Readonly<ProjectTimeLogPageProps>) {
   const month = useTrackerMonth();
   const [openRow, setOpenRow] = useState<TimeLogRow | null>(null);
   const { data, loading } = useProjectTimeLogQuery({
@@ -64,6 +71,15 @@ export function ProjectTimeLogPage({ projectId, budgetHours }: Readonly<ProjectT
 
       {log && budgetHours ? (
         <BudgetBar trackedMs={log.totalActiveMs + log.totalManualMs} budgetHours={budgetHours} />
+      ) : null}
+
+      {log ? (
+        <TimeLogBilling
+          projectId={projectId}
+          from={month.range.from}
+          to={month.range.to}
+          budgetAmount={budgetAmount}
+        />
       ) : null}
 
       {log && !log.canViewScreenshots ? (

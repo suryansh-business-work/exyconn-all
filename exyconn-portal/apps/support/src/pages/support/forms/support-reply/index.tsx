@@ -1,2 +1,2 @@
 export { SupportReplyForm } from './support-reply.form';
-export type { SupportReplyFormValues } from './support-reply.types';
+export type { SupportReplyAttachment, SupportReplyFormValues } from './support-reply.types';

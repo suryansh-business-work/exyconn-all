@@ -32,6 +32,8 @@ const dealSchema = new Schema(
     expectedCloseDate: { type: Date, default: null },
     owner: { type: String, required: true, trim: true },
     notes: { type: String, default: '' },
+    /** The client this deal is billed to, stamped when it is won. */
+    clientId: { type: String, default: '', trim: true },
   },
   { timestamps: true },
 );

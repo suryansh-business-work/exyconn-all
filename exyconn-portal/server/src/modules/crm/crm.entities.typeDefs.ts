@@ -54,6 +54,10 @@ export const crmEntitiesTypeDefs = gql`
     location: String!
     owner: String!
     notes: String!
+    "The Admin client this account became when a deal was won; empty until then."
+    clientId: String!
+    "Whether the account has a client record — what Finance and Projects bill and plan against."
+    isClient: Boolean!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -87,6 +91,8 @@ export const crmEntitiesTypeDefs = gql`
     expectedCloseDate: DateTime
     owner: String!
     notes: String!
+    "The client this deal is billed to, stamped when it is won."
+    clientId: String!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -210,6 +216,8 @@ export const crmEntitiesTypeDefs = gql`
     createCompany(input: CompanyInput!): Company!
     updateCompany(id: ID!, input: CompanyInput!): Company!
     deleteCompany(id: ID!): Boolean!
+    "Makes an Admin client of the account, or reuses the one it already has."
+    promoteCompanyToClient(id: ID!): Company!
 
     createContact(input: ContactInput!): Contact!
     updateContact(id: ID!, input: ContactInput!): Contact!
@@ -218,7 +226,7 @@ export const crmEntitiesTypeDefs = gql`
     createDeal(input: DealInput!): Deal!
     updateDeal(id: ID!, input: DealInput!): Deal!
     deleteDeal(id: ID!): Boolean!
-    "Moves a deal to another pipeline stage — what a drag on the board does."
+    "Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client."
     setDealStage(id: ID!, stage: DealStage!): Deal!
 
     createActivity(input: ActivityInput!): Activity!

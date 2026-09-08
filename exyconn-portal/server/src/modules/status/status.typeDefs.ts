@@ -40,6 +40,24 @@ export const statusTypeDefs = gql`
     CLOSED
   }
 
+  enum IncidentSource {
+    MONITOR
+    MANUAL
+  }
+
+  enum IncidentImpact {
+    MINOR
+    MAJOR
+    CRITICAL
+  }
+
+  enum IncidentUpdateStatus {
+    INVESTIGATING
+    IDENTIFIED
+    MONITORING
+    RESOLVED
+  }
+
   "One UTC day of a service's history. A day with checks: 0 was never measured."
   type StatusDayPoint {
     date: String!
@@ -65,15 +83,79 @@ export const statusTypeDefs = gql`
     days: [StatusDayPoint!]!
   }
 
+  "One entry in an incident's timeline."
+  type StatusIncidentUpdate {
+    id: ID!
+    status: IncidentUpdateStatus!
+    body: String!
+    authorName: String!
+    createdAt: DateTime!
+  }
+
   type StatusIncident {
     id: ID!
     serviceKey: String!
     serviceName: String!
+    title: String!
+    source: IncidentSource!
+    impact: IncidentImpact!
+    affectedServiceKeys: [String!]!
     state: StatusState!
     reason: String!
+    "Newest first."
+    updates: [StatusIncidentUpdate!]!
     startedAt: DateTime!
     resolvedAt: DateTime
     durationMinutes: Int!
+  }
+
+  type StatusIncidentPage {
+    rows: [StatusIncident!]!
+    totalCount: Int!
+  }
+
+  "What Tech fills in to open an incident by hand; the body becomes the first update."
+  input StatusIncidentInput {
+    title: String!
+    impact: IncidentImpact!
+    affectedServiceKeys: [String!]!
+    body: String!
+  }
+
+  "A planned window during which the listed services are unavailable."
+  type StatusMaintenance {
+    id: ID!
+    title: String!
+    body: String!
+    affectedServiceKeys: [String!]!
+    startsAt: DateTime!
+    endsAt: DateTime!
+    createdBy: String!
+    "True once the window has started (public overview only)."
+    inProgress: Boolean
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
+  input StatusMaintenanceInput {
+    title: String!
+    body: String!
+    affectedServiceKeys: [String!]!
+    startsAt: DateTime!
+    endsAt: DateTime!
+  }
+
+  type StatusMaintenancePage {
+    rows: [StatusMaintenance!]!
+    totalCount: Int!
+  }
+
+  "What a reporter may read back about their own report by quoting its reference."
+  type ProblemReportStatus {
+    reference: String!
+    status: ProblemStatus!
+    serviceName: String!
+    updatedAt: DateTime!
   }
 
   "Everything the public status page renders, resolved in a single read."
@@ -91,6 +173,8 @@ export const statusTypeDefs = gql`
     services: [StatusServiceSummary!]!
     daily: [StatusDayPoint!]!
     incidents: [StatusIncident!]!
+    "Upcoming and in-progress maintenance windows, soonest first."
+    maintenance: [StatusMaintenance!]!
   }
 
   "A monitored endpoint, maintained from Tech > Status Monitors."
@@ -188,6 +272,18 @@ export const statusTypeDefs = gql`
   extend type Query {
     "Public: no sign-in, this is what status.exyconn.com reads."
     statusOverview(days: Int): StatusOverview!
+    "Public: a reporter checks on their own report by its reference. Rate-limited by address."
+    problemReportStatus(reference: String!): ProblemReportStatus!
+
+    listStatusIncidents: [StatusIncident!]!
+    listStatusIncidentsPaged(input: TableQueryInput!): StatusIncidentPage!
+    listStatusIncidentsStats: TableStats!
+    getStatusIncident(id: ID!): StatusIncident!
+
+    listStatusMaintenanceWindows: [StatusMaintenance!]!
+    listStatusMaintenanceWindowsPaged(input: TableQueryInput!): StatusMaintenancePage!
+    listStatusMaintenanceWindowsStats: TableStats!
+    getStatusMaintenance(id: ID!): StatusMaintenance!
 
     listStatusMonitors: [StatusMonitor!]!
     listStatusMonitorsPaged(input: TableQueryInput!): StatusMonitorPage!
@@ -204,12 +300,33 @@ export const statusTypeDefs = gql`
     "Public: filed from the status page's report form, triaged in the Tech portal."
     submitProblemReport(input: SubmitProblemReportInput!): ProblemReportReceipt!
 
+    """
+    Public: asks for incident emails. Always answers true — a different answer would say
+    whether an address is already subscribed. Nothing is sent until the link is confirmed.
+    """
+    subscribeToStatus(email: String!): Boolean!
+    "Public: turns a confirm link into a live subscription. The link works exactly once."
+    confirmStatusSubscription(token: String!): Boolean!
+    "Public: removes a subscription. Answers true whether or not one was there."
+    unsubscribeFromStatus(token: String!): Boolean!
+
     createStatusMonitor(input: StatusMonitorInput!): StatusMonitor!
     updateStatusMonitor(id: ID!, input: StatusMonitorInput!): StatusMonitor!
     deleteStatusMonitor(id: ID!): Boolean!
 
     createProblemReport(input: ProblemReportInput!): ProblemReport!
+    "A status change emails the reporter, when they left an address."
     updateProblemReport(id: ID!, input: ProblemReportInput!): ProblemReport!
     deleteProblemReport(id: ID!): Boolean!
+
+    createStatusIncident(input: StatusIncidentInput!): StatusIncident!
+    "RESOLVED closes the incident and alerts the team like the monitor does."
+    addStatusIncidentUpdate(id: ID!, status: IncidentUpdateStatus!, body: String!): StatusIncident!
+    deleteStatusIncident(id: ID!): Boolean!
+
+    "Creating a window also emails every confirmed status subscriber."
+    createStatusMaintenance(input: StatusMaintenanceInput!): StatusMaintenance!
+    updateStatusMaintenance(id: ID!, input: StatusMaintenanceInput!): StatusMaintenance!
+    deleteStatusMaintenance(id: ID!): Boolean!
   }
 `;

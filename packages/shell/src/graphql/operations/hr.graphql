@@ -86,6 +86,24 @@ query AttendanceByEmployee($employeeId: ID!) {
   }
 }
 
+query TeamLeaveRequests {
+  teamLeaveRequests {
+    ...LeaveFields
+    createdAt
+  }
+}
+
+query OrgChart {
+  orgChart {
+    id
+    name
+    designation
+    department
+    avatarUrl
+    managerId
+  }
+}
+
 mutation SetLeaveStatus($id: ID!, $status: LeaveStatus!) {
   setLeaveStatus(id: $id, status: $status) {
     id
@@ -152,4 +170,16 @@ mutation UpdatePosition($id: ID!, $input: PositionInput!) {
 
 mutation DeletePosition($id: ID!) {
   deletePosition(id: $id)
+}
+
+# HR dashboard: who is coming off probation inside the next N days.
+query ProbationsEnding($days: Int) {
+  probationsEnding(days: $days) {
+    id
+    name
+    designation
+    department
+    avatarUrl
+    probationEndDate
+  }
 }

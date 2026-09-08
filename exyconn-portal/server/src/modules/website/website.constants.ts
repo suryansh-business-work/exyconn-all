@@ -76,7 +76,14 @@ export const NAV_CATEGORIES = [
 /** Lifecycle of a form submission received from the public website. */
 export const SUBMISSION_STATUSES = ['new', 'in-review', 'resolved', 'archived'] as const;
 
-/** Form identifiers the public website is allowed to submit under. */
+/**
+ * Form identifiers the public website is allowed to submit under.
+ *
+ * This is the ONLY copy of the list. It is exposed as the `websiteFormTypes` query, which
+ * both the portal UI and the Astro site's `/api/form-submit` route read — the route used to
+ * carry its own literal, so adding a form meant editing two files and forgetting one meant
+ * a form that silently 400s.
+ */
 export const SUBMISSION_FORM_TYPES = [
   'contact',
   'grievance',

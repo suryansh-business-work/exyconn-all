@@ -1,4 +1,4 @@
-import { portalRequest } from './client';
+import { portalRequest } from "./client";
 
 const CREATE_SUBMISSION = `
   mutation CreateWebsiteSubmission($input: WebsiteSubmissionInput!) {
@@ -14,11 +14,11 @@ const CREATE_SUBMISSION = `
  */
 export async function submitForm(
   formType: string,
-  data: Record<string, string>,
+  data: Record<string, string>
 ): Promise<string | undefined> {
   const result = await portalRequest<{ createWebsiteSubmission: { id: string } }>(
     CREATE_SUBMISSION,
-    { input: { formType, source: 'website', submissionData: data } },
+    { input: { formType, source: "website", submissionData: data } }
   );
 
   return result.createWebsiteSubmission?.id;

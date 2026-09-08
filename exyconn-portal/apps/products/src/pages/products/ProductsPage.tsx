@@ -46,11 +46,13 @@ export function ProductsPage() {
       title="Products"
       subtitle="Product catalog"
       entityLabel="product"
+      exportFileName="products"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (
         <ProductForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
+      permissionModule="Product"
       columnDefs={PRODUCT_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

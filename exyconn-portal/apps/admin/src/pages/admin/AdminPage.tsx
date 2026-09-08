@@ -74,6 +74,7 @@ export function AdminPage() {
       title="Admin"
       subtitle="Users & roles"
       entityLabel="user"
+      exportFileName="users"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (
@@ -84,6 +85,7 @@ export function AdminPage() {
           onDone={crud.onDone}
         />
       )}
+      permissionModule="User"
       columnDefs={USER_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

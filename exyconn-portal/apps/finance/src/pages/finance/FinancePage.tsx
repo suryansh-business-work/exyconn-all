@@ -59,11 +59,13 @@ export function FinancePage() {
       title="Finance"
       subtitle="Invoices & billing"
       entityLabel="invoice"
+      exportFileName="invoices"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (
         <InvoiceForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
+      permissionModule="Invoice"
       columnDefs={INVOICE_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

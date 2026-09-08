@@ -9,6 +9,8 @@ fragment CompanyFields on Company {
   location
   owner
   notes
+  clientId
+  isClient
 }
 
 fragment ContactFields on Contact {
@@ -37,6 +39,7 @@ fragment DealFields on Deal {
   expectedCloseDate
   owner
   notes
+  clientId
 }
 
 fragment ActivityFields on Activity {
@@ -102,6 +105,14 @@ mutation UpdateCompany($id: ID!, $input: CompanyInput!) {
 
 mutation DeleteCompany($id: ID!) {
   deleteCompany(id: $id)
+}
+
+mutation PromoteCompanyToClient($id: ID!) {
+  promoteCompanyToClient(id: $id) {
+    id
+    clientId
+    isClient
+  }
 }
 
 query ListContacts {

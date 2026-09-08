@@ -18,9 +18,13 @@ export interface UserFormValues {
   address: string;
   brief: string;
   department: string;
+  /** The user this person reports to; '' when nobody is set. */
+  managerId: string;
   designation: string;
   joinDate: string;
   dateOfBirth: string;
+  /** The day they come off probation; '' when they are not on one. */
+  probationEndDate: string;
   employmentStatus: EmploymentStatus;
   workingTime: WorkingTime;
   workingTimeNote: string;

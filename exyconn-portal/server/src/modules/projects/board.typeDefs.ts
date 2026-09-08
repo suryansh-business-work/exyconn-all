@@ -16,6 +16,22 @@ export const boardTypeDefs = gql`
     LOWEST
   }
 
+  "One file hung off a ticket or a comment. Images and PDFs only."
+  type TaskAttachment {
+    url: String!
+    name: String!
+    contentType: String!
+    uploadedByName: String!
+    uploadedAt: DateTime!
+  }
+
+  "A file being attached. The uploader and the timestamp are stamped server-side."
+  input TaskAttachmentInput {
+    url: String!
+    name: String!
+    contentType: String
+  }
+
   type BoardColumn {
     id: ID!
     name: String!
@@ -40,6 +56,13 @@ export const boardTypeDefs = gql`
     "Estimate in points. Null means nobody has sized it, which is not the same as zero."
     storyPoints: Int
     dueDate: DateTime
+    "The sprint the ticket is committed to. Null means it is still in the backlog."
+    sprintId: ID
+    "The milestone the ticket counts towards, if any."
+    milestoneId: ID
+    "The EPIC this ticket is filed under. Null for a ticket that stands on its own."
+    parentTaskId: ID
+    attachments: [TaskAttachment!]!
     order: Int!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -55,6 +78,10 @@ export const boardTypeDefs = gql`
     labels: [String!]
     storyPoints: Int
     dueDate: DateTime
+    sprintId: ID
+    milestoneId: ID
+    parentTaskId: ID
+    attachments: [TaskAttachmentInput!]
   }
 
   type TaskComment {
@@ -63,6 +90,7 @@ export const boardTypeDefs = gql`
     authorId: String!
     authorName: String!
     body: String!
+    attachments: [TaskAttachment!]!
     createdAt: DateTime!
   }
 
@@ -112,7 +140,11 @@ export const boardTypeDefs = gql`
     deleteTask(id: ID!): Boolean!
     moveTask(id: ID!, toColumnId: ID!, toIndex: Int!): Boolean!
 
-    addTaskComment(taskId: ID!, body: String!): TaskComment!
+    addTaskComment(
+      taskId: ID!
+      body: String!
+      attachments: [TaskAttachmentInput!]
+    ): TaskComment!
     deleteTaskComment(id: ID!): Boolean!
   }
 `;

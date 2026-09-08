@@ -1,3 +1,11 @@
+fragment TaskAttachmentFields on TaskAttachment {
+  url
+  name
+  contentType
+  uploadedByName
+  uploadedAt
+}
+
 fragment TaskFields on Task {
   id
   columnId
@@ -12,6 +20,12 @@ fragment TaskFields on Task {
   labels
   storyPoints
   dueDate
+  sprintId
+  milestoneId
+  parentTaskId
+  attachments {
+    ...TaskAttachmentFields
+  }
   order
   createdAt
   updatedAt
@@ -42,6 +56,9 @@ query TaskComments($taskId: ID!) {
     authorId
     authorName
     body
+    attachments {
+      ...TaskAttachmentFields
+    }
     createdAt
   }
 }
@@ -94,8 +111,12 @@ mutation MoveTask($id: ID!, $toColumnId: ID!, $toIndex: Int!) {
   moveTask(id: $id, toColumnId: $toColumnId, toIndex: $toIndex)
 }
 
-mutation AddTaskComment($taskId: ID!, $body: String!) {
-  addTaskComment(taskId: $taskId, body: $body) {
+mutation AddTaskComment(
+  $taskId: ID!
+  $body: String!
+  $attachments: [TaskAttachmentInput!]
+) {
+  addTaskComment(taskId: $taskId, body: $body, attachments: $attachments) {
     id
   }
 }
@@ -113,6 +134,7 @@ query GetProject($id: ID!) {
     status
     clientName
     budgetHours
+    budgetAmount
   }
 }
 

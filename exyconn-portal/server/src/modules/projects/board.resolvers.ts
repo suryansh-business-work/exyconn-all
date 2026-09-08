@@ -1,4 +1,9 @@
-import { boardService, type Actor, type TaskInput } from './board.service';
+import {
+  boardService,
+  type Actor,
+  type TaskAttachmentInput,
+  type TaskInput,
+} from './board.service';
 import { assertRole } from '../../middleware/roleGuard';
 import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
@@ -18,7 +23,7 @@ type TaskChildShape = WithId & { taskId: { toString(): string } };
  * Generic so the document's own fields survive: a serializer that narrowed its result to the
  * ids would hide every ticket field from the callers that read them.
  */
-const serializeTask = <T extends TaskShape>(t: T) => ({
+export const serializeTask = <T extends TaskShape>(t: T) => ({
   ...withId(t),
   columnId: t.columnId.toString(),
 });
@@ -29,7 +34,7 @@ const serializeTaskChild = <T extends TaskChildShape>(c: T) => ({
 });
 
 /** Who is acting, from the request's own token — never from anything the client sent. */
-async function actorOf(ctx: GraphQLContext): Promise<Actor> {
+export async function actorOf(ctx: GraphQLContext): Promise<Actor> {
   const id = ctx.user?.id;
   if (!id) {
     unauthenticated();
@@ -160,12 +165,18 @@ export const boardResolvers = {
     },
     addTaskComment: async (
       _p: unknown,
-      { taskId, body }: { taskId: string; body: string },
+      args: { taskId: string; body: string; attachments?: TaskAttachmentInput[] | null },
       ctx: GraphQLContext,
     ) => {
       guard(ctx);
       const author = await actorOf(ctx);
-      return serializeTaskChild(await boardService.addComment(taskId, body, author));
+      const comment = await boardService.addComment(
+        args.taskId,
+        args.body,
+        author,
+        args.attachments ?? [],
+      );
+      return serializeTaskChild(comment);
     },
     deleteTaskComment: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       guard(ctx);

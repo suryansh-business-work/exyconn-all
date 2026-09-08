@@ -3,6 +3,9 @@ import { SalarySlipModel } from './salarySlip.model';
 import { HolidayModel } from './holiday.model';
 import { SupportTicketModel } from './support.model';
 import { SupportReplyModel } from '../support/support-reply.model';
+import { toAttachments, type AttachmentInput } from '../support/attachment.schema';
+import { dueAtForPriority } from '../support/sla.service';
+import { uniqueReference } from '../support/ticket-reference';
 import { UserModel } from '../admin/user.model';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { badRequest, notFound } from '../../utils/errors';
@@ -14,6 +17,7 @@ interface SupportTicketInput {
   category: string;
   description: string;
   priority: string;
+  attachments?: AttachmentInput[] | null;
 }
 
 /** Attaches the derived gross/net figures to a salary structure document. */
@@ -80,16 +84,27 @@ export const employeeResolvers = {
       ctx: GraphQLContext,
     ) => {
       const user = assertAuthenticated(ctx);
+      // Reference and deadline are stamped on the same terms as a customer ticket: one
+      // queue, one promise, whoever asked.
+      const raisedAt = new Date();
       const doc = await SupportTicketModel.create({
         ...input,
+        attachments: toAttachments(input.attachments, user.email),
         employeeId: user.id,
+        requesterType: 'EMPLOYEE',
+        reference: await uniqueReference(),
         status: 'OPEN',
+        dueAt: await dueAtForPriority(input.priority, raisedAt),
       });
       return withId(doc.toObject());
     },
     addMySupportReply: async (
       _p: unknown,
-      { ticketId, body }: { ticketId: string; body: string },
+      {
+        ticketId,
+        body,
+        attachments,
+      }: { ticketId: string; body: string; attachments?: AttachmentInput[] | null },
       ctx: GraphQLContext,
     ) => {
       if (!body.trim()) badRequest('A reply cannot be empty.');
@@ -99,12 +114,14 @@ export const employeeResolvers = {
         .select('name')
         .lean()
         .catch(() => null);
+      const authorName = author?.name ?? user.email;
       const reply = await SupportReplyModel.create({
         ticketId,
         authorId: user.id,
-        authorName: author?.name ?? user.email,
+        authorName,
         body: body.trim(),
         internal: false,
+        attachments: toAttachments(attachments, authorName),
       });
       return withId(reply.toObject());
     },

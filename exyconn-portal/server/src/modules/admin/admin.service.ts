@@ -1,3 +1,4 @@
+import { isValidObjectId } from 'mongoose';
 import { UserModel } from './user.model';
 import { AppSettingsModel } from './settings.model';
 import { hashPassword, generateTempPassword } from '../../utils/password';
@@ -87,11 +88,15 @@ export interface HrFields {
   designation?: string;
   joinDate?: Date;
   dateOfBirth?: Date;
+  /** The day they come off probation; null when they are not on one. */
+  probationEndDate?: Date | null;
   employmentStatus?: EmploymentStatus;
   /** Profile photo, hosted on ImageKit by the portal's upload dialog. */
   avatarUrl?: string;
   address?: string;
   brief?: string;
+  /** Who they report to; null clears it. */
+  managerId?: string | null;
   workingTime?: WorkingTime;
   workingTimeNote?: string;
   workLocation?: WorkLocation;
@@ -106,10 +111,12 @@ function hrFields(input: HrFields) {
     designation: input.designation,
     joinDate: input.joinDate,
     dateOfBirth: input.dateOfBirth,
+    probationEndDate: input.probationEndDate ?? null,
     employmentStatus: input.employmentStatus ?? 'ACTIVE',
     avatarUrl: input.avatarUrl,
     address: input.address,
     brief: input.brief,
+    managerId: input.managerId ?? null,
     workingTime: input.workingTime,
     workingTimeNote: input.workingTimeNote,
     workLocation: input.workLocation,
@@ -147,7 +154,10 @@ class AdminService {
 
   /** Active employees, name + email only — the picker projection every portal may read. */
   listEmployeeOptions() {
-    return UserModel.find({ isActive: true }).select('name email').sort({ name: 1 }).lean();
+    return UserModel.find({ isActive: true })
+      .select('name email designation')
+      .sort({ name: 1 })
+      .lean();
   }
 
   /** One page of users for the server-side Users grid (search/filter/sort/paginate). */
@@ -167,6 +177,7 @@ class AdminService {
   }
 
   async createUser(input: CreateUserInput) {
+    if (input.managerId) await this.assertManagerExists(input.managerId);
     const exists = await UserModel.findOne({ email: input.email.toLowerCase() }).lean();
     if (exists) badRequest('A user with this email already exists');
     if (!input.roles.length) badRequest('At least one role is required');
@@ -196,7 +207,17 @@ class AdminService {
     return { user, password: tempPassword };
   }
 
+  /** A manager must be a real account, and never the person themself. */
+  async assertManagerExists(managerId: string, selfId?: string) {
+    if (managerId === selfId) badRequest('An employee cannot report to themself');
+    const manager = isValidObjectId(managerId)
+      ? await UserModel.findById(managerId).select('_id').lean()
+      : null;
+    if (!manager) badRequest('The selected manager does not exist');
+  }
+
   async updateUser(id: string, input: UpdateUserInput) {
+    if (input.managerId) await this.assertManagerExists(input.managerId, id);
     const update: Record<string, unknown> = { ...input };
     delete update.password;
     if (input.password) update.passwordHash = await hashPassword(input.password);

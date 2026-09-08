@@ -1,16 +1,5 @@
 import type { APIRoute } from "astro";
-import { submitForm } from "../../lib/portal";
-
-/** Form identifiers the portal accepts. Mirrors SUBMISSION_FORM_TYPES on the server. */
-const FORM_TYPES = new Set([
-  "contact",
-  "grievance",
-  "legal",
-  "career",
-  "india-offer",
-  "newsletter",
-  "job-application",
-]);
+import { getWebsiteFormTypes, submitForm } from "../../lib/portal";
 
 /**
  * Every public form funnels through here.
@@ -28,7 +17,9 @@ export const POST: APIRoute = async ({ request }) => {
     const { formType: type, ...data } = parsed;
     formType = type;
 
-    if (!formType || !FORM_TYPES.has(formType)) {
+    const allowed = await getWebsiteFormTypes();
+
+    if (!formType || !allowed.has(formType)) {
       return new Response(JSON.stringify({ error: "Invalid form type" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },

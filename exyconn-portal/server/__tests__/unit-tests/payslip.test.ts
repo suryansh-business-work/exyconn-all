@@ -29,6 +29,27 @@ describe('payslip lines', () => {
     ]);
   });
 
+  it('names every statutory head and leaves loss of pay as what is left over', () => {
+    const lines = payslipLines(
+      { gross: 80_000, deductions: 8_812, pf: 1_800, esi: 0, professionalTax: 200, tds: 1_812 },
+      structure,
+    );
+    expect(lines.deductions).toEqual([
+      { label: 'Provident fund (PF)', amount: 1_800 },
+      { label: 'Professional tax', amount: 200 },
+      { label: 'Income tax (TDS)', amount: 1_812 },
+      { label: 'Deductions', amount: 5_000 },
+    ]);
+  });
+
+  it('leaves out a statutory head that withheld nothing', () => {
+    const lines = payslipLines(
+      { gross: 80_000, deductions: 5_000, pf: 0, esi: 0, professionalTax: 0, tds: 0 },
+      structure,
+    );
+    expect(lines.deductions).toEqual([{ label: 'Deductions', amount: 5_000 }]);
+  });
+
   it('prints totals only when the structure was revised after the slip was generated', () => {
     const lines = payslipLines({ gross: 70_000, deductions: 5_000 }, structure);
     expect(lines.earnings).toEqual([{ label: 'Gross earnings', amount: 70_000 }]);
@@ -62,12 +83,17 @@ describe('payslip pdf', () => {
         year: 2026,
         currency: 'INR',
         gross: 80_000,
-        deductions: 5_000,
-        net: 75_000,
+        deductions: 8_812,
+        pf: 1_800,
+        esi: 0,
+        professionalTax: 200,
+        tds: 1_812,
+        net: 71_188,
         status: 'PAID',
         issuedDate: new Date('2026-09-01T00:00:00.000Z'),
       },
       structure,
+      identifiers: { pfNumber: 'PF/1234', esiNumber: 'ESI/9876', panNumber: 'ABCDE1234F' },
     });
     expect(pdf.length).toBeGreaterThan(1_000);
     expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');

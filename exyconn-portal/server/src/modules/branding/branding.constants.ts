@@ -36,4 +36,11 @@ export const BRANDING_DEFAULTS = Object.freeze({
   githubUrl: '',
 
   copyrightText: '',
+
+  gstin: '',
+  stateCode: '',
+  addressLine: '',
+  invoicePrefix: 'INV-',
+  defaultTaxPercent: 18,
+  bankDetails: '',
 });

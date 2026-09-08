@@ -4,6 +4,8 @@ export interface InvoiceLineInput {
   quantity: number;
   rate: number;
   taxPercent: number;
+  /** The HSN (goods) or SAC (services) code a GST invoice prints per line. */
+  hsnSac?: string;
 }
 
 /** Money to two places — see the note on round2 in finance.billing.ts. */
@@ -46,4 +48,45 @@ export function invoiceAmount(input: {
     return linesTotal(input.lines);
   }
   return input.amount ?? null;
+}
+
+/** The three GST heads an invoice's tax lands under, plus the figures they are cut from. */
+export interface GstBreakdown {
+  subtotal: number;
+  taxTotal: number;
+  cgst: number;
+  sgst: number;
+  igst: number;
+  /** Supplier and place of supply are the same state: the tax is CGST + SGST. */
+  intraState: boolean;
+}
+
+/** What the invoice needs to say for its tax to be split. */
+export interface GstInvoice {
+  lines?: readonly InvoiceLineInput[] | null;
+  placeOfSupplyStateCode?: string | null;
+  supplierStateCode?: string | null;
+}
+
+/**
+ * Where the tax goes under GST.
+ *
+ * A supply inside the supplier's own state is taxed half as CGST (centre) and half as SGST
+ * (state); a supply to another state is all IGST. The split is decided on state codes, so
+ * an invoice with no place of supply — every invoice written before GST fields existed —
+ * is treated as inter-state rather than guessed at. SGST is the remainder rather than a
+ * second half, so the two halves always add back to the tax even on an odd paisa.
+ */
+export function gstBreakdown(invoice: GstInvoice): GstBreakdown {
+  const lines = invoice.lines ?? [];
+  const subtotal = linesSubtotal(lines);
+  const taxTotal = linesTax(lines);
+  const place = invoice.placeOfSupplyStateCode ?? '';
+  const supplier = invoice.supplierStateCode ?? '';
+  const intraState = place !== '' && place === supplier;
+  if (!intraState) {
+    return { subtotal, taxTotal, cgst: 0, sgst: 0, igst: taxTotal, intraState };
+  }
+  const cgst = round2(taxTotal / 2);
+  return { subtotal, taxTotal, cgst, sgst: round2(taxTotal - cgst), igst: 0, intraState };
 }

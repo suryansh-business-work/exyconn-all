@@ -32,12 +32,16 @@ fragment HolidayFields on Holiday {
 
 fragment SupportTicketFields on SupportTicket {
   id
+  reference
   subject
   category
   description
   priority
   status
   createdAt
+  attachments {
+    ...TicketAttachmentFields
+  }
 }
 
 query MyPayroll {
@@ -78,11 +82,14 @@ query MySupportReplies($ticketId: ID!) {
     authorName
     body
     createdAt
+    attachments {
+      ...TicketAttachmentFields
+    }
   }
 }
 
-mutation AddMySupportReply($ticketId: ID!, $body: String!) {
-  addMySupportReply(ticketId: $ticketId, body: $body) {
+mutation AddMySupportReply($ticketId: ID!, $body: String!, $attachments: [TicketAttachmentInput!]) {
+  addMySupportReply(ticketId: $ticketId, body: $body, attachments: $attachments) {
     id
   }
 }

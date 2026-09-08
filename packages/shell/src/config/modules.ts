@@ -28,6 +28,8 @@ import InventoryIcon from '@mui/icons-material/Inventory2';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
+import ChecklistIcon from '@mui/icons-material/Checklist';
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import PersonIcon from '@mui/icons-material/Person';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import PlaceIcon from '@mui/icons-material/Place';
@@ -38,6 +40,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import PaidIcon from '@mui/icons-material/Paid';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
+import HistoryIcon from '@mui/icons-material/History';
 import WorkIcon from '@mui/icons-material/Work';
 import DescriptionIcon from '@mui/icons-material/Description';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
@@ -57,6 +60,7 @@ import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
 import TableRowsIcon from '@mui/icons-material/TableRows';
 import LanguageIcon from '@mui/icons-material/Language';
 import ArticleIcon from '@mui/icons-material/Article';
+import BlockIcon from '@mui/icons-material/Block';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import HandymanIcon from '@mui/icons-material/Handyman';
 import CategoryIcon from '@mui/icons-material/Category';
@@ -115,6 +119,7 @@ export const MODULES: ModuleDefinition[] = [
     accent: '#14b8a6',
     children: [
       { key: 'me-dashboard', label: 'Dashboard', path: '/me', icon: DashboardIcon },
+      { key: 'me-team', label: 'My Team', path: '/me/team', icon: GroupsIcon },
       {
         key: 'me-announcements',
         label: 'Announcements',
@@ -160,6 +165,7 @@ export const MODULES: ModuleDefinition[] = [
       { key: 'me-expenses', label: 'Expenses', path: '/me/expenses', icon: ReceiptIcon },
       { key: 'me-benefits', label: 'Benefits', path: '/me/benefits', icon: HealthAndSafetyIcon },
       { key: 'me-training', label: 'Learning', path: '/me/training', icon: SchoolIcon },
+      { key: 'me-onboarding', label: 'My Onboarding', path: '/me/onboarding', icon: ChecklistIcon },
       { key: 'me-documents', label: 'My Documents', path: '/me/documents', icon: FolderIcon },
       { key: 'me-policies', label: 'Policies', path: '/me/policies', icon: PolicyIcon },
       { key: 'me-support', label: 'Support', path: '/me/support', icon: SupportAgentIcon },
@@ -210,7 +216,7 @@ export const MODULES: ModuleDefinition[] = [
     path: '/support',
     role: ROLES.SUPPORT,
     icon: SupportAgentIcon,
-    description: 'Employee support tickets',
+    description: 'Employee & customer support tickets',
     accent: '#e11d48',
     children: [
       { key: 'support-overview', label: 'Overview', path: '/support', icon: DashboardIcon },
@@ -220,6 +226,7 @@ export const MODULES: ModuleDefinition[] = [
         path: '/support/tickets',
         icon: SupportAgentIcon,
       },
+      { key: 'support-sla', label: 'SLA Policies', path: '/support/sla', icon: ScheduleIcon },
     ],
   },
   {
@@ -313,6 +320,25 @@ export const MODULES: ModuleDefinition[] = [
         icon: BadgeIcon,
       },
       {
+        key: 'hr-onboarding',
+        label: 'Onboarding',
+        path: '/hr/onboarding',
+        icon: ChecklistIcon,
+      },
+      {
+        key: 'hr-onboarding-templates',
+        label: 'Onboarding Templates',
+        path: '/hr/onboarding-templates',
+        icon: PlaylistAddCheckIcon,
+      },
+      { key: 'hr-org-chart', label: 'Org Chart', path: '/hr/org-chart', icon: AccountTreeIcon },
+      {
+        key: 'hr-applicants',
+        label: 'Applicants',
+        path: '/hr/applicants',
+        icon: HowToRegIcon,
+      },
+      {
         key: 'hr-leave',
         label: 'Leave Requests',
         path: '/hr/leave',
@@ -349,6 +375,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Payslip Schedule',
         path: '/hr/payslip-schedule',
         icon: ScheduleSendIcon,
+      },
+      {
+        key: 'hr-payroll-settings',
+        label: 'Payroll Settings',
+        path: '/hr/payroll-settings',
+        icon: TuneIcon,
       },
       { key: 'hr-notify', label: 'Send Notification', path: '/hr/notify', icon: NotificationsIcon },
       { key: 'hr-reports', label: 'Reports', path: '/hr/reports', icon: AssessmentIcon },
@@ -401,6 +433,12 @@ export const MODULES: ModuleDefinition[] = [
         path: '/marketing/audiences',
         icon: GroupsIcon,
       },
+      {
+        key: 'marketing-suppression',
+        label: 'Suppression List',
+        path: '/marketing/suppression',
+        icon: BlockIcon,
+      },
     ],
   },
   {
@@ -444,6 +482,13 @@ export const MODULES: ModuleDefinition[] = [
         label: 'App Settings',
         path: '/admin/settings',
         icon: TuneIcon,
+      },
+      { key: 'admin-audit', label: 'Audit Log', path: '/admin/audit', icon: HistoryIcon },
+      {
+        key: 'admin-health',
+        label: 'System Health',
+        path: '/admin/health',
+        icon: MonitorHeartIcon,
       },
     ],
   },
@@ -609,6 +654,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Status Monitors',
         path: '/tech/status-monitors',
         icon: MonitorHeartIcon,
+      },
+      {
+        key: 'tech-incidents',
+        label: 'Incidents',
+        path: '/tech/incidents',
+        icon: ReportProblemIcon,
       },
       {
         key: 'tech-settings',

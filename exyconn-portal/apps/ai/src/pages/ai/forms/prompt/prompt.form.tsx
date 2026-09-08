@@ -1,12 +1,15 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
+import { AiAssistButton } from '@exyconn/shell/components/ai';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
   PromptCategory,
+  SummaryStyle,
   useCreatePromptMutation,
   useUpdatePromptMutation,
 } from '@exyconn/shell/graphql/generated';
@@ -50,8 +53,14 @@ interface PromptFormProps {
   onCancel: () => void;
 }
 
-/** React Hook Form + Zod form to create or update a library prompt. */
-export function PromptForm({ initial, onDone, onCancel }: PromptFormProps) {
+/**
+ * React Hook Form + Zod form to create or update a library prompt.
+ *
+ * Also the reference consumer of the shell's {@link AiAssistButton}: a long prompt gets a
+ * one-line description written for it, with no AI plumbing in this file beyond the text it
+ * hands over and the callback it takes back. Any module can adopt it the same way.
+ */
+export function PromptForm({ initial, onDone, onCancel }: Readonly<PromptFormProps>) {
   const [createPrompt] = useCreatePromptMutation();
   const [updatePrompt] = useUpdatePromptMutation();
 
@@ -59,6 +68,7 @@ export function PromptForm({ initial, onDone, onCancel }: PromptFormProps) {
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
+  const { setValue, watch } = methods;
 
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Prompt',
@@ -76,8 +86,22 @@ export function PromptForm({ initial, onDone, onCancel }: PromptFormProps) {
         label="Category"
         options={enumOptions(Object.values(PromptCategory))}
       />
-      <RhfTextField name="content" label="Prompt" multiline minRows={4} />
+      <RhfTextField
+        name="content"
+        label="Prompt"
+        multiline
+        minRows={4}
+        helperText="Wrap a value in {{braces}} to be asked for it each time the prompt is run"
+      />
       <RhfTextField name="description" label="Description (optional)" />
+      <Flex direction="row">
+        <AiAssistButton
+          label="Describe this prompt"
+          task={{ action: 'SUMMARISE', style: SummaryStyle.Brief }}
+          text={watch('content')}
+          onResult={(result) => setValue('description', result, { shouldDirty: true })}
+        />
+      </Flex>
       <RhfTextField name="tags" label="Tags (comma separated)" />
     </EntityForm>
   );

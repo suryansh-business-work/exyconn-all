@@ -9,6 +9,7 @@ export const notificationsTypeDefs = gql`
     PERFORMANCE
     REQUEST
     TRAINING
+    ONBOARDING
     GENERAL
   }
 

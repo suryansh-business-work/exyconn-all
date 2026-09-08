@@ -5,6 +5,8 @@ import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
+import { gstStateCodeField, gstinField } from '@exyconn/shell/utils/gstFields';
+import { useGstStateOptions } from '@exyconn/shell/hooks/useGstStateOptions';
 import {
   ClientStatus,
   useCreateClientMutation,
@@ -18,6 +20,9 @@ const schema = z.object({
   phone: z.string().trim().min(1, 'Phone is required').min(7, 'Enter a valid phone'),
   company: z.string().trim().min(1, 'Company is required'),
   status: z.nativeEnum(ClientStatus),
+  gstin: gstinField,
+  stateCode: gstStateCodeField,
+  billingAddress: z.string().trim(),
 });
 type Values = z.infer<typeof schema>;
 
@@ -27,6 +32,9 @@ const toInitial = (row: ClientRow | null): Values => ({
   phone: row?.phone ?? '',
   company: row?.company ?? '',
   status: row?.status ?? ClientStatus.Prospect,
+  gstin: row?.gstin ?? '',
+  stateCode: row?.stateCode ?? '',
+  billingAddress: row?.billingAddress ?? '',
 });
 
 interface ClientFormProps {
@@ -39,6 +47,7 @@ interface ClientFormProps {
 export function ClientForm({ initial, onDone, onCancel }: ClientFormProps) {
   const [createClient] = useCreateClientMutation();
   const [updateClient] = useUpdateClientMutation();
+  const stateOptions = useGstStateOptions();
   const methods = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
@@ -59,6 +68,14 @@ export function ClientForm({ initial, onDone, onCancel }: ClientFormProps) {
       <RhfTextField name="phone" label="Phone" />
       <RhfTextField name="company" label="Company" />
       <RhfSelect name="status" label="Status" options={enumOptions(Object.values(ClientStatus))} />
+      <RhfTextField name="gstin" label="GSTIN" helperText="Printed on invoices to this client" />
+      <RhfSelect
+        name="stateCode"
+        label="GST state"
+        options={stateOptions}
+        helperText="The default place of supply on their invoices"
+      />
+      <RhfTextField name="billingAddress" label="Billing address" multiline minRows={2} />
     </EntityForm>
   );
 }
