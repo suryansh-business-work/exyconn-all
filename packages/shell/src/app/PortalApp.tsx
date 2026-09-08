@@ -3,6 +3,8 @@ import { ApolloProvider } from '@apollo/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { LocalizationProvider, AdapterDateFns } from '@exyconn/ui/pickers';
 import { apolloClient } from '@/config/apolloClient';
+import { PortalI18nProvider } from '@/i18n/PortalI18nProvider';
+import { DirectionSync } from '@/i18n/DirectionSync';
 import { ColorModeProvider } from '@/theme/ColorModeContext';
 import { AuthProvider } from '@/auth/AuthContext';
 import type { Role } from '@/auth/roles';
@@ -51,36 +53,41 @@ export function PortalApp({
 }: Readonly<PortalAppProps>) {
   return (
     <ApolloProvider client={apolloClient}>
-      <ColorModeProvider>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <NotificationProvider>
-            <ConfirmProvider>
-              <BrowserRouter>
-                <AuthProvider>
-                  <Routes>
-                    <Route path="/login" element={loginElement} />
-                    <Route path={RESET_PASSWORD_PATH} element={loginElement} />
-                    <Route path={UNSUBSCRIBE_PATH} element={loginElement} />
-                    <Route
-                      element={
-                        <ProtectedRoute requiredRole={moduleRole}>
-                          <PortalLayout />
-                        </ProtectedRoute>
-                      }
-                    >
-                      <Route path="/profile" element={<ProfilePage />} />
-                      <Route path="/settings" element={<SettingsPage />} />
-                      <Route path="/notifications" element={<NotificationsPage />} />
-                      {children}
-                    </Route>
-                    <Route path="*" element={<Navigate to={homePath} replace />} />
-                  </Routes>
-                </AuthProvider>
-              </BrowserRouter>
-            </ConfirmProvider>
-          </NotificationProvider>
-        </LocalizationProvider>
-      </ColorModeProvider>
+      {/* Outside the theme: the language decides the direction, and the direction decides
+          the theme and which emotion cache its styles go through. */}
+      <PortalI18nProvider>
+        <DirectionSync />
+        <ColorModeProvider>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <NotificationProvider>
+              <ConfirmProvider>
+                <BrowserRouter>
+                  <AuthProvider>
+                    <Routes>
+                      <Route path="/login" element={loginElement} />
+                      <Route path={RESET_PASSWORD_PATH} element={loginElement} />
+                      <Route path={UNSUBSCRIBE_PATH} element={loginElement} />
+                      <Route
+                        element={
+                          <ProtectedRoute requiredRole={moduleRole}>
+                            <PortalLayout />
+                          </ProtectedRoute>
+                        }
+                      >
+                        <Route path="/profile" element={<ProfilePage />} />
+                        <Route path="/settings" element={<SettingsPage />} />
+                        <Route path="/notifications" element={<NotificationsPage />} />
+                        {children}
+                      </Route>
+                      <Route path="*" element={<Navigate to={homePath} replace />} />
+                    </Routes>
+                  </AuthProvider>
+                </BrowserRouter>
+              </ConfirmProvider>
+            </NotificationProvider>
+          </LocalizationProvider>
+        </ColorModeProvider>
+      </PortalI18nProvider>
     </ApolloProvider>
   );
 }

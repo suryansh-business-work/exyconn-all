@@ -6,6 +6,7 @@ export interface TrackerSettingsFormValues {
   intervalMinutes: number;
   screenshotsPerInterval: number;
   idleThresholdSeconds: number;
+  idleAutoPauseMinutes: number;
   screenshotMaxWidth: number;
   screenshotQuality: number;
   randomizeScreenshotTiming: boolean;

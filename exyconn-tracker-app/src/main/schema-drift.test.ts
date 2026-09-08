@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BRANDING_FIELDS,
   CONSENT_POLICY_FIELDS,
+  MANUAL_ENTRY_FIELDS,
   PROJECT_FIELDS,
   SETTINGS_FIELDS,
   WORKDAY_ONLY_FIELDS,
@@ -28,6 +29,7 @@ const SOURCES: Readonly<Record<string, string>> = {
   TrackerWorkday: TRACKER_TYPEDEFS,
   TrackerProject: TRACKER_TYPEDEFS,
   TrackerConsentPolicy: TRACKER_TYPEDEFS,
+  TrackerManualEntry: TRACKER_TYPEDEFS,
   Branding: `${PORTAL_SRC}/modules/branding/branding.typeDefs.ts`,
 };
 
@@ -58,6 +60,7 @@ describe.each([
   { typeName: 'TrackerWorkday', selection: WORKDAY_ONLY_FIELDS },
   { typeName: 'TrackerProject', selection: PROJECT_FIELDS },
   { typeName: 'TrackerConsentPolicy', selection: CONSENT_POLICY_FIELDS },
+  { typeName: 'TrackerManualEntry', selection: MANUAL_ENTRY_FIELDS },
   { typeName: 'Branding', selection: BRANDING_FIELDS },
 ])('$typeName selection', ({ typeName, selection }) => {
   it('asks the portal only for fields the portal actually has', () => {

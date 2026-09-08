@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Divider, Flex, Stack, Text } from '@exyconn/shell/components/ui';
 import AddIcon from '@mui/icons-material/Add';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useProjectBoardQuery } from '@exyconn/shell/graphql/generated';
 import { SprintForm } from '../forms/sprint';
@@ -43,6 +43,22 @@ export function ProjectSprintsPage({ projectId }: Readonly<ProjectSprintsPagePro
     return `${from} → ${to}`;
   };
 
+  if (creating) {
+    return (
+      <CrudFormPage title="New sprint" onBack={() => setCreating(false)}>
+        <SprintForm
+          projectId={projectId}
+          initial={null}
+          onCancel={() => setCreating(false)}
+          onDone={() => {
+            setCreating(false);
+            sprintsApi.reload().catch(() => undefined);
+          }}
+        />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Stack spacing={2} sx={{ pt: 1 }}>
       <Flex direction="row" alignItems="center" spacing={1}>
@@ -79,18 +95,6 @@ export function ProjectSprintsPage({ projectId }: Readonly<ProjectSprintsPagePro
       <Divider sx={{ my: 1 }} />
 
       <ProjectMilestones projectId={projectId} />
-
-      <CrudDialog open={creating} title="New sprint" onClose={() => setCreating(false)}>
-        <SprintForm
-          projectId={projectId}
-          initial={null}
-          onCancel={() => setCreating(false)}
-          onDone={() => {
-            setCreating(false);
-            sprintsApi.reload().catch(() => undefined);
-          }}
-        />
-      </CrudDialog>
     </Stack>
   );
 }

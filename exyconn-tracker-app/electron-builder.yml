@@ -2,6 +2,15 @@ appId: com.exyconn.timetracker
 productName: Exyconn Tracker
 copyright: Copyright © Exyconn
 
+# The update feed the installed app polls. `generic` and not `github` on purpose: the
+# portal serves the release files (see the server's /tracker-updates route), so the app
+# needs no GitHub credentials and keeps working if the repository is ever made private.
+# Configuring publish is also what makes electron-builder emit the latest*.yml manifests
+# the updater reads — the release workflow uploads them beside the installers.
+publish:
+  provider: generic
+  url: https://portal-server.exyconn.com/tracker-updates
+
 directories:
   output: dist
   buildResources: build

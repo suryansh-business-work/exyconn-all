@@ -15,6 +15,7 @@ import { useUpdateTrackerSettingsMutation } from '@exyconn/shell/graphql/generat
 import { isValidTimezone } from '../../tracker.timezone';
 import { buildTimezoneOptions } from './timezone.options';
 import { WEBCAM_CORNERS, WEBCAM_CORNER_OPTIONS } from './webcam.options';
+import { CaptureSoundFields } from './capture-sound';
 import { ConsentDisclosureFields } from './consent-disclosure';
 import { DigestScheduleFields } from './digest-schedule';
 import { AutoStartScheduleFields } from './auto-start-schedule';
@@ -24,6 +25,8 @@ const schema = z.object({
   intervalMinutes: z.coerce.number({ message: 'Enter a number' }).int().min(1).max(60),
   screenshotsPerInterval: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(10),
   idleThresholdSeconds: z.coerce.number({ message: 'Enter a number' }).int().min(10).max(3600),
+  // 0 switches auto-pause off — the only value that leaves a session running while idle.
+  idleAutoPauseMinutes: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(240),
   screenshotMaxWidth: z.coerce.number({ message: 'Enter a number' }).int().min(320).max(3840),
   // 0-100. 100 is the honest top of the scale: native resolution, encoded losslessly.
   screenshotQuality: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(100),
@@ -33,6 +36,7 @@ const schema = z.object({
   randomizeScreenshotTiming: z.boolean(),
   blurScreenshots: z.boolean(),
   trackWindowTitles: z.boolean(),
+  captureSoundEnabled: z.boolean(),
   webcamEnabled: z.boolean(),
   webcamCorner: z.enum(WEBCAM_CORNERS as [string, ...string[]]),
   autoStartEnabled: z.boolean(),
@@ -53,6 +57,7 @@ const toInitial = (row: TrackerSettingsRow): Values => ({
   intervalMinutes: row.intervalMinutes,
   screenshotsPerInterval: row.screenshotsPerInterval,
   idleThresholdSeconds: row.idleThresholdSeconds,
+  idleAutoPauseMinutes: row.idleAutoPauseMinutes,
   screenshotMaxWidth: row.screenshotMaxWidth,
   screenshotQuality: row.screenshotQuality,
   screenshotRetentionDays: row.screenshotRetentionDays,
@@ -60,6 +65,7 @@ const toInitial = (row: TrackerSettingsRow): Values => ({
   randomizeScreenshotTiming: row.randomizeScreenshotTiming,
   blurScreenshots: row.blurScreenshots,
   trackWindowTitles: row.trackWindowTitles,
+  captureSoundEnabled: row.captureSoundEnabled,
   webcamEnabled: row.webcamEnabled,
   webcamCorner: row.webcamCorner,
   autoStartEnabled: row.autoStartEnabled,
@@ -119,6 +125,14 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
           <RhfTextField name="idleThresholdSeconds" label="Idle threshold (s)" type="number" />
         </Grid>
         <Grid item xs={12} sm={6}>
+          <RhfTextField
+            name="idleAutoPauseMinutes"
+            label="Pause after idle (minutes)"
+            type="number"
+            helperText="The desktop app pauses itself after this much unbroken idle time. 0 never pauses."
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
           <RhfTextField name="screenshotMaxWidth" label="Screenshot max width" type="number" />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -155,6 +169,7 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
       <RhfSwitch name="randomizeScreenshotTiming" label="Randomize screenshot timing" />
       <RhfSwitch name="blurScreenshots" label="Blur screenshots" />
       <RhfSwitch name="trackWindowTitles" label="Track window titles" />
+      <CaptureSoundFields />
       <Box>
         <RhfSwitch name="webcamEnabled" label="Webcam photo with each screenshot" />
         <FormHelperText>

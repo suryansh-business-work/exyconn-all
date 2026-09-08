@@ -1,0 +1,56 @@
+# Localization. The bundle and the options are public: the login screen is the first thing
+# anybody sees, and it has to be in their language too.
+
+query LocaleOptions {
+  localeOptions {
+    tag
+    label
+    direction
+  }
+}
+
+query LocaleBundle($locale: String!) {
+  localeBundle(locale: $locale) {
+    locale
+    direction
+    fallbackLocale
+    translations {
+      key
+      source
+      text
+    }
+  }
+}
+
+# Called with the strings a screen rendered that this locale had no translation for.
+mutation TranslateMissing($locale: String!, $sources: [String!]!) {
+  translateMissing(locale: $locale, sources: $sources) {
+    key
+    source
+    text
+  }
+}
+
+query Translations($locale: String!, $search: String, $skip: Int, $limit: Int) {
+  translations(locale: $locale, search: $search, skip: $skip, limit: $limit) {
+    total
+    rows {
+      id
+      locale
+      key
+      source
+      text
+      kind
+      model
+      updatedAt
+    }
+  }
+}
+
+mutation SetTranslation($locale: String!, $source: String!, $text: String!) {
+  setTranslation(locale: $locale, source: $source, text: $text) {
+    key
+    source
+    text
+  }
+}

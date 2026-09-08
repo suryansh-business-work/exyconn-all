@@ -65,6 +65,13 @@ export const adminTypeDefs = gql`
     managerId: String
     "Resolved from managerId for display; null when nobody is set."
     managerName: String
+    """
+    Where this person is and what language they read. Null means "whatever the workspace
+    default is", so moving the house timezone moves everybody who never expressed a
+    preference. HR sets them when the account is created; the person can change their own.
+    """
+    timezone: String
+    locale: String
     "Nullable because accounts created before the working arrangement existed have none."
     workingTime: WorkingTime
     workingTimeNote: String
@@ -85,6 +92,12 @@ export const adminTypeDefs = gql`
     dateFormat: String!
     timeFormat: String!
     timezone: String!
+    "The language the portal is shown in when a person has not chosen one. BCP-47."
+    defaultLocale: String!
+    "The languages this workspace offers in its pickers."
+    enabledLocales: [String!]!
+    "Machine-translate a string the first time a screen needs one and none exists."
+    autoTranslate: Boolean!
   }
 
   "Just enough of an active employee to put them in a picker — readable by any signed-in user."
@@ -137,6 +150,10 @@ export const adminTypeDefs = gql`
     workLocation: WorkLocation
     workLocationNote: String
     workHoursPerDay: Int
+    "IANA zone name, or null to follow the workspace default."
+    timezone: String
+    "BCP-47 tag, or null to follow the workspace default."
+    locale: String
   }
 
   input UpdateUserInput {
@@ -160,12 +177,19 @@ export const adminTypeDefs = gql`
     workLocation: WorkLocation
     workLocationNote: String
     workHoursPerDay: Int
+    "IANA zone name, or null to follow the workspace default."
+    timezone: String
+    "BCP-47 tag, or null to follow the workspace default."
+    locale: String
   }
 
   input UpdateSettingsInput {
     dateFormat: String
     timeFormat: String
     timezone: String
+    defaultLocale: String
+    enabledLocales: [String!]
+    autoTranslate: Boolean
   }
 
   input SendMailInput {

@@ -4,6 +4,7 @@ import { Box, Chip, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -59,6 +60,20 @@ export function SupportPage() {
   const close = () => setOpen(false);
   const closeThread = () => setActive(null);
 
+  if (open) {
+    return (
+      <CrudFormPage title="Raise ticket" onBack={close} backLabel="Back to Support">
+        <SupportTicketForm
+          onCancel={close}
+          onDone={() => {
+            void refetch();
+            close();
+          }}
+        />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -75,15 +90,6 @@ export function SupportPage() {
           emptyMessage={loading ? 'Loading…' : 'You have no support tickets yet.'}
         />
       </Box>
-      <CrudDialog open={open} title="Raise ticket" onClose={close}>
-        <SupportTicketForm
-          onCancel={close}
-          onDone={() => {
-            void refetch();
-            close();
-          }}
-        />
-      </CrudDialog>
       <CrudDialog open={active !== null} title={active?.subject ?? ''} onClose={closeThread}>
         {active && (
           <SupportThread

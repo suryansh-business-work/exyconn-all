@@ -9,6 +9,7 @@ import {
 import { enumOptions } from '@/utils/enumOptions';
 import { EmploymentStatus, WorkingTime, WorkLocation } from '@/graphql/generated';
 import { DEFAULT_WORK_HOURS } from '@/components/work';
+import { LocalePreferenceFields } from '@/components/localization';
 import type { UserValues } from './user.schema';
 
 const WORKING_TIME_OPTIONS = enumOptions(Object.values(WorkingTime));
@@ -124,6 +125,10 @@ export function WorkArrangementFields() {
         inputProps={{ min: 1, max: 24, step: 0.5 }}
         helperText={`Hours in a working day. Defaults to ${DEFAULT_WORK_HOURS} — the desktop tracker shows progress against this.`}
       />
+      {/* Where they actually are, which is what every date, time and deadline is read in.
+          Asked here rather than left to the person: an employee hired into another country
+          should not spend their first day reading the office's clock. */}
+      <LocalePreferenceFields />
     </>
   );
 }

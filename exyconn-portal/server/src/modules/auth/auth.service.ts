@@ -7,10 +7,14 @@ import { ROLES, type Role } from '../../constants/roles';
 import { env } from '../../config/env';
 import { mailer } from '../../utils/mailer';
 import { logger } from '../../utils/logger';
+import { isValidTimezone } from '../../utils/timezone';
+import { canonicalLocale } from '../i18n/locale.constants';
 
 export interface UpdateProfileInput {
   name?: string;
   avatarUrl?: string;
+  timezone?: string;
+  locale?: string;
 }
 
 /** Shows enough of an address to recognise it without publishing it in full. */
@@ -44,10 +48,32 @@ class AuthService {
     return user;
   }
 
+  /**
+   * The person's own edits to their own record.
+   *
+   * Zone and language are theirs to change: HR picks a sensible one when the account is
+   * created, but only the person knows where they actually are. An empty string clears the
+   * choice back to the workspace default rather than storing a blank.
+   */
   async updateProfile(id: string, input: UpdateProfileInput) {
     const update: Record<string, unknown> = {};
     if (input.name !== undefined) update.name = input.name;
     if (input.avatarUrl !== undefined) update.avatarUrl = input.avatarUrl;
+    if (input.timezone !== undefined) {
+      const timezone = input.timezone.trim();
+      if (timezone !== '' && !isValidTimezone(timezone)) {
+        badRequest(`"${timezone}" is not a timezone this system knows.`);
+      }
+      update.timezone = timezone === '' ? null : timezone;
+    }
+    if (input.locale !== undefined) {
+      const locale = input.locale.trim();
+      const canonical = canonicalLocale(locale);
+      if (locale !== '' && !canonical) {
+        badRequest(`"${locale}" is not a language tag this system knows.`);
+      }
+      update.locale = locale === '' ? null : canonical;
+    }
     const user = await UserModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!user) notFound('User');
     return user;

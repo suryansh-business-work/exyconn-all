@@ -38,6 +38,13 @@ export const TRACKER_DEFAULTS = Object.freeze({
   trackWindowTitles: true,
   /** No input for this long marks the time as idle. */
   idleThresholdSeconds: 300,
+  /**
+   * Unbroken idle time that pauses tracking on its own, in minutes. 0 switches it off.
+   *
+   * Idle minutes never counted as work, so this costs the employee nothing — what it stops
+   * is a session left running over lunch or overnight, screenshotting an empty desk.
+   */
+  idleAutoPauseMinutes: 15,
   /** Screenshots are downscaled to this width before upload. Ignored at quality 100. */
   screenshotMaxWidth: 1280,
   /**
@@ -49,6 +56,17 @@ export const TRACKER_DEFAULTS = Object.freeze({
    * quality costs upload bandwidth and storage, which is the whole reason it is a dial.
    */
   screenshotQuality: 100,
+  /**
+   * Announce every capture out loud on the employee's own machine — the camera shutter the
+   * desktop app plays, and the sound its capture notification makes.
+   *
+   * ON by default, and it should stay on: photographing someone's screen in silence is what
+   * turns monitoring into surveillance. Turning it off is a workspace saying the announcement
+   * is disruptive (a shared desk, a call centre, a room full of trackers), never a way to
+   * capture unnoticed — the notification itself still appears either way, and an employee can
+   * mute it for their own machine without an admin doing it for everybody.
+   */
+  captureSoundEnabled: true,
   /**
    * Capture a webcam photo alongside each screenshot and composite it into a corner of the
    * shot. Off by default, and deliberately so: photographing an employee is a far bigger

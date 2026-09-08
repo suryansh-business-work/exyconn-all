@@ -16,6 +16,12 @@ export const trackerTypeDefs = gql`
     blurScreenshots: Boolean!
     trackWindowTitles: Boolean!
     idleThresholdSeconds: Int!
+    """
+    Minutes of unbroken idle time after which the desktop app pauses tracking by itself.
+    0 switches it off. Idle time never counted as work, so this takes nothing away — it
+    stops a session left running over lunch from screenshotting an empty desk.
+    """
+    idleAutoPauseMinutes: Int!
     screenshotMaxWidth: Int!
     """
     0-100. 100 means actual best quality: native resolution, encoded losslessly, no
@@ -42,6 +48,12 @@ export const trackerTypeDefs = gql`
     weeklyDigestEnabled: Boolean!
     "Local hour (0-23) the digests go out at, read in the workspace's own timezone."
     digestHour: Int!
+    """
+    Play the camera shutter and let the capture notification make a sound on the employee's
+    own machine. On by default — capturing a screen in silence is what makes monitoring feel
+    like surveillance. The notification still appears when this is off.
+    """
+    captureSoundEnabled: Boolean!
     """
     Capture a webcam photo with each screenshot and composite it into a corner of the shot.
     """
@@ -71,6 +83,7 @@ export const trackerTypeDefs = gql`
     blurScreenshots: Boolean
     trackWindowTitles: Boolean
     idleThresholdSeconds: Int
+    idleAutoPauseMinutes: Int
     screenshotMaxWidth: Int
     screenshotQuality: Int
     screenshotRetentionDays: Int
@@ -80,6 +93,7 @@ export const trackerTypeDefs = gql`
     dailyDigestEnabled: Boolean
     weeklyDigestEnabled: Boolean
     digestHour: Int
+    captureSoundEnabled: Boolean
     webcamEnabled: Boolean
     webcamCorner: String
     syncIntervalMinutes: Int

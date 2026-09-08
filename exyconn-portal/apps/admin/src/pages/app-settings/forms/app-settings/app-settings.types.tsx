@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { canonicalLocale, isValidLocale, isValidTimezone } from '@exyconn/i18n';
 import type { AppSettingsQuery } from '@exyconn/shell/graphql/generated';
 
 /** The settings record as returned by the codegen'd `AppSettings` query. */
@@ -12,14 +13,18 @@ export const DATE_FORMATS: readonly string[] = [
   'yyyy-MM-dd',
 ];
 export const TIME_FORMATS: readonly string[] = ['hh:mm a', 'HH:mm'];
-/** IANA zones the browser knows — the one source for both the picker and the validator. */
-export const TIMEZONES: readonly string[] = Intl.supportedValuesOf('timeZone');
 
 const DATE_FORMAT_SET = new Set(DATE_FORMATS);
 const TIME_FORMAT_SET = new Set(TIME_FORMATS);
-const TIMEZONE_SET = new Set(TIMEZONES);
 
-export const isTimezone = (value: string) => TIMEZONE_SET.has(value);
+/**
+ * Whether the runtime can resolve this zone.
+ *
+ * Deliberately the shared probe rather than membership of `Intl.supportedValuesOf`: that
+ * list is the ICU zone list *pre-canonicalisation* and omits both `UTC` and `Asia/Kolkata`,
+ * so testing membership would reject the very default this portal ships with.
+ */
+export const isTimezone = (value: string) => isValidTimezone(value);
 
 export const appSettingsSchema = z.object({
   dateFormat: z
@@ -34,6 +39,17 @@ export const appSettingsSchema = z.object({
     .string()
     .min(1, 'Timezone is required')
     .refine(isTimezone, 'Choose a timezone from the list'),
+  defaultLocale: z
+    .string()
+    .min(1, 'A default language is required')
+    .refine(isValidLocale, 'Enter a language tag like en, hi or pt-BR'),
+  enabledLocales: z
+    .array(z.string())
+    .refine(
+      (tags) => tags.every(isValidLocale),
+      'Every language must be a tag like en, hi or pt-BR',
+    ),
+  autoTranslate: z.boolean(),
 });
 
 export type AppSettingsFormValues = z.infer<typeof appSettingsSchema>;
@@ -43,4 +59,7 @@ export const toAppSettingsValues = (row: AppSettingsRow): AppSettingsFormValues 
   dateFormat: row.dateFormat,
   timeFormat: row.timeFormat,
   timezone: row.timezone,
+  defaultLocale: canonicalLocale(row.defaultLocale) ?? 'en',
+  enabledLocales: [...row.enabledLocales],
+  autoTranslate: row.autoTranslate,
 });

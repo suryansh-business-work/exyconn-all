@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Flex } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { ServerDataGrid } from '@exyconn/shell/components/data/ServerDataGrid';
 import { GridExportButton, useGridQuery, usePagedFetcher } from '@exyconn/crud';
@@ -24,6 +24,24 @@ export function StockPage() {
     ListStockMovementsPagedDocument,
     (data: ListStockMovementsPagedQuery) => data.listStockMovementsPaged,
   );
+
+  if (recording) {
+    return (
+      <CrudFormPage
+        title="Record stock movement"
+        onBack={() => setRecording(false)}
+        backLabel="Back to Stock"
+      >
+        <StockMovementForm
+          onCancel={() => setRecording(false)}
+          onDone={() => {
+            setRecording(false);
+            setRefreshSignal((n) => n + 1);
+          }}
+        />
+      </CrudFormPage>
+    );
+  }
 
   return (
     <Box>
@@ -50,19 +68,6 @@ export function StockPage() {
           searchPlaceholder="Search by product, supplier or reference…"
         />
       </Box>
-      <CrudDialog
-        open={recording}
-        title="Record stock movement"
-        onClose={() => setRecording(false)}
-      >
-        <StockMovementForm
-          onCancel={() => setRecording(false)}
-          onDone={() => {
-            setRecording(false);
-            setRefreshSignal((n) => n + 1);
-          }}
-        />
-      </CrudDialog>
     </Box>
   );
 }

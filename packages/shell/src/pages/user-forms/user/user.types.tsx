@@ -32,4 +32,8 @@ export interface UserFormValues {
   workLocationNote: string;
   /** Kept as a string because the number input's empty state is '' , not 0. */
   workHoursPerDay: string;
+  /** IANA zone name; '' follows the workspace default. */
+  timezone: string;
+  /** BCP-47 tag; '' follows the workspace default. */
+  locale: string;
 }

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   dayBounds,
+  dayBoundsOfInstant,
   formatDayInZone,
   formatDayLabel,
   formatLastSync,
@@ -119,6 +120,25 @@ describe('dayBounds', () => {
       startISO: '2026-02-03T00:00:00.000Z',
       endISO: '2026-02-04T00:00:00.000Z',
     });
+  });
+});
+
+describe('dayBoundsOfInstant', () => {
+  it('opens the day the capture happened on IN the employee’s zone', () => {
+    // 19:00 UTC on the 2nd is already 00:30 on the 3rd in Kolkata. A notification clicked then
+    // must open the 3rd — the day the employee was working — not the 2nd their laptop says.
+    expect(dayBoundsOfInstant('2026-02-02T19:00:00.000Z', 'Asia/Kolkata')).toEqual({
+      startISO: '2026-02-02T18:30:00.000Z',
+      endISO: '2026-02-03T18:30:00.000Z',
+    });
+    expect(dayBoundsOfInstant('2026-02-02T19:00:00.000Z', 'UTC')).toEqual({
+      startISO: '2026-02-02T00:00:00.000Z',
+      endISO: '2026-02-03T00:00:00.000Z',
+    });
+  });
+
+  it('declines an unparseable instant rather than opening some other day', () => {
+    expect(dayBoundsOfInstant('not-a-date', 'UTC')).toBeNull();
   });
 });
 

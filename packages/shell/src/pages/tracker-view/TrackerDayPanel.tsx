@@ -37,6 +37,9 @@ interface TrackerDayPanelProps {
   loading: boolean;
   selected: boolean;
   dayLabel: string;
+  /** The zone the day is read in — it decides which hour each screenshot belongs to. */
+  timezone: string;
+  formatTime: DateTimeFormatter;
   formatDateTime: DateTimeFormatter;
 }
 
@@ -46,6 +49,8 @@ export function TrackerDayPanel({
   loading,
   selected,
   dayLabel,
+  timezone,
+  formatTime,
   formatDateTime,
 }: Readonly<TrackerDayPanelProps>) {
   if (!selected) return <PanelMessage text="Select a day to see the breakdown." />;
@@ -107,7 +112,12 @@ export function TrackerDayPanel({
       <Heading level={6} sx={{ mb: 1 }}>
         Screenshots
       </Heading>
-      <TrackerScreenshotGallery screenshots={day.screenshots} formatDateTime={formatDateTime} />
+      <TrackerScreenshotGallery
+        screenshots={day.screenshots}
+        timezone={timezone}
+        formatTime={formatTime}
+        formatDateTime={formatDateTime}
+      />
     </Box>
   );
 }

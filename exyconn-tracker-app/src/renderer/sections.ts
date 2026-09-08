@@ -2,9 +2,10 @@ import type { SvgIconComponent } from '@mui/icons-material';
 import SpaceDashboardOutlined from '@mui/icons-material/SpaceDashboardOutlined';
 import InsertChartOutlined from '@mui/icons-material/InsertChartOutlined';
 import TuneOutlined from '@mui/icons-material/TuneOutlined';
+import EventNoteOutlined from '@mui/icons-material/EventNoteOutlined';
 
-/** The three panes behind the AppShell hamburger. */
-export type Section = 'dashboard' | 'report' | 'settings';
+/** The panes behind the AppShell hamburger. */
+export type Section = 'dashboard' | 'report' | 'off-computer' | 'settings';
 
 export interface NavItem {
   id: Section;
@@ -25,6 +26,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: 'My Report',
     caption: 'Your own tracked time, day by day',
     icon: InsertChartOutlined,
+  },
+  {
+    id: 'off-computer',
+    label: 'Off-computer time',
+    caption: 'Claim hours the tracker could not measure',
+    icon: EventNoteOutlined,
   },
   {
     id: 'settings',

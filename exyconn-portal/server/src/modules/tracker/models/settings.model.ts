@@ -45,6 +45,14 @@ const trackerSettingsSchema = new Schema(
       min: 60,
       max: 3600,
     },
+    /** 0 switches auto-pause off; above that, minutes of unbroken idle time. */
+    idleAutoPauseMinutes: {
+      type: Number,
+      required: true,
+      default: TRACKER_DEFAULTS.idleAutoPauseMinutes,
+      min: 0,
+      max: 240,
+    },
     screenshotMaxWidth: {
       type: Number,
       required: true,
@@ -111,6 +119,12 @@ const trackerSettingsSchema = new Schema(
      */
     dailyDigestLastRun: { type: String, default: '' },
     weeklyDigestLastRun: { type: String, default: '' },
+    /** Announce every capture out loud (shutter + notification sound) on the employee's machine. */
+    captureSoundEnabled: {
+      type: Boolean,
+      required: true,
+      default: TRACKER_DEFAULTS.captureSoundEnabled,
+    },
     webcamEnabled: {
       type: Boolean,
       required: true,

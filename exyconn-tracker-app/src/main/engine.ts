@@ -1,23 +1,44 @@
 import { powerMonitor } from 'electron';
-import type { LiveStats, SyncOutcome, TrackerSettings, TrackerStatus } from '@shared/types';
+import type {
+  CaptureEvent,
+  LiveStats,
+  SyncOutcome,
+  TrackerSettings,
+  TrackerStatus,
+} from '@shared/types';
 import { InputCounter } from './trackers/input-counter';
 import { WindowTracker } from './trackers/window-tracker';
 import { Screenshotter, type Capture } from './trackers/screenshotter';
 import { Outbox, type FlushResult, type OutboxItem } from './outbox';
 import type { ComposeInput } from './capture-bridge';
-import { notifyScreenshotCaptured } from './notifier';
 import { classifyFailure, describeSyncFailure } from './sync-message';
 import * as portal from './portal-client';
 import { TrackerAuthError } from './portal-client';
 
 const TICK_MS = 1000;
 
+/**
+ * Everything the shell needs to announce one capture.
+ *
+ * The engine reports; it does not announce. Whether a capture is audible, and what clicking
+ * its notification opens, are the shell's business — it is the only layer that can see the
+ * workspace setting, this install's own mute and the windows all at once.
+ */
+export interface CaptureReport {
+  capture: CaptureEvent;
+  stats: LiveStats;
+  /** Base64 of one of the shots, for the notification's preview. Absent if none was produced. */
+  preview?: string;
+}
+
 /** Callbacks the engine uses to talk back to the app shell (tray/renderer/sign-out). */
 export interface EngineHooks {
   onStats: (stats: LiveStats) => void;
-  /** A capture just happened, `count` shots. The shell notifies and plays the shutter sound. */
-  onCapture: (count: number) => void;
+  /** A capture just happened. The shell notifies and plays the shutter sound. */
+  onCapture: (report: CaptureReport) => void;
   onAuthError: (reason: string) => void;
+  /** Tracking paused itself after `idleMinutes` of unbroken idle time. */
+  onAutoPaused: (idleMinutes: number) => void;
   /**
    * Adds the webcam photo to a screenshot, in a renderer — the only place a camera and a
    * canvas exist. Resolves to `null` whenever no photo could be taken, and the engine then
@@ -190,6 +211,10 @@ export class TrackerEngine {
     const now = Date.now();
 
     const idleFor = powerMonitor.getSystemIdleTime();
+    if (this.autoPauseDue(idleFor)) {
+      await this.autoPause(now);
+      return;
+    }
     const isIdle = idleFor >= this.settings.idleThresholdSeconds;
     if (isIdle) {
       this.intervalIdleMs += TICK_MS;
@@ -213,6 +238,31 @@ export class TrackerEngine {
 
     await this.maybeAutoSync(now);
     this.emit();
+  }
+
+  /**
+   * Whether an unbroken idle run has reached the workspace's auto-pause limit.
+   *
+   * `getSystemIdleTime()` already measures the run since the last input, so there is no
+   * counter to keep here. 0 minutes switches the whole thing off.
+   */
+  private autoPauseDue(idleForSeconds: number): boolean {
+    const limit = this.settings.idleAutoPauseMinutes;
+    return limit > 0 && idleForSeconds >= limit * 60;
+  }
+
+  /**
+   * Pauses because nobody is there.
+   *
+   * The bucket is closed first so the minutes worked before they walked away are queued
+   * rather than left in memory until whenever they come back. Idle time never counted as
+   * work, so this costs the employee nothing — it stops a session left running over lunch
+   * from screenshotting an empty desk.
+   */
+  private async autoPause(now: number): Promise<void> {
+    await this.closeIntervalForSync(now);
+    this.pause();
+    this.hooks.onAutoPaused(this.settings.idleAutoPauseMinutes);
   }
 
   /**
@@ -279,13 +329,15 @@ export class TrackerEngine {
       this.screenshotCount += 1;
     }
 
-    // Never capture the employee's screen silently — every capture is announced twice: on the
-    // OS's own notification surface (showing them the shot itself, webcam photo and all), and
-    // with an audible camera shutter (which the shell plays, because only a renderer can play
-    // audio). Neither may throw into the tracking loop.
+    // Never capture the employee's screen without telling them. The shell turns this into the
+    // OS notification (showing them the shot itself, webcam photo and all) and the camera
+    // shutter — it must not throw back into the tracking loop.
     if (captures.length > 0) {
-      notifyScreenshotCaptured(captures.length, this.stats(), preview);
-      this.hooks.onCapture(captures.length);
+      this.hooks.onCapture({
+        capture: { count: captures.length, capturedAt: new Date(now).toISOString() },
+        stats: this.stats(),
+        preview,
+      });
     }
   }
 

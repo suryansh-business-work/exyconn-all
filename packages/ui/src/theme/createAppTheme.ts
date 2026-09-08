@@ -30,11 +30,21 @@ const tokensFor = (isLight: boolean) => ({
     : '0 4px 16px rgba(0,0,0,0.55)',
 });
 
-/** Builds the Exyconn theme for the given mode. Compact density, Nunito type. */
-export function createAppTheme(mode: ColorMode): Theme {
+/** Which way the script the portal is being read in runs. */
+export type ThemeDirection = 'ltr' | 'rtl';
+
+/**
+ * Builds the Exyconn theme for the given mode. Compact density, Nunito type.
+ *
+ * `direction` is on the theme rather than only on the document because MUI's own components
+ * read it to place their icons, drawers and menus — a right-to-left page whose theme still
+ * says left-to-right puts every dropdown arrow on the wrong side.
+ */
+export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr'): Theme {
   const isLight = mode === 'light';
   const t = tokensFor(isLight);
   return createTheme({
+    direction,
     palette: {
       mode,
       primary: { main: t.primary, contrastText: '#ffffff' },

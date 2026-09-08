@@ -237,7 +237,13 @@ export type AnnouncementPage = {
 
 export type AppSettings = {
   __typename?: 'AppSettings';
+  /** Machine-translate a string the first time a screen needs one and none exists. */
+  autoTranslate: Scalars['Boolean']['output'];
   dateFormat: Scalars['String']['output'];
+  /** The language the portal is shown in when a person has not chosen one. BCP-47. */
+  defaultLocale: Scalars['String']['output'];
+  /** The languages this workspace offers in its pickers. */
+  enabledLocales: Array<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   timeFormat: Scalars['String']['output'];
   timezone: Scalars['String']['output'];
@@ -1240,10 +1246,14 @@ export type CreateUserInput = {
   employmentStatus?: InputMaybe<EmploymentStatus>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
+  /** BCP-47 tag, or null to follow the workspace default. */
+  locale?: InputMaybe<Scalars['String']['input']>;
   managerId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   probationEndDate?: InputMaybe<Scalars['DateTime']['input']>;
   roles: Array<Role>;
+  /** IANA zone name, or null to follow the workspace default. */
+  timezone?: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
   workLocation?: InputMaybe<WorkLocation>;
   workLocationNote?: InputMaybe<Scalars['String']['input']>;
@@ -2592,6 +2602,27 @@ export enum LicenceStatus {
   Cancelled = 'CANCELLED'
 }
 
+/** Everything a client needs to render itself in one locale. */
+export type LocaleBundle = {
+  __typename?: 'LocaleBundle';
+  direction: Scalars['String']['output'];
+  /** The locale untranslated strings fall back to — the workspace default. */
+  fallbackLocale: Scalars['String']['output'];
+  locale: Scalars['String']['output'];
+  translations: Array<Translation>;
+};
+
+/** A locale a workspace offers, named in its own language. */
+export type LocaleOption = {
+  __typename?: 'LocaleOption';
+  /** Which way the script runs: ltr or rtl. */
+  direction: Scalars['String']['output'];
+  /** What the language calls itself — 'Deutsch', not 'German'. */
+  label: Scalars['String']['output'];
+  /** Canonical BCP-47 tag, e.g. hi, pt-BR. */
+  tag: Scalars['String']['output'];
+};
+
 export type Location = {
   __typename?: 'Location';
   active: Scalars['Boolean']['output'];
@@ -3073,6 +3104,8 @@ export type Mutation = {
   setTaskParent: Task;
   /** Puts a ticket in a sprint, or back in the backlog with a null sprint. */
   setTaskSprint: Task;
+  /** Corrects one translation by hand. ADMIN only, and marks the row HUMAN for good. */
+  setTranslation: Translation;
   setUserActive: User;
   setUserBlocked: User;
   signContract: Contract;
@@ -3135,6 +3168,14 @@ export type Mutation = {
   trackerStopSession: TrackerSession;
   trackerSyncIntervals: Scalars['Int']['output'];
   trackerUploadScreenshot: TrackerScreenshot;
+  /**
+   * Machine-translates strings this locale has never seen and returns what it managed.
+   *
+   * Called by any client that rendered a string with no translation, so it is safe to call
+   * constantly: strings already stored are skipped, a human correction is never overwritten,
+   * and a workspace with auto-translation off gets an empty answer rather than an error.
+   */
+  translateMissing: Array<Translation>;
   triageWebsiteSubmission: WebsiteSubmission;
   /**
    * Public: honours the unsubscribe link in a campaign email. Idempotent — the link is
@@ -4437,6 +4478,13 @@ export type MutationSetTaskSprintArgs = {
 };
 
 
+export type MutationSetTranslationArgs = {
+  locale: Scalars['String']['input'];
+  source: Scalars['String']['input'];
+  text: Scalars['String']['input'];
+};
+
+
 export type MutationSetUserActiveArgs = {
   id: Scalars['ID']['input'];
   isActive: Scalars['Boolean']['input'];
@@ -4567,6 +4615,12 @@ export type MutationTrackerSyncIntervalsArgs = {
 
 export type MutationTrackerUploadScreenshotArgs = {
   input: TrackerScreenshotInput;
+};
+
+
+export type MutationTranslateMissingArgs = {
+  locale: Scalars['String']['input'];
+  sources: Array<Scalars['String']['input']>;
 };
 
 
@@ -6300,6 +6354,13 @@ export type Query = {
   listWebsiteSubmissions: Array<WebsiteSubmission>;
   listWebsiteSubmissionsPaged: WebsiteSubmissionPage;
   listWebsiteSubmissionsStats: TableStats;
+  /**
+   * Every translation for one locale, for the client to cache. Public for the same reason.
+   * Empty for the workspace's own default locale: there the source strings ARE the text.
+   */
+  localeBundle: LocaleBundle;
+  /** The locales this workspace offers. Public — the login screen has a language picker. */
+  localeOptions: Array<LocaleOption>;
   me: User;
   /** Self-service: the signed-in user's own attendance records. */
   myAttendance: Array<Attendance>;
@@ -6468,6 +6529,8 @@ export type Query = {
    */
   trackerTaskOptions: Array<TrackerTask>;
   trackerTotals: TrackerTotals;
+  /** The admin's review screen: what has been translated, and by what. ADMIN only. */
+  translations: TranslationPage;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
 };
@@ -7212,6 +7275,11 @@ export type QueryListWebsiteSubmissionsPagedArgs = {
 };
 
 
+export type QueryLocaleBundleArgs = {
+  locale: Scalars['String']['input'];
+};
+
+
 export type QueryMyPolicyArgs = {
   slug: Scalars['String']['input'];
 };
@@ -7456,6 +7524,14 @@ export type QueryTrackerTaskOptionsArgs = {
 
 export type QueryTrackerTotalsArgs = {
   userId: Scalars['ID']['input'];
+};
+
+
+export type QueryTranslationsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  locale: Scalars['String']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** What is owed, and how late it is. */
@@ -8879,6 +8955,12 @@ export type TrackerSettings = {
   autoStopHour: Scalars['Int']['output'];
   blurScreenshots: Scalars['Boolean']['output'];
   /**
+   * Play the camera shutter and let the capture notification make a sound on the employee's
+   * own machine. On by default — capturing a screen in silence is what makes monitoring feel
+   * like surveillance. The notification still appears when this is off.
+   */
+  captureSoundEnabled: Scalars['Boolean']['output'];
+  /**
    * Slug of the Legal policy used as the disclosure instead of consentText. Empty means
    * no policy is chosen; the app then falls back to the text above.
    */
@@ -8894,6 +8976,12 @@ export type TrackerSettings = {
   /** Local hour (0-23) the digests go out at, read in the workspace's own timezone. */
   digestHour: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  /**
+   * Minutes of unbroken idle time after which the desktop app pauses tracking by itself.
+   * 0 switches it off. Idle time never counted as work, so this takes nothing away — it
+   * stops a session left running over lunch from screenshotting an empty desk.
+   */
+  idleAutoPauseMinutes: Scalars['Int']['output'];
   idleThresholdSeconds: Scalars['Int']['output'];
   intervalMinutes: Scalars['Int']['output'];
   randomizeScreenshotTiming: Scalars['Boolean']['output'];
@@ -8924,11 +9012,13 @@ export type TrackerSettingsInput = {
   autoStartHour?: InputMaybe<Scalars['Int']['input']>;
   autoStopHour?: InputMaybe<Scalars['Int']['input']>;
   blurScreenshots?: InputMaybe<Scalars['Boolean']['input']>;
+  captureSoundEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   consentPolicySlug?: InputMaybe<Scalars['String']['input']>;
   consentText?: InputMaybe<Scalars['String']['input']>;
   dailyDigestEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   defaultTimezone?: InputMaybe<Scalars['String']['input']>;
   digestHour?: InputMaybe<Scalars['Int']['input']>;
+  idleAutoPauseMinutes?: InputMaybe<Scalars['Int']['input']>;
   idleThresholdSeconds?: InputMaybe<Scalars['Int']['input']>;
   intervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   randomizeScreenshotTiming?: InputMaybe<Scalars['Boolean']['input']>;
@@ -9050,13 +9140,54 @@ export enum TrainingStatus {
   InProgress = 'IN_PROGRESS'
 }
 
+/** One UI string and what it reads as in a locale. */
+export type Translation = {
+  __typename?: 'Translation';
+  /** SHA-256 of the source string — the key the client looks a string up by. */
+  key: Scalars['String']['output'];
+  /** The English string exactly as it appears in the UI. */
+  source: Scalars['String']['output'];
+  /** What is shown in place of it. */
+  text: Scalars['String']['output'];
+};
+
+/** One page of the admin's translation review screen. */
+export type TranslationPage = {
+  __typename?: 'TranslationPage';
+  rows: Array<TranslationRow>;
+  total: Scalars['Int']['output'];
+};
+
+export type TranslationRow = {
+  __typename?: 'TranslationRow';
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  /** AUTO for a machine translation, HUMAN once somebody has corrected it. */
+  kind: Scalars['String']['output'];
+  locale: Scalars['String']['output'];
+  model: Scalars['String']['output'];
+  source: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type UpdateProfileInput = {
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
+  /** The language the portal is shown to this person in. Empty string follows the default. */
+  locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * The zone every date and time is shown to this person in. Empty string clears the
+   * choice and follows the workspace default again.
+   */
+  timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateSettingsInput = {
+  autoTranslate?: InputMaybe<Scalars['Boolean']['input']>;
   dateFormat?: InputMaybe<Scalars['String']['input']>;
+  defaultLocale?: InputMaybe<Scalars['String']['input']>;
+  enabledLocales?: InputMaybe<Array<Scalars['String']['input']>>;
   timeFormat?: InputMaybe<Scalars['String']['input']>;
   timezone?: InputMaybe<Scalars['String']['input']>;
 };
@@ -9072,11 +9203,15 @@ export type UpdateUserInput = {
   employmentStatus?: InputMaybe<EmploymentStatus>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
+  /** BCP-47 tag, or null to follow the workspace default. */
+  locale?: InputMaybe<Scalars['String']['input']>;
   managerId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
   probationEndDate?: InputMaybe<Scalars['DateTime']['input']>;
   roles?: InputMaybe<Array<Role>>;
+  /** IANA zone name, or null to follow the workspace default. */
+  timezone?: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
   workLocation?: InputMaybe<WorkLocation>;
   workLocationNote?: InputMaybe<Scalars['String']['input']>;
@@ -9101,6 +9236,7 @@ export type User = {
   isActive: Scalars['Boolean']['output'];
   isBlocked: Scalars['Boolean']['output'];
   joinDate?: Maybe<Scalars['DateTime']['output']>;
+  locale?: Maybe<Scalars['String']['output']>;
   /** The user this person reports to; their manager may approve leave and requests. */
   managerId?: Maybe<Scalars['String']['output']>;
   /** Resolved from managerId for display; null when nobody is set. */
@@ -9109,6 +9245,12 @@ export type User = {
   /** The day this employee comes off probation. Null when they are not on one. */
   probationEndDate?: Maybe<Scalars['DateTime']['output']>;
   roles: Array<Role>;
+  /**
+   * Where this person is and what language they read. Null means "whatever the workspace
+   * default is", so moving the house timezone moves everybody who never expressed a
+   * preference. HR sets them when the account is created; the person can change their own.
+   */
+  timezone?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   /**
    * The contracted working day, in hours. Every arrangement has one — flexible moves the
@@ -9187,19 +9329,19 @@ export enum WorkingTime {
   Other = 'OTHER'
 }
 
-export type UserFieldsFragment = { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null };
+export type UserFieldsFragment = { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null };
 
 export type ListUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListUsersQuery = { __typename?: 'Query', listUsers: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null }> };
+export type ListUsersQuery = { __typename?: 'Query', listUsers: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null }> };
 
 export type ListUsersPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListUsersPagedQuery = { __typename?: 'Query', listUsersPaged: { __typename?: 'UserPage', totalCount: number, rows: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null }> } };
+export type ListUsersPagedQuery = { __typename?: 'Query', listUsersPaged: { __typename?: 'UserPage', totalCount: number, rows: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null }> } };
 
 export type ListUsersStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9226,7 +9368,7 @@ export type GetUserQueryVariables = Exact<{
 }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User', createdAt: string, updatedAt: string, id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null } };
+export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User', createdAt: string, updatedAt: string, id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null } };
 
 export type CreateUserMutationVariables = Exact<{
   input: CreateUserInput;
@@ -9586,12 +9728,12 @@ export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'Au
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, timezone?: string | null, locale?: string | null } };
 
 export type AppSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AppSettingsQuery = { __typename?: 'Query', appSettings: { __typename?: 'AppSettings', id: string, dateFormat: string, timeFormat: string, timezone: string } };
+export type AppSettingsQuery = { __typename?: 'Query', appSettings: { __typename?: 'AppSettings', id: string, dateFormat: string, timeFormat: string, timezone: string, defaultLocale: string, enabledLocales: Array<string>, autoTranslate: boolean } };
 
 export type SendAdminCredentialsMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -11102,6 +11244,45 @@ export type DeleteLeaveBalanceMutationVariables = Exact<{
 
 export type DeleteLeaveBalanceMutation = { __typename?: 'Mutation', deleteLeaveBalance: boolean };
 
+export type LocaleOptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LocaleOptionsQuery = { __typename?: 'Query', localeOptions: Array<{ __typename?: 'LocaleOption', tag: string, label: string, direction: string }> };
+
+export type LocaleBundleQueryVariables = Exact<{
+  locale: Scalars['String']['input'];
+}>;
+
+
+export type LocaleBundleQuery = { __typename?: 'Query', localeBundle: { __typename?: 'LocaleBundle', locale: string, direction: string, fallbackLocale: string, translations: Array<{ __typename?: 'Translation', key: string, source: string, text: string }> } };
+
+export type TranslateMissingMutationVariables = Exact<{
+  locale: Scalars['String']['input'];
+  sources: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type TranslateMissingMutation = { __typename?: 'Mutation', translateMissing: Array<{ __typename?: 'Translation', key: string, source: string, text: string }> };
+
+export type TranslationsQueryVariables = Exact<{
+  locale: Scalars['String']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type TranslationsQuery = { __typename?: 'Query', translations: { __typename?: 'TranslationPage', total: number, rows: Array<{ __typename?: 'TranslationRow', id: string, locale: string, key: string, source: string, text: string, kind: string, model: string, updatedAt: string }> } };
+
+export type SetTranslationMutationVariables = Exact<{
+  locale: Scalars['String']['input'];
+  source: Scalars['String']['input'];
+  text: Scalars['String']['input'];
+}>;
+
+
+export type SetTranslationMutation = { __typename?: 'Mutation', setTranslation: { __typename?: 'Translation', key: string, source: string, text: string } };
+
 export type InfrastructureOverviewQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -12087,7 +12268,7 @@ export type UpdateProfileMutationVariables = Exact<{
 }>;
 
 
-export type UpdateProfileMutation = { __typename?: 'Mutation', updateProfile: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } };
+export type UpdateProfileMutation = { __typename?: 'Mutation', updateProfile: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, timezone?: string | null, locale?: string | null } };
 
 export type ChangePasswordMutationVariables = Exact<{
   currentPassword: Scalars['String']['input'];
@@ -12955,7 +13136,7 @@ export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: st
 
 export type TrackerDeviceFieldsFragment = { __typename?: 'TrackerDevice', id: string, userId: string, deviceId: string, platform: string, hostname: string, appVersion: string, machineId: string, osName: string, osVersion: string, arch: string, cpuModel: string, cpuCores: number, totalMemoryMb: number, locale: string, timezone: string, screenCount: number, screenResolution: string, issuedAt: string, lastSeenAt: string, revokedAt?: string | null, isActive: boolean };
 
-export type TrackerSettingsFieldsFragment = { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string };
+export type TrackerSettingsFieldsFragment = { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string };
 
 export type TrackerDayBucketFieldsFragment = { __typename?: 'TrackerDayBucket', date: string, activeMs: number, idleMs: number, manualMs: number, keyCount: number, mouseCount: number, sessions: number };
 
@@ -12976,7 +13157,7 @@ export type TrackerDevicesQuery = { __typename?: 'Query', trackerDevices: Array<
 export type TrackerSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TrackerSettingsQuery = { __typename?: 'Query', trackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
+export type TrackerSettingsQuery = { __typename?: 'Query', trackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
 
 export type TrackerCalendarQueryVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -13045,7 +13226,7 @@ export type UpdateTrackerSettingsMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTrackerSettingsMutation = { __typename?: 'Mutation', updateTrackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
+export type UpdateTrackerSettingsMutation = { __typename?: 'Mutation', updateTrackerSettings: { __typename?: 'TrackerSettings', id: string, intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, screenshotRetentionDays: number, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number, dailyDigestEnabled: boolean, weeklyDigestEnabled: boolean, digestHour: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, consentPolicySlug: string, defaultTimezone: string } };
 
 export type TrackerLatestReleaseQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13533,6 +13714,8 @@ export const UserFieldsFragmentDoc = gql`
   workLocation
   workLocationNote
   workHoursPerDay
+  timezone
+  locale
 }
     `;
 export const AnnouncementFieldsFragmentDoc = gql`
@@ -14374,6 +14557,7 @@ export const TrackerSettingsFieldsFragmentDoc = gql`
   blurScreenshots
   trackWindowTitles
   idleThresholdSeconds
+  idleAutoPauseMinutes
   screenshotMaxWidth
   screenshotQuality
   screenshotRetentionDays
@@ -14383,6 +14567,7 @@ export const TrackerSettingsFieldsFragmentDoc = gql`
   dailyDigestEnabled
   weeklyDigestEnabled
   digestHour
+  captureSoundEnabled
   webcamEnabled
   webcamCorner
   syncIntervalMinutes
@@ -17092,6 +17277,8 @@ export const MeDocument = gql`
     email
     roles
     avatarUrl
+    timezone
+    locale
   }
 }
     `;
@@ -17137,6 +17324,9 @@ export const AppSettingsDocument = gql`
     dateFormat
     timeFormat
     timezone
+    defaultLocale
+    enabledLocales
+    autoTranslate
   }
 }
     `;
@@ -26030,6 +26220,229 @@ export function useDeleteLeaveBalanceMutation(baseOptions?: Apollo.MutationHookO
 export type DeleteLeaveBalanceMutationHookResult = ReturnType<typeof useDeleteLeaveBalanceMutation>;
 export type DeleteLeaveBalanceMutationResult = Apollo.MutationResult<DeleteLeaveBalanceMutation>;
 export type DeleteLeaveBalanceMutationOptions = Apollo.BaseMutationOptions<DeleteLeaveBalanceMutation, DeleteLeaveBalanceMutationVariables>;
+export const LocaleOptionsDocument = gql`
+    query LocaleOptions {
+  localeOptions {
+    tag
+    label
+    direction
+  }
+}
+    `;
+
+/**
+ * __useLocaleOptionsQuery__
+ *
+ * To run a query within a React component, call `useLocaleOptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLocaleOptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLocaleOptionsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLocaleOptionsQuery(baseOptions?: Apollo.QueryHookOptions<LocaleOptionsQuery, LocaleOptionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<LocaleOptionsQuery, LocaleOptionsQueryVariables>(LocaleOptionsDocument, options);
+      }
+export function useLocaleOptionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LocaleOptionsQuery, LocaleOptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<LocaleOptionsQuery, LocaleOptionsQueryVariables>(LocaleOptionsDocument, options);
+        }
+// @ts-ignore
+export function useLocaleOptionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<LocaleOptionsQuery, LocaleOptionsQueryVariables>): Apollo.UseSuspenseQueryResult<LocaleOptionsQuery, LocaleOptionsQueryVariables>;
+export function useLocaleOptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LocaleOptionsQuery, LocaleOptionsQueryVariables>): Apollo.UseSuspenseQueryResult<LocaleOptionsQuery | undefined, LocaleOptionsQueryVariables>;
+export function useLocaleOptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LocaleOptionsQuery, LocaleOptionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<LocaleOptionsQuery, LocaleOptionsQueryVariables>(LocaleOptionsDocument, options);
+        }
+export type LocaleOptionsQueryHookResult = ReturnType<typeof useLocaleOptionsQuery>;
+export type LocaleOptionsLazyQueryHookResult = ReturnType<typeof useLocaleOptionsLazyQuery>;
+export type LocaleOptionsSuspenseQueryHookResult = ReturnType<typeof useLocaleOptionsSuspenseQuery>;
+export type LocaleOptionsQueryResult = Apollo.QueryResult<LocaleOptionsQuery, LocaleOptionsQueryVariables>;
+export const LocaleBundleDocument = gql`
+    query LocaleBundle($locale: String!) {
+  localeBundle(locale: $locale) {
+    locale
+    direction
+    fallbackLocale
+    translations {
+      key
+      source
+      text
+    }
+  }
+}
+    `;
+
+/**
+ * __useLocaleBundleQuery__
+ *
+ * To run a query within a React component, call `useLocaleBundleQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLocaleBundleQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLocaleBundleQuery({
+ *   variables: {
+ *      locale: // value for 'locale'
+ *   },
+ * });
+ */
+export function useLocaleBundleQuery(baseOptions: Apollo.QueryHookOptions<LocaleBundleQuery, LocaleBundleQueryVariables> & ({ variables: LocaleBundleQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<LocaleBundleQuery, LocaleBundleQueryVariables>(LocaleBundleDocument, options);
+      }
+export function useLocaleBundleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LocaleBundleQuery, LocaleBundleQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<LocaleBundleQuery, LocaleBundleQueryVariables>(LocaleBundleDocument, options);
+        }
+// @ts-ignore
+export function useLocaleBundleSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<LocaleBundleQuery, LocaleBundleQueryVariables>): Apollo.UseSuspenseQueryResult<LocaleBundleQuery, LocaleBundleQueryVariables>;
+export function useLocaleBundleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LocaleBundleQuery, LocaleBundleQueryVariables>): Apollo.UseSuspenseQueryResult<LocaleBundleQuery | undefined, LocaleBundleQueryVariables>;
+export function useLocaleBundleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LocaleBundleQuery, LocaleBundleQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<LocaleBundleQuery, LocaleBundleQueryVariables>(LocaleBundleDocument, options);
+        }
+export type LocaleBundleQueryHookResult = ReturnType<typeof useLocaleBundleQuery>;
+export type LocaleBundleLazyQueryHookResult = ReturnType<typeof useLocaleBundleLazyQuery>;
+export type LocaleBundleSuspenseQueryHookResult = ReturnType<typeof useLocaleBundleSuspenseQuery>;
+export type LocaleBundleQueryResult = Apollo.QueryResult<LocaleBundleQuery, LocaleBundleQueryVariables>;
+export const TranslateMissingDocument = gql`
+    mutation TranslateMissing($locale: String!, $sources: [String!]!) {
+  translateMissing(locale: $locale, sources: $sources) {
+    key
+    source
+    text
+  }
+}
+    `;
+export type TranslateMissingMutationFn = Apollo.MutationFunction<TranslateMissingMutation, TranslateMissingMutationVariables>;
+
+/**
+ * __useTranslateMissingMutation__
+ *
+ * To run a mutation, you first call `useTranslateMissingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTranslateMissingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [translateMissingMutation, { data, loading, error }] = useTranslateMissingMutation({
+ *   variables: {
+ *      locale: // value for 'locale'
+ *      sources: // value for 'sources'
+ *   },
+ * });
+ */
+export function useTranslateMissingMutation(baseOptions?: Apollo.MutationHookOptions<TranslateMissingMutation, TranslateMissingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TranslateMissingMutation, TranslateMissingMutationVariables>(TranslateMissingDocument, options);
+      }
+export type TranslateMissingMutationHookResult = ReturnType<typeof useTranslateMissingMutation>;
+export type TranslateMissingMutationResult = Apollo.MutationResult<TranslateMissingMutation>;
+export type TranslateMissingMutationOptions = Apollo.BaseMutationOptions<TranslateMissingMutation, TranslateMissingMutationVariables>;
+export const TranslationsDocument = gql`
+    query Translations($locale: String!, $search: String, $skip: Int, $limit: Int) {
+  translations(locale: $locale, search: $search, skip: $skip, limit: $limit) {
+    total
+    rows {
+      id
+      locale
+      key
+      source
+      text
+      kind
+      model
+      updatedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useTranslationsQuery__
+ *
+ * To run a query within a React component, call `useTranslationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTranslationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTranslationsQuery({
+ *   variables: {
+ *      locale: // value for 'locale'
+ *      search: // value for 'search'
+ *      skip: // value for 'skip'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useTranslationsQuery(baseOptions: Apollo.QueryHookOptions<TranslationsQuery, TranslationsQueryVariables> & ({ variables: TranslationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TranslationsQuery, TranslationsQueryVariables>(TranslationsDocument, options);
+      }
+export function useTranslationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TranslationsQuery, TranslationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TranslationsQuery, TranslationsQueryVariables>(TranslationsDocument, options);
+        }
+// @ts-ignore
+export function useTranslationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TranslationsQuery, TranslationsQueryVariables>): Apollo.UseSuspenseQueryResult<TranslationsQuery, TranslationsQueryVariables>;
+export function useTranslationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TranslationsQuery, TranslationsQueryVariables>): Apollo.UseSuspenseQueryResult<TranslationsQuery | undefined, TranslationsQueryVariables>;
+export function useTranslationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TranslationsQuery, TranslationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TranslationsQuery, TranslationsQueryVariables>(TranslationsDocument, options);
+        }
+export type TranslationsQueryHookResult = ReturnType<typeof useTranslationsQuery>;
+export type TranslationsLazyQueryHookResult = ReturnType<typeof useTranslationsLazyQuery>;
+export type TranslationsSuspenseQueryHookResult = ReturnType<typeof useTranslationsSuspenseQuery>;
+export type TranslationsQueryResult = Apollo.QueryResult<TranslationsQuery, TranslationsQueryVariables>;
+export const SetTranslationDocument = gql`
+    mutation SetTranslation($locale: String!, $source: String!, $text: String!) {
+  setTranslation(locale: $locale, source: $source, text: $text) {
+    key
+    source
+    text
+  }
+}
+    `;
+export type SetTranslationMutationFn = Apollo.MutationFunction<SetTranslationMutation, SetTranslationMutationVariables>;
+
+/**
+ * __useSetTranslationMutation__
+ *
+ * To run a mutation, you first call `useSetTranslationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetTranslationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setTranslationMutation, { data, loading, error }] = useSetTranslationMutation({
+ *   variables: {
+ *      locale: // value for 'locale'
+ *      source: // value for 'source'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useSetTranslationMutation(baseOptions?: Apollo.MutationHookOptions<SetTranslationMutation, SetTranslationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetTranslationMutation, SetTranslationMutationVariables>(SetTranslationDocument, options);
+      }
+export type SetTranslationMutationHookResult = ReturnType<typeof useSetTranslationMutation>;
+export type SetTranslationMutationResult = Apollo.MutationResult<SetTranslationMutation>;
+export type SetTranslationMutationOptions = Apollo.BaseMutationOptions<SetTranslationMutation, SetTranslationMutationVariables>;
 export const InfrastructureOverviewDocument = gql`
     query InfrastructureOverview {
   infrastructureOverview {
@@ -31970,6 +32383,8 @@ export const UpdateProfileDocument = gql`
     email
     roles
     avatarUrl
+    timezone
+    locale
   }
 }
     `;

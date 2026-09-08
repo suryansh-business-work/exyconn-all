@@ -1,7 +1,7 @@
 import { Box, Divider, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { BoolChip } from '@exyconn/shell/components/data/BoolChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useCrudResource } from '@exyconn/crud';
 import {
@@ -45,6 +45,18 @@ export function AiPricingPanel() {
 
   const budget = limit.data?.aiSpendLimit;
 
+  if (crud.open) {
+    return (
+      <CrudFormPage
+        title={crud.editing ? 'Edit model price' : 'New model price'}
+        onBack={crud.close}
+        backLabel="Back to AI pricing"
+      >
+        <AiModelPriceForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -77,14 +89,6 @@ export function AiPricingPanel() {
       ) : (
         <Text size="sm">Loading the budget…</Text>
       )}
-
-      <CrudDialog
-        open={crud.open}
-        title={crud.editing ? 'Edit model price' : 'New model price'}
-        onClose={crud.close}
-      >
-        <AiModelPriceForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
-      </CrudDialog>
     </Box>
   );
 }

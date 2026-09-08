@@ -5,6 +5,7 @@ import { Login } from '@exyconn/login';
 import { AdminPage } from './pages/admin';
 import { BrandingPage } from './pages/branding';
 import { AppSettingsPage } from './pages/app-settings';
+import { LocalizationPage } from './pages/localization';
 import { ClientsPage } from './pages/clients';
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
 import { PermissionsPage } from './pages/permissions';
@@ -18,6 +19,7 @@ export function App() {
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/admin/branding/:tab?" element={<BrandingPage />} />
       <Route path="/admin/settings" element={<AppSettingsPage />} />
+      <Route path="/admin/localization" element={<LocalizationPage />} />
       <Route path="/admin/permissions/:tab?" element={<PermissionsPage />} />
       <Route path="/admin/audit" element={<AuditLogPage />} />
       <Route path="/admin/health" element={<SystemHealthPage />} />

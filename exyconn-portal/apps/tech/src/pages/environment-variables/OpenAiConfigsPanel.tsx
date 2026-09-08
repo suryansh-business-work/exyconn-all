@@ -2,7 +2,7 @@ import { Box } from '@exyconn/shell/components/ui';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useCrudResource } from '@exyconn/crud';
@@ -65,6 +65,18 @@ export function OpenAiConfigsPanel() {
     },
   ];
 
+  if (crud.open) {
+    return (
+      <CrudFormPage
+        title={crud.editing ? 'Edit OpenAI config' : 'New OpenAI config'}
+        onBack={crud.close}
+        backLabel="Back to OpenAI"
+      >
+        <OpenAiConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -81,13 +93,6 @@ export function OpenAiConfigsPanel() {
         onDelete={crud.remove}
         emptyMessage={loading ? 'Loading…' : 'No OpenAI configs yet.'}
       />
-      <CrudDialog
-        open={crud.open}
-        title={crud.editing ? 'Edit OpenAI config' : 'New OpenAI config'}
-        onClose={crud.close}
-      >
-        <OpenAiConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
-      </CrudDialog>
     </Box>
   );
 }

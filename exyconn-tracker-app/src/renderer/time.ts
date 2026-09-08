@@ -132,6 +132,28 @@ export function dayBounds(date: Date, zone: string): { startISO: string; endISO:
   return { startISO: start.toISOString(), endISO: end.toISOString() };
 }
 
+/**
+ * The bounds of the day an INSTANT falls on, read in the chosen zone.
+ *
+ * `dayBounds` above takes a calendar date the employee picked; this takes a moment in time,
+ * which is a different thing near midnight — a capture at 00:30 in Kolkata is still yesterday
+ * on a laptop left on London time. Resolving the day IN THE ZONE first is what stops a
+ * notification click opening the gallery on the wrong day.
+ *
+ * Null for an unparseable instant, so a caller can decline rather than open an empty gallery.
+ */
+export function dayBoundsOfInstant(
+  iso: string,
+  zone: string,
+): { startISO: string; endISO: string } | null {
+  const at = new Date(iso);
+  if (Number.isNaN(at.getTime())) {
+    return null;
+  }
+  const [year, month, day] = formatInTimeZone(at, zone, 'yyyy-MM-dd').split('-');
+  return dayBounds(new Date(Number(year), Number(month) - 1, Number(day)), zone);
+}
+
 /** The whole calendar month of `month`, IN the chosen zone, as ISO instants. */
 export function monthBounds(month: Date, zone: string): { fromISO: string; toISO: string } {
   const first = new Date(month.getFullYear(), month.getMonth(), 1);

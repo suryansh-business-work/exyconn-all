@@ -6,10 +6,12 @@ import type { LiveStats, TrackerSettings } from '@shared/types';
 
 const tempDir = mkdtempSync(join(tmpdir(), 'engine-'));
 
+/** How long the OS says the machine has been idle. Zero — "active" — unless a test says so. */
+const idle = vi.hoisted(() => ({ seconds: 0 }));
+
 vi.mock('electron', () => ({
   app: { getPath: () => tempDir },
-  // Always "active" — idle accounting is not what these tests are about.
-  powerMonitor: { getSystemIdleTime: () => 0 },
+  powerMonitor: { getSystemIdleTime: () => idle.seconds },
 }));
 
 // The native input hook and screen capture cannot run in a test process.
@@ -69,8 +71,10 @@ const SETTINGS: TrackerSettings = {
   blurScreenshots: false,
   trackWindowTitles: true,
   idleThresholdSeconds: 300,
+  idleAutoPauseMinutes: 0,
   screenshotMaxWidth: 1600,
   screenshotQuality: 70,
+  captureSoundEnabled: true,
   webcamEnabled: false,
   webcamCorner: 'bottom-right',
   syncIntervalMinutes: 5,
@@ -95,6 +99,7 @@ function build(settings: TrackerSettings = SETTINGS, composed: string | null = n
     },
     onCapture: () => undefined,
     onAuthError: () => undefined,
+    onAutoPaused: () => undefined,
     composeWithWebcam: compose,
   });
   return { engine, stats: () => latest, compose };
@@ -245,5 +250,74 @@ describe('TrackerEngine webcam capture', () => {
 
     expect(built.compose).toHaveBeenCalled();
     expect(uploadedImage()).toBe('screen-bytes');
+  });
+});
+
+describe('TrackerEngine idle auto-pause', () => {
+  beforeEach(() => {
+    rmSync(OUTBOX_FILE, { force: true });
+    vi.clearAllMocks();
+    idle.seconds = 0;
+  });
+
+  afterEach(() => {
+    idle.seconds = 0;
+    vi.useRealTimers();
+  });
+
+  /** Tracks for a minute, goes idle for `idleSeconds`, and ticks once more. */
+  async function walkAway(built: Built, idleSeconds: number): Promise<void> {
+    vi.useFakeTimers();
+    await built.engine.start('p-global');
+    await vi.advanceTimersByTimeAsync(60_000);
+    idle.seconds = idleSeconds;
+    await vi.advanceTimersByTimeAsync(1_000);
+  }
+
+  it('pauses itself once the idle run reaches the workspace’s limit', async () => {
+    const paused: number[] = [];
+    const engine = new TrackerEngine(
+      { ...SETTINGS, idleAutoPauseMinutes: 15 },
+      {
+        onStats: () => undefined,
+        onCapture: () => undefined,
+        onAuthError: () => undefined,
+        onAutoPaused: (minutes) => paused.push(minutes),
+        composeWithWebcam: () => Promise.resolve(null),
+      },
+    );
+
+    await walkAway({ engine, stats: () => null, compose: vi.fn() }, 15 * 60);
+
+    // A session left running over lunch used to keep screenshotting an empty desk.
+    expect(engine.currentStatus).toBe('paused');
+    expect(paused).toEqual([15]);
+  });
+
+  it('keeps tracking while the idle run is still short of the limit', async () => {
+    const built = build({ ...SETTINGS, idleAutoPauseMinutes: 15 });
+
+    await walkAway(built, 14 * 60);
+
+    expect(built.engine.currentStatus).toBe('tracking');
+  });
+
+  it('never pauses when the workspace has switched auto-pause off', async () => {
+    const built = build({ ...SETTINGS, idleAutoPauseMinutes: 0 });
+
+    await walkAway(built, 8 * 60 * 60);
+
+    expect(built.engine.currentStatus).toBe('tracking');
+  });
+
+  it('queues the time worked before it paused rather than holding it in memory', async () => {
+    const built = build({ ...SETTINGS, idleAutoPauseMinutes: 15 });
+
+    await walkAway(built, 15 * 60);
+    await built.engine.syncNow();
+
+    // The bucket only flushes every 10 minutes, so without closing it on the way into a
+    // pause the first minute would sit in memory until whenever they came back.
+    expect(portal.syncIntervals).toHaveBeenCalledTimes(1);
   });
 });
