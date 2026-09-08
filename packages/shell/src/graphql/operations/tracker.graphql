@@ -51,6 +51,7 @@ fragment TrackerSettingsFields on TrackerSettings {
   dailyDigestEnabled
   weeklyDigestEnabled
   digestHour
+  captureSoundEnabled
   webcamEnabled
   webcamCorner
   syncIntervalMinutes

@@ -18,6 +18,8 @@ query Me {
     email
     roles
     avatarUrl
+    timezone
+    locale
   }
 }
 
@@ -27,6 +29,9 @@ query AppSettings {
     dateFormat
     timeFormat
     timezone
+    defaultLocale
+    enabledLocales
+    autoTranslate
   }
 }
 

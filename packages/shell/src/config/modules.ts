@@ -72,6 +72,7 @@ import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import DevicesIcon from '@mui/icons-material/Devices';
 import DownloadIcon from '@mui/icons-material/Download';
 import TuneIcon from '@mui/icons-material/Tune';
+import TranslateIcon from '@mui/icons-material/Translate';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import DnsIcon from '@mui/icons-material/Dns';
@@ -482,6 +483,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'App Settings',
         path: '/admin/settings',
         icon: TuneIcon,
+      },
+      {
+        key: 'admin-localization',
+        label: 'Localization',
+        path: '/admin/localization',
+        icon: TranslateIcon,
       },
       { key: 'admin-audit', label: 'Audit Log', path: '/admin/audit', icon: HistoryIcon },
       {

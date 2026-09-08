@@ -42,6 +42,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -196,6 +199,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -347,6 +353,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -495,6 +504,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -646,6 +658,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -797,6 +812,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -951,6 +969,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -1102,6 +1123,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -1253,6 +1277,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -1404,6 +1431,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -1555,6 +1585,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -1697,6 +1730,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -1827,6 +1863,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -1978,6 +2017,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -2132,6 +2174,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -2286,6 +2331,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -2940,6 +2988,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../shell
@@ -3062,6 +3113,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../shell
@@ -3171,6 +3225,9 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3
         version: 3.2.2(react@19.2.8)
+      '@emotion/cache':
+        specifier: ^11.14.0
+        version: 11.14.0
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.2.18)(react@19.2.8)
@@ -3180,6 +3237,9 @@ importers:
       '@exyconn/config':
         specifier: workspace:*
         version: link:../config
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@exyconn/ui':
         specifier: workspace:*
         version: link:../ui
@@ -3243,6 +3303,9 @@ importers:
       react-router-dom:
         specifier: ^6.28.2
         version: 6.30.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      stylis-plugin-rtl:
+        specifier: ^2.1.1
+        version: 2.1.1(stylis@4.4.0)
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -3274,6 +3337,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.7
         version: 19.2.7(@types/react@19.2.18)
+      '@types/stylis':
+        specifier: ^4.2.7
+        version: 4.2.7
       '@vitejs/plugin-react':
         specifier: ^6.1.1
         version: 6.1.1(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))
@@ -3313,6 +3379,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../shell
@@ -3380,6 +3449,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@mui/material':
         specifier: ^6.4.0
         version: 6.5.0(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -7557,6 +7629,9 @@ packages:
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
 
+  '@types/stylis@4.2.7':
+    resolution: {integrity: sha512-VgDNokpBoKF+wrdvhAAfS55OMQpL6QRglwTwNC3kIgBrzZxA4WsFj+2eLfEA/uMUDzBcEhYmjSbwQakn/i3ajA==}
+
   '@types/superagent@8.1.10':
     resolution: {integrity: sha512-nbt4IWXABhW0jGmmpRzCFNlbmwCTzZ2gTUsNIr+X+ItdqPms+PAJZbWsNzpS2USqXjcoNLQcO6nXo60zcPQiIg==}
 
@@ -9134,6 +9209,10 @@ packages:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
     engines: {node: '>=4'}
     hasBin: true
+
+  cssjanus@2.3.1:
+    resolution: {integrity: sha512-gWZQ/S0tthU2KCc55C5zbjxQN0XPK1sT0qufCqwCNUauGIsPDOfdBMBWosP+Kd4wf2A2Nxm/z6JAP6yNGnS7QQ==}
+    engines: {node: '>=10.0.0'}
 
   cssnano-preset-default@7.0.17:
     resolution: {integrity: sha512-11qO63A+czwguQFJCaTdICvbaxn0pJzz/XghLlv+OT7WyToDxAMR0Xb3/26/l0y0hQJywwNbj/SLSQlGBHE1OA==}
@@ -14334,6 +14413,11 @@ packages:
     engines: {node: ^18.12.0 || ^20.9.0 || >=22.0}
     peerDependencies:
       postcss: ^8.5.13
+
+  stylis-plugin-rtl@2.1.1:
+    resolution: {integrity: sha512-q6xIkri6fBufIO/sV55md2CbgS5c6gg9EhSVATtHHCdOnbN/jcI0u3lYhNVeuI65c4lQPo67g8xmq5jrREvzlg==}
+    peerDependencies:
+      stylis: 4.x
 
   stylis@4.2.0:
     resolution: {integrity: sha512-Orov6g6BB1sDfYgzWfTHDOxamtX1bE/zo104Dh9e6fqJ3PooipYyfJ0pUmrZO2wAvO8YbEyeFrkV91XTsGMSrw==}
@@ -20544,6 +20628,8 @@ snapshots:
 
   '@types/stack-utils@2.0.3': {}
 
+  '@types/stylis@4.2.7': {}
+
   '@types/superagent@8.1.10':
     dependencies:
       '@types/cookiejar': 2.1.5
@@ -22576,6 +22662,8 @@ snapshots:
   css.escape@1.5.1: {}
 
   cssesc@3.0.0: {}
+
+  cssjanus@2.3.1: {}
 
   cssnano-preset-default@7.0.17(postcss@8.5.18):
     dependencies:
@@ -29538,6 +29626,11 @@ snapshots:
       browserslist: 4.28.6
       postcss: 8.5.18
       postcss-selector-parser: 7.1.4
+
+  stylis-plugin-rtl@2.1.1(stylis@4.4.0):
+    dependencies:
+      cssjanus: 2.3.1
+      stylis: 4.4.0
 
   stylis@4.2.0: {}
 

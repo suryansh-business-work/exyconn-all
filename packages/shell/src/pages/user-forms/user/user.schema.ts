@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isValidLocale, isValidTimezone } from '@exyconn/i18n';
 import {
   EmploymentStatus,
   Role,
@@ -37,6 +38,11 @@ const identitySchema = z
     workingTimeNote: z.string().trim(),
     workLocation: z.nativeEnum(WorkLocation),
     workLocationNote: z.string().trim(),
+    // Empty means "follow the workspace default" — see toUserInput.
+    timezone: z
+      .string()
+      .refine((v) => v === '' || isValidTimezone(v), 'Choose a timezone from the list'),
+    locale: z.string().refine((v) => v === '' || isValidLocale(v), 'Choose a language'),
     workHoursPerDay: z
       .string()
       .min(1, 'Working hours are required')
@@ -94,6 +100,8 @@ export function toFormValues(
     workLocation: row?.workLocation ?? WorkLocation.Office,
     workLocationNote: row?.workLocationNote ?? '',
     workHoursPerDay: String(row?.workHoursPerDay ?? DEFAULT_WORK_HOURS),
+    timezone: row?.timezone ?? '',
+    locale: row?.locale ?? '',
   };
 }
 
@@ -123,5 +131,9 @@ export function toUserInput(v: UserValues): Omit<CreateUserInput, 'name' | 'emai
     workLocation: v.workLocation,
     workLocationNote: v.workLocation === NEEDS_NOTE ? v.workLocationNote : '',
     workHoursPerDay: Number(v.workHoursPerDay),
+    // Empty is stored as null so the person follows the workspace default and keeps
+    // following it when an admin moves that default — a copied value would not.
+    timezone: v.timezone || null,
+    locale: v.locale || null,
   };
 }
