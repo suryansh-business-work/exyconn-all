@@ -23,15 +23,15 @@ import type {
 } from '@shared/types';
 import { deviceTimezone, effectiveTimezone } from '@shared/timezone';
 import { secureStore } from './store';
-import { TrackerEngine } from './engine';
+import { TrackerEngine, type CaptureReport } from './engine';
 import * as portal from './portal-client';
 import { TrackerAuthError } from './portal-client';
 import { collectDeviceInfo } from './device-info';
 import { describeLoginFailure } from './login-message';
 import { describeSyncFailure } from './sync-message';
-import { notifyAutoPaused } from './notifier';
+import { notifyAutoPaused, notifyAutoStopped } from './notifier';
 import { getPermissions, requestPermission } from './trackers/permissions';
-import { decideAutoAction, hourIn, isWithinWindow } from './auto-start';
+import { decideAutoAction, formatHourLabel, hourIn, isWithinWindow } from '@shared/schedule';
 import type { ComposeInput } from './capture-bridge';
 
 /**
@@ -80,8 +80,8 @@ export class TrackerController {
 
   constructor(
     private readonly onChange: (state: TrackerState) => void,
-    /** Fired on every screenshot so the shell can broadcast it (the shutter sound). */
-    private readonly onCapture: (count: number) => void,
+    /** Fired on every capture so the shell can announce it (notification + shutter sound). */
+    private readonly onCapture: (report: CaptureReport) => void,
     /**
      * Adds the webcam photo to a screenshot. Injected rather than imported because it needs a
      * BrowserWindow, which this class deliberately knows nothing about — that is what keeps
@@ -483,6 +483,17 @@ export class TrackerController {
     await this.stopTracking();
   }
 
+  /**
+   * Flushes the outbox now rather than on the next cadence.
+   *
+   * There is exactly one caller: the employee clicked a capture notification to see the shot.
+   * The gallery reads the portal, and a shot taken seconds ago is still in the outbox — so
+   * without this the one screenshot they clicked through for is the one that is missing.
+   */
+  async syncNow(): Promise<void> {
+    await this.engine?.syncNow();
+  }
+
   /** Stops without recording an override — used by sign-out and by the schedule itself. */
   private async stopTracking(): Promise<void> {
     await this.engine?.stop();
@@ -523,6 +534,7 @@ export class TrackerController {
         await this.start();
       } else if (action === 'stop') {
         await this.stopTracking();
+        notifyAutoStopped(formatHourLabel(settings.autoStopHour));
       }
     } catch (error) {
       // A schedule that cannot start (no permission yet, portal briefly down) must not throw
@@ -604,7 +616,7 @@ export class TrackerController {
         this.stats = stats;
         this.emit();
       },
-      onCapture: (count: number) => this.onCapture(count),
+      onCapture: (report: CaptureReport) => this.onCapture(report),
       onAutoPaused: (idleMinutes: number) => notifyAutoPaused(idleMinutes),
       onAuthError: (reason: string) => {
         this.logout(reason).catch((cause: unknown) =>

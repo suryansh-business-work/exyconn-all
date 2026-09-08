@@ -49,6 +49,12 @@ export const trackerTypeDefs = gql`
     "Local hour (0-23) the digests go out at, read in the workspace's own timezone."
     digestHour: Int!
     """
+    Play the camera shutter and let the capture notification make a sound on the employee's
+    own machine. On by default — capturing a screen in silence is what makes monitoring feel
+    like surveillance. The notification still appears when this is off.
+    """
+    captureSoundEnabled: Boolean!
+    """
     Capture a webcam photo with each screenshot and composite it into a corner of the shot.
     """
     webcamEnabled: Boolean!
@@ -87,6 +93,7 @@ export const trackerTypeDefs = gql`
     dailyDigestEnabled: Boolean
     weeklyDigestEnabled: Boolean
     digestHour: Int
+    captureSoundEnabled: Boolean
     webcamEnabled: Boolean
     webcamCorner: String
     syncIntervalMinutes: Int

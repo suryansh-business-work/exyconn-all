@@ -26,6 +26,8 @@ export interface TrackerSettingsInput {
   weeklyDigestEnabled?: boolean;
   /** Local hour, 0-23. */
   digestHour?: number;
+  /** Announce each capture out loud on the employee's machine (shutter + notification sound). */
+  captureSoundEnabled?: boolean;
   webcamEnabled?: boolean;
   /** One of WEBCAM_CORNERS. */
   webcamCorner?: string;

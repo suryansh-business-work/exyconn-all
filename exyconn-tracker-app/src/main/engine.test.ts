@@ -74,6 +74,7 @@ const SETTINGS: TrackerSettings = {
   idleAutoPauseMinutes: 0,
   screenshotMaxWidth: 1600,
   screenshotQuality: 70,
+  captureSoundEnabled: true,
   webcamEnabled: false,
   webcamCorner: 'bottom-right',
   syncIntervalMinutes: 5,

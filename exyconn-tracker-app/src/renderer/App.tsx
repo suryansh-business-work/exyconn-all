@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { Box, CircularProgress, ThemeProvider } from '@exyconn/ui';
 import type { TrackerState } from '@shared/types';
+import { deviceTimezone } from '@shared/timezone';
 import AppFrame from './components/AppFrame';
 import ClosingDialog from './components/ClosingDialog';
 import AppShell from './AppShell';
@@ -9,6 +10,7 @@ import ConsentScreen from './screens/ConsentScreen';
 import PermissionsScreen from './screens/PermissionsScreen';
 import useBrandTheme from './hooks/useBrandTheme';
 import useShutterSound from './hooks/useShutterSound';
+import useCaptureNotification from './hooks/useCaptureNotification';
 import useCaptureBridge from './hooks/useCaptureBridge';
 import useTrackerState from './hooks/useTrackerState';
 import useUpdateState from './hooks/useUpdateState';
@@ -63,12 +65,14 @@ export default function App(): ReactElement {
   const update = useUpdateState();
   const theme = useBrandTheme(state?.branding ?? null, state?.preferences.themeMode);
 
-  // Both at the root, not in a screen, and for the same reason: a capture fires whatever page
-  // the employee is on — including no page at all, with the app hidden in the tray, which is
-  // where it is for most captures. The shutter must still sound, and the webcam photo (which
-  // only a renderer can take) must still be produced.
+  // All three at the root, not in a screen, and for the same reason: a capture fires whatever
+  // page the employee is on — including no page at all, with the app hidden in the tray, which
+  // is where it is for most captures. The shutter must still sound, the webcam photo (which
+  // only a renderer can take) must still be produced, and a click on the notification must
+  // still find its way to the gallery.
   useShutterSound();
   useCaptureBridge();
+  useCaptureNotification(state?.timezone ?? deviceTimezone());
 
   return (
     <ThemeProvider theme={theme}>

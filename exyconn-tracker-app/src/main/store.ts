@@ -25,7 +25,13 @@ interface PersistedState {
  * says otherwise. The app is built to sit in the tray and keep tracking, and a stray click on
  * the close button should not quietly end somebody's working day.
  */
-const DEFAULT_PREFERENCES: AppPreferences = { closeToTray: true, themeMode: 'system' };
+const DEFAULT_PREFERENCES: AppPreferences = {
+  closeToTray: true,
+  themeMode: 'system',
+  // Audible by default: the shutter is how an employee knows a capture happened, and an app
+  // that shipped muted would be a monitoring tool that quietly stopped announcing itself.
+  muteCaptureSound: false,
+};
 
 /**
  * Persists the non-expiring device token, encrypted at rest with the OS keychain

@@ -26,6 +26,12 @@ export interface TrackerSettings {
    * downscale. Below 100 is a JPEG at that quality, downscaled to `screenshotMaxWidth`.
    */
   screenshotQuality: number;
+  /**
+   * Announce each capture out loud: the camera shutter this app plays, and the sound its
+   * capture notification makes. The notification itself is shown either way — muting the
+   * sound is never a way to be screenshotted without being told.
+   */
+  captureSoundEnabled: boolean;
   /** Take a webcam photo with each screenshot and composite it into a corner of the shot. */
   webcamEnabled: boolean;
   /** Which corner that photo goes in. */
@@ -176,6 +182,14 @@ export interface AppPreferences {
    * silently end someone's working day.
    */
   closeToTray: boolean;
+  /**
+   * Silences the capture sound on THIS computer, whatever the workspace has set.
+   *
+   * An employee on a call, or sitting next to somebody who is, should not have to ask an
+   * administrator to stop a shutter firing in the room — so this mutes it for them alone.
+   * It only ever silences: the capture notification still appears on every capture.
+   */
+  muteCaptureSound: boolean;
 }
 
 /**
@@ -187,6 +201,24 @@ export type SyncOutcome =
   | { kind: 'nothing' }
   | { kind: 'failed'; reason: string }
   | { kind: 'unavailable'; reason: string };
+
+/** One capture, as the tracking engine reports it to the app shell. */
+export interface CaptureEvent {
+  /** How many shots the burst took — one per display. */
+  count: number;
+  /** The instant they were taken. A notification click opens the gallery on THIS day. */
+  capturedAt: string;
+}
+
+/**
+ * What a renderer is told about a capture: the event, plus whether to keep quiet about it.
+ *
+ * The shell decides `silent` in one place (the workspace setting and this install's own mute
+ * together), so the shutter and the notification can never disagree about it.
+ */
+export interface CaptureAnnouncement extends CaptureEvent {
+  silent: boolean;
+}
 
 /** Live counters surfaced to the renderer dashboard once per second. */
 export interface LiveStats {
@@ -316,6 +348,12 @@ export const IPC = {
   captureRequested: 'tracker:capture-requested',
   /** Fired on every capture so a renderer can play the shutter sound (audio needs a window). */
   screenshotCaptured: 'tracker:screenshot-captured',
+  /**
+   * The employee clicked a capture notification and wants to see the shot. Carries the
+   * instant it was captured at; the renderer turns that into the day's bounds IN THE ZONE IT
+   * RENDERS EVERYTHING ELSE and opens the gallery on it.
+   */
+  openCaptureDay: 'tracker:open-capture-day',
   /**
    * The employee asked to close a window that would quit the app while an upload was in
    * flight. The renderer shows what is still going up; main quits on its own once it lands.

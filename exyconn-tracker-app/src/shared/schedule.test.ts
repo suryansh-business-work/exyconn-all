@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { decideAutoAction, hourIn, isWithinWindow, type AutoStartInput } from './auto-start';
+import {
+  decideAutoAction,
+  formatHourLabel,
+  hourIn,
+  isWithinWindow,
+  type AutoStartInput,
+} from './schedule';
 
 /** A workspace on a 9-to-18 schedule, mid-morning, with everything else in order. */
 const base: AutoStartInput = {
@@ -83,5 +89,29 @@ describe('hourIn', () => {
 
   it('reads midnight as 0 rather than 24', () => {
     expect(hourIn('UTC', new Date('2026-09-04T00:30:00.000Z'))).toBe(0);
+  });
+});
+
+describe('formatHourLabel', () => {
+  it('writes a scheduled hour the way the employee reads a clock', () => {
+    expect(formatHourLabel(9)).toBe('9:00 AM');
+    expect(formatHourLabel(18)).toBe('6:00 PM');
+  });
+
+  it('says midnight and midday without a 0 or a 12 nobody can place', () => {
+    expect(formatHourLabel(0)).toBe('12:00 AM');
+    expect(formatHourLabel(12)).toBe('12:00 PM');
+  });
+
+  it('never zone-converts — the hour is already on the employee’s own clock', () => {
+    // A wall-clock hour dressed up as an instant is how a 6pm stop starts reading as 12:30pm
+    // for everyone in Kolkata. This one is fixed to UTC on purpose.
+    const original = process.env.TZ;
+    process.env.TZ = 'Asia/Kolkata';
+    try {
+      expect(formatHourLabel(18)).toBe('6:00 PM');
+    } finally {
+      process.env.TZ = original;
+    }
   });
 });

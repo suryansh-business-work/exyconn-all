@@ -15,6 +15,7 @@ import { useUpdateTrackerSettingsMutation } from '@exyconn/shell/graphql/generat
 import { isValidTimezone } from '../../tracker.timezone';
 import { buildTimezoneOptions } from './timezone.options';
 import { WEBCAM_CORNERS, WEBCAM_CORNER_OPTIONS } from './webcam.options';
+import { CaptureSoundFields } from './capture-sound';
 import { ConsentDisclosureFields } from './consent-disclosure';
 import { DigestScheduleFields } from './digest-schedule';
 import { AutoStartScheduleFields } from './auto-start-schedule';
@@ -35,6 +36,7 @@ const schema = z.object({
   randomizeScreenshotTiming: z.boolean(),
   blurScreenshots: z.boolean(),
   trackWindowTitles: z.boolean(),
+  captureSoundEnabled: z.boolean(),
   webcamEnabled: z.boolean(),
   webcamCorner: z.enum(WEBCAM_CORNERS as [string, ...string[]]),
   autoStartEnabled: z.boolean(),
@@ -63,6 +65,7 @@ const toInitial = (row: TrackerSettingsRow): Values => ({
   randomizeScreenshotTiming: row.randomizeScreenshotTiming,
   blurScreenshots: row.blurScreenshots,
   trackWindowTitles: row.trackWindowTitles,
+  captureSoundEnabled: row.captureSoundEnabled,
   webcamEnabled: row.webcamEnabled,
   webcamCorner: row.webcamCorner,
   autoStartEnabled: row.autoStartEnabled,
@@ -166,6 +169,7 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
       <RhfSwitch name="randomizeScreenshotTiming" label="Randomize screenshot timing" />
       <RhfSwitch name="blurScreenshots" label="Blur screenshots" />
       <RhfSwitch name="trackWindowTitles" label="Track window titles" />
+      <CaptureSoundFields />
       <Box>
         <RhfSwitch name="webcamEnabled" label="Webcam photo with each screenshot" />
         <FormHelperText>

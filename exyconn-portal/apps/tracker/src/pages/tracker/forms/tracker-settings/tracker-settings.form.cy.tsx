@@ -23,6 +23,7 @@ const initial: TrackerSettingsRow = {
   randomizeScreenshotTiming: true,
   blurScreenshots: false,
   trackWindowTitles: true,
+  captureSoundEnabled: true,
   webcamEnabled: false,
   webcamCorner: 'bottom-right',
   syncIntervalMinutes: 5,
@@ -50,6 +51,16 @@ describe('TrackerSettingsForm', () => {
     mount();
     cy.get('input[name="intervalMinutes"]').should('have.value', '10');
     cy.get('input[name="screenshotQuality"]').should('have.value', '60');
+  });
+
+  it('says captures stay announced when the sound is switched off', () => {
+    mount();
+    cy.contains('The desktop app plays a camera shutter').should('exist');
+
+    cy.contains('label', 'Play a sound with each screenshot').find('input').uncheck();
+
+    cy.contains('Captures are silent on every device').should('exist');
+    cy.contains('The notification still appears').should('exist');
   });
 
   it('hides the webcam corner until a photo is actually being taken', () => {

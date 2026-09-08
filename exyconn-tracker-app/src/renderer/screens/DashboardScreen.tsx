@@ -3,6 +3,7 @@ import { Box, Divider, Stack, Typography } from '@exyconn/ui';
 import type { TrackerState } from '@shared/types';
 import Surface from '../components/Surface';
 import AttendanceGate from '../components/AttendanceGate';
+import AutoStopNotice from '../components/AutoStopNotice';
 import DayProgress from '../components/DayProgress';
 import ProjectPicker from '../components/ProjectPicker';
 import TicketPicker from '../components/TicketPicker';
@@ -57,6 +58,9 @@ export default function DashboardScreen({ state }: Readonly<Props>): ReactElemen
 
         <Stack spacing={1.75}>
           <AttendanceGate workday={workday} />
+          {/* Above the controls: the hour their time stops counting is worth knowing BEFORE
+              they press start, not after the schedule has already stopped them. */}
+          <AutoStopNotice settings={settings} timezone={timezone} status={status} />
           <ProjectPicker
             projects={state.projects}
             selectedProjectId={state.selectedProjectId}

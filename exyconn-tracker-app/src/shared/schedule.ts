@@ -1,4 +1,13 @@
-import type { TrackerStatus } from '@shared/types';
+import type { TrackerStatus } from './types';
+
+/**
+ * The workspace's tracking window: the one place both processes reason about it.
+ *
+ * The main process acts on it (starting and stopping tracking), and the renderer warns the
+ * employee about it (their time stops being logged at the end of it). Two copies of "is this
+ * hour inside the window" is exactly the bug where the app stops at six and the warning says
+ * seven, so there is one.
+ */
 
 /** What the schedule wants done right now. */
 export type AutoAction = 'start' | 'stop' | 'none';
@@ -77,4 +86,22 @@ export function decideAutoAction(input: AutoStartInput): AutoAction {
     return 'none';
   }
   return 'start';
+}
+
+/**
+ * "6:00 PM" for a scheduled hour.
+ *
+ * A window hour is a wall-clock hour on the EMPLOYEE's own clock, not an instant, so it is
+ * never zone-converted — `hourIn` has already read the clock. Written with Intl rather than
+ * date-fns because the main process shows this hour too, and only the renderer bundles
+ * date-fns.
+ */
+export function formatHourLabel(hour: number, locale = 'en-US'): string {
+  const at = new Date(Date.UTC(2000, 0, 1, ((hour % 24) + 24) % 24));
+  return new Intl.DateTimeFormat(locale, {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'UTC',
+  }).format(at);
 }

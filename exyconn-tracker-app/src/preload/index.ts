@@ -3,6 +3,7 @@ import {
   IPC,
   type AppPreferences,
   type AttendanceStatus,
+  type CaptureAnnouncement,
   type CaptureRequest,
   type CaptureResult,
   type DayDetail,
@@ -100,11 +101,24 @@ const api = {
     ipcRenderer.on(IPC.stateChanged, handler);
     return () => ipcRenderer.removeListener(IPC.stateChanged, handler);
   },
-  /** A screenshot was just captured — the renderer plays the shutter sound. */
-  onScreenshotCaptured: (listener: (count: number) => void): (() => void) => {
-    const handler = (_event: unknown, count: number): void => listener(count);
+  /**
+   * A screenshot was just captured — the renderer plays the shutter sound, unless the
+   * announcement says to keep quiet. Main decides that, so the sound and the notification
+   * can never disagree about whether this capture was muted.
+   */
+  onScreenshotCaptured: (listener: (capture: CaptureAnnouncement) => void): (() => void) => {
+    const handler = (_event: unknown, capture: CaptureAnnouncement): void => listener(capture);
     ipcRenderer.on(IPC.screenshotCaptured, handler);
     return () => ipcRenderer.removeListener(IPC.screenshotCaptured, handler);
+  },
+  /**
+   * The employee clicked a capture notification. Carries the instant the shot was taken; the
+   * renderer resolves that to a day in ITS zone and opens the gallery on it.
+   */
+  onOpenCaptureDay: (listener: (capturedAt: string) => void): (() => void) => {
+    const handler = (_event: unknown, capturedAt: string): void => listener(capturedAt);
+    ipcRenderer.on(IPC.openCaptureDay, handler);
+    return () => ipcRenderer.removeListener(IPC.openCaptureDay, handler);
   },
   /**
    * Main needs this renderer to finish a capture — take the webcam photo and composite it —

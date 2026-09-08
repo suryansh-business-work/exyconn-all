@@ -119,6 +119,12 @@ const trackerSettingsSchema = new Schema(
      */
     dailyDigestLastRun: { type: String, default: '' },
     weeklyDigestLastRun: { type: String, default: '' },
+    /** Announce every capture out loud (shutter + notification sound) on the employee's machine. */
+    captureSoundEnabled: {
+      type: Boolean,
+      required: true,
+      default: TRACKER_DEFAULTS.captureSoundEnabled,
+    },
     webcamEnabled: {
       type: Boolean,
       required: true,
