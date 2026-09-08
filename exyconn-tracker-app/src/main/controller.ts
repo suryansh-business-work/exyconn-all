@@ -27,6 +27,7 @@ import { TrackerAuthError } from './portal-client';
 import { collectDeviceInfo } from './device-info';
 import { describeLoginFailure } from './login-message';
 import { describeSyncFailure } from './sync-message';
+import { notifyAutoPaused } from './notifier';
 import { getPermissions, requestPermission } from './trackers/permissions';
 import { decideAutoAction, hourIn, isWithinWindow } from './auto-start';
 import type { ComposeInput } from './capture-bridge';
@@ -574,6 +575,7 @@ export class TrackerController {
         this.emit();
       },
       onCapture: (count: number) => this.onCapture(count),
+      onAutoPaused: (idleMinutes: number) => notifyAutoPaused(idleMinutes),
       onAuthError: (reason: string) => {
         this.logout(reason).catch((cause: unknown) =>
           console.error('Forced sign-out failed', cause),

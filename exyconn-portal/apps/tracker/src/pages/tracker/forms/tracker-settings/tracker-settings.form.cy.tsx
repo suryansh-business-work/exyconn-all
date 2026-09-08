@@ -10,6 +10,7 @@ const initial: TrackerSettingsRow = {
   intervalMinutes: 10,
   screenshotsPerInterval: 1,
   idleThresholdSeconds: 300,
+  idleAutoPauseMinutes: 15,
   screenshotMaxWidth: 1280,
   screenshotQuality: 60,
   screenshotRetentionDays: 0,

@@ -38,6 +38,13 @@ export const TRACKER_DEFAULTS = Object.freeze({
   trackWindowTitles: true,
   /** No input for this long marks the time as idle. */
   idleThresholdSeconds: 300,
+  /**
+   * Unbroken idle time that pauses tracking on its own, in minutes. 0 switches it off.
+   *
+   * Idle minutes never counted as work, so this costs the employee nothing — what it stops
+   * is a session left running over lunch or overnight, screenshotting an empty desk.
+   */
+  idleAutoPauseMinutes: 15,
   /** Screenshots are downscaled to this width before upload. Ignored at quality 100. */
   screenshotMaxWidth: 1280,
   /**

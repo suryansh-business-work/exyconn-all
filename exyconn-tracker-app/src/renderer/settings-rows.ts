@@ -37,6 +37,14 @@ function webcamPolicy(settings: TrackerSettings): string {
   return `On — shown in the ${CORNER_LABEL[settings.webcamCorner]} of each screenshot`;
 }
 
+/** When the app stops on its own, said the way the employee experiences it. */
+function autoPausePolicy(settings: TrackerSettings): string {
+  if (settings.idleAutoPauseMinutes <= 0) {
+    return 'Never — tracking runs until you stop it';
+  }
+  return `After ${plural(settings.idleAutoPauseMinutes, 'minute')} with no activity`;
+}
+
 /** Uploading is automatic and always on; only the cadence is an administrator's choice. */
 function syncPolicy(settings: TrackerSettings): string {
   return `Automatic, every ${plural(settings.syncIntervalMinutes, 'minute')}`;
@@ -72,6 +80,7 @@ export function buildSettingRows(settings: TrackerSettings): SettingRow[] {
       label: 'Idle after',
       value: plural(settings.idleThresholdSeconds, 'second'),
     },
+    { id: 'auto-pause', label: 'Pauses itself', value: autoPausePolicy(settings) },
     { id: 'sync', label: 'Upload', value: syncPolicy(settings) },
   ];
 }

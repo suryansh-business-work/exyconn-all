@@ -16,6 +16,12 @@ export const trackerTypeDefs = gql`
     blurScreenshots: Boolean!
     trackWindowTitles: Boolean!
     idleThresholdSeconds: Int!
+    """
+    Minutes of unbroken idle time after which the desktop app pauses tracking by itself.
+    0 switches it off. Idle time never counted as work, so this takes nothing away — it
+    stops a session left running over lunch from screenshotting an empty desk.
+    """
+    idleAutoPauseMinutes: Int!
     screenshotMaxWidth: Int!
     """
     0-100. 100 means actual best quality: native resolution, encoded losslessly, no
@@ -71,6 +77,7 @@ export const trackerTypeDefs = gql`
     blurScreenshots: Boolean
     trackWindowTitles: Boolean
     idleThresholdSeconds: Int
+    idleAutoPauseMinutes: Int
     screenshotMaxWidth: Int
     screenshotQuality: Int
     screenshotRetentionDays: Int

@@ -18,6 +18,8 @@ export interface EngineHooks {
   /** A capture just happened, `count` shots. The shell notifies and plays the shutter sound. */
   onCapture: (count: number) => void;
   onAuthError: (reason: string) => void;
+  /** Tracking paused itself after `idleMinutes` of unbroken idle time. */
+  onAutoPaused: (idleMinutes: number) => void;
   /**
    * Adds the webcam photo to a screenshot, in a renderer — the only place a camera and a
    * canvas exist. Resolves to `null` whenever no photo could be taken, and the engine then
@@ -190,6 +192,10 @@ export class TrackerEngine {
     const now = Date.now();
 
     const idleFor = powerMonitor.getSystemIdleTime();
+    if (this.autoPauseDue(idleFor)) {
+      await this.autoPause(now);
+      return;
+    }
     const isIdle = idleFor >= this.settings.idleThresholdSeconds;
     if (isIdle) {
       this.intervalIdleMs += TICK_MS;
@@ -213,6 +219,31 @@ export class TrackerEngine {
 
     await this.maybeAutoSync(now);
     this.emit();
+  }
+
+  /**
+   * Whether an unbroken idle run has reached the workspace's auto-pause limit.
+   *
+   * `getSystemIdleTime()` already measures the run since the last input, so there is no
+   * counter to keep here. 0 minutes switches the whole thing off.
+   */
+  private autoPauseDue(idleForSeconds: number): boolean {
+    const limit = this.settings.idleAutoPauseMinutes;
+    return limit > 0 && idleForSeconds >= limit * 60;
+  }
+
+  /**
+   * Pauses because nobody is there.
+   *
+   * The bucket is closed first so the minutes worked before they walked away are queued
+   * rather than left in memory until whenever they come back. Idle time never counted as
+   * work, so this costs the employee nothing — it stops a session left running over lunch
+   * from screenshotting an empty desk.
+   */
+  private async autoPause(now: number): Promise<void> {
+    await this.closeIntervalForSync(now);
+    this.pause();
+    this.hooks.onAutoPaused(this.settings.idleAutoPauseMinutes);
   }
 
   /**

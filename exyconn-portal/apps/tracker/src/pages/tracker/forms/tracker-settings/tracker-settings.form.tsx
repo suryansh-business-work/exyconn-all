@@ -24,6 +24,8 @@ const schema = z.object({
   intervalMinutes: z.coerce.number({ message: 'Enter a number' }).int().min(1).max(60),
   screenshotsPerInterval: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(10),
   idleThresholdSeconds: z.coerce.number({ message: 'Enter a number' }).int().min(10).max(3600),
+  // 0 switches auto-pause off — the only value that leaves a session running while idle.
+  idleAutoPauseMinutes: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(240),
   screenshotMaxWidth: z.coerce.number({ message: 'Enter a number' }).int().min(320).max(3840),
   // 0-100. 100 is the honest top of the scale: native resolution, encoded losslessly.
   screenshotQuality: z.coerce.number({ message: 'Enter a number' }).int().min(0).max(100),
@@ -53,6 +55,7 @@ const toInitial = (row: TrackerSettingsRow): Values => ({
   intervalMinutes: row.intervalMinutes,
   screenshotsPerInterval: row.screenshotsPerInterval,
   idleThresholdSeconds: row.idleThresholdSeconds,
+  idleAutoPauseMinutes: row.idleAutoPauseMinutes,
   screenshotMaxWidth: row.screenshotMaxWidth,
   screenshotQuality: row.screenshotQuality,
   screenshotRetentionDays: row.screenshotRetentionDays,
@@ -117,6 +120,14 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
         </Grid>
         <Grid item xs={12} sm={6}>
           <RhfTextField name="idleThresholdSeconds" label="Idle threshold (s)" type="number" />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <RhfTextField
+            name="idleAutoPauseMinutes"
+            label="Pause after idle (minutes)"
+            type="number"
+            helperText="The desktop app pauses itself after this much unbroken idle time. 0 never pauses."
+          />
         </Grid>
         <Grid item xs={12} sm={6}>
           <RhfTextField name="screenshotMaxWidth" label="Screenshot max width" type="number" />

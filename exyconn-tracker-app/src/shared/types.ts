@@ -12,6 +12,13 @@ export interface TrackerSettings {
   blurScreenshots: boolean;
   trackWindowTitles: boolean;
   idleThresholdSeconds: number;
+  /**
+   * Unbroken idle time that pauses tracking on its own, in minutes. 0 never pauses.
+   *
+   * Idle minutes were never counted as work, so this takes nothing away — what it stops is
+   * a session left running over lunch or overnight, screenshotting an empty desk.
+   */
+  idleAutoPauseMinutes: number;
   /** Screenshots are downscaled to this width. Ignored at quality 100. */
   screenshotMaxWidth: number;
   /**

@@ -12,6 +12,7 @@ export interface TrackerSettingsInput {
   blurScreenshots?: boolean;
   trackWindowTitles?: boolean;
   idleThresholdSeconds?: number;
+  idleAutoPauseMinutes?: number;
   screenshotMaxWidth?: number;
   /** 0-100; 100 is lossless at native resolution. */
   screenshotQuality?: number;

@@ -41,6 +41,7 @@ fragment TrackerSettingsFields on TrackerSettings {
   blurScreenshots
   trackWindowTitles
   idleThresholdSeconds
+  idleAutoPauseMinutes
   screenshotMaxWidth
   screenshotQuality
   screenshotRetentionDays

@@ -107,3 +107,25 @@ export function notifyScreenshotCaptured(
     // A muted/unsupported notification centre must never break tracking.
   }
 }
+
+/**
+ * Says why tracking stopped on its own.
+ *
+ * The app pausing itself is a decision the employee did not make, so it is never allowed to
+ * happen quietly: they come back to a paused tracker and this is what tells them why, and
+ * that resuming is one press.
+ */
+export function notifyAutoPaused(idleMinutes: number): void {
+  if (!Notification.isSupported()) {
+    return;
+  }
+  try {
+    new Notification({
+      title: 'Exyconn Tracker — paused',
+      body: `No activity for ${idleMinutes} minutes. Press Resume when you are back.`,
+      silent: false,
+    }).show();
+  } catch {
+    // A muted/unsupported notification centre must never break tracking.
+  }
+}

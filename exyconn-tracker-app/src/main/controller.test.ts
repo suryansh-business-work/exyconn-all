@@ -116,6 +116,7 @@ const SETTINGS: TrackerSettings = {
   blurScreenshots: false,
   trackWindowTitles: true,
   idleThresholdSeconds: 300,
+  idleAutoPauseMinutes: 0,
   screenshotMaxWidth: 1600,
   screenshotQuality: 60,
   webcamEnabled: false,

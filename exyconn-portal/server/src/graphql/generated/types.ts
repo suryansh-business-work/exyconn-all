@@ -8894,6 +8894,12 @@ export type TrackerSettings = {
   /** Local hour (0-23) the digests go out at, read in the workspace's own timezone. */
   digestHour: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  /**
+   * Minutes of unbroken idle time after which the desktop app pauses tracking by itself.
+   * 0 switches it off. Idle time never counted as work, so this takes nothing away — it
+   * stops a session left running over lunch from screenshotting an empty desk.
+   */
+  idleAutoPauseMinutes: Scalars['Int']['output'];
   idleThresholdSeconds: Scalars['Int']['output'];
   intervalMinutes: Scalars['Int']['output'];
   randomizeScreenshotTiming: Scalars['Boolean']['output'];
@@ -8929,6 +8935,7 @@ export type TrackerSettingsInput = {
   dailyDigestEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   defaultTimezone?: InputMaybe<Scalars['String']['input']>;
   digestHour?: InputMaybe<Scalars['Int']['input']>;
+  idleAutoPauseMinutes?: InputMaybe<Scalars['Int']['input']>;
   idleThresholdSeconds?: InputMaybe<Scalars['Int']['input']>;
   intervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   randomizeScreenshotTiming?: InputMaybe<Scalars['Boolean']['input']>;
@@ -13768,6 +13775,7 @@ export type TrackerSettingsResolvers<ContextType = GraphQLContext, ParentType ex
   defaultTimezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   digestHour?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  idleAutoPauseMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   idleThresholdSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   intervalMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   randomizeScreenshotTiming?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;

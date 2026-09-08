@@ -140,7 +140,7 @@ export interface LoginResponse {
  */
 export const SETTINGS_FIELDS = `
   intervalMinutes screenshotsPerInterval randomizeScreenshotTiming blurScreenshots
-  trackWindowTitles idleThresholdSeconds screenshotMaxWidth screenshotQuality
+  trackWindowTitles idleThresholdSeconds idleAutoPauseMinutes screenshotMaxWidth screenshotQuality
   webcamEnabled webcamCorner syncIntervalMinutes consentText
   autoStartEnabled autoStartHour autoStopHour
 `;
