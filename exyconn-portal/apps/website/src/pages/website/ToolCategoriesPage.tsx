@@ -1,6 +1,6 @@
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useCrudResource } from '@exyconn/crud';
@@ -44,6 +44,18 @@ export function ToolCategoriesPage() {
     { key: 'order', label: 'Order' },
   ];
 
+  if (crud.open) {
+    return (
+      <CrudFormPage
+        title={crud.editing ? 'Edit tool category' : 'New tool category'}
+        onBack={crud.close}
+        backLabel="Back to Tool categories"
+      >
+        <ToolCategoryForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <ModuleDashboard
       title="Tool categories"
@@ -51,15 +63,6 @@ export function ToolCategoriesPage() {
       actionLabel="New category"
       onAction={crud.openCreate}
       stats={stats}
-      dialog={
-        <CrudDialog
-          open={crud.open}
-          title={crud.editing ? 'Edit tool category' : 'New tool category'}
-          onClose={crud.close}
-        >
-          <ToolCategoryForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
-        </CrudDialog>
-      }
     >
       <DataTable
         columns={columns}

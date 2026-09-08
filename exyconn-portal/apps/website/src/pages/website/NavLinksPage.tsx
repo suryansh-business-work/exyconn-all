@@ -1,6 +1,6 @@
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useCrudResource } from '@exyconn/crud';
@@ -38,6 +38,18 @@ export function NavLinksPage() {
     { key: 'order', label: 'Order' },
   ];
 
+  if (crud.open) {
+    return (
+      <CrudFormPage
+        title={crud.editing ? 'Edit nav link' : 'New nav link'}
+        onBack={crud.close}
+        backLabel="Back to Navigation links"
+      >
+        <NavLinkForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <ModuleDashboard
       title="Navigation links"
@@ -45,15 +57,6 @@ export function NavLinksPage() {
       actionLabel="New nav link"
       onAction={crud.openCreate}
       stats={stats}
-      dialog={
-        <CrudDialog
-          open={crud.open}
-          title={crud.editing ? 'Edit nav link' : 'New nav link'}
-          onClose={crud.close}
-        >
-          <NavLinkForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
-        </CrudDialog>
-      }
     >
       <DataTable
         columns={columns}

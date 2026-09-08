@@ -1,6 +1,6 @@
 import { Box } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useCrudResource } from '@exyconn/crud';
@@ -28,6 +28,18 @@ export function DepartmentsPage() {
     { key: 'description', label: 'Description', render: (r) => r.description ?? '—' },
   ];
 
+  if (crud.open) {
+    return (
+      <CrudFormPage
+        title={crud.editing ? 'Edit department' : 'New department'}
+        onBack={crud.close}
+        backLabel="Back to Departments"
+      >
+        <DepartmentForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -45,13 +57,6 @@ export function DepartmentsPage() {
           emptyMessage={loading ? 'Loading…' : 'No departments yet.'}
         />
       </Box>
-      <CrudDialog
-        open={crud.open}
-        title={crud.editing ? 'Edit department' : 'New department'}
-        onClose={crud.close}
-      >
-        <DepartmentForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
-      </CrudDialog>
     </Box>
   );
 }

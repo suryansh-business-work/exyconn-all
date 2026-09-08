@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -26,6 +26,24 @@ export function MyAttendancePage() {
     { key: 'note', label: 'Note', render: (r) => r.note ?? '—' },
   ];
 
+  if (open) {
+    return (
+      <CrudFormPage
+        title="Mark attendance"
+        onBack={() => setOpen(false)}
+        backLabel="Back to My Attendance"
+      >
+        <MarkAttendanceForm
+          onCancel={() => setOpen(false)}
+          onDone={() => {
+            void refetch();
+            setOpen(false);
+          }}
+        />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -42,15 +60,6 @@ export function MyAttendancePage() {
           emptyMessage={loading ? 'Loading…' : 'No attendance recorded yet.'}
         />
       </Box>
-      <CrudDialog open={open} title="Mark attendance" onClose={() => setOpen(false)}>
-        <MarkAttendanceForm
-          onCancel={() => setOpen(false)}
-          onDone={() => {
-            void refetch();
-            setOpen(false);
-          }}
-        />
-      </CrudDialog>
     </Box>
   );
 }

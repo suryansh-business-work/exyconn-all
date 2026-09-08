@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Box, Stack } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
   DealStage,
@@ -57,6 +57,18 @@ export function DealsPage() {
     refetch().catch(() => undefined);
   };
 
+  if (creating || Boolean(editing)) {
+    return (
+      <CrudFormPage
+        title={editing ? 'Edit deal' : 'New deal'}
+        onBack={close}
+        backLabel="Back to Deals"
+      >
+        <DealForm initial={editing} onCancel={close} onDone={done} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <DealsViewToggle />
@@ -79,14 +91,6 @@ export function DealsPage() {
           />
         ))}
       </Stack>
-
-      <CrudDialog
-        open={creating || Boolean(editing)}
-        title={editing ? 'Edit deal' : 'New deal'}
-        onClose={close}
-      >
-        <DealForm initial={editing} onCancel={close} onDone={done} />
-      </CrudDialog>
     </Box>
   );
 }

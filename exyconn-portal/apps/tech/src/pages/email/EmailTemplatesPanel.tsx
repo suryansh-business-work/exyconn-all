@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { ServerDataGrid } from '@exyconn/shell/components/data/ServerDataGrid';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { Box } from '@exyconn/shell/components/ui';
@@ -33,6 +33,18 @@ export function EmailTemplatesPanel() {
     formatDate: (value: string) => value,
   };
 
+  if (crud.open) {
+    return (
+      <CrudFormPage
+        title={`${crud.editing ? 'Edit' : 'New'} template`}
+        onBack={crud.close}
+        backLabel="Back to Templates"
+      >
+        <EmailTemplateForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -48,13 +60,6 @@ export function EmailTemplatesPanel() {
         refreshSignal={crud.refreshSignal}
         searchPlaceholder="Search by key, name or subject…"
       />
-      <CrudDialog
-        open={crud.open}
-        title={`${crud.editing ? 'Edit' : 'New'} template`}
-        onClose={crud.close}
-      >
-        <EmailTemplateForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
-      </CrudDialog>
       <EmailPreviewDialog template={previewing} onClose={() => setPreviewing(null)} />
     </Box>
   );

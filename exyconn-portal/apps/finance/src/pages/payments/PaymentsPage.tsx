@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Flex } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { ServerDataGrid } from '@exyconn/shell/components/data/ServerDataGrid';
 import { GridExportButton, useGridQuery, usePagedFetcher } from '@exyconn/crud';
@@ -24,6 +24,24 @@ export function PaymentsPage() {
     ListPaymentsPagedDocument,
     (data: ListPaymentsPagedQuery) => data.listPaymentsPaged,
   );
+
+  if (recording) {
+    return (
+      <CrudFormPage
+        title="Record payment"
+        onBack={() => setRecording(false)}
+        backLabel="Back to Payments"
+      >
+        <PaymentForm
+          onCancel={() => setRecording(false)}
+          onDone={() => {
+            setRecording(false);
+            setRefreshSignal((n) => n + 1);
+          }}
+        />
+      </CrudFormPage>
+    );
+  }
 
   return (
     <Box>
@@ -50,15 +68,6 @@ export function PaymentsPage() {
           searchPlaceholder="Search by invoice, client or reference…"
         />
       </Box>
-      <CrudDialog open={recording} title="Record payment" onClose={() => setRecording(false)}>
-        <PaymentForm
-          onCancel={() => setRecording(false)}
-          onDone={() => {
-            setRecording(false);
-            setRefreshSignal((n) => n + 1);
-          }}
-        />
-      </CrudDialog>
     </Box>
   );
 }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -34,6 +34,24 @@ export function MyLeavePage() {
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
   ];
 
+  if (open) {
+    return (
+      <CrudFormPage
+        title="Apply for leave"
+        onBack={() => setOpen(false)}
+        backLabel="Back to My Leave"
+      >
+        <ApplyLeaveForm
+          onCancel={() => setOpen(false)}
+          onDone={() => {
+            void refetch();
+            setOpen(false);
+          }}
+        />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -49,15 +67,6 @@ export function MyLeavePage() {
           emptyMessage={loading ? 'Loading…' : 'You have no leave requests yet.'}
         />
       </Box>
-      <CrudDialog open={open} title="Apply for leave" onClose={() => setOpen(false)}>
-        <ApplyLeaveForm
-          onCancel={() => setOpen(false)}
-          onDone={() => {
-            void refetch();
-            setOpen(false);
-          }}
-        />
-      </CrudDialog>
     </Box>
   );
 }

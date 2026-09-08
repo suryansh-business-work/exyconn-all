@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useCrudResource } from '@exyconn/crud';
@@ -63,6 +63,18 @@ export function HrPage() {
     },
   ];
 
+  if (crud.open) {
+    return (
+      <CrudFormPage
+        title={crud.editing ? 'Edit request' : 'New request'}
+        onBack={crud.close}
+        backLabel="Back to Leave Requests"
+      >
+        <LeaveRequestForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <ModuleDashboard
       title="Leave Requests"
@@ -70,15 +82,6 @@ export function HrPage() {
       actionLabel="New request"
       onAction={crud.openCreate}
       stats={stats}
-      dialog={
-        <CrudDialog
-          open={crud.open}
-          title={crud.editing ? 'Edit request' : 'New request'}
-          onClose={crud.close}
-        >
-          <LeaveRequestForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
-        </CrudDialog>
-      }
     >
       <DataTable
         columns={columns}

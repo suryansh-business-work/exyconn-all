@@ -6,7 +6,7 @@ import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats'
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { Button, Flex } from '@exyconn/shell/components/ui';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import AddIcon from '@mui/icons-material/Add';
 import {
   ListSupportTicketsPagedDocument,
@@ -89,6 +89,24 @@ export function SupportConsolePage() {
     formatDate,
   };
 
+  if (raising) {
+    return (
+      <CrudFormPage
+        title="Raise a customer ticket"
+        onBack={() => setRaising(false)}
+        backLabel="Back to Support"
+      >
+        <ClientTicketForm
+          onCancel={() => setRaising(false)}
+          onDone={() => {
+            setRaising(false);
+            reload();
+          }}
+        />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <CrudDashboard<PagedTicketRow, PagedTicketRow>
       title="Support"
@@ -124,19 +142,6 @@ export function SupportConsolePage() {
               setSelected(null);
             }}
           />
-          <CrudDialog
-            open={raising}
-            title="Raise a customer ticket"
-            onClose={() => setRaising(false)}
-          >
-            <ClientTicketForm
-              onCancel={() => setRaising(false)}
-              onDone={() => {
-                setRaising(false);
-                reload();
-              }}
-            />
-          </CrudDialog>
         </>
       }
     />

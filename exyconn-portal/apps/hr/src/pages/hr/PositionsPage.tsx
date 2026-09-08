@@ -1,6 +1,6 @@
 import { Box } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useCrudResource } from '@exyconn/crud';
@@ -26,6 +26,18 @@ export function PositionsPage() {
     { key: 'description', label: 'Description', render: (r) => r.description ?? '—' },
   ];
 
+  if (crud.open) {
+    return (
+      <CrudFormPage
+        title={crud.editing ? 'Edit position' : 'New position'}
+        onBack={crud.close}
+        backLabel="Back to Positions"
+      >
+        <PositionForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -43,13 +55,6 @@ export function PositionsPage() {
           emptyMessage={loading ? 'Loading…' : 'No positions yet.'}
         />
       </Box>
-      <CrudDialog
-        open={crud.open}
-        title={crud.editing ? 'Edit position' : 'New position'}
-        onClose={crud.close}
-      >
-        <PositionForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
-      </CrudDialog>
     </Box>
   );
 }
