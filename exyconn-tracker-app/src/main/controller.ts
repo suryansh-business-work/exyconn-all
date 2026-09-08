@@ -5,6 +5,8 @@ import type {
   Branding,
   ConsentPolicy,
   DayDetail,
+  ManualEntry,
+  ManualEntryDraft,
   LiveStats,
   LoginResult,
   PermissionKind,
@@ -21,14 +23,15 @@ import type {
 } from '@shared/types';
 import { deviceTimezone, effectiveTimezone } from '@shared/timezone';
 import { secureStore } from './store';
-import { TrackerEngine } from './engine';
+import { TrackerEngine, type CaptureReport } from './engine';
 import * as portal from './portal-client';
 import { TrackerAuthError } from './portal-client';
 import { collectDeviceInfo } from './device-info';
 import { describeLoginFailure } from './login-message';
 import { describeSyncFailure } from './sync-message';
+import { notifyAutoPaused, notifyAutoStopped } from './notifier';
 import { getPermissions, requestPermission } from './trackers/permissions';
-import { decideAutoAction, hourIn, isWithinWindow } from './auto-start';
+import { decideAutoAction, formatHourLabel, hourIn, isWithinWindow } from '@shared/schedule';
 import type { ComposeInput } from './capture-bridge';
 
 /**
@@ -77,8 +80,8 @@ export class TrackerController {
 
   constructor(
     private readonly onChange: (state: TrackerState) => void,
-    /** Fired on every screenshot so the shell can broadcast it (the shutter sound). */
-    private readonly onCapture: (count: number) => void,
+    /** Fired on every capture so the shell can announce it (notification + shutter sound). */
+    private readonly onCapture: (report: CaptureReport) => void,
     /**
      * Adds the webcam photo to a screenshot. Injected rather than imported because it needs a
      * BrowserWindow, which this class deliberately knows nothing about — that is what keeps
@@ -480,6 +483,17 @@ export class TrackerController {
     await this.stopTracking();
   }
 
+  /**
+   * Flushes the outbox now rather than on the next cadence.
+   *
+   * There is exactly one caller: the employee clicked a capture notification to see the shot.
+   * The gallery reads the portal, and a shot taken seconds ago is still in the outbox — so
+   * without this the one screenshot they clicked through for is the one that is missing.
+   */
+  async syncNow(): Promise<void> {
+    await this.engine?.syncNow();
+  }
+
   /** Stops without recording an override — used by sign-out and by the schedule itself. */
   private async stopTracking(): Promise<void> {
     await this.engine?.stop();
@@ -520,6 +534,7 @@ export class TrackerController {
         await this.start();
       } else if (action === 'stop') {
         await this.stopTracking();
+        notifyAutoStopped(formatHourLabel(settings.autoStopHour));
       }
     } catch (error) {
       // A schedule that cannot start (no permission yet, portal briefly down) must not throw
@@ -541,6 +556,34 @@ export class TrackerController {
   /** One day of the employee's own work — totals plus that day's screenshots. */
   getDay(start: string, end: string): Promise<DayDetail> {
     return portal.fetchMyDay(start, end);
+  }
+
+  /**
+   * Tickets on any project, for the off-computer time form.
+   *
+   * Deliberately not `loadTasks`: that one replaces the list the session picker is bound to,
+   * and browsing projects in a claim form must not re-point what the next session books to.
+   */
+  getTasks(projectId: string): Promise<TrackerTask[]> {
+    return portal.fetchTasks(projectId);
+  }
+
+  /** The employee's own claims for work done away from the computer, in a date range. */
+  getManualEntries(from: string, to: string): Promise<ManualEntry[]> {
+    return portal.fetchManualEntries(from, to);
+  }
+
+  /**
+   * Files a claim against the project (and ticket) the employee has selected here, so
+   * off-computer time lands where their tracked time does. It is always PENDING.
+   */
+  createManualEntry(draft: ManualEntryDraft): Promise<ManualEntry> {
+    return portal.createManualEntry(draft);
+  }
+
+  /** Takes back a claim that has not been decided yet. */
+  withdrawManualEntry(id: string): Promise<void> {
+    return portal.withdrawManualEntry(id);
   }
 
   /**
@@ -573,7 +616,8 @@ export class TrackerController {
         this.stats = stats;
         this.emit();
       },
-      onCapture: (count: number) => this.onCapture(count),
+      onCapture: (report: CaptureReport) => this.onCapture(report),
+      onAutoPaused: (idleMinutes: number) => notifyAutoPaused(idleMinutes),
       onAuthError: (reason: string) => {
         this.logout(reason).catch((cause: unknown) =>
           console.error('Forced sign-out failed', cause),

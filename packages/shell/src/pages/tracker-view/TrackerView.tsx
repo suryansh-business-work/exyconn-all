@@ -18,6 +18,9 @@ interface TrackerViewProps {
   day: TrackerDayData | undefined;
   dayLoading: boolean;
   dayLabel: string;
+  /** The zone the tracker is being read in, from the workspace's own settings. */
+  timezone: string;
+  formatTime: DateTimeFormatter;
   formatDateTime: DateTimeFormatter;
   empty?: boolean;
 }
@@ -34,6 +37,8 @@ export function TrackerView({
   day,
   dayLoading,
   dayLabel,
+  timezone,
+  formatTime,
   formatDateTime,
   empty = false,
 }: Readonly<TrackerViewProps>) {
@@ -73,6 +78,8 @@ export function TrackerView({
               loading={dayLoading}
               selected={Boolean(selectedDate)}
               dayLabel={dayLabel}
+              timezone={timezone}
+              formatTime={formatTime}
               formatDateTime={formatDateTime}
             />
           </Box>

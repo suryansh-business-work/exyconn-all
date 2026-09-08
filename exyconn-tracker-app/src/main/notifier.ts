@@ -1,5 +1,5 @@
 import { Notification, nativeImage } from 'electron';
-import type { LiveStats } from '@shared/types';
+import type { CaptureEvent, LiveStats } from '@shared/types';
 import { heroToastXml } from './toast';
 
 /**
@@ -8,6 +8,27 @@ import { heroToastXml } from './toast';
  * just to draw a preview a few hundred pixels wide.
  */
 const PREVIEW_WIDTH = 480;
+
+/**
+ * Every notification still on screen.
+ *
+ * A `Notification` nothing references any more can be collected before the OS has finished
+ * with it, and the toast then never appears — one of the ways "the tracker does not notify
+ * me" happens, and a likelier one now that a notification carries a click handler which has
+ * to outlive the call that showed it. Held until the OS says it is done with it.
+ */
+const onScreen = new Set<Notification>();
+
+/** Shows a notification and keeps it referenced until the OS is finished with it. */
+function present(notification: Notification): void {
+  onScreen.add(notification);
+  const forget = (): void => {
+    onScreen.delete(notification);
+  };
+  notification.on('close', forget);
+  notification.on('failed', forget);
+  notification.show();
+}
 
 /**
  * Builds the preview the employee actually sees in the notification.
@@ -64,6 +85,19 @@ function activityPercent(stats: LiveStats): number {
   return Math.round((stats.sessionActiveMs / total) * 100);
 }
 
+/** How the shell wants one capture announced. */
+export interface CaptureNotice {
+  /** Base64 of one of the captures, shown in the notification so they can see what was taken. */
+  image?: string;
+  /** The workspace or this install has muted the capture sound. The toast is still shown. */
+  silent: boolean;
+  /** Opens the shot itself — wired to the notification's click. */
+  onOpen: () => void;
+}
+
+/** The line that tells them the notification is not just a message, it is a door. */
+const OPEN_HINT = 'Click to open it';
+
 /**
  * Tells the employee, on the OS's own notification surface, that a screenshot was just
  * taken — showing them the shot itself, with a short summary of the session so far. It
@@ -72,37 +106,93 @@ function activityPercent(stats: LiveStats): number {
  * is exactly what makes monitoring feel like surveillance; this makes every capture
  * visible at the moment it happens.
  *
+ * Clicking it opens the gallery on that shot's day. A preview a few hundred pixels wide shows
+ * that something was captured and very little of what — the person being photographed is owed
+ * one click to the full-size picture rather than a hunt through a menu.
+ *
  * Notifications are best-effort: if the OS has them muted we simply skip, never throw.
  */
 export function notifyScreenshotCaptured(
-  count: number,
+  capture: CaptureEvent,
   stats: LiveStats,
-  /** Base64 of one of the captures, shown in the notification so they can see what was taken. */
-  image?: string,
+  notice: CaptureNotice,
 ): void {
   if (!Notification.isSupported()) {
     return;
   }
 
-  const shots = count === 1 ? 'Screenshot captured' : `${count} screenshots captured`;
+  const shots =
+    capture.count === 1 ? 'Screenshot captured' : `${capture.count} screenshots captured`;
   const title = `Exyconn Tracker — ${shots}`;
   const lines = [
     `Worked ${clock(stats.sessionActiveMs)} · ${activityPercent(stats)}% active`,
     `${stats.keyCount.toLocaleString()} keys · ${stats.mouseCount.toLocaleString()} clicks`,
     stats.currentApp ? `In ${stats.currentApp}` : '',
+    OPEN_HINT,
   ].filter(Boolean);
 
-  const shot = preview(image);
+  const shot = preview(notice.image);
 
   try {
-    new Notification({
+    const notification = new Notification({
       title,
       body: lines.join('\n'),
       // Windows draws the shot full-width above the text; elsewhere the OS puts it alongside.
       toastXml: heroToast(title, lines, shot),
       icon: shot,
-      silent: false,
-    }).show();
+      silent: notice.silent,
+    });
+    notification.on('click', notice.onOpen);
+    present(notification);
+  } catch {
+    // A muted/unsupported notification centre must never break tracking.
+  }
+}
+
+/**
+ * Says why tracking stopped on its own.
+ *
+ * The app pausing itself is a decision the employee did not make, so it is never allowed to
+ * happen quietly: they come back to a paused tracker and this is what tells them why, and
+ * that resuming is one press.
+ */
+export function notifyAutoPaused(idleMinutes: number): void {
+  if (!Notification.isSupported()) {
+    return;
+  }
+  try {
+    present(
+      new Notification({
+        title: 'Exyconn Tracker — paused',
+        body: `No activity for ${idleMinutes} minutes. Press Resume when you are back.`,
+        silent: false,
+      }),
+    );
+  } catch {
+    // A muted/unsupported notification centre must never break tracking.
+  }
+}
+
+/**
+ * Says that the workspace's schedule has closed the working day.
+ *
+ * The app stopping is a decision the employee did not make, and its consequence is one they
+ * need in words: from this moment nothing they do is logged. The dashboard warns them on the
+ * way in — this is what reaches them once the window has actually shut, which is usually
+ * while they are still typing.
+ */
+export function notifyAutoStopped(stopLabel: string): void {
+  if (!Notification.isSupported()) {
+    return;
+  }
+  try {
+    present(
+      new Notification({
+        title: 'Exyconn Tracker — stopped for the day',
+        body: `Your tracking window ended at ${stopLabel}. Time from now on is not being logged.`,
+        silent: false,
+      }),
+    );
   } catch {
     // A muted/unsupported notification centre must never break tracking.
   }

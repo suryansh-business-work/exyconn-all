@@ -3,7 +3,7 @@ import type { ColDef } from 'ag-grid-community';
 import { Flex } from '@exyconn/shell/components/ui';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import {
   ServerDataGrid,
   type TablePageResult,
@@ -17,17 +17,17 @@ import { contextWithoutActions, deniedActionKeys } from './permissions';
 interface CrudDashboardProps<TRow, TPaged> {
   title: string;
   subtitle: string;
-  /** Lower-case singular entity name; drives "New lead" and the dialog's "Edit lead". */
+  /** Lower-case singular entity name; drives "New lead" and the form page's "Edit lead". */
   entityLabel: string;
   /** Overrides the "New {entityLabel}" header button label. */
   actionLabel?: string;
   stats: StatItem[];
   /**
    * Create/edit/delete state. Omit it for a grid whose rows are made elsewhere — the
-   * support console, say — and there is no "New …" button and no create drawer.
+   * support console, say — and there is no "New …" button and no create form.
    */
   crud?: CrudResource<TRow, TPaged>;
-  /** Renders the create/edit form for whichever row the dialog holds. */
+  /** Renders the create/edit form for whichever row is being created or edited. */
   renderForm?: (initial: TRow | null) => ReactNode;
   /** Re-reads the grid when there is no `crud` to carry the signal. */
   refreshSignal?: number;
@@ -58,9 +58,12 @@ interface CrudDashboardProps<TRow, TPaged> {
 }
 
 /**
- * The screen every server-paged CRUD module renders: stat tiles, a create/edit drawer
- * and the server-driven grid, all wired to one {@link useCrudResource}. Modules supply
- * their column model, page fetcher and form; everything else is identical between them.
+ * The screen every server-paged CRUD module renders: stat tiles, the server-driven grid
+ * and a create/edit form, all wired to one {@link useCrudResource}. Modules supply their
+ * column model, page fetcher and form; everything else is identical between them.
+ *
+ * Creating and editing take over the whole screen instead of opening a drawer — the list
+ * comes back from the header's Back link or the browser's own Back button.
  */
 export function CrudDashboard<TRow, TPaged>({
   title,
@@ -91,11 +94,18 @@ export function CrudDashboard<TRow, TPaged>({
     [permissionModule, can],
   );
   const gridContext = useMemo(() => contextWithoutActions(context, denied), [context, denied]);
-  const dialogTitle = `${crud?.editing ? 'Edit' : 'New'} ${entityLabel}`;
+  const formTitle = `${crud?.editing ? 'Edit' : 'New'} ${entityLabel}`;
   const createAction =
     crud && may('create')
       ? { label: actionLabel ?? `New ${entityLabel}`, open: crud.openCreate }
       : null;
+  if (crud?.open && renderForm) {
+    return (
+      <CrudFormPage title={formTitle} onBack={crud.close} backLabel={`Back to ${title}`}>
+        {renderForm(crud.editing)}
+      </CrudFormPage>
+    );
+  }
   return (
     <ModuleDashboard
       title={title}
@@ -103,16 +113,7 @@ export function CrudDashboard<TRow, TPaged>({
       actionLabel={createAction?.label}
       onAction={createAction?.open}
       stats={stats}
-      dialog={
-        <>
-          {crud && renderForm && (
-            <CrudDialog open={crud.open} title={dialogTitle} onClose={crud.close}>
-              {renderForm(crud.editing)}
-            </CrudDialog>
-          )}
-          {extraDialogs}
-        </>
-      }
+      dialog={extraDialogs}
     >
       {toolbar}
       {exportFileName && may('export') && (

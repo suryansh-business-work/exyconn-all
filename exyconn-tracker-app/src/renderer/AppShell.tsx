@@ -6,6 +6,7 @@ import AppHeader from './components/AppHeader';
 import NavDrawer from './components/NavDrawer';
 import DashboardScreen from './screens/DashboardScreen';
 import MyReportScreen from './screens/MyReportScreen';
+import OffComputerScreen from './screens/OffComputerScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import { NAV_ITEMS, type Section } from './sections';
 
@@ -18,6 +19,9 @@ interface SectionProps {
 function SectionView({ section, state }: Readonly<SectionProps>): ReactElement {
   if (section === 'report') {
     return <MyReportScreen timezone={state.timezone} />;
+  }
+  if (section === 'off-computer') {
+    return <OffComputerScreen projects={state.projects} timezone={state.timezone} />;
   }
   if (section === 'settings') {
     return (

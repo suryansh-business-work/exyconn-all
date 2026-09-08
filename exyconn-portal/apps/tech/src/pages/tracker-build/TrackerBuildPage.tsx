@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import {
@@ -46,6 +46,22 @@ export function TrackerBuildPage() {
     builds.refetch().catch(() => undefined);
   };
 
+  if (starting) {
+    return (
+      <CrudFormPage
+        title="Create tracker build"
+        onBack={() => setStarting(false)}
+        backLabel="Back to Tracker Build"
+      >
+        <StartBuildForm
+          channelCount={channelCount}
+          onCancel={() => setStarting(false)}
+          onDone={onDone}
+        />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -66,13 +82,6 @@ export function TrackerBuildPage() {
           emptyMessage={builds.loading ? 'Loading…' : 'No builds yet.'}
         />
       </Box>
-      <CrudDialog open={starting} title="Create tracker build" onClose={() => setStarting(false)}>
-        <StartBuildForm
-          channelCount={channelCount}
-          onCancel={() => setStarting(false)}
-          onDone={onDone}
-        />
-      </CrudDialog>
     </Box>
   );
 }

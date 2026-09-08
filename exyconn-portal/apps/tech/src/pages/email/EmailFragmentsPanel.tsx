@@ -1,4 +1,4 @@
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { ServerDataGrid } from '@exyconn/shell/components/data/ServerDataGrid';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { Box } from '@exyconn/shell/components/ui';
@@ -37,6 +37,18 @@ export function EmailFragmentsPanel() {
     formatDate: (value: string) => value,
   };
 
+  if (crud.open) {
+    return (
+      <CrudFormPage
+        title={`${crud.editing ? 'Edit' : 'New'} fragment`}
+        onBack={crud.close}
+        backLabel="Back to Fragments"
+      >
+        <EmailFragmentForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -52,13 +64,6 @@ export function EmailFragmentsPanel() {
         refreshSignal={crud.refreshSignal}
         searchPlaceholder="Search by key, name or description…"
       />
-      <CrudDialog
-        open={crud.open}
-        title={`${crud.editing ? 'Edit' : 'New'} fragment`}
-        onClose={crud.close}
-      >
-        <EmailFragmentForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
-      </CrudDialog>
     </Box>
   );
 }

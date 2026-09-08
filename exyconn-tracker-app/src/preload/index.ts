@@ -3,16 +3,21 @@ import {
   IPC,
   type AppPreferences,
   type AttendanceStatus,
+  type CaptureAnnouncement,
   type CaptureRequest,
   type CaptureResult,
   type DayDetail,
   type LoginResult,
+  type ManualEntry,
+  type ManualEntryDraft,
   type PermissionKind,
   type PermissionState,
   type ReportDay,
   type ScreenshotsRange,
   type TrackerState,
+  type TrackerTask,
   type TrackerTotals,
+  type UpdateState,
   type Workday,
 } from '@shared/types';
 
@@ -53,6 +58,31 @@ const api = {
   setPreferences: (update: Partial<AppPreferences>): Promise<AppPreferences> =>
     ipcRenderer.invoke(IPC.setPreferences, update),
 
+  // ── Off-computer time ───────────────────────────────────────────────────
+  // Claimed hours nobody measured, so every one of these lands PENDING and counts for
+  // nothing until a manager approves it in the portal.
+  /** Tickets on one project, for the claim form — does not change the session's own pick. */
+  getTasks: (projectId: string): Promise<TrackerTask[]> =>
+    ipcRenderer.invoke(IPC.getTasks, projectId),
+  getManualEntries: (from: string, to: string): Promise<ManualEntry[]> =>
+    ipcRenderer.invoke(IPC.getManualEntries, from, to),
+  createManualEntry: (draft: ManualEntryDraft): Promise<ManualEntry> =>
+    ipcRenderer.invoke(IPC.createManualEntry, draft),
+  /** Only works while the claim is still pending; the portal refuses a decided one. */
+  withdrawManualEntry: (id: string): Promise<void> =>
+    ipcRenderer.invoke(IPC.withdrawManualEntry, id),
+
+  // ── Updates ─────────────────────────────────────────────────────────────
+  /** Where this install is in its own update cycle, for a window that has just opened. */
+  getUpdate: (): Promise<UpdateState> => ipcRenderer.invoke(IPC.getUpdate),
+  /** Stops tracking, flushes what is queued, and restarts into the downloaded version. */
+  installUpdate: (): Promise<void> => ipcRenderer.invoke(IPC.installUpdate),
+  onUpdateChanged: (listener: (update: UpdateState) => void): (() => void) => {
+    const handler = (_event: unknown, update: UpdateState): void => listener(update);
+    ipcRenderer.on(IPC.updateChanged, handler);
+    return () => ipcRenderer.removeListener(IPC.updateChanged, handler);
+  },
+
   // ── Window controls ─────────────────────────────────────────────────────
   // The app is frameless, so its own title bar drives these. Each acts on the window it was
   // called from, so the gallery's buttons never reach the tracker window.
@@ -71,11 +101,24 @@ const api = {
     ipcRenderer.on(IPC.stateChanged, handler);
     return () => ipcRenderer.removeListener(IPC.stateChanged, handler);
   },
-  /** A screenshot was just captured — the renderer plays the shutter sound. */
-  onScreenshotCaptured: (listener: (count: number) => void): (() => void) => {
-    const handler = (_event: unknown, count: number): void => listener(count);
+  /**
+   * A screenshot was just captured — the renderer plays the shutter sound, unless the
+   * announcement says to keep quiet. Main decides that, so the sound and the notification
+   * can never disagree about whether this capture was muted.
+   */
+  onScreenshotCaptured: (listener: (capture: CaptureAnnouncement) => void): (() => void) => {
+    const handler = (_event: unknown, capture: CaptureAnnouncement): void => listener(capture);
     ipcRenderer.on(IPC.screenshotCaptured, handler);
     return () => ipcRenderer.removeListener(IPC.screenshotCaptured, handler);
+  },
+  /**
+   * The employee clicked a capture notification. Carries the instant the shot was taken; the
+   * renderer resolves that to a day in ITS zone and opens the gallery on it.
+   */
+  onOpenCaptureDay: (listener: (capturedAt: string) => void): (() => void) => {
+    const handler = (_event: unknown, capturedAt: string): void => listener(capturedAt);
+    ipcRenderer.on(IPC.openCaptureDay, handler);
+    return () => ipcRenderer.removeListener(IPC.openCaptureDay, handler);
   },
   /**
    * Main needs this renderer to finish a capture — take the webcam photo and composite it —

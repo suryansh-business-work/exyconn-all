@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Button, Flex, Link, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -49,6 +49,24 @@ export function ExpensesPage() {
     },
   ];
 
+  if (open) {
+    return (
+      <CrudFormPage
+        title="New expense claim"
+        onBack={() => setOpen(false)}
+        backLabel="Back to Expenses"
+      >
+        <ExpenseClaimForm
+          onCancel={() => setOpen(false)}
+          onDone={async () => {
+            setOpen(false);
+            await refetch();
+          }}
+        />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <Flex direction="row" justifyContent="space-between" alignItems="center">
@@ -63,16 +81,6 @@ export function ExpensesPage() {
           emptyMessage={loading ? 'Loading…' : 'You have not filed any claims yet.'}
         />
       </Box>
-
-      <CrudDialog open={open} title="New expense claim" onClose={() => setOpen(false)}>
-        <ExpenseClaimForm
-          onCancel={() => setOpen(false)}
-          onDone={async () => {
-            setOpen(false);
-            await refetch();
-          }}
-        />
-      </CrudDialog>
     </Box>
   );
 }

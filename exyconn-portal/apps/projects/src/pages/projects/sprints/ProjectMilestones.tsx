@@ -3,7 +3,7 @@ import { Box, Button, Chip, Flex, IconButton, Text } from '@exyconn/shell/compon
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -72,6 +72,25 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
     }
   };
 
+  if (open) {
+    return (
+      <CrudFormPage
+        title={editing ? 'Edit milestone' : 'New milestone'}
+        onBack={() => setOpen(false)}
+      >
+        <MilestoneForm
+          projectId={projectId}
+          initial={editing}
+          onCancel={() => setOpen(false)}
+          onDone={() => {
+            setOpen(false);
+            refetch().catch(() => undefined);
+          }}
+        />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <Flex direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
@@ -124,22 +143,6 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
           </Text>
         ) : null}
       </Flex>
-
-      <CrudDialog
-        open={open}
-        title={editing ? 'Edit milestone' : 'New milestone'}
-        onClose={() => setOpen(false)}
-      >
-        <MilestoneForm
-          projectId={projectId}
-          initial={editing}
-          onCancel={() => setOpen(false)}
-          onDone={() => {
-            setOpen(false);
-            refetch().catch(() => undefined);
-          }}
-        />
-      </CrudDialog>
     </Box>
   );
 }

@@ -25,10 +25,17 @@ is on, the consent screen says so in the app's own words — a sentence an admin
 out of the disclosure they author — and macOS asks for camera access before the first photo.
 
 It records **nothing** when tracking is off, and the employee can pause or stop at any time
-from the tray. The keystroke/click figures are counters only: the global input hook
+from the tray. It also pauses **itself** after the workspace's idle limit (Tracker > Settings,
+15 minutes by default, 0 to switch it off) and says so in a notification — idle minutes never
+counted as work, so a session left running over lunch was only ever screenshotting an empty
+desk. The keystroke/click figures are counters only: the global input hook
 (`uiohook-napi`) is wired to increment a number and discard the keycode — this is a
 productivity tracker, not a keylogger. See `src/main/trackers/input-counter.ts` and the
 portal's `tracker.constants.ts` privacy contract.
+
+Time worked **away from the computer** — a client meeting, a site visit — can be claimed from
+the app's "Off-computer time" page. A claim lands PENDING and counts for nothing until a
+manager approves it in the portal's review queue; until then the employee can withdraw it.
 
 Access is opt-in and disclosed: an admin grants access (which emails the employee), and the
 employee must accept an in-app consent screen listing the above before any tracking starts.

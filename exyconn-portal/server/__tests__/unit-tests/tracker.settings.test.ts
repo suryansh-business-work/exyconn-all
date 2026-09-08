@@ -34,8 +34,17 @@ describe('tracker settings', () => {
     expect(settings.syncIntervalMinutes).toBe(TRACKER_DEFAULTS.syncIntervalMinutes);
     expect(settings.defaultTimezone).toBe(TRACKER_DEFAULTS.defaultTimezone);
     expect(settings.webcamEnabled).toBe(TRACKER_DEFAULTS.webcamEnabled);
+    expect(settings.captureSoundEnabled).toBe(TRACKER_DEFAULTS.captureSoundEnabled);
     // The stored values must still win over the defaults.
     expect(settings.intervalMinutes).toBe(10);
+  });
+
+  it('keeps the capture sound muted once an admin has muted it', async () => {
+    // The default is `true`, so a stored `false` is exactly the value a careless merge would
+    // overwrite — and the workspace would find out by the whole floor hearing shutters again.
+    await updateTrackerSettings({ captureSoundEnabled: false });
+
+    await expect(getTrackerSettings()).resolves.toMatchObject({ captureSoundEnabled: false });
   });
 
   it('never lets a default overwrite a stored falsy value', async () => {

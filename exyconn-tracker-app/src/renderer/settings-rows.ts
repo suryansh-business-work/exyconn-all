@@ -1,4 +1,5 @@
 import type { TrackerSettings, WebcamCorner } from '@shared/types';
+import { formatHourLabel } from '@shared/schedule';
 
 export interface SettingRow {
   id: string;
@@ -37,6 +38,37 @@ function webcamPolicy(settings: TrackerSettings): string {
   return `On — shown in the ${CORNER_LABEL[settings.webcamCorner]} of each screenshot`;
 }
 
+/** When the app stops on its own, said the way the employee experiences it. */
+function autoPausePolicy(settings: TrackerSettings): string {
+  if (settings.idleAutoPauseMinutes <= 0) {
+    return 'Never — tracking runs until you stop it';
+  }
+  return `After ${plural(settings.idleAutoPauseMinutes, 'minute')} with no activity`;
+}
+
+/** Whether a capture is announced out loud, and by whose decision. */
+function captureSoundPolicy(settings: TrackerSettings): string {
+  if (settings.captureSoundEnabled) {
+    return 'A camera shutter plays with each screenshot';
+  }
+  return 'Off — screenshots are silent, but you are still notified';
+}
+
+/**
+ * The window the workspace tracks in, stated plainly.
+ *
+ * The stop hour is the one an employee most needs in front of them: after it, nothing they do
+ * is logged, and finding that out from an empty timesheet is finding it out too late.
+ */
+function schedulePolicy(settings: TrackerSettings): string {
+  if (!settings.autoStartEnabled) {
+    return 'Off — tracking starts and stops when you say so';
+  }
+  const start = formatHourLabel(settings.autoStartHour);
+  const stop = formatHourLabel(settings.autoStopHour);
+  return `${start} to ${stop} — tracking stops itself at ${stop}, and time after that is not logged`;
+}
+
 /** Uploading is automatic and always on; only the cadence is an administrator's choice. */
 function syncPolicy(settings: TrackerSettings): string {
   return `Automatic, every ${plural(settings.syncIntervalMinutes, 'minute')}`;
@@ -72,6 +104,9 @@ export function buildSettingRows(settings: TrackerSettings): SettingRow[] {
       label: 'Idle after',
       value: plural(settings.idleThresholdSeconds, 'second'),
     },
+    { id: 'auto-pause', label: 'Pauses itself', value: autoPausePolicy(settings) },
+    { id: 'capture-sound', label: 'Screenshot sound', value: captureSoundPolicy(settings) },
+    { id: 'schedule', label: 'Tracking hours', value: schedulePolicy(settings) },
     { id: 'sync', label: 'Upload', value: syncPolicy(settings) },
   ];
 }

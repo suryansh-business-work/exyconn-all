@@ -17,7 +17,7 @@ import { MyOffComputerTime } from './MyOffComputerTime';
 
 /** Employee self-view of their own tracker activity — no employee picker. */
 export function MyTrackerPage() {
-  const { settings, formatDate, formatDateTime } = useSettings();
+  const { settings, formatDate, formatTime, formatDateTime } = useSettings();
   const month = useTrackerMonth();
   const accessQuery = useMyTrackerAccessQuery();
   const calendarQuery = useMyTrackerCalendarQuery({
@@ -52,6 +52,8 @@ export function MyTrackerPage() {
         day={dayQuery.data?.myTrackerDay}
         dayLoading={dayQuery.loading}
         dayLabel={month.selectedDate ? formatDate(month.selectedDate) : ''}
+        timezone={settings.timezone}
+        formatTime={formatTime}
         formatDateTime={formatDateTime}
       />
       <MyOffComputerTime

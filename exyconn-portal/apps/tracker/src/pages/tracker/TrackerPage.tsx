@@ -23,7 +23,7 @@ const EMPLOYEE_PARAM = 'employee';
  * &month=YYYY-MM&date=YYYY-MM-DD`) so a view can be shared, bookmarked and refreshed.
  */
 export function TrackerPage() {
-  const { settings, formatDate, formatDateTime } = useSettings();
+  const { settings, formatDate, formatTime, formatDateTime } = useSettings();
   const month = useTrackerMonth();
   const usersQuery = useListEmployeeOptionsQuery();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -81,6 +81,8 @@ export function TrackerPage() {
         day={dayQuery.data?.trackerDay}
         dayLoading={dayQuery.loading}
         dayLabel={month.selectedDate ? formatDate(month.selectedDate) : ''}
+        timezone={settings.timezone}
+        formatTime={formatTime}
         formatDateTime={formatDateTime}
         empty={!employeeId}
       />

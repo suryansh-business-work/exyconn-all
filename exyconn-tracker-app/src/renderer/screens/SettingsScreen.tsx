@@ -7,6 +7,7 @@ import SettingsList from '../components/SettingsList';
 import SignOutButton from '../components/SignOutButton';
 import TimezonePicker from '../components/TimezonePicker';
 import TrayPreference from '../components/TrayPreference';
+import CaptureSoundPreference from '../components/CaptureSoundPreference';
 import ThemeModePicker from '../components/ThemeModePicker';
 import WorkArrangementCard from '../components/WorkArrangementCard';
 import { buildSettingRows } from '../settings-rows';
@@ -51,6 +52,8 @@ export default function SettingsScreen({
           How the tracker behaves on this computer.
         </Typography>
         <TrayPreference preferences={preferences} />
+        <Divider sx={{ my: 2 }} />
+        <CaptureSoundPreference preferences={preferences} settings={settings} />
         <Divider sx={{ my: 2 }} />
         <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
           Appearance

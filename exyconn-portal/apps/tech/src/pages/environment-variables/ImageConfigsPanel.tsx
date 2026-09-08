@@ -3,7 +3,7 @@ import { Box } from '@exyconn/shell/components/ui';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useCrudResource } from '@exyconn/crud';
 import {
@@ -48,6 +48,18 @@ export function ImageConfigsPanel() {
     },
   ];
 
+  if (crud.open) {
+    return (
+      <CrudFormPage
+        title={crud.editing ? 'Edit image config' : 'New image config'}
+        onBack={crud.close}
+        backLabel="Back to Image upload configurations"
+      >
+        <ImageConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -64,13 +76,6 @@ export function ImageConfigsPanel() {
         onDelete={crud.remove}
         emptyMessage={loading ? 'Loading…' : 'No image configs yet.'}
       />
-      <CrudDialog
-        open={crud.open}
-        title={crud.editing ? 'Edit image config' : 'New image config'}
-        onClose={crud.close}
-      >
-        <ImageConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
-      </CrudDialog>
       {testTarget && (
         <TestUploadDialog
           open

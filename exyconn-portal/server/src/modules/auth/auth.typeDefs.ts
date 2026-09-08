@@ -9,6 +9,13 @@ export const authTypeDefs = gql`
   input UpdateProfileInput {
     name: String
     avatarUrl: String
+    """
+    The zone every date and time is shown to this person in. Empty string clears the
+    choice and follows the workspace default again.
+    """
+    timezone: String
+    "The language the portal is shown to this person in. Empty string follows the default."
+    locale: String
   }
 
   extend type Query {

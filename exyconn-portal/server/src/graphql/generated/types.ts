@@ -237,7 +237,13 @@ export type AnnouncementPage = {
 
 export type AppSettings = {
   __typename?: 'AppSettings';
+  /** Machine-translate a string the first time a screen needs one and none exists. */
+  autoTranslate: Scalars['Boolean']['output'];
   dateFormat: Scalars['String']['output'];
+  /** The language the portal is shown in when a person has not chosen one. BCP-47. */
+  defaultLocale: Scalars['String']['output'];
+  /** The languages this workspace offers in its pickers. */
+  enabledLocales: Array<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   timeFormat: Scalars['String']['output'];
   timezone: Scalars['String']['output'];
@@ -1240,10 +1246,14 @@ export type CreateUserInput = {
   employmentStatus?: InputMaybe<EmploymentStatus>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
+  /** BCP-47 tag, or null to follow the workspace default. */
+  locale?: InputMaybe<Scalars['String']['input']>;
   managerId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   probationEndDate?: InputMaybe<Scalars['DateTime']['input']>;
   roles: Array<Role>;
+  /** IANA zone name, or null to follow the workspace default. */
+  timezone?: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
   workLocation?: InputMaybe<WorkLocation>;
   workLocationNote?: InputMaybe<Scalars['String']['input']>;
@@ -2592,6 +2602,27 @@ export enum LicenceStatus {
   Cancelled = 'CANCELLED'
 }
 
+/** Everything a client needs to render itself in one locale. */
+export type LocaleBundle = {
+  __typename?: 'LocaleBundle';
+  direction: Scalars['String']['output'];
+  /** The locale untranslated strings fall back to — the workspace default. */
+  fallbackLocale: Scalars['String']['output'];
+  locale: Scalars['String']['output'];
+  translations: Array<Translation>;
+};
+
+/** A locale a workspace offers, named in its own language. */
+export type LocaleOption = {
+  __typename?: 'LocaleOption';
+  /** Which way the script runs: ltr or rtl. */
+  direction: Scalars['String']['output'];
+  /** What the language calls itself — 'Deutsch', not 'German'. */
+  label: Scalars['String']['output'];
+  /** Canonical BCP-47 tag, e.g. hi, pt-BR. */
+  tag: Scalars['String']['output'];
+};
+
 export type Location = {
   __typename?: 'Location';
   active: Scalars['Boolean']['output'];
@@ -3073,6 +3104,8 @@ export type Mutation = {
   setTaskParent: Task;
   /** Puts a ticket in a sprint, or back in the backlog with a null sprint. */
   setTaskSprint: Task;
+  /** Corrects one translation by hand. ADMIN only, and marks the row HUMAN for good. */
+  setTranslation: Translation;
   setUserActive: User;
   setUserBlocked: User;
   signContract: Contract;
@@ -3135,6 +3168,14 @@ export type Mutation = {
   trackerStopSession: TrackerSession;
   trackerSyncIntervals: Scalars['Int']['output'];
   trackerUploadScreenshot: TrackerScreenshot;
+  /**
+   * Machine-translates strings this locale has never seen and returns what it managed.
+   *
+   * Called by any client that rendered a string with no translation, so it is safe to call
+   * constantly: strings already stored are skipped, a human correction is never overwritten,
+   * and a workspace with auto-translation off gets an empty answer rather than an error.
+   */
+  translateMissing: Array<Translation>;
   triageWebsiteSubmission: WebsiteSubmission;
   /**
    * Public: honours the unsubscribe link in a campaign email. Idempotent — the link is
@@ -4437,6 +4478,13 @@ export type MutationSetTaskSprintArgs = {
 };
 
 
+export type MutationSetTranslationArgs = {
+  locale: Scalars['String']['input'];
+  source: Scalars['String']['input'];
+  text: Scalars['String']['input'];
+};
+
+
 export type MutationSetUserActiveArgs = {
   id: Scalars['ID']['input'];
   isActive: Scalars['Boolean']['input'];
@@ -4567,6 +4615,12 @@ export type MutationTrackerSyncIntervalsArgs = {
 
 export type MutationTrackerUploadScreenshotArgs = {
   input: TrackerScreenshotInput;
+};
+
+
+export type MutationTranslateMissingArgs = {
+  locale: Scalars['String']['input'];
+  sources: Array<Scalars['String']['input']>;
 };
 
 
@@ -6300,6 +6354,13 @@ export type Query = {
   listWebsiteSubmissions: Array<WebsiteSubmission>;
   listWebsiteSubmissionsPaged: WebsiteSubmissionPage;
   listWebsiteSubmissionsStats: TableStats;
+  /**
+   * Every translation for one locale, for the client to cache. Public for the same reason.
+   * Empty for the workspace's own default locale: there the source strings ARE the text.
+   */
+  localeBundle: LocaleBundle;
+  /** The locales this workspace offers. Public — the login screen has a language picker. */
+  localeOptions: Array<LocaleOption>;
   me: User;
   /** Self-service: the signed-in user's own attendance records. */
   myAttendance: Array<Attendance>;
@@ -6468,6 +6529,8 @@ export type Query = {
    */
   trackerTaskOptions: Array<TrackerTask>;
   trackerTotals: TrackerTotals;
+  /** The admin's review screen: what has been translated, and by what. ADMIN only. */
+  translations: TranslationPage;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
 };
@@ -7212,6 +7275,11 @@ export type QueryListWebsiteSubmissionsPagedArgs = {
 };
 
 
+export type QueryLocaleBundleArgs = {
+  locale: Scalars['String']['input'];
+};
+
+
 export type QueryMyPolicyArgs = {
   slug: Scalars['String']['input'];
 };
@@ -7456,6 +7524,14 @@ export type QueryTrackerTaskOptionsArgs = {
 
 export type QueryTrackerTotalsArgs = {
   userId: Scalars['ID']['input'];
+};
+
+
+export type QueryTranslationsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  locale: Scalars['String']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** What is owed, and how late it is. */
@@ -8879,6 +8955,12 @@ export type TrackerSettings = {
   autoStopHour: Scalars['Int']['output'];
   blurScreenshots: Scalars['Boolean']['output'];
   /**
+   * Play the camera shutter and let the capture notification make a sound on the employee's
+   * own machine. On by default — capturing a screen in silence is what makes monitoring feel
+   * like surveillance. The notification still appears when this is off.
+   */
+  captureSoundEnabled: Scalars['Boolean']['output'];
+  /**
    * Slug of the Legal policy used as the disclosure instead of consentText. Empty means
    * no policy is chosen; the app then falls back to the text above.
    */
@@ -8894,6 +8976,12 @@ export type TrackerSettings = {
   /** Local hour (0-23) the digests go out at, read in the workspace's own timezone. */
   digestHour: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  /**
+   * Minutes of unbroken idle time after which the desktop app pauses tracking by itself.
+   * 0 switches it off. Idle time never counted as work, so this takes nothing away — it
+   * stops a session left running over lunch from screenshotting an empty desk.
+   */
+  idleAutoPauseMinutes: Scalars['Int']['output'];
   idleThresholdSeconds: Scalars['Int']['output'];
   intervalMinutes: Scalars['Int']['output'];
   randomizeScreenshotTiming: Scalars['Boolean']['output'];
@@ -8924,11 +9012,13 @@ export type TrackerSettingsInput = {
   autoStartHour?: InputMaybe<Scalars['Int']['input']>;
   autoStopHour?: InputMaybe<Scalars['Int']['input']>;
   blurScreenshots?: InputMaybe<Scalars['Boolean']['input']>;
+  captureSoundEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   consentPolicySlug?: InputMaybe<Scalars['String']['input']>;
   consentText?: InputMaybe<Scalars['String']['input']>;
   dailyDigestEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   defaultTimezone?: InputMaybe<Scalars['String']['input']>;
   digestHour?: InputMaybe<Scalars['Int']['input']>;
+  idleAutoPauseMinutes?: InputMaybe<Scalars['Int']['input']>;
   idleThresholdSeconds?: InputMaybe<Scalars['Int']['input']>;
   intervalMinutes?: InputMaybe<Scalars['Int']['input']>;
   randomizeScreenshotTiming?: InputMaybe<Scalars['Boolean']['input']>;
@@ -9050,13 +9140,54 @@ export enum TrainingStatus {
   InProgress = 'IN_PROGRESS'
 }
 
+/** One UI string and what it reads as in a locale. */
+export type Translation = {
+  __typename?: 'Translation';
+  /** SHA-256 of the source string — the key the client looks a string up by. */
+  key: Scalars['String']['output'];
+  /** The English string exactly as it appears in the UI. */
+  source: Scalars['String']['output'];
+  /** What is shown in place of it. */
+  text: Scalars['String']['output'];
+};
+
+/** One page of the admin's translation review screen. */
+export type TranslationPage = {
+  __typename?: 'TranslationPage';
+  rows: Array<TranslationRow>;
+  total: Scalars['Int']['output'];
+};
+
+export type TranslationRow = {
+  __typename?: 'TranslationRow';
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  /** AUTO for a machine translation, HUMAN once somebody has corrected it. */
+  kind: Scalars['String']['output'];
+  locale: Scalars['String']['output'];
+  model: Scalars['String']['output'];
+  source: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type UpdateProfileInput = {
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
+  /** The language the portal is shown to this person in. Empty string follows the default. */
+  locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * The zone every date and time is shown to this person in. Empty string clears the
+   * choice and follows the workspace default again.
+   */
+  timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateSettingsInput = {
+  autoTranslate?: InputMaybe<Scalars['Boolean']['input']>;
   dateFormat?: InputMaybe<Scalars['String']['input']>;
+  defaultLocale?: InputMaybe<Scalars['String']['input']>;
+  enabledLocales?: InputMaybe<Array<Scalars['String']['input']>>;
   timeFormat?: InputMaybe<Scalars['String']['input']>;
   timezone?: InputMaybe<Scalars['String']['input']>;
 };
@@ -9072,11 +9203,15 @@ export type UpdateUserInput = {
   employmentStatus?: InputMaybe<EmploymentStatus>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
+  /** BCP-47 tag, or null to follow the workspace default. */
+  locale?: InputMaybe<Scalars['String']['input']>;
   managerId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
   probationEndDate?: InputMaybe<Scalars['DateTime']['input']>;
   roles?: InputMaybe<Array<Role>>;
+  /** IANA zone name, or null to follow the workspace default. */
+  timezone?: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
   workLocation?: InputMaybe<WorkLocation>;
   workLocationNote?: InputMaybe<Scalars['String']['input']>;
@@ -9101,6 +9236,7 @@ export type User = {
   isActive: Scalars['Boolean']['output'];
   isBlocked: Scalars['Boolean']['output'];
   joinDate?: Maybe<Scalars['DateTime']['output']>;
+  locale?: Maybe<Scalars['String']['output']>;
   /** The user this person reports to; their manager may approve leave and requests. */
   managerId?: Maybe<Scalars['String']['output']>;
   /** Resolved from managerId for display; null when nobody is set. */
@@ -9109,6 +9245,12 @@ export type User = {
   /** The day this employee comes off probation. Null when they are not on one. */
   probationEndDate?: Maybe<Scalars['DateTime']['output']>;
   roles: Array<Role>;
+  /**
+   * Where this person is and what language they read. Null means "whatever the workspace
+   * default is", so moving the house timezone moves everybody who never expressed a
+   * preference. HR sets them when the account is created; the person can change their own.
+   */
+  timezone?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   /**
    * The contracted working day, in hours. Every arrangement has one — flexible moves the
@@ -9501,6 +9643,8 @@ export type ResolversTypes = ResolversObject<{
   LicenceInput: LicenceInput;
   LicencePage: ResolverTypeWrapper<LicencePage>;
   LicenceStatus: LicenceStatus;
+  LocaleBundle: ResolverTypeWrapper<LocaleBundle>;
+  LocaleOption: ResolverTypeWrapper<LocaleOption>;
   Location: ResolverTypeWrapper<Location>;
   LocationInput: LocationInput;
   LocationPage: ResolverTypeWrapper<LocationPage>;
@@ -9734,6 +9878,9 @@ export type ResolversTypes = ResolversObject<{
   TrainingInput: TrainingInput;
   TrainingPage: ResolverTypeWrapper<TrainingPage>;
   TrainingStatus: TrainingStatus;
+  Translation: ResolverTypeWrapper<Translation>;
+  TranslationPage: ResolverTypeWrapper<TranslationPage>;
+  TranslationRow: ResolverTypeWrapper<TranslationRow>;
   UpdateProfileInput: UpdateProfileInput;
   UpdateSettingsInput: UpdateSettingsInput;
   UpdateUserInput: UpdateUserInput;
@@ -9944,6 +10091,8 @@ export type ResolversParentTypes = ResolversObject<{
   Licence: Licence;
   LicenceInput: LicenceInput;
   LicencePage: LicencePage;
+  LocaleBundle: LocaleBundle;
+  LocaleOption: LocaleOption;
   Location: Location;
   LocationInput: LocationInput;
   LocationPage: LocationPage;
@@ -10138,6 +10287,9 @@ export type ResolversParentTypes = ResolversObject<{
   Training: Training;
   TrainingInput: TrainingInput;
   TrainingPage: TrainingPage;
+  Translation: Translation;
+  TranslationPage: TranslationPage;
+  TranslationRow: TranslationRow;
   UpdateProfileInput: UpdateProfileInput;
   UpdateSettingsInput: UpdateSettingsInput;
   UpdateUserInput: UpdateUserInput;
@@ -10269,7 +10421,10 @@ export type AnnouncementPageResolvers<ContextType = GraphQLContext, ParentType e
 }>;
 
 export type AppSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AppSettings'] = ResolversParentTypes['AppSettings']> = ResolversObject<{
+  autoTranslate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   dateFormat?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  defaultLocale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enabledLocales?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   timeFormat?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -11618,6 +11773,21 @@ export type LicencePageResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type LocaleBundleResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LocaleBundle'] = ResolversParentTypes['LocaleBundle']> = ResolversObject<{
+  direction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fallbackLocale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  translations?: Resolver<Array<ResolversTypes['Translation']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LocaleOptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LocaleOption'] = ResolversParentTypes['LocaleOption']> = ResolversObject<{
+  direction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tag?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type LocationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Location'] = ResolversParentTypes['Location']> = ResolversObject<{
   active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -11915,6 +12085,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setSupportTicketTriage?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationSetSupportTicketTriageArgs, 'category' | 'id' | 'priority'>>;
   setTaskParent?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationSetTaskParentArgs, 'taskId'>>;
   setTaskSprint?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationSetTaskSprintArgs, 'taskId'>>;
+  setTranslation?: Resolver<ResolversTypes['Translation'], ParentType, ContextType, RequireFields<MutationSetTranslationArgs, 'locale' | 'source' | 'text'>>;
   setUserActive?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserActiveArgs, 'id' | 'isActive'>>;
   setUserBlocked?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserBlockedArgs, 'id' | 'isBlocked'>>;
   signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id' | 'signedBy'>>;
@@ -11938,6 +12109,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   trackerStopSession?: Resolver<ResolversTypes['TrackerSession'], ParentType, ContextType, RequireFields<MutationTrackerStopSessionArgs, 'endedAt' | 'sessionId'>>;
   trackerSyncIntervals?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationTrackerSyncIntervalsArgs, 'intervals' | 'sessionId'>>;
   trackerUploadScreenshot?: Resolver<ResolversTypes['TrackerScreenshot'], ParentType, ContextType, RequireFields<MutationTrackerUploadScreenshotArgs, 'input'>>;
+  translateMissing?: Resolver<Array<ResolversTypes['Translation']>, ParentType, ContextType, RequireFields<MutationTranslateMissingArgs, 'locale' | 'sources'>>;
   triageWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationTriageWebsiteSubmissionArgs, 'id' | 'input'>>;
   unsubscribeFromMarketing?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnsubscribeFromMarketingArgs, 'token'>>;
   unsubscribeFromStatus?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnsubscribeFromStatusArgs, 'token'>>;
@@ -12829,6 +13001,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listWebsiteSubmissions?: Resolver<Array<ResolversTypes['WebsiteSubmission']>, ParentType, ContextType>;
   listWebsiteSubmissionsPaged?: Resolver<ResolversTypes['WebsiteSubmissionPage'], ParentType, ContextType, RequireFields<QueryListWebsiteSubmissionsPagedArgs, 'input'>>;
   listWebsiteSubmissionsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  localeBundle?: Resolver<ResolversTypes['LocaleBundle'], ParentType, ContextType, RequireFields<QueryLocaleBundleArgs, 'locale'>>;
+  localeOptions?: Resolver<Array<ResolversTypes['LocaleOption']>, ParentType, ContextType>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   myAttendance?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType>;
   myBenefits?: Resolver<Array<ResolversTypes['Benefit']>, ParentType, ContextType>;
@@ -12922,6 +13096,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerSettings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
   trackerTaskOptions?: Resolver<Array<ResolversTypes['TrackerTask']>, ParentType, ContextType, RequireFields<QueryTrackerTaskOptionsArgs, 'projectId'>>;
   trackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType, RequireFields<QueryTrackerTotalsArgs, 'userId'>>;
+  translations?: Resolver<ResolversTypes['TranslationPage'], ParentType, ContextType, RequireFields<QueryTranslationsArgs, 'locale'>>;
   websiteFormTypes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
@@ -13762,12 +13937,14 @@ export type TrackerSettingsResolvers<ContextType = GraphQLContext, ParentType ex
   autoStartHour?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   autoStopHour?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   blurScreenshots?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  captureSoundEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   consentPolicySlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   consentText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   dailyDigestEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   defaultTimezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   digestHour?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  idleAutoPauseMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   idleThresholdSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   intervalMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   randomizeScreenshotTiming?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -13843,6 +14020,31 @@ export type TrainingPageResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TranslationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Translation'] = ResolversParentTypes['Translation']> = ResolversObject<{
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TranslationPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TranslationPage'] = ResolversParentTypes['TranslationPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['TranslationRow']>, ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TranslationRowResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TranslationRow'] = ResolversParentTypes['TranslationRow']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  model?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type UserResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   address?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   avatarUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -13858,11 +14060,13 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isBlocked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   joinDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  locale?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   managerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   managerName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   probationEndDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
+  timezone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   workHoursPerDay?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   workLocation?: Resolver<Maybe<ResolversTypes['WorkLocation']>, ParentType, ContextType>;
@@ -14041,6 +14245,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   LegalDocumentPage?: LegalDocumentPageResolvers<ContextType>;
   Licence?: LicenceResolvers<ContextType>;
   LicencePage?: LicencePageResolvers<ContextType>;
+  LocaleBundle?: LocaleBundleResolvers<ContextType>;
+  LocaleOption?: LocaleOptionResolvers<ContextType>;
   Location?: LocationResolvers<ContextType>;
   LocationPage?: LocationPageResolvers<ContextType>;
   LoginPage?: LoginPageResolvers<ContextType>;
@@ -14179,6 +14385,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TrackerWorkday?: TrackerWorkdayResolvers<ContextType>;
   Training?: TrainingResolvers<ContextType>;
   TrainingPage?: TrainingPageResolvers<ContextType>;
+  Translation?: TranslationResolvers<ContextType>;
+  TranslationPage?: TranslationPageResolvers<ContextType>;
+  TranslationRow?: TranslationRowResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserCredentials?: UserCredentialsResolvers<ContextType>;
   UserPage?: UserPageResolvers<ContextType>;

@@ -4,6 +4,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useCrudResource } from '@exyconn/crud';
 import {
@@ -51,6 +52,18 @@ export function SlackConfigsPanel() {
     },
   ];
 
+  if (crud.open) {
+    return (
+      <CrudFormPage
+        title={crud.editing ? 'Edit Slack config' : 'New Slack config'}
+        onBack={crud.close}
+        backLabel="Back to Slack configurations"
+      >
+        <SlackConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -67,13 +80,6 @@ export function SlackConfigsPanel() {
         onDelete={crud.remove}
         emptyMessage={loading ? 'Loading…' : 'No Slack configs yet.'}
       />
-      <CrudDialog
-        open={crud.open}
-        title={crud.editing ? 'Edit Slack config' : 'New Slack config'}
-        onClose={crud.close}
-      >
-        <SlackConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
-      </CrudDialog>
       <CrudDialog
         open={Boolean(testTarget)}
         title="Send test message"

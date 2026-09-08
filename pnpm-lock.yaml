@@ -42,6 +42,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -196,6 +199,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -347,6 +353,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -495,6 +504,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -646,6 +658,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -797,6 +812,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -951,6 +969,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -1102,6 +1123,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -1253,6 +1277,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -1404,6 +1431,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -1555,6 +1585,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -1697,6 +1730,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -1827,6 +1863,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -1978,6 +2017,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -2132,6 +2174,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -2286,6 +2331,9 @@ importers:
       '@exyconn/crud':
         specifier: workspace:*
         version: link:../../../packages/crud
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
@@ -2691,6 +2739,9 @@ importers:
 
   exyconn-tracker-app:
     dependencies:
+      electron-updater:
+        specifier: ^6.8.9
+        version: 6.8.9
       get-windows:
         specifier: 9.3.0
         version: 9.3.0(encoding@0.1.13)
@@ -2937,6 +2988,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../shell
@@ -3002,6 +3056,52 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))
 
+  packages/i18n:
+    dependencies:
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
+      date-fns-tz:
+        specifier: ^3.2.0
+        version: 3.2.0(date-fns@4.1.0)
+      react:
+        specifier: ^19.2.8
+        version: 19.2.8
+    devDependencies:
+      '@exyconn/config':
+        specifier: workspace:*
+        version: link:../config
+      '@testing-library/jest-dom':
+        specifier: ^7.0.1
+        version: 7.0.1(@testing-library/dom@10.4.1)(vitest@5.0.0)
+      '@testing-library/react':
+        specifier: ^16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@types/react':
+        specifier: ^19.2.18
+        version: 19.2.18
+      '@vitejs/plugin-react':
+        specifier: ^6.1.1
+        version: 6.1.1(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))
+      eslint:
+        specifier: ^10.9.1
+        version: 10.9.1(jiti@2.7.0)
+      jsdom:
+        specifier: ^30.0.1
+        version: 30.0.1(@noble/hashes@1.8.0)
+      prettier:
+        specifier: ^3.4.2
+        version: 3.9.5
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vite:
+        specifier: ^8.2.2
+        version: 8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0)
+      vitest:
+        specifier: ^5.0.0
+        version: 5.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))
+
   packages/login:
     dependencies:
       '@apollo/client':
@@ -3013,6 +3113,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../shell
@@ -3122,6 +3225,9 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3
         version: 3.2.2(react@19.2.8)
+      '@emotion/cache':
+        specifier: ^11.14.0
+        version: 11.14.0
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.2.18)(react@19.2.8)
@@ -3131,6 +3237,9 @@ importers:
       '@exyconn/config':
         specifier: workspace:*
         version: link:../config
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@exyconn/ui':
         specifier: workspace:*
         version: link:../ui
@@ -3194,6 +3303,9 @@ importers:
       react-router-dom:
         specifier: ^6.28.2
         version: 6.30.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      stylis-plugin-rtl:
+        specifier: ^2.1.1
+        version: 2.1.1(stylis@4.4.0)
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -3225,6 +3337,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.7
         version: 19.2.7(@types/react@19.2.18)
+      '@types/stylis':
+        specifier: ^4.2.7
+        version: 4.2.7
       '@vitejs/plugin-react':
         specifier: ^6.1.1
         version: 6.1.1(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))
@@ -3264,6 +3379,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../shell
@@ -3331,6 +3449,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@mui/material':
         specifier: ^6.4.0
         version: 6.5.0(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -7508,6 +7629,9 @@ packages:
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
 
+  '@types/stylis@4.2.7':
+    resolution: {integrity: sha512-VgDNokpBoKF+wrdvhAAfS55OMQpL6QRglwTwNC3kIgBrzZxA4WsFj+2eLfEA/uMUDzBcEhYmjSbwQakn/i3ajA==}
+
   '@types/superagent@8.1.10':
     resolution: {integrity: sha512-nbt4IWXABhW0jGmmpRzCFNlbmwCTzZ2gTUsNIr+X+ItdqPms+PAJZbWsNzpS2USqXjcoNLQcO6nXo60zcPQiIg==}
 
@@ -8526,6 +8650,10 @@ packages:
     resolution: {integrity: sha512-6p/gfG1RJSQeIbz8TK5aPNkoztgY1q5TgmGFMAXcY8itsGW6Y2ld1ALsZ5UJn8rog7hKF3zHx5iQbNQ8uLcRlw==}
     engines: {node: '>=12.0.0'}
 
+  builder-util-runtime@9.7.0:
+    resolution: {integrity: sha512-g/kR520giAFYkSXTzcmF3kqQq7wi8F6N6SzeDgZrqTBN+VHdmgWOyTdD1yD7AATDId/yXLvuP34CxW46/BwCdw==}
+    engines: {node: '>=12.0.0'}
+
   builder-util@25.1.7:
     resolution: {integrity: sha512-7jPjzBwEGRbwNcep0gGNpLXG9P94VA3CPAZQCzxkFXiV2GMQKlziMbY//rXPI7WKfhsvGgFXjTcXdBEwgXw9ww==}
 
@@ -9082,6 +9210,10 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
+  cssjanus@2.3.1:
+    resolution: {integrity: sha512-gWZQ/S0tthU2KCc55C5zbjxQN0XPK1sT0qufCqwCNUauGIsPDOfdBMBWosP+Kd4wf2A2Nxm/z6JAP6yNGnS7QQ==}
+    engines: {node: '>=10.0.0'}
+
   cssnano-preset-default@7.0.17:
     resolution: {integrity: sha512-11qO63A+czwguQFJCaTdICvbaxn0pJzz/XghLlv+OT7WyToDxAMR0Xb3/26/l0y0hQJywwNbj/SLSQlGBHE1OA==}
     engines: {node: ^18.12.0 || ^20.9.0 || >=22.0}
@@ -9598,6 +9730,9 @@ packages:
 
   electron-to-chromium@1.5.389:
     resolution: {integrity: sha512-cEto7aeOqBfU1D+c5py5pE+ooscKE75JifxLBdFUZsqAxRS6y7kebtxAZvICszSl05gPjYHDTjY+lXpyGvpJbg==}
+
+  electron-updater@6.8.9:
+    resolution: {integrity: sha512-ZhVxM9iGONUpZGI1FxdMRgJjUFXi7AYGVa5PwKlO1tV1/4zDxQmfKpXOHVztKrd6L9rLcFjERvi1Mf2vxyTkig==}
 
   electron-vite@2.3.0:
     resolution: {integrity: sha512-lsN2FymgJlp4k6MrcsphGqZQ9fKRdJKasoaiwIrAewN1tapYI/KINLdfEL7n10LuF0pPSNf/IqjzZbB5VINctg==}
@@ -11495,6 +11630,9 @@ packages:
   lodash.difference@4.5.0:
     resolution: {integrity: sha512-dS2j+W26TQ7taQBGN8Lbbq04ssV3emRw4NY58WErlTO29pIqS0HmoT5aJ9+TUQ1N3G+JOZSji4eugsWwGp9yPA==}
 
+  lodash.escaperegexp@4.1.2:
+    resolution: {integrity: sha512-TM9YBvyC84ZxE3rgfefxUWiQKLilstD6k7PTGt6wfbtXF8ixIJLOL3VYyV/z+ZiPLsVxAsKAFVwWlWeb2Y8Yyw==}
+
   lodash.flatten@4.4.0:
     resolution: {integrity: sha512-C5N2Z3DgnnKr0LOpv/hKCgKdb7ZZwafIrsesve6lmzvZIRZRGaZ/l6Q8+2W7NaT+ZwO3fFlSCzCzrDCFdJfZ4g==}
 
@@ -11503,6 +11641,10 @@ packages:
 
   lodash.isboolean@3.0.3:
     resolution: {integrity: sha512-Bz5mupy2SVbPHURB98VAcw+aHh4vRV5IPNhILUCsOzRmsTmSQ17jIuqopAentWoehktxGd9e/hbIXq980/1QJg==}
+
+  lodash.isequal@4.5.0:
+    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
+    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
 
   lodash.isinteger@4.0.4:
     resolution: {integrity: sha512-DBwtEWN2caHQ9/imiNeEA5ys1JoRtRfY3d7V9wkqtbycnAmTvRRmbHKDV4a0EYc678/dia0jrte4tjYwVBaZUA==}
@@ -13871,6 +14013,11 @@ packages:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
 
+  semver@7.7.4:
+    resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   semver@7.8.5:
     resolution: {integrity: sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==}
     engines: {node: '>=10'}
@@ -14267,6 +14414,11 @@ packages:
     peerDependencies:
       postcss: ^8.5.13
 
+  stylis-plugin-rtl@2.1.1:
+    resolution: {integrity: sha512-q6xIkri6fBufIO/sV55md2CbgS5c6gg9EhSVATtHHCdOnbN/jcI0u3lYhNVeuI65c4lQPo67g8xmq5jrREvzlg==}
+    peerDependencies:
+      stylis: 4.x
+
   stylis@4.2.0:
     resolution: {integrity: sha512-Orov6g6BB1sDfYgzWfTHDOxamtX1bE/zo104Dh9e6fqJ3PooipYyfJ0pUmrZO2wAvO8YbEyeFrkV91XTsGMSrw==}
 
@@ -14442,6 +14594,9 @@ packages:
 
   tiny-invariant@1.3.1:
     resolution: {integrity: sha512-AD5ih2NlSssTCwsMznbvwMZpJ1cbhkGd2uueNxzv2jDlEeZdU04JQfRnggJQ8DrcVBGjAsCKwFBbDlVNtEMlzw==}
+
+  tiny-typed-emitter@2.1.0:
+    resolution: {integrity: sha512-qVtvMxeXbVej0cQWKqVSSAHmKZEHAvxdF8HEUBFWts8h+xEo5m/lEiPakuyZ3BnCBjOD8i24kzNOiOLLgsSxhA==}
 
   tiny-warning@1.0.3:
     resolution: {integrity: sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==}
@@ -20473,6 +20628,8 @@ snapshots:
 
   '@types/stack-utils@2.0.3': {}
 
+  '@types/stylis@4.2.7': {}
+
   '@types/superagent@8.1.10':
     dependencies:
       '@types/cookiejar': 2.1.5
@@ -21881,6 +22038,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  builder-util-runtime@9.7.0:
+    dependencies:
+      debug: 4.4.3(supports-color@8.1.1)
+      sax: 1.6.0
+    transitivePeerDependencies:
+      - supports-color
+
   builder-util@25.1.7:
     dependencies:
       7zip-bin: 5.2.0
@@ -22499,6 +22663,8 @@ snapshots:
 
   cssesc@3.0.0: {}
 
+  cssjanus@2.3.1: {}
+
   cssnano-preset-default@7.0.17(postcss@8.5.18):
     dependencies:
       browserslist: 4.28.6
@@ -22806,6 +22972,10 @@ snapshots:
   date-fns-tz@3.2.0(date-fns@3.6.0):
     dependencies:
       date-fns: 3.6.0
+
+  date-fns-tz@3.2.0(date-fns@4.1.0):
+    dependencies:
+      date-fns: 4.1.0
 
   date-fns@3.6.0: {}
 
@@ -23116,6 +23286,19 @@ snapshots:
       - supports-color
 
   electron-to-chromium@1.5.389: {}
+
+  electron-updater@6.8.9:
+    dependencies:
+      builder-util-runtime: 9.7.0
+      fs-extra: 10.1.0
+      js-yaml: 4.3.2
+      lazy-val: 1.0.5
+      lodash.escaperegexp: 4.1.2
+      lodash.isequal: 4.5.0
+      semver: 7.7.4
+      tiny-typed-emitter: 2.1.0
+    transitivePeerDependencies:
+      - supports-color
 
   electron-vite@2.3.0(vite@5.4.21(@types/node@22.20.1)(lightningcss@1.33.0)(sass@1.101.0)):
     dependencies:
@@ -25552,11 +25735,15 @@ snapshots:
 
   lodash.difference@4.5.0: {}
 
+  lodash.escaperegexp@4.1.2: {}
+
   lodash.flatten@4.4.0: {}
 
   lodash.includes@4.3.0: {}
 
   lodash.isboolean@3.0.3: {}
+
+  lodash.isequal@4.5.0: {}
 
   lodash.isinteger@4.0.4: {}
 
@@ -28931,6 +29118,8 @@ snapshots:
 
   semver@6.3.1: {}
 
+  semver@7.7.4: {}
+
   semver@7.8.5: {}
 
   send@0.19.2:
@@ -29438,6 +29627,11 @@ snapshots:
       postcss: 8.5.18
       postcss-selector-parser: 7.1.4
 
+  stylis-plugin-rtl@2.1.1(stylis@4.4.0):
+    dependencies:
+      cssjanus: 2.3.1
+      stylis: 4.4.0
+
   stylis@4.2.0: {}
 
   stylis@4.4.0: {}
@@ -29761,6 +29955,8 @@ snapshots:
   tiny-inflate@1.0.3: {}
 
   tiny-invariant@1.3.1: {}
+
+  tiny-typed-emitter@2.1.0: {}
 
   tiny-warning@1.0.3: {}
 

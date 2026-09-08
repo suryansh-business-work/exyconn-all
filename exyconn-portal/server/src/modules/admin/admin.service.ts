@@ -13,6 +13,8 @@ import {
   type TableQueryInput,
 } from '../../utils/tableQuery';
 import { ROLES, type Role } from '../../constants/roles';
+import { isValidTimezone } from '../../utils/timezone';
+import { canonicalLocale, isValidLocale } from '../i18n/locale.constants';
 import type { WorkLocation, WorkingTime } from '../../constants/work';
 
 /** Whitelist of the columns the Users grid may search / filter / sort. */
@@ -102,6 +104,33 @@ export interface HrFields {
   workLocation?: WorkLocation;
   workLocationNote?: string;
   workHoursPerDay?: number;
+  /** IANA zone name. Null (or omitted) follows the workspace default. */
+  timezone?: string | null;
+  /** BCP-47 tag. Null (or omitted) follows the workspace default. */
+  locale?: string | null;
+}
+
+/**
+ * A person's chosen zone/language as it goes onto their record.
+ *
+ * Empty means "follow the workspace default" and is stored as null, never as a copy of the
+ * current default — an admin moving the house timezone should move everybody who never
+ * expressed a preference. Anything non-empty has to resolve: a typo'd zone would silently
+ * put every timestamp this person sees in the wrong place, so it is refused out loud.
+ */
+function localeFields(input: HrFields) {
+  const timezone = input.timezone?.trim() ?? '';
+  const locale = input.locale?.trim() ?? '';
+  if (timezone !== '' && !isValidTimezone(timezone)) {
+    badRequest(`"${timezone}" is not a timezone this system knows.`);
+  }
+  if (locale !== '' && !isValidLocale(locale)) {
+    badRequest(`"${locale}" is not a language tag this system knows.`);
+  }
+  return {
+    timezone: timezone === '' ? null : timezone,
+    locale: locale === '' ? null : (canonicalLocale(locale) ?? null),
+  };
 }
 
 /** The HR fields, as they go onto a new user document. */
@@ -122,6 +151,7 @@ function hrFields(input: HrFields) {
     workLocation: input.workLocation,
     workLocationNote: input.workLocationNote,
     workHoursPerDay: input.workHoursPerDay,
+    ...localeFields(input),
   };
 }
 
@@ -144,6 +174,9 @@ export interface UpdateSettingsInput {
   dateFormat?: string;
   timeFormat?: string;
   timezone?: string;
+  defaultLocale?: string;
+  enabledLocales?: string[];
+  autoTranslate?: boolean;
 }
 
 /** User & portal-settings management (singleton). */
@@ -218,7 +251,7 @@ class AdminService {
 
   async updateUser(id: string, input: UpdateUserInput) {
     if (input.managerId) await this.assertManagerExists(input.managerId, id);
-    const update: Record<string, unknown> = { ...input };
+    const update: Record<string, unknown> = { ...input, ...localeFields(input) };
     delete update.password;
     if (input.password) update.passwordHash = await hashPassword(input.password);
     const user = await UserModel.findByIdAndUpdate(id, update, { new: true }).lean();
@@ -291,8 +324,37 @@ class AdminService {
     return created.toObject();
   }
 
+  /**
+   * Saves the workspace's localization defaults.
+   *
+   * The zone and every language tag are checked here rather than trusted: these are the
+   * values every unset person inherits, so one bad tag would put the whole workspace's
+   * timestamps — or its entire UI — somewhere nobody asked for.
+   */
   async updateSettings(input: UpdateSettingsInput) {
-    return AppSettingsModel.findOneAndUpdate({ key: 'global' }, input, {
+    const update: Record<string, unknown> = { ...input };
+    if (input.timezone !== undefined) {
+      if (!isValidTimezone(input.timezone)) {
+        badRequest(`"${input.timezone}" is not a timezone this system knows.`);
+      }
+    }
+    if (input.defaultLocale !== undefined) {
+      const canonical = canonicalLocale(input.defaultLocale);
+      if (!canonical) {
+        badRequest(`"${input.defaultLocale}" is not a language tag this system knows.`);
+      }
+      update.defaultLocale = canonical;
+    }
+    if (input.enabledLocales !== undefined) {
+      update.enabledLocales = input.enabledLocales.map((tag) => {
+        const canonical = canonicalLocale(tag);
+        if (!canonical) {
+          badRequest(`"${tag}" is not a language tag this system knows.`);
+        }
+        return canonical;
+      });
+    }
+    return AppSettingsModel.findOneAndUpdate({ key: 'global' }, update, {
       new: true,
       upsert: true,
     }).lean();

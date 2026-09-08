@@ -2,7 +2,7 @@ import { Box } from '@exyconn/shell/components/ui';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useCrudResource } from '@exyconn/crud';
@@ -63,6 +63,18 @@ export function PexelsConfigsPanel() {
     },
   ];
 
+  if (crud.open) {
+    return (
+      <CrudFormPage
+        title={crud.editing ? 'Edit Pexels config' : 'New Pexels config'}
+        onBack={crud.close}
+        backLabel="Back to Pexels stock media"
+      >
+        <PexelsConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <PageHeader
@@ -79,13 +91,6 @@ export function PexelsConfigsPanel() {
         onDelete={crud.remove}
         emptyMessage={loading ? 'Loading…' : 'No Pexels configs yet.'}
       />
-      <CrudDialog
-        open={crud.open}
-        title={crud.editing ? 'Edit Pexels config' : 'New Pexels config'}
-        onClose={crud.close}
-      >
-        <PexelsConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
-      </CrudDialog>
     </Box>
   );
 }

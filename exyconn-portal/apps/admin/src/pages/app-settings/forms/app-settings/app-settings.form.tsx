@@ -4,14 +4,20 @@ import { format } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
-import { RhfAutocomplete, RhfSelect } from '@exyconn/shell/components/form/rhf';
+import { useMemo } from 'react';
+import { endonymOf, isValidLocale, timezoneOptions } from '@exyconn/i18n';
+import {
+  RhfAutocomplete,
+  RhfChipsInput,
+  RhfSelect,
+  RhfSwitch,
+} from '@exyconn/shell/components/form/rhf';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { AppSettingsDocument, useUpdateSettingsMutation } from '@exyconn/shell/graphql/generated';
 import {
   DATE_FORMATS,
   TIME_FORMATS,
-  TIMEZONES,
   appSettingsSchema,
   isTimezone,
   toAppSettingsValues,
@@ -25,7 +31,36 @@ const patternOptions = (patterns: readonly string[]) =>
 
 const DATE_FORMAT_OPTIONS = patternOptions(DATE_FORMATS);
 const TIME_FORMAT_OPTIONS = patternOptions(TIME_FORMATS);
-const TIMEZONE_OPTIONS = TIMEZONES.map((value) => ({ value, label: value }));
+// Labelled with each zone's current offset, so "Asia/Kolkata" reads as a time as well
+// as a place. Built once: the list is ~450 entries.
+const TIMEZONE_OPTIONS = timezoneOptions();
+
+/**
+ * The languages the default can be set to: the ones this workspace offers, plus English.
+ *
+ * Derived from the field below rather than from a master list of every language on earth —
+ * you cannot default to a language you do not offer, and a hardcoded menu is exactly the
+ * thing that would stop the portal running in somebody's country.
+ */
+function DefaultLanguageField() {
+  const { control } = useFormContext<AppSettingsFormValues>();
+  const enabled = useWatch({ control, name: 'enabledLocales' });
+  const options = useMemo(() => {
+    const tags = new Set(['en', ...(enabled ?? []).filter(isValidLocale)]);
+    return [...tags]
+      .map((tag) => ({ value: tag, label: `${endonymOf(tag)} (${tag})` }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [enabled]);
+
+  return (
+    <RhfSelect
+      name="defaultLocale"
+      label="Default language"
+      options={options}
+      helperText="The language the portal is shown in to anybody who has not picked one — and the language an untranslated string falls back to."
+    />
+  );
+}
 
 /** "Now" through the values currently in the form, so an edit is visible before it is saved. */
 function AppSettingsPreview() {
@@ -109,8 +144,18 @@ export function AppSettingsForm({ initial }: Readonly<AppSettingsFormProps>) {
         name="timezone"
         label="Timezone"
         options={TIMEZONE_OPTIONS}
-        helperText="IANA zone the organisation keeps time in, e.g. Asia/Kolkata."
+        helperText="IANA zone the organisation keeps time in. Everybody who has not picked their own reads dates in this one."
       />
+      <RhfChipsInput
+        name="enabledLocales"
+        label="Languages offered"
+        helperText="BCP-47 tags people may choose from, e.g. hi, ar, pt-BR. Type one and press Enter. English is always available."
+      />
+      <DefaultLanguageField />
+      {/* The first time a screen shows text a language has no translation for, it is
+          translated and stored. Off leaves it in the default language until somebody
+          writes the translation by hand in Localization. */}
+      <RhfSwitch name="autoTranslate" label="Translate new text automatically" />
     </EntityForm>
   );
 }

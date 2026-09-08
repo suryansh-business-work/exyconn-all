@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
+import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -25,6 +25,24 @@ export function RequestsPage() {
     { key: 'decisionNote', label: 'HR note', render: (r) => r.decisionNote ?? '—' },
   ];
 
+  if (open) {
+    return (
+      <CrudFormPage
+        title="Raise a request"
+        onBack={() => setOpen(false)}
+        backLabel="Back to My Requests"
+      >
+        <RaiseRequestForm
+          onCancel={() => setOpen(false)}
+          onDone={async () => {
+            setOpen(false);
+            await refetch();
+          }}
+        />
+      </CrudFormPage>
+    );
+  }
+
   return (
     <Box>
       <Flex direction="row" justifyContent="space-between" alignItems="center">
@@ -39,16 +57,6 @@ export function RequestsPage() {
           emptyMessage={loading ? 'Loading…' : 'You have not raised any requests yet.'}
         />
       </Box>
-
-      <CrudDialog open={open} title="Raise a request" onClose={() => setOpen(false)}>
-        <RaiseRequestForm
-          onCancel={() => setOpen(false)}
-          onDone={async () => {
-            setOpen(false);
-            await refetch();
-          }}
-        />
-      </CrudDialog>
     </Box>
   );
 }

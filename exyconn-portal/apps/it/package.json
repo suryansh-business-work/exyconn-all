@@ -21,6 +21,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@exyconn/crud": "workspace:*",
+    "@exyconn/i18n": "workspace:*",
     "@exyconn/login": "workspace:*",
     "@exyconn/shell": "workspace:*",
     "@hookform/resolvers": "^5.9.1",
