@@ -82,10 +82,18 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Package ${{ matrix.label }} installer
         run: pnpm --filter exyconn-tracker-app run ${{ matrix.script }}
+      # The installer is what people download; the latest*.yml manifests, the .blockmaps
+      # and the macOS .zip are what the app's own updater reads off the release. A pattern
+      # that matches nothing on this platform is fine — the job fails only if the whole
+      # set comes up empty.
       - uses: actions/upload-artifact@v4
         with:
           name: tracker-${{ matrix.label }}
-          path: exyconn-tracker-app/dist/${{ matrix.glob }}
+          path: |
+            exyconn-tracker-app/dist/${{ matrix.glob }}
+            exyconn-tracker-app/dist/*.zip
+            exyconn-tracker-app/dist/*.blockmap
+            exyconn-tracker-app/dist/latest*.yml
           if-no-files-found: error
 
   release:
@@ -142,4 +150,8 @@ jobs:
           SLACK_MESSAGE: |
             :rocket: *Exyconn Tracker ${{ steps.app.outputs.version }}* is out — installers attached.
             Release: ${{ steps.gh_release.outputs.url }}
-        run: .github/scripts/slack-upload-files.sh installers/*
+        # Installers only — the manifests and blockmaps beside them on the release are for
+        # the app's updater to read, not for anybody to download out of Slack.
+        run: |
+          shopt -s nullglob
+          .github/scripts/slack-upload-files.sh installers/*.exe installers/*.dmg installers/*.AppImage

@@ -287,6 +287,8 @@ export const IPC = {
   setTimezone: 'tracker:set-timezone',
   openScreenshots: 'tracker:open-screenshots',
   setPreferences: 'tracker:set-preferences',
+  getUpdate: 'tracker:get-update',
+  installUpdate: 'tracker:install-update',
   minimizeWindow: 'tracker:minimize-window',
   toggleMaximizeWindow: 'tracker:toggle-maximize-window',
   closeWindow: 'tracker:close-window',
@@ -310,9 +312,27 @@ export const IPC = {
   closeBlocked: 'tracker:close-blocked',
   /** The upload finished (or failed) — the renderer can drop the closing dialog. */
   closeReleased: 'tracker:close-released',
+  /** A new version is being looked for, downloaded, or is ready to install. */
+  updateChanged: 'tracker:update-changed',
 } as const;
 
 /** The full snapshot the renderer renders from. */
+/**
+ * Where this install is in its own update cycle.
+ *
+ * `failed` is a state and not an error because a tracker that cannot reach its update feed
+ * must keep tracking — the employee is told, and the next check tries again.
+ */
+export type UpdateStage = 'idle' | 'checking' | 'downloading' | 'ready' | 'failed';
+
+export interface UpdateState {
+  stage: UpdateStage;
+  /** The version waiting to be installed. Empty unless one is downloading or ready. */
+  version: string;
+  /** Download progress 0-100, while `stage` is 'downloading'. */
+  percent: number;
+}
+
 export interface TrackerState {
   status: TrackerStatus;
   user: AuthUser | null;

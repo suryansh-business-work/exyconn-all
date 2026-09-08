@@ -11,6 +11,8 @@ import useBrandTheme from './hooks/useBrandTheme';
 import useShutterSound from './hooks/useShutterSound';
 import useCaptureBridge from './hooks/useCaptureBridge';
 import useTrackerState from './hooks/useTrackerState';
+import useUpdateState from './hooks/useUpdateState';
+import UpdateBanner from './components/UpdateBanner';
 
 interface RouterProps {
   state: TrackerState;
@@ -58,6 +60,7 @@ function Loading(): ReactElement {
 /** Subscribes to the tracker state, themes the app from the portal branding, and routes. */
 export default function App(): ReactElement {
   const state = useTrackerState();
+  const update = useUpdateState();
   const theme = useBrandTheme(state?.branding ?? null, state?.preferences.themeMode);
 
   // Both at the root, not in a screen, and for the same reason: a capture fires whatever page
@@ -69,7 +72,11 @@ export default function App(): ReactElement {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppFrame>{state === null ? <Loading /> : <ScreenRouter state={state} />}</AppFrame>
+      <AppFrame>
+        {/* Above the router: a new version matters on the login screen too. */}
+        <UpdateBanner update={update} />
+        {state === null ? <Loading /> : <ScreenRouter state={state} />}
+      </AppFrame>
       {/* At the root: a quit can be asked for from any page, and from the tray. */}
       <ClosingDialog />
     </ThemeProvider>

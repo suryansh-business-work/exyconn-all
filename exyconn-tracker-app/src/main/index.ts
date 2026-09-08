@@ -7,6 +7,7 @@ import {
   type PermissionKind,
   type ScreenshotsRange,
   type TrackerState,
+  type UpdateState,
 } from '@shared/types';
 import { TrackerController } from './controller';
 import { TrackerTray } from './tray';
@@ -15,10 +16,13 @@ import { composeWithWebcam, registerCaptureBridge } from './capture-bridge';
 import { applyWindowChrome, registerWindowControls } from './window-chrome';
 import { holdForUpload, type CloseGuardHooks } from './close-guard';
 import { secureStore } from './store';
+import { AppUpdater } from './updater';
+import { PORTAL_GRAPHQL_URL } from './portal-client';
 
 let window: BrowserWindow | null = null;
 let tray: TrackerTray | null = null;
 let controller: TrackerController | null = null;
+const updater = new AppUpdater((update) => announceUpdate(update));
 
 function broadcast(state: TrackerState): void {
   window?.webContents.send(IPC.stateChanged, state);
@@ -35,6 +39,11 @@ function broadcast(state: TrackerState): void {
  */
 function announceCapture(count: number): void {
   window?.webContents.send(IPC.screenshotCaptured, count);
+}
+
+/** Tells the window where this install is in its own update cycle. */
+function announceUpdate(update: UpdateState): void {
+  window?.webContents.send(IPC.updateChanged, update);
 }
 
 function createWindow(): BrowserWindow {
@@ -150,6 +159,16 @@ function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.setPreferences, (_e, update: Partial<AppPreferences>) =>
     ctrl.setPreferences(update),
   );
+  ipcMain.handle(IPC.getUpdate, () => updater.current);
+  /**
+   * Restart into the new version. The session is stopped first so the minutes worked up to
+   * this moment are flushed — an update must never cost the employee their afternoon.
+   */
+  ipcMain.handle(IPC.installUpdate, async () => {
+    await ctrl.stop();
+    isQuitting = true;
+    updater.install();
+  });
   ipcMain.handle(IPC.openPrivacy, () =>
     shell.openExternal('https://portal.exyconn.com/me/tracker'),
   );
@@ -205,6 +224,10 @@ if (!app.requestSingleInstanceLock()) {
       },
     });
     registerIpc(controller);
+    // Only a packaged app has an installer to replace; in dev there is nothing to update.
+    if (app.isPackaged) {
+      updater.start(PORTAL_GRAPHQL_URL);
+    }
     await controller.restore();
     broadcast(controller.getState());
   });

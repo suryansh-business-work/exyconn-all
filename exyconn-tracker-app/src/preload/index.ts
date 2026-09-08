@@ -13,6 +13,7 @@ import {
   type ScreenshotsRange,
   type TrackerState,
   type TrackerTotals,
+  type UpdateState,
   type Workday,
 } from '@shared/types';
 
@@ -52,6 +53,17 @@ const api = {
   /** Updates this install's own preferences (tray behaviour); resolves to the full set. */
   setPreferences: (update: Partial<AppPreferences>): Promise<AppPreferences> =>
     ipcRenderer.invoke(IPC.setPreferences, update),
+
+  // ── Updates ─────────────────────────────────────────────────────────────
+  /** Where this install is in its own update cycle, for a window that has just opened. */
+  getUpdate: (): Promise<UpdateState> => ipcRenderer.invoke(IPC.getUpdate),
+  /** Stops tracking, flushes what is queued, and restarts into the downloaded version. */
+  installUpdate: (): Promise<void> => ipcRenderer.invoke(IPC.installUpdate),
+  onUpdateChanged: (listener: (update: UpdateState) => void): (() => void) => {
+    const handler = (_event: unknown, update: UpdateState): void => listener(update);
+    ipcRenderer.on(IPC.updateChanged, handler);
+    return () => ipcRenderer.removeListener(IPC.updateChanged, handler);
+  },
 
   // ── Window controls ─────────────────────────────────────────────────────
   // The app is frameless, so its own title bar drives these. Each acts on the window it was

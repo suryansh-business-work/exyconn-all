@@ -175,14 +175,34 @@ class GithubActions {
     }));
   }
 
-  /**
-   * The newest published tracker release that actually carries installers.
-   *
-   * `/releases/latest` is not usable here: the repository releases more than the
-   * tracker, so the latest release may well be somebody else's. This walks the
-   * release list newest-first and takes the first published `tracker-v*` tag.
-   */
+  /** The newest tracker release, as the portal's Download page shows it. */
   async latestTrackerRelease(): Promise<TrackerRelease | null> {
+    const payload = await this.findLatestTrackerRelease();
+    return payload ? toTrackerRelease(payload) : null;
+  }
+
+  /**
+   * Every file on the newest tracker release, keyed by file name.
+   *
+   * Unlike {@link latestTrackerRelease} this keeps the files the Download page has no use
+   * for — `latest.yml` and the `.blockmap`s — because they are exactly what the desktop
+   * app's updater reads. See the /tracker-updates route that serves them.
+   */
+  async latestTrackerReleaseFiles(): Promise<Map<string, string>> {
+    const payload = await this.findLatestTrackerRelease();
+    return new Map(
+      (payload?.assets ?? []).map((asset) => [asset.name, asset.browser_download_url]),
+    );
+  }
+
+  /**
+   * The newest published `tracker-v*` release that actually carries installers.
+   *
+   * `/releases/latest` is not usable here: the repository releases more than the tracker,
+   * so the latest release may well be somebody else's. This walks the release list
+   * newest-first and takes the first published tracker tag.
+   */
+  private async findLatestTrackerRelease(): Promise<ReleasePayload | null> {
     const config = await this.getActiveConfig();
     const payload = await this.request<ReleasePayload[]>(
       config,
@@ -190,8 +210,7 @@ class GithubActions {
     );
     const release = (payload ?? [])
       .filter((entry) => !entry.draft && entry.tag_name.startsWith(TRACKER_TAG_PREFIX))
-      .map(toTrackerRelease)
-      .find((entry) => entry.assets.length > 0);
+      .find((entry) => entry.assets.some((asset) => trackerAssetPlatform(asset.name) !== null));
     return release ?? null;
   }
 

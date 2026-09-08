@@ -26,7 +26,7 @@ const DEV_GRAPHQL_URL = 'http://localhost:4004/graphql';
  * one signal that distinguishes `npm run dev` from a packaged app. An explicit
  * PORTAL_GRAPHQL_URL still wins, for pointing a dev build at staging.
  */
-const PORTAL_GRAPHQL_URL =
+export const PORTAL_GRAPHQL_URL =
   process.env.PORTAL_GRAPHQL_URL ??
   (process.env.ELECTRON_RENDERER_URL ? DEV_GRAPHQL_URL : PRODUCTION_GRAPHQL_URL);
 
