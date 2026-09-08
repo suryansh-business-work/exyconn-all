@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import type { GraphQLContext } from '../../middleware/auth';
+import { assertAuthenticated } from '../../middleware/roleGuard';
 import { TrackerAccessModel, TrackerDeviceModel } from './models';
 import { unauthenticated, forbidden } from '../../utils/errors';
 
@@ -42,4 +43,19 @@ export async function assertTrackerDevice(ctx: GraphQLContext): Promise<TrackerD
   }
 
   return { userId, deviceId };
+}
+
+/**
+ * The employee behind a call, whether it arrived on a portal session or a device token.
+ *
+ * Off-computer time can be claimed from either place, and a device token must not be the
+ * cheaper way in: a call carrying one goes through the full device check, so a revoked
+ * laptop cannot file a claim any more than it can upload a screenshot.
+ */
+export async function assertEmployee(ctx: GraphQLContext): Promise<{ id: string }> {
+  if (ctx.user?.deviceId) {
+    const { userId } = await assertTrackerDevice(ctx);
+    return { id: userId };
+  }
+  return assertAuthenticated(ctx);
 }

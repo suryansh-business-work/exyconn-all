@@ -3,6 +3,8 @@ import type {
   Branding,
   ConsentPolicy,
   DayDetail,
+  ManualEntry,
+  ManualEntryDraft,
   ReportDay,
   TrackerProject,
   TrackerSettings,
@@ -445,4 +447,64 @@ export function uploadScreenshot(input: ScreenshotPayload): Promise<unknown> {
      }`,
     { input },
   );
+}
+
+/** Checked against the portal's schema by `schema-drift.test.ts`, like the settings. */
+export const MANUAL_ENTRY_FIELDS = `
+  id projectName taskKey taskTitle
+  startedAt endedAt durationMs note status reviewNote
+`;
+
+const MY_MANUAL_ENTRIES = `
+  query MyManualEntries($from: DateTime!, $to: DateTime!) {
+    myTrackerManualEntries(from: $from, to: $to) { ${MANUAL_ENTRY_FIELDS} }
+  }
+`;
+
+/**
+ * The employee's OWN claims for work done away from the computer.
+ *
+ * Scoped by the portal to the token's user, like every other `myTracker*` read — the app
+ * cannot ask for anybody else's.
+ */
+export async function fetchManualEntries(from: string, to: string): Promise<ManualEntry[]> {
+  const data = await authed<{ myTrackerManualEntries: ManualEntry[] }>(MY_MANUAL_ENTRIES, {
+    from,
+    to,
+  });
+  return data.myTrackerManualEntries;
+}
+
+const CREATE_MANUAL_ENTRY = `
+  mutation CreateManualEntry($input: TrackerManualEntryInput!) {
+    createTrackerManualEntry(input: $input) { ${MANUAL_ENTRY_FIELDS} }
+  }
+`;
+
+/**
+ * Files a claim. It lands PENDING and counts for nothing until a manager approves it — the
+ * portal enforces that, and the app says so rather than implying the hours are banked.
+ */
+export async function createManualEntry(draft: ManualEntryDraft): Promise<ManualEntry> {
+  const data = await authed<{ createTrackerManualEntry: ManualEntry }>(CREATE_MANUAL_ENTRY, {
+    input: {
+      projectId: draft.projectId === '' ? null : draft.projectId,
+      taskId: draft.taskId === '' ? null : draft.taskId,
+      startedAt: draft.startedAt,
+      endedAt: draft.endedAt,
+      note: draft.note,
+    },
+  });
+  return data.createTrackerManualEntry;
+}
+
+const WITHDRAW_MANUAL_ENTRY = `
+  mutation WithdrawManualEntry($id: ID!) {
+    withdrawTrackerManualEntry(id: $id)
+  }
+`;
+
+/** Takes back a claim that is still pending. The portal refuses once it has been decided. */
+export async function withdrawManualEntry(id: string): Promise<void> {
+  await authed<{ withdrawTrackerManualEntry: boolean }>(WITHDRAW_MANUAL_ENTRY, { id });
 }

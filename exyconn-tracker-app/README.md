@@ -33,6 +33,10 @@ desk. The keystroke/click figures are counters only: the global input hook
 productivity tracker, not a keylogger. See `src/main/trackers/input-counter.ts` and the
 portal's `tracker.constants.ts` privacy contract.
 
+Time worked **away from the computer** — a client meeting, a site visit — can be claimed from
+the app's "Off-computer time" page. A claim lands PENDING and counts for nothing until a
+manager approves it in the portal's review queue; until then the employee can withdraw it.
+
 Access is opt-in and disclosed: an admin grants access (which emails the employee), and the
 employee must accept an in-app consent screen listing the above before any tracking starts.
 

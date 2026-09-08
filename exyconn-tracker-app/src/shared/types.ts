@@ -294,6 +294,10 @@ export const IPC = {
   setTimezone: 'tracker:set-timezone',
   openScreenshots: 'tracker:open-screenshots',
   setPreferences: 'tracker:set-preferences',
+  getTasks: 'tracker:get-tasks',
+  getManualEntries: 'tracker:get-manual-entries',
+  createManualEntry: 'tracker:create-manual-entry',
+  withdrawManualEntry: 'tracker:withdraw-manual-entry',
   getUpdate: 'tracker:get-update',
   installUpdate: 'tracker:install-update',
   minimizeWindow: 'tracker:minimize-window',
@@ -338,6 +342,38 @@ export interface UpdateState {
   version: string;
   /** Download progress 0-100, while `stage` is 'downloading'. */
   percent: number;
+}
+
+/** Where a claim for off-computer time stands. Mirrors the portal's own enum. */
+export type ManualEntryStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+/** One claim for work done away from the computer, as the app lists it. */
+export interface ManualEntry {
+  id: string;
+  /** The project's name as it was when the claim was filed. */
+  projectName: string;
+  /** The ticket it was against; empty when it was booked to the project only. */
+  taskKey: string;
+  taskTitle: string;
+  /** ISO instants — rendered in the employee's own zone, like everything else here. */
+  startedAt: string;
+  endedAt: string;
+  durationMs: number;
+  note: string;
+  status: ManualEntryStatus;
+  /** Why a reviewer decided as they did. Empty until somebody has. */
+  reviewNote: string;
+}
+
+/** What the employee fills in to claim time the tracker could not have recorded. */
+export interface ManualEntryDraft {
+  /** Empty books against the house-wide Global Project. */
+  projectId: string;
+  /** Empty books against the project without a ticket. */
+  taskId: string;
+  startedAt: string;
+  endedAt: string;
+  note: string;
 }
 
 export interface TrackerState {

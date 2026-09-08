@@ -7,11 +7,14 @@ import {
   type CaptureResult,
   type DayDetail,
   type LoginResult,
+  type ManualEntry,
+  type ManualEntryDraft,
   type PermissionKind,
   type PermissionState,
   type ReportDay,
   type ScreenshotsRange,
   type TrackerState,
+  type TrackerTask,
   type TrackerTotals,
   type UpdateState,
   type Workday,
@@ -53,6 +56,20 @@ const api = {
   /** Updates this install's own preferences (tray behaviour); resolves to the full set. */
   setPreferences: (update: Partial<AppPreferences>): Promise<AppPreferences> =>
     ipcRenderer.invoke(IPC.setPreferences, update),
+
+  // ── Off-computer time ───────────────────────────────────────────────────
+  // Claimed hours nobody measured, so every one of these lands PENDING and counts for
+  // nothing until a manager approves it in the portal.
+  /** Tickets on one project, for the claim form — does not change the session's own pick. */
+  getTasks: (projectId: string): Promise<TrackerTask[]> =>
+    ipcRenderer.invoke(IPC.getTasks, projectId),
+  getManualEntries: (from: string, to: string): Promise<ManualEntry[]> =>
+    ipcRenderer.invoke(IPC.getManualEntries, from, to),
+  createManualEntry: (draft: ManualEntryDraft): Promise<ManualEntry> =>
+    ipcRenderer.invoke(IPC.createManualEntry, draft),
+  /** Only works while the claim is still pending; the portal refuses a decided one. */
+  withdrawManualEntry: (id: string): Promise<void> =>
+    ipcRenderer.invoke(IPC.withdrawManualEntry, id),
 
   // ── Updates ─────────────────────────────────────────────────────────────
   /** Where this install is in its own update cycle, for a window that has just opened. */

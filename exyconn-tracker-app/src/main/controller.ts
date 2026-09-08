@@ -5,6 +5,8 @@ import type {
   Branding,
   ConsentPolicy,
   DayDetail,
+  ManualEntry,
+  ManualEntryDraft,
   LiveStats,
   LoginResult,
   PermissionKind,
@@ -542,6 +544,34 @@ export class TrackerController {
   /** One day of the employee's own work — totals plus that day's screenshots. */
   getDay(start: string, end: string): Promise<DayDetail> {
     return portal.fetchMyDay(start, end);
+  }
+
+  /**
+   * Tickets on any project, for the off-computer time form.
+   *
+   * Deliberately not `loadTasks`: that one replaces the list the session picker is bound to,
+   * and browsing projects in a claim form must not re-point what the next session books to.
+   */
+  getTasks(projectId: string): Promise<TrackerTask[]> {
+    return portal.fetchTasks(projectId);
+  }
+
+  /** The employee's own claims for work done away from the computer, in a date range. */
+  getManualEntries(from: string, to: string): Promise<ManualEntry[]> {
+    return portal.fetchManualEntries(from, to);
+  }
+
+  /**
+   * Files a claim against the project (and ticket) the employee has selected here, so
+   * off-computer time lands where their tracked time does. It is always PENDING.
+   */
+  createManualEntry(draft: ManualEntryDraft): Promise<ManualEntry> {
+    return portal.createManualEntry(draft);
+  }
+
+  /** Takes back a claim that has not been decided yet. */
+  withdrawManualEntry(id: string): Promise<void> {
+    return portal.withdrawManualEntry(id);
   }
 
   /**

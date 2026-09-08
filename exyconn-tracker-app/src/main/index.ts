@@ -4,6 +4,7 @@ import {
   IPC,
   type AppPreferences,
   type AttendanceStatus,
+  type ManualEntryDraft,
   type PermissionKind,
   type ScreenshotsRange,
   type TrackerState,
@@ -159,6 +160,14 @@ function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.setPreferences, (_e, update: Partial<AppPreferences>) =>
     ctrl.setPreferences(update),
   );
+  ipcMain.handle(IPC.getTasks, (_e, projectId: string) => ctrl.getTasks(projectId));
+  ipcMain.handle(IPC.getManualEntries, (_e, from: string, to: string) =>
+    ctrl.getManualEntries(from, to),
+  );
+  ipcMain.handle(IPC.createManualEntry, (_e, draft: ManualEntryDraft) =>
+    ctrl.createManualEntry(draft),
+  );
+  ipcMain.handle(IPC.withdrawManualEntry, (_e, id: string) => ctrl.withdrawManualEntry(id));
   ipcMain.handle(IPC.getUpdate, () => updater.current);
   /**
    * Restart into the new version. The session is stopped first so the minutes worked up to

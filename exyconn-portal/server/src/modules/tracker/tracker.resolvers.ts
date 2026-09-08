@@ -5,7 +5,7 @@ import { assertPermission } from '../../lib/permissions';
 import { withId, withIds } from '../../utils/serialize';
 import { recordAudit } from '../audit';
 import { githubActions } from '../../utils/github';
-import { assertTrackerDevice } from './tracker.auth';
+import { assertEmployee, assertTrackerDevice } from './tracker.auth';
 import {
   trackerDeviceService,
   type DeviceInput,
@@ -264,7 +264,7 @@ export const trackerResolvers = {
       { from, to }: { from: Date; to: Date },
       ctx: GraphQLContext,
     ) => {
-      const user = assertAuthenticated(ctx);
+      const user = await assertEmployee(ctx);
       // Scoped to the caller's own id, never one supplied by the client.
       return withIds(await trackerManualService.list(user.id, from, to));
     },
@@ -332,7 +332,7 @@ export const trackerResolvers = {
       { input }: { input: ManualEntryInput & { projectId?: string | null } },
       ctx: GraphQLContext,
     ) => {
-      const user = assertAuthenticated(ctx);
+      const user = await assertEmployee(ctx);
       // The project is resolved here so the manual service stays free of the workday
       // service, which itself reads approved manual time — see BookedProject.
       const project = await trackerWorkdayService.bookableProject(input.projectId);
@@ -344,7 +344,7 @@ export const trackerResolvers = {
       { id }: { id: string },
       ctx: GraphQLContext,
     ) => {
-      const user = assertAuthenticated(ctx);
+      const user = await assertEmployee(ctx);
       return trackerManualService.withdraw(id, user.id);
     },
 
