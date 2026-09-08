@@ -1,0 +1,26 @@
+# Admin › System Health: the deployment's own vital signs.
+
+query SystemHealth {
+  systemHealth {
+    serverVersion
+    nodeVersion
+    uptimeSeconds
+    mongo {
+      ok
+      dbName
+      collections
+      dataSizeMb
+    }
+    jobs {
+      key
+      label
+      enabled
+      lastRunAt
+      lastRunSummary
+    }
+    counts {
+      label
+      value
+    }
+  }
+}

@@ -26,5 +26,12 @@ export const authTypeDefs = gql`
     exists. Returns a message safe to show the caller.
     """
     sendAdminCredentials: String!
+    """
+    Self-service reset: emails a one-hour link to the address if an account has it.
+    Always true, so the answer does not reveal which addresses have accounts.
+    """
+    requestPasswordReset(email: String!): Boolean!
+    "Sets a new password from an emailed link. The link works once."
+    resetPassword(token: String!, newPassword: String!): Boolean!
   }
 `;

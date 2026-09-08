@@ -2,6 +2,7 @@ import { Divider, Flex, Text } from '@exyconn/shell/components/ui';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { CampaignAttribution } from './CampaignAttribution';
 import { CampaignDeliveryLog } from './CampaignDeliveryLog';
 import type { CampaignRow } from './forms/campaign';
 
@@ -36,6 +37,13 @@ export function CampaignDetails({ campaign }: Readonly<{ campaign: CampaignRow }
             : 'Not sent yet'}
         </Text>
       </DetailRow>
+
+      <DetailRow label="Scheduled">
+        <Text size="sm">
+          {campaign.scheduledAt ? formatDate(campaign.scheduledAt) : 'Not scheduled'}
+        </Text>
+      </DetailRow>
+      <CampaignAttribution campaignId={campaign.id} />
 
       <Divider />
       <Text size="label">Email content</Text>

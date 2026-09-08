@@ -79,11 +79,13 @@ export function CompanyExpensesPage() {
       title="Company expenses"
       subtitle="What the business spends, and what it still owes"
       entityLabel="expense"
+      exportFileName="company-expenses"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (
         <CompanyExpenseForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
+      permissionModule="CompanyExpense"
       columnDefs={companyExpenseColumns(formatDate)}
       fetchRows={fetchRows}
       context={gridContext}

@@ -20,6 +20,14 @@ mutation SetSupportTicketStatus($id: ID!, $status: SupportStatus!) {
   }
 }
 
+fragment TicketAttachmentFields on TicketAttachment {
+  url
+  name
+  contentType
+  uploadedBy
+  uploadedAt
+}
+
 query ListSupportReplies($ticketId: ID!) {
   listSupportReplies(ticketId: $ticketId) {
     id
@@ -29,6 +37,9 @@ query ListSupportReplies($ticketId: ID!) {
     body
     internal
     createdAt
+    attachments {
+      ...TicketAttachmentFields
+    }
   }
 }
 
@@ -48,8 +59,18 @@ mutation AssignSupportTicket($id: ID!, $assigneeId: String!) {
   }
 }
 
-mutation AddSupportReply($ticketId: ID!, $body: String!, $internal: Boolean!) {
-  addSupportReply(ticketId: $ticketId, body: $body, internal: $internal) {
+mutation AddSupportReply(
+  $ticketId: ID!
+  $body: String!
+  $internal: Boolean!
+  $attachments: [TicketAttachmentInput!]
+) {
+  addSupportReply(
+    ticketId: $ticketId
+    body: $body
+    internal: $internal
+    attachments: $attachments
+  ) {
     id
   }
 }
@@ -58,6 +79,12 @@ fragment SupportConsoleTicketFields on SupportTicket {
   id
   employeeId
   employeeName
+  requesterType
+  reference
+  clientId
+  clientName
+  requesterName
+  requesterEmail
   subject
   category
   description
@@ -65,7 +92,82 @@ fragment SupportConsoleTicketFields on SupportTicket {
   status
   assigneeId
   assigneeName
+  dueAt
+  firstRespondedAt
+  resolvedAt
+  slaState
   createdAt
+  attachments {
+    ...TicketAttachmentFields
+  }
+}
+
+query GetSupportTicket($id: ID!) {
+  getSupportTicket(id: $id) {
+    ...SupportConsoleTicketFields
+  }
+}
+
+query SupportSlaSummary {
+  supportSlaSummary {
+    onTrack
+    dueSoon
+    breached
+  }
+}
+
+fragment SupportSlaPolicyFields on SupportSlaPolicy {
+  id
+  priority
+  firstResponseMinutes
+  resolutionMinutes
+  active
+}
+
+query ListSupportSlaPoliciesPaged($input: TableQueryInput!) {
+  listSupportSlaPoliciesPaged(input: $input) {
+    totalCount
+    rows {
+      ...SupportSlaPolicyFields
+    }
+  }
+}
+
+query ListSupportSlaPoliciesStats {
+  listSupportSlaPoliciesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateSupportSlaPolicy($input: SupportSlaPolicyInput!) {
+  createSupportSlaPolicy(input: $input) {
+    id
+  }
+}
+
+mutation UpdateSupportSlaPolicy($id: ID!, $input: SupportSlaPolicyInput!) {
+  updateSupportSlaPolicy(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteSupportSlaPolicy($id: ID!) {
+  deleteSupportSlaPolicy(id: $id)
+}
+
+mutation CreateClientSupportTicket($input: ClientSupportTicketInput!) {
+  createClientSupportTicket(input: $input)
 }
 
 query ListSupportTicketsPaged($input: TableQueryInput!) {
@@ -94,7 +196,11 @@ query ListSupportTicketsStats {
   }
 }
 
-mutation SetSupportTicketTriage($id: ID!, $category: SupportCategory!, $priority: SupportPriority!) {
+mutation SetSupportTicketTriage(
+  $id: ID!
+  $category: SupportCategory!
+  $priority: SupportPriority!
+) {
   setSupportTicketTriage(id: $id, category: $category, priority: $priority) {
     id
     category

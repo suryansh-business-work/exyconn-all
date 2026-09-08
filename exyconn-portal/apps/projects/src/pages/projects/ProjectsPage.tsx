@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
@@ -10,6 +11,7 @@ import {
   type ListProjectsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { ProjectForm, type ProjectRow } from './forms/project';
+import { ProjectSharesDrawer } from './shares';
 import { PROJECT_COLUMNS, type PagedProjectRow, type ProjectsGridContext } from './projects-grid';
 
 /** Projects module — project management dashboard with a server-side projects grid. */
@@ -30,6 +32,8 @@ export function ProjectsPage() {
     (data: ListProjectsPagedQuery) => data.listProjectsPaged,
   );
 
+  const [sharing, setSharing] = useState<{ id: string; name: string } | null>(null);
+
   const openProject = (row: PagedProjectRow) => navigate(`/projects/${row.id}/board`);
 
   const stats = statsData?.listProjectsStats;
@@ -45,7 +49,12 @@ export function ProjectsPage() {
   ];
 
   const gridContext: ProjectsGridContext = {
-    actions: { board: openProject, edit: crud.openEdit, delete: crud.remove },
+    actions: {
+      board: openProject,
+      share: (row) => setSharing({ id: row.id, name: row.name }),
+      edit: crud.openEdit,
+      delete: crud.remove,
+    },
     formatDate,
   };
 
@@ -64,6 +73,7 @@ export function ProjectsPage() {
       context={gridContext}
       searchPlaceholder="Search projects…"
       onRowClick={openProject}
+      extraDialogs={<ProjectSharesDrawer project={sharing} onClose={() => setSharing(null)} />}
     />
   );
 }

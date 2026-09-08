@@ -1,11 +1,16 @@
 import type { GraphQLContext } from '../../middleware/auth';
 import { ROLES } from '../../constants/roles';
-import { assertRole, assertAuthenticated } from '../../middleware/roleGuard';
+import { assertAuthenticated } from '../../middleware/roleGuard';
+import { assertPermission } from '../../lib/permissions';
 import { withId } from '../../utils/serialize';
 import { imageUploader } from '../../utils/imagekit';
 import { badRequest } from '../../utils/errors';
 import { isPexelsMediaUrl } from '../../utils/pexels';
 import { getBranding, updateBranding, type BrandingInput } from './branding.service';
+
+/** Who owns the brand; the matrix restricts them under this module name. */
+const brandingRoles = [ROLES.ADMIN];
+const BRANDING_MODULE = 'Branding';
 
 /** Guards a single 12 MB image, matching the /graphql body limit. */
 const MAX_IMAGE_CHARS = 12 * 1024 * 1024;
@@ -27,7 +32,7 @@ export const brandingResolvers = {
       { input }: { input: BrandingInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, [ROLES.ADMIN]);
+      await assertPermission(ctx, BRANDING_MODULE, brandingRoles, 'EDIT');
       return withId(await updateBranding(input));
     },
 

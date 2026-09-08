@@ -488,6 +488,7 @@ fragment WebsiteSubmissionFields on WebsiteSubmission {
   status
   notes
   leadId
+  applicantId
   createdAt
 }
 
@@ -495,6 +496,36 @@ query ListWebsiteSubmissions {
   listWebsiteSubmissions {
     ...WebsiteSubmissionFields
   }
+}
+
+query ListWebsiteSubmissionsPaged($input: TableQueryInput!) {
+  listWebsiteSubmissionsPaged(input: $input) {
+    rows {
+      ...WebsiteSubmissionFields
+    }
+    totalCount
+  }
+}
+
+query ListWebsiteSubmissionsStats {
+  listWebsiteSubmissionsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query WebsiteFormTypes {
+  websiteFormTypes
 }
 
 mutation TriageWebsiteSubmission($id: ID!, $input: WebsiteSubmissionTriageInput!) {

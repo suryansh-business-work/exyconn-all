@@ -1,13 +1,19 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfTextField,
+  RhfSelect,
+  RhfAutocomplete,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
   LeadSource,
   LeadStage,
+  useCampaignOptionsQuery,
   useCreateLeadMutation,
   useUpdateLeadMutation,
 } from '@exyconn/shell/graphql/generated';
@@ -20,6 +26,7 @@ const schema = z.object({
   stage: z.nativeEnum(LeadStage),
   value: z.coerce.number({ message: 'Value must be a number' }).min(0, 'Must be ≥ 0'),
   owner: z.string().trim().min(1, 'Owner is required'),
+  campaignId: z.string(),
 });
 type Values = z.infer<typeof schema>;
 
@@ -30,6 +37,7 @@ const toInitial = (row: LeadRow | null): Values => ({
   stage: row?.stage ?? LeadStage.New,
   value: row?.value ?? 0,
   owner: row?.owner ?? '',
+  campaignId: row?.campaignId ?? '',
 });
 
 interface LeadFormProps {
@@ -39,13 +47,19 @@ interface LeadFormProps {
 }
 
 /** React Hook Form + Zod form to create or update a lead. */
-export function LeadForm({ initial, onDone, onCancel }: LeadFormProps) {
+export function LeadForm({ initial, onDone, onCancel }: Readonly<LeadFormProps>) {
+  const { data } = useCampaignOptionsQuery();
   const [createLead] = useCreateLeadMutation();
   const [updateLead] = useUpdateLeadMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
+
+  const campaignOptions: SelectOption[] = (data?.campaignOptions ?? []).map((campaign) => ({
+    value: campaign.id,
+    label: campaign.name,
+  }));
 
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Lead',
@@ -63,6 +77,12 @@ export function LeadForm({ initial, onDone, onCancel }: LeadFormProps) {
       <RhfSelect name="stage" label="Stage" options={enumOptions(Object.values(LeadStage))} />
       <RhfTextField name="value" label="Value" type="number" />
       <RhfTextField name="owner" label="Owner" />
+      <RhfAutocomplete
+        name="campaignId"
+        label="Campaign"
+        options={campaignOptions}
+        helperText="Optional. Which campaign this lead came from."
+      />
     </EntityForm>
   );
 }

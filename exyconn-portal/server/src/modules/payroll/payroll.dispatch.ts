@@ -38,6 +38,10 @@ interface SlipRow {
   currency: string;
   gross: number;
   deductions: number;
+  pf: number;
+  esi: number;
+  professionalTax: number;
+  tds: number;
   net: number;
   status: string;
   issuedDate: Date;
@@ -73,6 +77,10 @@ async function render(slip: SlipRow): Promise<RenderedPayslip> {
       currency: slip.currency,
       gross: slip.gross,
       deductions: slip.deductions,
+      pf: slip.pf ?? 0,
+      esi: slip.esi ?? 0,
+      professionalTax: slip.professionalTax ?? 0,
+      tds: slip.tds ?? 0,
       net: slip.net,
       status: slip.status,
       issuedDate: slip.issuedDate,
@@ -85,6 +93,11 @@ async function render(slip: SlipRow): Promise<RenderedPayslip> {
           deductions: structure.deductions,
         }
       : null,
+    identifiers: {
+      pfNumber: structure?.pfNumber ?? '',
+      esiNumber: structure?.esiNumber ?? '',
+      panNumber: structure?.panNumber ?? '',
+    },
   };
 
   return {

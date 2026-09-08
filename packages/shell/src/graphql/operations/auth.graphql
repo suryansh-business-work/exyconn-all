@@ -49,3 +49,11 @@ query MyWorkProfile {
     workHoursPerDay
   }
 }
+
+mutation RequestPasswordReset($email: String!) {
+  requestPasswordReset(email: $email)
+}
+
+mutation ResetPassword($token: String!, $newPassword: String!) {
+  resetPassword(token: $token, newPassword: $newPassword)
+}

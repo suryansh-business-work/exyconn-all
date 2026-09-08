@@ -12,6 +12,7 @@ import {
 import { DealForm, type DealRow } from './forms/deal';
 import { DEAL_COLUMNS, type PagedDealRow, type DealsGridContext } from './deals-grid';
 import { DealsViewToggle } from './DealsViewToggle';
+import { useCreateInvoiceFromDeal } from './useCreateInvoiceFromDeal';
 
 /**
  * CRM → Deals → List: the same opportunities as the board, as a sortable, filterable
@@ -21,6 +22,7 @@ export function DealsListPage() {
   const { data: statsData, refetch: refetchStats } = useListDealsStatsQuery();
   const [deleteDeal] = useDeleteDealMutation();
   const { formatDate } = useSettings();
+  const createInvoice = useCreateInvoiceFromDeal();
   const crud = useCrudResource<DealRow, PagedDealRow>({
     label: 'Deal',
     onDelete: (row) => deleteDeal({ variables: { id: row.id } }),
@@ -41,7 +43,7 @@ export function DealsListPage() {
   ];
 
   const gridContext: DealsGridContext = {
-    actions: { edit: crud.openEdit, delete: crud.remove },
+    actions: { createInvoice, edit: crud.openEdit, delete: crud.remove },
     formatDate,
   };
 
@@ -52,6 +54,7 @@ export function DealsListPage() {
         title="Deals"
         subtitle="Every opportunity, as a register"
         entityLabel="deal"
+        exportFileName="deals"
         stats={statItems}
         crud={crud}
         renderForm={(initial) => (

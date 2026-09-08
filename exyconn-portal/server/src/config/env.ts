@@ -29,6 +29,11 @@ export const env = Object.freeze({
   /** Public portal URL used as the login CTA inside transactional emails. */
   appUrl: process.env.APP_URL ?? 'https://portal.exyconn.com',
   /**
+   * Where a self-service password reset link opens when the request did not come from a
+   * portal origin CORS trusts (a curl, say). A request from a portal links back to itself.
+   */
+  portalHubUrl: process.env.PORTAL_HUB_URL ?? 'https://portal.exyconn.com',
+  /**
    * Body limit for /graphql. Raised well above Express's 100kb default because the
    * desktop tracker posts base64 screenshots through it. It has to clear
    * TRACKER_LIMITS.maxScreenshotBytes with room for base64's 4/3 inflation, or a capture
@@ -55,6 +60,13 @@ export const env = Object.freeze({
      */
     failuresToOpen: Number(process.env.STATUS_FAILURES_TO_OPEN ?? 2),
   },
+  /**
+   * Where a project share link opens. The read-only client view lives on the public status
+   * site, which is the one app with no sign-in and no portal chrome.
+   */
+  projectShareBaseUrl: (
+    process.env.PROJECT_SHARE_BASE_URL ?? 'https://status.exyconn.com'
+  ).replace(/\/$/, ''),
   /** Where a support reply email sends the employee to read the thread. */
   employeeSupportUrl: process.env.EMPLOYEE_SUPPORT_URL ?? 'https://employee.exyconn.com/me/support',
   /** Where the payslip email sends an employee to see the rest of their payslips. */

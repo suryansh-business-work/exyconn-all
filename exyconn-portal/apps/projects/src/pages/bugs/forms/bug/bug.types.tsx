@@ -7,6 +7,8 @@ export interface BugFormValues {
   description: string;
   severity: BugSeverity;
   status: BugStatus;
-  assignee: string;
+  /** Empty when the bug is not on a project. */
+  projectId: string;
+  assigneeId: string;
   dueDate: string;
 }

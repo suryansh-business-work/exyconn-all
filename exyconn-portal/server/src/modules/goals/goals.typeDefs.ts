@@ -48,6 +48,8 @@ export const goalsTypeDefs = gql`
     listGoalsStats: TableStats!
     getGoal(id: ID!): Goal!
     myGoals: [Goal!]!
+    "Manager: every goal of their direct reports."
+    teamGoals: [Goal!]!
   }
 
   extend type Mutation {
@@ -59,5 +61,7 @@ export const goalsTypeDefs = gql`
     comment stay HR/manager-owned.
     """
     updateMyGoalProgress(id: ID!, progress: Int!): Goal!
+    "The employee's manager (or HR) leaves a comment on a direct report's goal."
+    commentOnTeamGoal(id: ID!, comment: String!): Goal!
   }
 `;

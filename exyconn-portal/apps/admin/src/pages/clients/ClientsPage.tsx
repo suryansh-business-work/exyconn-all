@@ -52,6 +52,7 @@ export function ClientsPage() {
       renderForm={(initial) => (
         <ClientForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
+      permissionModule="Client"
       columnDefs={CLIENT_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}

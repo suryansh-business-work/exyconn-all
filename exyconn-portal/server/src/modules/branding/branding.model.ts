@@ -64,6 +64,16 @@ const brandingSchema = new Schema(
 
     copyrightText: { type: String, default: '', trim: true },
 
+    // Invoicing (Admin > Branding > Invoicing) — what a tax invoice prints about us.
+    gstin: { type: String, default: '', trim: true, uppercase: true },
+    /** Two-digit GST state code; decides whether an invoice's tax is CGST+SGST or IGST. */
+    stateCode: { type: String, default: '', trim: true },
+    /** Registered address as it appears on invoices — `address` is the public contact one. */
+    addressLine: { type: String, default: '', trim: true },
+    invoicePrefix: { type: String, default: 'INV-', trim: true },
+    defaultTaxPercent: { type: Number, default: 18, min: 0, max: 100 },
+    bankDetails: { type: String, default: '' },
+
     // Per-portal login screens (Admin > Branding > Login Pages).
     loginPages: { type: [loginPageSchema], default: [] },
   },

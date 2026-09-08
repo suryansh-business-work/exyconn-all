@@ -1,5 +1,11 @@
 import { useFormContext } from 'react-hook-form';
-import { RhfImageField, RhfSelect, RhfTextField, type SelectOption } from '@/components/form/rhf';
+import {
+  RhfAutocomplete,
+  RhfImageField,
+  RhfSelect,
+  RhfTextField,
+  type SelectOption,
+} from '@/components/form/rhf';
 import { enumOptions } from '@/utils/enumOptions';
 import { EmploymentStatus, WorkingTime, WorkLocation } from '@/graphql/generated';
 import { DEFAULT_WORK_HOURS } from '@/components/work';
@@ -40,12 +46,14 @@ export function ProfileFields() {
 interface EmploymentFieldsProps {
   departmentOptions: SelectOption[];
   positionOptions: SelectOption[];
+  managerOptions: SelectOption[];
 }
 
-/** Where the employee sits in the organisation, and since when. */
+/** Where the employee sits in the organisation, who they report to, and since when. */
 export function EmploymentFields({
   departmentOptions,
   positionOptions,
+  managerOptions,
 }: Readonly<EmploymentFieldsProps>) {
   return (
     <>
@@ -62,6 +70,12 @@ export function EmploymentFields({
         label="Designation"
         options={positionOptions}
         helperText={positionOptions.length ? undefined : 'Add positions in HR → Positions first.'}
+      />
+      <RhfAutocomplete
+        name="managerId"
+        label="Reports to"
+        options={managerOptions}
+        helperText="Their manager may approve leave and requests, and writes their appraisal."
       />
       <RhfSelect
         name="employmentStatus"

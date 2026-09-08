@@ -43,6 +43,69 @@ mutation CreateMyRequest($input: MyRequestInput!) {
   }
 }
 
+# The manager's side: what direct reports have asked for, and the decisions on it.
+
+query TeamRequests {
+  teamRequests {
+    id
+    employeeId
+    type
+    subject
+    details
+    status
+    decisionNote
+    createdAt
+  }
+}
+
+mutation DecideEmployeeRequest($id: ID!, $status: RequestStatus!, $decisionNote: String) {
+  decideEmployeeRequest(id: $id, status: $status, decisionNote: $decisionNote) {
+    id
+    status
+  }
+}
+
+query TeamGoals {
+  teamGoals {
+    id
+    employeeId
+    title
+    kpi
+    weightage
+    endDate
+    progress
+    status
+    managerComment
+  }
+}
+
+mutation CommentOnTeamGoal($id: ID!, $comment: String!) {
+  commentOnTeamGoal(id: $id, comment: $comment) {
+    id
+    managerComment
+  }
+}
+
+query TeamPerformanceReviews {
+  teamPerformanceReviews {
+    id
+    employeeId
+    cycle
+    selfAssessment
+    managerAssessment
+    score
+    status
+    updatedAt
+  }
+}
+
+mutation SubmitManagerAssessment($id: ID!, $managerAssessment: String!, $score: Int) {
+  submitManagerAssessment(id: $id, managerAssessment: $managerAssessment, score: $score) {
+    id
+    status
+  }
+}
+
 query MyGoals {
   myGoals {
     id

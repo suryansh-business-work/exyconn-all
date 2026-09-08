@@ -1,16 +1,24 @@
+fragment CampaignFields on Campaign {
+  id
+  name
+  channel
+  budget
+  startDate
+  endDate
+  status
+  subject
+  body
+  templateKey
+  lastSentAt
+  recipientsCount
+  scheduledAt
+  scheduledAudienceListId
+  scheduleDispatchedAt
+}
+
 query ListCampaigns {
   listCampaigns {
-    id
-    name
-    channel
-    budget
-    startDate
-    endDate
-    status
-    subject
-    body
-    lastSentAt
-    recipientsCount
+    ...CampaignFields
   }
 }
 
@@ -18,17 +26,7 @@ query ListCampaignsPaged($input: TableQueryInput!) {
   listCampaignsPaged(input: $input) {
     totalCount
     rows {
-      id
-      name
-      channel
-      budget
-      startDate
-      endDate
-      status
-      subject
-      body
-      lastSentAt
-      recipientsCount
+      ...CampaignFields
     }
   }
 }
@@ -70,6 +68,7 @@ mutation SendCampaign($id: ID!, $audienceListId: ID, $testEmail: String) {
   sendCampaign(id: $id, audienceListId: $audienceListId, testEmail: $testEmail) {
     sent
     failed
+    skipped
     campaign {
       id
       lastSentAt
@@ -78,11 +77,60 @@ mutation SendCampaign($id: ID!, $audienceListId: ID, $testEmail: String) {
   }
 }
 
+query CampaignPreview($id: ID!, $audienceListId: ID!) {
+  campaignPreview(id: $id, audienceListId: $audienceListId) {
+    recipient
+    subject
+    body
+  }
+}
+
+query CampaignSendSummary($campaignId: ID!) {
+  campaignSendSummary(campaignId: $campaignId) {
+    sent
+    failed
+    skipped
+  }
+}
+
+query CampaignOptions {
+  campaignOptions {
+    id
+    name
+  }
+}
+
+query LeadsByCampaign($campaignId: ID!) {
+  leadsByCampaign(campaignId: $campaignId)
+}
+
+query CampaignLeadCounts {
+  campaignLeadCounts {
+    campaignId
+    campaignName
+    leads
+  }
+}
+
 fragment AudienceListFields on AudienceList {
   id
   name
   description
   clientIds
+  contactIds
+  dynamicSegment
+  segmentValue
+}
+
+query AudienceMembers($id: ID!) {
+  audienceMembers(id: $id) {
+    id
+    email
+    name
+    company
+    status
+    kind
+  }
 }
 
 query ListAudienceLists {
@@ -125,4 +173,58 @@ query ListCampaignSends($campaignId: ID!) {
     error
     sentAt
   }
+}
+
+fragment MarketingSuppressionFields on MarketingSuppression {
+  id
+  email
+  reason
+  source
+  createdAt
+}
+
+query ListMarketingSuppressionsPaged($input: TableQueryInput!) {
+  listMarketingSuppressionsPaged(input: $input) {
+    totalCount
+    rows {
+      ...MarketingSuppressionFields
+    }
+  }
+}
+
+query ListMarketingSuppressionsStats {
+  listMarketingSuppressionsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateMarketingSuppression($input: MarketingSuppressionInput!) {
+  createMarketingSuppression(input: $input) {
+    id
+  }
+}
+
+mutation UpdateMarketingSuppression($id: ID!, $input: MarketingSuppressionInput!) {
+  updateMarketingSuppression(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteMarketingSuppression($id: ID!) {
+  deleteMarketingSuppression(id: $id)
+}
+
+mutation UnsubscribeFromMarketing($token: String!) {
+  unsubscribeFromMarketing(token: $token)
 }

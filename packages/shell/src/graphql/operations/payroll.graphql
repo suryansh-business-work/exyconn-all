@@ -14,6 +14,12 @@ fragment SalaryStructureFields on SalaryStructure {
   billingRate
   gross
   net
+  pfApplicable
+  esiApplicable
+  tdsPercent
+  pfNumber
+  esiNumber
+  panNumber
   effectiveFrom
 }
 
@@ -160,5 +166,30 @@ mutation SendSalarySlips($month: Int!, $year: Int!) {
     sent
     failed
     skipped
+  }
+}
+
+fragment PayrollSettingsFields on PayrollSettings {
+  pfEnabled
+  pfEmployeePercent
+  pfWageCeiling
+  esiEnabled
+  esiEmployeePercent
+  esiWageLimit
+  professionalTaxMonthly
+  tdsMode
+  tdsFlatPercent
+}
+
+# The company-wide statutory deduction policy every payslip is worked out from.
+query PayrollSettings {
+  payrollSettings {
+    ...PayrollSettingsFields
+  }
+}
+
+mutation UpdatePayrollSettings($input: PayrollSettingsInput!) {
+  updatePayrollSettings(input: $input) {
+    ...PayrollSettingsFields
   }
 }

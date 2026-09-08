@@ -5,6 +5,7 @@ import {
   DELETE_ACTION,
   EDIT_ACTION,
   actionsColumn,
+  derivedColumn,
   statusColumn,
   textColumn,
   type CrudGridContext,
@@ -56,6 +57,7 @@ export const PROMPT_COLUMNS: ColDef<PagedPromptRow>[] = [
   textColumn('title', 'Title'),
   statusColumn('category', 'Category'),
   textColumn('content', 'Prompt', (row) => row.content.slice(0, CONTENT_PREVIEW_CHARS)),
+  derivedColumn('variables', 'Variables', (row) => row.variables.join(', ') || '—'),
   {
     colId: 'tags',
     headerName: 'Tags',

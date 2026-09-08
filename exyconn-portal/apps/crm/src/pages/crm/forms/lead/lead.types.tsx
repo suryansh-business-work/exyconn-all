@@ -9,4 +9,5 @@ export interface LeadFormValues {
   stage: LeadStage;
   value: number;
   owner: string;
+  campaignId: string;
 }

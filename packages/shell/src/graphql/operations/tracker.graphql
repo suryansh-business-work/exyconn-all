@@ -219,6 +219,27 @@ query TrackerBilling($from: DateTime!, $to: DateTime!) {
   }
 }
 
+query TrackerBillingByProject($from: DateTime!, $to: DateTime!, $projectId: ID) {
+  trackerBillingByProject(from: $from, to: $to, projectId: $projectId) {
+    projectId
+    projectName
+    clientId
+    clientName
+    currency
+    hours
+    amount
+    budgetHours
+    budgetAmount
+    employees {
+      employeeId
+      employeeName
+      hours
+      rate
+      amount
+    }
+  }
+}
+
 fragment TrackerManualEntryFields on TrackerManualEntry {
   id
   userId

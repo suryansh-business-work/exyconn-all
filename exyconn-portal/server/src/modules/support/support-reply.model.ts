@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { attachmentSchema } from './attachment.schema';
 
 /**
  * One message on a ticket. `internal` marks a note the team writes to itself:
@@ -12,6 +13,8 @@ const supportReplySchema = new Schema(
     authorName: { type: String, required: true, trim: true },
     body: { type: String, required: true, trim: true },
     internal: { type: Boolean, required: true, default: false },
+    /** Files posted with this message. */
+    attachments: { type: [attachmentSchema], default: [] },
   },
   { timestamps: true },
 );

@@ -15,6 +15,25 @@ export const PROBLEM_CATEGORIES = ['OUTAGE', 'SLOWNESS', 'LOGIN', 'DATA', 'UI', 
 export const PROBLEM_SEVERITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
 export const PROBLEM_STATUSES = ['NEW', 'TRIAGED', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const;
 
+/** Who opened an incident: the probe loop, or a person from Tech > Incidents. */
+export const INCIDENT_SOURCES = ['MONITOR', 'MANUAL'] as const;
+export type IncidentSource = (typeof INCIDENT_SOURCES)[number];
+
+export const INCIDENT_IMPACTS = ['MINOR', 'MAJOR', 'CRITICAL'] as const;
+export type IncidentImpact = (typeof INCIDENT_IMPACTS)[number];
+
+/** The lifecycle an incident's updates walk through; RESOLVED closes it. */
+export const INCIDENT_UPDATE_STATUSES = [
+  'INVESTIGATING',
+  'IDENTIFIED',
+  'MONITORING',
+  'RESOLVED',
+] as const;
+export type IncidentUpdateStatus = (typeof INCIDENT_UPDATE_STATUSES)[number];
+
+/** The author stamped on updates the probe loop writes itself. */
+export const MONITOR_AUTHOR = 'Status monitor';
+
 /** One monitored endpoint in the seed catalogue, before the domain is applied. */
 interface TargetTemplate {
   key: string;

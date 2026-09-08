@@ -4,7 +4,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { gridContextWith } from './gridContext';
 import type { ServerDataGridProps } from './ServerDataGrid.impl';
 
-export type { TablePageResult } from './ServerDataGrid.impl';
+export type { GridQuery, TablePageResult } from './ServerDataGrid.impl';
 
 // ag-grid (~1 MB) lives entirely in ServerDataGrid.impl. Loading it through a dynamic
 // import keeps ag-grid out of the main bundle — it downloads only when a grid page opens.

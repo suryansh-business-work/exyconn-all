@@ -15,6 +15,8 @@ export const financeTypeDefs = gql`
     quantity: Float!
     rate: Float!
     taxPercent: Float!
+    "HSN (goods) or SAC (services) code, printed per line on a GST invoice."
+    hsnSac: String!
     amount: Float!
   }
 
@@ -23,6 +25,13 @@ export const financeTypeDefs = gql`
     quantity: Float!
     rate: Float!
     taxPercent: Float!
+    hsnSac: String
+  }
+
+  "One state or union territory as the GST portal numbers it."
+  type GstState {
+    code: String!
+    name: String!
   }
 
   type Invoice {
@@ -40,6 +49,26 @@ export const financeTypeDefs = gql`
     dueDate: DateTime!
     "When the invoice was last emailed to the client."
     sentAt: DateTime
+    "The project whose time log raised this invoice; null when it was written by hand."
+    projectId: String
+    periodFrom: DateTime
+    periodTo: DateTime
+    "The won deal this invoice bills; empty when it was written by hand."
+    dealId: String!
+    "Two-digit GST state code of the client's place of supply."
+    placeOfSupplyStateCode: String!
+    "Our GST state code when the invoice was written."
+    supplierStateCode: String!
+    "The lines before tax."
+    subtotal: Float!
+    "The tax the lines add, whichever heads it falls under."
+    taxTotal: Float!
+    "Half the tax when the place of supply is our own state; otherwise 0."
+    cgst: Float!
+    "The other half of an intra-state tax; otherwise 0."
+    sgst: Float!
+    "The whole tax when the place of supply is another state; otherwise 0."
+    igst: Float!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -54,6 +83,7 @@ export const financeTypeDefs = gql`
     status: InvoiceStatus!
     issuedDate: DateTime!
     dueDate: DateTime!
+    placeOfSupplyStateCode: String
   }
 
   type InvoicePage {
@@ -68,6 +98,8 @@ export const financeTypeDefs = gql`
     getInvoice(id: ID!): Invoice!
     "The invoice as a PDF, base64 encoded."
     invoicePdf(id: ID!): String!
+    "India's GST state codes, for a place-of-supply or state picker."
+    gstStates: [GstState!]!
   }
 
   extend type Mutation {
@@ -76,5 +108,13 @@ export const financeTypeDefs = gql`
     deleteInvoice(id: ID!): Boolean!
     "Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt."
     sendInvoice(id: ID!, email: String!, message: String): Invoice!
+    "A draft invoice billing a won deal's value to its client. Refused if one already exists."
+    createInvoiceFromDeal(dealId: ID!): Invoice!
+    """
+    A DRAFT invoice for a project's billable time: one line per employee at their HR billing
+    rate. FINANCE or PROJECTS. Refused when the project has no client, the period has no
+    hours, or an employee has no rate.
+    """
+    createInvoiceFromTimeLog(projectId: ID!, from: DateTime!, to: DateTime!): Invoice!
   }
 `;

@@ -1,0 +1,69 @@
+fragment ApplicantFields on Applicant {
+  id
+  jobCode
+  jobTitle
+  companySlug
+  name
+  email
+  phone
+  resumeUrl
+  coverLetter
+  source
+  stage
+  rating
+  notes
+  submissionId
+  stageChangedAt
+  createdAt
+}
+
+query ListApplicantsPaged($input: TableQueryInput!) {
+  listApplicantsPaged(input: $input) {
+    rows {
+      ...ApplicantFields
+    }
+    totalCount
+  }
+}
+
+query ListApplicantsStats {
+  listApplicantsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateApplicant($input: ApplicantInput!) {
+  createApplicant(input: $input) {
+    id
+  }
+}
+
+mutation UpdateApplicant($id: ID!, $input: ApplicantInput!) {
+  updateApplicant(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteApplicant($id: ID!) {
+  deleteApplicant(id: $id)
+}
+
+mutation SetApplicantStage($id: ID!, $stage: ApplicantStage!, $note: String) {
+  setApplicantStage(id: $id, stage: $stage, note: $note) {
+    id
+    stage
+    stageChangedAt
+    notes
+  }
+}

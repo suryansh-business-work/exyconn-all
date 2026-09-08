@@ -50,6 +50,7 @@ export function ContactsPage() {
       title="Contacts"
       subtitle="People at the accounts"
       entityLabel="contact"
+      exportFileName="contacts"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (

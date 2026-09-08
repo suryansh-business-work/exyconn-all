@@ -2,7 +2,7 @@ import { isValidObjectId } from 'mongoose';
 import { InvoiceModel } from './finance.model';
 import { buildInvoicePdf, formatAmount, invoiceFilename, type InvoicePdfData } from './invoice.pdf';
 import { ClientModel } from '../clients/clients.model';
-import { BrandingModel } from '../branding/branding.model';
+import { getBranding } from '../branding/branding.service';
 import { emailer } from '../email';
 import { assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
@@ -30,21 +30,28 @@ async function renderInvoice(id: string): Promise<RenderedInvoice> {
   }
   const [client, branding] = await Promise.all([
     isValidObjectId(invoice.clientId)
-      ? ClientModel.findById(invoice.clientId).select('name company email').lean()
+      ? ClientModel.findById(invoice.clientId)
+          .select('name company email gstin billingAddress')
+          .lean()
       : null,
-    BrandingModel.findOne().lean(),
+    getBranding(),
   ]);
 
   const data: InvoicePdfData = {
     company: {
-      name: branding?.businessName ?? 'Exyconn',
-      address: branding?.address ?? '',
-      supportEmail: branding?.supportEmail ?? '',
+      name: branding.businessName,
+      address: branding.addressLine || branding.address,
+      supportEmail: branding.supportEmail,
+      gstin: branding.gstin,
+      stateCode: branding.stateCode,
+      bankDetails: branding.bankDetails,
     },
     client: {
       name: invoice.clientName || client?.name || invoice.clientId,
       company: client?.company ?? '',
       email: client?.email ?? '',
+      gstin: client?.gstin ?? '',
+      billingAddress: client?.billingAddress ?? '',
     },
     invoice: {
       number: invoice.number,
@@ -55,6 +62,8 @@ async function renderInvoice(id: string): Promise<RenderedInvoice> {
       lines: invoice.lines ?? [],
       amount: invoice.amount,
       amountPaid: invoice.amountPaid ?? 0,
+      placeOfSupplyStateCode: invoice.placeOfSupplyStateCode ?? '',
+      supplierStateCode: invoice.supplierStateCode ?? '',
     },
   };
   return { filename: invoiceFilename(invoice.number), pdf: await buildInvoicePdf(data), data };

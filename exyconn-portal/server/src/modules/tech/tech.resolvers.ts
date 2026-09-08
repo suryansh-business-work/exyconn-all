@@ -1,8 +1,10 @@
 import { techService } from './tech.service';
-import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
+import { assertAuthenticated } from '../../middleware/roleGuard';
+import { assertPermission } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
+import type { PermissionAction } from '../permissions/permission.model';
 import type { PexelsSearchFilters } from '../../utils/pexels';
 import type {
   EmailConfigInput,
@@ -17,6 +19,13 @@ import type {
 /** The Tech module owns these screens; ADMIN passes every guard anyway. */
 const techOnly = [ROLES.TECH];
 
+/** The module name the admin permission matrix restricts these screens under. */
+const TECH_MODULE = 'TechConfig';
+
+/** Role first, then whatever the matrix leaves the caller's role in this module. */
+const guard = (ctx: GraphQLContext, action: PermissionAction) =>
+  assertPermission(ctx, TECH_MODULE, techOnly, action);
+
 /** Arguments both stock searches take: the term, the page and the dialog's filter row. */
 interface PexelsSearchArgs {
   query: string;
@@ -30,27 +39,27 @@ const FIRST_PAGE = 1;
 export const techResolvers = {
   Query: {
     listEmailConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'VIEW');
       return withIds(await techService.listEmailConfigs());
     },
     listImageConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'VIEW');
       return withIds(await techService.listImageConfigs());
     },
     listSlackConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'VIEW');
       return withIds(await techService.listSlackConfigs());
     },
     listGithubConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'VIEW');
       return withIds(await techService.listGithubConfigs());
     },
     listPexelsConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'VIEW');
       return withIds(await techService.listPexelsConfigs());
     },
     listOpenAiConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'VIEW');
       return withIds(await techService.listOpenAiConfigs());
     },
     // The stock tabs live in the shared upload dialog, which every portal renders, so
@@ -72,15 +81,15 @@ export const techResolvers = {
       return techService.searchPexelsVideos(query, page ?? FIRST_PAGE, filters ?? {});
     },
     listSlackChannels: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'VIEW');
       return techService.listSlackChannels();
     },
     listTrackerBuilds: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'VIEW');
       return techService.listTrackerBuilds();
     },
     trackerBuildSettings: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'VIEW');
       return techService.trackerBuildSettings();
     },
   },
@@ -90,7 +99,7 @@ export const techResolvers = {
       { input }: { input: EmailConfigInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'CREATE');
       return withId(await techService.createEmailConfig(input));
     },
     updateEmailConfig: async (
@@ -98,11 +107,11 @@ export const techResolvers = {
       { id, input }: { id: string; input: EmailConfigInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return withId(await techService.updateEmailConfig(id, input));
     },
     deleteEmailConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'DELETE');
       return techService.deleteEmailConfig(id);
     },
     createImageConfig: async (
@@ -110,7 +119,7 @@ export const techResolvers = {
       { input }: { input: ImageConfigInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'CREATE');
       return withId(await techService.createImageConfig(input));
     },
     updateImageConfig: async (
@@ -118,11 +127,11 @@ export const techResolvers = {
       { id, input }: { id: string; input: ImageConfigInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return withId(await techService.updateImageConfig(id, input));
     },
     deleteImageConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'DELETE');
       return techService.deleteImageConfig(id);
     },
     sendTestEmail: async (
@@ -130,7 +139,7 @@ export const techResolvers = {
       { id, to }: { id: string; to: string },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return techService.sendTestEmail(id, to);
     },
     testImageUpload: async (
@@ -138,7 +147,7 @@ export const techResolvers = {
       { id, file, fileName }: { id: string; file: string; fileName: string },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return techService.testImageUpload(id, file, fileName);
     },
     createSlackConfig: async (
@@ -146,7 +155,7 @@ export const techResolvers = {
       { input }: { input: SlackConfigInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'CREATE');
       return withId(await techService.createSlackConfig(input));
     },
     updateSlackConfig: async (
@@ -154,11 +163,11 @@ export const techResolvers = {
       { id, input }: { id: string; input: SlackConfigInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return withId(await techService.updateSlackConfig(id, input));
     },
     deleteSlackConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'DELETE');
       return techService.deleteSlackConfig(id);
     },
     sendTestSlackMessage: async (
@@ -166,7 +175,7 @@ export const techResolvers = {
       { id, channel }: { id: string; channel: string },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return techService.sendTestSlackMessage(id, channel);
     },
     createGithubConfig: async (
@@ -174,7 +183,7 @@ export const techResolvers = {
       { input }: { input: GithubConfigInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'CREATE');
       return withId(await techService.createGithubConfig(input));
     },
     updateGithubConfig: async (
@@ -182,15 +191,15 @@ export const techResolvers = {
       { id, input }: { id: string; input: GithubConfigInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return withId(await techService.updateGithubConfig(id, input));
     },
     deleteGithubConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'DELETE');
       return techService.deleteGithubConfig(id);
     },
     testGithubConnection: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return techService.testGithubConnection(id);
     },
     createPexelsConfig: async (
@@ -198,7 +207,7 @@ export const techResolvers = {
       { input }: { input: PexelsConfigInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'CREATE');
       return withId(await techService.createPexelsConfig(input));
     },
     updatePexelsConfig: async (
@@ -206,15 +215,15 @@ export const techResolvers = {
       { id, input }: { id: string; input: PexelsConfigInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return withId(await techService.updatePexelsConfig(id, input));
     },
     deletePexelsConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'DELETE');
       return techService.deletePexelsConfig(id);
     },
     testPexelsConnection: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return techService.testPexelsConnection(id);
     },
     createOpenAiConfig: async (
@@ -222,7 +231,7 @@ export const techResolvers = {
       { input }: { input: OpenAiConfigInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'CREATE');
       return withId(await techService.createOpenAiConfig(input));
     },
     updateOpenAiConfig: async (
@@ -230,15 +239,15 @@ export const techResolvers = {
       { id, input }: { id: string; input: OpenAiConfigInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return withId(await techService.updateOpenAiConfig(id, input));
     },
     deleteOpenAiConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'DELETE');
       return techService.deleteOpenAiConfig(id);
     },
     testOpenAiConnection: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return techService.testOpenAiConnection(id);
     },
     startTrackerBuild: async (
@@ -246,7 +255,7 @@ export const techResolvers = {
       { platforms, ref }: { platforms: TrackerPlatform[]; ref: string },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'CREATE');
       return techService.startTrackerBuild(platforms, ref);
     },
     saveTrackerBuildSettings: async (
@@ -257,7 +266,7 @@ export const techResolvers = {
       }: { slackChannels: string[]; statusAlertChannels?: string[] | null },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, techOnly);
+      await guard(ctx, 'EDIT');
       return techService.saveTrackerBuildSettings(slackChannels, statusAlertChannels);
     },
   },

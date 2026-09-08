@@ -10,6 +10,11 @@ export interface GraphQLContext {
    * Optional because a resolver can also be called directly (tests, internal jobs).
    */
   ip?: string;
+  /**
+   * The `Origin` header, so a password reset link can point back at the portal that asked
+   * for it. Caller-supplied: check it against the CORS list before trusting it.
+   */
+  origin?: string;
 }
 
 /**
@@ -25,17 +30,18 @@ export interface GraphQLContext {
  */
 export async function buildContext({ req }: { req: Request }): Promise<GraphQLContext> {
   const ip = req.ip ?? 'unknown';
+  const origin = req.headers.origin;
   const header = req.headers.authorization ?? '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
   const decoded = token ? verifyToken(token) : null;
   if (!decoded) {
-    return { user: null, ip };
+    return { user: null, ip, origin };
   }
 
   const fresh = await UserModel.findById(decoded.id).select('roles isActive isBlocked').lean();
   if (!fresh || !fresh.isActive || fresh.isBlocked) {
-    return { user: null, ip };
+    return { user: null, ip, origin };
   }
 
-  return { user: { ...decoded, roles: fresh.roles as Role[] }, ip };
+  return { user: { ...decoded, roles: fresh.roles as Role[] }, ip, origin };
 }

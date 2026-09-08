@@ -14,6 +14,7 @@ import {
   useListSupportTicketsStatsQuery,
   type ListSupportTicketsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
+import { raisedBy } from './tickets-grid';
 
 type TicketRow = ListSupportTicketsPagedQuery['listSupportTicketsPaged']['rows'][number];
 
@@ -63,7 +64,7 @@ export function SupportOverviewPage() {
 
   const columns: Column<TicketRow>[] = [
     { key: 'subject', label: 'Subject' },
-    { key: 'employeeName', label: 'Raised by', render: (r) => r.employeeName ?? '—' },
+    { key: 'raisedBy', label: 'Raised by', render: raisedBy },
     { key: 'priority', label: 'Priority', render: (r) => <StatusChip value={r.priority} /> },
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
     { key: 'createdAt', label: 'Raised', render: (r) => formatDate(r.createdAt) },

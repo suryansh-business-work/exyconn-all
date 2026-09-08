@@ -17,6 +17,7 @@ import {
   useDeleteTaskCommentMutation,
 } from '@exyconn/shell/graphql/generated';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { AttachmentList, AttachmentPicker, type PickedAttachment } from '../attachments';
 import { initialsOf } from './ticket-meta';
 
 interface TicketCommentsProps {
@@ -31,6 +32,9 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
   const [addComment, { loading: adding }] = useAddTaskCommentMutation();
   const [deleteComment] = useDeleteTaskCommentMutation();
   const [body, setBody] = useState('');
+  // One file per comment: a comment carrying a document is the case people ask for, and a
+  // multi-file tray here would compete with the ticket's own attachment list.
+  const [file, setFile] = useState<PickedAttachment | null>(null);
 
   const comments = data?.taskComments ?? [];
 
@@ -40,8 +44,11 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
   const submit = async () => {
     if (body.trim() === '') return;
     try {
-      await addComment({ variables: { taskId, body: body.trim() } });
+      await addComment({
+        variables: { taskId, body: body.trim(), attachments: file ? [file] : [] },
+      });
       setBody('');
+      setFile(null);
       await refetch();
     } catch (error) {
       fail(error);
@@ -82,6 +89,11 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
               <Text size="sm" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                 {comment.body}
               </Text>
+              {comment.attachments.length > 0 ? (
+                <Box sx={{ mt: 1 }}>
+                  <AttachmentList files={comment.attachments} />
+                </Box>
+              ) : null}
             </Box>
             <IconButton
               size="small"
@@ -110,15 +122,23 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
         onChange={(event) => setBody(event.target.value)}
         sx={{ mt: 2 }}
       />
-      <Button
-        size="small"
-        variant="contained"
-        sx={{ mt: 1 }}
-        disabled={adding || body.trim() === ''}
-        onClick={submit}
-      >
-        Comment
-      </Button>
+      {file ? (
+        <Box sx={{ mt: 1 }}>
+          <AttachmentList files={[file]} />
+        </Box>
+      ) : null}
+
+      <Flex direction="row" alignItems="center" spacing={1} sx={{ mt: 1 }}>
+        <Button
+          size="small"
+          variant="contained"
+          disabled={adding || body.trim() === ''}
+          onClick={submit}
+        >
+          Comment
+        </Button>
+        <AttachmentPicker label="Attach" showHelp={false} onPicked={setFile} />
+      </Flex>
     </Box>
   );
 }

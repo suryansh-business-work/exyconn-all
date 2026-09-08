@@ -22,6 +22,8 @@ const companySchema = new Schema(
     location: { type: String, default: '', trim: true },
     owner: { type: String, required: true, trim: true },
     notes: { type: String, default: '' },
+    /** The Admin client this account became when a deal was won; empty until then. */
+    clientId: { type: String, default: '', trim: true },
   },
   { timestamps: true },
 );

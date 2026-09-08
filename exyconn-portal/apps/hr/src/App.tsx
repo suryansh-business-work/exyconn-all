@@ -13,10 +13,14 @@ import {
 } from './pages/hr';
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
 import { AnnouncementsPage } from './pages/announcements';
+import { OrgChartPage } from './pages/org-chart';
 import { ReportsPage } from './pages/reports';
 import { SalariesPage } from './pages/salaries';
 import { PayrollPage } from './pages/payroll';
 import { PayslipSchedulePage } from './pages/payslip-schedule';
+import { PayrollSettingsPage } from './pages/payroll-settings';
+import { OnboardingPage } from './pages/onboarding';
+import { OnboardingTemplatesPage } from './pages/onboarding-templates';
 import { NotifyPage } from './pages/notify';
 import { LocationsPage } from './pages/locations';
 import { TeamsPage } from './pages/teams';
@@ -33,6 +37,7 @@ import { PerformancePage } from './pages/performance';
 import { DocumentsPage } from './pages/documents';
 import { BenefitsPage } from './pages/benefits';
 import { TrainingPage } from './pages/training';
+import { ApplicantsPage } from './pages/applicants';
 
 /** HR micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -43,6 +48,7 @@ export function App() {
       <Route path="/hr/employees/new" element={<EmployeeFormPage />} />
       <Route path="/hr/employees/:id" element={<UserDetailsPage />} />
       <Route path="/hr/employees/:id/edit" element={<EmployeeFormPage />} />
+      <Route path="/hr/org-chart" element={<OrgChartPage />} />
       <Route path="/hr/leave" element={<HrPage />} />
       <Route path="/hr/attendance" element={<AttendanceListPage />} />
       <Route path="/hr/departments" element={<DepartmentsPage />} />
@@ -51,6 +57,9 @@ export function App() {
       <Route path="/hr/salaries" element={<SalariesPage />} />
       <Route path="/hr/payroll" element={<PayrollPage />} />
       <Route path="/hr/payslip-schedule" element={<PayslipSchedulePage />} />
+      <Route path="/hr/payroll-settings" element={<PayrollSettingsPage />} />
+      <Route path="/hr/onboarding" element={<OnboardingPage />} />
+      <Route path="/hr/onboarding-templates" element={<OnboardingTemplatesPage />} />
       <Route path="/hr/notify" element={<NotifyPage />} />
       <Route path="/hr/locations" element={<LocationsPage />} />
       <Route path="/hr/teams" element={<TeamsPage />} />
@@ -68,6 +77,7 @@ export function App() {
       <Route path="/hr/benefits" element={<BenefitsPage />} />
       <Route path="/hr/training" element={<TrainingPage />} />
       <Route path="/hr/positions" element={<PositionsPage />} />
+      <Route path="/hr/applicants" element={<ApplicantsPage />} />
     </PortalApp>
   );
 }

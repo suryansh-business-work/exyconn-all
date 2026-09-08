@@ -1,0 +1,98 @@
+fragment SprintFields on Sprint {
+  id
+  projectId
+  name
+  goal
+  startsOn
+  endsOn
+  state
+}
+
+fragment MilestoneFields on Milestone {
+  id
+  projectId
+  name
+  description
+  dueOn
+  state
+}
+
+query ProjectSprints($projectId: ID!) {
+  projectSprints(projectId: $projectId) {
+    ...SprintFields
+  }
+}
+
+query ProjectMilestones($projectId: ID!) {
+  projectMilestones(projectId: $projectId) {
+    ...MilestoneFields
+  }
+}
+
+query SprintCompletionPlan($id: ID!) {
+  sprintCompletionPlan(id: $id) {
+    unfinishedCount
+    targetSprintId
+    targetSprintName
+  }
+}
+
+mutation CreateSprint($projectId: ID!, $input: SprintInput!) {
+  createSprint(projectId: $projectId, input: $input) {
+    id
+  }
+}
+
+mutation UpdateSprint($id: ID!, $input: SprintInput!) {
+  updateSprint(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteSprint($id: ID!) {
+  deleteSprint(id: $id)
+}
+
+mutation StartSprint($id: ID!) {
+  startSprint(id: $id) {
+    id
+    state
+  }
+}
+
+mutation CompleteSprint($id: ID!) {
+  completeSprint(id: $id) {
+    id
+    state
+  }
+}
+
+mutation CreateMilestone($projectId: ID!, $input: MilestoneInput!) {
+  createMilestone(projectId: $projectId, input: $input) {
+    id
+  }
+}
+
+mutation UpdateMilestone($id: ID!, $input: MilestoneInput!) {
+  updateMilestone(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteMilestone($id: ID!) {
+  deleteMilestone(id: $id)
+}
+
+mutation SetTaskSprint($taskId: ID!, $sprintId: ID) {
+  setTaskSprint(taskId: $taskId, sprintId: $sprintId) {
+    id
+    sprintId
+  }
+}
+
+mutation SetTaskParent($taskId: ID!, $parentTaskId: ID) {
+  setTaskParent(taskId: $taskId, parentTaskId: $parentTaskId) {
+    id
+    parentTaskId
+  }
+}

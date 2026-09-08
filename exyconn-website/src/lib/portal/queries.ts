@@ -1,4 +1,4 @@
-import { portalRequest } from './client';
+import { portalRequest } from "./client";
 import type {
   Branding,
   Gig,
@@ -7,7 +7,9 @@ import type {
   JobWithCompany,
   NavLink,
   PublicPolicy,
-} from './types';
+  Tool,
+  ToolCategory,
+} from "./types";
 
 const COMPANY_FIELDS = `
   id companyCode slug name logo tagline description culture website founded employees
@@ -27,6 +29,14 @@ const GIG_FIELDS = `
   tags budget duration status applicationType applicationContact postedDate deadline isUrgent
 `;
 
+const TOOL_CATEGORY_FIELDS = `id slug category description icon color order`;
+
+const TOOL_FIELDS = `
+  id toolCode categorySlug name description longDescription url icon color
+  features useCases keywords isMVP order
+  pricing { price currency features alterationNote }
+`;
+
 const NAV_LINK_FIELDS = `id label href description category keywords`;
 
 const BRANDING_FIELDS = `
@@ -42,7 +52,7 @@ const BRANDING_FIELDS = `
 
 export async function getJobCompanies(): Promise<JobCompany[]> {
   const data = await portalRequest<{ publicJobCompanies: JobCompany[] }>(
-    `query { publicJobCompanies { ${COMPANY_FIELDS} } }`,
+    `query { publicJobCompanies { ${COMPANY_FIELDS} } }`
   );
   return data.publicJobCompanies;
 }
@@ -50,7 +60,7 @@ export async function getJobCompanies(): Promise<JobCompany[]> {
 export async function getJobCompany(slug: string): Promise<JobCompany | null> {
   const data = await portalRequest<{ publicJobCompany: JobCompany | null }>(
     `query GetJobCompany($slug: String!) { publicJobCompany(slug: $slug) { ${COMPANY_FIELDS} } }`,
-    { slug },
+    { slug }
   );
   return data.publicJobCompany;
 }
@@ -58,7 +68,7 @@ export async function getJobCompany(slug: string): Promise<JobCompany | null> {
 export async function getJobs(companySlug?: string): Promise<Job[]> {
   const data = await portalRequest<{ publicJobs: Job[] }>(
     `query GetJobs($companySlug: String) { publicJobs(companySlug: $companySlug) { ${JOB_FIELDS} } }`,
-    { companySlug },
+    { companySlug }
   );
   return data.publicJobs;
 }
@@ -66,7 +76,7 @@ export async function getJobs(companySlug?: string): Promise<Job[]> {
 export async function getJob(jobCode: string): Promise<Job | null> {
   const data = await portalRequest<{ publicJob: Job | null }>(
     `query GetJob($jobCode: String!) { publicJob(jobCode: $jobCode) { ${JOB_FIELDS} } }`,
-    { jobCode },
+    { jobCode }
   );
   return data.publicJob;
 }
@@ -94,22 +104,50 @@ export async function getGigs(): Promise<Gig[]> {
 /** Only gigs that are still open for applications. */
 export async function getOpenGigs(): Promise<Gig[]> {
   const gigs = await getGigs();
-  return gigs.filter((gig) => gig.status === 'open');
+  return gigs.filter((gig) => gig.status === "open");
 }
 
 export async function getGig(gigCode: string): Promise<Gig | null> {
   const data = await portalRequest<{ publicGig: Gig | null }>(
     `query GetGig($gigCode: String!) { publicGig(gigCode: $gigCode) { ${GIG_FIELDS} } }`,
-    { gigCode },
+    { gigCode }
   );
   return data.publicGig;
+}
+
+// ── Tools directory ─────────────────────────────────────────────────────────
+
+/** The active tool categories, in the order the portal put them in. */
+export async function getToolCategories(): Promise<ToolCategory[]> {
+  const data = await portalRequest<{ publicToolCategories: ToolCategory[] }>(
+    `query { publicToolCategories { ${TOOL_CATEGORY_FIELDS} } }`
+  );
+  return data.publicToolCategories;
+}
+
+/** Every active tool, or just one category's when a slug is given. */
+export async function getTools(categorySlug?: string): Promise<Tool[]> {
+  const data = await portalRequest<{ publicTools: Tool[] }>(
+    `query GetTools($categorySlug: String) { publicTools(categorySlug: $categorySlug) { ${TOOL_FIELDS} } }`,
+    { categorySlug }
+  );
+  return data.publicTools;
+}
+
+/** One tool by its code, or null when the portal has no active tool at that address. */
+export async function getTool(toolCode: string): Promise<Tool | null> {
+  const data = await portalRequest<{ publicTool: Tool | null }>(
+    `query GetTool($toolCode: String!) { publicTool(toolCode: $toolCode) { ${TOOL_FIELDS} } }`,
+    { toolCode }
+  );
+  return data.publicTool;
 }
 
 // ── Navigation ──────────────────────────────────────────────────────────────
 
 export async function getNavLinks(): Promise<NavLink[]> {
   const data = await portalRequest<{ publicNavLinks: NavLink[] }>(
-    `query { publicNavLinks { ${NAV_LINK_FIELDS} } }`,
+    `query { publicNavLinks { ${NAV_LINK_FIELDS} } }`
   );
   return data.publicNavLinks;
 }
@@ -118,7 +156,7 @@ export async function getNavLinks(): Promise<NavLink[]> {
 
 export async function getBranding(): Promise<Branding> {
   const data = await portalRequest<{ publicBranding: Branding }>(
-    `query { publicBranding { ${BRANDING_FIELDS} } }`,
+    `query { publicBranding { ${BRANDING_FIELDS} } }`
   );
   return data.publicBranding;
 }
@@ -139,38 +177,38 @@ export async function getBranding(): Promise<Branding> {
  * existed — an empty URL simply means "don't render this icon".
  */
 export const BRANDING_FALLBACK: Branding = {
-  businessName: 'Exyconn',
-  legalName: 'Exyconn Business Solutions',
-  slogan: 'AI-Powered Business Solutions',
+  businessName: "Exyconn",
+  legalName: "Exyconn Business Solutions",
+  slogan: "AI-Powered Business Solutions",
   description:
     "Transform your business with Exyconn's AI solutions and comprehensive technology infrastructure.",
 
-  logoUrl: 'https://ik.imagekit.io/esdata1/exyconn/logo/exyconn.svg',
-  logoDarkUrl: '',
-  faviconUrl: '/favicon.svg',
-  appIconUrl: '',
-  emailLogoUrl: '',
-  ogImageUrl: '/og-image.svg',
+  logoUrl: "https://ik.imagekit.io/esdata1/exyconn/logo/exyconn.svg",
+  logoDarkUrl: "",
+  faviconUrl: "/favicon.svg",
+  appIconUrl: "",
+  emailLogoUrl: "",
+  ogImageUrl: "/og-image.svg",
 
-  primaryColor: '#0071e3',
-  secondaryColor: '#9333ea',
-  accentColor: '#06b6d4',
-  backgroundColor: '#ffffff',
-  textColor: '#111827',
+  primaryColor: "#0071e3",
+  secondaryColor: "#9333ea",
+  accentColor: "#06b6d4",
+  backgroundColor: "#ffffff",
+  textColor: "#111827",
 
-  supportEmail: '',
-  contactPhone: '',
-  websiteUrl: 'https://exyconn.com',
-  address: '',
+  supportEmail: "",
+  contactPhone: "",
+  websiteUrl: "https://exyconn.com",
+  address: "",
 
-  linkedinUrl: 'https://linkedin.com/company/exyconn',
-  twitterUrl: 'https://twitter.com/exyconn',
-  facebookUrl: '',
-  instagramUrl: '',
-  youtubeUrl: '',
-  githubUrl: 'https://github.com/exyconn',
+  linkedinUrl: "https://linkedin.com/company/exyconn",
+  twitterUrl: "https://twitter.com/exyconn",
+  facebookUrl: "",
+  instagramUrl: "",
+  youtubeUrl: "",
+  githubUrl: "https://github.com/exyconn",
 
-  copyrightText: '',
+  copyrightText: "",
 };
 
 /**
@@ -189,7 +227,7 @@ export async function getBrandingSafe(): Promise<Branding> {
   try {
     return await getBranding();
   } catch (error) {
-    console.error('Portal branding fetch failed — using bundled fallback branding.', error);
+    console.error("Portal branding fetch failed — using bundled fallback branding.", error);
     return BRANDING_FALLBACK;
   }
 }
@@ -201,7 +239,7 @@ const POLICY_FIELDS = `
 /** Every policy Legal has published for the public. */
 export async function getPublicPolicies(): Promise<PublicPolicy[]> {
   const data = await portalRequest<{ publicPolicies: PublicPolicy[] }>(
-    `query { publicPolicies { ${POLICY_FIELDS} } }`,
+    `query { publicPolicies { ${POLICY_FIELDS} } }`
   );
   return data.publicPolicies;
 }
@@ -210,7 +248,7 @@ export async function getPublicPolicies(): Promise<PublicPolicy[]> {
 export async function getPublicPolicy(slug: string): Promise<PublicPolicy | null> {
   const data = await portalRequest<{ publicPolicy: PublicPolicy | null }>(
     `query PublicPolicy($slug: String!) { publicPolicy(slug: $slug) { ${POLICY_FIELDS} } }`,
-    { slug },
+    { slug }
   );
   return data.publicPolicy;
 }

@@ -19,6 +19,8 @@ export const documentsTypeDefs = gql`
     title: String!
     url: String!
     issuedOn: DateTime!
+    "Set on a SALARY_SLIP filed by a payroll run — the payslip this document is."
+    salarySlipId: String
     createdAt: DateTime!
     updatedAt: DateTime!
   }

@@ -56,6 +56,20 @@ function seedClaim(amount: number, incurredOn: string, extra: Record<string, unk
   });
 }
 
+function seedSlip(net: number, issuedOn: string, extra: Record<string, unknown> = {}) {
+  return SalarySlipModel.create({
+    employeeId: 'emp-1',
+    month: Number(issuedOn.slice(5, 7)),
+    year: Number(issuedOn.slice(0, 4)),
+    currency: 'INR',
+    gross: net,
+    deductions: 0,
+    net,
+    issuedDate: day(issuedOn),
+    ...extra,
+  });
+}
+
 describe('month bucketing', () => {
   it('keys a date by its UTC month', () => {
     expect(monthKey(day('2026-09-04'))).toBe('2026-09');
@@ -213,6 +227,29 @@ describe('companyFinance — cash', () => {
     await seedClaim(3_000, '2026-09-12', { status: 'APPROVED' });
 
     await expect(summary()).resolves.toMatchObject({ reimbursements: 3_000, paidOut: 0 });
+  });
+
+  it('counts a salary in the month it was PAID, not the month the slip was issued', async () => {
+    // August payroll, issued on the 31st, paid on the 3rd: August cost, September cash.
+    await seedSlip(55_000, '2026-08-31', { status: 'PAID', paidOn: day('2026-09-03') });
+
+    const result = await summary();
+    expect(result.payroll).toBe(0);
+    expect(result.paidOut).toBe(55_000);
+  });
+
+  it('leaves a generated-but-unpaid slip out of cash, though it is already a cost', async () => {
+    await seedSlip(55_000, '2026-09-30');
+
+    await expect(summary()).resolves.toMatchObject({ payroll: 55_000, paidOut: 0 });
+  });
+
+  it('adds salaries to the bills and reimbursements that were paid in the period', async () => {
+    await seedSlip(40_000, '2026-09-30', { status: 'PAID', paidOn: day('2026-09-30') });
+    await seedBill(20_000, '2026-09-02', { status: 'PAID', paidOn: day('2026-09-20') });
+    await seedClaim(1_000, '2026-09-01', { status: 'PAID', paidOn: day('2026-09-10') });
+
+    await expect(summary()).resolves.toMatchObject({ paidOut: 61_000 });
   });
 });
 

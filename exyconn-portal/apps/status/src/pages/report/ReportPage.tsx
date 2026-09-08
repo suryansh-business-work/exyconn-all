@@ -4,6 +4,7 @@ import { Alert, Box, Card, Flex, Typography } from '@exyconn/shell/components/ui
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';
 import { useStatusOverviewQuery } from '@exyconn/shell/graphql/generated';
 import { ReportProblemForm } from './forms/report-problem';
+import { CheckReportForm } from './forms/check-report';
 import { ReportReceipt } from './ReportReceipt';
 
 /**
@@ -48,6 +49,18 @@ export function ReportPage() {
           onSubmitted={setReference}
           onCancel={() => navigate('/')}
         />
+      </Card>
+
+      <Box>
+        <Typography variant="h6" fontWeight={700}>
+          Check a report
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Already reported something? Quote the reference from your receipt to see where it is.
+        </Typography>
+      </Box>
+      <Card variant="outlined" sx={{ p: { xs: 2, md: 3 } }}>
+        <CheckReportForm onCancel={() => navigate('/')} />
       </Card>
     </Flex>
   );

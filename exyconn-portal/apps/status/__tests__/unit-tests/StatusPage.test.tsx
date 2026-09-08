@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
+import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 import { StatusOverviewDocument } from '@exyconn/shell/graphql/generated';
 import { StatusPage } from '../../src/pages/status';
@@ -70,13 +71,28 @@ const overview = {
       id: 'i1',
       serviceKey: 'hr',
       serviceName: 'HR Portal',
+      title: 'HR Portal is down',
+      source: 'MONITOR',
+      impact: 'MAJOR',
+      affectedServiceKeys: ['hr'],
       state: 'DOWN',
       reason: 'HTTP 502',
+      updates: [
+        {
+          __typename: 'StatusIncidentUpdate',
+          id: 'u1',
+          status: 'RESOLVED',
+          body: 'HTTP 502 cleared',
+          authorName: 'Monitor',
+          createdAt: '2026-09-02T04:20:00.000Z',
+        },
+      ],
       startedAt: '2026-09-02T04:00:00.000Z',
       resolvedAt: '2026-09-02T04:20:00.000Z',
       durationMinutes: 20,
     },
   ],
+  maintenance: [],
 };
 
 const mocks = [
@@ -86,13 +102,17 @@ const mocks = [
   },
 ];
 
+// The page carries the subscribe card, which reports failures through the shared notifier —
+// the same providers the status app itself mounts.
 const renderPage = () =>
   render(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>
-        <MemoryRouter>
-          <StatusPage />
-        </MemoryRouter>
+        <NotificationProvider>
+          <MemoryRouter>
+            <StatusPage />
+          </MemoryRouter>
+        </NotificationProvider>
       </ThemeProvider>
     </MockedProvider>,
   );
@@ -126,5 +146,12 @@ describe('StatusPage', () => {
 
     expect(await screen.findByText('99.5%')).toBeInTheDocument();
     expect(screen.getByText('180 ms')).toBeInTheDocument();
+  });
+
+  it('offers to email updates to anybody, without an account', async () => {
+    renderPage();
+
+    expect(await screen.findByText('Subscribe to updates')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Email me updates' })).toBeInTheDocument();
   });
 });

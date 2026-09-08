@@ -15,6 +15,8 @@ const websiteSubmissionSchema = new Schema(
     notes: { type: String, default: '' },
     /** The CRM lead this enquiry became, once it has been converted. */
     leadId: { type: String, default: null },
+    /** The HR applicant a job application became, filed automatically on submission. */
+    applicantId: { type: String, default: null },
   },
   { timestamps: true },
 );

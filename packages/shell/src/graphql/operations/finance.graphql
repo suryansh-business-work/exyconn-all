@@ -8,6 +8,7 @@ fragment InvoiceFields on Invoice {
     quantity
     rate
     taxPercent
+    hsnSac
     amount
   }
   amount
@@ -18,6 +19,14 @@ fragment InvoiceFields on Invoice {
   sentAt
   amountPaid
   balanceDue
+  dealId
+  placeOfSupplyStateCode
+  supplierStateCode
+  subtotal
+  taxTotal
+  cgst
+  sgst
+  igst
 }
 
 query ListInvoices {
@@ -77,5 +86,19 @@ mutation SendInvoice($id: ID!, $email: String!, $message: String) {
     id
     status
     sentAt
+  }
+}
+
+query GstStates {
+  gstStates {
+    code
+    name
+  }
+}
+
+mutation CreateInvoiceFromDeal($dealId: ID!) {
+  createInvoiceFromDeal(dealId: $dealId) {
+    id
+    number
   }
 }

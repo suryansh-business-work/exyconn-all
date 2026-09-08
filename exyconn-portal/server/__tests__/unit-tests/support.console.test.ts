@@ -177,7 +177,62 @@ describe('Support console', () => {
 
     expect(await SupportReplyModel.countDocuments({ ticketId: String(ticket._id) })).toBe(1);
   });
+
+  it('stamps the first response only on a public reply', async () => {
+    const agent = await supportAgent();
+    const ticket = await ticketFor(String(new Types.ObjectId()));
+    const ctx = asSupport(String(agent._id));
+
+    await supportResolvers.Mutation.addSupportReply(
+      null,
+      { ticketId: String(ticket._id), body: 'Probably the battery.', internal: true },
+      ctx,
+    );
+    expect((await SupportTicketModel.findById(ticket._id).lean())?.firstRespondedAt).toBeNull();
+
+    await supportResolvers.Mutation.addSupportReply(
+      null,
+      { ticketId: String(ticket._id), body: 'Try holding the power button.', internal: false },
+      ctx,
+    );
+    const answered = await SupportTicketModel.findById(ticket._id).lean();
+    expect(answered?.firstRespondedAt).toBeInstanceOf(Date);
+
+    // A second public reply is not a first response, so the stamp must not move.
+    await supportResolvers.Mutation.addSupportReply(
+      null,
+      { ticketId: String(ticket._id), body: 'Any luck?', internal: false },
+      ctx,
+    );
+    const later = await SupportTicketModel.findById(ticket._id).lean();
+    expect(later?.firstRespondedAt).toEqual(answered?.firstRespondedAt);
+  });
+
+  it('stores the files posted with a reply against the author', async () => {
+    const agent = await supportAgent();
+    const ticket = await ticketFor('emp-1');
+
+    await supportResolvers.Mutation.addSupportReply(
+      null,
+      {
+        ticketId: String(ticket._id),
+        body: 'Here is the driver.',
+        internal: false,
+        attachments: [{ url: 'https://cdn.test/driver.pdf', name: ' driver.pdf ', contentType: 'application/pdf' }],
+      },
+      asSupport(String(agent._id)),
+    );
+
+    const saved = await SupportReplyModel.findOne({ ticketId: String(ticket._id) }).lean();
+    expect(saved?.attachments).toHaveLength(1);
+    expect(saved?.attachments[0]).toMatchObject({
+      url: 'https://cdn.test/driver.pdf',
+      name: 'driver.pdf',
+      uploadedBy: agent.name,
+    });
+  });
 });
+
 
 describe('Support console grid', () => {
   const page = (input: Partial<TableQueryInput>, ctx: GraphQLContext) =>
@@ -278,4 +333,70 @@ describe('Support console grid', () => {
       ),
     ).rejects.toThrow();
   });
+
+  it('separates the customer queue from the employee queue', async () => {
+    const agent = await supportAgent();
+    const ctx = asSupport(String(agent._id));
+    await ticketFor(String(new Types.ObjectId()));
+    await SupportTicketModel.create({
+      requesterType: 'CLIENT',
+      requesterName: 'Dana Reyes',
+      requesterEmail: 'dana@acme.test',
+      clientName: 'Acme Ltd',
+      reference: 'EXY-ABC234',
+      subject: 'Portal will not load',
+      category: 'OTHER',
+      description: 'Every page hangs.',
+      priority: 'HIGH',
+    });
+
+    const customers = await page(
+      { filters: [{ field: 'requesterType', op: 'EQUALS', value: 'CLIENT' }] },
+      ctx,
+    );
+    const employees = await page(
+      { filters: [{ field: 'requesterType', op: 'EQUALS', value: 'EMPLOYEE' }] },
+      ctx,
+    );
+
+    expect(customers.totalCount).toBe(1);
+    expect(customers.rows[0].clientName).toBe('Acme Ltd');
+    expect(employees.totalCount).toBe(1);
+    expect(employees.rows[0].requesterEmail).toBe('');
+  });
+
+  it('counts an employee ticket written before requesterType existed as an employee ticket', async () => {
+    const agent = await supportAgent();
+    await ticketFor(String(new Types.ObjectId()));
+    await SupportTicketModel.collection.updateMany({}, { $unset: { requesterType: '' } });
+
+    const employees = await page(
+      { filters: [{ field: 'requesterType', op: 'EQUALS', value: 'EMPLOYEE' }] },
+      asSupport(String(agent._id)),
+    );
+
+    expect(employees.totalCount).toBe(1);
+  });
+
+  it('lists only what is unresolved and past its deadline as overdue', async () => {
+    const agent = await supportAgent();
+    const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const overdue = await ticketFor(String(new Types.ObjectId()));
+    await SupportTicketModel.updateOne({ _id: overdue._id }, { dueAt: hourAgo });
+    const late = await ticketFor(String(new Types.ObjectId()));
+    await SupportTicketModel.updateOne(
+      { _id: late._id },
+      { dueAt: hourAgo, resolvedAt: new Date(), status: 'RESOLVED' },
+    );
+    await ticketFor(String(new Types.ObjectId()));
+
+    const result = await page(
+      { filters: [{ field: 'slaState', op: 'EQUALS', value: 'BREACHED' }] },
+      asSupport(String(agent._id)),
+    );
+
+    expect(result.totalCount).toBe(1);
+    expect(result.rows[0].id).toBe(String(overdue._id));
+  });
 });
+

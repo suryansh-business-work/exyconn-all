@@ -61,6 +61,19 @@ export const brandingTypeDefs = gql`
 
     copyrightText: String!
 
+    "Our GST registration, printed on every tax invoice."
+    gstin: String!
+    "Two-digit GST state code. Decides CGST+SGST (same state) versus IGST on an invoice."
+    stateCode: String!
+    "Registered address as printed on invoices."
+    addressLine: String!
+    "What generated invoice numbers start with, e.g. INV-."
+    invoicePrefix: String!
+    "Tax percent a generated invoice line starts at."
+    defaultTaxPercent: Float!
+    "Bank name, account and IFSC, printed on invoices so the client knows where to pay."
+    bankDetails: String!
+
     loginPages: [LoginPage!]!
   }
 
@@ -96,6 +109,13 @@ export const brandingTypeDefs = gql`
     githubUrl: String
 
     copyrightText: String
+
+    gstin: String
+    stateCode: String
+    addressLine: String
+    invoicePrefix: String
+    defaultTaxPercent: Float
+    bankDetails: String
 
     loginPages: [LoginPageInput!]
   }
