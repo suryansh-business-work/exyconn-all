@@ -34,7 +34,12 @@ import {
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
 import { employeeTypeDefs, employeeResolvers } from '../modules/employee';
 import { supportTypeDefs, supportResolvers } from '../modules/support';
-import { marketingTypeDefs, marketingResolvers } from '../modules/marketing';
+import {
+  marketingTypeDefs,
+  marketingResolvers,
+  marketingMetricsTypeDefs,
+  marketingMetricsResolvers,
+} from '../modules/marketing';
 import { legalTypeDefs, legalResolvers, policyTypeDefs, policyResolvers } from '../modules/legal';
 import { aiTypeDefs, aiResolvers } from '../modules/ai';
 import { crmTypeDefs, crmResolvers } from '../modules/crm';
@@ -122,6 +127,7 @@ export const typeDefs = [
   employeeTypeDefs,
   supportTypeDefs,
   marketingTypeDefs,
+  marketingMetricsTypeDefs,
   legalTypeDefs,
   aiTypeDefs,
   crmTypeDefs,
@@ -179,6 +185,7 @@ export const resolvers = mergeResolvers([
   employeeResolvers,
   supportResolvers,
   marketingResolvers,
+  marketingMetricsResolvers,
   legalResolvers,
   aiResolvers,
   productsResolvers,

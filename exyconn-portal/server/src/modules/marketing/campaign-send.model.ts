@@ -25,6 +25,26 @@ const campaignSendSchema = new Schema(
     /** Why it failed, in the transport's own words — or why it was skipped. Empty on success. */
     error: { type: String, default: '', trim: true },
     sentAt: { type: Date, required: true, default: Date.now },
+    /**
+     * SHA-256 of the opaque token in this recipient's tracking links.
+     *
+     * Hashed, and only ever the hash, for the same reasons the unsubscribe token is: the
+     * link travels through mail clients, proxies and referrer headers, so it must not carry
+     * the address — and a copy of this collection must not become a set of working links
+     * that could be used to forge opens for somebody else.
+     */
+    trackingTokenHash: { type: String, default: '', index: true },
+    /** When this recipient first opened it. Null until they do — and often for ever. */
+    openedAt: { type: Date, default: null },
+    /**
+     * How many times the pixel loaded.
+     *
+     * Not "how many times they read it": mail clients prefetch, some cache the image and
+     * never ask again, and many block it entirely. Opens are a floor, never a count.
+     */
+    openCount: { type: Number, required: true, default: 0 },
+    lastClickedAt: { type: Date, default: null },
+    clickCount: { type: Number, required: true, default: 0 },
   },
   { timestamps: true },
 );

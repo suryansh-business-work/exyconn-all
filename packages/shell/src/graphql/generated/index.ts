@@ -803,6 +803,40 @@ export type CampaignLeadCount = {
   leads: Scalars['Int']['output'];
 };
 
+/** One link in a campaign, and how it did. */
+export type CampaignLinkStat = {
+  __typename?: 'CampaignLinkStat';
+  clicks: Scalars['Int']['output'];
+  /** How many distinct people clicked it. */
+  people: Scalars['Int']['output'];
+  url: Scalars['String']['output'];
+};
+
+/**
+ * What a campaign did.
+ *
+ * Opens are a FLOOR, never a count: mail clients prefetch images, cache them, and very often
+ * block them outright. A campaign showing 30% opened was opened by AT LEAST 30%. Clicks carry
+ * no such caveat — a click is a person doing something.
+ */
+export type CampaignMetrics = {
+  __typename?: 'CampaignMetrics';
+  campaignId: Scalars['ID']['output'];
+  /** Clicked ÷ sent, as a whole percentage. */
+  clickRate: Scalars['Int']['output'];
+  /** Clicked ÷ opened — of the people who read it, how many acted. */
+  clickThroughRate: Scalars['Int']['output'];
+  /** Distinct recipients who clicked at least once. */
+  clicked: Scalars['Int']['output'];
+  /** Opened ÷ sent, as a whole percentage. */
+  openRate: Scalars['Int']['output'];
+  /** Distinct recipients who opened at least once. */
+  opened: Scalars['Int']['output'];
+  sent: Scalars['Int']['output'];
+  totalClicks: Scalars['Int']['output'];
+  totalOpens: Scalars['Int']['output'];
+};
+
 /** A campaign as a pickable option, for attributing a lead to it. */
 export type CampaignOption = {
   __typename?: 'CampaignOption';
@@ -6145,12 +6179,14 @@ export type Query = {
   branding: Branding;
   /** Leads per campaign, most productive first — the overview's attribution figures. */
   campaignLeadCounts: Array<CampaignLeadCount>;
+  campaignMetrics: CampaignMetrics;
   /** Campaigns as pickable options, so a lead can be attributed to one. CRM may read these. */
   campaignOptions: Array<CampaignOption>;
   /** The first member's copy, rendered by the same code the send uses. Null for an empty audience. */
   campaignPreview?: Maybe<CampaignPreview>;
   /** Sent, failed and skipped counts for one campaign. */
   campaignSendSummary: CampaignSendSummary;
+  campaignTopLinks: Array<CampaignLinkStat>;
   /**
    * Whether the caller may export this module. Asked once before an export starts
    * paging, so a restricted role is refused before it reads a single row.
@@ -6701,6 +6737,11 @@ export type QueryAudienceMembersArgs = {
 };
 
 
+export type QueryCampaignMetricsArgs = {
+  campaignId: Scalars['ID']['input'];
+};
+
+
 export type QueryCampaignPreviewArgs = {
   audienceListId: Scalars['ID']['input'];
   id: Scalars['ID']['input'];
@@ -6708,6 +6749,11 @@ export type QueryCampaignPreviewArgs = {
 
 
 export type QueryCampaignSendSummaryArgs = {
+  campaignId: Scalars['ID']['input'];
+};
+
+
+export type QueryCampaignTopLinksArgs = {
   campaignId: Scalars['ID']['input'];
 };
 
@@ -11885,6 +11931,13 @@ export type UnsubscribeFromMarketingMutationVariables = Exact<{
 
 
 export type UnsubscribeFromMarketingMutation = { __typename?: 'Mutation', unsubscribeFromMarketing: boolean };
+
+export type CampaignMetricsQueryVariables = Exact<{
+  campaignId: Scalars['ID']['input'];
+}>;
+
+
+export type CampaignMetricsQuery = { __typename?: 'Query', campaignMetrics: { __typename?: 'CampaignMetrics', campaignId: string, sent: number, opened: number, clicked: number, totalOpens: number, totalClicks: number, openRate: number, clickRate: number, clickThroughRate: number }, campaignTopLinks: Array<{ __typename?: 'CampaignLinkStat', url: string, clicks: number, people: number }> };
 
 export type OnboardingTemplateFieldsFragment = { __typename?: 'OnboardingTemplate', id: string, name: string, active: boolean, taskCount: number, createdAt: string, tasks: Array<{ __typename?: 'OnboardingTask', key: string, label: string, owner: OnboardingOwner, dueDaysFromJoin: number }> };
 
@@ -29085,6 +29138,62 @@ export function useUnsubscribeFromMarketingMutation(baseOptions?: Apollo.Mutatio
 export type UnsubscribeFromMarketingMutationHookResult = ReturnType<typeof useUnsubscribeFromMarketingMutation>;
 export type UnsubscribeFromMarketingMutationResult = Apollo.MutationResult<UnsubscribeFromMarketingMutation>;
 export type UnsubscribeFromMarketingMutationOptions = Apollo.BaseMutationOptions<UnsubscribeFromMarketingMutation, UnsubscribeFromMarketingMutationVariables>;
+export const CampaignMetricsDocument = gql`
+    query CampaignMetrics($campaignId: ID!) {
+  campaignMetrics(campaignId: $campaignId) {
+    campaignId
+    sent
+    opened
+    clicked
+    totalOpens
+    totalClicks
+    openRate
+    clickRate
+    clickThroughRate
+  }
+  campaignTopLinks(campaignId: $campaignId) {
+    url
+    clicks
+    people
+  }
+}
+    `;
+
+/**
+ * __useCampaignMetricsQuery__
+ *
+ * To run a query within a React component, call `useCampaignMetricsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCampaignMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCampaignMetricsQuery({
+ *   variables: {
+ *      campaignId: // value for 'campaignId'
+ *   },
+ * });
+ */
+export function useCampaignMetricsQuery(baseOptions: Apollo.QueryHookOptions<CampaignMetricsQuery, CampaignMetricsQueryVariables> & ({ variables: CampaignMetricsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CampaignMetricsQuery, CampaignMetricsQueryVariables>(CampaignMetricsDocument, options);
+      }
+export function useCampaignMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CampaignMetricsQuery, CampaignMetricsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CampaignMetricsQuery, CampaignMetricsQueryVariables>(CampaignMetricsDocument, options);
+        }
+// @ts-ignore
+export function useCampaignMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CampaignMetricsQuery, CampaignMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<CampaignMetricsQuery, CampaignMetricsQueryVariables>;
+export function useCampaignMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CampaignMetricsQuery, CampaignMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<CampaignMetricsQuery | undefined, CampaignMetricsQueryVariables>;
+export function useCampaignMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CampaignMetricsQuery, CampaignMetricsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CampaignMetricsQuery, CampaignMetricsQueryVariables>(CampaignMetricsDocument, options);
+        }
+export type CampaignMetricsQueryHookResult = ReturnType<typeof useCampaignMetricsQuery>;
+export type CampaignMetricsLazyQueryHookResult = ReturnType<typeof useCampaignMetricsLazyQuery>;
+export type CampaignMetricsSuspenseQueryHookResult = ReturnType<typeof useCampaignMetricsSuspenseQuery>;
+export type CampaignMetricsQueryResult = Apollo.QueryResult<CampaignMetricsQuery, CampaignMetricsQueryVariables>;
 export const ListOnboardingTemplatesDocument = gql`
     query ListOnboardingTemplates {
   listOnboardingTemplates {

@@ -803,6 +803,40 @@ export type CampaignLeadCount = {
   leads: Scalars['Int']['output'];
 };
 
+/** One link in a campaign, and how it did. */
+export type CampaignLinkStat = {
+  __typename?: 'CampaignLinkStat';
+  clicks: Scalars['Int']['output'];
+  /** How many distinct people clicked it. */
+  people: Scalars['Int']['output'];
+  url: Scalars['String']['output'];
+};
+
+/**
+ * What a campaign did.
+ *
+ * Opens are a FLOOR, never a count: mail clients prefetch images, cache them, and very often
+ * block them outright. A campaign showing 30% opened was opened by AT LEAST 30%. Clicks carry
+ * no such caveat — a click is a person doing something.
+ */
+export type CampaignMetrics = {
+  __typename?: 'CampaignMetrics';
+  campaignId: Scalars['ID']['output'];
+  /** Clicked ÷ sent, as a whole percentage. */
+  clickRate: Scalars['Int']['output'];
+  /** Clicked ÷ opened — of the people who read it, how many acted. */
+  clickThroughRate: Scalars['Int']['output'];
+  /** Distinct recipients who clicked at least once. */
+  clicked: Scalars['Int']['output'];
+  /** Opened ÷ sent, as a whole percentage. */
+  openRate: Scalars['Int']['output'];
+  /** Distinct recipients who opened at least once. */
+  opened: Scalars['Int']['output'];
+  sent: Scalars['Int']['output'];
+  totalClicks: Scalars['Int']['output'];
+  totalOpens: Scalars['Int']['output'];
+};
+
 /** A campaign as a pickable option, for attributing a lead to it. */
 export type CampaignOption = {
   __typename?: 'CampaignOption';
@@ -6145,12 +6179,14 @@ export type Query = {
   branding: Branding;
   /** Leads per campaign, most productive first — the overview's attribution figures. */
   campaignLeadCounts: Array<CampaignLeadCount>;
+  campaignMetrics: CampaignMetrics;
   /** Campaigns as pickable options, so a lead can be attributed to one. CRM may read these. */
   campaignOptions: Array<CampaignOption>;
   /** The first member's copy, rendered by the same code the send uses. Null for an empty audience. */
   campaignPreview?: Maybe<CampaignPreview>;
   /** Sent, failed and skipped counts for one campaign. */
   campaignSendSummary: CampaignSendSummary;
+  campaignTopLinks: Array<CampaignLinkStat>;
   /**
    * Whether the caller may export this module. Asked once before an export starts
    * paging, so a restricted role is refused before it reads a single row.
@@ -6701,6 +6737,11 @@ export type QueryAudienceMembersArgs = {
 };
 
 
+export type QueryCampaignMetricsArgs = {
+  campaignId: Scalars['ID']['input'];
+};
+
+
 export type QueryCampaignPreviewArgs = {
   audienceListId: Scalars['ID']['input'];
   id: Scalars['ID']['input'];
@@ -6708,6 +6749,11 @@ export type QueryCampaignPreviewArgs = {
 
 
 export type QueryCampaignSendSummaryArgs = {
+  campaignId: Scalars['ID']['input'];
+};
+
+
+export type QueryCampaignTopLinksArgs = {
   campaignId: Scalars['ID']['input'];
 };
 
@@ -9704,6 +9750,8 @@ export type ResolversTypes = ResolversObject<{
   CampaignChannel: CampaignChannel;
   CampaignInput: CampaignInput;
   CampaignLeadCount: ResolverTypeWrapper<CampaignLeadCount>;
+  CampaignLinkStat: ResolverTypeWrapper<CampaignLinkStat>;
+  CampaignMetrics: ResolverTypeWrapper<CampaignMetrics>;
   CampaignOption: ResolverTypeWrapper<CampaignOption>;
   CampaignPage: ResolverTypeWrapper<CampaignPage>;
   CampaignPreview: ResolverTypeWrapper<CampaignPreview>;
@@ -10193,6 +10241,8 @@ export type ResolversParentTypes = ResolversObject<{
   Campaign: Campaign;
   CampaignInput: CampaignInput;
   CampaignLeadCount: CampaignLeadCount;
+  CampaignLinkStat: CampaignLinkStat;
+  CampaignMetrics: CampaignMetrics;
   CampaignOption: CampaignOption;
   CampaignPage: CampaignPage;
   CampaignPreview: CampaignPreview;
@@ -10972,6 +11022,26 @@ export type CampaignLeadCountResolvers<ContextType = GraphQLContext, ParentType 
   campaignId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   campaignName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   leads?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CampaignLinkStatResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignLinkStat'] = ResolversParentTypes['CampaignLinkStat']> = ResolversObject<{
+  clicks?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  people?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CampaignMetricsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CampaignMetrics'] = ResolversParentTypes['CampaignMetrics']> = ResolversObject<{
+  campaignId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  clickRate?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  clickThroughRate?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  clicked?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  openRate?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  opened?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalClicks?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalOpens?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -13002,9 +13072,11 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   audienceMembers?: Resolver<Array<ResolversTypes['AudienceMember']>, ParentType, ContextType, RequireFields<QueryAudienceMembersArgs, 'id'>>;
   branding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
   campaignLeadCounts?: Resolver<Array<ResolversTypes['CampaignLeadCount']>, ParentType, ContextType>;
+  campaignMetrics?: Resolver<ResolversTypes['CampaignMetrics'], ParentType, ContextType, RequireFields<QueryCampaignMetricsArgs, 'campaignId'>>;
   campaignOptions?: Resolver<Array<ResolversTypes['CampaignOption']>, ParentType, ContextType>;
   campaignPreview?: Resolver<Maybe<ResolversTypes['CampaignPreview']>, ParentType, ContextType, RequireFields<QueryCampaignPreviewArgs, 'audienceListId' | 'id'>>;
   campaignSendSummary?: Resolver<ResolversTypes['CampaignSendSummary'], ParentType, ContextType, RequireFields<QueryCampaignSendSummaryArgs, 'campaignId'>>;
+  campaignTopLinks?: Resolver<Array<ResolversTypes['CampaignLinkStat']>, ParentType, ContextType, RequireFields<QueryCampaignTopLinksArgs, 'campaignId'>>;
   canExport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryCanExportArgs, 'module'>>;
   clientSupportTicketStatus?: Resolver<Maybe<ResolversTypes['ClientTicketStatus']>, ParentType, ContextType, RequireFields<QueryClientSupportTicketStatusArgs, 'email' | 'reference'>>;
   companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
@@ -14479,6 +14551,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   BugPage?: BugPageResolvers<ContextType>;
   Campaign?: CampaignResolvers<ContextType>;
   CampaignLeadCount?: CampaignLeadCountResolvers<ContextType>;
+  CampaignLinkStat?: CampaignLinkStatResolvers<ContextType>;
+  CampaignMetrics?: CampaignMetricsResolvers<ContextType>;
   CampaignOption?: CampaignOptionResolvers<ContextType>;
   CampaignPage?: CampaignPageResolvers<ContextType>;
   CampaignPreview?: CampaignPreviewResolvers<ContextType>;
