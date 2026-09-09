@@ -27,7 +27,22 @@ describe('SalaryStructureForm', () => {
     mount();
     cy.contains('button', 'Create').click();
     cy.contains('Employee is required').should('be.visible');
+    // A new structure starts in the default currency, so the currency error only
+    // appears once somebody empties the field.
+    cy.contains('Currency is required').should('not.exist');
+  });
+
+  it('refuses a structure with no currency', () => {
+    mount();
+    cy.get('input[name="currency"]').clear();
+    cy.contains('button', 'Create').click();
     cy.contains('Currency is required').should('be.visible');
+  });
+
+  it('requires the basic salary that actually pays the person', () => {
+    mount();
+    cy.contains('button', 'Create').click();
+    cy.contains('Enter the basic salary').should('be.visible');
   });
 
   it('calls onCancel', () => {

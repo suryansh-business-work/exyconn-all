@@ -32,9 +32,16 @@ export function RhfDateTimePicker({
           label={label}
           value={toDate(field.value)}
           maxDateTime={maxDateTime}
-          onChange={(date) => field.onChange(date ? date.toISOString() : '')}
+          // MUIX fires onChange for every section typed, so a half-entered value arrives
+          // as an Invalid Date — toISOString() throws RangeError on one and took the
+          // whole form down. An incomplete value is simply "not set yet".
+          onChange={(date) =>
+            field.onChange(date && !Number.isNaN(date.getTime()) ? date.toISOString() : '')
+          }
           slotProps={{
             textField: {
+              // Matches RhfTextField, so a field is addressable as input[name="…"].
+              name,
               fullWidth: true,
               onBlur: field.onBlur,
               error: Boolean(fieldState.error),

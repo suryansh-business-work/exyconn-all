@@ -1,6 +1,6 @@
 import { MockedProvider } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
-import { ImageConfigForm } from './image-config.form';
+import { EmailFragmentForm } from './email-fragment.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 
@@ -9,30 +9,29 @@ const mount = () =>
     <MockedProvider mocks={[]} addTypename={false}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
-          <ImageConfigForm initial={null} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />
+          <EmailFragmentForm initial={null} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />
         </NotificationProvider>
       </ThemeProvider>
     </MockedProvider>,
   );
 
-describe('ImageConfigForm', () => {
-  it('requires the provider credentials', () => {
+describe('EmailFragmentForm', () => {
+  it('requires a key, a name and a body', () => {
     mount();
     cy.contains('button', 'Create').click();
-    cy.contains('Label is required').should('be.visible');
-    cy.contains('Public key is required').should('be.visible');
-    cy.contains('Private key is required').should('be.visible');
+    cy.contains('Key is required').should('be.visible');
+    cy.contains('Name is required').should('be.visible');
+    cy.contains('The fragment cannot be empty').should('be.visible');
   });
 
-  // RHF validates on submit, so typing alone shows nothing until the first submit.
-  it('validates the URL endpoint', () => {
+  it('keeps the key to a stable lower-case identifier', () => {
     mount();
-    cy.get('input[name="urlEndpoint"]').type('not-a-url');
+    cy.get('input[name="key"]').type('Shared Header');
     cy.contains('button', 'Create').click();
-    cy.contains('Enter a valid URL').should('be.visible');
+    cy.contains('Lower-case letters, numbers and hyphens only').should('be.visible');
   });
 
-  it('calls onCancel', () => {
+  it('invokes onCancel when Cancel is clicked', () => {
     mount();
     cy.contains('button', 'Cancel').click();
     cy.get('@cancel').should('have.been.called');

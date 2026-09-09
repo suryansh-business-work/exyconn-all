@@ -28,7 +28,7 @@ describe('SlaPolicyForm', () => {
   it('refuses a first response promised after the resolution', () => {
     mount(policy);
     cy.get('input[name="firstResponseMinutes"]').clear().type('600');
-    cy.contains('button', 'Save').click();
+    cy.contains('button', 'Update').click();
     cy.contains('A first response cannot be promised later than the resolution').should(
       'be.visible',
     );
@@ -37,7 +37,7 @@ describe('SlaPolicyForm', () => {
   it('refuses a window of no minutes', () => {
     mount(null);
     cy.get('input[name="resolutionMinutes"]').clear().type('0');
-    cy.contains('button', 'Save').click();
+    cy.contains('button', 'Create').click();
     cy.contains('Resolution must be at least 1 minute').should('be.visible');
   });
 

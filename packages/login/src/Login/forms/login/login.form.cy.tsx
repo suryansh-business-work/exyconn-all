@@ -3,6 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { LoginForm } from './login.form';
 import { AuthProvider } from '@exyconn/shell/auth/AuthContext';
+import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 
 const mount = () =>
@@ -11,7 +12,9 @@ const mount = () =>
       <ThemeProvider theme={theme}>
         <MemoryRouter>
           <AuthProvider>
-            <LoginForm accentColor="#155dfc" />
+            <NotificationProvider>
+              <LoginForm accentColor="#155dfc" />
+            </NotificationProvider>
           </AuthProvider>
         </MemoryRouter>
       </ThemeProvider>

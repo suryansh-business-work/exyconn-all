@@ -26,7 +26,9 @@ const mount = () =>
 describe('SendCampaignForm', () => {
   it('requires an audience', () => {
     mount();
-    cy.contains('button', 'Send').click();
+    // Anchored: a bare 'Send' also matches the "Send test" button, which validates
+    // the test address instead of the audience.
+    cy.contains('button', /^Send$/).click();
     cy.contains('Choose the audience to send to').should('be.visible');
   });
 

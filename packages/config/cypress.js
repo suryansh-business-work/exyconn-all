@@ -4,13 +4,19 @@ const supportFile = fileURLToPath(
   new URL('../../exyconn-portal/ui/cypress/support/component.tsx', import.meta.url),
 );
 
+const indexHtmlFile = fileURLToPath(
+  new URL('../../exyconn-portal/ui/cypress/support/component-index.html', import.meta.url),
+);
+
 /** Cypress component-testing config shared by every portal package. */
 export function portalCypressConfig() {
   return {
+    video: false,
     component: {
       devServer: { framework: 'react', bundler: 'vite' },
       specPattern: 'src/**/*.cy.{ts,tsx}',
       supportFile,
+      indexHtmlFile,
     },
   };
 }

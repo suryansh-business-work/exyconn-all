@@ -29,6 +29,9 @@ export function RhfAutocomplete({ name, label, options, helperText }: RhfAutocom
             renderInput={(params) => (
               <TextField
                 {...params}
+                // Matches RhfTextField/RhfSelect, so a field is addressable as
+                // input[name="…"] rather than by its rendered value.
+                name={name}
                 label={label}
                 error={Boolean(fieldState.error)}
                 helperText={fieldState.error?.message ?? helperText}
