@@ -1,4 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing';
+import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { BrandingForm } from './branding.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -54,9 +55,11 @@ const mount = () =>
   cy.mount(
     <MockedProvider mocks={[]} addTypename={false}>
       <ThemeProvider theme={theme}>
-        <NotificationProvider>
-          <BrandingForm initial={INITIAL} />
-        </NotificationProvider>
+        <MemoryRouter>
+          <NotificationProvider>
+            <BrandingForm initial={INITIAL} />
+          </NotificationProvider>
+        </MemoryRouter>
       </ThemeProvider>
     </MockedProvider>,
   );

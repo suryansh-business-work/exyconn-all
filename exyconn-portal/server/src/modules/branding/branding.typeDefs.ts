@@ -48,6 +48,7 @@ export const brandingTypeDefs = gql`
     textColor: String!
 
     supportEmail: String!
+    hrEmail: String!
     contactPhone: String!
     websiteUrl: String!
     address: String!
@@ -97,6 +98,7 @@ export const brandingTypeDefs = gql`
     textColor: String
 
     supportEmail: String
+    hrEmail: String
     contactPhone: String
     websiteUrl: String
     address: String

@@ -50,6 +50,8 @@ const brandingSchema = new Schema(
 
     // Contact
     supportEmail: { type: String, default: 'support@exyconn.com', trim: true },
+    /** Where an employee writes about their pay — printed on every payslip. */
+    hrEmail: { type: String, default: 'hr@exyconn.com', trim: true },
     contactPhone: { type: String, default: '', trim: true },
     websiteUrl: { type: String, default: 'https://exyconn.com', trim: true },
     address: { type: String, default: '', trim: true },

@@ -176,6 +176,13 @@ services:
     ports:
       - '127.0.0.1:4034:4034'
 
+  portal-social:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-social:${TAG:-latest}
+    container_name: exyconn-portal-social
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4036:4036'
+
   # Public status page — no sign-in: an outage is exactly when nobody can log in.
   portal-status:
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-status:${TAG:-latest}
