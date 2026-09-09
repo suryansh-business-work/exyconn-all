@@ -6,6 +6,8 @@ import { RhfSelect, RhfSwitch, RhfTextField } from '@exyconn/shell/components/fo
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { TdsMode, useUpdatePayrollSettingsMutation } from '@exyconn/shell/graphql/generated';
+import { TdsSlabFields } from './tds-slabs.fields';
+import { TdsRegimeFields } from './tds-regime.fields';
 import type { PayrollSettingsRow } from './payroll-settings.types';
 
 const percent = (label: string) =>
@@ -22,29 +24,68 @@ const schema = z.object({
   professionalTaxMonthly: amount('Professional tax'),
   tdsMode: z.nativeEnum(TdsMode),
   tdsFlatPercent: percent('The TDS rate'),
+  // An empty upper limit is the open-ended top band, not a missing value.
+  tdsSlabs: z.array(
+    z.object({
+      upTo: z.union([z.coerce.number().min(0, 'Cannot be negative'), z.null()]).nullable(),
+      percent: percent('A band rate'),
+    }),
+  ),
+  tdsAnnualExemption: amount('The annual exemption'),
+  tdsCessPercent: percent('The cess'),
+  tdsRegimeKey: z.string().trim().min(1, 'Choose the regime to apply'),
+  financialYearStartMonth: z.coerce
+    .number()
+    .int('Use a whole month number')
+    .min(1, 'Months run 1-12')
+    .max(12, 'Months run 1-12'),
 });
 type Values = z.infer<typeof schema>;
 
 const TDS_OPTIONS = [
   { value: TdsMode.None, label: 'Do not withhold income tax' },
   { value: TdsMode.FlatPercent, label: 'A flat percentage of taxable pay' },
-  { value: TdsMode.Slab, label: 'A rate recorded against each employee' },
+  { value: TdsMode.Slab, label: 'Tax bands (with a per-employee rate taking precedence)' },
 ];
 
-/** The TDS rate only means anything when a flat percentage is what is being withheld. */
+/** Only the fields the chosen mode actually withholds by are shown. */
 function TdsFields() {
   const { watch } = useFormContext<Values>();
-  if (watch('tdsMode') !== TdsMode.FlatPercent) {
-    return null;
+  const mode = watch('tdsMode');
+
+  if (mode === TdsMode.FlatPercent) {
+    return (
+      <RhfTextField
+        name="tdsFlatPercent"
+        label="Company TDS rate (%)"
+        type="number"
+        helperText="Used for every employee whose salary structure does not set their own rate."
+      />
+    );
   }
-  return (
-    <RhfTextField
-      name="tdsFlatPercent"
-      label="Company TDS rate (%)"
-      type="number"
-      helperText="Used for every employee whose salary structure does not set their own rate."
-    />
-  );
+
+  if (mode === TdsMode.Slab) {
+    return (
+      <>
+        <TdsRegimeFields />
+        <TdsSlabFields />
+        <RhfTextField
+          name="tdsAnnualExemption"
+          label="Annual exemption"
+          type="number"
+          helperText="Subtracted from annual taxable pay before the bands are applied."
+        />
+        <RhfTextField
+          name="tdsCessPercent"
+          label="Cess (%)"
+          type="number"
+          helperText="Charged on the tax itself, not on the pay. Leave at 0 if none applies."
+        />
+      </>
+    );
+  }
+
+  return null;
 }
 
 interface PayrollSettingsFormProps {
@@ -78,6 +119,14 @@ export function PayrollSettingsForm({
       professionalTaxMonthly: initial.professionalTaxMonthly,
       tdsMode: initial.tdsMode,
       tdsFlatPercent: initial.tdsFlatPercent,
+      tdsSlabs: (initial.tdsSlabs ?? []).map((slab) => ({
+        upTo: slab.upTo ?? null,
+        percent: slab.percent,
+      })),
+      tdsAnnualExemption: initial.tdsAnnualExemption ?? 0,
+      tdsCessPercent: initial.tdsCessPercent ?? 0,
+      tdsRegimeKey: initial.tdsRegimeKey,
+      financialYearStartMonth: initial.financialYearStartMonth,
     },
   });
 

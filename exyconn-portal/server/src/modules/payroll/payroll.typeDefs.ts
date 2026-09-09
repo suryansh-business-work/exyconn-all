@@ -121,9 +121,26 @@ export const payrollTypeDefs = gql`
   }
 
   """
+  One band of the TDS table.
+
+  upTo is null for the open-ended top band. Rates are not compiled in: they change with
+  every finance act, so the table is entered by whoever knows the current one.
+  """
+  type TdsSlab {
+    upTo: Float
+    percent: Float!
+  }
+
+  input TdsSlabInput {
+    upTo: Float
+    percent: Float!
+  }
+
+  """
   How TDS is worked out. NONE withholds nothing; FLAT_PERCENT takes a percentage of taxable
-  pay; SLAB means the rate is worked out off the portal and recorded per employee, so only
-  an employee with their own rate on file has anything withheld.
+  pay; SLAB applies the band table below to the annualised pay. An employee with their own
+  rate on file beats every mode except NONE, and an empty table withholds nothing rather
+  than guessing.
   """
   enum TdsMode {
     NONE
@@ -144,6 +161,16 @@ export const payrollTypeDefs = gql`
     professionalTaxMonthly: Float!
     tdsMode: TdsMode!
     tdsFlatPercent: Float!
+    "The bands SLAB mode applies. Empty withholds nothing rather than guessing a rate."
+    tdsSlabs: [TdsSlab!]!
+    "Deducted from annual taxable pay before the bands are applied."
+    tdsAnnualExemption: Float!
+    "Charged on the TAX, not on the income. 0 where the jurisdiction has none."
+    tdsCessPercent: Float!
+    "Which regime in the tax-slab table SLAB mode applies. The year comes from the period run."
+    tdsRegimeKey: String!
+    "The month a financial year opens in, 1-12. April in India, 1 on a calendar tax year."
+    financialYearStartMonth: Int!
   }
 
   input PayrollSettingsInput {
@@ -156,6 +183,81 @@ export const payrollTypeDefs = gql`
     professionalTaxMonthly: Float!
     tdsMode: TdsMode!
     tdsFlatPercent: Float!
+    tdsSlabs: [TdsSlabInput!]
+    tdsAnnualExemption: Float
+    tdsCessPercent: Float
+    tdsRegimeKey: String
+    financialYearStartMonth: Int
+  }
+
+  """
+  One named income-tax regime for one financial year — "new regime", "old regime".
+
+  Two regimes stand side by side because each carries its own standard deduction and rebate;
+  the payroll settings name which key the next run applies. Nothing here is compiled in: the
+  seeded table is one year's figures, to be checked against the finance act and edited here.
+  """
+  type TaxRegime {
+    id: ID!
+    "Short stable name, e.g. NEW or OLD. The slab rows point at this."
+    regimeKey: String!
+    "The financial year these figures are for, as 2026-27."
+    financialYear: String!
+    name: String!
+    "Taken off annual pay before the bands are walked."
+    standardDeduction: Float!
+    "Taxable income at or below which the rebate applies."
+    rebateIncomeLimit: Float!
+    "The most tax the rebate can write off. Applied before cess, never below zero."
+    rebateMaxTax: Float!
+    "Charged on the TAX, not on the income."
+    cessPercent: Float!
+    "An inactive regime withholds nothing, so a half-entered table cannot tax anybody."
+    active: Boolean!
+  }
+
+  input TaxRegimeInput {
+    regimeKey: String!
+    financialYear: String!
+    name: String!
+    standardDeduction: Float!
+    rebateIncomeLimit: Float!
+    rebateMaxTax: Float!
+    cessPercent: Float!
+    active: Boolean!
+  }
+
+  """
+  One band of one regime's table. Both bounds are stored rather than derived from the
+  neighbouring rows, so reordering the table never silently re-cuts the bands around it.
+  """
+  type TaxSlab {
+    id: ID!
+    regimeKey: String!
+    financialYear: String!
+    "Income above this falls in this band. The lowest band starts at 0."
+    fromAmount: Float!
+    "Income up to and including this is in this band. Null means everything above."
+    toAmount: Float
+    ratePercent: Float!
+    "The order the bands are walked in, lowest first."
+    order: Int!
+    active: Boolean!
+  }
+
+  input TaxSlabInput {
+    regimeKey: String!
+    financialYear: String!
+    fromAmount: Float!
+    toAmount: Float
+    ratePercent: Float!
+    order: Int!
+    active: Boolean!
+  }
+
+  type TaxSlabPage {
+    rows: [TaxSlab!]!
+    totalCount: Int!
   }
 
   "A payslip PDF, base64 encoded so the browser can save it straight from the response."
@@ -187,6 +289,13 @@ export const payrollTypeDefs = gql`
     salarySlipPdf(id: ID!): SalarySlipDownload!
     "The statutory deduction policy. Created with its defaults on first read."
     payrollSettings: PayrollSettings!
+    "Every income-tax regime on file, both years and both regimes."
+    listTaxRegimes: [TaxRegime!]!
+    getTaxRegime(id: ID!): TaxRegime!
+    listTaxSlabs: [TaxSlab!]!
+    listTaxSlabsPaged(input: TableQueryInput!): TaxSlabPage!
+    listTaxSlabsStats: TableStats!
+    getTaxSlab(id: ID!): TaxSlab!
   }
 
   extend type Mutation {
@@ -221,5 +330,11 @@ export const payrollTypeDefs = gql`
     generated keeps the figures it was generated with, because that is what was withheld.
     """
     updatePayrollSettings(input: PayrollSettingsInput!): PayrollSettings!
+    createTaxRegime(input: TaxRegimeInput!): TaxRegime!
+    updateTaxRegime(id: ID!, input: TaxRegimeInput!): TaxRegime!
+    deleteTaxRegime(id: ID!): Boolean!
+    createTaxSlab(input: TaxSlabInput!): TaxSlab!
+    updateTaxSlab(id: ID!, input: TaxSlabInput!): TaxSlab!
+    deleteTaxSlab(id: ID!): Boolean!
   }
 `;

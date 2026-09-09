@@ -198,11 +198,16 @@ describe('statutoryDeductions', () => {
   });
 
   it("lets the employee's structure override the company settings", () => {
-    const overridden = statutoryDeductions(LOW, 0, { ...SETTINGS, tdsMode: 'FLAT_PERCENT' }, {
-      pfApplicable: false,
-      esiApplicable: false,
-      tdsPercent: 10,
-    });
+    const overridden = statutoryDeductions(
+      LOW,
+      0,
+      { ...SETTINGS, tdsMode: 'FLAT_PERCENT' },
+      {
+        pfApplicable: false,
+        esiApplicable: false,
+        tdsPercent: 10,
+      },
+    );
     expect(overridden).toEqual({ pf: 0, esi: 0, professionalTax: 200, tds: 1_580 });
   });
 });
