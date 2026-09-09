@@ -4,11 +4,12 @@ import {
   SlaState,
   SupportRequester,
   SupportStatus,
+  TicketChannel,
   type TableFilterInput,
 } from '@exyconn/shell/graphql/generated';
 
 export type QuickFilter =
-  'all' | 'unassigned' | 'mine' | 'open' | 'overdue' | 'customers' | 'employees';
+  'all' | 'unassigned' | 'mine' | 'open' | 'overdue' | 'customers' | 'employees' | 'emailed';
 
 const OPTIONS: Array<{ value: QuickFilter; label: string }> = [
   { value: 'all', label: 'All' },
@@ -18,6 +19,7 @@ const OPTIONS: Array<{ value: QuickFilter; label: string }> = [
   { value: 'overdue', label: 'Overdue' },
   { value: 'customers', label: 'Customers' },
   { value: 'employees', label: 'Employees' },
+  { value: 'emailed', label: 'Emailed in' },
 ];
 
 const equals = (field: string, value: string): TableFilterInput[] => [
@@ -38,6 +40,7 @@ const FILTERS: Record<QuickFilter, (userId: string) => TableFilterInput[]> = {
   overdue: () => equals('slaState', SlaState.Breached),
   customers: () => equals('requesterType', SupportRequester.Client),
   employees: () => equals('requesterType', SupportRequester.Employee),
+  emailed: () => equals('channel', TicketChannel.Email),
 };
 
 export function quickFilters(filter: QuickFilter, userId: string): TableFilterInput[] {

@@ -28,6 +28,41 @@ mutation DeleteEmailConfig($id: ID!) {
   deleteEmailConfig(id: $id)
 }
 
+query ListInboundMailConfigs {
+  listInboundMailConfigs {
+    id
+    label
+    host
+    port
+    secure
+    user
+    mailbox
+    pollSeconds
+    deleteAfterImport
+    isActive
+  }
+}
+
+mutation CreateInboundMailConfig($input: InboundMailConfigInput!) {
+  createInboundMailConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateInboundMailConfig($id: ID!, $input: InboundMailConfigInput!) {
+  updateInboundMailConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteInboundMailConfig($id: ID!) {
+  deleteInboundMailConfig(id: $id)
+}
+
+mutation TestInboundMailConnection($id: ID!) {
+  testInboundMailConnection(id: $id)
+}
+
 query ListImageConfigs {
   listImageConfigs {
     id

@@ -42,13 +42,22 @@ const TICKET_TABLE: TableConfig = {
     'requesterEmail',
     'reference',
   ],
-  filterFields: ['status', 'priority', 'category', 'assigneeId', 'requesterType', 'clientId'],
+  filterFields: [
+    'status',
+    'priority',
+    'category',
+    'assigneeId',
+    'requesterType',
+    'channel',
+    'clientId',
+  ],
   sortFields: [
     'subject',
     'category',
     'priority',
     'status',
     'requesterType',
+    'channel',
     'assigneeName',
     'dueAt',
     'createdAt',
@@ -56,7 +65,7 @@ const TICKET_TABLE: TableConfig = {
   defaultSort: { field: 'createdAt', dir: 'DESC' },
 };
 
-const TICKET_STATS = { countBy: ['status', 'priority', 'category', 'requesterType'] };
+const TICKET_STATS = { countBy: ['status', 'priority', 'category', 'requesterType', 'channel'] };
 
 type LeanTicket = SupportTicketDocument & { _id: unknown; createdAt: Date };
 type TicketFilter = FilterQuery<SupportTicketDocument>;
@@ -68,9 +77,7 @@ async function withEmployeeNames<T extends { _id: unknown; employeeId: string }>
     .select('name')
     .lean();
   const nameById = new Map(users.map((u) => [u._id.toString(), u.name]));
-  return withIds(
-    tickets.map((t) => ({ ...t, employeeName: nameById.get(t.employeeId) ?? null })),
-  );
+  return withIds(tickets.map((t) => ({ ...t, employeeName: nameById.get(t.employeeId) ?? null })));
 }
 
 /**
@@ -297,8 +304,14 @@ export const supportResolvers = {
       return withId(reply.toObject());
     },
 
-    /** Unauthenticated — anybody who buys from us must be able to ask for help. */
-    createClientSupportTicket: (_p: unknown, { input }: { input: ClientSupportTicketInput }) =>
-      createClientSupportTicket(input),
+    /**
+     * Unauthenticated — anybody who buys from us must be able to ask for help. An agent
+     * signed into the console raises one the same way, and the channel records which it was.
+     */
+    createClientSupportTicket: (
+      _p: unknown,
+      { input }: { input: ClientSupportTicketInput },
+      ctx: GraphQLContext,
+    ) => createClientSupportTicket(input, ctx.user ? 'AGENT' : 'PORTAL'),
   },
 };

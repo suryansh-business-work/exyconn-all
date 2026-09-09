@@ -58,6 +58,7 @@ export function raisedBy(row: PagedTicketRow): string {
 export const TICKET_COLUMNS: ColDef<PagedTicketRow>[] = [
   derivedColumn('raisedBy', 'Raised by', raisedBy),
   statusColumn('requesterType', 'Kind'),
+  statusColumn('channel', 'Channel'),
   valueColumn('subject', 'Subject', (row) => row.subject),
   statusColumn('category', 'Category'),
   statusColumn('priority', 'Priority'),
