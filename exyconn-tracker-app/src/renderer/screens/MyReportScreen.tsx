@@ -12,8 +12,10 @@ import {
 import DayDetailPanel from '../components/DayDetailPanel';
 import MonthSwitcher from '../components/MonthSwitcher';
 import ReportCalendar from '../components/ReportCalendar';
+import ReportMonthChart from '../components/ReportMonthChart';
 import ReportTable from '../components/ReportTable';
 import ReportTotals from '../components/ReportTotals';
+import { formatMonthLabel } from '../time';
 import useMyDay from '../hooks/useMyDay';
 import useMyReport from '../hooks/useMyReport';
 
@@ -96,6 +98,7 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
           <>
             <MonthSwitcher month={month} canGoForward={canGoForward} onChange={setMonth} />
             <ReportTotals totals={totals} />
+            <ReportMonthChart days={days} monthLabel={formatMonthLabel(month)} />
             <ReportTable days={days} loading={loading} />
           </>
         )}

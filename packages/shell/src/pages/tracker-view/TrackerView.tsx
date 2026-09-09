@@ -3,9 +3,10 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Box, Flex, Grid, Heading, IconButton, Text, CircularProgress } from '@/components/ui';
 import { glass } from '@/components/glass/glass';
 import { TrackerCalendar } from './TrackerCalendar';
+import { TrackerMonthChart } from './TrackerMonthChart';
 import { TrackerDayPanel } from './TrackerDayPanel';
 import type { TrackerDayCell } from './buildTrackerMonth';
-import type { DateTimeFormatter, TrackerDayData } from './tracker.types';
+import type { DateTimeFormatter, TrackerDayBucketData, TrackerDayData } from './tracker.types';
 
 interface TrackerViewProps {
   monthLabel: string;
@@ -13,6 +14,8 @@ interface TrackerViewProps {
   onNext: () => void;
   loading: boolean;
   days: TrackerDayCell[];
+  /** The month's day buckets, for the hours chart under the calendar. */
+  buckets: readonly TrackerDayBucketData[];
   selectedDate: string | null;
   onSelectDay: (date: string) => void;
   day: TrackerDayData | undefined;
@@ -32,6 +35,7 @@ export function TrackerView({
   onNext,
   loading,
   days,
+  buckets,
   selectedDate,
   onSelectDay,
   day,
@@ -69,6 +73,9 @@ export function TrackerView({
         <Grid item xs={12} md={7}>
           <Box sx={[glass, { p: 1.5 }]}>
             <TrackerCalendar days={days} selectedDate={selectedDate} onSelectDay={onSelectDay} />
+          </Box>
+          <Box sx={[glass, { p: 2, mt: 1.5 }]}>
+            <TrackerMonthChart buckets={buckets} monthLabel={monthLabel} />
           </Box>
         </Grid>
         <Grid item xs={12} md={5}>

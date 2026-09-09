@@ -28,9 +28,10 @@ export function MyTrackerPage() {
     month.dayRange ? { variables: month.dayRange } : { skip: true },
   );
 
+  const buckets = useMemo(() => calendarQuery.data?.myTrackerCalendar ?? [], [calendarQuery.data]);
   const days = useMemo(
-    () => buildTrackerMonth(month.month, calendarQuery.data?.myTrackerCalendar ?? [], new Date()),
-    [month.month, calendarQuery.data],
+    () => buildTrackerMonth(month.month, buckets, new Date()),
+    [month.month, buckets],
   );
 
   return (
@@ -47,6 +48,7 @@ export function MyTrackerPage() {
         onNext={month.next}
         loading={calendarQuery.loading}
         days={days}
+        buckets={buckets}
         selectedDate={month.selectedDate}
         onSelectDay={month.setSelectedDate}
         day={dayQuery.data?.myTrackerDay}

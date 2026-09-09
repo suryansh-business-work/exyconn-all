@@ -2791,6 +2791,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.7.0(vite@5.4.21(@types/node@22.20.1)(lightningcss@1.33.0)(sass@1.101.0))
+      chart.js:
+        specifier: ^4.5.1
+        version: 4.5.1
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
@@ -2818,6 +2821,9 @@ importers:
       react:
         specifier: ^19.2.8
         version: 19.2.8
+      react-chartjs-2:
+        specifier: ^5.3.1
+        version: 5.3.1(chart.js@4.5.1)(react@19.2.8)
       react-dom:
         specifier: ^19.2.8
         version: 19.2.8(react@19.2.8)
@@ -3464,12 +3470,18 @@ importers:
       '@mui/x-date-pickers':
         specifier: ^7.23.6
         version: 7.29.4(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@mui/material@6.5.0(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@mui/system@6.5.0(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(date-fns@3.6.0)(dayjs@1.11.23)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      chart.js:
+        specifier: ^4.5.1
+        version: 4.5.1
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
       react:
         specifier: ^19.2.8
         version: 19.2.8
+      react-chartjs-2:
+        specifier: ^5.3.1
+        version: 5.3.1(chart.js@4.5.1)(react@19.2.8)
       react-dom:
         specifier: ^19.2.8
         version: 19.2.8(react@19.2.8)
