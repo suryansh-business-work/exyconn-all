@@ -8,7 +8,9 @@ type Resolver = (p: unknown, a: never, c: GraphQLContext) => Promise<Array<{ nam
 const probationsEnding = hrResolvers.Query.probationsEnding as unknown as Resolver;
 
 const hr = { user: { id: 'hr', email: 'hr@exyconn.com', roles: [ROLES.HR] } } as GraphQLContext;
-const emp = { user: { id: 'e', email: 'e@exyconn.com', roles: [ROLES.EMPLOYEE] } } as GraphQLContext;
+const emp = {
+  user: { id: 'e', email: 'e@exyconn.com', roles: [ROLES.EMPLOYEE] },
+} as GraphQLContext;
 
 const DAY = 24 * 60 * 60 * 1000;
 const inDays = (days: number) => new Date(Date.now() + days * DAY);

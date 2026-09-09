@@ -63,6 +63,7 @@ async function render(slip: SlipRow): Promise<RenderedPayslip> {
       name: branding?.businessName ?? 'Exyconn',
       address: branding?.address ?? '',
       supportEmail: branding?.supportEmail ?? '',
+      hrEmail: branding?.hrEmail ?? '',
     },
     employee: {
       name: employee.name,

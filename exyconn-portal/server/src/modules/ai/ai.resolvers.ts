@@ -27,11 +27,7 @@ export const aiCustomResolvers = {
     },
 
     /** What AI cost over a window, and who and what it went on. */
-    aiSpendSummary: (
-      _p: unknown,
-      { from, to }: { from: Date; to: Date },
-      ctx: GraphQLContext,
-    ) => {
+    aiSpendSummary: (_p: unknown, { from, to }: { from: Date; to: Date }, ctx: GraphQLContext) => {
       guard(ctx);
       return aiSpendSummary(new Date(from), new Date(to));
     },

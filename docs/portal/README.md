@@ -86,5 +86,5 @@ pnpm codegen                              # regenerate GraphQL hooks after a .gr
 - [adding-a-module.md](./adding-a-module.md) — adding a screen, and adding a whole app.
 - [working-day.md](./working-day.md) — the employee working day: which module owns each
   fact, and how HR, Legal, Projects and the desktop tracker share it.
-- [website-content.md](./website-content.md) — what exyconn.com reads from the portal, what
-  it reads from TinaCMS markdown, and which portal screens drive nothing today.
+- [website-content.md](./website-content.md) — every piece of exyconn.com is read from the
+  portal; which query and which screen owns each of them.

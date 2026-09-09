@@ -6,6 +6,7 @@ import { SupportTicketModel } from '../employee/support.model';
 import { InvoiceModel } from '../finance/finance.model';
 import { PayrollScheduleModel } from '../payroll/payroll-schedule.model';
 import { TrackerSettingsModel } from '../tracker/models';
+import { InboundMailConfigModel } from '../tech/inbound-mail-config.model';
 import { env } from '../../config/env';
 import { readJobRuns, type JobRun } from '../../utils/jobHeartbeat';
 
@@ -81,9 +82,10 @@ function jobRow(
  */
 async function jobs(): Promise<HealthJob[]> {
   const runs = readJobRuns();
-  const [schedule, tracker] = await Promise.all([
+  const [schedule, tracker, mailbox] = await Promise.all([
     PayrollScheduleModel.findOne({ key: 'global' }).lean(),
     TrackerSettingsModel.findOne({ key: 'global' }).lean(),
+    InboundMailConfigModel.exists({ isActive: true }),
   ]);
   const digestEnabled = Boolean(tracker?.dailyDigestEnabled ?? tracker?.weeklyDigestEnabled);
   const digestLastRun = tracker?.dailyDigestLastRun ?? '';
@@ -107,6 +109,7 @@ async function jobs(): Promise<HealthJob[]> {
     // dead loop is exactly what this screen exists to show.
     jobRow('recurringInvoices', 'Recurring invoices', true, runs),
     jobRow('webhookDelivery', 'Webhook delivery', true, runs),
+    jobRow('inboundMail', 'Inbound support mail', Boolean(mailbox), runs),
   ];
 }
 

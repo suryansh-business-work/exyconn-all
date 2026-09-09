@@ -80,6 +80,7 @@ fragment SupportConsoleTicketFields on SupportTicket {
   employeeId
   employeeName
   requesterType
+  channel
   reference
   clientId
   clientName

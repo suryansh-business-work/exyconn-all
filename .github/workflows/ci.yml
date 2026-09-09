@@ -55,6 +55,82 @@ jobs:
       - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=3 run lint
       - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=1 run test
 
+  component-tests:
+    name: Component Tests (Cypress)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # The Electron binary is ~700MB and is not in the pnpm store, so it is cached
+      # separately from node_modules or every run re-downloads it.
+      - name: Cache Cypress binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: cypress-${{ runner.os }}-
+
+      - run: pnpm install --frozen-lockfile
+
+      # A cache hit skips the postinstall download, so install explicitly — it is a
+      # no-op when the binary is already in the cache.
+      - name: Install Cypress binary
+        run: pnpm --filter @exyconn/ui exec cypress install
+
+      # ELECTRON_RUN_AS_NODE in the environment silently turns the Cypress binary into
+      # plain node, which fails much later with an unhelpful "bad option" error.
+      - name: Verify Cypress can start
+        run: pnpm --filter @exyconn/ui exec cypress verify
+
+      # Every form ships a .form.cy.tsx (CLAUDE.md rule 10). This is the job that runs
+      # them; it is deliberately separate from the workspace job so a slow browser run
+      # does not sit on the typecheck/lint/test feedback loop.
+      - name: Component suites
+        run: pnpm test:ct
+
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: '**/cypress/screenshots/**'
+          if-no-files-found: ignore
+          retention-days: 7
+
+  website:
+    name: Website · Typecheck · Lint · Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # The Astro site is a workspace package but was in no CI job, so nothing checked
+      # it on a push. That was survivable while it read its own markdown; now it renders
+      # blog posts and case studies out of the portal's public API, so a field renamed in
+      # the portal breaks the marketing site and no other job would say so.
+      - name: Typecheck
+        working-directory: exyconn-website
+        run: pnpm run typecheck
+      - name: Lint
+        working-directory: exyconn-website
+        run: pnpm run lint
+      - name: Test
+        working-directory: exyconn-website
+        run: pnpm test
+
   tools-ui:
     name: Tools UI · Typecheck · Lint · Test
     runs-on: ubuntu-latest

@@ -41,17 +41,9 @@ export default defineConfig({
     allowedDomains: [
       { hostname: 'exyconn.com' },
       { hostname: 'www.exyconn.com' },
-      // The TinaCMS editor is served on its own host; without it here the login form's
-      // cross-site check rejects every sign-in attempt against that domain.
-      { hostname: 'tina-cms.exyconn.com' },
       { hostname: 'localhost' },
       { hostname: '127.0.0.1' },
     ],
-  },
-  markdown: {
-    // Blog and case-study bodies are markdown edited in TinaCMS; keep the straight quotes and
-    // apostrophes editors type rather than converting them to typographic ones.
-    smartypants: false,
   },
   server: {
     host: true, // allows 0.0.0.0 binding

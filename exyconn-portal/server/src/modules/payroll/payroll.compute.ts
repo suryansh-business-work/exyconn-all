@@ -170,24 +170,213 @@ export function employeeStateInsurance(
   return money((gross * settings.esiEmployeePercent) / 100);
 }
 
+/** Months in a year — the length of a financial year, and what an annual figure divides by. */
+const MONTHS_IN_YEAR = 12;
+
+/** One band of a tax table, reduced to the three numbers the walk needs. */
+export interface TaxBand {
+  from: number;
+  /** Null for the open-ended top band. */
+  to: number | null;
+  rate: number;
+}
+
 /**
- * Tax deducted at source, as a percentage of taxable pay.
+ * Progressive tax: each band's rate applied ONLY to the part of the income inside it.
  *
- * `NONE` withholds nothing. `FLAT_PERCENT` uses the employee's own rate when one is
- * recorded and the company rate otherwise. `SLAB` means the rate was worked out off the
- * portal, so ONLY a rate recorded against the employee is used — taxing somebody at a
- * guessed slab is worse than not withholding at all.
+ * Applying the top band's rate to every rupee is the classic payroll bug. It overtaxes
+ * everybody above the first boundary, and by the largest amount for the people least able
+ * to check it, so the arithmetic is written once here and shared by every caller.
+ */
+export function progressiveTax(taxable: number, bands: readonly TaxBand[]): number {
+  if (taxable <= 0) {
+    return 0;
+  }
+  let tax = 0;
+  for (const band of bands) {
+    const ceiling = band.to ?? Number.POSITIVE_INFINITY;
+    const inBand = Math.min(taxable, ceiling) - band.from;
+    if (inBand > 0) {
+      tax += (inBand * band.rate) / 100;
+    }
+  }
+  return tax;
+}
+
+/** The figures one named regime carries alongside its bands, as stored on `TaxRegime`. */
+export interface TaxRegimeFigures {
+  standardDeduction: number;
+  /** Taxable income at or below which the rebate applies. */
+  rebateIncomeLimit: number;
+  /** The most tax the rebate can write off. */
+  rebateMaxTax: number;
+  /** Charged on the tax, never on the income. */
+  cessPercent: number;
+  active: boolean;
+}
+
+/** One stored band of a regime's table, as `TaxSlab` holds it. */
+export interface TaxSlabRow {
+  fromAmount: number;
+  toAmount?: number | null;
+  ratePercent: number;
+  order: number;
+  active: boolean;
+}
+
+/** Live bands, lowest first — the order they have to be walked in to be progressive. */
+function orderedBands(slabs: readonly TaxSlabRow[]): TaxBand[] {
+  return (
+    slabs
+      .filter((slab) => slab.active)
+      // Already a fresh array from `filter`, so sorting in place mutates nothing shared.
+      // `toSorted` is ES2023 and the server compiles against ES2021.
+      .sort((a, b) => a.order - b.order || a.fromAmount - b.fromAmount)
+      .map((slab) => ({ from: slab.fromAmount, to: slab.toAmount ?? null, rate: slab.ratePercent }))
+  );
+}
+
+/**
+ * A year's tax on `annualTaxable` under one regime: standard deduction off the income, the
+ * bands walked, the rebate off the tax, then cess on what is left.
+ *
+ * The order matters and is not interchangeable. The rebate is subtracted from the TAX, and
+ * before cess — computing cess first and rebating after leaves a bill on somebody the
+ * rebate was supposed to clear entirely.
+ *
+ * An inactive regime and an empty table both withhold nothing rather than throwing: a
+ * half-entered table must not tax anybody, and it must not fail the payroll run either.
+ */
+export function annualTaxForSlabs(
+  annualTaxable: number,
+  regime: TaxRegimeFigures | null,
+  slabs: readonly TaxSlabRow[],
+): number {
+  if (!regime?.active) {
+    return 0;
+  }
+  const bands = orderedBands(slabs);
+  if (bands.length === 0) {
+    return 0;
+  }
+  const taxable = Math.max(annualTaxable - regime.standardDeduction, 0);
+  const beforeRebate = progressiveTax(taxable, bands);
+  const rebate =
+    taxable <= regime.rebateIncomeLimit ? Math.min(beforeRebate, regime.rebateMaxTax) : 0;
+  const afterRebate = Math.max(beforeRebate - rebate, 0);
+  return money(afterRebate * (1 + regime.cessPercent / 100));
+}
+
+/**
+ * What to withhold from ONE month under the slab table.
+ *
+ * The month is projected across the months this employee is actually paid in this financial
+ * year, taxed as a year, and divided back over those same months. `payableMonths` is 12 for
+ * anybody who was here in April; for a mid-year joiner it is what is left of the year, which
+ * is the whole point — annualising their first month by twelve would tax them on a salary
+ * they will not earn this year and take most of it out of month one.
+ */
+export function monthlyTdsFromSlabs(
+  monthlyTaxable: number,
+  payableMonths: number,
+  regime: TaxRegimeFigures | null,
+  slabs: readonly TaxSlabRow[],
+): number {
+  if (monthlyTaxable <= 0 || payableMonths <= 0) {
+    return 0;
+  }
+  const annual = annualTaxForSlabs(monthlyTaxable * payableMonths, regime, slabs);
+  return money(annual / payableMonths);
+}
+
+/** The calendar year the financial year containing this period opened in. */
+function financialYearStart(year: number, month: number, startMonth: number): number {
+  if (month >= startMonth) {
+    return year;
+  }
+  return year - 1;
+}
+
+/**
+ * The financial year a payroll period falls in, as `2026-27` — named after the year it
+ * opens in, so April 2026 through March 2027 is one label whichever month is being run.
+ *
+ * Derived from the period rather than stored, because a stored "current year" is a field
+ * somebody has to remember to roll over every April, and a payroll run in the wrong year
+ * is a payroll run against the wrong slabs.
+ */
+export function financialYearOf(year: number, month: number, startMonth: number): string {
+  const start = financialYearStart(year, month, startMonth);
+  return `${start}-${String((start + 1) % 100).padStart(2, '0')}`;
+}
+
+/**
+ * How many of this financial year's months this employee is paid in.
+ *
+ * Twelve for anybody who joined before the year opened. For a joiner it is the months from
+ * their joining month to the year's end, which both lowers the income their tax is worked
+ * out on and spreads that tax over the months they will actually be paid. Never zero, so
+ * the division that follows it always has something to divide by.
+ */
+export function payableMonthsInFinancialYear(
+  joinDate: Date | null | undefined,
+  year: number,
+  month: number,
+  startMonth: number,
+): number {
+  if (!joinDate) {
+    return MONTHS_IN_YEAR;
+  }
+  const opens = financialYearStart(year, month, startMonth) * MONTHS_IN_YEAR + startMonth;
+  const joined = joinDate.getUTCFullYear() * MONTHS_IN_YEAR + joinDate.getUTCMonth() + 1;
+  const elapsed = joined - opens;
+  if (elapsed <= 0) {
+    return MONTHS_IN_YEAR;
+  }
+  return Math.min(Math.max(MONTHS_IN_YEAR - elapsed, 1), MONTHS_IN_YEAR);
+}
+
+/** The slab table a run applies, resolved once for the month and shared by every employee. */
+export interface SlabTaxInput {
+  regime: TaxRegimeFigures | null;
+  slabs: readonly TaxSlabRow[];
+  /** This employee's paid months in the financial year the period falls in. */
+  payableMonths: number;
+}
+
+/**
+ * Tax deducted at source from one month's taxable pay.
+ *
+ * Precedence, in order: `NONE` withholds nothing at all; an employee's own recorded rate
+ * beats every mode, because somebody has worked their position out and this is where it is
+ * written down; `SLAB` walks the regime's table; `FLAT_PERCENT` takes the company rate.
+ *
+ * `SLAB` with no table resolved withholds nothing — an unconfigured portal must not invent
+ * a rate, and the caller that has not looked one up is one that could not.
  */
 export function taxDeductedAtSource(
   taxable: number,
   settings: StatutorySettings,
   overridePercent: number,
+  slabTax?: SlabTaxInput,
 ): number {
-  if (settings.tdsMode === 'NONE') return 0;
-  const fallback = settings.tdsMode === 'SLAB' ? 0 : settings.tdsFlatPercent;
-  const percent = overridePercent > 0 ? overridePercent : fallback;
-  if (percent <= 0) return 0;
-  return money((Math.max(taxable, 0) * percent) / 100);
+  if (settings.tdsMode === 'NONE') {
+    return 0;
+  }
+  const pay = Math.max(taxable, 0);
+  if (overridePercent > 0) {
+    return money((pay * overridePercent) / 100);
+  }
+  if (settings.tdsMode === 'SLAB') {
+    if (!slabTax) {
+      return 0;
+    }
+    return monthlyTdsFromSlabs(pay, slabTax.payableMonths, slabTax.regime, slabTax.slabs);
+  }
+  if (settings.tdsFlatPercent <= 0) {
+    return 0;
+  }
+  return money((pay * settings.tdsFlatPercent) / 100);
 }
 
 /**
@@ -200,13 +389,14 @@ export function statutoryDeductions(
   lossOfPay: number,
   settings: StatutorySettings,
   overrides: StatutoryOverrides = {},
+  slabTax?: SlabTaxInput,
 ): StatutoryLines {
   const gross = grossOf(parts);
   const pf = providentFund(parts.basic, settings, overrides.pfApplicable ?? true);
   const esi = employeeStateInsurance(gross, settings, overrides.esiApplicable ?? true);
   const professionalTax = money(settings.professionalTaxMonthly);
   const taxable = gross - lossOfPay - pf - esi - professionalTax;
-  const tds = taxDeductedAtSource(taxable, settings, overrides.tdsPercent ?? 0);
+  const tds = taxDeductedAtSource(taxable, settings, overrides.tdsPercent ?? 0, slabTax);
   return { pf, esi, professionalTax, tds };
 }
 
@@ -264,7 +454,9 @@ export function computeMonthlySlip(
   unpaidDays: number,
   settings: StatutorySettings,
   overrides: StatutoryOverrides = {},
+  slabTax?: SlabTaxInput,
 ): SlipAmounts {
   const lop = lossOfPayFor(s, year, month, unpaidDays);
-  return computeSlip(s, year, month, unpaidDays, statutoryDeductions(s, lop, settings, overrides));
+  const statutory = statutoryDeductions(s, lop, settings, overrides, slabTax);
+  return computeSlip(s, year, month, unpaidDays, statutory);
 }

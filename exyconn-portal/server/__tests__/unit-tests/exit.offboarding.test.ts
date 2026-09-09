@@ -67,9 +67,24 @@ describe('updateExitRecord reaching EXITED', () => {
 
 describe('ExitRecord.heldAssets', () => {
   it('lists only what is still assigned to the leaver', async () => {
-    await AssetModel.create({ assetTag: 'LT-1', name: 'Laptop', status: 'ASSIGNED', assignedToId: 'emp-1' });
-    await AssetModel.create({ assetTag: 'MN-1', name: 'Monitor', status: 'ASSIGNED', assignedToId: 'emp-2' });
-    await AssetModel.create({ assetTag: 'PH-1', name: 'Phone', status: 'IN_STOCK', assignedToId: '' });
+    await AssetModel.create({
+      assetTag: 'LT-1',
+      name: 'Laptop',
+      status: 'ASSIGNED',
+      assignedToId: 'emp-1',
+    });
+    await AssetModel.create({
+      assetTag: 'MN-1',
+      name: 'Monitor',
+      status: 'ASSIGNED',
+      assignedToId: 'emp-2',
+    });
+    await AssetModel.create({
+      assetTag: 'PH-1',
+      name: 'Phone',
+      status: 'IN_STOCK',
+      assignedToId: '',
+    });
 
     const held = (await exitResolvers.ExitRecord.heldAssets({ employeeId: 'emp-1' })) as {
       id: string;

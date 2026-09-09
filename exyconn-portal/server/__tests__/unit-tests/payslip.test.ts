@@ -1,5 +1,6 @@
 import { payslipLines, payslipFilename } from '../../src/modules/payroll/payslip.lines';
 import { buildPayslipPdf, periodLabel, formatAmount } from '../../src/modules/payroll/payslip.pdf';
+import { logoHeight } from '../../src/modules/payroll/payslip.brand';
 import {
   isDue,
   periodKey,
@@ -67,36 +68,67 @@ describe('payslip lines', () => {
   });
 });
 
+const payslipData = {
+  company: {
+    name: 'Exyconn',
+    address: 'Indore',
+    supportEmail: 'support@exyconn.com',
+    hrEmail: 'hr@exyconn.com',
+  },
+  employee: {
+    name: 'Ravi Kumar',
+    email: 'ravi@exyconn.com',
+    designation: 'Engineer',
+    department: 'Tech',
+    joinDate: new Date('2024-04-01T00:00:00.000Z'),
+  },
+  slip: {
+    month: 8,
+    year: 2026,
+    currency: 'INR',
+    gross: 80_000,
+    deductions: 8_812,
+    pf: 1_800,
+    esi: 0,
+    professionalTax: 200,
+    tds: 1_812,
+    net: 71_188,
+    status: 'PAID',
+    issuedDate: new Date('2026-09-01T00:00:00.000Z'),
+  },
+  structure,
+  identifiers: { pfNumber: 'PF/1234', esiNumber: 'ESI/9876', panNumber: 'ABCDE1234F' },
+};
+
 describe('payslip pdf', () => {
   it('renders a real PDF document', async () => {
-    const pdf = await buildPayslipPdf({
-      company: { name: 'Exyconn', address: 'Indore', supportEmail: 'support@exyconn.com' },
-      employee: {
-        name: 'Ravi Kumar',
-        email: 'ravi@exyconn.com',
-        designation: 'Engineer',
-        department: 'Tech',
-        joinDate: new Date('2024-04-01T00:00:00.000Z'),
-      },
-      slip: {
-        month: 8,
-        year: 2026,
-        currency: 'INR',
-        gross: 80_000,
-        deductions: 8_812,
-        pf: 1_800,
-        esi: 0,
-        professionalTax: 200,
-        tds: 1_812,
-        net: 71_188,
-        status: 'PAID',
-        issuedDate: new Date('2026-09-01T00:00:00.000Z'),
-      },
-      structure,
-      identifiers: { pfNumber: 'PF/1234', esiNumber: 'ESI/9876', panNumber: 'ABCDE1234F' },
-    });
+    const pdf = await buildPayslipPdf(payslipData);
     expect(pdf.length).toBeGreaterThan(1_000);
     expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
+  });
+
+  it('is a PDF/A-3b document, so it still renders when it is produced years later', async () => {
+    const pdf = await buildPayslipPdf(payslipData);
+    const source = pdf.toString('latin1');
+    expect(pdf.subarray(0, 8).toString()).toBe('%PDF-1.7');
+    // ISO 19005-3 identification, and the sRGB output intent it obliges the file to carry.
+    expect(/pdfaid:part>3</.exec(source)).not.toBeNull();
+    expect(/pdfaid:conformance>B</.exec(source)).not.toBeNull();
+    expect(source).toContain('GTS_PDFA1');
+    expect(source).toContain('sRGB IEC61966-2.1');
+  });
+
+  it('embeds its fonts rather than naming ones the reader has to already own', async () => {
+    const pdf = await buildPayslipPdf(payslipData);
+    const source = pdf.toString('latin1');
+    // A TrueType font programme in the file itself, and none of the standard 14 by name.
+    expect(source).toContain('FontFile2');
+    expect(source).not.toContain('Helvetica');
+  });
+
+  it('scales the logo to the aspect ratio of the mark', () => {
+    expect(logoHeight(160)).toBeCloseTo(42);
+    expect(logoHeight(80)).toBeCloseTo(21);
   });
 
   it('labels the period and the money the way the email does', () => {

@@ -3,6 +3,7 @@ import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 
 const CONTACT_FIELDS = [
   { name: 'supportEmail', label: 'Support email' },
+  { name: 'hrEmail', label: 'HR email' },
   { name: 'contactPhone', label: 'Contact phone' },
   { name: 'websiteUrl', label: 'Website URL' },
   { name: 'address', label: 'Address' },

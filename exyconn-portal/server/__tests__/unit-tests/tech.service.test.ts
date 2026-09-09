@@ -3,6 +3,7 @@ import { EmailConfigModel } from '../../src/modules/tech/email-config.model';
 import { ImageConfigModel } from '../../src/modules/tech/image-config.model';
 import { SlackConfigModel } from '../../src/modules/tech/slack-config.model';
 import { GithubConfigModel } from '../../src/modules/tech/github-config.model';
+import { InboundMailConfigModel } from '../../src/modules/tech/inbound-mail-config.model';
 
 const emailInput = {
   label: 'Primary',
@@ -33,6 +34,21 @@ const githubInput = {
   owner: 'exyconn',
   repo: 'exyconn-all',
   token: 'github_pat_test',
+};
+
+/** Never a literal: a credential in source is a credential in the repository. */
+const MAILBOX_PASSWORD = process.env.TEST_MAILBOX_PASSWORD ?? 'a-strong-password';
+
+const inboundInput = {
+  label: 'Support inbox',
+  host: 'imap.example.com',
+  port: 993,
+  secure: true,
+  user: 'help@example.com',
+  password: MAILBOX_PASSWORD,
+  mailbox: 'INBOX',
+  pollSeconds: 120,
+  deleteAfterImport: false,
 };
 
 describe('TechService', () => {
@@ -129,5 +145,37 @@ describe('TechService', () => {
 
   it('refuses a build with no platform chosen', async () => {
     await expect(techService.startTrackerBuild([], 'main')).rejects.toThrow();
+  });
+
+  it('keeps a single active inbound mailbox', async () => {
+    await techService.createInboundMailConfig({ ...inboundInput, isActive: true });
+    await techService.createInboundMailConfig({
+      ...inboundInput,
+      label: 'Backup',
+      isActive: true,
+    });
+
+    const active = await InboundMailConfigModel.find({ isActive: true }).lean();
+    expect(active).toHaveLength(1);
+    expect(active[0].label).toBe('Backup');
+  });
+
+  it('keeps the stored mailbox password when an edit sends an empty one', async () => {
+    const config = await techService.createInboundMailConfig(inboundInput);
+
+    await techService.updateInboundMailConfig(String(config._id), {
+      ...inboundInput,
+      password: '',
+      mailbox: 'Support',
+    });
+
+    const saved = await InboundMailConfigModel.findById(config._id).lean();
+    expect(saved).toMatchObject({ mailbox: 'Support', password: MAILBOX_PASSWORD });
+  });
+
+  it('refuses a mailbox with no password at all', async () => {
+    await expect(
+      techService.createInboundMailConfig({ ...inboundInput, password: '' }),
+    ).rejects.toThrow(/password/i);
   });
 });

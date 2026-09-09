@@ -1,7 +1,6 @@
 ---
 import Page from "../../layouts/Page.astro";
-import { formatDate } from "../../lib/portal";
-import { getCaseStudies } from "../../lib/content";
+import { formatDate, getCaseStudies } from "../../lib/portal";
 const searchPlaceholder = "Search by title, tag, category...";
 
 const items = await getCaseStudies();

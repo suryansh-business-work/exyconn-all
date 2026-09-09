@@ -41,6 +41,7 @@ export const brandingSchema = z.object({
   textColor: color,
 
   supportEmail: email,
+  hrEmail: email,
   contactPhone: text,
   websiteUrl: url,
   address: text,
@@ -92,6 +93,7 @@ export const toBrandingValues = (row: BrandingRow): BrandingFormValues => ({
   textColor: row.textColor,
 
   supportEmail: row.supportEmail,
+  hrEmail: row.hrEmail,
   contactPhone: row.contactPhone,
   websiteUrl: row.websiteUrl,
   address: row.address,

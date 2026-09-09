@@ -86,7 +86,10 @@ export const reportingResolvers = {
     },
     orgChart: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       assertRole(ctx, [ROLES.HR]);
-      const rows = await UserModel.find({ isActive: true }).select(ORG_FIELDS).sort({ name: 1 }).lean();
+      const rows = await UserModel.find({ isActive: true })
+        .select(ORG_FIELDS)
+        .sort({ name: 1 })
+        .lean();
       return withIds(rows);
     },
   },

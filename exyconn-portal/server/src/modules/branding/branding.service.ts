@@ -19,6 +19,7 @@ export interface BrandingInput {
   backgroundColor?: string;
   textColor?: string;
   supportEmail?: string;
+  hrEmail?: string;
   contactPhone?: string;
   websiteUrl?: string;
   address?: string;

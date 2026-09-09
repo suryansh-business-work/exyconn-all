@@ -143,7 +143,10 @@ describe('Support console', () => {
     expect(sendEmail.mock.calls[0][0]).toMatchObject({
       template: 'support-reply',
       to: 'emp@exyconn.com',
-      variables: { ticketSubject: 'Laptop will not boot', replyBody: 'Try holding the power button.' },
+      variables: {
+        ticketSubject: 'Laptop will not boot',
+        replyBody: 'Try holding the power button.',
+      },
     });
   });
 
@@ -218,7 +221,13 @@ describe('Support console', () => {
         ticketId: String(ticket._id),
         body: 'Here is the driver.',
         internal: false,
-        attachments: [{ url: 'https://cdn.test/driver.pdf', name: ' driver.pdf ', contentType: 'application/pdf' }],
+        attachments: [
+          {
+            url: 'https://cdn.test/driver.pdf',
+            name: ' driver.pdf ',
+            contentType: 'application/pdf',
+          },
+        ],
       },
       asSupport(String(agent._id)),
     );
@@ -232,7 +241,6 @@ describe('Support console', () => {
     });
   });
 });
-
 
 describe('Support console grid', () => {
   const page = (input: Partial<TableQueryInput>, ctx: GraphQLContext) =>
@@ -255,7 +263,7 @@ describe('Support console grid', () => {
     expect(names).toEqual(expect.arrayContaining(['emp', null]));
   });
 
-  it('filters the unassigned queue and one agent\'s own tickets', async () => {
+  it("filters the unassigned queue and one agent's own tickets", async () => {
     const agent = await supportAgent();
     const ctx = asSupport(String(agent._id));
     const other = String(new Types.ObjectId());
@@ -298,7 +306,10 @@ describe('Support console grid', () => {
       null,
       {},
       asSupport(String(agent._id)),
-    )) as { total: number; counts: Array<{ field: string; buckets: Array<{ value: string; count: number }> }> };
+    )) as {
+      total: number;
+      counts: Array<{ field: string; buckets: Array<{ value: string; count: number }> }>;
+    };
 
     expect(stats.total).toBe(2);
     const bucket = (field: string, value: string) =>
@@ -399,4 +410,3 @@ describe('Support console grid', () => {
     expect(result.rows[0].id).toBe(String(overdue._id));
   });
 });
-

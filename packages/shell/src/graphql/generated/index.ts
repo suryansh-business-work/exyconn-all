@@ -658,6 +658,7 @@ export type Branding = {
   githubUrl: Scalars['String']['output'];
   /** Our GST registration, printed on every tax invoice. */
   gstin: Scalars['String']['output'];
+  hrEmail: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   instagramUrl: Scalars['String']['output'];
   /** What generated invoice numbers start with, e.g. INV-. */
@@ -697,6 +698,7 @@ export type BrandingInput = {
   faviconUrl?: InputMaybe<Scalars['String']['input']>;
   githubUrl?: InputMaybe<Scalars['String']['input']>;
   gstin?: InputMaybe<Scalars['String']['input']>;
+  hrEmail?: InputMaybe<Scalars['String']['input']>;
   instagramUrl?: InputMaybe<Scalars['String']['input']>;
   invoicePrefix?: InputMaybe<Scalars['String']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
@@ -2216,6 +2218,39 @@ export type ImageConfigInput = {
   urlEndpoint: Scalars['String']['input'];
 };
 
+/** The mailbox the support desk reads. The password is write-only and never returned. */
+export type InboundMailConfig = {
+  __typename?: 'InboundMailConfig';
+  createdAt: Scalars['DateTime']['output'];
+  /** Whether an imported message is removed from the mailbox rather than only marked seen. */
+  deleteAfterImport: Scalars['Boolean']['output'];
+  host: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  mailbox: Scalars['String']['output'];
+  /** How long the poller waits between rounds. */
+  pollSeconds: Scalars['Int']['output'];
+  port: Scalars['Int']['output'];
+  secure: Scalars['Boolean']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  user: Scalars['String']['output'];
+};
+
+export type InboundMailConfigInput = {
+  deleteAfterImport: Scalars['Boolean']['input'];
+  host: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  mailbox: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored password. */
+  password: Scalars['String']['input'];
+  pollSeconds: Scalars['Int']['input'];
+  port: Scalars['Int']['input'];
+  secure: Scalars['Boolean']['input'];
+  user: Scalars['String']['input'];
+};
+
 export enum IncidentImpact {
   Critical = 'CRITICAL',
   Major = 'MAJOR',
@@ -2893,6 +2928,7 @@ export type Mutation = {
   createGrade: Grade;
   createHoliday: Holiday;
   createImageConfig: ImageConfig;
+  createInboundMailConfig: InboundMailConfig;
   createInvoice: Invoice;
   /** A draft invoice billing a won deal's value to its client. Refused if one already exists. */
   createInvoiceFromDeal: Invoice;
@@ -2940,6 +2976,8 @@ export type Mutation = {
   createSalaryStructure: SalaryStructure;
   createShift: Shift;
   createSlackConfig: SlackConfig;
+  createSocialComment: SocialComment;
+  createSocialPost: SocialPost;
   createSprint: Sprint;
   createStatusIncident: StatusIncident;
   /** Creating a window also emails every confirmed status subscriber. */
@@ -2950,6 +2988,8 @@ export type Mutation = {
   /** Self-service: raise a support ticket (status forced to OPEN). */
   createSupportTicket: SupportTicket;
   createTask: Task;
+  createTaxRegime: TaxRegime;
+  createTaxSlab: TaxSlab;
   createTeam: Team;
   createTool: Tool;
   createToolCategory: ToolCategory;
@@ -3001,6 +3041,7 @@ export type Mutation = {
   deleteGrade: Scalars['Boolean']['output'];
   deleteHoliday: Scalars['Boolean']['output'];
   deleteImageConfig: Scalars['Boolean']['output'];
+  deleteInboundMailConfig: Scalars['Boolean']['output'];
   deleteInvoice: Scalars['Boolean']['output'];
   deleteJob: Scalars['Boolean']['output'];
   deleteJobCompany: Scalars['Boolean']['output'];
@@ -3032,6 +3073,8 @@ export type Mutation = {
   deleteSalaryStructure: Scalars['Boolean']['output'];
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
+  deleteSocialComment: Scalars['Boolean']['output'];
+  deleteSocialPost: Scalars['Boolean']['output'];
   /** Deletes the sprint and returns its tickets to the backlog. */
   deleteSprint: Scalars['Boolean']['output'];
   deleteStatusIncident: Scalars['Boolean']['output'];
@@ -3041,6 +3084,8 @@ export type Mutation = {
   deleteSupportSlaPolicy: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
   deleteTaskComment: Scalars['Boolean']['output'];
+  deleteTaxRegime: Scalars['Boolean']['output'];
+  deleteTaxSlab: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
   deleteToolCategory: Scalars['Boolean']['output'];
@@ -3194,6 +3239,8 @@ export type Mutation = {
   setUserActive: User;
   setUserBlocked: User;
   setWebhookActive: Webhook;
+  /** Shares a post onto the feed, optionally with something of your own to say. */
+  shareSocialPost: SocialPost;
   signContract: Contract;
   /**
    * Starts one joiner's onboarding from a template. HR only, and refused while the employee
@@ -3223,8 +3270,12 @@ export type Mutation = {
   subscribeToStatus: Scalars['Boolean']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
+  /** Signs in and opens the mailbox, so credentials are checked before the poller relies on them. */
+  testInboundMailConnection: Scalars['Boolean']['output'];
   testOpenAiConnection: Scalars['Boolean']['output'];
   testPexelsConnection: Scalars['Boolean']['output'];
+  /** Likes the post, or takes the like back. Returns the post as it now stands. */
+  toggleSocialPostLike: SocialPost;
   /**
    * Accepts the disclosure. When the workspace has pointed the tracker at a Legal policy,
    * signedName is required and the acceptance is also recorded in Legal's versioned
@@ -3304,6 +3355,7 @@ export type Mutation = {
   updateGrade: Grade;
   updateHoliday: Holiday;
   updateImageConfig: ImageConfig;
+  updateInboundMailConfig: InboundMailConfig;
   updateInvoice: Invoice;
   updateJob: Job;
   updateJobCompany: JobCompany;
@@ -3355,6 +3407,8 @@ export type Mutation = {
   updateSupplier: Supplier;
   updateSupportSlaPolicy: SupportSlaPolicy;
   updateTask: Task;
+  updateTaxRegime: TaxRegime;
+  updateTaxSlab: TaxSlab;
   updateTeam: Team;
   updateTool: Tool;
   updateToolCategory: ToolCategory;
@@ -3654,6 +3708,11 @@ export type MutationCreateImageConfigArgs = {
 };
 
 
+export type MutationCreateInboundMailConfigArgs = {
+  input: InboundMailConfigInput;
+};
+
+
 export type MutationCreateInvoiceArgs = {
   input: InvoiceInput;
 };
@@ -3824,6 +3883,17 @@ export type MutationCreateSlackConfigArgs = {
 };
 
 
+export type MutationCreateSocialCommentArgs = {
+  body: Scalars['String']['input'];
+  postId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateSocialPostArgs = {
+  input: SocialPostInput;
+};
+
+
 export type MutationCreateSprintArgs = {
   input: SprintInput;
   projectId: Scalars['ID']['input'];
@@ -3864,6 +3934,16 @@ export type MutationCreateTaskArgs = {
   columnId: Scalars['ID']['input'];
   input: TaskInput;
   projectId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateTaxRegimeArgs = {
+  input: TaxRegimeInput;
+};
+
+
+export type MutationCreateTaxSlabArgs = {
+  input: TaxSlabInput;
 };
 
 
@@ -4091,6 +4171,11 @@ export type MutationDeleteImageConfigArgs = {
 };
 
 
+export type MutationDeleteInboundMailConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4236,6 +4321,16 @@ export type MutationDeleteSlackConfigArgs = {
 };
 
 
+export type MutationDeleteSocialCommentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteSocialPostArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteSprintArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4272,6 +4367,16 @@ export type MutationDeleteTaskArgs = {
 
 
 export type MutationDeleteTaskCommentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteTaxRegimeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteTaxSlabArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4646,6 +4751,12 @@ export type MutationSetWebhookActiveArgs = {
 };
 
 
+export type MutationShareSocialPostArgs = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationSignContractArgs = {
   id: Scalars['ID']['input'];
   signedBy: Scalars['String']['input'];
@@ -4704,12 +4815,22 @@ export type MutationTestImageUploadArgs = {
 };
 
 
+export type MutationTestInboundMailConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationTestOpenAiConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
 
 export type MutationTestPexelsConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationToggleSocialPostLikeArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4992,6 +5113,12 @@ export type MutationUpdateImageConfigArgs = {
 };
 
 
+export type MutationUpdateInboundMailConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: InboundMailConfigInput;
+};
+
+
 export type MutationUpdateInvoiceArgs = {
   id: Scalars['ID']['input'];
   input: InvoiceInput;
@@ -5228,6 +5355,18 @@ export type MutationUpdateTaskArgs = {
 };
 
 
+export type MutationUpdateTaxRegimeArgs = {
+  id: Scalars['ID']['input'];
+  input: TaxRegimeInput;
+};
+
+
+export type MutationUpdateTaxSlabArgs = {
+  id: Scalars['ID']['input'];
+  input: TaxSlabInput;
+};
+
+
 export type MutationUpdateTeamArgs = {
   id: Scalars['ID']['input'];
   input: TeamInput;
@@ -5363,6 +5502,9 @@ export enum NotificationKind {
   Payroll = 'PAYROLL',
   Performance = 'PERFORMANCE',
   Request = 'REQUEST',
+  SocialComment = 'SOCIAL_COMMENT',
+  SocialLike = 'SOCIAL_LIKE',
+  SocialShare = 'SOCIAL_SHARE',
   Training = 'TRAINING'
 }
 
@@ -5587,25 +5729,40 @@ export type PayrollSettings = {
   esiEnabled: Scalars['Boolean']['output'];
   /** ESI applies only while gross is at or below this figure. */
   esiWageLimit: Scalars['Float']['output'];
+  /** The month a financial year opens in, 1-12. April in India, 1 on a calendar tax year. */
+  financialYearStartMonth: Scalars['Int']['output'];
   pfEmployeePercent: Scalars['Float']['output'];
   pfEnabled: Scalars['Boolean']['output'];
   /** PF is charged on basic only up to this figure; anything above it is exempt. */
   pfWageCeiling: Scalars['Float']['output'];
   professionalTaxMonthly: Scalars['Float']['output'];
+  /** Deducted from annual taxable pay before the bands are applied. */
+  tdsAnnualExemption: Scalars['Float']['output'];
+  /** Charged on the TAX, not on the income. 0 where the jurisdiction has none. */
+  tdsCessPercent: Scalars['Float']['output'];
   tdsFlatPercent: Scalars['Float']['output'];
   tdsMode: TdsMode;
+  /** Which regime in the tax-slab table SLAB mode applies. The year comes from the period run. */
+  tdsRegimeKey: Scalars['String']['output'];
+  /** The bands SLAB mode applies. Empty withholds nothing rather than guessing a rate. */
+  tdsSlabs: Array<TdsSlab>;
 };
 
 export type PayrollSettingsInput = {
   esiEmployeePercent: Scalars['Float']['input'];
   esiEnabled: Scalars['Boolean']['input'];
   esiWageLimit: Scalars['Float']['input'];
+  financialYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
   pfEmployeePercent: Scalars['Float']['input'];
   pfEnabled: Scalars['Boolean']['input'];
   pfWageCeiling: Scalars['Float']['input'];
   professionalTaxMonthly: Scalars['Float']['input'];
+  tdsAnnualExemption?: InputMaybe<Scalars['Float']['input']>;
+  tdsCessPercent?: InputMaybe<Scalars['Float']['input']>;
   tdsFlatPercent: Scalars['Float']['input'];
   tdsMode: TdsMode;
+  tdsRegimeKey?: InputMaybe<Scalars['String']['input']>;
+  tdsSlabs?: InputMaybe<Array<TdsSlabInput>>;
 };
 
 /** The month at a glance, for review before marking paid. */
@@ -6344,6 +6501,8 @@ export type Query = {
   getSupportSlaPolicy: SupportSlaPolicy;
   /** SUPPORT/ADMIN: one ticket in full, for its own page. */
   getSupportTicket: SupportTicket;
+  getTaxRegime: TaxRegime;
+  getTaxSlab: TaxSlab;
   getTeam: Team;
   getTool: Tool;
   getToolCategory: ToolCategory;
@@ -6471,6 +6630,7 @@ export type Query = {
   listHolidaysPaged: HolidayPage;
   listHolidaysStats: TableStats;
   listImageConfigs: Array<ImageConfig>;
+  listInboundMailConfigs: Array<InboundMailConfig>;
   listInvoices: Array<Invoice>;
   listInvoicesPaged: InvoicePage;
   listInvoicesStats: TableStats;
@@ -6585,6 +6745,11 @@ export type Query = {
   listSupportTicketsPaged: SupportTicketPage;
   /** SUPPORT/ADMIN: ticket counts by status, priority and category in one aggregation. */
   listSupportTicketsStats: TableStats;
+  /** Every income-tax regime on file, both years and both regimes. */
+  listTaxRegimes: Array<TaxRegime>;
+  listTaxSlabs: Array<TaxSlab>;
+  listTaxSlabsPaged: TaxSlabPage;
+  listTaxSlabsStats: TableStats;
   listTeams: Array<Team>;
   listTeamsPaged: TeamPage;
   listTeamsStats: TableStats;
@@ -6722,6 +6887,16 @@ export type Query = {
   searchPexelsVideos: Array<PexelsMedia>;
   /** Public. Null when the token is unknown, expired or revoked — the page says so. */
   sharedProject?: Maybe<SharedProjectView>;
+  /** The comments on a post, oldest first, so a conversation reads in order. */
+  socialComments: Array<SocialComment>;
+  /** Everybody's posts, newest first. */
+  socialFeed: SocialFeedPage;
+  /** One post, for its own page. */
+  socialPost: SocialPost;
+  /** One colleague's profile. */
+  socialProfile: SocialProfile;
+  /** One colleague's posts, newest first. */
+  socialUserPosts: SocialFeedPage;
   /** What completing this sprint would do to its unfinished tickets. */
   sprintCompletionPlan: SprintCompletionPlan;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
@@ -7162,6 +7337,16 @@ export type QueryGetSupportTicketArgs = {
 };
 
 
+export type QueryGetTaxRegimeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetTaxSlabArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetTeamArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7532,6 +7717,11 @@ export type QueryListSupportTicketsPagedArgs = {
 };
 
 
+export type QueryListTaxSlabsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListTeamsPagedArgs = {
   input: TableQueryInput;
 };
@@ -7741,6 +7931,34 @@ export type QuerySearchPexelsVideosArgs = {
 
 export type QuerySharedProjectArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QuerySocialCommentsArgs = {
+  postId: Scalars['ID']['input'];
+};
+
+
+export type QuerySocialFeedArgs = {
+  cursor?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QuerySocialPostArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QuerySocialProfileArgs = {
+  userId: Scalars['ID']['input'];
+};
+
+
+export type QuerySocialUserPostsArgs = {
+  cursor?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -8212,6 +8430,68 @@ export enum SlipStatus {
   Paid = 'PAID'
 }
 
+/** Who wrote something, as the feed needs to show them: enough to render a byline. */
+export type SocialAuthor = {
+  __typename?: 'SocialAuthor';
+  avatarUrl?: Maybe<Scalars['String']['output']>;
+  department?: Maybe<Scalars['String']['output']>;
+  designation?: Maybe<Scalars['String']['output']>;
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type SocialComment = {
+  __typename?: 'SocialComment';
+  author: SocialAuthor;
+  body: Scalars['String']['output'];
+  /** Whether the signed-in employee may delete this comment. */
+  canDelete: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  postId: Scalars['ID']['output'];
+};
+
+/** One page of the feed. The cursor is the id of the last post on this page. */
+export type SocialFeedPage = {
+  __typename?: 'SocialFeedPage';
+  nextCursor?: Maybe<Scalars['ID']['output']>;
+  posts: Array<SocialPost>;
+};
+
+export type SocialPost = {
+  __typename?: 'SocialPost';
+  author: SocialAuthor;
+  body: Scalars['String']['output'];
+  /** Whether the signed-in employee may delete this post. */
+  canDelete: Scalars['Boolean']['output'];
+  commentCount: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  imageUrl: Scalars['String']['output'];
+  likeCount: Scalars['Int']['output'];
+  /** Whether the signed-in employee has already liked this post. */
+  likedByMe: Scalars['Boolean']['output'];
+  shareCount: Scalars['Int']['output'];
+  /** The post this one shares, resolved one level deep. Null when it is an original. */
+  sharedFrom?: Maybe<SocialPost>;
+};
+
+export type SocialPostInput = {
+  body: Scalars['String']['input'];
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** A colleague's profile page: who they are, and what they have posted. */
+export type SocialProfile = {
+  __typename?: 'SocialProfile';
+  brief?: Maybe<Scalars['String']['output']>;
+  joinDate?: Maybe<Scalars['DateTime']['output']>;
+  likesReceived: Scalars['Int']['output'];
+  postCount: Scalars['Int']['output'];
+  user: SocialAuthor;
+};
+
 export enum SortDir {
   Asc = 'ASC',
   Desc = 'DESC'
@@ -8623,6 +8903,8 @@ export type SupportTicket = {
   assigneeName: Scalars['String']['output'];
   attachments: Array<TicketAttachment>;
   category: SupportCategory;
+  /** How it reached the desk. PORTAL for everything raised before the mailbox existed. */
+  channel: TicketChannel;
   /** Set only when the customer's address matched a client on file. */
   clientId: Scalars['String']['output'];
   clientName: Scalars['String']['output'];
@@ -8817,15 +9099,106 @@ export enum TaskType {
 }
 
 /**
+ * One named income-tax regime for one financial year — "new regime", "old regime".
+ *
+ * Two regimes stand side by side because each carries its own standard deduction and rebate;
+ * the payroll settings name which key the next run applies. Nothing here is compiled in: the
+ * seeded table is one year's figures, to be checked against the finance act and edited here.
+ */
+export type TaxRegime = {
+  __typename?: 'TaxRegime';
+  /** An inactive regime withholds nothing, so a half-entered table cannot tax anybody. */
+  active: Scalars['Boolean']['output'];
+  /** Charged on the TAX, not on the income. */
+  cessPercent: Scalars['Float']['output'];
+  /** The financial year these figures are for, as 2026-27. */
+  financialYear: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  /** Taxable income at or below which the rebate applies. */
+  rebateIncomeLimit: Scalars['Float']['output'];
+  /** The most tax the rebate can write off. Applied before cess, never below zero. */
+  rebateMaxTax: Scalars['Float']['output'];
+  /** Short stable name, e.g. NEW or OLD. The slab rows point at this. */
+  regimeKey: Scalars['String']['output'];
+  /** Taken off annual pay before the bands are walked. */
+  standardDeduction: Scalars['Float']['output'];
+};
+
+export type TaxRegimeInput = {
+  active: Scalars['Boolean']['input'];
+  cessPercent: Scalars['Float']['input'];
+  financialYear: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  rebateIncomeLimit: Scalars['Float']['input'];
+  rebateMaxTax: Scalars['Float']['input'];
+  regimeKey: Scalars['String']['input'];
+  standardDeduction: Scalars['Float']['input'];
+};
+
+/**
+ * One band of one regime's table. Both bounds are stored rather than derived from the
+ * neighbouring rows, so reordering the table never silently re-cuts the bands around it.
+ */
+export type TaxSlab = {
+  __typename?: 'TaxSlab';
+  active: Scalars['Boolean']['output'];
+  financialYear: Scalars['String']['output'];
+  /** Income above this falls in this band. The lowest band starts at 0. */
+  fromAmount: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  /** The order the bands are walked in, lowest first. */
+  order: Scalars['Int']['output'];
+  ratePercent: Scalars['Float']['output'];
+  regimeKey: Scalars['String']['output'];
+  /** Income up to and including this is in this band. Null means everything above. */
+  toAmount?: Maybe<Scalars['Float']['output']>;
+};
+
+export type TaxSlabInput = {
+  active: Scalars['Boolean']['input'];
+  financialYear: Scalars['String']['input'];
+  fromAmount: Scalars['Float']['input'];
+  order: Scalars['Int']['input'];
+  ratePercent: Scalars['Float']['input'];
+  regimeKey: Scalars['String']['input'];
+  toAmount?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type TaxSlabPage = {
+  __typename?: 'TaxSlabPage';
+  rows: Array<TaxSlab>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/**
  * How TDS is worked out. NONE withholds nothing; FLAT_PERCENT takes a percentage of taxable
- * pay; SLAB means the rate is worked out off the portal and recorded per employee, so only
- * an employee with their own rate on file has anything withheld.
+ * pay; SLAB applies the band table below to the annualised pay. An employee with their own
+ * rate on file beats every mode except NONE, and an empty table withholds nothing rather
+ * than guessing.
  */
 export enum TdsMode {
   FlatPercent = 'FLAT_PERCENT',
   None = 'NONE',
   Slab = 'SLAB'
 }
+
+/**
+ * One band of the TDS table.
+ *
+ * upTo is null for the open-ended top band. Rates are not compiled in: they change with
+ * every finance act, so the table is entered by whoever knows the current one.
+ */
+export type TdsSlab = {
+  __typename?: 'TdsSlab';
+  percent: Scalars['Float']['output'];
+  upTo?: Maybe<Scalars['Float']['output']>;
+};
+
+export type TdsSlabInput = {
+  percent: Scalars['Float']['input'];
+  upTo?: InputMaybe<Scalars['Float']['input']>;
+};
 
 export type Team = {
   __typename?: 'Team';
@@ -8869,6 +9242,16 @@ export type TicketAttachmentInput = {
   name: Scalars['String']['input'];
   url: Scalars['String']['input'];
 };
+
+/** How a ticket reached the desk. */
+export enum TicketChannel {
+  /** Typed into the console by an agent, usually off a call. */
+  Agent = 'AGENT',
+  /** Arrived in the support mailbox and was imported. */
+  Email = 'EMAIL',
+  /** Raised on a form in the portal — the employee desk or the public customer form. */
+  Portal = 'PORTAL'
+}
 
 export type Tool = {
   __typename?: 'Tool';
@@ -10268,24 +10651,24 @@ export type TaskActivityQueryVariables = Exact<{
 
 export type TaskActivityQuery = { __typename?: 'Query', taskActivity: Array<{ __typename?: 'TaskActivity', id: string, actorName: string, field: string, fromValue: string, toValue: string, createdAt: string }> };
 
-export type BrandingFieldsFragment = { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> };
+export type BrandingFieldsFragment = { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> };
 
 export type BrandingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type BrandingQuery = { __typename?: 'Query', branding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
+export type BrandingQuery = { __typename?: 'Query', branding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
 
 export type PublicBrandingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PublicBrandingQuery = { __typename?: 'Query', publicBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
+export type PublicBrandingQuery = { __typename?: 'Query', publicBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
 
 export type UpdateBrandingMutationVariables = Exact<{
   input: BrandingInput;
 }>;
 
 
-export type UpdateBrandingMutation = { __typename?: 'Mutation', updateBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
+export type UpdateBrandingMutation = { __typename?: 'Mutation', updateBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
 
 export type UploadImageMutationVariables = Exact<{
   file: Scalars['String']['input'];
@@ -12515,19 +12898,82 @@ export type SendSalarySlipsMutationVariables = Exact<{
 
 export type SendSalarySlipsMutation = { __typename?: 'Mutation', sendSalarySlips: { __typename?: 'PayrollDispatchResult', month: number, year: number, sent: number, failed: number, skipped: number } };
 
-export type PayrollSettingsFieldsFragment = { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number };
+export type PayrollSettingsFieldsFragment = { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number, tdsAnnualExemption: number, tdsCessPercent: number, tdsRegimeKey: string, financialYearStartMonth: number, tdsSlabs: Array<{ __typename?: 'TdsSlab', upTo?: number | null, percent: number }> };
 
 export type PayrollSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PayrollSettingsQuery = { __typename?: 'Query', payrollSettings: { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number } };
+export type PayrollSettingsQuery = { __typename?: 'Query', payrollSettings: { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number, tdsAnnualExemption: number, tdsCessPercent: number, tdsRegimeKey: string, financialYearStartMonth: number, tdsSlabs: Array<{ __typename?: 'TdsSlab', upTo?: number | null, percent: number }> } };
 
 export type UpdatePayrollSettingsMutationVariables = Exact<{
   input: PayrollSettingsInput;
 }>;
 
 
-export type UpdatePayrollSettingsMutation = { __typename?: 'Mutation', updatePayrollSettings: { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number } };
+export type UpdatePayrollSettingsMutation = { __typename?: 'Mutation', updatePayrollSettings: { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number, tdsAnnualExemption: number, tdsCessPercent: number, tdsRegimeKey: string, financialYearStartMonth: number, tdsSlabs: Array<{ __typename?: 'TdsSlab', upTo?: number | null, percent: number }> } };
+
+export type TaxRegimeFieldsFragment = { __typename?: 'TaxRegime', id: string, regimeKey: string, financialYear: string, name: string, standardDeduction: number, rebateIncomeLimit: number, rebateMaxTax: number, cessPercent: number, active: boolean };
+
+export type ListTaxRegimesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListTaxRegimesQuery = { __typename?: 'Query', listTaxRegimes: Array<{ __typename?: 'TaxRegime', id: string, regimeKey: string, financialYear: string, name: string, standardDeduction: number, rebateIncomeLimit: number, rebateMaxTax: number, cessPercent: number, active: boolean }> };
+
+export type CreateTaxRegimeMutationVariables = Exact<{
+  input: TaxRegimeInput;
+}>;
+
+
+export type CreateTaxRegimeMutation = { __typename?: 'Mutation', createTaxRegime: { __typename?: 'TaxRegime', id: string, regimeKey: string, financialYear: string, name: string, standardDeduction: number, rebateIncomeLimit: number, rebateMaxTax: number, cessPercent: number, active: boolean } };
+
+export type UpdateTaxRegimeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: TaxRegimeInput;
+}>;
+
+
+export type UpdateTaxRegimeMutation = { __typename?: 'Mutation', updateTaxRegime: { __typename?: 'TaxRegime', id: string, regimeKey: string, financialYear: string, name: string, standardDeduction: number, rebateIncomeLimit: number, rebateMaxTax: number, cessPercent: number, active: boolean } };
+
+export type DeleteTaxRegimeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteTaxRegimeMutation = { __typename?: 'Mutation', deleteTaxRegime: boolean };
+
+export type ListTaxSlabsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListTaxSlabsPagedQuery = { __typename?: 'Query', listTaxSlabsPaged: { __typename?: 'TaxSlabPage', totalCount: number, rows: Array<{ __typename?: 'TaxSlab', id: string, regimeKey: string, financialYear: string, fromAmount: number, toAmount?: number | null, ratePercent: number, order: number, active: boolean }> } };
+
+export type ListTaxSlabsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListTaxSlabsStatsQuery = { __typename?: 'Query', listTaxSlabsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreateTaxSlabMutationVariables = Exact<{
+  input: TaxSlabInput;
+}>;
+
+
+export type CreateTaxSlabMutation = { __typename?: 'Mutation', createTaxSlab: { __typename?: 'TaxSlab', id: string } };
+
+export type UpdateTaxSlabMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: TaxSlabInput;
+}>;
+
+
+export type UpdateTaxSlabMutation = { __typename?: 'Mutation', updateTaxSlab: { __typename?: 'TaxSlab', id: string } };
+
+export type DeleteTaxSlabMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteTaxSlabMutation = { __typename?: 'Mutation', deleteTaxSlab: boolean };
 
 export type ListPermissionModulesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -12986,6 +13432,94 @@ export type SetApplicantStageMutationVariables = Exact<{
 
 export type SetApplicantStageMutation = { __typename?: 'Mutation', setApplicantStage: { __typename?: 'Applicant', id: string, stage: ApplicantStage, stageChangedAt: string, notes: string } };
 
+export type SocialAuthorFieldsFragment = { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null };
+
+export type SocialPostFieldsFragment = { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, likeCount: number, commentCount: number, shareCount: number, likedByMe: boolean, canDelete: boolean, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null }, sharedFrom?: { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null } } | null };
+
+export type SocialCommentFieldsFragment = { __typename?: 'SocialComment', id: string, postId: string, body: string, createdAt: string, canDelete: boolean, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null } };
+
+export type SocialFeedQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  cursor?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type SocialFeedQuery = { __typename?: 'Query', socialFeed: { __typename?: 'SocialFeedPage', nextCursor?: string | null, posts: Array<{ __typename?: 'SocialPost', id: string, body: string, imageUrl: string, likeCount: number, commentCount: number, shareCount: number, likedByMe: boolean, canDelete: boolean, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null }, sharedFrom?: { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null } } | null }> } };
+
+export type SocialPostQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type SocialPostQuery = { __typename?: 'Query', socialPost: { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, likeCount: number, commentCount: number, shareCount: number, likedByMe: boolean, canDelete: boolean, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null }, sharedFrom?: { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null } } | null } };
+
+export type SocialUserPostsQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  cursor?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type SocialUserPostsQuery = { __typename?: 'Query', socialUserPosts: { __typename?: 'SocialFeedPage', nextCursor?: string | null, posts: Array<{ __typename?: 'SocialPost', id: string, body: string, imageUrl: string, likeCount: number, commentCount: number, shareCount: number, likedByMe: boolean, canDelete: boolean, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null }, sharedFrom?: { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null } } | null }> } };
+
+export type SocialProfileQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type SocialProfileQuery = { __typename?: 'Query', socialProfile: { __typename?: 'SocialProfile', brief?: string | null, joinDate?: string | null, postCount: number, likesReceived: number, user: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null } } };
+
+export type SocialCommentsQueryVariables = Exact<{
+  postId: Scalars['ID']['input'];
+}>;
+
+
+export type SocialCommentsQuery = { __typename?: 'Query', socialComments: Array<{ __typename?: 'SocialComment', id: string, postId: string, body: string, createdAt: string, canDelete: boolean, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null } }> };
+
+export type CreateSocialPostMutationVariables = Exact<{
+  input: SocialPostInput;
+}>;
+
+
+export type CreateSocialPostMutation = { __typename?: 'Mutation', createSocialPost: { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, likeCount: number, commentCount: number, shareCount: number, likedByMe: boolean, canDelete: boolean, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null }, sharedFrom?: { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null } } | null } };
+
+export type DeleteSocialPostMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteSocialPostMutation = { __typename?: 'Mutation', deleteSocialPost: boolean };
+
+export type ToggleSocialPostLikeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ToggleSocialPostLikeMutation = { __typename?: 'Mutation', toggleSocialPostLike: { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, likeCount: number, commentCount: number, shareCount: number, likedByMe: boolean, canDelete: boolean, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null }, sharedFrom?: { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null } } | null } };
+
+export type ShareSocialPostMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  body?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type ShareSocialPostMutation = { __typename?: 'Mutation', shareSocialPost: { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, likeCount: number, commentCount: number, shareCount: number, likedByMe: boolean, canDelete: boolean, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null }, sharedFrom?: { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null } } | null } };
+
+export type CreateSocialCommentMutationVariables = Exact<{
+  postId: Scalars['ID']['input'];
+  body: Scalars['String']['input'];
+}>;
+
+
+export type CreateSocialCommentMutation = { __typename?: 'Mutation', createSocialComment: { __typename?: 'SocialComment', id: string, postId: string, body: string, createdAt: string, canDelete: boolean, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null } } };
+
+export type DeleteSocialCommentMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteSocialCommentMutation = { __typename?: 'Mutation', deleteSocialComment: boolean };
+
 export type SprintFieldsFragment = { __typename?: 'Sprint', id: string, projectId: string, name: string, goal: string, startsOn?: string | null, endsOn?: string | null, state: SprintState };
 
 export type MilestoneFieldsFragment = { __typename?: 'Milestone', id: string, projectId: string, name: string, description: string, dueOn?: string | null, state: MilestoneState };
@@ -13328,14 +13862,14 @@ export type AddSupportReplyMutationVariables = Exact<{
 
 export type AddSupportReplyMutation = { __typename?: 'Mutation', addSupportReply: { __typename?: 'SupportReply', id: string } };
 
-export type SupportConsoleTicketFieldsFragment = { __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> };
+export type SupportConsoleTicketFieldsFragment = { __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> };
 
 export type GetSupportTicketQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSupportTicketQuery = { __typename?: 'Query', getSupportTicket: { __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> } };
+export type GetSupportTicketQuery = { __typename?: 'Query', getSupportTicket: { __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> } };
 
 export type SupportSlaSummaryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13390,7 +13924,7 @@ export type ListSupportTicketsPagedQueryVariables = Exact<{
 }>;
 
 
-export type ListSupportTicketsPagedQuery = { __typename?: 'Query', listSupportTicketsPaged: { __typename?: 'SupportTicketPage', totalCount: number, rows: Array<{ __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> } };
+export type ListSupportTicketsPagedQuery = { __typename?: 'Query', listSupportTicketsPaged: { __typename?: 'SupportTicketPage', totalCount: number, rows: Array<{ __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> } };
 
 export type ListSupportTicketsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13432,6 +13966,40 @@ export type DeleteEmailConfigMutationVariables = Exact<{
 
 
 export type DeleteEmailConfigMutation = { __typename?: 'Mutation', deleteEmailConfig: boolean };
+
+export type ListInboundMailConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListInboundMailConfigsQuery = { __typename?: 'Query', listInboundMailConfigs: Array<{ __typename?: 'InboundMailConfig', id: string, label: string, host: string, port: number, secure: boolean, user: string, mailbox: string, pollSeconds: number, deleteAfterImport: boolean, isActive: boolean }> };
+
+export type CreateInboundMailConfigMutationVariables = Exact<{
+  input: InboundMailConfigInput;
+}>;
+
+
+export type CreateInboundMailConfigMutation = { __typename?: 'Mutation', createInboundMailConfig: { __typename?: 'InboundMailConfig', id: string } };
+
+export type UpdateInboundMailConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: InboundMailConfigInput;
+}>;
+
+
+export type UpdateInboundMailConfigMutation = { __typename?: 'Mutation', updateInboundMailConfig: { __typename?: 'InboundMailConfig', id: string } };
+
+export type DeleteInboundMailConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteInboundMailConfigMutation = { __typename?: 'Mutation', deleteInboundMailConfig: boolean };
+
+export type TestInboundMailConnectionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestInboundMailConnectionMutation = { __typename?: 'Mutation', testInboundMailConnection: boolean };
 
 export type ListImageConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -14338,6 +14906,7 @@ export const BrandingFieldsFragmentDoc = gql`
   backgroundColor
   textColor
   supportEmail
+  hrEmail
   contactPhone
   websiteUrl
   address
@@ -14826,6 +15395,27 @@ export const PayrollSettingsFieldsFragmentDoc = gql`
   professionalTaxMonthly
   tdsMode
   tdsFlatPercent
+  tdsSlabs {
+    upTo
+    percent
+  }
+  tdsAnnualExemption
+  tdsCessPercent
+  tdsRegimeKey
+  financialYearStartMonth
+}
+    `;
+export const TaxRegimeFieldsFragmentDoc = gql`
+    fragment TaxRegimeFields on TaxRegime {
+  id
+  regimeKey
+  financialYear
+  name
+  standardDeduction
+  rebateIncomeLimit
+  rebateMaxTax
+  cessPercent
+  active
 }
     `;
 export const PolicyFieldsFragmentDoc = gql`
@@ -14971,6 +15561,53 @@ export const ApplicantFieldsFragmentDoc = gql`
   createdAt
 }
     `;
+export const SocialAuthorFieldsFragmentDoc = gql`
+    fragment SocialAuthorFields on SocialAuthor {
+  id
+  name
+  email
+  avatarUrl
+  designation
+  department
+}
+    `;
+export const SocialPostFieldsFragmentDoc = gql`
+    fragment SocialPostFields on SocialPost {
+  id
+  body
+  imageUrl
+  likeCount
+  commentCount
+  shareCount
+  likedByMe
+  canDelete
+  createdAt
+  author {
+    ...SocialAuthorFields
+  }
+  sharedFrom {
+    id
+    body
+    imageUrl
+    createdAt
+    author {
+      ...SocialAuthorFields
+    }
+  }
+}
+    ${SocialAuthorFieldsFragmentDoc}`;
+export const SocialCommentFieldsFragmentDoc = gql`
+    fragment SocialCommentFields on SocialComment {
+  id
+  postId
+  body
+  createdAt
+  canDelete
+  author {
+    ...SocialAuthorFields
+  }
+}
+    ${SocialAuthorFieldsFragmentDoc}`;
 export const SprintFieldsFragmentDoc = gql`
     fragment SprintFields on Sprint {
   id
@@ -15083,6 +15720,7 @@ export const SupportConsoleTicketFieldsFragmentDoc = gql`
   employeeId
   employeeName
   requesterType
+  channel
   reference
   clientId
   clientName
@@ -32207,6 +32845,350 @@ export function useUpdatePayrollSettingsMutation(baseOptions?: Apollo.MutationHo
 export type UpdatePayrollSettingsMutationHookResult = ReturnType<typeof useUpdatePayrollSettingsMutation>;
 export type UpdatePayrollSettingsMutationResult = Apollo.MutationResult<UpdatePayrollSettingsMutation>;
 export type UpdatePayrollSettingsMutationOptions = Apollo.BaseMutationOptions<UpdatePayrollSettingsMutation, UpdatePayrollSettingsMutationVariables>;
+export const ListTaxRegimesDocument = gql`
+    query ListTaxRegimes {
+  listTaxRegimes {
+    ...TaxRegimeFields
+  }
+}
+    ${TaxRegimeFieldsFragmentDoc}`;
+
+/**
+ * __useListTaxRegimesQuery__
+ *
+ * To run a query within a React component, call `useListTaxRegimesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListTaxRegimesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListTaxRegimesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListTaxRegimesQuery(baseOptions?: Apollo.QueryHookOptions<ListTaxRegimesQuery, ListTaxRegimesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListTaxRegimesQuery, ListTaxRegimesQueryVariables>(ListTaxRegimesDocument, options);
+      }
+export function useListTaxRegimesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListTaxRegimesQuery, ListTaxRegimesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListTaxRegimesQuery, ListTaxRegimesQueryVariables>(ListTaxRegimesDocument, options);
+        }
+// @ts-ignore
+export function useListTaxRegimesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListTaxRegimesQuery, ListTaxRegimesQueryVariables>): Apollo.UseSuspenseQueryResult<ListTaxRegimesQuery, ListTaxRegimesQueryVariables>;
+export function useListTaxRegimesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListTaxRegimesQuery, ListTaxRegimesQueryVariables>): Apollo.UseSuspenseQueryResult<ListTaxRegimesQuery | undefined, ListTaxRegimesQueryVariables>;
+export function useListTaxRegimesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListTaxRegimesQuery, ListTaxRegimesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListTaxRegimesQuery, ListTaxRegimesQueryVariables>(ListTaxRegimesDocument, options);
+        }
+export type ListTaxRegimesQueryHookResult = ReturnType<typeof useListTaxRegimesQuery>;
+export type ListTaxRegimesLazyQueryHookResult = ReturnType<typeof useListTaxRegimesLazyQuery>;
+export type ListTaxRegimesSuspenseQueryHookResult = ReturnType<typeof useListTaxRegimesSuspenseQuery>;
+export type ListTaxRegimesQueryResult = Apollo.QueryResult<ListTaxRegimesQuery, ListTaxRegimesQueryVariables>;
+export const CreateTaxRegimeDocument = gql`
+    mutation CreateTaxRegime($input: TaxRegimeInput!) {
+  createTaxRegime(input: $input) {
+    ...TaxRegimeFields
+  }
+}
+    ${TaxRegimeFieldsFragmentDoc}`;
+export type CreateTaxRegimeMutationFn = Apollo.MutationFunction<CreateTaxRegimeMutation, CreateTaxRegimeMutationVariables>;
+
+/**
+ * __useCreateTaxRegimeMutation__
+ *
+ * To run a mutation, you first call `useCreateTaxRegimeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTaxRegimeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createTaxRegimeMutation, { data, loading, error }] = useCreateTaxRegimeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateTaxRegimeMutation(baseOptions?: Apollo.MutationHookOptions<CreateTaxRegimeMutation, CreateTaxRegimeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateTaxRegimeMutation, CreateTaxRegimeMutationVariables>(CreateTaxRegimeDocument, options);
+      }
+export type CreateTaxRegimeMutationHookResult = ReturnType<typeof useCreateTaxRegimeMutation>;
+export type CreateTaxRegimeMutationResult = Apollo.MutationResult<CreateTaxRegimeMutation>;
+export type CreateTaxRegimeMutationOptions = Apollo.BaseMutationOptions<CreateTaxRegimeMutation, CreateTaxRegimeMutationVariables>;
+export const UpdateTaxRegimeDocument = gql`
+    mutation UpdateTaxRegime($id: ID!, $input: TaxRegimeInput!) {
+  updateTaxRegime(id: $id, input: $input) {
+    ...TaxRegimeFields
+  }
+}
+    ${TaxRegimeFieldsFragmentDoc}`;
+export type UpdateTaxRegimeMutationFn = Apollo.MutationFunction<UpdateTaxRegimeMutation, UpdateTaxRegimeMutationVariables>;
+
+/**
+ * __useUpdateTaxRegimeMutation__
+ *
+ * To run a mutation, you first call `useUpdateTaxRegimeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTaxRegimeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTaxRegimeMutation, { data, loading, error }] = useUpdateTaxRegimeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateTaxRegimeMutation(baseOptions?: Apollo.MutationHookOptions<UpdateTaxRegimeMutation, UpdateTaxRegimeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateTaxRegimeMutation, UpdateTaxRegimeMutationVariables>(UpdateTaxRegimeDocument, options);
+      }
+export type UpdateTaxRegimeMutationHookResult = ReturnType<typeof useUpdateTaxRegimeMutation>;
+export type UpdateTaxRegimeMutationResult = Apollo.MutationResult<UpdateTaxRegimeMutation>;
+export type UpdateTaxRegimeMutationOptions = Apollo.BaseMutationOptions<UpdateTaxRegimeMutation, UpdateTaxRegimeMutationVariables>;
+export const DeleteTaxRegimeDocument = gql`
+    mutation DeleteTaxRegime($id: ID!) {
+  deleteTaxRegime(id: $id)
+}
+    `;
+export type DeleteTaxRegimeMutationFn = Apollo.MutationFunction<DeleteTaxRegimeMutation, DeleteTaxRegimeMutationVariables>;
+
+/**
+ * __useDeleteTaxRegimeMutation__
+ *
+ * To run a mutation, you first call `useDeleteTaxRegimeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTaxRegimeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteTaxRegimeMutation, { data, loading, error }] = useDeleteTaxRegimeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteTaxRegimeMutation(baseOptions?: Apollo.MutationHookOptions<DeleteTaxRegimeMutation, DeleteTaxRegimeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteTaxRegimeMutation, DeleteTaxRegimeMutationVariables>(DeleteTaxRegimeDocument, options);
+      }
+export type DeleteTaxRegimeMutationHookResult = ReturnType<typeof useDeleteTaxRegimeMutation>;
+export type DeleteTaxRegimeMutationResult = Apollo.MutationResult<DeleteTaxRegimeMutation>;
+export type DeleteTaxRegimeMutationOptions = Apollo.BaseMutationOptions<DeleteTaxRegimeMutation, DeleteTaxRegimeMutationVariables>;
+export const ListTaxSlabsPagedDocument = gql`
+    query ListTaxSlabsPaged($input: TableQueryInput!) {
+  listTaxSlabsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      regimeKey
+      financialYear
+      fromAmount
+      toAmount
+      ratePercent
+      order
+      active
+    }
+  }
+}
+    `;
+
+/**
+ * __useListTaxSlabsPagedQuery__
+ *
+ * To run a query within a React component, call `useListTaxSlabsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListTaxSlabsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListTaxSlabsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListTaxSlabsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListTaxSlabsPagedQuery, ListTaxSlabsPagedQueryVariables> & ({ variables: ListTaxSlabsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListTaxSlabsPagedQuery, ListTaxSlabsPagedQueryVariables>(ListTaxSlabsPagedDocument, options);
+      }
+export function useListTaxSlabsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListTaxSlabsPagedQuery, ListTaxSlabsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListTaxSlabsPagedQuery, ListTaxSlabsPagedQueryVariables>(ListTaxSlabsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListTaxSlabsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListTaxSlabsPagedQuery, ListTaxSlabsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListTaxSlabsPagedQuery, ListTaxSlabsPagedQueryVariables>;
+export function useListTaxSlabsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListTaxSlabsPagedQuery, ListTaxSlabsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListTaxSlabsPagedQuery | undefined, ListTaxSlabsPagedQueryVariables>;
+export function useListTaxSlabsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListTaxSlabsPagedQuery, ListTaxSlabsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListTaxSlabsPagedQuery, ListTaxSlabsPagedQueryVariables>(ListTaxSlabsPagedDocument, options);
+        }
+export type ListTaxSlabsPagedQueryHookResult = ReturnType<typeof useListTaxSlabsPagedQuery>;
+export type ListTaxSlabsPagedLazyQueryHookResult = ReturnType<typeof useListTaxSlabsPagedLazyQuery>;
+export type ListTaxSlabsPagedSuspenseQueryHookResult = ReturnType<typeof useListTaxSlabsPagedSuspenseQuery>;
+export type ListTaxSlabsPagedQueryResult = Apollo.QueryResult<ListTaxSlabsPagedQuery, ListTaxSlabsPagedQueryVariables>;
+export const ListTaxSlabsStatsDocument = gql`
+    query ListTaxSlabsStats {
+  listTaxSlabsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListTaxSlabsStatsQuery__
+ *
+ * To run a query within a React component, call `useListTaxSlabsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListTaxSlabsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListTaxSlabsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListTaxSlabsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListTaxSlabsStatsQuery, ListTaxSlabsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListTaxSlabsStatsQuery, ListTaxSlabsStatsQueryVariables>(ListTaxSlabsStatsDocument, options);
+      }
+export function useListTaxSlabsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListTaxSlabsStatsQuery, ListTaxSlabsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListTaxSlabsStatsQuery, ListTaxSlabsStatsQueryVariables>(ListTaxSlabsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListTaxSlabsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListTaxSlabsStatsQuery, ListTaxSlabsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListTaxSlabsStatsQuery, ListTaxSlabsStatsQueryVariables>;
+export function useListTaxSlabsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListTaxSlabsStatsQuery, ListTaxSlabsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListTaxSlabsStatsQuery | undefined, ListTaxSlabsStatsQueryVariables>;
+export function useListTaxSlabsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListTaxSlabsStatsQuery, ListTaxSlabsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListTaxSlabsStatsQuery, ListTaxSlabsStatsQueryVariables>(ListTaxSlabsStatsDocument, options);
+        }
+export type ListTaxSlabsStatsQueryHookResult = ReturnType<typeof useListTaxSlabsStatsQuery>;
+export type ListTaxSlabsStatsLazyQueryHookResult = ReturnType<typeof useListTaxSlabsStatsLazyQuery>;
+export type ListTaxSlabsStatsSuspenseQueryHookResult = ReturnType<typeof useListTaxSlabsStatsSuspenseQuery>;
+export type ListTaxSlabsStatsQueryResult = Apollo.QueryResult<ListTaxSlabsStatsQuery, ListTaxSlabsStatsQueryVariables>;
+export const CreateTaxSlabDocument = gql`
+    mutation CreateTaxSlab($input: TaxSlabInput!) {
+  createTaxSlab(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateTaxSlabMutationFn = Apollo.MutationFunction<CreateTaxSlabMutation, CreateTaxSlabMutationVariables>;
+
+/**
+ * __useCreateTaxSlabMutation__
+ *
+ * To run a mutation, you first call `useCreateTaxSlabMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTaxSlabMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createTaxSlabMutation, { data, loading, error }] = useCreateTaxSlabMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateTaxSlabMutation(baseOptions?: Apollo.MutationHookOptions<CreateTaxSlabMutation, CreateTaxSlabMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateTaxSlabMutation, CreateTaxSlabMutationVariables>(CreateTaxSlabDocument, options);
+      }
+export type CreateTaxSlabMutationHookResult = ReturnType<typeof useCreateTaxSlabMutation>;
+export type CreateTaxSlabMutationResult = Apollo.MutationResult<CreateTaxSlabMutation>;
+export type CreateTaxSlabMutationOptions = Apollo.BaseMutationOptions<CreateTaxSlabMutation, CreateTaxSlabMutationVariables>;
+export const UpdateTaxSlabDocument = gql`
+    mutation UpdateTaxSlab($id: ID!, $input: TaxSlabInput!) {
+  updateTaxSlab(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateTaxSlabMutationFn = Apollo.MutationFunction<UpdateTaxSlabMutation, UpdateTaxSlabMutationVariables>;
+
+/**
+ * __useUpdateTaxSlabMutation__
+ *
+ * To run a mutation, you first call `useUpdateTaxSlabMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTaxSlabMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTaxSlabMutation, { data, loading, error }] = useUpdateTaxSlabMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateTaxSlabMutation(baseOptions?: Apollo.MutationHookOptions<UpdateTaxSlabMutation, UpdateTaxSlabMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateTaxSlabMutation, UpdateTaxSlabMutationVariables>(UpdateTaxSlabDocument, options);
+      }
+export type UpdateTaxSlabMutationHookResult = ReturnType<typeof useUpdateTaxSlabMutation>;
+export type UpdateTaxSlabMutationResult = Apollo.MutationResult<UpdateTaxSlabMutation>;
+export type UpdateTaxSlabMutationOptions = Apollo.BaseMutationOptions<UpdateTaxSlabMutation, UpdateTaxSlabMutationVariables>;
+export const DeleteTaxSlabDocument = gql`
+    mutation DeleteTaxSlab($id: ID!) {
+  deleteTaxSlab(id: $id)
+}
+    `;
+export type DeleteTaxSlabMutationFn = Apollo.MutationFunction<DeleteTaxSlabMutation, DeleteTaxSlabMutationVariables>;
+
+/**
+ * __useDeleteTaxSlabMutation__
+ *
+ * To run a mutation, you first call `useDeleteTaxSlabMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTaxSlabMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteTaxSlabMutation, { data, loading, error }] = useDeleteTaxSlabMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteTaxSlabMutation(baseOptions?: Apollo.MutationHookOptions<DeleteTaxSlabMutation, DeleteTaxSlabMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteTaxSlabMutation, DeleteTaxSlabMutationVariables>(DeleteTaxSlabDocument, options);
+      }
+export type DeleteTaxSlabMutationHookResult = ReturnType<typeof useDeleteTaxSlabMutation>;
+export type DeleteTaxSlabMutationResult = Apollo.MutationResult<DeleteTaxSlabMutation>;
+export type DeleteTaxSlabMutationOptions = Apollo.BaseMutationOptions<DeleteTaxSlabMutation, DeleteTaxSlabMutationVariables>;
 export const ListPermissionModulesDocument = gql`
     query ListPermissionModules {
   listPermissionModules
@@ -34734,6 +35716,432 @@ export function useSetApplicantStageMutation(baseOptions?: Apollo.MutationHookOp
 export type SetApplicantStageMutationHookResult = ReturnType<typeof useSetApplicantStageMutation>;
 export type SetApplicantStageMutationResult = Apollo.MutationResult<SetApplicantStageMutation>;
 export type SetApplicantStageMutationOptions = Apollo.BaseMutationOptions<SetApplicantStageMutation, SetApplicantStageMutationVariables>;
+export const SocialFeedDocument = gql`
+    query SocialFeed($limit: Int, $cursor: ID) {
+  socialFeed(limit: $limit, cursor: $cursor) {
+    nextCursor
+    posts {
+      ...SocialPostFields
+    }
+  }
+}
+    ${SocialPostFieldsFragmentDoc}`;
+
+/**
+ * __useSocialFeedQuery__
+ *
+ * To run a query within a React component, call `useSocialFeedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSocialFeedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSocialFeedQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      cursor: // value for 'cursor'
+ *   },
+ * });
+ */
+export function useSocialFeedQuery(baseOptions?: Apollo.QueryHookOptions<SocialFeedQuery, SocialFeedQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SocialFeedQuery, SocialFeedQueryVariables>(SocialFeedDocument, options);
+      }
+export function useSocialFeedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SocialFeedQuery, SocialFeedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SocialFeedQuery, SocialFeedQueryVariables>(SocialFeedDocument, options);
+        }
+// @ts-ignore
+export function useSocialFeedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SocialFeedQuery, SocialFeedQueryVariables>): Apollo.UseSuspenseQueryResult<SocialFeedQuery, SocialFeedQueryVariables>;
+export function useSocialFeedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SocialFeedQuery, SocialFeedQueryVariables>): Apollo.UseSuspenseQueryResult<SocialFeedQuery | undefined, SocialFeedQueryVariables>;
+export function useSocialFeedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SocialFeedQuery, SocialFeedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SocialFeedQuery, SocialFeedQueryVariables>(SocialFeedDocument, options);
+        }
+export type SocialFeedQueryHookResult = ReturnType<typeof useSocialFeedQuery>;
+export type SocialFeedLazyQueryHookResult = ReturnType<typeof useSocialFeedLazyQuery>;
+export type SocialFeedSuspenseQueryHookResult = ReturnType<typeof useSocialFeedSuspenseQuery>;
+export type SocialFeedQueryResult = Apollo.QueryResult<SocialFeedQuery, SocialFeedQueryVariables>;
+export const SocialPostDocument = gql`
+    query SocialPost($id: ID!) {
+  socialPost(id: $id) {
+    ...SocialPostFields
+  }
+}
+    ${SocialPostFieldsFragmentDoc}`;
+
+/**
+ * __useSocialPostQuery__
+ *
+ * To run a query within a React component, call `useSocialPostQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSocialPostQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSocialPostQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useSocialPostQuery(baseOptions: Apollo.QueryHookOptions<SocialPostQuery, SocialPostQueryVariables> & ({ variables: SocialPostQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SocialPostQuery, SocialPostQueryVariables>(SocialPostDocument, options);
+      }
+export function useSocialPostLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SocialPostQuery, SocialPostQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SocialPostQuery, SocialPostQueryVariables>(SocialPostDocument, options);
+        }
+// @ts-ignore
+export function useSocialPostSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SocialPostQuery, SocialPostQueryVariables>): Apollo.UseSuspenseQueryResult<SocialPostQuery, SocialPostQueryVariables>;
+export function useSocialPostSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SocialPostQuery, SocialPostQueryVariables>): Apollo.UseSuspenseQueryResult<SocialPostQuery | undefined, SocialPostQueryVariables>;
+export function useSocialPostSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SocialPostQuery, SocialPostQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SocialPostQuery, SocialPostQueryVariables>(SocialPostDocument, options);
+        }
+export type SocialPostQueryHookResult = ReturnType<typeof useSocialPostQuery>;
+export type SocialPostLazyQueryHookResult = ReturnType<typeof useSocialPostLazyQuery>;
+export type SocialPostSuspenseQueryHookResult = ReturnType<typeof useSocialPostSuspenseQuery>;
+export type SocialPostQueryResult = Apollo.QueryResult<SocialPostQuery, SocialPostQueryVariables>;
+export const SocialUserPostsDocument = gql`
+    query SocialUserPosts($userId: ID!, $limit: Int, $cursor: ID) {
+  socialUserPosts(userId: $userId, limit: $limit, cursor: $cursor) {
+    nextCursor
+    posts {
+      ...SocialPostFields
+    }
+  }
+}
+    ${SocialPostFieldsFragmentDoc}`;
+
+/**
+ * __useSocialUserPostsQuery__
+ *
+ * To run a query within a React component, call `useSocialUserPostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSocialUserPostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSocialUserPostsQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      limit: // value for 'limit'
+ *      cursor: // value for 'cursor'
+ *   },
+ * });
+ */
+export function useSocialUserPostsQuery(baseOptions: Apollo.QueryHookOptions<SocialUserPostsQuery, SocialUserPostsQueryVariables> & ({ variables: SocialUserPostsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SocialUserPostsQuery, SocialUserPostsQueryVariables>(SocialUserPostsDocument, options);
+      }
+export function useSocialUserPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SocialUserPostsQuery, SocialUserPostsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SocialUserPostsQuery, SocialUserPostsQueryVariables>(SocialUserPostsDocument, options);
+        }
+// @ts-ignore
+export function useSocialUserPostsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SocialUserPostsQuery, SocialUserPostsQueryVariables>): Apollo.UseSuspenseQueryResult<SocialUserPostsQuery, SocialUserPostsQueryVariables>;
+export function useSocialUserPostsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SocialUserPostsQuery, SocialUserPostsQueryVariables>): Apollo.UseSuspenseQueryResult<SocialUserPostsQuery | undefined, SocialUserPostsQueryVariables>;
+export function useSocialUserPostsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SocialUserPostsQuery, SocialUserPostsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SocialUserPostsQuery, SocialUserPostsQueryVariables>(SocialUserPostsDocument, options);
+        }
+export type SocialUserPostsQueryHookResult = ReturnType<typeof useSocialUserPostsQuery>;
+export type SocialUserPostsLazyQueryHookResult = ReturnType<typeof useSocialUserPostsLazyQuery>;
+export type SocialUserPostsSuspenseQueryHookResult = ReturnType<typeof useSocialUserPostsSuspenseQuery>;
+export type SocialUserPostsQueryResult = Apollo.QueryResult<SocialUserPostsQuery, SocialUserPostsQueryVariables>;
+export const SocialProfileDocument = gql`
+    query SocialProfile($userId: ID!) {
+  socialProfile(userId: $userId) {
+    brief
+    joinDate
+    postCount
+    likesReceived
+    user {
+      ...SocialAuthorFields
+    }
+  }
+}
+    ${SocialAuthorFieldsFragmentDoc}`;
+
+/**
+ * __useSocialProfileQuery__
+ *
+ * To run a query within a React component, call `useSocialProfileQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSocialProfileQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSocialProfileQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useSocialProfileQuery(baseOptions: Apollo.QueryHookOptions<SocialProfileQuery, SocialProfileQueryVariables> & ({ variables: SocialProfileQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SocialProfileQuery, SocialProfileQueryVariables>(SocialProfileDocument, options);
+      }
+export function useSocialProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SocialProfileQuery, SocialProfileQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SocialProfileQuery, SocialProfileQueryVariables>(SocialProfileDocument, options);
+        }
+// @ts-ignore
+export function useSocialProfileSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SocialProfileQuery, SocialProfileQueryVariables>): Apollo.UseSuspenseQueryResult<SocialProfileQuery, SocialProfileQueryVariables>;
+export function useSocialProfileSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SocialProfileQuery, SocialProfileQueryVariables>): Apollo.UseSuspenseQueryResult<SocialProfileQuery | undefined, SocialProfileQueryVariables>;
+export function useSocialProfileSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SocialProfileQuery, SocialProfileQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SocialProfileQuery, SocialProfileQueryVariables>(SocialProfileDocument, options);
+        }
+export type SocialProfileQueryHookResult = ReturnType<typeof useSocialProfileQuery>;
+export type SocialProfileLazyQueryHookResult = ReturnType<typeof useSocialProfileLazyQuery>;
+export type SocialProfileSuspenseQueryHookResult = ReturnType<typeof useSocialProfileSuspenseQuery>;
+export type SocialProfileQueryResult = Apollo.QueryResult<SocialProfileQuery, SocialProfileQueryVariables>;
+export const SocialCommentsDocument = gql`
+    query SocialComments($postId: ID!) {
+  socialComments(postId: $postId) {
+    ...SocialCommentFields
+  }
+}
+    ${SocialCommentFieldsFragmentDoc}`;
+
+/**
+ * __useSocialCommentsQuery__
+ *
+ * To run a query within a React component, call `useSocialCommentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSocialCommentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSocialCommentsQuery({
+ *   variables: {
+ *      postId: // value for 'postId'
+ *   },
+ * });
+ */
+export function useSocialCommentsQuery(baseOptions: Apollo.QueryHookOptions<SocialCommentsQuery, SocialCommentsQueryVariables> & ({ variables: SocialCommentsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SocialCommentsQuery, SocialCommentsQueryVariables>(SocialCommentsDocument, options);
+      }
+export function useSocialCommentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SocialCommentsQuery, SocialCommentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SocialCommentsQuery, SocialCommentsQueryVariables>(SocialCommentsDocument, options);
+        }
+// @ts-ignore
+export function useSocialCommentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SocialCommentsQuery, SocialCommentsQueryVariables>): Apollo.UseSuspenseQueryResult<SocialCommentsQuery, SocialCommentsQueryVariables>;
+export function useSocialCommentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SocialCommentsQuery, SocialCommentsQueryVariables>): Apollo.UseSuspenseQueryResult<SocialCommentsQuery | undefined, SocialCommentsQueryVariables>;
+export function useSocialCommentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SocialCommentsQuery, SocialCommentsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SocialCommentsQuery, SocialCommentsQueryVariables>(SocialCommentsDocument, options);
+        }
+export type SocialCommentsQueryHookResult = ReturnType<typeof useSocialCommentsQuery>;
+export type SocialCommentsLazyQueryHookResult = ReturnType<typeof useSocialCommentsLazyQuery>;
+export type SocialCommentsSuspenseQueryHookResult = ReturnType<typeof useSocialCommentsSuspenseQuery>;
+export type SocialCommentsQueryResult = Apollo.QueryResult<SocialCommentsQuery, SocialCommentsQueryVariables>;
+export const CreateSocialPostDocument = gql`
+    mutation CreateSocialPost($input: SocialPostInput!) {
+  createSocialPost(input: $input) {
+    ...SocialPostFields
+  }
+}
+    ${SocialPostFieldsFragmentDoc}`;
+export type CreateSocialPostMutationFn = Apollo.MutationFunction<CreateSocialPostMutation, CreateSocialPostMutationVariables>;
+
+/**
+ * __useCreateSocialPostMutation__
+ *
+ * To run a mutation, you first call `useCreateSocialPostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSocialPostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createSocialPostMutation, { data, loading, error }] = useCreateSocialPostMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateSocialPostMutation(baseOptions?: Apollo.MutationHookOptions<CreateSocialPostMutation, CreateSocialPostMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateSocialPostMutation, CreateSocialPostMutationVariables>(CreateSocialPostDocument, options);
+      }
+export type CreateSocialPostMutationHookResult = ReturnType<typeof useCreateSocialPostMutation>;
+export type CreateSocialPostMutationResult = Apollo.MutationResult<CreateSocialPostMutation>;
+export type CreateSocialPostMutationOptions = Apollo.BaseMutationOptions<CreateSocialPostMutation, CreateSocialPostMutationVariables>;
+export const DeleteSocialPostDocument = gql`
+    mutation DeleteSocialPost($id: ID!) {
+  deleteSocialPost(id: $id)
+}
+    `;
+export type DeleteSocialPostMutationFn = Apollo.MutationFunction<DeleteSocialPostMutation, DeleteSocialPostMutationVariables>;
+
+/**
+ * __useDeleteSocialPostMutation__
+ *
+ * To run a mutation, you first call `useDeleteSocialPostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSocialPostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteSocialPostMutation, { data, loading, error }] = useDeleteSocialPostMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteSocialPostMutation(baseOptions?: Apollo.MutationHookOptions<DeleteSocialPostMutation, DeleteSocialPostMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteSocialPostMutation, DeleteSocialPostMutationVariables>(DeleteSocialPostDocument, options);
+      }
+export type DeleteSocialPostMutationHookResult = ReturnType<typeof useDeleteSocialPostMutation>;
+export type DeleteSocialPostMutationResult = Apollo.MutationResult<DeleteSocialPostMutation>;
+export type DeleteSocialPostMutationOptions = Apollo.BaseMutationOptions<DeleteSocialPostMutation, DeleteSocialPostMutationVariables>;
+export const ToggleSocialPostLikeDocument = gql`
+    mutation ToggleSocialPostLike($id: ID!) {
+  toggleSocialPostLike(id: $id) {
+    ...SocialPostFields
+  }
+}
+    ${SocialPostFieldsFragmentDoc}`;
+export type ToggleSocialPostLikeMutationFn = Apollo.MutationFunction<ToggleSocialPostLikeMutation, ToggleSocialPostLikeMutationVariables>;
+
+/**
+ * __useToggleSocialPostLikeMutation__
+ *
+ * To run a mutation, you first call `useToggleSocialPostLikeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleSocialPostLikeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleSocialPostLikeMutation, { data, loading, error }] = useToggleSocialPostLikeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useToggleSocialPostLikeMutation(baseOptions?: Apollo.MutationHookOptions<ToggleSocialPostLikeMutation, ToggleSocialPostLikeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ToggleSocialPostLikeMutation, ToggleSocialPostLikeMutationVariables>(ToggleSocialPostLikeDocument, options);
+      }
+export type ToggleSocialPostLikeMutationHookResult = ReturnType<typeof useToggleSocialPostLikeMutation>;
+export type ToggleSocialPostLikeMutationResult = Apollo.MutationResult<ToggleSocialPostLikeMutation>;
+export type ToggleSocialPostLikeMutationOptions = Apollo.BaseMutationOptions<ToggleSocialPostLikeMutation, ToggleSocialPostLikeMutationVariables>;
+export const ShareSocialPostDocument = gql`
+    mutation ShareSocialPost($id: ID!, $body: String) {
+  shareSocialPost(id: $id, body: $body) {
+    ...SocialPostFields
+  }
+}
+    ${SocialPostFieldsFragmentDoc}`;
+export type ShareSocialPostMutationFn = Apollo.MutationFunction<ShareSocialPostMutation, ShareSocialPostMutationVariables>;
+
+/**
+ * __useShareSocialPostMutation__
+ *
+ * To run a mutation, you first call `useShareSocialPostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useShareSocialPostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [shareSocialPostMutation, { data, loading, error }] = useShareSocialPostMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      body: // value for 'body'
+ *   },
+ * });
+ */
+export function useShareSocialPostMutation(baseOptions?: Apollo.MutationHookOptions<ShareSocialPostMutation, ShareSocialPostMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ShareSocialPostMutation, ShareSocialPostMutationVariables>(ShareSocialPostDocument, options);
+      }
+export type ShareSocialPostMutationHookResult = ReturnType<typeof useShareSocialPostMutation>;
+export type ShareSocialPostMutationResult = Apollo.MutationResult<ShareSocialPostMutation>;
+export type ShareSocialPostMutationOptions = Apollo.BaseMutationOptions<ShareSocialPostMutation, ShareSocialPostMutationVariables>;
+export const CreateSocialCommentDocument = gql`
+    mutation CreateSocialComment($postId: ID!, $body: String!) {
+  createSocialComment(postId: $postId, body: $body) {
+    ...SocialCommentFields
+  }
+}
+    ${SocialCommentFieldsFragmentDoc}`;
+export type CreateSocialCommentMutationFn = Apollo.MutationFunction<CreateSocialCommentMutation, CreateSocialCommentMutationVariables>;
+
+/**
+ * __useCreateSocialCommentMutation__
+ *
+ * To run a mutation, you first call `useCreateSocialCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSocialCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createSocialCommentMutation, { data, loading, error }] = useCreateSocialCommentMutation({
+ *   variables: {
+ *      postId: // value for 'postId'
+ *      body: // value for 'body'
+ *   },
+ * });
+ */
+export function useCreateSocialCommentMutation(baseOptions?: Apollo.MutationHookOptions<CreateSocialCommentMutation, CreateSocialCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateSocialCommentMutation, CreateSocialCommentMutationVariables>(CreateSocialCommentDocument, options);
+      }
+export type CreateSocialCommentMutationHookResult = ReturnType<typeof useCreateSocialCommentMutation>;
+export type CreateSocialCommentMutationResult = Apollo.MutationResult<CreateSocialCommentMutation>;
+export type CreateSocialCommentMutationOptions = Apollo.BaseMutationOptions<CreateSocialCommentMutation, CreateSocialCommentMutationVariables>;
+export const DeleteSocialCommentDocument = gql`
+    mutation DeleteSocialComment($id: ID!) {
+  deleteSocialComment(id: $id)
+}
+    `;
+export type DeleteSocialCommentMutationFn = Apollo.MutationFunction<DeleteSocialCommentMutation, DeleteSocialCommentMutationVariables>;
+
+/**
+ * __useDeleteSocialCommentMutation__
+ *
+ * To run a mutation, you first call `useDeleteSocialCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSocialCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteSocialCommentMutation, { data, loading, error }] = useDeleteSocialCommentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteSocialCommentMutation(baseOptions?: Apollo.MutationHookOptions<DeleteSocialCommentMutation, DeleteSocialCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteSocialCommentMutation, DeleteSocialCommentMutationVariables>(DeleteSocialCommentDocument, options);
+      }
+export type DeleteSocialCommentMutationHookResult = ReturnType<typeof useDeleteSocialCommentMutation>;
+export type DeleteSocialCommentMutationResult = Apollo.MutationResult<DeleteSocialCommentMutation>;
+export type DeleteSocialCommentMutationOptions = Apollo.BaseMutationOptions<DeleteSocialCommentMutation, DeleteSocialCommentMutationVariables>;
 export const ProjectSprintsDocument = gql`
     query ProjectSprints($projectId: ID!) {
   projectSprints(projectId: $projectId) {
@@ -37165,6 +38573,186 @@ export function useDeleteEmailConfigMutation(baseOptions?: Apollo.MutationHookOp
 export type DeleteEmailConfigMutationHookResult = ReturnType<typeof useDeleteEmailConfigMutation>;
 export type DeleteEmailConfigMutationResult = Apollo.MutationResult<DeleteEmailConfigMutation>;
 export type DeleteEmailConfigMutationOptions = Apollo.BaseMutationOptions<DeleteEmailConfigMutation, DeleteEmailConfigMutationVariables>;
+export const ListInboundMailConfigsDocument = gql`
+    query ListInboundMailConfigs {
+  listInboundMailConfigs {
+    id
+    label
+    host
+    port
+    secure
+    user
+    mailbox
+    pollSeconds
+    deleteAfterImport
+    isActive
+  }
+}
+    `;
+
+/**
+ * __useListInboundMailConfigsQuery__
+ *
+ * To run a query within a React component, call `useListInboundMailConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListInboundMailConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListInboundMailConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListInboundMailConfigsQuery(baseOptions?: Apollo.QueryHookOptions<ListInboundMailConfigsQuery, ListInboundMailConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListInboundMailConfigsQuery, ListInboundMailConfigsQueryVariables>(ListInboundMailConfigsDocument, options);
+      }
+export function useListInboundMailConfigsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListInboundMailConfigsQuery, ListInboundMailConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListInboundMailConfigsQuery, ListInboundMailConfigsQueryVariables>(ListInboundMailConfigsDocument, options);
+        }
+// @ts-ignore
+export function useListInboundMailConfigsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListInboundMailConfigsQuery, ListInboundMailConfigsQueryVariables>): Apollo.UseSuspenseQueryResult<ListInboundMailConfigsQuery, ListInboundMailConfigsQueryVariables>;
+export function useListInboundMailConfigsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListInboundMailConfigsQuery, ListInboundMailConfigsQueryVariables>): Apollo.UseSuspenseQueryResult<ListInboundMailConfigsQuery | undefined, ListInboundMailConfigsQueryVariables>;
+export function useListInboundMailConfigsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListInboundMailConfigsQuery, ListInboundMailConfigsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListInboundMailConfigsQuery, ListInboundMailConfigsQueryVariables>(ListInboundMailConfigsDocument, options);
+        }
+export type ListInboundMailConfigsQueryHookResult = ReturnType<typeof useListInboundMailConfigsQuery>;
+export type ListInboundMailConfigsLazyQueryHookResult = ReturnType<typeof useListInboundMailConfigsLazyQuery>;
+export type ListInboundMailConfigsSuspenseQueryHookResult = ReturnType<typeof useListInboundMailConfigsSuspenseQuery>;
+export type ListInboundMailConfigsQueryResult = Apollo.QueryResult<ListInboundMailConfigsQuery, ListInboundMailConfigsQueryVariables>;
+export const CreateInboundMailConfigDocument = gql`
+    mutation CreateInboundMailConfig($input: InboundMailConfigInput!) {
+  createInboundMailConfig(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateInboundMailConfigMutationFn = Apollo.MutationFunction<CreateInboundMailConfigMutation, CreateInboundMailConfigMutationVariables>;
+
+/**
+ * __useCreateInboundMailConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateInboundMailConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateInboundMailConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createInboundMailConfigMutation, { data, loading, error }] = useCreateInboundMailConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateInboundMailConfigMutation(baseOptions?: Apollo.MutationHookOptions<CreateInboundMailConfigMutation, CreateInboundMailConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateInboundMailConfigMutation, CreateInboundMailConfigMutationVariables>(CreateInboundMailConfigDocument, options);
+      }
+export type CreateInboundMailConfigMutationHookResult = ReturnType<typeof useCreateInboundMailConfigMutation>;
+export type CreateInboundMailConfigMutationResult = Apollo.MutationResult<CreateInboundMailConfigMutation>;
+export type CreateInboundMailConfigMutationOptions = Apollo.BaseMutationOptions<CreateInboundMailConfigMutation, CreateInboundMailConfigMutationVariables>;
+export const UpdateInboundMailConfigDocument = gql`
+    mutation UpdateInboundMailConfig($id: ID!, $input: InboundMailConfigInput!) {
+  updateInboundMailConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateInboundMailConfigMutationFn = Apollo.MutationFunction<UpdateInboundMailConfigMutation, UpdateInboundMailConfigMutationVariables>;
+
+/**
+ * __useUpdateInboundMailConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateInboundMailConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateInboundMailConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateInboundMailConfigMutation, { data, loading, error }] = useUpdateInboundMailConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateInboundMailConfigMutation(baseOptions?: Apollo.MutationHookOptions<UpdateInboundMailConfigMutation, UpdateInboundMailConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateInboundMailConfigMutation, UpdateInboundMailConfigMutationVariables>(UpdateInboundMailConfigDocument, options);
+      }
+export type UpdateInboundMailConfigMutationHookResult = ReturnType<typeof useUpdateInboundMailConfigMutation>;
+export type UpdateInboundMailConfigMutationResult = Apollo.MutationResult<UpdateInboundMailConfigMutation>;
+export type UpdateInboundMailConfigMutationOptions = Apollo.BaseMutationOptions<UpdateInboundMailConfigMutation, UpdateInboundMailConfigMutationVariables>;
+export const DeleteInboundMailConfigDocument = gql`
+    mutation DeleteInboundMailConfig($id: ID!) {
+  deleteInboundMailConfig(id: $id)
+}
+    `;
+export type DeleteInboundMailConfigMutationFn = Apollo.MutationFunction<DeleteInboundMailConfigMutation, DeleteInboundMailConfigMutationVariables>;
+
+/**
+ * __useDeleteInboundMailConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteInboundMailConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteInboundMailConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteInboundMailConfigMutation, { data, loading, error }] = useDeleteInboundMailConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteInboundMailConfigMutation(baseOptions?: Apollo.MutationHookOptions<DeleteInboundMailConfigMutation, DeleteInboundMailConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteInboundMailConfigMutation, DeleteInboundMailConfigMutationVariables>(DeleteInboundMailConfigDocument, options);
+      }
+export type DeleteInboundMailConfigMutationHookResult = ReturnType<typeof useDeleteInboundMailConfigMutation>;
+export type DeleteInboundMailConfigMutationResult = Apollo.MutationResult<DeleteInboundMailConfigMutation>;
+export type DeleteInboundMailConfigMutationOptions = Apollo.BaseMutationOptions<DeleteInboundMailConfigMutation, DeleteInboundMailConfigMutationVariables>;
+export const TestInboundMailConnectionDocument = gql`
+    mutation TestInboundMailConnection($id: ID!) {
+  testInboundMailConnection(id: $id)
+}
+    `;
+export type TestInboundMailConnectionMutationFn = Apollo.MutationFunction<TestInboundMailConnectionMutation, TestInboundMailConnectionMutationVariables>;
+
+/**
+ * __useTestInboundMailConnectionMutation__
+ *
+ * To run a mutation, you first call `useTestInboundMailConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestInboundMailConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testInboundMailConnectionMutation, { data, loading, error }] = useTestInboundMailConnectionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestInboundMailConnectionMutation(baseOptions?: Apollo.MutationHookOptions<TestInboundMailConnectionMutation, TestInboundMailConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TestInboundMailConnectionMutation, TestInboundMailConnectionMutationVariables>(TestInboundMailConnectionDocument, options);
+      }
+export type TestInboundMailConnectionMutationHookResult = ReturnType<typeof useTestInboundMailConnectionMutation>;
+export type TestInboundMailConnectionMutationResult = Apollo.MutationResult<TestInboundMailConnectionMutation>;
+export type TestInboundMailConnectionMutationOptions = Apollo.BaseMutationOptions<TestInboundMailConnectionMutation, TestInboundMailConnectionMutationVariables>;
 export const ListImageConfigsDocument = gql`
     query ListImageConfigs {
   listImageConfigs {

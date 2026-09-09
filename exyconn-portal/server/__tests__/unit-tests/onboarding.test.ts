@@ -29,7 +29,13 @@ interface Checklist {
   employeeId: string;
   employeeName: string;
   templateName: string;
-  items: Array<{ key: string; owner: string; done: boolean; doneByName: string | null; notes: string }>;
+  items: Array<{
+    key: string;
+    owner: string;
+    done: boolean;
+    doneByName: string | null;
+    notes: string;
+  }>;
 }
 
 const JOIN_DATE = new Date('2026-09-01T00:00:00.000Z');
@@ -53,7 +59,11 @@ async function template(tasks?: Array<Record<string, unknown>>) {
 }
 
 const start = (employeeId: string, templateId: string, ctx = hr) =>
-  M.startOnboarding(null, { employeeId, templateId } as never, ctx) as unknown as Promise<Checklist>;
+  M.startOnboarding(
+    null,
+    { employeeId, templateId } as never,
+    ctx,
+  ) as unknown as Promise<Checklist>;
 
 const tick = (
   checklistId: string,
@@ -106,7 +116,10 @@ describe('startOnboarding', () => {
     const employeeId = await joiner();
     const checklist = await start(employeeId, await template());
 
-    expect(checklist).toMatchObject({ employeeName: 'Riya Sen', templateName: 'Standard onboarding' });
+    expect(checklist).toMatchObject({
+      employeeName: 'Riya Sen',
+      templateName: 'Standard onboarding',
+    });
     expect(checklist.items.map((item) => item.key)).toEqual(['laptop', 'policies']);
     const stored = await OnboardingChecklistModel.findById(checklist.id).lean();
     // 3 days from a 1 September join date.
@@ -213,9 +226,7 @@ describe('setOnboardingItem', () => {
 
     // Ticking an already-done item again must not tell HR a second time.
     await tick(checklist.id, 'laptop', true, it_);
-    expect(
-      await NotificationModel.countDocuments({ employeeId: String(hrLead._id) }),
-    ).toBe(1);
+    expect(await NotificationModel.countDocuments({ employeeId: String(hrLead._id) })).toBe(1);
   });
 
   it('un-ticks an item, clearing who did it', async () => {
@@ -249,9 +260,9 @@ describe('the HR views', () => {
 
     expect(page.totalCount).toBe(1);
     expect(page.rows[0].employeeName).toBe('Riya Sen');
-    await expect(
-      Q.listOnboardingChecklistsStats(null, {} as never, hr),
-    ).resolves.toMatchObject({ total: 1 });
+    await expect(Q.listOnboardingChecklistsStats(null, {} as never, hr)).resolves.toMatchObject({
+      total: 1,
+    });
   });
 
   it('gives an employee with no checklist nothing rather than an error', async () => {

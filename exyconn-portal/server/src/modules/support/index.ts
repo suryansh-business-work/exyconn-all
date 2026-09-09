@@ -8,4 +8,6 @@ export { ensureSupportSlaPolicies, dueAtForPriority, supportSlaSummary } from '.
 export { supportSlaPolicyService } from './sla.crud';
 export { slaState, dueAtFrom, type SlaState } from './support.sla';
 export { uniqueReference } from './ticket-reference';
+export { importInboundMessage, startInboundMail } from './inbound-mail';
+export { stripQuotedReply } from './inbound-mail.text';
 export { toAttachments, type AttachmentInput } from './attachment.schema';

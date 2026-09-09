@@ -10,6 +10,7 @@ import type {
   EmailConfigInput,
   GithubConfigInput,
   ImageConfigInput,
+  InboundMailConfigInput,
   OpenAiConfigInput,
   PexelsConfigInput,
   SlackConfigInput,
@@ -41,6 +42,10 @@ export const techResolvers = {
     listEmailConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await guard(ctx, 'VIEW');
       return withIds(await techService.listEmailConfigs());
+    },
+    listInboundMailConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await guard(ctx, 'VIEW');
+      return withIds(await techService.listInboundMailConfigs());
     },
     listImageConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await guard(ctx, 'VIEW');
@@ -113,6 +118,30 @@ export const techResolvers = {
     deleteEmailConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       await guard(ctx, 'DELETE');
       return techService.deleteEmailConfig(id);
+    },
+    createInboundMailConfig: async (
+      _p: unknown,
+      { input }: { input: InboundMailConfigInput },
+      ctx: GraphQLContext,
+    ) => {
+      await guard(ctx, 'CREATE');
+      return withId(await techService.createInboundMailConfig(input));
+    },
+    updateInboundMailConfig: async (
+      _p: unknown,
+      { id, input }: { id: string; input: InboundMailConfigInput },
+      ctx: GraphQLContext,
+    ) => {
+      await guard(ctx, 'EDIT');
+      return withId(await techService.updateInboundMailConfig(id, input));
+    },
+    deleteInboundMailConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      await guard(ctx, 'DELETE');
+      return techService.deleteInboundMailConfig(id);
+    },
+    testInboundMailConnection: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      await guard(ctx, 'EDIT');
+      return techService.testInboundMailConnection(id);
     },
     createImageConfig: async (
       _p: unknown,

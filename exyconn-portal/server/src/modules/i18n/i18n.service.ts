@@ -23,9 +23,7 @@ export async function readBundle(locale: string): Promise<TranslationEntry[]> {
     // English needs no bundle: the source string in the code IS the English text.
     return [];
   }
-  const rows = await TranslationModel.find({ locale: canonical })
-    .select('key source text')
-    .lean();
+  const rows = await TranslationModel.find({ locale: canonical }).select('key source text').lean();
   return rows.map((row) => ({ key: row.key, source: row.source, text: row.text }));
 }
 

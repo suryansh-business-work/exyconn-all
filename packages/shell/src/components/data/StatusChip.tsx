@@ -47,6 +47,10 @@ const COLOR_MAP: Record<string, 'default' | 'success' | 'warning' | 'error' | 'i
     BREACHED: 'error',
     EMPLOYEE: 'default',
     CLIENT: 'primary',
+    // How a ticket reached the desk.
+    PORTAL: 'info',
+    EMAIL: 'primary',
+    AGENT: 'default',
     // Tech > Infrastructure: Docker container and health states.
     RUNNING: 'success',
     HEALTHY: 'success',

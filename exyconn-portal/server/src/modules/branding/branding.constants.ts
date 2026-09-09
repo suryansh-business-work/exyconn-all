@@ -24,6 +24,7 @@ export const BRANDING_DEFAULTS = Object.freeze({
   textColor: '#0f172a',
 
   supportEmail: 'support@exyconn.com',
+  hrEmail: 'hr@exyconn.com',
   contactPhone: '',
   websiteUrl: 'https://exyconn.com',
   address: '',

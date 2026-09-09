@@ -3,8 +3,8 @@ import { database } from './config/database';
 import { ensureAdminAccess } from './seed/ensureAdminAccess';
 import { ensureStatusMonitors, startStatusMonitor } from './modules/status';
 import { ensureEmailDefaults } from './modules/email';
-import { ensureSupportSlaPolicies } from './modules/support';
-import { startPayrollDispatch } from './modules/payroll';
+import { ensureSupportSlaPolicies, startInboundMail } from './modules/support';
+import { ensureTaxSlabs, startPayrollDispatch } from './modules/payroll';
 import { ensureOnboardingDefaults } from './modules/onboarding';
 import { startTrackerDigest, startTrackerRetention } from './modules/tracker';
 import { startCampaignSchedule } from './modules/marketing';
@@ -33,6 +33,11 @@ async function bootstrap(): Promise<void> {
   // A ticket with no policy behind it carries no deadline, so the desk starts with the
   // default promises in place. Insert-only: a policy the team retuned is left alone.
   await ensureSupportSlaPolicies();
+  // SLAB mode has to compute something on a fresh install, so one year's income-tax table
+  // exists before the first payroll run. Insert-only, and every figure in it is editable in
+  // HR > Tax Slabs — it is a starting point to check against the finance act, not a rate
+  // this repository is asserting.
+  await ensureTaxSlabs();
   startStatusMonitor();
   // Payslips go out on the schedule HR sets in the portal, so the loop has to be running
   // even in a month nobody signs in.
@@ -48,6 +53,9 @@ async function bootstrap(): Promise<void> {
   startCampaignSchedule();
   startRecurringInvoiceSchedule();
   startWebhookDelivery();
+  // Mail sent to the support address has to become a ticket even when nobody is watching
+  // the mailbox, so the importer runs on the same terms as the schedulers above.
+  startInboundMail();
   // A run with no price on file costs zero, so the prices have to exist before the first
   // job does. Insert-only, so a price corrected in Tech survives every restart.
   await ensureAiModelPrices();

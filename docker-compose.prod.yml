@@ -24,20 +24,8 @@ services:
       PUBLIC_SITE_URL: https://exyconn.com
       PUBLIC_PORTAL_GRAPHQL_URL: https://portal-server.exyconn.com/graphql
       # No SMTP here: form notifications are sent by portal-server using the
-      # SMTP account configured in Admin > Environment Variables.
-      # TinaCMS editor at /admin: self-hosted backend, content index in MongoDB, saves
-      # committed to GitHub on main (which redeploys the site).
-      MONGODB_URI: ${MONGODB_URI}
-      GITHUB_OWNER: suryansh-business-work
-      GITHUB_REPO: exyconn-all
-      GITHUB_BRANCH: main
-      GITHUB_PERSONAL_ACCESS_TOKEN: ${TINA_GITHUB_TOKEN}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      # The Tina editor has its own host now (deploy/nginx/tina-cms.exyconn.com.conf
-      # proxies /admin and /api/tina here), and next-auth builds its sign-in and
-      # callback URLs from this value — so it has to name that host exactly, or every
-      # login posts to a domain the editor is not being served from.
-      NEXTAUTH_URL: https://tina-cms.exyconn.com/api/tina/auth
+      # SMTP account configured in Admin > Environment Variables. No database either:
+      # every piece of content is read from portal-server's public GraphQL API.
 
   tools-ui:
     image: ${DOCKERHUB_USERNAME}/exyconn-tools-ui:${TAG:-latest}
@@ -176,6 +164,13 @@ services:
     ports:
       - '127.0.0.1:4034:4034'
 
+  portal-social:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-social:${TAG:-latest}
+    container_name: exyconn-portal-social
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4036:4036'
+
   # Public status page — no sign-in: an outage is exactly when nobody can log in.
   portal-status:
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-status:${TAG:-latest}
@@ -197,7 +192,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: 7d
       # Every portal micro-frontend calls this API from its own origin.
-      CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com,https://tech.exyconn.com,https://it.exyconn.com,https://status.exyconn.com
+      CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com,https://tech.exyconn.com,https://it.exyconn.com,https://social.exyconn.com,https://status.exyconn.com
       APP_URL: https://portal.exyconn.com
       TRACKER_DOWNLOAD_URL: https://employee.exyconn.com/me/tracker
       # Where the payslip email sends an employee for the rest of their payslips.

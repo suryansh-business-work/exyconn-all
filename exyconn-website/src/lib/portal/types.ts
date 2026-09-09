@@ -184,3 +184,48 @@ export interface PublicPolicy {
   effectiveDate: string;
   updatedAt: string;
 }
+
+/** The byline on a blog post, served by `publicBlogPosts`. */
+export interface BlogAuthor {
+  name: string;
+  role: string;
+  initials: string;
+}
+
+/**
+ * A long-form article, authored in the portal under Website > Blog.
+ *
+ * `content` is the article body as HTML — the same contract as job descriptions and
+ * policies. The site sanitises it before rendering (see `sanitizeArticleHtml`).
+ */
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  content: string;
+  author: BlogAuthor;
+  readTime: string;
+  tags: string[];
+  coverImage: string;
+  featured: boolean;
+  /** ISO 8601 timestamp. */
+  publishedAt: string;
+}
+
+/** A customer story, authored in the portal under Website > Case Studies. */
+export interface CaseStudy {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  coverImage: string;
+  category: string;
+  author: string;
+  tags: string[];
+  pdfUrl: string;
+  featured: boolean;
+  /** ISO 8601 timestamp. */
+  publishedAt: string;
+}

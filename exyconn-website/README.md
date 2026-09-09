@@ -47,11 +47,10 @@ Open [http://localhost:4000](http://localhost:4000)
 ```
 ├── src/
 │   ├── components/    # UI Components
-│   ├── content/       # Blog posts & case studies (markdown, edited with TinaCMS)
 │   ├── layouts/       # Page layouts
+│   ├── lib/portal/    # The portal's public GraphQL API — every piece of site content
 │   ├── pages/         # Routes
 │   └── styles/        # Global styles
-├── tina/              # TinaCMS config + collection schemas
 ├── tests/             # Vitest test files
 ├── public/            # Static assets
 └── tools/             # Creative tools (Logo Maker)
@@ -100,24 +99,29 @@ Open [http://localhost:4000](http://localhost:4000)
 | **Gigs** | `/career/gigs` | [exyconn.com/career/gigs](https://exyconn.com/career/gigs) |
 | **Order Agents** | `/order-agents` | [exyconn.com/order-agents](https://exyconn.com/order-agents) |
 
-## ✍️ Content (TinaCMS)
+## ✍️ Content
 
-Blog posts and case studies are markdown files edited with a self-hosted [TinaCMS](https://tina.io):
+The site holds no content of its own. Everything — blog posts, case studies, careers, the
+tools directory, navigation, branding and policies — is authored in the Exyconn portal and
+read at request time through `src/lib/portal/`, against the unauthenticated `public*`
+queries on `PUBLIC_PORTAL_GRAPHQL_URL`.
 
-| What | Where |
+| Site area | Portal screen |
 |------|-------|
-| Blog posts | `src/content/blog/*.md` (filename = URL slug) |
-| Case studies | `src/content/case-studies/*.md` (filename = URL slug) |
-| Editor users | `content/users/index.json` (seed only, see below) |
-| Editor schema | `tina/collections/`, `tina/config.ts`, `tina/database.ts` |
-| Editor backend | `src/pages/api/tina/[...routes].ts` (GraphQL + Auth.js) |
-| Page data | `src/content.config.ts` + `src/lib/content/` |
+| Blog (`/blog`) | Website > Blog |
+| Case studies (`/case-studies`) | Website > Case Studies |
+| Careers (`/career`) | Website > Companies, Jobs, Freelance Gigs |
+| Tools directory (`/our-tools`) | Website > Tool Categories, Tools |
+| Header/footer navigation | Website > Navigation Links |
+| Branding | Admin > Branding |
+| Policies (`/policies/*`) | Legal > Policies |
 
-**Editing on the live site.** Open [https://exyconn.com/admin](https://exyconn.com/admin) and sign in. Every save is committed to `main` on GitHub, and that push deploys the site with the new content. The backend runs inside this app: the content index lives in MongoDB (`MONGODB_URI`, database `tinacms`), commits use `GITHUB_PERSONAL_ACCESS_TOKEN`, and sessions are signed with `NEXTAUTH_SECRET` (see `.env.example` and `DEPLOYMENT.md`).
+There is deliberately no bundled fallback (see `src/lib/portal/client.ts`): if the portal
+cannot be reached the request fails rather than serving stale content that would mask an
+editor's change. Branding is the single exception, because it renders on every page.
 
-**Users.** `content/users/index.json` seeds the editor's users the first time the database is indexed; after that, users and passwords live only in the database and are never written back to git. The seeded account must change its password on first login. Add or remove users from the *Users* screen in the editor.
-
-**Editing locally.** `pnpm dev` starts the editor against your working tree with no login at [http://localhost:4000/admin/index.html](http://localhost:4000/admin/index.html); every save writes the markdown file to disk, and you commit it like any other change.
+Blog and case-study bodies are HTML, the same contract as job descriptions and policies.
+They are sanitised with `sanitizeArticleHtml` before being rendered.
 
 ## 🔄 CI/CD
 

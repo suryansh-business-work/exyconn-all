@@ -75,6 +75,54 @@ describe('seedWebsiteContent', () => {
     }
   });
 
+  it('carries every blog field the public pages render', async () => {
+    await seedWebsiteContent();
+
+    const posts = await BlogPostModel.find().lean();
+    for (const post of posts) {
+      // /blog renders the card from these; /blog/[slug] adds the body, checked above.
+      expect(post.slug).toBeTruthy();
+      expect(post.title).toBeTruthy();
+      expect(post.summary).toBeTruthy();
+      expect(post.coverImage).toMatch(/^https?:\/\//);
+      expect(post.readTime).toBeTruthy();
+      expect(post.tags.length).toBeGreaterThan(0);
+      expect(post.author.name).toBeTruthy();
+      expect(post.author.initials).toBeTruthy();
+      expect(post.publishedAt).toBeInstanceOf(Date);
+      expect(post.isActive).toBe(true);
+    }
+  });
+
+  it('carries every case-study field the public pages render', async () => {
+    await seedWebsiteContent();
+
+    const studies = await CaseStudyModel.find().lean();
+    for (const study of studies) {
+      expect(study.slug).toBeTruthy();
+      expect(study.title).toBeTruthy();
+      expect(study.excerpt).toBeTruthy();
+      expect(study.content.length).toBeGreaterThan(0);
+      expect(study.coverImage).toMatch(/^https?:\/\//);
+      expect(study.category).toBeTruthy();
+      expect(study.author).toBeTruthy();
+      expect(study.tags.length).toBeGreaterThan(0);
+      expect(study.publishedAt).toBeInstanceOf(Date);
+      expect(study.isActive).toBe(true);
+    }
+  });
+
+  it('gives every tool an address the website can deep-link to', async () => {
+    await seedWebsiteContent();
+
+    // /our-tools resolves `/tools/<slug>` against tools.exyconn.com; anything else has to
+    // already be an address of its own, or the "Open" button goes nowhere.
+    const tools = await ToolModel.find({ isActive: true }).lean();
+    for (const tool of tools) {
+      expect(tool.url).toMatch(/^(\/tools\/|https?:\/\/)/);
+    }
+  });
+
   it('preserves which tools the website actually publishes', async () => {
     await seedWebsiteContent();
 

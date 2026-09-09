@@ -1,6 +1,6 @@
 ---
 import Page from "../../layouts/Page.astro";
-import { getToolCategories, getTools } from "../../lib/portal";
+import { getToolCategories, getToolLaunchUrl, getTools, isToolAppSlug } from "../../lib/portal";
 
 // Both lists come from the portal's Tools CRUD — this page holds no tool data of its own.
 const [categories, tools] = await Promise.all([getToolCategories(), getTools()]);
@@ -81,10 +81,7 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {toolsOf(category.slug).map((tool) => (
-                <a
-                  href={`/our-tools/${tool.toolCode}`}
-                  class="group block bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-100 hover:border-slate-200 transition-all duration-300"
-                >
+                <div class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-100 hover:border-slate-200 transition-all duration-300">
                   <div
                     class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
                     style={`background: ${tool.color || category.color}15;`}
@@ -97,7 +94,12 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
 
                   <div class="flex items-center gap-2 mb-2">
                     <h3 class="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition">
-                      {tool.name}
+                      <a
+                        href={`/our-tools/${tool.toolCode}`}
+                        class="after:absolute after:inset-0 after:content-['']"
+                      >
+                        {tool.name}
+                      </a>
                     </h3>
                     {tool.isMVP && (
                       <span class="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-bold">
@@ -112,11 +114,21 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
                     <span class="px-2 py-0.5 bg-slate-200 text-slate-500 rounded text-xs font-mono">
                       #{tool.toolCode}
                     </span>
-                    <div class="w-9 h-9 rounded-full bg-slate-100 group-hover:bg-indigo-500 flex items-center justify-center transition-all">
-                      <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-white transition" />
-                    </div>
+                    {isToolAppSlug(tool) ? (
+                      <a
+                        href={getToolLaunchUrl(tool)}
+                        class="relative z-10 w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-500 flex items-center justify-center transition-all"
+                      >
+                        <i class="fa-solid fa-arrow-up-right-from-square text-slate-400 group-hover:text-indigo-500 hover:!text-white transition" />
+                        <span class="sr-only">Open {tool.name} on tools.exyconn.com</span>
+                      </a>
+                    ) : (
+                      <div class="w-9 h-9 rounded-full bg-slate-100 group-hover:bg-indigo-500 flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-white transition" />
+                      </div>
+                    )}
                   </div>
-                </a>
+                </div>
               ))}
             </div>
           </div>
