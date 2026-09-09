@@ -6,27 +6,38 @@ import { env } from '@/config/env';
 import type { Role } from '@/auth/roles';
 import { useCrossAppNavigate } from '@/hooks/useCrossAppNavigate';
 import { PortalListItem, type PortalEntry } from './PortalListItem';
-import { buildPortalEntries } from './portalEntries';
+import { allPortalEntries, buildPortalEntries } from './portalEntries';
 
 interface PortalSwitcherProps {
-  roles: Role[];
+  /** Roles of the signed-in user; `null` on the login screen, where every portal is listed. */
+  roles: Role[] | null;
   open: boolean;
   onClose: () => void;
 }
 
 /**
  * Cross-portal switcher. Every micro-frontend is its own site on its own
- * subdomain, so this lists the portals the signed-in user can open and jumps
- * straight to them — a full page load when the target is a different app.
+ * subdomain, so this lists the portals the user can open and jumps straight to
+ * them — a full page load when the target is a different app. Signed out it
+ * lists them all: the target portal's own gate decides whether the visitor is
+ * let in on the shared session cookie or shown its login screen.
  */
 export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcherProps>) {
   const [query, setQuery] = useState('');
   const navigateTo = useCrossAppNavigate();
 
   const entries = useMemo<PortalEntry[]>(
-    () => buildPortalEntries(roles, env.portalApp, query),
+    () =>
+      roles
+        ? buildPortalEntries(roles, env.portalApp, query)
+        : allPortalEntries(env.portalApp, query),
     [roles, query],
   );
+
+  const noun = entries.length === 1 ? 'portal' : 'portals';
+  const caption = roles
+    ? `${entries.length} ${noun} available to you`
+    : `${entries.length} ${noun} — sign in to open one`;
 
   const handleSelect = (entry: PortalEntry) => {
     onClose();
@@ -47,7 +58,7 @@ export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcher
           <AppsIcon fontSize="small" /> Other Portals
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          {entries.length} {entries.length === 1 ? 'portal' : 'portals'} available to you
+          {caption}
         </Typography>
       </Box>
 

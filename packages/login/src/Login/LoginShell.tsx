@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import { Box, Button, Flex, IconButton, Text } from '@exyconn/shell/components/ui';
+import { Box, Button, Divider, Flex, IconButton, Text } from '@exyconn/shell/components/ui';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { LoginBackground } from './LoginBackground';
 import { LoginPromo } from './LoginPromo';
+import { OtherPortalsLink } from './OtherPortalsLink';
 import { useLoginPage, type LoginPageView } from './useLoginPage';
 import { env } from '@exyconn/shell/config/env';
 import { glass } from '@exyconn/shell/components/glass/glass';
@@ -73,6 +74,9 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
             </Flex>
 
             {children(page)}
+
+            <Divider sx={{ my: 1.5 }} />
+            <OtherPortalsLink accentColor={page.accentColor} />
           </Box>
 
           <Box

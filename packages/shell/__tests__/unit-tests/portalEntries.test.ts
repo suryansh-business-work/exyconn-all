@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { buildPortalEntries } from '../../src/layout/PortalSwitcher/portalEntries';
+import {
+  allPortalEntries,
+  buildPortalEntries,
+} from '../../src/layout/PortalSwitcher/portalEntries';
 import { ROLES } from '../../src/auth/roles';
 
 describe('buildPortalEntries', () => {
@@ -30,5 +33,17 @@ describe('buildPortalEntries', () => {
 
   it('returns nothing when the query matches no portal', () => {
     expect(buildPortalEntries([ROLES.ADMIN], 'hub', 'zzzznope')).toEqual([]);
+  });
+});
+
+describe('allPortalEntries', () => {
+  it('lists every portal, not just the ones a role opens', () => {
+    expect(allPortalEntries('hub')).toEqual(buildPortalEntries([ROLES.ADMIN], 'hub'));
+  });
+
+  it('marks the asking app as current and still filters on the query', () => {
+    const entries = allPortalEntries('finance', 'invoices');
+    expect(entries.map((e) => e.key)).toEqual(['finance']);
+    expect(entries[0].isCurrent).toBe(true);
   });
 });
