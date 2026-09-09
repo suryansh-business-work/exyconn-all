@@ -167,6 +167,7 @@ export const MODULES: ModuleDefinition[] = [
         icon: NotificationsIcon,
       },
       { key: 'me-requests', label: 'My Requests', path: '/me/requests', icon: AssignmentIcon },
+      { key: 'me-approvals', label: 'My Approvals', path: '/me/approvals', icon: FactCheckIcon },
       { key: 'me-goals', label: 'Goals', path: '/me/goals', icon: TrackChangesIcon },
       { key: 'me-performance', label: 'Performance', path: '/me/performance', icon: StarIcon },
       { key: 'me-expenses', label: 'Expenses', path: '/me/expenses', icon: ReceiptIcon },

@@ -1,0 +1,33 @@
+# The shared approval queue: everything awaiting the signed-in user, across every module.
+
+query MyApprovals($kind: String) {
+  myApprovals(kind: $kind) {
+    totalCount
+    groups {
+      kind
+      label
+      count
+    }
+    items {
+      id
+      kind
+      kindLabel
+      title
+      summary
+      requestedById
+      requestedByName
+      requestedAt
+      link
+      amount
+      currency
+    }
+  }
+}
+
+query MyPendingApprovalCount {
+  myPendingApprovalCount
+}
+
+mutation DecideApproval($id: ID!, $decision: ApprovalDecision!, $note: String) {
+  decideApproval(id: $id, decision: $decision, note: $note)
+}

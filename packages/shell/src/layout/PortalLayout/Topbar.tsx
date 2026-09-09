@@ -17,6 +17,7 @@ import { useAuth } from '@/auth/AuthContext';
 import { useColorMode } from '@/theme/ColorModeContext';
 import { TopbarSearch } from './TopbarSearch';
 import { NotificationBell } from './NotificationBell';
+import { ApprovalsBell } from './ApprovalsBell';
 
 interface TopbarProps {
   drawerWidth: number;
@@ -69,6 +70,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
             {user?.roles.join(', ')}
           </Typography>
         </Box>
+        <ApprovalsBell />
         <NotificationBell />
         <IconButton onClick={toggle} aria-label="toggle color mode" sx={{ mr: 0.5 }}>
           {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}

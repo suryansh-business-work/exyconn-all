@@ -334,6 +334,48 @@ export type ApplyLeaveInput = {
   type: LeaveType;
 };
 
+export enum ApprovalDecision {
+  Approved = 'APPROVED',
+  Rejected = 'REJECTED'
+}
+
+/** How many are waiting in one source — the counts behind the queue's tabs. */
+export type ApprovalGroup = {
+  __typename?: 'ApprovalGroup';
+  count: Scalars['Int']['output'];
+  kind: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
+/**
+ * One decision waiting on the signed-in user, read straight out of the collection that
+ * owns it. There is no approvals collection — see the approvals module for why.
+ */
+export type ApprovalItem = {
+  __typename?: 'ApprovalItem';
+  /** Money at stake, when the decision is about money. */
+  amount?: Maybe<Scalars['Float']['output']>;
+  currency?: Maybe<Scalars['String']['output']>;
+  /** Composite: the source kind and the record id, joined by a colon — LEAVE:663f… */
+  id: Scalars['ID']['output'];
+  kind: Scalars['String']['output'];
+  kindLabel: Scalars['String']['output'];
+  /** Portal path to the module's own screen for this decision. */
+  link: Scalars['String']['output'];
+  requestedAt: Scalars['DateTime']['output'];
+  requestedById: Scalars['String']['output'];
+  requestedByName: Scalars['String']['output'];
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type ApprovalQueue = {
+  __typename?: 'ApprovalQueue';
+  groups: Array<ApprovalGroup>;
+  items: Array<ApprovalItem>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Asset = {
   __typename?: 'Asset';
   assetTag: Scalars['String']['output'];
@@ -3003,6 +3045,8 @@ export type Mutation = {
   createUser: UserCredentials;
   createWebhook: CreatedWebhook;
   createWebsiteSubmission: WebsiteSubmission;
+  /** Approves or rejects one item, through the owning module's own decision service. */
+  decideApproval: Scalars['Boolean']['output'];
   /** HR/ADMIN or the employee's manager: approve or reject, with an optional note. */
   decideEmployeeRequest: EmployeeRequest;
   deleteActivity: Scalars['Boolean']['output'];
@@ -3986,6 +4030,13 @@ export type MutationCreateWebhookArgs = {
 
 export type MutationCreateWebsiteSubmissionArgs = {
   input: WebsiteSubmissionInput;
+};
+
+
+export type MutationDecideApprovalArgs = {
+  decision: ApprovalDecision;
+  id: Scalars['ID']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -6777,6 +6828,11 @@ export type Query = {
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
   me: User;
+  /**
+   * Everything awaiting the caller across every module, newest first. The kind argument narrows to
+   * one source; it can never widen what the caller is allowed to see.
+   */
+  myApprovals: ApprovalQueue;
   /** Self-service: the signed-in user's own attendance records. */
   myAttendance: Array<Attendance>;
   myBenefits: Array<Benefit>;
@@ -6798,6 +6854,8 @@ export type Query = {
   myOnboarding?: Maybe<OnboardingChecklist>;
   /** Self-service: the signed-in employee's salary structure (null if unset). */
   myPayroll?: Maybe<SalaryStructure>;
+  /** The badge count for the same queue. */
+  myPendingApprovalCount: Scalars['Int']['output'];
   myPerformanceReviews: Array<PerformanceReview>;
   /** The signed-in caller's own matrix, one row per registered module. */
   myPermissions: Array<ModulePermission>;
@@ -7754,6 +7812,11 @@ export type QueryListWebsiteSubmissionsPagedArgs = {
 
 export type QueryLocaleBundleArgs = {
   locale: Scalars['String']['input'];
+};
+
+
+export type QueryMyApprovalsArgs = {
+  kind?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -10404,6 +10467,27 @@ export type DeleteAnnouncementMutationVariables = Exact<{
 
 
 export type DeleteAnnouncementMutation = { __typename?: 'Mutation', deleteAnnouncement: boolean };
+
+export type MyApprovalsQueryVariables = Exact<{
+  kind?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type MyApprovalsQuery = { __typename?: 'Query', myApprovals: { __typename?: 'ApprovalQueue', totalCount: number, groups: Array<{ __typename?: 'ApprovalGroup', kind: string, label: string, count: number }>, items: Array<{ __typename?: 'ApprovalItem', id: string, kind: string, kindLabel: string, title: string, summary: string, requestedById: string, requestedByName: string, requestedAt: string, link: string, amount?: number | null, currency?: string | null }> } };
+
+export type MyPendingApprovalCountQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyPendingApprovalCountQuery = { __typename?: 'Query', myPendingApprovalCount: number };
+
+export type DecideApprovalMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  decision: ApprovalDecision;
+  note?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type DecideApprovalMutation = { __typename?: 'Mutation', decideApproval: boolean };
 
 export type AssetFieldsFragment = { __typename?: 'Asset', id: string, assetTag: string, name: string, category: AssetCategory, status: AssetStatus, manufacturer: string, modelName: string, serialNumber: string, assignedToId: string, assignedToName: string, location: string, purchaseDate?: string | null, warrantyExpiry?: string | null, purchaseCost: number, notes: string };
 
@@ -17946,6 +18030,140 @@ export function useDeleteAnnouncementMutation(baseOptions?: Apollo.MutationHookO
 export type DeleteAnnouncementMutationHookResult = ReturnType<typeof useDeleteAnnouncementMutation>;
 export type DeleteAnnouncementMutationResult = Apollo.MutationResult<DeleteAnnouncementMutation>;
 export type DeleteAnnouncementMutationOptions = Apollo.BaseMutationOptions<DeleteAnnouncementMutation, DeleteAnnouncementMutationVariables>;
+export const MyApprovalsDocument = gql`
+    query MyApprovals($kind: String) {
+  myApprovals(kind: $kind) {
+    totalCount
+    groups {
+      kind
+      label
+      count
+    }
+    items {
+      id
+      kind
+      kindLabel
+      title
+      summary
+      requestedById
+      requestedByName
+      requestedAt
+      link
+      amount
+      currency
+    }
+  }
+}
+    `;
+
+/**
+ * __useMyApprovalsQuery__
+ *
+ * To run a query within a React component, call `useMyApprovalsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyApprovalsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyApprovalsQuery({
+ *   variables: {
+ *      kind: // value for 'kind'
+ *   },
+ * });
+ */
+export function useMyApprovalsQuery(baseOptions?: Apollo.QueryHookOptions<MyApprovalsQuery, MyApprovalsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyApprovalsQuery, MyApprovalsQueryVariables>(MyApprovalsDocument, options);
+      }
+export function useMyApprovalsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyApprovalsQuery, MyApprovalsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyApprovalsQuery, MyApprovalsQueryVariables>(MyApprovalsDocument, options);
+        }
+// @ts-ignore
+export function useMyApprovalsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyApprovalsQuery, MyApprovalsQueryVariables>): Apollo.UseSuspenseQueryResult<MyApprovalsQuery, MyApprovalsQueryVariables>;
+export function useMyApprovalsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyApprovalsQuery, MyApprovalsQueryVariables>): Apollo.UseSuspenseQueryResult<MyApprovalsQuery | undefined, MyApprovalsQueryVariables>;
+export function useMyApprovalsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyApprovalsQuery, MyApprovalsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyApprovalsQuery, MyApprovalsQueryVariables>(MyApprovalsDocument, options);
+        }
+export type MyApprovalsQueryHookResult = ReturnType<typeof useMyApprovalsQuery>;
+export type MyApprovalsLazyQueryHookResult = ReturnType<typeof useMyApprovalsLazyQuery>;
+export type MyApprovalsSuspenseQueryHookResult = ReturnType<typeof useMyApprovalsSuspenseQuery>;
+export type MyApprovalsQueryResult = Apollo.QueryResult<MyApprovalsQuery, MyApprovalsQueryVariables>;
+export const MyPendingApprovalCountDocument = gql`
+    query MyPendingApprovalCount {
+  myPendingApprovalCount
+}
+    `;
+
+/**
+ * __useMyPendingApprovalCountQuery__
+ *
+ * To run a query within a React component, call `useMyPendingApprovalCountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyPendingApprovalCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyPendingApprovalCountQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyPendingApprovalCountQuery(baseOptions?: Apollo.QueryHookOptions<MyPendingApprovalCountQuery, MyPendingApprovalCountQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyPendingApprovalCountQuery, MyPendingApprovalCountQueryVariables>(MyPendingApprovalCountDocument, options);
+      }
+export function useMyPendingApprovalCountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyPendingApprovalCountQuery, MyPendingApprovalCountQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyPendingApprovalCountQuery, MyPendingApprovalCountQueryVariables>(MyPendingApprovalCountDocument, options);
+        }
+// @ts-ignore
+export function useMyPendingApprovalCountSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MyPendingApprovalCountQuery, MyPendingApprovalCountQueryVariables>): Apollo.UseSuspenseQueryResult<MyPendingApprovalCountQuery, MyPendingApprovalCountQueryVariables>;
+export function useMyPendingApprovalCountSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyPendingApprovalCountQuery, MyPendingApprovalCountQueryVariables>): Apollo.UseSuspenseQueryResult<MyPendingApprovalCountQuery | undefined, MyPendingApprovalCountQueryVariables>;
+export function useMyPendingApprovalCountSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyPendingApprovalCountQuery, MyPendingApprovalCountQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyPendingApprovalCountQuery, MyPendingApprovalCountQueryVariables>(MyPendingApprovalCountDocument, options);
+        }
+export type MyPendingApprovalCountQueryHookResult = ReturnType<typeof useMyPendingApprovalCountQuery>;
+export type MyPendingApprovalCountLazyQueryHookResult = ReturnType<typeof useMyPendingApprovalCountLazyQuery>;
+export type MyPendingApprovalCountSuspenseQueryHookResult = ReturnType<typeof useMyPendingApprovalCountSuspenseQuery>;
+export type MyPendingApprovalCountQueryResult = Apollo.QueryResult<MyPendingApprovalCountQuery, MyPendingApprovalCountQueryVariables>;
+export const DecideApprovalDocument = gql`
+    mutation DecideApproval($id: ID!, $decision: ApprovalDecision!, $note: String) {
+  decideApproval(id: $id, decision: $decision, note: $note)
+}
+    `;
+export type DecideApprovalMutationFn = Apollo.MutationFunction<DecideApprovalMutation, DecideApprovalMutationVariables>;
+
+/**
+ * __useDecideApprovalMutation__
+ *
+ * To run a mutation, you first call `useDecideApprovalMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDecideApprovalMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [decideApprovalMutation, { data, loading, error }] = useDecideApprovalMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      decision: // value for 'decision'
+ *      note: // value for 'note'
+ *   },
+ * });
+ */
+export function useDecideApprovalMutation(baseOptions?: Apollo.MutationHookOptions<DecideApprovalMutation, DecideApprovalMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DecideApprovalMutation, DecideApprovalMutationVariables>(DecideApprovalDocument, options);
+      }
+export type DecideApprovalMutationHookResult = ReturnType<typeof useDecideApprovalMutation>;
+export type DecideApprovalMutationResult = Apollo.MutationResult<DecideApprovalMutation>;
+export type DecideApprovalMutationOptions = Apollo.BaseMutationOptions<DecideApprovalMutation, DecideApprovalMutationVariables>;
 export const ListAssetsPagedDocument = gql`
     query ListAssetsPaged($input: TableQueryInput!) {
   listAssetsPaged(input: $input) {

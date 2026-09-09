@@ -84,6 +84,7 @@ import { permissionsTypeDefs, permissionsResolvers } from '../modules/permission
 import { auditTypeDefs, auditResolvers } from '../modules/audit';
 import { healthTypeDefs, healthResolvers } from '../modules/health';
 import { socialTypeDefs, socialResolvers } from '../modules/social';
+import { approvalsTypeDefs, approvalsResolvers } from '../modules/approvals';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = Record<string, Record<string, unknown> | undefined>;
@@ -166,6 +167,7 @@ export const typeDefs = [
   statusTypeDefs,
   recruitingTypeDefs,
   infraTypeDefs,
+  approvalsTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -226,4 +228,5 @@ export const resolvers = mergeResolvers([
   statusResolvers,
   recruitingResolvers,
   infraResolvers,
+  approvalsResolvers,
 ]);
