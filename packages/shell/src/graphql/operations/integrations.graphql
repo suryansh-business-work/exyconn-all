@@ -1,0 +1,84 @@
+fragment ApiKeyFields on ApiKey {
+  id
+  name
+  prefix
+  roles
+  createdBy
+  lastUsedAt
+  revokedAt
+  expiresAt
+  createdAt
+}
+
+fragment WebhookFields on Webhook {
+  id
+  name
+  url
+  events
+  active
+  createdBy
+  lastDeliveredAt
+  failureCount
+  createdAt
+}
+
+query ListApiKeys {
+  listApiKeys {
+    ...ApiKeyFields
+  }
+}
+
+query ListWebhooks {
+  listWebhooks {
+    ...WebhookFields
+  }
+  webhookEvents
+}
+
+query ListWebhookDeliveries($webhookId: ID!) {
+  listWebhookDeliveries(webhookId: $webhookId) {
+    id
+    event
+    status
+    attempts
+    responseStatus
+    error
+    nextAttemptAt
+    deliveredAt
+    createdAt
+  }
+}
+
+mutation CreateApiKey($name: String!, $roles: [String!]!) {
+  createApiKey(name: $name, roles: $roles) {
+    key
+    apiKey {
+      ...ApiKeyFields
+    }
+  }
+}
+
+mutation RevokeApiKey($id: ID!) {
+  revokeApiKey(id: $id) {
+    ...ApiKeyFields
+  }
+}
+
+mutation CreateWebhook($name: String!, $url: String!, $events: [String!]!) {
+  createWebhook(name: $name, url: $url, events: $events) {
+    secret
+    webhook {
+      ...WebhookFields
+    }
+  }
+}
+
+mutation SetWebhookActive($id: ID!, $active: Boolean!) {
+  setWebhookActive(id: $id, active: $active) {
+    ...WebhookFields
+  }
+}
+
+mutation DeleteWebhook($id: ID!) {
+  deleteWebhook(id: $id)
+}

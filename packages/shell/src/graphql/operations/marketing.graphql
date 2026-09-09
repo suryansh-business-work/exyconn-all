@@ -228,3 +228,22 @@ mutation DeleteMarketingSuppression($id: ID!) {
 mutation UnsubscribeFromMarketing($token: String!) {
   unsubscribeFromMarketing(token: $token)
 }
+
+query CampaignMetrics($campaignId: ID!) {
+  campaignMetrics(campaignId: $campaignId) {
+    campaignId
+    sent
+    opened
+    clicked
+    totalOpens
+    totalClicks
+    openRate
+    clickRate
+    clickThroughRate
+  }
+  campaignTopLinks(campaignId: $campaignId) {
+    url
+    clicks
+    people
+  }
+}

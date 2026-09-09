@@ -58,7 +58,12 @@ export async function createInvoiceFromDeal(
     clientName: client.name,
     dealId,
     lines: [
-      { description: deal.title, quantity: 1, rate: deal.value, taxPercent: branding.defaultTaxPercent },
+      {
+        description: deal.title,
+        quantity: 1,
+        rate: deal.value,
+        taxPercent: branding.defaultTaxPercent,
+      },
     ],
     amount: Math.round(deal.value * (1 + branding.defaultTaxPercent / 100) * 100) / 100,
     currency: 'INR',

@@ -26,7 +26,16 @@ const crud = createCrudResolvers(productsService, {
   table: {
     searchFields: ['name', 'sku', 'category'],
     filterFields: ['name', 'sku', 'category', 'status'],
-    sortFields: ['name', 'sku', 'price', 'category', 'stock', 'reorderLevel', 'status', 'createdAt'],
+    sortFields: [
+      'name',
+      'sku',
+      'price',
+      'category',
+      'stock',
+      'reorderLevel',
+      'status',
+      'createdAt',
+    ],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
   stats: { countBy: ['status', 'category'], sum: ['stock'] },
@@ -47,19 +56,28 @@ type CreateArgs = { input: ProductInput };
 type UpdateArgs = { id: string; input: ProductInput };
 
 /**
- * Sum of price × stock over the products that are on sale. Runs in Mongo so the
- * overview tile never needs the catalogue pulled to the client.
+ * What the stock on the shelf COST, over the products that are on sale.
+ *
+ * Valued at average cost rather than at `price`: the sell price is what we hope to get, and
+ * valuing inventory at it books the profit before anything is sold — every unsold shelf would
+ * carry a margin nobody has earned. Products received before purchasing existed have no cost
+ * basis and contribute nothing, which is honest: their cost is genuinely unknown, and
+ * inferring it from the sell price would be inventing a margin rather than recording one.
+ *
+ * Runs in Mongo so the overview tile never needs the catalogue pulled to the client.
  */
 async function inventoryValue(_p: unknown, _a: unknown, ctx: GraphQLContext): Promise<number> {
   assertRole(ctx, productsRoles);
   const [row] = await ProductModel.aggregate<{ total: number }>([
     { $match: { status: 'ACTIVE' } },
-    { $group: { _id: null, total: { $sum: { $multiply: ['$price', '$stock'] } } } },
+    { $group: { _id: null, total: { $sum: { $multiply: ['$averageCost', '$stock'] } } } },
   ]);
   return row?.total ?? 0;
 }
 
 export const productsResolvers = {
+  /** A product written before purchasing existed has no cost basis stored. */
+  Product: { averageCost: (row: { averageCost?: number | null }) => row.averageCost ?? 0 },
   Query: { ...crud.Query, inventoryValue },
   Mutation: {
     ...crud.Mutation,
@@ -89,3 +107,5 @@ export const productsResolvers = {
 export { productsTypeDefs };
 export { productsInventoryTypeDefs } from './products.inventory.typeDefs';
 export { productsInventoryResolvers, suppliersService } from './products.inventory';
+export { productsPurchasingTypeDefs } from './products.purchasing.typeDefs';
+export { productsPurchasingResolvers, purchaseOrdersService } from './products.purchasing';

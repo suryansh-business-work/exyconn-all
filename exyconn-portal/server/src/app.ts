@@ -6,6 +6,10 @@ import { typeDefs, resolvers } from './graphql';
 import { buildContext, type GraphQLContext } from './middleware/auth';
 import { env } from './config/env';
 import { TRACKER_UPDATES_PATH, trackerUpdatesRouter } from './modules/tracker/tracker.updates';
+import {
+  TRACKING_PATH,
+  marketingTrackingRouter,
+} from './modules/marketing/marketing.tracking.routes';
 
 /**
  * Builds the Express app with the Apollo GraphQL middleware mounted at /graphql.
@@ -26,6 +30,8 @@ export async function createApp(): Promise<Express> {
   // The desktop tracker's updater, which runs before anyone signs in and speaks plain
   // HTTP rather than GraphQL.
   app.use(TRACKER_UPDATES_PATH, trackerUpdatesRouter());
+  // Public and unauthenticated by necessity: these are loaded by a mail client, not a session.
+  app.use(TRACKING_PATH, marketingTrackingRouter());
   app.use(
     '/graphql',
     // The default 100kb body limit is far too small for the tracker: a compressed

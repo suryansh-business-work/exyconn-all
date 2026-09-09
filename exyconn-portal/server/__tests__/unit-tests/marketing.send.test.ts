@@ -156,7 +156,11 @@ describe('Sending a campaign to an audience', () => {
     const campaign = await seedCampaign();
 
     await expect(
-      marketingCustomResolvers.Mutation.sendCampaign(null, { id: String(campaign._id) }, asMarketing),
+      marketingCustomResolvers.Mutation.sendCampaign(
+        null,
+        { id: String(campaign._id) },
+        asMarketing,
+      ),
     ).rejects.toThrow(/Choose an audience/);
   });
 

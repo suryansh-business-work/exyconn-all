@@ -102,3 +102,62 @@ mutation CreateInvoiceFromDeal($dealId: ID!) {
     number
   }
 }
+
+fragment RecurringInvoiceFields on RecurringInvoice {
+  id
+  name
+  clientId
+  clientName
+  lines {
+    description
+    quantity
+    rate
+    taxPercent
+    hsnSac
+    amount
+  }
+  amount
+  currency
+  placeOfSupplyStateCode
+  frequency
+  startDate
+  nextRunAt
+  endDate
+  dueDays
+  active
+  lastGeneratedAt
+  generatedCount
+  createdAt
+  updatedAt
+}
+
+query ListRecurringInvoicesPaged($input: TableQueryInput!) {
+  listRecurringInvoicesPaged(input: $input) {
+    rows {
+      ...RecurringInvoiceFields
+    }
+    totalCount
+  }
+}
+
+mutation CreateRecurringInvoice($input: RecurringInvoiceInput!) {
+  createRecurringInvoice(input: $input) {
+    ...RecurringInvoiceFields
+  }
+}
+
+mutation UpdateRecurringInvoice($id: ID!, $input: RecurringInvoiceInput!) {
+  updateRecurringInvoice(id: $id, input: $input) {
+    ...RecurringInvoiceFields
+  }
+}
+
+mutation DeleteRecurringInvoice($id: ID!) {
+  deleteRecurringInvoice(id: $id)
+}
+
+mutation RunRecurringInvoiceNow($id: ID!) {
+  runRecurringInvoiceNow(id: $id) {
+    ...RecurringInvoiceFields
+  }
+}

@@ -111,3 +111,5 @@ export const marketingResolvers = {
 
 export { marketingTypeDefs };
 export { startCampaignSchedule } from './marketing.schedule';
+export { marketingMetricsTypeDefs } from './marketing.metrics.typeDefs';
+export { marketingMetricsResolvers, campaignMetricsFor } from './marketing.metrics';

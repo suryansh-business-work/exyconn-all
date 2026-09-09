@@ -1,6 +1,6 @@
 import { financeResolvers } from '../../src/modules/finance';
 import { InvoiceModel } from '../../src/modules/finance/finance.model';
-import { CounterModel } from '../../src/modules/finance/counter.model';
+import { CounterModel } from '../../src/lib/counter.model';
 import { nextInvoiceNumber } from '../../src/modules/finance/invoice.number';
 import { DealModel } from '../../src/modules/crm/deal.model';
 import { ClientModel } from '../../src/modules/clients/clients.model';

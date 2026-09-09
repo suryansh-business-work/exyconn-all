@@ -235,6 +235,25 @@ export type AnnouncementPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/**
+ * A machine's credential. The key itself is stored only as a SHA-256, so it exists in clear
+ * exactly once — in the response that created it.
+ */
+export type ApiKey = {
+  __typename?: 'ApiKey';
+  createdAt: Scalars['DateTime']['output'];
+  createdBy: Scalars['String']['output'];
+  expiresAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  /** The readable half, kept in clear so a key can be named in a list and in a log. */
+  prefix: Scalars['String']['output'];
+  revokedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** What this key may do. Never more than a role a person could hold. */
+  roles: Array<Scalars['String']['output']>;
+};
+
 export type AppSettings = {
   __typename?: 'AppSettings';
   /** Machine-translate a string the first time a screen needs one and none exists. */
@@ -803,6 +822,40 @@ export type CampaignLeadCount = {
   leads: Scalars['Int']['output'];
 };
 
+/** One link in a campaign, and how it did. */
+export type CampaignLinkStat = {
+  __typename?: 'CampaignLinkStat';
+  clicks: Scalars['Int']['output'];
+  /** How many distinct people clicked it. */
+  people: Scalars['Int']['output'];
+  url: Scalars['String']['output'];
+};
+
+/**
+ * What a campaign did.
+ *
+ * Opens are a FLOOR, never a count: mail clients prefetch images, cache them, and very often
+ * block them outright. A campaign showing 30% opened was opened by AT LEAST 30%. Clicks carry
+ * no such caveat — a click is a person doing something.
+ */
+export type CampaignMetrics = {
+  __typename?: 'CampaignMetrics';
+  campaignId: Scalars['ID']['output'];
+  /** Clicked ÷ sent, as a whole percentage. */
+  clickRate: Scalars['Int']['output'];
+  /** Clicked ÷ opened — of the people who read it, how many acted. */
+  clickThroughRate: Scalars['Int']['output'];
+  /** Distinct recipients who clicked at least once. */
+  clicked: Scalars['Int']['output'];
+  /** Opened ÷ sent, as a whole percentage. */
+  openRate: Scalars['Int']['output'];
+  /** Distinct recipients who opened at least once. */
+  opened: Scalars['Int']['output'];
+  sent: Scalars['Int']['output'];
+  totalClicks: Scalars['Int']['output'];
+  totalOpens: Scalars['Int']['output'];
+};
+
 /** A campaign as a pickable option, for attributing a lead to it. */
 export type CampaignOption = {
   __typename?: 'CampaignOption';
@@ -1259,6 +1312,13 @@ export type CreateUserInput = {
   workLocationNote?: InputMaybe<Scalars['String']['input']>;
   workingTime?: InputMaybe<WorkingTime>;
   workingTimeNote?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** A newly created endpoint. The signing secret is returned once and never listed again. */
+export type CreatedWebhook = {
+  __typename?: 'CreatedWebhook';
+  secret: Scalars['String']['output'];
+  webhook: Webhook;
 };
 
 /** The MongoDB this server is connected to, reported by the database server. */
@@ -2272,6 +2332,13 @@ export enum InvoiceStatus {
   Sent = 'SENT'
 }
 
+/** A newly minted key. `key` is returned once and can never be recovered. */
+export type IssuedApiKey = {
+  __typename?: 'IssuedApiKey';
+  apiKey: ApiKey;
+  key: Scalars['String']['output'];
+};
+
 export type Job = {
   __typename?: 'Job';
   applicationDeadline?: Maybe<Scalars['DateTime']['output']>;
@@ -2789,6 +2856,7 @@ export type Mutation = {
   createActivity: Activity;
   createAiJob: AiJob;
   createAnnouncement: Announcement;
+  createApiKey: IssuedApiKey;
   createApplicant: Applicant;
   createAsset: Asset;
   createAudienceList: AudienceList;
@@ -2867,6 +2935,8 @@ export type Mutation = {
   createProject: Project;
   createProjectShare: ProjectShareCreated;
   createPrompt: Prompt;
+  createPurchaseOrder: PurchaseOrder;
+  createRecurringInvoice: RecurringInvoice;
   createSalaryStructure: SalaryStructure;
   createShift: Shift;
   createSlackConfig: SlackConfig;
@@ -2891,6 +2961,7 @@ export type Mutation = {
   createTraining: Training;
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
+  createWebhook: CreatedWebhook;
   createWebsiteSubmission: WebsiteSubmission;
   /** HR/ADMIN or the employee's manager: approve or reject, with an optional note. */
   decideEmployeeRequest: EmployeeRequest;
@@ -2956,6 +3027,8 @@ export type Mutation = {
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
+  deletePurchaseOrder: Scalars['Boolean']['output'];
+  deleteRecurringInvoice: Scalars['Boolean']['output'];
   deleteSalaryStructure: Scalars['Boolean']['output'];
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
@@ -2973,6 +3046,7 @@ export type Mutation = {
   deleteToolCategory: Scalars['Boolean']['output'];
   deleteTraining: Scalars['Boolean']['output'];
   deleteUser: Scalars['Boolean']['output'];
+  deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
   grantTrackerAccess: TrackerAccess;
   importMediaFromUrl: Scalars['String']['output'];
@@ -3000,6 +3074,11 @@ export type Mutation = {
    * which is what a change in wording means — leave it off for a typo fix.
    */
   publishPolicy: Policy;
+  /**
+   * Books goods in: writes a RECEIPT movement carrying the order's cost, moves the product's
+   * average cost, and re-reads the order's status from what has actually arrived.
+   */
+  receivePurchaseOrder: PurchaseOrder;
   /** Records a receipt and moves the invoice's paid figure and status with it, in one step. */
   recordPayment: Payment;
   /** Records a movement and moves the product's stock with it, in one step. */
@@ -3021,6 +3100,7 @@ export type Mutation = {
    * has been paid against cannot quietly leave a timesheet.
    */
   reviewTrackerManualEntry: TrackerManualEntry;
+  revokeApiKey: ApiKey;
   revokeProjectShare: ProjectShare;
   revokeTrackerAccess: TrackerAccess;
   revokeTrackerDevice: TrackerDevice;
@@ -3034,6 +3114,11 @@ export type Mutation = {
   runPayroll: PayrollRunResult;
   /** Queues a prompt-library entry as a new job, with its {{variables}} filled in. */
   runPrompt: AiJob;
+  /**
+   * Raises this schedule's current period now and moves it on — the same order the unattended
+   * loop uses, so pressing the button cannot bill a client twice either.
+   */
+  runRecurringInvoiceNow: RecurringInvoice;
   saveAiModelPrice: AiModelPrice;
   saveAiSpendLimit: AiSpendLimit;
   /**
@@ -3108,6 +3193,7 @@ export type Mutation = {
   setTranslation: Translation;
   setUserActive: User;
   setUserBlocked: User;
+  setWebhookActive: Webhook;
   signContract: Contract;
   /**
    * Starts one joiner's onboarding from a template. HR only, and refused while the employee
@@ -3257,6 +3343,8 @@ export type Mutation = {
   updateProfile: User;
   updateProject: Project;
   updatePrompt: Prompt;
+  updatePurchaseOrder: PurchaseOrder;
+  updateRecurringInvoice: RecurringInvoice;
   updateSalaryStructure: SalaryStructure;
   updateSettings: AppSettings;
   updateShift: Shift;
@@ -3394,6 +3482,12 @@ export type MutationCreateAiJobArgs = {
 
 export type MutationCreateAnnouncementArgs = {
   input: AnnouncementInput;
+};
+
+
+export type MutationCreateApiKeyArgs = {
+  name: Scalars['String']['input'];
+  roles: Array<Scalars['String']['input']>;
 };
 
 
@@ -3705,6 +3799,16 @@ export type MutationCreatePromptArgs = {
 };
 
 
+export type MutationCreatePurchaseOrderArgs = {
+  input: PurchaseOrderInput;
+};
+
+
+export type MutationCreateRecurringInvoiceArgs = {
+  input: RecurringInvoiceInput;
+};
+
+
 export type MutationCreateSalaryStructureArgs = {
   input: SalaryStructureInput;
 };
@@ -3790,6 +3894,13 @@ export type MutationCreateTrainingArgs = {
 
 export type MutationCreateUserArgs = {
   input: CreateUserInput;
+};
+
+
+export type MutationCreateWebhookArgs = {
+  events: Array<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  url: Scalars['String']['input'];
 };
 
 
@@ -4100,6 +4211,16 @@ export type MutationDeletePromptArgs = {
 };
 
 
+export type MutationDeletePurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteRecurringInvoiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteSalaryStructureArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4180,6 +4301,11 @@ export type MutationDeleteUserArgs = {
 };
 
 
+export type MutationDeleteWebhookArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteWebsiteSubmissionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4255,6 +4381,12 @@ export type MutationPublishPolicyArgs = {
 };
 
 
+export type MutationReceivePurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+  lines: Array<PurchaseReceiptLineInput>;
+};
+
+
 export type MutationRecordPaymentArgs = {
   input: PaymentInput;
 };
@@ -4300,6 +4432,11 @@ export type MutationReviewTrackerManualEntryArgs = {
 };
 
 
+export type MutationRevokeApiKeyArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationRevokeProjectShareArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4330,6 +4467,11 @@ export type MutationRunPromptArgs = {
   id: Scalars['ID']['input'];
   model: Scalars['String']['input'];
   variables?: InputMaybe<Array<PromptVariableInput>>;
+};
+
+
+export type MutationRunRecurringInvoiceNowArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -4495,6 +4637,12 @@ export type MutationSetUserBlockedArgs = {
   id: Scalars['ID']['input'];
   isBlocked: Scalars['Boolean']['input'];
   reason?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSetWebhookActiveArgs = {
+  active: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -5006,6 +5154,18 @@ export type MutationUpdateProjectArgs = {
 export type MutationUpdatePromptArgs = {
   id: Scalars['ID']['input'];
   input: PromptInput;
+};
+
+
+export type MutationUpdatePurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+  input: PurchaseOrderInput;
+};
+
+
+export type MutationUpdateRecurringInvoiceArgs = {
+  id: Scalars['ID']['input'];
+  input: RecurringInvoiceInput;
 };
 
 
@@ -5715,6 +5875,11 @@ export enum ProblemStatus {
 
 export type Product = {
   __typename?: 'Product';
+  /**
+   * Weighted average of what the stock on the shelf cost, moved by every receipt. Zero for a
+   * product that predates purchasing — its cost is genuinely unknown.
+   */
+  averageCost: Scalars['Float']['output'];
   category: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
@@ -5982,6 +6147,79 @@ export type PublicPolicy = {
   version: Scalars['Int']['output'];
 };
 
+export type PurchaseOrder = {
+  __typename?: 'PurchaseOrder';
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  expectedDate?: Maybe<Scalars['DateTime']['output']>;
+  firstReceivedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  lines: Array<PurchaseOrderLine>;
+  notes: Scalars['String']['output'];
+  /** Drawn from the shared counter, never typed. */
+  number: Scalars['String']['output'];
+  orderDate: Scalars['DateTime']['output'];
+  receivedAt?: Maybe<Scalars['DateTime']['output']>;
+  status: PurchaseOrderStatus;
+  supplierId: Scalars['String']['output'];
+  supplierName: Scalars['String']['output'];
+  /** What the order costs, tax included — computed from the lines on read. */
+  total: Scalars['Float']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PurchaseOrderInput = {
+  currency: Scalars['String']['input'];
+  expectedDate?: InputMaybe<Scalars['DateTime']['input']>;
+  lines: Array<PurchaseOrderLineInput>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  orderDate: Scalars['DateTime']['input'];
+  status: PurchaseOrderStatus;
+  supplierId: Scalars['String']['input'];
+};
+
+/**
+ * One ordered line. The unit cost is what gives received stock a cost basis — without it
+ * inventory can only be valued at the price we hope to sell for.
+ */
+export type PurchaseOrderLine = {
+  __typename?: 'PurchaseOrderLine';
+  productId: Scalars['String']['output'];
+  productName: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+  /** How many have actually arrived. Written by a receipt, never by the form. */
+  receivedQuantity: Scalars['Int']['output'];
+  taxPercent: Scalars['Float']['output'];
+  unitCost: Scalars['Float']['output'];
+};
+
+export type PurchaseOrderLineInput = {
+  productId: Scalars['String']['input'];
+  quantity: Scalars['Int']['input'];
+  taxPercent: Scalars['Float']['input'];
+  unitCost: Scalars['Float']['input'];
+};
+
+export type PurchaseOrderPage = {
+  __typename?: 'PurchaseOrderPage';
+  rows: Array<PurchaseOrder>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum PurchaseOrderStatus {
+  Cancelled = 'CANCELLED',
+  Draft = 'DRAFT',
+  Ordered = 'ORDERED',
+  PartiallyReceived = 'PARTIALLY_RECEIVED',
+  Received = 'RECEIVED'
+}
+
+/** What arrived against one ordered line. */
+export type PurchaseReceiptLineInput = {
+  productId: Scalars['String']['input'];
+  quantity: Scalars['Int']['input'];
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -6008,12 +6246,14 @@ export type Query = {
   branding: Branding;
   /** Leads per campaign, most productive first — the overview's attribution figures. */
   campaignLeadCounts: Array<CampaignLeadCount>;
+  campaignMetrics: CampaignMetrics;
   /** Campaigns as pickable options, so a lead can be attributed to one. CRM may read these. */
   campaignOptions: Array<CampaignOption>;
   /** The first member's copy, rendered by the same code the send uses. Null for an empty audience. */
   campaignPreview?: Maybe<CampaignPreview>;
   /** Sent, failed and skipped counts for one campaign. */
   campaignSendSummary: CampaignSendSummary;
+  campaignTopLinks: Array<CampaignLinkStat>;
   /**
    * Whether the caller may export this module. Asked once before an export starts
    * paging, so a restricted role is refused before it reads a single row.
@@ -6093,6 +6333,8 @@ export type Query = {
   getProduct: Product;
   getProject: Project;
   getPrompt: Prompt;
+  getPurchaseOrder: PurchaseOrder;
+  getRecurringInvoice?: Maybe<RecurringInvoice>;
   getSalaryStructure: SalaryStructure;
   getShift: Shift;
   getStatusIncident: StatusIncident;
@@ -6114,7 +6356,7 @@ export type Query = {
   hrDashboard: HrDashboard;
   /** Host, this process and the database in one read — the Infrastructure overview. */
   infrastructureOverview: InfrastructureOverview;
-  /** Sum of price × stock over ACTIVE products. */
+  /** What the stock on ACTIVE products cost: sum of averageCost × stock. */
   inventoryValue: Scalars['Float']['output'];
   /** Payments against one invoice, newest first. */
   invoicePayments: Array<Payment>;
@@ -6136,6 +6378,7 @@ export type Query = {
   listAnnouncements: Array<Announcement>;
   listAnnouncementsPaged: AnnouncementPage;
   listAnnouncementsStats: TableStats;
+  listApiKeys: Array<ApiKey>;
   listApplicants: Array<Applicant>;
   listApplicantsPaged: ApplicantPage;
   listApplicantsStats: TableStats;
@@ -6295,6 +6538,11 @@ export type Query = {
   listPrompts: Array<Prompt>;
   listPromptsPaged: PromptPage;
   listPromptsStats: TableStats;
+  listPurchaseOrders: Array<PurchaseOrder>;
+  listPurchaseOrdersPaged: PurchaseOrderPage;
+  listPurchaseOrdersStats: TableStats;
+  listRecurringInvoices: Array<RecurringInvoice>;
+  listRecurringInvoicesPaged: RecurringInvoicePage;
   /** Only restrictions that exist; a missing (role, module) pair means everything is allowed. */
   listRolePermissions: Array<RolePermission>;
   listSalarySlipsPaged: SalarySlipPage;
@@ -6351,6 +6599,8 @@ export type Query = {
   listUsers: Array<User>;
   listUsersPaged: UserPage;
   listUsersStats: TableStats;
+  listWebhookDeliveries: Array<WebhookDelivery>;
+  listWebhooks: Array<Webhook>;
   listWebsiteSubmissions: Array<WebsiteSubmission>;
   listWebsiteSubmissionsPaged: WebsiteSubmissionPage;
   listWebsiteSubmissionsStats: TableStats;
@@ -6531,6 +6781,8 @@ export type Query = {
   trackerTotals: TrackerTotals;
   /** The admin's review screen: what has been translated, and by what. ADMIN only. */
   translations: TranslationPage;
+  /** The events an endpoint may subscribe to. A fixed list, so a dead subscription is impossible. */
+  webhookEvents: Array<Scalars['String']['output']>;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
 };
@@ -6557,6 +6809,11 @@ export type QueryAudienceMembersArgs = {
 };
 
 
+export type QueryCampaignMetricsArgs = {
+  campaignId: Scalars['ID']['input'];
+};
+
+
 export type QueryCampaignPreviewArgs = {
   audienceListId: Scalars['ID']['input'];
   id: Scalars['ID']['input'];
@@ -6564,6 +6821,11 @@ export type QueryCampaignPreviewArgs = {
 
 
 export type QueryCampaignSendSummaryArgs = {
+  campaignId: Scalars['ID']['input'];
+};
+
+
+export type QueryCampaignTopLinksArgs = {
   campaignId: Scalars['ID']['input'];
 };
 
@@ -6846,6 +7108,16 @@ export type QueryGetProjectArgs = {
 
 
 export type QueryGetPromptArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetPurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7195,6 +7467,16 @@ export type QueryListPromptsPagedArgs = {
 };
 
 
+export type QueryListPurchaseOrdersPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListRecurringInvoicesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListSalarySlipsPagedArgs = {
   input: TableQueryInput;
 };
@@ -7267,6 +7549,11 @@ export type QueryListTrainingsPagedArgs = {
 
 export type QueryListUsersPagedArgs = {
   input: TableQueryInput;
+};
+
+
+export type QueryListWebhookDeliveriesArgs = {
+  webhookId: Scalars['ID']['input'];
 };
 
 
@@ -7553,6 +7840,70 @@ export type ReceivablesBucket = {
   band: Scalars['String']['output'];
   invoices: Scalars['Int']['output'];
   label: Scalars['String']['output'];
+};
+
+/** How often a retainer bills. A small fixed list, deliberately — not a cron expression. */
+export enum RecurrenceFrequency {
+  Monthly = 'MONTHLY',
+  Quarterly = 'QUARTERLY',
+  Weekly = 'WEEKLY',
+  Yearly = 'YEARLY'
+}
+
+/**
+ * A standing instruction to raise the same invoice every period.
+ *
+ * It is not an invoice and never becomes one — it spawns them, each a DRAFT for somebody to
+ * check and send. Keeping the schedule separate from what it produced is what lets a
+ * retainer's rate change next month without rewriting the invoices already paid under the old.
+ */
+export type RecurringInvoice = {
+  __typename?: 'RecurringInvoice';
+  /** A paused schedule keeps its place, so resuming bills the period it was paused in. */
+  active: Scalars['Boolean']['output'];
+  /** What each generated invoice will total, from the lines. */
+  amount: Scalars['Float']['output'];
+  clientId: Scalars['String']['output'];
+  /** The client's name at the time the schedule was written. */
+  clientName: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  /** Days between an invoice's issue date and its due date. */
+  dueDays: Scalars['Int']['output'];
+  /** Stops after this date. Null runs until somebody pauses it. */
+  endDate?: Maybe<Scalars['DateTime']['output']>;
+  frequency: RecurrenceFrequency;
+  /** How many invoices this schedule has raised — the answer to 'is this thing working'. */
+  generatedCount: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  lastGeneratedAt?: Maybe<Scalars['DateTime']['output']>;
+  lines: Array<InvoiceLine>;
+  /** What this retainer is called on the schedule screen. Never printed on the invoice. */
+  name: Scalars['String']['output'];
+  /** When the next invoice is due to be raised. Owned by the schedule; not editable by hand. */
+  nextRunAt: Scalars['DateTime']['output'];
+  placeOfSupplyStateCode: Scalars['String']['output'];
+  startDate: Scalars['DateTime']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type RecurringInvoiceInput = {
+  active?: InputMaybe<Scalars['Boolean']['input']>;
+  clientId: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  dueDays: Scalars['Int']['input'];
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  frequency: RecurrenceFrequency;
+  lines: Array<InvoiceLineInput>;
+  name: Scalars['String']['input'];
+  placeOfSupplyStateCode?: InputMaybe<Scalars['String']['input']>;
+  startDate: Scalars['DateTime']['input'];
+};
+
+export type RecurringInvoicePage = {
+  __typename?: 'RecurringInvoicePage';
+  rows: Array<RecurringInvoice>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export enum RequestStatus {
@@ -8098,6 +8449,8 @@ export type StockMovement = {
   notes: Scalars['String']['output'];
   productId: Scalars['String']['output'];
   productName: Scalars['String']['output'];
+  /** The purchase order this receipt came from, when it came from one. */
+  purchaseOrderNumber: Scalars['String']['output'];
   /** Always positive; the reason decides the direction. */
   quantity: Scalars['Int']['output'];
   reason: MovementReason;
@@ -8107,6 +8460,8 @@ export type StockMovement = {
   stockAfter: Scalars['Int']['output'];
   supplierId: Scalars['String']['output'];
   supplierName: Scalars['String']['output'];
+  /** What one unit cost. Only a receipt knows it; everything else is 0. */
+  unitCost: Scalars['Float']['output'];
 };
 
 export type StockMovementInput = {
@@ -9277,6 +9632,35 @@ export type UserPage = {
   __typename?: 'UserPage';
   rows: Array<User>;
   totalCount: Scalars['Int']['output'];
+};
+
+export type Webhook = {
+  __typename?: 'Webhook';
+  active: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  createdBy: Scalars['String']['output'];
+  events: Array<Scalars['String']['output']>;
+  /** Consecutive failures. Reset by a success. */
+  failureCount: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  lastDeliveredAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** One attempt to deliver one event, and what the receiver said. */
+export type WebhookDelivery = {
+  __typename?: 'WebhookDelivery';
+  attempts: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  deliveredAt?: Maybe<Scalars['DateTime']['output']>;
+  error: Scalars['String']['output'];
+  event: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  nextAttemptAt: Scalars['DateTime']['output'];
+  responseStatus?: Maybe<Scalars['Int']['output']>;
+  status: Scalars['String']['output'];
+  webhookId: Scalars['String']['output'];
 };
 
 export type WebsiteSubmission = {
@@ -10965,6 +11349,44 @@ export type CreateInvoiceFromDealMutationVariables = Exact<{
 
 export type CreateInvoiceFromDealMutation = { __typename?: 'Mutation', createInvoiceFromDeal: { __typename?: 'Invoice', id: string, number: string } };
 
+export type RecurringInvoiceFieldsFragment = { __typename?: 'RecurringInvoice', id: string, name: string, clientId: string, clientName: string, amount: number, currency: string, placeOfSupplyStateCode: string, frequency: RecurrenceFrequency, startDate: string, nextRunAt: string, endDate?: string | null, dueDays: number, active: boolean, lastGeneratedAt?: string | null, generatedCount: number, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'InvoiceLine', description: string, quantity: number, rate: number, taxPercent: number, hsnSac: string, amount: number }> };
+
+export type ListRecurringInvoicesPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListRecurringInvoicesPagedQuery = { __typename?: 'Query', listRecurringInvoicesPaged: { __typename?: 'RecurringInvoicePage', totalCount: number, rows: Array<{ __typename?: 'RecurringInvoice', id: string, name: string, clientId: string, clientName: string, amount: number, currency: string, placeOfSupplyStateCode: string, frequency: RecurrenceFrequency, startDate: string, nextRunAt: string, endDate?: string | null, dueDays: number, active: boolean, lastGeneratedAt?: string | null, generatedCount: number, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'InvoiceLine', description: string, quantity: number, rate: number, taxPercent: number, hsnSac: string, amount: number }> }> } };
+
+export type CreateRecurringInvoiceMutationVariables = Exact<{
+  input: RecurringInvoiceInput;
+}>;
+
+
+export type CreateRecurringInvoiceMutation = { __typename?: 'Mutation', createRecurringInvoice: { __typename?: 'RecurringInvoice', id: string, name: string, clientId: string, clientName: string, amount: number, currency: string, placeOfSupplyStateCode: string, frequency: RecurrenceFrequency, startDate: string, nextRunAt: string, endDate?: string | null, dueDays: number, active: boolean, lastGeneratedAt?: string | null, generatedCount: number, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'InvoiceLine', description: string, quantity: number, rate: number, taxPercent: number, hsnSac: string, amount: number }> } };
+
+export type UpdateRecurringInvoiceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: RecurringInvoiceInput;
+}>;
+
+
+export type UpdateRecurringInvoiceMutation = { __typename?: 'Mutation', updateRecurringInvoice: { __typename?: 'RecurringInvoice', id: string, name: string, clientId: string, clientName: string, amount: number, currency: string, placeOfSupplyStateCode: string, frequency: RecurrenceFrequency, startDate: string, nextRunAt: string, endDate?: string | null, dueDays: number, active: boolean, lastGeneratedAt?: string | null, generatedCount: number, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'InvoiceLine', description: string, quantity: number, rate: number, taxPercent: number, hsnSac: string, amount: number }> } };
+
+export type DeleteRecurringInvoiceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteRecurringInvoiceMutation = { __typename?: 'Mutation', deleteRecurringInvoice: boolean };
+
+export type RunRecurringInvoiceNowMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type RunRecurringInvoiceNowMutation = { __typename?: 'Mutation', runRecurringInvoiceNow: { __typename?: 'RecurringInvoice', id: string, name: string, clientId: string, clientName: string, amount: number, currency: string, placeOfSupplyStateCode: string, frequency: RecurrenceFrequency, startDate: string, nextRunAt: string, endDate?: string | null, dueDays: number, active: boolean, lastGeneratedAt?: string | null, generatedCount: number, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'InvoiceLine', description: string, quantity: number, rate: number, taxPercent: number, hsnSac: string, amount: number }> } };
+
 export type SystemHealthQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -11305,6 +11727,66 @@ export type DockerStorageQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type DockerStorageQuery = { __typename?: 'Query', dockerStorage: { __typename?: 'DockerStorage', images: Array<{ __typename?: 'DockerImage', id: string, repoTags: Array<string>, sizeBytes: number, createdAt: string, containers: number }>, usage: { __typename?: 'DockerDiskUsage', layersBytes: number, containersBytes: number, volumesBytes: number, buildCacheBytes: number } } };
 
+export type ApiKeyFieldsFragment = { __typename?: 'ApiKey', id: string, name: string, prefix: string, roles: Array<string>, createdBy: string, lastUsedAt?: string | null, revokedAt?: string | null, expiresAt?: string | null, createdAt: string };
+
+export type WebhookFieldsFragment = { __typename?: 'Webhook', id: string, name: string, url: string, events: Array<string>, active: boolean, createdBy: string, lastDeliveredAt?: string | null, failureCount: number, createdAt: string };
+
+export type ListApiKeysQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListApiKeysQuery = { __typename?: 'Query', listApiKeys: Array<{ __typename?: 'ApiKey', id: string, name: string, prefix: string, roles: Array<string>, createdBy: string, lastUsedAt?: string | null, revokedAt?: string | null, expiresAt?: string | null, createdAt: string }> };
+
+export type ListWebhooksQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListWebhooksQuery = { __typename?: 'Query', webhookEvents: Array<string>, listWebhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, events: Array<string>, active: boolean, createdBy: string, lastDeliveredAt?: string | null, failureCount: number, createdAt: string }> };
+
+export type ListWebhookDeliveriesQueryVariables = Exact<{
+  webhookId: Scalars['ID']['input'];
+}>;
+
+
+export type ListWebhookDeliveriesQuery = { __typename?: 'Query', listWebhookDeliveries: Array<{ __typename?: 'WebhookDelivery', id: string, event: string, status: string, attempts: number, responseStatus?: number | null, error: string, nextAttemptAt: string, deliveredAt?: string | null, createdAt: string }> };
+
+export type CreateApiKeyMutationVariables = Exact<{
+  name: Scalars['String']['input'];
+  roles: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type CreateApiKeyMutation = { __typename?: 'Mutation', createApiKey: { __typename?: 'IssuedApiKey', key: string, apiKey: { __typename?: 'ApiKey', id: string, name: string, prefix: string, roles: Array<string>, createdBy: string, lastUsedAt?: string | null, revokedAt?: string | null, expiresAt?: string | null, createdAt: string } } };
+
+export type RevokeApiKeyMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type RevokeApiKeyMutation = { __typename?: 'Mutation', revokeApiKey: { __typename?: 'ApiKey', id: string, name: string, prefix: string, roles: Array<string>, createdBy: string, lastUsedAt?: string | null, revokedAt?: string | null, expiresAt?: string | null, createdAt: string } };
+
+export type CreateWebhookMutationVariables = Exact<{
+  name: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+  events: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type CreateWebhookMutation = { __typename?: 'Mutation', createWebhook: { __typename?: 'CreatedWebhook', secret: string, webhook: { __typename?: 'Webhook', id: string, name: string, url: string, events: Array<string>, active: boolean, createdBy: string, lastDeliveredAt?: string | null, failureCount: number, createdAt: string } } };
+
+export type SetWebhookActiveMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  active: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetWebhookActiveMutation = { __typename?: 'Mutation', setWebhookActive: { __typename?: 'Webhook', id: string, name: string, url: string, events: Array<string>, active: boolean, createdBy: string, lastDeliveredAt?: string | null, failureCount: number, createdAt: string } };
+
+export type DeleteWebhookMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteWebhookMutation = { __typename?: 'Mutation', deleteWebhook: boolean };
+
 export type ListContractsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -11615,6 +12097,13 @@ export type UnsubscribeFromMarketingMutationVariables = Exact<{
 
 
 export type UnsubscribeFromMarketingMutation = { __typename?: 'Mutation', unsubscribeFromMarketing: boolean };
+
+export type CampaignMetricsQueryVariables = Exact<{
+  campaignId: Scalars['ID']['input'];
+}>;
+
+
+export type CampaignMetricsQuery = { __typename?: 'Query', campaignMetrics: { __typename?: 'CampaignMetrics', campaignId: string, sent: number, opened: number, clicked: number, totalOpens: number, totalClicks: number, openRate: number, clickRate: number, clickThroughRate: number }, campaignTopLinks: Array<{ __typename?: 'CampaignLinkStat', url: string, clicks: number, people: number }> };
 
 export type OnboardingTemplateFieldsFragment = { __typename?: 'OnboardingTemplate', id: string, name: string, active: boolean, taskCount: number, createdAt: string, tasks: Array<{ __typename?: 'OnboardingTask', key: string, label: string, owner: OnboardingOwner, dueDaysFromJoin: number }> };
 
@@ -12262,6 +12751,50 @@ export type InventoryValueQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type InventoryValueQuery = { __typename?: 'Query', inventoryValue: number };
+
+export type PurchaseOrderFieldsFragment = { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> };
+
+export type ListPurchaseOrdersPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListPurchaseOrdersPagedQuery = { __typename?: 'Query', listPurchaseOrdersPaged: { __typename?: 'PurchaseOrderPage', totalCount: number, rows: Array<{ __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> }> } };
+
+export type ListPurchaseOrdersStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListPurchaseOrdersStatsQuery = { __typename?: 'Query', listPurchaseOrdersStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreatePurchaseOrderMutationVariables = Exact<{
+  input: PurchaseOrderInput;
+}>;
+
+
+export type CreatePurchaseOrderMutation = { __typename?: 'Mutation', createPurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
+
+export type UpdatePurchaseOrderMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: PurchaseOrderInput;
+}>;
+
+
+export type UpdatePurchaseOrderMutation = { __typename?: 'Mutation', updatePurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
+
+export type DeletePurchaseOrderMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeletePurchaseOrderMutation = { __typename?: 'Mutation', deletePurchaseOrder: boolean };
+
+export type ReceivePurchaseOrderMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  lines: Array<PurchaseReceiptLineInput> | PurchaseReceiptLineInput;
+}>;
+
+
+export type ReceivePurchaseOrderMutation = { __typename?: 'Mutation', receivePurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
 
 export type UpdateProfileMutationVariables = Exact<{
   input: UpdateProfileInput;
@@ -14069,6 +14602,35 @@ export const InvoiceFieldsFragmentDoc = gql`
   igst
 }
     `;
+export const RecurringInvoiceFieldsFragmentDoc = gql`
+    fragment RecurringInvoiceFields on RecurringInvoice {
+  id
+  name
+  clientId
+  clientName
+  lines {
+    description
+    quantity
+    rate
+    taxPercent
+    hsnSac
+    amount
+  }
+  amount
+  currency
+  placeOfSupplyStateCode
+  frequency
+  startDate
+  nextRunAt
+  endDate
+  dueDays
+  active
+  lastGeneratedAt
+  generatedCount
+  createdAt
+  updatedAt
+}
+    `;
 export const LeaveFieldsFragmentDoc = gql`
     fragment LeaveFields on LeaveRequest {
   id
@@ -14112,6 +14674,32 @@ export const LeaveBalanceFieldsFragmentDoc = gql`
   used
   adjustment
   available
+}
+    `;
+export const ApiKeyFieldsFragmentDoc = gql`
+    fragment ApiKeyFields on ApiKey {
+  id
+  name
+  prefix
+  roles
+  createdBy
+  lastUsedAt
+  revokedAt
+  expiresAt
+  createdAt
+}
+    `;
+export const WebhookFieldsFragmentDoc = gql`
+    fragment WebhookFields on Webhook {
+  id
+  name
+  url
+  events
+  active
+  createdBy
+  lastDeliveredAt
+  failureCount
+  createdAt
 }
     `;
 export const LicenceFieldsFragmentDoc = gql`
@@ -14298,6 +14886,31 @@ export const StockMovementFieldsFragmentDoc = gql`
   notes
   recordedBy
   createdAt
+}
+    `;
+export const PurchaseOrderFieldsFragmentDoc = gql`
+    fragment PurchaseOrderFields on PurchaseOrder {
+  id
+  number
+  supplierId
+  supplierName
+  lines {
+    productId
+    productName
+    quantity
+    unitCost
+    taxPercent
+    receivedQuantity
+  }
+  total
+  currency
+  status
+  orderDate
+  expectedDate
+  notes
+  receivedAt
+  createdAt
+  updatedAt
 }
     `;
 export const DocPageFieldsFragmentDoc = gql`
@@ -24550,6 +25163,183 @@ export function useCreateInvoiceFromDealMutation(baseOptions?: Apollo.MutationHo
 export type CreateInvoiceFromDealMutationHookResult = ReturnType<typeof useCreateInvoiceFromDealMutation>;
 export type CreateInvoiceFromDealMutationResult = Apollo.MutationResult<CreateInvoiceFromDealMutation>;
 export type CreateInvoiceFromDealMutationOptions = Apollo.BaseMutationOptions<CreateInvoiceFromDealMutation, CreateInvoiceFromDealMutationVariables>;
+export const ListRecurringInvoicesPagedDocument = gql`
+    query ListRecurringInvoicesPaged($input: TableQueryInput!) {
+  listRecurringInvoicesPaged(input: $input) {
+    rows {
+      ...RecurringInvoiceFields
+    }
+    totalCount
+  }
+}
+    ${RecurringInvoiceFieldsFragmentDoc}`;
+
+/**
+ * __useListRecurringInvoicesPagedQuery__
+ *
+ * To run a query within a React component, call `useListRecurringInvoicesPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListRecurringInvoicesPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListRecurringInvoicesPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListRecurringInvoicesPagedQuery(baseOptions: Apollo.QueryHookOptions<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables> & ({ variables: ListRecurringInvoicesPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>(ListRecurringInvoicesPagedDocument, options);
+      }
+export function useListRecurringInvoicesPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>(ListRecurringInvoicesPagedDocument, options);
+        }
+// @ts-ignore
+export function useListRecurringInvoicesPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>;
+export function useListRecurringInvoicesPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListRecurringInvoicesPagedQuery | undefined, ListRecurringInvoicesPagedQueryVariables>;
+export function useListRecurringInvoicesPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>(ListRecurringInvoicesPagedDocument, options);
+        }
+export type ListRecurringInvoicesPagedQueryHookResult = ReturnType<typeof useListRecurringInvoicesPagedQuery>;
+export type ListRecurringInvoicesPagedLazyQueryHookResult = ReturnType<typeof useListRecurringInvoicesPagedLazyQuery>;
+export type ListRecurringInvoicesPagedSuspenseQueryHookResult = ReturnType<typeof useListRecurringInvoicesPagedSuspenseQuery>;
+export type ListRecurringInvoicesPagedQueryResult = Apollo.QueryResult<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>;
+export const CreateRecurringInvoiceDocument = gql`
+    mutation CreateRecurringInvoice($input: RecurringInvoiceInput!) {
+  createRecurringInvoice(input: $input) {
+    ...RecurringInvoiceFields
+  }
+}
+    ${RecurringInvoiceFieldsFragmentDoc}`;
+export type CreateRecurringInvoiceMutationFn = Apollo.MutationFunction<CreateRecurringInvoiceMutation, CreateRecurringInvoiceMutationVariables>;
+
+/**
+ * __useCreateRecurringInvoiceMutation__
+ *
+ * To run a mutation, you first call `useCreateRecurringInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRecurringInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createRecurringInvoiceMutation, { data, loading, error }] = useCreateRecurringInvoiceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateRecurringInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<CreateRecurringInvoiceMutation, CreateRecurringInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateRecurringInvoiceMutation, CreateRecurringInvoiceMutationVariables>(CreateRecurringInvoiceDocument, options);
+      }
+export type CreateRecurringInvoiceMutationHookResult = ReturnType<typeof useCreateRecurringInvoiceMutation>;
+export type CreateRecurringInvoiceMutationResult = Apollo.MutationResult<CreateRecurringInvoiceMutation>;
+export type CreateRecurringInvoiceMutationOptions = Apollo.BaseMutationOptions<CreateRecurringInvoiceMutation, CreateRecurringInvoiceMutationVariables>;
+export const UpdateRecurringInvoiceDocument = gql`
+    mutation UpdateRecurringInvoice($id: ID!, $input: RecurringInvoiceInput!) {
+  updateRecurringInvoice(id: $id, input: $input) {
+    ...RecurringInvoiceFields
+  }
+}
+    ${RecurringInvoiceFieldsFragmentDoc}`;
+export type UpdateRecurringInvoiceMutationFn = Apollo.MutationFunction<UpdateRecurringInvoiceMutation, UpdateRecurringInvoiceMutationVariables>;
+
+/**
+ * __useUpdateRecurringInvoiceMutation__
+ *
+ * To run a mutation, you first call `useUpdateRecurringInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateRecurringInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateRecurringInvoiceMutation, { data, loading, error }] = useUpdateRecurringInvoiceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateRecurringInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateRecurringInvoiceMutation, UpdateRecurringInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateRecurringInvoiceMutation, UpdateRecurringInvoiceMutationVariables>(UpdateRecurringInvoiceDocument, options);
+      }
+export type UpdateRecurringInvoiceMutationHookResult = ReturnType<typeof useUpdateRecurringInvoiceMutation>;
+export type UpdateRecurringInvoiceMutationResult = Apollo.MutationResult<UpdateRecurringInvoiceMutation>;
+export type UpdateRecurringInvoiceMutationOptions = Apollo.BaseMutationOptions<UpdateRecurringInvoiceMutation, UpdateRecurringInvoiceMutationVariables>;
+export const DeleteRecurringInvoiceDocument = gql`
+    mutation DeleteRecurringInvoice($id: ID!) {
+  deleteRecurringInvoice(id: $id)
+}
+    `;
+export type DeleteRecurringInvoiceMutationFn = Apollo.MutationFunction<DeleteRecurringInvoiceMutation, DeleteRecurringInvoiceMutationVariables>;
+
+/**
+ * __useDeleteRecurringInvoiceMutation__
+ *
+ * To run a mutation, you first call `useDeleteRecurringInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteRecurringInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteRecurringInvoiceMutation, { data, loading, error }] = useDeleteRecurringInvoiceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteRecurringInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<DeleteRecurringInvoiceMutation, DeleteRecurringInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteRecurringInvoiceMutation, DeleteRecurringInvoiceMutationVariables>(DeleteRecurringInvoiceDocument, options);
+      }
+export type DeleteRecurringInvoiceMutationHookResult = ReturnType<typeof useDeleteRecurringInvoiceMutation>;
+export type DeleteRecurringInvoiceMutationResult = Apollo.MutationResult<DeleteRecurringInvoiceMutation>;
+export type DeleteRecurringInvoiceMutationOptions = Apollo.BaseMutationOptions<DeleteRecurringInvoiceMutation, DeleteRecurringInvoiceMutationVariables>;
+export const RunRecurringInvoiceNowDocument = gql`
+    mutation RunRecurringInvoiceNow($id: ID!) {
+  runRecurringInvoiceNow(id: $id) {
+    ...RecurringInvoiceFields
+  }
+}
+    ${RecurringInvoiceFieldsFragmentDoc}`;
+export type RunRecurringInvoiceNowMutationFn = Apollo.MutationFunction<RunRecurringInvoiceNowMutation, RunRecurringInvoiceNowMutationVariables>;
+
+/**
+ * __useRunRecurringInvoiceNowMutation__
+ *
+ * To run a mutation, you first call `useRunRecurringInvoiceNowMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRunRecurringInvoiceNowMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [runRecurringInvoiceNowMutation, { data, loading, error }] = useRunRecurringInvoiceNowMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRunRecurringInvoiceNowMutation(baseOptions?: Apollo.MutationHookOptions<RunRecurringInvoiceNowMutation, RunRecurringInvoiceNowMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RunRecurringInvoiceNowMutation, RunRecurringInvoiceNowMutationVariables>(RunRecurringInvoiceNowDocument, options);
+      }
+export type RunRecurringInvoiceNowMutationHookResult = ReturnType<typeof useRunRecurringInvoiceNowMutation>;
+export type RunRecurringInvoiceNowMutationResult = Apollo.MutationResult<RunRecurringInvoiceNowMutation>;
+export type RunRecurringInvoiceNowMutationOptions = Apollo.BaseMutationOptions<RunRecurringInvoiceNowMutation, RunRecurringInvoiceNowMutationVariables>;
 export const SystemHealthDocument = gql`
     query SystemHealth {
   systemHealth {
@@ -26712,6 +27502,315 @@ export type DockerStorageQueryHookResult = ReturnType<typeof useDockerStorageQue
 export type DockerStorageLazyQueryHookResult = ReturnType<typeof useDockerStorageLazyQuery>;
 export type DockerStorageSuspenseQueryHookResult = ReturnType<typeof useDockerStorageSuspenseQuery>;
 export type DockerStorageQueryResult = Apollo.QueryResult<DockerStorageQuery, DockerStorageQueryVariables>;
+export const ListApiKeysDocument = gql`
+    query ListApiKeys {
+  listApiKeys {
+    ...ApiKeyFields
+  }
+}
+    ${ApiKeyFieldsFragmentDoc}`;
+
+/**
+ * __useListApiKeysQuery__
+ *
+ * To run a query within a React component, call `useListApiKeysQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListApiKeysQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListApiKeysQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListApiKeysQuery(baseOptions?: Apollo.QueryHookOptions<ListApiKeysQuery, ListApiKeysQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListApiKeysQuery, ListApiKeysQueryVariables>(ListApiKeysDocument, options);
+      }
+export function useListApiKeysLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListApiKeysQuery, ListApiKeysQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListApiKeysQuery, ListApiKeysQueryVariables>(ListApiKeysDocument, options);
+        }
+// @ts-ignore
+export function useListApiKeysSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListApiKeysQuery, ListApiKeysQueryVariables>): Apollo.UseSuspenseQueryResult<ListApiKeysQuery, ListApiKeysQueryVariables>;
+export function useListApiKeysSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListApiKeysQuery, ListApiKeysQueryVariables>): Apollo.UseSuspenseQueryResult<ListApiKeysQuery | undefined, ListApiKeysQueryVariables>;
+export function useListApiKeysSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListApiKeysQuery, ListApiKeysQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListApiKeysQuery, ListApiKeysQueryVariables>(ListApiKeysDocument, options);
+        }
+export type ListApiKeysQueryHookResult = ReturnType<typeof useListApiKeysQuery>;
+export type ListApiKeysLazyQueryHookResult = ReturnType<typeof useListApiKeysLazyQuery>;
+export type ListApiKeysSuspenseQueryHookResult = ReturnType<typeof useListApiKeysSuspenseQuery>;
+export type ListApiKeysQueryResult = Apollo.QueryResult<ListApiKeysQuery, ListApiKeysQueryVariables>;
+export const ListWebhooksDocument = gql`
+    query ListWebhooks {
+  listWebhooks {
+    ...WebhookFields
+  }
+  webhookEvents
+}
+    ${WebhookFieldsFragmentDoc}`;
+
+/**
+ * __useListWebhooksQuery__
+ *
+ * To run a query within a React component, call `useListWebhooksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListWebhooksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListWebhooksQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListWebhooksQuery(baseOptions?: Apollo.QueryHookOptions<ListWebhooksQuery, ListWebhooksQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListWebhooksQuery, ListWebhooksQueryVariables>(ListWebhooksDocument, options);
+      }
+export function useListWebhooksLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListWebhooksQuery, ListWebhooksQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListWebhooksQuery, ListWebhooksQueryVariables>(ListWebhooksDocument, options);
+        }
+// @ts-ignore
+export function useListWebhooksSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListWebhooksQuery, ListWebhooksQueryVariables>): Apollo.UseSuspenseQueryResult<ListWebhooksQuery, ListWebhooksQueryVariables>;
+export function useListWebhooksSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListWebhooksQuery, ListWebhooksQueryVariables>): Apollo.UseSuspenseQueryResult<ListWebhooksQuery | undefined, ListWebhooksQueryVariables>;
+export function useListWebhooksSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListWebhooksQuery, ListWebhooksQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListWebhooksQuery, ListWebhooksQueryVariables>(ListWebhooksDocument, options);
+        }
+export type ListWebhooksQueryHookResult = ReturnType<typeof useListWebhooksQuery>;
+export type ListWebhooksLazyQueryHookResult = ReturnType<typeof useListWebhooksLazyQuery>;
+export type ListWebhooksSuspenseQueryHookResult = ReturnType<typeof useListWebhooksSuspenseQuery>;
+export type ListWebhooksQueryResult = Apollo.QueryResult<ListWebhooksQuery, ListWebhooksQueryVariables>;
+export const ListWebhookDeliveriesDocument = gql`
+    query ListWebhookDeliveries($webhookId: ID!) {
+  listWebhookDeliveries(webhookId: $webhookId) {
+    id
+    event
+    status
+    attempts
+    responseStatus
+    error
+    nextAttemptAt
+    deliveredAt
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useListWebhookDeliveriesQuery__
+ *
+ * To run a query within a React component, call `useListWebhookDeliveriesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListWebhookDeliveriesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListWebhookDeliveriesQuery({
+ *   variables: {
+ *      webhookId: // value for 'webhookId'
+ *   },
+ * });
+ */
+export function useListWebhookDeliveriesQuery(baseOptions: Apollo.QueryHookOptions<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables> & ({ variables: ListWebhookDeliveriesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>(ListWebhookDeliveriesDocument, options);
+      }
+export function useListWebhookDeliveriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>(ListWebhookDeliveriesDocument, options);
+        }
+// @ts-ignore
+export function useListWebhookDeliveriesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>): Apollo.UseSuspenseQueryResult<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>;
+export function useListWebhookDeliveriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>): Apollo.UseSuspenseQueryResult<ListWebhookDeliveriesQuery | undefined, ListWebhookDeliveriesQueryVariables>;
+export function useListWebhookDeliveriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>(ListWebhookDeliveriesDocument, options);
+        }
+export type ListWebhookDeliveriesQueryHookResult = ReturnType<typeof useListWebhookDeliveriesQuery>;
+export type ListWebhookDeliveriesLazyQueryHookResult = ReturnType<typeof useListWebhookDeliveriesLazyQuery>;
+export type ListWebhookDeliveriesSuspenseQueryHookResult = ReturnType<typeof useListWebhookDeliveriesSuspenseQuery>;
+export type ListWebhookDeliveriesQueryResult = Apollo.QueryResult<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>;
+export const CreateApiKeyDocument = gql`
+    mutation CreateApiKey($name: String!, $roles: [String!]!) {
+  createApiKey(name: $name, roles: $roles) {
+    key
+    apiKey {
+      ...ApiKeyFields
+    }
+  }
+}
+    ${ApiKeyFieldsFragmentDoc}`;
+export type CreateApiKeyMutationFn = Apollo.MutationFunction<CreateApiKeyMutation, CreateApiKeyMutationVariables>;
+
+/**
+ * __useCreateApiKeyMutation__
+ *
+ * To run a mutation, you first call `useCreateApiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateApiKeyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createApiKeyMutation, { data, loading, error }] = useCreateApiKeyMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *      roles: // value for 'roles'
+ *   },
+ * });
+ */
+export function useCreateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<CreateApiKeyMutation, CreateApiKeyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateApiKeyMutation, CreateApiKeyMutationVariables>(CreateApiKeyDocument, options);
+      }
+export type CreateApiKeyMutationHookResult = ReturnType<typeof useCreateApiKeyMutation>;
+export type CreateApiKeyMutationResult = Apollo.MutationResult<CreateApiKeyMutation>;
+export type CreateApiKeyMutationOptions = Apollo.BaseMutationOptions<CreateApiKeyMutation, CreateApiKeyMutationVariables>;
+export const RevokeApiKeyDocument = gql`
+    mutation RevokeApiKey($id: ID!) {
+  revokeApiKey(id: $id) {
+    ...ApiKeyFields
+  }
+}
+    ${ApiKeyFieldsFragmentDoc}`;
+export type RevokeApiKeyMutationFn = Apollo.MutationFunction<RevokeApiKeyMutation, RevokeApiKeyMutationVariables>;
+
+/**
+ * __useRevokeApiKeyMutation__
+ *
+ * To run a mutation, you first call `useRevokeApiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevokeApiKeyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revokeApiKeyMutation, { data, loading, error }] = useRevokeApiKeyMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRevokeApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<RevokeApiKeyMutation, RevokeApiKeyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RevokeApiKeyMutation, RevokeApiKeyMutationVariables>(RevokeApiKeyDocument, options);
+      }
+export type RevokeApiKeyMutationHookResult = ReturnType<typeof useRevokeApiKeyMutation>;
+export type RevokeApiKeyMutationResult = Apollo.MutationResult<RevokeApiKeyMutation>;
+export type RevokeApiKeyMutationOptions = Apollo.BaseMutationOptions<RevokeApiKeyMutation, RevokeApiKeyMutationVariables>;
+export const CreateWebhookDocument = gql`
+    mutation CreateWebhook($name: String!, $url: String!, $events: [String!]!) {
+  createWebhook(name: $name, url: $url, events: $events) {
+    secret
+    webhook {
+      ...WebhookFields
+    }
+  }
+}
+    ${WebhookFieldsFragmentDoc}`;
+export type CreateWebhookMutationFn = Apollo.MutationFunction<CreateWebhookMutation, CreateWebhookMutationVariables>;
+
+/**
+ * __useCreateWebhookMutation__
+ *
+ * To run a mutation, you first call `useCreateWebhookMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateWebhookMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createWebhookMutation, { data, loading, error }] = useCreateWebhookMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *      url: // value for 'url'
+ *      events: // value for 'events'
+ *   },
+ * });
+ */
+export function useCreateWebhookMutation(baseOptions?: Apollo.MutationHookOptions<CreateWebhookMutation, CreateWebhookMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateWebhookMutation, CreateWebhookMutationVariables>(CreateWebhookDocument, options);
+      }
+export type CreateWebhookMutationHookResult = ReturnType<typeof useCreateWebhookMutation>;
+export type CreateWebhookMutationResult = Apollo.MutationResult<CreateWebhookMutation>;
+export type CreateWebhookMutationOptions = Apollo.BaseMutationOptions<CreateWebhookMutation, CreateWebhookMutationVariables>;
+export const SetWebhookActiveDocument = gql`
+    mutation SetWebhookActive($id: ID!, $active: Boolean!) {
+  setWebhookActive(id: $id, active: $active) {
+    ...WebhookFields
+  }
+}
+    ${WebhookFieldsFragmentDoc}`;
+export type SetWebhookActiveMutationFn = Apollo.MutationFunction<SetWebhookActiveMutation, SetWebhookActiveMutationVariables>;
+
+/**
+ * __useSetWebhookActiveMutation__
+ *
+ * To run a mutation, you first call `useSetWebhookActiveMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetWebhookActiveMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setWebhookActiveMutation, { data, loading, error }] = useSetWebhookActiveMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      active: // value for 'active'
+ *   },
+ * });
+ */
+export function useSetWebhookActiveMutation(baseOptions?: Apollo.MutationHookOptions<SetWebhookActiveMutation, SetWebhookActiveMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetWebhookActiveMutation, SetWebhookActiveMutationVariables>(SetWebhookActiveDocument, options);
+      }
+export type SetWebhookActiveMutationHookResult = ReturnType<typeof useSetWebhookActiveMutation>;
+export type SetWebhookActiveMutationResult = Apollo.MutationResult<SetWebhookActiveMutation>;
+export type SetWebhookActiveMutationOptions = Apollo.BaseMutationOptions<SetWebhookActiveMutation, SetWebhookActiveMutationVariables>;
+export const DeleteWebhookDocument = gql`
+    mutation DeleteWebhook($id: ID!) {
+  deleteWebhook(id: $id)
+}
+    `;
+export type DeleteWebhookMutationFn = Apollo.MutationFunction<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
+
+/**
+ * __useDeleteWebhookMutation__
+ *
+ * To run a mutation, you first call `useDeleteWebhookMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteWebhookMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteWebhookMutation, { data, loading, error }] = useDeleteWebhookMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteWebhookMutation(baseOptions?: Apollo.MutationHookOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteWebhookMutation, DeleteWebhookMutationVariables>(DeleteWebhookDocument, options);
+      }
+export type DeleteWebhookMutationHookResult = ReturnType<typeof useDeleteWebhookMutation>;
+export type DeleteWebhookMutationResult = Apollo.MutationResult<DeleteWebhookMutation>;
+export type DeleteWebhookMutationOptions = Apollo.BaseMutationOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
 export const ListContractsDocument = gql`
     query ListContracts {
   listContracts {
@@ -28540,6 +29639,62 @@ export function useUnsubscribeFromMarketingMutation(baseOptions?: Apollo.Mutatio
 export type UnsubscribeFromMarketingMutationHookResult = ReturnType<typeof useUnsubscribeFromMarketingMutation>;
 export type UnsubscribeFromMarketingMutationResult = Apollo.MutationResult<UnsubscribeFromMarketingMutation>;
 export type UnsubscribeFromMarketingMutationOptions = Apollo.BaseMutationOptions<UnsubscribeFromMarketingMutation, UnsubscribeFromMarketingMutationVariables>;
+export const CampaignMetricsDocument = gql`
+    query CampaignMetrics($campaignId: ID!) {
+  campaignMetrics(campaignId: $campaignId) {
+    campaignId
+    sent
+    opened
+    clicked
+    totalOpens
+    totalClicks
+    openRate
+    clickRate
+    clickThroughRate
+  }
+  campaignTopLinks(campaignId: $campaignId) {
+    url
+    clicks
+    people
+  }
+}
+    `;
+
+/**
+ * __useCampaignMetricsQuery__
+ *
+ * To run a query within a React component, call `useCampaignMetricsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCampaignMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCampaignMetricsQuery({
+ *   variables: {
+ *      campaignId: // value for 'campaignId'
+ *   },
+ * });
+ */
+export function useCampaignMetricsQuery(baseOptions: Apollo.QueryHookOptions<CampaignMetricsQuery, CampaignMetricsQueryVariables> & ({ variables: CampaignMetricsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CampaignMetricsQuery, CampaignMetricsQueryVariables>(CampaignMetricsDocument, options);
+      }
+export function useCampaignMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CampaignMetricsQuery, CampaignMetricsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CampaignMetricsQuery, CampaignMetricsQueryVariables>(CampaignMetricsDocument, options);
+        }
+// @ts-ignore
+export function useCampaignMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CampaignMetricsQuery, CampaignMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<CampaignMetricsQuery, CampaignMetricsQueryVariables>;
+export function useCampaignMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CampaignMetricsQuery, CampaignMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<CampaignMetricsQuery | undefined, CampaignMetricsQueryVariables>;
+export function useCampaignMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CampaignMetricsQuery, CampaignMetricsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CampaignMetricsQuery, CampaignMetricsQueryVariables>(CampaignMetricsDocument, options);
+        }
+export type CampaignMetricsQueryHookResult = ReturnType<typeof useCampaignMetricsQuery>;
+export type CampaignMetricsLazyQueryHookResult = ReturnType<typeof useCampaignMetricsLazyQuery>;
+export type CampaignMetricsSuspenseQueryHookResult = ReturnType<typeof useCampaignMetricsSuspenseQuery>;
+export type CampaignMetricsQueryResult = Apollo.QueryResult<CampaignMetricsQuery, CampaignMetricsQueryVariables>;
 export const ListOnboardingTemplatesDocument = gql`
     query ListOnboardingTemplates {
   listOnboardingTemplates {
@@ -32375,6 +33530,237 @@ export type InventoryValueQueryHookResult = ReturnType<typeof useInventoryValueQ
 export type InventoryValueLazyQueryHookResult = ReturnType<typeof useInventoryValueLazyQuery>;
 export type InventoryValueSuspenseQueryHookResult = ReturnType<typeof useInventoryValueSuspenseQuery>;
 export type InventoryValueQueryResult = Apollo.QueryResult<InventoryValueQuery, InventoryValueQueryVariables>;
+export const ListPurchaseOrdersPagedDocument = gql`
+    query ListPurchaseOrdersPaged($input: TableQueryInput!) {
+  listPurchaseOrdersPaged(input: $input) {
+    rows {
+      ...PurchaseOrderFields
+    }
+    totalCount
+  }
+}
+    ${PurchaseOrderFieldsFragmentDoc}`;
+
+/**
+ * __useListPurchaseOrdersPagedQuery__
+ *
+ * To run a query within a React component, call `useListPurchaseOrdersPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPurchaseOrdersPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPurchaseOrdersPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListPurchaseOrdersPagedQuery(baseOptions: Apollo.QueryHookOptions<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables> & ({ variables: ListPurchaseOrdersPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>(ListPurchaseOrdersPagedDocument, options);
+      }
+export function useListPurchaseOrdersPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>(ListPurchaseOrdersPagedDocument, options);
+        }
+// @ts-ignore
+export function useListPurchaseOrdersPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>;
+export function useListPurchaseOrdersPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListPurchaseOrdersPagedQuery | undefined, ListPurchaseOrdersPagedQueryVariables>;
+export function useListPurchaseOrdersPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>(ListPurchaseOrdersPagedDocument, options);
+        }
+export type ListPurchaseOrdersPagedQueryHookResult = ReturnType<typeof useListPurchaseOrdersPagedQuery>;
+export type ListPurchaseOrdersPagedLazyQueryHookResult = ReturnType<typeof useListPurchaseOrdersPagedLazyQuery>;
+export type ListPurchaseOrdersPagedSuspenseQueryHookResult = ReturnType<typeof useListPurchaseOrdersPagedSuspenseQuery>;
+export type ListPurchaseOrdersPagedQueryResult = Apollo.QueryResult<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>;
+export const ListPurchaseOrdersStatsDocument = gql`
+    query ListPurchaseOrdersStats {
+  listPurchaseOrdersStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListPurchaseOrdersStatsQuery__
+ *
+ * To run a query within a React component, call `useListPurchaseOrdersStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPurchaseOrdersStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPurchaseOrdersStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListPurchaseOrdersStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>(ListPurchaseOrdersStatsDocument, options);
+      }
+export function useListPurchaseOrdersStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>(ListPurchaseOrdersStatsDocument, options);
+        }
+// @ts-ignore
+export function useListPurchaseOrdersStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>;
+export function useListPurchaseOrdersStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListPurchaseOrdersStatsQuery | undefined, ListPurchaseOrdersStatsQueryVariables>;
+export function useListPurchaseOrdersStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>(ListPurchaseOrdersStatsDocument, options);
+        }
+export type ListPurchaseOrdersStatsQueryHookResult = ReturnType<typeof useListPurchaseOrdersStatsQuery>;
+export type ListPurchaseOrdersStatsLazyQueryHookResult = ReturnType<typeof useListPurchaseOrdersStatsLazyQuery>;
+export type ListPurchaseOrdersStatsSuspenseQueryHookResult = ReturnType<typeof useListPurchaseOrdersStatsSuspenseQuery>;
+export type ListPurchaseOrdersStatsQueryResult = Apollo.QueryResult<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>;
+export const CreatePurchaseOrderDocument = gql`
+    mutation CreatePurchaseOrder($input: PurchaseOrderInput!) {
+  createPurchaseOrder(input: $input) {
+    ...PurchaseOrderFields
+  }
+}
+    ${PurchaseOrderFieldsFragmentDoc}`;
+export type CreatePurchaseOrderMutationFn = Apollo.MutationFunction<CreatePurchaseOrderMutation, CreatePurchaseOrderMutationVariables>;
+
+/**
+ * __useCreatePurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useCreatePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPurchaseOrderMutation, { data, loading, error }] = useCreatePurchaseOrderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePurchaseOrderMutation(baseOptions?: Apollo.MutationHookOptions<CreatePurchaseOrderMutation, CreatePurchaseOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePurchaseOrderMutation, CreatePurchaseOrderMutationVariables>(CreatePurchaseOrderDocument, options);
+      }
+export type CreatePurchaseOrderMutationHookResult = ReturnType<typeof useCreatePurchaseOrderMutation>;
+export type CreatePurchaseOrderMutationResult = Apollo.MutationResult<CreatePurchaseOrderMutation>;
+export type CreatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<CreatePurchaseOrderMutation, CreatePurchaseOrderMutationVariables>;
+export const UpdatePurchaseOrderDocument = gql`
+    mutation UpdatePurchaseOrder($id: ID!, $input: PurchaseOrderInput!) {
+  updatePurchaseOrder(id: $id, input: $input) {
+    ...PurchaseOrderFields
+  }
+}
+    ${PurchaseOrderFieldsFragmentDoc}`;
+export type UpdatePurchaseOrderMutationFn = Apollo.MutationFunction<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>;
+
+/**
+ * __useUpdatePurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdatePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePurchaseOrderMutation, { data, loading, error }] = useUpdatePurchaseOrderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePurchaseOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>(UpdatePurchaseOrderDocument, options);
+      }
+export type UpdatePurchaseOrderMutationHookResult = ReturnType<typeof useUpdatePurchaseOrderMutation>;
+export type UpdatePurchaseOrderMutationResult = Apollo.MutationResult<UpdatePurchaseOrderMutation>;
+export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>;
+export const DeletePurchaseOrderDocument = gql`
+    mutation DeletePurchaseOrder($id: ID!) {
+  deletePurchaseOrder(id: $id)
+}
+    `;
+export type DeletePurchaseOrderMutationFn = Apollo.MutationFunction<DeletePurchaseOrderMutation, DeletePurchaseOrderMutationVariables>;
+
+/**
+ * __useDeletePurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useDeletePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePurchaseOrderMutation, { data, loading, error }] = useDeletePurchaseOrderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePurchaseOrderMutation(baseOptions?: Apollo.MutationHookOptions<DeletePurchaseOrderMutation, DeletePurchaseOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePurchaseOrderMutation, DeletePurchaseOrderMutationVariables>(DeletePurchaseOrderDocument, options);
+      }
+export type DeletePurchaseOrderMutationHookResult = ReturnType<typeof useDeletePurchaseOrderMutation>;
+export type DeletePurchaseOrderMutationResult = Apollo.MutationResult<DeletePurchaseOrderMutation>;
+export type DeletePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<DeletePurchaseOrderMutation, DeletePurchaseOrderMutationVariables>;
+export const ReceivePurchaseOrderDocument = gql`
+    mutation ReceivePurchaseOrder($id: ID!, $lines: [PurchaseReceiptLineInput!]!) {
+  receivePurchaseOrder(id: $id, lines: $lines) {
+    ...PurchaseOrderFields
+  }
+}
+    ${PurchaseOrderFieldsFragmentDoc}`;
+export type ReceivePurchaseOrderMutationFn = Apollo.MutationFunction<ReceivePurchaseOrderMutation, ReceivePurchaseOrderMutationVariables>;
+
+/**
+ * __useReceivePurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useReceivePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReceivePurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [receivePurchaseOrderMutation, { data, loading, error }] = useReceivePurchaseOrderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      lines: // value for 'lines'
+ *   },
+ * });
+ */
+export function useReceivePurchaseOrderMutation(baseOptions?: Apollo.MutationHookOptions<ReceivePurchaseOrderMutation, ReceivePurchaseOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ReceivePurchaseOrderMutation, ReceivePurchaseOrderMutationVariables>(ReceivePurchaseOrderDocument, options);
+      }
+export type ReceivePurchaseOrderMutationHookResult = ReturnType<typeof useReceivePurchaseOrderMutation>;
+export type ReceivePurchaseOrderMutationResult = Apollo.MutationResult<ReceivePurchaseOrderMutation>;
+export type ReceivePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<ReceivePurchaseOrderMutation, ReceivePurchaseOrderMutationVariables>;
 export const UpdateProfileDocument = gql`
     mutation UpdateProfile($input: UpdateProfileInput!) {
   updateProfile(input: $input) {

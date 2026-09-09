@@ -37,6 +37,8 @@ describe('systemHealth', () => {
       'payrollDispatch',
       'trackerRetention',
       'trackerDigest',
+      'recurringInvoices',
+      'webhookDelivery',
     ]);
     expect(health.counts.map((count) => count.label)).toEqual([
       'Users',

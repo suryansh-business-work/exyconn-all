@@ -42,6 +42,10 @@ export const productsInventoryTypeDefs = gql`
     quantity: Int!
     "The stock level after this movement."
     stockAfter: Int!
+    "What one unit cost. Only a receipt knows it; everything else is 0."
+    unitCost: Float!
+    "The purchase order this receipt came from, when it came from one."
+    purchaseOrderNumber: String!
     supplierId: String!
     supplierName: String!
     reference: String!

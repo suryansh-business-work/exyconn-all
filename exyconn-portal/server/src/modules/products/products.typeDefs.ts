@@ -19,6 +19,11 @@ export const productsTypeDefs = gql`
     status: ProductStatus!
     createdAt: DateTime!
     updatedAt: DateTime!
+    """
+    Weighted average of what the stock on the shelf cost, moved by every receipt. Zero for a
+    product that predates purchasing — its cost is genuinely unknown.
+    """
+    averageCost: Float!
   }
 
   input ProductInput {
@@ -42,7 +47,7 @@ export const productsTypeDefs = gql`
     listProductsPaged(input: TableQueryInput!): ProductPage!
     listProductsStats: TableStats!
     getProduct(id: ID!): Product!
-    "Sum of price × stock over ACTIVE products."
+    "What the stock on ACTIVE products cost: sum of averageCost × stock."
     inventoryValue: Float!
   }
 

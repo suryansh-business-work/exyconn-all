@@ -12,6 +12,8 @@ import {
   financeBillingResolvers,
   financeCompanyTypeDefs,
   financeCompanyResolvers,
+  financeRecurringTypeDefs,
+  recurringInvoiceResolvers,
 } from '../modules/finance';
 import { emailTypeDefs, emailResolvers } from '../modules/email';
 import { bugsTypeDefs, bugsResolvers } from '../modules/bugs';
@@ -23,11 +25,22 @@ import {
   licencesResolvers,
 } from '../modules/assets';
 import { crmEntitiesTypeDefs, crmEntitiesResolvers } from '../modules/crm';
-import { productsInventoryTypeDefs, productsInventoryResolvers } from '../modules/products';
+import {
+  productsInventoryTypeDefs,
+  productsInventoryResolvers,
+  productsPurchasingTypeDefs,
+  productsPurchasingResolvers,
+} from '../modules/products';
+import { integrationsTypeDefs, integrationsResolvers } from '../modules/integrations';
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
 import { employeeTypeDefs, employeeResolvers } from '../modules/employee';
 import { supportTypeDefs, supportResolvers } from '../modules/support';
-import { marketingTypeDefs, marketingResolvers } from '../modules/marketing';
+import {
+  marketingTypeDefs,
+  marketingResolvers,
+  marketingMetricsTypeDefs,
+  marketingMetricsResolvers,
+} from '../modules/marketing';
 import { legalTypeDefs, legalResolvers, policyTypeDefs, policyResolvers } from '../modules/legal';
 import { aiTypeDefs, aiResolvers } from '../modules/ai';
 import { crmTypeDefs, crmResolvers } from '../modules/crm';
@@ -101,6 +114,7 @@ export const typeDefs = [
   financeTypeDefs,
   financeBillingTypeDefs,
   financeCompanyTypeDefs,
+  financeRecurringTypeDefs,
   emailTypeDefs,
   policyTypeDefs,
   bugsTypeDefs,
@@ -109,10 +123,13 @@ export const typeDefs = [
   licencesTypeDefs,
   crmEntitiesTypeDefs,
   productsInventoryTypeDefs,
+  productsPurchasingTypeDefs,
+  integrationsTypeDefs,
   hrTypeDefs,
   employeeTypeDefs,
   supportTypeDefs,
   marketingTypeDefs,
+  marketingMetricsTypeDefs,
   legalTypeDefs,
   aiTypeDefs,
   crmTypeDefs,
@@ -156,6 +173,7 @@ export const resolvers = mergeResolvers([
   financeResolvers,
   financeBillingResolvers,
   financeCompanyResolvers,
+  recurringInvoiceResolvers,
   emailResolvers,
   policyResolvers,
   bugsResolvers,
@@ -164,10 +182,13 @@ export const resolvers = mergeResolvers([
   licencesResolvers,
   crmEntitiesResolvers,
   productsInventoryResolvers,
+  productsPurchasingResolvers,
+  integrationsResolvers,
   hrResolvers,
   employeeResolvers,
   supportResolvers,
   marketingResolvers,
+  marketingMetricsResolvers,
   legalResolvers,
   aiResolvers,
   productsResolvers,

@@ -8,6 +8,7 @@ import {
   withdrawnConsentReason,
 } from './marketing.suppression';
 import { AudienceListModel } from './audience.model';
+import { instrument, newTrackingToken } from './marketing.tracking';
 import type { CampaignModel } from './marketing.model';
 import { emailer } from '../email';
 import { mailer } from '../../utils/mailer';
@@ -38,6 +39,11 @@ export interface SendOutcome {
   recipientName: string;
   status: 'SENT' | 'FAILED' | 'SKIPPED';
   error: string;
+  /**
+   * SHA-256 of the opaque token in this copy's tracking links. Empty for a skipped
+   * recipient — nothing was sent, so there is nothing that could ever be opened.
+   */
+  trackingTokenHash?: string;
 }
 
 export interface SendCounts {
@@ -82,6 +88,8 @@ export function renderForMember(
   campaign: Pick<SendableCampaign, 'subject' | 'body'>,
   member: Pick<AudienceMember, 'email' | 'name' | 'company'>,
   unsubscribeUrl: string,
+  /** Where the tracking links point, and this copy's own token. Omitted = no tracking. */
+  tracking?: { origin: string; token: string },
 ): RenderedCampaign {
   const vars: MergeVars = {
     name: member.name,
@@ -90,9 +98,14 @@ export function renderForMember(
     unsubscribeUrl,
   };
   const merged = renderMergeFields(campaign.body, vars);
+  const withFooter = withUnsubscribeFooter(merged, unsubscribeUrl);
   return {
     subject: renderMergeFields(campaign.subject, vars),
-    body: withUnsubscribeFooter(merged, unsubscribeUrl),
+    // The unsubscribe link is exempt: a legal obligation must not stop working because the
+    // tracker is down.
+    body: tracking
+      ? instrument(withFooter, tracking.origin, tracking.token, [unsubscribeUrl])
+      : withFooter,
     vars,
   };
 }
@@ -125,10 +138,18 @@ async function sendOne(
   campaign: SendableCampaign,
   member: AudienceMember,
   unsubscribeUrl: string,
+  origin: string,
 ): Promise<SendOutcome> {
-  const base = { to: member.email, recipientName: member.name };
+  // One token per recipient per send, so an open can be attributed to a person — and only
+  // the hash is kept, so a copy of the log is not a set of working links.
+  const { token, tokenHash } = newTrackingToken();
+  const base = { to: member.email, recipientName: member.name, trackingTokenHash: tokenHash };
   try {
-    await deliver(campaign, member, renderForMember(campaign, member, unsubscribeUrl));
+    await deliver(
+      campaign,
+      member,
+      renderForMember(campaign, member, unsubscribeUrl, { origin, token }),
+    );
     return { ...base, status: 'SENT', error: '' };
   } catch (err) {
     logger.error({ err, email: member.email }, `Campaign "${campaign.name}" email failed`);
@@ -180,11 +201,12 @@ async function sendBatched(
   campaign: SendableCampaign,
   members: readonly AudienceMember[],
   links: ReadonlyMap<string, string>,
+  origin: string,
 ): Promise<SendOutcome[]> {
   const outcomes: SendOutcome[] = [];
   for (const batch of chunk(members, SEND_CONCURRENCY)) {
     const settled = await Promise.allSettled(
-      batch.map((member) => sendOne(campaign, member, links.get(member.email) ?? '')),
+      batch.map((member) => sendOne(campaign, member, links.get(member.email) ?? '', origin)),
     );
     for (const [index, result] of settled.entries()) {
       outcomes.push(
@@ -235,7 +257,10 @@ export async function sendToAudience(
     [...links].map(([email, token]) => [email, `${origin}/unsubscribe?t=${token}`]),
   );
 
-  const outcomes = [...skipped, ...(await sendBatched(campaign, deliverable, unsubscribeUrls))];
+  const outcomes = [
+    ...skipped,
+    ...(await sendBatched(campaign, deliverable, unsubscribeUrls, origin)),
+  ];
   await CampaignSendModel.insertMany(
     outcomes.map((outcome) => ({ ...outcome, campaignId, audienceListId })),
   );
@@ -258,7 +283,7 @@ export async function sendPreview(
     status: 'ACTIVE',
     kind: 'CLIENT',
   };
-  const outcome = await sendOne(campaign, member, `${origin}/unsubscribe?t=${token}`);
+  const outcome = await sendOne(campaign, member, `${origin}/unsubscribe?t=${token}`, origin);
   if (outcome.status !== 'SENT') {
     badRequest(`Test email to ${email} failed: ${outcome.error}`);
   }

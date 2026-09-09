@@ -3,6 +3,7 @@ import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { CampaignAttribution } from './CampaignAttribution';
+import { CampaignEngagement } from './CampaignEngagement';
 import { CampaignDeliveryLog } from './CampaignDeliveryLog';
 import type { CampaignRow } from './forms/campaign';
 
@@ -59,6 +60,12 @@ export function CampaignDetails({ campaign }: Readonly<{ campaign: CampaignRow }
       </Text>
 
       <Divider />
+      <Divider sx={{ my: 1.5 }} />
+      <Text size="sm" weight="bold">
+        Engagement
+      </Text>
+      <CampaignEngagement campaignId={campaign.id} />
+
       <CampaignDeliveryLog campaignId={campaign.id} />
     </Flex>
   );

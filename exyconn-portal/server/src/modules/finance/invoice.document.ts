@@ -81,7 +81,10 @@ function supplierBlock(company: InvoicePdfData['company']): string[] {
 
 function partiesBlock({ client, invoice }: InvoicePdfData): DocumentField[] {
   const fields: DocumentField[] = [
-    { label: 'Billed to', value: client.company ? `${client.name}, ${client.company}` : client.name },
+    {
+      label: 'Billed to',
+      value: client.company ? `${client.name}, ${client.company}` : client.name,
+    },
   ];
   if (client.gstin) {
     fields.push({ label: 'Client GSTIN', value: client.gstin });
@@ -139,7 +142,10 @@ function totalsBlock(invoice: InvoicePdfData['invoice']): DocumentField[] {
   const money = (value: number) => formatAmount(value, invoice.currency);
   const totals: DocumentField[] = [];
   if (invoice.lines.length > 0) {
-    totals.push({ label: 'Subtotal', value: money(gstBreakdown(invoice).subtotal) }, ...taxRows(invoice));
+    totals.push(
+      { label: 'Subtotal', value: money(gstBreakdown(invoice).subtotal) },
+      ...taxRows(invoice),
+    );
   }
   totals.push(
     { label: 'Total', value: money(invoice.amount), emphasis: true },

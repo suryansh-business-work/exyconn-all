@@ -31,7 +31,7 @@ describe('Stock movements', () => {
     await SupplierModel.init();
   });
 
-  it('lists one product\'s history through the productId filter', async () => {
+  it("lists one product's history through the productId filter", async () => {
     const lamp = await seedProduct(10);
     const chair = await ProductModel.create({
       name: 'Chair',
@@ -143,7 +143,13 @@ describe('Product catalogue', () => {
   const create = (input: Record<string, unknown>) =>
     productsResolvers.Mutation.createProduct(null, { input } as never, asProducts);
 
-  const base = { name: 'Desk lamp', sku: 'LAMP-1', price: 1200, category: 'Office', status: 'ACTIVE' };
+  const base = {
+    name: 'Desk lamp',
+    sku: 'LAMP-1',
+    price: 1200,
+    category: 'Office',
+    status: 'ACTIVE',
+  };
 
   it('refuses a second product on the same SKU with a readable message', async () => {
     await create({ ...base, stock: 1 });
@@ -152,7 +158,10 @@ describe('Product catalogue', () => {
   });
 
   it('takes opening stock on create and defaults the reorder level', async () => {
-    const product = (await create({ ...base, stock: 4 })) as { stock: number; reorderLevel: number };
+    const product = (await create({ ...base, stock: 4 })) as {
+      stock: number;
+      reorderLevel: number;
+    };
 
     expect(product.stock).toBe(4);
     expect(product.reorderLevel).toBe(5);
@@ -171,13 +180,31 @@ describe('Product catalogue', () => {
     expect(updated.reorderLevel).toBe(2);
   });
 
-  it('values the inventory as price times stock over active products only', async () => {
-    await create({ ...base, stock: 2 });
-    await create({ ...base, sku: 'LAMP-2', price: 100, stock: 3, status: 'DRAFT' });
+  it('values the inventory at what the stock COST, over active products only', async () => {
+    // Not at `price`: the sell price is what we hope to get, and valuing inventory at it
+    // books the profit before anything is sold.
+    await create({ ...base, stock: 2, averageCost: 500 });
+    await create({
+      ...base,
+      sku: 'LAMP-2',
+      price: 100,
+      stock: 3,
+      averageCost: 40,
+      status: 'DRAFT',
+    });
 
     const value = await productsResolvers.Query.inventoryValue(null, {}, asProducts);
 
-    expect(value).toBe(2400);
+    // Only the ACTIVE product counts: 2 × 500.
+    expect(value).toBe(1000);
+  });
+
+  it('values a product with no cost basis at nothing rather than guessing one', async () => {
+    // A catalogue written before purchasing existed has no cost. Inferring it from the sell
+    // price would invent a margin rather than record one.
+    await create({ ...base, stock: 2 });
+
+    expect(await productsResolvers.Query.inventoryValue(null, {}, asProducts)).toBe(0);
   });
 
   it('counts products by category for the overview', async () => {
