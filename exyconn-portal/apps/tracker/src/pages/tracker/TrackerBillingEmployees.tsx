@@ -4,6 +4,7 @@ import { Box, CircularProgress, Flex, Grid, Text } from '@exyconn/shell/componen
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useTrackerBillingQuery } from '@exyconn/shell/graphql/generated';
+import { TrackerBillingChart } from './TrackerBillingChart';
 import { TrackerBillingTable } from './TrackerBillingTable';
 import { EMPLOYEE_BILLING_CSV, moneyFormat } from './tracker.billing';
 import type { BillingRange } from './BillingRangePicker';
@@ -47,6 +48,13 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
           priced the work, not because it was free.
         </Text>
       )}
+
+      <TrackerBillingChart
+        rows={rows}
+        title="Billable hours by employee"
+        subtitle="Tracked active time plus approved off-computer time"
+        labelHeading="Employee"
+      />
 
       <Flex direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
         <ExportCsvButton

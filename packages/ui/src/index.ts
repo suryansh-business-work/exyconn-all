@@ -137,6 +137,9 @@ export * from './typography';
 export * from './spacing';
 export * from './layout';
 export * from './inputs';
+// Charts: a Chart.js layer with a validated, colour-blind-safe palette, a table twin for
+// every chart, and the mark specs applied once. See charts/palette.ts before adding a colour.
+export * from './charts';
 export {
   Card,
   type CardProps,

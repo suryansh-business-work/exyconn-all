@@ -1,6 +1,6 @@
 import { Box, Divider, Flex, Grid, Heading, Text, CircularProgress } from '@/components/ui';
 import { formatDuration, activityPercent } from './tracker.format';
-import { TrackerAppUsageList } from './TrackerAppUsageList';
+import { TrackerDayCharts } from './TrackerDayCharts';
 import { TrackerDayProjects } from './TrackerDayProjects';
 import { TrackerScreenshotGallery } from './TrackerScreenshotGallery';
 import type { DateTimeFormatter, TrackerDayData } from './tracker.types';
@@ -97,16 +97,13 @@ export function TrackerDayPanel({
       </Grid>
 
       <Divider sx={{ my: 1.5 }} />
+      <TrackerDayCharts day={day} timezone={timezone} />
+
+      <Divider sx={{ my: 1.5 }} />
       <Heading level={6} sx={{ mb: 1 }}>
         Projects
       </Heading>
       <TrackerDayProjects sessions={day.sessions} />
-
-      <Divider sx={{ my: 1.5 }} />
-      <Heading level={6} sx={{ mb: 1 }}>
-        Top apps
-      </Heading>
-      <TrackerAppUsageList apps={day.appUsage} />
 
       <Divider sx={{ my: 1.5 }} />
       <Heading level={6} sx={{ mb: 1 }}>

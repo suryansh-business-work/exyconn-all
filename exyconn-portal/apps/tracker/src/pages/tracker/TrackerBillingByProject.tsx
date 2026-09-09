@@ -17,6 +17,7 @@ import {
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useTrackerBillingByProjectQuery } from '@exyconn/shell/graphql/generated';
 import { ProjectBillingRow } from './ProjectBillingRow';
+import { TrackerBillingChart } from './TrackerBillingChart';
 import { useInvoiceFromTimeLog } from './useInvoiceFromTimeLog';
 import { PROJECT_BILLING_CSV, moneyFormat, projectBillingLines } from './tracker.billing';
 import type { BillingRange } from './BillingRangePicker';
@@ -59,6 +60,13 @@ export function TrackerBillingByProject({ range }: Readonly<{ range: BillingRang
           Invoice {invoice.raised.number} was created as a draft.
         </Alert>
       ) : null}
+
+      <TrackerBillingChart
+        rows={rows.map((row) => ({ id: row.projectId, name: row.projectName, hours: row.hours }))}
+        title="Billable hours by project"
+        subtitle="Where the workspace's tracked time was booked"
+        labelHeading="Project"
+      />
 
       <Flex direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
         <ExportCsvButton
