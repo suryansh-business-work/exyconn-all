@@ -330,7 +330,11 @@ export const IPC = {
   getManualEntries: 'tracker:get-manual-entries',
   createManualEntry: 'tracker:create-manual-entry',
   withdrawManualEntry: 'tracker:withdraw-manual-entry',
+  /** This install's own version, for the About panel — the number an update compares against. */
+  getAppVersion: 'tracker:get-app-version',
   getUpdate: 'tracker:get-update',
+  /** Starts fetching an available version. Returns immediately — the download is background. */
+  downloadUpdate: 'tracker:download-update',
   installUpdate: 'tracker:install-update',
   minimizeWindow: 'tracker:minimize-window',
   toggleMaximizeWindow: 'tracker:toggle-maximize-window',
@@ -372,7 +376,20 @@ export const IPC = {
  * `failed` is a state and not an error because a tracker that cannot reach its update feed
  * must keep tracking — the employee is told, and the next check tries again.
  */
-export type UpdateStage = 'idle' | 'checking' | 'downloading' | 'ready' | 'failed';
+export type UpdateStage =
+  | 'idle'
+  | 'checking'
+  /**
+   * A newer version exists and has NOT been fetched yet.
+   *
+   * The stage that was missing: the app used to download the moment it found something, so a
+   * new version was invisible until it had finished arriving. An employee on a hotel wifi saw
+   * nothing at all, and could not have asked for it if they wanted it.
+   */
+  | 'available'
+  | 'downloading'
+  | 'ready'
+  | 'failed';
 
 export interface UpdateState {
   stage: UpdateStage;

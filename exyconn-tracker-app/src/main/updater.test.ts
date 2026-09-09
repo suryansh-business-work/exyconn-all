@@ -22,6 +22,12 @@ const fake = {
   quitAndInstall(): void {
     fake.quitCalls += 1;
   },
+  downloadCalls: 0,
+  downloadRejects: false,
+  downloadUpdate(): Promise<unknown> {
+    fake.downloadCalls += 1;
+    return fake.downloadRejects ? Promise.reject(new Error('offline')) : Promise.resolve([]);
+  },
 };
 
 vi.mock('electron-updater', () => ({ autoUpdater: fake }));
@@ -50,6 +56,8 @@ describe('AppUpdater', () => {
     seen = [];
     fake.checkCalls = 0;
     fake.quitCalls = 0;
+    fake.downloadCalls = 0;
+    fake.downloadRejects = false;
     updater = new AppUpdater((state) => seen.push(state));
     updater.start('https://portal-server.exyconn.com/graphql');
   });
@@ -59,12 +67,15 @@ describe('AppUpdater', () => {
     vi.useRealTimers();
   });
 
-  it('points the updater at the portal and downloads on its own', () => {
+  it('points the updater at the portal and waits to be asked before downloading', () => {
     expect(fake.feedUrl).toEqual({
       provider: 'generic',
       url: 'https://portal-server.exyconn.com/tracker-updates',
     });
-    expect(fake.autoDownload).toBe(true);
+    // Never automatic: pulling hundreds of megabytes decides for the employee that now is a
+    // good moment to use their connection, and on a tethered phone it is not.
+    expect(fake.autoDownload).toBe(false);
+    // Still installs itself on quit, so an employee who says yes once is not asked again.
     expect(fake.autoInstallOnAppQuit).toBe(true);
   });
 
@@ -79,17 +90,58 @@ describe('AppUpdater', () => {
     expect(fake.checkCalls).toBe(2);
   });
 
-  it('reports the download and then the version waiting to install', () => {
+  it('offers a found version instead of fetching it, then reports the fetch', () => {
     emit('update-available', { version: '2.0.0' });
+
+    // The stage that used to be missing: the version is on screen before a byte is fetched.
+    expect(updater.current).toEqual({ stage: 'available', version: '2.0.0', percent: 0 });
+    expect(fake.downloadCalls).toBe(0);
+
+    updater.download();
     emit('download-progress', { percent: 42.6 });
     emit('update-downloaded', { version: '2.0.0' });
 
+    expect(fake.downloadCalls).toBe(1);
     expect(seen).toEqual([
+      { stage: 'available', version: '2.0.0', percent: 0 },
       { stage: 'downloading', version: '2.0.0', percent: 0 },
       { stage: 'downloading', version: '2.0.0', percent: 43 },
       { stage: 'ready', version: '2.0.0', percent: 100 },
     ]);
-    expect(updater.current.stage).toBe('ready');
+  });
+
+  it('keeps the version when a download fails, so Retry knows what to retry', async () => {
+    emit('update-available', { version: '2.0.0' });
+    fake.downloadRejects = true;
+
+    updater.download();
+    await vi.waitFor(() => expect(updater.current.stage).toBe('failed'));
+
+    expect(updater.current.version).toBe('2.0.0');
+  });
+
+  it('retries a failed download', () => {
+    emit('update-available', { version: '2.0.0' });
+    updater.download();
+    emit('error', new Error('connection reset'));
+
+    updater.download();
+
+    expect(fake.downloadCalls).toBe(2);
+  });
+
+  it('ignores a download nobody has an available version for', () => {
+    updater.download();
+
+    expect(fake.downloadCalls).toBe(0);
+  });
+
+  it('does not restart a download that is already running', () => {
+    emit('update-available', { version: '2.0.0' });
+    updater.download();
+    updater.download();
+
+    expect(fake.downloadCalls).toBe(1);
   });
 
   it('stops checking once a version is waiting, so the offer is never withdrawn', () => {

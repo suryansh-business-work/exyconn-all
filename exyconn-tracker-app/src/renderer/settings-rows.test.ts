@@ -29,13 +29,13 @@ function valueOf(settings: TrackerSettings, id: string): string {
 
 describe('buildSettingRows', () => {
   it('says a capture is announced out loud', () => {
-    expect(valueOf(SETTINGS, 'capture-sound')).toContain('camera shutter');
+    expect(valueOf(SETTINGS, 'capture-sound')).toContain('shutter');
   });
 
   it('promises a notification even where the workspace has muted the sound', () => {
     const value = valueOf({ ...SETTINGS, captureSoundEnabled: false }, 'capture-sound');
 
-    expect(value).toContain('Off');
+    expect(value).toContain('Silent');
     // Muting must never read as "you will not be told" — that is the whole contract.
     expect(value).toContain('notified');
   });
@@ -45,10 +45,11 @@ describe('buildSettingRows', () => {
 
     expect(value).toContain('9:00 AM');
     expect(value).toContain('6:00 PM');
-    expect(value).toContain('not logged');
+    // Short enough to sit beside its label; the dashboard notice carries the consequence.
+    expect(value.length).toBeLessThan(40);
   });
 
   it('says the employee is in charge when no schedule is set', () => {
-    expect(valueOf(SETTINGS, 'schedule')).toContain('when you say so');
+    expect(valueOf(SETTINGS, 'schedule')).toContain('You start and stop it');
   });
 });

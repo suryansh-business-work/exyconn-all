@@ -10,6 +10,7 @@ import TrayPreference from '../components/TrayPreference';
 import CaptureSoundPreference from '../components/CaptureSoundPreference';
 import ThemeModePicker from '../components/ThemeModePicker';
 import WorkArrangementCard from '../components/WorkArrangementCard';
+import useAppVersion from '../hooks/useAppVersion';
 import { buildSettingRows } from '../settings-rows';
 import { run } from '../run';
 
@@ -31,6 +32,7 @@ export default function SettingsScreen({
   preferences,
   workProfile,
 }: Readonly<Props>): ReactElement {
+  const appVersion = useAppVersion();
   const supportEmail = branding?.supportEmail ?? '';
   const legalName = branding?.legalName ?? branding?.businessName ?? '';
 
@@ -101,6 +103,11 @@ export default function SettingsScreen({
         <Typography variant="h6">About</Typography>
         <Divider sx={{ my: 1.5 }} />
         <Stack spacing={0.5}>
+          {appVersion !== '' ? (
+            <Typography variant="body2" color="text.secondary">
+              Version {appVersion}
+            </Typography>
+          ) : null}
           {legalName !== '' ? (
             <Typography variant="body2" color="text.secondary">
               {legalName}
