@@ -50,6 +50,26 @@ const mount = (onPosted = cy.stub()) =>
     </MockedProvider>,
   );
 
+/**
+ * Sets a textarea's value the way React sees it.
+ *
+ * `.invoke('val')` writes straight to the DOM node, but React overrides the value
+ * setter and tracks the previous value, so the synthetic input event never fires and
+ * React Hook Form keeps the old (empty) value. Calling the prototype setter first is
+ * what makes React notice — and it is far quicker than typing thousands of characters.
+ */
+const paste = (selector: string, text: string) => {
+  cy.get(selector).then(($el) => {
+    const node = $el[0] as HTMLTextAreaElement;
+    const setter = Object.getOwnPropertyDescriptor(
+      globalThis.HTMLTextAreaElement.prototype,
+      'value',
+    )?.set;
+    setter?.call(node, text);
+    node.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+};
+
 describe('PostForm', () => {
   it('will not publish an empty post', () => {
     mount();
@@ -66,10 +86,7 @@ describe('PostForm', () => {
 
   it('rejects a post longer than the feed accepts', () => {
     mount();
-    // Typing 5001 characters through the browser is far slower than pasting them.
-    cy.get('textarea[name="body"]')
-      .invoke('val', 'x'.repeat(MAX_POST_LENGTH + 1))
-      .trigger('input');
+    paste('textarea[name="body"]', 'x'.repeat(MAX_POST_LENGTH + 1));
     cy.contains('button', 'Post').click();
     cy.contains(`Keep a post under ${MAX_POST_LENGTH} characters`).should('be.visible');
   });
