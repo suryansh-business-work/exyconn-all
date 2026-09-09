@@ -68,8 +68,7 @@ Run from the repo root, once, with your **rotated** values (do not paste the old
 for s in SSH_KEY SSH_USER SSH_HOST SSH_PORT \
          DOCKERHUB_USERNAME DOCKERHUB_TOKEN \
          MONGODB_URI JWT_SECRET \
-         OPENAI_API_KEY GOOGLE_MAP_API SLACK_WEBHOOK \
-         TINA_GITHUB_TOKEN NEXTAUTH_SECRET; do
+         OPENAI_API_KEY GOOGLE_MAP_API SLACK_WEBHOOK; do
   gh secret set "$s"
 done
 ```
@@ -79,12 +78,6 @@ done
   secret while you're at it, since anything derived from a leaked repo should be considered
   exposed).
 - `SSH_PORT` is `22`.
-- **`TINA_GITHUB_TOKEN` and `NEXTAUTH_SECRET` power the website's content editor**
-  (`https://exyconn.com/admin`, self-hosted TinaCMS). `TINA_GITHUB_TOKEN` is a fine-grained
-  GitHub personal access token for this repository with *Contents: Read and write* — every save
-  in the editor is committed to `main` with it. `NEXTAUTH_SECRET` signs the editor's login
-  session (`openssl rand -base64 32`). The editor's content index reuses `MONGODB_URI`
-  (database `tinacms`).
 - **SMTP, ImageKit, Slack, Pexels and OpenAI are not secrets any more.** All five are stored
   in MongoDB and managed in the portal under **Admin › Environment Variables**, where each has
   a test-connection action. Pexels is the stock-media key behind the shared upload dialog's

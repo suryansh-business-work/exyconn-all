@@ -286,8 +286,6 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             GOOGLE_MAP_API=${{ secrets.GOOGLE_MAP_API }}
-            TINA_GITHUB_TOKEN=${{ secrets.TINA_GITHUB_TOKEN }}
-            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
             EOF
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             docker compose -f docker-compose.prod.yml pull

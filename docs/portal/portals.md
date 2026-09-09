@@ -46,9 +46,8 @@ it has no login, no role and no portal chrome, because an outage is exactly when
 sign in. Its catalogue and the problems reported on it are managed from the Tech portal
 (**Status Monitors** and **Problem Reports**).
 
-What the Astro website reads from the portal, what it reads from TinaCMS markdown, and
-which portal screens currently drive nothing, is recorded in
-[website-content.md](./website-content.md).
+Which portal query and which portal screen owns each part of the Astro website is recorded
+in [website-content.md](./website-content.md).
 
 `ADMIN` opens every portal; any other role opens the launcher plus the portals its role
 covers. A user who reaches a portal their roles do not cover is redirected to the launcher.

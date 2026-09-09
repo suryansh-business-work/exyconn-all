@@ -1,6 +1,6 @@
 ---
 import Page from "../../layouts/Page.astro";
-import { getTool, getToolCategories, getTools } from "../../lib/portal";
+import { getTool, getToolCategories, getToolLaunchUrl, getTools } from "../../lib/portal";
 
 const { toolCode } = Astro.params;
 
@@ -125,7 +125,7 @@ const accent = tool.color || category?.color || "#4f46e5";
             {
               tool.url && (
                 <a
-                  href={tool.url}
+                  href={getToolLaunchUrl(tool)}
                   class="block text-center px-6 py-4 rounded-2xl text-white font-bold shadow-lg transition hover:opacity-90"
                   style={`background: ${accent};`}
                 >

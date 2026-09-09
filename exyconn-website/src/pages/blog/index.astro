@@ -1,7 +1,6 @@
 ---
 import Page from "../../layouts/Page.astro";
-import { formatDate } from "../../lib/portal";
-import { getAllTags, getBlogPosts } from "../../lib/content";
+import { formatDate, getAllTags, getBlogPosts } from "../../lib/portal";
 
 const blogPosts = await getBlogPosts();
 const allTags = getAllTags(blogPosts);
