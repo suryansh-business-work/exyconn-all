@@ -2867,6 +2867,7 @@ export type Mutation = {
   createProject: Project;
   createProjectShare: ProjectShareCreated;
   createPrompt: Prompt;
+  createRecurringInvoice: RecurringInvoice;
   createSalaryStructure: SalaryStructure;
   createShift: Shift;
   createSlackConfig: SlackConfig;
@@ -2956,6 +2957,7 @@ export type Mutation = {
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
+  deleteRecurringInvoice: Scalars['Boolean']['output'];
   deleteSalaryStructure: Scalars['Boolean']['output'];
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
@@ -3034,6 +3036,11 @@ export type Mutation = {
   runPayroll: PayrollRunResult;
   /** Queues a prompt-library entry as a new job, with its {{variables}} filled in. */
   runPrompt: AiJob;
+  /**
+   * Raises this schedule's current period now and moves it on — the same order the unattended
+   * loop uses, so pressing the button cannot bill a client twice either.
+   */
+  runRecurringInvoiceNow: RecurringInvoice;
   saveAiModelPrice: AiModelPrice;
   saveAiSpendLimit: AiSpendLimit;
   /**
@@ -3257,6 +3264,7 @@ export type Mutation = {
   updateProfile: User;
   updateProject: Project;
   updatePrompt: Prompt;
+  updateRecurringInvoice: RecurringInvoice;
   updateSalaryStructure: SalaryStructure;
   updateSettings: AppSettings;
   updateShift: Shift;
@@ -3705,6 +3713,11 @@ export type MutationCreatePromptArgs = {
 };
 
 
+export type MutationCreateRecurringInvoiceArgs = {
+  input: RecurringInvoiceInput;
+};
+
+
 export type MutationCreateSalaryStructureArgs = {
   input: SalaryStructureInput;
 };
@@ -4100,6 +4113,11 @@ export type MutationDeletePromptArgs = {
 };
 
 
+export type MutationDeleteRecurringInvoiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteSalaryStructureArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4330,6 +4348,11 @@ export type MutationRunPromptArgs = {
   id: Scalars['ID']['input'];
   model: Scalars['String']['input'];
   variables?: InputMaybe<Array<PromptVariableInput>>;
+};
+
+
+export type MutationRunRecurringInvoiceNowArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -5006,6 +5029,12 @@ export type MutationUpdateProjectArgs = {
 export type MutationUpdatePromptArgs = {
   id: Scalars['ID']['input'];
   input: PromptInput;
+};
+
+
+export type MutationUpdateRecurringInvoiceArgs = {
+  id: Scalars['ID']['input'];
+  input: RecurringInvoiceInput;
 };
 
 
@@ -6093,6 +6122,7 @@ export type Query = {
   getProduct: Product;
   getProject: Project;
   getPrompt: Prompt;
+  getRecurringInvoice?: Maybe<RecurringInvoice>;
   getSalaryStructure: SalaryStructure;
   getShift: Shift;
   getStatusIncident: StatusIncident;
@@ -6295,6 +6325,8 @@ export type Query = {
   listPrompts: Array<Prompt>;
   listPromptsPaged: PromptPage;
   listPromptsStats: TableStats;
+  listRecurringInvoices: Array<RecurringInvoice>;
+  listRecurringInvoicesPaged: RecurringInvoicePage;
   /** Only restrictions that exist; a missing (role, module) pair means everything is allowed. */
   listRolePermissions: Array<RolePermission>;
   listSalarySlipsPaged: SalarySlipPage;
@@ -6850,6 +6882,11 @@ export type QueryGetPromptArgs = {
 };
 
 
+export type QueryGetRecurringInvoiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetSalaryStructureArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7191,6 +7228,11 @@ export type QueryListProjectsPagedArgs = {
 
 
 export type QueryListPromptsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListRecurringInvoicesPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -7553,6 +7595,70 @@ export type ReceivablesBucket = {
   band: Scalars['String']['output'];
   invoices: Scalars['Int']['output'];
   label: Scalars['String']['output'];
+};
+
+/** How often a retainer bills. A small fixed list, deliberately — not a cron expression. */
+export enum RecurrenceFrequency {
+  Monthly = 'MONTHLY',
+  Quarterly = 'QUARTERLY',
+  Weekly = 'WEEKLY',
+  Yearly = 'YEARLY'
+}
+
+/**
+ * A standing instruction to raise the same invoice every period.
+ *
+ * It is not an invoice and never becomes one — it spawns them, each a DRAFT for somebody to
+ * check and send. Keeping the schedule separate from what it produced is what lets a
+ * retainer's rate change next month without rewriting the invoices already paid under the old.
+ */
+export type RecurringInvoice = {
+  __typename?: 'RecurringInvoice';
+  /** A paused schedule keeps its place, so resuming bills the period it was paused in. */
+  active: Scalars['Boolean']['output'];
+  /** What each generated invoice will total, from the lines. */
+  amount: Scalars['Float']['output'];
+  clientId: Scalars['String']['output'];
+  /** The client's name at the time the schedule was written. */
+  clientName: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  /** Days between an invoice's issue date and its due date. */
+  dueDays: Scalars['Int']['output'];
+  /** Stops after this date. Null runs until somebody pauses it. */
+  endDate?: Maybe<Scalars['DateTime']['output']>;
+  frequency: RecurrenceFrequency;
+  /** How many invoices this schedule has raised — the answer to 'is this thing working'. */
+  generatedCount: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  lastGeneratedAt?: Maybe<Scalars['DateTime']['output']>;
+  lines: Array<InvoiceLine>;
+  /** What this retainer is called on the schedule screen. Never printed on the invoice. */
+  name: Scalars['String']['output'];
+  /** When the next invoice is due to be raised. Owned by the schedule; not editable by hand. */
+  nextRunAt: Scalars['DateTime']['output'];
+  placeOfSupplyStateCode: Scalars['String']['output'];
+  startDate: Scalars['DateTime']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type RecurringInvoiceInput = {
+  active?: InputMaybe<Scalars['Boolean']['input']>;
+  clientId: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  dueDays: Scalars['Int']['input'];
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  frequency: RecurrenceFrequency;
+  lines: Array<InvoiceLineInput>;
+  name: Scalars['String']['input'];
+  placeOfSupplyStateCode?: InputMaybe<Scalars['String']['input']>;
+  startDate: Scalars['DateTime']['input'];
+};
+
+export type RecurringInvoicePage = {
+  __typename?: 'RecurringInvoicePage';
+  rows: Array<RecurringInvoice>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export enum RequestStatus {
@@ -10965,6 +11071,44 @@ export type CreateInvoiceFromDealMutationVariables = Exact<{
 
 export type CreateInvoiceFromDealMutation = { __typename?: 'Mutation', createInvoiceFromDeal: { __typename?: 'Invoice', id: string, number: string } };
 
+export type RecurringInvoiceFieldsFragment = { __typename?: 'RecurringInvoice', id: string, name: string, clientId: string, clientName: string, amount: number, currency: string, placeOfSupplyStateCode: string, frequency: RecurrenceFrequency, startDate: string, nextRunAt: string, endDate?: string | null, dueDays: number, active: boolean, lastGeneratedAt?: string | null, generatedCount: number, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'InvoiceLine', description: string, quantity: number, rate: number, taxPercent: number, hsnSac: string, amount: number }> };
+
+export type ListRecurringInvoicesPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListRecurringInvoicesPagedQuery = { __typename?: 'Query', listRecurringInvoicesPaged: { __typename?: 'RecurringInvoicePage', totalCount: number, rows: Array<{ __typename?: 'RecurringInvoice', id: string, name: string, clientId: string, clientName: string, amount: number, currency: string, placeOfSupplyStateCode: string, frequency: RecurrenceFrequency, startDate: string, nextRunAt: string, endDate?: string | null, dueDays: number, active: boolean, lastGeneratedAt?: string | null, generatedCount: number, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'InvoiceLine', description: string, quantity: number, rate: number, taxPercent: number, hsnSac: string, amount: number }> }> } };
+
+export type CreateRecurringInvoiceMutationVariables = Exact<{
+  input: RecurringInvoiceInput;
+}>;
+
+
+export type CreateRecurringInvoiceMutation = { __typename?: 'Mutation', createRecurringInvoice: { __typename?: 'RecurringInvoice', id: string, name: string, clientId: string, clientName: string, amount: number, currency: string, placeOfSupplyStateCode: string, frequency: RecurrenceFrequency, startDate: string, nextRunAt: string, endDate?: string | null, dueDays: number, active: boolean, lastGeneratedAt?: string | null, generatedCount: number, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'InvoiceLine', description: string, quantity: number, rate: number, taxPercent: number, hsnSac: string, amount: number }> } };
+
+export type UpdateRecurringInvoiceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: RecurringInvoiceInput;
+}>;
+
+
+export type UpdateRecurringInvoiceMutation = { __typename?: 'Mutation', updateRecurringInvoice: { __typename?: 'RecurringInvoice', id: string, name: string, clientId: string, clientName: string, amount: number, currency: string, placeOfSupplyStateCode: string, frequency: RecurrenceFrequency, startDate: string, nextRunAt: string, endDate?: string | null, dueDays: number, active: boolean, lastGeneratedAt?: string | null, generatedCount: number, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'InvoiceLine', description: string, quantity: number, rate: number, taxPercent: number, hsnSac: string, amount: number }> } };
+
+export type DeleteRecurringInvoiceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteRecurringInvoiceMutation = { __typename?: 'Mutation', deleteRecurringInvoice: boolean };
+
+export type RunRecurringInvoiceNowMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type RunRecurringInvoiceNowMutation = { __typename?: 'Mutation', runRecurringInvoiceNow: { __typename?: 'RecurringInvoice', id: string, name: string, clientId: string, clientName: string, amount: number, currency: string, placeOfSupplyStateCode: string, frequency: RecurrenceFrequency, startDate: string, nextRunAt: string, endDate?: string | null, dueDays: number, active: boolean, lastGeneratedAt?: string | null, generatedCount: number, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'InvoiceLine', description: string, quantity: number, rate: number, taxPercent: number, hsnSac: string, amount: number }> } };
+
 export type SystemHealthQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -14067,6 +14211,35 @@ export const InvoiceFieldsFragmentDoc = gql`
   cgst
   sgst
   igst
+}
+    `;
+export const RecurringInvoiceFieldsFragmentDoc = gql`
+    fragment RecurringInvoiceFields on RecurringInvoice {
+  id
+  name
+  clientId
+  clientName
+  lines {
+    description
+    quantity
+    rate
+    taxPercent
+    hsnSac
+    amount
+  }
+  amount
+  currency
+  placeOfSupplyStateCode
+  frequency
+  startDate
+  nextRunAt
+  endDate
+  dueDays
+  active
+  lastGeneratedAt
+  generatedCount
+  createdAt
+  updatedAt
 }
     `;
 export const LeaveFieldsFragmentDoc = gql`
@@ -24550,6 +24723,183 @@ export function useCreateInvoiceFromDealMutation(baseOptions?: Apollo.MutationHo
 export type CreateInvoiceFromDealMutationHookResult = ReturnType<typeof useCreateInvoiceFromDealMutation>;
 export type CreateInvoiceFromDealMutationResult = Apollo.MutationResult<CreateInvoiceFromDealMutation>;
 export type CreateInvoiceFromDealMutationOptions = Apollo.BaseMutationOptions<CreateInvoiceFromDealMutation, CreateInvoiceFromDealMutationVariables>;
+export const ListRecurringInvoicesPagedDocument = gql`
+    query ListRecurringInvoicesPaged($input: TableQueryInput!) {
+  listRecurringInvoicesPaged(input: $input) {
+    rows {
+      ...RecurringInvoiceFields
+    }
+    totalCount
+  }
+}
+    ${RecurringInvoiceFieldsFragmentDoc}`;
+
+/**
+ * __useListRecurringInvoicesPagedQuery__
+ *
+ * To run a query within a React component, call `useListRecurringInvoicesPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListRecurringInvoicesPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListRecurringInvoicesPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListRecurringInvoicesPagedQuery(baseOptions: Apollo.QueryHookOptions<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables> & ({ variables: ListRecurringInvoicesPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>(ListRecurringInvoicesPagedDocument, options);
+      }
+export function useListRecurringInvoicesPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>(ListRecurringInvoicesPagedDocument, options);
+        }
+// @ts-ignore
+export function useListRecurringInvoicesPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>;
+export function useListRecurringInvoicesPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListRecurringInvoicesPagedQuery | undefined, ListRecurringInvoicesPagedQueryVariables>;
+export function useListRecurringInvoicesPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>(ListRecurringInvoicesPagedDocument, options);
+        }
+export type ListRecurringInvoicesPagedQueryHookResult = ReturnType<typeof useListRecurringInvoicesPagedQuery>;
+export type ListRecurringInvoicesPagedLazyQueryHookResult = ReturnType<typeof useListRecurringInvoicesPagedLazyQuery>;
+export type ListRecurringInvoicesPagedSuspenseQueryHookResult = ReturnType<typeof useListRecurringInvoicesPagedSuspenseQuery>;
+export type ListRecurringInvoicesPagedQueryResult = Apollo.QueryResult<ListRecurringInvoicesPagedQuery, ListRecurringInvoicesPagedQueryVariables>;
+export const CreateRecurringInvoiceDocument = gql`
+    mutation CreateRecurringInvoice($input: RecurringInvoiceInput!) {
+  createRecurringInvoice(input: $input) {
+    ...RecurringInvoiceFields
+  }
+}
+    ${RecurringInvoiceFieldsFragmentDoc}`;
+export type CreateRecurringInvoiceMutationFn = Apollo.MutationFunction<CreateRecurringInvoiceMutation, CreateRecurringInvoiceMutationVariables>;
+
+/**
+ * __useCreateRecurringInvoiceMutation__
+ *
+ * To run a mutation, you first call `useCreateRecurringInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRecurringInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createRecurringInvoiceMutation, { data, loading, error }] = useCreateRecurringInvoiceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateRecurringInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<CreateRecurringInvoiceMutation, CreateRecurringInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateRecurringInvoiceMutation, CreateRecurringInvoiceMutationVariables>(CreateRecurringInvoiceDocument, options);
+      }
+export type CreateRecurringInvoiceMutationHookResult = ReturnType<typeof useCreateRecurringInvoiceMutation>;
+export type CreateRecurringInvoiceMutationResult = Apollo.MutationResult<CreateRecurringInvoiceMutation>;
+export type CreateRecurringInvoiceMutationOptions = Apollo.BaseMutationOptions<CreateRecurringInvoiceMutation, CreateRecurringInvoiceMutationVariables>;
+export const UpdateRecurringInvoiceDocument = gql`
+    mutation UpdateRecurringInvoice($id: ID!, $input: RecurringInvoiceInput!) {
+  updateRecurringInvoice(id: $id, input: $input) {
+    ...RecurringInvoiceFields
+  }
+}
+    ${RecurringInvoiceFieldsFragmentDoc}`;
+export type UpdateRecurringInvoiceMutationFn = Apollo.MutationFunction<UpdateRecurringInvoiceMutation, UpdateRecurringInvoiceMutationVariables>;
+
+/**
+ * __useUpdateRecurringInvoiceMutation__
+ *
+ * To run a mutation, you first call `useUpdateRecurringInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateRecurringInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateRecurringInvoiceMutation, { data, loading, error }] = useUpdateRecurringInvoiceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateRecurringInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateRecurringInvoiceMutation, UpdateRecurringInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateRecurringInvoiceMutation, UpdateRecurringInvoiceMutationVariables>(UpdateRecurringInvoiceDocument, options);
+      }
+export type UpdateRecurringInvoiceMutationHookResult = ReturnType<typeof useUpdateRecurringInvoiceMutation>;
+export type UpdateRecurringInvoiceMutationResult = Apollo.MutationResult<UpdateRecurringInvoiceMutation>;
+export type UpdateRecurringInvoiceMutationOptions = Apollo.BaseMutationOptions<UpdateRecurringInvoiceMutation, UpdateRecurringInvoiceMutationVariables>;
+export const DeleteRecurringInvoiceDocument = gql`
+    mutation DeleteRecurringInvoice($id: ID!) {
+  deleteRecurringInvoice(id: $id)
+}
+    `;
+export type DeleteRecurringInvoiceMutationFn = Apollo.MutationFunction<DeleteRecurringInvoiceMutation, DeleteRecurringInvoiceMutationVariables>;
+
+/**
+ * __useDeleteRecurringInvoiceMutation__
+ *
+ * To run a mutation, you first call `useDeleteRecurringInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteRecurringInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteRecurringInvoiceMutation, { data, loading, error }] = useDeleteRecurringInvoiceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteRecurringInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<DeleteRecurringInvoiceMutation, DeleteRecurringInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteRecurringInvoiceMutation, DeleteRecurringInvoiceMutationVariables>(DeleteRecurringInvoiceDocument, options);
+      }
+export type DeleteRecurringInvoiceMutationHookResult = ReturnType<typeof useDeleteRecurringInvoiceMutation>;
+export type DeleteRecurringInvoiceMutationResult = Apollo.MutationResult<DeleteRecurringInvoiceMutation>;
+export type DeleteRecurringInvoiceMutationOptions = Apollo.BaseMutationOptions<DeleteRecurringInvoiceMutation, DeleteRecurringInvoiceMutationVariables>;
+export const RunRecurringInvoiceNowDocument = gql`
+    mutation RunRecurringInvoiceNow($id: ID!) {
+  runRecurringInvoiceNow(id: $id) {
+    ...RecurringInvoiceFields
+  }
+}
+    ${RecurringInvoiceFieldsFragmentDoc}`;
+export type RunRecurringInvoiceNowMutationFn = Apollo.MutationFunction<RunRecurringInvoiceNowMutation, RunRecurringInvoiceNowMutationVariables>;
+
+/**
+ * __useRunRecurringInvoiceNowMutation__
+ *
+ * To run a mutation, you first call `useRunRecurringInvoiceNowMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRunRecurringInvoiceNowMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [runRecurringInvoiceNowMutation, { data, loading, error }] = useRunRecurringInvoiceNowMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRunRecurringInvoiceNowMutation(baseOptions?: Apollo.MutationHookOptions<RunRecurringInvoiceNowMutation, RunRecurringInvoiceNowMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RunRecurringInvoiceNowMutation, RunRecurringInvoiceNowMutationVariables>(RunRecurringInvoiceNowDocument, options);
+      }
+export type RunRecurringInvoiceNowMutationHookResult = ReturnType<typeof useRunRecurringInvoiceNowMutation>;
+export type RunRecurringInvoiceNowMutationResult = Apollo.MutationResult<RunRecurringInvoiceNowMutation>;
+export type RunRecurringInvoiceNowMutationOptions = Apollo.BaseMutationOptions<RunRecurringInvoiceNowMutation, RunRecurringInvoiceNowMutationVariables>;
 export const SystemHealthDocument = gql`
     query SystemHealth {
   systemHealth {

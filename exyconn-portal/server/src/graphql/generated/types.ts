@@ -2867,6 +2867,7 @@ export type Mutation = {
   createProject: Project;
   createProjectShare: ProjectShareCreated;
   createPrompt: Prompt;
+  createRecurringInvoice: RecurringInvoice;
   createSalaryStructure: SalaryStructure;
   createShift: Shift;
   createSlackConfig: SlackConfig;
@@ -2956,6 +2957,7 @@ export type Mutation = {
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
+  deleteRecurringInvoice: Scalars['Boolean']['output'];
   deleteSalaryStructure: Scalars['Boolean']['output'];
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
@@ -3034,6 +3036,11 @@ export type Mutation = {
   runPayroll: PayrollRunResult;
   /** Queues a prompt-library entry as a new job, with its {{variables}} filled in. */
   runPrompt: AiJob;
+  /**
+   * Raises this schedule's current period now and moves it on — the same order the unattended
+   * loop uses, so pressing the button cannot bill a client twice either.
+   */
+  runRecurringInvoiceNow: RecurringInvoice;
   saveAiModelPrice: AiModelPrice;
   saveAiSpendLimit: AiSpendLimit;
   /**
@@ -3257,6 +3264,7 @@ export type Mutation = {
   updateProfile: User;
   updateProject: Project;
   updatePrompt: Prompt;
+  updateRecurringInvoice: RecurringInvoice;
   updateSalaryStructure: SalaryStructure;
   updateSettings: AppSettings;
   updateShift: Shift;
@@ -3705,6 +3713,11 @@ export type MutationCreatePromptArgs = {
 };
 
 
+export type MutationCreateRecurringInvoiceArgs = {
+  input: RecurringInvoiceInput;
+};
+
+
 export type MutationCreateSalaryStructureArgs = {
   input: SalaryStructureInput;
 };
@@ -4100,6 +4113,11 @@ export type MutationDeletePromptArgs = {
 };
 
 
+export type MutationDeleteRecurringInvoiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteSalaryStructureArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4330,6 +4348,11 @@ export type MutationRunPromptArgs = {
   id: Scalars['ID']['input'];
   model: Scalars['String']['input'];
   variables?: InputMaybe<Array<PromptVariableInput>>;
+};
+
+
+export type MutationRunRecurringInvoiceNowArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -5006,6 +5029,12 @@ export type MutationUpdateProjectArgs = {
 export type MutationUpdatePromptArgs = {
   id: Scalars['ID']['input'];
   input: PromptInput;
+};
+
+
+export type MutationUpdateRecurringInvoiceArgs = {
+  id: Scalars['ID']['input'];
+  input: RecurringInvoiceInput;
 };
 
 
@@ -6093,6 +6122,7 @@ export type Query = {
   getProduct: Product;
   getProject: Project;
   getPrompt: Prompt;
+  getRecurringInvoice?: Maybe<RecurringInvoice>;
   getSalaryStructure: SalaryStructure;
   getShift: Shift;
   getStatusIncident: StatusIncident;
@@ -6295,6 +6325,8 @@ export type Query = {
   listPrompts: Array<Prompt>;
   listPromptsPaged: PromptPage;
   listPromptsStats: TableStats;
+  listRecurringInvoices: Array<RecurringInvoice>;
+  listRecurringInvoicesPaged: RecurringInvoicePage;
   /** Only restrictions that exist; a missing (role, module) pair means everything is allowed. */
   listRolePermissions: Array<RolePermission>;
   listSalarySlipsPaged: SalarySlipPage;
@@ -6850,6 +6882,11 @@ export type QueryGetPromptArgs = {
 };
 
 
+export type QueryGetRecurringInvoiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetSalaryStructureArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7191,6 +7228,11 @@ export type QueryListProjectsPagedArgs = {
 
 
 export type QueryListPromptsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListRecurringInvoicesPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -7553,6 +7595,70 @@ export type ReceivablesBucket = {
   band: Scalars['String']['output'];
   invoices: Scalars['Int']['output'];
   label: Scalars['String']['output'];
+};
+
+/** How often a retainer bills. A small fixed list, deliberately — not a cron expression. */
+export enum RecurrenceFrequency {
+  Monthly = 'MONTHLY',
+  Quarterly = 'QUARTERLY',
+  Weekly = 'WEEKLY',
+  Yearly = 'YEARLY'
+}
+
+/**
+ * A standing instruction to raise the same invoice every period.
+ *
+ * It is not an invoice and never becomes one — it spawns them, each a DRAFT for somebody to
+ * check and send. Keeping the schedule separate from what it produced is what lets a
+ * retainer's rate change next month without rewriting the invoices already paid under the old.
+ */
+export type RecurringInvoice = {
+  __typename?: 'RecurringInvoice';
+  /** A paused schedule keeps its place, so resuming bills the period it was paused in. */
+  active: Scalars['Boolean']['output'];
+  /** What each generated invoice will total, from the lines. */
+  amount: Scalars['Float']['output'];
+  clientId: Scalars['String']['output'];
+  /** The client's name at the time the schedule was written. */
+  clientName: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  /** Days between an invoice's issue date and its due date. */
+  dueDays: Scalars['Int']['output'];
+  /** Stops after this date. Null runs until somebody pauses it. */
+  endDate?: Maybe<Scalars['DateTime']['output']>;
+  frequency: RecurrenceFrequency;
+  /** How many invoices this schedule has raised — the answer to 'is this thing working'. */
+  generatedCount: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  lastGeneratedAt?: Maybe<Scalars['DateTime']['output']>;
+  lines: Array<InvoiceLine>;
+  /** What this retainer is called on the schedule screen. Never printed on the invoice. */
+  name: Scalars['String']['output'];
+  /** When the next invoice is due to be raised. Owned by the schedule; not editable by hand. */
+  nextRunAt: Scalars['DateTime']['output'];
+  placeOfSupplyStateCode: Scalars['String']['output'];
+  startDate: Scalars['DateTime']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type RecurringInvoiceInput = {
+  active?: InputMaybe<Scalars['Boolean']['input']>;
+  clientId: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  dueDays: Scalars['Int']['input'];
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  frequency: RecurrenceFrequency;
+  lines: Array<InvoiceLineInput>;
+  name: Scalars['String']['input'];
+  placeOfSupplyStateCode?: InputMaybe<Scalars['String']['input']>;
+  startDate: Scalars['DateTime']['input'];
+};
+
+export type RecurringInvoicePage = {
+  __typename?: 'RecurringInvoicePage';
+  rows: Array<RecurringInvoice>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export enum RequestStatus {
@@ -9743,6 +9849,10 @@ export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   Receivables: ResolverTypeWrapper<Receivables>;
   ReceivablesBucket: ResolverTypeWrapper<ReceivablesBucket>;
+  RecurrenceFrequency: RecurrenceFrequency;
+  RecurringInvoice: ResolverTypeWrapper<RecurringInvoice>;
+  RecurringInvoiceInput: RecurringInvoiceInput;
+  RecurringInvoicePage: ResolverTypeWrapper<RecurringInvoicePage>;
   RequestStatus: RequestStatus;
   RequestType: RequestType;
   ReviewStatus: ReviewStatus;
@@ -10175,6 +10285,9 @@ export type ResolversParentTypes = ResolversObject<{
   Query: {};
   Receivables: Receivables;
   ReceivablesBucket: ReceivablesBucket;
+  RecurringInvoice: RecurringInvoice;
+  RecurringInvoiceInput: RecurringInvoiceInput;
+  RecurringInvoicePage: RecurringInvoicePage;
   RolePermission: RolePermission;
   SalarySlip: SalarySlip;
   SalarySlipDownload: SalarySlipDownload;
@@ -11939,6 +12052,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
   createProjectShare?: Resolver<ResolversTypes['ProjectShareCreated'], ParentType, ContextType, RequireFields<MutationCreateProjectShareArgs, 'expiresInDays' | 'label' | 'projectId'>>;
   createPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationCreatePromptArgs, 'input'>>;
+  createRecurringInvoice?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationCreateRecurringInvoiceArgs, 'input'>>;
   createSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationCreateSalaryStructureArgs, 'input'>>;
   createShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationCreateShiftArgs, 'input'>>;
   createSlackConfig?: Resolver<ResolversTypes['SlackConfig'], ParentType, ContextType, RequireFields<MutationCreateSlackConfigArgs, 'input'>>;
@@ -12017,6 +12131,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteProduct?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'id'>>;
   deleteProject?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'id'>>;
   deletePrompt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePromptArgs, 'id'>>;
+  deleteRecurringInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRecurringInvoiceArgs, 'id'>>;
   deleteSalaryStructure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSalaryStructureArgs, 'id'>>;
   deleteShift?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteShiftArgs, 'id'>>;
   deleteSlackConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSlackConfigArgs, 'id'>>;
@@ -12061,6 +12176,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   runAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunAiJobArgs, 'id'>>;
   runPayroll?: Resolver<ResolversTypes['PayrollRunResult'], ParentType, ContextType, RequireFields<MutationRunPayrollArgs, 'month' | 'year'>>;
   runPrompt?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunPromptArgs, 'id' | 'model'>>;
+  runRecurringInvoiceNow?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationRunRecurringInvoiceNowArgs, 'id'>>;
   saveAiModelPrice?: Resolver<ResolversTypes['AiModelPrice'], ParentType, ContextType, RequireFields<MutationSaveAiModelPriceArgs, 'input'>>;
   saveAiSpendLimit?: Resolver<ResolversTypes['AiSpendLimit'], ParentType, ContextType, RequireFields<MutationSaveAiSpendLimitArgs, 'input'>>;
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
@@ -12175,6 +12291,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateProfile?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'input'>>;
   updateProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationUpdateProjectArgs, 'id' | 'input'>>;
   updatePrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationUpdatePromptArgs, 'id' | 'input'>>;
+  updateRecurringInvoice?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationUpdateRecurringInvoiceArgs, 'id' | 'input'>>;
   updateSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationUpdateSalaryStructureArgs, 'id' | 'input'>>;
   updateSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType, RequireFields<MutationUpdateSettingsArgs, 'input'>>;
   updateShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationUpdateShiftArgs, 'id' | 'input'>>;
@@ -12768,6 +12885,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<QueryGetProductArgs, 'id'>>;
   getProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<QueryGetProjectArgs, 'id'>>;
   getPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<QueryGetPromptArgs, 'id'>>;
+  getRecurringInvoice?: Resolver<Maybe<ResolversTypes['RecurringInvoice']>, ParentType, ContextType, RequireFields<QueryGetRecurringInvoiceArgs, 'id'>>;
   getSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<QueryGetSalaryStructureArgs, 'id'>>;
   getShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<QueryGetShiftArgs, 'id'>>;
   getStatusIncident?: Resolver<ResolversTypes['StatusIncident'], ParentType, ContextType, RequireFields<QueryGetStatusIncidentArgs, 'id'>>;
@@ -12950,6 +13068,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPrompts?: Resolver<Array<ResolversTypes['Prompt']>, ParentType, ContextType>;
   listPromptsPaged?: Resolver<ResolversTypes['PromptPage'], ParentType, ContextType, RequireFields<QueryListPromptsPagedArgs, 'input'>>;
   listPromptsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listRecurringInvoices?: Resolver<Array<ResolversTypes['RecurringInvoice']>, ParentType, ContextType>;
+  listRecurringInvoicesPaged?: Resolver<ResolversTypes['RecurringInvoicePage'], ParentType, ContextType, RequireFields<QueryListRecurringInvoicesPagedArgs, 'input'>>;
   listRolePermissions?: Resolver<Array<ResolversTypes['RolePermission']>, ParentType, ContextType>;
   listSalarySlipsPaged?: Resolver<ResolversTypes['SalarySlipPage'], ParentType, ContextType, RequireFields<QueryListSalarySlipsPagedArgs, 'input'>>;
   listSalarySlipsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -13113,6 +13233,34 @@ export type ReceivablesBucketResolvers<ContextType = GraphQLContext, ParentType 
   band?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   invoices?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type RecurringInvoiceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['RecurringInvoice'] = ResolversParentTypes['RecurringInvoice']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  clientName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dueDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  endDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  frequency?: Resolver<ResolversTypes['RecurrenceFrequency'], ParentType, ContextType>;
+  generatedCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastGeneratedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  lines?: Resolver<Array<ResolversTypes['InvoiceLine']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  nextRunAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  placeOfSupplyStateCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  startDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type RecurringInvoicePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['RecurringInvoicePage'] = ResolversParentTypes['RecurringInvoicePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['RecurringInvoice']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -14305,6 +14453,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Query?: QueryResolvers<ContextType>;
   Receivables?: ReceivablesResolvers<ContextType>;
   ReceivablesBucket?: ReceivablesBucketResolvers<ContextType>;
+  RecurringInvoice?: RecurringInvoiceResolvers<ContextType>;
+  RecurringInvoicePage?: RecurringInvoicePageResolvers<ContextType>;
   RolePermission?: RolePermissionResolvers<ContextType>;
   SalarySlip?: SalarySlipResolvers<ContextType>;
   SalarySlipDownload?: SalarySlipDownloadResolvers<ContextType>;

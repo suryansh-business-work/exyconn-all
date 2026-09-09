@@ -103,6 +103,9 @@ async function jobs(): Promise<HealthJob[]> {
       at: runs.get('trackerDigest')?.at ?? null,
       summary: digestLastRun ? `Daily digest last sent ${digestLastRun}` : 'No digest sent yet',
     }),
+    // Always "enabled": the loop runs whether or not anybody has set a retainer up, and a
+    // dead loop is exactly what this screen exists to show.
+    jobRow('recurringInvoices', 'Recurring invoices', true, runs),
   ];
 }
 

@@ -51,6 +51,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import PolicyIcon from '@mui/icons-material/Policy';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -189,6 +190,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Invoices',
         path: '/finance/invoices',
         icon: ReceiptLongIcon,
+      },
+      {
+        key: 'finance-recurring',
+        label: 'Recurring invoices',
+        path: '/finance/recurring',
+        icon: EventRepeatIcon,
       },
       {
         key: 'finance-payments',

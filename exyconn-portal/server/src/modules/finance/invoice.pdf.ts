@@ -91,7 +91,8 @@ function drawLines(doc: PDFKit.PDFDocument, document: InvoiceDocument): void {
   cell(doc, 'Rate', 'rate', top);
   cell(doc, 'Tax', 'tax', top);
   cell(doc, 'Amount', 'amount', top);
-  doc.moveTo(PAGE_MARGIN, doc.y + 2)
+  doc
+    .moveTo(PAGE_MARGIN, doc.y + 2)
     .lineTo(doc.page.width - PAGE_MARGIN, doc.y + 2)
     .strokeColor(RULE)
     .stroke();
@@ -108,11 +109,17 @@ function drawLines(doc: PDFKit.PDFDocument, document: InvoiceDocument): void {
 function drawTotal(doc: PDFKit.PDFDocument, field: DocumentField): void {
   const size = field.emphasis ? 12 : 10;
   const top = doc.y;
-  doc.fillColor(MUTED).fontSize(size).text(field.label, COLUMN_RIGHT - 100, top, { width: 100 });
-  doc.fillColor(INK).fontSize(size).text(field.value, COLUMN_RIGHT, top, {
-    align: 'right',
-    width: doc.page.width - COLUMN_RIGHT - PAGE_MARGIN,
-  });
+  doc
+    .fillColor(MUTED)
+    .fontSize(size)
+    .text(field.label, COLUMN_RIGHT - 100, top, { width: 100 });
+  doc
+    .fillColor(INK)
+    .fontSize(size)
+    .text(field.value, COLUMN_RIGHT, top, {
+      align: 'right',
+      width: doc.page.width - COLUMN_RIGHT - PAGE_MARGIN,
+    });
 }
 
 /** Where to pay, when Branding says. */
@@ -122,9 +129,12 @@ function drawBankDetails(doc: PDFKit.PDFDocument, document: InvoiceDocument): vo
   }
   doc.moveDown(1);
   doc.fillColor(MUTED).fontSize(9).text('Bank details', PAGE_MARGIN, doc.y);
-  doc.fillColor(INK).fontSize(10).text(document.bankDetails, PAGE_MARGIN, doc.y, {
-    width: doc.page.width - 2 * PAGE_MARGIN,
-  });
+  doc
+    .fillColor(INK)
+    .fontSize(10)
+    .text(document.bankDetails, PAGE_MARGIN, doc.y, {
+      width: doc.page.width - 2 * PAGE_MARGIN,
+    });
 }
 
 function drawTotals(doc: PDFKit.PDFDocument, document: InvoiceDocument): void {
