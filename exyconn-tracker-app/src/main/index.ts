@@ -220,7 +220,11 @@ function registerIpc(ctrl: TrackerController): void {
     ctrl.createManualEntry(draft),
   );
   ipcMain.handle(IPC.withdrawManualEntry, (_e, id: string) => ctrl.withdrawManualEntry(id));
+  ipcMain.handle(IPC.getAppVersion, () => app.getVersion());
   ipcMain.handle(IPC.getUpdate, () => updater.current);
+  // Fire-and-forget on purpose: the renderer gets a progress bar off the state channel, not a
+  // promise it has to sit on while a few hundred megabytes arrive.
+  ipcMain.handle(IPC.downloadUpdate, () => updater.download());
   /**
    * Restart into the new version. The session is stopped first so the minutes worked up to
    * this moment are flushed — an update must never cost the employee their afternoon.

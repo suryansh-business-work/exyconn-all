@@ -73,8 +73,12 @@ const api = {
     ipcRenderer.invoke(IPC.withdrawManualEntry, id),
 
   // ── Updates ─────────────────────────────────────────────────────────────
+  /** The version this install is running — what the About panel shows. */
+  getAppVersion: (): Promise<string> => ipcRenderer.invoke(IPC.getAppVersion),
   /** Where this install is in its own update cycle, for a window that has just opened. */
   getUpdate: (): Promise<UpdateState> => ipcRenderer.invoke(IPC.getUpdate),
+  /** Starts fetching an available version. Progress arrives on `onUpdateChanged`. */
+  downloadUpdate: (): Promise<void> => ipcRenderer.invoke(IPC.downloadUpdate),
   /** Stops tracking, flushes what is queued, and restarts into the downloaded version. */
   installUpdate: (): Promise<void> => ipcRenderer.invoke(IPC.installUpdate),
   onUpdateChanged: (listener: (update: UpdateState) => void): (() => void) => {

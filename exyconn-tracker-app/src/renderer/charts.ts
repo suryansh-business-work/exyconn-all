@@ -1,4 +1,4 @@
-import type { ChartData } from '@exyconn/ui';
+import { msToHours, type ChartData } from '@exyconn/ui';
 import type { ReportDay } from '@shared/types';
 
 /**
@@ -8,22 +8,6 @@ import type { ReportDay } from '@shared/types';
  * point and round the same way: a chart here and a chart in My Tracker showing different
  * numbers for the same Tuesday is worse than either chart alone.
  */
-
-/** Milliseconds as hours, to one decimal — the unit every tracker chart is plotted in. */
-export function toHours(ms: number): number {
-  return Math.round((ms / 3_600_000) * 10) / 10;
-}
-
-/** "6.5h", or "45m" below the hour, where a decimal hour stops being readable. */
-export function formatHours(hours: number): string {
-  if (hours === 0) {
-    return '0h';
-  }
-  if (hours < 1) {
-    return `${Math.round(hours * 60)}m`;
-  }
-  return `${Math.round(hours * 10) / 10}h`;
-}
 
 /**
  * The month, day by day: worked stacked under idle.
@@ -37,8 +21,8 @@ export function monthChart(days: readonly ReportDay[]): ChartData {
   return {
     labels: ordered.map((day) => day.date.slice(8)),
     series: [
-      { id: 'active', label: 'Worked', values: ordered.map((day) => toHours(day.activeMs)) },
-      { id: 'idle', label: 'Idle', values: ordered.map((day) => toHours(day.idleMs)) },
+      { id: 'active', label: 'Worked', values: ordered.map((day) => msToHours(day.activeMs)) },
+      { id: 'idle', label: 'Idle', values: ordered.map((day) => msToHours(day.idleMs)) },
     ],
   };
 }

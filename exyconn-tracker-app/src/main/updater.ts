@@ -42,7 +42,11 @@ export class AppUpdater {
   /** Wires the feed and starts checking. Call once, and only from a packaged app. */
   start(graphqlUrl: string): void {
     autoUpdater.setFeedURL({ provider: 'generic', url: feedUrlFor(graphqlUrl) });
-    autoUpdater.autoDownload = true;
+    // NOT auto-download. A tracker that quietly pulls a few hundred megabytes decides for the
+    // employee that now is a good moment to use their connection — on a tethered phone or a
+    // hotel wifi it is not. The app offers, they choose, and the fetch then runs in the
+    // background without interrupting anything.
+    autoUpdater.autoDownload = false;
     // The employee is offered a restart, but never made to take it: whenever they quit the
     // app themselves, the version already on disk is the one that comes back.
     autoUpdater.autoInstallOnAppQuit = true;
@@ -52,7 +56,7 @@ export class AppUpdater {
     );
     autoUpdater.on('update-not-available', () => this.set(IDLE_UPDATE));
     autoUpdater.on('update-available', (info: { version: string }) =>
-      this.set({ stage: 'downloading', version: info.version, percent: 0 }),
+      this.set({ stage: 'available', version: info.version, percent: 0 }),
     );
     autoUpdater.on('download-progress', (progress: { percent: number }) =>
       this.set({ stage: 'downloading', percent: Math.round(progress.percent) }),
@@ -65,6 +69,8 @@ export class AppUpdater {
     });
     autoUpdater.on('error', (error: Error) => {
       console.error('Update check failed', error);
+      // The version is kept, so a failed download still offers the retry it belongs to rather
+      // than forgetting which version it was trying to fetch.
       this.set({ stage: 'failed', percent: 0 });
     });
 
@@ -72,6 +78,24 @@ export class AppUpdater {
       this.check();
       this.timer = setInterval(() => this.check(), CHECK_INTERVAL_MS);
     }, FIRST_CHECK_MS);
+  }
+
+  /**
+   * Starts fetching the available version.
+   *
+   * Returns as soon as the download has been asked for, never when it finishes: the employee
+   * pressed a button in a tracker that is probably mid-session, and the answer to that press
+   * is a progress bar, not a frozen window. Progress arrives on the state channel.
+   */
+  download(): void {
+    if (this.state.stage !== 'available' && this.state.stage !== 'failed') {
+      return;
+    }
+    this.set({ stage: 'downloading', percent: 0 });
+    autoUpdater.downloadUpdate().catch((error: unknown) => {
+      console.error('Downloading the update failed', error);
+      this.set({ stage: 'failed', percent: 0 });
+    });
   }
 
   /** Quits and installs the downloaded version. Only meaningful once the stage is 'ready'. */

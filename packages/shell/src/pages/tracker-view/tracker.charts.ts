@@ -1,5 +1,5 @@
 import { formatInTimeZone } from 'date-fns-tz';
-import type { ChartData } from '@exyconn/ui';
+import { msToHours, type ChartData } from '@exyconn/ui';
 import type { TrackerDayBucketData, TrackerDayData, TrackerAppUsageData } from './tracker.types';
 
 /**
@@ -9,22 +9,6 @@ import type { TrackerDayBucketData, TrackerDayData, TrackerAppUsageData } from '
  * Milliseconds are converted to HOURS here rather than in the chart. An axis in milliseconds
  * is unreadable, and rounding at draw time means the chart and its table can disagree.
  */
-
-/** Milliseconds as hours, to one decimal — the unit every tracker chart is plotted in. */
-export function toHours(ms: number): number {
-  return Math.round((ms / 3_600_000) * 10) / 10;
-}
-
-/** "6.5h", or "45m" below the hour, where a decimal hour stops being readable. */
-export function formatHours(hours: number): string {
-  if (hours === 0) {
-    return '0h';
-  }
-  if (hours < 1) {
-    return `${Math.round(hours * 60)}m`;
-  }
-  return `${Math.round(hours * 10) / 10}h`;
-}
 
 /** The colours these three always wear. Worked/idle/claimed MEAN something; they are not
  * "series 1, 2 and 3", so they keep their identity across every chart in the tracker. */
@@ -53,17 +37,17 @@ export function monthHoursChart(buckets: readonly TrackerDayBucketData[]): Chart
       {
         id: TIME_SERIES_IDS.active,
         label: 'Worked',
-        values: ordered.map((bucket) => toHours(bucket.activeMs)),
+        values: ordered.map((bucket) => msToHours(bucket.activeMs)),
       },
       {
         id: TIME_SERIES_IDS.idle,
         label: 'Idle',
-        values: ordered.map((bucket) => toHours(bucket.idleMs)),
+        values: ordered.map((bucket) => msToHours(bucket.idleMs)),
       },
       {
         id: TIME_SERIES_IDS.manual,
         label: 'Off-computer',
-        values: ordered.map((bucket) => toHours(bucket.manualMs)),
+        values: ordered.map((bucket) => msToHours(bucket.manualMs)),
       },
     ],
   };
@@ -103,12 +87,12 @@ export function dayByHourChart(day: TrackerDayData | undefined, timezone: string
       {
         id: TIME_SERIES_IDS.active,
         label: 'Worked',
-        values: hours.map((hour) => toHours(worked[hour])),
+        values: hours.map((hour) => msToHours(worked[hour])),
       },
       {
         id: TIME_SERIES_IDS.idle,
         label: 'Idle',
-        values: hours.map((hour) => toHours(idle[hour])),
+        values: hours.map((hour) => msToHours(idle[hour])),
       },
     ],
   };
@@ -130,10 +114,10 @@ export function appUsageChart(apps: readonly TrackerAppUsageData[]): ChartData {
   const restMs = ranked.slice(APP_LIMIT).reduce((total, app) => total + app.durationMs, 0);
 
   const labels = top.map((app) => app.appName);
-  const values = top.map((app) => toHours(app.durationMs));
+  const values = top.map((app) => msToHours(app.durationMs));
   if (restMs > 0) {
     labels.push('Other');
-    values.push(toHours(restMs));
+    values.push(msToHours(restMs));
   }
 
   return { labels, series: [{ id: 'app-usage', label: 'In the foreground', values }] };
@@ -150,6 +134,8 @@ export function projectSplitChart(day: TrackerDayData | undefined): ChartData {
   const ranked = [...byProject.entries()].sort((a, b) => b[1] - a[1]);
   return {
     labels: ranked.map(([name]) => name),
-    series: [{ id: 'project-time', label: 'Worked', values: ranked.map(([, ms]) => toHours(ms)) }],
+    series: [
+      { id: 'project-time', label: 'Worked', values: ranked.map(([, ms]) => msToHours(ms)) },
+    ],
   };
 }

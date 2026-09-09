@@ -1,8 +1,14 @@
 /**
- * `{{name}}` — a merge field. Whitespace inside the braces is tolerated because people
- * writing marketing copy type it, and a campaign is not the place to be pedantic about it.
+ * Marketing's mail merge: the shared `{{field}}` substitution, plus the one line the law
+ * cares about.
+ *
+ * The substitution itself is `utils/mergeFields`, shared with the AI module's prompts —
+ * including its Map-of-own-entries lookup, so `{{constructor}}` renders as nothing rather
+ * than putting a function into somebody's inbox.
  */
-const MERGE_FIELD = /\{\{\s*(\w+)\s*\}\}/g;
+import { renderMergeFields } from '../../utils/mergeFields';
+
+export { renderMergeFields };
 
 /** The values every campaign email can merge, whichever recipient it is going to. */
 export type MergeVars = {
@@ -11,21 +17,6 @@ export type MergeVars = {
   company: string;
   unsubscribeUrl: string;
 };
-
-/**
- * Substitutes `{{field}}` with the recipient's own value.
- *
- * Deliberately not a template language: there is no logic, no expressions and nothing a
- * marketer can write that the server will execute. A field nobody supplied renders empty
- * rather than leaving `{{firstName}}` in a customer's inbox — the failure mode that has
- * embarrassed every company that ever shipped a mail merge.
- */
-export function renderMergeFields(text: string, vars: Readonly<Record<string, string>>): string {
-  // Own entries only, through a Map: `{{constructor}}` must render as nothing rather than
-  // reaching a prototype member and putting a function's source into somebody's inbox.
-  const own = new Map(Object.entries(vars));
-  return text.replaceAll(MERGE_FIELD, (_match, field: string) => own.get(field) ?? '');
-}
 
 /** How the footer reads when the copy did not place the link itself. */
 const FOOTER_PREFIX = 'Unsubscribe: ';

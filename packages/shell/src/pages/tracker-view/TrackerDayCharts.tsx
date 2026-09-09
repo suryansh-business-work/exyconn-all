@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Box, Divider } from '@/components/ui';
-import { BarChart, ChartCard, useChartPalette } from '@exyconn/ui';
-import { appUsageChart, dayByHourChart, formatHours, projectSplitChart } from './tracker.charts';
+import { BarChart, ChartCard, formatHours, useChartPalette } from '@exyconn/ui';
+import { appUsageChart, dayByHourChart, projectSplitChart } from './tracker.charts';
 import type { TrackerDayData } from './tracker.types';
 
 interface TrackerDayChartsProps {

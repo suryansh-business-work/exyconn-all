@@ -49,9 +49,9 @@ function autoPausePolicy(settings: TrackerSettings): string {
 /** Whether a capture is announced out loud, and by whose decision. */
 function captureSoundPolicy(settings: TrackerSettings): string {
   if (settings.captureSoundEnabled) {
-    return 'A camera shutter plays with each screenshot';
+    return 'A shutter plays';
   }
-  return 'Off — screenshots are silent, but you are still notified';
+  return 'Silent — you are still notified';
 }
 
 /**
@@ -62,11 +62,13 @@ function captureSoundPolicy(settings: TrackerSettings): string {
  */
 function schedulePolicy(settings: TrackerSettings): string {
   if (!settings.autoStartEnabled) {
-    return 'Off — tracking starts and stops when you say so';
+    return 'You start and stop it';
   }
   const start = formatHourLabel(settings.autoStartHour);
   const stop = formatHourLabel(settings.autoStopHour);
-  return `${start} to ${stop} — tracking stops itself at ${stop}, and time after that is not logged`;
+  // Just the window. What it COSTS to be outside it is the dashboard notice's job, and saying
+  // it twice made this row long enough to need two lines of its own.
+  return `${start} – ${stop}, then it stops`;
 }
 
 /** Uploading is automatic and always on; only the cadence is an administrator's choice. */

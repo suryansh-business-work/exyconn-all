@@ -1,0 +1,40 @@
+#!/bin/sh
+# Asks what kind of change this is, and bumps the tracker's version accordingly.
+#
+# WHY pre-commit and not pre-push: a pre-push hook runs after git has already resolved which
+# commits it is sending, so a version bumped there lands in a commit that the push leaves
+# behind — you would push the old version every time and only ship the bump on the NEXT push.
+# Staging it into the commit being made is the only placement that actually ships.
+#
+# Answer major, minor or patch. Non-interactive callers (CI, scripted commits) can set
+# VERSION_BUMP; with neither, it takes patch, so nothing ever blocks on a prompt nobody sees.
+# `git commit --no-verify` skips this entirely.
+
+# A rebase, merge or cherry-pick replays commits that were already versioned. Bumping per
+# replayed commit would run the version up by however many commits were being replayed.
+git_dir=$(git rev-parse --git-dir)
+if [ -e "$git_dir/MERGE_HEAD" ] || [ -e "$git_dir/REBASE_HEAD" ] || [ -d "$git_dir/rebase-merge" ] ||
+   [ -d "$git_dir/rebase-apply" ] || [ -e "$git_dir/CHERRY_PICK_HEAD" ]; then
+  exit 0
+fi
+
+level="$VERSION_BUMP"
+
+if [ -z "$level" ] && [ -r /dev/tty ]; then
+  current=$(node -p "require('./exyconn-tracker-app/package.json').version" 2>/dev/null)
+  printf '\nTracker version is %s. What kind of change is this?\n' "$current" > /dev/tty
+  printf '  [p] patch (default)   [m] minor   [M] major   [s] skip\n' > /dev/tty
+  printf 'Bump: ' > /dev/tty
+  read -r answer < /dev/tty
+  case "$answer" in
+    M|major)        level=major ;;
+    m|minor)        level=minor ;;
+    s|skip)         echo "Version left at $current." > /dev/tty; exit 0 ;;
+    *)              level=patch ;;
+  esac
+fi
+
+[ -z "$level" ] && level=patch
+
+node scripts/bump-version.mjs "$level" || exit 1
+git add exyconn-tracker-app/package.json
