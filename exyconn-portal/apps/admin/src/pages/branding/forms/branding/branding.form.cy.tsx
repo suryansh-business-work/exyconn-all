@@ -24,6 +24,7 @@ const INITIAL: BrandingRow = {
   backgroundColor: '#f4f6fb',
   textColor: '#0f172a',
   supportEmail: 'support@exyconn.com',
+  hrEmail: 'hr@exyconn.com',
   contactPhone: '',
   websiteUrl: 'https://exyconn.com',
   address: '',
