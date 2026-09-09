@@ -35,6 +35,12 @@ jobs:
       - name: Portal image copies every workspace manifest
         run: node scripts/check-docker-manifests.mjs
 
+      # An app that imports a workspace package outside its install closure resolves fine
+      # here (CI installs everything) and dies inside the deploy image, which installs one
+      # app's closure at a time. That is how portal-support blocked production for days.
+      - name: Workspace imports are installable
+        run: node scripts/check-workspace-imports.mjs
+
       # A bad typeDefs block is a runtime parse error, so tsc passes and then every
       # server test fails at once with the same message. Name the file instead.
       - name: GraphQL SDL parses

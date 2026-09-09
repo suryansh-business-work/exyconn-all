@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
-import { Box } from '@exyconn/shell/components/ui';
+// Through the shell's barrel, like every other portal UI import: the app declares
+// @exyconn/shell, not @exyconn/ui, and the deploy image installs only what is declared.
+import { BarChart, Box, ChartCard, type ChartData } from '@exyconn/shell/components/ui';
 import { glass } from '@exyconn/shell/components/glass/glass';
-import { BarChart, ChartCard, type ChartData } from '@exyconn/ui';
 
 /** One priced thing — an employee or a project — as the chart reads it. */
 export interface BillingBar {
