@@ -235,6 +235,25 @@ export type AnnouncementPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/**
+ * A machine's credential. The key itself is stored only as a SHA-256, so it exists in clear
+ * exactly once — in the response that created it.
+ */
+export type ApiKey = {
+  __typename?: 'ApiKey';
+  createdAt: Scalars['DateTime']['output'];
+  createdBy: Scalars['String']['output'];
+  expiresAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  /** The readable half, kept in clear so a key can be named in a list and in a log. */
+  prefix: Scalars['String']['output'];
+  revokedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** What this key may do. Never more than a role a person could hold. */
+  roles: Array<Scalars['String']['output']>;
+};
+
 export type AppSettings = {
   __typename?: 'AppSettings';
   /** Machine-translate a string the first time a screen needs one and none exists. */
@@ -1295,6 +1314,13 @@ export type CreateUserInput = {
   workingTimeNote?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** A newly created endpoint. The signing secret is returned once and never listed again. */
+export type CreatedWebhook = {
+  __typename?: 'CreatedWebhook';
+  secret: Scalars['String']['output'];
+  webhook: Webhook;
+};
+
 /** The MongoDB this server is connected to, reported by the database server. */
 export type DatabaseInfo = {
   __typename?: 'DatabaseInfo';
@@ -2306,6 +2332,13 @@ export enum InvoiceStatus {
   Sent = 'SENT'
 }
 
+/** A newly minted key. `key` is returned once and can never be recovered. */
+export type IssuedApiKey = {
+  __typename?: 'IssuedApiKey';
+  apiKey: ApiKey;
+  key: Scalars['String']['output'];
+};
+
 export type Job = {
   __typename?: 'Job';
   applicationDeadline?: Maybe<Scalars['DateTime']['output']>;
@@ -2823,6 +2856,7 @@ export type Mutation = {
   createActivity: Activity;
   createAiJob: AiJob;
   createAnnouncement: Announcement;
+  createApiKey: IssuedApiKey;
   createApplicant: Applicant;
   createAsset: Asset;
   createAudienceList: AudienceList;
@@ -2927,6 +2961,7 @@ export type Mutation = {
   createTraining: Training;
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
+  createWebhook: CreatedWebhook;
   createWebsiteSubmission: WebsiteSubmission;
   /** HR/ADMIN or the employee's manager: approve or reject, with an optional note. */
   decideEmployeeRequest: EmployeeRequest;
@@ -3011,6 +3046,7 @@ export type Mutation = {
   deleteToolCategory: Scalars['Boolean']['output'];
   deleteTraining: Scalars['Boolean']['output'];
   deleteUser: Scalars['Boolean']['output'];
+  deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
   grantTrackerAccess: TrackerAccess;
   importMediaFromUrl: Scalars['String']['output'];
@@ -3064,6 +3100,7 @@ export type Mutation = {
    * has been paid against cannot quietly leave a timesheet.
    */
   reviewTrackerManualEntry: TrackerManualEntry;
+  revokeApiKey: ApiKey;
   revokeProjectShare: ProjectShare;
   revokeTrackerAccess: TrackerAccess;
   revokeTrackerDevice: TrackerDevice;
@@ -3156,6 +3193,7 @@ export type Mutation = {
   setTranslation: Translation;
   setUserActive: User;
   setUserBlocked: User;
+  setWebhookActive: Webhook;
   signContract: Contract;
   /**
    * Starts one joiner's onboarding from a template. HR only, and refused while the employee
@@ -3444,6 +3482,12 @@ export type MutationCreateAiJobArgs = {
 
 export type MutationCreateAnnouncementArgs = {
   input: AnnouncementInput;
+};
+
+
+export type MutationCreateApiKeyArgs = {
+  name: Scalars['String']['input'];
+  roles: Array<Scalars['String']['input']>;
 };
 
 
@@ -3853,6 +3897,13 @@ export type MutationCreateUserArgs = {
 };
 
 
+export type MutationCreateWebhookArgs = {
+  events: Array<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+
 export type MutationCreateWebsiteSubmissionArgs = {
   input: WebsiteSubmissionInput;
 };
@@ -4250,6 +4301,11 @@ export type MutationDeleteUserArgs = {
 };
 
 
+export type MutationDeleteWebhookArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteWebsiteSubmissionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4373,6 +4429,11 @@ export type MutationReviewTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
   reviewNote?: InputMaybe<Scalars['String']['input']>;
   status: TrackerManualEntryStatus;
+};
+
+
+export type MutationRevokeApiKeyArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -4576,6 +4637,12 @@ export type MutationSetUserBlockedArgs = {
   id: Scalars['ID']['input'];
   isBlocked: Scalars['Boolean']['input'];
   reason?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSetWebhookActiveArgs = {
+  active: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -6311,6 +6378,7 @@ export type Query = {
   listAnnouncements: Array<Announcement>;
   listAnnouncementsPaged: AnnouncementPage;
   listAnnouncementsStats: TableStats;
+  listApiKeys: Array<ApiKey>;
   listApplicants: Array<Applicant>;
   listApplicantsPaged: ApplicantPage;
   listApplicantsStats: TableStats;
@@ -6531,6 +6599,8 @@ export type Query = {
   listUsers: Array<User>;
   listUsersPaged: UserPage;
   listUsersStats: TableStats;
+  listWebhookDeliveries: Array<WebhookDelivery>;
+  listWebhooks: Array<Webhook>;
   listWebsiteSubmissions: Array<WebsiteSubmission>;
   listWebsiteSubmissionsPaged: WebsiteSubmissionPage;
   listWebsiteSubmissionsStats: TableStats;
@@ -6711,6 +6781,8 @@ export type Query = {
   trackerTotals: TrackerTotals;
   /** The admin's review screen: what has been translated, and by what. ADMIN only. */
   translations: TranslationPage;
+  /** The events an endpoint may subscribe to. A fixed list, so a dead subscription is impossible. */
+  webhookEvents: Array<Scalars['String']['output']>;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
 };
@@ -7477,6 +7549,11 @@ export type QueryListTrainingsPagedArgs = {
 
 export type QueryListUsersPagedArgs = {
   input: TableQueryInput;
+};
+
+
+export type QueryListWebhookDeliveriesArgs = {
+  webhookId: Scalars['ID']['input'];
 };
 
 
@@ -9557,6 +9634,35 @@ export type UserPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type Webhook = {
+  __typename?: 'Webhook';
+  active: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  createdBy: Scalars['String']['output'];
+  events: Array<Scalars['String']['output']>;
+  /** Consecutive failures. Reset by a success. */
+  failureCount: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  lastDeliveredAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** One attempt to deliver one event, and what the receiver said. */
+export type WebhookDelivery = {
+  __typename?: 'WebhookDelivery';
+  attempts: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  deliveredAt?: Maybe<Scalars['DateTime']['output']>;
+  error: Scalars['String']['output'];
+  event: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  nextAttemptAt: Scalars['DateTime']['output'];
+  responseStatus?: Maybe<Scalars['Int']['output']>;
+  status: Scalars['String']['output'];
+  webhookId: Scalars['String']['output'];
+};
+
 export type WebsiteSubmission = {
   __typename?: 'WebsiteSubmission';
   /** The HR applicant a job application became, filed automatically on submission. */
@@ -9702,6 +9808,7 @@ export type ResolversTypes = ResolversObject<{
   AnnouncementCategory: AnnouncementCategory;
   AnnouncementInput: AnnouncementInput;
   AnnouncementPage: ResolverTypeWrapper<AnnouncementPage>;
+  ApiKey: ResolverTypeWrapper<ApiKey>;
   AppSettings: ResolverTypeWrapper<AppSettings>;
   Applicant: ResolverTypeWrapper<Applicant>;
   ApplicantInput: ApplicantInput;
@@ -9794,6 +9901,7 @@ export type ResolversTypes = ResolversObject<{
   ContractType: ContractType;
   ConvertLeadInput: ConvertLeadInput;
   CreateUserInput: CreateUserInput;
+  CreatedWebhook: ResolverTypeWrapper<CreatedWebhook>;
   DatabaseInfo: ResolverTypeWrapper<DatabaseInfo>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   Deal: ResolverTypeWrapper<Deal>;
@@ -9893,6 +10001,7 @@ export type ResolversTypes = ResolversObject<{
   InvoiceLineInput: InvoiceLineInput;
   InvoicePage: ResolverTypeWrapper<InvoicePage>;
   InvoiceStatus: InvoiceStatus;
+  IssuedApiKey: ResolverTypeWrapper<IssuedApiKey>;
   JSON: ResolverTypeWrapper<Scalars['JSON']['output']>;
   Job: ResolverTypeWrapper<Job>;
   JobCompany: ResolverTypeWrapper<JobCompany>;
@@ -10178,6 +10287,8 @@ export type ResolversTypes = ResolversObject<{
   User: ResolverTypeWrapper<User>;
   UserCredentials: ResolverTypeWrapper<UserCredentials>;
   UserPage: ResolverTypeWrapper<UserPage>;
+  Webhook: ResolverTypeWrapper<Webhook>;
+  WebhookDelivery: ResolverTypeWrapper<WebhookDelivery>;
   WebsiteSubmission: ResolverTypeWrapper<WebsiteSubmission>;
   WebsiteSubmissionInput: WebsiteSubmissionInput;
   WebsiteSubmissionPage: ResolverTypeWrapper<WebsiteSubmissionPage>;
@@ -10205,6 +10316,7 @@ export type ResolversParentTypes = ResolversObject<{
   Announcement: Announcement;
   AnnouncementInput: AnnouncementInput;
   AnnouncementPage: AnnouncementPage;
+  ApiKey: ApiKey;
   AppSettings: AppSettings;
   Applicant: Applicant;
   ApplicantInput: ApplicantInput;
@@ -10278,6 +10390,7 @@ export type ResolversParentTypes = ResolversObject<{
   ContractPage: ContractPage;
   ConvertLeadInput: ConvertLeadInput;
   CreateUserInput: CreateUserInput;
+  CreatedWebhook: CreatedWebhook;
   DatabaseInfo: DatabaseInfo;
   DateTime: Scalars['DateTime']['output'];
   Deal: Deal;
@@ -10360,6 +10473,7 @@ export type ResolversParentTypes = ResolversObject<{
   InvoiceLine: InvoiceLine;
   InvoiceLineInput: InvoiceLineInput;
   InvoicePage: InvoicePage;
+  IssuedApiKey: IssuedApiKey;
   JSON: Scalars['JSON']['output'];
   Job: Job;
   JobCompany: JobCompany;
@@ -10598,6 +10712,8 @@ export type ResolversParentTypes = ResolversObject<{
   User: User;
   UserCredentials: UserCredentials;
   UserPage: UserPage;
+  Webhook: Webhook;
+  WebhookDelivery: WebhookDelivery;
   WebsiteSubmission: WebsiteSubmission;
   WebsiteSubmissionInput: WebsiteSubmissionInput;
   WebsiteSubmissionPage: WebsiteSubmissionPage;
@@ -10719,6 +10835,19 @@ export type AnnouncementResolvers<ContextType = GraphQLContext, ParentType exten
 export type AnnouncementPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AnnouncementPage'] = ResolversParentTypes['AnnouncementPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Announcement']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ApiKeyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ApiKey'] = ResolversParentTypes['ApiKey']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  expiresAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastUsedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  prefix?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  revokedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -11286,6 +11415,12 @@ export type ContractResolvers<ContextType = GraphQLContext, ParentType extends R
 export type ContractPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractPage'] = ResolversParentTypes['ContractPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Contract']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CreatedWebhookResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CreatedWebhook'] = ResolversParentTypes['CreatedWebhook']> = ResolversObject<{
+  secret?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  webhook?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -11910,6 +12045,12 @@ export type InvoicePageResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type IssuedApiKeyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['IssuedApiKey'] = ResolversParentTypes['IssuedApiKey']> = ResolversObject<{
+  apiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
   name: 'JSON';
 }
@@ -12201,6 +12342,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createActivity?: Resolver<ResolversTypes['Activity'], ParentType, ContextType, RequireFields<MutationCreateActivityArgs, 'input'>>;
   createAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationCreateAiJobArgs, 'input'>>;
   createAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<MutationCreateAnnouncementArgs, 'input'>>;
+  createApiKey?: Resolver<ResolversTypes['IssuedApiKey'], ParentType, ContextType, RequireFields<MutationCreateApiKeyArgs, 'name' | 'roles'>>;
   createApplicant?: Resolver<ResolversTypes['Applicant'], ParentType, ContextType, RequireFields<MutationCreateApplicantArgs, 'input'>>;
   createAsset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType, RequireFields<MutationCreateAssetArgs, 'input'>>;
   createAudienceList?: Resolver<ResolversTypes['AudienceList'], ParentType, ContextType, RequireFields<MutationCreateAudienceListArgs, 'input'>>;
@@ -12280,6 +12422,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationCreateTrackerManualEntryArgs, 'input'>>;
   createTraining?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationCreateTrainingArgs, 'input'>>;
   createUser?: Resolver<ResolversTypes['UserCredentials'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
+  createWebhook?: Resolver<ResolversTypes['CreatedWebhook'], ParentType, ContextType, RequireFields<MutationCreateWebhookArgs, 'events' | 'name' | 'url'>>;
   createWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationCreateWebsiteSubmissionArgs, 'input'>>;
   decideEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationDecideEmployeeRequestArgs, 'id' | 'status'>>;
   deleteActivity?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteActivityArgs, 'id'>>;
@@ -12359,6 +12502,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteToolCategory?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolCategoryArgs, 'id'>>;
   deleteTraining?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrainingArgs, 'id'>>;
   deleteUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
+  deleteWebhook?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   deleteWebsiteSubmission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteSubmissionArgs, 'id'>>;
   grantTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationGrantTrackerAccessArgs, 'userId'>>;
   importMediaFromUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationImportMediaFromUrlArgs, 'fileName' | 'url'>>;
@@ -12382,6 +12526,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
   reviewTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationReviewTrackerManualEntryArgs, 'id' | 'status'>>;
+  revokeApiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   revokeProjectShare?: Resolver<ResolversTypes['ProjectShare'], ParentType, ContextType, RequireFields<MutationRevokeProjectShareArgs, 'id'>>;
   revokeTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationRevokeTrackerAccessArgs, 'userId'>>;
   revokeTrackerDevice?: Resolver<ResolversTypes['TrackerDevice'], ParentType, ContextType, RequireFields<MutationRevokeTrackerDeviceArgs, 'deviceId'>>;
@@ -12416,6 +12561,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setTranslation?: Resolver<ResolversTypes['Translation'], ParentType, ContextType, RequireFields<MutationSetTranslationArgs, 'locale' | 'source' | 'text'>>;
   setUserActive?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserActiveArgs, 'id' | 'isActive'>>;
   setUserBlocked?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserBlockedArgs, 'id' | 'isBlocked'>>;
+  setWebhookActive?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType, RequireFields<MutationSetWebhookActiveArgs, 'active' | 'id'>>;
   signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id' | 'signedBy'>>;
   startOnboarding?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationStartOnboardingArgs, 'employeeId' | 'templateId'>>;
   startSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationStartSprintArgs, 'id'>>;
@@ -13171,6 +13317,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listAnnouncements?: Resolver<Array<ResolversTypes['Announcement']>, ParentType, ContextType>;
   listAnnouncementsPaged?: Resolver<ResolversTypes['AnnouncementPage'], ParentType, ContextType, RequireFields<QueryListAnnouncementsPagedArgs, 'input'>>;
   listAnnouncementsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listApiKeys?: Resolver<Array<ResolversTypes['ApiKey']>, ParentType, ContextType>;
   listApplicants?: Resolver<Array<ResolversTypes['Applicant']>, ParentType, ContextType>;
   listApplicantsPaged?: Resolver<ResolversTypes['ApplicantPage'], ParentType, ContextType, RequireFields<QueryListApplicantsPagedArgs, 'input'>>;
   listApplicantsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -13373,6 +13520,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
   listUsersPaged?: Resolver<ResolversTypes['UserPage'], ParentType, ContextType, RequireFields<QueryListUsersPagedArgs, 'input'>>;
   listUsersStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listWebhookDeliveries?: Resolver<Array<ResolversTypes['WebhookDelivery']>, ParentType, ContextType, RequireFields<QueryListWebhookDeliveriesArgs, 'webhookId'>>;
+  listWebhooks?: Resolver<Array<ResolversTypes['Webhook']>, ParentType, ContextType>;
   listWebsiteSubmissions?: Resolver<Array<ResolversTypes['WebsiteSubmission']>, ParentType, ContextType>;
   listWebsiteSubmissionsPaged?: Resolver<ResolversTypes['WebsiteSubmissionPage'], ParentType, ContextType, RequireFields<QueryListWebsiteSubmissionsPagedArgs, 'input'>>;
   listWebsiteSubmissionsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -13472,6 +13621,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerTaskOptions?: Resolver<Array<ResolversTypes['TrackerTask']>, ParentType, ContextType, RequireFields<QueryTrackerTaskOptionsArgs, 'projectId'>>;
   trackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType, RequireFields<QueryTrackerTotalsArgs, 'userId'>>;
   translations?: Resolver<ResolversTypes['TranslationPage'], ParentType, ContextType, RequireFields<QueryTranslationsArgs, 'locale'>>;
+  webhookEvents?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   websiteFormTypes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
@@ -14493,6 +14643,33 @@ export type UserPageResolvers<ContextType = GraphQLContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type WebhookResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Webhook'] = ResolversParentTypes['Webhook']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  events?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  failureCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastDeliveredAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebhookDeliveryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebhookDelivery'] = ResolversParentTypes['WebhookDelivery']> = ResolversObject<{
+  attempts?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  deliveredAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  event?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  nextAttemptAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  responseStatus?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  webhookId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type WebsiteSubmissionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteSubmission'] = ResolversParentTypes['WebsiteSubmission']> = ResolversObject<{
   applicantId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -14526,6 +14703,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AiUserSpend?: AiUserSpendResolvers<ContextType>;
   Announcement?: AnnouncementResolvers<ContextType>;
   AnnouncementPage?: AnnouncementPageResolvers<ContextType>;
+  ApiKey?: ApiKeyResolvers<ContextType>;
   AppSettings?: AppSettingsResolvers<ContextType>;
   Applicant?: ApplicantResolvers<ContextType>;
   ApplicantPage?: ApplicantPageResolvers<ContextType>;
@@ -14577,6 +14755,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ContainerPort?: ContainerPortResolvers<ContextType>;
   Contract?: ContractResolvers<ContextType>;
   ContractPage?: ContractPageResolvers<ContextType>;
+  CreatedWebhook?: CreatedWebhookResolvers<ContextType>;
   DatabaseInfo?: DatabaseInfoResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   Deal?: DealResolvers<ContextType>;
@@ -14636,6 +14815,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Invoice?: InvoiceResolvers<ContextType>;
   InvoiceLine?: InvoiceLineResolvers<ContextType>;
   InvoicePage?: InvoicePageResolvers<ContextType>;
+  IssuedApiKey?: IssuedApiKeyResolvers<ContextType>;
   JSON?: GraphQLScalarType;
   Job?: JobResolvers<ContextType>;
   JobCompany?: JobCompanyResolvers<ContextType>;
@@ -14803,6 +14983,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   User?: UserResolvers<ContextType>;
   UserCredentials?: UserCredentialsResolvers<ContextType>;
   UserPage?: UserPageResolvers<ContextType>;
+  Webhook?: WebhookResolvers<ContextType>;
+  WebhookDelivery?: WebhookDeliveryResolvers<ContextType>;
   WebsiteSubmission?: WebsiteSubmissionResolvers<ContextType>;
   WebsiteSubmissionPage?: WebsiteSubmissionPageResolvers<ContextType>;
 }>;

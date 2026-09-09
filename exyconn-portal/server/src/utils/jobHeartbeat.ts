@@ -15,6 +15,7 @@ export const JOB_KEYS = {
   trackerRetention: 'trackerRetention',
   trackerDigest: 'trackerDigest',
   recurringInvoices: 'recurringInvoices',
+  webhookDelivery: 'webhookDelivery',
 } as const;
 
 export type JobKey = (typeof JOB_KEYS)[keyof typeof JOB_KEYS];

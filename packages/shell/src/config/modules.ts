@@ -53,6 +53,7 @@ import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import WebhookIcon from '@mui/icons-material/Webhook';
 import PolicyIcon from '@mui/icons-material/Policy';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -505,6 +506,12 @@ export const MODULES: ModuleDefinition[] = [
         icon: TranslateIcon,
       },
       { key: 'admin-audit', label: 'Audit Log', path: '/admin/audit', icon: HistoryIcon },
+      {
+        key: 'admin-integrations',
+        label: 'Integrations',
+        path: '/admin/integrations',
+        icon: WebhookIcon,
+      },
       {
         key: 'admin-health',
         label: 'System Health',

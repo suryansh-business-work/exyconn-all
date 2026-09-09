@@ -9,6 +9,7 @@ import { ensureOnboardingDefaults } from './modules/onboarding';
 import { startTrackerDigest, startTrackerRetention } from './modules/tracker';
 import { startCampaignSchedule } from './modules/marketing';
 import { startRecurringInvoiceSchedule } from './modules/finance';
+import { startWebhookDelivery } from './modules/integrations';
 import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { env } from './config/env';
 import { logger } from './utils/logger';
@@ -46,6 +47,7 @@ async function bootstrap(): Promise<void> {
   // not anyone is signed into the Marketing portal when it does.
   startCampaignSchedule();
   startRecurringInvoiceSchedule();
+  startWebhookDelivery();
   // A run with no price on file costs zero, so the prices have to exist before the first
   // job does. Insert-only, so a price corrected in Tech survives every restart.
   await ensureAiModelPrices();

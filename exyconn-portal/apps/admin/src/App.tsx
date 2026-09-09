@@ -11,6 +11,7 @@ import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
 import { PermissionsPage } from './pages/permissions';
 import { AuditLogPage } from './pages/audit';
 import { SystemHealthPage } from './pages/health';
+import { IntegrationsPage } from './pages/integrations';
 
 /** Admin micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -22,6 +23,7 @@ export function App() {
       <Route path="/admin/localization" element={<LocalizationPage />} />
       <Route path="/admin/permissions/:tab?" element={<PermissionsPage />} />
       <Route path="/admin/audit" element={<AuditLogPage />} />
+      <Route path="/admin/integrations/:tab?" element={<IntegrationsPage />} />
       <Route path="/admin/health" element={<SystemHealthPage />} />
       <Route path="/admin/users/:id" element={<UserDetailsPage />} />
       <Route path="/clients" element={<ClientsPage />} />

@@ -2,6 +2,7 @@ import type { Request } from 'express';
 import { verifyToken, type TokenPayload } from '../utils/jwt';
 import { UserModel } from '../modules/admin/user.model';
 import type { Role } from '../constants/roles';
+import { principalForApiKey } from '../modules/integrations/api-key.service';
 
 export interface GraphQLContext {
   user: TokenPayload | null;
@@ -32,6 +33,27 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
   const ip = req.ip ?? 'unknown';
   const origin = req.headers.origin;
   const header = req.headers.authorization ?? '';
+
+  // A machine presents a key instead of a session. It resolves to the SAME shape a person
+  // does, carrying portal roles, so every assertRole and permission check downstream applies
+  // to an integration exactly as it does to a human — one authorisation model, not two.
+  const apiKey = req.headers['x-api-key'];
+  if (typeof apiKey === 'string' && apiKey !== '') {
+    const principal = await principalForApiKey(apiKey);
+    if (!principal) {
+      return { user: null, ip, origin };
+    }
+    return {
+      user: {
+        id: principal.id,
+        email: `${principal.name} (API key)`,
+        roles: principal.roles,
+      } as TokenPayload,
+      ip,
+      origin,
+    };
+  }
+
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
   const decoded = token ? verifyToken(token) : null;
   if (!decoded) {

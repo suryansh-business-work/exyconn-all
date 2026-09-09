@@ -235,6 +235,25 @@ export type AnnouncementPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/**
+ * A machine's credential. The key itself is stored only as a SHA-256, so it exists in clear
+ * exactly once — in the response that created it.
+ */
+export type ApiKey = {
+  __typename?: 'ApiKey';
+  createdAt: Scalars['DateTime']['output'];
+  createdBy: Scalars['String']['output'];
+  expiresAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  /** The readable half, kept in clear so a key can be named in a list and in a log. */
+  prefix: Scalars['String']['output'];
+  revokedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** What this key may do. Never more than a role a person could hold. */
+  roles: Array<Scalars['String']['output']>;
+};
+
 export type AppSettings = {
   __typename?: 'AppSettings';
   /** Machine-translate a string the first time a screen needs one and none exists. */
@@ -1295,6 +1314,13 @@ export type CreateUserInput = {
   workingTimeNote?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** A newly created endpoint. The signing secret is returned once and never listed again. */
+export type CreatedWebhook = {
+  __typename?: 'CreatedWebhook';
+  secret: Scalars['String']['output'];
+  webhook: Webhook;
+};
+
 /** The MongoDB this server is connected to, reported by the database server. */
 export type DatabaseInfo = {
   __typename?: 'DatabaseInfo';
@@ -2306,6 +2332,13 @@ export enum InvoiceStatus {
   Sent = 'SENT'
 }
 
+/** A newly minted key. `key` is returned once and can never be recovered. */
+export type IssuedApiKey = {
+  __typename?: 'IssuedApiKey';
+  apiKey: ApiKey;
+  key: Scalars['String']['output'];
+};
+
 export type Job = {
   __typename?: 'Job';
   applicationDeadline?: Maybe<Scalars['DateTime']['output']>;
@@ -2823,6 +2856,7 @@ export type Mutation = {
   createActivity: Activity;
   createAiJob: AiJob;
   createAnnouncement: Announcement;
+  createApiKey: IssuedApiKey;
   createApplicant: Applicant;
   createAsset: Asset;
   createAudienceList: AudienceList;
@@ -2927,6 +2961,7 @@ export type Mutation = {
   createTraining: Training;
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
+  createWebhook: CreatedWebhook;
   createWebsiteSubmission: WebsiteSubmission;
   /** HR/ADMIN or the employee's manager: approve or reject, with an optional note. */
   decideEmployeeRequest: EmployeeRequest;
@@ -3011,6 +3046,7 @@ export type Mutation = {
   deleteToolCategory: Scalars['Boolean']['output'];
   deleteTraining: Scalars['Boolean']['output'];
   deleteUser: Scalars['Boolean']['output'];
+  deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
   grantTrackerAccess: TrackerAccess;
   importMediaFromUrl: Scalars['String']['output'];
@@ -3064,6 +3100,7 @@ export type Mutation = {
    * has been paid against cannot quietly leave a timesheet.
    */
   reviewTrackerManualEntry: TrackerManualEntry;
+  revokeApiKey: ApiKey;
   revokeProjectShare: ProjectShare;
   revokeTrackerAccess: TrackerAccess;
   revokeTrackerDevice: TrackerDevice;
@@ -3156,6 +3193,7 @@ export type Mutation = {
   setTranslation: Translation;
   setUserActive: User;
   setUserBlocked: User;
+  setWebhookActive: Webhook;
   signContract: Contract;
   /**
    * Starts one joiner's onboarding from a template. HR only, and refused while the employee
@@ -3444,6 +3482,12 @@ export type MutationCreateAiJobArgs = {
 
 export type MutationCreateAnnouncementArgs = {
   input: AnnouncementInput;
+};
+
+
+export type MutationCreateApiKeyArgs = {
+  name: Scalars['String']['input'];
+  roles: Array<Scalars['String']['input']>;
 };
 
 
@@ -3853,6 +3897,13 @@ export type MutationCreateUserArgs = {
 };
 
 
+export type MutationCreateWebhookArgs = {
+  events: Array<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+
 export type MutationCreateWebsiteSubmissionArgs = {
   input: WebsiteSubmissionInput;
 };
@@ -4250,6 +4301,11 @@ export type MutationDeleteUserArgs = {
 };
 
 
+export type MutationDeleteWebhookArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteWebsiteSubmissionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4373,6 +4429,11 @@ export type MutationReviewTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
   reviewNote?: InputMaybe<Scalars['String']['input']>;
   status: TrackerManualEntryStatus;
+};
+
+
+export type MutationRevokeApiKeyArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -4576,6 +4637,12 @@ export type MutationSetUserBlockedArgs = {
   id: Scalars['ID']['input'];
   isBlocked: Scalars['Boolean']['input'];
   reason?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSetWebhookActiveArgs = {
+  active: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -6311,6 +6378,7 @@ export type Query = {
   listAnnouncements: Array<Announcement>;
   listAnnouncementsPaged: AnnouncementPage;
   listAnnouncementsStats: TableStats;
+  listApiKeys: Array<ApiKey>;
   listApplicants: Array<Applicant>;
   listApplicantsPaged: ApplicantPage;
   listApplicantsStats: TableStats;
@@ -6531,6 +6599,8 @@ export type Query = {
   listUsers: Array<User>;
   listUsersPaged: UserPage;
   listUsersStats: TableStats;
+  listWebhookDeliveries: Array<WebhookDelivery>;
+  listWebhooks: Array<Webhook>;
   listWebsiteSubmissions: Array<WebsiteSubmission>;
   listWebsiteSubmissionsPaged: WebsiteSubmissionPage;
   listWebsiteSubmissionsStats: TableStats;
@@ -6711,6 +6781,8 @@ export type Query = {
   trackerTotals: TrackerTotals;
   /** The admin's review screen: what has been translated, and by what. ADMIN only. */
   translations: TranslationPage;
+  /** The events an endpoint may subscribe to. A fixed list, so a dead subscription is impossible. */
+  webhookEvents: Array<Scalars['String']['output']>;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
 };
@@ -7477,6 +7549,11 @@ export type QueryListTrainingsPagedArgs = {
 
 export type QueryListUsersPagedArgs = {
   input: TableQueryInput;
+};
+
+
+export type QueryListWebhookDeliveriesArgs = {
+  webhookId: Scalars['ID']['input'];
 };
 
 
@@ -9557,6 +9634,35 @@ export type UserPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type Webhook = {
+  __typename?: 'Webhook';
+  active: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  createdBy: Scalars['String']['output'];
+  events: Array<Scalars['String']['output']>;
+  /** Consecutive failures. Reset by a success. */
+  failureCount: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  lastDeliveredAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** One attempt to deliver one event, and what the receiver said. */
+export type WebhookDelivery = {
+  __typename?: 'WebhookDelivery';
+  attempts: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  deliveredAt?: Maybe<Scalars['DateTime']['output']>;
+  error: Scalars['String']['output'];
+  event: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  nextAttemptAt: Scalars['DateTime']['output'];
+  responseStatus?: Maybe<Scalars['Int']['output']>;
+  status: Scalars['String']['output'];
+  webhookId: Scalars['String']['output'];
+};
+
 export type WebsiteSubmission = {
   __typename?: 'WebsiteSubmission';
   /** The HR applicant a job application became, filed automatically on submission. */
@@ -11620,6 +11726,66 @@ export type DockerStorageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type DockerStorageQuery = { __typename?: 'Query', dockerStorage: { __typename?: 'DockerStorage', images: Array<{ __typename?: 'DockerImage', id: string, repoTags: Array<string>, sizeBytes: number, createdAt: string, containers: number }>, usage: { __typename?: 'DockerDiskUsage', layersBytes: number, containersBytes: number, volumesBytes: number, buildCacheBytes: number } } };
+
+export type ApiKeyFieldsFragment = { __typename?: 'ApiKey', id: string, name: string, prefix: string, roles: Array<string>, createdBy: string, lastUsedAt?: string | null, revokedAt?: string | null, expiresAt?: string | null, createdAt: string };
+
+export type WebhookFieldsFragment = { __typename?: 'Webhook', id: string, name: string, url: string, events: Array<string>, active: boolean, createdBy: string, lastDeliveredAt?: string | null, failureCount: number, createdAt: string };
+
+export type ListApiKeysQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListApiKeysQuery = { __typename?: 'Query', listApiKeys: Array<{ __typename?: 'ApiKey', id: string, name: string, prefix: string, roles: Array<string>, createdBy: string, lastUsedAt?: string | null, revokedAt?: string | null, expiresAt?: string | null, createdAt: string }> };
+
+export type ListWebhooksQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListWebhooksQuery = { __typename?: 'Query', webhookEvents: Array<string>, listWebhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, events: Array<string>, active: boolean, createdBy: string, lastDeliveredAt?: string | null, failureCount: number, createdAt: string }> };
+
+export type ListWebhookDeliveriesQueryVariables = Exact<{
+  webhookId: Scalars['ID']['input'];
+}>;
+
+
+export type ListWebhookDeliveriesQuery = { __typename?: 'Query', listWebhookDeliveries: Array<{ __typename?: 'WebhookDelivery', id: string, event: string, status: string, attempts: number, responseStatus?: number | null, error: string, nextAttemptAt: string, deliveredAt?: string | null, createdAt: string }> };
+
+export type CreateApiKeyMutationVariables = Exact<{
+  name: Scalars['String']['input'];
+  roles: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type CreateApiKeyMutation = { __typename?: 'Mutation', createApiKey: { __typename?: 'IssuedApiKey', key: string, apiKey: { __typename?: 'ApiKey', id: string, name: string, prefix: string, roles: Array<string>, createdBy: string, lastUsedAt?: string | null, revokedAt?: string | null, expiresAt?: string | null, createdAt: string } } };
+
+export type RevokeApiKeyMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type RevokeApiKeyMutation = { __typename?: 'Mutation', revokeApiKey: { __typename?: 'ApiKey', id: string, name: string, prefix: string, roles: Array<string>, createdBy: string, lastUsedAt?: string | null, revokedAt?: string | null, expiresAt?: string | null, createdAt: string } };
+
+export type CreateWebhookMutationVariables = Exact<{
+  name: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+  events: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type CreateWebhookMutation = { __typename?: 'Mutation', createWebhook: { __typename?: 'CreatedWebhook', secret: string, webhook: { __typename?: 'Webhook', id: string, name: string, url: string, events: Array<string>, active: boolean, createdBy: string, lastDeliveredAt?: string | null, failureCount: number, createdAt: string } } };
+
+export type SetWebhookActiveMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  active: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetWebhookActiveMutation = { __typename?: 'Mutation', setWebhookActive: { __typename?: 'Webhook', id: string, name: string, url: string, events: Array<string>, active: boolean, createdBy: string, lastDeliveredAt?: string | null, failureCount: number, createdAt: string } };
+
+export type DeleteWebhookMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteWebhookMutation = { __typename?: 'Mutation', deleteWebhook: boolean };
 
 export type ListContractsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -14508,6 +14674,32 @@ export const LeaveBalanceFieldsFragmentDoc = gql`
   used
   adjustment
   available
+}
+    `;
+export const ApiKeyFieldsFragmentDoc = gql`
+    fragment ApiKeyFields on ApiKey {
+  id
+  name
+  prefix
+  roles
+  createdBy
+  lastUsedAt
+  revokedAt
+  expiresAt
+  createdAt
+}
+    `;
+export const WebhookFieldsFragmentDoc = gql`
+    fragment WebhookFields on Webhook {
+  id
+  name
+  url
+  events
+  active
+  createdBy
+  lastDeliveredAt
+  failureCount
+  createdAt
 }
     `;
 export const LicenceFieldsFragmentDoc = gql`
@@ -27310,6 +27502,315 @@ export type DockerStorageQueryHookResult = ReturnType<typeof useDockerStorageQue
 export type DockerStorageLazyQueryHookResult = ReturnType<typeof useDockerStorageLazyQuery>;
 export type DockerStorageSuspenseQueryHookResult = ReturnType<typeof useDockerStorageSuspenseQuery>;
 export type DockerStorageQueryResult = Apollo.QueryResult<DockerStorageQuery, DockerStorageQueryVariables>;
+export const ListApiKeysDocument = gql`
+    query ListApiKeys {
+  listApiKeys {
+    ...ApiKeyFields
+  }
+}
+    ${ApiKeyFieldsFragmentDoc}`;
+
+/**
+ * __useListApiKeysQuery__
+ *
+ * To run a query within a React component, call `useListApiKeysQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListApiKeysQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListApiKeysQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListApiKeysQuery(baseOptions?: Apollo.QueryHookOptions<ListApiKeysQuery, ListApiKeysQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListApiKeysQuery, ListApiKeysQueryVariables>(ListApiKeysDocument, options);
+      }
+export function useListApiKeysLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListApiKeysQuery, ListApiKeysQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListApiKeysQuery, ListApiKeysQueryVariables>(ListApiKeysDocument, options);
+        }
+// @ts-ignore
+export function useListApiKeysSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListApiKeysQuery, ListApiKeysQueryVariables>): Apollo.UseSuspenseQueryResult<ListApiKeysQuery, ListApiKeysQueryVariables>;
+export function useListApiKeysSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListApiKeysQuery, ListApiKeysQueryVariables>): Apollo.UseSuspenseQueryResult<ListApiKeysQuery | undefined, ListApiKeysQueryVariables>;
+export function useListApiKeysSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListApiKeysQuery, ListApiKeysQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListApiKeysQuery, ListApiKeysQueryVariables>(ListApiKeysDocument, options);
+        }
+export type ListApiKeysQueryHookResult = ReturnType<typeof useListApiKeysQuery>;
+export type ListApiKeysLazyQueryHookResult = ReturnType<typeof useListApiKeysLazyQuery>;
+export type ListApiKeysSuspenseQueryHookResult = ReturnType<typeof useListApiKeysSuspenseQuery>;
+export type ListApiKeysQueryResult = Apollo.QueryResult<ListApiKeysQuery, ListApiKeysQueryVariables>;
+export const ListWebhooksDocument = gql`
+    query ListWebhooks {
+  listWebhooks {
+    ...WebhookFields
+  }
+  webhookEvents
+}
+    ${WebhookFieldsFragmentDoc}`;
+
+/**
+ * __useListWebhooksQuery__
+ *
+ * To run a query within a React component, call `useListWebhooksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListWebhooksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListWebhooksQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListWebhooksQuery(baseOptions?: Apollo.QueryHookOptions<ListWebhooksQuery, ListWebhooksQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListWebhooksQuery, ListWebhooksQueryVariables>(ListWebhooksDocument, options);
+      }
+export function useListWebhooksLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListWebhooksQuery, ListWebhooksQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListWebhooksQuery, ListWebhooksQueryVariables>(ListWebhooksDocument, options);
+        }
+// @ts-ignore
+export function useListWebhooksSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListWebhooksQuery, ListWebhooksQueryVariables>): Apollo.UseSuspenseQueryResult<ListWebhooksQuery, ListWebhooksQueryVariables>;
+export function useListWebhooksSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListWebhooksQuery, ListWebhooksQueryVariables>): Apollo.UseSuspenseQueryResult<ListWebhooksQuery | undefined, ListWebhooksQueryVariables>;
+export function useListWebhooksSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListWebhooksQuery, ListWebhooksQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListWebhooksQuery, ListWebhooksQueryVariables>(ListWebhooksDocument, options);
+        }
+export type ListWebhooksQueryHookResult = ReturnType<typeof useListWebhooksQuery>;
+export type ListWebhooksLazyQueryHookResult = ReturnType<typeof useListWebhooksLazyQuery>;
+export type ListWebhooksSuspenseQueryHookResult = ReturnType<typeof useListWebhooksSuspenseQuery>;
+export type ListWebhooksQueryResult = Apollo.QueryResult<ListWebhooksQuery, ListWebhooksQueryVariables>;
+export const ListWebhookDeliveriesDocument = gql`
+    query ListWebhookDeliveries($webhookId: ID!) {
+  listWebhookDeliveries(webhookId: $webhookId) {
+    id
+    event
+    status
+    attempts
+    responseStatus
+    error
+    nextAttemptAt
+    deliveredAt
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useListWebhookDeliveriesQuery__
+ *
+ * To run a query within a React component, call `useListWebhookDeliveriesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListWebhookDeliveriesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListWebhookDeliveriesQuery({
+ *   variables: {
+ *      webhookId: // value for 'webhookId'
+ *   },
+ * });
+ */
+export function useListWebhookDeliveriesQuery(baseOptions: Apollo.QueryHookOptions<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables> & ({ variables: ListWebhookDeliveriesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>(ListWebhookDeliveriesDocument, options);
+      }
+export function useListWebhookDeliveriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>(ListWebhookDeliveriesDocument, options);
+        }
+// @ts-ignore
+export function useListWebhookDeliveriesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>): Apollo.UseSuspenseQueryResult<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>;
+export function useListWebhookDeliveriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>): Apollo.UseSuspenseQueryResult<ListWebhookDeliveriesQuery | undefined, ListWebhookDeliveriesQueryVariables>;
+export function useListWebhookDeliveriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>(ListWebhookDeliveriesDocument, options);
+        }
+export type ListWebhookDeliveriesQueryHookResult = ReturnType<typeof useListWebhookDeliveriesQuery>;
+export type ListWebhookDeliveriesLazyQueryHookResult = ReturnType<typeof useListWebhookDeliveriesLazyQuery>;
+export type ListWebhookDeliveriesSuspenseQueryHookResult = ReturnType<typeof useListWebhookDeliveriesSuspenseQuery>;
+export type ListWebhookDeliveriesQueryResult = Apollo.QueryResult<ListWebhookDeliveriesQuery, ListWebhookDeliveriesQueryVariables>;
+export const CreateApiKeyDocument = gql`
+    mutation CreateApiKey($name: String!, $roles: [String!]!) {
+  createApiKey(name: $name, roles: $roles) {
+    key
+    apiKey {
+      ...ApiKeyFields
+    }
+  }
+}
+    ${ApiKeyFieldsFragmentDoc}`;
+export type CreateApiKeyMutationFn = Apollo.MutationFunction<CreateApiKeyMutation, CreateApiKeyMutationVariables>;
+
+/**
+ * __useCreateApiKeyMutation__
+ *
+ * To run a mutation, you first call `useCreateApiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateApiKeyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createApiKeyMutation, { data, loading, error }] = useCreateApiKeyMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *      roles: // value for 'roles'
+ *   },
+ * });
+ */
+export function useCreateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<CreateApiKeyMutation, CreateApiKeyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateApiKeyMutation, CreateApiKeyMutationVariables>(CreateApiKeyDocument, options);
+      }
+export type CreateApiKeyMutationHookResult = ReturnType<typeof useCreateApiKeyMutation>;
+export type CreateApiKeyMutationResult = Apollo.MutationResult<CreateApiKeyMutation>;
+export type CreateApiKeyMutationOptions = Apollo.BaseMutationOptions<CreateApiKeyMutation, CreateApiKeyMutationVariables>;
+export const RevokeApiKeyDocument = gql`
+    mutation RevokeApiKey($id: ID!) {
+  revokeApiKey(id: $id) {
+    ...ApiKeyFields
+  }
+}
+    ${ApiKeyFieldsFragmentDoc}`;
+export type RevokeApiKeyMutationFn = Apollo.MutationFunction<RevokeApiKeyMutation, RevokeApiKeyMutationVariables>;
+
+/**
+ * __useRevokeApiKeyMutation__
+ *
+ * To run a mutation, you first call `useRevokeApiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevokeApiKeyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revokeApiKeyMutation, { data, loading, error }] = useRevokeApiKeyMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRevokeApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<RevokeApiKeyMutation, RevokeApiKeyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RevokeApiKeyMutation, RevokeApiKeyMutationVariables>(RevokeApiKeyDocument, options);
+      }
+export type RevokeApiKeyMutationHookResult = ReturnType<typeof useRevokeApiKeyMutation>;
+export type RevokeApiKeyMutationResult = Apollo.MutationResult<RevokeApiKeyMutation>;
+export type RevokeApiKeyMutationOptions = Apollo.BaseMutationOptions<RevokeApiKeyMutation, RevokeApiKeyMutationVariables>;
+export const CreateWebhookDocument = gql`
+    mutation CreateWebhook($name: String!, $url: String!, $events: [String!]!) {
+  createWebhook(name: $name, url: $url, events: $events) {
+    secret
+    webhook {
+      ...WebhookFields
+    }
+  }
+}
+    ${WebhookFieldsFragmentDoc}`;
+export type CreateWebhookMutationFn = Apollo.MutationFunction<CreateWebhookMutation, CreateWebhookMutationVariables>;
+
+/**
+ * __useCreateWebhookMutation__
+ *
+ * To run a mutation, you first call `useCreateWebhookMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateWebhookMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createWebhookMutation, { data, loading, error }] = useCreateWebhookMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *      url: // value for 'url'
+ *      events: // value for 'events'
+ *   },
+ * });
+ */
+export function useCreateWebhookMutation(baseOptions?: Apollo.MutationHookOptions<CreateWebhookMutation, CreateWebhookMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateWebhookMutation, CreateWebhookMutationVariables>(CreateWebhookDocument, options);
+      }
+export type CreateWebhookMutationHookResult = ReturnType<typeof useCreateWebhookMutation>;
+export type CreateWebhookMutationResult = Apollo.MutationResult<CreateWebhookMutation>;
+export type CreateWebhookMutationOptions = Apollo.BaseMutationOptions<CreateWebhookMutation, CreateWebhookMutationVariables>;
+export const SetWebhookActiveDocument = gql`
+    mutation SetWebhookActive($id: ID!, $active: Boolean!) {
+  setWebhookActive(id: $id, active: $active) {
+    ...WebhookFields
+  }
+}
+    ${WebhookFieldsFragmentDoc}`;
+export type SetWebhookActiveMutationFn = Apollo.MutationFunction<SetWebhookActiveMutation, SetWebhookActiveMutationVariables>;
+
+/**
+ * __useSetWebhookActiveMutation__
+ *
+ * To run a mutation, you first call `useSetWebhookActiveMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetWebhookActiveMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setWebhookActiveMutation, { data, loading, error }] = useSetWebhookActiveMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      active: // value for 'active'
+ *   },
+ * });
+ */
+export function useSetWebhookActiveMutation(baseOptions?: Apollo.MutationHookOptions<SetWebhookActiveMutation, SetWebhookActiveMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetWebhookActiveMutation, SetWebhookActiveMutationVariables>(SetWebhookActiveDocument, options);
+      }
+export type SetWebhookActiveMutationHookResult = ReturnType<typeof useSetWebhookActiveMutation>;
+export type SetWebhookActiveMutationResult = Apollo.MutationResult<SetWebhookActiveMutation>;
+export type SetWebhookActiveMutationOptions = Apollo.BaseMutationOptions<SetWebhookActiveMutation, SetWebhookActiveMutationVariables>;
+export const DeleteWebhookDocument = gql`
+    mutation DeleteWebhook($id: ID!) {
+  deleteWebhook(id: $id)
+}
+    `;
+export type DeleteWebhookMutationFn = Apollo.MutationFunction<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
+
+/**
+ * __useDeleteWebhookMutation__
+ *
+ * To run a mutation, you first call `useDeleteWebhookMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteWebhookMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteWebhookMutation, { data, loading, error }] = useDeleteWebhookMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteWebhookMutation(baseOptions?: Apollo.MutationHookOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteWebhookMutation, DeleteWebhookMutationVariables>(DeleteWebhookDocument, options);
+      }
+export type DeleteWebhookMutationHookResult = ReturnType<typeof useDeleteWebhookMutation>;
+export type DeleteWebhookMutationResult = Apollo.MutationResult<DeleteWebhookMutation>;
+export type DeleteWebhookMutationOptions = Apollo.BaseMutationOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
 export const ListContractsDocument = gql`
     query ListContracts {
   listContracts {

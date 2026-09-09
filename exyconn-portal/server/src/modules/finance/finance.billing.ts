@@ -6,6 +6,8 @@ import { withId, withIds } from '../../utils/serialize';
 import { badRequest, notFound } from '../../utils/errors';
 import { tableQuery, type TableConfig, type TableQueryInput } from '../../utils/tableQuery';
 import type { GraphQLContext } from '../../middleware/auth';
+import { emitWebhook } from '../integrations';
+import { logger } from '../../utils/logger';
 
 const financeRoles = [ROLES.FINANCE];
 
@@ -116,6 +118,20 @@ async function recordPayment(_p: unknown, { input }: { input: PaymentInput }, ct
   invoice.amountPaid = paidAfter;
   invoice.status = settleStatus(invoice.status, invoice.amount, paidAfter);
   await invoice.save();
+
+  if (invoice.status === 'PAID') {
+    // Queued, never sent inline: an integration's endpoint being down must not fail the
+    // payment that was just recorded.
+    emitWebhook('invoice.paid', {
+      invoiceId: String(invoice._id),
+      number: invoice.number,
+      clientId: invoice.clientId,
+      clientName: invoice.clientName,
+      amount: invoice.amount,
+      currency: invoice.currency,
+      paidAt: new Date().toISOString(),
+    }).catch((error: unknown) => logger.error(error, 'Queueing invoice.paid failed'));
+  }
 
   return withId(payment.toObject());
 }
