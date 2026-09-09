@@ -29,5 +29,7 @@ const assetAssignmentSchema = new Schema(
 
 export type AssetAssignmentDocument = InferSchemaType<typeof assetAssignmentSchema>;
 
-export const AssetAssignmentModel: Model<AssetAssignmentDocument> =
-  model<AssetAssignmentDocument>('AssetAssignment', assetAssignmentSchema);
+export const AssetAssignmentModel: Model<AssetAssignmentDocument> = model<AssetAssignmentDocument>(
+  'AssetAssignment',
+  assetAssignmentSchema,
+);

@@ -36,10 +36,10 @@ const balance = (over: Record<string, unknown> = {}) =>
   });
 
 const usedOf = async () =>
-  (await LeaveBalanceModel.findOne({ employeeId: EMP, leaveTypeCode: 'CASUAL', year: 2026 }))
-    ?.used;
+  (await LeaveBalanceModel.findOne({ employeeId: EMP, leaveTypeCode: 'CASUAL', year: 2026 }))?.used;
 
-const decide = (id: unknown, status: string) => setLeaveStatus(null, { id: String(id), status }, hr);
+const decide = (id: unknown, status: string) =>
+  setLeaveStatus(null, { id: String(id), status }, hr);
 
 describe('leaveDays', () => {
   it('counts both ends, so a single day costs one', () => {

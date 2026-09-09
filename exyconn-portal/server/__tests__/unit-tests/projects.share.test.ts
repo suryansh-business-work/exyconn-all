@@ -1,5 +1,9 @@
 import { createHash } from 'node:crypto';
-import { hashShareToken, isShareLive, shareService } from '../../src/modules/projects/share.service';
+import {
+  hashShareToken,
+  isShareLive,
+  shareService,
+} from '../../src/modules/projects/share.service';
 import { shareResolvers } from '../../src/modules/projects/share.resolvers';
 import { ProjectShareModel } from '../../src/modules/projects/share.model';
 import { ProjectModel } from '../../src/modules/projects/projects.model';
@@ -79,10 +83,7 @@ describe('isShareLive', () => {
 
   it('is dead when revoked, however far off the expiry is', () => {
     expect(
-      isShareLive(
-        { expiresAt: new Date('2027-01-01T00:00:00.000Z'), revokedAt: new Date() },
-        now,
-      ),
+      isShareLive({ expiresAt: new Date('2027-01-01T00:00:00.000Z'), revokedAt: new Date() }, now),
     ).toBe(false);
   });
 });

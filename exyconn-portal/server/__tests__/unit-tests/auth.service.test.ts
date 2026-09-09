@@ -35,9 +35,9 @@ describe('AuthService', () => {
 
   it('changePassword rejects a wrong current password', async () => {
     const user = await UserModel.findOne({ email: credentials.email });
-    await expect(
-      authService.changePassword(user!.id, 'nope', 'BrandNew@1'),
-    ).rejects.toThrow('Current password is incorrect');
+    await expect(authService.changePassword(user!.id, 'nope', 'BrandNew@1')).rejects.toThrow(
+      'Current password is incorrect',
+    );
   });
 });
 

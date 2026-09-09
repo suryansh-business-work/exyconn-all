@@ -44,11 +44,11 @@ async function updateMyGoalProgress(
   ctx: GraphQLContext,
 ) {
   if (progress < 0 || progress > 100) badRequest('Progress must be between 0 and 100');
-  const goal = await findOwnRecord<{ progress: number; save: () => Promise<unknown>; toObject: () => object }>(
-    GoalModel as never,
-    id,
-    ctx,
-  );
+  const goal = await findOwnRecord<{
+    progress: number;
+    save: () => Promise<unknown>;
+    toObject: () => object;
+  }>(GoalModel as never, id, ctx);
   goal.progress = progress;
   await goal.save();
   return withId(goal.toObject() as { _id: unknown });

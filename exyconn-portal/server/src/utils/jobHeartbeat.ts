@@ -16,6 +16,7 @@ export const JOB_KEYS = {
   trackerDigest: 'trackerDigest',
   recurringInvoices: 'recurringInvoices',
   webhookDelivery: 'webhookDelivery',
+  inboundMail: 'inboundMail',
 } as const;
 
 export type JobKey = (typeof JOB_KEYS)[keyof typeof JOB_KEYS];

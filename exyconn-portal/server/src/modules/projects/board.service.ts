@@ -165,10 +165,7 @@ function attachmentNames(value: unknown): string[] {
  * generic diff renders a value with `display`, and an array of objects there would record
  * `[object Object]` — a history entry that says nothing about which file moved.
  */
-function attachmentChanges(
-  before: unknown,
-  after: unknown,
-): Array<{ from: string; to: string }> {
+function attachmentChanges(before: unknown, after: unknown): Array<{ from: string; to: string }> {
   const had = attachmentNames(before);
   const has = attachmentNames(after);
   const added = has.filter((name) => !had.includes(name)).map((name) => ({ from: '', to: name }));

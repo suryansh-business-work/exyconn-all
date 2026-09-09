@@ -122,7 +122,9 @@ export async function getStatusOverview(days?: number | null) {
     StatusMonitorModel.find({ isActive: true }).sort({ order: 1 }).lean(),
     StatusDailyModel.find({ date: { $gte: dates[0] } }).lean(),
     StatusIncidentModel.find().sort({ startedAt: -1 }).limit(INCIDENT_LIMIT).lean(),
-    StatusMaintenanceModel.find({ endsAt: { $gte: now } }).sort({ startsAt: 1 }).lean(),
+    StatusMaintenanceModel.find({ endsAt: { $gte: now } })
+      .sort({ startsAt: 1 })
+      .lean(),
   ]);
 
   const byService = indexRollups(rollups as StatusDailyDocument[]);

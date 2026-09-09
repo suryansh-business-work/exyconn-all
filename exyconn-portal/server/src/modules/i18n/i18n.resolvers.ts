@@ -3,19 +3,9 @@ import { ROLES } from '../../constants/roles';
 import { assertPermission } from '../../lib/permissions';
 import { withIds } from '../../utils/serialize';
 import { AppSettingsModel } from '../admin/settings.model';
-import {
-  FALLBACK_LOCALE,
-  canonicalLocale,
-  directionOf,
-  endonymOf,
-} from './locale.constants';
+import { FALLBACK_LOCALE, canonicalLocale, directionOf, endonymOf } from './locale.constants';
 import { TranslationModel } from './translation.model';
-import {
-  enabledLocales,
-  readBundle,
-  translateMissing,
-  upsertTranslation,
-} from './i18n.service';
+import { enabledLocales, readBundle, translateMissing, upsertTranslation } from './i18n.service';
 
 const TRANSLATIONS_MODULE = 'Localization';
 const adminOnly = [ROLES.ADMIN];

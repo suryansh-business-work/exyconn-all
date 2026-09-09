@@ -64,9 +64,10 @@ export const env = Object.freeze({
    * Where a project share link opens. The read-only client view lives on the public status
    * site, which is the one app with no sign-in and no portal chrome.
    */
-  projectShareBaseUrl: (
-    process.env.PROJECT_SHARE_BASE_URL ?? 'https://status.exyconn.com'
-  ).replace(/\/$/, ''),
+  projectShareBaseUrl: (process.env.PROJECT_SHARE_BASE_URL ?? 'https://status.exyconn.com').replace(
+    /\/$/,
+    '',
+  ),
   /** Where a support reply email sends the employee to read the thread. */
   employeeSupportUrl: process.env.EMPLOYEE_SUPPORT_URL ?? 'https://employee.exyconn.com/me/support',
   /** Where the payslip email sends an employee to see the rest of their payslips. */

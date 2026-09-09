@@ -52,4 +52,3 @@ export function resolveEffectiveTimezone(candidates: TimezoneCandidates): string
   ];
   return ordered.find(isValidTimezone) ?? FALLBACK_TIMEZONE;
 }
-
