@@ -2867,6 +2867,7 @@ export type Mutation = {
   createProject: Project;
   createProjectShare: ProjectShareCreated;
   createPrompt: Prompt;
+  createPurchaseOrder: PurchaseOrder;
   createRecurringInvoice: RecurringInvoice;
   createSalaryStructure: SalaryStructure;
   createShift: Shift;
@@ -2957,6 +2958,7 @@ export type Mutation = {
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
+  deletePurchaseOrder: Scalars['Boolean']['output'];
   deleteRecurringInvoice: Scalars['Boolean']['output'];
   deleteSalaryStructure: Scalars['Boolean']['output'];
   deleteShift: Scalars['Boolean']['output'];
@@ -3002,6 +3004,11 @@ export type Mutation = {
    * which is what a change in wording means — leave it off for a typo fix.
    */
   publishPolicy: Policy;
+  /**
+   * Books goods in: writes a RECEIPT movement carrying the order's cost, moves the product's
+   * average cost, and re-reads the order's status from what has actually arrived.
+   */
+  receivePurchaseOrder: PurchaseOrder;
   /** Records a receipt and moves the invoice's paid figure and status with it, in one step. */
   recordPayment: Payment;
   /** Records a movement and moves the product's stock with it, in one step. */
@@ -3264,6 +3271,7 @@ export type Mutation = {
   updateProfile: User;
   updateProject: Project;
   updatePrompt: Prompt;
+  updatePurchaseOrder: PurchaseOrder;
   updateRecurringInvoice: RecurringInvoice;
   updateSalaryStructure: SalaryStructure;
   updateSettings: AppSettings;
@@ -3713,6 +3721,11 @@ export type MutationCreatePromptArgs = {
 };
 
 
+export type MutationCreatePurchaseOrderArgs = {
+  input: PurchaseOrderInput;
+};
+
+
 export type MutationCreateRecurringInvoiceArgs = {
   input: RecurringInvoiceInput;
 };
@@ -4113,6 +4126,11 @@ export type MutationDeletePromptArgs = {
 };
 
 
+export type MutationDeletePurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4270,6 +4288,12 @@ export type MutationPromoteCompanyToClientArgs = {
 export type MutationPublishPolicyArgs = {
   id: Scalars['ID']['input'];
   raiseVersion?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type MutationReceivePurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+  lines: Array<PurchaseReceiptLineInput>;
 };
 
 
@@ -5032,6 +5056,12 @@ export type MutationUpdatePromptArgs = {
 };
 
 
+export type MutationUpdatePurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+  input: PurchaseOrderInput;
+};
+
+
 export type MutationUpdateRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
   input: RecurringInvoiceInput;
@@ -5744,6 +5774,11 @@ export enum ProblemStatus {
 
 export type Product = {
   __typename?: 'Product';
+  /**
+   * Weighted average of what the stock on the shelf cost, moved by every receipt. Zero for a
+   * product that predates purchasing — its cost is genuinely unknown.
+   */
+  averageCost: Scalars['Float']['output'];
   category: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
@@ -6011,6 +6046,79 @@ export type PublicPolicy = {
   version: Scalars['Int']['output'];
 };
 
+export type PurchaseOrder = {
+  __typename?: 'PurchaseOrder';
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  expectedDate?: Maybe<Scalars['DateTime']['output']>;
+  firstReceivedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  lines: Array<PurchaseOrderLine>;
+  notes: Scalars['String']['output'];
+  /** Drawn from the shared counter, never typed. */
+  number: Scalars['String']['output'];
+  orderDate: Scalars['DateTime']['output'];
+  receivedAt?: Maybe<Scalars['DateTime']['output']>;
+  status: PurchaseOrderStatus;
+  supplierId: Scalars['String']['output'];
+  supplierName: Scalars['String']['output'];
+  /** What the order costs, tax included — computed from the lines on read. */
+  total: Scalars['Float']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PurchaseOrderInput = {
+  currency: Scalars['String']['input'];
+  expectedDate?: InputMaybe<Scalars['DateTime']['input']>;
+  lines: Array<PurchaseOrderLineInput>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  orderDate: Scalars['DateTime']['input'];
+  status: PurchaseOrderStatus;
+  supplierId: Scalars['String']['input'];
+};
+
+/**
+ * One ordered line. The unit cost is what gives received stock a cost basis — without it
+ * inventory can only be valued at the price we hope to sell for.
+ */
+export type PurchaseOrderLine = {
+  __typename?: 'PurchaseOrderLine';
+  productId: Scalars['String']['output'];
+  productName: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+  /** How many have actually arrived. Written by a receipt, never by the form. */
+  receivedQuantity: Scalars['Int']['output'];
+  taxPercent: Scalars['Float']['output'];
+  unitCost: Scalars['Float']['output'];
+};
+
+export type PurchaseOrderLineInput = {
+  productId: Scalars['String']['input'];
+  quantity: Scalars['Int']['input'];
+  taxPercent: Scalars['Float']['input'];
+  unitCost: Scalars['Float']['input'];
+};
+
+export type PurchaseOrderPage = {
+  __typename?: 'PurchaseOrderPage';
+  rows: Array<PurchaseOrder>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum PurchaseOrderStatus {
+  Cancelled = 'CANCELLED',
+  Draft = 'DRAFT',
+  Ordered = 'ORDERED',
+  PartiallyReceived = 'PARTIALLY_RECEIVED',
+  Received = 'RECEIVED'
+}
+
+/** What arrived against one ordered line. */
+export type PurchaseReceiptLineInput = {
+  productId: Scalars['String']['input'];
+  quantity: Scalars['Int']['input'];
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -6122,6 +6230,7 @@ export type Query = {
   getProduct: Product;
   getProject: Project;
   getPrompt: Prompt;
+  getPurchaseOrder: PurchaseOrder;
   getRecurringInvoice?: Maybe<RecurringInvoice>;
   getSalaryStructure: SalaryStructure;
   getShift: Shift;
@@ -6144,7 +6253,7 @@ export type Query = {
   hrDashboard: HrDashboard;
   /** Host, this process and the database in one read — the Infrastructure overview. */
   infrastructureOverview: InfrastructureOverview;
-  /** Sum of price × stock over ACTIVE products. */
+  /** What the stock on ACTIVE products cost: sum of averageCost × stock. */
   inventoryValue: Scalars['Float']['output'];
   /** Payments against one invoice, newest first. */
   invoicePayments: Array<Payment>;
@@ -6325,6 +6434,9 @@ export type Query = {
   listPrompts: Array<Prompt>;
   listPromptsPaged: PromptPage;
   listPromptsStats: TableStats;
+  listPurchaseOrders: Array<PurchaseOrder>;
+  listPurchaseOrdersPaged: PurchaseOrderPage;
+  listPurchaseOrdersStats: TableStats;
   listRecurringInvoices: Array<RecurringInvoice>;
   listRecurringInvoicesPaged: RecurringInvoicePage;
   /** Only restrictions that exist; a missing (role, module) pair means everything is allowed. */
@@ -6882,6 +6994,11 @@ export type QueryGetPromptArgs = {
 };
 
 
+export type QueryGetPurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7228,6 +7345,11 @@ export type QueryListProjectsPagedArgs = {
 
 
 export type QueryListPromptsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListPurchaseOrdersPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -8204,6 +8326,8 @@ export type StockMovement = {
   notes: Scalars['String']['output'];
   productId: Scalars['String']['output'];
   productName: Scalars['String']['output'];
+  /** The purchase order this receipt came from, when it came from one. */
+  purchaseOrderNumber: Scalars['String']['output'];
   /** Always positive; the reason decides the direction. */
   quantity: Scalars['Int']['output'];
   reason: MovementReason;
@@ -8213,6 +8337,8 @@ export type StockMovement = {
   stockAfter: Scalars['Int']['output'];
   supplierId: Scalars['String']['output'];
   supplierName: Scalars['String']['output'];
+  /** What one unit cost. Only a receipt knows it; everything else is 0. */
+  unitCost: Scalars['Float']['output'];
 };
 
 export type StockMovementInput = {
@@ -12407,6 +12533,50 @@ export type InventoryValueQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type InventoryValueQuery = { __typename?: 'Query', inventoryValue: number };
 
+export type PurchaseOrderFieldsFragment = { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> };
+
+export type ListPurchaseOrdersPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListPurchaseOrdersPagedQuery = { __typename?: 'Query', listPurchaseOrdersPaged: { __typename?: 'PurchaseOrderPage', totalCount: number, rows: Array<{ __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> }> } };
+
+export type ListPurchaseOrdersStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListPurchaseOrdersStatsQuery = { __typename?: 'Query', listPurchaseOrdersStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreatePurchaseOrderMutationVariables = Exact<{
+  input: PurchaseOrderInput;
+}>;
+
+
+export type CreatePurchaseOrderMutation = { __typename?: 'Mutation', createPurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
+
+export type UpdatePurchaseOrderMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: PurchaseOrderInput;
+}>;
+
+
+export type UpdatePurchaseOrderMutation = { __typename?: 'Mutation', updatePurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
+
+export type DeletePurchaseOrderMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeletePurchaseOrderMutation = { __typename?: 'Mutation', deletePurchaseOrder: boolean };
+
+export type ReceivePurchaseOrderMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  lines: Array<PurchaseReceiptLineInput> | PurchaseReceiptLineInput;
+}>;
+
+
+export type ReceivePurchaseOrderMutation = { __typename?: 'Mutation', receivePurchaseOrder: { __typename?: 'PurchaseOrder', id: string, number: string, supplierId: string, supplierName: string, total: number, currency: string, status: PurchaseOrderStatus, orderDate: string, expectedDate?: string | null, notes: string, receivedAt?: string | null, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'PurchaseOrderLine', productId: string, productName: string, quantity: number, unitCost: number, taxPercent: number, receivedQuantity: number }> } };
+
 export type UpdateProfileMutationVariables = Exact<{
   input: UpdateProfileInput;
 }>;
@@ -14471,6 +14641,31 @@ export const StockMovementFieldsFragmentDoc = gql`
   notes
   recordedBy
   createdAt
+}
+    `;
+export const PurchaseOrderFieldsFragmentDoc = gql`
+    fragment PurchaseOrderFields on PurchaseOrder {
+  id
+  number
+  supplierId
+  supplierName
+  lines {
+    productId
+    productName
+    quantity
+    unitCost
+    taxPercent
+    receivedQuantity
+  }
+  total
+  currency
+  status
+  orderDate
+  expectedDate
+  notes
+  receivedAt
+  createdAt
+  updatedAt
 }
     `;
 export const DocPageFieldsFragmentDoc = gql`
@@ -32725,6 +32920,237 @@ export type InventoryValueQueryHookResult = ReturnType<typeof useInventoryValueQ
 export type InventoryValueLazyQueryHookResult = ReturnType<typeof useInventoryValueLazyQuery>;
 export type InventoryValueSuspenseQueryHookResult = ReturnType<typeof useInventoryValueSuspenseQuery>;
 export type InventoryValueQueryResult = Apollo.QueryResult<InventoryValueQuery, InventoryValueQueryVariables>;
+export const ListPurchaseOrdersPagedDocument = gql`
+    query ListPurchaseOrdersPaged($input: TableQueryInput!) {
+  listPurchaseOrdersPaged(input: $input) {
+    rows {
+      ...PurchaseOrderFields
+    }
+    totalCount
+  }
+}
+    ${PurchaseOrderFieldsFragmentDoc}`;
+
+/**
+ * __useListPurchaseOrdersPagedQuery__
+ *
+ * To run a query within a React component, call `useListPurchaseOrdersPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPurchaseOrdersPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPurchaseOrdersPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListPurchaseOrdersPagedQuery(baseOptions: Apollo.QueryHookOptions<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables> & ({ variables: ListPurchaseOrdersPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>(ListPurchaseOrdersPagedDocument, options);
+      }
+export function useListPurchaseOrdersPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>(ListPurchaseOrdersPagedDocument, options);
+        }
+// @ts-ignore
+export function useListPurchaseOrdersPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>;
+export function useListPurchaseOrdersPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListPurchaseOrdersPagedQuery | undefined, ListPurchaseOrdersPagedQueryVariables>;
+export function useListPurchaseOrdersPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>(ListPurchaseOrdersPagedDocument, options);
+        }
+export type ListPurchaseOrdersPagedQueryHookResult = ReturnType<typeof useListPurchaseOrdersPagedQuery>;
+export type ListPurchaseOrdersPagedLazyQueryHookResult = ReturnType<typeof useListPurchaseOrdersPagedLazyQuery>;
+export type ListPurchaseOrdersPagedSuspenseQueryHookResult = ReturnType<typeof useListPurchaseOrdersPagedSuspenseQuery>;
+export type ListPurchaseOrdersPagedQueryResult = Apollo.QueryResult<ListPurchaseOrdersPagedQuery, ListPurchaseOrdersPagedQueryVariables>;
+export const ListPurchaseOrdersStatsDocument = gql`
+    query ListPurchaseOrdersStats {
+  listPurchaseOrdersStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListPurchaseOrdersStatsQuery__
+ *
+ * To run a query within a React component, call `useListPurchaseOrdersStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPurchaseOrdersStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPurchaseOrdersStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListPurchaseOrdersStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>(ListPurchaseOrdersStatsDocument, options);
+      }
+export function useListPurchaseOrdersStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>(ListPurchaseOrdersStatsDocument, options);
+        }
+// @ts-ignore
+export function useListPurchaseOrdersStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>;
+export function useListPurchaseOrdersStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListPurchaseOrdersStatsQuery | undefined, ListPurchaseOrdersStatsQueryVariables>;
+export function useListPurchaseOrdersStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>(ListPurchaseOrdersStatsDocument, options);
+        }
+export type ListPurchaseOrdersStatsQueryHookResult = ReturnType<typeof useListPurchaseOrdersStatsQuery>;
+export type ListPurchaseOrdersStatsLazyQueryHookResult = ReturnType<typeof useListPurchaseOrdersStatsLazyQuery>;
+export type ListPurchaseOrdersStatsSuspenseQueryHookResult = ReturnType<typeof useListPurchaseOrdersStatsSuspenseQuery>;
+export type ListPurchaseOrdersStatsQueryResult = Apollo.QueryResult<ListPurchaseOrdersStatsQuery, ListPurchaseOrdersStatsQueryVariables>;
+export const CreatePurchaseOrderDocument = gql`
+    mutation CreatePurchaseOrder($input: PurchaseOrderInput!) {
+  createPurchaseOrder(input: $input) {
+    ...PurchaseOrderFields
+  }
+}
+    ${PurchaseOrderFieldsFragmentDoc}`;
+export type CreatePurchaseOrderMutationFn = Apollo.MutationFunction<CreatePurchaseOrderMutation, CreatePurchaseOrderMutationVariables>;
+
+/**
+ * __useCreatePurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useCreatePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPurchaseOrderMutation, { data, loading, error }] = useCreatePurchaseOrderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePurchaseOrderMutation(baseOptions?: Apollo.MutationHookOptions<CreatePurchaseOrderMutation, CreatePurchaseOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePurchaseOrderMutation, CreatePurchaseOrderMutationVariables>(CreatePurchaseOrderDocument, options);
+      }
+export type CreatePurchaseOrderMutationHookResult = ReturnType<typeof useCreatePurchaseOrderMutation>;
+export type CreatePurchaseOrderMutationResult = Apollo.MutationResult<CreatePurchaseOrderMutation>;
+export type CreatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<CreatePurchaseOrderMutation, CreatePurchaseOrderMutationVariables>;
+export const UpdatePurchaseOrderDocument = gql`
+    mutation UpdatePurchaseOrder($id: ID!, $input: PurchaseOrderInput!) {
+  updatePurchaseOrder(id: $id, input: $input) {
+    ...PurchaseOrderFields
+  }
+}
+    ${PurchaseOrderFieldsFragmentDoc}`;
+export type UpdatePurchaseOrderMutationFn = Apollo.MutationFunction<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>;
+
+/**
+ * __useUpdatePurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdatePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePurchaseOrderMutation, { data, loading, error }] = useUpdatePurchaseOrderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePurchaseOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>(UpdatePurchaseOrderDocument, options);
+      }
+export type UpdatePurchaseOrderMutationHookResult = ReturnType<typeof useUpdatePurchaseOrderMutation>;
+export type UpdatePurchaseOrderMutationResult = Apollo.MutationResult<UpdatePurchaseOrderMutation>;
+export type UpdatePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<UpdatePurchaseOrderMutation, UpdatePurchaseOrderMutationVariables>;
+export const DeletePurchaseOrderDocument = gql`
+    mutation DeletePurchaseOrder($id: ID!) {
+  deletePurchaseOrder(id: $id)
+}
+    `;
+export type DeletePurchaseOrderMutationFn = Apollo.MutationFunction<DeletePurchaseOrderMutation, DeletePurchaseOrderMutationVariables>;
+
+/**
+ * __useDeletePurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useDeletePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePurchaseOrderMutation, { data, loading, error }] = useDeletePurchaseOrderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePurchaseOrderMutation(baseOptions?: Apollo.MutationHookOptions<DeletePurchaseOrderMutation, DeletePurchaseOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePurchaseOrderMutation, DeletePurchaseOrderMutationVariables>(DeletePurchaseOrderDocument, options);
+      }
+export type DeletePurchaseOrderMutationHookResult = ReturnType<typeof useDeletePurchaseOrderMutation>;
+export type DeletePurchaseOrderMutationResult = Apollo.MutationResult<DeletePurchaseOrderMutation>;
+export type DeletePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<DeletePurchaseOrderMutation, DeletePurchaseOrderMutationVariables>;
+export const ReceivePurchaseOrderDocument = gql`
+    mutation ReceivePurchaseOrder($id: ID!, $lines: [PurchaseReceiptLineInput!]!) {
+  receivePurchaseOrder(id: $id, lines: $lines) {
+    ...PurchaseOrderFields
+  }
+}
+    ${PurchaseOrderFieldsFragmentDoc}`;
+export type ReceivePurchaseOrderMutationFn = Apollo.MutationFunction<ReceivePurchaseOrderMutation, ReceivePurchaseOrderMutationVariables>;
+
+/**
+ * __useReceivePurchaseOrderMutation__
+ *
+ * To run a mutation, you first call `useReceivePurchaseOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReceivePurchaseOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [receivePurchaseOrderMutation, { data, loading, error }] = useReceivePurchaseOrderMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      lines: // value for 'lines'
+ *   },
+ * });
+ */
+export function useReceivePurchaseOrderMutation(baseOptions?: Apollo.MutationHookOptions<ReceivePurchaseOrderMutation, ReceivePurchaseOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ReceivePurchaseOrderMutation, ReceivePurchaseOrderMutationVariables>(ReceivePurchaseOrderDocument, options);
+      }
+export type ReceivePurchaseOrderMutationHookResult = ReturnType<typeof useReceivePurchaseOrderMutation>;
+export type ReceivePurchaseOrderMutationResult = Apollo.MutationResult<ReceivePurchaseOrderMutation>;
+export type ReceivePurchaseOrderMutationOptions = Apollo.BaseMutationOptions<ReceivePurchaseOrderMutation, ReceivePurchaseOrderMutationVariables>;
 export const UpdateProfileDocument = gql`
     mutation UpdateProfile($input: UpdateProfileInput!) {
   updateProfile(input: $input) {

@@ -52,6 +52,7 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PolicyIcon from '@mui/icons-material/Policy';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -276,6 +277,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Suppliers',
         path: '/products/suppliers',
         icon: BusinessIcon,
+      },
+      {
+        key: 'products-purchase-orders',
+        label: 'Purchase orders',
+        path: '/products/purchase-orders',
+        icon: ShoppingCartIcon,
       },
       { key: 'products-stock', label: 'Stock', path: '/products/stock', icon: BuildIcon },
     ],

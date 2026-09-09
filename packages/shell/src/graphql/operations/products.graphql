@@ -63,3 +63,75 @@ mutation DeleteProduct($id: ID!) {
 query InventoryValue {
   inventoryValue
 }
+
+fragment PurchaseOrderFields on PurchaseOrder {
+  id
+  number
+  supplierId
+  supplierName
+  lines {
+    productId
+    productName
+    quantity
+    unitCost
+    taxPercent
+    receivedQuantity
+  }
+  total
+  currency
+  status
+  orderDate
+  expectedDate
+  notes
+  receivedAt
+  createdAt
+  updatedAt
+}
+
+query ListPurchaseOrdersPaged($input: TableQueryInput!) {
+  listPurchaseOrdersPaged(input: $input) {
+    rows {
+      ...PurchaseOrderFields
+    }
+    totalCount
+  }
+}
+
+query ListPurchaseOrdersStats {
+  listPurchaseOrdersStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreatePurchaseOrder($input: PurchaseOrderInput!) {
+  createPurchaseOrder(input: $input) {
+    ...PurchaseOrderFields
+  }
+}
+
+mutation UpdatePurchaseOrder($id: ID!, $input: PurchaseOrderInput!) {
+  updatePurchaseOrder(id: $id, input: $input) {
+    ...PurchaseOrderFields
+  }
+}
+
+mutation DeletePurchaseOrder($id: ID!) {
+  deletePurchaseOrder(id: $id)
+}
+
+mutation ReceivePurchaseOrder($id: ID!, $lines: [PurchaseReceiptLineInput!]!) {
+  receivePurchaseOrder(id: $id, lines: $lines) {
+    ...PurchaseOrderFields
+  }
+}

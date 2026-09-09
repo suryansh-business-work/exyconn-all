@@ -2867,6 +2867,7 @@ export type Mutation = {
   createProject: Project;
   createProjectShare: ProjectShareCreated;
   createPrompt: Prompt;
+  createPurchaseOrder: PurchaseOrder;
   createRecurringInvoice: RecurringInvoice;
   createSalaryStructure: SalaryStructure;
   createShift: Shift;
@@ -2957,6 +2958,7 @@ export type Mutation = {
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
+  deletePurchaseOrder: Scalars['Boolean']['output'];
   deleteRecurringInvoice: Scalars['Boolean']['output'];
   deleteSalaryStructure: Scalars['Boolean']['output'];
   deleteShift: Scalars['Boolean']['output'];
@@ -3002,6 +3004,11 @@ export type Mutation = {
    * which is what a change in wording means — leave it off for a typo fix.
    */
   publishPolicy: Policy;
+  /**
+   * Books goods in: writes a RECEIPT movement carrying the order's cost, moves the product's
+   * average cost, and re-reads the order's status from what has actually arrived.
+   */
+  receivePurchaseOrder: PurchaseOrder;
   /** Records a receipt and moves the invoice's paid figure and status with it, in one step. */
   recordPayment: Payment;
   /** Records a movement and moves the product's stock with it, in one step. */
@@ -3264,6 +3271,7 @@ export type Mutation = {
   updateProfile: User;
   updateProject: Project;
   updatePrompt: Prompt;
+  updatePurchaseOrder: PurchaseOrder;
   updateRecurringInvoice: RecurringInvoice;
   updateSalaryStructure: SalaryStructure;
   updateSettings: AppSettings;
@@ -3713,6 +3721,11 @@ export type MutationCreatePromptArgs = {
 };
 
 
+export type MutationCreatePurchaseOrderArgs = {
+  input: PurchaseOrderInput;
+};
+
+
 export type MutationCreateRecurringInvoiceArgs = {
   input: RecurringInvoiceInput;
 };
@@ -4113,6 +4126,11 @@ export type MutationDeletePromptArgs = {
 };
 
 
+export type MutationDeletePurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4270,6 +4288,12 @@ export type MutationPromoteCompanyToClientArgs = {
 export type MutationPublishPolicyArgs = {
   id: Scalars['ID']['input'];
   raiseVersion?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type MutationReceivePurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+  lines: Array<PurchaseReceiptLineInput>;
 };
 
 
@@ -5032,6 +5056,12 @@ export type MutationUpdatePromptArgs = {
 };
 
 
+export type MutationUpdatePurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+  input: PurchaseOrderInput;
+};
+
+
 export type MutationUpdateRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
   input: RecurringInvoiceInput;
@@ -5744,6 +5774,11 @@ export enum ProblemStatus {
 
 export type Product = {
   __typename?: 'Product';
+  /**
+   * Weighted average of what the stock on the shelf cost, moved by every receipt. Zero for a
+   * product that predates purchasing — its cost is genuinely unknown.
+   */
+  averageCost: Scalars['Float']['output'];
   category: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
@@ -6011,6 +6046,79 @@ export type PublicPolicy = {
   version: Scalars['Int']['output'];
 };
 
+export type PurchaseOrder = {
+  __typename?: 'PurchaseOrder';
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  expectedDate?: Maybe<Scalars['DateTime']['output']>;
+  firstReceivedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  lines: Array<PurchaseOrderLine>;
+  notes: Scalars['String']['output'];
+  /** Drawn from the shared counter, never typed. */
+  number: Scalars['String']['output'];
+  orderDate: Scalars['DateTime']['output'];
+  receivedAt?: Maybe<Scalars['DateTime']['output']>;
+  status: PurchaseOrderStatus;
+  supplierId: Scalars['String']['output'];
+  supplierName: Scalars['String']['output'];
+  /** What the order costs, tax included — computed from the lines on read. */
+  total: Scalars['Float']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PurchaseOrderInput = {
+  currency: Scalars['String']['input'];
+  expectedDate?: InputMaybe<Scalars['DateTime']['input']>;
+  lines: Array<PurchaseOrderLineInput>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  orderDate: Scalars['DateTime']['input'];
+  status: PurchaseOrderStatus;
+  supplierId: Scalars['String']['input'];
+};
+
+/**
+ * One ordered line. The unit cost is what gives received stock a cost basis — without it
+ * inventory can only be valued at the price we hope to sell for.
+ */
+export type PurchaseOrderLine = {
+  __typename?: 'PurchaseOrderLine';
+  productId: Scalars['String']['output'];
+  productName: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+  /** How many have actually arrived. Written by a receipt, never by the form. */
+  receivedQuantity: Scalars['Int']['output'];
+  taxPercent: Scalars['Float']['output'];
+  unitCost: Scalars['Float']['output'];
+};
+
+export type PurchaseOrderLineInput = {
+  productId: Scalars['String']['input'];
+  quantity: Scalars['Int']['input'];
+  taxPercent: Scalars['Float']['input'];
+  unitCost: Scalars['Float']['input'];
+};
+
+export type PurchaseOrderPage = {
+  __typename?: 'PurchaseOrderPage';
+  rows: Array<PurchaseOrder>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum PurchaseOrderStatus {
+  Cancelled = 'CANCELLED',
+  Draft = 'DRAFT',
+  Ordered = 'ORDERED',
+  PartiallyReceived = 'PARTIALLY_RECEIVED',
+  Received = 'RECEIVED'
+}
+
+/** What arrived against one ordered line. */
+export type PurchaseReceiptLineInput = {
+  productId: Scalars['String']['input'];
+  quantity: Scalars['Int']['input'];
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -6122,6 +6230,7 @@ export type Query = {
   getProduct: Product;
   getProject: Project;
   getPrompt: Prompt;
+  getPurchaseOrder: PurchaseOrder;
   getRecurringInvoice?: Maybe<RecurringInvoice>;
   getSalaryStructure: SalaryStructure;
   getShift: Shift;
@@ -6144,7 +6253,7 @@ export type Query = {
   hrDashboard: HrDashboard;
   /** Host, this process and the database in one read — the Infrastructure overview. */
   infrastructureOverview: InfrastructureOverview;
-  /** Sum of price × stock over ACTIVE products. */
+  /** What the stock on ACTIVE products cost: sum of averageCost × stock. */
   inventoryValue: Scalars['Float']['output'];
   /** Payments against one invoice, newest first. */
   invoicePayments: Array<Payment>;
@@ -6325,6 +6434,9 @@ export type Query = {
   listPrompts: Array<Prompt>;
   listPromptsPaged: PromptPage;
   listPromptsStats: TableStats;
+  listPurchaseOrders: Array<PurchaseOrder>;
+  listPurchaseOrdersPaged: PurchaseOrderPage;
+  listPurchaseOrdersStats: TableStats;
   listRecurringInvoices: Array<RecurringInvoice>;
   listRecurringInvoicesPaged: RecurringInvoicePage;
   /** Only restrictions that exist; a missing (role, module) pair means everything is allowed. */
@@ -6882,6 +6994,11 @@ export type QueryGetPromptArgs = {
 };
 
 
+export type QueryGetPurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7228,6 +7345,11 @@ export type QueryListProjectsPagedArgs = {
 
 
 export type QueryListPromptsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListPurchaseOrdersPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -8204,6 +8326,8 @@ export type StockMovement = {
   notes: Scalars['String']['output'];
   productId: Scalars['String']['output'];
   productName: Scalars['String']['output'];
+  /** The purchase order this receipt came from, when it came from one. */
+  purchaseOrderNumber: Scalars['String']['output'];
   /** Always positive; the reason decides the direction. */
   quantity: Scalars['Int']['output'];
   reason: MovementReason;
@@ -8213,6 +8337,8 @@ export type StockMovement = {
   stockAfter: Scalars['Int']['output'];
   supplierId: Scalars['String']['output'];
   supplierName: Scalars['String']['output'];
+  /** What one unit cost. Only a receipt knows it; everything else is 0. */
+  unitCost: Scalars['Float']['output'];
 };
 
 export type StockMovementInput = {
@@ -9846,6 +9972,13 @@ export type ResolversTypes = ResolversObject<{
   PromptPage: ResolverTypeWrapper<PromptPage>;
   PromptVariableInput: PromptVariableInput;
   PublicPolicy: ResolverTypeWrapper<PublicPolicy>;
+  PurchaseOrder: ResolverTypeWrapper<PurchaseOrder>;
+  PurchaseOrderInput: PurchaseOrderInput;
+  PurchaseOrderLine: ResolverTypeWrapper<PurchaseOrderLine>;
+  PurchaseOrderLineInput: PurchaseOrderLineInput;
+  PurchaseOrderPage: ResolverTypeWrapper<PurchaseOrderPage>;
+  PurchaseOrderStatus: PurchaseOrderStatus;
+  PurchaseReceiptLineInput: PurchaseReceiptLineInput;
   Query: ResolverTypeWrapper<{}>;
   Receivables: ResolverTypeWrapper<Receivables>;
   ReceivablesBucket: ResolverTypeWrapper<ReceivablesBucket>;
@@ -10282,6 +10415,12 @@ export type ResolversParentTypes = ResolversObject<{
   PromptPage: PromptPage;
   PromptVariableInput: PromptVariableInput;
   PublicPolicy: PublicPolicy;
+  PurchaseOrder: PurchaseOrder;
+  PurchaseOrderInput: PurchaseOrderInput;
+  PurchaseOrderLine: PurchaseOrderLine;
+  PurchaseOrderLineInput: PurchaseOrderLineInput;
+  PurchaseOrderPage: PurchaseOrderPage;
+  PurchaseReceiptLineInput: PurchaseReceiptLineInput;
   Query: {};
   Receivables: Receivables;
   ReceivablesBucket: ReceivablesBucket;
@@ -12052,6 +12191,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
   createProjectShare?: Resolver<ResolversTypes['ProjectShareCreated'], ParentType, ContextType, RequireFields<MutationCreateProjectShareArgs, 'expiresInDays' | 'label' | 'projectId'>>;
   createPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationCreatePromptArgs, 'input'>>;
+  createPurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationCreatePurchaseOrderArgs, 'input'>>;
   createRecurringInvoice?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationCreateRecurringInvoiceArgs, 'input'>>;
   createSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationCreateSalaryStructureArgs, 'input'>>;
   createShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationCreateShiftArgs, 'input'>>;
@@ -12131,6 +12271,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteProduct?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'id'>>;
   deleteProject?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'id'>>;
   deletePrompt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePromptArgs, 'id'>>;
+  deletePurchaseOrder?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePurchaseOrderArgs, 'id'>>;
   deleteRecurringInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRecurringInvoiceArgs, 'id'>>;
   deleteSalaryStructure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSalaryStructureArgs, 'id'>>;
   deleteShift?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteShiftArgs, 'id'>>;
@@ -12162,6 +12303,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   promoteBugToTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationPromoteBugToTaskArgs, 'id'>>;
   promoteCompanyToClient?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationPromoteCompanyToClientArgs, 'id'>>;
   publishPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationPublishPolicyArgs, 'id'>>;
+  receivePurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationReceivePurchaseOrderArgs, 'id' | 'lines'>>;
   recordPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationRecordPaymentArgs, 'input'>>;
   recordStockMovement?: Resolver<ResolversTypes['StockMovement'], ParentType, ContextType, RequireFields<MutationRecordStockMovementArgs, 'input'>>;
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
@@ -12291,6 +12433,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateProfile?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'input'>>;
   updateProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationUpdateProjectArgs, 'id' | 'input'>>;
   updatePrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationUpdatePromptArgs, 'id' | 'input'>>;
+  updatePurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationUpdatePurchaseOrderArgs, 'id' | 'input'>>;
   updateRecurringInvoice?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationUpdateRecurringInvoiceArgs, 'id' | 'input'>>;
   updateSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationUpdateSalaryStructureArgs, 'id' | 'input'>>;
   updateSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType, RequireFields<MutationUpdateSettingsArgs, 'input'>>;
@@ -12639,6 +12782,7 @@ export type ProblemReportStatusResolvers<ContextType = GraphQLContext, ParentTyp
 }>;
 
 export type ProductResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Product'] = ResolversParentTypes['Product']> = ResolversObject<{
+  averageCost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -12810,6 +12954,41 @@ export type PublicPolicyResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PurchaseOrderResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PurchaseOrder'] = ResolversParentTypes['PurchaseOrder']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  expectedDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  firstReceivedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lines?: Resolver<Array<ResolversTypes['PurchaseOrderLine']>, ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  number?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  orderDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  receivedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['PurchaseOrderStatus'], ParentType, ContextType>;
+  supplierId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  supplierName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PurchaseOrderLineResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PurchaseOrderLine'] = ResolversParentTypes['PurchaseOrderLine']> = ResolversObject<{
+  productId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  productName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  quantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  receivedQuantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  taxPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  unitCost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PurchaseOrderPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PurchaseOrderPage'] = ResolversParentTypes['PurchaseOrderPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['PurchaseOrder']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   activeAnnouncements?: Resolver<Array<ResolversTypes['Announcement']>, ParentType, ContextType>;
@@ -12885,6 +13064,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<QueryGetProductArgs, 'id'>>;
   getProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<QueryGetProjectArgs, 'id'>>;
   getPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<QueryGetPromptArgs, 'id'>>;
+  getPurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<QueryGetPurchaseOrderArgs, 'id'>>;
   getRecurringInvoice?: Resolver<Maybe<ResolversTypes['RecurringInvoice']>, ParentType, ContextType, RequireFields<QueryGetRecurringInvoiceArgs, 'id'>>;
   getSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<QueryGetSalaryStructureArgs, 'id'>>;
   getShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<QueryGetShiftArgs, 'id'>>;
@@ -13068,6 +13248,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPrompts?: Resolver<Array<ResolversTypes['Prompt']>, ParentType, ContextType>;
   listPromptsPaged?: Resolver<ResolversTypes['PromptPage'], ParentType, ContextType, RequireFields<QueryListPromptsPagedArgs, 'input'>>;
   listPromptsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listPurchaseOrders?: Resolver<Array<ResolversTypes['PurchaseOrder']>, ParentType, ContextType>;
+  listPurchaseOrdersPaged?: Resolver<ResolversTypes['PurchaseOrderPage'], ParentType, ContextType, RequireFields<QueryListPurchaseOrdersPagedArgs, 'input'>>;
+  listPurchaseOrdersStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listRecurringInvoices?: Resolver<Array<ResolversTypes['RecurringInvoice']>, ParentType, ContextType>;
   listRecurringInvoicesPaged?: Resolver<ResolversTypes['RecurringInvoicePage'], ParentType, ContextType, RequireFields<QueryListRecurringInvoicesPagedArgs, 'input'>>;
   listRolePermissions?: Resolver<Array<ResolversTypes['RolePermission']>, ParentType, ContextType>;
@@ -13589,6 +13772,7 @@ export type StockMovementResolvers<ContextType = GraphQLContext, ParentType exte
   notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   productId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   productName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  purchaseOrderNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   quantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   reason?: Resolver<ResolversTypes['MovementReason'], ParentType, ContextType>;
   recordedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -13596,6 +13780,7 @@ export type StockMovementResolvers<ContextType = GraphQLContext, ParentType exte
   stockAfter?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   supplierId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   supplierName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  unitCost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -14450,6 +14635,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
   PublicPolicy?: PublicPolicyResolvers<ContextType>;
+  PurchaseOrder?: PurchaseOrderResolvers<ContextType>;
+  PurchaseOrderLine?: PurchaseOrderLineResolvers<ContextType>;
+  PurchaseOrderPage?: PurchaseOrderPageResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Receivables?: ReceivablesResolvers<ContextType>;
   ReceivablesBucket?: ReceivablesBucketResolvers<ContextType>;

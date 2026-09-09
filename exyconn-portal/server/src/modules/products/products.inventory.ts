@@ -31,7 +31,10 @@ interface StockMovementInput {
   notes?: string;
 }
 
-export const suppliersService = createCrudService<SupplierInput>(SupplierModel as never, 'Supplier');
+export const suppliersService = createCrudService<SupplierInput>(
+  SupplierModel as never,
+  'Supplier',
+);
 
 const suppliers = createCrudResolvers(suppliersService, {
   name: 'Supplier',
@@ -116,6 +119,12 @@ async function recordStockMovement(
 }
 
 export const productsInventoryResolvers = {
+  /** A movement written before purchasing existed comes back without these. */
+  StockMovement: {
+    unitCost: (row: { unitCost?: number | null }) => row.unitCost ?? 0,
+    purchaseOrderNumber: (row: { purchaseOrderNumber?: string | null }) =>
+      row.purchaseOrderNumber ?? '',
+  },
   Query: {
     ...suppliers.Query,
     listStockMovements: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {

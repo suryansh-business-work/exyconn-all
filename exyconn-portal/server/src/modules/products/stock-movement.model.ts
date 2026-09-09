@@ -23,6 +23,15 @@ const stockMovementSchema = new Schema(
     quantity: { type: Number, required: true, min: 1 },
     /** The level after this movement, so history reads without replaying it. */
     stockAfter: { type: Number, required: true, min: 0 },
+    /**
+     * What one unit cost on this movement. Only a receipt knows it — everything else leaves
+     * it at 0 — and it is what lets inventory be valued at what it cost rather than at what
+     * we hope to sell it for.
+     */
+    unitCost: { type: Number, required: true, min: 0, default: 0 },
+    /** The purchase order this receipt came from, when it came from one. */
+    purchaseOrderId: { type: String, default: '', trim: true },
+    purchaseOrderNumber: { type: String, default: '', trim: true },
     supplierId: { type: String, default: '', trim: true },
     supplierName: { type: String, default: '', trim: true },
     reference: { type: String, default: '', trim: true },

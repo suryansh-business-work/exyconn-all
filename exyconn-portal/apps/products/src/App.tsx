@@ -5,6 +5,7 @@ import { Login } from '@exyconn/login';
 import { ProductsOverviewPage, ProductsPage } from './pages/products';
 import { SuppliersPage } from './pages/suppliers';
 import { StockPage } from './pages/stock';
+import { PurchaseOrdersPage } from './pages/purchase-orders';
 
 /** Products micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -13,6 +14,7 @@ export function App() {
       <Route path="/products" element={<ProductsOverviewPage />} />
       <Route path="/products/catalogue" element={<ProductsPage />} />
       <Route path="/products/suppliers" element={<SuppliersPage />} />
+      <Route path="/products/purchase-orders" element={<PurchaseOrdersPage />} />
       <Route path="/products/stock" element={<StockPage />} />
     </PortalApp>
   );
