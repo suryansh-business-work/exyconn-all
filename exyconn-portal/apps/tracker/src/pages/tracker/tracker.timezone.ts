@@ -1,13 +1,16 @@
 import { formatInTimeZone } from 'date-fns-tz';
+import { FALLBACK_TIMEZONE, isValidTimezone } from '@exyconn/time';
 
 /**
- * The portal's mirror of the server's tracker timezone rules
- * (`server/src/modules/tracker/tracker.timezone.ts`). The priority order MUST match the
- * server's or the portal would display a zone the employee's hours were not aggregated in.
+ * Which zone an employee's hours are read in, and WHY that one won.
+ *
+ * The rules themselves come from `@exyconn/time`, so this and the server cannot drift into
+ * disagreeing about whether a zone is real — a disagreement that shows up as an admin reading
+ * a day the hours were never aggregated in. What stays here is the part only this screen
+ * needs: which candidate won, so the UI can say "workspace default" beside the zone.
  */
 
-/** Used when nothing else resolves — the same fallback the server applies. */
-export const FALLBACK_TIMEZONE = 'UTC';
+export { FALLBACK_TIMEZONE, isValidTimezone };
 
 /** Which candidate won, so the UI can explain *why* an employee is on a given zone. */
 export type TimezoneSource = 'chosen' | 'workspace' | 'device' | 'fallback';
@@ -32,25 +35,6 @@ export interface TimezoneCandidates {
   defaultTimezone?: string | null;
   /** The zone the employee's machine reported when it signed in. */
   deviceTimezone?: string | null;
-}
-
-/**
- * Whether `value` is a zone the platform can actually resolve.
- *
- * Probes `Intl.DateTimeFormat` rather than testing membership of
- * `Intl.supportedValuesOf('timeZone')`: that list is the ICU zone list *pre-canonicalisation*,
- * so it can hold `Asia/Calcutta` but not `Asia/Kolkata`, and no `UTC` at all.
- */
-export function isValidTimezone(value: string | null | undefined): value is string {
-  if (!value) {
-    return false;
-  }
-  try {
-    Intl.DateTimeFormat('en-US', { timeZone: value });
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 /**

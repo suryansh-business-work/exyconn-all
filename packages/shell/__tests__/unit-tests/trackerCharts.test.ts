@@ -2,10 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   appUsageChart,
   dayByHourChart,
-  formatHours,
   monthHoursChart,
   projectSplitChart,
-  toHours,
 } from '@/pages/tracker-view/tracker.charts';
 
 const HOUR = 3_600_000;
@@ -48,17 +46,6 @@ const session = (projectName: string, activeMs: number) => ({
 /** The day shape the charts read, with only the fields each one actually touches. */
 const day = (parts: Partial<Parameters<typeof dayByHourChart>[0] & object>) =>
   ({ intervals: [], sessions: [], appUsage: [], screenshots: [], ...parts }) as never;
-
-describe('toHours / formatHours', () => {
-  it('plots in hours, not milliseconds — an axis in ms is unreadable', () => {
-    expect(toHours(HOUR * 7.5)).toBe(7.5);
-    expect(formatHours(7.5)).toBe('7.5h');
-  });
-
-  it('drops to minutes below an hour, where a decimal hour stops meaning anything', () => {
-    expect(formatHours(0.4)).toBe('24m');
-  });
-});
 
 describe('monthHoursChart', () => {
   it('splits each day into worked, idle and off-computer', () => {

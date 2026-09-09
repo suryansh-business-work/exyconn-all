@@ -1,3 +1,4 @@
+export { msToHours, formatHours } from './duration';
 export { ChartCard } from './ChartCard';
 export { ChartTable } from './ChartTable';
 export { BarChart } from './BarChart';

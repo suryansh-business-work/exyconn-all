@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ReportDay } from '@shared/types';
-import { formatHours, monthChart, toHours } from './charts';
+import { formatHours, msToHours } from '@exyconn/ui';
+import { monthChart } from './charts';
 
 const day = (date: string, activeMs: number, idleMs: number): ReportDay => ({
   date,
@@ -15,12 +16,12 @@ const HOUR = 3_600_000;
 
 describe('toHours', () => {
   it('converts milliseconds to hours at one decimal', () => {
-    expect(toHours(HOUR * 7.5)).toBe(7.5);
-    expect(toHours(0)).toBe(0);
+    expect(msToHours(HOUR * 7.5)).toBe(7.5);
+    expect(msToHours(0)).toBe(0);
   });
 
   it('rounds rather than truncating, so a full day does not read as 7.9h', () => {
-    expect(toHours(HOUR * 7.98)).toBe(8);
+    expect(msToHours(HOUR * 7.98)).toBe(8);
   });
 });
 

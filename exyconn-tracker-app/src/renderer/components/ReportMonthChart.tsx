@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import { useMemo } from 'react';
-import { BarChart, ChartCard, useChartPalette } from '@exyconn/ui';
+import { BarChart, ChartCard, formatHours, useChartPalette } from '@exyconn/ui';
 import type { ReportDay } from '@shared/types';
 import Surface from './Surface';
-import { formatHours, monthChart } from '../charts';
+import { monthChart } from '../charts';
 
 interface Props {
   days: readonly ReportDay[];

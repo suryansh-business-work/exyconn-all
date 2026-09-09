@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { BarChart, ChartCard, useChartPalette } from '@exyconn/ui';
-import { formatHours, monthHoursChart } from './tracker.charts';
+import { BarChart, ChartCard, formatHours, useChartPalette } from '@exyconn/ui';
+import { monthHoursChart } from './tracker.charts';
 import type { TrackerDayBucketData } from './tracker.types';
 
 interface TrackerMonthChartProps {

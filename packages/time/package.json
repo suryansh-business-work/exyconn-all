@@ -1,0 +1,23 @@
+{
+  "name": "@exyconn/time",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Zone and locale primitives, with ZERO dependencies. The one place that decides whether a timezone is real and which zone a person's data is read in — shared by the portals, the server's rules, the desktop tracker's main process and the design system.",
+  "main": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "test": "vitest run --passWithNoTests"
+  },
+  "prettier": "@exyconn/config/prettier.json",
+  "devDependencies": {
+    "@exyconn/config": "workspace:*",
+    "@testing-library/jest-dom": "^7.0.1",
+    "eslint": "^10.9.1",
+    "prettier": "^3.4.2",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.0"
+  }
+}
