@@ -3,6 +3,7 @@ import { UserModel } from '../admin/user.model';
 import { badRequest, notFound } from '../../utils/errors';
 import { SocialCommentModel, SocialLikeModel, SocialPostModel } from './social.model';
 import { presentComments, presentPosts, type PresentedPost, type Viewer } from './social.present';
+import { notifyPostCommented, notifyPostLiked, notifyPostShared } from './social.notify';
 
 /** What the feed does, independent of who asked over GraphQL. */
 
@@ -123,7 +124,8 @@ export async function deletePost(id: string, viewer: Viewer): Promise<boolean> {
  * double tap changes the count once.
  */
 export async function toggleLike(id: string, viewer: Viewer): Promise<PresentedPost> {
-  if (!(await SocialPostModel.exists({ _id: id }))) notFound('Post');
+  const row = await SocialPostModel.findById(id).select('authorId').lean();
+  if (!row) notFound('Post');
   const removed = await SocialLikeModel.deleteOne({ postId: id, userId: viewer.userId });
   if (removed.deletedCount > 0) {
     await SocialPostModel.updateOne({ _id: id }, { $inc: { likeCount: -1 } });
@@ -131,6 +133,9 @@ export async function toggleLike(id: string, viewer: Viewer): Promise<PresentedP
   }
   await SocialLikeModel.create({ postId: id, userId: viewer.userId });
   await SocialPostModel.updateOne({ _id: id }, { $inc: { likeCount: 1 } });
+  // Only the like tells the author something; taking one back is not news, and notifying
+  // on both halves would make an unlike-relike pair a way to buzz somebody repeatedly.
+  await notifyPostLiked(row.authorId, viewer.userId, id);
   return post(id, viewer);
 }
 
@@ -154,17 +159,24 @@ export async function sharePost(
     sharedFromId: rootId,
   });
   await SocialPostModel.updateOne({ _id: rootId }, { $inc: { shareCount: 1 } });
+  // The root's author is the one who wrote it, and the one a share is news for — not the
+  // author of the share this one was made from.
+  const root = await SocialPostModel.findById(rootId).select('authorId').lean();
+  if (root) await notifyPostShared(root.authorId, viewer.userId, rootId);
   return post(String(created._id), viewer);
 }
 
 export async function createComment(postId: string, body: string, viewer: Viewer) {
-  if (!(await SocialPostModel.exists({ _id: postId }))) notFound('Post');
+  const row = await SocialPostModel.findById(postId).select('authorId').lean();
+  if (!row) notFound('Post');
+  const text = assertBody(body, 'comment');
   const created = await SocialCommentModel.create({
     postId,
     authorId: viewer.userId,
-    body: assertBody(body, 'comment'),
+    body: text,
   });
   await SocialPostModel.updateOne({ _id: postId }, { $inc: { commentCount: 1 } });
+  await notifyPostCommented(row.authorId, viewer.userId, postId, text);
   const [presented] = await presentComments([created.toObject()] as never, viewer);
   return presented;
 }

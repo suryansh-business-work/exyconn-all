@@ -1,6 +1,7 @@
 import { socialResolvers } from '../../src/modules/social';
 import { SocialLikeModel, SocialPostModel } from '../../src/modules/social/social.model';
 import { UserModel } from '../../src/modules/admin/user.model';
+import { NotificationModel } from '../../src/modules/notifications';
 import { ROLES } from '../../src/constants/roles';
 import { seedUser } from '../helpers';
 import type { GraphQLContext } from '../../src/middleware/auth';
@@ -306,5 +307,84 @@ describe('social profiles', () => {
     const reloaded: Post = await Q.socialPost(null, { id: created.id }, ctx(asha));
     expect(reloaded.author.name).toBe('Former colleague');
     expect(reloaded.body).toBe('Ship day');
+  });
+});
+
+describe('social notifications', () => {
+  let ravi = '';
+  let asha = '';
+
+  beforeEach(async () => {
+    ravi = await employee('ravi@exyconn.com');
+    asha = await employee('asha@exyconn.com');
+  });
+
+  const inboxOf = (userId: string) =>
+    NotificationModel.find({ employeeId: userId }).sort({ _id: 1 }).lean();
+
+  it('tells the author who liked their post, and links to the post itself', async () => {
+    const created = await post(ravi, 'Ship day');
+    await M.toggleSocialPostLike(null, { id: created.id }, ctx(asha));
+
+    const inbox = await inboxOf(ravi);
+    expect(inbox).toHaveLength(1);
+    expect(inbox[0].kind).toBe('SOCIAL_LIKE');
+    expect(inbox[0].title).toContain('asha');
+    expect(inbox[0].link).toBe(`/social/posts/${created.id}`);
+  });
+
+  it('says nothing when somebody likes their own post', async () => {
+    const created = await post(ravi, 'Ship day');
+    await M.toggleSocialPostLike(null, { id: created.id }, ctx(ravi));
+    expect(await inboxOf(ravi)).toHaveLength(0);
+  });
+
+  it('does not notify on an unlike, so a toggle cannot be used to buzz somebody', async () => {
+    const created = await post(ravi, 'Ship day');
+    await M.toggleSocialPostLike(null, { id: created.id }, ctx(asha));
+    await M.toggleSocialPostLike(null, { id: created.id }, ctx(asha));
+    expect(await inboxOf(ravi)).toHaveLength(1);
+  });
+
+  it('carries the comment itself, so the thread need not be opened to read it', async () => {
+    const created = await post(ravi, 'Ship day');
+    await M.createSocialComment(null, { postId: created.id, body: 'Congratulations' }, ctx(asha));
+
+    const inbox = await inboxOf(ravi);
+    expect(inbox).toHaveLength(1);
+    expect(inbox[0].kind).toBe('SOCIAL_COMMENT');
+    expect(inbox[0].body).toBe('Congratulations');
+  });
+
+  it('stays quiet when the author comments on their own post', async () => {
+    const created = await post(ravi, 'Ship day');
+    await M.createSocialComment(null, { postId: created.id, body: 'One more thing' }, ctx(ravi));
+    expect(await inboxOf(ravi)).toHaveLength(0);
+  });
+
+  it('tells the person who WROTE a post when a share of a share is made', async () => {
+    const original = await post(ravi, 'Ship day');
+    const firstShare: Post = await M.shareSocialPost(null, { id: original.id }, ctx(asha));
+    await M.shareSocialPost(null, { id: firstShare.id }, ctx(ravi));
+
+    // Ravi wrote the original, so his first share notification came from asha; his own
+    // share of it notifies nobody, because he is the root author.
+    const inbox = await inboxOf(ravi);
+    expect(inbox).toHaveLength(1);
+    expect(inbox[0].kind).toBe('SOCIAL_SHARE');
+    expect(await inboxOf(asha)).toHaveLength(0);
+  });
+
+  it('never fails the reaction when the notification cannot be written', async () => {
+    const created = await post(ravi, 'Ship day');
+    const insert = jest
+      .spyOn(NotificationModel, 'create')
+      .mockRejectedValueOnce(new Error('notification store is down') as never);
+
+    const liked: Post = await M.toggleSocialPostLike(null, { id: created.id }, ctx(asha));
+
+    expect(liked.likeCount).toBe(1);
+    expect(await inboxOf(ravi)).toHaveLength(0);
+    insert.mockRestore();
   });
 });

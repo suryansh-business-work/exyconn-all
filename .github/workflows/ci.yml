@@ -103,6 +103,34 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  website:
+    name: Website · Typecheck · Lint · Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # The Astro site is a workspace package but was in no CI job, so nothing checked
+      # it on a push. That was survivable while it read its own markdown; now it renders
+      # blog posts and case studies out of the portal's public API, so a field renamed in
+      # the portal breaks the marketing site and no other job would say so.
+      - name: Typecheck
+        working-directory: exyconn-website
+        run: pnpm run typecheck
+      - name: Lint
+        working-directory: exyconn-website
+        run: pnpm run lint
+      - name: Test
+        working-directory: exyconn-website
+        run: pnpm test
+
   tools-ui:
     name: Tools UI · Typecheck · Lint · Test
     runs-on: ubuntu-latest

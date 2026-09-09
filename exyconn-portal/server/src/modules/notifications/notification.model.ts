@@ -9,6 +9,11 @@ export const NOTIFICATION_KINDS = [
   'REQUEST',
   'TRAINING',
   'ONBOARDING',
+  // The company feed. Separate kinds rather than one SOCIAL, so somebody who wants the
+  // comments but not the likes has something to filter on later.
+  'SOCIAL_LIKE',
+  'SOCIAL_COMMENT',
+  'SOCIAL_SHARE',
   'GENERAL',
 ] as const;
 

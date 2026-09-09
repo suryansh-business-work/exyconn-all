@@ -5502,6 +5502,9 @@ export enum NotificationKind {
   Payroll = 'PAYROLL',
   Performance = 'PERFORMANCE',
   Request = 'REQUEST',
+  SocialComment = 'SOCIAL_COMMENT',
+  SocialLike = 'SOCIAL_LIKE',
+  SocialShare = 'SOCIAL_SHARE',
   Training = 'TRAINING'
 }
 
