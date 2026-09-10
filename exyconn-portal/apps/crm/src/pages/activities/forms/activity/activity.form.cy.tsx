@@ -26,7 +26,7 @@ describe('ActivityForm', () => {
 
   it('does not crash when a due date is typed by hand', () => {
     mount();
-    cy.get('input[name="dueDate"]').type('12/01/2026');
+    cy.typeDate('dueDate', '12012026');
     cy.get('input[name="subject"]').should('exist');
   });
 

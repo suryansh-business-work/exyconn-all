@@ -41,7 +41,7 @@ describe('AssetForm', () => {
 
   it('does not crash when a purchase date is typed by hand', () => {
     mount();
-    cy.get('input[name="purchaseDate"]').type('12/01/2026');
+    cy.typeDate('purchaseDate', '12012026');
     cy.get('input[name="assetTag"]').should('exist');
   });
 
