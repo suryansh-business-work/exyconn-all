@@ -9,6 +9,7 @@ import {
   type ListEmploymentTypesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { EmploymentTypeForm, type EmploymentTypeRow } from './forms/employment-type';
+import { color } from '@exyconn/shell/components/ui';
 import {
   EMPLOYMENT_TYPE_COLUMNS,
   type PagedEmploymentTypeRow,
@@ -34,10 +35,18 @@ export function EmploymentTypesPage() {
 
   const stats = statsData?.listEmploymentTypesStats;
   const statItems: StatItem[] = [
-    { label: 'Types', value: String(statTotal(stats)), accent: '#059669' },
-    { label: 'Active', value: String(statCount(stats, 'active', 'true')), accent: '#059669' },
-    { label: 'Inactive', value: String(statCount(stats, 'active', 'false')), accent: '#059669' },
-    { label: 'Types', value: String(statTotal(stats)), accent: '#059669' },
+    { label: 'Types', value: String(statTotal(stats)), accent: color.emerald[800] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'active', 'true')),
+      accent: color.emerald[800],
+    },
+    {
+      label: 'Inactive',
+      value: String(statCount(stats, 'active', 'false')),
+      accent: color.emerald[800],
+    },
+    { label: 'Types', value: String(statTotal(stats)), accent: color.emerald[800] },
   ];
 
   const gridContext: EmploymentTypeGridContext = {

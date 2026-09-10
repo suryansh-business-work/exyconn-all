@@ -1,17 +1,20 @@
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
 import {
+  AdapterDateFns,
   Alert,
+  LocalizationProvider,
   Stack,
   Tab,
   Tabs,
+  TRACKER_RADIUS,
   Typography,
-  LocalizationProvider,
-  AdapterDateFns,
 } from '@exyconn/ui';
 import DayDetailPanel from '../components/DayDetailPanel';
 import MonthSwitcher from '../components/MonthSwitcher';
 import ReportCalendar from '../components/ReportCalendar';
+import ReportActivityChart from '../components/ReportActivityChart';
+import ReportDownloadButton from '../components/ReportDownloadButton';
 import ReportMonthChart from '../components/ReportMonthChart';
 import ReportTable from '../components/ReportTable';
 import ReportTotals from '../components/ReportTotals';
@@ -30,6 +33,11 @@ function startOfMonth(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
+/** "2026-02" — the month as a file name can carry it, and as it sorts. */
+function monthKeyOf(month: Date): string {
+  return `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
+}
+
 /**
  * The employee's own tracked time. "Calendar" browses it date by date, with that day's
  * screenshots; "Days" keeps the month-at-a-glance table. Nobody else's data is reachable here.
@@ -41,6 +49,7 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
   const [selected, setSelected] = useState<Date>(today);
 
   const { days, totals, loading, error } = useMyReport(month, timezone);
+  const monthLabel = formatMonthLabel(month);
   const day = useMyDay(selected, timezone);
   const canGoForward = month.getTime() < startOfMonth(today).getTime();
 
@@ -70,7 +79,7 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
         </Tabs>
 
         {error !== null ? (
-          <Alert severity="error" variant="outlined" sx={{ borderRadius: '4px' }}>
+          <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
             {error}
           </Alert>
         ) : null}
@@ -98,8 +107,16 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
           <>
             <MonthSwitcher month={month} canGoForward={canGoForward} onChange={setMonth} />
             <ReportTotals totals={totals} />
-            <ReportMonthChart days={days} monthLabel={formatMonthLabel(month)} />
+            <ReportMonthChart days={days} monthLabel={monthLabel} />
+            {/* Hours first, then how solid they were: the second chart only means something
+                once the reader knows how long the days it describes actually were. */}
+            <ReportActivityChart days={days} monthLabel={monthLabel} />
             <ReportTable days={days} loading={loading} />
+            <ReportDownloadButton
+              days={days}
+              monthKey={monthKeyOf(month)}
+              monthLabel={monthLabel}
+            />
           </>
         )}
       </Stack>

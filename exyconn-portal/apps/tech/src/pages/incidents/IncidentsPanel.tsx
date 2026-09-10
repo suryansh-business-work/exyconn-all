@@ -14,6 +14,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { IncidentForm, type IncidentRow } from './forms/incident';
 import { IncidentUpdateForm } from './forms/incident-update';
+import { color } from '@exyconn/shell/components/ui';
 import {
   INCIDENT_COLUMNS,
   type IncidentsGridContext,
@@ -44,21 +45,21 @@ export function IncidentsPanel() {
 
   const stats = statsData?.listStatusIncidentsStats;
   const statItems: StatItem[] = [
-    { label: 'Incidents', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Incidents', value: String(statTotal(stats)), accent: color.blue[400] },
     {
       label: 'Critical',
       value: String(statCount(stats, 'impact', IncidentImpact.Critical)),
-      accent: '#ff6b6b',
+      accent: color.red[200],
     },
     {
       label: 'Major',
       value: String(statCount(stats, 'impact', IncidentImpact.Major)),
-      accent: '#f9851f',
+      accent: color.orange[500],
     },
     {
       label: 'Posted by hand',
       value: String(statCount(stats, 'source', IncidentSource.Manual)),
-      accent: '#8b5cf6',
+      accent: color.violet[400],
     },
   ];
 

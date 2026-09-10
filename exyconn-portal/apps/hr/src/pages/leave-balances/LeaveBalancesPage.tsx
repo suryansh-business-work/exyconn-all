@@ -10,6 +10,7 @@ import {
   type ListLeaveBalancesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { LeaveBalanceForm, type LeaveBalanceRow } from './forms/leave-balance';
+import { color } from '@exyconn/shell/components/ui';
 import {
   LEAVE_BALANCE_COLUMNS,
   type PagedLeaveBalanceRow,
@@ -36,10 +37,10 @@ export function LeaveBalancesPage() {
 
   const stats = statsData?.listLeaveBalancesStats;
   const statItems: StatItem[] = [
-    { label: 'Records', value: String(statTotal(stats)), accent: '#0ea5e9' },
-    { label: 'Allocated', value: String(statSum(stats, 'allocated')), accent: '#0ea5e9' },
-    { label: 'Used', value: String(statSum(stats, 'used')), accent: '#0ea5e9' },
-    { label: 'Employees', value: String(statTotal(stats)), accent: '#0ea5e9' },
+    { label: 'Records', value: String(statTotal(stats)), accent: color.sky[500] },
+    { label: 'Allocated', value: String(statSum(stats, 'allocated')), accent: color.sky[500] },
+    { label: 'Used', value: String(statSum(stats, 'used')), accent: color.sky[500] },
+    { label: 'Employees', value: String(statTotal(stats)), accent: color.sky[500] },
   ];
 
   const gridContext: LeaveBalanceGridContext = {

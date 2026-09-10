@@ -1,4 +1,4 @@
-import { spacing as pxSpacing } from '../tokens/tokens';
+import { spacing as pxSpacing } from '../tokens/spacing.token';
 
 // Named spacing scale in raw px, for non-sx numeric gaps like Spacer — sx props
 // like p/m/gap should keep using MUI's own multiplier system, not this.

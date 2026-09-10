@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useCallback, useEffect } from 'react';
-import { Box, Chip, Dialog, IconButton, Stack, Typography } from '@exyconn/ui';
+import { Box, Chip, Dialog, IconButton, Stack, Typography, scrim } from '@exyconn/ui';
 import CloseRounded from '@mui/icons-material/CloseRounded';
 import ChevronLeftRounded from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded';
@@ -22,8 +22,8 @@ const NAV_SX = {
   top: '50%',
   transform: 'translateY(-50%)',
   color: 'common.white',
-  backgroundColor: 'rgba(0, 0, 0, 0.45)',
-  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.7)' },
+  backgroundColor: scrim('light'),
+  '&:hover': { backgroundColor: scrim('heavy') },
 } as const;
 
 /**

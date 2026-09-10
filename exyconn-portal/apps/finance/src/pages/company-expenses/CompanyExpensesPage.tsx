@@ -13,6 +13,7 @@ import {
   type ListCompanyExpensesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { CompanyExpenseForm, type CompanyExpenseRow } from './forms/company-expense';
+import { color } from '@exyconn/shell/components/ui';
 import {
   companyExpenseColumns,
   type PagedCompanyExpenseRow,
@@ -46,10 +47,14 @@ export function CompanyExpensesPage() {
 
   const stats = statsData?.listCompanyExpensesStats;
   const statItems: StatItem[] = [
-    { label: 'Bills', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Recorded', value: formatMoney(statSum(stats, 'amount')), accent: '#8b5cf6' },
-    { label: 'Unpaid', value: String(statCount(stats, 'status', 'UNPAID')), accent: '#ff6b6b' },
-    { label: 'Paid', value: String(statCount(stats, 'status', 'PAID')), accent: '#22c55e' },
+    { label: 'Bills', value: String(statTotal(stats)), accent: color.blue[400] },
+    { label: 'Recorded', value: formatMoney(statSum(stats, 'amount')), accent: color.violet[400] },
+    {
+      label: 'Unpaid',
+      value: String(statCount(stats, 'status', 'UNPAID')),
+      accent: color.red[200],
+    },
+    { label: 'Paid', value: String(statCount(stats, 'status', 'PAID')), accent: color.green[500] },
   ];
 
   /** Settles a bill today. The server writes `paidOn`, which is what cash flow is built on. */

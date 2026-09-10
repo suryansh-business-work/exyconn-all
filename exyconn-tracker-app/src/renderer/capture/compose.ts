@@ -1,3 +1,4 @@
+import { alpha, color } from '@exyconn/ui';
 import type { CaptureRequest } from '@shared/types';
 import { grabWebcamFrame, loadImage, overlayRect } from './webcam';
 
@@ -6,6 +7,9 @@ const CORNER_RADIUS_RATIO = 0.06;
 
 /** Border thickness around the photo, so it reads as an inset and not as part of the screen. */
 const BORDER_RATIO = 0.012;
+
+/** The frame is white but not quite opaque, so a bright screen behind it still shows through. */
+const OUTLINE_OPACITY = 0.9;
 
 /** Strips the `data:<mime>;base64,` prefix a canvas adds — the portal is sent raw base64. */
 function toBase64(dataUrl: string): string {
@@ -27,7 +31,7 @@ function drawOverlay(
   context.save();
   context.beginPath();
   context.roundRect(rect.x, rect.y, rect.width, rect.height, radius);
-  context.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+  context.strokeStyle = alpha(color.white, OUTLINE_OPACITY);
   context.lineWidth = border;
   context.stroke();
   context.clip();

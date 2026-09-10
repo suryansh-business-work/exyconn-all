@@ -8,6 +8,7 @@ import {
   type ListLegalDocumentsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { DocumentForm, type LegalDocumentRow } from './forms/document';
+import { color } from '@exyconn/shell/components/ui';
 import {
   DOCUMENT_COLUMNS,
   type PagedLegalDocumentRow,
@@ -32,10 +33,22 @@ export function DocumentsPage() {
 
   const stats = statsData?.listLegalDocumentsStats;
   const statItems: StatItem[] = [
-    { label: 'Total', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Final', value: String(statCount(stats, 'status', 'FINAL')), accent: '#22c55e' },
-    { label: 'Draft', value: String(statCount(stats, 'status', 'DRAFT')), accent: '#f59e0b' },
-    { label: 'Archived', value: String(statCount(stats, 'status', 'ARCHIVED')), accent: '#64748b' },
+    { label: 'Total', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Final',
+      value: String(statCount(stats, 'status', 'FINAL')),
+      accent: color.green[500],
+    },
+    {
+      label: 'Draft',
+      value: String(statCount(stats, 'status', 'DRAFT')),
+      accent: color.amber[500],
+    },
+    {
+      label: 'Archived',
+      value: String(statCount(stats, 'status', 'ARCHIVED')),
+      accent: color.slate[500],
+    },
   ];
 
   const gridContext: DocumentsGridContext = {

@@ -1,4 +1,14 @@
-import { Box, ButtonBase, Grid2, Typography } from '@exyconn/ui';
+import {
+  borderWidth,
+  Box,
+  ButtonBase,
+  duration,
+  Grid2,
+  iconSize,
+  onScrim,
+  scrim,
+  Typography,
+} from '@exyconn/ui';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import type { PexelsMediaFieldsFragment } from '@/graphql/generated';
 
@@ -25,7 +35,7 @@ function PexelsTile({ item, onPick }: Readonly<PexelsTileProps>) {
         height: 110,
         borderRadius: 1,
         overflow: 'hidden',
-        border: '1px solid',
+        border: `${borderWidth.hairline}px solid`,
         borderColor: 'divider',
         '&:hover .pexels-credit': { opacity: 1 },
       }}
@@ -48,11 +58,11 @@ function PexelsTile({ item, onPick }: Readonly<PexelsTileProps>) {
             display: 'flex',
             alignItems: 'center',
             gap: 0.25,
-            bgcolor: 'rgba(0,0,0,0.6)',
-            color: '#fff',
+            bgcolor: scrim(),
+            color: onScrim,
           }}
         >
-          <PlayCircleIcon sx={{ fontSize: 12 }} />
+          <PlayCircleIcon sx={{ fontSize: iconSize.xs }} />
           <Typography variant="caption">{formatDuration(item.duration)}</Typography>
         </Box>
       )}
@@ -65,9 +75,9 @@ function PexelsTile({ item, onPick }: Readonly<PexelsTileProps>) {
           px: 0.75,
           py: 0.25,
           opacity: 0,
-          transition: 'opacity 120ms',
-          bgcolor: 'rgba(0,0,0,0.6)',
-          color: '#fff',
+          transition: `opacity ${duration.fast}ms`,
+          bgcolor: scrim(),
+          color: onScrim,
         }}
       >
         <Typography variant="caption" noWrap component="span">

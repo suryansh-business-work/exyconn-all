@@ -1,6 +1,7 @@
 import { usePublicBrandingQuery } from '@exyconn/shell/graphql/generated';
 import { PORTAL_APPS, type PortalAppKey } from '@exyconn/shell/config/apps';
 import { env } from '@exyconn/shell/config/env';
+import { color } from '@exyconn/ui';
 
 /** Everything the login screen needs to look like *this* portal. */
 export interface LoginPageView {
@@ -20,7 +21,7 @@ export interface LoginPageView {
   supportEmail: string;
 }
 
-const FALLBACK_ACCENT = '#155dfc';
+const FALLBACK_ACCENT = color.blue[600];
 
 /** Registry title minus the product suffix — shown until branding resolves. */
 const registryName = (app: PortalAppKey): string => PORTAL_APPS[app].title.split(' · ')[0];

@@ -1,4 +1,16 @@
-import { Alert, Box, Divider, Stack, Typography } from '@exyconn/shell/components/ui';
+import {
+  Alert,
+  Box,
+  Divider,
+  Stack,
+  Typography,
+  fontSize,
+  fontWeight,
+  iconSize,
+  radius,
+  spacing,
+  tint,
+} from '@exyconn/shell/components/ui';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import LockIcon from '@mui/icons-material/Lock';
 import type { PlatformConfig } from './download.config';
@@ -16,15 +28,15 @@ function InstallStep({ index, text, accent }: Readonly<StepProps>) {
       <Box
         sx={{
           flexShrink: 0,
-          width: 24,
-          height: 24,
-          borderRadius: '50%',
+          width: spacing(3),
+          height: spacing(3),
+          borderRadius: radius.pill,
           display: 'grid',
           placeItems: 'center',
-          fontSize: 12,
-          fontWeight: 700,
+          fontSize: fontSize.xs,
+          fontWeight: fontWeight.bold,
           color: accent,
-          background: `${accent}1f`,
+          background: tint(accent, 'soft'),
         }}
       >
         {index}
@@ -59,7 +71,7 @@ export function InstallGuide({ platform }: Readonly<{ platform: PlatformConfig }
       <Divider sx={{ my: 2 }} />
 
       <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-        <LockIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+        <LockIcon sx={{ fontSize: iconSize.lg, color: 'text.secondary' }} />
         <Typography variant="subtitle2">Permissions it will ask for</Typography>
       </Stack>
       <Stack component="ul" spacing={0.5} sx={{ m: 0, pl: 2.5 }}>

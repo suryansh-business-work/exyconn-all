@@ -1,5 +1,13 @@
 import type { ReactElement } from 'react';
-import { Box, ButtonBase, Typography } from '@exyconn/ui';
+import {
+  borderWidth,
+  Box,
+  ButtonBase,
+  duration,
+  easing,
+  TRACKER_RADIUS,
+  Typography,
+} from '@exyconn/ui';
 import type { DayScreenshot } from '@shared/types';
 import { activityLabel } from '../activity';
 import { formatTimeOfDay } from '../time';
@@ -40,9 +48,9 @@ export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Pro
             sx={{
               display: 'block',
               width: '100%',
-              borderRadius: '4px',
+              borderRadius: `${TRACKER_RADIUS}px`,
               textAlign: 'left',
-              transition: 'transform 180ms ease',
+              transition: `transform ${duration.base}ms ${easing.standard}`,
               '&:hover': { transform: 'translateY(-2px)' },
             }}
           >
@@ -56,8 +64,8 @@ export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Pro
                 aspectRatio: '16 / 10',
                 objectFit: 'cover',
                 display: 'block',
-                borderRadius: '4px',
-                border: `1px solid ${theme.palette.divider}`,
+                borderRadius: `${TRACKER_RADIUS}px`,
+                border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
               })}
             />
             <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>

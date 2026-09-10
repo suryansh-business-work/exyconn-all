@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Alert } from '@exyconn/shell/components/ui';
+import { Alert, radius } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -63,7 +63,7 @@ export function EmailTemplateForm({ initial, onDone, onCancel }: Readonly<Props>
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       {isEdit ? (
-        <Alert severity="warning" variant="outlined" sx={{ borderRadius: '4px' }}>
+        <Alert severity="warning" variant="outlined" sx={{ borderRadius: `${radius.sm}px` }}>
           Code sends this template by its key. Renaming the key stops whatever sends it.
         </Alert>
       ) : null}

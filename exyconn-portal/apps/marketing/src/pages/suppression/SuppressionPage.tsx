@@ -9,6 +9,7 @@ import {
   type ListMarketingSuppressionsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { SuppressionForm, type SuppressionRow } from './forms/suppression';
+import { color } from '@exyconn/shell/components/ui';
 import {
   SUPPRESSION_COLUMNS,
   type PagedSuppressionRow,
@@ -39,17 +40,21 @@ export function SuppressionPage() {
 
   const stats = statsData?.listMarketingSuppressionsStats;
   const statItems: StatItem[] = [
-    { label: 'Suppressed', value: String(statTotal(stats)), accent: '#ef4444' },
+    { label: 'Suppressed', value: String(statTotal(stats)), accent: color.red[500] },
     {
       label: 'Unsubscribed',
       value: String(statCount(stats, 'reason', 'UNSUBSCRIBED')),
-      accent: '#f9851f',
+      accent: color.orange[500],
     },
-    { label: 'Bounced', value: String(statCount(stats, 'reason', 'BOUNCED')), accent: '#8b5cf6' },
+    {
+      label: 'Bounced',
+      value: String(statCount(stats, 'reason', 'BOUNCED')),
+      accent: color.violet[400],
+    },
     {
       label: 'Added by hand',
       value: String(statCount(stats, 'reason', 'MANUAL')),
-      accent: '#4f8cff',
+      accent: color.blue[400],
     },
   ];
 

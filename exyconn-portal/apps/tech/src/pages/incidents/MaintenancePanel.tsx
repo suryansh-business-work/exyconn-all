@@ -9,6 +9,7 @@ import {
   type ListStatusMaintenanceWindowsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { MaintenanceForm, type MaintenanceRow } from './forms/maintenance';
+import { color } from '@exyconn/shell/components/ui';
 import {
   MAINTENANCE_COLUMNS,
   type MaintenanceGridContext,
@@ -36,7 +37,7 @@ export function MaintenancePanel() {
     {
       label: 'Windows',
       value: String(statTotal(statsData?.listStatusMaintenanceWindowsStats)),
-      accent: '#4f8cff',
+      accent: color.blue[400],
     },
   ];
 

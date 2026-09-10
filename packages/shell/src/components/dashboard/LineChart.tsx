@@ -11,6 +11,7 @@ import {
   type ChartOptions,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { color as tokenColor } from '@exyconn/ui';
 
 // Register the Chart.js pieces we use, exactly once at module load.
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
@@ -23,7 +24,12 @@ interface LineChartProps {
 }
 
 /** Reusable themed Chart.js line chart driven by labels + a numeric series. */
-export function LineChart({ labels, data, color = '#155dfc', height = 260 }: LineChartProps) {
+export function LineChart({
+  labels,
+  data,
+  color = tokenColor.blue[600],
+  height = 260,
+}: LineChartProps) {
   const theme = useTheme();
   const grid = theme.palette.divider;
   const text = theme.palette.text.secondary;

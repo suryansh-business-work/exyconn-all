@@ -7,8 +7,18 @@ const CHECK_INTERVAL_MS = 6 * 60 * 60_000;
 /** A pause after launch, so the first check never competes with restoring the session. */
 const FIRST_CHECK_MS = 15_000;
 
+/** The instant a check completed, in the one format every timestamp in this app travels in. */
+function nowISO(): string {
+  return new Date().toISOString();
+}
+
 /** Nothing found, nothing pending — what an up-to-date install reports. */
-export const IDLE_UPDATE: UpdateState = { stage: 'idle', version: '', percent: 0 };
+export const IDLE_UPDATE: UpdateState = {
+  stage: 'idle',
+  version: '',
+  percent: 0,
+  lastCheckedAt: null,
+};
 
 /**
  * The portal serves the update feed rather than GitHub serving it directly: the app already
@@ -32,6 +42,12 @@ export function feedUrlFor(graphqlUrl: string): string {
 export class AppUpdater {
   private state: UpdateState = IDLE_UPDATE;
   private timer: NodeJS.Timeout | null = null;
+  /**
+   * Whether a feed has actually been wired. Only a packaged app has an installer to replace,
+   * so in development "check for updates" has nothing to check and says so quietly rather
+   * than reporting a failure the developer cannot act on.
+   */
+  private started = false;
 
   constructor(private readonly onChange: (state: UpdateState) => void) {}
 
@@ -40,13 +56,14 @@ export class AppUpdater {
   }
 
   /** Wires the feed and starts checking. Call once, and only from a packaged app. */
-  start(graphqlUrl: string): void {
+  start(graphqlUrl: string, autoDownload: boolean): void {
     autoUpdater.setFeedURL({ provider: 'generic', url: feedUrlFor(graphqlUrl) });
-    // NOT auto-download. A tracker that quietly pulls a few hundred megabytes decides for the
-    // employee that now is a good moment to use their connection — on a tethered phone or a
-    // hotel wifi it is not. The app offers, they choose, and the fetch then runs in the
-    // background without interrupting anything.
-    autoUpdater.autoDownload = false;
+    this.started = true;
+    // Off unless the employee asked for it. A tracker that quietly pulls a few hundred
+    // megabytes decides for them that now is a good moment to use their connection — on a
+    // tethered phone or a hotel wifi it is not. Either way the fetch runs in the background
+    // without interrupting anything, and nothing is ever installed mid-session.
+    autoUpdater.autoDownload = autoDownload;
     // The employee is offered a restart, but never made to take it: whenever they quit the
     // app themselves, the version already on disk is the one that comes back.
     autoUpdater.autoInstallOnAppQuit = true;
@@ -54,9 +71,18 @@ export class AppUpdater {
     autoUpdater.on('checking-for-update', () =>
       this.set({ stage: 'checking', version: '', percent: 0 }),
     );
-    autoUpdater.on('update-not-available', () => this.set(IDLE_UPDATE));
+    autoUpdater.on('update-not-available', () =>
+      // NOT `IDLE_UPDATE` wholesale: that would blank the timestamp this very check just
+      // earned, and "when did it last look" is the only thing an up-to-date app can report.
+      this.set({ stage: 'idle', version: '', percent: 0, lastCheckedAt: nowISO() }),
+    );
     autoUpdater.on('update-available', (info: { version: string }) =>
-      this.set({ stage: 'available', version: info.version, percent: 0 }),
+      this.set({
+        stage: 'available',
+        version: info.version,
+        percent: 0,
+        lastCheckedAt: nowISO(),
+      }),
     );
     autoUpdater.on('download-progress', (progress: { percent: number }) =>
       this.set({ stage: 'downloading', percent: Math.round(progress.percent) }),
@@ -71,7 +97,7 @@ export class AppUpdater {
       console.error('Update check failed', error);
       // The version is kept, so a failed download still offers the retry it belongs to rather
       // than forgetting which version it was trying to fetch.
-      this.set({ stage: 'failed', percent: 0 });
+      this.set({ stage: 'failed', percent: 0, lastCheckedAt: nowISO() });
     });
 
     this.timer = setTimeout(() => {
@@ -89,6 +115,9 @@ export class AppUpdater {
    */
   download(): void {
     if (this.state.stage !== 'available' && this.state.stage !== 'failed') {
+      return;
+    }
+    if (!this.started) {
       return;
     }
     this.set({ stage: 'downloading', percent: 0 });
@@ -111,9 +140,45 @@ export class AppUpdater {
     }
   }
 
-  private check(): void {
-    autoUpdater.checkForUpdates().catch((error: unknown) => {
+  /**
+   * Fetches new versions as soon as they appear, or waits to be asked.
+   *
+   * Applied live rather than only at launch: an employee who turns it on in Settings while
+   * an update is already waiting expects that update to start arriving, not to arrive after
+   * the next restart — so a version already found is picked up here too.
+   */
+  setAutoDownload(enabled: boolean): void {
+    autoUpdater.autoDownload = enabled;
+    if (enabled && this.state.stage === 'available') {
+      this.download();
+    }
+  }
+
+  /**
+   * Looks now, instead of waiting up to six hours for the next scheduled check.
+   *
+   * The one thing Settings could not do before: an employee who had heard a new version
+   * existed had no way to go and get it, and "the app updates itself" is not an answer to
+   * "is mine current?". A development build has no installer to replace, so it answers
+   * with the timestamp and nothing else rather than reporting a failure nobody can act on.
+   */
+  async checkNow(): Promise<void> {
+    if (!this.started) {
+      this.set({ stage: 'idle', lastCheckedAt: nowISO() });
+      return;
+    }
+    if (this.state.stage === 'downloading' || this.state.stage === 'ready') {
+      return; // there is already a version in hand; re-checking could only withdraw it
+    }
+    await autoUpdater.checkForUpdates().catch((error: unknown) => {
       console.error('Update check failed', error);
+      this.set({ stage: 'failed', percent: 0, lastCheckedAt: nowISO() });
+    });
+  }
+
+  private check(): void {
+    this.checkNow().catch((error: unknown) => {
+      console.error('Scheduled update check failed', error);
     });
   }
 

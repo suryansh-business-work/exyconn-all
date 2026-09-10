@@ -13,6 +13,7 @@ import {
 import { CampaignForm, type CampaignRow } from './forms/campaign';
 import { SendCampaignForm } from './forms/send-campaign';
 import { CampaignDetails } from './CampaignDetails';
+import { color } from '@exyconn/shell/components/ui';
 import {
   CAMPAIGN_COLUMNS,
   type PagedCampaignRow,
@@ -42,14 +43,18 @@ export function MarketingPage() {
   // "Sent" counts campaigns whose nullable `lastSentAt` is set = total minus the null bucket.
   const sent = statTotal(stats) - statCount(stats, 'lastSentAt', 'null');
   const statItems: StatItem[] = [
-    { label: 'Campaigns', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#7be37b' },
+    { label: 'Campaigns', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'status', 'ACTIVE')),
+      accent: color.green[300],
+    },
     {
       label: 'Total budget',
       value: `₹${statSum(stats, 'budget').toLocaleString()}`,
-      accent: '#ec4899',
+      accent: color.pink[400],
     },
-    { label: 'Sent', value: String(sent), accent: '#f9851f' },
+    { label: 'Sent', value: String(sent), accent: color.orange[500] },
   ];
 
   const gridContext: CampaignsGridContext = {

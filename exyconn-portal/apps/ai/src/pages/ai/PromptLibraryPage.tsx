@@ -14,6 +14,7 @@ import { PromptForm, type PromptRow } from './forms/prompt';
 import { RunPromptForm, type RunPromptTarget } from './forms/run-prompt';
 import { AiJobResult } from './AiJobResult';
 import { PROMPT_COLUMNS, type PagedPromptRow, type PromptsGridContext } from './prompts-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** AI → Prompt Library: reusable prompts, each runnable against OpenAI without leaving the page. */
 export function PromptLibraryPage() {
@@ -36,13 +37,21 @@ export function PromptLibraryPage() {
 
   const stats = statsData?.listPromptsStats;
   const statItems: StatItem[] = [
-    { label: 'Prompts', value: String(statTotal(stats)), accent: '#6366f1' },
-    { label: 'Coding', value: String(statCount(stats, 'category', 'CODING')), accent: '#4f8cff' },
-    { label: 'Writing', value: String(statCount(stats, 'category', 'WRITING')), accent: '#22c55e' },
+    { label: 'Prompts', value: String(statTotal(stats)), accent: color.indigo[400] },
+    {
+      label: 'Coding',
+      value: String(statCount(stats, 'category', 'CODING')),
+      accent: color.blue[400],
+    },
+    {
+      label: 'Writing',
+      value: String(statCount(stats, 'category', 'WRITING')),
+      accent: color.green[500],
+    },
     {
       label: 'Marketing',
       value: String(statCount(stats, 'category', 'MARKETING')),
-      accent: '#ec4899',
+      accent: color.pink[400],
     },
   ];
 

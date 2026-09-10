@@ -13,6 +13,7 @@ import { DealForm, type DealRow } from './forms/deal';
 import { DEAL_COLUMNS, type PagedDealRow, type DealsGridContext } from './deals-grid';
 import { DealsViewToggle } from './DealsViewToggle';
 import { useCreateInvoiceFromDeal } from './useCreateInvoiceFromDeal';
+import { color } from '@exyconn/shell/components/ui';
 
 /**
  * CRM → Deals → List: the same opportunities as the board, as a sortable, filterable
@@ -36,10 +37,10 @@ export function DealsListPage() {
 
   const stats = statsData?.listDealsStats;
   const statItems: StatItem[] = [
-    { label: 'Deals', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Total value', value: formatMoney(statSum(stats, 'value')), accent: '#f59e0b' },
-    { label: 'Won', value: String(statCount(stats, 'stage', 'WON')), accent: '#22c55e' },
-    { label: 'Lost', value: String(statCount(stats, 'stage', 'LOST')), accent: '#ff6b6b' },
+    { label: 'Deals', value: String(statTotal(stats)), accent: color.blue[400] },
+    { label: 'Total value', value: formatMoney(statSum(stats, 'value')), accent: color.amber[500] },
+    { label: 'Won', value: String(statCount(stats, 'stage', 'WON')), accent: color.green[500] },
+    { label: 'Lost', value: String(statCount(stats, 'stage', 'LOST')), accent: color.red[200] },
   ];
 
   const gridContext: DealsGridContext = {

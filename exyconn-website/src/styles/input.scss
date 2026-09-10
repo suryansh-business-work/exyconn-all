@@ -1,3 +1,12 @@
+/**
+ * Form controls.
+ *
+ * Every value here is a semantic token, which is why this file no longer carries a `.dark`
+ * twin of each rule: the tokens themselves flip inside `.dark` (see tokens/modes/), so one
+ * rule paints both modes. The duplicated dark blocks this replaced had already drifted —
+ * one of their selectors was mis-typed and had never matched anything.
+ */
+
 input[type="text"],
 input[type="email"],
 input[type="tel"],
@@ -7,49 +16,25 @@ input[type="file"],
 select,
 textarea {
   width: 100%;
-  border-radius: 0.75rem;
-  border: 1.5px solid #e5e7eb;
-  background: #fff;
-  font-size: 1rem;
-  color: #222;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
-  box-shadow: 0 2px 8px 0 #0071e30a;
+  border-radius: var(--radius-lg);
+  border: var(--border-width-thick) solid var(--color-border-subtle);
+  background: var(--color-field-bg);
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  transition: var(--transition-surface);
+  box-shadow: 0 2px 8px 0 var(--tint-brand-faint);
   outline: none;
 
   &:focus {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px #0071e320;
-    background: #f8fbff;
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--color-field-ring);
+    background: var(--color-field-bg-focus);
   }
 
   &::placeholder {
-    color: #a0aec0;
+    color: var(--color-text-placeholder);
     opacity: 1;
-    font-weight: 400;
-  }
-}
-
-.dark input[type="text"],
-.dark input[type="email"] .dark input[type="phone"],
-.dark input[type="password"],
-.dark input[type="search"],
-.dark input[type="file"],
-.dark select,
-.dark textarea {
-  background: #181f2a;
-  color: #f3f4f6;
-  border-color: #374151;
-
-  &:focus {
-    background: #232b3b;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px #0071e340;
-  }
-
-  &::placeholder {
-    color: #6b7280;
+    font-weight: var(--font-weight-regular);
   }
 }
 
@@ -59,22 +44,19 @@ input[type="checkbox"] {
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
-  border: 2px solid #e5e7eb;
+  border: var(--border-width-heavy) solid var(--color-border-subtle);
   border-radius: 0.35em;
-  background: #fff;
+  background: var(--color-field-bg);
   outline: none;
   cursor: pointer;
-  transition:
-    border-color 0.2s,
-    background 0.2s,
-    box-shadow 0.2s;
+  transition: var(--transition-surface);
   position: relative;
   vertical-align: middle;
   margin-right: 0.5em;
 
   &:focus {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px #0071e320;
+    box-shadow: 0 0 0 var(--border-width-heavy) var(--color-field-ring);
   }
 
   &:checked {
@@ -90,68 +72,48 @@ input[type="checkbox"] {
     top: 0.08em;
     width: 0.3em;
     height: 0.6em;
-    border: solid #fff;
+    border: solid var(--color-text-on-primary);
     border-width: 0 0.18em 0.18em 0;
     transform: rotate(45deg);
   }
 }
 
-/* Dark mode for checkbox */
-.dark input[type="checkbox"] {
-  background: #181f2a;
-  border-color: #374151;
-
-  &:checked {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-  }
-
-  &:focus {
-    box-shadow: 0 0 0 2px #0071e340;
-  }
-}
-
 label {
   display: block;
-  margin-bottom: 0.5rem;
-  margin-top: 0.5rem;
-  font-weight: 600;
-  color: #222;
+  margin-bottom: var(--space-2);
+  margin-top: var(--space-2);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
   letter-spacing: 0.01em;
-  font-size: 1rem;
+  font-size: var(--font-size-md);
   cursor: pointer;
-  transition: color 0.2s;
-}
-
-.dark label {
-  color: #f3f4f6;
+  transition: var(--transition-color);
 }
 
 button.btn,
 input[type="submit"],
 input[type="button"] {
   display: inline-block;
-  padding: 0.75rem 2rem;
-  border-radius: 0.75rem;
-  background: var(--color-primary);
-  color: #fff;
-  font-weight: 600;
-  font-size: 1rem;
+  padding: var(--space-3) var(--space-8);
+  border-radius: var(--radius-lg);
+  background: var(--color-button-bg);
+  color: var(--color-button-fg);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
   border: none;
   cursor: pointer;
-  box-shadow: 0 2px 8px 0 #0071e320;
+  box-shadow: 0 2px 8px 0 var(--tint-brand-subtle);
   letter-spacing: 0.01em;
   transition:
-    background 0.2s,
-    box-shadow 0.2s,
-    color 0.2s,
-    transform 0.15s;
+    var(--transition-surface),
+    color var(--duration-base) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 
   &:hover,
   &:focus {
     background: var(--color-primary-hover);
-    color: #fff;
-    box-shadow: 0 4px 16px 0 #0071e340;
+    color: var(--color-text-on-primary);
+    box-shadow: 0 4px 16px 0 var(--tint-brand-soft);
     outline: none;
     transform: translateY(-2px) scale(1.03);
   }
@@ -162,27 +124,9 @@ input[type="button"] {
   }
 
   &:disabled {
-    background: #cbd5e1;
-    color: #888;
+    background: var(--color-surface-disabled);
+    color: var(--color-text-disabled);
     cursor: not-allowed;
-    box-shadow: none;
-  }
-}
-
-.dark button,
-.dark input[type="submit"],
-.dark input[type="button"] {
-  background: #232b3b;
-  color: #f3f4f6;
-
-  &:hover,
-  &:focus {
-    background: var(--color-primary);
-    color: #fff;
-  }
-
-  &:disabled {
-    background: #374151;
-    color: #888;
+    box-shadow: var(--shadow-none);
   }
 }

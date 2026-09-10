@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Box, Grid, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Grid, radius, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useMyPoliciesQuery } from '@exyconn/shell/graphql/generated';
@@ -27,7 +27,7 @@ export function PoliciesPage() {
       <PageHeader title="Policies" subtitle="Company policies & guidelines" />
 
       {outstanding.length > 0 ? (
-        <Alert severity="warning" variant="outlined" sx={{ mb: 2, borderRadius: '4px' }}>
+        <Alert severity="warning" variant="outlined" sx={{ mb: 2, borderRadius: `${radius.sm}px` }}>
           {outstanding.length === 1
             ? 'One policy needs your signature.'
             : `${outstanding.length} policies need your signature.`}

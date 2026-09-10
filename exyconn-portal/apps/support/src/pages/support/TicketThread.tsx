@@ -1,4 +1,4 @@
-import { Box, Chip, Stack, Text } from '@exyconn/shell/components/ui';
+import { borderWidth, Box, Chip, Stack, Text } from '@exyconn/shell/components/ui';
 import { AttachmentList } from '@exyconn/shell/components/upload';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useListSupportRepliesQuery } from '@exyconn/shell/graphql/generated';
@@ -45,7 +45,7 @@ export function TicketThread({ ticketId }: Readonly<TicketThreadProps>) {
           sx={{
             p: 1.25,
             borderRadius: 1.5,
-            border: '1px solid',
+            border: `${borderWidth.hairline}px solid`,
             borderColor: reply.internal ? 'warning.light' : 'divider',
             bgcolor: reply.internal ? 'warning.light' : 'background.paper',
             opacity: reply.internal ? 0.95 : 1,

@@ -17,6 +17,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { ExpenseClaimForm, type ExpenseClaimRow } from './forms/expense-claim';
 import { ApproveClaimForm } from './forms/approve-claim';
+import { color } from '@exyconn/shell/components/ui';
 import {
   EXPENSE_CLAIM_COLUMNS,
   type PagedExpenseClaimRow,
@@ -62,14 +63,18 @@ export function ExpensesPage() {
 
   const stats = statsData?.listExpenseClaimsStats;
   const statItems: StatItem[] = [
-    { label: 'Claims', value: String(statTotal(stats)), accent: '#ef4444' },
+    { label: 'Claims', value: String(statTotal(stats)), accent: color.red[500] },
     {
       label: 'Submitted',
       value: String(statCount(stats, 'status', 'SUBMITTED')),
-      accent: '#ef4444',
+      accent: color.red[500],
     },
-    { label: 'Approved', value: String(statCount(stats, 'status', 'APPROVED')), accent: '#ef4444' },
-    { label: 'Paid', value: String(statCount(stats, 'status', 'PAID')), accent: '#ef4444' },
+    {
+      label: 'Approved',
+      value: String(statCount(stats, 'status', 'APPROVED')),
+      accent: color.red[500],
+    },
+    { label: 'Paid', value: String(statCount(stats, 'status', 'PAID')), accent: color.red[500] },
   ];
 
   const gridContext: ExpenseClaimGridContext = {

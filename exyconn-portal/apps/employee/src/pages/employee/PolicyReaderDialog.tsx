@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import {
   Alert,
+  borderWidth,
   Box,
   Button,
   Dialog,
   DialogContent,
   Flex,
+  radius,
   Text,
   TextField,
 } from '@exyconn/shell/components/ui';
@@ -68,8 +70,8 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
             overflow: 'auto',
             p: 2,
             mb: 2,
-            border: `1px solid ${theme.palette.divider}`,
-            borderRadius: '4px',
+            border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
+            borderRadius: `${radius.sm}px`,
             '& p': { my: 1 },
             '& ul, & ol': { pl: 3 },
           })}
@@ -77,7 +79,7 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
         />
 
         {policy.acknowledged ? (
-          <Alert severity="success" variant="outlined" sx={{ borderRadius: '4px' }}>
+          <Alert severity="success" variant="outlined" sx={{ borderRadius: `${radius.sm}px` }}>
             You signed version {policy.version}
             {policy.acknowledgedAt ? ` on ${formatDate(policy.acknowledgedAt)}` : ''}.
           </Alert>

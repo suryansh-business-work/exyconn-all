@@ -13,6 +13,7 @@ import {
 import { useEmployeeNames } from '../../hooks/useEmployeeNames';
 import { LeaveRequestForm, type LeaveRequestRow } from './forms/leave-request';
 import { LeaveDecisionCell, useLeaveDecision } from './leave-actions';
+import { color } from '@exyconn/shell/components/ui';
 
 /** HR Leave Requests — apply, approve & track leave (real counts). */
 export function HrPage() {
@@ -32,21 +33,21 @@ export function HrPage() {
   const rows = data?.listLeaveRequests ?? [];
 
   const stats: StatItem[] = [
-    { label: 'Requests', value: String(rows.length), accent: '#4f8cff' },
+    { label: 'Requests', value: String(rows.length), accent: color.blue[400] },
     {
       label: 'Pending',
       value: String(rows.filter((r) => r.status === 'PENDING').length),
-      accent: '#f5b324',
+      accent: color.amber[400],
     },
     {
       label: 'Approved',
       value: String(rows.filter((r) => r.status === 'APPROVED').length),
-      accent: '#7be37b',
+      accent: color.green[300],
     },
     {
       label: 'Rejected',
       value: String(rows.filter((r) => r.status === 'REJECTED').length),
-      accent: '#ff6b6b',
+      accent: color.red[200],
     },
   ];
 

@@ -9,6 +9,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { ClientForm, type ClientRow } from './forms/client';
 import { CLIENT_COLUMNS, type PagedClientRow, type ClientsGridContext } from './clients-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Clients module — client directory dashboard with a server-side clients grid. */
 export function ClientsPage() {
@@ -28,14 +29,22 @@ export function ClientsPage() {
 
   const stats = statsData?.listClientsStats;
   const statItems: StatItem[] = [
-    { label: 'Clients', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#7be37b' },
+    { label: 'Clients', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'status', 'ACTIVE')),
+      accent: color.green[300],
+    },
     {
       label: 'Prospects',
       value: String(statCount(stats, 'status', 'PROSPECT')),
-      accent: '#f9851f',
+      accent: color.orange[500],
     },
-    { label: 'Inactive', value: String(statCount(stats, 'status', 'INACTIVE')), accent: '#ff6b6b' },
+    {
+      label: 'Inactive',
+      value: String(statCount(stats, 'status', 'INACTIVE')),
+      accent: color.red[200],
+    },
   ];
 
   const gridContext: ClientsGridContext = {

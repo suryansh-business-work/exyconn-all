@@ -18,10 +18,10 @@ const crudSrc = packageUrl("../crud/src");
 const tabberSrc = packageUrl("../tabber/src");
 
 const FONT_HREF =
-  "https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap";
+  "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap";
 
 /**
- * Injects the `<head>` every portal app shares — favicon, description, the Nunito
+ * Injects the `<head>` every portal app shares — favicon, description, the Inter
  * webfont and the page title — from the app registry, so the per-app `index.html`
  * stays a bare mount point and there is one place to change the shared metadata.
  */

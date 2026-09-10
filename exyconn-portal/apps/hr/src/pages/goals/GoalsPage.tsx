@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { GoalForm, type GoalRow } from './forms/goal';
 import { GOAL_COLUMNS, type PagedGoalRow, type GoalGridContext } from './goal-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Goals — server-paged admin grid over the goal records. */
 export function GoalsPage() {
@@ -32,14 +33,22 @@ export function GoalsPage() {
 
   const stats = statsData?.listGoalsStats;
   const statItems: StatItem[] = [
-    { label: 'Goals', value: String(statTotal(stats)), accent: '#a855f7' },
-    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#a855f7' },
+    { label: 'Goals', value: String(statTotal(stats)), accent: color.purple[400] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'status', 'ACTIVE')),
+      accent: color.purple[400],
+    },
     {
       label: 'Completed',
       value: String(statCount(stats, 'status', 'COMPLETED')),
-      accent: '#a855f7',
+      accent: color.purple[400],
     },
-    { label: 'Draft', value: String(statCount(stats, 'status', 'DRAFT')), accent: '#a855f7' },
+    {
+      label: 'Draft',
+      value: String(statCount(stats, 'status', 'DRAFT')),
+      accent: color.purple[400],
+    },
   ];
 
   const gridContext: GoalGridContext = {

@@ -6,6 +6,7 @@ import {
   Chip,
   Stack,
   Typography,
+  iconSize,
 } from '@exyconn/shell/components/ui';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
@@ -92,7 +93,7 @@ export function TimeLogSessions({
               ) : null}
               {session.screenshotCount > 0 ? (
                 <Stack direction="row" spacing={0.5} alignItems="center">
-                  <PhotoCameraIcon sx={{ fontSize: 14 }} color="disabled" />
+                  <PhotoCameraIcon sx={{ fontSize: iconSize.sm }} color="disabled" />
                   <Typography variant="caption" color="text.secondary">
                     {session.screenshotCount}
                   </Typography>

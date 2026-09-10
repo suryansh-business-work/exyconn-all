@@ -1,4 +1,5 @@
 import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
 import AppsIcon from '@mui/icons-material/Apps';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
@@ -89,15 +90,36 @@ export function SidebarHeader({
         <Box sx={{ px: 1.5, py: 1 }}>
           <TextField
             fullWidth
+            size="small"
+            type="search"
             placeholder={searchPlaceholder}
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
+            // Escape clears without reaching for the mouse — the fastest way back to the
+            // full list, which is where a search that found nothing leaves you.
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') onQueryChange('');
+            }}
+            // The placeholder disappears the moment anybody types, so it cannot be the
+            // only label this field has.
+            inputProps={{ 'aria-label': searchPlaceholder }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
+                  <SearchIcon fontSize="small" color="disabled" />
                 </InputAdornment>
               ),
+              endAdornment: query ? (
+                <InputAdornment position="end">
+                  <IconButton
+                    size="small"
+                    aria-label="Clear search"
+                    onClick={() => onQueryChange('')}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </InputAdornment>
+              ) : undefined,
             }}
           />
         </Box>

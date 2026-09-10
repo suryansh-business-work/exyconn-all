@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { ShiftForm, type ShiftRow } from './forms/shift';
 import { SHIFT_COLUMNS, type PagedShiftRow, type ShiftGridContext } from './shift-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Shifts — server-paged admin grid over the shift records. */
 export function ShiftsPage() {
@@ -30,10 +31,14 @@ export function ShiftsPage() {
 
   const stats = statsData?.listShiftsStats;
   const statItems: StatItem[] = [
-    { label: 'Shifts', value: String(statTotal(stats)), accent: '#e11d48' },
-    { label: 'Active', value: String(statCount(stats, 'active', 'true')), accent: '#e11d48' },
-    { label: 'Inactive', value: String(statCount(stats, 'active', 'false')), accent: '#e11d48' },
-    { label: 'Shifts', value: String(statTotal(stats)), accent: '#e11d48' },
+    { label: 'Shifts', value: String(statTotal(stats)), accent: color.rose[500] },
+    { label: 'Active', value: String(statCount(stats, 'active', 'true')), accent: color.rose[500] },
+    {
+      label: 'Inactive',
+      value: String(statCount(stats, 'active', 'false')),
+      accent: color.rose[500],
+    },
+    { label: 'Shifts', value: String(statTotal(stats)), accent: color.rose[500] },
   ];
 
   const gridContext: ShiftGridContext = {

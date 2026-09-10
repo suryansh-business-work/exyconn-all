@@ -1,5 +1,5 @@
 import { useState, type ReactElement } from 'react';
-import { Alert, Button, MenuItem, Stack, TextField, Typography } from '@exyconn/ui';
+import { Alert, Button, MenuItem, Stack, TextField, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import HowToRegOutlined from '@mui/icons-material/HowToRegOutlined';
 import type { AttendanceStatus, Workday } from '@shared/types';
 import { ATTENDANCE_OPTIONS, humanize } from '../work-day';
@@ -49,7 +49,7 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
 
   return (
     <Stack spacing={1.25}>
-      <Alert severity="info" variant="outlined" sx={{ borderRadius: '4px' }}>
+      <Alert severity="info" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
         Mark your attendance for today before you start tracking.
       </Alert>
       <TextField
@@ -72,7 +72,7 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
         onChange={(event) => setNote(event.target.value)}
       />
       {error !== null && (
-        <Alert severity="error" variant="outlined" sx={{ borderRadius: '4px' }}>
+        <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
           {error}
         </Alert>
       )}

@@ -197,3 +197,54 @@ export function notifyAutoStopped(stopLabel: string): void {
     // A muted/unsupported notification centre must never break tracking.
   }
 }
+
+/**
+ * Puts an administrator's announcement on the employee's screen.
+ *
+ * The tracker is in the tray for most of the working day, so a message that only appeared
+ * inside the app would be a message nobody read until they next went looking. The OS's own
+ * notification surface is the only place a workspace-wide announcement actually lands.
+ */
+export function notifyNotice(title: string, body: string): void {
+  if (!Notification.isSupported()) {
+    return;
+  }
+  try {
+    present(
+      new Notification({
+        // The administrator's own subject line, attributed — an unattributed toast reads
+        // like the app inventing something to say.
+        title: `Exyconn Tracker — ${title}`,
+        body,
+        silent: false,
+      }),
+    );
+  } catch {
+    // A muted/unsupported notification centre must never break tracking.
+  }
+}
+
+/**
+ * Says that somebody has written to them on their tracker thread.
+ *
+ * The body is deliberately NOT included: a message from an administrator can be about
+ * anything, and a preview on the lock screen of a shared desk is not the place to find that
+ * out. The count, and where to read it, is enough.
+ */
+export function notifyMessages(count: number): void {
+  if (!Notification.isSupported()) {
+    return;
+  }
+  const what = count === 1 ? 'a new message' : `${count} new messages`;
+  try {
+    present(
+      new Notification({
+        title: 'Exyconn Tracker — message',
+        body: `You have ${what} from your workspace. Open Messages in the tracker to read it.`,
+        silent: false,
+      }),
+    );
+  } catch {
+    // A muted/unsupported notification centre must never break tracking.
+  }
+}

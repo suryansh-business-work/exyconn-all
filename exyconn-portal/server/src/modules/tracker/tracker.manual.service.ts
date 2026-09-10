@@ -33,6 +33,18 @@ export interface BookedTask {
 /** A manual entry as `.lean()` returns it. */
 type ManualEntryLean = TrackerManualEntryDocument & { _id: unknown };
 
+/**
+ * A manual entry with its employee's name attached.
+ *
+ * Every entry leaves this service in this shape: the name is a non-nullable field of the
+ * GraphQL type, so resolving it in only the review queue left the employee's own list and
+ * both write mutations returning an entry the schema could not serialize.
+ */
+export type ManualEntryWithName = ManualEntryLean & { userName: string };
+
+/** What an entry filed by a since-deleted account is credited to. */
+const DELETED_EMPLOYEE = 'Deleted employee';
+
 /** Per-day approved off-computer time, keyed by the employee's own local date. */
 export interface ManualDayBucket {
   date: string;
@@ -107,7 +119,7 @@ class TrackerManualService {
       note,
       status: 'PENDING',
     });
-    return entry.toObject();
+    return this.withName(entry.toObject());
   }
 
   /**
@@ -134,7 +146,7 @@ class TrackerManualService {
     entry.reviewedAt = new Date();
     entry.reviewNote = reviewNote?.trim() ?? '';
     await entry.save();
-    return entry.toObject();
+    return this.withName(entry.toObject());
   }
 
   /**
@@ -156,15 +168,22 @@ class TrackerManualService {
   }
 
   /** One employee's entries in a range, newest first, whatever their status. */
-  list(userId: string, from: Date, to: Date): Promise<ManualEntryLean[]> {
-    return TrackerManualEntryModel.find({ userId, startedAt: { $gte: from, $lt: to } })
+  async list(userId: string, from: Date, to: Date): Promise<ManualEntryWithName[]> {
+    const entries = await TrackerManualEntryModel.find({
+      userId,
+      startedAt: { $gte: from, $lt: to },
+    })
       .sort({ startedAt: -1 })
       .lean();
+    return this.withNames(entries);
   }
 
   /** Everything waiting on a reviewer, oldest first — the queue is worked front to back. */
-  listPending(): Promise<ManualEntryLean[]> {
-    return TrackerManualEntryModel.find({ status: 'PENDING' }).sort({ startedAt: 1 }).lean();
+  async listPending(): Promise<ManualEntryWithName[]> {
+    const entries = await TrackerManualEntryModel.find({ status: 'PENDING' })
+      .sort({ startedAt: 1 })
+      .lean();
+    return this.withNames(entries);
   }
 
   /**
@@ -209,19 +228,30 @@ class TrackerManualService {
    * deleted since the claim was filed still shows its entry — dropping it would quietly
    * remove hours from a queue somebody is accountable for clearing.
    */
-  async withNames(entries: ManualEntryLean[]) {
+  private async withNames(entries: ManualEntryLean[]): Promise<ManualEntryWithName[]> {
     if (entries.length === 0) {
       return [];
     }
     const userIds = [...new Set(entries.map((entry) => entry.userId))];
+    const nameOf = await this.namesOf(userIds);
+    return entries.map((entry) => ({
+      ...entry,
+      userName: nameOf.get(entry.userId) ?? DELETED_EMPLOYEE,
+    }));
+  }
+
+  /** The same, for the single entry a create or a review hands back. */
+  private async withName(entry: ManualEntryLean): Promise<ManualEntryWithName> {
+    const nameOf = await this.namesOf([entry.userId]);
+    return { ...entry, userName: nameOf.get(entry.userId) ?? DELETED_EMPLOYEE };
+  }
+
+  /** Employee names for a set of ids, keyed by id. */
+  private async namesOf(userIds: string[]): Promise<Map<string, string>> {
     const users = await UserModel.find({ _id: { $in: userIds } })
       .select('name')
       .lean();
-    const nameOf = new Map(users.map((user) => [String(user._id), user.name]));
-    return entries.map((entry) => ({
-      ...entry,
-      userName: nameOf.get(entry.userId) ?? 'Deleted employee',
-    }));
+    return new Map(users.map((user) => [String(user._id), user.name]));
   }
 
   /** All-time approved off-computer milliseconds for one employee. */

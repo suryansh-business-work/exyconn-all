@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { AppBar, Box, IconButton, Toolbar, Typography } from '@exyconn/ui';
+import { AppBar, borderWidth, Box, IconButton, Toolbar, Typography } from '@exyconn/ui';
 import MenuIcon from '@mui/icons-material/Menu';
 import type { Branding, TrackerStatus } from '@shared/types';
 import BrandMark from './BrandMark';
@@ -33,7 +33,7 @@ export default function AppHeader({
       color="transparent"
       sx={(theme) => ({
         backgroundColor: theme.palette.background.paper,
-        borderBottom: `1px solid ${theme.palette.divider}`,
+        borderBottom: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
         boxShadow: 'none',
         color: theme.palette.text.primary,
       })}

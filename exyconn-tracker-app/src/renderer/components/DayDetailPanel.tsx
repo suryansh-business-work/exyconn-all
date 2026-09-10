@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Alert, Button, Skeleton, Stack, Typography } from '@exyconn/ui';
+import { Alert, Button, Skeleton, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import OpenInNewRounded from '@mui/icons-material/OpenInNewRounded';
 import type { DayDetail } from '@shared/types';
 import { activityPercent, formatCount } from '../format';
@@ -51,7 +51,7 @@ export default function DayDetailPanel({
     return (
       <Stack spacing={1}>
         {heading}
-        <Alert severity="error" variant="outlined" sx={{ borderRadius: '4px' }}>
+        <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
           {error}
         </Alert>
       </Stack>

@@ -3307,9 +3307,16 @@ export type Mutation = {
   markAttendance: Attendance;
   /** Settles a bill: records when the money left and moves it to PAID. */
   markExpensePaid: CompanyExpense;
+  /**
+   * Marks what was addressed to the caller as read — the chat they have just looked at, and
+   * the announcements their app has already raised. Answers how many that was.
+   */
+  markMyTrackerMessagesRead: Scalars['Int']['output'];
   markNotificationRead: Scalars['Boolean']['output'];
   /** Marks every GENERATED slip of the month PAID. Returns how many changed. */
   markPayrollPaid: Scalars['Int']['output'];
+  /** Marks one employee's inbound messages read, so the portal's unread badge clears. */
+  markTrackerThreadRead: Scalars['Int']['output'];
   /** Re-files a page under a new parent (null for top level) at a given position. */
   moveDocPage: Scalars['Boolean']['output'];
   moveTask: Scalars['Boolean']['output'];
@@ -3396,6 +3403,8 @@ export type Mutation = {
   sendContract: Contract;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
   sendInvoice: Invoice;
+  /** Posts a line onto the caller's OWN tracker thread. */
+  sendMyTrackerMessage: TrackerMessage;
   /** HR broadcast to every active employee, one department, or a chosen list. */
   sendNotification: SendNotificationResult;
   /**
@@ -3407,6 +3416,13 @@ export type Mutation = {
   /** Sends the real thing to one address, and logs it like any other send. */
   sendTestEmailTemplate: Scalars['Boolean']['output'];
   sendTestSlackMessage: Scalars['Boolean']['output'];
+  /** Replies to one employee on their tracker thread (TRACKER role). */
+  sendTrackerMessage: TrackerMessage;
+  /**
+   * Pushes an announcement to tracked employees, which their desktop app raises as a
+   * notification (TRACKER role). Answers how many people it reached.
+   */
+  sendTrackerNotice: Scalars['Int']['output'];
   sendUserMail: Scalars['Boolean']['output'];
   /** Moves an applicant along the pipeline. The applicant is emailed on INTERVIEW, OFFER and REJECTED. */
   setApplicantStage: Applicant;
@@ -3421,6 +3437,13 @@ export type Mutation = {
   setExpenseClaimStatus: ExpenseClaim;
   /** HR/ADMIN or the employee's manager: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
+  /**
+   * Records what the caller says they are doing — at lunch, on a break, in a meeting.
+   *
+   * The desktop app pauses tracking on every status but WORKING, because a tracker that
+   * keeps counting while somebody is at lunch is billing lunch as work.
+   */
+  setMyTrackerPresence: TrackerPresenceState;
   /**
    * Ticks one item off (or back on) and records who did it.
    *
@@ -4704,6 +4727,11 @@ export type MutationMarkExpensePaidArgs = {
 };
 
 
+export type MutationMarkMyTrackerMessagesReadArgs = {
+  kind?: InputMaybe<TrackerMessageKind>;
+};
+
+
 export type MutationMarkNotificationReadArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4712,6 +4740,11 @@ export type MutationMarkNotificationReadArgs = {
 export type MutationMarkPayrollPaidArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
+};
+
+
+export type MutationMarkTrackerThreadReadArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -4882,6 +4915,11 @@ export type MutationSendInvoiceArgs = {
 };
 
 
+export type MutationSendMyTrackerMessageArgs = {
+  body: Scalars['String']['input'];
+};
+
+
 export type MutationSendNotificationArgs = {
   input: SendNotificationInput;
 };
@@ -4909,6 +4947,17 @@ export type MutationSendTestEmailTemplateArgs = {
 export type MutationSendTestSlackMessageArgs = {
   channel: Scalars['String']['input'];
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationSendTrackerMessageArgs = {
+  body: Scalars['String']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
+export type MutationSendTrackerNoticeArgs = {
+  input: TrackerNoticeInput;
 };
 
 
@@ -4947,6 +4996,12 @@ export type MutationSetExpenseClaimStatusArgs = {
 export type MutationSetLeaveStatusArgs = {
   id: Scalars['ID']['input'];
   status: LeaveStatus;
+};
+
+
+export type MutationSetMyTrackerPresenceArgs = {
+  note?: InputMaybe<Scalars['String']['input']>;
+  status: TrackerPresence;
 };
 
 
@@ -7190,6 +7245,12 @@ export type Query = {
   myTrackerDay: TrackerDay;
   /** The caller's own off-computer entries in a range, any status. */
   myTrackerManualEntries: Array<TrackerManualEntry>;
+  /**
+   * The caller's OWN messages, oldest first — their conversation with whoever administers
+   * tracking, or (kind: NOTICE) the announcements pushed to them. Readable from the desktop
+   * app's device token or from a portal session — one thread either way.
+   */
+  myTrackerMessages: Array<TrackerMessage>;
   /** The calling device's own employee, all-time. Device token, not a portal session. */
   myTrackerTotals: TrackerTotals;
   myTrainings: Array<Training>;
@@ -7324,6 +7385,13 @@ export type Query = {
   /** One employee's off-computer entries in a range, any status (TRACKER role). */
   trackerManualEntries: Array<TrackerManualEntry>;
   trackerMe: TrackerMe;
+  /** One employee's conversation, oldest message first (TRACKER role). */
+  trackerMessageThread: Array<TrackerMessage>;
+  /**
+   * Every employee who has exchanged a message with the tracker desk, newest conversation
+   * first (TRACKER role). This is the portal's inbox.
+   */
+  trackerMessageThreads: Array<TrackerMessageThread>;
   /** Every off-computer entry waiting on a decision, oldest first (TRACKER role). */
   trackerPendingManualEntries: Array<TrackerManualEntry>;
   /**
@@ -8222,6 +8290,11 @@ export type QueryMyTrackerManualEntriesArgs = {
 };
 
 
+export type QueryMyTrackerMessagesArgs = {
+  kind?: InputMaybe<TrackerMessageKind>;
+};
+
+
 export type QueryPayrollSummaryArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
@@ -8464,6 +8537,11 @@ export type QueryTrackerDevicesArgs = {
 export type QueryTrackerManualEntriesArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
+export type QueryTrackerMessageThreadArgs = {
   userId: Scalars['ID']['input'];
 };
 
@@ -9795,6 +9873,10 @@ export type TrackerAccess = {
   grantedBy: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
+  /** What they last said they were doing, from the desktop app. */
+  presence: TrackerPresence;
+  presenceAt?: Maybe<Scalars['DateTime']['output']>;
+  presenceNote: Scalars['String']['output'];
   revokedAt?: Maybe<Scalars['DateTime']['output']>;
   /**
    * The zone THIS employee picked in the desktop app.
@@ -10002,7 +10084,7 @@ export type TrackerManualEntry = {
   taskKey: Scalars['String']['output'];
   taskTitle: Scalars['String']['output'];
   userId: Scalars['ID']['output'];
-  /** Employee's name, resolved for the review queue. Empty on an employee's own list. */
+  /** Employee's name, resolved on every entry so the review queue can name who filed it. */
   userName: Scalars['String']['output'];
 };
 
@@ -10026,6 +10108,13 @@ export type TrackerMe = {
   __typename?: 'TrackerMe';
   consentPolicy?: Maybe<TrackerConsentPolicy>;
   consentRequired: Scalars['Boolean']['output'];
+  /**
+   * Announcements this employee has not seen yet. The desktop app raises each one as a
+   * notification and then marks them read, so a notice arrives while the app is in the tray.
+   */
+  notices: Array<TrackerMessage>;
+  /** What this employee last said they were doing — lunch, a break, a meeting. */
+  presence: TrackerPresenceState;
   /** Projects this employee may book time against, the house-wide one first. */
   projects: Array<TrackerProject>;
   settings: TrackerSettings;
@@ -10034,9 +10123,60 @@ export type TrackerMe = {
    * device reported at sign-in, else UTC. Never empty.
    */
   timezone: Scalars['String']['output'];
+  /** Chat messages waiting for them, for the app's own badge. */
+  unreadMessages: Scalars['Int']['output'];
   user: User;
   workProfile: TrackerWorkProfile;
   workday: TrackerWorkday;
+};
+
+export type TrackerMessage = {
+  __typename?: 'TrackerMessage';
+  authorId: Scalars['ID']['output'];
+  /** Denormalised, so a departed administrator's messages still say who wrote them. */
+  authorName: Scalars['String']['output'];
+  body: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  direction: TrackerMessageDirection;
+  id: Scalars['ID']['output'];
+  kind: TrackerMessageKind;
+  /** When the RECIPIENT read it. Null while it is still unread. */
+  readAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Notices only — a chat line has no subject. */
+  title: Scalars['String']['output'];
+  /** The employee whose thread this belongs to, whichever way the message is going. */
+  userId: Scalars['ID']['output'];
+};
+
+/** Which way a message is travelling. Read state belongs to whoever it is travelling to. */
+export enum TrackerMessageDirection {
+  ToAdmin = 'TO_ADMIN',
+  ToEmployee = 'TO_EMPLOYEE'
+}
+
+/** CHAT is a two-way conversation; NOTICE is an announcement pushed to the desktop app. */
+export enum TrackerMessageKind {
+  Chat = 'CHAT',
+  Notice = 'NOTICE'
+}
+
+/** One employee's conversation, as the portal's tracker inbox lists it. */
+export type TrackerMessageThread = {
+  __typename?: 'TrackerMessageThread';
+  lastMessageAt?: Maybe<Scalars['DateTime']['output']>;
+  lastMessageBody: Scalars['String']['output'];
+  /** Messages from this employee that nobody has read yet. */
+  unread: Scalars['Int']['output'];
+  userEmail: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+  userName: Scalars['String']['output'];
+};
+
+export type TrackerNoticeInput = {
+  body: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  /** Leave empty to reach every employee with an active tracker grant. */
+  userIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
 /** The installers a build can produce. */
@@ -10045,6 +10185,29 @@ export enum TrackerPlatform {
   Macos = 'MACOS',
   Windows = 'WINDOWS'
 }
+
+/**
+ * What an employee has said they are doing right now, in their own words.
+ *
+ * Their statement, never something the tracker inferred: a quiet keyboard means the
+ * keyboard was quiet, not that somebody went to lunch.
+ */
+export enum TrackerPresence {
+  Away = 'AWAY',
+  Break = 'BREAK',
+  Lunch = 'LUNCH',
+  Meeting = 'MEETING',
+  Working = 'WORKING'
+}
+
+export type TrackerPresenceState = {
+  __typename?: 'TrackerPresenceState';
+  /** The employee's own note, such as: back at 2, or client call. Empty when they left it blank. */
+  note: Scalars['String']['output'];
+  /** When they last said it. Null when they never have. */
+  since?: Maybe<Scalars['DateTime']['output']>;
+  status: TrackerPresence;
+};
 
 /** One project time may be booked against. */
 export type TrackerProject = {
@@ -11125,7 +11288,14 @@ export type ResolversTypes = ResolversObject<{
   TrackerManualEntryInput: TrackerManualEntryInput;
   TrackerManualEntryStatus: TrackerManualEntryStatus;
   TrackerMe: ResolverTypeWrapper<TrackerMe>;
+  TrackerMessage: ResolverTypeWrapper<TrackerMessage>;
+  TrackerMessageDirection: TrackerMessageDirection;
+  TrackerMessageKind: TrackerMessageKind;
+  TrackerMessageThread: ResolverTypeWrapper<TrackerMessageThread>;
+  TrackerNoticeInput: TrackerNoticeInput;
   TrackerPlatform: TrackerPlatform;
+  TrackerPresence: TrackerPresence;
+  TrackerPresenceState: ResolverTypeWrapper<TrackerPresenceState>;
   TrackerProject: ResolverTypeWrapper<TrackerProject>;
   TrackerRelease: ResolverTypeWrapper<TrackerRelease>;
   TrackerReleaseAsset: ResolverTypeWrapper<TrackerReleaseAsset>;
@@ -11584,6 +11754,10 @@ export type ResolversParentTypes = ResolversObject<{
   TrackerManualEntry: TrackerManualEntry;
   TrackerManualEntryInput: TrackerManualEntryInput;
   TrackerMe: TrackerMe;
+  TrackerMessage: TrackerMessage;
+  TrackerMessageThread: TrackerMessageThread;
+  TrackerNoticeInput: TrackerNoticeInput;
+  TrackerPresenceState: TrackerPresenceState;
   TrackerProject: TrackerProject;
   TrackerRelease: TrackerRelease;
   TrackerReleaseAsset: TrackerReleaseAsset;
@@ -13559,8 +13733,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   markAllNotificationsRead?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   markAttendance?: Resolver<ResolversTypes['Attendance'], ParentType, ContextType, RequireFields<MutationMarkAttendanceArgs, 'input'>>;
   markExpensePaid?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<MutationMarkExpensePaidArgs, 'id'>>;
+  markMyTrackerMessagesRead?: Resolver<ResolversTypes['Int'], ParentType, ContextType, Partial<MutationMarkMyTrackerMessagesReadArgs>>;
   markNotificationRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMarkNotificationReadArgs, 'id'>>;
   markPayrollPaid?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationMarkPayrollPaidArgs, 'month' | 'year'>>;
+  markTrackerThreadRead?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationMarkTrackerThreadReadArgs, 'userId'>>;
   moveDocPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveDocPageArgs, 'id' | 'toIndex'>>;
   moveTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveTaskArgs, 'id' | 'toColumnId' | 'toIndex'>>;
   promoteBugToTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationPromoteBugToTaskArgs, 'id'>>;
@@ -13591,17 +13767,21 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'id'>>;
   sendContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSendContractArgs, 'email' | 'id'>>;
   sendInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationSendInvoiceArgs, 'email' | 'id'>>;
+  sendMyTrackerMessage?: Resolver<ResolversTypes['TrackerMessage'], ParentType, ContextType, RequireFields<MutationSendMyTrackerMessageArgs, 'body'>>;
   sendNotification?: Resolver<ResolversTypes['SendNotificationResult'], ParentType, ContextType, RequireFields<MutationSendNotificationArgs, 'input'>>;
   sendSalarySlips?: Resolver<ResolversTypes['PayrollDispatchResult'], ParentType, ContextType, RequireFields<MutationSendSalarySlipsArgs, 'month' | 'year'>>;
   sendTestEmail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestEmailArgs, 'id' | 'to'>>;
   sendTestEmailTemplate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestEmailTemplateArgs, 'key' | 'to'>>;
   sendTestSlackMessage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestSlackMessageArgs, 'channel' | 'id'>>;
+  sendTrackerMessage?: Resolver<ResolversTypes['TrackerMessage'], ParentType, ContextType, RequireFields<MutationSendTrackerMessageArgs, 'body' | 'userId'>>;
+  sendTrackerNotice?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationSendTrackerNoticeArgs, 'input'>>;
   sendUserMail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendUserMailArgs, 'id' | 'input'>>;
   setApplicantStage?: Resolver<ResolversTypes['Applicant'], ParentType, ContextType, RequireFields<MutationSetApplicantStageArgs, 'id' | 'stage'>>;
   setColumnDone?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationSetColumnDoneArgs, 'id' | 'isDone'>>;
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
   setExpenseClaimStatus?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationSetExpenseClaimStatusArgs, 'id' | 'status'>>;
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
+  setMyTrackerPresence?: Resolver<ResolversTypes['TrackerPresenceState'], ParentType, ContextType, RequireFields<MutationSetMyTrackerPresenceArgs, 'status'>>;
   setOnboardingItem?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationSetOnboardingItemArgs, 'checklistId' | 'done' | 'key'>>;
   setRolePermission?: Resolver<ResolversTypes['RolePermission'], ParentType, ContextType, RequireFields<MutationSetRolePermissionArgs, 'actions' | 'module' | 'role'>>;
   setSupportTicketStatus?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationSetSupportTicketStatusArgs, 'id' | 'status'>>;
@@ -14667,6 +14847,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myTrackerCalendar?: Resolver<Array<ResolversTypes['TrackerDayBucket']>, ParentType, ContextType, RequireFields<QueryMyTrackerCalendarArgs, 'from' | 'timezone' | 'to'>>;
   myTrackerDay?: Resolver<ResolversTypes['TrackerDay'], ParentType, ContextType, RequireFields<QueryMyTrackerDayArgs, 'end' | 'start'>>;
   myTrackerManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType, RequireFields<QueryMyTrackerManualEntriesArgs, 'from' | 'to'>>;
+  myTrackerMessages?: Resolver<Array<ResolversTypes['TrackerMessage']>, ParentType, ContextType, Partial<QueryMyTrackerMessagesArgs>>;
   myTrackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType>;
   myTrainings?: Resolver<Array<ResolversTypes['Training']>, ParentType, ContextType>;
   myUnreadNotificationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -14737,6 +14918,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerLatestRelease?: Resolver<Maybe<ResolversTypes['TrackerRelease']>, ParentType, ContextType>;
   trackerManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType, RequireFields<QueryTrackerManualEntriesArgs, 'from' | 'to' | 'userId'>>;
   trackerMe?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType>;
+  trackerMessageThread?: Resolver<Array<ResolversTypes['TrackerMessage']>, ParentType, ContextType, RequireFields<QueryTrackerMessageThreadArgs, 'userId'>>;
+  trackerMessageThreads?: Resolver<Array<ResolversTypes['TrackerMessageThread']>, ParentType, ContextType>;
   trackerPendingManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType>;
   trackerProjectOptions?: Resolver<Array<ResolversTypes['TrackerProject']>, ParentType, ContextType>;
   trackerSettings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
@@ -15475,6 +15658,9 @@ export type TrackerAccessResolvers<ContextType = GraphQLContext, ParentType exte
   grantedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  presence?: Resolver<ResolversTypes['TrackerPresence'], ParentType, ContextType>;
+  presenceAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  presenceNote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   revokedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -15630,12 +15816,46 @@ export type TrackerManualEntryResolvers<ContextType = GraphQLContext, ParentType
 export type TrackerMeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerMe'] = ResolversParentTypes['TrackerMe']> = ResolversObject<{
   consentPolicy?: Resolver<Maybe<ResolversTypes['TrackerConsentPolicy']>, ParentType, ContextType>;
   consentRequired?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  notices?: Resolver<Array<ResolversTypes['TrackerMessage']>, ParentType, ContextType>;
+  presence?: Resolver<ResolversTypes['TrackerPresenceState'], ParentType, ContextType>;
   projects?: Resolver<Array<ResolversTypes['TrackerProject']>, ParentType, ContextType>;
   settings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  unreadMessages?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   workProfile?: Resolver<ResolversTypes['TrackerWorkProfile'], ParentType, ContextType>;
   workday?: Resolver<ResolversTypes['TrackerWorkday'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerMessageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerMessage'] = ResolversParentTypes['TrackerMessage']> = ResolversObject<{
+  authorId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  authorName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  direction?: Resolver<ResolversTypes['TrackerMessageDirection'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['TrackerMessageKind'], ParentType, ContextType>;
+  readAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerMessageThreadResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerMessageThread'] = ResolversParentTypes['TrackerMessageThread']> = ResolversObject<{
+  lastMessageAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  lastMessageBody?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  unread?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  userEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TrackerPresenceStateResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerPresenceState'] = ResolversParentTypes['TrackerPresenceState']> = ResolversObject<{
+  note?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  since?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['TrackerPresence'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -16198,6 +16418,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TrackerLoginPayload?: TrackerLoginPayloadResolvers<ContextType>;
   TrackerManualEntry?: TrackerManualEntryResolvers<ContextType>;
   TrackerMe?: TrackerMeResolvers<ContextType>;
+  TrackerMessage?: TrackerMessageResolvers<ContextType>;
+  TrackerMessageThread?: TrackerMessageThreadResolvers<ContextType>;
+  TrackerPresenceState?: TrackerPresenceStateResolvers<ContextType>;
   TrackerProject?: TrackerProjectResolvers<ContextType>;
   TrackerRelease?: TrackerReleaseResolvers<ContextType>;
   TrackerReleaseAsset?: TrackerReleaseAssetResolvers<ContextType>;

@@ -1,6 +1,7 @@
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import type { AttendanceStatus } from './hrDashboard.selectors';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Loose shape of a `TableStats` payload as the generated hooks return it. */
 type Stats = Parameters<typeof statTotal>[0];
@@ -30,32 +31,36 @@ export function buildHrTiles(i: HrTileInputs): StatItem[] {
     statCount(i.reviewStats, 'status', 'MANAGER_SUBMITTED');
 
   return [
-    { label: 'Employees', value: String(i.totalEmployees), accent: '#155dfc' },
+    { label: 'Employees', value: String(i.totalEmployees), accent: color.blue[600] },
     {
       label: 'Active / inactive',
       value: `${i.activeEmployees} / ${Math.max(i.totalEmployees - i.activeEmployees, 0)}`,
-      accent: '#16a34a',
+      accent: color.green[600],
     },
-    { label: 'New this month', value: String(i.newJoiners), accent: '#0ea5e9' },
-    { label: 'On leave', value: String(i.onLeave), accent: '#f59e0b' },
+    { label: 'New this month', value: String(i.newJoiners), accent: color.sky[500] },
+    { label: 'On leave', value: String(i.onLeave), accent: color.amber[500] },
     {
       label: 'Present today',
       value: String(i.today.PRESENT + i.today.HALF_DAY),
-      accent: '#22c55e',
+      accent: color.green[500],
     },
-    { label: 'WFH today', value: String(i.today.WFH), accent: '#06b6d4' },
-    { label: 'Leave to approve', value: String(i.pendingLeave), accent: '#f97316' },
+    { label: 'WFH today', value: String(i.today.WFH), accent: color.cyan[500] },
+    { label: 'Leave to approve', value: String(i.pendingLeave), accent: color.orange[600] },
     {
       label: 'Requests pending',
       value: String(statCount(i.requestStats, 'status', 'PENDING')),
-      accent: '#ef4444',
+      accent: color.red[500],
     },
     {
       label: 'Active goals',
       value: String(statCount(i.goalStats, 'status', 'ACTIVE')),
-      accent: '#a855f7',
+      accent: color.purple[400],
     },
-    { label: 'Appraisals open', value: String(appraisalsOpen), accent: '#d946ef' },
-    { label: 'Exits in progress', value: String(Math.max(exitsInProgress, 0)), accent: '#64748b' },
+    { label: 'Appraisals open', value: String(appraisalsOpen), accent: color.fuchsia[500] },
+    {
+      label: 'Exits in progress',
+      value: String(Math.max(exitsInProgress, 0)),
+      accent: color.slate[500],
+    },
   ];
 }

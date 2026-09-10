@@ -7,6 +7,7 @@ import {
   CircularProgress,
   Stack,
   TextField,
+  TRACKER_RADIUS,
   Typography,
 } from '@exyconn/ui';
 import { formatTimeOfDay, offsetLabel, timezoneNames } from '../time';
@@ -114,7 +115,7 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
       </Typography>
 
       {failed ? (
-        <Alert severity="error" variant="outlined" sx={{ borderRadius: '4px' }}>
+        <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
           {SAVE_FAILED}
         </Alert>
       ) : null}

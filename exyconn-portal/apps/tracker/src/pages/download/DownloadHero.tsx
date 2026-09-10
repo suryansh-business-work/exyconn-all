@@ -1,5 +1,15 @@
 import type { ReactNode } from 'react';
-import { Box, Button, Chip, Grid, Link, Stack, Typography } from '@exyconn/shell/components/ui';
+import {
+  Box,
+  Button,
+  Chip,
+  Grid,
+  Link,
+  Stack,
+  Typography,
+  iconSize,
+  tint,
+} from '@exyconn/shell/components/ui';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { formatBytes } from '@exyconn/shell/utils/file';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -46,7 +56,7 @@ export function DownloadHero({
         {
           p: { xs: 2, md: 3 },
           mb: 1.5,
-          background: `linear-gradient(135deg, ${platform.accent}1f 0%, transparent 55%)`,
+          background: `linear-gradient(135deg, ${tint(platform.accent, 'soft')} 0%, transparent 55%)`,
         },
       ]}
     >
@@ -57,7 +67,7 @@ export function DownloadHero({
             <Chip size="small" variant="outlined" label={`Released ${releasedOn}`} />
           </Stack>
           <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 0.5 }}>
-            <Icon sx={{ fontSize: 34, color: platform.accent }} />
+            <Icon sx={{ fontSize: iconSize['3xl'], color: platform.accent }} />
             <Typography variant="h4">Exyconn Tracker for {platform.label}</Typography>
           </Stack>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -93,7 +103,7 @@ export function DownloadHero({
             variant="caption"
             sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 1.5 }}
           >
-            Release notes on GitHub <OpenInNewIcon sx={{ fontSize: 13 }} />
+            Release notes on GitHub <OpenInNewIcon sx={{ fontSize: iconSize.xs }} />
           </Link>
         </Grid>
 

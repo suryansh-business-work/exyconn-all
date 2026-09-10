@@ -1,6 +1,15 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Avatar, Box, Chip, Flex, IconButton, Text, Tooltip } from '@exyconn/shell/components/ui';
+import {
+  Avatar,
+  Box,
+  Chip,
+  Flex,
+  IconButton,
+  Text,
+  Tooltip,
+  fontSize,
+} from '@exyconn/shell/components/ui';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { TICKET_PRIORITIES, TICKET_TYPES, initialsOf } from '../ticket/ticket-meta';
 import { TicketFacetIcon } from '../ticket/TicketFacetIcon';
@@ -71,12 +80,16 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
               {task.key}
             </Text>
             {task.storyPoints !== null && task.storyPoints !== undefined ? (
-              <Chip size="small" label={task.storyPoints} sx={{ height: 18, fontSize: 11 }} />
+              <Chip
+                size="small"
+                label={task.storyPoints}
+                sx={{ height: 18, fontSize: fontSize['2xs'] }}
+              />
             ) : null}
             <Box sx={{ flex: 1 }} />
             {task.assigneeName === '' ? null : (
               <Tooltip title={`Assigned to ${task.assigneeName}`}>
-                <Avatar sx={{ width: 22, height: 22, fontSize: 10 }}>
+                <Avatar sx={{ width: 22, height: 22, fontSize: fontSize['3xs'] }}>
                   {initialsOf(task.assigneeName)}
                 </Avatar>
               </Tooltip>
@@ -91,7 +104,7 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
                   size="small"
                   variant="outlined"
                   label={label}
-                  sx={{ height: 18, fontSize: 11 }}
+                  sx={{ height: 18, fontSize: fontSize['2xs'] }}
                 />
               ))}
             </Flex>

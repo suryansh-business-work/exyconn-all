@@ -21,6 +21,46 @@ export const SESSION_STATUSES = ['active', 'stopped'] as const;
  */
 export const MANUAL_ENTRY_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;
 
+/**
+ * What an employee has said they are doing right now.
+ *
+ * Deliberately their OWN statement, never something the tracker infers: idle minutes say a
+ * keyboard was quiet, not that somebody went to lunch, and a monitoring tool that guesses the
+ * difference will guess it wrong in front of a manager.
+ */
+export const PRESENCE_STATUSES = ['WORKING', 'LUNCH', 'BREAK', 'MEETING', 'AWAY'] as const;
+
+/**
+ * The presences that mean "not working right now".
+ *
+ * Saying you are at lunch while the tracker keeps counting the minutes as work is the one
+ * outcome nobody wants, so the desktop app pauses on these — and the server records the same
+ * split so a report never has to guess which statuses were paid time.
+ */
+export const PRESENCE_AWAY_STATUSES = ['LUNCH', 'BREAK', 'MEETING', 'AWAY'] as const;
+
+/**
+ * The two things that travel down the same pipe to a tracker.
+ *
+ * CHAT is a two-way thread between one employee and whoever administers tracking. NOTICE is
+ * an announcement an administrator pushes out, which the app raises as a desktop
+ * notification. One collection rather than two: both are "a message addressed to one
+ * employee, read or unread", and splitting them would duplicate every read, unread count and
+ * retention rule for no gain.
+ */
+export const TRACKER_MESSAGE_KINDS = ['CHAT', 'NOTICE'] as const;
+
+/** Who a message is travelling towards. Read state belongs to whoever it is travelling to. */
+export const TRACKER_MESSAGE_DIRECTIONS = ['TO_EMPLOYEE', 'TO_ADMIN'] as const;
+
+/** Bounds on one message, so neither end can post an essay or an empty line. */
+export const TRACKER_MESSAGE_LIMITS = Object.freeze({
+  maxBodyChars: 2000,
+  maxTitleChars: 120,
+  /** How many messages of a thread either end reads at once. */
+  threadLimit: 200,
+});
+
 /** Where the webcam photo is composited onto the screenshot, when webcam capture is on. */
 export const WEBCAM_CORNERS = ['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const;
 
@@ -205,3 +245,6 @@ export type DevicePlatform = (typeof DEVICE_PLATFORMS)[number];
 export type ManualEntryStatus = (typeof MANUAL_ENTRY_STATUSES)[number];
 export type WebcamCorner = (typeof WEBCAM_CORNERS)[number];
 export type SessionStatus = (typeof SESSION_STATUSES)[number];
+export type PresenceStatus = (typeof PRESENCE_STATUSES)[number];
+export type TrackerMessageKind = (typeof TRACKER_MESSAGE_KINDS)[number];
+export type TrackerMessageDirection = (typeof TRACKER_MESSAGE_DIRECTIONS)[number];

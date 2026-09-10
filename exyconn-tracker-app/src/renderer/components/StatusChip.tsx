@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Box, Chip, alpha } from '@exyconn/ui';
+import { alpha, borderWidth, Box, Chip, color } from '@exyconn/ui';
 import type { TrackerStatus } from '@shared/types';
 
 type StatusTone = 'idle' | 'live' | 'paused';
@@ -18,9 +18,9 @@ const STATUS_META: Record<TrackerStatus, StatusMeta> = {
 };
 
 const TONE_COLOR: Record<StatusTone, string> = {
-  idle: '#94A3B8',
-  live: '#22C55E',
-  paused: '#F59E0B',
+  idle: color.slate[400],
+  live: color.green[500],
+  paused: color.amber[500],
 };
 
 interface DotProps {
@@ -70,7 +70,7 @@ export default function StatusChip({ status }: Readonly<Props>): ReactElement {
         top: '-12px',
         color: theme.palette.text.primary,
         backgroundColor: alpha(color, 0.16),
-        border: `1px solid ${alpha(color, 0.4)}`,
+        border: `${borderWidth.hairline}px solid ${alpha(color, 0.4)}`,
         '& .MuiChip-icon': { ml: 0.5, mr: -0.25 },
       })}
     />

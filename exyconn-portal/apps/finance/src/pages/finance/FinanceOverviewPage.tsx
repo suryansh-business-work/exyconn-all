@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Box, Grid } from '@exyconn/shell/components/ui';
+import { Box, Grid, color } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
@@ -35,14 +35,14 @@ export function FinanceOverviewPage() {
   const finance = data?.companyFinance;
 
   const stats: StatItem[] = [
-    { label: 'Invoiced', value: formatMoney(finance?.invoiced ?? 0), accent: '#4f8cff' },
-    { label: 'Total cost', value: formatMoney(finance?.totalCost ?? 0), accent: '#f9851f' },
+    { label: 'Invoiced', value: formatMoney(finance?.invoiced ?? 0), accent: color.blue[400] },
+    { label: 'Total cost', value: formatMoney(finance?.totalCost ?? 0), accent: color.orange[500] },
     {
       label: 'Profit',
       value: formatMoney(finance?.profit ?? 0),
-      accent: (finance?.profit ?? 0) < 0 ? '#ff6b6b' : '#22c55e',
+      accent: (finance?.profit ?? 0) < 0 ? color.red[200] : color.green[500],
     },
-    { label: 'Net cash', value: formatMoney(finance?.netCash ?? 0), accent: '#8b5cf6' },
+    { label: 'Net cash', value: formatMoney(finance?.netCash ?? 0), accent: color.violet[400] },
   ];
 
   const earned: MoneyLine[] = [

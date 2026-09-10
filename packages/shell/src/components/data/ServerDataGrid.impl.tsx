@@ -10,7 +10,7 @@ import {
   type IGetRowsParams,
   type RowClickedEvent,
 } from 'ag-grid-community';
-import { Box, TextField, useTheme } from '@/components/ui';
+import { BASE_RADIUS, Box, TextField, fontSize, fontWeight, useTheme } from '@/components/ui';
 import type { TableQueryInput } from '@/graphql/generated';
 import {
   SEARCH_DEBOUNCE_MS,
@@ -84,10 +84,10 @@ function ServerDataGridImpl({
         headerTextColor: theme.palette.text.secondary,
         rowHoverColor: theme.palette.action.hover,
         fontFamily: theme.typography.fontFamily,
-        fontSize: 13,
-        headerFontSize: 12,
-        headerFontWeight: 700,
-        wrapperBorderRadius: 8,
+        fontSize: fontSize.sm,
+        headerFontSize: fontSize.xs,
+        headerFontWeight: fontWeight.bold,
+        wrapperBorderRadius: BASE_RADIUS,
       }),
     [theme],
   );

@@ -14,6 +14,7 @@ import {
   useListCampaignsStatsQuery,
 } from '@exyconn/shell/graphql/generated';
 import type { CampaignRow } from './forms/campaign';
+import { color } from '@exyconn/shell/components/ui';
 
 /** How many of the newest campaigns the overview lists before sending you to the register. */
 const RECENT_CAMPAIGNS = 8;
@@ -33,27 +34,27 @@ export function MarketingOverviewPage() {
   const leadsFor = new Map(leadCounts.map((row) => [row.campaignId, row.leads]));
 
   const statItems: StatItem[] = [
-    { label: 'Campaigns', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Campaigns', value: String(statTotal(stats)), accent: color.blue[400] },
     {
       label: 'Sent',
       value: String(campaigns.filter((c) => c.lastSentAt).length),
-      accent: '#22c55e',
+      accent: color.green[500],
     },
-    { label: 'Recipients reached', value: String(reached), accent: '#8b5cf6' },
-    { label: 'Leads generated', value: String(leadsGenerated), accent: '#ec4899' },
-    { label: 'Budget', value: formatMoney(statSum(stats, 'budget')), accent: '#f59e0b' },
+    { label: 'Recipients reached', value: String(reached), accent: color.violet[400] },
+    { label: 'Leads generated', value: String(leadsGenerated), accent: color.pink[400] },
+    { label: 'Budget', value: formatMoney(statSum(stats, 'budget')), accent: color.amber[500] },
   ];
 
   const breakdowns: OverviewBreakdown[] = [
     {
       title: 'By status',
       buckets: stats?.counts.find((c) => c.field === 'status')?.buckets ?? [],
-      accent: '#4f8cff',
+      accent: color.blue[400],
     },
     {
       title: 'By channel',
       buckets: stats?.counts.find((c) => c.field === 'channel')?.buckets ?? [],
-      accent: '#8b5cf6',
+      accent: color.violet[400],
     },
   ];
 

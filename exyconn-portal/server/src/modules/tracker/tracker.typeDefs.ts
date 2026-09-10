@@ -115,6 +115,10 @@ export const trackerTypeDefs = gql`
     An empty string means they never picked one.
     """
     timezone: String!
+    "What they last said they were doing, from the desktop app."
+    presence: TrackerPresence!
+    presenceNote: String!
+    presenceAt: DateTime
   }
 
   type TrackerDevice {
@@ -213,7 +217,7 @@ export const trackerTypeDefs = gql`
   type TrackerManualEntry {
     id: ID!
     userId: ID!
-    "Employee's name, resolved for the review queue. Empty on an employee's own list."
+    "Employee's name, resolved on every entry so the review queue can name who filed it."
     userName: String!
     projectId: ID!
     "The project's name as it was when the entry was filed."
@@ -516,6 +520,75 @@ export const trackerTypeDefs = gql`
     settings: TrackerSettings!
   }
 
+  """
+  What an employee has said they are doing right now, in their own words.
+
+  Their statement, never something the tracker inferred: a quiet keyboard means the
+  keyboard was quiet, not that somebody went to lunch.
+  """
+  enum TrackerPresence {
+    WORKING
+    LUNCH
+    BREAK
+    MEETING
+    AWAY
+  }
+
+  type TrackerPresenceState {
+    status: TrackerPresence!
+    "The employee's own note, such as: back at 2, or client call. Empty when they left it blank."
+    note: String!
+    "When they last said it. Null when they never have."
+    since: DateTime
+  }
+
+  "CHAT is a two-way conversation; NOTICE is an announcement pushed to the desktop app."
+  enum TrackerMessageKind {
+    CHAT
+    NOTICE
+  }
+
+  "Which way a message is travelling. Read state belongs to whoever it is travelling to."
+  enum TrackerMessageDirection {
+    TO_EMPLOYEE
+    TO_ADMIN
+  }
+
+  type TrackerMessage {
+    id: ID!
+    "The employee whose thread this belongs to, whichever way the message is going."
+    userId: ID!
+    kind: TrackerMessageKind!
+    direction: TrackerMessageDirection!
+    "Notices only — a chat line has no subject."
+    title: String!
+    body: String!
+    authorId: ID!
+    "Denormalised, so a departed administrator's messages still say who wrote them."
+    authorName: String!
+    "When the RECIPIENT read it. Null while it is still unread."
+    readAt: DateTime
+    createdAt: DateTime!
+  }
+
+  "One employee's conversation, as the portal's tracker inbox lists it."
+  type TrackerMessageThread {
+    userId: ID!
+    userName: String!
+    userEmail: String!
+    lastMessageAt: DateTime
+    lastMessageBody: String!
+    "Messages from this employee that nobody has read yet."
+    unread: Int!
+  }
+
+  input TrackerNoticeInput {
+    title: String!
+    body: String!
+    "Leave empty to reach every employee with an active tracker grant."
+    userIds: [ID!]
+  }
+
   # Rehydrates a desktop session from a stored (non-expiring) device token, so a
   # "remembered" app can restore who is signed in without asking for the password again.
   type TrackerMe {
@@ -532,6 +605,15 @@ export const trackerTypeDefs = gql`
     "Projects this employee may book time against, the house-wide one first."
     projects: [TrackerProject!]!
     consentPolicy: TrackerConsentPolicy
+    "What this employee last said they were doing — lunch, a break, a meeting."
+    presence: TrackerPresenceState!
+    """
+    Announcements this employee has not seen yet. The desktop app raises each one as a
+    notification and then marks them read, so a notice arrives while the app is in the tray.
+    """
+    notices: [TrackerMessage!]!
+    "Chat messages waiting for them, for the app's own badge."
+    unreadMessages: Int!
   }
 
   """
@@ -589,6 +671,13 @@ export const trackerTypeDefs = gql`
     trackerManualEntries(userId: ID!, from: DateTime!, to: DateTime!): [TrackerManualEntry!]!
     "Every off-computer entry waiting on a decision, oldest first (TRACKER role)."
     trackerPendingManualEntries: [TrackerManualEntry!]!
+    """
+    Every employee who has exchanged a message with the tracker desk, newest conversation
+    first (TRACKER role). This is the portal's inbox.
+    """
+    trackerMessageThreads: [TrackerMessageThread!]!
+    "One employee's conversation, oldest message first (TRACKER role)."
+    trackerMessageThread(userId: ID!): [TrackerMessage!]!
 
     # Project time log (PROJECTS role; screenshots additionally need TRACKER)
     """
@@ -637,6 +726,12 @@ export const trackerTypeDefs = gql`
     "The caller's own off-computer entries in a range, any status."
     myTrackerManualEntries(from: DateTime!, to: DateTime!): [TrackerManualEntry!]!
     """
+    The caller's OWN messages, oldest first — their conversation with whoever administers
+    tracking, or (kind: NOTICE) the announcements pushed to them. Readable from the desktop
+    app's device token or from a portal session — one thread either way.
+    """
+    myTrackerMessages(kind: TrackerMessageKind): [TrackerMessage!]!
+    """
     Projects time may be booked against, the house-wide one first. The desktop app gets
     the same list inside trackerMe; this is the portal's way in, for the off-computer
     time form. Any signed-in employee may read it — it is a list of project names.
@@ -665,6 +760,15 @@ export const trackerTypeDefs = gql`
       status: TrackerManualEntryStatus!
       reviewNote: String
     ): TrackerManualEntry!
+    "Replies to one employee on their tracker thread (TRACKER role)."
+    sendTrackerMessage(userId: ID!, body: String!): TrackerMessage!
+    """
+    Pushes an announcement to tracked employees, which their desktop app raises as a
+    notification (TRACKER role). Answers how many people it reached.
+    """
+    sendTrackerNotice(input: TrackerNoticeInput!): Int!
+    "Marks one employee's inbound messages read, so the portal's unread badge clears."
+    markTrackerThreadRead(userId: ID!): Int!
 
     # Employee self-service
     """
@@ -674,6 +778,20 @@ export const trackerTypeDefs = gql`
     createTrackerManualEntry(input: TrackerManualEntryInput!): TrackerManualEntry!
     "Withdraws one of the caller's OWN entries, and only while it is still pending."
     withdrawTrackerManualEntry(id: ID!): Boolean!
+    "Posts a line onto the caller's OWN tracker thread."
+    sendMyTrackerMessage(body: String!): TrackerMessage!
+    """
+    Marks what was addressed to the caller as read — the chat they have just looked at, and
+    the announcements their app has already raised. Answers how many that was.
+    """
+    markMyTrackerMessagesRead(kind: TrackerMessageKind): Int!
+    """
+    Records what the caller says they are doing — at lunch, on a break, in a meeting.
+
+    The desktop app pauses tracking on every status but WORKING, because a tracker that
+    keeps counting while somebody is at lunch is billing lunch as work.
+    """
+    setMyTrackerPresence(status: TrackerPresence!, note: String): TrackerPresenceState!
 
     # Desktop app (device token, except trackerLogin which authenticates)
     trackerLogin(

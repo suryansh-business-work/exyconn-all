@@ -1,4 +1,4 @@
-import { Flex, LinearProgress, Text } from '@/components/ui';
+import { Flex, LinearProgress, radius, Text } from '@/components/ui';
 
 interface TrackerScreenshotActivityProps {
   /** Activity level (0-100) of the interval the screenshot was captured in. */
@@ -16,7 +16,7 @@ export function TrackerScreenshotActivity({ percent }: Readonly<TrackerScreensho
         variant="determinate"
         value={percent}
         aria-label={`Activity ${percent}%`}
-        sx={{ flex: 1, height: 4, borderRadius: '4px' }}
+        sx={{ flex: 1, height: 4, borderRadius: `${radius.sm}px` }}
       />
       <Text size="caption" color="text.secondary" sx={{ minWidth: 28, textAlign: 'right' }}>
         {`${percent}%`}

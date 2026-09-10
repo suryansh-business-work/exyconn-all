@@ -17,7 +17,9 @@ import { trackerBillingService } from './tracker.billing.service';
 import { trackerManualService, type ManualEntryInput } from './tracker.manual.service';
 import { trackerTimeLogService } from './tracker.timelog.service';
 import { trackerWorkdayService } from './tracker.workday.service';
-import type { ManualEntryStatus } from './tracker.constants';
+import { trackerMessageService, type NoticeInput } from './tracker.message.service';
+import { setPresence } from './tracker.presence.service';
+import type { ManualEntryStatus, PresenceStatus, TrackerMessageKind } from './tracker.constants';
 import {
   getTrackerSettings,
   updateTrackerSettings,
@@ -78,6 +80,9 @@ function serializeDeviceState(state: DeviceState) {
     workday: state.workday,
     projects: state.projects,
     consentPolicy: state.consentPolicy,
+    presence: state.presence,
+    notices: withIds(state.notices as LeanDoc[]),
+    unreadMessages: state.unreadMessages,
   };
 }
 
@@ -176,15 +181,11 @@ export const trackerResolvers = {
       ctx: GraphQLContext,
     ) => {
       await assertPermission(ctx, TRACKER_MODULE, TRACKER_ROLES, 'VIEW');
-      return withIds(
-        await trackerManualService.withNames(await trackerManualService.list(userId, from, to)),
-      );
+      return withIds(await trackerManualService.list(userId, from, to));
     },
     trackerPendingManualEntries: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await assertPermission(ctx, TRACKER_MODULE, TRACKER_ROLES, 'VIEW');
-      return withIds(
-        await trackerManualService.withNames(await trackerManualService.listPending()),
-      );
+      return withIds(await trackerManualService.listPending());
     },
 
     myTrackerAccess: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
@@ -268,6 +269,27 @@ export const trackerResolvers = {
       // Scoped to the caller's own id, never one supplied by the client.
       return withIds(await trackerManualService.list(user.id, from, to));
     },
+    /** The caller's own thread. Same scoping rule: the id comes from the token, not the client. */
+    myTrackerMessages: async (
+      _p: unknown,
+      { kind }: { kind?: TrackerMessageKind | null },
+      ctx: GraphQLContext,
+    ) => {
+      const user = await assertEmployee(ctx);
+      return withIds((await trackerMessageService.thread(user.id, kind ?? 'CHAT')) as LeanDoc[]);
+    },
+    trackerMessageThreads: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await assertPermission(ctx, TRACKER_MODULE, TRACKER_ROLES, 'VIEW');
+      return trackerMessageService.threads();
+    },
+    trackerMessageThread: async (
+      _p: unknown,
+      { userId }: { userId: string },
+      ctx: GraphQLContext,
+    ) => {
+      await assertPermission(ctx, TRACKER_MODULE, TRACKER_ROLES, 'VIEW');
+      return withIds((await trackerMessageService.thread(userId)) as LeanDoc[]);
+    },
   },
 
   Mutation: {
@@ -326,6 +348,42 @@ export const trackerResolvers = {
       const reviewer = await assertPermission(ctx, TRACKER_MODULE, TRACKER_ROLES, 'APPROVE');
       return withId(await trackerManualService.review(id, status, reviewer.id, reviewNote));
     },
+    sendTrackerMessage: async (
+      _p: unknown,
+      { userId, body }: { userId: string; body: string },
+      ctx: GraphQLContext,
+    ) => {
+      const actor = await assertPermission(ctx, TRACKER_MODULE, TRACKER_ROLES, 'EDIT');
+      const message = await trackerMessageService.send(userId, 'TO_EMPLOYEE', body, actor.id);
+      return withId(message as LeanDoc);
+    },
+    /**
+     * An announcement lands on somebody's desktop, so it is audited like the other things an
+     * administrator can do TO an employee rather than merely look at.
+     */
+    sendTrackerNotice: async (
+      _p: unknown,
+      { input }: { input: NoticeInput },
+      ctx: GraphQLContext,
+    ) => {
+      const actor = await assertPermission(ctx, TRACKER_MODULE, TRACKER_ROLES, 'EDIT');
+      const sent = await trackerMessageService.broadcast(input, actor.id);
+      await recordAudit(ctx, {
+        action: 'CREATE',
+        module: 'Tracker',
+        entityLabel: input.title,
+        summary: `Sent tracker notice "${input.title}" to ${sent.length} employee(s)`,
+      });
+      return sent.length;
+    },
+    markTrackerThreadRead: async (
+      _p: unknown,
+      { userId }: { userId: string },
+      ctx: GraphQLContext,
+    ) => {
+      await assertPermission(ctx, TRACKER_MODULE, TRACKER_ROLES, 'VIEW');
+      return trackerMessageService.markRead(userId, 'TO_ADMIN');
+    },
 
     createTrackerManualEntry: async (
       _p: unknown,
@@ -346,6 +404,28 @@ export const trackerResolvers = {
     ) => {
       const user = await assertEmployee(ctx);
       return trackerManualService.withdraw(id, user.id);
+    },
+    sendMyTrackerMessage: async (_p: unknown, { body }: { body: string }, ctx: GraphQLContext) => {
+      const user = await assertEmployee(ctx);
+      const message = await trackerMessageService.send(user.id, 'TO_ADMIN', body, user.id);
+      return withId(message as LeanDoc);
+    },
+    markMyTrackerMessagesRead: async (
+      _p: unknown,
+      { kind }: { kind?: TrackerMessageKind | null },
+      ctx: GraphQLContext,
+    ) => {
+      const user = await assertEmployee(ctx);
+      return trackerMessageService.markRead(user.id, 'TO_EMPLOYEE', kind ?? undefined);
+    },
+    /** The device token decides whose presence is written, so this can only ever set the caller's. */
+    setMyTrackerPresence: async (
+      _p: unknown,
+      { status, note }: { status: PresenceStatus; note?: string | null },
+      ctx: GraphQLContext,
+    ) => {
+      const user = await assertEmployee(ctx);
+      return setPresence(user.id, status, note);
     },
 
     updateTrackerSettings: async (

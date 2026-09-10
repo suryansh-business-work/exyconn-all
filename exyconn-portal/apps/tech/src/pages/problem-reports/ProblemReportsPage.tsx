@@ -10,6 +10,7 @@ import {
   type ListProblemReportsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { ProblemReportForm, type ProblemReportRow } from './forms/problem-report';
+import { color } from '@exyconn/shell/components/ui';
 import {
   PROBLEM_REPORT_COLUMNS,
   type PagedProblemReportRow,
@@ -33,21 +34,21 @@ export function ProblemReportsPage() {
 
   const stats = statsData?.listProblemReportsStats;
   const statItems: StatItem[] = [
-    { label: 'Reports', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Reports', value: String(statTotal(stats)), accent: color.blue[400] },
     {
       label: 'New',
       value: String(statCount(stats, 'status', ProblemStatus.New)),
-      accent: '#f9851f',
+      accent: color.orange[500],
     },
     {
       label: 'In progress',
       value: String(statCount(stats, 'status', ProblemStatus.InProgress)),
-      accent: '#7c3aed',
+      accent: color.violet[500],
     },
     {
       label: 'Critical',
       value: String(statCount(stats, 'severity', ProblemSeverity.Critical)),
-      accent: '#ff6b6b',
+      accent: color.red[200],
     },
   ];
 

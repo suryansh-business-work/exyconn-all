@@ -8,6 +8,7 @@ import {
   type ListActivitiesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { ActivityForm, type ActivityRow } from './forms/activity';
+import { color } from '@exyconn/shell/components/ui';
 import {
   ACTIVITY_COLUMNS,
   type PagedActivityRow,
@@ -31,10 +32,14 @@ export function ActivitiesPage() {
 
   const stats = statsData?.listActivitiesStats;
   const statItems: StatItem[] = [
-    { label: 'Activities', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Calls', value: String(statCount(stats, 'type', 'CALL')), accent: '#22c55e' },
-    { label: 'Meetings', value: String(statCount(stats, 'type', 'MEETING')), accent: '#8b5cf6' },
-    { label: 'Tasks', value: String(statCount(stats, 'type', 'TASK')), accent: '#f59e0b' },
+    { label: 'Activities', value: String(statTotal(stats)), accent: color.blue[400] },
+    { label: 'Calls', value: String(statCount(stats, 'type', 'CALL')), accent: color.green[500] },
+    {
+      label: 'Meetings',
+      value: String(statCount(stats, 'type', 'MEETING')),
+      accent: color.violet[400],
+    },
+    { label: 'Tasks', value: String(statCount(stats, 'type', 'TASK')), accent: color.amber[500] },
   ];
 
   const gridContext: ActivitiesGridContext = {

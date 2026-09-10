@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import DnsIcon from '@mui/icons-material/Dns';
 import MemoryIcon from '@mui/icons-material/Memory';
 import StorageIcon from '@mui/icons-material/Storage';
-import { Alert, Box, CircularProgress, Grid } from '@exyconn/shell/components/ui';
+import { Alert, Box, CircularProgress, Grid, color } from '@exyconn/shell/components/ui';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
 import { formatBytes } from '@exyconn/shell/utils/file';
 import { useInfrastructureOverviewQuery } from '@exyconn/shell/graphql/generated';
@@ -31,10 +31,18 @@ export function HostPanel() {
 
   const { docker, runtime, database } = data.infrastructureOverview;
   const stats = [
-    { label: 'Containers running', value: String(docker.containersRunning), accent: '#7be37b' },
-    { label: 'Containers stopped', value: String(docker.containersStopped), accent: '#ff6b6b' },
-    { label: 'Images on host', value: String(docker.imagesCount), accent: '#4f8cff' },
-    { label: 'Host CPUs', value: String(docker.cpus), accent: '#f9851f' },
+    {
+      label: 'Containers running',
+      value: String(docker.containersRunning),
+      accent: color.green[300],
+    },
+    {
+      label: 'Containers stopped',
+      value: String(docker.containersStopped),
+      accent: color.red[200],
+    },
+    { label: 'Images on host', value: String(docker.imagesCount), accent: color.blue[400] },
+    { label: 'Host CPUs', value: String(docker.cpus), accent: color.orange[500] },
   ];
 
   return (

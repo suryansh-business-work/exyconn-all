@@ -1,5 +1,17 @@
 import type { ReactElement } from 'react';
-import { Box, ButtonBase, Chip, LinearProgress, Stack, Tooltip, Typography } from '@exyconn/ui';
+import {
+  borderWidth,
+  Box,
+  ButtonBase,
+  Chip,
+  duration,
+  easing,
+  LinearProgress,
+  Stack,
+  Tooltip,
+  TRACKER_RADIUS,
+  Typography,
+} from '@exyconn/ui';
 import BlurOnRounded from '@mui/icons-material/BlurOnRounded';
 import type { DayScreenshot } from '@shared/types';
 import { activityColor, activityLabel } from '../activity';
@@ -28,8 +40,8 @@ export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Prop
         sx={{
           display: 'block',
           width: '100%',
-          borderRadius: '4px',
-          transition: 'transform 180ms ease',
+          borderRadius: `${TRACKER_RADIUS}px`,
+          transition: `transform ${duration.base}ms ${easing.standard}`,
           '&:hover': { transform: 'translateY(-2px)' },
         }}
       >
@@ -43,8 +55,8 @@ export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Prop
             aspectRatio: '16 / 10',
             objectFit: 'cover',
             display: 'block',
-            borderRadius: '4px',
-            border: `1px solid ${theme.palette.divider}`,
+            borderRadius: `${TRACKER_RADIUS}px`,
+            border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
           })}
         />
       </ButtonBase>

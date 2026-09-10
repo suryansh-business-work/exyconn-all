@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, Chip, Dialog, Flex, IconButton, Text } from '@/components/ui';
+import { Box, Chip, Dialog, Flex, IconButton, Text, scrim } from '@/components/ui';
 import { TrackerScreenshotActivity } from '../TrackerScreenshotActivity';
 import type { DateTimeFormatter, TrackerScreenshotData } from '../tracker.types';
 
@@ -21,8 +21,8 @@ const NAV_SX = {
   top: '50%',
   transform: 'translateY(-50%)',
   color: 'common.white',
-  backgroundColor: 'rgba(0, 0, 0, 0.45)',
-  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.7)' },
+  backgroundColor: scrim('light'),
+  '&:hover': { backgroundColor: scrim('heavy') },
 } as const;
 
 /**

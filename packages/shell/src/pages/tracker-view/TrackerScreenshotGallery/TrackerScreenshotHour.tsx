@@ -1,4 +1,4 @@
-import { Box, Chip, Flex, Text } from '@/components/ui';
+import { Box, Chip, Flex, radius, Text } from '@/components/ui';
 import { TrackerScreenshotActivity } from '../TrackerScreenshotActivity';
 import type { DateTimeFormatter, TrackerScreenshotData } from '../tracker.types';
 import type { ScreenshotHour } from './groupByHour';
@@ -57,7 +57,7 @@ export function TrackerScreenshotHour({
                 width: '100%',
                 display: 'block',
                 cursor: 'pointer',
-                borderRadius: '4px',
+                borderRadius: `${radius.sm}px`,
                 overflow: 'hidden',
                 position: 'relative',
                 bgcolor: 'transparent',

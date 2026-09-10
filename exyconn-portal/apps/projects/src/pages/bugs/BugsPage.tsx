@@ -14,6 +14,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { BugForm, type BugRow } from './forms/bug';
 import { BUG_COLUMNS, type PagedBugRow, type BugsGridContext } from './bugs-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Bugs module — issue tracking dashboard with a server-side bugs grid. */
 export function BugsPage() {
@@ -56,17 +57,17 @@ export function BugsPage() {
 
   const stats = statsData?.listBugsStats;
   const statItems: StatItem[] = [
-    { label: 'Total bugs', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Open', value: String(statCount(stats, 'status', 'OPEN')), accent: '#f9851f' },
+    { label: 'Total bugs', value: String(statTotal(stats)), accent: color.blue[400] },
+    { label: 'Open', value: String(statCount(stats, 'status', 'OPEN')), accent: color.orange[500] },
     {
       label: 'Critical',
       value: String(statCount(stats, 'severity', 'CRITICAL')),
-      accent: '#ff6b6b',
+      accent: color.red[200],
     },
     {
       label: 'Resolved',
       value: String(statCount(stats, 'status', 'RESOLVED')),
-      accent: '#7be37b',
+      accent: color.green[300],
     },
   ];
 

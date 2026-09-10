@@ -1,4 +1,4 @@
-import { Box, Chip, Stack, Typography } from '@exyconn/shell/components/ui';
+import { borderWidth, Box, Chip, Stack, Typography } from '@exyconn/shell/components/ui';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import type { SystemHealthQuery } from '@exyconn/shell/graphql/generated';
 
@@ -14,7 +14,7 @@ function JobRow({ job, formatDateTime }: Readonly<JobRowProps>) {
   const stateLabel = job.enabled ? 'Enabled' : 'Off';
   const lastRun = job.lastRunAt ? formatDateTime(job.lastRunAt) : 'Not since restart';
   return (
-    <Box sx={{ py: 1, borderTop: '1px solid', borderColor: 'divider' }}>
+    <Box sx={{ py: 1, borderTop: `${borderWidth.hairline}px solid`, borderColor: 'divider' }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
         <Typography variant="body2" fontWeight={600}>
           {job.label}

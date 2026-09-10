@@ -1,8 +1,9 @@
-import { Box, Stack, Typography } from '@/components/ui';
+import { Box, Stack, Typography, iconSize } from '@/components/ui';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import { glass } from '../glass/glass';
 import { Sparkline } from '../data/Sparkline';
+import { color } from '@exyconn/ui';
 
 export interface StatItem {
   label: string;
@@ -13,7 +14,7 @@ export interface StatItem {
 }
 
 /** A frosted stat tile: label, big value, trend delta and a mini sparkline. */
-export function StatCard({ label, value, delta, accent = '#f9851f', series }: StatItem) {
+export function StatCard({ label, value, delta, accent = color.orange[500], series }: StatItem) {
   const up = (delta ?? 0) >= 0;
   return (
     <Box sx={[glass, { p: 1.5, height: '100%' }]}>
@@ -29,9 +30,9 @@ export function StatCard({ label, value, delta, accent = '#f9851f', series }: St
             sx={{ color: up ? 'success.main' : 'error.main' }}
           >
             {up ? (
-              <TrendingUpIcon sx={{ fontSize: 16 }} />
+              <TrendingUpIcon sx={{ fontSize: iconSize.md }} />
             ) : (
-              <TrendingDownIcon sx={{ fontSize: 16 }} />
+              <TrendingDownIcon sx={{ fontSize: iconSize.md }} />
             )}
             <Typography variant="caption" fontWeight={700}>
               {Math.abs(delta)}%

@@ -5,6 +5,7 @@ import { NotificationProvider } from '@exyconn/shell/components/feedback/Notific
 import { theme } from '@exyconn/shell/config/theme';
 import { ResetPasswordDocument } from '@exyconn/shell/graphql/generated';
 import { ResetPasswordForm, PASSWORD_RESET_MESSAGE } from './reset-password.form';
+import { color } from '@exyconn/ui';
 
 const TOKEN = 'abc123';
 
@@ -24,7 +25,7 @@ const mount = () =>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <MemoryRouter>
-            <ResetPasswordForm token={TOKEN} accentColor="#155dfc" />
+            <ResetPasswordForm token={TOKEN} accentColor={color.blue[600]} />
           </MemoryRouter>
         </NotificationProvider>
       </ThemeProvider>

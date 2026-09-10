@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ExportCsvButton } from '@exyconn/crud';
-import { Box, CircularProgress, Flex, Grid, Text } from '@exyconn/shell/components/ui';
+import { Box, CircularProgress, Flex, Grid, Text, color } from '@exyconn/shell/components/ui';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useTrackerBillingQuery } from '@exyconn/shell/graphql/generated';
@@ -30,13 +30,17 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
     <Box sx={{ pt: 2 }}>
       <Grid container spacing={2} sx={{ mb: 2.5 }}>
         <Grid item xs={6} md={3}>
-          <StatCard label="Hours" value={String(billing?.totalHours ?? 0)} accent="#0ea5e9" />
+          <StatCard
+            label="Hours"
+            value={String(billing?.totalHours ?? 0)}
+            accent={color.sky[500]}
+          />
         </Grid>
         <Grid item xs={6} md={3}>
           <StatCard
             label="Amount"
             value={money.format(billing?.totalAmount ?? 0)}
-            accent="#7be37b"
+            accent={color.green[300]}
           />
         </Grid>
       </Grid>

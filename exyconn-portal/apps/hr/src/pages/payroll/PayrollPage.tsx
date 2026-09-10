@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Box, Button, Flex, Grid, MenuItem, TextField } from '@exyconn/shell/components/ui';
+import { Box, Button, Flex, Grid, MenuItem, TextField, color } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { StatCard, type StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { glass } from '@exyconn/shell/components/glass/glass';
@@ -54,11 +54,15 @@ export function PayrollPage() {
 
   const tiles = useMemo<StatItem[]>(
     () => [
-      { label: 'Slips', value: String(s?.slips ?? 0), accent: '#155dfc' },
-      { label: 'Paid', value: String(s?.paid ?? 0), accent: '#16a34a' },
-      { label: 'Total gross', value: formatMoney(s?.totalGross ?? 0), accent: '#0ea5e9' },
-      { label: 'Total deductions', value: formatMoney(s?.totalDeductions ?? 0), accent: '#f97316' },
-      { label: 'Total net', value: formatMoney(s?.totalNet ?? 0), accent: '#a855f7' },
+      { label: 'Slips', value: String(s?.slips ?? 0), accent: color.blue[600] },
+      { label: 'Paid', value: String(s?.paid ?? 0), accent: color.green[600] },
+      { label: 'Total gross', value: formatMoney(s?.totalGross ?? 0), accent: color.sky[500] },
+      {
+        label: 'Total deductions',
+        value: formatMoney(s?.totalDeductions ?? 0),
+        accent: color.orange[600],
+      },
+      { label: 'Total net', value: formatMoney(s?.totalNet ?? 0), accent: color.purple[400] },
     ],
     [s],
   );

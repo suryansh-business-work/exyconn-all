@@ -8,6 +8,7 @@ import {
   type ListSuppliersPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { SupplierForm, type SupplierRow } from './forms/supplier';
+import { color } from '@exyconn/shell/components/ui';
 import {
   SUPPLIER_COLUMNS,
   type PagedSupplierRow,
@@ -31,10 +32,22 @@ export function SuppliersPage() {
 
   const stats = statsData?.listSuppliersStats;
   const statItems: StatItem[] = [
-    { label: 'Suppliers', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#22c55e' },
-    { label: 'On hold', value: String(statCount(stats, 'status', 'ON_HOLD')), accent: '#f59e0b' },
-    { label: 'Inactive', value: String(statCount(stats, 'status', 'INACTIVE')), accent: '#ff6b6b' },
+    { label: 'Suppliers', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'status', 'ACTIVE')),
+      accent: color.green[500],
+    },
+    {
+      label: 'On hold',
+      value: String(statCount(stats, 'status', 'ON_HOLD')),
+      accent: color.amber[500],
+    },
+    {
+      label: 'Inactive',
+      value: String(statCount(stats, 'status', 'INACTIVE')),
+      accent: color.red[200],
+    },
   ];
 
   const gridContext: SuppliersGridContext = {

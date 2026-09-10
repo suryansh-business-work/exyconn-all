@@ -1,22 +1,52 @@
-import { alpha, createTheme } from '@exyconn/ui';
+import {
+  TRACKER_RADIUS,
+  alpha,
+  borderWidth,
+  boxShadow,
+  color,
+  createTheme,
+  fontFamily,
+  fontSize,
+  fontWeight,
+  letterSpacing,
+  spacing,
+} from '@exyconn/ui';
 import type { CSSObject, Theme } from '@exyconn/ui';
 import type { Branding, ThemeMode } from '@shared/types';
 
 /** Exyconn defaults, used until the portal branding arrives (or if it fails to load). */
 const FALLBACK = {
-  primaryColor: '#6C5CE7',
-  secondaryColor: '#00D2C6',
-  backgroundColor: '#0C1024',
-  textColor: '#F4F6FF',
+  primaryColor: color.indigo[500],
+  secondaryColor: color.teal[400],
+  backgroundColor: color.slate[950],
+  textColor: color.neutral[50],
 } as const;
 
 /** Neutral app chrome. The brand supplies the accent; it does not tint every pixel. */
 const CHROME = {
-  light: { app: '#F4F5F7', paper: '#FFFFFF', text: '#111827', muted: '#5B6472' },
-  dark: { app: '#0F1216', paper: '#171B21', text: '#E7EAEE', muted: '#9AA4B2' },
+  light: {
+    app: color.neutral[50],
+    paper: color.white,
+    text: color.slate[900],
+    muted: color.neutral[500],
+  },
+  dark: {
+    app: color.neutral[900],
+    paper: color.neutral[800],
+    text: color.neutral[100],
+    muted: color.neutral[300],
+  },
 } as const;
 
 const HEX = /^#?([\da-f]{3}|[\da-f]{6})$/i;
+
+/** The hairline, as an opacity over the ink — the same weight on either ground. */
+const DIVIDER_OPACITY = 0.1;
+
+/** Chrome heights that are not a multiple of the 8px rhythm would fight the panels. */
+const TAB_HEIGHT = spacing(5);
+const BUTTON_INLINE_PADDING = spacing(2);
+const PROGRESS_HEIGHT = spacing(0.5);
 
 /** Accept `#abc`, `abc`, `#aabbcc`; anything else falls back to the Exyconn default. */
 function toHex(value: string | undefined, fallback: string): string {
@@ -69,23 +99,13 @@ export function surface(theme: Theme): CSSObject {
   const isDark = theme.palette.mode === 'dark';
   return {
     backgroundColor: theme.palette.background.paper,
-    border: `1px solid ${theme.palette.divider}`,
-    // '4px', not 4: this object is spread into an `sx` prop, where a NUMBER is a multiplier of
-    // theme.shape.borderRadius (4) and would silently render 16px. A string is literal.
-    borderRadius: '4px',
-    boxShadow: isDark ? 'none' : '0 1px 2px rgba(16, 24, 40, 0.06)',
+    border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
+    // A STRING, not a number: this object is spread into an `sx` prop, where a number is a
+    // multiplier of theme.shape.borderRadius and would silently render four times too round.
+    borderRadius: `${TRACKER_RADIUS}px`,
+    boxShadow: isDark ? boxShadow.dark.none : boxShadow.light.sm,
   };
 }
-
-const FONT_STACK = [
-  '"Segoe UI"',
-  '-apple-system',
-  'BlinkMacSystemFont',
-  'Roboto',
-  'Helvetica',
-  'Arial',
-  'sans-serif',
-].join(', ');
 
 /**
  * Which palette to paint, given the employee's choice.
@@ -114,7 +134,7 @@ export function buildTheme(
   const isDark = resolveDark(themeMode, colors.background, systemPrefersDark);
   const mode = isDark ? 'dark' : 'light';
   const chrome = isDark ? CHROME.dark : CHROME.light;
-  const divider = alpha(isDark ? '#FFFFFF' : '#0F172A', isDark ? 0.1 : 0.1);
+  const divider = alpha(isDark ? color.white : color.slate[950], DIVIDER_OPACITY);
 
   return createTheme({
     palette: {
@@ -126,13 +146,13 @@ export function buildTheme(
       divider,
     },
     // Product decision: nothing in the app is rounded by more than 4px.
-    shape: { borderRadius: 4 },
+    shape: { borderRadius: TRACKER_RADIUS },
     typography: {
-      fontFamily: FONT_STACK,
-      h5: { fontWeight: 700, letterSpacing: '-0.01em' },
-      h6: { fontWeight: 700, letterSpacing: '-0.01em' },
-      subtitle2: { fontWeight: 600 },
-      button: { textTransform: 'none', fontWeight: 600 },
+      fontFamily: fontFamily.system,
+      h5: { fontWeight: fontWeight.bold, letterSpacing: letterSpacing.snug },
+      h6: { fontWeight: fontWeight.bold, letterSpacing: letterSpacing.snug },
+      subtitle2: { fontWeight: fontWeight.semibold },
+      button: { textTransform: 'none', fontWeight: fontWeight.semibold },
     },
     components: {
       MuiPaper: {
@@ -142,7 +162,7 @@ export function buildTheme(
       MuiButton: {
         defaultProps: { disableElevation: true },
         styleOverrides: {
-          root: { borderRadius: 4, paddingInline: 16 },
+          root: { borderRadius: TRACKER_RADIUS, paddingInline: BUTTON_INLINE_PADDING },
           outlined: { borderColor: divider },
         },
       },
@@ -151,28 +171,32 @@ export function buildTheme(
       MuiOutlinedInput: {
         styleOverrides: {
           root: {
-            borderRadius: 4,
+            borderRadius: TRACKER_RADIUS,
             backgroundColor: chrome.paper,
             '& .MuiOutlinedInput-notchedOutline': { borderColor: divider },
           },
         },
       },
-      MuiChip: { styleOverrides: { root: { borderRadius: 4, fontWeight: 600 } } },
-      MuiLinearProgress: { styleOverrides: { root: { borderRadius: 4, height: 4 } } },
+      MuiChip: {
+        styleOverrides: { root: { borderRadius: TRACKER_RADIUS, fontWeight: fontWeight.semibold } },
+      },
+      MuiLinearProgress: {
+        styleOverrides: { root: { borderRadius: TRACKER_RADIUS, height: PROGRESS_HEIGHT } },
+      },
       MuiTooltip: {
         styleOverrides: {
           tooltip: {
-            backgroundColor: isDark ? '#2B313B' : '#111827',
-            borderRadius: 4,
-            fontSize: 12,
+            backgroundColor: isDark ? color.neutral[700] : color.slate[900],
+            borderRadius: TRACKER_RADIUS,
+            fontSize: fontSize.xs,
           },
         },
       },
       MuiTableCell: { styleOverrides: { root: { borderColor: divider } } },
-      MuiTabs: { styleOverrides: { root: { minHeight: 40 } } },
-      MuiTab: { styleOverrides: { root: { minHeight: 40, paddingBlock: 8 } } },
+      MuiTabs: { styleOverrides: { root: { minHeight: TAB_HEIGHT } } },
+      MuiTab: { styleOverrides: { root: { minHeight: TAB_HEIGHT, paddingBlock: spacing(1) } } },
       // MUI X paints calendar cells as circles by default; the 4px ceiling applies to them too.
-      MuiPickersDay: { styleOverrides: { root: { borderRadius: 4 } } },
+      MuiPickersDay: { styleOverrides: { root: { borderRadius: TRACKER_RADIUS } } },
     },
   });
 }

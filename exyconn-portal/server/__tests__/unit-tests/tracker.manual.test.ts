@@ -2,8 +2,8 @@ import { Types } from 'mongoose';
 import { TrackerManualEntryModel } from '../../src/modules/tracker/models';
 import { trackerManualService } from '../../src/modules/tracker/tracker.manual.service';
 
-// A real ObjectId string: userId is what ctx.user.id holds, and withNames looks it up in
-// the User collection. A made-up id would not survive that cast.
+// A real ObjectId string: userId is what ctx.user.id holds, and the service looks it up in
+// the User collection to name the entry. A made-up id would not survive that cast.
 const EMPLOYEE = new Types.ObjectId().toString();
 const OTHER = new Types.ObjectId().toString();
 
@@ -137,10 +137,27 @@ describe('off-computer time entries', () => {
     );
     await claim(HOUR, 'Newer visit');
 
-    const queue = await trackerManualService.withNames(await trackerManualService.listPending());
+    const queue = await trackerManualService.listPending();
 
     expect(queue).toHaveLength(2);
     expect(queue[0].note).toBe('Older visit');
     expect(queue[0].userName).toBe('Deleted employee');
+  });
+
+  it('names the employee on every entry it returns, not just the review queue', async () => {
+    // userName is non-nullable in the schema, so an entry handed back without one cannot be
+    // serialized — which is how a review of a valid entry used to fail outright.
+    const filed = await claim();
+    expect(filed.userName).toBe('Deleted employee');
+
+    const [mine] = await trackerManualService.list(
+      EMPLOYEE,
+      new Date(Date.now() - 24 * HOUR),
+      new Date(Date.now() + HOUR),
+    );
+    expect(mine.userName).toBe('Deleted employee');
+
+    const reviewed = await trackerManualService.review(String(filed._id), 'APPROVED', 'mgr');
+    expect(reviewed.userName).toBe('Deleted employee');
   });
 });

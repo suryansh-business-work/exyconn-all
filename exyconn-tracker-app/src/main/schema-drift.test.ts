@@ -5,6 +5,8 @@ import {
   BRANDING_FIELDS,
   CONSENT_POLICY_FIELDS,
   MANUAL_ENTRY_FIELDS,
+  MESSAGE_FIELDS,
+  PRESENCE_FIELDS,
   PROJECT_FIELDS,
   SETTINGS_FIELDS,
   WORKDAY_ONLY_FIELDS,
@@ -30,6 +32,8 @@ const SOURCES: Readonly<Record<string, string>> = {
   TrackerProject: TRACKER_TYPEDEFS,
   TrackerConsentPolicy: TRACKER_TYPEDEFS,
   TrackerManualEntry: TRACKER_TYPEDEFS,
+  TrackerMessage: TRACKER_TYPEDEFS,
+  TrackerPresenceState: TRACKER_TYPEDEFS,
   Branding: `${PORTAL_SRC}/modules/branding/branding.typeDefs.ts`,
 };
 
@@ -61,6 +65,8 @@ describe.each([
   { typeName: 'TrackerProject', selection: PROJECT_FIELDS },
   { typeName: 'TrackerConsentPolicy', selection: CONSENT_POLICY_FIELDS },
   { typeName: 'TrackerManualEntry', selection: MANUAL_ENTRY_FIELDS },
+  { typeName: 'TrackerMessage', selection: MESSAGE_FIELDS },
+  { typeName: 'TrackerPresenceState', selection: PRESENCE_FIELDS },
   { typeName: 'Branding', selection: BRANDING_FIELDS },
 ])('$typeName selection', ({ typeName, selection }) => {
   it('asks the portal only for fields the portal actually has', () => {

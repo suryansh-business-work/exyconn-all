@@ -99,7 +99,7 @@ export default function GrievanceFormReact() {
   return (
     <section className="max-w-xl mx-auto mt-12 rounded-xl p-5">
       <div className="bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-2xl font-bold text-[#0071e3] mb-6 text-center">
+        <h2 className="text-2xl font-bold text-[var(--color-primary)] mb-6 text-center">
           Submit Your Grievance
         </h2>
 

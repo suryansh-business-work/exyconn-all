@@ -9,6 +9,7 @@ import {
   type ListStatusMonitorsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { StatusMonitorForm, type StatusMonitorRow } from './forms/status-monitor';
+import { color } from '@exyconn/shell/components/ui';
 import {
   STATUS_MONITOR_COLUMNS,
   type PagedStatusMonitorRow,
@@ -32,21 +33,21 @@ export function StatusMonitorsPage() {
 
   const stats = statsData?.listStatusMonitorsStats;
   const statItems: StatItem[] = [
-    { label: 'Monitors', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Monitors', value: String(statTotal(stats)), accent: color.blue[400] },
     {
       label: 'Operational',
       value: String(statCount(stats, 'state', StatusState.Operational)),
-      accent: '#7be37b',
+      accent: color.green[300],
     },
     {
       label: 'Degraded',
       value: String(statCount(stats, 'state', StatusState.Degraded)),
-      accent: '#f9851f',
+      accent: color.orange[500],
     },
     {
       label: 'Down',
       value: String(statCount(stats, 'state', StatusState.Down)),
-      accent: '#ff6b6b',
+      accent: color.red[200],
     },
   ];
 

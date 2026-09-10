@@ -9,6 +9,7 @@ import {
   useDeleteToolCategoryMutation,
 } from '@exyconn/shell/graphql/generated';
 import { ToolCategoryForm, type ToolCategoryRow } from './forms/tool-category';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Website CMS — the categories the public tools directory is grouped by. */
 export function ToolCategoriesPage() {
@@ -23,11 +24,11 @@ export function ToolCategoriesPage() {
 
   const rows = data?.listToolCategories ?? [];
   const stats: StatItem[] = [
-    { label: 'Categories', value: String(rows.length), accent: '#4f8cff' },
+    { label: 'Categories', value: String(rows.length), accent: color.blue[400] },
     {
       label: 'Active',
       value: String(rows.filter((r) => r.isActive).length),
-      accent: '#7be37b',
+      accent: color.green[300],
     },
   ];
 

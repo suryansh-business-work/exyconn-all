@@ -31,6 +31,12 @@ const DEFAULT_PREFERENCES: AppPreferences = {
   // Audible by default: the shutter is how an employee knows a capture happened, and an app
   // that shipped muted would be a monitoring tool that quietly stopped announcing itself.
   muteCaptureSound: false,
+  // The bar is the default because it is what every earlier build drew; the ring is the
+  // employee's own choice to make, not a redesign handed to everybody at once.
+  progressStyle: 'bar',
+  // Off by default: fetching a few hundred megabytes without asking spends somebody else's
+  // connection. Turning it on is how an employee says the connection is theirs to spend.
+  autoUpdate: false,
 };
 
 /**

@@ -13,6 +13,7 @@ import {
 import { LeadForm, type LeadRow } from './forms/lead';
 import { ConvertLeadForm } from './forms/convert-lead';
 import { LEAD_COLUMNS, type PagedLeadRow, type LeadsGridContext } from './leads-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** CRM module — leads & pipeline dashboard with a server-side leads grid. */
 export function CrmPage() {
@@ -34,10 +35,14 @@ export function CrmPage() {
 
   const stats = statsData?.listLeadsStats;
   const statItems: StatItem[] = [
-    { label: 'Leads', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Pipeline', value: `₹${statSum(stats, 'value').toLocaleString()}`, accent: '#22c55e' },
-    { label: 'Won', value: String(statCount(stats, 'stage', 'WON')), accent: '#7be37b' },
-    { label: 'Lost', value: String(statCount(stats, 'stage', 'LOST')), accent: '#ff6b6b' },
+    { label: 'Leads', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Pipeline',
+      value: `₹${statSum(stats, 'value').toLocaleString()}`,
+      accent: color.green[500],
+    },
+    { label: 'Won', value: String(statCount(stats, 'stage', 'WON')), accent: color.green[300] },
+    { label: 'Lost', value: String(statCount(stats, 'stage', 'LOST')), accent: color.red[200] },
   ];
 
   const gridContext: LeadsGridContext = {

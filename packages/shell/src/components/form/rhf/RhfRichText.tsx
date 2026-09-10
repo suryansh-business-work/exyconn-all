@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Box, Flex, FormHelperText, Text } from '@/components/ui';
+import { Box, Flex, FormHelperText, Text, focusRing, transition } from '@/components/ui';
 import { RichTextToolbar } from './RichTextToolbar';
 
 interface RhfRichTextProps {
@@ -53,10 +53,10 @@ export function RhfRichText({ name, label, helperText }: Readonly<RhfRichTextPro
           border: 1,
           borderColor: hasError ? 'error.main' : 'divider',
           borderRadius: 1,
-          transition: 'border-color 120ms ease',
+          transition: transition.surface,
           '&:focus-within': {
             borderColor: `${accent}.main`,
-            boxShadow: (theme) => `0 0 0 1px ${theme.palette[accent].main}`,
+            boxShadow: (theme) => focusRing(theme.palette[accent].main),
           },
           '& .tiptap': { minHeight: 160, p: 1.5, outline: 'none' },
           '& .tiptap > :first-of-type': { mt: 0 },

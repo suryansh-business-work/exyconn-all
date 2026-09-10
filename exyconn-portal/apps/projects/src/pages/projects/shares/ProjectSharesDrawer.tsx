@@ -1,4 +1,4 @@
-import { Alert, Box, Divider, Flex, Stack, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Divider, Flex, Stack, Text, fontSize } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { ShareForm } from '../forms/share';
@@ -48,7 +48,7 @@ export function ProjectSharesDrawer({ project, onClose }: Readonly<ProjectShares
                 borderRadius: 1,
                 bgcolor: 'action.hover',
                 fontFamily: 'monospace',
-                fontSize: 12,
+                fontSize: fontSize.xs,
                 wordBreak: 'break-all',
               }}
             >

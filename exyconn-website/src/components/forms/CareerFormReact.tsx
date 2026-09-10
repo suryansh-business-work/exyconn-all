@@ -129,7 +129,7 @@ export default function CareerFormReact() {
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto mt-20" id="apply-now-form">
-      <h3 className="text-2xl font-bold text-[#0071e3] mb-6 text-center">Apply Now</h3>
+      <h3 className="text-2xl font-bold text-[var(--color-primary)] mb-6 text-center">Apply Now</h3>
 
       {submitStatus === "success" && (
         <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 flex items-center gap-2">

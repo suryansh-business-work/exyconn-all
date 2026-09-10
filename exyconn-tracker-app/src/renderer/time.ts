@@ -104,11 +104,17 @@ export function formatLastSync(iso: string | null, zone: string, now: Date = new
   if (Number.isNaN(then.getTime())) {
     return 'Never';
   }
-  return `${relative(now.getTime() - then.getTime())} · ${formatTimeOfDay(iso, zone)}`;
+  return `${formatElapsed(now.getTime() - then.getTime())} · ${formatTimeOfDay(iso, zone)}`;
 }
 
-/** An elapsed span in plain words. A duration has no timezone, so this one takes none. */
-function relative(elapsedMs: number): string {
+/**
+ * An elapsed span in plain words. A duration has no timezone, so this one takes none.
+ *
+ * Exported because three places now say "how long ago" — the last sync, the presence an
+ * employee set, and the last update check — and three spellings of "2m ago" in one window
+ * would read as three different kinds of fact.
+ */
+export function formatElapsed(elapsedMs: number): string {
   const seconds = Math.max(0, Math.floor(elapsedMs / 1000));
   if (seconds < 60) {
     return 'Just now';

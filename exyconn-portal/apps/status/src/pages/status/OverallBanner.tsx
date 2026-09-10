@@ -1,4 +1,4 @@
-import { Box, Flex, Typography, alpha, useTheme } from '@exyconn/shell/components/ui';
+import { Box, Flex, Typography, alpha, useTheme, iconSize } from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { STATE_META, TIME_FORMAT } from '../../status.constants';
 import type { StatusOverview } from './status.types';
@@ -25,7 +25,7 @@ export function OverallBanner({ overview }: Readonly<OverallBannerProps>) {
       }}
     >
       <Flex alignItems="center" spacing={2}>
-        <Icon sx={{ fontSize: 44, color }} />
+        <Icon sx={{ fontSize: iconSize['4xl'], color }} />
         <Box>
           <Typography variant="h5" fontWeight={800}>
             {headline}

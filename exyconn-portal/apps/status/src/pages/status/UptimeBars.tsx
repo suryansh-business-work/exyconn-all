@@ -1,4 +1,12 @@
-import { Box, Flex, Tooltip, Typography, useTheme, type Theme } from '@exyconn/shell/components/ui';
+import {
+  Box,
+  duration,
+  Flex,
+  Tooltip,
+  Typography,
+  useTheme,
+  type Theme,
+} from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { DATE_FORMAT } from '../../status.constants';
 import type { StatusDay } from './status.types';
@@ -44,7 +52,7 @@ export function UptimeBars({ days }: Readonly<UptimeBarsProps>) {
                 minWidth: 2,
                 borderRadius: 0.5,
                 bgcolor: barColor(day, theme),
-                transition: 'transform 120ms',
+                transition: `transform ${duration.fast}ms`,
                 '&:hover': { transform: 'scaleY(1.12)' },
               }}
             />

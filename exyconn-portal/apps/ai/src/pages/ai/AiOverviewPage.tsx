@@ -17,6 +17,7 @@ import {
 import type { AiJobRow } from './forms/ai-job';
 import { AiSpendPanel } from './AiSpendPanel';
 import { monthToDate } from './ai.period';
+import { color } from '@exyconn/shell/components/ui';
 
 /** How many of the newest jobs the overview lists before sending you to the register. */
 const RECENT_JOBS = 8;
@@ -47,22 +48,26 @@ export function AiOverviewPage() {
       : 'no cap set';
 
   const statItems: StatItem[] = [
-    { label: 'Jobs', value: String(statTotal(jobStats)), accent: '#4f8cff' },
-    { label: 'Failed', value: String(statCount(jobStats, 'status', 'FAILED')), accent: '#ff6b6b' },
+    { label: 'Jobs', value: String(statTotal(jobStats)), accent: color.blue[400] },
+    {
+      label: 'Failed',
+      value: String(statCount(jobStats, 'status', 'FAILED')),
+      accent: color.red[200],
+    },
     {
       label: 'Spent all time',
       value: `$${statSum(jobStats, 'costUsd').toFixed(USD_DIGITS)}`,
-      accent: '#f59e0b',
+      accent: color.amber[500],
     },
     {
       label: `This month · ${capLabel}`,
       value: `$${spentThisMonth.toFixed(USD_DIGITS)}`,
-      accent: '#22c55e',
+      accent: color.green[500],
     },
     {
       label: 'Prompts',
       value: String(statTotal(promptStatsData?.listPromptsStats)),
-      accent: '#8b5cf6',
+      accent: color.violet[400],
     },
   ];
 
@@ -70,12 +75,12 @@ export function AiOverviewPage() {
     {
       title: 'By status',
       buckets: jobStats?.counts.find((c) => c.field === 'status')?.buckets ?? [],
-      accent: '#4f8cff',
+      accent: color.blue[400],
     },
     {
       title: 'By model',
       buckets: jobStats?.counts.find((c) => c.field === 'model')?.buckets ?? [],
-      accent: '#8b5cf6',
+      accent: color.violet[400],
     },
   ];
 

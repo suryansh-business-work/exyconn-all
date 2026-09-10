@@ -8,6 +8,7 @@ import {
   useListLegalDocumentsQuery,
 } from '@exyconn/shell/graphql/generated';
 import type { ContractRow } from './forms/contract';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Legal → Dashboard: a real-count overview of contracts and documents. */
 export function LegalDashboardPage() {
@@ -18,18 +19,18 @@ export function LegalDashboardPage() {
   const contracts = contractsData?.listContracts ?? [];
   const documents = documentsData?.listLegalDocuments ?? [];
   const stats: StatItem[] = [
-    { label: 'Contracts', value: String(contracts.length), accent: '#4f8cff' },
+    { label: 'Contracts', value: String(contracts.length), accent: color.blue[400] },
     {
       label: 'Active',
       value: String(contracts.filter((r) => r.status === 'ACTIVE').length),
-      accent: '#22c55e',
+      accent: color.green[500],
     },
     {
       label: 'Signed',
       value: String(contracts.filter((r) => r.signedBy).length),
-      accent: '#8b5cf6',
+      accent: color.violet[400],
     },
-    { label: 'Documents', value: String(documents.length), accent: '#f59e0b' },
+    { label: 'Documents', value: String(documents.length), accent: color.amber[500] },
   ];
 
   const columns: Column<ContractRow>[] = [

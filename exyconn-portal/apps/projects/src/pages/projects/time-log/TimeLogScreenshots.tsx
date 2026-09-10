@@ -1,4 +1,4 @@
-import { Alert, Box, Grid2, Stack, Typography } from '@exyconn/shell/components/ui';
+import { Alert, borderWidth, Box, Grid2, Stack, Typography } from '@exyconn/shell/components/ui';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useProjectTimeLogScreenshotsQuery } from '@exyconn/shell/graphql/generated';
 
@@ -59,7 +59,7 @@ export function TimeLogScreenshots({
                 display: 'block',
                 borderRadius: 1,
                 overflow: 'hidden',
-                border: '1px solid',
+                border: `${borderWidth.hairline}px solid`,
                 borderColor: 'divider',
               }}
             >

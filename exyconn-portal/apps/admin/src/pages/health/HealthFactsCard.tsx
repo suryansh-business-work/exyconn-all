@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from '@exyconn/shell/components/ui';
+import { borderWidth, Box, Stack, Typography } from '@exyconn/shell/components/ui';
 import { glass } from '@exyconn/shell/components/glass/glass';
 
 export interface HealthFact {
@@ -25,7 +25,7 @@ export function HealthFactsCard({ title, facts }: Readonly<HealthFactsCardProps>
           justifyContent="space-between"
           alignItems="baseline"
           spacing={2}
-          sx={{ py: 0.75, borderTop: '1px solid', borderColor: 'divider' }}
+          sx={{ py: 0.75, borderTop: `${borderWidth.hairline}px solid`, borderColor: 'divider' }}
         >
           <Typography variant="body2" color="text.secondary">
             {fact.label}

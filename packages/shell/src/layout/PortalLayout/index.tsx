@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import type { Theme } from '@/components/ui';
-import { Box, Drawer, Toolbar } from '@/components/ui';
+import { borderWidth, Box, Drawer, Toolbar } from '@/components/ui';
 import { Topbar } from './Topbar';
 import { Sidebar } from './Sidebar';
 import { useAuth } from '@/auth/AuthContext';
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
 
-const DRAWER_WIDTH = 248;
+/** Wide enough that a page like "Onboarding Templates" is read, not truncated. */
+const DRAWER_WIDTH = 288;
 /** Collapsed width: one icon plus its hit area, nothing else. */
 const RAIL_WIDTH = 64;
 
@@ -15,7 +16,7 @@ const drawerPaper = (t: Theme, width: number) => ({
   width,
   boxSizing: 'border-box' as const,
   border: 'none',
-  borderRight: `1px solid ${t.palette.divider}`,
+  borderRight: `${borderWidth.hairline}px solid ${t.palette.divider}`,
   background: t.palette.background.paper,
   overflowX: 'hidden' as const,
   transition: t.transitions.create('width', { duration: t.transitions.duration.shorter }),
@@ -41,7 +42,11 @@ export function PortalLayout() {
     >
       <Topbar drawerWidth={width} onMenuClick={() => setMobileOpen((o) => !o)} />
 
-      <Box component="nav" sx={{ width: { md: width }, flexShrink: { md: 0 } }}>
+      <Box
+        component="nav"
+        aria-label="Portal pages"
+        sx={{ width: { md: width }, flexShrink: { md: 0 } }}
+      >
         <Drawer
           variant="temporary"
           open={mobileOpen}

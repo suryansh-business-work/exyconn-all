@@ -10,6 +10,7 @@ import {
   type ListSalaryStructuresPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { SalaryStructureForm, type SalaryStructureRow } from './forms/salary-structure';
+import { color } from '@exyconn/shell/components/ui';
 import {
   SALARY_STRUCTURE_COLUMNS,
   type PagedSalaryStructureRow,
@@ -36,13 +37,17 @@ export function SalariesPage() {
 
   const stats = statsData?.listSalaryStructuresStats;
   const statItems: StatItem[] = [
-    { label: 'Structures', value: String(statTotal(stats)), accent: '#16a34a' },
-    { label: 'Total basic', value: statSum(stats, 'basic').toLocaleString(), accent: '#16a34a' },
-    { label: 'Total HRA', value: statSum(stats, 'hra').toLocaleString(), accent: '#16a34a' },
+    { label: 'Structures', value: String(statTotal(stats)), accent: color.green[600] },
+    {
+      label: 'Total basic',
+      value: statSum(stats, 'basic').toLocaleString(),
+      accent: color.green[600],
+    },
+    { label: 'Total HRA', value: statSum(stats, 'hra').toLocaleString(), accent: color.green[600] },
     {
       label: 'Total allowances',
       value: statSum(stats, 'allowances').toLocaleString(),
-      accent: '#16a34a',
+      accent: color.green[600],
     },
   ];
 

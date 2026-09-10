@@ -1,4 +1,4 @@
-import { Box, Chip, Stack, Typography } from '@exyconn/shell/components/ui';
+import { Box, Chip, Stack, Typography, iconSize } from '@exyconn/shell/components/ui';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PendingIcon from '@mui/icons-material/Pending';
@@ -57,9 +57,9 @@ export function ReadinessCard({ hasAccess, consented, loading }: Readonly<Readin
         {items.map((item) => (
           <Stack key={item.key} direction="row" spacing={1.25} sx={{ flex: 1 }}>
             {item.done ? (
-              <CheckCircleIcon sx={{ fontSize: 20, color: 'success.main' }} />
+              <CheckCircleIcon sx={{ fontSize: iconSize.xl, color: 'success.main' }} />
             ) : (
-              <PendingIcon sx={{ fontSize: 20, color: 'text.disabled' }} />
+              <PendingIcon sx={{ fontSize: iconSize.xl, color: 'text.disabled' }} />
             )}
             <Box>
               <Typography variant="subtitle2">{item.label}</Typography>

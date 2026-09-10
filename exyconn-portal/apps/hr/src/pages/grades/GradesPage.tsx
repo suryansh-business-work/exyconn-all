@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { GradeForm, type GradeRow } from './forms/grade';
 import { GRADE_COLUMNS, type PagedGradeRow, type GradeGridContext } from './grade-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Grades — server-paged admin grid over the grade records. */
 export function GradesPage() {
@@ -30,10 +31,18 @@ export function GradesPage() {
 
   const stats = statsData?.listGradesStats;
   const statItems: StatItem[] = [
-    { label: 'Grades', value: String(statTotal(stats)), accent: '#d97706' },
-    { label: 'Active', value: String(statCount(stats, 'active', 'true')), accent: '#d97706' },
-    { label: 'Inactive', value: String(statCount(stats, 'active', 'false')), accent: '#d97706' },
-    { label: 'Grades', value: String(statTotal(stats)), accent: '#d97706' },
+    { label: 'Grades', value: String(statTotal(stats)), accent: color.amber[700] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'active', 'true')),
+      accent: color.amber[700],
+    },
+    {
+      label: 'Inactive',
+      value: String(statCount(stats, 'active', 'false')),
+      accent: color.amber[700],
+    },
+    { label: 'Grades', value: String(statTotal(stats)), accent: color.amber[700] },
   ];
 
   const gridContext: GradeGridContext = {

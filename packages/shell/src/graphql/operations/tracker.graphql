@@ -373,3 +373,46 @@ query TrackerTaskOptions($projectId: ID!) {
     assignedToMe
   }
 }
+
+fragment TrackerMessageFields on TrackerMessage {
+  id
+  userId
+  kind
+  direction
+  title
+  body
+  authorName
+  readAt
+  createdAt
+}
+
+query TrackerMessageThreads {
+  trackerMessageThreads {
+    userId
+    userName
+    userEmail
+    lastMessageAt
+    lastMessageBody
+    unread
+  }
+}
+
+query TrackerMessageThread($userId: ID!) {
+  trackerMessageThread(userId: $userId) {
+    ...TrackerMessageFields
+  }
+}
+
+mutation SendTrackerMessage($userId: ID!, $body: String!) {
+  sendTrackerMessage(userId: $userId, body: $body) {
+    ...TrackerMessageFields
+  }
+}
+
+mutation MarkTrackerThreadRead($userId: ID!) {
+  markTrackerThreadRead(userId: $userId)
+}
+
+mutation SendTrackerNotice($input: TrackerNoticeInput!) {
+  sendTrackerNotice(input: $input)
+}

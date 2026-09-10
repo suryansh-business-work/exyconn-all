@@ -8,6 +8,7 @@ import {
   type ListCannedRepliesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { CannedReplyForm, type CannedReplyRow } from './forms/canned-reply';
+import { color } from '@exyconn/shell/components/ui';
 import {
   CANNED_REPLY_COLUMNS,
   type PagedCannedReplyRow,
@@ -32,9 +33,17 @@ export function CannedRepliesPage() {
 
   const stats = statsData?.listCannedRepliesStats;
   const statItems: StatItem[] = [
-    { label: 'Snippets', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Offered', value: String(statCount(stats, 'isActive', 'true')), accent: '#22c55e' },
-    { label: 'Retired', value: String(statCount(stats, 'isActive', 'false')), accent: '#94a3b8' },
+    { label: 'Snippets', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Offered',
+      value: String(statCount(stats, 'isActive', 'true')),
+      accent: color.green[500],
+    },
+    {
+      label: 'Retired',
+      value: String(statCount(stats, 'isActive', 'false')),
+      accent: color.slate[400],
+    },
   ];
 
   const gridContext: CannedRepliesGridContext = {

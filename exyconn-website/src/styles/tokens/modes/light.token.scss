@@ -1,0 +1,61 @@
+/**
+ * Light mode — the site's daylight palette, and the one every visitor sees today.
+ *
+ * These are ROLES, not colours: a component asks for `--color-text-secondary` and this
+ * file decides which ramp entry answers. The contrast ratio beside each ink is measured
+ * against the surface it is meant to sit on; change the value and re-measure, because a
+ * ratio in a comment that nobody re-checked is worse than no comment.
+ */
+
+:root {
+  /* Brand */
+  --color-primary: var(--palette-brand-500); /* 4.7:1 on white */
+  --color-primary-hover: var(--palette-brand-600); /* 6.6:1 on white */
+  --color-primary-dark: var(--palette-brand-700);
+
+  /* Ink */
+  --color-text-primary: var(--palette-neutral-950); /* 17.4:1 on white */
+  --color-text-secondary: var(--palette-neutral-800); /* 9.7:1 on white */
+  --color-text-muted: var(--palette-neutral-600); /* 5.7:1 on white — WCAG AA */
+  --color-text-on-dark: var(--palette-neutral-0);
+  --color-text-on-primary: var(--palette-neutral-0);
+
+  /* Surfaces */
+  --color-surface-page: var(--palette-neutral-0);
+  --color-surface-raised: var(--palette-neutral-0);
+  --color-surface-sunken: var(--palette-slate-50);
+  --color-bg-light: var(--palette-slate-50);
+  --color-bg-dark: var(--palette-gray-900);
+
+  /* Lines */
+  --color-border-subtle: var(--palette-gray-200);
+  --color-border-strong: var(--palette-slate-300);
+
+  /* Form fields */
+  --color-field-bg: var(--palette-neutral-0);
+  --color-field-bg-focus: var(--palette-sky-50);
+  --color-field-ring: var(--tint-brand-subtle);
+  --color-text-placeholder: var(--palette-gray-400);
+
+  /* Buttons, and the states nothing else has */
+  --color-button-bg: var(--palette-brand-500);
+  --color-button-fg: var(--palette-neutral-0);
+  --color-surface-disabled: var(--palette-slate-300);
+  --color-text-disabled: var(--palette-neutral-500);
+
+  /* Focus ring — the accent, so a tabbed control reads as the same site. */
+  --focus-ring-color: var(--palette-brand-500);
+  --focus-ring-offset: 2px;
+  --focus-ring-width: 3px;
+}
+
+/**
+ * High contrast. Not a third mode: the same roles, answered by darker ramp entries for
+ * a visitor whose OS says the default ones are not enough.
+ */
+@media (prefers-contrast: high) {
+  :root {
+    --color-primary: var(--palette-brand-600);
+    --color-text-muted: var(--palette-neutral-700); /* 7.5:1 on white */
+  }
+}

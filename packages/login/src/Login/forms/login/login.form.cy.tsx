@@ -5,6 +5,7 @@ import { LoginForm } from './login.form';
 import { AuthProvider } from '@exyconn/shell/auth/AuthContext';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
+import { color } from '@exyconn/ui';
 
 const mount = () =>
   cy.mount(
@@ -13,7 +14,7 @@ const mount = () =>
         <MemoryRouter>
           <AuthProvider>
             <NotificationProvider>
-              <LoginForm accentColor="#155dfc" />
+              <LoginForm accentColor={color.blue[600]} />
             </NotificationProvider>
           </AuthProvider>
         </MemoryRouter>

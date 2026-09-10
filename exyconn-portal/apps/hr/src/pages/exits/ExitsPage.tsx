@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { ExitRecordForm, type ExitRecordRow } from './forms/exit-record';
 import { HeldAssetsPanel } from './HeldAssetsPanel';
+import { color } from '@exyconn/shell/components/ui';
 import {
   EXIT_RECORD_COLUMNS,
   type PagedExitRecordRow,
@@ -37,18 +38,22 @@ export function ExitsPage() {
 
   const stats = statsData?.listExitRecordsStats;
   const statItems: StatItem[] = [
-    { label: 'Exits', value: String(statTotal(stats)), accent: '#64748b' },
+    { label: 'Exits', value: String(statTotal(stats)), accent: color.slate[500] },
     {
       label: 'Notice period',
       value: String(statCount(stats, 'stage', 'NOTICE_PERIOD')),
-      accent: '#64748b',
+      accent: color.slate[500],
     },
     {
       label: 'Clearance',
       value: String(statCount(stats, 'stage', 'CLEARANCE')),
-      accent: '#64748b',
+      accent: color.slate[500],
     },
-    { label: 'Exited', value: String(statCount(stats, 'stage', 'EXITED')), accent: '#64748b' },
+    {
+      label: 'Exited',
+      value: String(statCount(stats, 'stage', 'EXITED')),
+      accent: color.slate[500],
+    },
   ];
 
   const gridContext: ExitRecordGridContext = {

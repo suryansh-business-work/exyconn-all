@@ -1,4 +1,5 @@
 import { portalRequest } from "./client";
+import { brandFallback } from "../../styles/tokens/brand.tokens";
 import type {
   BlogPost,
   Branding,
@@ -237,11 +238,11 @@ export const BRANDING_FALLBACK: Branding = {
   emailLogoUrl: "",
   ogImageUrl: "/og-image.svg",
 
-  primaryColor: "#0071e3",
-  secondaryColor: "#9333ea",
-  accentColor: "#06b6d4",
-  backgroundColor: "#ffffff",
-  textColor: "#111827",
+  primaryColor: brandFallback.primary,
+  secondaryColor: brandFallback.secondary,
+  accentColor: brandFallback.accent,
+  backgroundColor: brandFallback.background,
+  textColor: brandFallback.text,
 
   supportEmail: "",
   contactPhone: "",

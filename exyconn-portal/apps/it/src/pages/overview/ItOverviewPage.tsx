@@ -15,6 +15,7 @@ import {
 import type { AssetRow } from '../assets/forms/asset';
 import { renewalsDueWithin } from '../licences';
 import { RENEWAL_WINDOW_DAYS } from '../licences/licences.constants';
+import { color } from '@exyconn/shell/components/ui';
 
 /** How many assets the overview lists before sending you to the register. */
 const RECENT_ASSETS = 8;
@@ -44,13 +45,17 @@ export function ItOverviewPage() {
   const renewing = renewalsDueWithin(licences, RENEWAL_WINDOW_DAYS);
 
   const statItems: StatItem[] = [
-    { label: 'Assets', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Assigned', value: String(statCount(stats, 'status', 'ASSIGNED')), accent: '#22c55e' },
-    { label: 'Licences', value: String(licences.length), accent: '#0891b2' },
+    { label: 'Assets', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Assigned',
+      value: String(statCount(stats, 'status', 'ASSIGNED')),
+      accent: color.green[500],
+    },
+    { label: 'Licences', value: String(licences.length), accent: color.cyan[600] },
     {
       label: `Renews in ${RENEWAL_WINDOW_DAYS}d`,
       value: String(renewing.length),
-      accent: '#f59e0b',
+      accent: color.amber[500],
     },
   ];
 
@@ -58,12 +63,12 @@ export function ItOverviewPage() {
     {
       title: 'By status',
       buckets: stats?.counts.find((c) => c.field === 'status')?.buckets ?? [],
-      accent: '#4f8cff',
+      accent: color.blue[400],
     },
     {
       title: 'By category',
       buckets: stats?.counts.find((c) => c.field === 'category')?.buckets ?? [],
-      accent: '#8b5cf6',
+      accent: color.violet[400],
     },
   ];
 

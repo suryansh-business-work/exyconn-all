@@ -12,6 +12,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { ContractForm, type ContractRow } from './forms/contract';
 import { SendContractForm } from './forms/send-contract';
+import { color } from '@exyconn/shell/components/ui';
 import {
   CONTRACT_COLUMNS,
   type PagedContractRow,
@@ -40,10 +41,18 @@ export function ContractsPage() {
   // "Signed" counts contracts whose nullable `signedBy` is set = total minus the null bucket.
   const signed = statTotal(stats) - statCount(stats, 'signedBy', 'null');
   const statItems: StatItem[] = [
-    { label: 'Total', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#22c55e' },
-    { label: 'Draft', value: String(statCount(stats, 'status', 'DRAFT')), accent: '#f59e0b' },
-    { label: 'Signed', value: String(signed), accent: '#8b5cf6' },
+    { label: 'Total', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'status', 'ACTIVE')),
+      accent: color.green[500],
+    },
+    {
+      label: 'Draft',
+      value: String(statCount(stats, 'status', 'DRAFT')),
+      accent: color.amber[500],
+    },
+    { label: 'Signed', value: String(signed), accent: color.violet[400] },
   ];
 
   const gridContext: ContractsGridContext = {

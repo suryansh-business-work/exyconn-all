@@ -4,6 +4,7 @@ import { PageHeader } from '../layout/PageHeader';
 import { StatCard, type StatItem } from './StatCard';
 import { Sparkline } from '../data/Sparkline';
 import { glass } from '../glass/glass';
+import { color } from '@exyconn/ui';
 
 interface ModuleDashboardProps {
   title: string;
@@ -28,7 +29,7 @@ export function ModuleDashboard({
   stats,
   chartTitle,
   chartSeries,
-  chartColor = '#f9851f',
+  chartColor = color.orange[500],
   children,
   dialog,
 }: ModuleDashboardProps) {

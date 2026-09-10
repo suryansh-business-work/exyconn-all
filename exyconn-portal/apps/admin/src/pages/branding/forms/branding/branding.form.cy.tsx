@@ -5,6 +5,7 @@ import { BrandingForm } from './branding.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 import type { BrandingRow } from './branding.types';
+import { color } from '@exyconn/shell/components/ui';
 
 const INITIAL: BrandingRow = {
   id: 'global',
@@ -18,11 +19,11 @@ const INITIAL: BrandingRow = {
   appIconUrl: '',
   emailLogoUrl: '',
   ogImageUrl: '',
-  primaryColor: '#155dfc',
-  secondaryColor: '#00d4ff',
-  accentColor: '#f97316',
-  backgroundColor: '#f4f6fb',
-  textColor: '#0f172a',
+  primaryColor: color.blue[600],
+  secondaryColor: color.cyan[400],
+  accentColor: color.orange[600],
+  backgroundColor: color.neutral[50],
+  textColor: color.slate[950],
   supportEmail: 'support@exyconn.com',
   hrEmail: 'hr@exyconn.com',
   contactPhone: '',
@@ -47,7 +48,7 @@ const INITIAL: BrandingRow = {
       name: 'Finance',
       tagline: 'Invoices, billing and reimbursements.',
       backgroundImageUrl: 'https://images.example.com/finance.jpg',
-      accentColor: '#0ea5e9',
+      accentColor: color.sky[500],
     },
   ],
 };

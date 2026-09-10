@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { TrainingForm, type TrainingRow } from './forms/training';
 import { TRAINING_COLUMNS, type PagedTrainingRow, type TrainingGridContext } from './training-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Learning & Training — server-paged admin grid over the training records. */
 export function TrainingPage() {
@@ -32,21 +33,21 @@ export function TrainingPage() {
 
   const stats = statsData?.listTrainingsStats;
   const statItems: StatItem[] = [
-    { label: 'Assigned', value: String(statTotal(stats)), accent: '#6366f1' },
+    { label: 'Assigned', value: String(statTotal(stats)), accent: color.indigo[400] },
     {
       label: 'In progress',
       value: String(statCount(stats, 'status', 'IN_PROGRESS')),
-      accent: '#6366f1',
+      accent: color.indigo[400],
     },
     {
       label: 'Completed',
       value: String(statCount(stats, 'status', 'COMPLETED')),
-      accent: '#6366f1',
+      accent: color.indigo[400],
     },
     {
       label: 'Not started',
       value: String(statCount(stats, 'status', 'ASSIGNED')),
-      accent: '#6366f1',
+      accent: color.indigo[400],
     },
   ];
 

@@ -1,5 +1,6 @@
 import { Box, Stack, Typography } from '@/components/ui';
 import { glass } from '../glass/glass';
+import { color } from '@exyconn/ui';
 
 export interface BreakdownBucket {
   value: string;
@@ -28,7 +29,7 @@ function humanise(value: string): string {
 export function StatBreakdown({
   title,
   buckets,
-  accent = '#4f8cff',
+  accent = color.blue[400],
   emptyMessage = 'Nothing to show yet.',
 }: Readonly<StatBreakdownProps>) {
   const ordered = [...buckets].sort((a, b) => b.count - a.count);

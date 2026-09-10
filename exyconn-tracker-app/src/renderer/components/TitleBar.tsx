@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import { Box, Typography } from '@exyconn/ui';
+import { borderWidth, Box, Typography } from '@exyconn/ui';
 import WindowControls from './WindowControls';
 import { DRAG } from '../window-drag';
 
@@ -27,7 +27,7 @@ export default function TitleBar({ title, actions }: Readonly<Props>): ReactElem
         py: 0.5,
         flexShrink: 0,
         backgroundColor: theme.palette.background.paper,
-        borderBottom: `1px solid ${theme.palette.divider}`,
+        borderBottom: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
         ...DRAG,
       })}
     >

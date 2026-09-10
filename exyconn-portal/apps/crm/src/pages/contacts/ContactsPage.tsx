@@ -9,6 +9,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { ContactForm, type ContactRow } from './forms/contact';
 import { CONTACT_COLUMNS, type PagedContactRow, type ContactsGridContext } from './contacts-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** CRM → Contacts: the people at the accounts, and who owns each relationship. */
 export function ContactsPage() {
@@ -27,17 +28,21 @@ export function ContactsPage() {
 
   const stats = statsData?.listContactsStats;
   const statItems: StatItem[] = [
-    { label: 'Contacts', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#22c55e' },
+    { label: 'Contacts', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'status', 'ACTIVE')),
+      accent: color.green[500],
+    },
     {
       label: 'Unsubscribed',
       value: String(statCount(stats, 'status', 'UNSUBSCRIBED')),
-      accent: '#f59e0b',
+      accent: color.amber[500],
     },
     {
       label: 'Left company',
       value: String(statCount(stats, 'status', 'LEFT_COMPANY')),
-      accent: '#ff6b6b',
+      accent: color.red[200],
     },
   ];
 

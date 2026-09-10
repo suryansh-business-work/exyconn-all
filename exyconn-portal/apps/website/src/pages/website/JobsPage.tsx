@@ -8,6 +8,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { JobForm, type JobRow } from './forms/job';
 import { JOB_COLUMNS, type PagedJobRow, type JobsGridContext } from './jobs-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Website module — job postings published on the public careers site (server-side grid). */
 export function JobsPage() {
@@ -27,14 +28,18 @@ export function JobsPage() {
   const rows = data?.listJobs ?? [];
   const companies = new Set(rows.map((r) => r.companySlug).filter(Boolean));
   const stats: StatItem[] = [
-    { label: 'Jobs', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Active', value: String(rows.filter((r) => r.isActive).length), accent: '#7be37b' },
+    { label: 'Jobs', value: String(rows.length), accent: color.blue[400] },
+    {
+      label: 'Active',
+      value: String(rows.filter((r) => r.isActive).length),
+      accent: color.green[300],
+    },
     {
       label: 'Featured',
       value: String(rows.filter((r) => r.isFeatured).length),
-      accent: '#f9851f',
+      accent: color.orange[500],
     },
-    { label: 'Companies', value: String(companies.size), accent: '#c084fc' },
+    { label: 'Companies', value: String(companies.size), accent: color.purple[300] },
   ];
 
   const gridContext: JobsGridContext = {

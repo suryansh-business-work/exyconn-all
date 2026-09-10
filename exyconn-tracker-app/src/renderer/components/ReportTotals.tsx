@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Box, Typography, alpha } from '@exyconn/ui';
+import { alpha, borderWidth, Box, Typography } from '@exyconn/ui';
 import Surface from './Surface';
 import type { ReportTotals as Totals } from '../hooks/useMyReport';
 import { formatHoursMinutes } from '../format';
@@ -38,7 +38,7 @@ export default function ReportTotals({ totals }: Readonly<Props>): ReactElement 
           key={item.id}
           sx={(theme) => ({
             px: 1,
-            borderLeft: `1px solid ${alpha(theme.palette.text.primary, 0.1)}`,
+            borderLeft: `${borderWidth.hairline}px solid ${alpha(theme.palette.text.primary, 0.1)}`,
             '&:first-of-type': { borderLeft: 'none' },
           })}
         >

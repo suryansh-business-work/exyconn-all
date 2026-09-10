@@ -8,6 +8,8 @@ import { TRACKER_LIMITS } from './tracker.constants';
 import { getTrackerSettings } from './tracker.settings.service';
 import { isValidTimezone, resolveEffectiveTimezone, zonedDayStartUtc } from './tracker.timezone';
 import { trackerWorkdayService } from './tracker.workday.service';
+import { trackerMessageService } from './tracker.message.service';
+import { presenceOf } from './tracker.presence.service';
 import { policyAcknowledgementService } from '../legal/policy-acknowledgement.service';
 import type { Role } from '../../constants/roles';
 import {
@@ -211,10 +213,15 @@ class TrackerDeviceService {
       deviceTimezone: device?.timezone,
     });
 
-    const [workday, projects, consentPolicy] = await Promise.all([
+    const [workday, projects, consentPolicy, notices, unreadMessages] = await Promise.all([
       trackerWorkdayService.workday(userId, user, timezone),
       trackerWorkdayService.projects(),
       trackerWorkdayService.consentPolicy(userId, settings.consentPolicySlug ?? ''),
+      // Carried on the keep-alive rather than polled separately: the app checks in once a
+      // minute anyway, and an announcement that needs its own timer is an announcement that
+      // stops arriving the first time that timer is forgotten.
+      trackerMessageService.pendingNotices(userId),
+      trackerMessageService.unreadCount(userId, 'TO_EMPLOYEE'),
     ]);
 
     return {
@@ -226,6 +233,9 @@ class TrackerDeviceService {
       workday,
       projects,
       consentPolicy,
+      presence: presenceOf(access),
+      notices,
+      unreadMessages,
     };
   }
 

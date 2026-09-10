@@ -1,5 +1,5 @@
 import DescriptionIcon from '@mui/icons-material/Description';
-import { Box, Stack, Text } from '@exyconn/ui';
+import { borderWidth, Box, Stack, Text } from '@exyconn/ui';
 
 /** What a rendered attachment needs. Matches the generated `TicketAttachmentFields`. */
 export interface AttachmentItem {
@@ -30,7 +30,7 @@ function AttachmentTile({ item }: Readonly<AttachmentTileProps>) {
         gap: 1,
         p: 0.75,
         borderRadius: 1,
-        border: '1px solid',
+        border: `${borderWidth.hairline}px solid`,
         borderColor: 'divider',
         textDecoration: 'none',
         color: 'text.primary',

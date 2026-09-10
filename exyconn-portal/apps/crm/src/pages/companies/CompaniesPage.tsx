@@ -12,6 +12,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { CompanyForm, type CompanyRow } from './forms/company';
 import { COMPANY_COLUMNS, type PagedCompanyRow, type CompaniesGridContext } from './companies-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** CRM → Companies: the accounts contacts and deals hang off. */
 export function CompaniesPage() {
@@ -32,18 +33,22 @@ export function CompaniesPage() {
 
   const stats = statsData?.listCompaniesStats;
   const statItems: StatItem[] = [
-    { label: 'Companies', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Companies', value: String(statTotal(stats)), accent: color.blue[400] },
     {
       label: 'Customers',
       value: String(statCount(stats, 'status', 'CUSTOMER')),
-      accent: '#22c55e',
+      accent: color.green[500],
     },
     {
       label: 'Prospects',
       value: String(statCount(stats, 'status', 'PROSPECT')),
-      accent: '#f59e0b',
+      accent: color.amber[500],
     },
-    { label: 'Churned', value: String(statCount(stats, 'status', 'CHURNED')), accent: '#ff6b6b' },
+    {
+      label: 'Churned',
+      value: String(statCount(stats, 'status', 'CHURNED')),
+      accent: color.red[200],
+    },
   ];
 
   /** The same hand-off winning a deal does, for an account that became a customer another way. */

@@ -30,8 +30,17 @@ type ScreenshotLean = TrackerScreenshotDocument & { _id: unknown };
 /** An access grant as it comes back from `.lean()`. */
 type AccessLean = TrackerAccessDocument & { _id: unknown };
 
-/** Fields an access grant may predate. '' = the employee never picked a timezone. */
-const ACCESS_DEFAULTS = Object.freeze({ timezone: '' });
+/**
+ * Fields an access grant may predate: the timezone the employee picked ('' = never picked
+ * one), and the presence they last reported (a grant written before presence existed has
+ * never said anything, so it is working).
+ */
+const ACCESS_DEFAULTS = Object.freeze({
+  timezone: '',
+  presence: 'WORKING',
+  presenceNote: '',
+  presenceAt: null,
+});
 
 /**
  * Fills in the fields a stored grant predates — today, `timezone`.

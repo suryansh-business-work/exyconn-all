@@ -1,5 +1,6 @@
 import { msToHours, type ChartData } from '@exyconn/ui';
 import type { ReportDay } from '@shared/types';
+import { activityPercent } from './format';
 
 /**
  * Shaping the employee's own tracked time into chart series. Pure — no React, no colour.
@@ -23,6 +24,28 @@ export function monthChart(days: readonly ReportDay[]): ChartData {
     series: [
       { id: 'active', label: 'Worked', values: ordered.map((day) => msToHours(day.activeMs)) },
       { id: 'idle', label: 'Idle', values: ordered.map((day) => msToHours(day.idleMs)) },
+    ],
+  };
+}
+
+/**
+ * How active each day was, as a line.
+ *
+ * The bars say how LONG each day was; this says how solid it was, which is the number a
+ * manager reads and the one an employee most needs to be able to see for themselves. Drawn
+ * from the same `activityPercent` the table and the day chips use, so a day cannot read 62%
+ * in one place and 61% in another.
+ */
+export function activityTrend(days: readonly ReportDay[]): ChartData {
+  const ordered = [...days].sort((a, b) => a.date.localeCompare(b.date));
+  return {
+    labels: ordered.map((day) => day.date.slice(8)),
+    series: [
+      {
+        id: 'activity',
+        label: 'Activity',
+        values: ordered.map((day) => activityPercent(day.activeMs, day.idleMs)),
+      },
     ],
   };
 }

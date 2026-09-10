@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
-import { Box, IconButton } from '@exyconn/ui';
+import { Box, IconButton, iconSize, TRACKER_RADIUS } from '@exyconn/ui';
 import RemoveRounded from '@mui/icons-material/RemoveRounded';
 import CropSquareRounded from '@mui/icons-material/CropSquareRounded';
 import FilterNoneRounded from '@mui/icons-material/FilterNoneRounded';
@@ -10,7 +10,7 @@ import { NO_DRAG } from '../window-drag';
 
 const BUTTON_SX = {
   ...NO_DRAG,
-  borderRadius: '4px',
+  borderRadius: `${TRACKER_RADIUS}px`,
   width: 30,
   height: 26,
   color: 'text.secondary',
@@ -39,7 +39,7 @@ export default function WindowControls(): ReactElement {
         sx={BUTTON_SX}
         onClick={() => run(() => window.tracker.minimizeWindow())}
       >
-        <RemoveRounded sx={{ fontSize: 16 }} />
+        <RemoveRounded sx={{ fontSize: iconSize.md }} />
       </IconButton>
       <IconButton
         size="small"
@@ -48,9 +48,9 @@ export default function WindowControls(): ReactElement {
         onClick={() => run(() => window.tracker.toggleMaximizeWindow())}
       >
         {maximized ? (
-          <FilterNoneRounded sx={{ fontSize: 13 }} />
+          <FilterNoneRounded sx={{ fontSize: iconSize.xs }} />
         ) : (
-          <CropSquareRounded sx={{ fontSize: 15 }} />
+          <CropSquareRounded sx={{ fontSize: iconSize.md }} />
         )}
       </IconButton>
       <IconButton
@@ -62,7 +62,7 @@ export default function WindowControls(): ReactElement {
         }}
         onClick={() => run(() => window.tracker.closeWindow())}
       >
-        <CloseRounded sx={{ fontSize: 16 }} />
+        <CloseRounded sx={{ fontSize: iconSize.md }} />
       </IconButton>
     </Box>
   );

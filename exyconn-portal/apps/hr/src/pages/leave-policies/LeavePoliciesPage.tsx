@@ -9,6 +9,7 @@ import {
   type ListLeavePoliciesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { LeavePolicyForm, type LeavePolicyRow } from './forms/leave-policy';
+import { color } from '@exyconn/shell/components/ui';
 import {
   LEAVE_POLICY_COLUMNS,
   type PagedLeavePolicyRow,
@@ -34,10 +35,22 @@ export function LeavePoliciesPage() {
 
   const stats = statsData?.listLeavePoliciesStats;
   const statItems: StatItem[] = [
-    { label: 'Policies', value: String(statTotal(stats)), accent: '#8b5cf6' },
-    { label: 'Active', value: String(statCount(stats, 'active', 'true')), accent: '#8b5cf6' },
-    { label: 'Inactive', value: String(statCount(stats, 'active', 'false')), accent: '#8b5cf6' },
-    { label: 'Total quota', value: String(statSum(stats, 'annualQuota')), accent: '#8b5cf6' },
+    { label: 'Policies', value: String(statTotal(stats)), accent: color.violet[400] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'active', 'true')),
+      accent: color.violet[400],
+    },
+    {
+      label: 'Inactive',
+      value: String(statCount(stats, 'active', 'false')),
+      accent: color.violet[400],
+    },
+    {
+      label: 'Total quota',
+      value: String(statSum(stats, 'annualQuota')),
+      accent: color.violet[400],
+    },
   ];
 
   const gridContext: LeavePolicyGridContext = {

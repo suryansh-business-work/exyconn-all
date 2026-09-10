@@ -8,6 +8,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  iconSize,
 } from '@exyconn/shell/components/ui';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import ComputerIcon from '@mui/icons-material/Computer';
@@ -45,7 +46,7 @@ export function SystemRequirements({ platform }: Readonly<{ platform: PlatformCo
               <TableRow key={row.key}>
                 <TableCell>
                   <Stack direction="row" spacing={1} alignItems="center">
-                    <Icon sx={{ fontSize: 17, color: 'text.secondary' }} />
+                    <Icon sx={{ fontSize: iconSize.md, color: 'text.secondary' }} />
                     <Typography variant="body2">{row.label}</Typography>
                   </Stack>
                 </TableCell>

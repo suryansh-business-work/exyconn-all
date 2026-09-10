@@ -9,6 +9,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import type { SvgIconComponent } from '@mui/icons-material';
 import { TaskPriority, TaskType } from '@exyconn/shell/graphql/generated';
+import { color } from '@exyconn/shell/components/ui';
 
 /** How one enum value is drawn: its wording, its icon and the colour that carries it. */
 export interface TicketFacet {
@@ -23,25 +24,25 @@ export interface TicketFacet {
  * so a new value in the schema is a compile error in this table rather than a silent blank.
  */
 export const TICKET_TYPES: Readonly<Record<TaskType, TicketFacet>> = {
-  [TaskType.Story]: { label: 'Story', icon: BookmarkIcon, color: '#22c55e' },
-  [TaskType.Task]: { label: 'Task', icon: TaskAltIcon, color: '#3b82f6' },
-  [TaskType.Bug]: { label: 'Bug', icon: BugReportIcon, color: '#ef4444' },
-  [TaskType.Epic]: { label: 'Epic', icon: BoltIcon, color: '#8b5cf6' },
+  [TaskType.Story]: { label: 'Story', icon: BookmarkIcon, color: color.green[500] },
+  [TaskType.Task]: { label: 'Task', icon: TaskAltIcon, color: color.blue[500] },
+  [TaskType.Bug]: { label: 'Bug', icon: BugReportIcon, color: color.red[500] },
+  [TaskType.Epic]: { label: 'Epic', icon: BoltIcon, color: color.violet[400] },
 };
 
 export const TICKET_PRIORITIES: Readonly<Record<TaskPriority, TicketFacet>> = {
   [TaskPriority.Highest]: {
     label: 'Highest',
     icon: KeyboardDoubleArrowUpIcon,
-    color: '#dc2626',
+    color: color.red[800],
   },
-  [TaskPriority.High]: { label: 'High', icon: KeyboardArrowUpIcon, color: '#f97316' },
-  [TaskPriority.Medium]: { label: 'Medium', icon: DragHandleIcon, color: '#f59e0b' },
-  [TaskPriority.Low]: { label: 'Low', icon: KeyboardArrowDownIcon, color: '#22c55e' },
+  [TaskPriority.High]: { label: 'High', icon: KeyboardArrowUpIcon, color: color.orange[600] },
+  [TaskPriority.Medium]: { label: 'Medium', icon: DragHandleIcon, color: color.amber[500] },
+  [TaskPriority.Low]: { label: 'Low', icon: KeyboardArrowDownIcon, color: color.green[500] },
   [TaskPriority.Lowest]: {
     label: 'Lowest',
     icon: KeyboardDoubleArrowDownIcon,
-    color: '#16a34a',
+    color: color.green[600],
   },
 };
 

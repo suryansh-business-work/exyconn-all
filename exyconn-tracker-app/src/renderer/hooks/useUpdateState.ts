@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { UpdateState } from '@shared/types';
 
-const IDLE: UpdateState = { stage: 'idle', version: '', percent: 0 };
+const IDLE: UpdateState = { stage: 'idle', version: '', percent: 0, lastCheckedAt: null };
 
 /**
  * Where this install is in its own update cycle, pushed from the main process.

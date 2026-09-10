@@ -9,6 +9,7 @@ import {
   type ListAnnouncementsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { AnnouncementForm, type AnnouncementRow } from './forms/announcement';
+import { color } from '@exyconn/shell/components/ui';
 import {
   ANNOUNCEMENT_COLUMNS,
   type PagedAnnouncementRow,
@@ -34,10 +35,22 @@ export function AnnouncementsPage() {
 
   const stats = statsData?.listAnnouncementsStats;
   const statItems: StatItem[] = [
-    { label: 'Announcements', value: String(statTotal(stats)), accent: '#155dfc' },
-    { label: 'Notices', value: String(statCount(stats, 'category', 'NOTICE')), accent: '#0ea5e9' },
-    { label: 'Policies', value: String(statCount(stats, 'category', 'POLICY')), accent: '#a855f7' },
-    { label: 'Events', value: String(statCount(stats, 'category', 'EVENT')), accent: '#f97316' },
+    { label: 'Announcements', value: String(statTotal(stats)), accent: color.blue[600] },
+    {
+      label: 'Notices',
+      value: String(statCount(stats, 'category', 'NOTICE')),
+      accent: color.sky[500],
+    },
+    {
+      label: 'Policies',
+      value: String(statCount(stats, 'category', 'POLICY')),
+      accent: color.purple[400],
+    },
+    {
+      label: 'Events',
+      value: String(statCount(stats, 'category', 'EVENT')),
+      accent: color.orange[600],
+    },
   ];
 
   const gridContext: AnnouncementsGridContext = {

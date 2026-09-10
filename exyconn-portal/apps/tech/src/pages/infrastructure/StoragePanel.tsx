@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Alert, Box, CircularProgress, Grid, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, CircularProgress, Grid, Text, color } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
 import { formatBytes } from '@exyconn/shell/utils/file';
@@ -43,14 +43,18 @@ export function StoragePanel() {
   const usage = data?.dockerStorage.usage;
   const rows = (data?.dockerStorage.images ?? []) as ImageRow[];
   const stats = [
-    { label: 'Image layers', value: formatBytes(usage?.layersBytes ?? 0), accent: '#4f8cff' },
+    { label: 'Image layers', value: formatBytes(usage?.layersBytes ?? 0), accent: color.blue[400] },
     {
       label: 'Container writes',
       value: formatBytes(usage?.containersBytes ?? 0),
-      accent: '#f9851f',
+      accent: color.orange[500],
     },
-    { label: 'Volumes', value: formatBytes(usage?.volumesBytes ?? 0), accent: '#7be37b' },
-    { label: 'Build cache', value: formatBytes(usage?.buildCacheBytes ?? 0), accent: '#c084fc' },
+    { label: 'Volumes', value: formatBytes(usage?.volumesBytes ?? 0), accent: color.green[300] },
+    {
+      label: 'Build cache',
+      value: formatBytes(usage?.buildCacheBytes ?? 0),
+      accent: color.purple[300],
+    },
   ];
 
   return (

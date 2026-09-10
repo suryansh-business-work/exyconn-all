@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import {
   Alert,
+  borderWidth,
   Box,
   Button,
+  color,
   Dialog,
   DialogContent,
   Flex,
+  radius,
   Text,
   TextField,
 } from '@exyconn/shell/components/ui';
@@ -121,7 +124,7 @@ export function EmailPreviewDialog({ template, onClose }: Readonly<Props>) {
         </Flex>
 
         {error ? (
-          <Alert severity="error" variant="outlined" sx={{ borderRadius: '4px', mb: 2 }}>
+          <Alert severity="error" variant="outlined" sx={{ borderRadius: `${radius.sm}px`, mb: 2 }}>
             {error.message}
           </Alert>
         ) : null}
@@ -140,9 +143,9 @@ export function EmailPreviewDialog({ template, onClose }: Readonly<Props>) {
               sx={(theme) => ({
                 width: '100%',
                 height: 480,
-                border: `1px solid ${theme.palette.divider}`,
-                borderRadius: '4px',
-                backgroundColor: '#ffffff',
+                border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
+                borderRadius: `${radius.sm}px`,
+                backgroundColor: color.white,
               })}
             />
           </Box>

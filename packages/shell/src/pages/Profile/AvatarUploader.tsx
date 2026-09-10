@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Avatar, Box, Button, CircularProgress } from '@/components/ui';
+import { Avatar, Box, Button, CircularProgress, fontSize } from '@/components/ui';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import { useAuth } from '@/auth/AuthContext';
 import { useNotify } from '@/components/feedback/NotificationProvider';
@@ -44,7 +44,7 @@ export function AvatarUploader() {
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
       <Avatar
         src={user?.avatarUrl ?? undefined}
-        sx={{ width: 96, height: 96, bgcolor: 'primary.main', fontSize: 36 }}
+        sx={{ width: 96, height: 96, bgcolor: 'primary.main', fontSize: fontSize['4xl'] }}
       >
         {user?.name?.charAt(0).toUpperCase()}
       </Avatar>
