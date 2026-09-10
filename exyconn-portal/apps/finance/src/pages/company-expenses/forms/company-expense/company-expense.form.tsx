@@ -9,6 +9,7 @@ import {
   ExpenseCategory,
   useCreateCompanyExpenseMutation,
   useUpdateCompanyExpenseMutation,
+  useListCostCentersQuery,
 } from '@exyconn/shell/graphql/generated';
 import type { CompanyExpenseRow } from './company-expense.types';
 
@@ -19,6 +20,9 @@ const schema = z
     description: z.string().trim(),
     amount: z.coerce.number({ message: 'Amount must be a number' }).min(0, 'Must be ≥ 0'),
     currency: z.string().trim().min(1, 'Currency is required'),
+    // Optional: a company runs for years before it splits spend up, and refusing a bill
+    // until somebody picks a centre would lose the bill, not gain the analysis.
+    costCenterId: z.string(),
     incurredOn: z.string().min(1, 'Incurred date is required'),
     dueDate: z.string().min(1, 'Due date is required'),
     reference: z.string().trim(),
@@ -36,6 +40,7 @@ const toInitial = (row: CompanyExpenseRow | null): Values => ({
   description: row?.description ?? '',
   amount: row?.amount ?? 0,
   currency: row?.currency ?? 'INR',
+  costCenterId: row?.costCenterId ?? '',
   incurredOn: row?.incurredOn ?? '',
   dueDate: row?.dueDate ?? '',
   reference: row?.reference ?? '',
@@ -61,6 +66,13 @@ export function CompanyExpenseForm({
 }: Readonly<CompanyExpenseFormProps>) {
   const [createExpense] = useCreateCompanyExpenseMutation();
   const [updateExpense] = useUpdateCompanyExpenseMutation();
+  const { data: centresData } = useListCostCentersQuery();
+  const centreOptions = [
+    { value: '', label: 'Unallocated' },
+    ...(centresData?.listCostCenters ?? [])
+      .filter((centre) => centre.isActive)
+      .map((centre) => ({ value: centre.id, label: `${centre.code} — ${centre.name}` })),
+  ];
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
@@ -84,6 +96,7 @@ export function CompanyExpenseForm({
       />
       <RhfTextField name="amount" label="Amount" type="number" />
       <RhfTextField name="currency" label="Currency" />
+      <RhfSelect name="costCenterId" label="Cost centre" options={centreOptions} />
       {/* Profit is measured on this date; the money leaving is a separate one (Mark paid). */}
       <RhfDatePicker name="incurredOn" label="Incurred on" />
       <RhfDatePicker name="dueDate" label="Due date" />

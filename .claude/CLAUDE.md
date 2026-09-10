@@ -1,3 +1,5 @@
+Do not create a branch change only staging only
+
 # Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
 ## Tech Stack:

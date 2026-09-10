@@ -15,6 +15,7 @@ import { ProtectedRoute } from '@/routes/ProtectedRoute';
 import { ProfilePage } from '@/pages/Profile';
 import { SettingsPage } from '@/pages/Settings';
 import { NotificationsPage } from '@/pages/Notifications';
+import { ApprovalsPage } from '@/pages/Approvals';
 
 /**
  * Where a password reset email sends people. Public, like /login, and served by the same
@@ -77,6 +78,7 @@ export function PortalApp({
                         <Route path="/profile" element={<ProfilePage />} />
                         <Route path="/settings" element={<SettingsPage />} />
                         <Route path="/notifications" element={<NotificationsPage />} />
+                        <Route path="/approvals" element={<ApprovalsPage />} />
                         {children}
                       </Route>
                       <Route path="*" element={<Navigate to={homePath} replace />} />

@@ -8,6 +8,7 @@ export interface CompanyExpenseFormValues {
   description: string;
   amount: number;
   currency: string;
+  costCenterId: string;
   incurredOn: string;
   dueDate: string;
   reference: string;

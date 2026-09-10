@@ -334,6 +334,48 @@ export type ApplyLeaveInput = {
   type: LeaveType;
 };
 
+export enum ApprovalDecision {
+  Approved = 'APPROVED',
+  Rejected = 'REJECTED'
+}
+
+/** How many are waiting in one source — the counts behind the queue's tabs. */
+export type ApprovalGroup = {
+  __typename?: 'ApprovalGroup';
+  count: Scalars['Int']['output'];
+  kind: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
+/**
+ * One decision waiting on the signed-in user, read straight out of the collection that
+ * owns it. There is no approvals collection — see the approvals module for why.
+ */
+export type ApprovalItem = {
+  __typename?: 'ApprovalItem';
+  /** Money at stake, when the decision is about money. */
+  amount?: Maybe<Scalars['Float']['output']>;
+  currency?: Maybe<Scalars['String']['output']>;
+  /** Composite: the source kind and the record id, joined by a colon — LEAVE:663f… */
+  id: Scalars['ID']['output'];
+  kind: Scalars['String']['output'];
+  kindLabel: Scalars['String']['output'];
+  /** Portal path to the module's own screen for this decision. */
+  link: Scalars['String']['output'];
+  requestedAt: Scalars['DateTime']['output'];
+  requestedById: Scalars['String']['output'];
+  requestedByName: Scalars['String']['output'];
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type ApprovalQueue = {
+  __typename?: 'ApprovalQueue';
+  groups: Array<ApprovalGroup>;
+  items: Array<ApprovalItem>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Asset = {
   __typename?: 'Asset';
   assetTag: Scalars['String']['output'];
@@ -718,6 +760,55 @@ export type BrandingInput = {
   youtubeUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** What one cost centre may spend in one month. A quarter is three of these. */
+export type Budget = {
+  __typename?: 'Budget';
+  amount: Scalars['Float']['output'];
+  costCenterId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  /** YYYY-MM, bucketed exactly as the actuals are. */
+  month: Scalars['String']['output'];
+  note: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type BudgetInput = {
+  amount: Scalars['Float']['input'];
+  costCenterId: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  month: Scalars['String']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type BudgetPage = {
+  __typename?: 'BudgetPage';
+  rows: Array<Budget>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/**
+ * One centre's plan against its spend.
+ *
+ * Actual is company bills booked to the centre — not payroll and not reimbursed employee
+ * claims, neither of which carries a cost centre. Untagged spend appears as its own row
+ * rather than being dropped, so the actuals still add up to what the company spent.
+ */
+export type BudgetVariance = {
+  __typename?: 'BudgetVariance';
+  actual: Scalars['Float']['output'];
+  budgeted: Scalars['Float']['output'];
+  code: Scalars['String']['output'];
+  /** Empty for the unallocated row, which is not a cost centre. */
+  costCenterId: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  /** Actual as a percentage of budget. Null where there is no budget to be a percentage of. */
+  utilisation?: Maybe<Scalars['Float']['output']>;
+  /** budgeted - actual. Positive is money left; negative is an overspend. */
+  variance: Scalars['Float']['output'];
+};
+
 export type Bug = {
   __typename?: 'Bug';
   /** Empty for bugs filed before the assignee was a user; assigneeName still shows the name. */
@@ -923,6 +1014,38 @@ export enum CampaignStatus {
   Planned = 'PLANNED'
 }
 
+/**
+ * A reply the desk sends often, kept once instead of being retyped.
+ *
+ * Not an article: an article explains something and is written to be read on its own. This
+ * is the paragraph an agent drops into a thread and then edits, which is why nothing here
+ * is ever sent automatically.
+ */
+export type CannedReply = {
+  __typename?: 'CannedReply';
+  body: Scalars['String']['output'];
+  category: SupportCategory;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  /** Retired snippets stay in the register but are not offered in the composer. */
+  isActive: Scalars['Boolean']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CannedReplyInput = {
+  body: Scalars['String']['input'];
+  category: SupportCategory;
+  isActive: Scalars['Boolean']['input'];
+  title: Scalars['String']['input'];
+};
+
+export type CannedReplyPage = {
+  __typename?: 'CannedReplyPage';
+  rows: Array<CannedReply>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type CaseStudy = {
   __typename?: 'CaseStudy';
   author: Scalars['String']['output'];
@@ -1062,6 +1185,8 @@ export type CompanyExpense = {
   __typename?: 'CompanyExpense';
   amount: Scalars['Float']['output'];
   category: ExpenseCategory;
+  /** Which cost centre carries it. Empty when the spend is not allocated to one. */
+  costCenterId: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   description: Scalars['String']['output'];
@@ -1081,6 +1206,7 @@ export type CompanyExpense = {
 export type CompanyExpenseInput = {
   amount: Scalars['Float']['input'];
   category: ExpenseCategory;
+  costCenterId?: InputMaybe<Scalars['String']['input']>;
   currency: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   dueDate: Scalars['DateTime']['input'];
@@ -1288,6 +1414,35 @@ export type ConvertLeadInput = {
   dealTitle: Scalars['String']['input'];
   expectedCloseDate?: InputMaybe<Scalars['DateTime']['input']>;
   value: Scalars['Float']['input'];
+};
+
+/** A bucket the company budgets and reports spend against — a department, a team, a site. */
+export type CostCenter = {
+  __typename?: 'CostCenter';
+  code: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  /** A retired centre stays readable, so last year's report does not change. */
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  /** User id of whoever answers for this centre's spend. Empty while nobody owns it. */
+  ownerId: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CostCenterInput = {
+  code: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  ownerId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CostCenterPage = {
+  __typename?: 'CostCenterPage';
+  rows: Array<CostCenter>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type CreateUserInput = {
@@ -2482,6 +2637,45 @@ export type JobPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/**
+ * An answer written once so it does not have to be typed again.
+ *
+ * Categorised on the same list tickets are, so the article and the queue that needs it are
+ * findable by the same word.
+ */
+export type KbArticle = {
+  __typename?: 'KbArticle';
+  body: Scalars['String']['output'];
+  category: SupportCategory;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  /** Only published articles are searchable. A half-written answer is worse than none. */
+  isPublished: Scalars['Boolean']['output'];
+  /** Stable handle for a link that survives the title being reworded. */
+  slug: Scalars['String']['output'];
+  /** One line, shown in search results — what decides whether the article gets opened. */
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  updatedById: Scalars['String']['output'];
+  updatedByName: Scalars['String']['output'];
+};
+
+export type KbArticleInput = {
+  body: Scalars['String']['input'];
+  category: SupportCategory;
+  isPublished: Scalars['Boolean']['input'];
+  slug: Scalars['String']['input'];
+  summary?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+export type KbArticlePage = {
+  __typename?: 'KbArticlePage';
+  rows: Array<KbArticle>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Lead = {
   __typename?: 'Lead';
   /** The campaign that produced this lead, when it came from one. */
@@ -2897,8 +3091,10 @@ export type Mutation = {
   createAudienceList: AudienceList;
   createBenefit: Benefit;
   createBlogPost: BlogPost;
+  createBudget: Budget;
   createBug: Bug;
   createCampaign: Campaign;
+  createCannedReply: CannedReply;
   createCaseStudy: CaseStudy;
   createClient: Client;
   /**
@@ -2911,6 +3107,7 @@ export type Mutation = {
   createCompanyExpense: CompanyExpense;
   createContact: Contact;
   createContract: Contract;
+  createCostCenter: CostCenter;
   createDeal: Deal;
   createDepartment: Department;
   createDocPage: DocPage;
@@ -2940,6 +3137,7 @@ export type Mutation = {
   createInvoiceFromTimeLog: Invoice;
   createJob: Job;
   createJobCompany: JobCompany;
+  createKbArticle: KbArticle;
   createLead: Lead;
   createLeaveBalance: LeaveBalance;
   createLeavePolicy: LeavePolicy;
@@ -3003,6 +3201,8 @@ export type Mutation = {
   createUser: UserCredentials;
   createWebhook: CreatedWebhook;
   createWebsiteSubmission: WebsiteSubmission;
+  /** Approves or rejects one item, through the owning module's own decision service. */
+  decideApproval: Scalars['Boolean']['output'];
   /** HR/ADMIN or the employee's manager: approve or reject, with an optional note. */
   decideEmployeeRequest: EmployeeRequest;
   deleteActivity: Scalars['Boolean']['output'];
@@ -3014,8 +3214,10 @@ export type Mutation = {
   deleteAudienceList: Scalars['Boolean']['output'];
   deleteBenefit: Scalars['Boolean']['output'];
   deleteBlogPost: Scalars['Boolean']['output'];
+  deleteBudget: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
   deleteCampaign: Scalars['Boolean']['output'];
+  deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
   deleteClient: Scalars['Boolean']['output'];
   deleteColumn: Scalars['Boolean']['output'];
@@ -3023,6 +3225,7 @@ export type Mutation = {
   deleteCompanyExpense: Scalars['Boolean']['output'];
   deleteContact: Scalars['Boolean']['output'];
   deleteContract: Scalars['Boolean']['output'];
+  deleteCostCenter: Scalars['Boolean']['output'];
   deleteDeal: Scalars['Boolean']['output'];
   deleteDepartment: Scalars['Boolean']['output'];
   /** Deletes the page and everything filed under it. */
@@ -3045,6 +3248,7 @@ export type Mutation = {
   deleteInvoice: Scalars['Boolean']['output'];
   deleteJob: Scalars['Boolean']['output'];
   deleteJobCompany: Scalars['Boolean']['output'];
+  deleteKbArticle: Scalars['Boolean']['output'];
   deleteLead: Scalars['Boolean']['output'];
   deleteLeaveBalance: Scalars['Boolean']['output'];
   deleteLeavePolicy: Scalars['Boolean']['output'];
@@ -3330,14 +3534,17 @@ export type Mutation = {
   updateBenefit: Benefit;
   updateBlogPost: BlogPost;
   updateBranding: Branding;
+  updateBudget: Budget;
   updateBug: Bug;
   updateCampaign: Campaign;
+  updateCannedReply: CannedReply;
   updateCaseStudy: CaseStudy;
   updateClient: Client;
   updateCompany: Company;
   updateCompanyExpense: CompanyExpense;
   updateContact: Contact;
   updateContract: Contract;
+  updateCostCenter: CostCenter;
   updateDeal: Deal;
   updateDepartment: Department;
   updateDocPage: DocPage;
@@ -3359,6 +3566,7 @@ export type Mutation = {
   updateInvoice: Invoice;
   updateJob: Job;
   updateJobCompany: JobCompany;
+  updateKbArticle: KbArticle;
   updateLead: Lead;
   updateLeaveBalance: LeaveBalance;
   updateLeavePolicy: LeavePolicy;
@@ -3570,6 +3778,11 @@ export type MutationCreateBlogPostArgs = {
 };
 
 
+export type MutationCreateBudgetArgs = {
+  input: BudgetInput;
+};
+
+
 export type MutationCreateBugArgs = {
   input: BugInput;
 };
@@ -3577,6 +3790,11 @@ export type MutationCreateBugArgs = {
 
 export type MutationCreateCampaignArgs = {
   input: CampaignInput;
+};
+
+
+export type MutationCreateCannedReplyArgs = {
+  input: CannedReplyInput;
 };
 
 
@@ -3618,6 +3836,11 @@ export type MutationCreateContactArgs = {
 
 export type MutationCreateContractArgs = {
   input: ContractInput;
+};
+
+
+export type MutationCreateCostCenterArgs = {
+  input: CostCenterInput;
 };
 
 
@@ -3737,6 +3960,11 @@ export type MutationCreateJobArgs = {
 
 export type MutationCreateJobCompanyArgs = {
   input: JobCompanyInput;
+};
+
+
+export type MutationCreateKbArticleArgs = {
+  input: KbArticleInput;
 };
 
 
@@ -3989,6 +4217,13 @@ export type MutationCreateWebsiteSubmissionArgs = {
 };
 
 
+export type MutationDecideApprovalArgs = {
+  decision: ApprovalDecision;
+  id: Scalars['ID']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type MutationDecideEmployeeRequestArgs = {
   decisionNote?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
@@ -4041,12 +4276,22 @@ export type MutationDeleteBlogPostArgs = {
 };
 
 
+export type MutationDeleteBudgetArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteBugArgs = {
   id: Scalars['ID']['input'];
 };
 
 
 export type MutationDeleteCampaignArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCannedReplyArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4082,6 +4327,11 @@ export type MutationDeleteContactArgs = {
 
 
 export type MutationDeleteContractArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCostCenterArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4187,6 +4437,11 @@ export type MutationDeleteJobArgs = {
 
 
 export type MutationDeleteJobCompanyArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteKbArticleArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4962,6 +5217,12 @@ export type MutationUpdateBrandingArgs = {
 };
 
 
+export type MutationUpdateBudgetArgs = {
+  id: Scalars['ID']['input'];
+  input: BudgetInput;
+};
+
+
 export type MutationUpdateBugArgs = {
   id: Scalars['ID']['input'];
   input: BugInput;
@@ -4971,6 +5232,12 @@ export type MutationUpdateBugArgs = {
 export type MutationUpdateCampaignArgs = {
   id: Scalars['ID']['input'];
   input: CampaignInput;
+};
+
+
+export type MutationUpdateCannedReplyArgs = {
+  id: Scalars['ID']['input'];
+  input: CannedReplyInput;
 };
 
 
@@ -5007,6 +5274,12 @@ export type MutationUpdateContactArgs = {
 export type MutationUpdateContractArgs = {
   id: Scalars['ID']['input'];
   input: ContractInput;
+};
+
+
+export type MutationUpdateCostCenterArgs = {
+  id: Scalars['ID']['input'];
+  input: CostCenterInput;
 };
 
 
@@ -5134,6 +5407,12 @@ export type MutationUpdateJobArgs = {
 export type MutationUpdateJobCompanyArgs = {
   id: Scalars['ID']['input'];
   input: JobCompanyInput;
+};
+
+
+export type MutationUpdateKbArticleArgs = {
+  id: Scalars['ID']['input'];
+  input: KbArticleInput;
 };
 
 
@@ -6401,6 +6680,11 @@ export type Query = {
   /** Who an audience currently reaches: named members plus its segment, de-duplicated. */
   audienceMembers: Array<AudienceMember>;
   branding: Branding;
+  /**
+   * Budget against actual per cost centre between two dates, both bounds inclusive of the
+   * days they fall on. Every month the window touches counts in full.
+   */
+  budgetVsActual: Array<BudgetVariance>;
   /** Leads per campaign, most productive first — the overview's attribution figures. */
   campaignLeadCounts: Array<CampaignLeadCount>;
   campaignMetrics: CampaignMetrics;
@@ -6449,14 +6733,17 @@ export type Query = {
   getAudienceList: AudienceList;
   getBenefit: Benefit;
   getBlogPost: BlogPost;
+  getBudget: Budget;
   getBug: Bug;
   getCampaign: Campaign;
+  getCannedReply: CannedReply;
   getCaseStudy: CaseStudy;
   getClient: Client;
   getCompany: Company;
   getCompanyExpense: CompanyExpense;
   getContact: Contact;
   getContract: Contract;
+  getCostCenter: CostCenter;
   getDeal: Deal;
   getDepartment: Department;
   getEmailFragment: EmailFragment;
@@ -6473,6 +6760,7 @@ export type Query = {
   getInvoice: Invoice;
   getJob: Job;
   getJobCompany: JobCompany;
+  getKbArticle: KbArticle;
   getLead: Lead;
   getLeaveBalance: LeaveBalance;
   getLeavePolicy: LeavePolicy;
@@ -6527,6 +6815,8 @@ export type Query = {
   leaveRequestsByEmployee: Array<LeaveRequest>;
   /** The licences this employee holds a seat on. */
   licenceSeatsFor: Array<EmployeeLicenceSeat>;
+  /** SUPPORT/ADMIN: the active snippets the reply composer offers. */
+  listActiveCannedReplies: Array<CannedReply>;
   listActivities: Array<Activity>;
   listActivitiesPaged: ActivityPage;
   listActivitiesStats: TableStats;
@@ -6558,6 +6848,9 @@ export type Query = {
   listBlogPosts: Array<BlogPost>;
   listBlogPostsPaged: BlogPostPage;
   listBlogPostsStats: TableStats;
+  listBudgets: Array<Budget>;
+  listBudgetsPaged: BudgetPage;
+  listBudgetsStats: TableStats;
   listBugs: Array<Bug>;
   listBugsPaged: BugPage;
   listBugsStats: TableStats;
@@ -6566,6 +6859,9 @@ export type Query = {
   listCampaigns: Array<Campaign>;
   listCampaignsPaged: CampaignPage;
   listCampaignsStats: TableStats;
+  listCannedReplies: Array<CannedReply>;
+  listCannedRepliesPaged: CannedReplyPage;
+  listCannedRepliesStats: TableStats;
   listCaseStudies: Array<CaseStudy>;
   listCaseStudiesPaged: CaseStudyPage;
   listCaseStudiesStats: TableStats;
@@ -6584,6 +6880,9 @@ export type Query = {
   listContracts: Array<Contract>;
   listContractsPaged: ContractPage;
   listContractsStats: TableStats;
+  listCostCenters: Array<CostCenter>;
+  listCostCentersPaged: CostCenterPage;
+  listCostCentersStats: TableStats;
   listDeals: Array<Deal>;
   listDealsPaged: DealPage;
   listDealsStats: TableStats;
@@ -6640,6 +6939,9 @@ export type Query = {
   listJobs: Array<Job>;
   listJobsPaged: JobPage;
   listJobsStats: TableStats;
+  listKbArticles: Array<KbArticle>;
+  listKbArticlesPaged: KbArticlePage;
+  listKbArticlesStats: TableStats;
   listLeads: Array<Lead>;
   listLeadsPaged: LeadPage;
   listLeadsStats: TableStats;
@@ -6777,6 +7079,11 @@ export type Query = {
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
   me: User;
+  /**
+   * Everything awaiting the caller across every module, newest first. The kind argument narrows to
+   * one source; it can never widen what the caller is allowed to see.
+   */
+  myApprovals: ApprovalQueue;
   /** Self-service: the signed-in user's own attendance records. */
   myAttendance: Array<Attendance>;
   myBenefits: Array<Benefit>;
@@ -6798,6 +7105,8 @@ export type Query = {
   myOnboarding?: Maybe<OnboardingChecklist>;
   /** Self-service: the signed-in employee's salary structure (null if unset). */
   myPayroll?: Maybe<SalaryStructure>;
+  /** The badge count for the same queue. */
+  myPendingApprovalCount: Scalars['Int']['output'];
   myPerformanceReviews: Array<PerformanceReview>;
   /** The signed-in caller's own matrix, one row per registered module. */
   myPermissions: Array<ModulePermission>;
@@ -6881,6 +7190,13 @@ export type Query = {
    * download anyone's.
    */
   salarySlipPdf: SalarySlipDownload;
+  /**
+   * Any signed-in user: published articles matching a phrase, best match first.
+   *
+   * Deliberately not restricted to the support team — an agent hunting for the answer to
+   * paste and an employee hunting for it themselves are the same search.
+   */
+  searchKnowledgeBase: Array<KbArticle>;
   /** Stock photos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsPhotos: Array<PexelsMedia>;
   /** Stock videos for the shared upload dialog. Any signed-in user may search. */
@@ -6984,6 +7300,12 @@ export type QueryAudienceMembersArgs = {
 };
 
 
+export type QueryBudgetVsActualArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryCampaignMetricsArgs = {
   campaignId: Scalars['ID']['input'];
 };
@@ -7082,12 +7404,22 @@ export type QueryGetBlogPostArgs = {
 };
 
 
+export type QueryGetBudgetArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetBugArgs = {
   id: Scalars['ID']['input'];
 };
 
 
 export type QueryGetCampaignArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetCannedReplyArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7118,6 +7450,11 @@ export type QueryGetContactArgs = {
 
 
 export type QueryGetContractArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetCostCenterArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7198,6 +7535,11 @@ export type QueryGetJobArgs = {
 
 
 export type QueryGetJobCompanyArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetKbArticleArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7447,6 +7789,11 @@ export type QueryListBlogPostsPagedArgs = {
 };
 
 
+export type QueryListBudgetsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListBugsPagedArgs = {
   input: TableQueryInput;
 };
@@ -7458,6 +7805,11 @@ export type QueryListCampaignSendsArgs = {
 
 
 export type QueryListCampaignsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListCannedRepliesPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -7488,6 +7840,11 @@ export type QueryListContactsPagedArgs = {
 
 
 export type QueryListContractsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListCostCentersPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -7568,6 +7925,11 @@ export type QueryListJobCompaniesPagedArgs = {
 
 
 export type QueryListJobsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListKbArticlesPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -7757,6 +8119,11 @@ export type QueryLocaleBundleArgs = {
 };
 
 
+export type QueryMyApprovalsArgs = {
+  kind?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryMyPolicyArgs = {
   slug: Scalars['String']['input'];
 };
@@ -7912,6 +8279,11 @@ export type QueryPublicToolsArgs = {
 
 export type QuerySalarySlipPdfArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QuerySearchKnowledgeBaseArgs = {
+  query: Scalars['String']['input'];
 };
 
 
@@ -10199,6 +10571,10 @@ export type ResolversTypes = ResolversObject<{
   ApplicantSource: ApplicantSource;
   ApplicantStage: ApplicantStage;
   ApplyLeaveInput: ApplyLeaveInput;
+  ApprovalDecision: ApprovalDecision;
+  ApprovalGroup: ResolverTypeWrapper<ApprovalGroup>;
+  ApprovalItem: ResolverTypeWrapper<ApprovalItem>;
+  ApprovalQueue: ResolverTypeWrapper<ApprovalQueue>;
   Asset: ResolverTypeWrapper<Asset>;
   AssetAssignee: ResolverTypeWrapper<AssetAssignee>;
   AssetAssignment: ResolverTypeWrapper<AssetAssignment>;
@@ -10231,6 +10607,10 @@ export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Branding: ResolverTypeWrapper<Branding>;
   BrandingInput: BrandingInput;
+  Budget: ResolverTypeWrapper<Budget>;
+  BudgetInput: BudgetInput;
+  BudgetPage: ResolverTypeWrapper<BudgetPage>;
+  BudgetVariance: ResolverTypeWrapper<BudgetVariance>;
   Bug: ResolverTypeWrapper<Bug>;
   BugInput: BugInput;
   BugPage: ResolverTypeWrapper<BugPage>;
@@ -10250,6 +10630,9 @@ export type ResolversTypes = ResolversObject<{
   CampaignSendStatus: CampaignSendStatus;
   CampaignSendSummary: ResolverTypeWrapper<CampaignSendSummary>;
   CampaignStatus: CampaignStatus;
+  CannedReply: ResolverTypeWrapper<CannedReply>;
+  CannedReplyInput: CannedReplyInput;
+  CannedReplyPage: ResolverTypeWrapper<CannedReplyPage>;
   CaseStudy: ResolverTypeWrapper<CaseStudy>;
   CaseStudyInput: CaseStudyInput;
   CaseStudyPage: ResolverTypeWrapper<CaseStudyPage>;
@@ -10283,6 +10666,9 @@ export type ResolversTypes = ResolversObject<{
   ContractStatus: ContractStatus;
   ContractType: ContractType;
   ConvertLeadInput: ConvertLeadInput;
+  CostCenter: ResolverTypeWrapper<CostCenter>;
+  CostCenterInput: CostCenterInput;
+  CostCenterPage: ResolverTypeWrapper<CostCenterPage>;
   CreateUserInput: CreateUserInput;
   CreatedWebhook: ResolverTypeWrapper<CreatedWebhook>;
   DatabaseInfo: ResolverTypeWrapper<DatabaseInfo>;
@@ -10394,6 +10780,9 @@ export type ResolversTypes = ResolversObject<{
   JobCompanyPage: ResolverTypeWrapper<JobCompanyPage>;
   JobInput: JobInput;
   JobPage: ResolverTypeWrapper<JobPage>;
+  KbArticle: ResolverTypeWrapper<KbArticle>;
+  KbArticleInput: KbArticleInput;
+  KbArticlePage: ResolverTypeWrapper<KbArticlePage>;
   Lead: ResolverTypeWrapper<Lead>;
   LeadInput: LeadInput;
   LeadPage: ResolverTypeWrapper<LeadPage>;
@@ -10721,6 +11110,9 @@ export type ResolversParentTypes = ResolversObject<{
   ApplicantInput: ApplicantInput;
   ApplicantPage: ApplicantPage;
   ApplyLeaveInput: ApplyLeaveInput;
+  ApprovalGroup: ApprovalGroup;
+  ApprovalItem: ApprovalItem;
+  ApprovalQueue: ApprovalQueue;
   Asset: Asset;
   AssetAssignee: AssetAssignee;
   AssetAssignment: AssetAssignment;
@@ -10746,6 +11138,10 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
   Branding: Branding;
   BrandingInput: BrandingInput;
+  Budget: Budget;
+  BudgetInput: BudgetInput;
+  BudgetPage: BudgetPage;
+  BudgetVariance: BudgetVariance;
   Bug: Bug;
   BugInput: BugInput;
   BugPage: BugPage;
@@ -10760,6 +11156,9 @@ export type ResolversParentTypes = ResolversObject<{
   CampaignSend: CampaignSend;
   CampaignSendResult: CampaignSendResult;
   CampaignSendSummary: CampaignSendSummary;
+  CannedReply: CannedReply;
+  CannedReplyInput: CannedReplyInput;
+  CannedReplyPage: CannedReplyPage;
   CaseStudy: CaseStudy;
   CaseStudyInput: CaseStudyInput;
   CaseStudyPage: CaseStudyPage;
@@ -10788,6 +11187,9 @@ export type ResolversParentTypes = ResolversObject<{
   ContractInput: ContractInput;
   ContractPage: ContractPage;
   ConvertLeadInput: ConvertLeadInput;
+  CostCenter: CostCenter;
+  CostCenterInput: CostCenterInput;
+  CostCenterPage: CostCenterPage;
   CreateUserInput: CreateUserInput;
   CreatedWebhook: CreatedWebhook;
   DatabaseInfo: DatabaseInfo;
@@ -10882,6 +11284,9 @@ export type ResolversParentTypes = ResolversObject<{
   JobCompanyPage: JobCompanyPage;
   JobInput: JobInput;
   JobPage: JobPage;
+  KbArticle: KbArticle;
+  KbArticleInput: KbArticleInput;
+  KbArticlePage: KbArticlePage;
   Lead: Lead;
   LeadInput: LeadInput;
   LeadPage: LeadPage;
@@ -11303,6 +11708,35 @@ export type ApplicantPageResolvers<ContextType = GraphQLContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ApprovalGroupResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ApprovalGroup'] = ResolversParentTypes['ApprovalGroup']> = ResolversObject<{
+  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ApprovalItemResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ApprovalItem'] = ResolversParentTypes['ApprovalItem']> = ResolversObject<{
+  amount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  currency?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  kindLabel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  link?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  requestedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  requestedById?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  requestedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ApprovalQueueResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ApprovalQueue'] = ResolversParentTypes['ApprovalQueue']> = ResolversObject<{
+  groups?: Resolver<Array<ResolversTypes['ApprovalGroup']>, ParentType, ContextType>;
+  items?: Resolver<Array<ResolversTypes['ApprovalItem']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type AssetResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Asset'] = ResolversParentTypes['Asset']> = ResolversObject<{
   assetTag?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   assignedToId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -11517,6 +11951,35 @@ export type BrandingResolvers<ContextType = GraphQLContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type BudgetResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Budget'] = ResolversParentTypes['Budget']> = ResolversObject<{
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  costCenterId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  month?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  note?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BudgetPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['BudgetPage'] = ResolversParentTypes['BudgetPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Budget']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BudgetVarianceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['BudgetVariance'] = ResolversParentTypes['BudgetVariance']> = ResolversObject<{
+  actual?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  budgeted?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  costCenterId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  utilisation?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  variance?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type BugResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Bug'] = ResolversParentTypes['Bug']> = ResolversObject<{
   assigneeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   assigneeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -11635,6 +12098,23 @@ export type CampaignSendSummaryResolvers<ContextType = GraphQLContext, ParentTyp
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CannedReplyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CannedReply'] = ResolversParentTypes['CannedReply']> = ResolversObject<{
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['SupportCategory'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CannedReplyPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CannedReplyPage'] = ResolversParentTypes['CannedReplyPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['CannedReply']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type CaseStudyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CaseStudy'] = ResolversParentTypes['CaseStudy']> = ResolversObject<{
   author?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -11718,6 +12198,7 @@ export type CompanyBenefitResolvers<ContextType = GraphQLContext, ParentType ext
 export type CompanyExpenseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CompanyExpense'] = ResolversParentTypes['CompanyExpense']> = ResolversObject<{
   amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   category?: Resolver<ResolversTypes['ExpenseCategory'], ParentType, ContextType>;
+  costCenterId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -11829,6 +12310,24 @@ export type ContractResolvers<ContextType = GraphQLContext, ParentType extends R
 
 export type ContractPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractPage'] = ResolversParentTypes['ContractPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Contract']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CostCenterResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CostCenter'] = ResolversParentTypes['CostCenter']> = ResolversObject<{
+  code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ownerId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CostCenterPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CostCenterPage'] = ResolversParentTypes['CostCenterPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['CostCenter']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -12550,6 +13049,27 @@ export type JobPageResolvers<ContextType = GraphQLContext, ParentType extends Re
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type KbArticleResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['KbArticle'] = ResolversParentTypes['KbArticle']> = ResolversObject<{
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['SupportCategory'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isPublished?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  updatedById?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type KbArticlePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['KbArticlePage'] = ResolversParentTypes['KbArticlePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['KbArticle']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type LeadResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Lead'] = ResolversParentTypes['Lead']> = ResolversObject<{
   campaignId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   campaignName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -12779,8 +13299,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createAudienceList?: Resolver<ResolversTypes['AudienceList'], ParentType, ContextType, RequireFields<MutationCreateAudienceListArgs, 'input'>>;
   createBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationCreateBenefitArgs, 'input'>>;
   createBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationCreateBlogPostArgs, 'input'>>;
+  createBudget?: Resolver<ResolversTypes['Budget'], ParentType, ContextType, RequireFields<MutationCreateBudgetArgs, 'input'>>;
   createBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationCreateBugArgs, 'input'>>;
   createCampaign?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationCreateCampaignArgs, 'input'>>;
+  createCannedReply?: Resolver<ResolversTypes['CannedReply'], ParentType, ContextType, RequireFields<MutationCreateCannedReplyArgs, 'input'>>;
   createCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationCreateCaseStudyArgs, 'input'>>;
   createClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationCreateClientArgs, 'input'>>;
   createClientSupportTicket?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationCreateClientSupportTicketArgs, 'input'>>;
@@ -12789,6 +13311,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createCompanyExpense?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<MutationCreateCompanyExpenseArgs, 'input'>>;
   createContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationCreateContactArgs, 'input'>>;
   createContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationCreateContractArgs, 'input'>>;
+  createCostCenter?: Resolver<ResolversTypes['CostCenter'], ParentType, ContextType, RequireFields<MutationCreateCostCenterArgs, 'input'>>;
   createDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationCreateDealArgs, 'input'>>;
   createDepartment?: Resolver<ResolversTypes['Department'], ParentType, ContextType, RequireFields<MutationCreateDepartmentArgs, 'input'>>;
   createDocPage?: Resolver<ResolversTypes['DocPage'], ParentType, ContextType, RequireFields<MutationCreateDocPageArgs, 'projectId' | 'title'>>;
@@ -12812,6 +13335,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createInvoiceFromTimeLog?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationCreateInvoiceFromTimeLogArgs, 'from' | 'projectId' | 'to'>>;
   createJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<MutationCreateJobArgs, 'input'>>;
   createJobCompany?: Resolver<ResolversTypes['JobCompany'], ParentType, ContextType, RequireFields<MutationCreateJobCompanyArgs, 'input'>>;
+  createKbArticle?: Resolver<ResolversTypes['KbArticle'], ParentType, ContextType, RequireFields<MutationCreateKbArticleArgs, 'input'>>;
   createLead?: Resolver<ResolversTypes['Lead'], ParentType, ContextType, RequireFields<MutationCreateLeadArgs, 'input'>>;
   createLeaveBalance?: Resolver<ResolversTypes['LeaveBalance'], ParentType, ContextType, RequireFields<MutationCreateLeaveBalanceArgs, 'input'>>;
   createLeavePolicy?: Resolver<ResolversTypes['LeavePolicy'], ParentType, ContextType, RequireFields<MutationCreateLeavePolicyArgs, 'input'>>;
@@ -12860,6 +13384,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createUser?: Resolver<ResolversTypes['UserCredentials'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
   createWebhook?: Resolver<ResolversTypes['CreatedWebhook'], ParentType, ContextType, RequireFields<MutationCreateWebhookArgs, 'events' | 'name' | 'url'>>;
   createWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationCreateWebsiteSubmissionArgs, 'input'>>;
+  decideApproval?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDecideApprovalArgs, 'decision' | 'id'>>;
   decideEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationDecideEmployeeRequestArgs, 'id' | 'status'>>;
   deleteActivity?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteActivityArgs, 'id'>>;
   deleteAiJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAiJobArgs, 'id'>>;
@@ -12870,8 +13395,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteAudienceList?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAudienceListArgs, 'id'>>;
   deleteBenefit?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBenefitArgs, 'id'>>;
   deleteBlogPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBlogPostArgs, 'id'>>;
+  deleteBudget?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBudgetArgs, 'id'>>;
   deleteBug?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBugArgs, 'id'>>;
   deleteCampaign?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCampaignArgs, 'id'>>;
+  deleteCannedReply?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCannedReplyArgs, 'id'>>;
   deleteCaseStudy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCaseStudyArgs, 'id'>>;
   deleteClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientArgs, 'id'>>;
   deleteColumn?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteColumnArgs, 'id'>>;
@@ -12879,6 +13406,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteCompanyExpense?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCompanyExpenseArgs, 'id'>>;
   deleteContact?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteContactArgs, 'id'>>;
   deleteContract?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteContractArgs, 'id'>>;
+  deleteCostCenter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCostCenterArgs, 'id'>>;
   deleteDeal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDealArgs, 'id'>>;
   deleteDepartment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDepartmentArgs, 'id'>>;
   deleteDocPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDocPageArgs, 'id'>>;
@@ -12900,6 +13428,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteInvoiceArgs, 'id'>>;
   deleteJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteJobArgs, 'id'>>;
   deleteJobCompany?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteJobCompanyArgs, 'id'>>;
+  deleteKbArticle?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteKbArticleArgs, 'id'>>;
   deleteLead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLeadArgs, 'id'>>;
   deleteLeaveBalance?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLeaveBalanceArgs, 'id'>>;
   deleteLeavePolicy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLeavePolicyArgs, 'id'>>;
@@ -13040,14 +13569,17 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<MutationUpdateBenefitArgs, 'id' | 'input'>>;
   updateBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationUpdateBlogPostArgs, 'id' | 'input'>>;
   updateBranding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType, RequireFields<MutationUpdateBrandingArgs, 'input'>>;
+  updateBudget?: Resolver<ResolversTypes['Budget'], ParentType, ContextType, RequireFields<MutationUpdateBudgetArgs, 'id' | 'input'>>;
   updateBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationUpdateBugArgs, 'id' | 'input'>>;
   updateCampaign?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationUpdateCampaignArgs, 'id' | 'input'>>;
+  updateCannedReply?: Resolver<ResolversTypes['CannedReply'], ParentType, ContextType, RequireFields<MutationUpdateCannedReplyArgs, 'id' | 'input'>>;
   updateCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationUpdateCaseStudyArgs, 'id' | 'input'>>;
   updateClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationUpdateClientArgs, 'id' | 'input'>>;
   updateCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationUpdateCompanyArgs, 'id' | 'input'>>;
   updateCompanyExpense?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<MutationUpdateCompanyExpenseArgs, 'id' | 'input'>>;
   updateContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationUpdateContactArgs, 'id' | 'input'>>;
   updateContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationUpdateContractArgs, 'id' | 'input'>>;
+  updateCostCenter?: Resolver<ResolversTypes['CostCenter'], ParentType, ContextType, RequireFields<MutationUpdateCostCenterArgs, 'id' | 'input'>>;
   updateDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationUpdateDealArgs, 'id' | 'input'>>;
   updateDepartment?: Resolver<ResolversTypes['Department'], ParentType, ContextType, RequireFields<MutationUpdateDepartmentArgs, 'id' | 'input'>>;
   updateDocPage?: Resolver<ResolversTypes['DocPage'], ParentType, ContextType, RequireFields<MutationUpdateDocPageArgs, 'id'>>;
@@ -13069,6 +13601,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationUpdateInvoiceArgs, 'id' | 'input'>>;
   updateJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<MutationUpdateJobArgs, 'id' | 'input'>>;
   updateJobCompany?: Resolver<ResolversTypes['JobCompany'], ParentType, ContextType, RequireFields<MutationUpdateJobCompanyArgs, 'id' | 'input'>>;
+  updateKbArticle?: Resolver<ResolversTypes['KbArticle'], ParentType, ContextType, RequireFields<MutationUpdateKbArticleArgs, 'id' | 'input'>>;
   updateLead?: Resolver<ResolversTypes['Lead'], ParentType, ContextType, RequireFields<MutationUpdateLeadArgs, 'id' | 'input'>>;
   updateLeaveBalance?: Resolver<ResolversTypes['LeaveBalance'], ParentType, ContextType, RequireFields<MutationUpdateLeaveBalanceArgs, 'id' | 'input'>>;
   updateLeavePolicy?: Resolver<ResolversTypes['LeavePolicy'], ParentType, ContextType, RequireFields<MutationUpdateLeavePolicyArgs, 'id' | 'input'>>;
@@ -13669,6 +14202,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   attendanceByEmployee?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType, RequireFields<QueryAttendanceByEmployeeArgs, 'employeeId'>>;
   audienceMembers?: Resolver<Array<ResolversTypes['AudienceMember']>, ParentType, ContextType, RequireFields<QueryAudienceMembersArgs, 'id'>>;
   branding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
+  budgetVsActual?: Resolver<Array<ResolversTypes['BudgetVariance']>, ParentType, ContextType, RequireFields<QueryBudgetVsActualArgs, 'from' | 'to'>>;
   campaignLeadCounts?: Resolver<Array<ResolversTypes['CampaignLeadCount']>, ParentType, ContextType>;
   campaignMetrics?: Resolver<ResolversTypes['CampaignMetrics'], ParentType, ContextType, RequireFields<QueryCampaignMetricsArgs, 'campaignId'>>;
   campaignOptions?: Resolver<Array<ResolversTypes['CampaignOption']>, ParentType, ContextType>;
@@ -13693,14 +14227,17 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getAudienceList?: Resolver<ResolversTypes['AudienceList'], ParentType, ContextType, RequireFields<QueryGetAudienceListArgs, 'id'>>;
   getBenefit?: Resolver<ResolversTypes['Benefit'], ParentType, ContextType, RequireFields<QueryGetBenefitArgs, 'id'>>;
   getBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<QueryGetBlogPostArgs, 'id'>>;
+  getBudget?: Resolver<ResolversTypes['Budget'], ParentType, ContextType, RequireFields<QueryGetBudgetArgs, 'id'>>;
   getBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<QueryGetBugArgs, 'id'>>;
   getCampaign?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<QueryGetCampaignArgs, 'id'>>;
+  getCannedReply?: Resolver<ResolversTypes['CannedReply'], ParentType, ContextType, RequireFields<QueryGetCannedReplyArgs, 'id'>>;
   getCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<QueryGetCaseStudyArgs, 'id'>>;
   getClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<QueryGetClientArgs, 'id'>>;
   getCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<QueryGetCompanyArgs, 'id'>>;
   getCompanyExpense?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<QueryGetCompanyExpenseArgs, 'id'>>;
   getContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<QueryGetContactArgs, 'id'>>;
   getContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<QueryGetContractArgs, 'id'>>;
+  getCostCenter?: Resolver<ResolversTypes['CostCenter'], ParentType, ContextType, RequireFields<QueryGetCostCenterArgs, 'id'>>;
   getDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<QueryGetDealArgs, 'id'>>;
   getDepartment?: Resolver<ResolversTypes['Department'], ParentType, ContextType, RequireFields<QueryGetDepartmentArgs, 'id'>>;
   getEmailFragment?: Resolver<ResolversTypes['EmailFragment'], ParentType, ContextType, RequireFields<QueryGetEmailFragmentArgs, 'id'>>;
@@ -13717,6 +14254,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<QueryGetInvoiceArgs, 'id'>>;
   getJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<QueryGetJobArgs, 'id'>>;
   getJobCompany?: Resolver<ResolversTypes['JobCompany'], ParentType, ContextType, RequireFields<QueryGetJobCompanyArgs, 'id'>>;
+  getKbArticle?: Resolver<ResolversTypes['KbArticle'], ParentType, ContextType, RequireFields<QueryGetKbArticleArgs, 'id'>>;
   getLead?: Resolver<ResolversTypes['Lead'], ParentType, ContextType, RequireFields<QueryGetLeadArgs, 'id'>>;
   getLeaveBalance?: Resolver<ResolversTypes['LeaveBalance'], ParentType, ContextType, RequireFields<QueryGetLeaveBalanceArgs, 'id'>>;
   getLeavePolicy?: Resolver<ResolversTypes['LeavePolicy'], ParentType, ContextType, RequireFields<QueryGetLeavePolicyArgs, 'id'>>;
@@ -13761,6 +14299,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   leadsByCampaign?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<QueryLeadsByCampaignArgs, 'campaignId'>>;
   leaveRequestsByEmployee?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType, RequireFields<QueryLeaveRequestsByEmployeeArgs, 'employeeId'>>;
   licenceSeatsFor?: Resolver<Array<ResolversTypes['EmployeeLicenceSeat']>, ParentType, ContextType, RequireFields<QueryLicenceSeatsForArgs, 'employeeId'>>;
+  listActiveCannedReplies?: Resolver<Array<ResolversTypes['CannedReply']>, ParentType, ContextType>;
   listActivities?: Resolver<Array<ResolversTypes['Activity']>, ParentType, ContextType>;
   listActivitiesPaged?: Resolver<ResolversTypes['ActivityPage'], ParentType, ContextType, RequireFields<QueryListActivitiesPagedArgs, 'input'>>;
   listActivitiesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -13790,6 +14329,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listBlogPosts?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType>;
   listBlogPostsPaged?: Resolver<ResolversTypes['BlogPostPage'], ParentType, ContextType, RequireFields<QueryListBlogPostsPagedArgs, 'input'>>;
   listBlogPostsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listBudgets?: Resolver<Array<ResolversTypes['Budget']>, ParentType, ContextType>;
+  listBudgetsPaged?: Resolver<ResolversTypes['BudgetPage'], ParentType, ContextType, RequireFields<QueryListBudgetsPagedArgs, 'input'>>;
+  listBudgetsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listBugs?: Resolver<Array<ResolversTypes['Bug']>, ParentType, ContextType>;
   listBugsPaged?: Resolver<ResolversTypes['BugPage'], ParentType, ContextType, RequireFields<QueryListBugsPagedArgs, 'input'>>;
   listBugsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -13797,6 +14339,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listCampaigns?: Resolver<Array<ResolversTypes['Campaign']>, ParentType, ContextType>;
   listCampaignsPaged?: Resolver<ResolversTypes['CampaignPage'], ParentType, ContextType, RequireFields<QueryListCampaignsPagedArgs, 'input'>>;
   listCampaignsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listCannedReplies?: Resolver<Array<ResolversTypes['CannedReply']>, ParentType, ContextType>;
+  listCannedRepliesPaged?: Resolver<ResolversTypes['CannedReplyPage'], ParentType, ContextType, RequireFields<QueryListCannedRepliesPagedArgs, 'input'>>;
+  listCannedRepliesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listCaseStudies?: Resolver<Array<ResolversTypes['CaseStudy']>, ParentType, ContextType>;
   listCaseStudiesPaged?: Resolver<ResolversTypes['CaseStudyPage'], ParentType, ContextType, RequireFields<QueryListCaseStudiesPagedArgs, 'input'>>;
   listCaseStudiesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -13815,6 +14360,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listContracts?: Resolver<Array<ResolversTypes['Contract']>, ParentType, ContextType>;
   listContractsPaged?: Resolver<ResolversTypes['ContractPage'], ParentType, ContextType, RequireFields<QueryListContractsPagedArgs, 'input'>>;
   listContractsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listCostCenters?: Resolver<Array<ResolversTypes['CostCenter']>, ParentType, ContextType>;
+  listCostCentersPaged?: Resolver<ResolversTypes['CostCenterPage'], ParentType, ContextType, RequireFields<QueryListCostCentersPagedArgs, 'input'>>;
+  listCostCentersStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listDeals?: Resolver<Array<ResolversTypes['Deal']>, ParentType, ContextType>;
   listDealsPaged?: Resolver<ResolversTypes['DealPage'], ParentType, ContextType, RequireFields<QueryListDealsPagedArgs, 'input'>>;
   listDealsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -13868,6 +14416,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType>;
   listJobsPaged?: Resolver<ResolversTypes['JobPage'], ParentType, ContextType, RequireFields<QueryListJobsPagedArgs, 'input'>>;
   listJobsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listKbArticles?: Resolver<Array<ResolversTypes['KbArticle']>, ParentType, ContextType>;
+  listKbArticlesPaged?: Resolver<ResolversTypes['KbArticlePage'], ParentType, ContextType, RequireFields<QueryListKbArticlesPagedArgs, 'input'>>;
+  listKbArticlesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listLeads?: Resolver<Array<ResolversTypes['Lead']>, ParentType, ContextType>;
   listLeadsPaged?: Resolver<ResolversTypes['LeadPage'], ParentType, ContextType, RequireFields<QueryListLeadsPagedArgs, 'input'>>;
   listLeadsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -13987,6 +14538,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   localeBundle?: Resolver<ResolversTypes['LocaleBundle'], ParentType, ContextType, RequireFields<QueryLocaleBundleArgs, 'locale'>>;
   localeOptions?: Resolver<Array<ResolversTypes['LocaleOption']>, ParentType, ContextType>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  myApprovals?: Resolver<ResolversTypes['ApprovalQueue'], ParentType, ContextType, Partial<QueryMyApprovalsArgs>>;
   myAttendance?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType>;
   myBenefits?: Resolver<Array<ResolversTypes['Benefit']>, ParentType, ContextType>;
   myDirectReports?: Resolver<Array<ResolversTypes['EmployeeOption']>, ParentType, ContextType>;
@@ -14000,6 +14552,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myNotifications?: Resolver<Array<ResolversTypes['Notification']>, ParentType, ContextType>;
   myOnboarding?: Resolver<Maybe<ResolversTypes['OnboardingChecklist']>, ParentType, ContextType>;
   myPayroll?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType>;
+  myPendingApprovalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   myPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
   myPermissions?: Resolver<Array<ResolversTypes['ModulePermission']>, ParentType, ContextType>;
   myPolicies?: Resolver<Array<ResolversTypes['MyPolicy']>, ParentType, ContextType>;
@@ -14051,6 +14604,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicTools?: Resolver<Array<ResolversTypes['Tool']>, ParentType, ContextType, Partial<QueryPublicToolsArgs>>;
   receivables?: Resolver<ResolversTypes['Receivables'], ParentType, ContextType>;
   salarySlipPdf?: Resolver<ResolversTypes['SalarySlipDownload'], ParentType, ContextType, RequireFields<QuerySalarySlipPdfArgs, 'id'>>;
+  searchKnowledgeBase?: Resolver<Array<ResolversTypes['KbArticle']>, ParentType, ContextType, RequireFields<QuerySearchKnowledgeBaseArgs, 'query'>>;
   searchPexelsPhotos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsPhotosArgs, 'query'>>;
   searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
   sharedProject?: Resolver<Maybe<ResolversTypes['SharedProjectView']>, ParentType, ContextType, RequireFields<QuerySharedProjectArgs, 'token'>>;
@@ -15259,6 +15813,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AppSettings?: AppSettingsResolvers<ContextType>;
   Applicant?: ApplicantResolvers<ContextType>;
   ApplicantPage?: ApplicantPageResolvers<ContextType>;
+  ApprovalGroup?: ApprovalGroupResolvers<ContextType>;
+  ApprovalItem?: ApprovalItemResolvers<ContextType>;
+  ApprovalQueue?: ApprovalQueueResolvers<ContextType>;
   Asset?: AssetResolvers<ContextType>;
   AssetAssignee?: AssetAssigneeResolvers<ContextType>;
   AssetAssignment?: AssetAssignmentResolvers<ContextType>;
@@ -15277,6 +15834,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   BlogPostPage?: BlogPostPageResolvers<ContextType>;
   BoardColumn?: BoardColumnResolvers<ContextType>;
   Branding?: BrandingResolvers<ContextType>;
+  Budget?: BudgetResolvers<ContextType>;
+  BudgetPage?: BudgetPageResolvers<ContextType>;
+  BudgetVariance?: BudgetVarianceResolvers<ContextType>;
   Bug?: BugResolvers<ContextType>;
   BugPage?: BugPageResolvers<ContextType>;
   Campaign?: CampaignResolvers<ContextType>;
@@ -15289,6 +15849,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CampaignSend?: CampaignSendResolvers<ContextType>;
   CampaignSendResult?: CampaignSendResultResolvers<ContextType>;
   CampaignSendSummary?: CampaignSendSummaryResolvers<ContextType>;
+  CannedReply?: CannedReplyResolvers<ContextType>;
+  CannedReplyPage?: CannedReplyPageResolvers<ContextType>;
   CaseStudy?: CaseStudyResolvers<ContextType>;
   CaseStudyPage?: CaseStudyPageResolvers<ContextType>;
   Client?: ClientResolvers<ContextType>;
@@ -15307,6 +15869,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ContainerPort?: ContainerPortResolvers<ContextType>;
   Contract?: ContractResolvers<ContextType>;
   ContractPage?: ContractPageResolvers<ContextType>;
+  CostCenter?: CostCenterResolvers<ContextType>;
+  CostCenterPage?: CostCenterPageResolvers<ContextType>;
   CreatedWebhook?: CreatedWebhookResolvers<ContextType>;
   DatabaseInfo?: DatabaseInfoResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
@@ -15374,6 +15938,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   JobCompany?: JobCompanyResolvers<ContextType>;
   JobCompanyPage?: JobCompanyPageResolvers<ContextType>;
   JobPage?: JobPageResolvers<ContextType>;
+  KbArticle?: KbArticleResolvers<ContextType>;
+  KbArticlePage?: KbArticlePageResolvers<ContextType>;
   Lead?: LeadResolvers<ContextType>;
   LeadPage?: LeadPageResolvers<ContextType>;
   LeaveBalance?: LeaveBalanceResolvers<ContextType>;

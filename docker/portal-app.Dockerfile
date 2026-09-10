@@ -51,6 +51,9 @@ COPY exyconn-portal/apps/tracker/package.json exyconn-portal/apps/tracker/
 COPY exyconn-portal/apps/website/package.json exyconn-portal/apps/website/
 COPY exyconn-website/package.json exyconn-website/
 COPY exyconn-tracker-app/package.json exyconn-tracker-app/
+# The root `prepare` script runs on every install, this one included; it needs its own
+# file present. It no-ops without a .git directory, which an image never has.
+COPY scripts/install-git-hooks.mjs scripts/
 # Frontends only: codegen output is committed and `build` doesn't run codegen, so the
 # server package is not needed here (and pulling it in would drag in mongodb-memory-server).
 RUN pnpm install --frozen-lockfile --filter "${APP_PKG}..."

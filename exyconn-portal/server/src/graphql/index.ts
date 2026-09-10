@@ -14,6 +14,8 @@ import {
   financeCompanyResolvers,
   financeRecurringTypeDefs,
   recurringInvoiceResolvers,
+  financeBudgetTypeDefs,
+  financeBudgetResolvers,
 } from '../modules/finance';
 import { emailTypeDefs, emailResolvers } from '../modules/email';
 import { bugsTypeDefs, bugsResolvers } from '../modules/bugs';
@@ -34,7 +36,12 @@ import {
 import { integrationsTypeDefs, integrationsResolvers } from '../modules/integrations';
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
 import { employeeTypeDefs, employeeResolvers } from '../modules/employee';
-import { supportTypeDefs, supportResolvers } from '../modules/support';
+import {
+  supportTypeDefs,
+  supportResolvers,
+  supportLibraryTypeDefs,
+  supportLibraryResolvers,
+} from '../modules/support';
 import {
   marketingTypeDefs,
   marketingResolvers,
@@ -84,6 +91,7 @@ import { permissionsTypeDefs, permissionsResolvers } from '../modules/permission
 import { auditTypeDefs, auditResolvers } from '../modules/audit';
 import { healthTypeDefs, healthResolvers } from '../modules/health';
 import { socialTypeDefs, socialResolvers } from '../modules/social';
+import { approvalsTypeDefs, approvalsResolvers } from '../modules/approvals';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = Record<string, Record<string, unknown> | undefined>;
@@ -116,6 +124,7 @@ export const typeDefs = [
   financeBillingTypeDefs,
   financeCompanyTypeDefs,
   financeRecurringTypeDefs,
+  financeBudgetTypeDefs,
   emailTypeDefs,
   policyTypeDefs,
   bugsTypeDefs,
@@ -129,6 +138,7 @@ export const typeDefs = [
   hrTypeDefs,
   employeeTypeDefs,
   supportTypeDefs,
+  supportLibraryTypeDefs,
   marketingTypeDefs,
   marketingMetricsTypeDefs,
   legalTypeDefs,
@@ -166,6 +176,7 @@ export const typeDefs = [
   statusTypeDefs,
   recruitingTypeDefs,
   infraTypeDefs,
+  approvalsTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -176,6 +187,7 @@ export const resolvers = mergeResolvers([
   financeBillingResolvers,
   financeCompanyResolvers,
   recurringInvoiceResolvers,
+  financeBudgetResolvers,
   emailResolvers,
   policyResolvers,
   bugsResolvers,
@@ -189,6 +201,7 @@ export const resolvers = mergeResolvers([
   hrResolvers,
   employeeResolvers,
   supportResolvers,
+  supportLibraryResolvers,
   marketingResolvers,
   marketingMetricsResolvers,
   legalResolvers,
@@ -226,4 +239,5 @@ export const resolvers = mergeResolvers([
   statusResolvers,
   recruitingResolvers,
   infraResolvers,
+  approvalsResolvers,
 ]);

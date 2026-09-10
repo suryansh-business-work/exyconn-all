@@ -26,6 +26,7 @@ import {
   MyTeamPage,
 } from './pages/employee';
 import { NotificationsPage } from '@exyconn/shell/pages/Notifications';
+import { ApprovalsPage } from '@exyconn/shell/pages/Approvals';
 
 /** My Workspace micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -45,6 +46,7 @@ export function App() {
       <Route path="/me/tracker" element={<MyTrackerPage />} />
       <Route path="/me/notifications" element={<NotificationsPage />} />
       <Route path="/me/requests" element={<RequestsPage />} />
+      <Route path="/me/approvals" element={<ApprovalsPage />} />
       <Route path="/me/goals" element={<GoalsPage />} />
       <Route path="/me/performance" element={<PerformancePage />} />
       <Route path="/me/expenses" element={<ExpensesPage />} />

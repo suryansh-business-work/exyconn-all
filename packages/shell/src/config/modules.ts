@@ -82,6 +82,8 @@ import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import DnsIcon from '@mui/icons-material/Dns';
 import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import PaletteIcon from '@mui/icons-material/Palette';
+import SavingsIcon from '@mui/icons-material/Savings';
+import QuickreplyIcon from '@mui/icons-material/Quickreply';
 import ForumIcon from '@mui/icons-material/Forum';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import { ROLES, type Role } from '@/auth/roles';
@@ -167,6 +169,7 @@ export const MODULES: ModuleDefinition[] = [
         icon: NotificationsIcon,
       },
       { key: 'me-requests', label: 'My Requests', path: '/me/requests', icon: AssignmentIcon },
+      { key: 'me-approvals', label: 'My Approvals', path: '/me/approvals', icon: FactCheckIcon },
       { key: 'me-goals', label: 'Goals', path: '/me/goals', icon: TrackChangesIcon },
       { key: 'me-performance', label: 'Performance', path: '/me/performance', icon: StarIcon },
       { key: 'me-expenses', label: 'Expenses', path: '/me/expenses', icon: ReceiptIcon },
@@ -221,6 +224,19 @@ export const MODULES: ModuleDefinition[] = [
         icon: StorefrontIcon,
       },
       { key: 'finance-expenses', label: 'Expense Claims', path: '/expenses', icon: ReceiptIcon },
+      {
+        key: 'finance-cost-centres',
+        label: 'Cost Centres',
+        path: '/finance/cost-centres',
+        icon: AccountTreeIcon,
+      },
+      { key: 'finance-budgets', label: 'Budgets', path: '/finance/budgets', icon: SavingsIcon },
+      {
+        key: 'finance-budget-variance',
+        label: 'Budget vs Actual',
+        path: '/finance/budget-variance',
+        icon: AssessmentIcon,
+      },
     ],
   },
   {
@@ -240,6 +256,18 @@ export const MODULES: ModuleDefinition[] = [
         icon: SupportAgentIcon,
       },
       { key: 'support-sla', label: 'SLA Policies', path: '/support/sla', icon: ScheduleIcon },
+      {
+        key: 'support-knowledge-base',
+        label: 'Knowledge Base',
+        path: '/support/knowledge-base',
+        icon: MenuBookIcon,
+      },
+      {
+        key: 'support-canned-replies',
+        label: 'Canned Replies',
+        path: '/support/canned-replies',
+        icon: QuickreplyIcon,
+      },
     ],
   },
   {

@@ -33,6 +33,8 @@ export const financeCompanyTypeDefs = gql`
     description: String!
     amount: Float!
     currency: String!
+    "Which cost centre carries it. Empty when the spend is not allocated to one."
+    costCenterId: String!
     "When the cost was incurred. Profit is measured on this date."
     incurredOn: DateTime!
     dueDate: DateTime!
@@ -51,6 +53,7 @@ export const financeCompanyTypeDefs = gql`
     description: String
     amount: Float!
     currency: String!
+    costCenterId: String
     incurredOn: DateTime!
     dueDate: DateTime!
     reference: String

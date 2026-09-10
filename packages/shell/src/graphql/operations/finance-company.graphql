@@ -5,6 +5,7 @@ fragment CompanyExpenseFields on CompanyExpense {
   description
   amount
   currency
+  costCenterId
   incurredOn
   dueDate
   status
