@@ -28,6 +28,7 @@
     "src/main/**/*",
     "src/preload/**/*",
     "src/shared/**/*",
-    "electron.vite.config.ts"
+    "electron.vite.config.ts",
+    "../packages/ui/src/tokens/colors.tokens.ts"
   ]
 }
