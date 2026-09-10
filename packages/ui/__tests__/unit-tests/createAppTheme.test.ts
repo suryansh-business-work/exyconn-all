@@ -9,7 +9,8 @@ describe('createAppTheme', () => {
 
   it('keeps the compact, flat portal defaults', () => {
     const light = createAppTheme('light');
-    expect(light.shape.borderRadius).toBe(6);
+    // One radius for every surface — `glass` follows this rather than carrying its own.
+    expect(light.shape.borderRadius).toBe(8);
     expect(light.components?.MuiButton?.defaultProps?.size).toBe('small');
     expect(light.components?.MuiTextField?.defaultProps?.size).toBe('small');
   });
