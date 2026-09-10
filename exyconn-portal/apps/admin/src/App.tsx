@@ -3,6 +3,7 @@ import { PortalApp } from '@exyconn/shell';
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
 import { AdminPage } from './pages/admin';
+import { AdminOverviewPage } from './pages/overview';
 import { BrandingPage } from './pages/branding';
 import { AppSettingsPage } from './pages/app-settings';
 import { LocalizationPage } from './pages/localization';
@@ -17,7 +18,8 @@ import { IntegrationsPage } from './pages/integrations';
 export function App() {
   return (
     <PortalApp loginElement={<Login />} moduleRole={ROLES.ADMIN} homePath="/admin">
-      <Route path="/admin" element={<AdminPage />} />
+      <Route path="/admin" element={<AdminOverviewPage />} />
+      <Route path="/admin/users" element={<AdminPage />} />
       <Route path="/admin/branding/:tab?" element={<BrandingPage />} />
       <Route path="/admin/settings" element={<AppSettingsPage />} />
       <Route path="/admin/localization" element={<LocalizationPage />} />

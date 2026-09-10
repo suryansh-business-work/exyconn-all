@@ -5,7 +5,7 @@
  * a slug (`/environment-variables/slack`) and a detail page adds an id
  * (`/admin/users/42`) — and both should keep their parent entry highlighted.
  * So an entry matches when the URL is it or sits beneath it, and the longest
- * such entry wins, which is what keeps `/admin` (Users) from claiming
+ * such entry wins, which is what keeps `/admin` (Overview) from claiming
  * `/admin/branding`.
  *
  * Returns the winning path, or `undefined` when the URL is under none of them.

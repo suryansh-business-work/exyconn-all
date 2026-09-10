@@ -761,7 +761,8 @@ export const MODULES: ModuleDefinition[] = [
     description: 'Projects & bug tracking',
     accent: color.teal[600],
     children: [
-      { key: 'projects-board', label: 'Projects', path: '/projects', icon: ViewKanbanIcon },
+      { key: 'projects-overview', label: 'Overview', path: '/projects', icon: DashboardIcon },
+      { key: 'projects-board', label: 'Projects', path: '/projects/list', icon: ViewKanbanIcon },
       { key: 'projects-bugs', label: 'Bugs', path: '/bugs', icon: BugReportIcon },
     ],
   },
@@ -774,7 +775,8 @@ export const MODULES: ModuleDefinition[] = [
     description: 'Users, clients & settings',
     accent: color.blue[600],
     children: [
-      { key: 'admin-users', label: 'Users', path: '/admin', icon: ManageAccountsIcon },
+      { key: 'admin-overview', label: 'Overview', path: '/admin', icon: DashboardIcon },
+      { key: 'admin-users', label: 'Users', path: '/admin/users', icon: ManageAccountsIcon },
       { key: 'admin-clients', label: 'Clients', path: '/clients', icon: GroupsIcon },
       {
         key: 'admin-permissions',
@@ -835,10 +837,11 @@ export const MODULES: ModuleDefinition[] = [
     description: 'exyconn.com content & form submissions',
     accent: color.orange[600],
     children: [
+      { key: 'website-overview', label: 'Overview', path: '/website', icon: DashboardIcon },
       {
         key: 'website-submissions',
         label: 'Form Submissions',
-        path: '/website',
+        path: '/website/submissions',
         icon: MarkEmailUnreadIcon,
       },
       {
@@ -927,11 +930,12 @@ export const MODULES: ModuleDefinition[] = [
     description: 'Worked hours, activity & screenshots',
     accent: color.sky[500],
     children: [
+      { key: 'tracker-overview', label: 'Overview', path: '/tracker', icon: DashboardIcon },
       {
-        key: 'tracker-dashboard',
-        label: 'Dashboard',
-        path: '/tracker',
-        icon: DashboardIcon,
+        key: 'tracker-activity',
+        label: 'Activity',
+        path: '/tracker/activity',
+        icon: AccessTimeIcon,
       },
       {
         key: 'tracker-access',

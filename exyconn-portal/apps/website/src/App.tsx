@@ -13,12 +13,14 @@ import {
   ToolsPage,
   NavLinksPage,
 } from './pages/website';
+import { WebsiteOverviewPage } from './pages/overview';
 
 /** Website micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
   return (
     <PortalApp loginElement={<Login />} moduleRole={ROLES.WEBSITE} homePath="/website">
-      <Route path="/website" element={<WebsiteSubmissionsPage />} />
+      <Route path="/website" element={<WebsiteOverviewPage />} />
+      <Route path="/website/submissions" element={<WebsiteSubmissionsPage />} />
       <Route path="/website/blog" element={<BlogPage />} />
       <Route path="/website/case-studies" element={<CaseStudiesPage />} />
       <Route path="/website/companies" element={<JobCompaniesPage />} />
