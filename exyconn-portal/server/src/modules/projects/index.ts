@@ -72,3 +72,5 @@ export { sprintsTypeDefs } from './sprints.typeDefs';
 export { sprintsResolvers } from './sprints.resolvers';
 export { shareTypeDefs } from './share.typeDefs';
 export { shareResolvers } from './share.resolvers';
+export { projectHealthTypeDefs } from './projects.health.typeDefs';
+export { projectHealthResolvers } from './projects.health.resolvers';

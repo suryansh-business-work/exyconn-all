@@ -674,6 +674,8 @@ export type BlogPostPage = {
 export type BoardColumn = {
   __typename?: 'BoardColumn';
   id: Scalars['ID']['output'];
+  /** Whether a ticket reaching this column is finished. Drives the project's progress. */
+  isDone: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   order: Scalars['Int']['output'];
 };
@@ -3408,6 +3410,8 @@ export type Mutation = {
   sendUserMail: Scalars['Boolean']['output'];
   /** Moves an applicant along the pipeline. The applicant is emailed on INTERVIEW, OFFER and REJECTED. */
   setApplicantStage: Applicant;
+  /** Marks a column as the end of the line, or takes that mark away. */
+  setColumnDone: BoardColumn;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
   setDealStage: Deal;
   /**
@@ -4921,6 +4925,12 @@ export type MutationSetApplicantStageArgs = {
 };
 
 
+export type MutationSetColumnDoneArgs = {
+  id: Scalars['ID']['input'];
+  isDone: Scalars['Boolean']['input'];
+};
+
+
 export type MutationSetDealStageArgs = {
   id: Scalars['ID']['input'];
   stage: DealStage;
@@ -6408,6 +6418,38 @@ export type ProjectBoard = {
   tasks: Array<Task>;
 };
 
+export type ProjectHealth = {
+  __typename?: 'ProjectHealth';
+  budgetHours?: Maybe<Scalars['Float']['output']>;
+  /** Null when no hours budget was agreed. */
+  budgetUsedPercent?: Maybe<Scalars['Float']['output']>;
+  clientName: Scalars['String']['output'];
+  doneTaskCount: Scalars['Int']['output'];
+  endDate?: Maybe<Scalars['DateTime']['output']>;
+  key: Scalars['String']['output'];
+  /** Hours actually logged, from the same source the project's time log shows. */
+  loggedHours: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+  /** Bugs still open or in progress. Resolved and closed ones cost nobody anything. */
+  openBugCount: Scalars['Int']['output'];
+  /**
+   * Share of tickets finished. **Null** when no board column is marked done — a board that
+   * has never said what finished means cannot report progress, and 0% would read as
+   * "nothing done" rather than "nobody told us".
+   */
+  progressPercent?: Maybe<Scalars['Float']['output']>;
+  projectId: Scalars['ID']['output'];
+  risk: ProjectRisk;
+  /** Why the risk is what it is. A rating nobody can question is a rating nobody trusts. */
+  riskReasons: Array<Scalars['String']['output']>;
+  startDate?: Maybe<Scalars['DateTime']['output']>;
+  status: ProjectStatus;
+  taskCount: Scalars['Int']['output'];
+  /** How many people have a ticket on this project. */
+  teamSize: Scalars['Int']['output'];
+  timeline: ProjectTimeline;
+};
+
 export type ProjectInput = {
   budgetAmount?: InputMaybe<Scalars['Float']['input']>;
   budgetHours?: InputMaybe<Scalars['Float']['input']>;
@@ -6432,6 +6474,19 @@ export type ProjectPage = {
   rows: Array<Project>;
   totalCount: Scalars['Int']['output'];
 };
+
+/**
+ * How worrying a project is.
+ *
+ * UNKNOWN is not LOW: it means nothing measurable was set up — no done column, no end date,
+ * no hours budget — and silence is not good news.
+ */
+export enum ProjectRisk {
+  High = 'HIGH',
+  Low = 'LOW',
+  Medium = 'MEDIUM',
+  Unknown = 'UNKNOWN'
+}
 
 /** A read-only link handed to a client. The token itself is only ever returned once. */
 export type ProjectShare = {
@@ -6527,6 +6582,16 @@ export type ProjectTimeLogSession = {
   userId: Scalars['ID']['output'];
   userName: Scalars['String']['output'];
 };
+
+/** Where a project stands against its own dates. */
+export enum ProjectTimeline {
+  Completed = 'COMPLETED',
+  DueSoon = 'DUE_SOON',
+  /** No end date was set, so there is nothing to be late for. */
+  NoDates = 'NO_DATES',
+  OnTrack = 'ON_TRACK',
+  Overdue = 'OVERDUE'
+}
 
 export type Prompt = {
   __typename?: 'Prompt';
@@ -7147,6 +7212,10 @@ export type Query = {
   projectBoard: ProjectBoard;
   /** Every page in a project's space, flat. The sidebar builds the tree from parentId. */
   projectDocPages: Array<DocPage>;
+  /** One project measured against what it said it would do. */
+  projectHealth: ProjectHealth;
+  /** Every project's health, worst first — a portfolio is read to find the one in trouble. */
+  projectHealthOverview: Array<ProjectHealth>;
   projectMilestones: Array<Milestone>;
   projectShares: Array<ProjectShare>;
   projectSprints: Array<Sprint>;
@@ -8187,6 +8256,11 @@ export type QueryProjectBoardArgs = {
 
 export type QueryProjectDocPagesArgs = {
   projectId: Scalars['ID']['input'];
+};
+
+
+export type QueryProjectHealthArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -10929,7 +11003,7 @@ export type ProjectBoardQueryVariables = Exact<{
 }>;
 
 
-export type ProjectBoardQuery = { __typename?: 'Query', projectBoard: { __typename?: 'ProjectBoard', columns: Array<{ __typename?: 'BoardColumn', id: string, name: string, order: number }>, tasks: Array<{ __typename?: 'Task', id: string, columnId: string, key: string, title: string, description?: string | null, type: TaskType, priority: TaskPriority, assigneeId: string, assigneeName: string, reporterName: string, labels: Array<string>, storyPoints?: number | null, dueDate?: string | null, sprintId?: string | null, milestoneId?: string | null, parentTaskId?: string | null, order: number, createdAt: string, updatedAt: string, attachments: Array<{ __typename?: 'TaskAttachment', url: string, name: string, contentType: string, uploadedByName: string, uploadedAt: string }> }> } };
+export type ProjectBoardQuery = { __typename?: 'Query', projectBoard: { __typename?: 'ProjectBoard', columns: Array<{ __typename?: 'BoardColumn', id: string, name: string, order: number, isDone: boolean }>, tasks: Array<{ __typename?: 'Task', id: string, columnId: string, key: string, title: string, description?: string | null, type: TaskType, priority: TaskPriority, assigneeId: string, assigneeName: string, reporterName: string, labels: Array<string>, storyPoints?: number | null, dueDate?: string | null, sprintId?: string | null, milestoneId?: string | null, parentTaskId?: string | null, order: number, createdAt: string, updatedAt: string, attachments: Array<{ __typename?: 'TaskAttachment', url: string, name: string, contentType: string, uploadedByName: string, uploadedAt: string }> }> } };
 
 export type ProjectTasksQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -11043,6 +11117,14 @@ export type TaskActivityQueryVariables = Exact<{
 
 
 export type TaskActivityQuery = { __typename?: 'Query', taskActivity: Array<{ __typename?: 'TaskActivity', id: string, actorName: string, field: string, fromValue: string, toValue: string, createdAt: string }> };
+
+export type SetColumnDoneMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  isDone: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetColumnDoneMutation = { __typename?: 'Mutation', setColumnDone: { __typename?: 'BoardColumn', id: string, isDone: boolean } };
 
 export type BrandingFieldsFragment = { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> };
 
@@ -13788,6 +13870,20 @@ export type MoveDocPageMutationVariables = Exact<{
 
 export type MoveDocPageMutation = { __typename?: 'Mutation', moveDocPage: boolean };
 
+export type ProjectHealthFieldsFragment = { __typename?: 'ProjectHealth', projectId: string, name: string, key: string, status: ProjectStatus, clientName: string, taskCount: number, doneTaskCount: number, progressPercent?: number | null, openBugCount: number, budgetHours?: number | null, loggedHours: number, budgetUsedPercent?: number | null, startDate?: string | null, endDate?: string | null, timeline: ProjectTimeline, teamSize: number, risk: ProjectRisk, riskReasons: Array<string> };
+
+export type ProjectHealthQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ProjectHealthQuery = { __typename?: 'Query', projectHealth: { __typename?: 'ProjectHealth', projectId: string, name: string, key: string, status: ProjectStatus, clientName: string, taskCount: number, doneTaskCount: number, progressPercent?: number | null, openBugCount: number, budgetHours?: number | null, loggedHours: number, budgetUsedPercent?: number | null, startDate?: string | null, endDate?: string | null, timeline: ProjectTimeline, teamSize: number, risk: ProjectRisk, riskReasons: Array<string> } };
+
+export type ProjectHealthOverviewQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ProjectHealthOverviewQuery = { __typename?: 'Query', projectHealthOverview: Array<{ __typename?: 'ProjectHealth', projectId: string, name: string, key: string, status: ProjectStatus, clientName: string, taskCount: number, doneTaskCount: number, progressPercent?: number | null, openBugCount: number, budgetHours?: number | null, loggedHours: number, budgetUsedPercent?: number | null, startDate?: string | null, endDate?: string | null, timeline: ProjectTimeline, teamSize: number, risk: ProjectRisk, riskReasons: Array<string> }> };
+
 export type ProjectShareFieldsFragment = { __typename?: 'ProjectShare', id: string, projectId: string, label: string, expiresAt: string, createdByName: string, revokedAt?: string | null, isLive: boolean, createdAt: string };
 
 export type ProjectSharesQueryVariables = Exact<{
@@ -16071,6 +16167,28 @@ export const DocPageFieldsFragmentDoc = gql`
   order
   updatedByName
   updatedAt
+}
+    `;
+export const ProjectHealthFieldsFragmentDoc = gql`
+    fragment ProjectHealthFields on ProjectHealth {
+  projectId
+  name
+  key
+  status
+  clientName
+  taskCount
+  doneTaskCount
+  progressPercent
+  openBugCount
+  budgetHours
+  loggedHours
+  budgetUsedPercent
+  startDate
+  endDate
+  timeline
+  teamSize
+  risk
+  riskReasons
 }
     `;
 export const ProjectShareFieldsFragmentDoc = gql`
@@ -19480,6 +19598,7 @@ export const ProjectBoardDocument = gql`
       id
       name
       order
+      isDone
     }
     tasks {
       ...TaskFields
@@ -20088,6 +20207,41 @@ export type TaskActivityQueryHookResult = ReturnType<typeof useTaskActivityQuery
 export type TaskActivityLazyQueryHookResult = ReturnType<typeof useTaskActivityLazyQuery>;
 export type TaskActivitySuspenseQueryHookResult = ReturnType<typeof useTaskActivitySuspenseQuery>;
 export type TaskActivityQueryResult = Apollo.QueryResult<TaskActivityQuery, TaskActivityQueryVariables>;
+export const SetColumnDoneDocument = gql`
+    mutation SetColumnDone($id: ID!, $isDone: Boolean!) {
+  setColumnDone(id: $id, isDone: $isDone) {
+    id
+    isDone
+  }
+}
+    `;
+export type SetColumnDoneMutationFn = Apollo.MutationFunction<SetColumnDoneMutation, SetColumnDoneMutationVariables>;
+
+/**
+ * __useSetColumnDoneMutation__
+ *
+ * To run a mutation, you first call `useSetColumnDoneMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetColumnDoneMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setColumnDoneMutation, { data, loading, error }] = useSetColumnDoneMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      isDone: // value for 'isDone'
+ *   },
+ * });
+ */
+export function useSetColumnDoneMutation(baseOptions?: Apollo.MutationHookOptions<SetColumnDoneMutation, SetColumnDoneMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetColumnDoneMutation, SetColumnDoneMutationVariables>(SetColumnDoneDocument, options);
+      }
+export type SetColumnDoneMutationHookResult = ReturnType<typeof useSetColumnDoneMutation>;
+export type SetColumnDoneMutationResult = Apollo.MutationResult<SetColumnDoneMutation>;
+export type SetColumnDoneMutationOptions = Apollo.BaseMutationOptions<SetColumnDoneMutation, SetColumnDoneMutationVariables>;
 export const BrandingDocument = gql`
     query Branding {
   branding {
@@ -36284,6 +36438,91 @@ export function useMoveDocPageMutation(baseOptions?: Apollo.MutationHookOptions<
 export type MoveDocPageMutationHookResult = ReturnType<typeof useMoveDocPageMutation>;
 export type MoveDocPageMutationResult = Apollo.MutationResult<MoveDocPageMutation>;
 export type MoveDocPageMutationOptions = Apollo.BaseMutationOptions<MoveDocPageMutation, MoveDocPageMutationVariables>;
+export const ProjectHealthDocument = gql`
+    query ProjectHealth($id: ID!) {
+  projectHealth(id: $id) {
+    ...ProjectHealthFields
+  }
+}
+    ${ProjectHealthFieldsFragmentDoc}`;
+
+/**
+ * __useProjectHealthQuery__
+ *
+ * To run a query within a React component, call `useProjectHealthQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectHealthQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectHealthQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useProjectHealthQuery(baseOptions: Apollo.QueryHookOptions<ProjectHealthQuery, ProjectHealthQueryVariables> & ({ variables: ProjectHealthQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectHealthQuery, ProjectHealthQueryVariables>(ProjectHealthDocument, options);
+      }
+export function useProjectHealthLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectHealthQuery, ProjectHealthQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectHealthQuery, ProjectHealthQueryVariables>(ProjectHealthDocument, options);
+        }
+// @ts-ignore
+export function useProjectHealthSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProjectHealthQuery, ProjectHealthQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectHealthQuery, ProjectHealthQueryVariables>;
+export function useProjectHealthSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectHealthQuery, ProjectHealthQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectHealthQuery | undefined, ProjectHealthQueryVariables>;
+export function useProjectHealthSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectHealthQuery, ProjectHealthQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectHealthQuery, ProjectHealthQueryVariables>(ProjectHealthDocument, options);
+        }
+export type ProjectHealthQueryHookResult = ReturnType<typeof useProjectHealthQuery>;
+export type ProjectHealthLazyQueryHookResult = ReturnType<typeof useProjectHealthLazyQuery>;
+export type ProjectHealthSuspenseQueryHookResult = ReturnType<typeof useProjectHealthSuspenseQuery>;
+export type ProjectHealthQueryResult = Apollo.QueryResult<ProjectHealthQuery, ProjectHealthQueryVariables>;
+export const ProjectHealthOverviewDocument = gql`
+    query ProjectHealthOverview {
+  projectHealthOverview {
+    ...ProjectHealthFields
+  }
+}
+    ${ProjectHealthFieldsFragmentDoc}`;
+
+/**
+ * __useProjectHealthOverviewQuery__
+ *
+ * To run a query within a React component, call `useProjectHealthOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectHealthOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectHealthOverviewQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useProjectHealthOverviewQuery(baseOptions?: Apollo.QueryHookOptions<ProjectHealthOverviewQuery, ProjectHealthOverviewQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectHealthOverviewQuery, ProjectHealthOverviewQueryVariables>(ProjectHealthOverviewDocument, options);
+      }
+export function useProjectHealthOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectHealthOverviewQuery, ProjectHealthOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectHealthOverviewQuery, ProjectHealthOverviewQueryVariables>(ProjectHealthOverviewDocument, options);
+        }
+// @ts-ignore
+export function useProjectHealthOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProjectHealthOverviewQuery, ProjectHealthOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectHealthOverviewQuery, ProjectHealthOverviewQueryVariables>;
+export function useProjectHealthOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectHealthOverviewQuery, ProjectHealthOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<ProjectHealthOverviewQuery | undefined, ProjectHealthOverviewQueryVariables>;
+export function useProjectHealthOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectHealthOverviewQuery, ProjectHealthOverviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectHealthOverviewQuery, ProjectHealthOverviewQueryVariables>(ProjectHealthOverviewDocument, options);
+        }
+export type ProjectHealthOverviewQueryHookResult = ReturnType<typeof useProjectHealthOverviewQuery>;
+export type ProjectHealthOverviewLazyQueryHookResult = ReturnType<typeof useProjectHealthOverviewLazyQuery>;
+export type ProjectHealthOverviewSuspenseQueryHookResult = ReturnType<typeof useProjectHealthOverviewSuspenseQuery>;
+export type ProjectHealthOverviewQueryResult = Apollo.QueryResult<ProjectHealthOverviewQuery, ProjectHealthOverviewQueryVariables>;
 export const ProjectSharesDocument = gql`
     query ProjectShares($projectId: ID!) {
   projectShares(projectId: $projectId) {

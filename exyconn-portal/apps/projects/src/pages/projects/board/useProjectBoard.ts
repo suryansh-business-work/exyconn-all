@@ -4,6 +4,7 @@ import {
   useCreateColumnMutation,
   useRenameColumnMutation,
   useDeleteColumnMutation,
+  useSetColumnDoneMutation,
   useReorderColumnsMutation,
   useCreateTaskMutation,
   useMoveTaskMutation,
@@ -32,13 +33,14 @@ export function useProjectBoard(projectId: string) {
   useEffect(() => {
     const board = data?.projectBoard;
     if (!board) return;
-    setColumns(board.columns.map((c) => ({ id: c.id, name: c.name })));
+    setColumns(board.columns.map((c) => ({ id: c.id, name: c.name, isDone: c.isDone })));
     setTasks(board.tasks);
   }, [data]);
 
   const [createColumn] = useCreateColumnMutation();
   const [renameColumn] = useRenameColumnMutation();
   const [deleteColumn] = useDeleteColumnMutation();
+  const [setColumnDone] = useSetColumnDoneMutation();
   const [reorderColumns] = useReorderColumnsMutation();
   const [createTask] = useCreateTaskMutation();
   const [moveTask] = useMoveTaskMutation();
@@ -66,6 +68,18 @@ export function useProjectBoard(projectId: string) {
       await renameColumn({ variables: { id, name } }).catch(fail);
     },
     [renameColumn, fail],
+  );
+
+  /**
+   * Marks a column as the end of the line. Optimistic, because the tick is the whole
+   * feedback — waiting on a round trip to redraw one icon reads as a click that missed.
+   */
+  const toggleColumnDone = useCallback(
+    async (id: string, isDone: boolean) => {
+      setColumns((p) => p.map((c) => (c.id === id ? { ...c, isDone } : c)));
+      await setColumnDone({ variables: { id, isDone } }).catch(fail);
+    },
+    [setColumnDone, fail],
   );
 
   const removeColumn = useCallback(
@@ -108,6 +122,7 @@ export function useProjectBoard(projectId: string) {
     setTasks,
     addColumn,
     editColumn,
+    toggleColumnDone,
     removeColumn,
     addTask,
     persistColumnOrder,

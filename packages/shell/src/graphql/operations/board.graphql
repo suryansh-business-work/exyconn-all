@@ -37,6 +37,7 @@ query ProjectBoard($projectId: ID!) {
       id
       name
       order
+      isDone
     }
     tasks {
       ...TaskFields
@@ -146,5 +147,12 @@ query TaskActivity($taskId: ID!) {
     fromValue
     toValue
     createdAt
+  }
+}
+
+mutation SetColumnDone($id: ID!, $isDone: Boolean!) {
+  setColumnDone(id: $id, isDone: $isDone) {
+    id
+    isDone
   }
 }

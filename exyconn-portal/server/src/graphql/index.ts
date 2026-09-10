@@ -63,6 +63,8 @@ import {
   sprintsResolvers,
   shareTypeDefs,
   shareResolvers,
+  projectHealthTypeDefs,
+  projectHealthResolvers,
 } from '../modules/projects';
 import { techTypeDefs, techResolvers } from '../modules/tech';
 import { statusTypeDefs, statusResolvers } from '../modules/status';
@@ -150,6 +152,7 @@ export const typeDefs = [
   docsTypeDefs,
   sprintsTypeDefs,
   shareTypeDefs,
+  projectHealthTypeDefs,
   techTypeDefs,
   ...websiteTypeDefs,
   trackerTypeDefs,
@@ -212,6 +215,7 @@ export const resolvers = mergeResolvers([
   docsResolvers,
   sprintsResolvers,
   shareResolvers,
+  projectHealthResolvers,
   crmResolvers,
   techResolvers,
   websiteResolvers,

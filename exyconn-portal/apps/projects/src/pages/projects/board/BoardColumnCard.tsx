@@ -4,6 +4,9 @@ import { CSS } from '@dnd-kit/utilities';
 import { Box, IconButton, Flex, TextField, Text } from '@exyconn/shell/components/ui';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { Tooltip } from '@exyconn/shell/components/ui';
 import { TaskCard } from './TaskCard';
 import { AddItemInput } from './AddItemInput';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
@@ -16,6 +19,7 @@ interface BoardColumnCardProps {
   onDelete: (id: string) => void;
   onAddTask: (columnId: string, title: string) => void;
   onOpenTask: (id: string) => void;
+  onToggleDone: (id: string, isDone: boolean) => void;
 }
 
 /** A draggable kanban column hosting a vertical sortable list of tickets. */
@@ -26,6 +30,7 @@ export function BoardColumnCard({
   onDelete,
   onAddTask,
   onOpenTask,
+  onToggleDone,
 }: Readonly<BoardColumnCardProps>) {
   const confirm = useConfirm();
   const [editing, setEditing] = useState(false);
@@ -92,6 +97,26 @@ export function BoardColumnCard({
             </Text>
           </Text>
         )}
+        <Tooltip
+          title={
+            column.isDone
+              ? 'Tickets here count as finished'
+              : 'Mark as the end of the line, so progress can be measured'
+          }
+        >
+          <IconButton
+            size="small"
+            color={column.isDone ? 'success' : 'default'}
+            onClick={() => onToggleDone(column.id, !column.isDone)}
+            aria-label={column.isDone ? 'Stop counting as done' : 'Count as done'}
+          >
+            {column.isDone ? (
+              <CheckCircleIcon fontSize="small" />
+            ) : (
+              <CheckCircleOutlineIcon fontSize="small" />
+            )}
+          </IconButton>
+        </Tooltip>
         <IconButton size="small" onClick={remove} aria-label="Delete column">
           <DeleteOutlineIcon fontSize="small" />
         </IconButton>

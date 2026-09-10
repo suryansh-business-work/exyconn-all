@@ -63,6 +63,7 @@ export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBo
                 column={column}
                 tasks={tasksOf(column.id)}
                 onRename={board.editColumn}
+                onToggleDone={board.toggleColumnDone}
                 onDelete={board.removeColumn}
                 onAddTask={board.addTask}
                 onOpenTask={setOpenId}

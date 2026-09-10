@@ -1,0 +1,34 @@
+# A project measured against what it said it would do.
+
+fragment ProjectHealthFields on ProjectHealth {
+  projectId
+  name
+  key
+  status
+  clientName
+  taskCount
+  doneTaskCount
+  progressPercent
+  openBugCount
+  budgetHours
+  loggedHours
+  budgetUsedPercent
+  startDate
+  endDate
+  timeline
+  teamSize
+  risk
+  riskReasons
+}
+
+query ProjectHealth($id: ID!) {
+  projectHealth(id: $id) {
+    ...ProjectHealthFields
+  }
+}
+
+query ProjectHealthOverview {
+  projectHealthOverview {
+    ...ProjectHealthFields
+  }
+}
