@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Avatar,
+  borderWidth,
   Box,
+  fontSize,
   IconButton,
   Menu,
   MenuItem,
@@ -51,7 +53,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         width: { md: `calc(100% - ${drawerWidth}px)` },
         ml: { md: `${drawerWidth}px` },
         background: t.palette.background.paper,
-        borderBottom: `1px solid ${t.palette.divider}`,
+        borderBottom: `${borderWidth.hairline}px solid ${t.palette.divider}`,
       })}
     >
       <Toolbar variant="dense">
@@ -78,7 +80,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} aria-label="account menu">
           <Avatar
             src={user?.avatarUrl ?? undefined}
-            sx={{ bgcolor: 'primary.main', width: 30, height: 30, fontSize: 14 }}
+            sx={{ bgcolor: 'primary.main', width: 30, height: 30, fontSize: fontSize.md }}
           >
             {user?.name?.charAt(0).toUpperCase()}
           </Avatar>

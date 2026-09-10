@@ -1,4 +1,4 @@
-import { Alert, Box, Flex, Grid, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, color, Flex, Grid, radius, Text } from '@exyconn/shell/components/ui';
 import { StatCard, type StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { StatBreakdown } from '@exyconn/shell/components/dashboard/StatBreakdown';
 import { LineChart } from '@exyconn/shell/components/dashboard/LineChart';
@@ -32,10 +32,10 @@ export function EmailDashboardPanel() {
   const board = data?.emailDashboard;
 
   const stats: StatItem[] = [
-    { label: 'Templates', value: String(board?.templates ?? 0), accent: '#4f8cff' },
-    { label: 'Active', value: String(board?.activeTemplates ?? 0), accent: '#22c55e' },
-    { label: `Sent · ${TREND_DAYS}d`, value: String(board?.sent ?? 0), accent: '#8b5cf6' },
-    { label: `Failed · ${TREND_DAYS}d`, value: String(board?.failed ?? 0), accent: '#ff6b6b' },
+    { label: 'Templates', value: String(board?.templates ?? 0), accent: color.blue[400] },
+    { label: 'Active', value: String(board?.activeTemplates ?? 0), accent: color.green[500] },
+    { label: `Sent · ${TREND_DAYS}d`, value: String(board?.sent ?? 0), accent: color.violet[400] },
+    { label: `Failed · ${TREND_DAYS}d`, value: String(board?.failed ?? 0), accent: color.red[200] },
   ];
 
   const failureColumns: Column<EmailLogFieldsFragment>[] = [
@@ -54,7 +54,7 @@ export function EmailDashboardPanel() {
     <Box>
       {/* First, because every other number here can look healthy while nothing has left. */}
       {board && !board.configured ? (
-        <Alert severity="error" variant="outlined" sx={{ mb: 2, borderRadius: '4px' }}>
+        <Alert severity="error" variant="outlined" sx={{ mb: 2, borderRadius: `${radius.sm}px` }}>
           No active SMTP configuration, so nothing can be sent. Add one under Settings.
         </Alert>
       ) : null}

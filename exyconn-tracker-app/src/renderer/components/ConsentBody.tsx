@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Box, alpha } from '@exyconn/ui';
+import { alpha, borderWidth, Box, fontSize, TRACKER_RADIUS } from '@exyconn/ui';
 interface Props {
   html: string;
 }
@@ -16,11 +16,11 @@ export default function ConsentBody({ html }: Readonly<Props>): ReactElement {
         maxHeight: '42vh',
         overflow: 'auto',
         p: 2,
-        borderRadius: '4px',
+        borderRadius: `${TRACKER_RADIUS}px`,
         backgroundColor: alpha(theme.palette.text.primary, 0.04),
-        border: `1px solid ${alpha(theme.palette.text.primary, 0.1)}`,
+        border: `${borderWidth.hairline}px solid ${alpha(theme.palette.text.primary, 0.1)}`,
         color: theme.palette.text.primary,
-        fontSize: 14,
+        fontSize: fontSize.md,
         lineHeight: 1.6,
         '& > :first-of-type': { mt: 0 },
         '& > :last-child': { mb: 0 },
@@ -34,7 +34,7 @@ export default function ConsentBody({ html }: Readonly<Props>): ReactElement {
         '& a': { color: theme.palette.primary.main },
         '& hr': {
           border: 'none',
-          borderTop: `1px solid ${alpha(theme.palette.text.primary, 0.12)}`,
+          borderTop: `${borderWidth.hairline}px solid ${alpha(theme.palette.text.primary, 0.12)}`,
           my: 2,
         },
       })}

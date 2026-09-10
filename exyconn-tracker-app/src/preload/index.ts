@@ -12,8 +12,14 @@ import {
   type ManualEntryDraft,
   type PermissionKind,
   type PermissionState,
+  type PresenceState,
+  type PresenceStatus,
   type ReportDay,
+  type ReportExport,
+  type SavedReport,
   type ScreenshotsRange,
+  type TrackerMessage,
+  type TrackerMessageKind,
   type TrackerState,
   type TrackerTask,
   type TrackerTotals,
@@ -72,11 +78,34 @@ const api = {
   withdrawManualEntry: (id: string): Promise<void> =>
     ipcRenderer.invoke(IPC.withdrawManualEntry, id),
 
+  // ── Presence, messages and exports ──────────────────────────────────────
+  /**
+   * Says what the employee is doing. Every status but Working pauses a running session —
+   * a tracker that kept counting through lunch would bill lunch as work.
+   */
+  setPresence: (status: PresenceStatus, note: string): Promise<PresenceState> =>
+    ipcRenderer.invoke(IPC.setPresence, status, note),
+  /** Their own thread with the tracker desk ('CHAT'), or the announcements sent to them. */
+  getMessages: (kind: TrackerMessageKind): Promise<TrackerMessage[]> =>
+    ipcRenderer.invoke(IPC.getMessages, kind),
+  sendMessage: (body: string): Promise<TrackerMessage> => ipcRenderer.invoke(IPC.sendMessage, body),
+  /** Clears the unread badge for one kind; resolves to how many were marked. */
+  markMessagesRead: (kind: TrackerMessageKind): Promise<number> =>
+    ipcRenderer.invoke(IPC.markMessagesRead, kind),
+  /**
+   * Writes a report the renderer has already composed to a file the employee picks.
+   * Resolves with a null path when they cancel the dialog, which is not an error.
+   */
+  saveReport: (report: ReportExport): Promise<SavedReport> =>
+    ipcRenderer.invoke(IPC.saveReport, report),
+
   // ── Updates ─────────────────────────────────────────────────────────────
   /** The version this install is running — what the About panel shows. */
   getAppVersion: (): Promise<string> => ipcRenderer.invoke(IPC.getAppVersion),
   /** Where this install is in its own update cycle, for a window that has just opened. */
   getUpdate: (): Promise<UpdateState> => ipcRenderer.invoke(IPC.getUpdate),
+  /** Looks for a newer version now. Progress and the outcome arrive on `onUpdateChanged`. */
+  checkForUpdate: (): Promise<void> => ipcRenderer.invoke(IPC.checkForUpdate),
   /** Starts fetching an available version. Progress arrives on `onUpdateChanged`. */
   downloadUpdate: (): Promise<void> => ipcRenderer.invoke(IPC.downloadUpdate),
   /** Stops tracking, flushes what is queued, and restarts into the downloaded version. */

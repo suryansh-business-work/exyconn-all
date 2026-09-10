@@ -60,6 +60,43 @@ export type WorkLocation = 'OFFICE' | 'HOME' | 'HYBRID' | 'OTHER';
 export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'WFH' | 'HALF_DAY';
 
 /**
+ * What the employee has said they are doing right now. Mirrors the portal's TrackerPresence.
+ *
+ * Their own statement, never something the tracker inferred: a quiet keyboard means the
+ * keyboard was quiet, not that somebody went to lunch.
+ */
+export type PresenceStatus = 'WORKING' | 'LUNCH' | 'BREAK' | 'MEETING' | 'AWAY';
+
+/** The employee's current presence, as the portal holds it. */
+export interface PresenceState {
+  status: PresenceStatus;
+  /** Their own words for it — "back at 2", "client call". Empty when they left it blank. */
+  note: string;
+  /** ISO instant they last said it; null when they never have. */
+  since: string | null;
+}
+
+/** A two-way conversation line, or a one-way announcement. Mirrors TrackerMessageKind. */
+export type TrackerMessageKind = 'CHAT' | 'NOTICE';
+
+/** Which way a message travelled. Read state belongs to whoever it was going to. */
+export type TrackerMessageDirection = 'TO_EMPLOYEE' | 'TO_ADMIN';
+
+/** One message on the employee's own tracker thread. */
+export interface TrackerMessage {
+  id: string;
+  kind: TrackerMessageKind;
+  direction: TrackerMessageDirection;
+  /** Announcements only — a chat line has no subject. */
+  title: string;
+  body: string;
+  /** Who wrote it, as they were named at the time. Empty for a departed account. */
+  authorName: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+/**
  * What this employee is contracted to work, set by HR on their employee record.
  *
  * The app never invents these — an arrangement the tracker made up is one HR has not agreed
@@ -190,7 +227,27 @@ export interface AppPreferences {
    * It only ever silences: the capture notification still appears on every capture.
    */
   muteCaptureSound: boolean;
+  /**
+   * How today's progress is drawn: a bar across the card, or a ring around the figure.
+   *
+   * Purely a display choice — both read the same number. The ring puts the percentage in
+   * the middle of the shape it describes, which is easier to take in at a glance on a
+   * window this narrow; the bar shows the remainder as a length, which some people prefer.
+   */
+  progressStyle: ProgressStyle;
+  /**
+   * Fetch a new version as soon as one appears, instead of waiting to be asked.
+   *
+   * Off by default: a tracker that quietly pulls a few hundred megabytes decides for the
+   * employee that now is a good moment to use their connection, and on a tethered phone it
+   * is not. It never installs behind their back either way — the downloaded version is the
+   * one that comes back whenever THEY next quit the app.
+   */
+  autoUpdate: boolean;
 }
+
+/** How the day's progress is drawn. */
+export type ProgressStyle = 'bar' | 'ring';
 
 /**
  * What the last sync attempt actually did. A sync that uploads nothing is NOT a failure, but
@@ -264,6 +321,24 @@ export interface ReportDay {
   sessions: number;
 }
 
+/**
+ * A report the employee asked to keep a copy of.
+ *
+ * The renderer composes the file (it owns the formatting every other view already uses) and
+ * the main process writes it — only main can open a save dialog or touch the disk.
+ */
+export interface ReportExport {
+  /** Suggested file name, e.g. "tracker-report-2026-09.csv". */
+  fileName: string;
+  /** The whole file, already formatted. */
+  content: string;
+}
+
+/** Where a saved report landed, or null when the employee cancelled the dialog. */
+export interface SavedReport {
+  path: string | null;
+}
+
 /** The employee's own report over a date range (their data only). */
 export interface MyReport {
   days: ReportDay[];
@@ -330,9 +405,19 @@ export const IPC = {
   getManualEntries: 'tracker:get-manual-entries',
   createManualEntry: 'tracker:create-manual-entry',
   withdrawManualEntry: 'tracker:withdraw-manual-entry',
+  /** Says what the employee is doing — at lunch, on a break, in a meeting. */
+  setPresence: 'tracker:set-presence',
+  /** The employee's own thread with the tracker desk, or the announcements sent to them. */
+  getMessages: 'tracker:get-messages',
+  sendMessage: 'tracker:send-message',
+  markMessagesRead: 'tracker:mark-messages-read',
+  /** Writes the month's report to a file the employee chooses. */
+  saveReport: 'tracker:save-report',
   /** This install's own version, for the About panel — the number an update compares against. */
   getAppVersion: 'tracker:get-app-version',
   getUpdate: 'tracker:get-update',
+  /** Looks for a newer version right now, rather than waiting for the next scheduled check. */
+  checkForUpdate: 'tracker:check-for-update',
   /** Starts fetching an available version. Returns immediately — the download is background. */
   downloadUpdate: 'tracker:download-update',
   installUpdate: 'tracker:install-update',
@@ -397,6 +482,14 @@ export interface UpdateState {
   version: string;
   /** Download progress 0-100, while `stage` is 'downloading'. */
   percent: number;
+  /**
+   * ISO instant of the last completed check, or null before the first one.
+   *
+   * Without it "Check for updates" is a button that answers a question by doing nothing
+   * visible: an up-to-date app returns to `idle`, which looks exactly like never having
+   * looked. This is what lets Settings say when it last did.
+   */
+  lastCheckedAt: string | null;
 }
 
 /** Where a claim for off-computer time stands. Mirrors the portal's own enum. */
@@ -463,6 +556,10 @@ export interface TrackerState {
    * the admin's house default, else this device's zone. Never empty.
    */
   timezone: string;
+  /** What the employee last said they were doing — lunch, a break, a meeting. */
+  presence: PresenceState;
+  /** Messages from the tracker desk they have not read, for the drawer's badge. */
+  unreadMessages: number;
 }
 
 /**

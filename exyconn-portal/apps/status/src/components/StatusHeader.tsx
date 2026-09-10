@@ -11,6 +11,7 @@ import {
   IconButton,
   Tooltip,
   Typography,
+  zIndex,
 } from '@exyconn/shell/components/ui';
 import { useColorMode } from '@exyconn/shell/theme/ColorModeContext';
 import { usePublicBrandingQuery } from '@exyconn/shell/graphql/generated';
@@ -43,7 +44,7 @@ export function StatusHeader() {
       sx={{
         position: 'sticky',
         top: 0,
-        zIndex: 10,
+        zIndex: zIndex.sticky,
         borderBottom: 1,
         borderColor: 'divider',
         bgcolor: 'background.paper',

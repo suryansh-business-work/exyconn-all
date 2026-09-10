@@ -1,0 +1,133 @@
+/**
+ * Every colour the website is allowed to paint, as named ramps.
+ *
+ * This file is the ONLY place a hex may appear. Nothing else in `src/` writes
+ * `#0071e3` — it writes `var(--palette-brand-500)`, so a hue is retuned in one edit
+ * instead of hunted across thirty pages.
+ *
+ * Shades run light (low number) to dark (high number) WITHIN a family. The `--palette-`
+ * prefix keeps these clear of Tailwind's own `--color-*` theme variables, which live in
+ * the same `:root` and must not be shadowed.
+ *
+ * A ramp carries no meaning. Components should reach for a semantic token from
+ * `modes/light.token.scss` (`--color-text-primary`, `--color-surface-page`, …) and use a
+ * ramp directly only for a decorative accent that is about identity, not state.
+ */
+
+:root {
+  /* The Exyconn blue. `500` is the button, the link and the focus ring; `300` exists
+   only so dark mode has a shade that clears 4.5:1 on the night surfaces. */
+  --palette-brand-300: #4da3ff;
+  --palette-brand-500: #0071e3;
+  --palette-brand-600: #005bb5;
+  --palette-brand-700: #004a99;
+
+  /* Pure greys — the site's oldest palette, still worn by body copy and rules. */
+  --palette-neutral-0: #ffffff;
+  --palette-neutral-100: #eeeeee;
+  --palette-neutral-200: #e0e0e0;
+  --palette-neutral-300: #cccccc;
+  --palette-neutral-400: #999999;
+  --palette-neutral-500: #888888;
+  --palette-neutral-600: #666666;
+  --palette-neutral-700: #555555;
+  --palette-neutral-800: #444444;
+  --palette-neutral-850: #333333;
+  --palette-neutral-900: #222222;
+  --palette-neutral-950: #1a1a1a;
+  --palette-neutral-1000: #000000;
+
+  /* Cool neutrals with a blue cast. Used where a grey sits next to the brand. */
+  --palette-slate-50: #f8fafc;
+  --palette-slate-100: #f1f5f9;
+  --palette-slate-200: #e2e8f0;
+  --palette-slate-300: #cbd5e1;
+  --palette-slate-400: #94a3b8;
+  --palette-slate-500: #64748b;
+  --palette-slate-800: #1e293b;
+  --palette-slate-900: #0f172a;
+
+  /* The warmer neutral. Kept apart from `slate`: side by side the two are visibly
+   different, and collapsing them would shift half the page. */
+  --palette-gray-50: #f9fafb;
+  --palette-gray-100: #f3f4f6;
+  --palette-gray-200: #e5e7eb;
+  --palette-gray-300: #d1d5db;
+  --palette-gray-400: #a0aec0;
+  --palette-gray-500: #6b7280;
+  --palette-gray-600: #4b5563;
+  --palette-gray-700: #374151;
+  --palette-gray-900: #111827;
+
+  /* Night surfaces. Only dark mode paints with these. */
+  --palette-ink-700: #232b3b;
+  --palette-ink-800: #181f2a;
+  --palette-ink-900: #10141a;
+
+  --palette-blue-100: #dbeafe;
+  --palette-blue-500: #3b82f6;
+  --palette-blue-600: #2563eb;
+
+  --palette-sky-50: #f8fbff;
+  --palette-sky-300: #7dd3fc;
+  --palette-sky-500: #0ea5e9;
+
+  --palette-cyan-500: #06b6d4;
+  --palette-cyan-600: #0891b2;
+
+  --palette-teal-50: #f0fdfa;
+  --palette-teal-500: #14b8a6;
+
+  --palette-emerald-50: #ecfdf5;
+  --palette-emerald-500: #10b981;
+  --palette-emerald-600: #059669;
+
+  --palette-green-50: #f0fdf4;
+  --palette-green-200: #bbf7d0;
+  --palette-green-500: #22c55e;
+  --palette-green-600: #16a34a;
+  --palette-green-800: #166534;
+
+  --palette-amber-400: #f5a623;
+  --palette-amber-500: #f59e0b;
+  --palette-amber-600: #d97706;
+
+  --palette-yellow-200: #fef08a;
+
+  --palette-orange-400: #ff9933;
+  --palette-orange-500: #f97316;
+
+  --palette-red-50: #fef2f2;
+  --palette-red-200: #fecaca;
+  --palette-red-500: #ef4444;
+  --palette-red-800: #991b1b;
+
+  --palette-rose-400: #f43f5e;
+  --palette-rose-500: #e11d48;
+
+  --palette-pink-400: #f472b6;
+  --palette-pink-500: #ec4899;
+
+  --palette-purple-50: #faf5ff;
+  --palette-purple-300: #c084fc;
+  --palette-purple-500: #9333ea;
+
+  --palette-violet-50: #faf8ff;
+  --palette-violet-200: #ddd6fe;
+  --palette-violet-300: #c4b5fd;
+  --palette-violet-400: #8b5cf6;
+  --palette-violet-500: #7c3aed;
+
+  --palette-indigo-25: #f8f9ff;
+  --palette-indigo-50: #eef2ff;
+  --palette-indigo-100: #e0e7ff;
+  --palette-indigo-150: #e0e4f0;
+  --palette-indigo-200: #c7d2fe;
+  --palette-indigo-300: #818cf8;
+  --palette-indigo-400: #6366f1;
+  --palette-indigo-500: #4f46e5;
+  --palette-indigo-600: #4338ca;
+  --palette-indigo-700: #4a4a6a;
+  --palette-indigo-800: #1a2b6b;
+  --palette-indigo-900: #1e1b4b;
+}

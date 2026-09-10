@@ -1,3 +1,5 @@
+import { amber, azure, emerald, green, indigo, orange, pink, red } from '../tokens/colors.tokens';
+
 /**
  * The chart palette.
  *
@@ -5,9 +7,9 @@
  * order (the order IS the colour-blindness safety mechanism, so it never changes), every slot
  * inside the mode's lightness band and above the chroma floor, and every adjacent pair far
  * enough apart under simulated protanopia and deuteranopia to stay tellable apart. They were
- * checked against THIS design system's own surfaces — #ffffff light, #151a26 dark (portal) and
- * #171B21 (the desktop tracker) — because contrast means nothing except against the surface a
- * chart actually renders on.
+ * checked against THIS design system's own surfaces — `neutral[0]` light, `neutral[800]` dark
+ * (portal and the desktop tracker) — because contrast means nothing except against the surface
+ * a chart actually renders on.
  *
  * Assign slots in order and never cycle: a ninth generated hue is indistinguishable from an
  * existing one under colour-blindness. Past eight series, fold the tail into "Other".
@@ -19,34 +21,34 @@
 
 /** Categorical slots, light surface. Fixed order — see the note above before reordering. */
 export const CHART_SERIES_LIGHT = [
-  '#2a78d6', // 1 blue
-  '#eb6834', // 2 orange
-  '#1baf7a', // 3 aqua
-  '#eda100', // 4 yellow
-  '#e87ba4', // 5 magenta
-  '#008300', // 6 green
-  '#4a3aa7', // 7 violet
-  '#e34948', // 8 red
+  azure[500], // 1 blue
+  orange[400], // 2 orange
+  emerald[600], // 3 aqua
+  amber[600], // 4 yellow
+  pink[300], // 5 magenta
+  green[800], // 6 green
+  indigo[800], // 7 violet
+  red[600], // 8 red
 ] as const;
 
 /** The same eight hues, stepped for the dark surface. Not a different palette. */
 export const CHART_SERIES_DARK = [
-  '#3987e5',
-  '#d95926',
-  '#199e70',
-  '#c98500',
-  '#d55181',
-  '#008300',
-  '#9085e9',
-  '#e66767',
+  azure[400],
+  orange[700],
+  emerald[700],
+  amber[800],
+  pink[500],
+  green[800],
+  indigo[300],
+  red[400],
 ] as const;
 
 /**
  * One hue, light to dark, for magnitude (how much) rather than identity (which one).
  * Used when a chart's bars are all the same thing measured at different sizes.
  */
-export const CHART_SEQUENTIAL_LIGHT = ['#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#256abf'];
-export const CHART_SEQUENTIAL_DARK = ['#184f95', '#256abf', '#3987e5', '#6da7ec', '#9ec5f4'];
+export const CHART_SEQUENTIAL_LIGHT = [azure[100], azure[200], azure[300], azure[400], azure[600]];
+export const CHART_SEQUENTIAL_DARK = [azure[800], azure[600], azure[400], azure[300], azure[200]];
 
 /**
  * Status colours, with reserved meaning. Never used as "series 5" — a status colour that
@@ -54,10 +56,10 @@ export const CHART_SEQUENTIAL_DARK = ['#184f95', '#256abf', '#3987e5', '#6da7ec'
  * Always shipped with a label, never as colour alone.
  */
 export const CHART_STATUS = {
-  good: '#0ca30c',
-  warning: '#fab219',
-  serious: '#ec835a',
-  critical: '#d03b3b',
+  good: green[700],
+  warning: amber[400],
+  serious: orange[300],
+  critical: red[700],
 } as const;
 
 export interface ChartPalette {
@@ -95,7 +97,7 @@ export function chartPalette(
   };
 }
 
-/** `#2a78d6` at 10% — the wash under an area line. Never a saturated block. */
+/** A series colour at 10% — the wash under an area line. Never a saturated block. */
 export function wash(hex: string, alpha = 0.1): string {
   const value = Number.parseInt(hex.slice(1), 16);
   const r = (value >> 16) & 255;

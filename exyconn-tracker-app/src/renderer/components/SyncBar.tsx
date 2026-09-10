@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Alert, LinearProgress, Stack, Typography } from '@exyconn/ui';
+import { Alert, LinearProgress, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import CloudDoneOutlined from '@mui/icons-material/CloudDoneOutlined';
 import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
 import type { LiveStats, TrackerSettings } from '@shared/types';
@@ -63,7 +63,11 @@ export default function SyncBar({ stats, settings, timezone }: Readonly<Props>):
       {stats.syncing ? <LinearProgress sx={{ mt: 1.5 }} /> : null}
 
       {message !== null && !stats.syncing ? (
-        <Alert severity={message.severity} variant="outlined" sx={{ mt: 1.5, borderRadius: '4px' }}>
+        <Alert
+          severity={message.severity}
+          variant="outlined"
+          sx={{ mt: 1.5, borderRadius: `${TRACKER_RADIUS}px` }}
+        >
           {message.text}
         </Alert>
       ) : null}

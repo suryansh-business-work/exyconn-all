@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { AuditDetailsDrawer } from './AuditDetailsDrawer';
 import { AUDIT_COLUMNS, type AuditGridContext, type PagedAuditRow } from './audit-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /**
  * Admin › Audit Log: every create, update, delete, sign-in, role, permission and access
@@ -28,10 +29,22 @@ export function AuditLogPage() {
 
   const stats = statsData?.listAuditLogsStats;
   const statItems: StatItem[] = [
-    { label: 'Entries', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Updates', value: String(statCount(stats, 'action', 'UPDATE')), accent: '#8b5cf6' },
-    { label: 'Deletes', value: String(statCount(stats, 'action', 'DELETE')), accent: '#ff6b6b' },
-    { label: 'Sign-ins', value: String(statCount(stats, 'action', 'LOGIN')), accent: '#7be37b' },
+    { label: 'Entries', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Updates',
+      value: String(statCount(stats, 'action', 'UPDATE')),
+      accent: color.violet[400],
+    },
+    {
+      label: 'Deletes',
+      value: String(statCount(stats, 'action', 'DELETE')),
+      accent: color.red[200],
+    },
+    {
+      label: 'Sign-ins',
+      value: String(statCount(stats, 'action', 'LOGIN')),
+      accent: color.green[300],
+    },
   ];
 
   const gridContext: AuditGridContext = {

@@ -1,4 +1,4 @@
-import { Box } from '@exyconn/shell/components/ui';
+import { Box, color } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
@@ -25,10 +25,10 @@ export function ReceivablesPage() {
   const outstanding = report?.outstanding ?? 0;
   const overdue = report?.overdue ?? 0;
   const stats: StatItem[] = [
-    { label: 'Outstanding', value: money(outstanding), accent: '#4f8cff' },
-    { label: 'Overdue', value: money(overdue), accent: '#ff6b6b' },
-    { label: 'Not yet due', value: money(outstanding - overdue), accent: '#7be37b' },
-    { label: 'Open invoices', value: String(report?.invoices ?? 0), accent: '#8b5cf6' },
+    { label: 'Outstanding', value: money(outstanding), accent: color.blue[400] },
+    { label: 'Overdue', value: money(overdue), accent: color.red[200] },
+    { label: 'Not yet due', value: money(outstanding - overdue), accent: color.green[300] },
+    { label: 'Open invoices', value: String(report?.invoices ?? 0), accent: color.violet[400] },
   ];
 
   const columns: Column<ReceivablesBand>[] = [

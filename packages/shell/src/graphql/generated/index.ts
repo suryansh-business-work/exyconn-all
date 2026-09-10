@@ -3307,9 +3307,16 @@ export type Mutation = {
   markAttendance: Attendance;
   /** Settles a bill: records when the money left and moves it to PAID. */
   markExpensePaid: CompanyExpense;
+  /**
+   * Marks what was addressed to the caller as read — the chat they have just looked at, and
+   * the announcements their app has already raised. Answers how many that was.
+   */
+  markMyTrackerMessagesRead: Scalars['Int']['output'];
   markNotificationRead: Scalars['Boolean']['output'];
   /** Marks every GENERATED slip of the month PAID. Returns how many changed. */
   markPayrollPaid: Scalars['Int']['output'];
+  /** Marks one employee's inbound messages read, so the portal's unread badge clears. */
+  markTrackerThreadRead: Scalars['Int']['output'];
   /** Re-files a page under a new parent (null for top level) at a given position. */
   moveDocPage: Scalars['Boolean']['output'];
   moveTask: Scalars['Boolean']['output'];
@@ -3396,6 +3403,8 @@ export type Mutation = {
   sendContract: Contract;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
   sendInvoice: Invoice;
+  /** Posts a line onto the caller's OWN tracker thread. */
+  sendMyTrackerMessage: TrackerMessage;
   /** HR broadcast to every active employee, one department, or a chosen list. */
   sendNotification: SendNotificationResult;
   /**
@@ -3407,6 +3416,13 @@ export type Mutation = {
   /** Sends the real thing to one address, and logs it like any other send. */
   sendTestEmailTemplate: Scalars['Boolean']['output'];
   sendTestSlackMessage: Scalars['Boolean']['output'];
+  /** Replies to one employee on their tracker thread (TRACKER role). */
+  sendTrackerMessage: TrackerMessage;
+  /**
+   * Pushes an announcement to tracked employees, which their desktop app raises as a
+   * notification (TRACKER role). Answers how many people it reached.
+   */
+  sendTrackerNotice: Scalars['Int']['output'];
   sendUserMail: Scalars['Boolean']['output'];
   /** Moves an applicant along the pipeline. The applicant is emailed on INTERVIEW, OFFER and REJECTED. */
   setApplicantStage: Applicant;
@@ -3421,6 +3437,13 @@ export type Mutation = {
   setExpenseClaimStatus: ExpenseClaim;
   /** HR/ADMIN or the employee's manager: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
+  /**
+   * Records what the caller says they are doing — at lunch, on a break, in a meeting.
+   *
+   * The desktop app pauses tracking on every status but WORKING, because a tracker that
+   * keeps counting while somebody is at lunch is billing lunch as work.
+   */
+  setMyTrackerPresence: TrackerPresenceState;
   /**
    * Ticks one item off (or back on) and records who did it.
    *
@@ -4704,6 +4727,11 @@ export type MutationMarkExpensePaidArgs = {
 };
 
 
+export type MutationMarkMyTrackerMessagesReadArgs = {
+  kind?: InputMaybe<TrackerMessageKind>;
+};
+
+
 export type MutationMarkNotificationReadArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4712,6 +4740,11 @@ export type MutationMarkNotificationReadArgs = {
 export type MutationMarkPayrollPaidArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
+};
+
+
+export type MutationMarkTrackerThreadReadArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -4882,6 +4915,11 @@ export type MutationSendInvoiceArgs = {
 };
 
 
+export type MutationSendMyTrackerMessageArgs = {
+  body: Scalars['String']['input'];
+};
+
+
 export type MutationSendNotificationArgs = {
   input: SendNotificationInput;
 };
@@ -4909,6 +4947,17 @@ export type MutationSendTestEmailTemplateArgs = {
 export type MutationSendTestSlackMessageArgs = {
   channel: Scalars['String']['input'];
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationSendTrackerMessageArgs = {
+  body: Scalars['String']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
+export type MutationSendTrackerNoticeArgs = {
+  input: TrackerNoticeInput;
 };
 
 
@@ -4947,6 +4996,12 @@ export type MutationSetExpenseClaimStatusArgs = {
 export type MutationSetLeaveStatusArgs = {
   id: Scalars['ID']['input'];
   status: LeaveStatus;
+};
+
+
+export type MutationSetMyTrackerPresenceArgs = {
+  note?: InputMaybe<Scalars['String']['input']>;
+  status: TrackerPresence;
 };
 
 
@@ -7190,6 +7245,12 @@ export type Query = {
   myTrackerDay: TrackerDay;
   /** The caller's own off-computer entries in a range, any status. */
   myTrackerManualEntries: Array<TrackerManualEntry>;
+  /**
+   * The caller's OWN messages, oldest first — their conversation with whoever administers
+   * tracking, or (kind: NOTICE) the announcements pushed to them. Readable from the desktop
+   * app's device token or from a portal session — one thread either way.
+   */
+  myTrackerMessages: Array<TrackerMessage>;
   /** The calling device's own employee, all-time. Device token, not a portal session. */
   myTrackerTotals: TrackerTotals;
   myTrainings: Array<Training>;
@@ -7324,6 +7385,13 @@ export type Query = {
   /** One employee's off-computer entries in a range, any status (TRACKER role). */
   trackerManualEntries: Array<TrackerManualEntry>;
   trackerMe: TrackerMe;
+  /** One employee's conversation, oldest message first (TRACKER role). */
+  trackerMessageThread: Array<TrackerMessage>;
+  /**
+   * Every employee who has exchanged a message with the tracker desk, newest conversation
+   * first (TRACKER role). This is the portal's inbox.
+   */
+  trackerMessageThreads: Array<TrackerMessageThread>;
   /** Every off-computer entry waiting on a decision, oldest first (TRACKER role). */
   trackerPendingManualEntries: Array<TrackerManualEntry>;
   /**
@@ -8222,6 +8290,11 @@ export type QueryMyTrackerManualEntriesArgs = {
 };
 
 
+export type QueryMyTrackerMessagesArgs = {
+  kind?: InputMaybe<TrackerMessageKind>;
+};
+
+
 export type QueryPayrollSummaryArgs = {
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
@@ -8464,6 +8537,11 @@ export type QueryTrackerDevicesArgs = {
 export type QueryTrackerManualEntriesArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
+export type QueryTrackerMessageThreadArgs = {
   userId: Scalars['ID']['input'];
 };
 
@@ -9795,6 +9873,10 @@ export type TrackerAccess = {
   grantedBy: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
+  /** What they last said they were doing, from the desktop app. */
+  presence: TrackerPresence;
+  presenceAt?: Maybe<Scalars['DateTime']['output']>;
+  presenceNote: Scalars['String']['output'];
   revokedAt?: Maybe<Scalars['DateTime']['output']>;
   /**
    * The zone THIS employee picked in the desktop app.
@@ -10002,7 +10084,7 @@ export type TrackerManualEntry = {
   taskKey: Scalars['String']['output'];
   taskTitle: Scalars['String']['output'];
   userId: Scalars['ID']['output'];
-  /** Employee's name, resolved for the review queue. Empty on an employee's own list. */
+  /** Employee's name, resolved on every entry so the review queue can name who filed it. */
   userName: Scalars['String']['output'];
 };
 
@@ -10026,6 +10108,13 @@ export type TrackerMe = {
   __typename?: 'TrackerMe';
   consentPolicy?: Maybe<TrackerConsentPolicy>;
   consentRequired: Scalars['Boolean']['output'];
+  /**
+   * Announcements this employee has not seen yet. The desktop app raises each one as a
+   * notification and then marks them read, so a notice arrives while the app is in the tray.
+   */
+  notices: Array<TrackerMessage>;
+  /** What this employee last said they were doing — lunch, a break, a meeting. */
+  presence: TrackerPresenceState;
   /** Projects this employee may book time against, the house-wide one first. */
   projects: Array<TrackerProject>;
   settings: TrackerSettings;
@@ -10034,9 +10123,60 @@ export type TrackerMe = {
    * device reported at sign-in, else UTC. Never empty.
    */
   timezone: Scalars['String']['output'];
+  /** Chat messages waiting for them, for the app's own badge. */
+  unreadMessages: Scalars['Int']['output'];
   user: User;
   workProfile: TrackerWorkProfile;
   workday: TrackerWorkday;
+};
+
+export type TrackerMessage = {
+  __typename?: 'TrackerMessage';
+  authorId: Scalars['ID']['output'];
+  /** Denormalised, so a departed administrator's messages still say who wrote them. */
+  authorName: Scalars['String']['output'];
+  body: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  direction: TrackerMessageDirection;
+  id: Scalars['ID']['output'];
+  kind: TrackerMessageKind;
+  /** When the RECIPIENT read it. Null while it is still unread. */
+  readAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Notices only — a chat line has no subject. */
+  title: Scalars['String']['output'];
+  /** The employee whose thread this belongs to, whichever way the message is going. */
+  userId: Scalars['ID']['output'];
+};
+
+/** Which way a message is travelling. Read state belongs to whoever it is travelling to. */
+export enum TrackerMessageDirection {
+  ToAdmin = 'TO_ADMIN',
+  ToEmployee = 'TO_EMPLOYEE'
+}
+
+/** CHAT is a two-way conversation; NOTICE is an announcement pushed to the desktop app. */
+export enum TrackerMessageKind {
+  Chat = 'CHAT',
+  Notice = 'NOTICE'
+}
+
+/** One employee's conversation, as the portal's tracker inbox lists it. */
+export type TrackerMessageThread = {
+  __typename?: 'TrackerMessageThread';
+  lastMessageAt?: Maybe<Scalars['DateTime']['output']>;
+  lastMessageBody: Scalars['String']['output'];
+  /** Messages from this employee that nobody has read yet. */
+  unread: Scalars['Int']['output'];
+  userEmail: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+  userName: Scalars['String']['output'];
+};
+
+export type TrackerNoticeInput = {
+  body: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  /** Leave empty to reach every employee with an active tracker grant. */
+  userIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
 /** The installers a build can produce. */
@@ -10045,6 +10185,29 @@ export enum TrackerPlatform {
   Macos = 'MACOS',
   Windows = 'WINDOWS'
 }
+
+/**
+ * What an employee has said they are doing right now, in their own words.
+ *
+ * Their statement, never something the tracker inferred: a quiet keyboard means the
+ * keyboard was quiet, not that somebody went to lunch.
+ */
+export enum TrackerPresence {
+  Away = 'AWAY',
+  Break = 'BREAK',
+  Lunch = 'LUNCH',
+  Meeting = 'MEETING',
+  Working = 'WORKING'
+}
+
+export type TrackerPresenceState = {
+  __typename?: 'TrackerPresenceState';
+  /** The employee's own note, such as: back at 2, or client call. Empty when they left it blank. */
+  note: Scalars['String']['output'];
+  /** When they last said it. Null when they never have. */
+  since?: Maybe<Scalars['DateTime']['output']>;
+  status: TrackerPresence;
+};
 
 /** One project time may be booked against. */
 export type TrackerProject = {
@@ -15094,6 +15257,42 @@ export type TrackerTaskOptionsQueryVariables = Exact<{
 
 export type TrackerTaskOptionsQuery = { __typename?: 'Query', trackerTaskOptions: Array<{ __typename?: 'TrackerTask', id: string, key: string, title: string, assignedToMe: boolean }> };
 
+export type TrackerMessageFieldsFragment = { __typename?: 'TrackerMessage', id: string, userId: string, kind: TrackerMessageKind, direction: TrackerMessageDirection, title: string, body: string, authorName: string, readAt?: string | null, createdAt: string };
+
+export type TrackerMessageThreadsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TrackerMessageThreadsQuery = { __typename?: 'Query', trackerMessageThreads: Array<{ __typename?: 'TrackerMessageThread', userId: string, userName: string, userEmail: string, lastMessageAt?: string | null, lastMessageBody: string, unread: number }> };
+
+export type TrackerMessageThreadQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type TrackerMessageThreadQuery = { __typename?: 'Query', trackerMessageThread: Array<{ __typename?: 'TrackerMessage', id: string, userId: string, kind: TrackerMessageKind, direction: TrackerMessageDirection, title: string, body: string, authorName: string, readAt?: string | null, createdAt: string }> };
+
+export type SendTrackerMessageMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+  body: Scalars['String']['input'];
+}>;
+
+
+export type SendTrackerMessageMutation = { __typename?: 'Mutation', sendTrackerMessage: { __typename?: 'TrackerMessage', id: string, userId: string, kind: TrackerMessageKind, direction: TrackerMessageDirection, title: string, body: string, authorName: string, readAt?: string | null, createdAt: string } };
+
+export type MarkTrackerThreadReadMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type MarkTrackerThreadReadMutation = { __typename?: 'Mutation', markTrackerThreadRead: number };
+
+export type SendTrackerNoticeMutationVariables = Exact<{
+  input: TrackerNoticeInput;
+}>;
+
+
+export type SendTrackerNoticeMutation = { __typename?: 'Mutation', sendTrackerNotice: number };
+
 export type BlogPostFieldsFragment = { __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } };
 
 export type ListBlogPostsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -16608,6 +16807,19 @@ export const ProjectTimeLogRowFieldsFragmentDoc = gql`
   manualMs
   sessions
   screenshots
+}
+    `;
+export const TrackerMessageFieldsFragmentDoc = gql`
+    fragment TrackerMessageFields on TrackerMessage {
+  id
+  userId
+  kind
+  direction
+  title
+  body
+  authorName
+  readAt
+  createdAt
 }
     `;
 export const BlogPostFieldsFragmentDoc = gql`
@@ -43029,6 +43241,192 @@ export type TrackerTaskOptionsQueryHookResult = ReturnType<typeof useTrackerTask
 export type TrackerTaskOptionsLazyQueryHookResult = ReturnType<typeof useTrackerTaskOptionsLazyQuery>;
 export type TrackerTaskOptionsSuspenseQueryHookResult = ReturnType<typeof useTrackerTaskOptionsSuspenseQuery>;
 export type TrackerTaskOptionsQueryResult = Apollo.QueryResult<TrackerTaskOptionsQuery, TrackerTaskOptionsQueryVariables>;
+export const TrackerMessageThreadsDocument = gql`
+    query TrackerMessageThreads {
+  trackerMessageThreads {
+    userId
+    userName
+    userEmail
+    lastMessageAt
+    lastMessageBody
+    unread
+  }
+}
+    `;
+
+/**
+ * __useTrackerMessageThreadsQuery__
+ *
+ * To run a query within a React component, call `useTrackerMessageThreadsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerMessageThreadsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerMessageThreadsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTrackerMessageThreadsQuery(baseOptions?: Apollo.QueryHookOptions<TrackerMessageThreadsQuery, TrackerMessageThreadsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TrackerMessageThreadsQuery, TrackerMessageThreadsQueryVariables>(TrackerMessageThreadsDocument, options);
+      }
+export function useTrackerMessageThreadsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TrackerMessageThreadsQuery, TrackerMessageThreadsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TrackerMessageThreadsQuery, TrackerMessageThreadsQueryVariables>(TrackerMessageThreadsDocument, options);
+        }
+// @ts-ignore
+export function useTrackerMessageThreadsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TrackerMessageThreadsQuery, TrackerMessageThreadsQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerMessageThreadsQuery, TrackerMessageThreadsQueryVariables>;
+export function useTrackerMessageThreadsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerMessageThreadsQuery, TrackerMessageThreadsQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerMessageThreadsQuery | undefined, TrackerMessageThreadsQueryVariables>;
+export function useTrackerMessageThreadsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerMessageThreadsQuery, TrackerMessageThreadsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TrackerMessageThreadsQuery, TrackerMessageThreadsQueryVariables>(TrackerMessageThreadsDocument, options);
+        }
+export type TrackerMessageThreadsQueryHookResult = ReturnType<typeof useTrackerMessageThreadsQuery>;
+export type TrackerMessageThreadsLazyQueryHookResult = ReturnType<typeof useTrackerMessageThreadsLazyQuery>;
+export type TrackerMessageThreadsSuspenseQueryHookResult = ReturnType<typeof useTrackerMessageThreadsSuspenseQuery>;
+export type TrackerMessageThreadsQueryResult = Apollo.QueryResult<TrackerMessageThreadsQuery, TrackerMessageThreadsQueryVariables>;
+export const TrackerMessageThreadDocument = gql`
+    query TrackerMessageThread($userId: ID!) {
+  trackerMessageThread(userId: $userId) {
+    ...TrackerMessageFields
+  }
+}
+    ${TrackerMessageFieldsFragmentDoc}`;
+
+/**
+ * __useTrackerMessageThreadQuery__
+ *
+ * To run a query within a React component, call `useTrackerMessageThreadQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTrackerMessageThreadQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTrackerMessageThreadQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useTrackerMessageThreadQuery(baseOptions: Apollo.QueryHookOptions<TrackerMessageThreadQuery, TrackerMessageThreadQueryVariables> & ({ variables: TrackerMessageThreadQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TrackerMessageThreadQuery, TrackerMessageThreadQueryVariables>(TrackerMessageThreadDocument, options);
+      }
+export function useTrackerMessageThreadLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TrackerMessageThreadQuery, TrackerMessageThreadQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TrackerMessageThreadQuery, TrackerMessageThreadQueryVariables>(TrackerMessageThreadDocument, options);
+        }
+// @ts-ignore
+export function useTrackerMessageThreadSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TrackerMessageThreadQuery, TrackerMessageThreadQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerMessageThreadQuery, TrackerMessageThreadQueryVariables>;
+export function useTrackerMessageThreadSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerMessageThreadQuery, TrackerMessageThreadQueryVariables>): Apollo.UseSuspenseQueryResult<TrackerMessageThreadQuery | undefined, TrackerMessageThreadQueryVariables>;
+export function useTrackerMessageThreadSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TrackerMessageThreadQuery, TrackerMessageThreadQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TrackerMessageThreadQuery, TrackerMessageThreadQueryVariables>(TrackerMessageThreadDocument, options);
+        }
+export type TrackerMessageThreadQueryHookResult = ReturnType<typeof useTrackerMessageThreadQuery>;
+export type TrackerMessageThreadLazyQueryHookResult = ReturnType<typeof useTrackerMessageThreadLazyQuery>;
+export type TrackerMessageThreadSuspenseQueryHookResult = ReturnType<typeof useTrackerMessageThreadSuspenseQuery>;
+export type TrackerMessageThreadQueryResult = Apollo.QueryResult<TrackerMessageThreadQuery, TrackerMessageThreadQueryVariables>;
+export const SendTrackerMessageDocument = gql`
+    mutation SendTrackerMessage($userId: ID!, $body: String!) {
+  sendTrackerMessage(userId: $userId, body: $body) {
+    ...TrackerMessageFields
+  }
+}
+    ${TrackerMessageFieldsFragmentDoc}`;
+export type SendTrackerMessageMutationFn = Apollo.MutationFunction<SendTrackerMessageMutation, SendTrackerMessageMutationVariables>;
+
+/**
+ * __useSendTrackerMessageMutation__
+ *
+ * To run a mutation, you first call `useSendTrackerMessageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendTrackerMessageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendTrackerMessageMutation, { data, loading, error }] = useSendTrackerMessageMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      body: // value for 'body'
+ *   },
+ * });
+ */
+export function useSendTrackerMessageMutation(baseOptions?: Apollo.MutationHookOptions<SendTrackerMessageMutation, SendTrackerMessageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendTrackerMessageMutation, SendTrackerMessageMutationVariables>(SendTrackerMessageDocument, options);
+      }
+export type SendTrackerMessageMutationHookResult = ReturnType<typeof useSendTrackerMessageMutation>;
+export type SendTrackerMessageMutationResult = Apollo.MutationResult<SendTrackerMessageMutation>;
+export type SendTrackerMessageMutationOptions = Apollo.BaseMutationOptions<SendTrackerMessageMutation, SendTrackerMessageMutationVariables>;
+export const MarkTrackerThreadReadDocument = gql`
+    mutation MarkTrackerThreadRead($userId: ID!) {
+  markTrackerThreadRead(userId: $userId)
+}
+    `;
+export type MarkTrackerThreadReadMutationFn = Apollo.MutationFunction<MarkTrackerThreadReadMutation, MarkTrackerThreadReadMutationVariables>;
+
+/**
+ * __useMarkTrackerThreadReadMutation__
+ *
+ * To run a mutation, you first call `useMarkTrackerThreadReadMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMarkTrackerThreadReadMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [markTrackerThreadReadMutation, { data, loading, error }] = useMarkTrackerThreadReadMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useMarkTrackerThreadReadMutation(baseOptions?: Apollo.MutationHookOptions<MarkTrackerThreadReadMutation, MarkTrackerThreadReadMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<MarkTrackerThreadReadMutation, MarkTrackerThreadReadMutationVariables>(MarkTrackerThreadReadDocument, options);
+      }
+export type MarkTrackerThreadReadMutationHookResult = ReturnType<typeof useMarkTrackerThreadReadMutation>;
+export type MarkTrackerThreadReadMutationResult = Apollo.MutationResult<MarkTrackerThreadReadMutation>;
+export type MarkTrackerThreadReadMutationOptions = Apollo.BaseMutationOptions<MarkTrackerThreadReadMutation, MarkTrackerThreadReadMutationVariables>;
+export const SendTrackerNoticeDocument = gql`
+    mutation SendTrackerNotice($input: TrackerNoticeInput!) {
+  sendTrackerNotice(input: $input)
+}
+    `;
+export type SendTrackerNoticeMutationFn = Apollo.MutationFunction<SendTrackerNoticeMutation, SendTrackerNoticeMutationVariables>;
+
+/**
+ * __useSendTrackerNoticeMutation__
+ *
+ * To run a mutation, you first call `useSendTrackerNoticeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendTrackerNoticeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendTrackerNoticeMutation, { data, loading, error }] = useSendTrackerNoticeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSendTrackerNoticeMutation(baseOptions?: Apollo.MutationHookOptions<SendTrackerNoticeMutation, SendTrackerNoticeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendTrackerNoticeMutation, SendTrackerNoticeMutationVariables>(SendTrackerNoticeDocument, options);
+      }
+export type SendTrackerNoticeMutationHookResult = ReturnType<typeof useSendTrackerNoticeMutation>;
+export type SendTrackerNoticeMutationResult = Apollo.MutationResult<SendTrackerNoticeMutation>;
+export type SendTrackerNoticeMutationOptions = Apollo.BaseMutationOptions<SendTrackerNoticeMutation, SendTrackerNoticeMutationVariables>;
 export const ListBlogPostsDocument = gql`
     query ListBlogPosts {
   listBlogPosts {

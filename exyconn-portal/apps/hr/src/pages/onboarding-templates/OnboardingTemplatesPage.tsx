@@ -9,6 +9,7 @@ import {
   type ListOnboardingTemplatesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { OnboardingTemplateForm } from './forms/onboarding-template';
+import { color } from '@exyconn/shell/components/ui';
 import {
   ONBOARDING_TEMPLATE_COLUMNS,
   type OnboardingTemplatesGridContext,
@@ -39,9 +40,17 @@ export function OnboardingTemplatesPage() {
 
   const stats = statsData?.listOnboardingTemplatesStats;
   const statItems: StatItem[] = [
-    { label: 'Templates', value: String(statTotal(stats)), accent: '#64748b' },
-    { label: 'Offered', value: String(statCount(stats, 'active', 'true')), accent: '#7be37b' },
-    { label: 'Retired', value: String(statCount(stats, 'active', 'false')), accent: '#f59e0b' },
+    { label: 'Templates', value: String(statTotal(stats)), accent: color.slate[500] },
+    {
+      label: 'Offered',
+      value: String(statCount(stats, 'active', 'true')),
+      accent: color.green[300],
+    },
+    {
+      label: 'Retired',
+      value: String(statCount(stats, 'active', 'false')),
+      accent: color.amber[500],
+    },
   ];
 
   const gridContext: OnboardingTemplatesGridContext = {

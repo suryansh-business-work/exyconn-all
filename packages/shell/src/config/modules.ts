@@ -88,6 +88,7 @@ import ForumIcon from '@mui/icons-material/Forum';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import { ROLES, type Role } from '@/auth/roles';
 import { appUrl, type PortalAppKey } from './apps';
+import { color } from '@exyconn/ui';
 
 /** A nested navigation entry shown under a parent module in the sidebar. */
 export interface ModuleChild {
@@ -133,7 +134,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.EMPLOYEE,
     icon: BadgeIcon,
     description: 'Everything you need day to day',
-    accent: '#14b8a6',
+    accent: color.teal[500],
     children: [
       { key: 'me-dashboard', label: 'Dashboard', path: '/me', icon: DashboardIcon },
       { key: 'me-profile', label: 'My Profile', path: '/profile', icon: PersonIcon },
@@ -294,7 +295,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.FINANCE,
     icon: AccountBalanceIcon,
     description: 'Invoices, spend, cash & reimbursements',
-    accent: '#0ea5e9',
+    accent: color.sky[500],
     children: [
       { key: 'finance-overview', label: 'Overview', path: '/finance', icon: DashboardIcon },
       {
@@ -369,7 +370,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.SUPPORT,
     icon: SupportAgentIcon,
     description: 'Employee & customer support tickets',
-    accent: '#e11d48',
+    accent: color.rose[500],
     children: [
       { key: 'support-overview', label: 'Overview', path: '/support', icon: DashboardIcon },
       {
@@ -400,7 +401,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.CRM,
     icon: HubIcon,
     description: 'Leads & pipeline',
-    accent: '#22c55e',
+    accent: color.green[500],
     children: [
       { key: 'crm-overview', label: 'Overview', path: '/crm', icon: DashboardIcon },
       {
@@ -454,7 +455,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.PRODUCTS,
     icon: Inventory2Icon,
     description: 'Product catalog',
-    accent: '#f97316',
+    accent: color.orange[600],
     children: [
       { key: 'products-overview', label: 'Overview', path: '/products', icon: DashboardIcon },
       {
@@ -485,7 +486,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.LEGAL,
     icon: GavelIcon,
     description: 'Contracts, policies & documents',
-    accent: '#64748b',
+    accent: color.slate[500],
     children: [
       { key: 'legal-dashboard', label: 'Dashboard', path: '/legal', icon: DashboardIcon },
       { key: 'legal-policies', label: 'Policies', path: '/legal/policies', icon: PolicyIcon },
@@ -516,7 +517,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.HR,
     icon: EventAvailableIcon,
     description: 'Workforce, leave & attendance',
-    accent: '#f59e0b',
+    accent: color.amber[500],
     children: [
       { key: 'hr-dashboard', label: 'Dashboard', path: '/hr', icon: DashboardIcon },
       { key: 'hr-reports', label: 'Reports', path: '/hr/reports', icon: AssessmentIcon },
@@ -728,7 +729,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.MARKETING,
     icon: CampaignIcon,
     description: 'Campaigns & audiences',
-    accent: '#ec4899',
+    accent: color.pink[400],
     children: [
       { key: 'marketing-overview', label: 'Overview', path: '/marketing', icon: DashboardIcon },
       {
@@ -758,7 +759,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.PROJECTS,
     icon: AccountTreeIcon,
     description: 'Projects & bug tracking',
-    accent: '#0d9488',
+    accent: color.teal[600],
     children: [
       { key: 'projects-board', label: 'Projects', path: '/projects', icon: ViewKanbanIcon },
       { key: 'projects-bugs', label: 'Bugs', path: '/bugs', icon: BugReportIcon },
@@ -771,7 +772,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.ADMIN,
     icon: AdminPanelSettingsIcon,
     description: 'Users, clients & settings',
-    accent: '#155dfc',
+    accent: color.blue[600],
     children: [
       { key: 'admin-users', label: 'Users', path: '/admin', icon: ManageAccountsIcon },
       { key: 'admin-clients', label: 'Clients', path: '/clients', icon: GroupsIcon },
@@ -832,7 +833,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.WEBSITE,
     icon: LanguageIcon,
     description: 'exyconn.com content & form submissions',
-    accent: '#f97316',
+    accent: color.orange[600],
     children: [
       {
         key: 'website-submissions',
@@ -905,7 +906,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.AI,
     icon: SmartToyIcon,
     description: 'AI jobs & prompts',
-    accent: '#6366f1',
+    accent: color.indigo[400],
     children: [
       { key: 'ai-overview', label: 'Overview', path: '/ai', icon: DashboardIcon },
       { key: 'ai-jobs', label: 'Jobs', path: '/ai/jobs', icon: DashboardIcon },
@@ -924,7 +925,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.TRACKER,
     icon: AccessTimeIcon,
     description: 'Worked hours, activity & screenshots',
-    accent: '#0ea5e9',
+    accent: color.sky[500],
     children: [
       {
         key: 'tracker-dashboard',
@@ -951,6 +952,13 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Off-computer time',
         path: '/tracker/approvals',
         icon: FactCheckIcon,
+        group: 'The team',
+      },
+      {
+        key: 'tracker-messages',
+        label: 'Messages',
+        path: '/tracker/messages',
+        icon: ForumIcon,
         group: 'The team',
       },
       {
@@ -983,7 +991,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.TECH,
     icon: TerminalIcon,
     description: 'Integrations, email & desktop builds',
-    accent: '#7c3aed',
+    accent: color.violet[500],
     children: [
       { key: 'tech-overview', label: 'Overview', path: '/tech', icon: DashboardIcon },
       {
@@ -1051,7 +1059,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.IT,
     icon: DevicesIcon,
     description: 'Company hardware & licences',
-    accent: '#0891b2',
+    accent: color.cyan[600],
     children: [
       { key: 'it-overview', label: 'Overview', path: '/it', icon: DashboardIcon },
       { key: 'it-assets', label: 'Assets', path: '/it/assets', icon: InventoryIcon },
@@ -1067,7 +1075,7 @@ export const MODULES: ModuleDefinition[] = [
     role: ROLES.EMPLOYEE,
     icon: ForumIcon,
     description: 'The internal employee feed',
-    accent: '#7c3aed',
+    accent: color.violet[500],
     children: [
       { key: 'social-feed', label: 'Feed', path: '/social', icon: DynamicFeedIcon },
       { key: 'social-profile', label: 'My Profile', path: '/social/me', icon: PersonIcon },

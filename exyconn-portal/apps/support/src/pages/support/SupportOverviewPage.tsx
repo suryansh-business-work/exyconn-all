@@ -15,6 +15,7 @@ import {
   type ListSupportTicketsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { raisedBy } from './tickets-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 type TicketRow = ListSupportTicketsPagedQuery['listSupportTicketsPaged']['rows'][number];
 
@@ -46,20 +47,20 @@ export function SupportOverviewPage() {
   const open = statCount(stats, 'status', 'OPEN') + statCount(stats, 'status', 'IN_PROGRESS');
 
   const statItems: StatItem[] = [
-    { label: 'Tickets', value: String(total), accent: '#4f8cff' },
-    { label: 'Open', value: String(open), accent: '#f59e0b' },
+    { label: 'Tickets', value: String(total), accent: color.blue[400] },
+    { label: 'Open', value: String(open), accent: color.amber[500] },
     {
       label: 'High priority',
       value: String(statCount(stats, 'priority', 'HIGH')),
-      accent: '#ff6b6b',
+      accent: color.red[200],
     },
-    { label: 'Resolved', value: String(total - open), accent: '#22c55e' },
+    { label: 'Resolved', value: String(total - open), accent: color.green[500] },
   ];
 
   const bucketsFor = (field: string) => stats?.counts.find((c) => c.field === field)?.buckets ?? [];
   const breakdowns: OverviewBreakdown[] = [
-    { title: 'By status', buckets: bucketsFor('status'), accent: '#4f8cff' },
-    { title: 'By category', buckets: bucketsFor('category'), accent: '#8b5cf6' },
+    { title: 'By status', buckets: bucketsFor('status'), accent: color.blue[400] },
+    { title: 'By category', buckets: bucketsFor('category'), accent: color.violet[400] },
   ];
 
   const columns: Column<TicketRow>[] = [

@@ -1,4 +1,4 @@
-import { Box, Card, Grid, Typography } from '@exyconn/shell/components/ui';
+import { Box, Card, Grid, Typography, color } from '@exyconn/shell/components/ui';
 import { LineChart } from '@exyconn/shell/components/dashboard/LineChart';
 import { formatWith } from '@exyconn/shell/utils/date';
 import type { StatusDay } from './status.types';
@@ -56,7 +56,7 @@ export function StatusCharts({ daily }: Readonly<StatusChartsProps>) {
           caption="Share of checks that succeeded, per day"
           labels={labels}
           data={measured.map((day) => day.uptimePercent)}
-          color="#22c55e"
+          color={color.green[500]}
         />
       </Grid>
       <Grid item xs={12} md={6}>
@@ -65,7 +65,7 @@ export function StatusCharts({ daily }: Readonly<StatusChartsProps>) {
           caption="Mean round trip across all services, in milliseconds"
           labels={labels}
           data={measured.map((day) => day.avgResponseMs)}
-          color="#155dfc"
+          color={color.blue[600]}
         />
       </Grid>
     </Grid>

@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { TeamForm, type TeamRow } from './forms/team';
 import { TEAM_COLUMNS, type PagedTeamRow, type TeamGridContext } from './team-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Teams — server-paged admin grid over the team records. */
 export function TeamsPage() {
@@ -30,10 +31,18 @@ export function TeamsPage() {
 
   const stats = statsData?.listTeamsStats;
   const statItems: StatItem[] = [
-    { label: 'Teams', value: String(statTotal(stats)), accent: '#7c3aed' },
-    { label: 'Active', value: String(statCount(stats, 'active', 'true')), accent: '#7c3aed' },
-    { label: 'Inactive', value: String(statCount(stats, 'active', 'false')), accent: '#7c3aed' },
-    { label: 'Teams', value: String(statTotal(stats)), accent: '#7c3aed' },
+    { label: 'Teams', value: String(statTotal(stats)), accent: color.violet[500] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'active', 'true')),
+      accent: color.violet[500],
+    },
+    {
+      label: 'Inactive',
+      value: String(statCount(stats, 'active', 'false')),
+      accent: color.violet[500],
+    },
+    { label: 'Teams', value: String(statTotal(stats)), accent: color.violet[500] },
   ];
 
   const gridContext: TeamGridContext = {

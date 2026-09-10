@@ -6,6 +6,7 @@ import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useCrudResource } from '@exyconn/crud';
 import { useListNavLinksQuery, useDeleteNavLinkMutation } from '@exyconn/shell/graphql/generated';
 import { NavLinkForm, type NavLinkRow } from './forms/nav-link';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Website module — navigation links surfaced in the exyconn.com menu and search. */
 export function NavLinksPage() {
@@ -21,9 +22,13 @@ export function NavLinksPage() {
   const rows = data?.listNavLinks ?? [];
   const categories = new Set(rows.map((r) => r.category));
   const stats: StatItem[] = [
-    { label: 'Links', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Active', value: String(rows.filter((r) => r.isActive).length), accent: '#7be37b' },
-    { label: 'Categories', value: String(categories.size), accent: '#f9851f' },
+    { label: 'Links', value: String(rows.length), accent: color.blue[400] },
+    {
+      label: 'Active',
+      value: String(rows.filter((r) => r.isActive).length),
+      accent: color.green[300],
+    },
+    { label: 'Categories', value: String(categories.size), accent: color.orange[500] },
   ];
 
   const columns: Column<NavLinkRow>[] = [

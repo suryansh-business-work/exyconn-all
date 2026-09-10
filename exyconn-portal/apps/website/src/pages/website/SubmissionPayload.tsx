@@ -1,9 +1,9 @@
-import { Box, Typography } from '@exyconn/shell/components/ui';
+import { Box, Typography, fontSize } from '@exyconn/shell/components/ui';
 
 const PRE_SX = {
   whiteSpace: 'pre-wrap',
   overflowX: 'auto',
-  fontSize: 12,
+  fontSize: fontSize.xs,
   m: 0,
   p: 1.5,
   borderRadius: 1,

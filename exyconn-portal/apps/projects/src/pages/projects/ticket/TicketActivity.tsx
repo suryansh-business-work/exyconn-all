@@ -1,4 +1,4 @@
-import { Avatar, Box, Divider, Flex, Text } from '@exyconn/shell/components/ui';
+import { Avatar, Box, Divider, Flex, Text, fontSize } from '@exyconn/shell/components/ui';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useTaskActivityQuery } from '@exyconn/shell/graphql/generated';
 import { initialsOf } from './ticket-meta';
@@ -47,7 +47,7 @@ export function TicketActivity({ taskId }: Readonly<TicketActivityProps>) {
       <Flex direction="column" spacing={1.25}>
         {entries.map((entry) => (
           <Flex key={entry.id} direction="row" spacing={1.25} alignItems="flex-start">
-            <Avatar sx={{ width: 24, height: 24, fontSize: 10 }}>
+            <Avatar sx={{ width: 24, height: 24, fontSize: fontSize['3xs'] }}>
               {initialsOf(entry.actorName)}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>

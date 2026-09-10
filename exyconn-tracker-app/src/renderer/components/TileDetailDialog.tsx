@@ -1,5 +1,14 @@
 import type { ReactElement } from 'react';
-import { Alert, Dialog, DialogContent, Divider, IconButton, Stack, Typography } from '@exyconn/ui';
+import {
+  Alert,
+  Dialog,
+  DialogContent,
+  Divider,
+  IconButton,
+  Stack,
+  TRACKER_RADIUS,
+  Typography,
+} from '@exyconn/ui';
 import CloseRounded from '@mui/icons-material/CloseRounded';
 import type { Tile } from '../tiles';
 
@@ -55,7 +64,7 @@ export default function TileDetailDialog({ tile, onClose }: Readonly<Props>): Re
           ))}
         </Stack>
 
-        <Alert severity="info" variant="outlined" sx={{ borderRadius: '4px' }}>
+        <Alert severity="info" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
           {tile.detail.note}
         </Alert>
       </DialogContent>

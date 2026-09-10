@@ -1,5 +1,15 @@
 import type { ReactNode } from 'react';
-import { Box, Button, Divider, Flex, IconButton, Text } from '@exyconn/shell/components/ui';
+import {
+  Box,
+  Button,
+  color,
+  Divider,
+  Flex,
+  IconButton,
+  radius,
+  Text,
+  zIndex,
+} from '@exyconn/shell/components/ui';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { LoginBackground } from './LoginBackground';
@@ -47,7 +57,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
       <IconButton
         onClick={toggle}
         aria-label="toggle color mode"
-        sx={{ position: 'absolute', top: 16, right: 16, zIndex: 2 }}
+        sx={{ position: 'absolute', top: 16, right: 16, zIndex: zIndex.overlay }}
       >
         {isDark ? <LightModeIcon /> : <DarkModeIcon />}
       </IconButton>
@@ -56,7 +66,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
         direction={{ xs: 'column', md: 'row' }}
         spacing={2.5}
         alignItems="stretch"
-        sx={{ position: 'relative', zIndex: 1 }}
+        sx={{ position: 'relative', zIndex: zIndex.raised }}
       >
         <Flex direction="column" spacing={2}>
           <Box sx={[glass, { width: { xs: '100%', sm: 380 }, p: 3, borderRadius: 4 }]}>
@@ -67,7 +77,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
                 target="_blank"
                 rel="noopener"
                 size="small"
-                sx={{ borderRadius: '999px', bgcolor: 'action.hover', px: 1.75 }}
+                sx={{ borderRadius: `${radius.pill}px`, bgcolor: 'action.hover', px: 1.75 }}
               >
                 Support
               </Button>
@@ -82,7 +92,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
           <Box
             sx={{
               bgcolor: page.accentColor,
-              color: '#fff',
+              color: color.white,
               borderRadius: 4,
               px: 3,
               py: 2,

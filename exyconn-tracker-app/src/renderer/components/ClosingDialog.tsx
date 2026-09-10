@@ -1,6 +1,14 @@
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
-import { Alert, Dialog, DialogContent, LinearProgress, Stack, Typography } from '@exyconn/ui';
+import {
+  Alert,
+  Dialog,
+  DialogContent,
+  LinearProgress,
+  Stack,
+  TRACKER_RADIUS,
+  Typography,
+} from '@exyconn/ui';
 import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
 import { formatCount } from '../format';
 
@@ -42,7 +50,7 @@ export default function ClosingDialog(): ReactElement | null {
 
           <LinearProgress />
 
-          <Alert severity="info" variant="outlined" sx={{ borderRadius: '4px' }}>
+          <Alert severity="info" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
             Nothing is lost either way: your work is saved on this machine until it is uploaded.
           </Alert>
         </Stack>

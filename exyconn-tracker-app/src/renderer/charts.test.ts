@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ReportDay } from '@shared/types';
 import { formatHours, msToHours } from '@exyconn/ui';
-import { monthChart } from './charts';
+import { activityTrend, monthChart } from './charts';
 
 const day = (date: string, activeMs: number, idleMs: number): ReportDay => ({
   date,
@@ -68,5 +68,29 @@ describe('monthChart', () => {
 
     expect(data.labels).toEqual([]);
     expect(data.series.every((series) => series.values.length === 0)).toBe(true);
+  });
+});
+
+describe('activityTrend', () => {
+  it('plots the share of each day that was active, not its length', () => {
+    const data = activityTrend([day('2026-02-03', HOUR * 6, HOUR * 2)]);
+
+    expect(data.labels).toEqual(['03']);
+    expect(data.series[0].values).toEqual([75]);
+  });
+
+  it('orders the line by date whatever order the portal returned', () => {
+    const data = activityTrend([day('2026-02-11', HOUR, 0), day('2026-02-02', HOUR, HOUR)]);
+
+    expect(data.labels).toEqual(['02', '11']);
+    expect(data.series[0].values).toEqual([50, 100]);
+  });
+
+  it('reads a day with nothing tracked as 0%, never as a gap in the line', () => {
+    // A division by zero would be NaN, which Chart.js draws as a hole — and a hole in an
+    // activity line looks like missing data rather than a day nobody worked.
+    const data = activityTrend([day('2026-02-03', 0, 0)]);
+
+    expect(data.series[0].values).toEqual([0]);
   });
 });

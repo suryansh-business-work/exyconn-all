@@ -1,4 +1,12 @@
-import { Box, Stack, Typography } from '@exyconn/shell/components/ui';
+import {
+  Box,
+  Stack,
+  Typography,
+  borderWidth,
+  iconSize,
+  tint,
+  transition,
+} from '@exyconn/shell/components/ui';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import type { PlatformConfig } from './download.config';
 
@@ -31,9 +39,11 @@ export function PlatformTile({
         textAlign: 'left',
         p: 1.5,
         borderRadius: 1.5,
-        background: selected ? `${platform.accent}14` : theme.palette.background.paper,
-        border: `1px solid ${selected ? platform.accent : theme.palette.divider}`,
-        transition: 'border-color .15s, background .15s',
+        background: selected ? tint(platform.accent) : theme.palette.background.paper,
+        border: `${borderWidth.hairline}px solid ${
+          selected ? platform.accent : theme.palette.divider
+        }`,
+        transition: transition.surface,
         '&:hover': { borderColor: platform.accent },
       })}
     >
@@ -44,7 +54,7 @@ export function PlatformTile({
             <Typography variant="subtitle2" noWrap>
               {platform.label}
             </Typography>
-            {detected && <CheckCircleIcon sx={{ fontSize: 14, color: platform.accent }} />}
+            {detected && <CheckCircleIcon sx={{ fontSize: iconSize.sm, color: platform.accent }} />}
           </Stack>
           <Typography variant="caption" color="text.secondary" noWrap display="block">
             {available ? platform.fileLabel : 'Not in this release'}

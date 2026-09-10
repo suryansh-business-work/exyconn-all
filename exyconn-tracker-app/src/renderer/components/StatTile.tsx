@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import type { SvgIconComponent } from '@mui/icons-material';
-import { ButtonBase, Stack, Typography, alpha } from '@exyconn/ui';
+import { alpha, ButtonBase, color, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import Surface from './Surface';
 
 interface Props {
@@ -18,7 +18,12 @@ export default function StatTile({ label, value, icon, onOpen }: Readonly<Props>
     <ButtonBase
       onClick={onOpen}
       aria-label={`${label}: ${value}. Open details`}
-      sx={{ display: 'block', width: '100%', textAlign: 'left', borderRadius: '4px' }}
+      sx={{
+        display: 'block',
+        width: '100%',
+        textAlign: 'left',
+        borderRadius: `${TRACKER_RADIUS}px`,
+      }}
     >
       <Surface
         sx={(theme) => ({
@@ -26,7 +31,7 @@ export default function StatTile({ label, value, icon, onOpen }: Readonly<Props>
           height: '100%',
           '&:hover': {
             transform: 'translateY(-2px)',
-            backgroundColor: alpha('#FFFFFF', theme.palette.mode === 'dark' ? 0.16 : 0.72),
+            backgroundColor: alpha(color.white, theme.palette.mode === 'dark' ? 0.16 : 0.72),
           },
         })}
       >

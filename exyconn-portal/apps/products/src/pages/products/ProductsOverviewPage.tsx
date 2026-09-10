@@ -14,6 +14,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import type { ProductRow } from './forms/product';
 import { stockLevel } from './products-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** How many of the newest products the overview lists before sending you to the catalogue. */
 const RECENT_PRODUCTS = 8;
@@ -30,13 +31,13 @@ export function ProductsOverviewPage() {
   const lowStock = products.filter((p) => stockLevel(p) === 'CRITICAL');
 
   const statItems: StatItem[] = [
-    { label: 'Products', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Units in stock', value: String(statSum(stats, 'stock')), accent: '#22c55e' },
-    { label: 'Low stock', value: String(lowStock.length), accent: '#ff6b6b' },
+    { label: 'Products', value: String(statTotal(stats)), accent: color.blue[400] },
+    { label: 'Units in stock', value: String(statSum(stats, 'stock')), accent: color.green[500] },
+    { label: 'Low stock', value: String(lowStock.length), accent: color.red[200] },
     {
       label: 'Catalogue value',
       value: formatMoney(valueData?.inventoryValue ?? 0),
-      accent: '#8b5cf6',
+      accent: color.violet[400],
     },
   ];
 
@@ -44,12 +45,12 @@ export function ProductsOverviewPage() {
     {
       title: 'By category',
       buckets: stats?.counts.find((c) => c.field === 'category')?.buckets ?? [],
-      accent: '#4f8cff',
+      accent: color.blue[400],
     },
     {
       title: 'By status',
       buckets: stats?.counts.find((c) => c.field === 'status')?.buckets ?? [],
-      accent: '#22c55e',
+      accent: color.green[500],
     },
   ];
 

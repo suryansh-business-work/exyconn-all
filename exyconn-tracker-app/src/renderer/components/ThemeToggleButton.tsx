@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { IconButton, Tooltip } from '@exyconn/ui';
+import { IconButton, iconSize, Tooltip, TRACKER_RADIUS } from '@exyconn/ui';
 import BrightnessAutoOutlined from '@mui/icons-material/BrightnessAutoOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
@@ -42,7 +42,7 @@ export default function ThemeToggleButton({ mode }: Readonly<Props>): ReactEleme
         aria-label={hint}
         sx={{
           ...NO_DRAG,
-          borderRadius: '4px',
+          borderRadius: `${TRACKER_RADIUS}px`,
           width: 30,
           height: 26,
           color: 'text.secondary',
@@ -50,7 +50,7 @@ export default function ThemeToggleButton({ mode }: Readonly<Props>): ReactEleme
         }}
         onClick={() => run(() => window.tracker.setPreferences({ themeMode: step.next }))}
       >
-        <Icon sx={{ fontSize: 16 }} />
+        <Icon sx={{ fontSize: iconSize.md }} />
       </IconButton>
     </Tooltip>
   );

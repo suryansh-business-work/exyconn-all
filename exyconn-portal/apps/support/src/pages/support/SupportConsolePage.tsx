@@ -5,7 +5,7 @@ import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { Button, Flex } from '@exyconn/shell/components/ui';
+import { Button, Flex, color } from '@exyconn/shell/components/ui';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import AddIcon from '@mui/icons-material/Add';
 import {
@@ -60,22 +60,22 @@ export function SupportConsolePage() {
 
   const stats = statsData?.listSupportTicketsStats;
   const statItems: StatItem[] = [
-    { label: 'Tickets', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Open', value: String(statCount(stats, 'status', 'OPEN')), accent: '#f59e0b' },
+    { label: 'Tickets', value: String(statTotal(stats)), accent: color.blue[400] },
+    { label: 'Open', value: String(statCount(stats, 'status', 'OPEN')), accent: color.amber[500] },
     {
       label: 'In progress',
       value: String(statCount(stats, 'status', 'IN_PROGRESS')),
-      accent: '#8b5cf6',
+      accent: color.violet[400],
     },
     {
       label: 'High priority',
       value: String(statCount(stats, 'priority', 'HIGH')),
-      accent: '#ff6b6b',
+      accent: color.red[200],
     },
     {
       label: 'SLA breached',
       value: String(slaData?.supportSlaSummary.breached ?? 0),
-      accent: '#e11d48',
+      accent: color.rose[500],
     },
   ];
 

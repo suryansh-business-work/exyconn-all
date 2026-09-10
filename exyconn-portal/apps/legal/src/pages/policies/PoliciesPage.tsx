@@ -15,6 +15,7 @@ import {
 import { PolicyForm, type PolicyRow } from './forms/policy';
 import { PolicySignersDialog } from './PolicySignersDialog';
 import { POLICY_COLUMNS, type PagedPolicyRow, type PoliciesGridContext } from './policies-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /**
  * Legal → Policies: the company's policies, who they are for, and who has signed them.
@@ -44,14 +45,22 @@ export function PoliciesPage() {
 
   const stats = statsData?.listPoliciesStats;
   const statItems: StatItem[] = [
-    { label: 'Policies', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Policies', value: String(statTotal(stats)), accent: color.blue[400] },
     {
       label: 'Published',
       value: String(statCount(stats, 'status', 'PUBLISHED')),
-      accent: '#22c55e',
+      accent: color.green[500],
     },
-    { label: 'Drafts', value: String(statCount(stats, 'status', 'DRAFT')), accent: '#f9851f' },
-    { label: 'Public', value: String(statCount(stats, 'audience', 'PUBLIC')), accent: '#8b5cf6' },
+    {
+      label: 'Drafts',
+      value: String(statCount(stats, 'status', 'DRAFT')),
+      accent: color.orange[500],
+    },
+    {
+      label: 'Public',
+      value: String(statCount(stats, 'audience', 'PUBLIC')),
+      accent: color.violet[400],
+    },
   ];
 
   const publish = async (row: PagedPolicyRow) => {

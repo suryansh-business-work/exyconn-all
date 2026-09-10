@@ -9,6 +9,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { GigForm, type GigRow } from './forms/gig';
 import { GIG_COLUMNS, type PagedGigRow, type GigsGridContext } from './gigs-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Website CMS — freelance gigs published on the public site (server-side grid). */
 export function GigsPage() {
@@ -29,18 +30,18 @@ export function GigsPage() {
   const rows = data?.listGigs ?? [];
   const categories = new Set(rows.map((r) => r.category));
   const stats: StatItem[] = [
-    { label: 'Gigs', value: String(rows.length), accent: '#4f8cff' },
+    { label: 'Gigs', value: String(rows.length), accent: color.blue[400] },
     {
       label: 'Open',
       value: String(rows.filter((r) => r.status === 'open').length),
-      accent: '#7be37b',
+      accent: color.green[300],
     },
     {
       label: 'Urgent',
       value: String(rows.filter((r) => r.isUrgent).length),
-      accent: '#ff6b6b',
+      accent: color.red[200],
     },
-    { label: 'Categories', value: String(categories.size), accent: '#f9851f' },
+    { label: 'Categories', value: String(categories.size), accent: color.orange[500] },
   ];
 
   const gridContext: GigsGridContext = {

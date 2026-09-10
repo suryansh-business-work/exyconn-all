@@ -1,5 +1,5 @@
 import { useWatch } from 'react-hook-form';
-import { Box, Flex, Grid } from '@exyconn/shell/components/ui';
+import { borderWidth, Box, Flex, Grid } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 
 const COLOR_FIELDS = [
@@ -23,7 +23,7 @@ function ColorField({ name, label }: Readonly<{ name: string; label: string }>) 
           mt: 1,
           flexShrink: 0,
           borderRadius: 1,
-          border: '1px solid',
+          border: `${borderWidth.hairline}px solid`,
           borderColor: 'divider',
           backgroundColor: value,
         }}

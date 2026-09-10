@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { AssetForm, type AssetRow } from './forms/asset';
 import { ASSET_COLUMNS, type PagedAssetRow, type AssetsGridContext } from './assets-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** IT module — the asset register, with a server-side grid over every item. */
 export function AssetsPage() {
@@ -30,21 +31,21 @@ export function AssetsPage() {
 
   const stats = statsData?.listAssetsStats;
   const statItems: StatItem[] = [
-    { label: 'Assets', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Assets', value: String(statTotal(stats)), accent: color.blue[400] },
     {
       label: 'Assigned',
       value: String(statCount(stats, 'status', 'ASSIGNED')),
-      accent: '#7be37b',
+      accent: color.green[300],
     },
     {
       label: 'In stock',
       value: String(statCount(stats, 'status', 'IN_STOCK')),
-      accent: '#f9851f',
+      accent: color.orange[500],
     },
     {
       label: 'In repair',
       value: String(statCount(stats, 'status', 'IN_REPAIR')),
-      accent: '#ff6b6b',
+      accent: color.red[200],
     },
   ];
 

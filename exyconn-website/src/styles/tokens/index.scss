@@ -1,0 +1,20 @@
+/**
+ * The design tokens — the vocabulary every stylesheet on this site is built from.
+ *
+ * Nothing outside this folder writes a raw colour, a font size, a shadow or a duration.
+ * `modes/` holds the light and dark answers to one shared set of semantic roles, so a
+ * screen cannot be designed in one mode and discovered in the other.
+ *
+ * Loaded once from `global.scss`, which every page pulls in — custom properties defined
+ * on `:root` reach scoped Astro `<style>` blocks and Tailwind arbitrary values alike.
+ */
+@import "./colors.tokens.scss";
+@import "./font-size.token.scss";
+@import "./spacing.token.scss";
+@import "./border.token.scss";
+@import "./box-shadow.token.scss";
+@import "./backgrounds.token.scss";
+@import "./motion.token.scss";
+@import "./z-index.token.scss";
+@import "./modes/light.token.scss";
+@import "./modes/dark.token.scss";

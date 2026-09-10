@@ -1,5 +1,6 @@
 import { useId } from 'react';
 import { Box } from '@/components/ui';
+import { color as tokenColor } from '@exyconn/ui';
 
 interface SparklineProps {
   data: number[];
@@ -12,7 +13,12 @@ const W = 100;
 const H = 32;
 
 /** Lightweight responsive SVG area/line chart — the wavy charts from the design. */
-export function Sparkline({ data, color = '#f9851f', height = 56, fill = true }: SparklineProps) {
+export function Sparkline({
+  data,
+  color = tokenColor.orange[500],
+  height = 56,
+  fill = true,
+}: SparklineProps) {
   const gradientId = useId();
   if (data.length < 2) return null;
 

@@ -7,6 +7,7 @@ import StorageIcon from '@mui/icons-material/Storage';
 import DeveloperBoardIcon from '@mui/icons-material/DeveloperBoard';
 import WifiIcon from '@mui/icons-material/Wifi';
 import MonitorIcon from '@mui/icons-material/Monitor';
+import { color } from '@exyconn/shell/components/ui';
 
 /** The three platforms the tracker release workflow builds installers for. */
 export type PlatformKey = 'windows' | 'macos' | 'linux';
@@ -39,7 +40,7 @@ export const PLATFORMS: PlatformConfig[] = [
     label: 'Windows',
     fileLabel: '.exe installer',
     icon: WindowIcon,
-    accent: '#4f8cff',
+    accent: color.blue[400],
     minOs: 'Windows 10 (64-bit, version 1809)',
     recommendedOs: 'Windows 11 (64-bit)',
     steps: [
@@ -60,7 +61,7 @@ export const PLATFORMS: PlatformConfig[] = [
     label: 'macOS',
     fileLabel: 'universal .dmg (Intel + Apple silicon)',
     icon: AppleIcon,
-    accent: '#a78bfa',
+    accent: color.violet[300],
     minOs: 'macOS 11 Big Sur',
     recommendedOs: 'macOS 14 Sonoma or newer',
     steps: [
@@ -82,7 +83,7 @@ export const PLATFORMS: PlatformConfig[] = [
     label: 'Linux',
     fileLabel: 'portable .AppImage',
     icon: TerminalIcon,
-    accent: '#34d399',
+    accent: color.emerald[400],
     minOs: 'Ubuntu 20.04 / any glibc 2.31+ desktop, X11',
     recommendedOs: 'Ubuntu 22.04 or newer, X11 session',
     steps: [

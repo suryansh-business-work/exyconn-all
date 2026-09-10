@@ -1,5 +1,5 @@
 import { useState, type ReactElement } from 'react';
-import { Alert, Button, Stack, TextField, Typography } from '@exyconn/ui';
+import { Alert, Button, Stack, TextField, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline';
 import PhotoCameraOutlined from '@mui/icons-material/PhotoCameraOutlined';
 import type { Branding, ConsentPolicy, TrackerSettings } from '@shared/types';
@@ -86,7 +86,7 @@ export default function ConsentScreen({
         {hasDisclosure ? (
           <ConsentBody html={body} />
         ) : (
-          <Alert severity="warning" variant="outlined" sx={{ borderRadius: '4px' }}>
+          <Alert severity="warning" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
             Your workspace has not published a monitoring disclosure yet. You cannot agree to
             something that has not been disclosed — ask your administrator to publish it in the
             portal.
@@ -98,7 +98,7 @@ export default function ConsentScreen({
             severity="warning"
             variant="outlined"
             icon={<PhotoCameraOutlined fontSize="small" />}
-            sx={{ borderRadius: '4px', mt: 2 }}
+            sx={{ borderRadius: `${TRACKER_RADIUS}px`, mt: 2 }}
           >
             {WEBCAM_DISCLOSURE}
           </Alert>
@@ -117,7 +117,11 @@ export default function ConsentScreen({
         )}
 
         {error !== null && (
-          <Alert severity="error" variant="outlined" sx={{ borderRadius: '4px', mt: 2 }}>
+          <Alert
+            severity="error"
+            variant="outlined"
+            sx={{ borderRadius: `${TRACKER_RADIUS}px`, mt: 2 }}
+          >
             {error}
           </Alert>
         )}

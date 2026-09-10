@@ -1,6 +1,7 @@
 import { ApplicantSource, ApplicantStage } from '@exyconn/shell/graphql/generated';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Pipeline order, as the server declares it. */
 export const APPLICANT_STAGES = Object.values(ApplicantStage);
@@ -21,10 +22,10 @@ export const RATING_OPTIONS: SelectOption[] = [
 
 /** Stat tile accents, one per stage the tiles show. */
 export const STAGE_ACCENTS: Record<ApplicantStage, string> = {
-  [ApplicantStage.New]: '#4f8cff',
-  [ApplicantStage.Screening]: '#ffd166',
-  [ApplicantStage.Interview]: '#8b5cf6',
-  [ApplicantStage.Offer]: '#f9851f',
-  [ApplicantStage.Hired]: '#7be37b',
-  [ApplicantStage.Rejected]: '#ff6b6b',
+  [ApplicantStage.New]: color.blue[400],
+  [ApplicantStage.Screening]: color.amber[200],
+  [ApplicantStage.Interview]: color.violet[400],
+  [ApplicantStage.Offer]: color.orange[500],
+  [ApplicantStage.Hired]: color.green[300],
+  [ApplicantStage.Rejected]: color.red[200],
 };

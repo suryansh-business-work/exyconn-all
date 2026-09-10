@@ -7,7 +7,10 @@ import {
   type AttendanceStatus,
   type ManualEntryDraft,
   type PermissionKind,
+  type PresenceStatus,
+  type ReportExport,
   type ScreenshotsRange,
+  type TrackerMessageKind,
   type TrackerState,
   type UpdateState,
 } from '@shared/types';
@@ -21,6 +24,7 @@ import { applyWindowChrome, registerWindowControls } from './window-chrome';
 import { holdForUpload, type CloseGuardHooks } from './close-guard';
 import { secureStore } from './store';
 import { AppUpdater } from './updater';
+import { saveReportFile } from './report-file';
 import { PORTAL_GRAPHQL_URL } from './portal-client';
 
 /**
@@ -209,9 +213,13 @@ function registerIpc(ctrl: TrackerController): void {
   });
   ipcMain.handle(IPC.getPermissions, () => ctrl.refreshPermissions());
   ipcMain.handle(IPC.requestPermission, (_e, kind: PermissionKind) => ctrl.requestPermission(kind));
-  ipcMain.handle(IPC.setPreferences, (_e, update: Partial<AppPreferences>) =>
-    ctrl.setPreferences(update),
-  );
+  ipcMain.handle(IPC.setPreferences, (_e, update: Partial<AppPreferences>) => {
+    const preferences = ctrl.setPreferences(update);
+    // Applied to the live updater, not just stored: turning background updates on is a
+    // request for the version already waiting, not a preference for the next launch.
+    updater.setAutoDownload(preferences.autoUpdate);
+    return preferences;
+  });
   ipcMain.handle(IPC.getTasks, (_e, projectId: string) => ctrl.getTasks(projectId));
   ipcMain.handle(IPC.getManualEntries, (_e, from: string, to: string) =>
     ctrl.getManualEntries(from, to),
@@ -220,8 +228,20 @@ function registerIpc(ctrl: TrackerController): void {
     ctrl.createManualEntry(draft),
   );
   ipcMain.handle(IPC.withdrawManualEntry, (_e, id: string) => ctrl.withdrawManualEntry(id));
+  ipcMain.handle(IPC.setPresence, (_e, status: PresenceStatus, note: string) =>
+    ctrl.setPresence(status, note),
+  );
+  ipcMain.handle(IPC.getMessages, (_e, kind: TrackerMessageKind) => ctrl.getMessages(kind));
+  ipcMain.handle(IPC.sendMessage, (_e, body: string) => ctrl.sendMessage(body));
+  ipcMain.handle(IPC.markMessagesRead, (_e, kind: TrackerMessageKind) =>
+    ctrl.markMessagesRead(kind),
+  );
+  // The dialog belongs to the tracker window, so it opens attached to it rather than
+  // floating loose over whatever the employee was actually looking at.
+  ipcMain.handle(IPC.saveReport, (_e, report: ReportExport) => saveReportFile(window, report));
   ipcMain.handle(IPC.getAppVersion, () => app.getVersion());
   ipcMain.handle(IPC.getUpdate, () => updater.current);
+  ipcMain.handle(IPC.checkForUpdate, () => updater.checkNow());
   // Fire-and-forget on purpose: the renderer gets a progress bar off the state channel, not a
   // promise it has to sit on while a few hundred megabytes arrive.
   ipcMain.handle(IPC.downloadUpdate, () => updater.download());
@@ -295,7 +315,7 @@ if (!app.requestSingleInstanceLock()) {
     registerIpc(controller);
     // Only a packaged app has an installer to replace; in dev there is nothing to update.
     if (app.isPackaged) {
-      updater.start(PORTAL_GRAPHQL_URL);
+      updater.start(PORTAL_GRAPHQL_URL, secureStore().preferences.autoUpdate);
     }
     await controller.restore();
     broadcast(controller.getState());

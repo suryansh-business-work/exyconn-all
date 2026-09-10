@@ -15,6 +15,19 @@ describe('createAppTheme', () => {
     expect(light.components?.MuiTextField?.defaultProps?.size).toBe('small');
   });
 
+  /**
+   * A bare `<button>` takes its colour from the UA (`buttontext`, near-black), NOT from the
+   * surface it sits on — which made every `Box component="button"` unreadable in dark mode.
+   * The reset lives in the theme so it lands once, everywhere.
+   */
+  it.each(['light', 'dark'] as const)('lets a bare button inherit its ink in %s', (mode) => {
+    const overrides = createAppTheme(mode).components?.MuiCssBaseline?.styleOverrides as Record<
+      string,
+      Record<string, string>
+    >;
+    expect(overrides.button).toMatchObject({ color: 'inherit', font: 'inherit' });
+  });
+
   it('exports the light theme as the default instance', () => {
     expect(theme.palette.mode).toBe('light');
   });

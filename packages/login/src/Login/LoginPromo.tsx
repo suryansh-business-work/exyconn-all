@@ -1,4 +1,15 @@
-import { Box, Button, Flex, Heading, Text, alpha } from '@exyconn/shell/components/ui';
+import {
+  alpha,
+  borderWidth,
+  Box,
+  boxShadow,
+  Button,
+  color,
+  Flex,
+  Heading,
+  radius,
+  Text,
+} from '@exyconn/shell/components/ui';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { env } from '@exyconn/shell/config/env';
 
@@ -26,11 +37,8 @@ export function LoginPromo({ name, slogan, accentColor }: Readonly<LoginPromoPro
         p: 3.5,
         borderRadius: 6,
         background: t.palette.background.paper,
-        border: `1px solid ${t.palette.divider}`,
-        boxShadow:
-          t.palette.mode === 'light'
-            ? '0 2px 6px rgba(16,24,40,0.06), 0 6px 16px rgba(16,24,40,0.08)'
-            : '0 4px 16px rgba(0,0,0,0.55)',
+        border: `${borderWidth.hairline}px solid ${t.palette.divider}`,
+        boxShadow: boxShadow[t.palette.mode].md,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -75,8 +83,8 @@ export function LoginPromo({ name, slogan, accentColor }: Readonly<LoginPromoPro
           endIcon={<ArrowForwardIcon />}
           sx={{
             bgcolor: accentColor,
-            color: '#fff',
-            borderRadius: '999px',
+            color: color.white,
+            borderRadius: `${radius.pill}px`,
             px: 2,
             '&:hover': { bgcolor: accentColor, opacity: 0.9 },
           }}

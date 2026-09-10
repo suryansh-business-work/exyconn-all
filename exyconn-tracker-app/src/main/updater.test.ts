@@ -59,7 +59,7 @@ describe('AppUpdater', () => {
     fake.downloadCalls = 0;
     fake.downloadRejects = false;
     updater = new AppUpdater((state) => seen.push(state));
-    updater.start('https://portal-server.exyconn.com/graphql');
+    updater.start('https://portal-server.exyconn.com/graphql', false);
   });
 
   afterEach(() => {
@@ -94,7 +94,7 @@ describe('AppUpdater', () => {
     emit('update-available', { version: '2.0.0' });
 
     // The stage that used to be missing: the version is on screen before a byte is fetched.
-    expect(updater.current).toEqual({ stage: 'available', version: '2.0.0', percent: 0 });
+    expect(updater.current).toMatchObject({ stage: 'available', version: '2.0.0', percent: 0 });
     expect(fake.downloadCalls).toBe(0);
 
     updater.download();
@@ -102,7 +102,7 @@ describe('AppUpdater', () => {
     emit('update-downloaded', { version: '2.0.0' });
 
     expect(fake.downloadCalls).toBe(1);
-    expect(seen).toEqual([
+    expect(seen.map(({ stage, version, percent }) => ({ stage, version, percent }))).toEqual([
       { stage: 'available', version: '2.0.0', percent: 0 },
       { stage: 'downloading', version: '2.0.0', percent: 0 },
       { stage: 'downloading', version: '2.0.0', percent: 43 },
@@ -155,14 +155,39 @@ describe('AppUpdater', () => {
   it('reports a failed check without disturbing anything else', () => {
     emit('error', new Error('feed unreachable'));
 
-    expect(updater.current).toEqual({ stage: 'failed', version: '', percent: 0 });
+    expect(updater.current).toMatchObject({ stage: 'failed', version: '', percent: 0 });
   });
 
   it('goes back to idle when the install is already the newest', () => {
     emit('checking-for-update');
     emit('update-not-available');
 
-    expect(updater.current).toEqual({ stage: 'idle', version: '', percent: 0 });
+    expect(updater.current).toMatchObject({ stage: 'idle', version: '', percent: 0 });
+  });
+
+  /**
+   * An up-to-date app returns to the same `idle` it started in, so without the timestamp
+   * "I checked and you are current" is indistinguishable from "I never looked".
+   */
+  it('stamps when it last looked, so an unchanged stage still reports the check', () => {
+    expect(updater.current.lastCheckedAt).toBeNull();
+
+    emit('checking-for-update');
+    emit('update-not-available');
+
+    expect(updater.current.lastCheckedAt).not.toBeNull();
+  });
+
+  it('fetches on its own once background updates are turned on mid-session', () => {
+    emit('update-available', { version: '2.0.0' });
+    expect(fake.downloadCalls).toBe(0);
+
+    updater.setAutoDownload(true);
+
+    // The employee turned it on because a version was already waiting — making them wait for
+    // the next launch would answer a request with a delay.
+    expect(fake.autoDownload).toBe(true);
+    expect(fake.downloadCalls).toBe(1);
   });
 
   it('installs the downloaded version on request', () => {

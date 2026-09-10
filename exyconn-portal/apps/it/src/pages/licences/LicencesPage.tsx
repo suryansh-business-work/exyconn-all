@@ -13,6 +13,7 @@ import { LicenceForm, type LicenceRow } from './forms/licence';
 import { renewalsDueWithin, seatsInUse } from './licences.summary';
 import { RENEWAL_WINDOW_DAYS } from './licences.constants';
 import { LICENCE_COLUMNS, type PagedLicenceRow, type LicencesGridContext } from './licences-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** IT module — the software licences the company pays for, their seats and renewals. */
 export function LicencesPage() {
@@ -37,17 +38,21 @@ export function LicencesPage() {
   const stats = statsData?.listLicencesStats;
   const licences = listData?.listLicences ?? [];
   const statItems: StatItem[] = [
-    { label: 'Licences', value: String(statTotal(stats)), accent: '#0891b2' },
-    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#7be37b' },
+    { label: 'Licences', value: String(statTotal(stats)), accent: color.cyan[600] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'status', 'ACTIVE')),
+      accent: color.green[300],
+    },
     {
       label: 'Seats used',
       value: `${seatsInUse(licences)} / ${statSum(stats, 'seatsTotal')}`,
-      accent: '#4f8cff',
+      accent: color.blue[400],
     },
     {
       label: `Renews in ${RENEWAL_WINDOW_DAYS}d`,
       value: String(renewalsDueWithin(licences, RENEWAL_WINDOW_DAYS).length),
-      accent: '#f9851f',
+      accent: color.orange[500],
     },
   ];
 

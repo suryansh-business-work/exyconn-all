@@ -108,7 +108,7 @@ export default function LegalFormReact() {
 
   return (
     <section className="max-w-xl mx-auto mt-12 bg-white rounded-2xl shadow-xl p-8">
-      <h2 className="text-2xl font-bold text-[#0071e3] mb-6 text-center">Submit a Legal Request</h2>
+      <h2 className="text-2xl font-bold text-[var(--color-primary)] mb-6 text-center">Submit a Legal Request</h2>
 
       {submitStatus === "success" && (
         <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 flex items-center gap-2">

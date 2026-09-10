@@ -10,6 +10,7 @@ import {
   type ListPerformanceReviewsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { PerformanceReviewForm, type PerformanceReviewRow } from './forms/performance-review';
+import { color } from '@exyconn/shell/components/ui';
 import {
   PERFORMANCE_REVIEW_COLUMNS,
   type PagedPerformanceReviewRow,
@@ -36,14 +37,18 @@ export function PerformancePage() {
 
   const stats = statsData?.listPerformanceReviewsStats;
   const statItems: StatItem[] = [
-    { label: 'Reviews', value: String(statTotal(stats)), accent: '#0ea5e9' },
-    { label: 'Open', value: String(statCount(stats, 'status', 'OPEN')), accent: '#0ea5e9' },
+    { label: 'Reviews', value: String(statTotal(stats)), accent: color.sky[500] },
+    { label: 'Open', value: String(statCount(stats, 'status', 'OPEN')), accent: color.sky[500] },
     {
       label: 'Self submitted',
       value: String(statCount(stats, 'status', 'SELF_SUBMITTED')),
-      accent: '#0ea5e9',
+      accent: color.sky[500],
     },
-    { label: 'Closed', value: String(statCount(stats, 'status', 'CLOSED')), accent: '#0ea5e9' },
+    {
+      label: 'Closed',
+      value: String(statCount(stats, 'status', 'CLOSED')),
+      accent: color.sky[500],
+    },
   ];
 
   const gridContext: PerformanceReviewGridContext = {

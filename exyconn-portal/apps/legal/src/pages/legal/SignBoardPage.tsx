@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Chip } from '@exyconn/shell/components/ui';
+import { Chip, color } from '@exyconn/shell/components/ui';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -22,9 +22,9 @@ export function SignBoardPage() {
   const rows = data?.listContracts ?? [];
   const signed = rows.filter((r) => r.signedBy);
   const stats: StatItem[] = [
-    { label: 'Total', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Signed', value: String(signed.length), accent: '#22c55e' },
-    { label: 'Awaiting', value: String(rows.length - signed.length), accent: '#f59e0b' },
+    { label: 'Total', value: String(rows.length), accent: color.blue[400] },
+    { label: 'Signed', value: String(signed.length), accent: color.green[500] },
+    { label: 'Awaiting', value: String(rows.length - signed.length), accent: color.amber[500] },
   ];
 
   const columns: Column<ContractRow>[] = [

@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { BenefitForm, type BenefitRow } from './forms/benefit';
 import { BENEFIT_COLUMNS, type PagedBenefitRow, type BenefitGridContext } from './benefit-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Benefits — server-paged admin grid over the benefit records. */
 export function BenefitsPage() {
@@ -32,10 +33,18 @@ export function BenefitsPage() {
 
   const stats = statsData?.listBenefitsStats;
   const statItems: StatItem[] = [
-    { label: 'Benefits', value: String(statTotal(stats)), accent: '#16a34a' },
-    { label: 'Insurance', value: String(statCount(stats, 'kind', 'INSURANCE')), accent: '#16a34a' },
-    { label: 'PF', value: String(statCount(stats, 'kind', 'PF')), accent: '#16a34a' },
-    { label: 'Wellness', value: String(statCount(stats, 'kind', 'WELLNESS')), accent: '#16a34a' },
+    { label: 'Benefits', value: String(statTotal(stats)), accent: color.green[600] },
+    {
+      label: 'Insurance',
+      value: String(statCount(stats, 'kind', 'INSURANCE')),
+      accent: color.green[600],
+    },
+    { label: 'PF', value: String(statCount(stats, 'kind', 'PF')), accent: color.green[600] },
+    {
+      label: 'Wellness',
+      value: String(statCount(stats, 'kind', 'WELLNESS')),
+      accent: color.green[600],
+    },
   ];
 
   const gridContext: BenefitGridContext = {

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Alert, Button, Divider, Stack, Typography } from '@exyconn/ui';
+import { Alert, Button, Divider, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import OpenInNewRounded from '@mui/icons-material/OpenInNewRounded';
 import type { AppPreferences, Branding, TrackerSettings, WorkProfile } from '@shared/types';
 import Surface from '../components/Surface';
@@ -9,8 +9,11 @@ import TimezonePicker from '../components/TimezonePicker';
 import TrayPreference from '../components/TrayPreference';
 import CaptureSoundPreference from '../components/CaptureSoundPreference';
 import ThemeModePicker from '../components/ThemeModePicker';
+import ProgressStylePicker from '../components/ProgressStylePicker';
+import UpdatePreference from '../components/UpdatePreference';
 import WorkArrangementCard from '../components/WorkArrangementCard';
 import useAppVersion from '../hooks/useAppVersion';
+import useUpdateState from '../hooks/useUpdateState';
 import { buildSettingRows } from '../settings-rows';
 import { run } from '../run';
 
@@ -33,6 +36,7 @@ export default function SettingsScreen({
   workProfile,
 }: Readonly<Props>): ReactElement {
   const appVersion = useAppVersion();
+  const update = useUpdateState();
   const supportEmail = branding?.supportEmail ?? '';
   const legalName = branding?.legalName ?? branding?.businessName ?? '';
 
@@ -61,6 +65,12 @@ export default function SettingsScreen({
           Appearance
         </Typography>
         <ThemeModePicker mode={preferences.themeMode} />
+        <Typography variant="body2" fontWeight={600} sx={{ mt: 2, mb: 1 }}>
+          Today’s progress
+        </Typography>
+        <ProgressStylePicker style={preferences.progressStyle} />
+        <Divider sx={{ my: 2 }} />
+        <UpdatePreference preferences={preferences} update={update} />
       </Surface>
 
       <WorkArrangementCard workProfile={workProfile} />
@@ -73,7 +83,11 @@ export default function SettingsScreen({
         </Typography>
 
         {settings === null ? (
-          <Alert severity="info" variant="outlined" sx={{ borderRadius: '4px', mt: 1 }}>
+          <Alert
+            severity="info"
+            variant="outlined"
+            sx={{ borderRadius: `${TRACKER_RADIUS}px`, mt: 1 }}
+          >
             Settings are not available right now.
           </Alert>
         ) : (

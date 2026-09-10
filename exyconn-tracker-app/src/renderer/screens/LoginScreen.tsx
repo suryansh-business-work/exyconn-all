@@ -8,6 +8,7 @@ import {
   FormControlLabel,
   Stack,
   TextField,
+  TRACKER_RADIUS,
   Typography,
 } from '@exyconn/ui';
 import type { Branding, ThemeMode } from '@shared/types';
@@ -89,7 +90,11 @@ export default function LoginScreen({
           </Typography>
 
           {signedOutReason !== null ? (
-            <Alert severity="warning" variant="outlined" sx={{ mb: 2, borderRadius: '4px' }}>
+            <Alert
+              severity="warning"
+              variant="outlined"
+              sx={{ mb: 2, borderRadius: `${TRACKER_RADIUS}px` }}
+            >
               {signedOutReason}
             </Alert>
           ) : null}
@@ -129,7 +134,11 @@ export default function LoginScreen({
             />
 
             {error !== null ? (
-              <Alert severity="error" variant="outlined" sx={{ borderRadius: '4px' }}>
+              <Alert
+                severity="error"
+                variant="outlined"
+                sx={{ borderRadius: `${TRACKER_RADIUS}px` }}
+              >
                 {error}
               </Alert>
             ) : null}

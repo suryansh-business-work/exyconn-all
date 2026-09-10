@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { createContext, useContext } from 'react';
-import { Badge, PickersDay } from '@exyconn/ui';
+import { Badge, PickersDay, TRACKER_RADIUS } from '@exyconn/ui';
 import type { PickersDayProps } from '@exyconn/ui';
 /**
  * The `yyyy-MM-dd` keys of the days that have tracked time. Passed by context rather than
@@ -37,7 +37,7 @@ export default function TrackedDay({
         {...rest}
         day={day}
         outsideCurrentMonth={outsideCurrentMonth}
-        sx={{ borderRadius: '4px' }}
+        sx={{ borderRadius: `${TRACKER_RADIUS}px` }}
       />
     </Badge>
   );

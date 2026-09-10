@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { Alert } from '@exyconn/shell/components/ui';
+import { Alert, color } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { statCount, statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -50,17 +50,21 @@ export function AiPage() {
 
   const stats = statsData?.listAiJobsStats;
   const statItems: StatItem[] = [
-    { label: 'Jobs', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Jobs', value: String(statTotal(stats)), accent: color.blue[400] },
     {
       label: 'Succeeded',
       value: String(statCount(stats, 'status', 'SUCCEEDED')),
-      accent: '#7be37b',
+      accent: color.green[300],
     },
-    { label: 'Failed', value: String(statCount(stats, 'status', 'FAILED')), accent: '#ff6b6b' },
+    {
+      label: 'Failed',
+      value: String(statCount(stats, 'status', 'FAILED')),
+      accent: color.red[200],
+    },
     {
       label: 'Spent',
       value: `$${statSum(stats, 'costUsd').toFixed(USD_DIGITS)}`,
-      accent: '#8b5cf6',
+      accent: color.violet[400],
     },
   ];
 

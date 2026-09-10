@@ -1,6 +1,6 @@
 import type { SvgIconComponent } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
-import { Box, Chip, ListItemButton, ListItemIcon, ListItemText } from '@/components/ui';
+import { Box, Chip, ListItemButton, ListItemIcon, ListItemText, color } from '@/components/ui';
 import type { PortalAppKey } from '@/config/apps';
 
 export interface PortalEntry {
@@ -39,7 +39,7 @@ export function PortalListItem({ entry, onSelect }: Readonly<PortalListItemProps
             borderRadius: 1.5,
             display: 'grid',
             placeItems: 'center',
-            color: '#fff',
+            color: color.white,
             bgcolor: entry.accent,
           }}
         >

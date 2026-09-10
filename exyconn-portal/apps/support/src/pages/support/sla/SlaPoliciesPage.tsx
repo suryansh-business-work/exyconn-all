@@ -9,6 +9,7 @@ import {
   type ListSupportSlaPoliciesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { SlaPolicyForm, type SlaPolicyRow } from './forms/sla-policy';
+import { color } from '@exyconn/shell/components/ui';
 import {
   SLA_POLICY_COLUMNS,
   type PagedSlaPolicyRow,
@@ -44,11 +45,11 @@ export function SlaPoliciesPage() {
     {
       label: 'Policies',
       value: String(statTotal(statsData?.listSupportSlaPoliciesStats)),
-      accent: '#4f8cff',
+      accent: color.blue[400],
     },
-    { label: 'On track', value: String(summary?.onTrack ?? 0), accent: '#22c55e' },
-    { label: 'Due soon', value: String(summary?.dueSoon ?? 0), accent: '#f59e0b' },
-    { label: 'Breached', value: String(summary?.breached ?? 0), accent: '#e11d48' },
+    { label: 'On track', value: String(summary?.onTrack ?? 0), accent: color.green[500] },
+    { label: 'Due soon', value: String(summary?.dueSoon ?? 0), accent: color.amber[500] },
+    { label: 'Breached', value: String(summary?.breached ?? 0), accent: color.rose[500] },
   ];
 
   const gridContext: SlaPoliciesGridContext = {

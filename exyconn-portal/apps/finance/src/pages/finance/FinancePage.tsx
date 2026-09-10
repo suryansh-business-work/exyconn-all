@@ -14,6 +14,7 @@ import { InvoiceForm, type InvoiceRow } from './forms/invoice';
 import { SendInvoiceForm } from './forms/send-invoice';
 import { useInvoiceDownload } from './useInvoiceDownload';
 import { INVOICE_COLUMNS, type PagedInvoiceRow, type InvoicesGridContext } from './invoices-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Finance module — invoice dashboard with a server-side invoices grid. */
 export function FinancePage() {
@@ -36,10 +37,18 @@ export function FinancePage() {
 
   const stats = statsData?.listInvoicesStats;
   const statItems: StatItem[] = [
-    { label: 'Invoices', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Revenue', value: `₹${statSum(stats, 'amount').toLocaleString()}`, accent: '#f9851f' },
-    { label: 'Paid', value: String(statCount(stats, 'status', 'PAID')), accent: '#7be37b' },
-    { label: 'Overdue', value: String(statCount(stats, 'status', 'OVERDUE')), accent: '#ff6b6b' },
+    { label: 'Invoices', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Revenue',
+      value: `₹${statSum(stats, 'amount').toLocaleString()}`,
+      accent: color.orange[500],
+    },
+    { label: 'Paid', value: String(statCount(stats, 'status', 'PAID')), accent: color.green[300] },
+    {
+      label: 'Overdue',
+      value: String(statCount(stats, 'status', 'OVERDUE')),
+      accent: color.red[200],
+    },
   ];
 
   const gridContext: InvoicesGridContext = {

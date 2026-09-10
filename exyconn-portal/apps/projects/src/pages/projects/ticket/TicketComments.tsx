@@ -8,6 +8,7 @@ import {
   IconButton,
   Text,
   TextField,
+  fontSize,
 } from '@exyconn/shell/components/ui';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -74,7 +75,7 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
       <Flex direction="column" spacing={1.5}>
         {comments.map((comment) => (
           <Flex key={comment.id} direction="row" spacing={1.25} alignItems="flex-start">
-            <Avatar sx={{ width: 28, height: 28, fontSize: 12 }}>
+            <Avatar sx={{ width: 28, height: 28, fontSize: fontSize.xs }}>
               {initialsOf(comment.authorName)}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>

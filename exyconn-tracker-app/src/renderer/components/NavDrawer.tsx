@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
 import {
   Avatar,
+  Badge,
+  borderWidth,
   Box,
   Divider,
   Drawer,
@@ -9,8 +11,10 @@ import {
   ListItemIcon,
   ListItemText,
   Stack,
+  TRACKER_RADIUS,
   Typography,
 } from '@exyconn/ui';
+import type { SvgIconComponent } from '@mui/icons-material';
 import type { AuthUser } from '@shared/types';
 import { NAV_ITEMS, type Section } from '../sections';
 
@@ -18,8 +22,25 @@ interface Props {
   open: boolean;
   section: Section;
   user: AuthUser | null;
+  /** Messages waiting for them — the drawer is where the count is worth showing. */
+  unreadMessages: number;
   onClose: () => void;
   onSelect: (section: Section) => void;
+}
+
+interface NavIconProps {
+  icon: SvgIconComponent;
+  /** 0 draws no badge at all, which is what an empty inbox should look like. */
+  count: number;
+}
+
+/** A drawer icon, badged when the section behind it has something waiting. */
+function NavIcon({ icon: Icon, count }: Readonly<NavIconProps>): ReactElement {
+  return (
+    <Badge badgeContent={count} color="error" overlap="circular">
+      <Icon fontSize="small" />
+    </Badge>
+  );
 }
 
 function initials(name: string): string {
@@ -37,6 +58,7 @@ export default function NavDrawer({
   open,
   section,
   user,
+  unreadMessages,
   onClose,
   onSelect,
 }: Readonly<Props>): ReactElement {
@@ -50,7 +72,7 @@ export default function NavDrawer({
         sx: (theme) => ({
           width: 268,
           backgroundColor: theme.palette.background.paper,
-          borderRight: `1px solid ${theme.palette.divider}`,
+          borderRight: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
         }),
       }}
     >
@@ -69,27 +91,24 @@ export default function NavDrawer({
       </Stack>
       <Divider />
       <List sx={{ p: 1.5 }}>
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          return (
-            <ListItemButton
-              key={item.id}
-              selected={item.id === section}
-              onClick={() => onSelect(item.id)}
-              sx={{ borderRadius: '4px', mb: 0.5, py: 1.25 }}
-            >
-              <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
-                <Icon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText
-                primary={item.label}
-                secondary={item.caption}
-                primaryTypographyProps={{ variant: 'subtitle2' }}
-                secondaryTypographyProps={{ variant: 'caption' }}
-              />
-            </ListItemButton>
-          );
-        })}
+        {NAV_ITEMS.map((item) => (
+          <ListItemButton
+            key={item.id}
+            selected={item.id === section}
+            onClick={() => onSelect(item.id)}
+            sx={{ borderRadius: `${TRACKER_RADIUS}px`, mb: 0.5, py: 1.25 }}
+          >
+            <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
+              <NavIcon icon={item.icon} count={item.id === 'messages' ? unreadMessages : 0} />
+            </ListItemIcon>
+            <ListItemText
+              primary={item.label}
+              secondary={item.caption}
+              primaryTypographyProps={{ variant: 'subtitle2' }}
+              secondaryTypographyProps={{ variant: 'caption' }}
+            />
+          </ListItemButton>
+        ))}
       </List>
     </Drawer>
   );

@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { LocationForm, type LocationRow } from './forms/location';
 import { LOCATION_COLUMNS, type PagedLocationRow, type LocationGridContext } from './location-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Locations — server-paged admin grid over the location records. */
 export function LocationsPage() {
@@ -30,10 +31,14 @@ export function LocationsPage() {
 
   const stats = statsData?.listLocationsStats;
   const statItems: StatItem[] = [
-    { label: 'Locations', value: String(statTotal(stats)), accent: '#0891b2' },
-    { label: 'Active', value: String(statCount(stats, 'active', 'true')), accent: '#0891b2' },
-    { label: 'Inactive', value: String(statCount(stats, 'active', 'false')), accent: '#0891b2' },
-    { label: 'Locations', value: String(statTotal(stats)), accent: '#0891b2' },
+    { label: 'Locations', value: String(statTotal(stats)), accent: color.cyan[600] },
+    { label: 'Active', value: String(statCount(stats, 'active', 'true')), accent: color.cyan[600] },
+    {
+      label: 'Inactive',
+      value: String(statCount(stats, 'active', 'false')),
+      accent: color.cyan[600],
+    },
+    { label: 'Locations', value: String(statTotal(stats)), accent: color.cyan[600] },
   ];
 
   const gridContext: LocationGridContext = {

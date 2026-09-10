@@ -3,6 +3,7 @@ import { MODULES, accessibleModules, type ModuleDefinition } from '@/config/modu
 import type { Role } from '@/auth/roles';
 import type { PortalAppKey } from '@/config/apps';
 import type { PortalEntry } from './PortalListItem';
+import { color } from '@exyconn/ui';
 
 /** The launcher is not a module, so it is described here rather than in MODULES. */
 const HUB_ENTRY = {
@@ -12,7 +13,7 @@ const HUB_ENTRY = {
   app: 'hub' as PortalAppKey,
   path: '/',
   icon: SpaceDashboardIcon,
-  accent: '#155dfc',
+  accent: color.blue[600],
 };
 
 /** The launcher plus the given modules as rows, marking the app doing the asking. */

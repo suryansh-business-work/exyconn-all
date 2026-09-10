@@ -16,6 +16,7 @@ import { ApplicantStageForm } from './forms/applicant-stage';
 import { ApplicantDetailDialog } from './ApplicantDetailDialog';
 import { ApplicantQuickFilter, stageFilters, type StageFilter } from './ApplicantQuickFilter';
 import { STAGE_ACCENTS } from './applicants.constants';
+import { color } from '@exyconn/shell/components/ui';
 import {
   APPLICANT_COLUMNS,
   type ApplicantsGridContext,
@@ -63,7 +64,7 @@ export function ApplicantsPage() {
 
   const stats = statsData?.listApplicantsStats;
   const statItems: StatItem[] = [
-    { label: 'Applicants', value: String(statTotal(stats)), accent: '#64748b' },
+    { label: 'Applicants', value: String(statTotal(stats)), accent: color.slate[500] },
     ...TILE_STAGES.map((tile) => ({
       label: tile.charAt(0) + tile.slice(1).toLowerCase(),
       value: String(statCount(stats, 'stage', tile)),

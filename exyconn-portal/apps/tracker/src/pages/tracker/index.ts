@@ -4,3 +4,4 @@ export { TrackerDevicesPage } from './TrackerDevicesPage';
 export { TrackerSettingsPage } from './TrackerSettingsPage';
 export { TrackerBillingPage } from './TrackerBillingPage';
 export { TrackerApprovalsPage } from './TrackerApprovalsPage';
+export { TrackerMessagesPage } from './TrackerMessagesPage';

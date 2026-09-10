@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Box, Chip, Grid, Flex, Text, Paragraph } from '@exyconn/shell/components/ui';
+import { Box, Chip, Grid, Flex, Text, Paragraph, color } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
 import { LineChart } from '@exyconn/shell/components/dashboard/LineChart';
@@ -129,7 +129,7 @@ export function HrDashboardPage() {
               <LineChart
                 labels={headcount.map((p) => p.label)}
                 data={headcount.map((p) => p.count)}
-                color="#155dfc"
+                color={color.blue[600]}
               />
             ) : (
               <Paragraph color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>

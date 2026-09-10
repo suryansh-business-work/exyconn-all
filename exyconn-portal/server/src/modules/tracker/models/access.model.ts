@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { PRESENCE_STATUSES } from '../tracker.constants';
 
 /**
  * Grants an employee the right to use the desktop tracker. Without an active grant the
@@ -20,6 +21,18 @@ const trackerAccessSchema = new Schema(
      * they never picked one, and the house default (or their device's zone) applies.
      */
     timezone: { type: String, default: '', trim: true },
+    /**
+     * What the employee has said they are doing, from the desktop app.
+     *
+     * Their own statement, never inferred: a quiet keyboard means the keyboard was quiet, and
+     * a tracker that decided on its own that somebody was at lunch would be telling their
+     * manager something nobody actually said.
+     */
+    presence: { type: String, enum: PRESENCE_STATUSES, default: 'WORKING' },
+    /** The employee's own words for it — "back at 2", "client call". Optional. */
+    presenceNote: { type: String, default: '', trim: true },
+    /** When they last said it, so "on lunch since 11am yesterday" reads as the stale claim it is. */
+    presenceAt: { type: Date, default: null },
   },
   { timestamps: true },
 );

@@ -9,6 +9,7 @@ import {
   type ListKbArticlesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { KbArticleForm, type KbArticleRow } from './forms/kb-article';
+import { color } from '@exyconn/shell/components/ui';
 import {
   KB_ARTICLE_COLUMNS,
   type PagedKbArticleRow,
@@ -39,13 +40,17 @@ export function KnowledgeBasePage() {
 
   const stats = statsData?.listKbArticlesStats;
   const statItems: StatItem[] = [
-    { label: 'Articles', value: String(statTotal(stats)), accent: '#4f8cff' },
+    { label: 'Articles', value: String(statTotal(stats)), accent: color.blue[400] },
     {
       label: 'Published',
       value: String(statCount(stats, 'isPublished', 'true')),
-      accent: '#22c55e',
+      accent: color.green[500],
     },
-    { label: 'Drafts', value: String(statCount(stats, 'isPublished', 'false')), accent: '#f59e0b' },
+    {
+      label: 'Drafts',
+      value: String(statCount(stats, 'isPublished', 'false')),
+      accent: color.amber[500],
+    },
   ];
 
   const gridContext: KbArticlesGridContext = {

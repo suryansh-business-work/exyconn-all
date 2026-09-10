@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import type { Theme } from '@/components/ui';
-import { Box, Drawer, Toolbar } from '@/components/ui';
+import { borderWidth, Box, Drawer, Toolbar } from '@/components/ui';
 import { Topbar } from './Topbar';
 import { Sidebar } from './Sidebar';
 import { useAuth } from '@/auth/AuthContext';
@@ -16,7 +16,7 @@ const drawerPaper = (t: Theme, width: number) => ({
   width,
   boxSizing: 'border-box' as const,
   border: 'none',
-  borderRight: `1px solid ${t.palette.divider}`,
+  borderRight: `${borderWidth.hairline}px solid ${t.palette.divider}`,
   background: t.palette.background.paper,
   overflowX: 'hidden' as const,
   transition: t.transitions.create('width', { duration: t.transitions.duration.shorter }),

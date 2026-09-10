@@ -5,6 +5,7 @@ import type { TrackerState } from '@shared/types';
 import AppHeader from './components/AppHeader';
 import NavDrawer from './components/NavDrawer';
 import DashboardScreen from './screens/DashboardScreen';
+import MessagesScreen from './screens/MessagesScreen';
 import MyReportScreen from './screens/MyReportScreen';
 import OffComputerScreen from './screens/OffComputerScreen';
 import SettingsScreen from './screens/SettingsScreen';
@@ -19,6 +20,9 @@ interface SectionProps {
 function SectionView({ section, state }: Readonly<SectionProps>): ReactElement {
   if (section === 'report') {
     return <MyReportScreen timezone={state.timezone} />;
+  }
+  if (section === 'messages') {
+    return <MessagesScreen timezone={state.timezone} />;
   }
   if (section === 'off-computer') {
     return <OffComputerScreen projects={state.projects} timezone={state.timezone} />;
@@ -68,6 +72,7 @@ export default function AppShell({ state }: Readonly<Props>): ReactElement {
         open={menuOpen}
         section={section}
         user={state.user}
+        unreadMessages={state.unreadMessages}
         onClose={() => setMenuOpen(false)}
         onSelect={select}
       />

@@ -7,7 +7,7 @@ import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { Text } from '@exyconn/shell/components/ui';
+import { Text, color } from '@exyconn/shell/components/ui';
 import {
   useTrackerDevicesQuery,
   useRevokeTrackerDeviceMutation,
@@ -43,10 +43,10 @@ export function TrackerDevicesPage() {
   // is running the tracker at this moment. Platform stays visible in the table's own column.
   const onlineCount = rows.filter((row) => row.isActive && isDeviceOnline(row.lastSeenAt)).length;
   const stats: StatItem[] = [
-    { label: 'Devices', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Online now', value: String(onlineCount), accent: '#7be37b' },
-    { label: 'Active', value: String(activeCount), accent: '#8b5cf6' },
-    { label: 'Revoked', value: String(rows.length - activeCount), accent: '#ff6b6b' },
+    { label: 'Devices', value: String(rows.length), accent: color.blue[400] },
+    { label: 'Online now', value: String(onlineCount), accent: color.green[300] },
+    { label: 'Active', value: String(activeCount), accent: color.violet[400] },
+    { label: 'Revoked', value: String(rows.length - activeCount), accent: color.red[200] },
   ];
 
   const columns: Column<TrackerDeviceRow>[] = [

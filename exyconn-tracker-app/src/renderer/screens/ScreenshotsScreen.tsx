@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useState } from 'react';
-import { Alert, Box, Skeleton, Stack, Typography } from '@exyconn/ui';
+import { Alert, Box, Skeleton, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import { useDayDetail } from '../hooks/useMyDay';
 import { formatCount } from '../format';
 import { formatDayInZone, offsetLabel } from '../time';
@@ -48,7 +48,7 @@ export default function ScreenshotsScreen({
       </Stack>
 
       {error !== null ? (
-        <Alert severity="error" variant="outlined" sx={{ borderRadius: '4px' }}>
+        <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
           {error}
         </Alert>
       ) : null}

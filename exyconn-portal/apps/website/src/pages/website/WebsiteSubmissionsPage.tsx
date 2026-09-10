@@ -19,6 +19,7 @@ import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { SubmissionTriageForm, type WebsiteSubmissionRow } from './forms/submission-triage';
 import { SubmissionPayload } from './SubmissionPayload';
 import { SubmissionFormTypeFilter } from './SubmissionFormTypeFilter';
+import { color } from '@exyconn/shell/components/ui';
 import {
   SUBMISSION_COLUMNS,
   type PagedSubmissionRow,
@@ -86,17 +87,17 @@ export function WebsiteSubmissionsPage() {
 
   const stats = statsData?.listWebsiteSubmissionsStats;
   const statItems: StatItem[] = [
-    { label: 'Submissions', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'New', value: String(statCount(stats, 'status', 'new')), accent: '#f9851f' },
+    { label: 'Submissions', value: String(statTotal(stats)), accent: color.blue[400] },
+    { label: 'New', value: String(statCount(stats, 'status', 'new')), accent: color.orange[500] },
     {
       label: 'In review',
       value: String(statCount(stats, 'status', 'in-review')),
-      accent: '#ffd166',
+      accent: color.amber[200],
     },
     {
       label: 'Resolved',
       value: String(statCount(stats, 'status', 'resolved')),
-      accent: '#7be37b',
+      accent: color.green[300],
     },
   ];
 

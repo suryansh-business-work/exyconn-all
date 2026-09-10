@@ -21,7 +21,7 @@ const [categories, siblings] = await Promise.all([
 
 const category = categories.find((one) => one.slug === tool.categorySlug) ?? null;
 const related = siblings.filter((one) => one.toolCode !== tool.toolCode).slice(0, 3);
-const accent = tool.color || category?.color || "#4f46e5";
+const accent = tool.color || category?.color || "var(--palette-indigo-500)";
 ---
 
 <Page title={`${tool.name} | Exyconn Tools`} description={tool.description}>

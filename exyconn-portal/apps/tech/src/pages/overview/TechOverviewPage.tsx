@@ -14,15 +14,16 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { OVERVIEW_DAYS, RECENT_SERVICES } from './tech-overview.constants';
 import { openProblemReports, unhealthyServices, uptimeLabel } from './tech-overview.summary';
+import { color } from '@exyconn/shell/components/ui';
 
 type ServiceRow = StatusOverviewQuery['statusOverview']['services'][number];
 
 /** Green while everything answers, red the moment one service does not. */
 const healthAccent = (down: number, degraded: number): string => {
   if (down > 0) {
-    return '#ff6b6b';
+    return color.red[200];
   }
-  return degraded > 0 ? '#f59e0b' : '#22c55e';
+  return degraded > 0 ? color.amber[500] : color.green[500];
 };
 
 /**
@@ -56,19 +57,19 @@ export function TechOverviewPage() {
     {
       label: 'Uptime, 30 days',
       value: uptimeLabel(status?.uptime30d ?? 0),
-      accent: '#4f8cff',
+      accent: color.blue[400],
       series: (status?.daily ?? []).map((day) => day.uptimePercent),
     },
     {
       label: `Email sent, ${OVERVIEW_DAYS}d`,
       value: String(email?.sent ?? 0),
-      accent: email?.failed ? '#f59e0b' : '#8b5cf6',
+      accent: email?.failed ? color.amber[500] : color.violet[400],
       series: (email?.days ?? []).map((day) => day.sent),
     },
     {
       label: 'Open problem reports',
       value: String(openReports),
-      accent: openReports > 0 ? '#f59e0b' : '#22c55e',
+      accent: openReports > 0 ? color.amber[500] : color.green[500],
     },
   ];
 
@@ -76,12 +77,12 @@ export function TechOverviewPage() {
     {
       title: 'Problem reports by severity',
       buckets: reportStats?.counts.find((c) => c.field === 'severity')?.buckets ?? [],
-      accent: '#ff6b6b',
+      accent: color.red[200],
     },
     {
       title: `Email by template, ${OVERVIEW_DAYS}d`,
       buckets: (email?.byTemplate ?? []).map((t) => ({ value: t.name, count: t.sent })),
-      accent: '#8b5cf6',
+      accent: color.violet[400],
     },
   ];
 

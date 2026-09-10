@@ -1,4 +1,5 @@
 import { Box, alpha } from '@exyconn/shell/components/ui';
+import { color } from '@exyconn/ui';
 
 interface LoginBackgroundProps {
   imageUrl: string;
@@ -12,7 +13,7 @@ interface LoginBackgroundProps {
  * form, so a missing or slow image just leaves the flat brand surface behind it.
  */
 export function LoginBackground({ imageUrl, accentColor, isDark }: Readonly<LoginBackgroundProps>) {
-  const base = isDark ? '#0b0e17' : '#f6f8fb';
+  const base = isDark ? color.neutral[900] : color.neutral[50];
 
   return (
     <Box aria-hidden sx={{ position: 'absolute', inset: 0, bgcolor: base }}>

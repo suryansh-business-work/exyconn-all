@@ -9,6 +9,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { BlogPostForm, type BlogRow } from './forms/blog-post';
 import { BLOG_COLUMNS, type PagedBlogRow, type BlogGridContext } from './blog-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Website CMS — blog posts with a server-side grid. */
 export function BlogPage() {
@@ -29,10 +30,18 @@ export function BlogPage() {
   const rows = data?.listBlogPosts ?? [];
   const tagCount = new Set(rows.flatMap((r) => r.tags)).size;
   const stats: StatItem[] = [
-    { label: 'Posts', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Featured', value: String(rows.filter((r) => r.featured).length), accent: '#f9851f' },
-    { label: 'Active', value: String(rows.filter((r) => r.isActive).length), accent: '#7be37b' },
-    { label: 'Tags', value: String(tagCount), accent: '#b58cff' },
+    { label: 'Posts', value: String(rows.length), accent: color.blue[400] },
+    {
+      label: 'Featured',
+      value: String(rows.filter((r) => r.featured).length),
+      accent: color.orange[500],
+    },
+    {
+      label: 'Active',
+      value: String(rows.filter((r) => r.isActive).length),
+      accent: color.green[300],
+    },
+    { label: 'Tags', value: String(tagCount), accent: color.violet[200] },
   ];
 
   const gridContext: BlogGridContext = {

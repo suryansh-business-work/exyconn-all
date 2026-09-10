@@ -12,6 +12,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { PurchaseOrderForm } from './forms/purchase-order';
 import { ReceiveOrderForm } from './ReceiveOrderForm';
+import { color } from '@exyconn/shell/components/ui';
 import {
   PURCHASE_ORDER_COLUMNS,
   type PurchaseOrderRow,
@@ -44,14 +45,22 @@ export function PurchaseOrdersPage() {
 
   const stats = statsData?.listPurchaseOrdersStats;
   const statItems: StatItem[] = [
-    { label: 'Orders', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Ordered', value: String(statCount(stats, 'status', 'ORDERED')), accent: '#f9851f' },
+    { label: 'Orders', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Ordered',
+      value: String(statCount(stats, 'status', 'ORDERED')),
+      accent: color.orange[500],
+    },
     {
       label: 'Part received',
       value: String(statCount(stats, 'status', 'PARTIALLY_RECEIVED')),
-      accent: '#eda100',
+      accent: color.amber[600],
     },
-    { label: 'Received', value: String(statCount(stats, 'status', 'RECEIVED')), accent: '#7be37b' },
+    {
+      label: 'Received',
+      value: String(statCount(stats, 'status', 'RECEIVED')),
+      accent: color.green[300],
+    },
   ];
 
   const gridContext: PurchaseOrdersGridContext = {

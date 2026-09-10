@@ -7,6 +7,7 @@ import {
   type ListJobCompaniesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { JobCompanyForm, type JobCompanyRow } from './forms/job-company';
+import { color } from '@exyconn/shell/components/ui';
 import {
   JOB_COMPANY_COLUMNS,
   type PagedJobCompanyRow,
@@ -32,10 +33,14 @@ export function JobCompaniesPage() {
   const benefitCount = rows.reduce((sum, r) => sum + r.benefits.length, 0);
   const industries = new Set(rows.map((r) => r.industry).filter(Boolean));
   const stats: StatItem[] = [
-    { label: 'Companies', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Active', value: String(rows.filter((r) => r.isActive).length), accent: '#7be37b' },
-    { label: 'Benefits', value: String(benefitCount), accent: '#f9851f' },
-    { label: 'Industries', value: String(industries.size), accent: '#c084fc' },
+    { label: 'Companies', value: String(rows.length), accent: color.blue[400] },
+    {
+      label: 'Active',
+      value: String(rows.filter((r) => r.isActive).length),
+      accent: color.green[300],
+    },
+    { label: 'Benefits', value: String(benefitCount), accent: color.orange[500] },
+    { label: 'Industries', value: String(industries.size), accent: color.purple[300] },
   ];
 
   const gridContext: JobCompaniesGridContext = {

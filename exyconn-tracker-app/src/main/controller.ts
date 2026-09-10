@@ -11,7 +11,11 @@ import type {
   LoginResult,
   PermissionKind,
   PermissionState,
+  PresenceState,
+  PresenceStatus,
   ReportDay,
+  TrackerMessage,
+  TrackerMessageKind,
   TrackerProject,
   TrackerSettings,
   TrackerTask,
@@ -29,7 +33,8 @@ import { TrackerAuthError } from './portal-client';
 import { collectDeviceInfo } from './device-info';
 import { describeLoginFailure } from './login-message';
 import { describeSyncFailure } from './sync-message';
-import { notifyAutoPaused, notifyAutoStopped } from './notifier';
+import { notifyAutoPaused, notifyAutoStopped, notifyMessages, notifyNotice } from './notifier';
+import { isAwayPresence } from '@shared/presence';
 import { getPermissions, requestPermission } from './trackers/permissions';
 import { decideAutoAction, formatHourLabel, hourIn, isWithinWindow } from '@shared/schedule';
 import type { ComposeInput } from './capture-bridge';
@@ -56,6 +61,10 @@ export class TrackerController {
   /** Tickets on the SELECTED project. Reloaded when that changes, not on every heartbeat. */
   private tasks: TrackerTask[] = [];
   private consentPolicy: ConsentPolicy | null = null;
+  /** What the employee last told the portal they were doing. Working until they say otherwise. */
+  private presence: PresenceState = { status: 'WORKING', note: '', since: null };
+  /** Chat messages waiting for them. Drives the drawer's badge, and the arrival notification. */
+  private unreadMessages = 0;
   private engine: TrackerEngine | null = null;
   private status: TrackerStatus = 'signed-out';
   private permissions: PermissionState = getPermissions();
@@ -109,6 +118,8 @@ export class TrackerController {
       rememberMe: secureStore().remembered,
       signedOutReason: this.signedOutReason,
       timezone: this.timezone,
+      presence: this.presence,
+      unreadMessages: this.unreadMessages,
     };
   }
 
@@ -220,6 +231,9 @@ export class TrackerController {
     this.consentPolicy = me.consentPolicy;
     this.adoptWorkday(me.workday);
     this.timezone = effectiveTimezone(me.timezone);
+    this.presence = me.presence;
+    this.announceMessages(me.unreadMessages);
+    this.announceNotices(me.notices);
     this.status = this.statusFor(me.consentRequired);
     this.engine?.updateSettings(me.settings);
     // Turning webcam capture on introduces a permission the employee has never been asked for.
@@ -240,6 +254,8 @@ export class TrackerController {
       this.workday,
       this.projects,
       this.consentPolicy,
+      this.presence,
+      this.unreadMessages,
     ]);
   }
 
@@ -431,6 +447,8 @@ export class TrackerController {
     this.projects = [];
     this.tasks = [];
     this.consentPolicy = null;
+    this.presence = { status: 'WORKING', note: '', since: null };
+    this.unreadMessages = 0;
     this.engine = null;
     this.status = 'signed-out';
     this.stats = idleStats();
@@ -566,6 +584,89 @@ export class TrackerController {
    */
   getTasks(projectId: string): Promise<TrackerTask[]> {
     return portal.fetchTasks(projectId);
+  }
+
+  /**
+   * Records what the employee says they are doing, and makes the tracker agree with it.
+   *
+   * Saying "I am at lunch" while the tracker keeps counting would bill lunch as work, so
+   * every status but Working pauses a running session; going back to Working resumes a
+   * paused one. Pausing here also sets the schedule override, which is what stops the
+   * workspace's auto-start putting somebody back to work halfway through their sandwich.
+   *
+   * The portal is written FIRST and its answer is what we keep: a presence the server never
+   * accepted must not sit on screen looking like it did.
+   */
+  async setPresence(status: PresenceStatus, note: string): Promise<PresenceState> {
+    this.presence = await portal.setPresence(status, note);
+    if (isAwayPresence(status) && this.status === 'tracking') {
+      this.pause();
+    } else if (!isAwayPresence(status) && this.status === 'paused') {
+      this.resume();
+    } else {
+      this.emit();
+    }
+    return this.presence;
+  }
+
+  /**
+   * The employee's own thread with whoever administers tracking, or the announcements sent
+   * to them. Scoped to them by the portal, like every other read this app makes.
+   */
+  getMessages(kind: TrackerMessageKind): Promise<TrackerMessage[]> {
+    return portal.fetchMessages(kind);
+  }
+
+  /** Posts one line onto their own thread. The portal decides who it is from. */
+  sendMessage(body: string): Promise<TrackerMessage> {
+    return portal.sendMessage(body);
+  }
+
+  /**
+   * Marks what was addressed to them as read, and clears the badge without waiting for the
+   * next heartbeat to confirm it — the employee is looking at the messages right now.
+   */
+  async markMessagesRead(kind: TrackerMessageKind): Promise<number> {
+    const count = await portal.markMessagesRead(kind);
+    if (kind === 'CHAT' && this.unreadMessages !== 0) {
+      this.unreadMessages = 0;
+      this.emit();
+    }
+    return count;
+  }
+
+  /**
+   * Tells the employee a message arrived, when the count has actually gone UP.
+   *
+   * A heartbeat repeats the same unread count once a minute, so notifying on the count
+   * itself would notify every minute until they opened the app. Only the rise is news.
+   */
+  private announceMessages(unread: number): void {
+    if (unread > this.unreadMessages) {
+      notifyMessages(unread - this.unreadMessages);
+    }
+    this.unreadMessages = unread;
+  }
+
+  /**
+   * Puts an administrator's announcement on the employee's screen, then marks it read.
+   *
+   * Marking read is what stops it being raised again on the next heartbeat, so it happens
+   * whether or not the notification centre was willing to show anything — a workspace with
+   * notifications muted must not be re-notified forever about the same message. It is
+   * fire-and-forget: a portal that briefly cannot record the read must not disturb tracking,
+   * and the worst case is one announcement shown twice.
+   */
+  private announceNotices(notices: readonly TrackerMessage[]): void {
+    if (notices.length === 0) {
+      return;
+    }
+    for (const notice of notices) {
+      notifyNotice(notice.title, notice.body);
+    }
+    portal.markMessagesRead('NOTICE').catch((error: unknown) => {
+      console.error('Marking announcements as read failed', error);
+    });
   }
 
   /** The employee's own claims for work done away from the computer, in a date range. */

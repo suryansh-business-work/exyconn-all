@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Box, Grid } from '@exyconn/shell/components/ui';
+import { Box, Grid, color } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
@@ -74,32 +74,36 @@ export function DashboardPage() {
     ).length;
 
     return [
-      { label: 'Today', value: today?.status.replace('_', ' ') ?? 'Not marked', accent: '#155dfc' },
-      { label: 'Present this month', value: String(month.PRESENT), accent: '#16a34a' },
-      { label: 'Work from home', value: String(month.WFH), accent: '#0ea5e9' },
+      {
+        label: 'Today',
+        value: today?.status.replace('_', ' ') ?? 'Not marked',
+        accent: color.blue[600],
+      },
+      { label: 'Present this month', value: String(month.PRESENT), accent: color.green[600] },
+      { label: 'Work from home', value: String(month.WFH), accent: color.sky[500] },
       {
         label: 'Leave balance',
         value: available === null ? 'Not set' : `${available} d`,
-        accent: '#14b8a6',
+        accent: color.teal[500],
       },
-      { label: 'Leave pending', value: String(leaves.pending), accent: '#f97316' },
-      { label: 'Leave available', value: `${availableLeave} d`, accent: '#a855f7' },
+      { label: 'Leave pending', value: String(leaves.pending), accent: color.orange[600] },
+      { label: 'Leave available', value: `${availableLeave} d`, accent: color.purple[400] },
       {
         label: `Leave taken ${now.getFullYear()}`,
         value: `${leaves.approvedDays} d`,
-        accent: '#c084fc',
+        accent: color.purple[300],
       },
       {
         label: 'Latest slip',
         value: latest ? `${MONTHS[latest.month - 1]} ${latest.year}` : '—',
-        accent: '#0891b2',
+        accent: color.cyan[600],
       },
       {
         label: 'Monthly net',
         value: structure ? formatMoney(structure.net, structure.currency) : '—',
-        accent: '#16a34a',
+        accent: color.green[600],
       },
-      { label: 'Open tickets', value: String(openTickets), accent: '#ef4444' },
+      { label: 'Open tickets', value: String(openTickets), accent: color.red[500] },
     ];
   }, [attendance.data, leave.data, slips.data, payroll.data, tickets.data, balances.data]);
 

@@ -1,5 +1,5 @@
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import { Box, Chip, Flex, Grid, Text } from '@exyconn/shell/components/ui';
+import { borderWidth, Box, Chip, Flex, Grid, Text } from '@exyconn/shell/components/ui';
 import { RhfImageField, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import type { BrandingFormValues } from './branding.types';
 
@@ -20,7 +20,14 @@ function LoginPageCard({ index, app }: Readonly<LoginPageCardProps>) {
   }) as string;
 
   return (
-    <Box sx={{ p: 1.5, borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}>
+    <Box
+      sx={{
+        p: 1.5,
+        borderRadius: 1.5,
+        border: `${borderWidth.hairline}px solid`,
+        borderColor: 'divider',
+      }}
+    >
       <Flex direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
         <Box
           aria-hidden

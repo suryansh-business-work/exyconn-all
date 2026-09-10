@@ -6,6 +6,7 @@ import {
   Chip,
   Stack,
   Typography,
+  fontSize,
 } from '@exyconn/shell/components/ui';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import type { SocialProfileQuery } from '@exyconn/shell/graphql/generated';
@@ -41,7 +42,7 @@ export function ProfileHeader({ profile }: Readonly<ProfileHeaderProps>) {
           <Avatar
             src={user.avatarUrl ?? undefined}
             alt={user.name}
-            sx={{ width: 96, height: 96, fontSize: 36 }}
+            sx={{ width: 96, height: 96, fontSize: fontSize['4xl'] }}
           >
             {user.name.charAt(0)}
           </Avatar>

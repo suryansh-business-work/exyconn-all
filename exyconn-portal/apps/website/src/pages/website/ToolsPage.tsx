@@ -8,6 +8,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { ToolForm, type ToolRow } from './forms/tool';
 import { TOOL_COLUMNS, type PagedToolRow, type ToolsGridContext } from './tools-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Website CMS — the tools listed in the public tools directory (server-side grid). */
 export function ToolsPage() {
@@ -27,14 +28,14 @@ export function ToolsPage() {
   const rows = data?.listTools ?? [];
   const categories = new Set(rows.map((r) => r.categorySlug));
   const stats: StatItem[] = [
-    { label: 'Tools', value: String(rows.length), accent: '#4f8cff' },
+    { label: 'Tools', value: String(rows.length), accent: color.blue[400] },
     {
       label: 'Active',
       value: String(rows.filter((r) => r.isActive).length),
-      accent: '#7be37b',
+      accent: color.green[300],
     },
-    { label: 'MVP', value: String(rows.filter((r) => r.isMVP).length), accent: '#f9851f' },
-    { label: 'Categories', value: String(categories.size), accent: '#b18cff' },
+    { label: 'MVP', value: String(rows.filter((r) => r.isMVP).length), accent: color.orange[500] },
+    { label: 'Categories', value: String(categories.size), accent: color.violet[200] },
   ];
 
   const gridContext: ToolsGridContext = {

@@ -11,6 +11,7 @@ import {
 import { ProductForm, type ProductRow } from './forms/product';
 import { ProductHistoryDrawer } from './ProductHistoryDrawer';
 import { PRODUCT_COLUMNS, type PagedProductRow, type ProductsGridContext } from './products-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Products module — catalog dashboard with a server-side products grid. */
 export function ProductsPage() {
@@ -31,10 +32,18 @@ export function ProductsPage() {
 
   const stats = statsData?.listProductsStats;
   const statItems: StatItem[] = [
-    { label: 'Products', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#7be37b' },
-    { label: 'In stock', value: String(statSum(stats, 'stock')), accent: '#f97316' },
-    { label: 'Archived', value: String(statCount(stats, 'status', 'ARCHIVED')), accent: '#64748b' },
+    { label: 'Products', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'status', 'ACTIVE')),
+      accent: color.green[300],
+    },
+    { label: 'In stock', value: String(statSum(stats, 'stock')), accent: color.orange[600] },
+    {
+      label: 'Archived',
+      value: String(statCount(stats, 'status', 'ARCHIVED')),
+      accent: color.slate[500],
+    },
   ];
 
   const gridContext: ProductsGridContext = {

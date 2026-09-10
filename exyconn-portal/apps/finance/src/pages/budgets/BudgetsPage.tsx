@@ -12,6 +12,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { BudgetForm, type BudgetRow } from './forms/budget';
 import { budgetColumns, type PagedBudgetRow, type BudgetsGridContext } from './budgets-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Finance → Budgets: what each cost centre may spend, one month at a time. */
 export function BudgetsPage() {
@@ -47,9 +48,13 @@ export function BudgetsPage() {
 
   const stats = statsData?.listBudgetsStats;
   const statItems: StatItem[] = [
-    { label: 'Budgets', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Total budgeted', value: formatMoney(statSum(stats, 'amount')), accent: '#8b5cf6' },
-    { label: 'Cost centres', value: String(options.length), accent: '#22c55e' },
+    { label: 'Budgets', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Total budgeted',
+      value: formatMoney(statSum(stats, 'amount')),
+      accent: color.violet[400],
+    },
+    { label: 'Cost centres', value: String(options.length), accent: color.green[500] },
   ];
 
   const gridContext: BudgetsGridContext = {

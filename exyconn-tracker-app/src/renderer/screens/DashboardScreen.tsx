@@ -5,6 +5,7 @@ import Surface from '../components/Surface';
 import AttendanceGate from '../components/AttendanceGate';
 import AutoStopNotice from '../components/AutoStopNotice';
 import DayProgress from '../components/DayProgress';
+import PresencePicker from '../components/PresencePicker';
 import ProjectPicker from '../components/ProjectPicker';
 import TicketPicker from '../components/TicketPicker';
 import StatGrid from '../components/StatGrid';
@@ -28,13 +29,18 @@ interface Props {
  * actually working towards; everything below it explains how that number is being made.
  */
 export default function DashboardScreen({ state }: Readonly<Props>): ReactElement {
-  const { stats, status, settings, user, timezone, workday, workProfile } = state;
+  const { stats, status, settings, user, timezone, workday, workProfile, preferences } = state;
   const tracking = status === 'tracking' || status === 'paused';
 
   return (
     <Stack spacing={2.5}>
       <Surface sx={{ p: 2.5 }}>
-        <DayProgress workday={workday} workProfile={workProfile} activeMs={stats.dayActiveMs} />
+        <DayProgress
+          workday={workday}
+          workProfile={workProfile}
+          activeMs={stats.dayActiveMs}
+          style={preferences.progressStyle}
+        />
       </Surface>
 
       <Surface sx={{ p: 2.5 }}>
@@ -71,6 +77,11 @@ export default function DashboardScreen({ state }: Readonly<Props>): ReactElemen
             selectedTaskId={state.selectedTaskId}
             disabled={tracking}
           />
+          <Divider />
+          {/* Above the controls, not below: saying "I am at lunch" IS a tracking control —
+              it pauses the session — and finding it under the buttons would make it look
+              like a status somebody else reads rather than something that acts. */}
+          <PresencePicker presence={state.presence} timezone={timezone} />
           <Divider />
           <TrackingControls status={status} attendanceMarked={workday?.attendanceMarked ?? false} />
         </Stack>

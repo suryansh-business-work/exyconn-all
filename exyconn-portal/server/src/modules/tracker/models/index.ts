@@ -6,3 +6,4 @@ export { TrackerWindowUsageModel, type TrackerWindowUsageDocument } from './wind
 export { TrackerScreenshotModel, type TrackerScreenshotDocument } from './screenshot.model';
 export { TrackerSettingsModel, type TrackerSettingsDocument } from './settings.model';
 export { TrackerManualEntryModel, type TrackerManualEntryDocument } from './manual-entry.model';
+export { TrackerMessageModel, type TrackerMessageDocument } from './message.model';

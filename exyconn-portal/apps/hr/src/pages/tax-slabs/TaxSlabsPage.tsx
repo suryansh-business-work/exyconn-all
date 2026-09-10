@@ -12,8 +12,9 @@ import {
 import { TaxRegimePanel } from './TaxRegimePanel';
 import { TaxSlabForm, type TaxSlabRow } from './forms/tax-slab';
 import { TAX_SLAB_COLUMNS, type PagedTaxSlabRow, type TaxSlabGridContext } from './tax-slab-grid';
+import { color } from '@exyconn/shell/components/ui';
 
-const ACCENT = '#f59e0b';
+const ACCENT = color.amber[500];
 
 /**
  * HR › Tax Slabs — the income-tax bands SLAB mode walks, and the regimes they belong to.

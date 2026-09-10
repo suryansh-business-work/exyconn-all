@@ -8,6 +8,7 @@ import {
   type ListCaseStudiesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { CaseStudyForm, type CaseStudyRow } from './forms/case-study';
+import { color } from '@exyconn/shell/components/ui';
 import {
   CASE_STUDY_COLUMNS,
   type PagedCaseStudyRow,
@@ -33,10 +34,18 @@ export function CaseStudiesPage() {
   const rows = data?.listCaseStudies ?? [];
   const categoryCount = new Set(rows.map((r) => r.category).filter(Boolean)).size;
   const stats: StatItem[] = [
-    { label: 'Case studies', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'Featured', value: String(rows.filter((r) => r.featured).length), accent: '#f9851f' },
-    { label: 'Active', value: String(rows.filter((r) => r.isActive).length), accent: '#7be37b' },
-    { label: 'Categories', value: String(categoryCount), accent: '#b58cff' },
+    { label: 'Case studies', value: String(rows.length), accent: color.blue[400] },
+    {
+      label: 'Featured',
+      value: String(rows.filter((r) => r.featured).length),
+      accent: color.orange[500],
+    },
+    {
+      label: 'Active',
+      value: String(rows.filter((r) => r.isActive).length),
+      accent: color.green[300],
+    },
+    { label: 'Categories', value: String(categoryCount), accent: color.violet[200] },
   ];
 
   const gridContext: CaseStudiesGridContext = {

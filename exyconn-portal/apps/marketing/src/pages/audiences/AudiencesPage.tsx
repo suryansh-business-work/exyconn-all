@@ -12,6 +12,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { AudienceListForm, type AudienceRow } from './forms/audience-list';
 import { AudienceMembers } from './AudienceMembers';
+import { color } from '@exyconn/shell/components/ui';
 import {
   AUDIENCE_COLUMNS,
   type PagedAudienceRow,
@@ -44,10 +45,10 @@ export function AudiencesPage() {
   ).length;
   const namedContacts = new Set(audiences.flatMap((audience) => audience.contactIds));
   const statItems: StatItem[] = [
-    { label: 'Audiences', value: String(audiences.length), accent: '#ec4899' },
-    { label: 'Clients named', value: String(reachable.size), accent: '#4f8cff' },
-    { label: 'Contacts named', value: String(namedContacts.size), accent: '#8b5cf6' },
-    { label: 'With a segment rule', value: String(segmented), accent: '#f9851f' },
+    { label: 'Audiences', value: String(audiences.length), accent: color.pink[400] },
+    { label: 'Clients named', value: String(reachable.size), accent: color.blue[400] },
+    { label: 'Contacts named', value: String(namedContacts.size), accent: color.violet[400] },
+    { label: 'With a segment rule', value: String(segmented), accent: color.orange[500] },
   ];
 
   const gridContext: AudiencesGridContext = {

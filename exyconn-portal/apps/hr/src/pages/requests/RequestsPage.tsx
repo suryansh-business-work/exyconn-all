@@ -9,6 +9,7 @@ import {
   type ListEmployeeRequestsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { EmployeeRequestForm, type EmployeeRequestRow } from './forms/employee-request';
+import { color } from '@exyconn/shell/components/ui';
 import {
   EMPLOYEE_REQUEST_COLUMNS,
   type PagedEmployeeRequestRow,
@@ -34,10 +35,22 @@ export function RequestsPage() {
 
   const stats = statsData?.listEmployeeRequestsStats;
   const statItems: StatItem[] = [
-    { label: 'Requests', value: String(statTotal(stats)), accent: '#f97316' },
-    { label: 'Pending', value: String(statCount(stats, 'status', 'PENDING')), accent: '#f97316' },
-    { label: 'Approved', value: String(statCount(stats, 'status', 'APPROVED')), accent: '#f97316' },
-    { label: 'Rejected', value: String(statCount(stats, 'status', 'REJECTED')), accent: '#f97316' },
+    { label: 'Requests', value: String(statTotal(stats)), accent: color.orange[600] },
+    {
+      label: 'Pending',
+      value: String(statCount(stats, 'status', 'PENDING')),
+      accent: color.orange[600],
+    },
+    {
+      label: 'Approved',
+      value: String(statCount(stats, 'status', 'APPROVED')),
+      accent: color.orange[600],
+    },
+    {
+      label: 'Rejected',
+      value: String(statCount(stats, 'status', 'REJECTED')),
+      accent: color.orange[600],
+    },
   ];
 
   const gridContext: EmployeeRequestGridContext = {

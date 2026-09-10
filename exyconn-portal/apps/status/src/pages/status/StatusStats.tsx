@@ -1,4 +1,4 @@
-import { Grid } from '@exyconn/shell/components/ui';
+import { Grid, color } from '@exyconn/shell/components/ui';
 import { StatCard, type StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import type { StatusOverview } from './status.types';
 
@@ -21,23 +21,23 @@ export function StatusStats({ overview }: Readonly<StatusStatsProps>) {
     {
       label: 'Services monitored',
       value: String(overview.total),
-      accent: '#4f8cff',
+      accent: color.blue[400],
     },
     {
       label: 'Uptime today',
       value: percent(overview.uptimeToday, checkedToday),
-      accent: '#7be37b',
+      accent: color.green[300],
       series: uptimeSeries,
     },
     {
       label: 'Uptime (30 days)',
       value: percent(overview.uptime30d, measured.length > 0),
-      accent: '#7be37b',
+      accent: color.green[300],
     },
     {
       label: 'Average response',
       value: checkedToday ? `${overview.avgResponseMs} ms` : '—',
-      accent: '#f9851f',
+      accent: color.orange[500],
       series: responseSeries,
     },
   ];

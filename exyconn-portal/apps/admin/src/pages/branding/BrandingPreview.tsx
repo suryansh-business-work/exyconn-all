@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
+import { borderWidth, Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { glass } from '@exyconn/shell/components/glass/glass';
 
 interface BrandingPreviewProps {
@@ -36,7 +36,7 @@ export function BrandingPreview({
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: 1.5,
-            border: '1px solid',
+            border: `${borderWidth.hairline}px solid`,
             borderColor: 'divider',
             overflow: 'hidden',
           }}

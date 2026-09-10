@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import MuiTypography, {
   type TypographyProps as MuiTypographyProps,
 } from '@mui/material/Typography';
-import { fontWeight } from '../tokens/tokens';
+import { fontWeight } from '../tokens/typography.token';
 
 /** Inline text size scale, mapped to a MUI Typography variant. */
 export type TextSize = 'sm' | 'md' | 'lg' | 'caption' | 'overline' | 'label';

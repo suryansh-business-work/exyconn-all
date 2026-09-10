@@ -8,6 +8,7 @@ import {
   TrackerDevicesPage,
   TrackerBillingPage,
   TrackerApprovalsPage,
+  TrackerMessagesPage,
   TrackerSettingsPage,
 } from './pages/tracker';
 import { TrackerDownloadPage } from './pages/download';
@@ -21,6 +22,7 @@ export function App() {
       <Route path="/tracker/devices" element={<TrackerDevicesPage />} />
       <Route path="/tracker/billing/:tab?" element={<TrackerBillingPage />} />
       <Route path="/tracker/approvals" element={<TrackerApprovalsPage />} />
+      <Route path="/tracker/messages/:tab?" element={<TrackerMessagesPage />} />
       <Route path="/tracker/settings" element={<TrackerSettingsPage />} />
       <Route path="/tracker/download" element={<TrackerDownloadPage />} />
     </PortalApp>

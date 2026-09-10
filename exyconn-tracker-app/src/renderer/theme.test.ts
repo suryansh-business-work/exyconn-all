@@ -1,11 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { buildTheme } from './theme';
+import { color } from '@exyconn/ui';
 
 /** A workspace whose brand background is light, so `system` would resolve to a light palette. */
 const LIGHT_BRAND = {
-  primaryColor: '#6C5CE7',
-  secondaryColor: '#00D2C6',
-  backgroundColor: '#FFFFFF',
+  primaryColor: color.indigo[500],
+  secondaryColor: color.teal[400],
+  backgroundColor: color.white,
   textColor: '#111111',
 } as never;
 

@@ -1,4 +1,4 @@
-import { Button, Chip } from '@exyconn/shell/components/ui';
+import { Button, Chip, color } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
@@ -74,10 +74,10 @@ export function TrackerAccessPage() {
   const activeCount = rows.filter((row) => row.access?.isActive).length;
   const consentedCount = rows.filter((row) => row.access?.consentedAt).length;
   const stats: StatItem[] = [
-    { label: 'Employees', value: String(rows.length), accent: '#4f8cff' },
-    { label: 'With access', value: String(activeCount), accent: '#7be37b' },
-    { label: 'Consented', value: String(consentedCount), accent: '#f9851f' },
-    { label: 'No access', value: String(rows.length - activeCount), accent: '#ff6b6b' },
+    { label: 'Employees', value: String(rows.length), accent: color.blue[400] },
+    { label: 'With access', value: String(activeCount), accent: color.green[300] },
+    { label: 'Consented', value: String(consentedCount), accent: color.orange[500] },
+    { label: 'No access', value: String(rows.length - activeCount), accent: color.red[200] },
   ];
 
   const handleGrant = async (row: AccessUserRow) => {

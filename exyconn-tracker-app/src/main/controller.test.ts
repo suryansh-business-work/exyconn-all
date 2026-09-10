@@ -14,6 +14,9 @@ const tempDir = mkdtempSync(join(tmpdir(), 'controller-'));
 
 vi.mock('electron', () => ({
   app: { getPath: () => tempDir },
+  // The controller now announces messages and notices; a test process has no notification
+  // centre, and `isSupported: false` is the same answer a locked-down desktop gives.
+  Notification: { isSupported: () => false },
   powerMonitor: { getSystemIdleTime: () => 0 },
   systemPreferences: {},
   shell: { openExternal: () => Promise.resolve() },
@@ -102,6 +105,8 @@ vi.mock('./portal-client', async () => {
     // Spread from `actual` this would be the real implementation, and every signed-in test
     // would attempt a network call the controller then swallows.
     fetchTasks: vi.fn(() => Promise.resolve([])),
+    setPresence: vi.fn(),
+    markMessagesRead: vi.fn(() => Promise.resolve(0)),
   };
 });
 
@@ -160,6 +165,9 @@ function portalState(overrides: Partial<portal.TrackerMeResponse> = {}): portal.
     workday: WORKDAY,
     projects: PROJECTS,
     consentPolicy: null,
+    presence: { status: 'WORKING', note: '', since: null },
+    notices: [],
+    unreadMessages: 0,
     ...overrides,
   };
 }
@@ -358,5 +366,124 @@ describe('the working day', () => {
     expect(state.workProfile?.workHoursPerDay).toBe(8);
     expect(state.workday?.targetMs).toBe(8 * 3_600_000);
     expect(state.stats.dayActiveMs).toBe(3_600_000);
+  });
+});
+
+describe('presence', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.mocked(portal.trackerMe).mockResolvedValue(portalState());
+    vi.mocked(portal.heartbeat).mockResolvedValue(portalState());
+    vi.mocked(portal.markAttendance).mockResolvedValue(WORKDAY);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllMocks();
+  });
+
+  /** The portal's answer for one presence, which is what the controller keeps. */
+  const stated = (status: 'WORKING' | 'LUNCH', note = '') => ({
+    status,
+    note,
+    since: '2026-09-04T06:30:00.000Z',
+  });
+
+  it('pauses a running session when the employee says they are at lunch', async () => {
+    const { controller } = await signedInController();
+    await controller.start();
+    expect(controller.getState().status).toBe('tracking');
+
+    vi.mocked(portal.setPresence).mockResolvedValue(stated('LUNCH', 'back at 2'));
+    await controller.setPresence('LUNCH', 'back at 2');
+
+    // The whole point: a tracker that kept counting through lunch would bill lunch as work.
+    expect(controller.getState().status).toBe('paused');
+    expect(controller.getState().presence.status).toBe('LUNCH');
+  });
+
+  it('resumes when they come back to Working, so returning is one choice and not two', async () => {
+    const { controller } = await signedInController();
+    await controller.start();
+    vi.mocked(portal.setPresence).mockResolvedValue(stated('LUNCH'));
+    await controller.setPresence('LUNCH', '');
+
+    vi.mocked(portal.setPresence).mockResolvedValue(stated('WORKING'));
+    await controller.setPresence('WORKING', '');
+
+    expect(controller.getState().status).toBe('tracking');
+  });
+
+  it('does not start tracking for somebody who was not tracking to begin with', async () => {
+    const { controller } = await signedInController();
+    expect(controller.getState().status).toBe('idle');
+
+    vi.mocked(portal.setPresence).mockResolvedValue(stated('WORKING'));
+    await controller.setPresence('WORKING', '');
+
+    expect(controller.getState().status).toBe('idle');
+  });
+
+  it("keeps the portal's answer, never the status that was asked for", async () => {
+    const { controller } = await signedInController();
+
+    // The server trimmed the note. What is on screen must be what was actually recorded.
+    vi.mocked(portal.setPresence).mockResolvedValue(stated('LUNCH', 'back at 2'));
+    await controller.setPresence('LUNCH', '   back at 2   ');
+
+    expect(controller.getState().presence.note).toBe('back at 2');
+  });
+});
+
+describe('messages', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.mocked(portal.trackerMe).mockResolvedValue(portalState());
+    vi.mocked(portal.heartbeat).mockResolvedValue(portalState());
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllMocks();
+  });
+
+  it('surfaces the unread count the portal reports, for the drawer badge', async () => {
+    const { controller } = await signedInController();
+    expect(controller.getState().unreadMessages).toBe(0);
+
+    vi.mocked(portal.heartbeat).mockResolvedValue(portalState({ unreadMessages: 3 }));
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    expect(controller.getState().unreadMessages).toBe(3);
+  });
+
+  it('marks announcements read once, so the same one is not raised every minute', async () => {
+    const notice = {
+      id: 'm1',
+      kind: 'NOTICE' as const,
+      direction: 'TO_EMPLOYEE' as const,
+      title: 'Office closed',
+      body: 'Friday is a holiday.',
+      authorName: 'Ops',
+      readAt: null,
+      createdAt: '2026-09-04T06:00:00.000Z',
+    };
+    vi.mocked(portal.trackerMe).mockResolvedValue(portalState({ notices: [notice] }));
+
+    await signedInController();
+
+    expect(vi.mocked(portal.markMessagesRead)).toHaveBeenCalledWith('NOTICE');
+  });
+
+  it('clears the badge as soon as the employee opens the thread', async () => {
+    vi.mocked(portal.trackerMe).mockResolvedValue(portalState({ unreadMessages: 2 }));
+    const { controller } = await signedInController();
+    expect(controller.getState().unreadMessages).toBe(2);
+
+    vi.mocked(portal.markMessagesRead).mockResolvedValue(2);
+    await controller.markMessagesRead('CHAT');
+
+    // Not waited for on the next heartbeat: they are reading the messages right now.
+    expect(controller.getState().unreadMessages).toBe(0);
   });
 });

@@ -8,6 +8,7 @@ import {
   type ListCostCentersPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { CostCenterForm, type CostCenterRow } from './forms/cost-center';
+import { color } from '@exyconn/shell/components/ui';
 import {
   COST_CENTER_COLUMNS,
   type PagedCostCenterRow,
@@ -38,9 +39,17 @@ export function CostCentersPage() {
 
   const stats = statsData?.listCostCentersStats;
   const statItems: StatItem[] = [
-    { label: 'Centres', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Active', value: String(statCount(stats, 'isActive', 'true')), accent: '#22c55e' },
-    { label: 'Retired', value: String(statCount(stats, 'isActive', 'false')), accent: '#94a3b8' },
+    { label: 'Centres', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'isActive', 'true')),
+      accent: color.green[500],
+    },
+    {
+      label: 'Retired',
+      value: String(statCount(stats, 'isActive', 'false')),
+      accent: color.slate[400],
+    },
   ];
 
   const gridContext: CostCentersGridContext = {

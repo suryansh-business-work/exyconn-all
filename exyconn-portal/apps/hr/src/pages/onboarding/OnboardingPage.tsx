@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { StartOnboardingForm } from './forms/start-onboarding';
 import { OnboardingDetailDrawer } from './OnboardingDetailDrawer';
+import { color } from '@exyconn/shell/components/ui';
 import {
   ONBOARDING_COLUMNS,
   type OnboardingGridContext,
@@ -42,7 +43,7 @@ export function OnboardingPage() {
 
   const stats = statsData?.listOnboardingChecklistsStats;
   const statItems: StatItem[] = [
-    { label: 'Onboardings', value: String(statTotal(stats)), accent: '#64748b' },
+    { label: 'Onboardings', value: String(statTotal(stats)), accent: color.slate[500] },
   ];
 
   const gridContext: OnboardingGridContext = {

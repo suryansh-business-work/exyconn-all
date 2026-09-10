@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
-import { Alert, Stack, Typography } from '@exyconn/ui';
+import { Alert, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import type { TrackerSettings, TrackerStatus } from '@shared/types';
 import { autoStopNotice } from '../auto-stop';
 
@@ -41,7 +41,11 @@ export default function AutoStopNotice({
   }
 
   return (
-    <Alert severity={notice.severity} variant="outlined" sx={{ borderRadius: '4px' }}>
+    <Alert
+      severity={notice.severity}
+      variant="outlined"
+      sx={{ borderRadius: `${TRACKER_RADIUS}px` }}
+    >
       <Stack spacing={0.25}>
         <Typography variant="body2" fontWeight={600}>
           {notice.title}

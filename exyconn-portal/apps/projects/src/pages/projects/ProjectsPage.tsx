@@ -13,6 +13,7 @@ import {
 import { ProjectForm, type ProjectRow } from './forms/project';
 import { ProjectSharesDrawer } from './shares';
 import { PROJECT_COLUMNS, type PagedProjectRow, type ProjectsGridContext } from './projects-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Projects module — project management dashboard with a server-side projects grid. */
 export function ProjectsPage() {
@@ -38,13 +39,21 @@ export function ProjectsPage() {
 
   const stats = statsData?.listProjectsStats;
   const statItems: StatItem[] = [
-    { label: 'Total', value: String(statTotal(stats)), accent: '#155dfc' },
-    { label: 'Active', value: String(statCount(stats, 'status', 'ACTIVE')), accent: '#22c55e' },
-    { label: 'On hold', value: String(statCount(stats, 'status', 'ON_HOLD')), accent: '#f59e0b' },
+    { label: 'Total', value: String(statTotal(stats)), accent: color.blue[600] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'status', 'ACTIVE')),
+      accent: color.green[500],
+    },
+    {
+      label: 'On hold',
+      value: String(statCount(stats, 'status', 'ON_HOLD')),
+      accent: color.amber[500],
+    },
     {
       label: 'Completed',
       value: String(statCount(stats, 'status', 'COMPLETED')),
-      accent: '#8b5cf6',
+      accent: color.violet[400],
     },
   ];
 

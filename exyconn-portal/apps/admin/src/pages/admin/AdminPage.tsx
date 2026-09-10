@@ -17,6 +17,7 @@ import { statCount, statDistinct, statTotal } from '@exyconn/shell/components/da
 import { UserForm, type UserRow } from '@exyconn/shell/pages/user-forms/user';
 import { CredentialsDialog, type Credentials } from './CredentialsDialog';
 import { USER_COLUMNS, type PagedUserRow, type UsersGridContext } from './users-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Admin module — user management dashboard with a server-side Users grid. */
 export function AdminPage() {
@@ -41,10 +42,22 @@ export function AdminPage() {
 
   const stats = statsData?.listUsersStats;
   const statItems: StatItem[] = [
-    { label: 'Users', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Active', value: String(statCount(stats, 'isActive', 'true')), accent: '#7be37b' },
-    { label: 'Admins', value: String(statCount(stats, 'roles', Role.Admin)), accent: '#f9851f' },
-    { label: 'Roles in use', value: String(statDistinct(stats, 'roles')), accent: '#8b5cf6' },
+    { label: 'Users', value: String(statTotal(stats)), accent: color.blue[400] },
+    {
+      label: 'Active',
+      value: String(statCount(stats, 'isActive', 'true')),
+      accent: color.green[300],
+    },
+    {
+      label: 'Admins',
+      value: String(statCount(stats, 'roles', Role.Admin)),
+      accent: color.orange[500],
+    },
+    {
+      label: 'Roles in use',
+      value: String(statDistinct(stats, 'roles')),
+      accent: color.violet[400],
+    },
   ];
 
   const handleResetPassword = async (row: PagedUserRow) => {

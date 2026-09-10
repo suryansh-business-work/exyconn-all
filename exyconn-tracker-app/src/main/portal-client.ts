@@ -5,7 +5,11 @@ import type {
   DayDetail,
   ManualEntry,
   ManualEntryDraft,
+  PresenceState,
+  PresenceStatus,
   ReportDay,
+  TrackerMessage,
+  TrackerMessageKind,
   TrackerProject,
   TrackerSettings,
   TrackerTask,
@@ -260,12 +264,19 @@ const WORKDAY_FIELDS = `
   consentPolicy { ${CONSENT_POLICY_FIELDS} }
 `;
 
+/** Checked against the portal's schema by `schema-drift.test.ts`, like the settings. */
+export const PRESENCE_FIELDS = `status note since`;
+export const MESSAGE_FIELDS = `id kind direction title body authorName readAt createdAt`;
+
 const ME_FIELDS = `
   user { id name email }
   consentRequired
   timezone
   settings { ${SETTINGS_FIELDS} }
   ${WORKDAY_FIELDS}
+  presence { ${PRESENCE_FIELDS} }
+  notices { ${MESSAGE_FIELDS} }
+  unreadMessages
 `;
 
 const TRACKER_ME = `query { trackerMe { ${ME_FIELDS} } }`;
@@ -285,6 +296,10 @@ export interface TrackerMeResponse {
   workday: Workday;
   projects: TrackerProject[];
   consentPolicy: ConsentPolicy | null;
+  presence: PresenceState;
+  /** Announcements this employee has not seen. The app raises them, then marks them read. */
+  notices: TrackerMessage[];
+  unreadMessages: number;
 }
 
 /** Rebuilds a remembered session from the stored device token (no password prompt). */
@@ -507,4 +522,64 @@ const WITHDRAW_MANUAL_ENTRY = `
 /** Takes back a claim that is still pending. The portal refuses once it has been decided. */
 export async function withdrawManualEntry(id: string): Promise<void> {
   await authed<{ withdrawTrackerManualEntry: boolean }>(WITHDRAW_MANUAL_ENTRY, { id });
+}
+
+const MY_MESSAGES = `
+  query MyMessages($kind: TrackerMessageKind) {
+    myTrackerMessages(kind: $kind) { ${MESSAGE_FIELDS} }
+  }
+`;
+
+/**
+ * The employee's OWN thread with whoever administers tracking, or the announcements sent to
+ * them. Scoped by the portal to the token's user, like every other `myTracker*` read.
+ */
+export async function fetchMessages(kind: TrackerMessageKind): Promise<TrackerMessage[]> {
+  const data = await authed<{ myTrackerMessages: TrackerMessage[] }>(MY_MESSAGES, { kind });
+  return data.myTrackerMessages;
+}
+
+const SEND_MESSAGE = `
+  mutation SendMyMessage($body: String!) {
+    sendMyTrackerMessage(body: $body) { ${MESSAGE_FIELDS} }
+  }
+`;
+
+/** Posts one line onto the employee's own thread. The portal decides who it is from. */
+export async function sendMessage(body: string): Promise<TrackerMessage> {
+  const data = await authed<{ sendMyTrackerMessage: TrackerMessage }>(SEND_MESSAGE, { body });
+  return data.sendMyTrackerMessage;
+}
+
+const MARK_READ = `
+  mutation MarkMyMessagesRead($kind: TrackerMessageKind) {
+    markMyTrackerMessagesRead(kind: $kind)
+  }
+`;
+
+/**
+ * Marks what was addressed to this employee as read — the chat they just looked at, or the
+ * announcements the app has already put on screen. Answers how many that was.
+ */
+export async function markMessagesRead(kind: TrackerMessageKind): Promise<number> {
+  const data = await authed<{ markMyTrackerMessagesRead: number }>(MARK_READ, { kind });
+  return data.markMyTrackerMessagesRead;
+}
+
+const SET_PRESENCE = `
+  mutation SetPresence($status: TrackerPresence!, $note: String) {
+    setMyTrackerPresence(status: $status, note: $note) { ${PRESENCE_FIELDS} }
+  }
+`;
+
+/**
+ * Records what the employee says they are doing. Scoped to their own row by the device
+ * token, so one employee can never put another at lunch.
+ */
+export async function setPresence(status: PresenceStatus, note: string): Promise<PresenceState> {
+  const data = await authed<{ setMyTrackerPresence: PresenceState }>(SET_PRESENCE, {
+    status,
+    note,
+  });
+  return data.setMyTrackerPresence;
 }

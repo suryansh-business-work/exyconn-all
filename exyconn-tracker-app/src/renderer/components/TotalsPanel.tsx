@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Alert, Box, Skeleton, Stack, Typography } from '@exyconn/ui';
+import { Alert, Box, Skeleton, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import useTotals from '../hooks/useTotals';
 import { totalTiles } from '../tiles';
 import StatGrid from './StatGrid';
@@ -49,7 +49,7 @@ export default function TotalsPanel({ lastSyncAt }: Readonly<Props>): ReactEleme
       </Stack>
 
       {error !== null ? (
-        <Alert severity="warning" variant="outlined" sx={{ borderRadius: '4px' }}>
+        <Alert severity="warning" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
           {error}
         </Alert>
       ) : null}

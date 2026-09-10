@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import type { SvgIconComponent } from '@mui/icons-material';
-import { Box, Button, Stack, Typography, alpha } from '@exyconn/ui';
+import { alpha, Box, Button, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import Surface from './Surface';
 
 interface Props {
@@ -30,7 +30,7 @@ export default function PermissionRow({
             width: 40,
             height: 40,
             flexShrink: 0,
-            borderRadius: '4px',
+            borderRadius: `${TRACKER_RADIUS}px`,
             backgroundColor: alpha(theme.palette.primary.main, 0.18),
             color: theme.palette.primary.main,
           })}

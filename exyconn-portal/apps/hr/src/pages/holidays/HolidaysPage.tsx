@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { HolidayForm, type HolidayRow } from './forms/holiday';
 import { HOLIDAY_COLUMNS, type PagedHolidayRow, type HolidayGridContext } from './holiday-grid';
+import { color } from '@exyconn/shell/components/ui';
 
 /** Holidays — server-paged admin grid over the holiday records. */
 export function HolidaysPage() {
@@ -30,13 +31,21 @@ export function HolidaysPage() {
 
   const stats = statsData?.listHolidaysStats;
   const statItems: StatItem[] = [
-    { label: 'Holidays', value: String(statTotal(stats)), accent: '#f59e0b' },
-    { label: 'Public', value: String(statCount(stats, 'type', 'PUBLIC')), accent: '#f59e0b' },
-    { label: 'Optional', value: String(statCount(stats, 'type', 'OPTIONAL')), accent: '#f59e0b' },
+    { label: 'Holidays', value: String(statTotal(stats)), accent: color.amber[500] },
+    {
+      label: 'Public',
+      value: String(statCount(stats, 'type', 'PUBLIC')),
+      accent: color.amber[500],
+    },
+    {
+      label: 'Optional',
+      value: String(statCount(stats, 'type', 'OPTIONAL')),
+      accent: color.amber[500],
+    },
     {
       label: 'Restricted',
       value: String(statCount(stats, 'type', 'RESTRICTED')),
-      accent: '#f59e0b',
+      accent: color.amber[500],
     },
   ];
 

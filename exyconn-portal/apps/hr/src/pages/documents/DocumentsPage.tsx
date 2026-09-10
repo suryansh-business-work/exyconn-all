@@ -10,6 +10,7 @@ import {
   type ListEmployeeDocumentsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { EmployeeDocumentForm, type EmployeeDocumentRow } from './forms/employee-document';
+import { color } from '@exyconn/shell/components/ui';
 import {
   EMPLOYEE_DOCUMENT_COLUMNS,
   type PagedEmployeeDocumentRow,
@@ -36,14 +37,14 @@ export function DocumentsPage() {
 
   const stats = statsData?.listEmployeeDocumentsStats;
   const statItems: StatItem[] = [
-    { label: 'Documents', value: String(statTotal(stats)), accent: '#14b8a6' },
+    { label: 'Documents', value: String(statTotal(stats)), accent: color.teal[500] },
     {
       label: 'Offer letters',
       value: String(statCount(stats, 'kind', 'OFFER_LETTER')),
-      accent: '#14b8a6',
+      accent: color.teal[500],
     },
-    { label: 'Tax', value: String(statCount(stats, 'kind', 'TAX')), accent: '#14b8a6' },
-    { label: 'Policy', value: String(statCount(stats, 'kind', 'POLICY')), accent: '#14b8a6' },
+    { label: 'Tax', value: String(statCount(stats, 'kind', 'TAX')), accent: color.teal[500] },
+    { label: 'Policy', value: String(statCount(stats, 'kind', 'POLICY')), accent: color.teal[500] },
   ];
 
   const gridContext: EmployeeDocumentGridContext = {

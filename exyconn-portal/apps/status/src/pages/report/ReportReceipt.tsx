@@ -1,6 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { Box, Button, Card, Flex, Typography } from '@exyconn/shell/components/ui';
+import {
+  Box,
+  Button,
+  Card,
+  Flex,
+  Typography,
+  fontSize,
+  iconSize,
+} from '@exyconn/shell/components/ui';
 
 interface ReportReceiptProps {
   reference: string;
@@ -13,7 +21,7 @@ export function ReportReceipt({ reference, onAnother }: Readonly<ReportReceiptPr
 
   return (
     <Card variant="outlined" sx={{ p: { xs: 3, md: 4 }, textAlign: 'center' }}>
-      <CheckCircleIcon color="success" sx={{ fontSize: 56 }} />
+      <CheckCircleIcon color="success" sx={{ fontSize: iconSize['5xl'] }} />
       <Typography variant="h5" fontWeight={800} sx={{ mt: 1 }}>
         Thank you — your report is with our tech team
       </Typography>
@@ -28,7 +36,7 @@ export function ReportReceipt({ reference, onAnother }: Readonly<ReportReceiptPr
           borderRadius: 2,
           bgcolor: 'action.hover',
           fontFamily: 'monospace',
-          fontSize: 24,
+          fontSize: fontSize['3xl'],
           fontWeight: 700,
           letterSpacing: 2,
         }}

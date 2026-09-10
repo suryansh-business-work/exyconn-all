@@ -7,6 +7,7 @@ import {
   CircularProgress,
   Flex,
   Typography,
+  iconSize,
 } from '@exyconn/shell/components/ui';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import { formatWith } from '@exyconn/shell/utils/date';
@@ -59,7 +60,7 @@ export function SharedProjectPage() {
   if (!project) {
     return (
       <Card variant="outlined" sx={{ p: { xs: 3, md: 4 }, textAlign: 'center' }}>
-        <LockPersonIcon color="disabled" sx={{ fontSize: 56 }} />
+        <LockPersonIcon color="disabled" sx={{ fontSize: iconSize['5xl'] }} />
         <Typography variant="h5" fontWeight={800} sx={{ mt: 1 }}>
           This link no longer works
         </Typography>

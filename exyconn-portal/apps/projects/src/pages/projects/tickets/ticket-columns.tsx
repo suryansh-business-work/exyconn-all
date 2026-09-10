@@ -1,4 +1,4 @@
-import { Avatar, Chip, Flex, Text, Tooltip } from '@exyconn/shell/components/ui';
+import { Avatar, Chip, Flex, Text, Tooltip, fontSize } from '@exyconn/shell/components/ui';
 import type { Column } from '@exyconn/shell/components/data/DataTable';
 import { TICKET_PRIORITIES, TICKET_TYPES, TicketFacetIcon, initialsOf } from '../ticket';
 import type { TicketRow } from '../forms/ticket';
@@ -47,7 +47,7 @@ export function ticketColumns(formatDate: (value: string) => string): Column<Tic
         ) : (
           <Flex direction="row" alignItems="center" spacing={0.75}>
             <Tooltip title={row.assigneeName}>
-              <Avatar sx={{ width: 22, height: 22, fontSize: 10 }}>
+              <Avatar sx={{ width: 22, height: 22, fontSize: fontSize['3xs'] }}>
                 {initialsOf(row.assigneeName)}
               </Avatar>
             </Tooltip>
