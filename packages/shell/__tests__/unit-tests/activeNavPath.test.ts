@@ -1,7 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { activeNavPath } from '@/layout/PortalLayout/activeNavPath';
 
-const ADMIN_NAV = ['/admin', '/clients', '/environment-variables', '/admin/permissions'];
+const ADMIN_NAV = [
+  '/admin',
+  '/admin/users',
+  '/clients',
+  '/environment-variables',
+  '/admin/permissions',
+];
 
 describe('activeNavPath', () => {
   it('matches the entry exactly when the URL is its own path', () => {
@@ -13,7 +19,11 @@ describe('activeNavPath', () => {
   });
 
   it('keeps the parent entry for a detail route beneath it', () => {
-    expect(activeNavPath('/admin/users/42', ADMIN_NAV)).toBe('/admin');
+    expect(activeNavPath('/admin/users/42', ADMIN_NAV)).toBe('/admin/users');
+  });
+
+  it('leaves the module root to its own entry, not the register beneath it', () => {
+    expect(activeNavPath('/admin', ADMIN_NAV)).toBe('/admin');
   });
 
   it('prefers the longest matching entry over a shorter prefix', () => {

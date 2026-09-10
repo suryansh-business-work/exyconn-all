@@ -98,7 +98,11 @@ export function ProjectWorkspacePage() {
   return (
     <Flex direction="column" sx={{ height: '100%', minHeight: 0 }}>
       <Flex direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
-        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/projects')} size="small">
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate('/projects/list')}
+          size="small"
+        >
           Projects
         </Button>
         <Heading level={5}>{project?.name ?? 'Project'}</Heading>

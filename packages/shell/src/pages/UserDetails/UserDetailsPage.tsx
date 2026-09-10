@@ -14,7 +14,7 @@ export function UserDetailsPage() {
   const { pathname } = useLocation();
   // Served by two apps: Admin (/admin/users/:id) and HR (/hr/employees/:id).
   const fromHr = pathname.startsWith('/hr');
-  const backTo = fromHr ? '/hr/employees' : '/admin';
+  const backTo = fromHr ? '/hr/employees' : '/admin/users';
   const { data, loading, error, refetch } = useGetUserQuery({
     variables: { id },
     skip: !id,

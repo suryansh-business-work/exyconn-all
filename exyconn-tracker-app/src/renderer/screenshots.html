@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My screenshots — Exyconn Tracker</title>
     <style>
-      /* Only what MUI's CssBaseline cannot do: kill the white flash before React mounts. */
+      /*
+       * Only what MUI's CssBaseline cannot do: kill the white flash before React mounts.
+       * `%SPLASH_BG%` is substituted at build time with the same token the dark theme
+       * paints (`color.neutral[900]`) — see the splashBackground plugin in
+       * electron.vite.config.ts. HTML cannot import a token, so the config injects it.
+       */
       html,
       body,
       #root {
@@ -13,7 +18,7 @@
       }
       body {
         margin: 0;
-        background-color: #0c1024;
+        background-color: %SPLASH_BG%;
       }
     </style>
   </head>

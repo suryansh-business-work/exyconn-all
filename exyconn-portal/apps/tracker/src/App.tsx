@@ -12,12 +12,14 @@ import {
   TrackerSettingsPage,
 } from './pages/tracker';
 import { TrackerDownloadPage } from './pages/download';
+import { TrackerOverviewPage } from './pages/overview';
 
 /** Time Tracker micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
   return (
     <PortalApp loginElement={<Login />} moduleRole={ROLES.TRACKER} homePath="/tracker">
-      <Route path="/tracker" element={<TrackerPage />} />
+      <Route path="/tracker" element={<TrackerOverviewPage />} />
+      <Route path="/tracker/activity" element={<TrackerPage />} />
       <Route path="/tracker/access" element={<TrackerAccessPage />} />
       <Route path="/tracker/devices" element={<TrackerDevicesPage />} />
       <Route path="/tracker/billing/:tab?" element={<TrackerBillingPage />} />
