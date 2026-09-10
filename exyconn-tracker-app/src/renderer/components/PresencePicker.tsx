@@ -69,12 +69,14 @@ export default function PresencePicker({ presence, timezone }: Readonly<Props>):
         label="Note (optional)"
         placeholder="Back at 2"
         value={note}
-        inputProps={{ maxLength: 120 }}
         onChange={(event) => setNote(event.target.value)}
         onBlur={() => {
           if (note !== presence.note) {
             apply(presence.status, note);
           }
+        }}
+        slotProps={{
+          htmlInput: { maxLength: 120 }
         }}
       />
 

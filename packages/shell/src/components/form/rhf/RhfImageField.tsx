@@ -74,9 +74,11 @@ export function RhfImageField({
                   onChange={(e) => field.onChange(e.target.value)}
                   onBlur={field.onBlur}
                   placeholder="https://…"
-                  inputProps={{ 'aria-label': label }}
                   error={Boolean(error)}
                   helperText={error ?? helperText}
+                  slotProps={{
+                    htmlInput: { 'aria-label': label }
+                  }}
                 />
               ) : (
                 <Typography variant="caption" color={error ? 'error' : 'text.secondary'}>

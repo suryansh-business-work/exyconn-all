@@ -71,10 +71,12 @@ export default function UpdatePreference({ preferences, update }: Readonly<Props
         </Stack>
         <Switch
           checked={preferences.autoUpdate}
-          inputProps={{ 'aria-label': 'Download updates in the background' }}
           onChange={(event) =>
             run(() => window.tracker.setPreferences({ autoUpdate: event.target.checked }))
           }
+          slotProps={{
+            input: { 'aria-label': 'Download updates in the background' }
+          }}
         />
       </Stack>
 

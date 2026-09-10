@@ -35,7 +35,12 @@ const CategorySidebar: React.FC<Readonly<CategorySelectProps>> = ({
             <Apps sx={{ fontSize: 18, color: allSelected ? 'primary.main' : 'text.secondary' }} />
           </ListItemIcon>
           <ListItemText primary="All Tools"
-            slotProps={{ primary: { fontSize: '0.8rem', fontWeight: allSelected ? 700 : 500 } }} />
+            slotProps={{ primary: {
+              sx: {
+                fontSize: '0.8rem',
+                fontWeight: allSelected ? 700 : 500
+              }
+            } }} />
           <Chip label={total} size="small" sx={countChipSx} />
         </ListItemButton>
 
@@ -51,7 +56,12 @@ const CategorySidebar: React.FC<Readonly<CategorySelectProps>> = ({
               </ListItemIcon>
               <ListItemText primary={cat.category}
                 slotProps={{ primary: {
-                  fontSize: '0.8rem', fontWeight: isSelected ? 700 : 500, noWrap: true,
+                  noWrap: true,
+
+                  sx: {
+                    fontSize: '0.8rem',
+                    fontWeight: isSelected ? 700 : 500
+                  }
                 } }} />
               <Chip label={cat.items.length} size="small" sx={countChipSx} />
             </ListItemButton>

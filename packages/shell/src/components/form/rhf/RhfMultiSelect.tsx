@@ -30,15 +30,17 @@ export function RhfMultiSelect({ name, label, options, helperText }: RhfMultiSel
           inputRef={field.ref}
           error={Boolean(fieldState.error)}
           helperText={fieldState.error?.message ?? helperText}
-          SelectProps={{
-            multiple: true,
-            renderValue: (selected) => (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {(selected as string[]).map((value) => (
-                  <Chip key={value} label={labelFor(value)} size="small" />
-                ))}
-              </Box>
-            ),
+          slotProps={{
+            select: {
+              multiple: true,
+              renderValue: (selected) => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {(selected as string[]).map((value) => (
+                    <Chip key={value} label={labelFor(value)} size="small" />
+                  ))}
+                </Box>
+              ),
+            }
           }}
         >
           {options.map((option) => (

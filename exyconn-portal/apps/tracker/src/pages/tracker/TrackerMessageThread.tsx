@@ -142,13 +142,15 @@ export function TrackerMessageThread({ userId, userName }: Readonly<TrackerMessa
           placeholder={`Reply to ${userName}…`}
           value={body}
           disabled={sending}
-          inputProps={{ maxLength: MAX_CHARS, 'aria-label': 'Reply' }}
           onChange={(event) => setBody(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === 'Enter' && !event.shiftKey) {
               event.preventDefault();
               void submit();
             }
+          }}
+          slotProps={{
+            htmlInput: { maxLength: MAX_CHARS, 'aria-label': 'Reply' }
           }}
         />
         <IconButton

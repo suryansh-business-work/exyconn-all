@@ -1,8 +1,8 @@
 import type { SvgIconComponent } from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutlineOutlined';
 import { StatusCategory, StatusState } from '@exyconn/shell/graphql/generated';
 
 /** Theme palette key a state paints itself with, so both colour modes stay legible. */

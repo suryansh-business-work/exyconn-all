@@ -1,5 +1,5 @@
 import { Box, Button, CircularProgress, Divider, Flex, Text } from '@exyconn/shell/components/ui';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useDocPageQuery, type DocPageFieldsFragment } from '@exyconn/shell/graphql/generated';

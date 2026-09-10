@@ -10,7 +10,7 @@ import {
   TextField,
   fontSize,
 } from '@exyconn/shell/components/ui';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
   useTaskCommentsQuery,

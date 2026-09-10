@@ -35,19 +35,21 @@ export default function PasswordField({
       error={error}
       helperText={helperText}
       onChange={(event) => onChange(event.target.value)}
-      InputProps={{
-        endAdornment: (
-          <InputAdornment position="end">
-            <IconButton
-              aria-label={label}
-              edge="end"
-              size="small"
-              onClick={() => setVisible((current) => !current)}
-            >
-              {visible ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-            </IconButton>
-          </InputAdornment>
-        ),
+      slotProps={{
+        input: {
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label={label}
+                edge="end"
+                size="small"
+                onClick={() => setVisible((current) => !current)}
+              >
+                {visible ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }
       }}
     />
   );

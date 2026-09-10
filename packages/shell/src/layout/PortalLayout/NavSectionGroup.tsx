@@ -42,11 +42,16 @@ export function NavSectionGroup({
       >
         <ListItemText
           primary={label}
-          primaryTypographyProps={{
-            variant: 'overline',
-            color: 'text.secondary',
-            letterSpacing: 0.8,
-            lineHeight: 1.8,
+          slotProps={{
+            primary: {
+              variant: 'overline',
+              color: 'text.secondary',
+
+              sx: {
+                letterSpacing: 0.8,
+                lineHeight: 1.8
+              }
+            }
           }}
         />
         {expanded ? (

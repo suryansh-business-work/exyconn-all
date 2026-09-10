@@ -137,7 +137,13 @@ const GBPDescriptionGenerator: React.FC = () => {
                           <CheckCircle sx={{ fontSize: 14, color: 'success.main' }} />
                         </ListItemIcon>
                         <ListItemText primary={tip} slotProps={{
-                          primary: { variant: 'body2', fontSize: '0.8rem' }
+                          primary: {
+                            variant: 'body2',
+
+                            sx: {
+                              fontSize: '0.8rem'
+                            }
+                          }
                         }} />
                       </ListItem>
                     ))}

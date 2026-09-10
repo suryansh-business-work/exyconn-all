@@ -99,14 +99,16 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
             label="Timezone"
             fullWidth
             helperText={`Every date and time in this app is shown in this zone (${offsetLabel(timezone)}).`}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {saving ? <CircularProgress color="inherit" size={16} /> : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
+            slotProps={{
+              input: {
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {saving ? <CircularProgress color="inherit" size={16} /> : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }
             }}
           />
         )}

@@ -1,6 +1,6 @@
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { Box, Button, Flex, Grid, IconButton, Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { lineCost, linesTotal, type PurchaseOrderLineValues } from './purchase-order.types';

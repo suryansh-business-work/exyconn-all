@@ -51,7 +51,9 @@ export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcher
       open={open}
       onClose={onClose}
       ModalProps={{ keepMounted: true }}
-      PaperProps={{ sx: { width: { xs: '100%', sm: 380 } } }}
+      slotProps={{
+        paper: { sx: { width: { xs: '100%', sm: 380 } } }
+      }}
     >
       <Box sx={{ p: 2, pb: 1.5 }}>
         <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -71,14 +73,16 @@ export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcher
           placeholder="Search portals…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          }}
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+            }
+          }}
         />
       </Box>
 

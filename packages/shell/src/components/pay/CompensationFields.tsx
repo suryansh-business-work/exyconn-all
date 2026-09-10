@@ -19,8 +19,10 @@ function Money({ name, label, help }: Readonly<{ name: string; label: string; he
         name={name}
         label={label}
         type="number"
-        inputProps={{ min: 0, step: 'any' }}
         helperText={help}
+        slotProps={{
+          htmlInput: { min: 0, step: 'any' }
+        }}
       />
     </Grid>
   );

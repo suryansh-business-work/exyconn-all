@@ -68,12 +68,14 @@ export default function NavDrawer({
     <Drawer
       open={open}
       onClose={onClose}
-      PaperProps={{
-        sx: (theme) => ({
-          width: 268,
-          backgroundColor: theme.palette.background.paper,
-          borderRight: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
-        }),
+      slotProps={{
+        paper: {
+          sx: (theme) => ({
+            width: 268,
+            backgroundColor: theme.palette.background.paper,
+            borderRight: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
+          }),
+        }
       }}
     >
       <Stack
@@ -116,9 +118,10 @@ export default function NavDrawer({
             <ListItemText
               primary={item.label}
               secondary={item.caption}
-              primaryTypographyProps={{ variant: 'subtitle2' }}
-              secondaryTypographyProps={{ variant: 'caption' }}
-            />
+              slotProps={{
+                primary: { variant: 'subtitle2' },
+                secondary: { variant: 'caption' }
+              }} />
           </ListItemButton>
         ))}
       </List>

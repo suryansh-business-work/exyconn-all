@@ -63,9 +63,11 @@ const SizeItem: React.FC<SizeItemProps> = ({ size, index, sizeErrors, sizeTouche
           type="number"
           size="small"
           sx={{ flex: 1 }}
-          inputProps={{ min: 1, max: 8192 }}
           error={sizeTouched.width && Boolean(sizeErrors.width)}
           helperText={sizeTouched.width && sizeErrors.width}
+          slotProps={{
+            htmlInput: { min: 1, max: 8192 }
+          }}
         />
         <Typography sx={{
           color: "text.secondary"
@@ -77,9 +79,11 @@ const SizeItem: React.FC<SizeItemProps> = ({ size, index, sizeErrors, sizeTouche
           type="number"
           size="small"
           sx={{ flex: 1 }}
-          inputProps={{ min: 1, max: 8192 }}
           error={sizeTouched.height && Boolean(sizeErrors.height)}
           helperText={sizeTouched.height && sizeErrors.height}
+          slotProps={{
+            htmlInput: { min: 1, max: 8192 }
+          }}
         />
         <Chip label={`${size.width}×${size.height}`} size="small" variant="filled" sx={{ minWidth: 90 }} />
       </Box>

@@ -1,5 +1,5 @@
 import { Card, CardContent, IconButton, Stack, Tooltip } from '@exyconn/shell/components/ui';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import type { SocialPostFieldsFragment } from '@exyconn/shell/graphql/generated';
 import { AuthorLine } from '../AuthorLine';
 import { PostActions } from './PostActions';

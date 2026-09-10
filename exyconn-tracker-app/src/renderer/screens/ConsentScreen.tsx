@@ -1,6 +1,6 @@
 import { useState, type ReactElement } from 'react';
 import { Alert, Button, Stack, TextField, TRACKER_RADIUS, Typography } from '@exyconn/ui';
-import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline';
+import CheckCircleOutline from '@mui/icons-material/CheckCircleOutlineOutlined';
 import PhotoCameraOutlined from '@mui/icons-material/PhotoCameraOutlined';
 import type { Branding, ConsentPolicy, TrackerSettings } from '@shared/types';
 import { WEBCAM_DISCLOSURE } from '@shared/config';

@@ -2,7 +2,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Button, Stack } from '@exyconn/shell/components/ui';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import ShareIcon from '@mui/icons-material/Share';
 
 interface PostActionsProps {

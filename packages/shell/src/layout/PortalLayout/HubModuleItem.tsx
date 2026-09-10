@@ -36,7 +36,9 @@ export function HubModuleItem({ module, activePath, onSelect }: Readonly<HubModu
         <ListItemIcon sx={{ minWidth: 36, color: module.accent }}>
           <Icon fontSize="small" />
         </ListItemIcon>
-        <ListItemText primary={module.label} primaryTypographyProps={labelProps} />
+        <ListItemText primary={module.label} slotProps={{
+          primary: labelProps
+        }} />
       </ListItemButton>
     );
   }
@@ -47,7 +49,9 @@ export function HubModuleItem({ module, activePath, onSelect }: Readonly<HubModu
         <ListItemIcon sx={{ minWidth: 36, color: module.accent }}>
           <Icon fontSize="small" />
         </ListItemIcon>
-        <ListItemText primary={module.label} primaryTypographyProps={labelProps} />
+        <ListItemText primary={module.label} slotProps={{
+          primary: labelProps
+        }} />
         {expanded ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
       </ListItemButton>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
@@ -63,7 +67,9 @@ export function HubModuleItem({ module, activePath, onSelect }: Readonly<HubModu
               <ListItemIcon sx={{ minWidth: 32, color: module.accent }}>
                 <child.icon fontSize="small" />
               </ListItemIcon>
-              <ListItemText primary={child.label} primaryTypographyProps={{ variant: 'body2' }} />
+              <ListItemText primary={child.label} slotProps={{
+                primary: { variant: 'body2' }
+              }} />
             </ListItemButton>
           ))}
         </List>

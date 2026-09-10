@@ -71,12 +71,14 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
             name="email"
             placeholder="e-mail address"
             autoComplete="email"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <AlternateEmailIcon fontSize="small" />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <AlternateEmailIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+              }
             }}
           />
           <RhfTextField
@@ -84,28 +86,30 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
             placeholder="password"
             type={show ? 'text' : 'password'}
             autoComplete="current-password"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <LockOutlinedIcon fontSize="small" />
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    size="small"
-                    edge="end"
-                    aria-label="toggle password"
-                    onClick={() => setShow((s) => !s)}
-                  >
-                    {show ? (
-                      <VisibilityOffIcon fontSize="small" />
-                    ) : (
-                      <VisibilityIcon fontSize="small" />
-                    )}
-                  </IconButton>
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockOutlinedIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      size="small"
+                      edge="end"
+                      aria-label="toggle password"
+                      onClick={() => setShow((s) => !s)}
+                    >
+                      {show ? (
+                        <VisibilityOffIcon fontSize="small" />
+                      ) : (
+                        <VisibilityIcon fontSize="small" />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }
             }}
           />
           <Button

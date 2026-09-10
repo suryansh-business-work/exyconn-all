@@ -31,10 +31,15 @@ export function NavLink({ item, selected, accent, onSelect }: Readonly<Props>) {
       </ListItemIcon>
       <ListItemText
         primary={item.label}
-        primaryTypographyProps={{
-          variant: 'body2',
-          fontWeight: selected ? 600 : 400,
-          noWrap: true,
+        slotProps={{
+          primary: {
+            variant: 'body2',
+            noWrap: true,
+
+            sx: {
+              fontWeight: selected ? 600 : 400
+            }
+          }
         }}
       />
     </ListItemButton>

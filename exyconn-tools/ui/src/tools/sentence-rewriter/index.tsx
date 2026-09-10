@@ -90,7 +90,13 @@ const SentenceRewriter: React.FC = () => {
                             <Lightbulb sx={{ fontSize: 16, color: 'warning.main' }} />
                           </ListItemIcon>
                           <ListItemText primary={s} slotProps={{
-                            primary: { variant: 'body2', fontSize: '0.8rem' }
+                            primary: {
+                              variant: 'body2',
+
+                              sx: {
+                                fontSize: '0.8rem'
+                              }
+                            }
                           }} />
                         </ListItem>
                       ))}

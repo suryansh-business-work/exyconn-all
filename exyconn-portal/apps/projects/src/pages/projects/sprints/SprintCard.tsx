@@ -7,7 +7,7 @@ import {
   LinearProgress,
   Text,
 } from '@exyconn/shell/components/ui';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import { SprintState, type SprintFieldsFragment } from '@exyconn/shell/graphql/generated';

@@ -16,7 +16,9 @@ export function CrudDialog({ open, title, onClose, children }: CrudDialogProps) 
       anchor="right"
       open={open}
       onClose={onClose}
-      PaperProps={{ sx: { width: { xs: '100%', sm: 440 }, maxWidth: '100%' } }}
+      slotProps={{
+        paper: { sx: { width: { xs: '100%', sm: 440 }, maxWidth: '100%' } }
+      }}
     >
       <Stack
         direction="row"

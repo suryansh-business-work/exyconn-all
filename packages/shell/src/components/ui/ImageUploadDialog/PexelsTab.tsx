@@ -67,23 +67,25 @@ export function PexelsTab({ kind, onPick }: Readonly<PexelsTabProps>) {
         onChange={(event) => setTerm(event.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={`Search Pexels ${noun}`}
-        inputProps={{ 'aria-label': `Search Pexels ${noun}` }}
         fullWidth
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                type="button"
-                size="small"
-                onClick={search}
-                aria-label={`search pexels ${noun}`}
-              >
-                <SearchIcon fontSize="small" />
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-      />
+        slotProps={{
+          htmlInput: { 'aria-label': `Search Pexels ${noun}` },
+
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  type="button"
+                  size="small"
+                  onClick={search}
+                  aria-label={`search pexels ${noun}`}
+                >
+                  <SearchIcon fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }
+        }} />
 
       <PexelsFilters kind={kind} value={filters} onChange={setFilters} />
 

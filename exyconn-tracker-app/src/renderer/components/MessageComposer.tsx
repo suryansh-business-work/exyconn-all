@@ -43,13 +43,15 @@ export default function MessageComposer({ sending, onSend }: Readonly<Props>): R
         placeholder="Write to your workspace…"
         value={body}
         disabled={sending}
-        inputProps={{ maxLength: MAX_CHARS, 'aria-label': 'Message' }}
         onChange={(event) => setBody(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             submit();
           }
+        }}
+        slotProps={{
+          htmlInput: { maxLength: MAX_CHARS, 'aria-label': 'Message' }
         }}
       />
       <IconButton color="primary" aria-label="Send message" disabled={!canSend} onClick={submit}>

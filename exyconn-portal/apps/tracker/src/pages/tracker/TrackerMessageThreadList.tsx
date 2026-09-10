@@ -77,7 +77,9 @@ export function TrackerMessageThreadList({
                 </Typography>
               </>
             }
-            secondaryTypographyProps={{ component: 'div' }}
+            slotProps={{
+              secondary: { component: 'div' }
+            }}
           />
         </ListItemButton>
       ))}
