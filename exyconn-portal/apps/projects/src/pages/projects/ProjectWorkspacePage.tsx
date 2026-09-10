@@ -7,6 +7,7 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import {
   SprintState,
@@ -18,11 +19,12 @@ import { ProjectTicketsPage } from './tickets';
 import { ProjectDocsPage } from './docs';
 import { ProjectTimeLogPage } from './time-log';
 import { ProjectSprintsPage } from './sprints';
+import { ProjectHealthPage } from './health';
 
 /**
- * One project, five ways to work on it: the board, the same tickets as a list, the sprints
- * they are committed to, the time logged against them, and the project's documentation
- * space. Which one is open lives in the URL, so a link to a board or a space is a link
+ * One project, six ways to look at it: how it is doing against what it promised, the
+ * board, the same tickets as a list, the sprints they are committed to, the time logged
+ * against them, and the project's documentation space. Which one is open lives in the URL, so a link to a board or a space is a link
  * somebody else can open.
  */
 export function ProjectWorkspacePage() {
@@ -49,6 +51,12 @@ export function ProjectWorkspacePage() {
   }, [activeSprintId]);
 
   const tabs: TabberItem[] = [
+    {
+      slug: 'health',
+      label: 'Health',
+      icon: <MonitorHeartIcon />,
+      content: <ProjectHealthPage projectId={id} />,
+    },
     {
       slug: 'board',
       label: 'Board',

@@ -225,6 +225,12 @@ export const boardService = {
     return doc;
   },
 
+  async setColumnDone(id: string, isDone: boolean) {
+    const doc = await BoardColumnModel.findByIdAndUpdate(id, { isDone }, { new: true }).lean();
+    if (!doc) notFound('BoardColumn');
+    return doc;
+  },
+
   async deleteColumn(id: string) {
     const doc = await BoardColumnModel.findByIdAndDelete(id).lean();
     if (!doc) notFound('BoardColumn');

@@ -36,6 +36,8 @@ export const boardTypeDefs = gql`
     id: ID!
     name: String!
     order: Int!
+    "Whether a ticket reaching this column is finished. Drives the project's progress."
+    isDone: Boolean!
   }
 
   "One ticket on a project board."
@@ -132,6 +134,8 @@ export const boardTypeDefs = gql`
   extend type Mutation {
     createColumn(projectId: ID!, name: String!): BoardColumn!
     renameColumn(id: ID!, name: String!): BoardColumn!
+    "Marks a column as the end of the line, or takes that mark away."
+    setColumnDone(id: ID!, isDone: Boolean!): BoardColumn!
     deleteColumn(id: ID!): Boolean!
     reorderColumns(projectId: ID!, columnIds: [ID!]!): Boolean!
 

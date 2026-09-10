@@ -30,6 +30,15 @@ const boardColumnSchema = new Schema(
     projectId: { type: Schema.Types.ObjectId, ref: 'Project', required: true, index: true },
     name: { type: String, required: true, trim: true },
     order: { type: Number, required: true, default: 0 },
+    /**
+     * Whether a ticket reaching this column is finished.
+     *
+     * Explicit rather than inferred, because a board's columns are whatever the team named
+     * them and there is no default set to reason from. Treating the last column as done
+     * would quietly count "Blocked" or "Won't do" as delivered on any board that keeps one
+     * at the end — and progress is exactly the number nobody re-checks.
+     */
+    isDone: { type: Boolean, required: true, default: false },
   },
   { timestamps: true },
 );

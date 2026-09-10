@@ -4,6 +4,8 @@ import type { TaskFieldsFragment } from '@exyconn/shell/graphql/generated';
 export interface ColumnView {
   id: string;
   name: string;
+  /** Whether a ticket reaching here is finished. Drives the project's progress figure. */
+  isDone: boolean;
 }
 
 /**

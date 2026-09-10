@@ -108,6 +108,14 @@ export const boardResolvers = {
       guard(ctx);
       return withId(await boardService.renameColumn(id, name));
     },
+    setColumnDone: async (
+      _p: unknown,
+      { id, isDone }: { id: string; isDone: boolean },
+      ctx: GraphQLContext,
+    ) => {
+      guard(ctx);
+      return withId(await boardService.setColumnDone(id, isDone));
+    },
     deleteColumn: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       guard(ctx);
       return boardService.deleteColumn(id);

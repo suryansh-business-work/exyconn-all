@@ -674,6 +674,8 @@ export type BlogPostPage = {
 export type BoardColumn = {
   __typename?: 'BoardColumn';
   id: Scalars['ID']['output'];
+  /** Whether a ticket reaching this column is finished. Drives the project's progress. */
+  isDone: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   order: Scalars['Int']['output'];
 };
@@ -3408,6 +3410,8 @@ export type Mutation = {
   sendUserMail: Scalars['Boolean']['output'];
   /** Moves an applicant along the pipeline. The applicant is emailed on INTERVIEW, OFFER and REJECTED. */
   setApplicantStage: Applicant;
+  /** Marks a column as the end of the line, or takes that mark away. */
+  setColumnDone: BoardColumn;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
   setDealStage: Deal;
   /**
@@ -4921,6 +4925,12 @@ export type MutationSetApplicantStageArgs = {
 };
 
 
+export type MutationSetColumnDoneArgs = {
+  id: Scalars['ID']['input'];
+  isDone: Scalars['Boolean']['input'];
+};
+
+
 export type MutationSetDealStageArgs = {
   id: Scalars['ID']['input'];
   stage: DealStage;
@@ -6408,6 +6418,38 @@ export type ProjectBoard = {
   tasks: Array<Task>;
 };
 
+export type ProjectHealth = {
+  __typename?: 'ProjectHealth';
+  budgetHours?: Maybe<Scalars['Float']['output']>;
+  /** Null when no hours budget was agreed. */
+  budgetUsedPercent?: Maybe<Scalars['Float']['output']>;
+  clientName: Scalars['String']['output'];
+  doneTaskCount: Scalars['Int']['output'];
+  endDate?: Maybe<Scalars['DateTime']['output']>;
+  key: Scalars['String']['output'];
+  /** Hours actually logged, from the same source the project's time log shows. */
+  loggedHours: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+  /** Bugs still open or in progress. Resolved and closed ones cost nobody anything. */
+  openBugCount: Scalars['Int']['output'];
+  /**
+   * Share of tickets finished. **Null** when no board column is marked done — a board that
+   * has never said what finished means cannot report progress, and 0% would read as
+   * "nothing done" rather than "nobody told us".
+   */
+  progressPercent?: Maybe<Scalars['Float']['output']>;
+  projectId: Scalars['ID']['output'];
+  risk: ProjectRisk;
+  /** Why the risk is what it is. A rating nobody can question is a rating nobody trusts. */
+  riskReasons: Array<Scalars['String']['output']>;
+  startDate?: Maybe<Scalars['DateTime']['output']>;
+  status: ProjectStatus;
+  taskCount: Scalars['Int']['output'];
+  /** How many people have a ticket on this project. */
+  teamSize: Scalars['Int']['output'];
+  timeline: ProjectTimeline;
+};
+
 export type ProjectInput = {
   budgetAmount?: InputMaybe<Scalars['Float']['input']>;
   budgetHours?: InputMaybe<Scalars['Float']['input']>;
@@ -6432,6 +6474,19 @@ export type ProjectPage = {
   rows: Array<Project>;
   totalCount: Scalars['Int']['output'];
 };
+
+/**
+ * How worrying a project is.
+ *
+ * UNKNOWN is not LOW: it means nothing measurable was set up — no done column, no end date,
+ * no hours budget — and silence is not good news.
+ */
+export enum ProjectRisk {
+  High = 'HIGH',
+  Low = 'LOW',
+  Medium = 'MEDIUM',
+  Unknown = 'UNKNOWN'
+}
 
 /** A read-only link handed to a client. The token itself is only ever returned once. */
 export type ProjectShare = {
@@ -6527,6 +6582,16 @@ export type ProjectTimeLogSession = {
   userId: Scalars['ID']['output'];
   userName: Scalars['String']['output'];
 };
+
+/** Where a project stands against its own dates. */
+export enum ProjectTimeline {
+  Completed = 'COMPLETED',
+  DueSoon = 'DUE_SOON',
+  /** No end date was set, so there is nothing to be late for. */
+  NoDates = 'NO_DATES',
+  OnTrack = 'ON_TRACK',
+  Overdue = 'OVERDUE'
+}
 
 export type Prompt = {
   __typename?: 'Prompt';
@@ -7147,6 +7212,10 @@ export type Query = {
   projectBoard: ProjectBoard;
   /** Every page in a project's space, flat. The sidebar builds the tree from parentId. */
   projectDocPages: Array<DocPage>;
+  /** One project measured against what it said it would do. */
+  projectHealth: ProjectHealth;
+  /** Every project's health, worst first — a portfolio is read to find the one in trouble. */
+  projectHealthOverview: Array<ProjectHealth>;
   projectMilestones: Array<Milestone>;
   projectShares: Array<ProjectShare>;
   projectSprints: Array<Sprint>;
@@ -8187,6 +8256,11 @@ export type QueryProjectBoardArgs = {
 
 export type QueryProjectDocPagesArgs = {
   projectId: Scalars['ID']['input'];
+};
+
+
+export type QueryProjectHealthArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -10887,9 +10961,11 @@ export type ResolversTypes = ResolversObject<{
   ProjectBillingEmployee: ResolverTypeWrapper<ProjectBillingEmployee>;
   ProjectBillingRow: ResolverTypeWrapper<ProjectBillingRow>;
   ProjectBoard: ResolverTypeWrapper<ProjectBoard>;
+  ProjectHealth: ResolverTypeWrapper<ProjectHealth>;
   ProjectInput: ProjectInput;
   ProjectMember: ResolverTypeWrapper<ProjectMember>;
   ProjectPage: ResolverTypeWrapper<ProjectPage>;
+  ProjectRisk: ProjectRisk;
   ProjectShare: ResolverTypeWrapper<ProjectShare>;
   ProjectShareCreated: ResolverTypeWrapper<ProjectShareCreated>;
   ProjectStatus: ProjectStatus;
@@ -10897,6 +10973,7 @@ export type ResolversTypes = ResolversObject<{
   ProjectTimeLogRow: ResolverTypeWrapper<ProjectTimeLogRow>;
   ProjectTimeLogScreenshot: ResolverTypeWrapper<ProjectTimeLogScreenshot>;
   ProjectTimeLogSession: ResolverTypeWrapper<ProjectTimeLogSession>;
+  ProjectTimeline: ProjectTimeline;
   Prompt: ResolverTypeWrapper<Prompt>;
   PromptCategory: PromptCategory;
   PromptInput: PromptInput;
@@ -11371,6 +11448,7 @@ export type ResolversParentTypes = ResolversObject<{
   ProjectBillingEmployee: ProjectBillingEmployee;
   ProjectBillingRow: ProjectBillingRow;
   ProjectBoard: ProjectBoard;
+  ProjectHealth: ProjectHealth;
   ProjectInput: ProjectInput;
   ProjectMember: ProjectMember;
   ProjectPage: ProjectPage;
@@ -11907,6 +11985,7 @@ export type BlogPostPageResolvers<ContextType = GraphQLContext, ParentType exten
 
 export type BoardColumnResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['BoardColumn'] = ResolversParentTypes['BoardColumn']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isDone?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -13519,6 +13598,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   sendTestSlackMessage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendTestSlackMessageArgs, 'channel' | 'id'>>;
   sendUserMail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendUserMailArgs, 'id' | 'input'>>;
   setApplicantStage?: Resolver<ResolversTypes['Applicant'], ParentType, ContextType, RequireFields<MutationSetApplicantStageArgs, 'id' | 'stage'>>;
+  setColumnDone?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationSetColumnDoneArgs, 'id' | 'isDone'>>;
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
   setExpenseClaimStatus?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationSetExpenseClaimStatusArgs, 'id' | 'status'>>;
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
@@ -14046,6 +14126,28 @@ export type ProjectBillingRowResolvers<ContextType = GraphQLContext, ParentType 
 export type ProjectBoardResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProjectBoard'] = ResolversParentTypes['ProjectBoard']> = ResolversObject<{
   columns?: Resolver<Array<ResolversTypes['BoardColumn']>, ParentType, ContextType>;
   tasks?: Resolver<Array<ResolversTypes['Task']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ProjectHealthResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProjectHealth'] = ResolversParentTypes['ProjectHealth']> = ResolversObject<{
+  budgetHours?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  budgetUsedPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  clientName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  doneTaskCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  endDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  loggedHours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  openBugCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  progressPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  projectId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  risk?: Resolver<ResolversTypes['ProjectRisk'], ParentType, ContextType>;
+  riskReasons?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  startDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ProjectStatus'], ParentType, ContextType>;
+  taskCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  teamSize?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  timeline?: Resolver<ResolversTypes['ProjectTimeline'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -14578,6 +14680,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   problemReportStatus?: Resolver<ResolversTypes['ProblemReportStatus'], ParentType, ContextType, RequireFields<QueryProblemReportStatusArgs, 'reference'>>;
   projectBoard?: Resolver<ResolversTypes['ProjectBoard'], ParentType, ContextType, RequireFields<QueryProjectBoardArgs, 'projectId'>>;
   projectDocPages?: Resolver<Array<ResolversTypes['DocPage']>, ParentType, ContextType, RequireFields<QueryProjectDocPagesArgs, 'projectId'>>;
+  projectHealth?: Resolver<ResolversTypes['ProjectHealth'], ParentType, ContextType, RequireFields<QueryProjectHealthArgs, 'id'>>;
+  projectHealthOverview?: Resolver<Array<ResolversTypes['ProjectHealth']>, ParentType, ContextType>;
   projectMilestones?: Resolver<Array<ResolversTypes['Milestone']>, ParentType, ContextType, RequireFields<QueryProjectMilestonesArgs, 'projectId'>>;
   projectShares?: Resolver<Array<ResolversTypes['ProjectShare']>, ParentType, ContextType, RequireFields<QueryProjectSharesArgs, 'projectId'>>;
   projectSprints?: Resolver<Array<ResolversTypes['Sprint']>, ParentType, ContextType, RequireFields<QueryProjectSprintsArgs, 'projectId'>>;
@@ -15997,6 +16101,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ProjectBillingEmployee?: ProjectBillingEmployeeResolvers<ContextType>;
   ProjectBillingRow?: ProjectBillingRowResolvers<ContextType>;
   ProjectBoard?: ProjectBoardResolvers<ContextType>;
+  ProjectHealth?: ProjectHealthResolvers<ContextType>;
   ProjectMember?: ProjectMemberResolvers<ContextType>;
   ProjectPage?: ProjectPageResolvers<ContextType>;
   ProjectShare?: ProjectShareResolvers<ContextType>;
