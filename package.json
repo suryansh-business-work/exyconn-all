@@ -8,7 +8,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "prepare": "git config core.hooksPath .githooks",
+    "prepare": "node scripts/install-git-hooks.mjs",
     "run:all": "node scripts/run-all.js",
     "dev": "node scripts/run-all.js",
     "build": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --filter exyconn-tracker-app --parallel run build",
