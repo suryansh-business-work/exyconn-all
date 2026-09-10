@@ -5,12 +5,17 @@ import { LeaveRequestModel } from '../hr/hr.model';
 import { payrollTypeDefs } from './payroll.typeDefs';
 import {
   computeMonthlySlip,
+  financialYearOf,
   grossOf,
   monthlyEarnings,
+  payableMonthsInFinancialYear,
   unpaidLeaveDays,
   type LeaveSpan,
   type PaySource,
+  type SlabTaxInput,
   type StatutorySettings,
+  type TaxRegimeFigures,
+  type TaxSlabRow,
 } from './payroll.compute';
 import { DEFAULT_CURRENCY, DEFAULT_PAY_TYPE, type PayType } from '../../constants/pay';
 import { createCrudService } from '../../lib/crudService';
@@ -22,7 +27,14 @@ import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
 import { notify } from '../notifications';
 import { PayrollScheduleModel, MAX_SCHEDULE_DAY } from './payroll-schedule.model';
-import { PayrollSettingsModel, readPayrollSettings, TDS_MODES } from './payroll-settings.model';
+import {
+  DEFAULT_FINANCIAL_YEAR_START_MONTH,
+  DEFAULT_TDS_REGIME_KEY,
+  PayrollSettingsModel,
+  readPayrollSettings,
+  TDS_MODES,
+} from './payroll-settings.model';
+import { TaxRegimeModel, TaxSlabModel } from './tax-slab.model';
 import { ensurePayslipDocument } from '../documents';
 import { periodLabel } from './payslip.pdf';
 import { readSchedule } from './payroll.schedule';
@@ -103,6 +115,50 @@ const structureCrud = createCrudResolvers(
   },
 );
 
+/** The tax table is HR's alone: it decides what every employee is withheld. */
+const TAX_TABLE_ROLES = [ROLES.HR];
+
+interface TaxRegimeInput {
+  regimeKey: string;
+  financialYear: string;
+  name: string;
+  standardDeduction: number;
+  rebateIncomeLimit: number;
+  rebateMaxTax: number;
+  cessPercent: number;
+  active: boolean;
+}
+
+interface TaxSlabInput {
+  regimeKey: string;
+  financialYear: string;
+  fromAmount: number;
+  toAmount?: number | null;
+  ratePercent: number;
+  order: number;
+  active: boolean;
+}
+
+const regimeCrud = createCrudResolvers(
+  createCrudService<TaxRegimeInput>(TaxRegimeModel as never, 'TaxRegime'),
+  { name: 'TaxRegime', roles: TAX_TABLE_ROLES },
+);
+
+const slabCrud = createCrudResolvers(
+  createCrudService<TaxSlabInput>(TaxSlabModel as never, 'TaxSlab'),
+  {
+    name: 'TaxSlab',
+    roles: TAX_TABLE_ROLES,
+    table: {
+      searchFields: ['regimeKey', 'financialYear'],
+      filterFields: ['regimeKey', 'financialYear'],
+      sortFields: ['order', 'fromAmount', 'toAmount', 'ratePercent', 'financialYear'],
+      defaultSort: { field: 'order', dir: 'ASC' },
+    },
+    stats: { countBy: ['regimeKey', 'active'] },
+  },
+);
+
 const slipService = createCrudService<never>(SalarySlipModel as never, 'SalarySlip');
 const SLIP_TABLE = {
   searchFields: ['employeeId', 'currency'],
@@ -129,6 +185,23 @@ async function unpaidLeaveFor(employeeId: string): Promise<LeaveSpan[]> {
     type: r.type,
     status: r.status,
   }));
+}
+
+/**
+ * The tax-table half of the payroll settings.
+ *
+ * Both fields are optional here because `.lean()` skips Mongoose defaults: a settings
+ * document saved before the tax table existed comes back without them.
+ */
+interface PayrollTaxSettings {
+  tdsMode: string;
+  tdsRegimeKey?: string | null;
+  financialYearStartMonth?: number | null;
+}
+
+/** The month the financial year opens in, as stored or as the schema would have defaulted it. */
+function startMonthOf(settings: PayrollTaxSettings): number {
+  return settings.financialYearStartMonth ?? DEFAULT_FINANCIAL_YEAR_START_MONTH;
 }
 
 /** The stored figures of one slip, whichever way the run arrived at them. */
@@ -171,13 +244,51 @@ async function slipFor(
   month: number,
   year: number,
   settings: StatutorySettings,
+  slabTax: SlabTaxInput,
 ): Promise<SlipFigures> {
   const unpaidDays = unpaidLeaveDays(await unpaidLeaveFor(employeeId), year, month);
-  return computeMonthlySlip(monthlyEarnings(structure), year, month, unpaidDays, settings, {
-    pfApplicable: structure.pfApplicable,
-    esiApplicable: structure.esiApplicable,
-    tdsPercent: structure.tdsPercent,
-  });
+  return computeMonthlySlip(
+    monthlyEarnings(structure),
+    year,
+    month,
+    unpaidDays,
+    settings,
+    {
+      pfApplicable: structure.pfApplicable,
+      esiApplicable: structure.esiApplicable,
+      tdsPercent: structure.tdsPercent,
+    },
+    slabTax,
+  );
+}
+
+/** The regime and bands SLAB mode applies, read once for the whole run. */
+interface TaxTable {
+  regime: TaxRegimeFigures | null;
+  slabs: TaxSlabRow[];
+}
+
+/**
+ * The tax table for the financial year this period falls in.
+ *
+ * Read once per run rather than once per employee, and only in SLAB mode: the other modes
+ * never look at it, so a portal that has not entered one is not asked for it.
+ */
+async function taxTableFor(
+  settings: PayrollTaxSettings,
+  month: number,
+  year: number,
+): Promise<TaxTable> {
+  if (settings.tdsMode !== 'SLAB') {
+    return { regime: null, slabs: [] };
+  }
+  const regimeKey = settings.tdsRegimeKey ?? DEFAULT_TDS_REGIME_KEY;
+  const financialYear = financialYearOf(year, month, startMonthOf(settings));
+  const [regime, slabs] = await Promise.all([
+    TaxRegimeModel.findOne({ regimeKey, financialYear }).lean(),
+    TaxSlabModel.find({ regimeKey, financialYear }).lean(),
+  ]);
+  return { regime, slabs };
 }
 
 async function runPayroll(
@@ -188,7 +299,9 @@ async function runPayroll(
   assertRole(ctx, PAYROLL_ROLES);
   assertMonth(month, year);
   const settings = await readPayrollSettings();
-  const users = await UserModel.find({ isActive: true }).select('_id name').lean();
+  const taxTable = await taxTableFor(settings, month, year);
+  const startMonth = startMonthOf(settings);
+  const users = await UserModel.find({ isActive: true }).select('_id name joinDate').lean();
   const structures = await SalaryStructureModel.find({
     employeeId: { $in: users.map((u) => String(u._id)) },
   }).lean();
@@ -211,7 +324,12 @@ async function runPayroll(
       skipped += 1;
       continue;
     }
-    const amounts = await slipFor(employeeId, structure, month, year, settings);
+    // Worked out per employee, not per run: a mid-year joiner is taxed on the months they
+    // will actually be paid in this financial year, not on a full year they will not earn.
+    const amounts = await slipFor(employeeId, structure, month, year, settings, {
+      ...taxTable,
+      payableMonths: payableMonthsInFinancialYear(user.joinDate, year, month, startMonth),
+    });
     totalNet += amounts.net;
 
     let slipId: string;
@@ -351,7 +469,11 @@ async function salarySlipPdf(_p: unknown, { id }: { id: string }, ctx: GraphQLCo
 /** Every percentage is a percentage, every amount is money, and TDS has a mode we know. */
 interface PayrollSettingsInput extends StatutorySettings {
   tdsMode: string;
+  tdsRegimeKey?: string;
+  financialYearStartMonth?: number;
 }
+
+const MONTHS_IN_YEAR = 12;
 
 const PERCENT_FIELDS = ['pfEmployeePercent', 'esiEmployeePercent', 'tdsFlatPercent'] as const;
 const AMOUNT_FIELDS = ['pfWageCeiling', 'esiWageLimit', 'professionalTaxMonthly'] as const;
@@ -366,6 +488,13 @@ function assertPayrollSettings(input: PayrollSettingsInput) {
     if (input[field] < 0) badRequest(`${field} cannot be negative`);
   }
   if (!TDS_MODE_SET.has(input.tdsMode)) badRequest('tdsMode must be NONE, FLAT_PERCENT or SLAB');
+  if (input.tdsRegimeKey !== undefined && input.tdsRegimeKey.trim() === '') {
+    badRequest('tdsRegimeKey must name a regime in the tax table');
+  }
+  const startMonth = input.financialYearStartMonth;
+  if (startMonth !== undefined && (startMonth < 1 || startMonth > MONTHS_IN_YEAR)) {
+    badRequest(`financialYearStartMonth must be 1-${MONTHS_IN_YEAR}`);
+  }
 }
 
 /**
@@ -402,6 +531,8 @@ const SLIP_STATUTORY_DEFAULTS = {
 export const payrollResolvers = {
   Query: {
     ...structureCrud.Query,
+    ...regimeCrud.Query,
+    ...slabCrud.Query,
     employeeSalary,
     listSalarySlipsPaged: async (
       _p: unknown,
@@ -429,6 +560,8 @@ export const payrollResolvers = {
   },
   Mutation: {
     ...structureCrud.Mutation,
+    ...regimeCrud.Mutation,
+    ...slabCrud.Mutation,
     saveEmployeeSalary,
     runPayroll,
     markPayrollPaid,
@@ -437,6 +570,12 @@ export const payrollResolvers = {
     updatePayrollSettings,
   },
   SalarySlip: SLIP_STATUTORY_DEFAULTS,
+  /** Defaulted on read for the same reason as the slip's: `.lean()` skips schema defaults. */
+  PayrollSettings: {
+    tdsRegimeKey: (s: { tdsRegimeKey?: string | null }) => s.tdsRegimeKey ?? DEFAULT_TDS_REGIME_KEY,
+    financialYearStartMonth: (s: { financialYearStartMonth?: number | null }) =>
+      s.financialYearStartMonth ?? DEFAULT_FINANCIAL_YEAR_START_MONTH,
+  },
   /**
    * Derived so the HR list shows the same numbers the employee's own view does.
    *
@@ -463,5 +602,7 @@ export const payrollResolvers = {
 export { payrollTypeDefs };
 export { PayrollScheduleModel, MAX_SCHEDULE_DAY } from './payroll-schedule.model';
 export { PayrollSettingsModel, readPayrollSettings } from './payroll-settings.model';
+export { TaxRegimeModel, TaxSlabModel } from './tax-slab.model';
+export { ensureTaxSlabs } from './tax-slab.seed';
 export { startPayrollDispatch } from './payroll.schedule';
 export { dispatchSalarySlips, renderPayslip } from './payroll.dispatch';

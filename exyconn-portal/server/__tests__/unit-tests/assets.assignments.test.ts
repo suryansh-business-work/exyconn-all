@@ -195,11 +195,7 @@ describe('assetAssignments', () => {
       assignedToName: 'Ben Shah',
     });
 
-    const listed = await assetsResolvers.Query.assetAssignments(
-      null,
-      { assetId: asset.id },
-      ctx,
-    );
+    const listed = await assetsResolvers.Query.assetAssignments(null, { assetId: asset.id }, ctx);
 
     expect(listed.map((row) => row.employeeId)).toEqual(['user-2', 'user-1']);
   });

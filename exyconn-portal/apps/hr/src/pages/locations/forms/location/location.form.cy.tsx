@@ -22,7 +22,6 @@ describe('LocationForm', () => {
   it('validates the required fields', () => {
     mount();
     cy.contains('button', 'Create').click();
-    cy.contains('Employee is required').should('be.visible');
     cy.contains('Name is required').should('be.visible');
     cy.contains('Code is required').should('be.visible');
   });

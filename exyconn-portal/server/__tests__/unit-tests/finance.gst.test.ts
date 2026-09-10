@@ -42,7 +42,11 @@ const labels = (fields: readonly { label: string }[]) => fields.map((field) => f
 
 describe('gstBreakdown', () => {
   it('halves the tax into CGST and SGST inside the supplier state', () => {
-    const gst = gstBreakdown({ lines: LINES, placeOfSupplyStateCode: '23', supplierStateCode: '23' });
+    const gst = gstBreakdown({
+      lines: LINES,
+      placeOfSupplyStateCode: '23',
+      supplierStateCode: '23',
+    });
 
     expect(gst).toEqual({
       subtotal: 2500,
@@ -55,14 +59,20 @@ describe('gstBreakdown', () => {
   });
 
   it('puts the whole tax under IGST for another state', () => {
-    const gst = gstBreakdown({ lines: LINES, placeOfSupplyStateCode: '27', supplierStateCode: '23' });
+    const gst = gstBreakdown({
+      lines: LINES,
+      placeOfSupplyStateCode: '27',
+      supplierStateCode: '23',
+    });
 
     expect(gst).toMatchObject({ cgst: 0, sgst: 0, igst: 450, intraState: false });
   });
 
   it('treats a missing place of supply as inter-state rather than guessing', () => {
     expect(gstBreakdown({ lines: LINES, supplierStateCode: '23' }).intraState).toBe(false);
-    expect(gstBreakdown({ lines: LINES, placeOfSupplyStateCode: '', supplierStateCode: '' })).toMatchObject({
+    expect(
+      gstBreakdown({ lines: LINES, placeOfSupplyStateCode: '', supplierStateCode: '' }),
+    ).toMatchObject({
       igst: 450,
       intraState: false,
     });

@@ -47,7 +47,14 @@ const at = (offsetMs: number) => new Date(Date.now() + offsetMs);
 const createIncident = (ctx: GraphQLContext, keys = ['api', 'hr']) =>
   statusResolvers.Mutation.createStatusIncident(
     null,
-    { input: { title: 'Logins failing', impact: 'CRITICAL', affectedServiceKeys: keys, body: 'Looking into it' } },
+    {
+      input: {
+        title: 'Logins failing',
+        impact: 'CRITICAL',
+        affectedServiceKeys: keys,
+        body: 'Looking into it',
+      },
+    },
     ctx,
   ) as Promise<{ id: string; serviceKey: string; updates: Array<{ status: string }> }>;
 
@@ -184,7 +191,10 @@ describe('Monitor-opened incidents', () => {
       affectedServiceKeys: ['hr'],
     });
     expect(opened?.updates).toHaveLength(1);
-    expect(opened?.updates[0]).toMatchObject({ status: 'INVESTIGATING', authorName: 'Status monitor' });
+    expect(opened?.updates[0]).toMatchObject({
+      status: 'INVESTIGATING',
+      authorName: 'Status monitor',
+    });
     expect(opened?.updates[0].body).toContain('HTTP 503');
 
     globalThis.fetch = jest
@@ -226,7 +236,9 @@ describe('Maintenance windows', () => {
     await expect(createMaintenance(window(at(2 * HOUR), at(HOUR), 'Backwards'))).rejects.toThrow(
       'end after it starts',
     );
-    await expect(createMaintenance(window(at(HOUR), at(2 * HOUR), 'Nope'), sales)).rejects.toThrow();
+    await expect(
+      createMaintenance(window(at(HOUR), at(2 * HOUR), 'Nope'), sales),
+    ).rejects.toThrow();
   });
 });
 
@@ -352,9 +364,9 @@ describe('Status page subscribers', () => {
     await subscribe('asha@example.com');
     const token = confirmTokenFromEmail();
 
-    await expect(
-      statusResolvers.Mutation.confirmStatusSubscription(null, { token }),
-    ).resolves.toBe(true);
+    await expect(statusResolvers.Mutation.confirmStatusSubscription(null, { token })).resolves.toBe(
+      true,
+    );
     expect((await StatusSubscriberModel.findOne().lean())?.confirmedAt).toBeInstanceOf(Date);
 
     await expect(
@@ -434,8 +446,8 @@ describe('Status page subscribers', () => {
     const incident = await createIncident(tech);
     await expect(addUpdate(incident.id, 'RESOLVED', 'Fixed')).resolves.toBeDefined();
 
-    expect(
-      (await StatusIncidentModel.findById(incident.id).lean())?.resolvedAt,
-    ).toBeInstanceOf(Date);
+    expect((await StatusIncidentModel.findById(incident.id).lean())?.resolvedAt).toBeInstanceOf(
+      Date,
+    );
   });
 });

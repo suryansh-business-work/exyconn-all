@@ -39,8 +39,7 @@ export const shareResolvers = {
       return (await shareService.shares(projectId)).map((share) => serializeShare(share));
     },
     /** Public: the client following this link has no portal account, by design. */
-    sharedProject: (_p: unknown, { token }: { token: string }) =>
-      shareService.sharedProject(token),
+    sharedProject: (_p: unknown, { token }: { token: string }) => shareService.sharedProject(token),
   },
   Mutation: {
     createProjectShare: async (

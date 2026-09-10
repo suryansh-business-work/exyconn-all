@@ -658,6 +658,7 @@ export type Branding = {
   githubUrl: Scalars['String']['output'];
   /** Our GST registration, printed on every tax invoice. */
   gstin: Scalars['String']['output'];
+  hrEmail: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   instagramUrl: Scalars['String']['output'];
   /** What generated invoice numbers start with, e.g. INV-. */
@@ -697,6 +698,7 @@ export type BrandingInput = {
   faviconUrl?: InputMaybe<Scalars['String']['input']>;
   githubUrl?: InputMaybe<Scalars['String']['input']>;
   gstin?: InputMaybe<Scalars['String']['input']>;
+  hrEmail?: InputMaybe<Scalars['String']['input']>;
   instagramUrl?: InputMaybe<Scalars['String']['input']>;
   invoicePrefix?: InputMaybe<Scalars['String']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
@@ -2216,6 +2218,39 @@ export type ImageConfigInput = {
   urlEndpoint: Scalars['String']['input'];
 };
 
+/** The mailbox the support desk reads. The password is write-only and never returned. */
+export type InboundMailConfig = {
+  __typename?: 'InboundMailConfig';
+  createdAt: Scalars['DateTime']['output'];
+  /** Whether an imported message is removed from the mailbox rather than only marked seen. */
+  deleteAfterImport: Scalars['Boolean']['output'];
+  host: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  mailbox: Scalars['String']['output'];
+  /** How long the poller waits between rounds. */
+  pollSeconds: Scalars['Int']['output'];
+  port: Scalars['Int']['output'];
+  secure: Scalars['Boolean']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  user: Scalars['String']['output'];
+};
+
+export type InboundMailConfigInput = {
+  deleteAfterImport: Scalars['Boolean']['input'];
+  host: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  mailbox: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored password. */
+  password: Scalars['String']['input'];
+  pollSeconds: Scalars['Int']['input'];
+  port: Scalars['Int']['input'];
+  secure: Scalars['Boolean']['input'];
+  user: Scalars['String']['input'];
+};
+
 export enum IncidentImpact {
   Critical = 'CRITICAL',
   Major = 'MAJOR',
@@ -2893,6 +2928,7 @@ export type Mutation = {
   createGrade: Grade;
   createHoliday: Holiday;
   createImageConfig: ImageConfig;
+  createInboundMailConfig: InboundMailConfig;
   createInvoice: Invoice;
   /** A draft invoice billing a won deal's value to its client. Refused if one already exists. */
   createInvoiceFromDeal: Invoice;
@@ -2940,6 +2976,8 @@ export type Mutation = {
   createSalaryStructure: SalaryStructure;
   createShift: Shift;
   createSlackConfig: SlackConfig;
+  createSocialComment: SocialComment;
+  createSocialPost: SocialPost;
   createSprint: Sprint;
   createStatusIncident: StatusIncident;
   /** Creating a window also emails every confirmed status subscriber. */
@@ -2950,6 +2988,8 @@ export type Mutation = {
   /** Self-service: raise a support ticket (status forced to OPEN). */
   createSupportTicket: SupportTicket;
   createTask: Task;
+  createTaxRegime: TaxRegime;
+  createTaxSlab: TaxSlab;
   createTeam: Team;
   createTool: Tool;
   createToolCategory: ToolCategory;
@@ -3001,6 +3041,7 @@ export type Mutation = {
   deleteGrade: Scalars['Boolean']['output'];
   deleteHoliday: Scalars['Boolean']['output'];
   deleteImageConfig: Scalars['Boolean']['output'];
+  deleteInboundMailConfig: Scalars['Boolean']['output'];
   deleteInvoice: Scalars['Boolean']['output'];
   deleteJob: Scalars['Boolean']['output'];
   deleteJobCompany: Scalars['Boolean']['output'];
@@ -3032,6 +3073,8 @@ export type Mutation = {
   deleteSalaryStructure: Scalars['Boolean']['output'];
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
+  deleteSocialComment: Scalars['Boolean']['output'];
+  deleteSocialPost: Scalars['Boolean']['output'];
   /** Deletes the sprint and returns its tickets to the backlog. */
   deleteSprint: Scalars['Boolean']['output'];
   deleteStatusIncident: Scalars['Boolean']['output'];
@@ -3041,6 +3084,8 @@ export type Mutation = {
   deleteSupportSlaPolicy: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
   deleteTaskComment: Scalars['Boolean']['output'];
+  deleteTaxRegime: Scalars['Boolean']['output'];
+  deleteTaxSlab: Scalars['Boolean']['output'];
   deleteTeam: Scalars['Boolean']['output'];
   deleteTool: Scalars['Boolean']['output'];
   deleteToolCategory: Scalars['Boolean']['output'];
@@ -3194,6 +3239,8 @@ export type Mutation = {
   setUserActive: User;
   setUserBlocked: User;
   setWebhookActive: Webhook;
+  /** Shares a post onto the feed, optionally with something of your own to say. */
+  shareSocialPost: SocialPost;
   signContract: Contract;
   /**
    * Starts one joiner's onboarding from a template. HR only, and refused while the employee
@@ -3223,8 +3270,12 @@ export type Mutation = {
   subscribeToStatus: Scalars['Boolean']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
+  /** Signs in and opens the mailbox, so credentials are checked before the poller relies on them. */
+  testInboundMailConnection: Scalars['Boolean']['output'];
   testOpenAiConnection: Scalars['Boolean']['output'];
   testPexelsConnection: Scalars['Boolean']['output'];
+  /** Likes the post, or takes the like back. Returns the post as it now stands. */
+  toggleSocialPostLike: SocialPost;
   /**
    * Accepts the disclosure. When the workspace has pointed the tracker at a Legal policy,
    * signedName is required and the acceptance is also recorded in Legal's versioned
@@ -3304,6 +3355,7 @@ export type Mutation = {
   updateGrade: Grade;
   updateHoliday: Holiday;
   updateImageConfig: ImageConfig;
+  updateInboundMailConfig: InboundMailConfig;
   updateInvoice: Invoice;
   updateJob: Job;
   updateJobCompany: JobCompany;
@@ -3355,6 +3407,8 @@ export type Mutation = {
   updateSupplier: Supplier;
   updateSupportSlaPolicy: SupportSlaPolicy;
   updateTask: Task;
+  updateTaxRegime: TaxRegime;
+  updateTaxSlab: TaxSlab;
   updateTeam: Team;
   updateTool: Tool;
   updateToolCategory: ToolCategory;
@@ -3654,6 +3708,11 @@ export type MutationCreateImageConfigArgs = {
 };
 
 
+export type MutationCreateInboundMailConfigArgs = {
+  input: InboundMailConfigInput;
+};
+
+
 export type MutationCreateInvoiceArgs = {
   input: InvoiceInput;
 };
@@ -3824,6 +3883,17 @@ export type MutationCreateSlackConfigArgs = {
 };
 
 
+export type MutationCreateSocialCommentArgs = {
+  body: Scalars['String']['input'];
+  postId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateSocialPostArgs = {
+  input: SocialPostInput;
+};
+
+
 export type MutationCreateSprintArgs = {
   input: SprintInput;
   projectId: Scalars['ID']['input'];
@@ -3864,6 +3934,16 @@ export type MutationCreateTaskArgs = {
   columnId: Scalars['ID']['input'];
   input: TaskInput;
   projectId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateTaxRegimeArgs = {
+  input: TaxRegimeInput;
+};
+
+
+export type MutationCreateTaxSlabArgs = {
+  input: TaxSlabInput;
 };
 
 
@@ -4091,6 +4171,11 @@ export type MutationDeleteImageConfigArgs = {
 };
 
 
+export type MutationDeleteInboundMailConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4236,6 +4321,16 @@ export type MutationDeleteSlackConfigArgs = {
 };
 
 
+export type MutationDeleteSocialCommentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteSocialPostArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteSprintArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4272,6 +4367,16 @@ export type MutationDeleteTaskArgs = {
 
 
 export type MutationDeleteTaskCommentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteTaxRegimeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteTaxSlabArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4646,6 +4751,12 @@ export type MutationSetWebhookActiveArgs = {
 };
 
 
+export type MutationShareSocialPostArgs = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationSignContractArgs = {
   id: Scalars['ID']['input'];
   signedBy: Scalars['String']['input'];
@@ -4704,12 +4815,22 @@ export type MutationTestImageUploadArgs = {
 };
 
 
+export type MutationTestInboundMailConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationTestOpenAiConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
 
 export type MutationTestPexelsConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationToggleSocialPostLikeArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4992,6 +5113,12 @@ export type MutationUpdateImageConfigArgs = {
 };
 
 
+export type MutationUpdateInboundMailConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: InboundMailConfigInput;
+};
+
+
 export type MutationUpdateInvoiceArgs = {
   id: Scalars['ID']['input'];
   input: InvoiceInput;
@@ -5228,6 +5355,18 @@ export type MutationUpdateTaskArgs = {
 };
 
 
+export type MutationUpdateTaxRegimeArgs = {
+  id: Scalars['ID']['input'];
+  input: TaxRegimeInput;
+};
+
+
+export type MutationUpdateTaxSlabArgs = {
+  id: Scalars['ID']['input'];
+  input: TaxSlabInput;
+};
+
+
 export type MutationUpdateTeamArgs = {
   id: Scalars['ID']['input'];
   input: TeamInput;
@@ -5363,6 +5502,9 @@ export enum NotificationKind {
   Payroll = 'PAYROLL',
   Performance = 'PERFORMANCE',
   Request = 'REQUEST',
+  SocialComment = 'SOCIAL_COMMENT',
+  SocialLike = 'SOCIAL_LIKE',
+  SocialShare = 'SOCIAL_SHARE',
   Training = 'TRAINING'
 }
 
@@ -5587,25 +5729,40 @@ export type PayrollSettings = {
   esiEnabled: Scalars['Boolean']['output'];
   /** ESI applies only while gross is at or below this figure. */
   esiWageLimit: Scalars['Float']['output'];
+  /** The month a financial year opens in, 1-12. April in India, 1 on a calendar tax year. */
+  financialYearStartMonth: Scalars['Int']['output'];
   pfEmployeePercent: Scalars['Float']['output'];
   pfEnabled: Scalars['Boolean']['output'];
   /** PF is charged on basic only up to this figure; anything above it is exempt. */
   pfWageCeiling: Scalars['Float']['output'];
   professionalTaxMonthly: Scalars['Float']['output'];
+  /** Deducted from annual taxable pay before the bands are applied. */
+  tdsAnnualExemption: Scalars['Float']['output'];
+  /** Charged on the TAX, not on the income. 0 where the jurisdiction has none. */
+  tdsCessPercent: Scalars['Float']['output'];
   tdsFlatPercent: Scalars['Float']['output'];
   tdsMode: TdsMode;
+  /** Which regime in the tax-slab table SLAB mode applies. The year comes from the period run. */
+  tdsRegimeKey: Scalars['String']['output'];
+  /** The bands SLAB mode applies. Empty withholds nothing rather than guessing a rate. */
+  tdsSlabs: Array<TdsSlab>;
 };
 
 export type PayrollSettingsInput = {
   esiEmployeePercent: Scalars['Float']['input'];
   esiEnabled: Scalars['Boolean']['input'];
   esiWageLimit: Scalars['Float']['input'];
+  financialYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
   pfEmployeePercent: Scalars['Float']['input'];
   pfEnabled: Scalars['Boolean']['input'];
   pfWageCeiling: Scalars['Float']['input'];
   professionalTaxMonthly: Scalars['Float']['input'];
+  tdsAnnualExemption?: InputMaybe<Scalars['Float']['input']>;
+  tdsCessPercent?: InputMaybe<Scalars['Float']['input']>;
   tdsFlatPercent: Scalars['Float']['input'];
   tdsMode: TdsMode;
+  tdsRegimeKey?: InputMaybe<Scalars['String']['input']>;
+  tdsSlabs?: InputMaybe<Array<TdsSlabInput>>;
 };
 
 /** The month at a glance, for review before marking paid. */
@@ -6344,6 +6501,8 @@ export type Query = {
   getSupportSlaPolicy: SupportSlaPolicy;
   /** SUPPORT/ADMIN: one ticket in full, for its own page. */
   getSupportTicket: SupportTicket;
+  getTaxRegime: TaxRegime;
+  getTaxSlab: TaxSlab;
   getTeam: Team;
   getTool: Tool;
   getToolCategory: ToolCategory;
@@ -6471,6 +6630,7 @@ export type Query = {
   listHolidaysPaged: HolidayPage;
   listHolidaysStats: TableStats;
   listImageConfigs: Array<ImageConfig>;
+  listInboundMailConfigs: Array<InboundMailConfig>;
   listInvoices: Array<Invoice>;
   listInvoicesPaged: InvoicePage;
   listInvoicesStats: TableStats;
@@ -6585,6 +6745,11 @@ export type Query = {
   listSupportTicketsPaged: SupportTicketPage;
   /** SUPPORT/ADMIN: ticket counts by status, priority and category in one aggregation. */
   listSupportTicketsStats: TableStats;
+  /** Every income-tax regime on file, both years and both regimes. */
+  listTaxRegimes: Array<TaxRegime>;
+  listTaxSlabs: Array<TaxSlab>;
+  listTaxSlabsPaged: TaxSlabPage;
+  listTaxSlabsStats: TableStats;
   listTeams: Array<Team>;
   listTeamsPaged: TeamPage;
   listTeamsStats: TableStats;
@@ -6722,6 +6887,16 @@ export type Query = {
   searchPexelsVideos: Array<PexelsMedia>;
   /** Public. Null when the token is unknown, expired or revoked — the page says so. */
   sharedProject?: Maybe<SharedProjectView>;
+  /** The comments on a post, oldest first, so a conversation reads in order. */
+  socialComments: Array<SocialComment>;
+  /** Everybody's posts, newest first. */
+  socialFeed: SocialFeedPage;
+  /** One post, for its own page. */
+  socialPost: SocialPost;
+  /** One colleague's profile. */
+  socialProfile: SocialProfile;
+  /** One colleague's posts, newest first. */
+  socialUserPosts: SocialFeedPage;
   /** What completing this sprint would do to its unfinished tickets. */
   sprintCompletionPlan: SprintCompletionPlan;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
@@ -7162,6 +7337,16 @@ export type QueryGetSupportTicketArgs = {
 };
 
 
+export type QueryGetTaxRegimeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetTaxSlabArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetTeamArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7532,6 +7717,11 @@ export type QueryListSupportTicketsPagedArgs = {
 };
 
 
+export type QueryListTaxSlabsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListTeamsPagedArgs = {
   input: TableQueryInput;
 };
@@ -7741,6 +7931,34 @@ export type QuerySearchPexelsVideosArgs = {
 
 export type QuerySharedProjectArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QuerySocialCommentsArgs = {
+  postId: Scalars['ID']['input'];
+};
+
+
+export type QuerySocialFeedArgs = {
+  cursor?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QuerySocialPostArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QuerySocialProfileArgs = {
+  userId: Scalars['ID']['input'];
+};
+
+
+export type QuerySocialUserPostsArgs = {
+  cursor?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -8212,6 +8430,68 @@ export enum SlipStatus {
   Paid = 'PAID'
 }
 
+/** Who wrote something, as the feed needs to show them: enough to render a byline. */
+export type SocialAuthor = {
+  __typename?: 'SocialAuthor';
+  avatarUrl?: Maybe<Scalars['String']['output']>;
+  department?: Maybe<Scalars['String']['output']>;
+  designation?: Maybe<Scalars['String']['output']>;
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type SocialComment = {
+  __typename?: 'SocialComment';
+  author: SocialAuthor;
+  body: Scalars['String']['output'];
+  /** Whether the signed-in employee may delete this comment. */
+  canDelete: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  postId: Scalars['ID']['output'];
+};
+
+/** One page of the feed. The cursor is the id of the last post on this page. */
+export type SocialFeedPage = {
+  __typename?: 'SocialFeedPage';
+  nextCursor?: Maybe<Scalars['ID']['output']>;
+  posts: Array<SocialPost>;
+};
+
+export type SocialPost = {
+  __typename?: 'SocialPost';
+  author: SocialAuthor;
+  body: Scalars['String']['output'];
+  /** Whether the signed-in employee may delete this post. */
+  canDelete: Scalars['Boolean']['output'];
+  commentCount: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  imageUrl: Scalars['String']['output'];
+  likeCount: Scalars['Int']['output'];
+  /** Whether the signed-in employee has already liked this post. */
+  likedByMe: Scalars['Boolean']['output'];
+  shareCount: Scalars['Int']['output'];
+  /** The post this one shares, resolved one level deep. Null when it is an original. */
+  sharedFrom?: Maybe<SocialPost>;
+};
+
+export type SocialPostInput = {
+  body: Scalars['String']['input'];
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** A colleague's profile page: who they are, and what they have posted. */
+export type SocialProfile = {
+  __typename?: 'SocialProfile';
+  brief?: Maybe<Scalars['String']['output']>;
+  joinDate?: Maybe<Scalars['DateTime']['output']>;
+  likesReceived: Scalars['Int']['output'];
+  postCount: Scalars['Int']['output'];
+  user: SocialAuthor;
+};
+
 export enum SortDir {
   Asc = 'ASC',
   Desc = 'DESC'
@@ -8623,6 +8903,8 @@ export type SupportTicket = {
   assigneeName: Scalars['String']['output'];
   attachments: Array<TicketAttachment>;
   category: SupportCategory;
+  /** How it reached the desk. PORTAL for everything raised before the mailbox existed. */
+  channel: TicketChannel;
   /** Set only when the customer's address matched a client on file. */
   clientId: Scalars['String']['output'];
   clientName: Scalars['String']['output'];
@@ -8817,15 +9099,106 @@ export enum TaskType {
 }
 
 /**
+ * One named income-tax regime for one financial year — "new regime", "old regime".
+ *
+ * Two regimes stand side by side because each carries its own standard deduction and rebate;
+ * the payroll settings name which key the next run applies. Nothing here is compiled in: the
+ * seeded table is one year's figures, to be checked against the finance act and edited here.
+ */
+export type TaxRegime = {
+  __typename?: 'TaxRegime';
+  /** An inactive regime withholds nothing, so a half-entered table cannot tax anybody. */
+  active: Scalars['Boolean']['output'];
+  /** Charged on the TAX, not on the income. */
+  cessPercent: Scalars['Float']['output'];
+  /** The financial year these figures are for, as 2026-27. */
+  financialYear: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  /** Taxable income at or below which the rebate applies. */
+  rebateIncomeLimit: Scalars['Float']['output'];
+  /** The most tax the rebate can write off. Applied before cess, never below zero. */
+  rebateMaxTax: Scalars['Float']['output'];
+  /** Short stable name, e.g. NEW or OLD. The slab rows point at this. */
+  regimeKey: Scalars['String']['output'];
+  /** Taken off annual pay before the bands are walked. */
+  standardDeduction: Scalars['Float']['output'];
+};
+
+export type TaxRegimeInput = {
+  active: Scalars['Boolean']['input'];
+  cessPercent: Scalars['Float']['input'];
+  financialYear: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  rebateIncomeLimit: Scalars['Float']['input'];
+  rebateMaxTax: Scalars['Float']['input'];
+  regimeKey: Scalars['String']['input'];
+  standardDeduction: Scalars['Float']['input'];
+};
+
+/**
+ * One band of one regime's table. Both bounds are stored rather than derived from the
+ * neighbouring rows, so reordering the table never silently re-cuts the bands around it.
+ */
+export type TaxSlab = {
+  __typename?: 'TaxSlab';
+  active: Scalars['Boolean']['output'];
+  financialYear: Scalars['String']['output'];
+  /** Income above this falls in this band. The lowest band starts at 0. */
+  fromAmount: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  /** The order the bands are walked in, lowest first. */
+  order: Scalars['Int']['output'];
+  ratePercent: Scalars['Float']['output'];
+  regimeKey: Scalars['String']['output'];
+  /** Income up to and including this is in this band. Null means everything above. */
+  toAmount?: Maybe<Scalars['Float']['output']>;
+};
+
+export type TaxSlabInput = {
+  active: Scalars['Boolean']['input'];
+  financialYear: Scalars['String']['input'];
+  fromAmount: Scalars['Float']['input'];
+  order: Scalars['Int']['input'];
+  ratePercent: Scalars['Float']['input'];
+  regimeKey: Scalars['String']['input'];
+  toAmount?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type TaxSlabPage = {
+  __typename?: 'TaxSlabPage';
+  rows: Array<TaxSlab>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/**
  * How TDS is worked out. NONE withholds nothing; FLAT_PERCENT takes a percentage of taxable
- * pay; SLAB means the rate is worked out off the portal and recorded per employee, so only
- * an employee with their own rate on file has anything withheld.
+ * pay; SLAB applies the band table below to the annualised pay. An employee with their own
+ * rate on file beats every mode except NONE, and an empty table withholds nothing rather
+ * than guessing.
  */
 export enum TdsMode {
   FlatPercent = 'FLAT_PERCENT',
   None = 'NONE',
   Slab = 'SLAB'
 }
+
+/**
+ * One band of the TDS table.
+ *
+ * upTo is null for the open-ended top band. Rates are not compiled in: they change with
+ * every finance act, so the table is entered by whoever knows the current one.
+ */
+export type TdsSlab = {
+  __typename?: 'TdsSlab';
+  percent: Scalars['Float']['output'];
+  upTo?: Maybe<Scalars['Float']['output']>;
+};
+
+export type TdsSlabInput = {
+  percent: Scalars['Float']['input'];
+  upTo?: InputMaybe<Scalars['Float']['input']>;
+};
 
 export type Team = {
   __typename?: 'Team';
@@ -8869,6 +9242,16 @@ export type TicketAttachmentInput = {
   name: Scalars['String']['input'];
   url: Scalars['String']['input'];
 };
+
+/** How a ticket reached the desk. */
+export enum TicketChannel {
+  /** Typed into the console by an agent, usually off a call. */
+  Agent = 'AGENT',
+  /** Arrived in the support mailbox and was imported. */
+  Email = 'EMAIL',
+  /** Raised on a form in the portal — the employee desk or the public customer form. */
+  Portal = 'PORTAL'
+}
 
 export type Tool = {
   __typename?: 'Tool';
@@ -9990,6 +10373,8 @@ export type ResolversTypes = ResolversObject<{
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   ImageConfig: ResolverTypeWrapper<ImageConfig>;
   ImageConfigInput: ImageConfigInput;
+  InboundMailConfig: ResolverTypeWrapper<InboundMailConfig>;
+  InboundMailConfigInput: InboundMailConfigInput;
   IncidentImpact: IncidentImpact;
   IncidentSource: IncidentSource;
   IncidentUpdateStatus: IncidentUpdateStatus;
@@ -10169,6 +10554,12 @@ export type ResolversTypes = ResolversObject<{
   SlackConfig: ResolverTypeWrapper<SlackConfig>;
   SlackConfigInput: SlackConfigInput;
   SlipStatus: SlipStatus;
+  SocialAuthor: ResolverTypeWrapper<SocialAuthor>;
+  SocialComment: ResolverTypeWrapper<SocialComment>;
+  SocialFeedPage: ResolverTypeWrapper<SocialFeedPage>;
+  SocialPost: ResolverTypeWrapper<SocialPost>;
+  SocialPostInput: SocialPostInput;
+  SocialProfile: ResolverTypeWrapper<SocialProfile>;
   SortDir: SortDir;
   Sprint: ResolverTypeWrapper<Sprint>;
   SprintCompletionPlan: ResolverTypeWrapper<SprintCompletionPlan>;
@@ -10229,12 +10620,20 @@ export type ResolversTypes = ResolversObject<{
   TaskInput: TaskInput;
   TaskPriority: TaskPriority;
   TaskType: TaskType;
+  TaxRegime: ResolverTypeWrapper<TaxRegime>;
+  TaxRegimeInput: TaxRegimeInput;
+  TaxSlab: ResolverTypeWrapper<TaxSlab>;
+  TaxSlabInput: TaxSlabInput;
+  TaxSlabPage: ResolverTypeWrapper<TaxSlabPage>;
   TdsMode: TdsMode;
+  TdsSlab: ResolverTypeWrapper<TdsSlab>;
+  TdsSlabInput: TdsSlabInput;
   Team: ResolverTypeWrapper<Team>;
   TeamInput: TeamInput;
   TeamPage: ResolverTypeWrapper<TeamPage>;
   TicketAttachment: ResolverTypeWrapper<TicketAttachment>;
   TicketAttachmentInput: TicketAttachmentInput;
+  TicketChannel: TicketChannel;
   Tool: ResolverTypeWrapper<Tool>;
   ToolCategory: ResolverTypeWrapper<ToolCategory>;
   ToolCategoryInput: ToolCategoryInput;
@@ -10466,6 +10865,8 @@ export type ResolversParentTypes = ResolversObject<{
   ID: Scalars['ID']['output'];
   ImageConfig: ImageConfig;
   ImageConfigInput: ImageConfigInput;
+  InboundMailConfig: InboundMailConfig;
+  InboundMailConfigInput: InboundMailConfigInput;
   InfrastructureOverview: InfrastructureOverview;
   Int: Scalars['Int']['output'];
   Invoice: Invoice;
@@ -10611,6 +11012,12 @@ export type ResolversParentTypes = ResolversObject<{
   SlackChannel: SlackChannel;
   SlackConfig: SlackConfig;
   SlackConfigInput: SlackConfigInput;
+  SocialAuthor: SocialAuthor;
+  SocialComment: SocialComment;
+  SocialFeedPage: SocialFeedPage;
+  SocialPost: SocialPost;
+  SocialPostInput: SocialPostInput;
+  SocialProfile: SocialProfile;
   Sprint: Sprint;
   SprintCompletionPlan: SprintCompletionPlan;
   SprintInput: SprintInput;
@@ -10658,6 +11065,13 @@ export type ResolversParentTypes = ResolversObject<{
   TaskAttachmentInput: TaskAttachmentInput;
   TaskComment: TaskComment;
   TaskInput: TaskInput;
+  TaxRegime: TaxRegime;
+  TaxRegimeInput: TaxRegimeInput;
+  TaxSlab: TaxSlab;
+  TaxSlabInput: TaxSlabInput;
+  TaxSlabPage: TaxSlabPage;
+  TdsSlab: TdsSlab;
+  TdsSlabInput: TdsSlabInput;
   Team: Team;
   TeamInput: TeamInput;
   TeamPage: TeamPage;
@@ -11081,6 +11495,7 @@ export type BrandingResolvers<ContextType = GraphQLContext, ParentType extends R
   faviconUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   githubUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   gstin?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hrEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   instagramUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   invoicePrefix?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -11992,6 +12407,22 @@ export type ImageConfigResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type InboundMailConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InboundMailConfig'] = ResolversParentTypes['InboundMailConfig']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  deleteAfterImport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  host?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mailbox?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  pollSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  port?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  secure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type InfrastructureOverviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InfrastructureOverview'] = ResolversParentTypes['InfrastructureOverview']> = ResolversObject<{
   database?: Resolver<ResolversTypes['DatabaseInfo'], ParentType, ContextType>;
   docker?: Resolver<ResolversTypes['DockerHost'], ParentType, ContextType>;
@@ -12375,6 +12806,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createGrade?: Resolver<ResolversTypes['Grade'], ParentType, ContextType, RequireFields<MutationCreateGradeArgs, 'input'>>;
   createHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<MutationCreateHolidayArgs, 'input'>>;
   createImageConfig?: Resolver<ResolversTypes['ImageConfig'], ParentType, ContextType, RequireFields<MutationCreateImageConfigArgs, 'input'>>;
+  createInboundMailConfig?: Resolver<ResolversTypes['InboundMailConfig'], ParentType, ContextType, RequireFields<MutationCreateInboundMailConfigArgs, 'input'>>;
   createInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationCreateInvoiceArgs, 'input'>>;
   createInvoiceFromDeal?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationCreateInvoiceFromDealArgs, 'dealId'>>;
   createInvoiceFromTimeLog?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationCreateInvoiceFromTimeLogArgs, 'from' | 'projectId' | 'to'>>;
@@ -12408,6 +12840,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationCreateSalaryStructureArgs, 'input'>>;
   createShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationCreateShiftArgs, 'input'>>;
   createSlackConfig?: Resolver<ResolversTypes['SlackConfig'], ParentType, ContextType, RequireFields<MutationCreateSlackConfigArgs, 'input'>>;
+  createSocialComment?: Resolver<ResolversTypes['SocialComment'], ParentType, ContextType, RequireFields<MutationCreateSocialCommentArgs, 'body' | 'postId'>>;
+  createSocialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationCreateSocialPostArgs, 'input'>>;
   createSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationCreateSprintArgs, 'input' | 'projectId'>>;
   createStatusIncident?: Resolver<ResolversTypes['StatusIncident'], ParentType, ContextType, RequireFields<MutationCreateStatusIncidentArgs, 'input'>>;
   createStatusMaintenance?: Resolver<ResolversTypes['StatusMaintenance'], ParentType, ContextType, RequireFields<MutationCreateStatusMaintenanceArgs, 'input'>>;
@@ -12416,6 +12850,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createSupportSlaPolicy?: Resolver<ResolversTypes['SupportSlaPolicy'], ParentType, ContextType, RequireFields<MutationCreateSupportSlaPolicyArgs, 'input'>>;
   createSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationCreateSupportTicketArgs, 'input'>>;
   createTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationCreateTaskArgs, 'columnId' | 'input' | 'projectId'>>;
+  createTaxRegime?: Resolver<ResolversTypes['TaxRegime'], ParentType, ContextType, RequireFields<MutationCreateTaxRegimeArgs, 'input'>>;
+  createTaxSlab?: Resolver<ResolversTypes['TaxSlab'], ParentType, ContextType, RequireFields<MutationCreateTaxSlabArgs, 'input'>>;
   createTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<MutationCreateTeamArgs, 'input'>>;
   createTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<MutationCreateToolArgs, 'input'>>;
   createToolCategory?: Resolver<ResolversTypes['ToolCategory'], ParentType, ContextType, RequireFields<MutationCreateToolCategoryArgs, 'input'>>;
@@ -12460,6 +12896,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteGrade?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGradeArgs, 'id'>>;
   deleteHoliday?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteHolidayArgs, 'id'>>;
   deleteImageConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteImageConfigArgs, 'id'>>;
+  deleteInboundMailConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteInboundMailConfigArgs, 'id'>>;
   deleteInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteInvoiceArgs, 'id'>>;
   deleteJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteJobArgs, 'id'>>;
   deleteJobCompany?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteJobCompanyArgs, 'id'>>;
@@ -12489,6 +12926,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteSalaryStructure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSalaryStructureArgs, 'id'>>;
   deleteShift?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteShiftArgs, 'id'>>;
   deleteSlackConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSlackConfigArgs, 'id'>>;
+  deleteSocialComment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSocialCommentArgs, 'id'>>;
+  deleteSocialPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSocialPostArgs, 'id'>>;
   deleteSprint?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSprintArgs, 'id'>>;
   deleteStatusIncident?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusIncidentArgs, 'id'>>;
   deleteStatusMaintenance?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusMaintenanceArgs, 'id'>>;
@@ -12497,6 +12936,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteSupportSlaPolicy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSupportSlaPolicyArgs, 'id'>>;
   deleteTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaskArgs, 'id'>>;
   deleteTaskComment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaskCommentArgs, 'id'>>;
+  deleteTaxRegime?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaxRegimeArgs, 'id'>>;
+  deleteTaxSlab?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaxSlabArgs, 'id'>>;
   deleteTeam?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTeamArgs, 'id'>>;
   deleteTool?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolArgs, 'id'>>;
   deleteToolCategory?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteToolCategoryArgs, 'id'>>;
@@ -12562,6 +13003,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setUserActive?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserActiveArgs, 'id' | 'isActive'>>;
   setUserBlocked?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserBlockedArgs, 'id' | 'isBlocked'>>;
   setWebhookActive?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType, RequireFields<MutationSetWebhookActiveArgs, 'active' | 'id'>>;
+  shareSocialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationShareSocialPostArgs, 'id'>>;
   signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id' | 'signedBy'>>;
   startOnboarding?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationStartOnboardingArgs, 'employeeId' | 'templateId'>>;
   startSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationStartSprintArgs, 'id'>>;
@@ -12572,8 +13014,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   subscribeToStatus?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSubscribeToStatusArgs, 'email'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
+  testInboundMailConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestInboundMailConnectionArgs, 'id'>>;
   testOpenAiConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestOpenAiConnectionArgs, 'id'>>;
   testPexelsConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestPexelsConnectionArgs, 'id'>>;
+  toggleSocialPostLike?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationToggleSocialPostLikeArgs, 'id'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationTrackerAcceptConsentArgs>>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
   trackerLogin?: Resolver<ResolversTypes['TrackerLoginPayload'], ParentType, ContextType, RequireFields<MutationTrackerLoginArgs, 'device' | 'email' | 'password'>>;
@@ -12621,6 +13065,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateGrade?: Resolver<ResolversTypes['Grade'], ParentType, ContextType, RequireFields<MutationUpdateGradeArgs, 'id' | 'input'>>;
   updateHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<MutationUpdateHolidayArgs, 'id' | 'input'>>;
   updateImageConfig?: Resolver<ResolversTypes['ImageConfig'], ParentType, ContextType, RequireFields<MutationUpdateImageConfigArgs, 'id' | 'input'>>;
+  updateInboundMailConfig?: Resolver<ResolversTypes['InboundMailConfig'], ParentType, ContextType, RequireFields<MutationUpdateInboundMailConfigArgs, 'id' | 'input'>>;
   updateInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationUpdateInvoiceArgs, 'id' | 'input'>>;
   updateJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<MutationUpdateJobArgs, 'id' | 'input'>>;
   updateJobCompany?: Resolver<ResolversTypes['JobCompany'], ParentType, ContextType, RequireFields<MutationUpdateJobCompanyArgs, 'id' | 'input'>>;
@@ -12661,6 +13106,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateSupplier?: Resolver<ResolversTypes['Supplier'], ParentType, ContextType, RequireFields<MutationUpdateSupplierArgs, 'id' | 'input'>>;
   updateSupportSlaPolicy?: Resolver<ResolversTypes['SupportSlaPolicy'], ParentType, ContextType, RequireFields<MutationUpdateSupportSlaPolicyArgs, 'id' | 'input'>>;
   updateTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationUpdateTaskArgs, 'id' | 'input'>>;
+  updateTaxRegime?: Resolver<ResolversTypes['TaxRegime'], ParentType, ContextType, RequireFields<MutationUpdateTaxRegimeArgs, 'id' | 'input'>>;
+  updateTaxSlab?: Resolver<ResolversTypes['TaxSlab'], ParentType, ContextType, RequireFields<MutationUpdateTaxSlabArgs, 'id' | 'input'>>;
   updateTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<MutationUpdateTeamArgs, 'id' | 'input'>>;
   updateTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<MutationUpdateToolArgs, 'id' | 'input'>>;
   updateToolCategory?: Resolver<ResolversTypes['ToolCategory'], ParentType, ContextType, RequireFields<MutationUpdateToolCategoryArgs, 'id' | 'input'>>;
@@ -12848,12 +13295,17 @@ export type PayrollSettingsResolvers<ContextType = GraphQLContext, ParentType ex
   esiEmployeePercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   esiEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   esiWageLimit?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  financialYearStartMonth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   pfEmployeePercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   pfEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   pfWageCeiling?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   professionalTaxMonthly?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  tdsAnnualExemption?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  tdsCessPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   tdsFlatPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   tdsMode?: Resolver<ResolversTypes['TdsMode'], ParentType, ContextType>;
+  tdsRegimeKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tdsSlabs?: Resolver<Array<ResolversTypes['TdsSlab']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -13292,6 +13744,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getSupplier?: Resolver<ResolversTypes['Supplier'], ParentType, ContextType, RequireFields<QueryGetSupplierArgs, 'id'>>;
   getSupportSlaPolicy?: Resolver<ResolversTypes['SupportSlaPolicy'], ParentType, ContextType, RequireFields<QueryGetSupportSlaPolicyArgs, 'id'>>;
   getSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<QueryGetSupportTicketArgs, 'id'>>;
+  getTaxRegime?: Resolver<ResolversTypes['TaxRegime'], ParentType, ContextType, RequireFields<QueryGetTaxRegimeArgs, 'id'>>;
+  getTaxSlab?: Resolver<ResolversTypes['TaxSlab'], ParentType, ContextType, RequireFields<QueryGetTaxSlabArgs, 'id'>>;
   getTeam?: Resolver<ResolversTypes['Team'], ParentType, ContextType, RequireFields<QueryGetTeamArgs, 'id'>>;
   getTool?: Resolver<ResolversTypes['Tool'], ParentType, ContextType, RequireFields<QueryGetToolArgs, 'id'>>;
   getToolCategory?: Resolver<ResolversTypes['ToolCategory'], ParentType, ContextType, RequireFields<QueryGetToolCategoryArgs, 'id'>>;
@@ -13404,6 +13858,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listHolidaysPaged?: Resolver<ResolversTypes['HolidayPage'], ParentType, ContextType, RequireFields<QueryListHolidaysPagedArgs, 'input'>>;
   listHolidaysStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listImageConfigs?: Resolver<Array<ResolversTypes['ImageConfig']>, ParentType, ContextType>;
+  listInboundMailConfigs?: Resolver<Array<ResolversTypes['InboundMailConfig']>, ParentType, ContextType>;
   listInvoices?: Resolver<Array<ResolversTypes['Invoice']>, ParentType, ContextType>;
   listInvoicesPaged?: Resolver<ResolversTypes['InvoicePage'], ParentType, ContextType, RequireFields<QueryListInvoicesPagedArgs, 'input'>>;
   listInvoicesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -13506,6 +13961,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listSupportTickets?: Resolver<Array<ResolversTypes['SupportTicket']>, ParentType, ContextType>;
   listSupportTicketsPaged?: Resolver<ResolversTypes['SupportTicketPage'], ParentType, ContextType, RequireFields<QueryListSupportTicketsPagedArgs, 'input'>>;
   listSupportTicketsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listTaxRegimes?: Resolver<Array<ResolversTypes['TaxRegime']>, ParentType, ContextType>;
+  listTaxSlabs?: Resolver<Array<ResolversTypes['TaxSlab']>, ParentType, ContextType>;
+  listTaxSlabsPaged?: Resolver<ResolversTypes['TaxSlabPage'], ParentType, ContextType, RequireFields<QueryListTaxSlabsPagedArgs, 'input'>>;
+  listTaxSlabsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listTeams?: Resolver<Array<ResolversTypes['Team']>, ParentType, ContextType>;
   listTeamsPaged?: Resolver<ResolversTypes['TeamPage'], ParentType, ContextType, RequireFields<QueryListTeamsPagedArgs, 'input'>>;
   listTeamsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -13595,6 +14054,11 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   searchPexelsPhotos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsPhotosArgs, 'query'>>;
   searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
   sharedProject?: Resolver<Maybe<ResolversTypes['SharedProjectView']>, ParentType, ContextType, RequireFields<QuerySharedProjectArgs, 'token'>>;
+  socialComments?: Resolver<Array<ResolversTypes['SocialComment']>, ParentType, ContextType, RequireFields<QuerySocialCommentsArgs, 'postId'>>;
+  socialFeed?: Resolver<ResolversTypes['SocialFeedPage'], ParentType, ContextType, Partial<QuerySocialFeedArgs>>;
+  socialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<QuerySocialPostArgs, 'id'>>;
+  socialProfile?: Resolver<ResolversTypes['SocialProfile'], ParentType, ContextType, RequireFields<QuerySocialProfileArgs, 'userId'>>;
+  socialUserPosts?: Resolver<ResolversTypes['SocialFeedPage'], ParentType, ContextType, RequireFields<QuerySocialUserPostsArgs, 'userId'>>;
   sprintCompletionPlan?: Resolver<ResolversTypes['SprintCompletionPlan'], ParentType, ContextType, RequireFields<QuerySprintCompletionPlanArgs, 'id'>>;
   statusOverview?: Resolver<ResolversTypes['StatusOverview'], ParentType, ContextType, Partial<QueryStatusOverviewArgs>>;
   supportSlaSummary?: Resolver<ResolversTypes['SupportSlaSummary'], ParentType, ContextType>;
@@ -13826,6 +14290,56 @@ export type SlackConfigResolvers<ContextType = GraphQLContext, ParentType extend
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialAuthorResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialAuthor'] = ResolversParentTypes['SocialAuthor']> = ResolversObject<{
+  avatarUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  department?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  designation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialCommentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialComment'] = ResolversParentTypes['SocialComment']> = ResolversObject<{
+  author?: Resolver<ResolversTypes['SocialAuthor'], ParentType, ContextType>;
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  canDelete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  postId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialFeedPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialFeedPage'] = ResolversParentTypes['SocialFeedPage']> = ResolversObject<{
+  nextCursor?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  posts?: Resolver<Array<ResolversTypes['SocialPost']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialPostResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialPost'] = ResolversParentTypes['SocialPost']> = ResolversObject<{
+  author?: Resolver<ResolversTypes['SocialAuthor'], ParentType, ContextType>;
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  canDelete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  commentCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  imageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  likeCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  likedByMe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  shareCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sharedFrom?: Resolver<Maybe<ResolversTypes['SocialPost']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialProfileResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialProfile'] = ResolversParentTypes['SocialProfile']> = ResolversObject<{
+  brief?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  joinDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  likesReceived?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  postCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['SocialAuthor'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -14080,6 +14594,7 @@ export type SupportTicketResolvers<ContextType = GraphQLContext, ParentType exte
   assigneeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   attachments?: Resolver<Array<ResolversTypes['TicketAttachment']>, ParentType, ContextType>;
   category?: Resolver<ResolversTypes['SupportCategory'], ParentType, ContextType>;
+  channel?: Resolver<ResolversTypes['TicketChannel'], ParentType, ContextType>;
   clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   clientName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -14177,6 +14692,43 @@ export type TaskCommentResolvers<ContextType = GraphQLContext, ParentType extend
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   taskId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TaxRegimeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TaxRegime'] = ResolversParentTypes['TaxRegime']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  cessPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  financialYear?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  rebateIncomeLimit?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  rebateMaxTax?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  regimeKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  standardDeduction?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TaxSlabResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TaxSlab'] = ResolversParentTypes['TaxSlab']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  financialYear?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fromAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  ratePercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  regimeKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  toAmount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TaxSlabPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TaxSlabPage'] = ResolversParentTypes['TaxSlabPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['TaxSlab']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TdsSlabResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TdsSlab'] = ResolversParentTypes['TdsSlab']> = ResolversObject<{
+  percent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  upTo?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -14811,6 +15363,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   HolidayPage?: HolidayPageResolvers<ContextType>;
   HrDashboard?: HrDashboardResolvers<ContextType>;
   ImageConfig?: ImageConfigResolvers<ContextType>;
+  InboundMailConfig?: InboundMailConfigResolvers<ContextType>;
   InfrastructureOverview?: InfrastructureOverviewResolvers<ContextType>;
   Invoice?: InvoiceResolvers<ContextType>;
   InvoiceLine?: InvoiceLineResolvers<ContextType>;
@@ -14912,6 +15465,11 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ShiftPage?: ShiftPageResolvers<ContextType>;
   SlackChannel?: SlackChannelResolvers<ContextType>;
   SlackConfig?: SlackConfigResolvers<ContextType>;
+  SocialAuthor?: SocialAuthorResolvers<ContextType>;
+  SocialComment?: SocialCommentResolvers<ContextType>;
+  SocialFeedPage?: SocialFeedPageResolvers<ContextType>;
+  SocialPost?: SocialPostResolvers<ContextType>;
+  SocialProfile?: SocialProfileResolvers<ContextType>;
   Sprint?: SprintResolvers<ContextType>;
   SprintCompletionPlan?: SprintCompletionPlanResolvers<ContextType>;
   StatBucket?: StatBucketResolvers<ContextType>;
@@ -14944,6 +15502,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TaskActivity?: TaskActivityResolvers<ContextType>;
   TaskAttachment?: TaskAttachmentResolvers<ContextType>;
   TaskComment?: TaskCommentResolvers<ContextType>;
+  TaxRegime?: TaxRegimeResolvers<ContextType>;
+  TaxSlab?: TaxSlabResolvers<ContextType>;
+  TaxSlabPage?: TaxSlabPageResolvers<ContextType>;
+  TdsSlab?: TdsSlabResolvers<ContextType>;
   Team?: TeamResolvers<ContextType>;
   TeamPage?: TeamPageResolvers<ContextType>;
   TicketAttachment?: TicketAttachmentResolvers<ContextType>;

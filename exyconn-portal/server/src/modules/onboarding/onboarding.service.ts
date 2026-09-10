@@ -60,11 +60,7 @@ async function actorName(id: string, email: string): Promise<string> {
  * Refused while the employee still has an unfinished checklist: two open checklists are two
  * answers to "has this person been onboarded", and neither can be trusted.
  */
-export async function startOnboarding(
-  employeeId: string,
-  templateId: string,
-  ctx: GraphQLContext,
-) {
+export async function startOnboarding(employeeId: string, templateId: string, ctx: GraphQLContext) {
   assertRole(ctx, [ROLES.HR]);
   if (!isValidObjectId(employeeId)) notFound('Employee');
   const employee = await UserModel.findById(employeeId).select('name joinDate').lean();

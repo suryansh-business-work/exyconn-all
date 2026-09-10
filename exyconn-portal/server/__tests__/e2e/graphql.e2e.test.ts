@@ -118,11 +118,7 @@ describe('GraphQL e2e', () => {
     expect(firstPage.body.data.listUsersPaged.rows).toHaveLength(2);
     expect(firstPage.body.data.listUsersPaged.rows[0].id).toEqual(expect.any(String));
 
-    const searched = await gql(
-      query,
-      { i: { page: 0, pageSize: 10, search: 'paged-a' } },
-      token,
-    );
+    const searched = await gql(query, { i: { page: 0, pageSize: 10, search: 'paged-a' } }, token);
     expect(searched.body.data.listUsersPaged.totalCount).toBe(1);
     expect(searched.body.data.listUsersPaged.rows[0].email).toBe('paged-a@exyconn.com');
   });

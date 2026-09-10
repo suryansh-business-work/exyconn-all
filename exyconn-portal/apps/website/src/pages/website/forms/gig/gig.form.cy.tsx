@@ -54,9 +54,10 @@ const mount = (mocks: (typeof createMock)[] = []) =>
     </MockedProvider>,
   );
 
+/** Opens a MUI Select and picks an option — the listbox is a portal, not the input. */
 const pickOption = (field: string, value: string) => {
-  cy.get(`#mui-component-select-${field}`).click();
-  cy.get(`li[data-value="${value}"]`).click();
+  cy.get(`input[name="${field}"]`).parent().find('[role="combobox"]').click();
+  cy.get('ul[role="listbox"]').find(`li[data-value="${value}"]`).click();
 };
 
 describe('GigForm', () => {

@@ -65,7 +65,10 @@ describe('Status catalogue', () => {
 
   it('leaves an edited monitor alone on the next boot', async () => {
     await ensureStatusMonitors();
-    await StatusMonitorModel.updateOne({ key: 'website' }, { name: 'Marketing site', isActive: false });
+    await StatusMonitorModel.updateOne(
+      { key: 'website' },
+      { name: 'Marketing site', isActive: false },
+    );
 
     await ensureStatusMonitors();
 

@@ -12,7 +12,7 @@ const OFF = 'Not withheld';
 const TDS_SUMMARY: Record<string, string> = {
   NONE: OFF,
   FLAT_PERCENT: 'A flat percentage of taxable pay',
-  SLAB: 'The rate recorded on each employee’s salary structure',
+  SLAB: 'The bands in HR › Tax Slabs, unless the employee has their own rate',
 };
 
 /** What each head currently costs an employee, in the words a payslip uses. */

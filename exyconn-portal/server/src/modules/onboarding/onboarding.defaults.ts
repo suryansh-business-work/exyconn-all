@@ -21,10 +21,25 @@ export const DEFAULT_TEMPLATE_NAME = 'Standard onboarding';
 const DEFAULT_TASKS: SeedTask[] = [
   { key: 'laptop', label: 'Issue laptop and peripherals', owner: 'IT', dueDaysFromJoin: 0 },
   { key: 'accounts', label: 'Create email and portal accounts', owner: 'IT', dueDaysFromJoin: 0 },
-  { key: 'policies', label: 'Read and sign the company policies', owner: 'EMPLOYEE', dueDaysFromJoin: 3 },
-  { key: 'payroll-details', label: 'Submit payroll and bank details', owner: 'EMPLOYEE', dueDaysFromJoin: 3 },
+  {
+    key: 'policies',
+    label: 'Read and sign the company policies',
+    owner: 'EMPLOYEE',
+    dueDaysFromJoin: 3,
+  },
+  {
+    key: 'payroll-details',
+    label: 'Submit payroll and bank details',
+    owner: 'EMPLOYEE',
+    dueDaysFromJoin: 3,
+  },
   { key: 'buddy', label: 'Assign an onboarding buddy', owner: 'MANAGER', dueDaysFromJoin: 1 },
-  { key: 'first-week-1-1', label: 'First-week 1:1 with the manager', owner: 'MANAGER', dueDaysFromJoin: 7 },
+  {
+    key: 'first-week-1-1',
+    label: 'First-week 1:1 with the manager',
+    owner: 'MANAGER',
+    dueDaysFromJoin: 7,
+  },
 ];
 
 /** Creates the default template if no template of that name exists. Never an update. */

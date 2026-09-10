@@ -14,6 +14,16 @@ export const supportTypeDefs = gql`
     CLIENT
   }
 
+  "How a ticket reached the desk."
+  enum TicketChannel {
+    "Raised on a form in the portal — the employee desk or the public customer form."
+    PORTAL
+    "Arrived in the support mailbox and was imported."
+    EMAIL
+    "Typed into the console by an agent, usually off a call."
+    AGENT
+  }
+
   "How a ticket stands against the resolution time promised for its priority."
   enum SlaState {
     ON_TRACK
@@ -41,6 +51,8 @@ export const supportTypeDefs = gql`
   extend type SupportTicket {
     "EMPLOYEE for every ticket raised in the portal; CLIENT for the public customer form."
     requesterType: SupportRequester!
+    "How it reached the desk. PORTAL for everything raised before the mailbox existed."
+    channel: TicketChannel!
     "Quotable handle (EXY-4KQ7W2) so a customer can follow the ticket without an account."
     reference: String!
     "Set only when the customer's address matched a client on file."
@@ -164,7 +176,11 @@ export const supportTypeDefs = gql`
     "SUPPORT/ADMIN: move a ticket through its lifecycle."
     setSupportTicketStatus(id: ID!, status: SupportStatus!): SupportTicket!
     "SUPPORT/ADMIN: re-triage a ticket — the team it belongs to and how urgent it is."
-    setSupportTicketTriage(id: ID!, category: SupportCategory!, priority: SupportPriority!): SupportTicket!
+    setSupportTicketTriage(
+      id: ID!
+      category: SupportCategory!
+      priority: SupportPriority!
+    ): SupportTicket!
     "SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it."
     assignSupportTicket(id: ID!, assigneeId: String!): SupportTicket!
     "SUPPORT/ADMIN: reply on a ticket, or leave an internal note."

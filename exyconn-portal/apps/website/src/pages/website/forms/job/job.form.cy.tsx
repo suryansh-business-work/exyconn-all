@@ -6,6 +6,9 @@ import { NotificationProvider } from '@exyconn/shell/components/feedback/Notific
 import { theme } from '@exyconn/shell/config/theme';
 
 const COMPANY = {
+  // Apollo 3.14's MockedProvider ignores `addTypename={false}`, so a mock result
+  // without __typename no longer satisfies the query and the select stays empty.
+  __typename: 'JobCompany',
   id: 'company-1',
   companyCode: 'EXY',
   slug: 'exyconn',
@@ -24,7 +27,13 @@ const COMPANY = {
   isActive: true,
   order: 0,
   benefits: [],
-  socialLinks: { linkedin: '', twitter: '', facebook: '', instagram: '' },
+  socialLinks: {
+    __typename: 'JobCompanySocialLinks',
+    linkedin: '',
+    twitter: '',
+    facebook: '',
+    instagram: '',
+  },
 };
 
 const NEW_JOB = {

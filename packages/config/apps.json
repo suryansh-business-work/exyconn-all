@@ -95,6 +95,12 @@
     "title": "IT · Exyconn Track",
     "description": "Exyconn Track — IT module."
   },
+  "social": {
+    "subdomain": "social",
+    "port": 4036,
+    "title": "Social · Exyconn Track",
+    "description": "Exyconn Track — the internal employee feed."
+  },
   "status": {
     "subdomain": "status",
     "port": 4035,

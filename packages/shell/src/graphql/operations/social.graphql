@@ -1,0 +1,117 @@
+fragment SocialAuthorFields on SocialAuthor {
+  id
+  name
+  email
+  avatarUrl
+  designation
+  department
+}
+
+fragment SocialPostFields on SocialPost {
+  id
+  body
+  imageUrl
+  likeCount
+  commentCount
+  shareCount
+  likedByMe
+  canDelete
+  createdAt
+  author {
+    ...SocialAuthorFields
+  }
+  sharedFrom {
+    id
+    body
+    imageUrl
+    createdAt
+    author {
+      ...SocialAuthorFields
+    }
+  }
+}
+
+fragment SocialCommentFields on SocialComment {
+  id
+  postId
+  body
+  createdAt
+  canDelete
+  author {
+    ...SocialAuthorFields
+  }
+}
+
+query SocialFeed($limit: Int, $cursor: ID) {
+  socialFeed(limit: $limit, cursor: $cursor) {
+    nextCursor
+    posts {
+      ...SocialPostFields
+    }
+  }
+}
+
+query SocialPost($id: ID!) {
+  socialPost(id: $id) {
+    ...SocialPostFields
+  }
+}
+
+query SocialUserPosts($userId: ID!, $limit: Int, $cursor: ID) {
+  socialUserPosts(userId: $userId, limit: $limit, cursor: $cursor) {
+    nextCursor
+    posts {
+      ...SocialPostFields
+    }
+  }
+}
+
+query SocialProfile($userId: ID!) {
+  socialProfile(userId: $userId) {
+    brief
+    joinDate
+    postCount
+    likesReceived
+    user {
+      ...SocialAuthorFields
+    }
+  }
+}
+
+query SocialComments($postId: ID!) {
+  socialComments(postId: $postId) {
+    ...SocialCommentFields
+  }
+}
+
+mutation CreateSocialPost($input: SocialPostInput!) {
+  createSocialPost(input: $input) {
+    ...SocialPostFields
+  }
+}
+
+mutation DeleteSocialPost($id: ID!) {
+  deleteSocialPost(id: $id)
+}
+
+mutation ToggleSocialPostLike($id: ID!) {
+  toggleSocialPostLike(id: $id) {
+    ...SocialPostFields
+  }
+}
+
+mutation ShareSocialPost($id: ID!, $body: String) {
+  shareSocialPost(id: $id, body: $body) {
+    ...SocialPostFields
+  }
+}
+
+mutation CreateSocialComment($postId: ID!, $body: String!) {
+  createSocialComment(postId: $postId, body: $body) {
+    ...SocialCommentFields
+  }
+}
+
+mutation DeleteSocialComment($id: ID!) {
+  deleteSocialComment(id: $id)
+}

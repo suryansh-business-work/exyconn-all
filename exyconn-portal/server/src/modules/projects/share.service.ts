@@ -101,7 +101,12 @@ export const shareService = {
    * Issues a link. The token is returned here and nowhere else — only its hash is stored —
    * so the caller must show it to the person creating the share straight away.
    */
-  async createShare(projectId: string, label: string, expiresInDays: number, createdByName: string) {
+  async createShare(
+    projectId: string,
+    label: string,
+    expiresInDays: number,
+    createdByName: string,
+  ) {
     if (expiresInDays < 1 || expiresInDays > MAX_EXPIRY_DAYS) {
       badRequest(`A share must expire between 1 and ${MAX_EXPIRY_DAYS} days from now`);
     }

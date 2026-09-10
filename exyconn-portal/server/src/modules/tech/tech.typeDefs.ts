@@ -15,6 +15,24 @@ export const techTypeDefs = gql`
     updatedAt: DateTime!
   }
 
+  "The mailbox the support desk reads. The password is write-only and never returned."
+  type InboundMailConfig {
+    id: ID!
+    label: String!
+    host: String!
+    port: Int!
+    secure: Boolean!
+    user: String!
+    mailbox: String!
+    "How long the poller waits between rounds."
+    pollSeconds: Int!
+    "Whether an imported message is removed from the mailbox rather than only marked seen."
+    deleteAfterImport: Boolean!
+    isActive: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
   type ImageConfig {
     id: ID!
     label: String!
@@ -127,6 +145,20 @@ export const techTypeDefs = gql`
     isActive: Boolean
   }
 
+  input InboundMailConfigInput {
+    label: String!
+    host: String!
+    port: Int!
+    secure: Boolean!
+    user: String!
+    "Write-only. Leave empty when editing to keep the stored password."
+    password: String!
+    mailbox: String!
+    pollSeconds: Int!
+    deleteAfterImport: Boolean!
+    isActive: Boolean
+  }
+
   input ImageConfigInput {
     label: String!
     provider: String
@@ -182,6 +214,7 @@ export const techTypeDefs = gql`
 
   extend type Query {
     listEmailConfigs: [EmailConfig!]!
+    listInboundMailConfigs: [InboundMailConfig!]!
     listImageConfigs: [ImageConfig!]!
     listSlackConfigs: [SlackConfig!]!
     listGithubConfigs: [GithubConfig!]!
@@ -201,6 +234,11 @@ export const techTypeDefs = gql`
     createEmailConfig(input: EmailConfigInput!): EmailConfig!
     updateEmailConfig(id: ID!, input: EmailConfigInput!): EmailConfig!
     deleteEmailConfig(id: ID!): Boolean!
+    createInboundMailConfig(input: InboundMailConfigInput!): InboundMailConfig!
+    updateInboundMailConfig(id: ID!, input: InboundMailConfigInput!): InboundMailConfig!
+    deleteInboundMailConfig(id: ID!): Boolean!
+    "Signs in and opens the mailbox, so credentials are checked before the poller relies on them."
+    testInboundMailConnection(id: ID!): Boolean!
     createImageConfig(input: ImageConfigInput!): ImageConfig!
     updateImageConfig(id: ID!, input: ImageConfigInput!): ImageConfig!
     deleteImageConfig(id: ID!): Boolean!

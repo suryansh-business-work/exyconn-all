@@ -1,4 +1,5 @@
 import { EmailConfigModel } from './email-config.model';
+import { InboundMailConfigModel } from './inbound-mail-config.model';
 import { ImageConfigModel } from './image-config.model';
 import { SlackConfigModel } from './slack-config.model';
 import { GithubConfigModel } from './github-config.model';
@@ -11,6 +12,7 @@ import { imageUploader } from '../../utils/imagekit';
 import { slackNotifier } from '../../utils/slack';
 import { githubActions } from '../../utils/github';
 import { pexelsClient, type PexelsSearchFilters } from '../../utils/pexels';
+import { inboundMailbox } from '../../utils/inboundMail';
 import { openAiClient } from '../../utils/openai';
 
 export interface EmailConfigInput {
@@ -21,6 +23,23 @@ export interface EmailConfigInput {
   username: string;
   password: string;
   fromAddress: string;
+  isActive?: boolean;
+}
+
+/**
+ * The support mailbox. `password` is write-only: it is never returned by the API, so an
+ * empty one on an update means "keep the stored password" rather than "clear it".
+ */
+export interface InboundMailConfigInput {
+  label: string;
+  host: string;
+  port: number;
+  secure: boolean;
+  user: string;
+  password: string;
+  mailbox: string;
+  pollSeconds: number;
+  deleteAfterImport: boolean;
   isActive?: boolean;
 }
 
@@ -105,6 +124,45 @@ class TechService {
     const config = await EmailConfigModel.findById(id);
     if (!config) notFound('Email config');
     await mailer.sendTestEmail(config, to);
+    return true;
+  }
+
+  listInboundMailConfigs() {
+    return InboundMailConfigModel.find().sort({ createdAt: -1 }).lean();
+  }
+
+  async createInboundMailConfig(input: InboundMailConfigInput) {
+    if (!input.password) {
+      badRequest('A mailbox password is required.');
+    }
+    if (input.isActive) await InboundMailConfigModel.updateMany({}, { isActive: false });
+    return (await InboundMailConfigModel.create(input)).toObject();
+  }
+
+  async updateInboundMailConfig(id: string, input: InboundMailConfigInput) {
+    if (input.isActive) {
+      await InboundMailConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
+    }
+    // The password never reaches the browser, so the form cannot send it back: an empty
+    // one leaves the stored password alone rather than locking the desk out of its mailbox.
+    const { password, ...rest } = input;
+    const update = password ? input : rest;
+    const doc = await InboundMailConfigModel.findByIdAndUpdate(id, update, { new: true }).lean();
+    if (!doc) notFound('Inbound mail config');
+    return doc;
+  }
+
+  async deleteInboundMailConfig(id: string) {
+    const doc = await InboundMailConfigModel.findByIdAndDelete(id).lean();
+    if (!doc) notFound('Inbound mail config');
+    return true;
+  }
+
+  /** Signs in and opens the mailbox through a specific config to validate it. */
+  async testInboundMailConnection(id: string) {
+    const config = await InboundMailConfigModel.findById(id).lean();
+    if (!config) notFound('Inbound mail config');
+    await inboundMailbox.verify(config);
     return true;
   }
 

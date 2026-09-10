@@ -9,6 +9,25 @@ import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
  * their salary structure, so nobody without a recorded rate is taxed on a guess.
  */
 export const TDS_MODES = ['NONE', 'FLAT_PERCENT', 'SLAB'] as const;
+
+/**
+ * The regime SLAB mode reaches for, and the month a financial year opens in, until HR says
+ * otherwise. Exported because `.lean()` skips Mongoose defaults: a settings document written
+ * before the tax table existed comes back without these fields and every reader has to land
+ * on the same two values the schema would have given it.
+ */
+export const DEFAULT_TDS_REGIME_KEY = 'NEW';
+export const DEFAULT_FINANCIAL_YEAR_START_MONTH = 4;
+
+/** One band of the TDS table. `upTo` is null for the open-ended top band. */
+const tdsSlabSchema = new Schema(
+  {
+    /** Income up to and including this is taxed at `percent`. Null means "everything above". */
+    upTo: { type: Number, default: null },
+    percent: { type: Number, required: true, min: 0, max: 100 },
+  },
+  { _id: false },
+);
 export type TdsMode = (typeof TDS_MODES)[number];
 
 /**
@@ -34,14 +53,43 @@ const payrollSettingsSchema = new Schema(
     professionalTaxMonthly: { type: Number, required: true, min: 0, default: 200 },
     tdsMode: { type: String, enum: TDS_MODES, required: true, default: 'NONE' },
     tdsFlatPercent: { type: Number, required: true, min: 0, max: 100, default: 0 },
+    /**
+     * The slab table SLAB mode applies, entered by whoever knows the current finance act.
+     *
+     * Empty by default and deliberately so: an unconfigured portal withholds nothing rather
+     * than taxing somebody at a rate this repository invented.
+     */
+    tdsSlabs: { type: [tdsSlabSchema], default: [] },
+    /** Deducted from annual taxable pay before the slabs are applied. */
+    tdsAnnualExemption: { type: Number, required: true, min: 0, default: 0 },
+    /** Charged on the TAX, not on the income. 0 where the jurisdiction has none. */
+    tdsCessPercent: { type: Number, required: true, min: 0, max: 100, default: 0 },
+    /**
+     * Which regime in the `TaxRegime` table SLAB mode applies — the key, not the year: the
+     * year comes from the period being run, so nobody has to roll this over every April.
+     */
+    tdsRegimeKey: { type: String, required: true, trim: true, default: DEFAULT_TDS_REGIME_KEY },
+    /**
+     * The month a financial year opens in, 1-12. April in India, which is what the seeded
+     * table is written for; a workspace on a calendar tax year sets it to 1.
+     */
+    financialYearStartMonth: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 12,
+      default: DEFAULT_FINANCIAL_YEAR_START_MONTH,
+    },
   },
   { timestamps: true },
 );
 
 export type PayrollSettingsDocument = InferSchemaType<typeof payrollSettingsSchema>;
 
-export const PayrollSettingsModel: Model<PayrollSettingsDocument> =
-  model<PayrollSettingsDocument>('PayrollSettings', payrollSettingsSchema);
+export const PayrollSettingsModel: Model<PayrollSettingsDocument> = model<PayrollSettingsDocument>(
+  'PayrollSettings',
+  payrollSettingsSchema,
+);
 
 /** The settings document, created with its defaults on first read. */
 export async function readPayrollSettings(): Promise<PayrollSettingsDocument> {

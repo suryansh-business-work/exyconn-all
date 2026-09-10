@@ -4,6 +4,12 @@ import { NotificationProvider } from '@exyconn/shell/components/feedback/Notific
 import { theme } from '@exyconn/shell/config/theme';
 import { AudienceListForm } from './audience-list.form';
 
+/** Opens a MUI Select and picks an option — the listbox is a portal, not the label. */
+const choose = (name: string, option: string) => {
+  cy.get(`input[name="${name}"]`).parent().find('[role="combobox"]').click();
+  cy.get('ul[role="listbox"]').contains('li', option).click();
+};
+
 const mount = () =>
   cy.mount(
     <MockedProvider mocks={[]} addTypename={false}>
@@ -32,15 +38,13 @@ describe('AudienceListForm', () => {
   it('asks for the account status only once that segment rule is chosen', () => {
     mount();
     cy.contains('label', 'Account status').should('not.exist');
-    cy.contains('label', 'Segment rule').click();
-    cy.contains('li', 'Contacts By Company Status').click();
+    choose('dynamicSegment', 'Contacts By Company Status');
     cy.contains('label', 'Account status').should('be.visible');
   });
 
   it('accepts a segment rule instead of naming anybody', () => {
     mount();
-    cy.contains('label', 'Segment rule').click();
-    cy.contains('li', 'All Active Contacts').click();
+    choose('dynamicSegment', 'All Active Contacts');
     cy.contains('button', 'Create').click();
     cy.contains('Pick some people, or choose a segment rule').should('not.exist');
   });

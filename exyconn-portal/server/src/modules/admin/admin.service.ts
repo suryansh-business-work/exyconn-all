@@ -37,6 +37,21 @@ const USER_TABLE_CONFIG: TableConfig = {
 const USER_STATS_CONFIG: StatsConfig = { countBy: ['isActive'], unwindCountBy: ['roles'] };
 
 /**
+ * How many links up a reporting chain the cycle guard follows before it gives up.
+ *
+ * A chain deeper than this is not an organisation, it is a loop written before this guard
+ * existed. The bound — with the visited set below — is what stops the walk following such a
+ * chain forever and hanging the request that triggered it.
+ */
+const MAX_REPORTING_DEPTH = 64;
+
+/** Just enough of a user to follow one link of the reporting chain and name whose it is. */
+interface ChainLink {
+  name: string;
+  managerId?: string | null;
+}
+
+/**
  * Stops a non-ADMIN from handing out — or taking — the ADMIN role.
  *
  * HR creates and edits employees, which is the whole point of one shared user database. But
@@ -240,13 +255,67 @@ class AdminService {
     return { user, password: tempPassword };
   }
 
-  /** A manager must be a real account, and never the person themself. */
+  /**
+   * A manager must be a real account, never the person themself, and never somebody who
+   * already reports to them.
+   *
+   * The cycle walk only runs on an update, because that is the only path with an employee
+   * whose reports already exist — a user being created has none, so nothing can point back
+   * at them yet.
+   */
   async assertManagerExists(managerId: string, selfId?: string) {
     if (managerId === selfId) badRequest('An employee cannot report to themself');
     const manager = isValidObjectId(managerId)
       ? await UserModel.findById(managerId).select('_id').lean()
       : null;
     if (!manager) badRequest('The selected manager does not exist');
+    if (selfId) await this.assertNoReportingCycle(selfId, managerId);
+  }
+
+  /**
+   * Refuses a manager who already reports to this employee, however far up the chain.
+   *
+   * `assertManagerExists` catches only the one-step case, so A reports to B reports to C
+   * reports to A is accepted without this — and every walk of the reporting line after it
+   * (the org chart, a manager's team queues, `directReportIds`) is then walking a loop.
+   *
+   * The walk climbs from the PROPOSED manager and stops the moment it meets the employee,
+   * which is what lets the refusal name the people in the loop rather than say "invalid".
+   * It is bounded twice — a visited set and a depth limit — so a cycle already in the
+   * database, written before this guard existed, ends the walk instead of spinning on it.
+   */
+  private async assertNoReportingCycle(employeeId: string, managerId: string): Promise<void> {
+    const chain: string[] = [];
+    const visited = new Set<string>();
+    let current: string | null = managerId;
+
+    for (let step = 0; current && step < MAX_REPORTING_DEPTH; step += 1) {
+      if (!isValidObjectId(current) || visited.has(current)) {
+        return;
+      }
+      visited.add(current);
+      const link: ChainLink | null = await UserModel.findById(current)
+        .select('name managerId')
+        .lean();
+      if (!link) {
+        return;
+      }
+      chain.push(link.name);
+      if (link.managerId === employeeId) {
+        await this.refuseReportingCycle(employeeId, chain);
+      }
+      current = link.managerId ?? null;
+    }
+  }
+
+  /** The refusal, naming everybody in the loop in the order they report through it. */
+  private async refuseReportingCycle(employeeId: string, chain: readonly string[]): Promise<never> {
+    const employee = await UserModel.findById(employeeId).select('name').lean();
+    const name = employee?.name ?? 'This employee';
+    const loop = [name, ...chain, name].join(' → ');
+    return badRequest(
+      `This would create a reporting loop: ${loop}. Change one of those reporting lines first.`,
+    );
   }
 
   async updateUser(id: string, input: UpdateUserInput) {

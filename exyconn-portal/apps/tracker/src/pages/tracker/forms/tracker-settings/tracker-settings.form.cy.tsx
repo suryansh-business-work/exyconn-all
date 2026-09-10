@@ -121,9 +121,10 @@ describe('TrackerSettingsForm', () => {
 
   it("offers the device's own timezone as an explicit option", () => {
     mount();
-    timezoneInput().clear();
-    timezoneInput().type('own timezone');
-    cy.contains('li', "Use each device's own timezone").click();
+    // The device option is the first entry, so opening the list is enough — typing to
+    // filter does not reliably open a MUI Autocomplete that already has a value.
+    timezoneInput().click();
+    cy.get('ul[role="listbox"]').contains('li', "Use each device's own timezone").click();
     timezoneInput().should('have.value', "Use each device's own timezone");
   });
 });

@@ -27,7 +27,10 @@ interface OnboardingTemplateInput {
 }
 
 const templateCrud = createCrudResolvers(
-  createCrudService<OnboardingTemplateInput>(OnboardingTemplateModel as never, 'OnboardingTemplate'),
+  createCrudService<OnboardingTemplateInput>(
+    OnboardingTemplateModel as never,
+    'OnboardingTemplate',
+  ),
   {
     name: 'OnboardingTemplate',
     roles: [ROLES.HR],
@@ -46,7 +49,10 @@ const templateCrud = createCrudResolvers(
  * `startOnboarding` and changed one item at a time, so a generic create or update would be
  * a second, unguarded way to write the same record.
  */
-const checklistService = createCrudService<never>(OnboardingChecklistModel as never, 'OnboardingChecklist');
+const checklistService = createCrudService<never>(
+  OnboardingChecklistModel as never,
+  'OnboardingChecklist',
+);
 
 const CHECKLIST_TABLE = {
   searchFields: ['employeeName', 'templateName'],
@@ -95,7 +101,9 @@ export const onboardingResolvers = {
       ctx: GraphQLContext,
     ) =>
       withId(
-        (await setOnboardingItem(args.checklistId, args.key, args.done, args.notes, ctx)).toObject(),
+        (
+          await setOnboardingItem(args.checklistId, args.key, args.done, args.notes, ctx)
+        ).toObject(),
       ),
     deleteOnboardingChecklist: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       assertRole(ctx, hrOnly);

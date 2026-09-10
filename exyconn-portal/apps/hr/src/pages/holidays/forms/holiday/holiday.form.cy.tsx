@@ -22,8 +22,8 @@ describe('HolidayForm', () => {
   it('validates the required fields', () => {
     mount();
     cy.contains('button', 'Create').click();
-    cy.contains('Employee is required').should('be.visible');
     cy.contains('Name is required').should('be.visible');
+    cy.contains('Date is required').should('be.visible');
   });
 
   it('calls onCancel', () => {

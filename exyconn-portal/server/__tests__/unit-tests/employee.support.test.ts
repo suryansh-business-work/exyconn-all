@@ -9,7 +9,9 @@ const myReplies = employeeResolvers.Query.mySupportReplies as unknown as Resolve
 const addReply = employeeResolvers.Mutation.addMySupportReply as unknown as Resolver;
 
 const asEmployee = (id: string) =>
-  ({ user: { id, email: `${id}@exyconn.com`, roles: [ROLES.EMPLOYEE] } }) as unknown as GraphQLContext;
+  ({
+    user: { id, email: `${id}@exyconn.com`, roles: [ROLES.EMPLOYEE] },
+  }) as unknown as GraphQLContext;
 
 const ME = '65b000000000000000000001';
 const SOMEONE_ELSE = '65b000000000000000000002';
@@ -41,9 +43,9 @@ describe('mySupportReplies', () => {
   it('refuses another employee’s ticket', async () => {
     const ticket = await ticketFor(SOMEONE_ELSE);
 
-    await expect(
-      myReplies(null, { ticketId: String(ticket._id) }, asEmployee(ME)),
-    ).rejects.toThrow('SupportTicket not found');
+    await expect(myReplies(null, { ticketId: String(ticket._id) }, asEmployee(ME))).rejects.toThrow(
+      'SupportTicket not found',
+    );
   });
 });
 

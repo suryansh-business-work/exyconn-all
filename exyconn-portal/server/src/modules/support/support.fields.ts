@@ -4,6 +4,7 @@ import type { Attachment } from './attachment.schema';
 interface TicketRow {
   createdAt: Date;
   requesterType?: string | null;
+  channel?: string | null;
   reference?: string | null;
   clientId?: string | null;
   clientName?: string | null;
@@ -24,6 +25,7 @@ interface TicketRow {
  */
 export const supportTicketFields = {
   requesterType: (ticket: TicketRow) => ticket.requesterType ?? 'EMPLOYEE',
+  channel: (ticket: TicketRow) => ticket.channel ?? 'PORTAL',
   reference: (ticket: TicketRow) => ticket.reference ?? '',
   clientId: (ticket: TicketRow) => ticket.clientId ?? '',
   clientName: (ticket: TicketRow) => ticket.clientName ?? '',

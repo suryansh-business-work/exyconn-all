@@ -140,11 +140,7 @@ export const boardTypeDefs = gql`
     deleteTask(id: ID!): Boolean!
     moveTask(id: ID!, toColumnId: ID!, toIndex: Int!): Boolean!
 
-    addTaskComment(
-      taskId: ID!
-      body: String!
-      attachments: [TaskAttachmentInput!]
-    ): TaskComment!
+    addTaskComment(taskId: ID!, body: String!, attachments: [TaskAttachmentInput!]): TaskComment!
     deleteTaskComment(id: ID!): Boolean!
   }
 `;

@@ -14,4 +14,8 @@ export interface PayrollSettingsFormValues {
   professionalTaxMonthly: number;
   tdsMode: TdsMode;
   tdsFlatPercent: number;
+  /** Which regime in the tax-slab table SLAB mode applies. */
+  tdsRegimeKey: string;
+  /** The month a financial year opens in, 1-12. */
+  financialYearStartMonth: number;
 }

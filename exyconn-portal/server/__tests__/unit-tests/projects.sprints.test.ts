@@ -51,9 +51,9 @@ describe('sprints', () => {
     const two = await sprint(ctx, created.id, 'Sprint 2');
     await sprintsResolvers.Mutation.startSprint(null, { id: one.id }, ctx);
 
-    await expect(
-      sprintsResolvers.Mutation.startSprint(null, { id: two.id }, ctx),
-    ).rejects.toThrow(/already has a sprint running/);
+    await expect(sprintsResolvers.Mutation.startSprint(null, { id: two.id }, ctx)).rejects.toThrow(
+      /already has a sprint running/,
+    );
   });
 
   it('refuses to start a sprint that is already complete', async () => {
@@ -63,9 +63,9 @@ describe('sprints', () => {
     await sprintsResolvers.Mutation.startSprint(null, { id: one.id }, ctx);
     await sprintsResolvers.Mutation.completeSprint(null, { id: one.id }, ctx);
 
-    await expect(
-      sprintsResolvers.Mutation.startSprint(null, { id: one.id }, ctx),
-    ).rejects.toThrow(/Only a planned sprint/);
+    await expect(sprintsResolvers.Mutation.startSprint(null, { id: one.id }, ctx)).rejects.toThrow(
+      /Only a planned sprint/,
+    );
   });
 });
 
@@ -147,7 +147,11 @@ describe('epics', () => {
     const { todo } = await boardOf(ctx, created.id);
     const epic = await boardResolvers.Mutation.createTask(
       null,
-      { projectId: created.id, columnId: todo.id, input: { title: 'Billing rewrite', type: 'EPIC' } },
+      {
+        projectId: created.id,
+        columnId: todo.id,
+        input: { title: 'Billing rewrite', type: 'EPIC' },
+      },
       ctx,
     );
     const child = await ticket(ctx, created.id, todo.id, 'Invoice PDF');
@@ -183,14 +187,18 @@ describe('epics', () => {
     const { todo } = await boardOf(ctx, created.id);
     const one = await ticket(ctx, created.id, todo.id, 'Invoice PDF');
 
-    await expect(
-      sprintsService.setTaskParent(one.id, one.id),
-    ).rejects.toThrow(/cannot be its own epic/);
+    await expect(sprintsService.setTaskParent(one.id, one.id)).rejects.toThrow(
+      /cannot be its own epic/,
+    );
   });
 });
 
 describe('attachments', () => {
-  const file = { url: 'https://ik.example/spec.pdf', name: 'spec.pdf', contentType: 'application/pdf' };
+  const file = {
+    url: 'https://ik.example/spec.pdf',
+    name: 'spec.pdf',
+    contentType: 'application/pdf',
+  };
 
   it('stamps the uploader from the caller, never from the client', async () => {
     const ctx = asProjects((await lead()).id);

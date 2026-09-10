@@ -24,9 +24,11 @@ describe('ImageConfigForm', () => {
     cy.contains('Private key is required').should('be.visible');
   });
 
+  // RHF validates on submit, so typing alone shows nothing until the first submit.
   it('validates the URL endpoint', () => {
     mount();
     cy.get('input[name="urlEndpoint"]').type('not-a-url');
+    cy.contains('button', 'Create').click();
     cy.contains('Enter a valid URL').should('be.visible');
   });
 

@@ -16,6 +16,7 @@ fragment BrandingFields on Branding {
   backgroundColor
   textColor
   supportEmail
+  hrEmail
   contactPhone
   websiteUrl
   address

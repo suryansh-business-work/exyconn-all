@@ -15,6 +15,9 @@ const categoriesMock: MockedResponse = {
     data: {
       listToolCategories: [
         {
+          // Apollo 3.14's MockedProvider ignores `addTypename={false}`, so a mock
+          // result without __typename no longer satisfies the query.
+          __typename: 'ToolCategory',
           id: 'cat-1',
           slug: CATEGORY.slug,
           category: CATEGORY.category,
@@ -83,8 +86,9 @@ describe('ToolForm', () => {
   it('submits a new tool with a category loaded from the categories query', () => {
     mount([categoriesMock, createMock]);
     cy.get('input[name="toolCode"]').type(NEW_TOOL.toolCode);
-    cy.get('#mui-component-select-categorySlug').click();
-    cy.get(`li[data-value="${CATEGORY.slug}"]`).click();
+    // The listbox is a portal, so open the combobox and pick from it by role.
+    cy.get('input[name="categorySlug"]').parent().find('[role="combobox"]').click();
+    cy.get('ul[role="listbox"]').find(`li[data-value="${CATEGORY.slug}"]`).click();
     cy.get('input[name="name"]').type(NEW_TOOL.name);
     cy.contains('button', 'Create').click();
     cy.contains('Tool created').should('be.visible');

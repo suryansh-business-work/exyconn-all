@@ -19,8 +19,7 @@ const setLeaveStatus = hrResolvers.Mutation.setLeaveStatus as unknown as Resolve
 const teamLeaveRequests = hrResolvers.Query.teamLeaveRequests as unknown as Resolver;
 const decideRequest = requestsResolvers.Mutation.decideEmployeeRequest as unknown as Resolver;
 const teamRequests = requestsResolvers.Query.teamRequests as unknown as Resolver;
-const submitManager = performanceResolvers.Mutation
-  .submitManagerAssessment as unknown as Resolver;
+const submitManager = performanceResolvers.Mutation.submitManagerAssessment as unknown as Resolver;
 const teamReviews = performanceResolvers.Query.teamPerformanceReviews as unknown as Resolver;
 const commentOnTeamGoal = goalsResolvers.Mutation.commentOnTeamGoal as unknown as Resolver;
 const myDirectReports = reportingResolvers.Query.myDirectReports as unknown as Resolver;

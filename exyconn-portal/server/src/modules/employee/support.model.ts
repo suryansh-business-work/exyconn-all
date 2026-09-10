@@ -9,6 +9,10 @@ export const SUPPORT_PRIORITIES = ['LOW', 'MEDIUM', 'HIGH'] as const;
 export const SUPPORT_STATUSES = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const;
 /** Who raised it: somebody who works here, or a customer off the public form. */
 export const SUPPORT_REQUESTERS = ['EMPLOYEE', 'CLIENT'] as const;
+/** How it reached the desk: a portal form, the support mailbox, or an agent typing it in. */
+export const SUPPORT_CHANNELS = ['PORTAL', 'EMAIL', 'AGENT'] as const;
+/** Mirrors the GraphQL `TicketChannel` enum. */
+export type TicketChannel = (typeof SUPPORT_CHANNELS)[number];
 /** The statuses that count as "the ticket is done". */
 export const SUPPORT_CLOSED_STATUSES: ReadonlySet<string> = new Set(['RESOLVED', 'CLOSED']);
 
@@ -24,6 +28,8 @@ const supportTicketSchema = new Schema(
     /** Empty on a customer ticket — nobody here raised it. */
     employeeId: { type: String, default: '', trim: true },
     requesterType: { type: String, enum: SUPPORT_REQUESTERS, required: true, default: 'EMPLOYEE' },
+    /** How it arrived. PORTAL is the default because every ticket used to come that way. */
+    channel: { type: String, enum: SUPPORT_CHANNELS, required: true, default: 'PORTAL' },
     /** Quotable handle (`EXY-4KQ7W2`) so a ticket can be followed without an account. */
     reference: { type: String, default: '', trim: true, index: true },
     /** Set only when the requester's address matched a client on file. */

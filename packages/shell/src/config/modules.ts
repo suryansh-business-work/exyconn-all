@@ -75,12 +75,15 @@ import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import DevicesIcon from '@mui/icons-material/Devices';
 import DownloadIcon from '@mui/icons-material/Download';
 import TuneIcon from '@mui/icons-material/Tune';
+import PercentIcon from '@mui/icons-material/Percent';
 import TranslateIcon from '@mui/icons-material/Translate';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import DnsIcon from '@mui/icons-material/Dns';
 import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import PaletteIcon from '@mui/icons-material/Palette';
+import ForumIcon from '@mui/icons-material/Forum';
+import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import { ROLES, type Role } from '@/auth/roles';
 import { appUrl, type PortalAppKey } from './apps';
 
@@ -398,6 +401,12 @@ export const MODULES: ModuleDefinition[] = [
         path: '/hr/payroll-settings',
         icon: TuneIcon,
       },
+      {
+        key: 'hr-tax-slabs',
+        label: 'Tax Slabs',
+        path: '/hr/tax-slabs',
+        icon: PercentIcon,
+      },
       { key: 'hr-notify', label: 'Send Notification', path: '/hr/notify', icon: NotificationsIcon },
       { key: 'hr-reports', label: 'Reports', path: '/hr/reports', icon: AssessmentIcon },
       { key: 'hr-holidays', label: 'Holidays', path: '/hr/holidays', icon: CelebrationIcon },
@@ -709,6 +718,21 @@ export const MODULES: ModuleDefinition[] = [
       { key: 'it-overview', label: 'Overview', path: '/it', icon: DashboardIcon },
       { key: 'it-assets', label: 'Assets', path: '/it/assets', icon: InventoryIcon },
       { key: 'it-licences', label: 'Licences', path: '/it/licences', icon: VpnKeyIcon },
+    ],
+  },
+  {
+    // Everyone's, deliberately: this one is keyed to EMPLOYEE rather than a role of its
+    // own, because a company feed half the company cannot open is a noticeboard.
+    key: 'social',
+    label: 'Social',
+    path: '/social',
+    role: ROLES.EMPLOYEE,
+    icon: ForumIcon,
+    description: 'The internal employee feed',
+    accent: '#7c3aed',
+    children: [
+      { key: 'social-feed', label: 'Feed', path: '/social', icon: DynamicFeedIcon },
+      { key: 'social-profile', label: 'My Profile', path: '/social/me', icon: PersonIcon },
     ],
   },
 ];

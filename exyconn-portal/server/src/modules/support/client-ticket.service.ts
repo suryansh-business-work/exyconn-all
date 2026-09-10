@@ -1,6 +1,7 @@
 import { ClientModel } from '../clients/clients.model';
-import { SupportTicketModel } from '../employee/support.model';
+import { SupportTicketModel, type TicketChannel } from '../employee/support.model';
 import { SupportReplyModel } from './support-reply.model';
+import type { Attachment } from './attachment.schema';
 import { dueAtForPriority } from './sla.service';
 import { uniqueReference } from './ticket-reference';
 import { badRequest } from '../../utils/errors';
@@ -87,6 +88,37 @@ async function resolveClient(email: string): Promise<{ id: string; name: string 
 }
 
 /**
+ * Files a customer ticket: the client book is searched for the address, a reference is
+ * minted and the SLA clock is started.
+ *
+ * Every route a customer ticket can arrive by goes through here — the public form, an
+ * agent raising one in the console, a mail landing in the support mailbox — so a ticket
+ * is attributed, referenced and measured the same way whichever door it came in at. What
+ * differs per route (validating a web form, rate-limiting the internet) stays outside it.
+ */
+export async function fileClientTicket(
+  input: ClientSupportTicketInput,
+  channel: TicketChannel,
+  attachments: Attachment[] = [],
+) {
+  const client = await resolveClient(input.requesterEmail);
+  const createdAt = new Date();
+  const ticket = await SupportTicketModel.create({
+    ...input,
+    requesterType: 'CLIENT',
+    channel,
+    reference: await uniqueReference(),
+    clientId: client?.id ?? '',
+    clientName: client?.name ?? '',
+    status: 'OPEN',
+    attachments,
+    dueAt: await dueAtForPriority(input.priority, createdAt),
+  });
+  logger.info(`Support ticket ${ticket.reference} raised by ${input.requesterEmail} (${channel})`);
+  return ticket;
+}
+
+/**
  * Files a ticket raised from the public customer form and hands back only its reference.
  *
  * Unauthenticated by design, so nothing about the requester is trusted: the address is
@@ -94,25 +126,17 @@ async function resolveClient(email: string): Promise<{ id: string; name: string 
  * all the caller learns — it can never be used to read somebody else's ticket without
  * the matching address.
  */
-export async function createClientSupportTicket(raw: ClientSupportTicketInput): Promise<string> {
+export async function createClientSupportTicket(
+  raw: ClientSupportTicketInput,
+  channel: TicketChannel = 'PORTAL',
+): Promise<string> {
   const input = normalize(raw);
   assertValid(input);
   if (!ticketLimiter.allow(input.requesterEmail)) {
     badRequest('Too many tickets from this address. Try again in an hour.');
   }
 
-  const client = await resolveClient(input.requesterEmail);
-  const createdAt = new Date();
-  const ticket = await SupportTicketModel.create({
-    ...input,
-    requesterType: 'CLIENT',
-    reference: await uniqueReference(),
-    clientId: client?.id ?? '',
-    clientName: client?.name ?? '',
-    status: 'OPEN',
-    dueAt: await dueAtForPriority(input.priority, createdAt),
-  });
-  logger.info(`Support ticket ${ticket.reference} raised by ${input.requesterEmail}`);
+  const ticket = await fileClientTicket(input, channel);
   return ticket.reference;
 }
 

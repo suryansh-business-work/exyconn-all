@@ -1,6 +1,8 @@
 import { portalRequest } from "./client";
 import type {
+  BlogPost,
   Branding,
+  CaseStudy,
   Gig,
   Job,
   JobCompany,
@@ -10,6 +12,15 @@ import type {
   Tool,
   ToolCategory,
 } from "./types";
+
+const BLOG_FIELDS = `
+  id slug title summary content readTime tags coverImage featured publishedAt
+  author { name role initials }
+`;
+
+const CASE_STUDY_FIELDS = `
+  id slug title excerpt content coverImage category author tags pdfUrl featured publishedAt
+`;
 
 const COMPANY_FIELDS = `
   id companyCode slug name logo tagline description culture website founded employees
@@ -47,6 +58,42 @@ const BRANDING_FIELDS = `
   linkedinUrl twitterUrl facebookUrl instagramUrl youtubeUrl githubUrl
   copyrightText
 `;
+
+// ── Blog & case studies ─────────────────────────────────────────────────────
+
+/** Every published blog post, newest first — the portal already applies that order. */
+export async function getBlogPosts(): Promise<BlogPost[]> {
+  const data = await portalRequest<{ publicBlogPosts: BlogPost[] }>(
+    `query { publicBlogPosts { ${BLOG_FIELDS} } }`
+  );
+  return data.publicBlogPosts;
+}
+
+/** One post by slug, or null when the portal has no published post at that address. */
+export async function getBlogPost(slug: string): Promise<BlogPost | null> {
+  const data = await portalRequest<{ publicBlogPost: BlogPost | null }>(
+    `query GetBlogPost($slug: String!) { publicBlogPost(slug: $slug) { ${BLOG_FIELDS} } }`,
+    { slug }
+  );
+  return data.publicBlogPost;
+}
+
+/** Every published case study, newest first. */
+export async function getCaseStudies(): Promise<CaseStudy[]> {
+  const data = await portalRequest<{ publicCaseStudies: CaseStudy[] }>(
+    `query { publicCaseStudies { ${CASE_STUDY_FIELDS} } }`
+  );
+  return data.publicCaseStudies;
+}
+
+/** One case study by slug, or null when the portal has not published one at that address. */
+export async function getCaseStudy(slug: string): Promise<CaseStudy | null> {
+  const data = await portalRequest<{ publicCaseStudy: CaseStudy | null }>(
+    `query GetCaseStudy($slug: String!) { publicCaseStudy(slug: $slug) { ${CASE_STUDY_FIELDS} } }`,
+    { slug }
+  );
+  return data.publicCaseStudy;
+}
 
 // ── Careers ─────────────────────────────────────────────────────────────────
 

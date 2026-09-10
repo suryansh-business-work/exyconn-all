@@ -19,6 +19,7 @@ import { SalariesPage } from './pages/salaries';
 import { PayrollPage } from './pages/payroll';
 import { PayslipSchedulePage } from './pages/payslip-schedule';
 import { PayrollSettingsPage } from './pages/payroll-settings';
+import { TaxSlabsPage } from './pages/tax-slabs';
 import { OnboardingPage } from './pages/onboarding';
 import { OnboardingTemplatesPage } from './pages/onboarding-templates';
 import { NotifyPage } from './pages/notify';
@@ -58,6 +59,7 @@ export function App() {
       <Route path="/hr/payroll" element={<PayrollPage />} />
       <Route path="/hr/payslip-schedule" element={<PayslipSchedulePage />} />
       <Route path="/hr/payroll-settings" element={<PayrollSettingsPage />} />
+      <Route path="/hr/tax-slabs" element={<TaxSlabsPage />} />
       <Route path="/hr/onboarding" element={<OnboardingPage />} />
       <Route path="/hr/onboarding-templates" element={<OnboardingTemplatesPage />} />
       <Route path="/hr/notify" element={<NotifyPage />} />

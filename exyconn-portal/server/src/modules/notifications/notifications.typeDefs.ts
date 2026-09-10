@@ -10,6 +10,9 @@ export const notificationsTypeDefs = gql`
     REQUEST
     TRAINING
     ONBOARDING
+    SOCIAL_LIKE
+    SOCIAL_COMMENT
+    SOCIAL_SHARE
     GENERAL
   }
 

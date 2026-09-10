@@ -42,7 +42,11 @@ The server side first — the shared grid only works against a `listXxxPaged` +
 1. **Register the app** in [`packages/config/apps.json`](../../packages/config/apps.json)
    with a free subdomain, a free port (the block is 4020+), a `<title>` and a description.
    The registry test enforces uniqueness.
-2. **Role** — add it to `packages/shell/src/auth/roles.ts` and to the server's role enum.
+2. **Role** — usually a new one, added to `packages/shell/src/auth/roles.ts` AND the
+   server's `src/constants/roles.ts` AND the `Role` enum in `admin.typeDefs.ts`. An app
+   every colleague should reach reuses `EMPLOYEE` instead and skips all three (Social
+   does this); two modules may share a role, since `accessibleModules` filters by
+   membership and `APP_BY_SEGMENT` routes on the first path segment.
 3. **Module entry** — add it to `packages/shell/src/config/modules.ts` (`key` must equal
    the registry key; that is what makes cross-app links resolve).
 4. **Scaffold `exyconn-portal/apps/<key>/`** — copy `apps/crm` and keep these files:
@@ -60,14 +64,27 @@ The server side first — the shared grid only works against a `listXxxPaged` +
 
    Depend on `@exyconn/shell`, `@exyconn/login` and — if it has a CRUD screen —
    `@exyconn/crud`; keep `@exyconn/config` in `devDependencies`.
-5. **Deployment** — these three still mirror the registry by hand:
+5. **Deployment** — seven places still mirror the registry by hand. Miss one and the
+   failure is usually far from the cause, so the list is worth working through in order:
    - `docker/portal-app.Dockerfile` — a `COPY .../package.json` line in the deps layer.
+     Without it pnpm resolves nothing for the filter and the build dies on `tsc: not
+     found` twenty minutes into a deploy. `scripts/check-docker-manifests.mjs` catches it
+     in seconds; run it.
    - `.github/workflows/deploy.yml` — a `matrix.include` entry with `APP_PKG`, `APP_DIR`,
-     `PORT`, `VITE_PORTAL_APP`.
+     `PORT`, `VITE_PORTAL_APP`, **and** the domain in the post-deploy health-check list.
    - `docker-compose.prod.yml` — the service and its `127.0.0.1:<port>:<port>` binding,
-     plus the new origin in the server's `CORS_ORIGIN`.
-   - `deploy/nginx` — the subdomain's server block and certificate.
-6. **Verify** — `pnpm install`, then `pnpm typecheck && pnpm lint && pnpm test && pnpm build`.
+     plus the new origin in the server's `CORS_ORIGIN`. Forgetting the origin gives you an
+     app that loads and then fails every query in the browser, with nothing in the logs.
+   - `deploy/nginx/portal-apps.exyconn.com.conf` — the subdomain's server block.
+   - `deploy/server-setup.sh` — the `DOMAINS` list, so certbot issues the certificate.
+   - `.github/workflows/provision-nginx.yml` — its own URL list; this is the workflow you
+     dispatch once, after the DNS record exists, to install the vhost and issue the cert.
+   - `docs/portal/portals.md` and `DEPLOYMENT.md` — the port/domain/image tables.
+
+   Order matters at the end: deploy.yml health-checks the new domain, so the certificate
+   has to exist *before* the first deploy or the job fails on a domain with no TLS.
+6. **Verify** — `pnpm install`, then `pnpm typecheck && pnpm lint && pnpm test && pnpm build`,
+   plus `node scripts/check-docker-manifests.mjs` and `node scripts/check-workspace-imports.mjs`.
 
 ## Change something shared
 

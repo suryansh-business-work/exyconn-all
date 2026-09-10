@@ -179,6 +179,14 @@ fragment PayrollSettingsFields on PayrollSettings {
   professionalTaxMonthly
   tdsMode
   tdsFlatPercent
+  tdsSlabs {
+    upTo
+    percent
+  }
+  tdsAnnualExemption
+  tdsCessPercent
+  tdsRegimeKey
+  financialYearStartMonth
 }
 
 # The company-wide statutory deduction policy every payslip is worked out from.
@@ -192,4 +200,89 @@ mutation UpdatePayrollSettings($input: PayrollSettingsInput!) {
   updatePayrollSettings(input: $input) {
     ...PayrollSettingsFields
   }
+}
+
+# Income-tax regimes and their slab tables — HR › Tax Slabs.
+
+fragment TaxRegimeFields on TaxRegime {
+  id
+  regimeKey
+  financialYear
+  name
+  standardDeduction
+  rebateIncomeLimit
+  rebateMaxTax
+  cessPercent
+  active
+}
+
+query ListTaxRegimes {
+  listTaxRegimes {
+    ...TaxRegimeFields
+  }
+}
+
+mutation CreateTaxRegime($input: TaxRegimeInput!) {
+  createTaxRegime(input: $input) {
+    ...TaxRegimeFields
+  }
+}
+
+mutation UpdateTaxRegime($id: ID!, $input: TaxRegimeInput!) {
+  updateTaxRegime(id: $id, input: $input) {
+    ...TaxRegimeFields
+  }
+}
+
+mutation DeleteTaxRegime($id: ID!) {
+  deleteTaxRegime(id: $id)
+}
+
+query ListTaxSlabsPaged($input: TableQueryInput!) {
+  listTaxSlabsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      regimeKey
+      financialYear
+      fromAmount
+      toAmount
+      ratePercent
+      order
+      active
+    }
+  }
+}
+
+query ListTaxSlabsStats {
+  listTaxSlabsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateTaxSlab($input: TaxSlabInput!) {
+  createTaxSlab(input: $input) {
+    id
+  }
+}
+
+mutation UpdateTaxSlab($id: ID!, $input: TaxSlabInput!) {
+  updateTaxSlab(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteTaxSlab($id: ID!) {
+  deleteTaxSlab(id: $id)
 }
