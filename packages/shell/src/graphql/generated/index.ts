@@ -760,6 +760,55 @@ export type BrandingInput = {
   youtubeUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** What one cost centre may spend in one month. A quarter is three of these. */
+export type Budget = {
+  __typename?: 'Budget';
+  amount: Scalars['Float']['output'];
+  costCenterId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  /** YYYY-MM, bucketed exactly as the actuals are. */
+  month: Scalars['String']['output'];
+  note: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type BudgetInput = {
+  amount: Scalars['Float']['input'];
+  costCenterId: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  month: Scalars['String']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type BudgetPage = {
+  __typename?: 'BudgetPage';
+  rows: Array<Budget>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/**
+ * One centre's plan against its spend.
+ *
+ * Actual is company bills booked to the centre — not payroll and not reimbursed employee
+ * claims, neither of which carries a cost centre. Untagged spend appears as its own row
+ * rather than being dropped, so the actuals still add up to what the company spent.
+ */
+export type BudgetVariance = {
+  __typename?: 'BudgetVariance';
+  actual: Scalars['Float']['output'];
+  budgeted: Scalars['Float']['output'];
+  code: Scalars['String']['output'];
+  /** Empty for the unallocated row, which is not a cost centre. */
+  costCenterId: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  /** Actual as a percentage of budget. Null where there is no budget to be a percentage of. */
+  utilisation?: Maybe<Scalars['Float']['output']>;
+  /** budgeted - actual. Positive is money left; negative is an overspend. */
+  variance: Scalars['Float']['output'];
+};
+
 export type Bug = {
   __typename?: 'Bug';
   /** Empty for bugs filed before the assignee was a user; assigneeName still shows the name. */
@@ -1104,6 +1153,8 @@ export type CompanyExpense = {
   __typename?: 'CompanyExpense';
   amount: Scalars['Float']['output'];
   category: ExpenseCategory;
+  /** Which cost centre carries it. Empty when the spend is not allocated to one. */
+  costCenterId: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   description: Scalars['String']['output'];
@@ -1123,6 +1174,7 @@ export type CompanyExpense = {
 export type CompanyExpenseInput = {
   amount: Scalars['Float']['input'];
   category: ExpenseCategory;
+  costCenterId?: InputMaybe<Scalars['String']['input']>;
   currency: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   dueDate: Scalars['DateTime']['input'];
@@ -1330,6 +1382,35 @@ export type ConvertLeadInput = {
   dealTitle: Scalars['String']['input'];
   expectedCloseDate?: InputMaybe<Scalars['DateTime']['input']>;
   value: Scalars['Float']['input'];
+};
+
+/** A bucket the company budgets and reports spend against — a department, a team, a site. */
+export type CostCenter = {
+  __typename?: 'CostCenter';
+  code: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  /** A retired centre stays readable, so last year's report does not change. */
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  /** User id of whoever answers for this centre's spend. Empty while nobody owns it. */
+  ownerId: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CostCenterInput = {
+  code: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  ownerId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CostCenterPage = {
+  __typename?: 'CostCenterPage';
+  rows: Array<CostCenter>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type CreateUserInput = {
@@ -2939,6 +3020,7 @@ export type Mutation = {
   createAudienceList: AudienceList;
   createBenefit: Benefit;
   createBlogPost: BlogPost;
+  createBudget: Budget;
   createBug: Bug;
   createCampaign: Campaign;
   createCaseStudy: CaseStudy;
@@ -2953,6 +3035,7 @@ export type Mutation = {
   createCompanyExpense: CompanyExpense;
   createContact: Contact;
   createContract: Contract;
+  createCostCenter: CostCenter;
   createDeal: Deal;
   createDepartment: Department;
   createDocPage: DocPage;
@@ -3058,6 +3141,7 @@ export type Mutation = {
   deleteAudienceList: Scalars['Boolean']['output'];
   deleteBenefit: Scalars['Boolean']['output'];
   deleteBlogPost: Scalars['Boolean']['output'];
+  deleteBudget: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
   deleteCampaign: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
@@ -3067,6 +3151,7 @@ export type Mutation = {
   deleteCompanyExpense: Scalars['Boolean']['output'];
   deleteContact: Scalars['Boolean']['output'];
   deleteContract: Scalars['Boolean']['output'];
+  deleteCostCenter: Scalars['Boolean']['output'];
   deleteDeal: Scalars['Boolean']['output'];
   deleteDepartment: Scalars['Boolean']['output'];
   /** Deletes the page and everything filed under it. */
@@ -3374,6 +3459,7 @@ export type Mutation = {
   updateBenefit: Benefit;
   updateBlogPost: BlogPost;
   updateBranding: Branding;
+  updateBudget: Budget;
   updateBug: Bug;
   updateCampaign: Campaign;
   updateCaseStudy: CaseStudy;
@@ -3382,6 +3468,7 @@ export type Mutation = {
   updateCompanyExpense: CompanyExpense;
   updateContact: Contact;
   updateContract: Contract;
+  updateCostCenter: CostCenter;
   updateDeal: Deal;
   updateDepartment: Department;
   updateDocPage: DocPage;
@@ -3614,6 +3701,11 @@ export type MutationCreateBlogPostArgs = {
 };
 
 
+export type MutationCreateBudgetArgs = {
+  input: BudgetInput;
+};
+
+
 export type MutationCreateBugArgs = {
   input: BugInput;
 };
@@ -3662,6 +3754,11 @@ export type MutationCreateContactArgs = {
 
 export type MutationCreateContractArgs = {
   input: ContractInput;
+};
+
+
+export type MutationCreateCostCenterArgs = {
+  input: CostCenterInput;
 };
 
 
@@ -4092,6 +4189,11 @@ export type MutationDeleteBlogPostArgs = {
 };
 
 
+export type MutationDeleteBudgetArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteBugArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4133,6 +4235,11 @@ export type MutationDeleteContactArgs = {
 
 
 export type MutationDeleteContractArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCostCenterArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -5013,6 +5120,12 @@ export type MutationUpdateBrandingArgs = {
 };
 
 
+export type MutationUpdateBudgetArgs = {
+  id: Scalars['ID']['input'];
+  input: BudgetInput;
+};
+
+
 export type MutationUpdateBugArgs = {
   id: Scalars['ID']['input'];
   input: BugInput;
@@ -5058,6 +5171,12 @@ export type MutationUpdateContactArgs = {
 export type MutationUpdateContractArgs = {
   id: Scalars['ID']['input'];
   input: ContractInput;
+};
+
+
+export type MutationUpdateCostCenterArgs = {
+  id: Scalars['ID']['input'];
+  input: CostCenterInput;
 };
 
 
@@ -6452,6 +6571,11 @@ export type Query = {
   /** Who an audience currently reaches: named members plus its segment, de-duplicated. */
   audienceMembers: Array<AudienceMember>;
   branding: Branding;
+  /**
+   * Budget against actual per cost centre between two dates, both bounds inclusive of the
+   * days they fall on. Every month the window touches counts in full.
+   */
+  budgetVsActual: Array<BudgetVariance>;
   /** Leads per campaign, most productive first — the overview's attribution figures. */
   campaignLeadCounts: Array<CampaignLeadCount>;
   campaignMetrics: CampaignMetrics;
@@ -6500,6 +6624,7 @@ export type Query = {
   getAudienceList: AudienceList;
   getBenefit: Benefit;
   getBlogPost: BlogPost;
+  getBudget: Budget;
   getBug: Bug;
   getCampaign: Campaign;
   getCaseStudy: CaseStudy;
@@ -6508,6 +6633,7 @@ export type Query = {
   getCompanyExpense: CompanyExpense;
   getContact: Contact;
   getContract: Contract;
+  getCostCenter: CostCenter;
   getDeal: Deal;
   getDepartment: Department;
   getEmailFragment: EmailFragment;
@@ -6609,6 +6735,9 @@ export type Query = {
   listBlogPosts: Array<BlogPost>;
   listBlogPostsPaged: BlogPostPage;
   listBlogPostsStats: TableStats;
+  listBudgets: Array<Budget>;
+  listBudgetsPaged: BudgetPage;
+  listBudgetsStats: TableStats;
   listBugs: Array<Bug>;
   listBugsPaged: BugPage;
   listBugsStats: TableStats;
@@ -6635,6 +6764,9 @@ export type Query = {
   listContracts: Array<Contract>;
   listContractsPaged: ContractPage;
   listContractsStats: TableStats;
+  listCostCenters: Array<CostCenter>;
+  listCostCentersPaged: CostCenterPage;
+  listCostCentersStats: TableStats;
   listDeals: Array<Deal>;
   listDealsPaged: DealPage;
   listDealsStats: TableStats;
@@ -7042,6 +7174,12 @@ export type QueryAudienceMembersArgs = {
 };
 
 
+export type QueryBudgetVsActualArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QueryCampaignMetricsArgs = {
   campaignId: Scalars['ID']['input'];
 };
@@ -7140,6 +7278,11 @@ export type QueryGetBlogPostArgs = {
 };
 
 
+export type QueryGetBudgetArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetBugArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7176,6 +7319,11 @@ export type QueryGetContactArgs = {
 
 
 export type QueryGetContractArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetCostCenterArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7505,6 +7653,11 @@ export type QueryListBlogPostsPagedArgs = {
 };
 
 
+export type QueryListBudgetsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListBugsPagedArgs = {
   input: TableQueryInput;
 };
@@ -7546,6 +7699,11 @@ export type QueryListContactsPagedArgs = {
 
 
 export type QueryListContractsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListCostCentersPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -11681,19 +11839,100 @@ export type CreateInvoiceFromTimeLogMutationVariables = Exact<{
 
 export type CreateInvoiceFromTimeLogMutation = { __typename?: 'Mutation', createInvoiceFromTimeLog: { __typename?: 'Invoice', id: string, number: string, amount: number, currency: string } };
 
-export type CompanyExpenseFieldsFragment = { __typename?: 'CompanyExpense', id: string, vendor: string, category: ExpenseCategory, description: string, amount: number, currency: string, incurredOn: string, dueDate: string, status: ExpenseState, paidOn?: string | null, reference: string, recordedBy: string };
+export type ListCostCentersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListCostCentersQuery = { __typename?: 'Query', listCostCenters: Array<{ __typename?: 'CostCenter', id: string, code: string, name: string, description: string, ownerId: string, isActive: boolean }> };
+
+export type ListCostCentersPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListCostCentersPagedQuery = { __typename?: 'Query', listCostCentersPaged: { __typename?: 'CostCenterPage', totalCount: number, rows: Array<{ __typename?: 'CostCenter', id: string, code: string, name: string, description: string, ownerId: string, isActive: boolean, createdAt: string }> } };
+
+export type ListCostCentersStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListCostCentersStatsQuery = { __typename?: 'Query', listCostCentersStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreateCostCenterMutationVariables = Exact<{
+  input: CostCenterInput;
+}>;
+
+
+export type CreateCostCenterMutation = { __typename?: 'Mutation', createCostCenter: { __typename?: 'CostCenter', id: string } };
+
+export type UpdateCostCenterMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: CostCenterInput;
+}>;
+
+
+export type UpdateCostCenterMutation = { __typename?: 'Mutation', updateCostCenter: { __typename?: 'CostCenter', id: string } };
+
+export type DeleteCostCenterMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCostCenterMutation = { __typename?: 'Mutation', deleteCostCenter: boolean };
+
+export type ListBudgetsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListBudgetsPagedQuery = { __typename?: 'Query', listBudgetsPaged: { __typename?: 'BudgetPage', totalCount: number, rows: Array<{ __typename?: 'Budget', id: string, costCenterId: string, month: string, amount: number, currency: string, note: string, createdAt: string }> } };
+
+export type ListBudgetsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListBudgetsStatsQuery = { __typename?: 'Query', listBudgetsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreateBudgetMutationVariables = Exact<{
+  input: BudgetInput;
+}>;
+
+
+export type CreateBudgetMutation = { __typename?: 'Mutation', createBudget: { __typename?: 'Budget', id: string } };
+
+export type UpdateBudgetMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: BudgetInput;
+}>;
+
+
+export type UpdateBudgetMutation = { __typename?: 'Mutation', updateBudget: { __typename?: 'Budget', id: string } };
+
+export type DeleteBudgetMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteBudgetMutation = { __typename?: 'Mutation', deleteBudget: boolean };
+
+export type BudgetVsActualQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type BudgetVsActualQuery = { __typename?: 'Query', budgetVsActual: Array<{ __typename?: 'BudgetVariance', costCenterId: string, code: string, name: string, budgeted: number, actual: number, variance: number, utilisation?: number | null }> };
+
+export type CompanyExpenseFieldsFragment = { __typename?: 'CompanyExpense', id: string, vendor: string, category: ExpenseCategory, description: string, amount: number, currency: string, costCenterId: string, incurredOn: string, dueDate: string, status: ExpenseState, paidOn?: string | null, reference: string, recordedBy: string };
 
 export type ListCompanyExpensesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListCompanyExpensesQuery = { __typename?: 'Query', listCompanyExpenses: Array<{ __typename?: 'CompanyExpense', id: string, vendor: string, category: ExpenseCategory, description: string, amount: number, currency: string, incurredOn: string, dueDate: string, status: ExpenseState, paidOn?: string | null, reference: string, recordedBy: string }> };
+export type ListCompanyExpensesQuery = { __typename?: 'Query', listCompanyExpenses: Array<{ __typename?: 'CompanyExpense', id: string, vendor: string, category: ExpenseCategory, description: string, amount: number, currency: string, costCenterId: string, incurredOn: string, dueDate: string, status: ExpenseState, paidOn?: string | null, reference: string, recordedBy: string }> };
 
 export type ListCompanyExpensesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListCompanyExpensesPagedQuery = { __typename?: 'Query', listCompanyExpensesPaged: { __typename?: 'CompanyExpensePage', totalCount: number, rows: Array<{ __typename?: 'CompanyExpense', id: string, vendor: string, category: ExpenseCategory, description: string, amount: number, currency: string, incurredOn: string, dueDate: string, status: ExpenseState, paidOn?: string | null, reference: string, recordedBy: string }> } };
+export type ListCompanyExpensesPagedQuery = { __typename?: 'Query', listCompanyExpensesPaged: { __typename?: 'CompanyExpensePage', totalCount: number, rows: Array<{ __typename?: 'CompanyExpense', id: string, vendor: string, category: ExpenseCategory, description: string, amount: number, currency: string, costCenterId: string, incurredOn: string, dueDate: string, status: ExpenseState, paidOn?: string | null, reference: string, recordedBy: string }> } };
 
 export type ListCompanyExpensesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -15215,6 +15454,7 @@ export const CompanyExpenseFieldsFragmentDoc = gql`
   description
   amount
   currency
+  costCenterId
   incurredOn
   dueDate
   status
@@ -25243,6 +25483,509 @@ export function useCreateInvoiceFromTimeLogMutation(baseOptions?: Apollo.Mutatio
 export type CreateInvoiceFromTimeLogMutationHookResult = ReturnType<typeof useCreateInvoiceFromTimeLogMutation>;
 export type CreateInvoiceFromTimeLogMutationResult = Apollo.MutationResult<CreateInvoiceFromTimeLogMutation>;
 export type CreateInvoiceFromTimeLogMutationOptions = Apollo.BaseMutationOptions<CreateInvoiceFromTimeLogMutation, CreateInvoiceFromTimeLogMutationVariables>;
+export const ListCostCentersDocument = gql`
+    query ListCostCenters {
+  listCostCenters {
+    id
+    code
+    name
+    description
+    ownerId
+    isActive
+  }
+}
+    `;
+
+/**
+ * __useListCostCentersQuery__
+ *
+ * To run a query within a React component, call `useListCostCentersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCostCentersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCostCentersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListCostCentersQuery(baseOptions?: Apollo.QueryHookOptions<ListCostCentersQuery, ListCostCentersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListCostCentersQuery, ListCostCentersQueryVariables>(ListCostCentersDocument, options);
+      }
+export function useListCostCentersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListCostCentersQuery, ListCostCentersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListCostCentersQuery, ListCostCentersQueryVariables>(ListCostCentersDocument, options);
+        }
+// @ts-ignore
+export function useListCostCentersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListCostCentersQuery, ListCostCentersQueryVariables>): Apollo.UseSuspenseQueryResult<ListCostCentersQuery, ListCostCentersQueryVariables>;
+export function useListCostCentersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCostCentersQuery, ListCostCentersQueryVariables>): Apollo.UseSuspenseQueryResult<ListCostCentersQuery | undefined, ListCostCentersQueryVariables>;
+export function useListCostCentersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCostCentersQuery, ListCostCentersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListCostCentersQuery, ListCostCentersQueryVariables>(ListCostCentersDocument, options);
+        }
+export type ListCostCentersQueryHookResult = ReturnType<typeof useListCostCentersQuery>;
+export type ListCostCentersLazyQueryHookResult = ReturnType<typeof useListCostCentersLazyQuery>;
+export type ListCostCentersSuspenseQueryHookResult = ReturnType<typeof useListCostCentersSuspenseQuery>;
+export type ListCostCentersQueryResult = Apollo.QueryResult<ListCostCentersQuery, ListCostCentersQueryVariables>;
+export const ListCostCentersPagedDocument = gql`
+    query ListCostCentersPaged($input: TableQueryInput!) {
+  listCostCentersPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      code
+      name
+      description
+      ownerId
+      isActive
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useListCostCentersPagedQuery__
+ *
+ * To run a query within a React component, call `useListCostCentersPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCostCentersPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCostCentersPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListCostCentersPagedQuery(baseOptions: Apollo.QueryHookOptions<ListCostCentersPagedQuery, ListCostCentersPagedQueryVariables> & ({ variables: ListCostCentersPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListCostCentersPagedQuery, ListCostCentersPagedQueryVariables>(ListCostCentersPagedDocument, options);
+      }
+export function useListCostCentersPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListCostCentersPagedQuery, ListCostCentersPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListCostCentersPagedQuery, ListCostCentersPagedQueryVariables>(ListCostCentersPagedDocument, options);
+        }
+// @ts-ignore
+export function useListCostCentersPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListCostCentersPagedQuery, ListCostCentersPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListCostCentersPagedQuery, ListCostCentersPagedQueryVariables>;
+export function useListCostCentersPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCostCentersPagedQuery, ListCostCentersPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListCostCentersPagedQuery | undefined, ListCostCentersPagedQueryVariables>;
+export function useListCostCentersPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCostCentersPagedQuery, ListCostCentersPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListCostCentersPagedQuery, ListCostCentersPagedQueryVariables>(ListCostCentersPagedDocument, options);
+        }
+export type ListCostCentersPagedQueryHookResult = ReturnType<typeof useListCostCentersPagedQuery>;
+export type ListCostCentersPagedLazyQueryHookResult = ReturnType<typeof useListCostCentersPagedLazyQuery>;
+export type ListCostCentersPagedSuspenseQueryHookResult = ReturnType<typeof useListCostCentersPagedSuspenseQuery>;
+export type ListCostCentersPagedQueryResult = Apollo.QueryResult<ListCostCentersPagedQuery, ListCostCentersPagedQueryVariables>;
+export const ListCostCentersStatsDocument = gql`
+    query ListCostCentersStats {
+  listCostCentersStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListCostCentersStatsQuery__
+ *
+ * To run a query within a React component, call `useListCostCentersStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCostCentersStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCostCentersStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListCostCentersStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListCostCentersStatsQuery, ListCostCentersStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListCostCentersStatsQuery, ListCostCentersStatsQueryVariables>(ListCostCentersStatsDocument, options);
+      }
+export function useListCostCentersStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListCostCentersStatsQuery, ListCostCentersStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListCostCentersStatsQuery, ListCostCentersStatsQueryVariables>(ListCostCentersStatsDocument, options);
+        }
+// @ts-ignore
+export function useListCostCentersStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListCostCentersStatsQuery, ListCostCentersStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListCostCentersStatsQuery, ListCostCentersStatsQueryVariables>;
+export function useListCostCentersStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCostCentersStatsQuery, ListCostCentersStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListCostCentersStatsQuery | undefined, ListCostCentersStatsQueryVariables>;
+export function useListCostCentersStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListCostCentersStatsQuery, ListCostCentersStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListCostCentersStatsQuery, ListCostCentersStatsQueryVariables>(ListCostCentersStatsDocument, options);
+        }
+export type ListCostCentersStatsQueryHookResult = ReturnType<typeof useListCostCentersStatsQuery>;
+export type ListCostCentersStatsLazyQueryHookResult = ReturnType<typeof useListCostCentersStatsLazyQuery>;
+export type ListCostCentersStatsSuspenseQueryHookResult = ReturnType<typeof useListCostCentersStatsSuspenseQuery>;
+export type ListCostCentersStatsQueryResult = Apollo.QueryResult<ListCostCentersStatsQuery, ListCostCentersStatsQueryVariables>;
+export const CreateCostCenterDocument = gql`
+    mutation CreateCostCenter($input: CostCenterInput!) {
+  createCostCenter(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateCostCenterMutationFn = Apollo.MutationFunction<CreateCostCenterMutation, CreateCostCenterMutationVariables>;
+
+/**
+ * __useCreateCostCenterMutation__
+ *
+ * To run a mutation, you first call `useCreateCostCenterMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCostCenterMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCostCenterMutation, { data, loading, error }] = useCreateCostCenterMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCostCenterMutation(baseOptions?: Apollo.MutationHookOptions<CreateCostCenterMutation, CreateCostCenterMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCostCenterMutation, CreateCostCenterMutationVariables>(CreateCostCenterDocument, options);
+      }
+export type CreateCostCenterMutationHookResult = ReturnType<typeof useCreateCostCenterMutation>;
+export type CreateCostCenterMutationResult = Apollo.MutationResult<CreateCostCenterMutation>;
+export type CreateCostCenterMutationOptions = Apollo.BaseMutationOptions<CreateCostCenterMutation, CreateCostCenterMutationVariables>;
+export const UpdateCostCenterDocument = gql`
+    mutation UpdateCostCenter($id: ID!, $input: CostCenterInput!) {
+  updateCostCenter(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateCostCenterMutationFn = Apollo.MutationFunction<UpdateCostCenterMutation, UpdateCostCenterMutationVariables>;
+
+/**
+ * __useUpdateCostCenterMutation__
+ *
+ * To run a mutation, you first call `useUpdateCostCenterMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCostCenterMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCostCenterMutation, { data, loading, error }] = useUpdateCostCenterMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCostCenterMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCostCenterMutation, UpdateCostCenterMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCostCenterMutation, UpdateCostCenterMutationVariables>(UpdateCostCenterDocument, options);
+      }
+export type UpdateCostCenterMutationHookResult = ReturnType<typeof useUpdateCostCenterMutation>;
+export type UpdateCostCenterMutationResult = Apollo.MutationResult<UpdateCostCenterMutation>;
+export type UpdateCostCenterMutationOptions = Apollo.BaseMutationOptions<UpdateCostCenterMutation, UpdateCostCenterMutationVariables>;
+export const DeleteCostCenterDocument = gql`
+    mutation DeleteCostCenter($id: ID!) {
+  deleteCostCenter(id: $id)
+}
+    `;
+export type DeleteCostCenterMutationFn = Apollo.MutationFunction<DeleteCostCenterMutation, DeleteCostCenterMutationVariables>;
+
+/**
+ * __useDeleteCostCenterMutation__
+ *
+ * To run a mutation, you first call `useDeleteCostCenterMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCostCenterMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCostCenterMutation, { data, loading, error }] = useDeleteCostCenterMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCostCenterMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCostCenterMutation, DeleteCostCenterMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteCostCenterMutation, DeleteCostCenterMutationVariables>(DeleteCostCenterDocument, options);
+      }
+export type DeleteCostCenterMutationHookResult = ReturnType<typeof useDeleteCostCenterMutation>;
+export type DeleteCostCenterMutationResult = Apollo.MutationResult<DeleteCostCenterMutation>;
+export type DeleteCostCenterMutationOptions = Apollo.BaseMutationOptions<DeleteCostCenterMutation, DeleteCostCenterMutationVariables>;
+export const ListBudgetsPagedDocument = gql`
+    query ListBudgetsPaged($input: TableQueryInput!) {
+  listBudgetsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      costCenterId
+      month
+      amount
+      currency
+      note
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useListBudgetsPagedQuery__
+ *
+ * To run a query within a React component, call `useListBudgetsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListBudgetsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListBudgetsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListBudgetsPagedQuery(baseOptions: Apollo.QueryHookOptions<ListBudgetsPagedQuery, ListBudgetsPagedQueryVariables> & ({ variables: ListBudgetsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListBudgetsPagedQuery, ListBudgetsPagedQueryVariables>(ListBudgetsPagedDocument, options);
+      }
+export function useListBudgetsPagedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListBudgetsPagedQuery, ListBudgetsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListBudgetsPagedQuery, ListBudgetsPagedQueryVariables>(ListBudgetsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListBudgetsPagedSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListBudgetsPagedQuery, ListBudgetsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListBudgetsPagedQuery, ListBudgetsPagedQueryVariables>;
+export function useListBudgetsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBudgetsPagedQuery, ListBudgetsPagedQueryVariables>): Apollo.UseSuspenseQueryResult<ListBudgetsPagedQuery | undefined, ListBudgetsPagedQueryVariables>;
+export function useListBudgetsPagedSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBudgetsPagedQuery, ListBudgetsPagedQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListBudgetsPagedQuery, ListBudgetsPagedQueryVariables>(ListBudgetsPagedDocument, options);
+        }
+export type ListBudgetsPagedQueryHookResult = ReturnType<typeof useListBudgetsPagedQuery>;
+export type ListBudgetsPagedLazyQueryHookResult = ReturnType<typeof useListBudgetsPagedLazyQuery>;
+export type ListBudgetsPagedSuspenseQueryHookResult = ReturnType<typeof useListBudgetsPagedSuspenseQuery>;
+export type ListBudgetsPagedQueryResult = Apollo.QueryResult<ListBudgetsPagedQuery, ListBudgetsPagedQueryVariables>;
+export const ListBudgetsStatsDocument = gql`
+    query ListBudgetsStats {
+  listBudgetsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListBudgetsStatsQuery__
+ *
+ * To run a query within a React component, call `useListBudgetsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListBudgetsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListBudgetsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListBudgetsStatsQuery(baseOptions?: Apollo.QueryHookOptions<ListBudgetsStatsQuery, ListBudgetsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ListBudgetsStatsQuery, ListBudgetsStatsQueryVariables>(ListBudgetsStatsDocument, options);
+      }
+export function useListBudgetsStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ListBudgetsStatsQuery, ListBudgetsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ListBudgetsStatsQuery, ListBudgetsStatsQueryVariables>(ListBudgetsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListBudgetsStatsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ListBudgetsStatsQuery, ListBudgetsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListBudgetsStatsQuery, ListBudgetsStatsQueryVariables>;
+export function useListBudgetsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBudgetsStatsQuery, ListBudgetsStatsQueryVariables>): Apollo.UseSuspenseQueryResult<ListBudgetsStatsQuery | undefined, ListBudgetsStatsQueryVariables>;
+export function useListBudgetsStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ListBudgetsStatsQuery, ListBudgetsStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ListBudgetsStatsQuery, ListBudgetsStatsQueryVariables>(ListBudgetsStatsDocument, options);
+        }
+export type ListBudgetsStatsQueryHookResult = ReturnType<typeof useListBudgetsStatsQuery>;
+export type ListBudgetsStatsLazyQueryHookResult = ReturnType<typeof useListBudgetsStatsLazyQuery>;
+export type ListBudgetsStatsSuspenseQueryHookResult = ReturnType<typeof useListBudgetsStatsSuspenseQuery>;
+export type ListBudgetsStatsQueryResult = Apollo.QueryResult<ListBudgetsStatsQuery, ListBudgetsStatsQueryVariables>;
+export const CreateBudgetDocument = gql`
+    mutation CreateBudget($input: BudgetInput!) {
+  createBudget(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateBudgetMutationFn = Apollo.MutationFunction<CreateBudgetMutation, CreateBudgetMutationVariables>;
+
+/**
+ * __useCreateBudgetMutation__
+ *
+ * To run a mutation, you first call `useCreateBudgetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateBudgetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createBudgetMutation, { data, loading, error }] = useCreateBudgetMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateBudgetMutation(baseOptions?: Apollo.MutationHookOptions<CreateBudgetMutation, CreateBudgetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateBudgetMutation, CreateBudgetMutationVariables>(CreateBudgetDocument, options);
+      }
+export type CreateBudgetMutationHookResult = ReturnType<typeof useCreateBudgetMutation>;
+export type CreateBudgetMutationResult = Apollo.MutationResult<CreateBudgetMutation>;
+export type CreateBudgetMutationOptions = Apollo.BaseMutationOptions<CreateBudgetMutation, CreateBudgetMutationVariables>;
+export const UpdateBudgetDocument = gql`
+    mutation UpdateBudget($id: ID!, $input: BudgetInput!) {
+  updateBudget(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateBudgetMutationFn = Apollo.MutationFunction<UpdateBudgetMutation, UpdateBudgetMutationVariables>;
+
+/**
+ * __useUpdateBudgetMutation__
+ *
+ * To run a mutation, you first call `useUpdateBudgetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBudgetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBudgetMutation, { data, loading, error }] = useUpdateBudgetMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateBudgetMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBudgetMutation, UpdateBudgetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateBudgetMutation, UpdateBudgetMutationVariables>(UpdateBudgetDocument, options);
+      }
+export type UpdateBudgetMutationHookResult = ReturnType<typeof useUpdateBudgetMutation>;
+export type UpdateBudgetMutationResult = Apollo.MutationResult<UpdateBudgetMutation>;
+export type UpdateBudgetMutationOptions = Apollo.BaseMutationOptions<UpdateBudgetMutation, UpdateBudgetMutationVariables>;
+export const DeleteBudgetDocument = gql`
+    mutation DeleteBudget($id: ID!) {
+  deleteBudget(id: $id)
+}
+    `;
+export type DeleteBudgetMutationFn = Apollo.MutationFunction<DeleteBudgetMutation, DeleteBudgetMutationVariables>;
+
+/**
+ * __useDeleteBudgetMutation__
+ *
+ * To run a mutation, you first call `useDeleteBudgetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteBudgetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteBudgetMutation, { data, loading, error }] = useDeleteBudgetMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteBudgetMutation(baseOptions?: Apollo.MutationHookOptions<DeleteBudgetMutation, DeleteBudgetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteBudgetMutation, DeleteBudgetMutationVariables>(DeleteBudgetDocument, options);
+      }
+export type DeleteBudgetMutationHookResult = ReturnType<typeof useDeleteBudgetMutation>;
+export type DeleteBudgetMutationResult = Apollo.MutationResult<DeleteBudgetMutation>;
+export type DeleteBudgetMutationOptions = Apollo.BaseMutationOptions<DeleteBudgetMutation, DeleteBudgetMutationVariables>;
+export const BudgetVsActualDocument = gql`
+    query BudgetVsActual($from: DateTime!, $to: DateTime!) {
+  budgetVsActual(from: $from, to: $to) {
+    costCenterId
+    code
+    name
+    budgeted
+    actual
+    variance
+    utilisation
+  }
+}
+    `;
+
+/**
+ * __useBudgetVsActualQuery__
+ *
+ * To run a query within a React component, call `useBudgetVsActualQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBudgetVsActualQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBudgetVsActualQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useBudgetVsActualQuery(baseOptions: Apollo.QueryHookOptions<BudgetVsActualQuery, BudgetVsActualQueryVariables> & ({ variables: BudgetVsActualQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<BudgetVsActualQuery, BudgetVsActualQueryVariables>(BudgetVsActualDocument, options);
+      }
+export function useBudgetVsActualLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BudgetVsActualQuery, BudgetVsActualQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<BudgetVsActualQuery, BudgetVsActualQueryVariables>(BudgetVsActualDocument, options);
+        }
+// @ts-ignore
+export function useBudgetVsActualSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<BudgetVsActualQuery, BudgetVsActualQueryVariables>): Apollo.UseSuspenseQueryResult<BudgetVsActualQuery, BudgetVsActualQueryVariables>;
+export function useBudgetVsActualSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<BudgetVsActualQuery, BudgetVsActualQueryVariables>): Apollo.UseSuspenseQueryResult<BudgetVsActualQuery | undefined, BudgetVsActualQueryVariables>;
+export function useBudgetVsActualSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<BudgetVsActualQuery, BudgetVsActualQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<BudgetVsActualQuery, BudgetVsActualQueryVariables>(BudgetVsActualDocument, options);
+        }
+export type BudgetVsActualQueryHookResult = ReturnType<typeof useBudgetVsActualQuery>;
+export type BudgetVsActualLazyQueryHookResult = ReturnType<typeof useBudgetVsActualLazyQuery>;
+export type BudgetVsActualSuspenseQueryHookResult = ReturnType<typeof useBudgetVsActualSuspenseQuery>;
+export type BudgetVsActualQueryResult = Apollo.QueryResult<BudgetVsActualQuery, BudgetVsActualQueryVariables>;
 export const ListCompanyExpensesDocument = gql`
     query ListCompanyExpenses {
   listCompanyExpenses {

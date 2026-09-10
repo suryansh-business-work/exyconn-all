@@ -82,6 +82,7 @@ import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import DnsIcon from '@mui/icons-material/Dns';
 import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import PaletteIcon from '@mui/icons-material/Palette';
+import SavingsIcon from '@mui/icons-material/Savings';
 import ForumIcon from '@mui/icons-material/Forum';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import { ROLES, type Role } from '@/auth/roles';
@@ -222,6 +223,19 @@ export const MODULES: ModuleDefinition[] = [
         icon: StorefrontIcon,
       },
       { key: 'finance-expenses', label: 'Expense Claims', path: '/expenses', icon: ReceiptIcon },
+      {
+        key: 'finance-cost-centres',
+        label: 'Cost Centres',
+        path: '/finance/cost-centres',
+        icon: AccountTreeIcon,
+      },
+      { key: 'finance-budgets', label: 'Budgets', path: '/finance/budgets', icon: SavingsIcon },
+      {
+        key: 'finance-budget-variance',
+        label: 'Budget vs Actual',
+        path: '/finance/budget-variance',
+        icon: AssessmentIcon,
+      },
     ],
   },
   {

@@ -16,6 +16,7 @@ interface CompanyExpenseInput {
   description?: string;
   amount: number;
   currency: string;
+  costCenterId?: string;
   incurredOn: Date;
   dueDate: Date;
   reference?: string;
@@ -31,7 +32,7 @@ const expenses = createCrudResolvers(companyExpensesService, {
   roles: financeRoles,
   table: {
     searchFields: ['vendor', 'description', 'reference'],
-    filterFields: ['vendor', 'category', 'status', 'currency'],
+    filterFields: ['vendor', 'category', 'status', 'currency', 'costCenterId'],
     sortFields: ['vendor', 'category', 'amount', 'incurredOn', 'dueDate', 'status', 'createdAt'],
     defaultSort: { field: 'incurredOn', dir: 'DESC' },
   },

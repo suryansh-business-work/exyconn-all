@@ -133,6 +133,8 @@ export { financeBillingTypeDefs } from './finance.billing.typeDefs';
 export { financeBillingResolvers } from './finance.billing';
 export { financeCompanyTypeDefs } from './finance.company.typeDefs';
 export { financeCompanyResolvers, companyExpensesService } from './finance.company';
+export { financeBudgetTypeDefs } from './finance.budgets.typeDefs';
+export { financeBudgetResolvers, costCentersService, budgetsService } from './finance.budgets';
 export { financeRecurringTypeDefs } from './finance.recurring.typeDefs';
 export {
   recurringInvoiceResolvers,

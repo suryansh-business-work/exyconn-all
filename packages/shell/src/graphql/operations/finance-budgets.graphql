@@ -1,0 +1,120 @@
+# Cost centres, monthly budgets and the variance between the plan and the spend.
+
+query ListCostCenters {
+  listCostCenters {
+    id
+    code
+    name
+    description
+    ownerId
+    isActive
+  }
+}
+
+query ListCostCentersPaged($input: TableQueryInput!) {
+  listCostCentersPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      code
+      name
+      description
+      ownerId
+      isActive
+      createdAt
+    }
+  }
+}
+
+query ListCostCentersStats {
+  listCostCentersStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateCostCenter($input: CostCenterInput!) {
+  createCostCenter(input: $input) {
+    id
+  }
+}
+
+mutation UpdateCostCenter($id: ID!, $input: CostCenterInput!) {
+  updateCostCenter(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteCostCenter($id: ID!) {
+  deleteCostCenter(id: $id)
+}
+
+query ListBudgetsPaged($input: TableQueryInput!) {
+  listBudgetsPaged(input: $input) {
+    totalCount
+    rows {
+      id
+      costCenterId
+      month
+      amount
+      currency
+      note
+      createdAt
+    }
+  }
+}
+
+query ListBudgetsStats {
+  listBudgetsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateBudget($input: BudgetInput!) {
+  createBudget(input: $input) {
+    id
+  }
+}
+
+mutation UpdateBudget($id: ID!, $input: BudgetInput!) {
+  updateBudget(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteBudget($id: ID!) {
+  deleteBudget(id: $id)
+}
+
+query BudgetVsActual($from: DateTime!, $to: DateTime!) {
+  budgetVsActual(from: $from, to: $to) {
+    costCenterId
+    code
+    name
+    budgeted
+    actual
+    variance
+    utilisation
+  }
+}

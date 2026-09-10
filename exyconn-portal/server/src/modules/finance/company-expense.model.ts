@@ -39,6 +39,12 @@ const companyExpenseSchema = new Schema(
     description: { type: String, default: '', trim: true },
     amount: { type: Number, required: true, min: 0 },
     currency: { type: String, required: true, default: 'INR', trim: true },
+    /**
+     * Which cost centre carries this bill. Empty is a real answer — a company runs for
+     * years before it splits its spend up, and refusing to record a bill until somebody
+     * picks a centre would lose the bill, not gain the analysis.
+     */
+    costCenterId: { type: String, default: '', trim: true, index: true },
     /** When the cost was incurred — the date profit is measured on. */
     incurredOn: { type: Date, required: true },
     /** When the bill falls due. Drives what the dashboard calls payable and overdue. */
