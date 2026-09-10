@@ -21,7 +21,9 @@ const UrlEntryList: React.FC<UrlEntryListProps> = ({
     sx={{ p: 2, mt: 2, border: 1, borderColor: 'divider', borderRadius: 2, maxHeight: 280, overflow: 'auto' }}
   >
     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-      <Typography variant="subtitle2" fontWeight={600}>
+      <Typography variant="subtitle2" sx={{
+        fontWeight: 600
+      }}>
         URLs ({urls.length})
       </Typography>
       <Button size="small" startIcon={<Add />} onClick={onAddUrl}>
@@ -31,7 +33,12 @@ const UrlEntryList: React.FC<UrlEntryListProps> = ({
     {urls.map((url, index) => (
       <Box key={url.id} sx={{ mb: 1.5, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Typography variant="caption" color="text.secondary" sx={{ minWidth: 20 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              minWidth: 20
+            }}>
             #{index + 1}
           </Typography>
           <TextField

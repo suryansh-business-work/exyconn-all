@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Container, Alert, Snackbar, Paper, Box, Typography, TextField, Button, MenuItem, CircularProgress,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Code, Send, UploadFile } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIKeyInput, AIResultDisplay, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
@@ -76,7 +76,9 @@ const HtmlFAQGenerator: React.FC = () => {
             <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Code color="primary" />
-                <Typography variant="h6" fontWeight={600}>HTML Content</Typography>
+                <Typography variant="h6" sx={{
+                  fontWeight: 600
+                }}>HTML Content</Typography>
               </Box>
               <Button component="label" variant="outlined" fullWidth startIcon={<UploadFile />} sx={{ mb: 2 }}>
                 Upload HTML File

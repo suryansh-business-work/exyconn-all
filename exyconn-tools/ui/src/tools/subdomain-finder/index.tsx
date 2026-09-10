@@ -3,7 +3,7 @@ import {
   Container, Alert, Snackbar, Chip, Box,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, LinearProgress,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { AccountTree } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay } from '../../shared/components/DomainToolShared';

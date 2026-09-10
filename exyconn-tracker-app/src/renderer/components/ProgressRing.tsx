@@ -66,7 +66,12 @@ export default function ProgressRing({
           {label}
         </Typography>
         {caption !== undefined && caption !== '' ? (
-          <Typography variant="caption" color="text.secondary" display="block">
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              display: "block"
+            }}>
             {caption}
           </Typography>
         ) : null}

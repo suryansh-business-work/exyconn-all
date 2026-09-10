@@ -68,24 +68,40 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
   return (
     <Box>
       <Grid container spacing={2}>
-        <Grid item xs={6} md={3}>
+        <Grid
+          size={{
+            xs: 6,
+            md: 3
+          }}>
           <Metric label="Sent" value={String(metrics.sent)} />
         </Grid>
-        <Grid item xs={6} md={3}>
+        <Grid
+          size={{
+            xs: 6,
+            md: 3
+          }}>
           <Metric
             label="Opened"
             value={`${metrics.openRate}%`}
             hint={`${metrics.opened} people · ${metrics.totalOpens} opens`}
           />
         </Grid>
-        <Grid item xs={6} md={3}>
+        <Grid
+          size={{
+            xs: 6,
+            md: 3
+          }}>
           <Metric
             label="Clicked"
             value={`${metrics.clickRate}%`}
             hint={`${metrics.clicked} people · ${metrics.totalClicks} clicks`}
           />
         </Grid>
-        <Grid item xs={6} md={3}>
+        <Grid
+          size={{
+            xs: 6,
+            md: 3
+          }}>
           <Metric
             label="Click-through"
             value={`${metrics.clickThroughRate}%`}

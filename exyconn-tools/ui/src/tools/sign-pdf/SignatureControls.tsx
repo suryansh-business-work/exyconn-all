@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import LinearProgress from '@mui/material/LinearProgress';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Download from '@mui/icons-material/Download';
 
 const CANVAS_H = 150;

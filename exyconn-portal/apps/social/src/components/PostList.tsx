@@ -46,7 +46,13 @@ export function PostList({
 
   if (posts.length === 0) {
     return (
-      <Typography variant="body2" color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: "text.secondary",
+          py: 4,
+          textAlign: 'center'
+        }}>
         {emptyMessage}
       </Typography>
     );

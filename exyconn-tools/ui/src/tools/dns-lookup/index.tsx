@@ -3,7 +3,7 @@ import {
   Container, Alert, Snackbar, Paper, Box, Typography, TextField, Button, MenuItem, CircularProgress,
   Chip, Accordion, AccordionSummary, AccordionDetails,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Dns, Send, ExpandMore } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainResultDisplay } from '../../shared/components/DomainToolShared';
@@ -52,7 +52,9 @@ const DNSLookup: React.FC = () => {
             <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Dns color="primary" />
-                <Typography variant="h6" fontWeight={600}>DNS Lookup</Typography>
+                <Typography variant="h6" sx={{
+                  fontWeight: 600
+                }}>DNS Lookup</Typography>
               </Box>
               <form onSubmit={formik.handleSubmit}>
                 <TextField fullWidth name="domain" label="Domain" placeholder="example.com"

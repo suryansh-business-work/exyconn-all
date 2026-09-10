@@ -77,7 +77,11 @@ export default function LoginScreen({
       <TitleBar title="Sign in" actions={<ThemeToggleButton mode={themeMode} />} />
 
       <ScreenLayout maxWidth={420}>
-        <Stack alignItems="center" sx={{ mb: 2 }}>
+        <Stack
+          sx={{
+            alignItems: "center",
+            mb: 2
+          }}>
           <BrandMark branding={branding} height={44} />
         </Stack>
 
@@ -85,7 +89,12 @@ export default function LoginScreen({
           <Typography variant="h5" sx={{ mb: 0.5 }}>
             Sign in
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+              mb: 2
+            }}>
             Use your Exyconn portal email and password.
           </Typography>
 

@@ -9,7 +9,7 @@ import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import Undo from '@mui/icons-material/Undo';
@@ -84,7 +84,12 @@ export default function BlurFace() {
             >
               <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop Image Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>JPG, PNG, or WEBP</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>JPG, PNG, or WEBP</Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                 Browse Files
                 <input hidden accept="image/jpeg,image/png,image/webp" type="file" onChange={onFileChange} />
@@ -97,7 +102,13 @@ export default function BlurFace() {
                   image={image} regions={regions} mode={mode} intensity={intensity}
                   color={COLOR} onAddRegion={addRegion} onError={setError}
                 />
-                <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                    display: "block",
+                    mt: 1
+                  }}>
                   Drag on the image (mouse or touch) to draw a rectangle over each face or area you want to hide.
                 </Typography>
               </>
@@ -133,7 +144,9 @@ export default function BlurFace() {
                 </Stack>
               )}
               {regions.length === 0 && (
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" sx={{
+                  color: "text.secondary"
+                }}>
                   No regions yet — upload an image and drag on the preview to add one.
                 </Typography>
               )}
@@ -146,7 +159,13 @@ export default function BlurFace() {
                 Download Blurred Image
               </Button>
 
-              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 2 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  display: "block",
+                  mt: 2
+                }}>
                 Regions are selected manually — this tool does not auto-detect faces. Images are
                 processed locally in your browser and never leave your device.
               </Typography>

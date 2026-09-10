@@ -9,7 +9,7 @@ import Alert from '@mui/material/Alert';
 import Slider from '@mui/material/Slider';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import { MdPhotoLibrary } from 'react-icons/md';
@@ -94,7 +94,12 @@ export default function ConvertFromJpg() {
             >
               <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop JPG Images Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>
                 JPG or JPEG — up to {MAX_FILES} files
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
@@ -137,7 +142,13 @@ export default function ConvertFromJpg() {
                 </>
               )}
               {format === 'image/png' && (
-                <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                    display: "block",
+                    mb: 1
+                  }}>
                   PNG is lossless — no quality setting needed.
                 </Typography>
               )}
@@ -145,7 +156,9 @@ export default function ConvertFromJpg() {
               {processing && (
                 <>
                   <LinearProgress sx={{ my: 2 }} color="secondary" />
-                  <Typography variant="caption" color="text.secondary">Converting {progress} of {items.length}…</Typography>
+                  <Typography variant="caption" sx={{
+                    color: "text.secondary"
+                  }}>Converting {progress} of {items.length}…</Typography>
                 </>
               )}
 
@@ -162,7 +175,13 @@ export default function ConvertFromJpg() {
                 </Button>
               )}
 
-              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 2 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  display: "block",
+                  mt: 2
+                }}>
                 Images are processed locally in your browser — they never leave your device.
               </Typography>
             </Paper>

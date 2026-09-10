@@ -52,12 +52,18 @@ export default function UpdatePreference({ preferences, update }: Readonly<Props
 
   return (
     <Stack spacing={1.5}>
-      <Stack direction="row" spacing={2} alignItems="flex-start">
+      <Stack direction="row" spacing={2} sx={{
+        alignItems: "flex-start"
+      }}>
         <Stack spacing={0.25} sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="body2" fontWeight={600}>
+          <Typography variant="body2" sx={{
+            fontWeight: 600
+          }}>
             Download updates in the background
           </Typography>
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" sx={{
+            color: "text.secondary"
+          }}>
             {preferences.autoUpdate
               ? 'A new version is fetched as soon as it appears, and installs the next time you quit.'
               : 'You are told when a new version exists, and nothing is fetched until you ask.'}
@@ -82,7 +88,9 @@ export default function UpdatePreference({ preferences, update }: Readonly<Props
       >
         Check for updates
       </Button>
-      <Typography variant="caption" color="text.secondary">
+      <Typography variant="caption" sx={{
+        color: "text.secondary"
+      }}>
         {statusOf(update)}
       </Typography>
     </Stack>

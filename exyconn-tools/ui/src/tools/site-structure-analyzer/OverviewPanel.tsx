@@ -12,7 +12,9 @@ const OverviewPanel: React.FC<OverviewPanelProps> = ({ result, onExportJSON }) =
   return (
     <Paper elevation={0} sx={{ p: 2, mt: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="subtitle2" fontWeight={600}>
+        <Typography variant="subtitle2" sx={{
+          fontWeight: 600
+        }}>
           Overview
         </Typography>
         <Tooltip title="Export JSON">
@@ -23,31 +25,45 @@ const OverviewPanel: React.FC<OverviewPanelProps> = ({ result, onExportJSON }) =
       </Box>
       <Stack spacing={1}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             Pages Analyzed
           </Typography>
-          <Typography variant="body2" fontWeight={600}>
+          <Typography variant="body2" sx={{
+            fontWeight: 600
+          }}>
             {result.totalPages}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             Internal Links
           </Typography>
-          <Typography variant="body2" fontWeight={600}>
+          <Typography variant="body2" sx={{
+            fontWeight: 600
+          }}>
             {result.totalInternalLinks}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             Max Depth
           </Typography>
-          <Typography variant="body2" fontWeight={600}>
+          <Typography variant="body2" sx={{
+            fontWeight: 600
+          }}>
             {result.maxDepth}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             Orphan Pages
           </Typography>
           <Chip
@@ -71,11 +87,18 @@ const OverviewPanel: React.FC<OverviewPanelProps> = ({ result, onExportJSON }) =
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
             <Warning fontSize="small" color="warning" />
-            <Typography variant="caption" fontWeight={600}>
+            <Typography variant="caption" sx={{
+              fontWeight: 600
+            }}>
               Orphan Pages
             </Typography>
           </Box>
-          <Typography variant="caption" color="text.secondary" display="block">
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              display: "block"
+            }}>
             Pages with no incoming links (hard to discover):
           </Typography>
           <Stack spacing={0.5} sx={{ mt: 1 }}>
@@ -85,7 +108,9 @@ const OverviewPanel: React.FC<OverviewPanelProps> = ({ result, onExportJSON }) =
               </Typography>
             ))}
             {result.orphanPages.length > 3 && (
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" sx={{
+                color: "text.secondary"
+              }}>
                 +{result.orphanPages.length - 3} more
               </Typography>
             )}

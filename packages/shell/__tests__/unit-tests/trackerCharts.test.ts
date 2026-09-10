@@ -45,7 +45,13 @@ const session = (projectName: string, activeMs: number) => ({
 
 /** The day shape the charts read, with only the fields each one actually touches. */
 const day = (parts: Partial<Parameters<typeof dayByHourChart>[0] & object>) =>
-  ({ intervals: [], sessions: [], appUsage: [], screenshots: [], ...parts }) as never;
+  (({
+    intervals: [],
+    sessions: [],
+    appUsage: [],
+    screenshots: [],
+    ...parts
+  }) as never);
 
 describe('monthHoursChart', () => {
   it('splits each day into worked, idle and off-computer', () => {

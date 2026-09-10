@@ -37,7 +37,11 @@ function LoginPageCard({ index, app }: Readonly<LoginPageCardProps>) {
       </Flex>
 
       <Grid container spacing={1.5}>
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}>
           <RhfImageField
             editableUrl
             name={`loginPages.${index}.backgroundImageUrl`}
@@ -46,7 +50,11 @@ function LoginPageCard({ index, app }: Readonly<LoginPageCardProps>) {
             helperText="Paste a hosted image URL, or upload one."
           />
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 8
+          }}>
           <Flex direction="column" spacing={1.5}>
             <RhfTextField
               name={`loginPages.${index}.name`}

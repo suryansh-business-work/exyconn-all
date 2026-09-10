@@ -85,7 +85,9 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
               <Typography variant="body2" noWrap>
                 {zone}
               </Typography>
-              <Typography variant="caption" color="text.secondary" noWrap>
+              <Typography variant="caption" noWrap sx={{
+                color: "text.secondary"
+              }}>
                 {offsets.get(zone)}
               </Typography>
             </Box>
@@ -110,7 +112,9 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
         )}
       />
 
-      <Typography variant="caption" color="text.secondary">
+      <Typography variant="caption" sx={{
+        color: "text.secondary"
+      }}>
         It is {formatTimeOfDay(new Date().toISOString(), timezone)} there right now.
       </Typography>
 

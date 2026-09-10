@@ -10,7 +10,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import ToggleButton from '@mui/material/ToggleButton';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import RotateLeft from '@mui/icons-material/RotateLeft';
@@ -70,7 +70,12 @@ export default function RotateImage() {
               >
                 <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
                 <Typography variant="h6" gutterBottom>Drag & Drop Image Here</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>JPG, PNG, WEBP, or GIF</Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                    mb: 2
+                  }}>JPG, PNG, WEBP, or GIF</Typography>
                 <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                   Browse Files
                   <input hidden accept="image/jpeg,image/png,image/webp,image/gif" type="file" onChange={onFileChange} />
@@ -134,7 +139,13 @@ export default function RotateImage() {
                 {processing ? 'Processing…' : 'Download Rotated Image'}
               </Button>
 
-              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 2 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  display: "block",
+                  mt: 2
+                }}>
                 Images are processed locally in your browser — they never leave your device.
               </Typography>
             </Paper>

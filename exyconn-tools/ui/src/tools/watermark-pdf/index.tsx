@@ -8,7 +8,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import TextField from '@mui/material/TextField';
 import Slider from '@mui/material/Slider';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import WaterDrop from '@mui/icons-material/WaterDrop';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -88,7 +88,12 @@ export default function WatermarkPdf() {
             >
               <CloudUpload sx={{ fontSize: 48, color: '#64748b', mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>or click to browse</Typography>
               <Button variant="outlined" component="label" sx={{ color: '#64748b', borderColor: '#64748b' }}>
                 Browse Files
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />

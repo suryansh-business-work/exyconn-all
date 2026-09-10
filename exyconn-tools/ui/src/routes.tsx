@@ -7,7 +7,13 @@ import NotFoundPage from './pages/NotFoundPage';
 import { getAllTools } from './shared/data/toolsData';
 
 const Loading: React.FC = () => (
-  <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minHeight: "60vh"
+    }}>
     <CircularProgress />
   </Box>
 );

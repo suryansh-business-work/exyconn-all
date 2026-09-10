@@ -41,7 +41,13 @@ export function PoliciesPage() {
       ) : (
         <Grid container spacing={2}>
           {ordered.map((policy) => (
-            <Grid item xs={12} sm={6} md={4} key={policy.id}>
+            <Grid
+              key={policy.id}
+              size={{
+                xs: 12,
+                sm: 6,
+                md: 4
+              }}>
               <PolicyCard policy={policy} onOpen={setReading} />
             </Grid>
           ))}

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Container } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Calculate } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import ROICalculator from './components/ROICalculator';

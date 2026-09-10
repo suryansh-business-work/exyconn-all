@@ -6,7 +6,7 @@ import Paper from '@mui/material/Paper';
 import LinearProgress from '@mui/material/LinearProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import TableChart from '@mui/icons-material/TableChart';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import RestartAlt from '@mui/icons-material/RestartAlt';

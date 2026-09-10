@@ -51,7 +51,13 @@ export function TicketThread({ ticketId }: Readonly<TicketThreadProps>) {
             opacity: reply.internal ? 0.95 : 1,
           }}
         >
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              alignItems: "center",
+              mb: 0.5
+            }}>
             <Text size="sm" weight="medium">
               {reply.authorName}
             </Text>

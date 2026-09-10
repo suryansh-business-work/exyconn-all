@@ -20,7 +20,9 @@ const CheckedLocations: React.FC<CheckedLocationsProps> = ({ locations }) => {
         }}
         onClick={() => setShowCheckedLocations(!showCheckedLocations)}
       >
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{
+          color: "text.secondary"
+        }}>
           Checked {locations.length} locations
         </Typography>
         <IconButton size="small">

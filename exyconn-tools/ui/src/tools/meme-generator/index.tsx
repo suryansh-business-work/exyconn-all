@@ -9,7 +9,7 @@ import Slider from '@mui/material/Slider';
 import TextField from '@mui/material/TextField';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import { MdAddPhotoAlternate } from 'react-icons/md';
@@ -80,7 +80,12 @@ export default function MemeGenerator() {
             >
               <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop an Image Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>
                 JPG, PNG, WEBP, GIF, or BMP
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
@@ -136,7 +141,13 @@ export default function MemeGenerator() {
                 Download PNG
               </Button>
 
-              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 2 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  display: "block",
+                  mt: 2
+                }}>
                 Images are processed locally in your browser — they never leave your device.
               </Typography>
             </Paper>

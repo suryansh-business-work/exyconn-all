@@ -26,7 +26,9 @@ const ExtractForm: React.FC<ExtractFormProps> = ({
   <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
       <Language color="primary" fontSize="small" />
-      <Typography variant="subtitle2" fontWeight={600}>
+      <Typography variant="subtitle2" sx={{
+        fontWeight: 600
+      }}>
         Sitemap URL
       </Typography>
     </Box>

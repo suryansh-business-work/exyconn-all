@@ -59,7 +59,12 @@ export default function ReportCalendar({
           />
         </TrackedDatesContext.Provider>
 
-        <Typography variant="caption" color="text.secondary" textAlign="center">
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+            textAlign: "center"
+          }}>
           Dotted days have tracked time. Pick one to see its screenshots.
         </Typography>
       </Stack>

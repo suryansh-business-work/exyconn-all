@@ -10,7 +10,11 @@ const PAY_TYPE_OPTIONS = enumOptions(Object.values(PayType));
 /** A money input. Half-width on anything but a phone, so the components read as a group. */
 function Money({ name, label, help }: Readonly<{ name: string; label: string; help?: string }>) {
   return (
-    <Grid item xs={12} sm={6}>
+    <Grid
+      size={{
+        xs: 12,
+        sm: 6
+      }}>
       <RhfTextField
         name={name}
         label={label}
@@ -52,15 +56,23 @@ export function CompensationFields() {
         Compensation
       </Typography>
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6
+          }}>
           <RhfSelect name="payType" label="Pay type" options={PAY_TYPE_OPTIONS} />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6
+          }}>
           <RhfTextField name="currency" label="Currency" />
         </Grid>
 
         {payType === PayType.Other && (
-          <Grid item xs={12}>
+          <Grid size={12}>
             <RhfTextField
               name="payTypeNote"
               label="Pay arrangement"
@@ -77,7 +89,11 @@ export function CompensationFields() {
           label="Billing rate per hour"
           help="What the tracker bills an hour of this person's time at. Leave 0 if their time is not billed."
         />
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6
+          }}>
           <RhfDatePicker name="effectiveFrom" label="Effective from" />
         </Grid>
       </Grid>

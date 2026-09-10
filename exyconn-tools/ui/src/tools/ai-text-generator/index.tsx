@@ -3,7 +3,7 @@ import {
   Container, Box, Typography, TextField, Button, Alert, Snackbar,
   Paper, LinearProgress, MenuItem, Chip,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { AutoAwesome, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -122,7 +122,9 @@ const AITextGenerator: React.FC = () => {
             {!result && !isLoading && (
               <Paper sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
                 <AutoAwesome sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography color="text.secondary">Enter a topic and select content type to generate</Typography>
+                <Typography sx={{
+                  color: "text.secondary"
+                }}>Enter a topic and select content type to generate</Typography>
               </Paper>
             )}
           </Grid>

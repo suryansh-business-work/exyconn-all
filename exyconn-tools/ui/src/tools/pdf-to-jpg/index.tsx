@@ -9,7 +9,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Image from '@mui/icons-material/Image';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -105,7 +105,9 @@ export default function PdfToJpg() {
             <CloudUpload sx={{ fontSize: 48, color: '#ec4899', mb: 1 }} />
             <Typography>{file ? file.name : 'Drop a PDF here or click to upload'}</Typography>
             {pageCount > 0 && (
-              <Typography variant="body2" color="text.secondary">{pageCount} page(s)</Typography>
+              <Typography variant="body2" sx={{
+                color: "text.secondary"
+              }}>{pageCount} page(s)</Typography>
             )}
           </Paper>
         </Grid>

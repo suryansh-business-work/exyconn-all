@@ -16,8 +16,15 @@ const CategorySidebar: React.FC<Readonly<CategorySelectProps>> = ({
 
   return (
     <Paper sx={{ p: 1, border: 1, borderColor: 'divider', position: 'sticky', top: 68 }}>
-      <Typography variant="caption" fontWeight={700} color="text.secondary"
-        sx={{ px: 1.5, py: 1, display: 'block' }}>
+      <Typography
+        variant="caption"
+        sx={{
+          fontWeight: 700,
+          color: "text.secondary",
+          px: 1.5,
+          py: 1,
+          display: 'block'
+        }}>
         CATEGORIES
       </Typography>
 

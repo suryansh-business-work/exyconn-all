@@ -62,10 +62,14 @@ export default function AppHeader({
 
         <Typography
           variant="caption"
-          color="text.secondary"
           noWrap
-          sx={{ flex: '1 1 auto', minWidth: 0, textAlign: 'right', fontWeight: 600 }}
-        >
+          sx={{
+            color: "text.secondary",
+            flex: '1 1 auto',
+            minWidth: 0,
+            textAlign: 'right',
+            fontWeight: 600
+          }}>
           {title}
         </Typography>
 

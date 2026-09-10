@@ -43,7 +43,9 @@ const CustomSizesSection: React.FC<CustomSizesSectionProps> = ({
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
         <Typography variant="caption">✨</Typography>
-        <Typography variant="subtitle2" fontWeight={600}>
+        <Typography variant="subtitle2" sx={{
+          fontWeight: 600
+        }}>
           Custom Sizes
         </Typography>
         <Chip label={customSizes.length} size="small" color="primary" sx={{ height: 18, fontSize: '0.65rem' }} />

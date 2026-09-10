@@ -28,7 +28,12 @@ const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDow
         >
           <InsertDriveFile sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#4285f4' }} />
           <Typography variant="body1">Enter a Google Docs URL</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+              mt: 1
+            }}>
             Convert shared Google Docs to clean Markdown
           </Typography>
         </Box>
@@ -44,7 +49,9 @@ const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDow
               alignItems: 'center',
             }}
           >
-            <Typography variant="subtitle2" fontWeight={600}>
+            <Typography variant="subtitle2" sx={{
+              fontWeight: 600
+            }}>
               Converted Markdown
             </Typography>
             <Box>

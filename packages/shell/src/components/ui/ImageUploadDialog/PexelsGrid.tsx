@@ -3,7 +3,7 @@ import {
   Box,
   ButtonBase,
   duration,
-  Grid2,
+  Grid,
   iconSize,
   onScrim,
   scrim,
@@ -96,12 +96,12 @@ interface PexelsGridProps {
 /** Result grid shared by the stock photo and stock video tabs. */
 export function PexelsGrid({ items, onPick }: Readonly<PexelsGridProps>) {
   return (
-    <Grid2 container spacing={1}>
+    <Grid container spacing={1}>
       {items.map((item) => (
-        <Grid2 key={item.id} size={{ xs: 6, sm: 4 }}>
+        <Grid key={item.id} size={{ xs: 6, sm: 4 }}>
           <PexelsTile item={item} onPick={onPick} />
-        </Grid2>
+        </Grid>
       ))}
-    </Grid2>
+    </Grid>
   );
 }

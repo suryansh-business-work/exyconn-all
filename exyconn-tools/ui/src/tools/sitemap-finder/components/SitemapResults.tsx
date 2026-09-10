@@ -47,7 +47,9 @@ const SitemapResults: React.FC<SitemapResultsProps> = ({ result }) => {
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 3 }}>
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h6" fontWeight={600}>
+        <Typography variant="h6" sx={{
+          fontWeight: 600
+        }}>
           Sitemap Results
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -75,7 +77,9 @@ const SitemapResults: React.FC<SitemapResultsProps> = ({ result }) => {
       {result.sitemapsFound.length > 0 ? (
         <>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="subtitle1" fontWeight={600}>
+            <Typography variant="subtitle1" sx={{
+              fontWeight: 600
+            }}>
               Found Sitemaps
             </Typography>
             <Tooltip title="Copy all sitemap URLs">

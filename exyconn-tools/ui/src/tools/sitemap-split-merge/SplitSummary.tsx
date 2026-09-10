@@ -11,7 +11,9 @@ interface SplitSummaryProps {
 const SplitSummary: React.FC<SplitSummaryProps> = ({ result, onDownloadAll }) => (
   <Paper elevation={0} sx={{ p: 2, mt: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-      <Typography variant="subtitle2" fontWeight={600}>
+      <Typography variant="subtitle2" sx={{
+        fontWeight: 600
+      }}>
         Split Results
       </Typography>
       <Tooltip title="Download All">
@@ -20,10 +22,14 @@ const SplitSummary: React.FC<SplitSummaryProps> = ({ result, onDownloadAll }) =>
         </IconButton>
       </Tooltip>
     </Box>
-    <Typography variant="body2" color="text.secondary">
+    <Typography variant="body2" sx={{
+      color: "text.secondary"
+    }}>
       Total URLs: <strong>{result.totalUrls.toLocaleString()}</strong>
     </Typography>
-    <Typography variant="body2" color="text.secondary">
+    <Typography variant="body2" sx={{
+      color: "text.secondary"
+    }}>
       Split into: <strong>{result.sitemaps.length} files</strong>
     </Typography>
   </Paper>

@@ -8,7 +8,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import LockOpen from '@mui/icons-material/LockOpen';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -80,7 +80,12 @@ export default function UnlockPdf() {
             >
               <CloudUpload sx={{ fontSize: 48, color: '#ef4444', mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop Protected PDF</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>or click to browse</Typography>
               <Button variant="outlined" component="label" color="error">
                 Browse Files<input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
@@ -88,7 +93,9 @@ export default function UnlockPdf() {
             {file && (
               <Paper sx={{ p: 2, mt: 2 }}>
                 <Typography variant="body2"><strong>{file.name}</strong></Typography>
-                <Typography variant="body2" color="text.secondary">Size: {formatSize(file.size)}</Typography>
+                <Typography variant="body2" sx={{
+                  color: "text.secondary"
+                }}>Size: {formatSize(file.size)}</Typography>
               </Paper>
             )}
             <Box sx={{ mt: 2 }}>

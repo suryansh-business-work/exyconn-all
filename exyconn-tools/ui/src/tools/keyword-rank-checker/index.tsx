@@ -3,7 +3,7 @@ import {
   Container, Box, Typography, TextField, Button, Alert, Snackbar,
   Paper, LinearProgress, Chip,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { TrendingUp, Search, Info } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -77,29 +77,51 @@ const KeywordRankChecker: React.FC = () => {
                 </Box>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
                   <Paper variant="outlined" sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }}>
-                    <Typography variant="h4" fontWeight="bold" color={result.score >= 70 ? '#22c55e' : result.score >= 40 ? '#f59e0b' : '#ef4444'}>
+                    <Typography variant="h4" color={result.score >= 70 ? '#22c55e' : result.score >= 40 ? '#f59e0b' : '#ef4444'} sx={{
+                      fontWeight: "bold"
+                    }}>
                       {result.score}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">SEO Score</Typography>
+                    <Typography variant="caption" sx={{
+                      color: "text.secondary"
+                    }}>SEO Score</Typography>
                   </Paper>
                   <Paper variant="outlined" sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }}>
-                    <Typography variant="h5" fontWeight="bold" color="#0ea5e9">{result.links.internal}</Typography>
-                    <Typography variant="caption" color="text.secondary">Internal Links</Typography>
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        fontWeight: "bold",
+                        color: "#0ea5e9"
+                      }}>{result.links.internal}</Typography>
+                    <Typography variant="caption" sx={{
+                      color: "text.secondary"
+                    }}>Internal Links</Typography>
                   </Paper>
                   <Paper variant="outlined" sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }}>
-                    <Typography variant="h5" fontWeight="bold" color="#8b5cf6">{result.links.external}</Typography>
-                    <Typography variant="caption" color="text.secondary">External Links</Typography>
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        fontWeight: "bold",
+                        color: "#8b5cf6"
+                      }}>{result.links.external}</Typography>
+                    <Typography variant="caption" sx={{
+                      color: "text.secondary"
+                    }}>External Links</Typography>
                   </Paper>
                 </Box>
                 {result.title && (
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" color="text.secondary">Page Title</Typography>
+                    <Typography variant="subtitle2" sx={{
+                      color: "text.secondary"
+                    }}>Page Title</Typography>
                     <Typography variant="body1">{result.title}</Typography>
                   </Box>
                 )}
                 {result.description && (
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" color="text.secondary">Meta Description</Typography>
+                    <Typography variant="subtitle2" sx={{
+                      color: "text.secondary"
+                    }}>Meta Description</Typography>
                     <Typography variant="body2">{result.description}</Typography>
                   </Box>
                 )}
@@ -116,7 +138,9 @@ const KeywordRankChecker: React.FC = () => {
             {!result && !isLoading && (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <TrendingUp sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography color="text.secondary">Enter a URL to analyze its SEO health and ranking potential</Typography>
+                <Typography sx={{
+                  color: "text.secondary"
+                }}>Enter a URL to analyze its SEO health and ranking potential</Typography>
               </Paper>
             )}
           </Grid>

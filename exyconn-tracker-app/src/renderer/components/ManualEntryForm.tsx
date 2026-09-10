@@ -98,7 +98,9 @@ export default function ManualEntryForm({
 
   return (
     <Stack component="form" spacing={2} onSubmit={(event) => void submit(event)}>
-      <Typography variant="caption" color="text.secondary">
+      <Typography variant="caption" sx={{
+        color: "text.secondary"
+      }}>
         Claimed hours are the one thing the tracker did not measure, so they wait for a manager.
         Nothing here counts until somebody approves it.
       </Typography>

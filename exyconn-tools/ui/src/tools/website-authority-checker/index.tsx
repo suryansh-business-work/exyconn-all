@@ -3,7 +3,7 @@ import {
   Container, Box, Typography, TextField, Button, Alert, Snackbar,
   Paper, LinearProgress, Chip,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Leaderboard, Search, TrendingUp } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -78,8 +78,12 @@ const WebsiteAuthorityChecker: React.FC = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 2 }}>
                   <TrendingUp sx={{ fontSize: 32, color: getScoreColor(result.score) }} />
                   <Box>
-                    <Typography variant="h5" fontWeight="bold" color={getScoreColor(result.score)}>{result.score}/100</Typography>
-                    <Typography variant="body2" color="text.secondary">{result.domain}</Typography>
+                    <Typography variant="h5" color={getScoreColor(result.score)} sx={{
+                      fontWeight: "bold"
+                    }}>{result.score}/100</Typography>
+                    <Typography variant="body2" sx={{
+                      color: "text.secondary"
+                    }}>{result.domain}</Typography>
                   </Box>
                 </Box>
                 <LinearProgress variant="determinate" value={result.score} sx={{ height: 10, borderRadius: 5, mb: 3, '& .MuiLinearProgress-bar': { bgcolor: getScoreColor(result.score) } }} />
@@ -102,7 +106,9 @@ const WebsiteAuthorityChecker: React.FC = () => {
             {!result && !isLoading && (
               <Paper sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
                 <Leaderboard sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography color="text.secondary">Enter a domain to check its authority</Typography>
+                <Typography sx={{
+                  color: "text.secondary"
+                }}>Enter a domain to check its authority</Typography>
               </Paper>
             )}
           </Grid>

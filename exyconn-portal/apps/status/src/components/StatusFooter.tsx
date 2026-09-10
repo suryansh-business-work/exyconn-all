@@ -12,7 +12,9 @@ export function StatusFooter() {
           alignItems={{ xs: 'flex-start', sm: 'center' }}
           spacing={1}
         >
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             © {new Date().getFullYear()} Exyconn. Availability is measured from our own monitoring,
             not from a third party.
           </Typography>

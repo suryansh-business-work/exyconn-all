@@ -28,7 +28,12 @@ const SecretFieldItem: React.FC<SecretFieldItemProps> = ({
 }) => (
   <Box sx={{ mb: 2, '&:last-child': { mb: 0 } }}>
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-      <Typography variant="body2" fontWeight={600} fontSize={12}>{field.label}</Typography>
+      <Typography
+        variant="body2"
+        sx={{
+          fontWeight: 600,
+          fontSize: 12
+        }}>{field.label}</Typography>
       {isSaved && (
         <Chip size="small" icon={<CheckCircle sx={{ fontSize: '12px !important' }} />}
           label="Saved" color="success" variant="outlined"
@@ -39,26 +44,28 @@ const SecretFieldItem: React.FC<SecretFieldItemProps> = ({
       value={value}
       onChange={(e) => onValueChange(e.target.value)}
       type={isVisible ? 'text' : 'password'}
-      InputProps={{
-        sx: { fontSize: '0.8rem', fontFamily: 'monospace' },
-        endAdornment: (
-          <InputAdornment position="end">
-            <Box sx={{ display: 'flex', gap: 0.25 }}>
-              <Tooltip title={isVisible ? 'Hide' : 'Show'}>
-                <IconButton size="small" onClick={onToggleVisibility}>
-                  {isVisible ? <VisibilityOff sx={{ fontSize: 16 }} /> : <Visibility sx={{ fontSize: 16 }} />}
-                </IconButton>
-              </Tooltip>
-              {value && (
-                <Tooltip title={isCopied ? 'Copied!' : 'Copy'}>
-                  <IconButton size="small" onClick={onCopy}>
-                    <ContentCopy sx={{ fontSize: 14 }} />
+      slotProps={{
+        input: {
+          sx: { fontSize: '0.8rem', fontFamily: 'monospace' },
+          endAdornment: (
+            <InputAdornment position="end">
+              <Box sx={{ display: 'flex', gap: 0.25 }}>
+                <Tooltip title={isVisible ? 'Hide' : 'Show'}>
+                  <IconButton size="small" onClick={onToggleVisibility}>
+                    {isVisible ? <VisibilityOff sx={{ fontSize: 16 }} /> : <Visibility sx={{ fontSize: 16 }} />}
                   </IconButton>
                 </Tooltip>
-              )}
-            </Box>
-          </InputAdornment>
-        ),
+                {value && (
+                  <Tooltip title={isCopied ? 'Copied!' : 'Copy'}>
+                    <IconButton size="small" onClick={onCopy}>
+                      <ContentCopy sx={{ fontSize: 14 }} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
+            </InputAdornment>
+          ),
+        }
       }}
     />
     <Box sx={{ display: 'flex', gap: 0.5, mt: 0.75 }}>
@@ -79,10 +86,23 @@ const SecretFieldItem: React.FC<SecretFieldItemProps> = ({
     <Box sx={{ bgcolor: 'action.hover', borderRadius: 1, p: 1.5 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
         <Info sx={{ fontSize: 14, color: 'info.main' }} />
-        <Typography variant="caption" fontWeight={600} color="info.main">How to get this key</Typography>
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 600,
+            color: "info.main"
+          }}>How to get this key</Typography>
       </Box>
-      <Typography variant="caption" color="text.secondary" component="pre"
-        sx={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', m: 0, lineHeight: 1.6 }}>
+      <Typography
+        variant="caption"
+        component="pre"
+        sx={{
+          color: "text.secondary",
+          whiteSpace: 'pre-wrap',
+          fontFamily: 'inherit',
+          m: 0,
+          lineHeight: 1.6
+        }}>
         {field.instruction}
       </Typography>
       <MuiLink href={field.helpUrl} target="_blank" rel="noopener noreferrer"

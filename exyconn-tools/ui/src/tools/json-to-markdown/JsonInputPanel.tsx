@@ -17,7 +17,9 @@ const JsonInputPanel: React.FC<JsonInputPanelProps> = ({
   return (
     <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="subtitle2" fontWeight={600}>
+        <Typography variant="subtitle2" sx={{
+          fontWeight: 600
+        }}>
           JSON Content
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>

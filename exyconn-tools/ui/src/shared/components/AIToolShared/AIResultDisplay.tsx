@@ -34,7 +34,9 @@ const AIResultDisplay: React.FC<AIResultDisplayProps> = ({ result, title = 'Gene
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <AutoAwesome color="primary" fontSize="small" />
-          <Typography variant="subtitle2" fontWeight={600}>
+          <Typography variant="subtitle2" sx={{
+            fontWeight: 600
+          }}>
             {title}
           </Typography>
         </Box>
@@ -51,7 +53,13 @@ const AIResultDisplay: React.FC<AIResultDisplayProps> = ({ result, title = 'Gene
       </Box>
       {tokenUsage && (
         <Box sx={{ px: 2, pb: 1.5, borderTop: 1, borderColor: 'divider', pt: 1.5 }}>
-          <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              alignItems: "center",
+              flexWrap: "wrap"
+            }}>
             <Token sx={{ fontSize: 16, color: 'text.secondary' }} />
             <Chip label={`Prompt: ${tokenUsage.promptTokens}`} size="small" variant="outlined" sx={{ height: 22 }} />
             <Chip

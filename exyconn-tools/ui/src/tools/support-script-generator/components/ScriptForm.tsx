@@ -27,7 +27,9 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ onSubmit, isLoading }) => {
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <SupportAgent color="primary" />
-        <Typography variant="h6" fontWeight={600}>Script Details</Typography>
+        <Typography variant="h6" sx={{
+          fontWeight: 600
+        }}>Script Details</Typography>
       </Box>
       <form onSubmit={formik.handleSubmit}>
         <TextField fullWidth name="topic" label="Support Topic" placeholder="e.g., Product returns, billing issues..."

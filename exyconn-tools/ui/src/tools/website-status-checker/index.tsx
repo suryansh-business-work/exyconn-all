@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar, Chip, Box, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { MonitorHeart } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay, KeyValueTable } from '../../shared/components/DomainToolShared';
@@ -44,13 +44,20 @@ const WebsiteStatusChecker: React.FC = () => {
             {result && (
               <DomainResultDisplay title="Website Status" icon={<MonitorHeart fontSize="small" />} data={result}>
                 <Box sx={{ textAlign: 'center', py: 3, mb: 2 }}>
-                  <Typography variant="h2" fontWeight={700}
-                    color={result.isUp ? 'success.main' : 'error.main'}>
+                  <Typography variant="h2" color={result.isUp ? 'success.main' : 'error.main'}
+                    sx={{
+                      fontWeight: 700
+                    }}>
                     {result.isUp ? 'UP' : 'DOWN'}
                   </Typography>
                   <Chip label={`${result.statusCode} ${result.statusText}`}
                     color={result.isUp ? 'success' : 'error'} sx={{ mt: 1 }} />
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                      mt: 1
+                    }}>
                     Response Time: {String(result.responseTime)}ms
                   </Typography>
                 </Box>

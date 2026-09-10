@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Container, Box, Typography, TextField, Button, Paper, Chip, Slider, Snackbar, Alert,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { QrCode, Download, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import {
@@ -18,13 +18,23 @@ interface ColorFieldProps {
 
 const ColorField: React.FC<Readonly<ColorFieldProps>> = ({ label, value, onChange }) => (
   <Box>
-    <Typography variant="caption" color="text.secondary" display="block">{label}</Typography>
+    <Typography
+      variant="caption"
+      sx={{
+        color: "text.secondary",
+        display: "block"
+      }}>{label}</Typography>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
       <TextField type="color" size="small" value={value}
         onChange={(e) => onChange(e.target.value)}
         slotProps={{ htmlInput: { 'aria-label': `${label} color` } }}
         sx={{ width: 48, '& input': { p: 0.25, cursor: 'pointer', height: 28 } }} />
-      <Typography variant="caption" color="text.secondary" fontFamily="monospace">{value}</Typography>
+      <Typography
+        variant="caption"
+        sx={{
+          color: "text.secondary",
+          fontFamily: "monospace"
+        }}>{value}</Typography>
     </Box>
   </Box>
 );
@@ -73,7 +83,13 @@ const ReviewQRCode: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2, fontSize: '1rem' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 2,
+                  fontSize: '1rem'
+                }}>
                 Generate Review QR Code
               </Typography>
               <TextField fullWidth size="small" label="Google Place ID"
@@ -87,15 +103,29 @@ const ReviewQRCode: React.FC = () => {
                 Generate QR Code
               </Button>
 
-              <Typography variant="subtitle2" fontWeight={700} sx={{ mt: 3, mb: 1 }}>Customize</Typography>
-              <Typography variant="body2" color="text.secondary">Size: {size}px</Typography>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  fontWeight: 700,
+                  mt: 3,
+                  mb: 1
+                }}>Customize</Typography>
+              <Typography variant="body2" sx={{
+                color: "text.secondary"
+              }}>Size: {size}px</Typography>
               <Slider value={size} min={QR_SIZE_MIN} max={QR_SIZE_MAX} step={10} size="small"
                 onChange={(_, v) => setSize(v as number)} aria-label="QR code size" />
               <Box sx={{ display: 'flex', gap: 3, mt: 1 }}>
                 <ColorField label="Foreground" value={fgColor} onChange={setFgColor} />
                 <ColorField label="Background" value={bgColor} onChange={setBgColor} />
               </Box>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontSize: '0.75rem' }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mt: 2,
+                  fontSize: '0.75rem'
+                }}>
                 QR codes are generated with error-correction level M and scan reliably at any of the sizes above.
               </Typography>
             </Paper>
@@ -104,7 +134,12 @@ const ReviewQRCode: React.FC = () => {
           <Grid size={{ xs: 12, md: 7 }}>
             {generatedLink && (
               <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
-                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2 }}>Your QR Code</Typography>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 700,
+                    mb: 2
+                  }}>Your QR Code</Typography>
                 <Box sx={{ mb: 2 }}>
                   <canvas ref={canvasRef} aria-label="Review QR code preview"
                     style={{ maxWidth: '100%', height: 'auto', border: '1px solid #e0e0e0', borderRadius: 8 }} />

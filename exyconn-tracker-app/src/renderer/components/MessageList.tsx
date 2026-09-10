@@ -51,7 +51,12 @@ export default function MessageList({
     return (
       <Surface sx={{ p: 4, textAlign: 'center' }}>
         <Typography variant="subtitle1">{emptyTitle}</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mt: 0.5
+          }}>
           {emptyBody}
         </Typography>
       </Surface>

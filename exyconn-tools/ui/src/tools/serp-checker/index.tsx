@@ -4,7 +4,7 @@ import {
   Paper, LinearProgress, Chip, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { ListAlt, Search, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -98,7 +98,9 @@ const SerpChecker: React.FC = () => {
             {results.length === 0 && !isLoading && (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <ListAlt sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography color="text.secondary">Enter a keyword to analyze related search queries</Typography>
+                <Typography sx={{
+                  color: "text.secondary"
+                }}>Enter a keyword to analyze related search queries</Typography>
               </Paper>
             )}
           </Grid>

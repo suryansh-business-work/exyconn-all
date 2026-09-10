@@ -29,7 +29,9 @@ export default function MessagesScreen({ timezone }: Readonly<Props>): ReactElem
     <Stack spacing={2}>
       <Stack spacing={0.25}>
         <Typography variant="h6">Messages</Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{
+          color: "text.secondary"
+        }}>
           Between you and whoever administers tracking in your workspace.
         </Typography>
       </Stack>

@@ -21,7 +21,9 @@ export function TrackerDeviceLastSeen({
 }: Readonly<TrackerDeviceLastSeenProps>) {
   const online = isActive && isDeviceOnline(lastSeenAt);
   return (
-    <Stack direction="row" spacing={1} alignItems="center">
+    <Stack direction="row" spacing={1} sx={{
+      alignItems: "center"
+    }}>
       {online && <Chip label="Online" size="small" color="success" />}
       <Text size="sm" color={online ? 'text.primary' : 'text.secondary'}>
         {formatDateTime(lastSeenAt)}

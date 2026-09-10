@@ -4,7 +4,7 @@ import {
   Alert, LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Snackbar, Tabs, Tab,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { RateReview, ContentCopy, OpenInNew, Search, Star, StoreMallDirectory } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyAlert';
@@ -122,8 +122,12 @@ const GoogleReviewLink: React.FC = () => {
                       {searchResults.map((p) => (
                         <TableRow key={p.placeId} hover sx={{ cursor: 'pointer' }} onClick={() => handleSelectPlace(p)}>
                           <TableCell>
-                            <Typography variant="body2" fontWeight={600}>{p.name}</Typography>
-                            <Typography variant="caption" color="text.secondary">{p.address}</Typography>
+                            <Typography variant="body2" sx={{
+                              fontWeight: 600
+                            }}>{p.name}</Typography>
+                            <Typography variant="caption" sx={{
+                              color: "text.secondary"
+                            }}>{p.address}</Typography>
                           </TableCell>
                           <TableCell align="center">
                             {p.rating && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, justifyContent: 'center' }}>
@@ -145,9 +149,19 @@ const GoogleReviewLink: React.FC = () => {
           <Grid size={{ xs: 12, md: 7 }}>
             {generatedLink ? (
               <Paper sx={{ p: 3 }}>
-                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2 }}>Your Review Link</Typography>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 700,
+                    mb: 2
+                  }}>Your Review Link</Typography>
                 <Box sx={{ bgcolor: 'action.hover', p: 2, mb: 2, wordBreak: 'break-all' }}>
-                  <Typography variant="body2" fontFamily="monospace" fontSize="0.8rem">{generatedLink}</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontFamily: "monospace",
+                      fontSize: "0.8rem"
+                    }}>{generatedLink}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   <Button size="small" variant="contained" startIcon={<ContentCopy />} onClick={handleCopy} sx={{ textTransform: 'none' }}>
@@ -166,7 +180,9 @@ const GoogleReviewLink: React.FC = () => {
             ) : (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <RateReview sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography color="text.secondary">Search for your business or enter a Place ID to generate a review link</Typography>
+                <Typography sx={{
+                  color: "text.secondary"
+                }}>Search for your business or enter a Place ID to generate a review link</Typography>
               </Paper>
             )}
           </Grid>

@@ -24,7 +24,13 @@ export function PostCard({ post, onLike, onShare, onDelete }: Readonly<PostCardP
   return (
     <Card variant="outlined">
       <CardContent>
-        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "flex-start"
+          }}>
           <AuthorLine author={post.author} at={post.createdAt} />
           {post.canDelete && (
             <Tooltip title="Delete post">

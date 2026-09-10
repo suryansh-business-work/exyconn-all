@@ -14,12 +14,18 @@ interface Props {
  */
 export default function TrayPreference({ preferences }: Readonly<Props>): ReactElement {
   return (
-    <Stack direction="row" spacing={2} alignItems="flex-start">
+    <Stack direction="row" spacing={2} sx={{
+      alignItems: "flex-start"
+    }}>
       <Stack spacing={0.25} sx={{ flex: 1, minWidth: 0 }}>
-        <Typography variant="body2" fontWeight={600}>
+        <Typography variant="body2" sx={{
+          fontWeight: 600
+        }}>
           Keep running in the tray
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{
+          color: "text.secondary"
+        }}>
           {preferences.closeToTray
             ? 'Closing the window hides it. Tracking carries on, and the tray icon stays as the reminder.'
             : 'Closing the window quits the tracker, and tracking stops with it.'}

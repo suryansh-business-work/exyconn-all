@@ -3,7 +3,7 @@ import {
   Container, Box, Typography, TextField, Button, Alert, Snackbar,
   Paper, LinearProgress, Chip,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Visibility, Search } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -87,20 +87,34 @@ const AISearchVisibility: React.FC = () => {
                   <Typography variant="h6" gutterBottom>AI Readiness Analysis</Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>
                     <Paper variant="outlined" sx={{ p: 2, flex: '1 1 100px', textAlign: 'center' }}>
-                      <Typography variant="h4" fontWeight="bold" color={result.score >= 70 ? '#22c55e' : result.score >= 40 ? '#f59e0b' : '#ef4444'}>
+                      <Typography variant="h4" color={result.score >= 70 ? '#22c55e' : result.score >= 40 ? '#f59e0b' : '#ef4444'} sx={{
+                        fontWeight: "bold"
+                      }}>
                         {result.score}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">SEO Score</Typography>
+                      <Typography variant="caption" sx={{
+                        color: "text.secondary"
+                      }}>SEO Score</Typography>
                     </Paper>
                     <Paper variant="outlined" sx={{ p: 2, flex: '1 1 100px', textAlign: 'center' }}>
-                      <Typography variant="h5" fontWeight="bold" color={result.wordCount > 300 ? '#22c55e' : '#f59e0b'}>
+                      <Typography variant="h5" color={result.wordCount > 300 ? '#22c55e' : '#f59e0b'} sx={{
+                        fontWeight: "bold"
+                      }}>
                         {result.wordCount}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">Word Count</Typography>
+                      <Typography variant="caption" sx={{
+                        color: "text.secondary"
+                      }}>Word Count</Typography>
                     </Paper>
                     <Paper variant="outlined" sx={{ p: 2, flex: '1 1 100px', textAlign: 'center' }}>
                       <Chip label={result.hasStructuredData ? 'Yes' : 'No'} color={result.hasStructuredData ? 'success' : 'error'} size="small" />
-                      <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>Structured Data</Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "text.secondary",
+                          display: "block",
+                          mt: 0.5
+                        }}>Structured Data</Typography>
                     </Paper>
                   </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
@@ -111,7 +125,9 @@ const AISearchVisibility: React.FC = () => {
                   </Box>
                 </Paper>
                 <Paper sx={{ p: 3 }}>
-                  <Typography variant="subtitle1" fontWeight="bold" gutterBottom>Tips to Improve AI Visibility</Typography>
+                  <Typography variant="subtitle1" gutterBottom sx={{
+                    fontWeight: "bold"
+                  }}>Tips to Improve AI Visibility</Typography>
                   {tips.map((tip, i) => (
                     <Alert key={i} severity="info" sx={{ mb: 1, py: 0 }}>{tip}</Alert>
                   ))}
@@ -121,7 +137,9 @@ const AISearchVisibility: React.FC = () => {
             {!result && !isLoading && (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <Visibility sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography color="text.secondary">Enter your website URL to check AI search visibility</Typography>
+                <Typography sx={{
+                  color: "text.secondary"
+                }}>Enter your website URL to check AI search visibility</Typography>
               </Paper>
             )}
           </Grid>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Container, Alert, Snackbar, Paper, Box, Typography, TextField, Button, MenuItem, CircularProgress,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Link, Send } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIKeyInput, AIResultDisplay, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
@@ -68,7 +68,9 @@ const WebpageFAQGenerator: React.FC = () => {
             <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Link color="primary" />
-                <Typography variant="h6" fontWeight={600}>Webpage URL</Typography>
+                <Typography variant="h6" sx={{
+                  fontWeight: 600
+                }}>Webpage URL</Typography>
               </Box>
               <TextField fullWidth label="Webpage URL" placeholder="https://example.com/about" value={url}
                 onChange={(e) => setUrl(e.target.value)} sx={{ mb: 2 }} />

@@ -10,7 +10,7 @@ import Alert from '@mui/material/Alert';
 import Slider from '@mui/material/Slider';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import Cropper from 'react-easy-crop';
@@ -74,7 +74,12 @@ export default function CropImage() {
               >
                 <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
                 <Typography variant="h6" gutterBottom>Drag & Drop Image Here</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                    mb: 2
+                  }}>or click to browse</Typography>
                 <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                   Browse Files
                   <input hidden accept="image/*" type="file" onChange={onFileChange} />
@@ -114,7 +119,12 @@ export default function CropImage() {
               <Typography variant="subtitle2">Zoom: {zoom.toFixed(1)}x</Typography>
               <Slider min={1} max={5} step={0.1} value={zoom} disabled={!imageSrc} onChange={(_, v) => setZoom(v as number)} sx={{ color: COLOR, mb: 1 }} />
               {areaPixels && (
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                    mb: 1
+                  }}>
                   Selection: {areaPixels.width} × {areaPixels.height}px
                 </Typography>
               )}
@@ -132,7 +142,13 @@ export default function CropImage() {
                   </Button>
                 </>
               )}
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  display: 'block',
+                  mt: 2
+                }}>
                 Your image is processed locally in your browser — it never leaves your device.
               </Typography>
             </Paper>

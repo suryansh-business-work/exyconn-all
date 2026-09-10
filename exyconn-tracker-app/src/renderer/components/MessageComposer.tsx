@@ -32,7 +32,9 @@ export default function MessageComposer({ sending, onSend }: Readonly<Props>): R
   };
 
   return (
-    <Stack direction="row" spacing={1} alignItems="flex-end">
+    <Stack direction="row" spacing={1} sx={{
+      alignItems: "flex-end"
+    }}>
       <TextField
         fullWidth
         multiline

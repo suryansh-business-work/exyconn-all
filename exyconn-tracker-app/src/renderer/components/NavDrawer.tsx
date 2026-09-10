@@ -76,7 +76,13 @@ export default function NavDrawer({
         }),
       }}
     >
-      <Stack direction="row" spacing={1.5} alignItems="center" sx={{ p: 2.5 }}>
+      <Stack
+        direction="row"
+        spacing={1.5}
+        sx={{
+          alignItems: "center",
+          p: 2.5
+        }}>
         <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40, fontWeight: 700 }}>
           {initials(name)}
         </Avatar>
@@ -84,7 +90,13 @@ export default function NavDrawer({
           <Typography variant="subtitle2" noWrap>
             {name}
           </Typography>
-          <Typography variant="caption" color="text.secondary" noWrap display="block">
+          <Typography
+            variant="caption"
+            noWrap
+            sx={{
+              color: "text.secondary",
+              display: "block"
+            }}>
             {user?.email ?? ''}
           </Typography>
         </Box>

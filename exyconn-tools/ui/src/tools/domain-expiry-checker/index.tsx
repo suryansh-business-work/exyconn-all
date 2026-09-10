@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar, Chip, Box, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Schedule } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay, KeyValueTable } from '../../shared/components/DomainToolShared';
@@ -45,11 +45,15 @@ const DomainExpiryChecker: React.FC = () => {
               <DomainResultDisplay title={`Domain Expiry - ${result.domain}`} icon={<Schedule fontSize="small" />} data={result}>
                 {days !== null && (
                   <Box sx={{ mb: 2, textAlign: 'center' }}>
-                    <Typography variant="h3" fontWeight={700}
-                      color={days > 90 ? 'success.main' : days > 30 ? 'warning.main' : 'error.main'}>
+                    <Typography variant="h3" color={days > 90 ? 'success.main' : days > 30 ? 'warning.main' : 'error.main'}
+                      sx={{
+                        fontWeight: 700
+                      }}>
                       {days}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">days until expiry</Typography>
+                    <Typography variant="body2" sx={{
+                      color: "text.secondary"
+                    }}>days until expiry</Typography>
                     <Chip label={days > 90 ? 'Safe' : days > 30 ? 'Renew Soon' : 'Critical'}
                       color={days > 90 ? 'success' : days > 30 ? 'warning' : 'error'} sx={{ mt: 1 }} />
                   </Box>

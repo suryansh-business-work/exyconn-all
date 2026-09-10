@@ -49,7 +49,9 @@ const SizeSection: React.FC<SizeSectionProps> = ({
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
         <Typography variant="caption">{emoji}</Typography>
-        <Typography variant="subtitle2" fontWeight={600}>
+        <Typography variant="subtitle2" sx={{
+          fontWeight: 600
+        }}>
           {title}
         </Typography>
         <Chip

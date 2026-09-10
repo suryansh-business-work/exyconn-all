@@ -3,7 +3,7 @@ import {
   Container, Alert, Snackbar, Chip, Box, Typography,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { GppBad } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay } from '../../shared/components/DomainToolShared';
@@ -45,13 +45,20 @@ const BlacklistCheck: React.FC = () => {
             {result && (
               <DomainResultDisplay title={`Blacklist Results - ${result.domain}`} icon={<GppBad fontSize="small" />} data={result}>
                 <Box sx={{ textAlign: 'center', py: 2, mb: 2 }}>
-                  <Typography variant="h4" fontWeight={700}
-                    color={result.isClean ? 'success.main' : 'error.main'}>
+                  <Typography variant="h4" color={result.isClean ? 'success.main' : 'error.main'}
+                    sx={{
+                      fontWeight: 700
+                    }}>
                     {result.isClean ? 'CLEAN' : 'LISTED'}
                   </Typography>
                   <Chip label={`${result.listedCount}/${result.totalChecked} blacklists`}
                     color={result.isClean ? 'success' : 'error'} sx={{ mt: 1 }} />
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>IP: {result.ip as string}</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                      mt: 1
+                    }}>IP: {result.ip as string}</Typography>
                 </Box>
                 <TableContainer>
                   <Table size="small">

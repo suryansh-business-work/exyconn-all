@@ -8,7 +8,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import MenuItem from '@mui/material/MenuItem';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Crop from '@mui/icons-material/Crop';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -80,7 +80,12 @@ export default function CropPdf() {
             >
               <CloudUpload sx={{ fontSize: 48, color: '#f97316', mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>or click to browse</Typography>
               <Button variant="outlined" component="label" sx={{ color: '#f97316', borderColor: '#f97316' }}>
                 Browse Files
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
@@ -89,7 +94,9 @@ export default function CropPdf() {
             {file && (
               <Paper sx={{ p: 2, mt: 2 }}>
                 <Typography variant="body2"><strong>{file.name}</strong></Typography>
-                <Typography variant="body2" color="text.secondary">Size: {formatSize(file.size)} · Pages: {pageCount}</Typography>
+                <Typography variant="body2" sx={{
+                  color: "text.secondary"
+                }}>Size: {formatSize(file.size)} · Pages: {pageCount}</Typography>
               </Paper>
             )}
 
@@ -111,7 +118,9 @@ export default function CropPdf() {
               </TextField>
               {applyMode === 'specific' && (
                 <TextField fullWidth label="Page Number" type="number" value={targetPage} onChange={(e) => setTargetPage(Number(e.target.value))}
-                  size="small" sx={{ mt: 2 }} inputProps={{ min: 1, max: pageCount }} />
+                  size="small" sx={{ mt: 2 }} slotProps={{
+                  htmlInput: { min: 1, max: pageCount }
+                }} />
               )}
               {processing && <LinearProgress sx={{ mt: 2, mb: 1 }} color="warning" />}
               <Button variant="contained" fullWidth onClick={cropPdf} disabled={!file || processing}

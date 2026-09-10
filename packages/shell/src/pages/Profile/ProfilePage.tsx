@@ -14,7 +14,11 @@ export function ProfilePage() {
     <Box>
       <PageHeader title="My Profile" subtitle="Manage your photo and personal details" />
       <Grid container spacing={2.5}>
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}>
           <Box sx={[glass, { p: 3, textAlign: 'center' }]}>
             <AvatarUploader />
             <Heading level={6} sx={{ mt: 2 }}>
@@ -41,7 +45,11 @@ export function ProfilePage() {
             </Flex>
           </Box>
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 8
+          }}>
           <Box sx={[glass, { p: 3 }]}>
             <Heading level={6} sx={{ mb: 2 }}>
               Personal details

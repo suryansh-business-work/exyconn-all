@@ -54,7 +54,12 @@ export function ModuleOverview({
 
       <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
         {stats.map((stat) => (
-          <Grid key={stat.label} item xs={6} md={statCols}>
+          <Grid
+            key={stat.label}
+            size={{
+              xs: 6,
+              md: statCols
+            }}>
             <StatCard {...stat} />
           </Grid>
         ))}
@@ -63,7 +68,12 @@ export function ModuleOverview({
       {breakdowns.length > 0 && (
         <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
           {breakdowns.map((breakdown) => (
-            <Grid key={breakdown.title} item xs={12} md={breakdownCols}>
+            <Grid
+              key={breakdown.title}
+              size={{
+                xs: 12,
+                md: breakdownCols
+              }}>
               <StatBreakdown
                 title={breakdown.title}
                 buckets={breakdown.buckets}
@@ -75,7 +85,14 @@ export function ModuleOverview({
       )}
 
       {links.length > 0 && (
-        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 1.5 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          sx={{
+            flexWrap: "wrap",
+            mb: 1.5
+          }}>
           {links.map((link) => (
             <Button key={link.to} variant="outlined" onClick={() => navigate(link.to)}>
               {link.label}

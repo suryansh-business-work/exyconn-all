@@ -71,13 +71,23 @@ export default function ConsentScreen({
 
   return (
     <ScreenLayout maxWidth={560}>
-      <Stack alignItems="center" sx={{ mb: 2.5 }}>
+      <Stack
+        sx={{
+          alignItems: "center",
+          mb: 2.5
+        }}>
         <BrandMark branding={branding} height={36} />
       </Stack>
 
       <Surface sx={{ p: 3 }}>
         <Typography variant="h5">{policy?.title ?? 'Before you start'}</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mt: 0.5,
+            mb: 2
+          }}>
           {policy
             ? `Version ${policy.version} of your workspace's policy. Nothing is captured until you sign and press Start.`
             : 'Read what this app records while tracking is on. Nothing is captured until you agree and press Start.'}

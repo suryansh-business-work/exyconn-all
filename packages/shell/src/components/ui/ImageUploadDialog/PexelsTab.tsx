@@ -98,7 +98,9 @@ export function PexelsTab({ kind, onPick }: Readonly<PexelsTabProps>) {
         />
       </Box>
 
-      <Typography variant="caption" color="text.secondary">
+      <Typography variant="caption" sx={{
+        color: "text.secondary"
+      }}>
         {creditLine}
       </Typography>
     </Stack>
@@ -128,23 +130,37 @@ function PexelsPanel({
   }
   if (loading) {
     return (
-      <Stack alignItems="center" sx={{ py: 6 }}>
+      <Stack
+        sx={{
+          alignItems: "center",
+          py: 6
+        }}>
         <CircularProgress size={28} />
       </Stack>
     );
   }
   if (!submitted) {
     return (
-      <Typography variant="body2" color="text.secondary" sx={{ py: 6, textAlign: 'center' }}>
-        Search to browse free stock {noun}.
-      </Typography>
+      <Typography
+        variant="body2"
+        sx={{
+          color: "text.secondary",
+          py: 6,
+          textAlign: 'center'
+        }}>Search to browse free stock {noun}.
+              </Typography>
     );
   }
   if (items.length === 0) {
     return (
-      <Typography variant="body2" color="text.secondary" sx={{ py: 6, textAlign: 'center' }}>
-        No {noun} matched that search.
-      </Typography>
+      <Typography
+        variant="body2"
+        sx={{
+          color: "text.secondary",
+          py: 6,
+          textAlign: 'center'
+        }}>No {noun}matched that search.
+              </Typography>
     );
   }
   return <PexelsGrid items={items} onPick={onPick} />;

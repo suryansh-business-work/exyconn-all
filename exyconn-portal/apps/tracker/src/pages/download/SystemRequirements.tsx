@@ -27,7 +27,13 @@ export function SystemRequirements({ platform }: Readonly<{ platform: PlatformCo
 
   return (
     <Box sx={[glass, { p: 2, height: '100%' }]}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 1
+        }}>
         <Typography variant="subtitle1">System requirements</Typography>
         <Chip size="small" variant="outlined" label={platform.label} />
       </Stack>
@@ -45,13 +51,17 @@ export function SystemRequirements({ platform }: Readonly<{ platform: PlatformCo
             return (
               <TableRow key={row.key}>
                 <TableCell>
-                  <Stack direction="row" spacing={1} alignItems="center">
+                  <Stack direction="row" spacing={1} sx={{
+                    alignItems: "center"
+                  }}>
                     <Icon sx={{ fontSize: iconSize.md, color: 'text.secondary' }} />
                     <Typography variant="body2">{row.label}</Typography>
                   </Stack>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" sx={{
+                    color: "text.secondary"
+                  }}>
                     {row.minimum}
                   </Typography>
                 </TableCell>

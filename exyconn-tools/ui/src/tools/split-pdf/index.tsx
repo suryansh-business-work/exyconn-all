@@ -14,7 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CallSplit from '@mui/icons-material/CallSplit';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -98,7 +98,12 @@ export default function SplitPdf() {
             >
               <CloudUpload sx={{ fontSize: 48, color: '#f97316', mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>or click to browse</Typography>
               <Button variant="outlined" component="label" sx={{ color: '#f97316', borderColor: '#f97316' }}>
                 Browse Files
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
@@ -107,7 +112,9 @@ export default function SplitPdf() {
             {file && (
               <Paper sx={{ p: 2, mt: 2 }}>
                 <Typography variant="body2"><strong>{file.name}</strong> — {formatSize(file.size)}</Typography>
-                <Typography variant="body2" color="text.secondary">Total pages: {pageCount}</Typography>
+                <Typography variant="body2" sx={{
+                  color: "text.secondary"
+                }}>Total pages: {pageCount}</Typography>
               </Paper>
             )}
 

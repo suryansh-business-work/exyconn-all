@@ -54,7 +54,9 @@ const SitemapForm: React.FC<SitemapFormProps> = ({ onSubmit, isLoading }) => {
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
         <Language color="primary" />
-        <Typography variant="h6" fontWeight={600}>
+        <Typography variant="h6" sx={{
+          fontWeight: 600
+        }}>
           Find Sitemaps
         </Typography>
       </Box>
@@ -71,12 +73,14 @@ const SitemapForm: React.FC<SitemapFormProps> = ({ onSubmit, isLoading }) => {
           error={formik.touched.url && Boolean(formik.errors.url)}
           helperText={formik.touched.url && formik.errors.url}
           sx={{ mb: 3 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Language fontSize="small" color="action" />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Language fontSize="small" color="action" />
+                </InputAdornment>
+              ),
+            }
           }}
         />
 
@@ -92,7 +96,9 @@ const SitemapForm: React.FC<SitemapFormProps> = ({ onSubmit, isLoading }) => {
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
           <Settings fontSize="small" color="action" />
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             Advanced Options
           </Typography>
           <IconButton size="small">
@@ -131,7 +137,12 @@ const SitemapForm: React.FC<SitemapFormProps> = ({ onSubmit, isLoading }) => {
             />
 
             <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 1
+                }}>
                 Max Sitemap Index Depth: <strong>{formik.values.maxDepth}</strong>
               </Typography>
               <Slider
@@ -150,7 +161,9 @@ const SitemapForm: React.FC<SitemapFormProps> = ({ onSubmit, isLoading }) => {
                 valueLabelDisplay="auto"
                 size="small"
               />
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" sx={{
+                color: "text.secondary"
+              }}>
                 How deep to follow sitemap index files
               </Typography>
             </Box>

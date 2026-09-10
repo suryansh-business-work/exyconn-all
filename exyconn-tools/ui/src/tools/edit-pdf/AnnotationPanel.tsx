@@ -9,7 +9,7 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import LinearProgress from '@mui/material/LinearProgress';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Download from '@mui/icons-material/Download';
 import Add from '@mui/icons-material/Add';
 import Delete from '@mui/icons-material/Delete';
@@ -42,7 +42,9 @@ const AnnotationPanel: React.FC<AnnotationPanelProps> = ({
       <TextField fullWidth label="Text Content" value={text} onChange={(e) => onTextChange(e.target.value)} size="small" sx={{ mb: 2 }} />
       <Grid container spacing={2}>
         <Grid size={{ xs: 6 }}>
-          <TextField fullWidth label="Font Size" type="number" value={fontSize} onChange={(e) => onFontSizeChange(Number(e.target.value))} size="small" inputProps={{ min: 6, max: 120 }} />
+          <TextField fullWidth label="Font Size" type="number" value={fontSize} onChange={(e) => onFontSizeChange(Number(e.target.value))} size="small" slotProps={{
+            htmlInput: { min: 6, max: 120 }
+          }} />
         </Grid>
         <Grid size={{ xs: 6 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, height: '100%' }}>
@@ -52,7 +54,12 @@ const AnnotationPanel: React.FC<AnnotationPanelProps> = ({
         </Grid>
       </Grid>
       {clickPos && <Typography variant="body2" sx={{ mt: 1 }}>Position: ({clickPos.x}, {clickPos.y}) on page {currentPage}</Typography>}
-      {!clickPos && <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Click on the PDF preview to set position</Typography>}
+      {!clickPos && <Typography
+        variant="body2"
+        sx={{
+          color: "text.secondary",
+          mt: 1
+        }}>Click on the PDF preview to set position</Typography>}
       <Button variant="outlined" startIcon={<Add />} onClick={onAddAnnotation} disabled={!clickPos || !text.trim()} sx={{ mt: 2, color: '#6366f1', borderColor: '#6366f1' }}>
         Add Annotation
       </Button>

@@ -62,7 +62,12 @@ const DropZone: React.FC<DropZoneProps> = ({
       ) : (
         <>
           <ImageIcon sx={{ fontSize: 32, color: 'text.secondary', mb: 1 }} />
-          <Typography variant="caption" color="text.secondary" textAlign="center">
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              textAlign: "center"
+            }}>
             {label}
           </Typography>
         </>

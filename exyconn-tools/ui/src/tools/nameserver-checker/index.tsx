@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Container, Alert, Snackbar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Storage } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay } from '../../shared/components/DomainToolShared';

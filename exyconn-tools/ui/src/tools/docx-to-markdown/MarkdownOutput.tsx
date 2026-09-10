@@ -28,7 +28,12 @@ const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDow
         >
           <Description sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#2563eb' }} />
           <Typography variant="body1">Upload a Word document to convert</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+              mt: 1
+            }}>
             The converted Markdown will appear here
           </Typography>
         </Box>
@@ -44,7 +49,9 @@ const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDow
               alignItems: 'center',
             }}
           >
-            <Typography variant="subtitle2" fontWeight={600}>
+            <Typography variant="subtitle2" sx={{
+              fontWeight: 600
+            }}>
               Converted Markdown
             </Typography>
             <Box>

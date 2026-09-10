@@ -18,29 +18,44 @@ export function StatCard({ label, value, delta, accent = color.orange[500], seri
   const up = (delta ?? 0) >= 0;
   return (
     <Box sx={[glass, { p: 1.5, height: '100%' }]}>
-      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-        <Typography variant="caption" color="text.secondary">
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "flex-start"
+        }}>
+        <Typography variant="caption" sx={{
+          color: "text.secondary"
+        }}>
           {label}
         </Typography>
         {delta !== undefined && (
           <Stack
             direction="row"
             spacing={0.3}
-            alignItems="center"
-            sx={{ color: up ? 'success.main' : 'error.main' }}
-          >
+            sx={{
+              alignItems: "center",
+              color: up ? 'success.main' : 'error.main'
+            }}>
             {up ? (
               <TrendingUpIcon sx={{ fontSize: iconSize.md }} />
             ) : (
               <TrendingDownIcon sx={{ fontSize: iconSize.md }} />
             )}
-            <Typography variant="caption" fontWeight={700}>
+            <Typography variant="caption" sx={{
+              fontWeight: 700
+            }}>
               {Math.abs(delta)}%
             </Typography>
           </Stack>
         )}
       </Stack>
-      <Typography variant="h6" fontWeight={700} sx={{ mt: 0.25 }}>
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: 700,
+          mt: 0.25
+        }}>
         {value}
       </Typography>
       {series && (

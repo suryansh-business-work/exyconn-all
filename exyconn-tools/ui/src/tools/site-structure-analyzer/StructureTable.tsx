@@ -55,7 +55,9 @@ const StructureTable: React.FC<StructureTableProps> = ({ pages }) => {
               gap: 1,
             }}
           >
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" sx={{
+              color: "text.secondary"
+            }}>
               Sort by:
             </Typography>
             <Chip
@@ -90,10 +92,22 @@ const StructureTable: React.FC<StructureTableProps> = ({ pages }) => {
                 {paginatedPages.map((p, i) => (
                   <TableRow key={i} hover>
                     <TableCell>
-                      <Typography variant="body2" fontWeight={500} noWrap sx={{ maxWidth: 300 }}>
+                      <Typography
+                        variant="body2"
+                        noWrap
+                        sx={{
+                          fontWeight: 500,
+                          maxWidth: 300
+                        }}>
                         {p.title}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary" noWrap display="block">
+                      <Typography
+                        variant="caption"
+                        noWrap
+                        sx={{
+                          color: "text.secondary",
+                          display: "block"
+                        }}>
                         {p.url}
                       </Typography>
                     </TableCell>
@@ -107,7 +121,9 @@ const StructureTable: React.FC<StructureTableProps> = ({ pages }) => {
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <ArrowDownward fontSize="small" color="success" />
-                        <Typography variant="body2" fontWeight={500}>
+                        <Typography variant="body2" sx={{
+                          fontWeight: 500
+                        }}>
                           {p.incomingLinks}
                         </Typography>
                       </Box>
@@ -115,7 +131,9 @@ const StructureTable: React.FC<StructureTableProps> = ({ pages }) => {
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <ArrowUpward fontSize="small" color="info" />
-                        <Typography variant="body2" fontWeight={500}>
+                        <Typography variant="body2" sx={{
+                          fontWeight: 500
+                        }}>
                           {p.outgoingLinks}
                         </Typography>
                       </Box>

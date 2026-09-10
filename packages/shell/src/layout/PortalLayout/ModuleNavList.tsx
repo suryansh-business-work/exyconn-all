@@ -49,14 +49,23 @@ export function ModuleNavList({ module, pathname, query, onSelect }: Readonly<Mo
     <>
       <Typography
         variant="overline"
-        color="text.secondary"
-        sx={{ px: 2, pt: 0.5, display: 'block', letterSpacing: 1 }}
-      >
+        sx={{
+          color: "text.secondary",
+          px: 2,
+          pt: 0.5,
+          display: 'block',
+          letterSpacing: 1
+        }}>
         {module.label}
       </Typography>
       <List component="div" sx={{ px: 1, py: 0.5 }}>
         {matched === 0 && (
-          <Typography variant="caption" color="text.secondary" sx={{ px: 1.5 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              px: 1.5
+            }}>
             No page matches “{query}”.
           </Typography>
         )}

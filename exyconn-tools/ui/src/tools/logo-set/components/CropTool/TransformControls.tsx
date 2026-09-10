@@ -44,7 +44,12 @@ const TransformControls: React.FC<TransformControlsProps> = ({
         </IconButton>
       </Tooltip>
       {rotation !== 0 && (
-        <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+            ml: 1
+          }}>
           {rotation}°
         </Typography>
       )}

@@ -10,7 +10,7 @@ import Alert from '@mui/material/Alert';
 import Slider from '@mui/material/Slider';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import RestartAlt from '@mui/icons-material/RestartAlt';
@@ -63,7 +63,12 @@ export default function PhotoEditor() {
               >
                 <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
                 <Typography variant="h6" gutterBottom>Drag & Drop Image Here</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                    mb: 2
+                  }}>or click to browse</Typography>
                 <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                   Browse Files
                   <input hidden accept="image/*" type="file" onChange={onFileChange} />
@@ -118,7 +123,13 @@ export default function PhotoEditor() {
                 sx={{ bgcolor: COLOR, '&:hover': { bgcolor: '#db2777' } }}>
                 {processing ? 'Exporting…' : `Download ${format === 'png' ? 'PNG' : 'JPG'}`}
               </Button>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  display: 'block',
+                  mt: 2
+                }}>
                 Your image is processed locally in your browser — it never leaves your device.
               </Typography>
             </Paper>

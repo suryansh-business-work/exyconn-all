@@ -103,10 +103,18 @@ export function TrackerDownloadPage() {
       />
 
       <Grid container spacing={1.5}>
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <InstallGuide platform={platform} />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <SystemRequirements platform={platform} />
         </Grid>
       </Grid>

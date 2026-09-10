@@ -78,7 +78,9 @@ export default function PresencePicker({ presence, timezone }: Readonly<Props>):
         }}
       />
 
-      <Typography variant="caption" color="text.secondary">
+      <Typography variant="caption" sx={{
+        color: "text.secondary"
+      }}>
         {isAwayPresence(presence.status)
           ? `${sinceLabel(presence, timezone)} — tracking stays paused until you are back on Working.`
           : sinceLabel(presence, timezone)}

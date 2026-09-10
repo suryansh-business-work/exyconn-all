@@ -48,7 +48,12 @@ export function AssetAssignmentHistory({
 
   return (
     <Card variant="outlined" sx={{ p: { xs: 2, md: 2.5 } }}>
-      <Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: 700,
+          mb: 1.5
+        }}>
         Assignment history ({rows.length})
       </Typography>
       <DataTable

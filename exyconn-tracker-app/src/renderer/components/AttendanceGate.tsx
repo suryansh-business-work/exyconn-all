@@ -28,10 +28,11 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
 
   if (workday.attendanceMarked) {
     return (
-      <Typography variant="caption" color="text.secondary">
-        Marked in today as {humanize(workday.attendanceStatus ?? 'PRESENT')}
+      <Typography variant="caption" sx={{
+        color: "text.secondary"
+      }}>Marked in today as {humanize(workday.attendanceStatus ?? 'PRESENT')}
         {workday.attendanceNote ? ` — ${workday.attendanceNote}` : ''}.
-      </Typography>
+              </Typography>
     );
   }
 

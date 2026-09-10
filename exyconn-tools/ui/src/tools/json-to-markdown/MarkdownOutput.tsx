@@ -28,7 +28,12 @@ const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDow
         >
           <DataObject sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#3b82f6' }} />
           <Typography variant="body1">Paste JSON content to convert</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+              mt: 1
+            }}>
             Arrays of objects become tables, nested objects become lists
           </Typography>
         </Box>
@@ -44,7 +49,9 @@ const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDow
               alignItems: 'center',
             }}
           >
-            <Typography variant="subtitle2" fontWeight={600}>
+            <Typography variant="subtitle2" sx={{
+              fontWeight: 600
+            }}>
               Converted Markdown
             </Typography>
             <Box>

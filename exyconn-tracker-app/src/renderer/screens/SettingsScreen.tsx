@@ -45,7 +45,13 @@ export default function SettingsScreen({
       {/* The one setting on this screen that is the EMPLOYEE'S, not the administrator's. */}
       <Surface sx={{ p: 2.5 }}>
         <Typography variant="h6">Your timezone</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mt: 0.5,
+            mb: 2
+          }}>
           Your workspace sets a default. Pick your own if you work somewhere else.
         </Typography>
         <TimezonePicker timezone={timezone} />
@@ -54,18 +60,35 @@ export default function SettingsScreen({
       {/* Also the employee's: it decides how this app behaves, never what it records. */}
       <Surface sx={{ p: 2.5 }}>
         <Typography variant="h6">This app</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mt: 0.5,
+            mb: 2
+          }}>
           How the tracker behaves on this computer.
         </Typography>
         <TrayPreference preferences={preferences} />
         <Divider sx={{ my: 2 }} />
         <CaptureSoundPreference preferences={preferences} settings={settings} />
         <Divider sx={{ my: 2 }} />
-        <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+            mb: 1
+          }}>
           Appearance
         </Typography>
         <ThemeModePicker mode={preferences.themeMode} />
-        <Typography variant="body2" fontWeight={600} sx={{ mt: 2, mb: 1 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+            mt: 2,
+            mb: 1
+          }}>
           Today’s progress
         </Typography>
         <ProgressStylePicker style={preferences.progressStyle} />
@@ -77,7 +100,13 @@ export default function SettingsScreen({
 
       <Surface sx={{ p: 2.5 }}>
         <Typography variant="h6">Settings</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 1 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mt: 0.5,
+            mb: 1
+          }}>
           Configured by your workspace administrator in the Exyconn portal. This app cannot change
           them.
         </Typography>
@@ -97,7 +126,13 @@ export default function SettingsScreen({
 
       <Surface sx={{ p: 2.5 }}>
         <Typography variant="h6">Your data</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mt: 0.5,
+            mb: 2
+          }}>
           Everything this app has recorded about you is visible to you in the portal.
         </Typography>
         <Stack spacing={1.25}>
@@ -118,21 +153,29 @@ export default function SettingsScreen({
         <Divider sx={{ my: 1.5 }} />
         <Stack spacing={0.5}>
           {appVersion !== '' ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{
+              color: "text.secondary"
+            }}>
               Version {appVersion}
             </Typography>
           ) : null}
           {legalName !== '' ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{
+              color: "text.secondary"
+            }}>
               {legalName}
             </Typography>
           ) : null}
           {supportEmail !== '' ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{
+              color: "text.secondary"
+            }}>
               Support: {supportEmail}
             </Typography>
           ) : null}
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" sx={{
+            color: "text.secondary"
+          }}>
             Keystrokes and clicks are counted, never recorded. Nothing is captured while tracking is
             stopped or paused.
           </Typography>

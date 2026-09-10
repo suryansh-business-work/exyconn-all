@@ -12,7 +12,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import InsertPhoto from '@mui/icons-material/InsertPhoto';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -113,7 +113,12 @@ export default function JpgToPdf() {
             >
               <CloudUpload sx={{ fontSize: 48, color: '#06b6d4', mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop Images Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>JPG, PNG, or WebP</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>JPG, PNG, or WebP</Typography>
               <Button variant="outlined" component="label" color="info">
                 Browse Files<input hidden accept={ACCEPT} type="file" multiple onChange={onFileChange} />
               </Button>

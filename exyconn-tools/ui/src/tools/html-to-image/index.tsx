@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Visibility from '@mui/icons-material/Visibility';
 import Download from '@mui/icons-material/Download';
 import { MdCode } from 'react-icons/md';
@@ -144,7 +144,13 @@ export default function HtmlToImage() {
                 </>
               )}
 
-              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 2 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  display: "block",
+                  mt: 2
+                }}>
                 &lt;script&gt; tags are stripped before rendering. Everything is processed locally
                 in your browser — your HTML never leaves your device.
               </Typography>

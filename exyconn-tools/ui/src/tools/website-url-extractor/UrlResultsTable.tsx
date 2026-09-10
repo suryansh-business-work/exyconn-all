@@ -93,12 +93,14 @@ const UrlResultsTable: React.FC<UrlResultsTableProps> = ({ urls, onCopyAll, onEx
             setPage(0);
           }}
           sx={{ ml: 'auto', width: 180 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search fontSize="small" />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search fontSize="small" />
+                </InputAdornment>
+              ),
+            }
           }}
         />
         <Tooltip title="Copy All">
@@ -128,7 +130,9 @@ const UrlResultsTable: React.FC<UrlResultsTableProps> = ({ urls, onCopyAll, onEx
                   <Typography variant="body2" noWrap sx={{ maxWidth: 400 }}>
                     {u.url}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary" noWrap>
+                  <Typography variant="caption" noWrap sx={{
+                    color: "text.secondary"
+                  }}>
                     {u.text}
                   </Typography>
                 </TableCell>

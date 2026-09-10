@@ -37,7 +37,9 @@ const CompareInputSection: React.FC<CompareInputSectionProps> = ({
       <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           <Language color="primary" fontSize="small" />
-          <Typography variant="subtitle2" fontWeight={600}>
+          <Typography variant="subtitle2" sx={{
+            fontWeight: 600
+          }}>
             Old Sitemap (Before)
           </Typography>
         </Box>
@@ -51,7 +53,9 @@ const CompareInputSection: React.FC<CompareInputSectionProps> = ({
         />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           <Language color="secondary" fontSize="small" />
-          <Typography variant="subtitle2" fontWeight={600}>
+          <Typography variant="subtitle2" sx={{
+            fontWeight: 600
+          }}>
             New Sitemap (After)
           </Typography>
         </Box>
@@ -78,49 +82,69 @@ const CompareInputSection: React.FC<CompareInputSectionProps> = ({
 
       {result && (
         <Paper elevation={0} sx={{ p: 2, mt: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-          <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+          <Typography variant="subtitle2" gutterBottom sx={{
+            fontWeight: 600
+          }}>
             Comparison Summary
           </Typography>
           <Stack spacing={1}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{
+                color: "text.secondary"
+              }}>
                 Old Sitemap URLs
               </Typography>
-              <Typography variant="body2" fontWeight={600}>
+              <Typography variant="body2" sx={{
+                fontWeight: 600
+              }}>
                 {result.summary.sitemap1Count}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{
+                color: "text.secondary"
+              }}>
                 New Sitemap URLs
               </Typography>
-              <Typography variant="body2" fontWeight={600}>
+              <Typography variant="body2" sx={{
+                fontWeight: 600
+              }}>
                 {result.summary.sitemap2Count}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{
+                color: "text.secondary"
+              }}>
                 Added
               </Typography>
               <Chip label={result.summary.addedCount} size="small" color="success" icon={<Add />} />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{
+                color: "text.secondary"
+              }}>
                 Removed
               </Typography>
               <Chip label={result.summary.removedCount} size="small" color="error" icon={<Remove />} />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{
+                color: "text.secondary"
+              }}>
                 Modified
               </Typography>
               <Chip label={result.summary.modifiedCount} size="small" color="warning" icon={<Edit />} />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{
+                color: "text.secondary"
+              }}>
                 Unchanged
               </Typography>
-              <Typography variant="body2" fontWeight={600}>
+              <Typography variant="body2" sx={{
+                fontWeight: 600
+              }}>
                 {result.unchanged}
               </Typography>
             </Box>

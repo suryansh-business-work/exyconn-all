@@ -64,22 +64,30 @@ const SitemapListItemComponent: React.FC<SitemapListItemProps> = ({ sitemap, ind
       }
       secondary={
         <Box sx={{ display: 'flex', gap: 2, mt: 0.5, flexWrap: 'wrap' }}>
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" sx={{
+            color: "text.secondary"
+          }}>
             <Numbers fontSize="inherit" sx={{ verticalAlign: 'middle', mr: 0.5 }} />
             {sitemap.urlCount.toLocaleString()} URLs
           </Typography>
           {sitemap.size && (
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" sx={{
+              color: "text.secondary"
+            }}>
               Size: {sitemap.size}
             </Typography>
           )}
           {sitemap.lastModified && (
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" sx={{
+              color: "text.secondary"
+            }}>
               Modified: {sitemap.lastModified}
             </Typography>
           )}
           {sitemap.errorMessage && (
-            <Typography variant="caption" color="error.main">
+            <Typography variant="caption" sx={{
+              color: "error.main"
+            }}>
               {sitemap.errorMessage}
             </Typography>
           )}

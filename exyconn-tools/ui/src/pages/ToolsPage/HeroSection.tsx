@@ -15,9 +15,15 @@ const HeroSection: React.FC<Readonly<HeroSectionProps>> = ({
     }}>
       {title}
     </Typography>
-    <Typography variant="body1" color="text.secondary" sx={{
-      maxWidth: 600, mx: 'auto', mb: 2, fontSize: { xs: '0.9rem', sm: '1rem' },
-    }}>
+    <Typography
+      variant="body1"
+      sx={{
+        color: "text.secondary",
+        maxWidth: 600,
+        mx: 'auto',
+        mb: 2,
+        fontSize: { xs: '0.9rem', sm: '1rem' }
+      }}>
       {subtitle}
     </Typography>
     <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1.5, flexWrap: 'wrap' }}>

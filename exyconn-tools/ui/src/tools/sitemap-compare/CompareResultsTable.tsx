@@ -31,7 +31,12 @@ const CompareResultsTable: React.FC<CompareResultsTableProps> = ({ result }) => 
         <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
           <CompareArrows sx={{ fontSize: 48, mb: 2, opacity: 0.3 }} />
           <Typography variant="body1">Enter two sitemap URLs to compare</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+              mt: 1
+            }}>
             Find added, removed, and modified URLs between versions
           </Typography>
         </Box>

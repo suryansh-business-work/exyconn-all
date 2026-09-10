@@ -8,7 +8,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import { MdOutlineBrandingWatermark } from 'react-icons/md';
@@ -87,7 +87,12 @@ export default function WatermarkImage() {
               >
                 <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
                 <Typography variant="h6" gutterBottom>Drag & Drop Image Here</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                    mb: 2
+                  }}>or click to browse</Typography>
                 <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                   Browse Files
                   <input hidden accept="image/*" type="file" onChange={onFileChange} />
@@ -110,7 +115,9 @@ export default function WatermarkImage() {
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>Watermark Options</Typography>
               <Tabs value={mode} onChange={(_, v: WatermarkMode) => setMode(v)} sx={{ mb: 2 }}
-                TabIndicatorProps={{ sx: { bgcolor: COLOR } }}>
+                slotProps={{
+                  indicator: { sx: { bgcolor: COLOR } }
+                }}>
                 <Tab label="Text" value="text" sx={{ '&.Mui-selected': { color: COLOR } }} />
                 <Tab label="Image" value="image" sx={{ '&.Mui-selected': { color: COLOR } }} />
               </Tabs>
@@ -124,7 +131,13 @@ export default function WatermarkImage() {
                 sx={{ bgcolor: COLOR, '&:hover': { bgcolor: '#475569' }, mt: 3 }}>
                 Download Watermarked Image
               </Button>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  display: 'block',
+                  mt: 2
+                }}>
                 Your images are processed locally in your browser — they never leave your device.
               </Typography>
             </Paper>

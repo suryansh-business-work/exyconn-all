@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Container, Alert, Snackbar, Paper, Box, Typography, TextField, Button, MenuItem, CircularProgress,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Bookmark, Send } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIKeyInput, AIResultDisplay, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
@@ -68,7 +68,9 @@ const NotionFAQGenerator: React.FC = () => {
             <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Bookmark color="primary" />
-                <Typography variant="h6" fontWeight={600}>Notion Page URL</Typography>
+                <Typography variant="h6" sx={{
+                  fontWeight: 600
+                }}>Notion Page URL</Typography>
               </Box>
               <TextField fullWidth label="Notion Public URL" placeholder="https://notion.so/..." value={url}
                 onChange={(e) => setUrl(e.target.value)} sx={{ mb: 2 }} />

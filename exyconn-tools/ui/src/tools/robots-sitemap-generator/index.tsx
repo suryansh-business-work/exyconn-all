@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar, Paper, Typography, Slider, Button } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { SmartToy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { UserAgentRule } from './types';
@@ -88,7 +88,13 @@ const RobotsSitemapGenerator: React.FC = () => {
               onUpdate={updateSitemap}
             />
             <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2, mb: 2 }}>
-              <Typography variant="caption" color="text.secondary" gutterBottom display="block">
+              <Typography
+                variant="caption"
+                gutterBottom
+                sx={{
+                  color: "text.secondary",
+                  display: "block"
+                }}>
                 Crawl Delay: {crawlDelay === 0 ? 'None' : `${crawlDelay} seconds`}
               </Typography>
               <Slider

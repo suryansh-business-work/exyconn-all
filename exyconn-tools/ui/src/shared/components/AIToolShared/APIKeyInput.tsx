@@ -42,7 +42,9 @@ const APIKeyInput: React.FC = () => {
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 2, mb: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
         <Key fontSize="small" color="action" />
-        <Typography variant="subtitle2" fontWeight={600}>
+        <Typography variant="subtitle2" sx={{
+          fontWeight: 600
+        }}>
           OpenAI API Key
         </Typography>
       </Box>
@@ -65,14 +67,16 @@ const APIKeyInput: React.FC = () => {
             placeholder="sk-..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton size="small" onClick={() => setShowKey(!showKey)}>
-                    {showKey ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                  </IconButton>
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => setShowKey(!showKey)}>
+                      {showKey ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }
             }}
           />
           <Button variant="contained" size="small" onClick={handleSave} disabled={!inputValue.trim()}>
@@ -80,7 +84,13 @@ const APIKeyInput: React.FC = () => {
           </Button>
         </Box>
       )}
-      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: "text.secondary",
+          mt: 1,
+          display: 'block'
+        }}>
         Your API key is stored locally in your browser and never sent to our servers.
       </Typography>
     </Paper>

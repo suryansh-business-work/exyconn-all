@@ -103,10 +103,18 @@ export function PurchaseOrderForm({ initial, onDone, onCancel }: Readonly<Purcha
   return (
     <EntityForm methods={methods} onSubmit={save.onSubmit} isEdit={save.isEdit} onCancel={onCancel}>
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6
+          }}>
           <RhfSelect name="supplierId" label="Supplier" options={supplierOptions} />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6
+          }}>
           <RhfSelect
             name="status"
             label="Status"
@@ -116,13 +124,25 @@ export function PurchaseOrderForm({ initial, onDone, onCancel }: Readonly<Purcha
       </Grid>
       <PurchaseOrderLinesFields products={productOptions} />
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={4}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 4
+          }}>
           <RhfTextField name="currency" label="Currency" />
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 4
+          }}>
           <RhfDatePicker name="orderDate" label="Ordered on" />
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 4
+          }}>
           <RhfDatePicker name="expectedDate" label="Expected (optional)" />
         </Grid>
       </Grid>

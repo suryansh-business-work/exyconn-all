@@ -14,7 +14,7 @@
   "prettier": "@exyconn/config/prettier.json",
   "dependencies": {
     "@exyconn/time": "workspace:*",
-    "date-fns": "^4.1.0",
+    "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",
     "react": "^19.2.8"
   },

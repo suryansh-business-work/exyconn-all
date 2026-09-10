@@ -11,7 +11,7 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Security from '@mui/icons-material/Security';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -82,7 +82,12 @@ export default function PdfToPdfa() {
               onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)} onDrop={onDrop}>
               <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>or click to browse</Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                 Browse Files<input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
@@ -90,7 +95,9 @@ export default function PdfToPdfa() {
             {file && before && (
               <Paper sx={{ p: 2, mt: 2 }}>
                 <Typography variant="body2"><strong>{file.name}</strong></Typography>
-                <Typography variant="body2" color="text.secondary">{before.size} · {before.pages} page(s)</Typography>
+                <Typography variant="body2" sx={{
+                  color: "text.secondary"
+                }}>{before.size} · {before.pages} page(s)</Typography>
               </Paper>
             )}
             {file && (

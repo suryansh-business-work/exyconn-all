@@ -4,7 +4,7 @@ import {
   Paper, LinearProgress, Chip, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Biotech, Search, OpenInNew, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -91,7 +91,12 @@ const CompetitorFinder: React.FC = () => {
                     )}
                   </Alert>
                 )}
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                    mb: 2
+                  }}>
                   Total external domains found: {result.totalExternalDomains}
                 </Typography>
                 {result.relatedSites.length > 0 ? (
@@ -133,7 +138,9 @@ const CompetitorFinder: React.FC = () => {
             {!result && !isLoading && (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <Biotech sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography color="text.secondary">Enter your website URL to find related sites</Typography>
+                <Typography sx={{
+                  color: "text.secondary"
+                }}>Enter your website URL to find related sites</Typography>
               </Paper>
             )}
           </Grid>

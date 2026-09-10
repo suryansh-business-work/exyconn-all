@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar, Typography, Box, Chip } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Search } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay, KeyValueTable } from '../../shared/components/DomainToolShared';
@@ -53,7 +53,12 @@ const WhoisLookup: React.FC = () => {
                 }} />
                 {Boolean(result.nameservers) && (
                   <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Nameservers</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1
+                      }}>Nameservers</Typography>
                     {(result.nameservers as string[]).map((ns, i) => (
                       <Chip key={i} label={ns} size="small" sx={{ mr: 1, mb: 1 }} variant="outlined" />
                     ))}
@@ -61,7 +66,12 @@ const WhoisLookup: React.FC = () => {
                 )}
                 {Boolean(result.events) && (
                   <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Events</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1
+                      }}>Events</Typography>
                     {(result.events as Array<{ eventAction: string; eventDate: string }>).map((e, i) => (
                       <Box key={i} sx={{ mb: 0.5 }}>
                         <Chip label={e.eventAction} size="small" color="primary" sx={{ mr: 1 }} />

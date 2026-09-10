@@ -104,9 +104,6 @@ export { default as Accordion } from '@mui/material/Accordion';
 export { default as AccordionSummary } from '@mui/material/AccordionSummary';
 export { default as AccordionDetails } from '@mui/material/AccordionDetails';
 
-// MUI 6 ships the new Grid as `Grid2`; it becomes `Grid` in MUI 7+, when this alias goes.
-export { default as Grid2 } from '@mui/material/Grid2';
-
 // MUIX date & time pickers — also importable from '@exyconn/ui/pickers'.
 export * from './pickers';
 

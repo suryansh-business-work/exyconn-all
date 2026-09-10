@@ -31,11 +31,17 @@ const SeoResultDisplay: React.FC<SeoResultDisplayProps> = ({ result }) => (
           width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
           bgcolor: `${getScoreColor(result.score)}.main`, color: 'white',
         }}>
-          <Typography variant="h5" fontWeight={800}>{result.score}</Typography>
+          <Typography variant="h5" sx={{
+            fontWeight: 800
+          }}>{result.score}</Typography>
         </Box>
         <Box>
-          <Typography variant="h6" fontWeight={700}>SEO Score</Typography>
-          <Typography variant="body2" color="text.secondary">{result.url}</Typography>
+          <Typography variant="h6" sx={{
+            fontWeight: 700
+          }}>SEO Score</Typography>
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>{result.url}</Typography>
         </Box>
       </Box>
       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -49,7 +55,9 @@ const SeoResultDisplay: React.FC<SeoResultDisplayProps> = ({ result }) => (
     {/* Issues */}
     <Accordion defaultExpanded>
       <AccordionSummary expandIcon={<ExpandMore />}>
-        <Typography variant="subtitle2" fontWeight={700}>Issues ({result.issues.length})</Typography>
+        <Typography variant="subtitle2" sx={{
+          fontWeight: 700
+        }}>Issues ({result.issues.length})</Typography>
       </AccordionSummary>
       <AccordionDetails>
         <TableContainer>
@@ -88,24 +96,46 @@ const SeoResultDisplay: React.FC<SeoResultDisplayProps> = ({ result }) => (
     {/* Meta Tags */}
     <Accordion>
       <AccordionSummary expandIcon={<ExpandMore />}>
-        <Typography variant="subtitle2" fontWeight={700}>Meta Tags</Typography>
+        <Typography variant="subtitle2" sx={{
+          fontWeight: 700
+        }}>Meta Tags</Typography>
       </AccordionSummary>
       <AccordionDetails>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <Box>
-            <Typography variant="caption" fontWeight={600} color="text.secondary">Title ({result.title.length}/60)</Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 600,
+                color: "text.secondary"
+              }}>Title ({result.title.length}/60)</Typography>
             <Typography variant="body2">{result.title.text || 'Not found'}</Typography>
           </Box>
           <Box>
-            <Typography variant="caption" fontWeight={600} color="text.secondary">Description ({result.metaDescription.length}/160)</Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 600,
+                color: "text.secondary"
+              }}>Description ({result.metaDescription.length}/160)</Typography>
             <Typography variant="body2">{result.metaDescription.text || 'Not found'}</Typography>
           </Box>
           <Box>
-            <Typography variant="caption" fontWeight={600} color="text.secondary">Canonical</Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 600,
+                color: "text.secondary"
+              }}>Canonical</Typography>
             <Typography variant="body2">{result.canonical || 'Not found'}</Typography>
           </Box>
           <Box>
-            <Typography variant="caption" fontWeight={600} color="text.secondary">Language</Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 600,
+                color: "text.secondary"
+              }}>Language</Typography>
             <Typography variant="body2">{result.language || 'Not set'}</Typography>
           </Box>
         </Box>
@@ -115,14 +145,23 @@ const SeoResultDisplay: React.FC<SeoResultDisplayProps> = ({ result }) => (
     {/* Headings */}
     <Accordion>
       <AccordionSummary expandIcon={<ExpandMore />}>
-        <Typography variant="subtitle2" fontWeight={700}>Headings</Typography>
+        <Typography variant="subtitle2" sx={{
+          fontWeight: 700
+        }}>Headings</Typography>
       </AccordionSummary>
       <AccordionDetails>
         {Object.entries(result.headings).map(([tag, items]) => (
           <Box key={tag} sx={{ mb: 1 }}>
             <Chip size="small" label={`${tag.toUpperCase()} (${items.length})`} sx={{ mb: 0.5 }} />
             {items.map((text, i) => (
-              <Typography key={i} variant="caption" display="block" color="text.secondary" sx={{ pl: 1 }}>
+              <Typography
+                key={i}
+                variant="caption"
+                sx={{
+                  display: "block",
+                  color: "text.secondary",
+                  pl: 1
+                }}>
                 {text}
               </Typography>
             ))}

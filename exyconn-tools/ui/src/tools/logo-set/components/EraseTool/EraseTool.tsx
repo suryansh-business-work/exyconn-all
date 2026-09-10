@@ -122,7 +122,9 @@ const EraseTool: React.FC<Props> = ({ image, onSave, onClose }) => {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Brush color="primary" />
-          <Typography variant="subtitle1" fontWeight={600}>
+          <Typography variant="subtitle1" sx={{
+            fontWeight: 600
+          }}>
             Erase Tool
           </Typography>
         </Box>

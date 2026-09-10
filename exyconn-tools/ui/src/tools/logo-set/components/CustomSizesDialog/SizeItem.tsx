@@ -67,7 +67,9 @@ const SizeItem: React.FC<SizeItemProps> = ({ size, index, sizeErrors, sizeTouche
           error={sizeTouched.width && Boolean(sizeErrors.width)}
           helperText={sizeTouched.width && sizeErrors.width}
         />
-        <Typography color="text.secondary">×</Typography>
+        <Typography sx={{
+          color: "text.secondary"
+        }}>×</Typography>
         <Field
           as={TextField}
           name={`sizes.${index}.height`}
@@ -83,7 +85,12 @@ const SizeItem: React.FC<SizeItemProps> = ({ size, index, sizeErrors, sizeTouche
       </Box>
 
       <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-        <Typography variant="caption" color="text.secondary" sx={{ mr: 1 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+            mr: 1
+          }}>
           Quick:
         </Typography>
         {quickPresets.map((preset) => (

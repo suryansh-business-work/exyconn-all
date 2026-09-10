@@ -11,7 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import HighlightOff from '@mui/icons-material/HighlightOff';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -91,7 +91,12 @@ export default function RedactPdf() {
               onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)} onDrop={onDrop}>
               <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>or click to browse</Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                 Browse Files<input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
@@ -99,7 +104,9 @@ export default function RedactPdf() {
             {file && (
               <Paper sx={{ p: 2, mt: 2 }}>
                 <Typography variant="body2"><strong>{file.name}</strong></Typography>
-                <Typography variant="body2" color="text.secondary">{fmt(file.size)} · {pageCount} page(s)</Typography>
+                <Typography variant="body2" sx={{
+                  color: "text.secondary"
+                }}>{fmt(file.size)} · {pageCount} page(s)</Typography>
               </Paper>
             )}
             {file && <PdfPreview file={file} />}
@@ -109,7 +116,9 @@ export default function RedactPdf() {
               <Typography variant="h6" gutterBottom>Redaction Areas</Typography>
               <Alert severity="info" sx={{ mb: 2 }}>Redaction draws black rectangles over content. For complete content removal, reprocess with a professional tool.</Alert>
               <Grid container spacing={1} sx={{ mb: 2 }}>
-                <Grid size={{ xs: 4, sm: 2 }}><TextField fullWidth label="Page" type="number" size="small" value={page} onChange={(e) => setPage(Number(e.target.value))} inputProps={{ min: 1, max: pageCount }} /></Grid>
+                <Grid size={{ xs: 4, sm: 2 }}><TextField fullWidth label="Page" type="number" size="small" value={page} onChange={(e) => setPage(Number(e.target.value))} slotProps={{
+                  htmlInput: { min: 1, max: pageCount }
+                }} /></Grid>
                 <Grid size={{ xs: 4, sm: 2 }}><TextField fullWidth label="X (pt)" type="number" size="small" value={x} onChange={(e) => setX(Number(e.target.value))} /></Grid>
                 <Grid size={{ xs: 4, sm: 2 }}><TextField fullWidth label="Y (pt)" type="number" size="small" value={y} onChange={(e) => setY(Number(e.target.value))} /></Grid>
                 <Grid size={{ xs: 4, sm: 2 }}><TextField fullWidth label="Width" type="number" size="small" value={w} onChange={(e) => setW(Number(e.target.value))} /></Grid>

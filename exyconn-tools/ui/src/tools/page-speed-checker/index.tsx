@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar, Chip, Box, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Speed } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay, KeyValueTable } from '../../shared/components/DomainToolShared';
@@ -47,19 +47,31 @@ const PageSpeedChecker: React.FC = () => {
             {result && (
               <DomainResultDisplay title="Page Speed Results" icon={<Speed fontSize="small" />} data={result}>
                 <Box sx={{ textAlign: 'center', py: 2, mb: 2 }}>
-                  <Typography variant="h3" fontWeight={700}
-                    color={perf?.rating === 'Fast' ? 'success.main' : perf?.rating === 'Average' ? 'warning.main' : 'error.main'}>
+                  <Typography variant="h3" color={perf?.rating === 'Fast' ? 'success.main' : perf?.rating === 'Average' ? 'warning.main' : 'error.main'}
+                    sx={{
+                      fontWeight: 700
+                    }}>
                     {String(result.loadTime)}ms
                   </Typography>
                   <Chip label={perf?.rating as string} sx={{ mt: 1 }}
                     color={perf?.rating === 'Fast' ? 'success' : perf?.rating === 'Average' ? 'warning' : 'error'} />
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                      mt: 1
+                    }}>
                     Page Size: {result.pageSizeFormatted as string}
                   </Typography>
                 </Box>
                 {resources && (
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Resource Count</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1
+                      }}>Resource Count</Typography>
                     <KeyValueTable data={{
                       Scripts: resources.scripts,
                       Stylesheets: resources.stylesheets,

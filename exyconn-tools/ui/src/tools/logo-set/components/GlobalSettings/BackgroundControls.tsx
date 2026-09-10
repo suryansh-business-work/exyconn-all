@@ -52,7 +52,13 @@ const BackgroundControls: React.FC<Props> = ({ settings, onChange, currentImage 
 
       {!settings.transparent && (
         <>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              alignItems: "center",
+              mb: 1
+            }}>
             <TextField
               type="color"
               value={settings.backgroundColor}
@@ -93,9 +99,17 @@ const BackgroundControls: React.FC<Props> = ({ settings, onChange, currentImage 
       )}
 
       <Box sx={{ mb: 2 }}>
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: "center",
+            mb: 0.5
+          }}>
           <RoundedCorner fontSize="small" color="action" />
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" sx={{
+            color: "text.secondary"
+          }}>
             Corners: {settings.borderRadius}%
           </Typography>
         </Stack>
@@ -109,9 +123,17 @@ const BackgroundControls: React.FC<Props> = ({ settings, onChange, currentImage 
       </Box>
 
       <Box sx={{ mb: 2 }}>
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: "center",
+            mb: 0.5
+          }}>
           <Layers fontSize="small" color="action" />
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" sx={{
+            color: "text.secondary"
+          }}>
             Shadow: {settings.boxShadow}px
           </Typography>
         </Stack>

@@ -173,7 +173,13 @@ export function PayrollPage() {
 
       <Grid container spacing={1.5} sx={{ mb: 2 }}>
         {tiles.map((tile) => (
-          <Grid key={tile.label} item xs={6} sm={4} md={2.4}>
+          <Grid
+            key={tile.label}
+            size={{
+              xs: 6,
+              sm: 4,
+              md: 2.4
+            }}>
             <StatCard {...tile} />
           </Grid>
         ))}

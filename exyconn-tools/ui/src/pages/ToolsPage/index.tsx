@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Container, useMediaQuery, useTheme as useMuiTheme } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { useTheme } from '../../shared/context/ThemeContext';
 import { useSecrets } from '../../shared/context/SecretsContext';
 import Footer from '../../shared/components/Footer/Footer';

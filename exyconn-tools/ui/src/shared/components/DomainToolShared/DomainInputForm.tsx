@@ -39,7 +39,9 @@ const DomainInputForm: React.FC<DomainInputFormProps> = ({
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         {icon}
-        <Typography variant="h6" fontWeight={600}>{title}</Typography>
+        <Typography variant="h6" sx={{
+          fontWeight: 600
+        }}>{title}</Typography>
       </Box>
       <form onSubmit={formik.handleSubmit}>
         <TextField

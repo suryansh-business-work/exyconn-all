@@ -36,14 +36,18 @@ export default function ClosingDialog(): ReactElement | null {
     <Dialog open disableEscapeKeyDown maxWidth="xs" fullWidth aria-label="Upload in progress">
       <DialogContent>
         <Stack spacing={1.5}>
-          <Stack direction="row" spacing={1.25} alignItems="center">
+          <Stack direction="row" spacing={1.25} sx={{
+            alignItems: "center"
+          }}>
             <CloudUploadOutlined fontSize="small" sx={{ color: 'warning.main' }} />
             <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
               Upload in progress
             </Typography>
           </Stack>
 
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             {what}. Closing now would make this work upload all over again — the tracker will close
             by itself the moment it lands.
           </Typography>

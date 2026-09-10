@@ -7,7 +7,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Compress from '@mui/icons-material/Compress';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -68,7 +68,12 @@ export default function CompressPdf() {
             >
               <CloudUpload sx={{ fontSize: 48, color: '#10b981', mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>or click to browse</Typography>
               <Button variant="outlined" component="label" color="success">
                 Browse Files
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
@@ -77,7 +82,9 @@ export default function CompressPdf() {
             {file && (
               <Paper sx={{ p: 2, mt: 2 }}>
                 <Typography variant="body2"><strong>{file.name}</strong></Typography>
-                <Typography variant="body2" color="text.secondary">Original size: {formatSize(originalSize)}</Typography>
+                <Typography variant="body2" sx={{
+                  color: "text.secondary"
+                }}>Original size: {formatSize(originalSize)}</Typography>
               </Paper>
             )}
 
@@ -101,16 +108,28 @@ export default function CompressPdf() {
                   <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
                     <Grid container spacing={2}>
                       <Grid size={{ xs: 4 }}>
-                        <Typography variant="caption" color="text.secondary">Original</Typography>
-                        <Typography variant="body1" fontWeight={600}>{formatSize(originalSize)}</Typography>
+                        <Typography variant="caption" sx={{
+                          color: "text.secondary"
+                        }}>Original</Typography>
+                        <Typography variant="body1" sx={{
+                          fontWeight: 600
+                        }}>{formatSize(originalSize)}</Typography>
                       </Grid>
                       <Grid size={{ xs: 4 }}>
-                        <Typography variant="caption" color="text.secondary">Compressed</Typography>
-                        <Typography variant="body1" fontWeight={600}>{formatSize(compressedSize)}</Typography>
+                        <Typography variant="caption" sx={{
+                          color: "text.secondary"
+                        }}>Compressed</Typography>
+                        <Typography variant="body1" sx={{
+                          fontWeight: 600
+                        }}>{formatSize(compressedSize)}</Typography>
                       </Grid>
                       <Grid size={{ xs: 4 }}>
-                        <Typography variant="caption" color="text.secondary">Reduction</Typography>
-                        <Typography variant="body1" fontWeight={600} color={Number(reduction) > 0 ? 'success.main' : 'warning.main'}>
+                        <Typography variant="caption" sx={{
+                          color: "text.secondary"
+                        }}>Reduction</Typography>
+                        <Typography variant="body1" color={Number(reduction) > 0 ? 'success.main' : 'warning.main'} sx={{
+                          fontWeight: 600
+                        }}>
                           {reduction}%
                         </Typography>
                       </Grid>

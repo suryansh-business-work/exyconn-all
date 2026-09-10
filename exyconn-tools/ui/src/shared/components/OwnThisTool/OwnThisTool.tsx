@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Container, Typography, Button, Paper, Chip, Divider } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { CheckCircle, Email, OpenInNew } from '@mui/icons-material';
 import { toolsData, ToolItem } from '../../data/toolsData';
 
@@ -54,29 +54,55 @@ const OwnThisTool: React.FC<OwnThisToolProps> = ({ toolId }) => {
       }}
     >
       <Container maxWidth="lg">
-        <Grid container spacing={4} alignItems="center">
+        <Grid container spacing={4} sx={{
+          alignItems: "center"
+        }}>
           <Grid size={{ xs: 12, md: 7 }}>
             <Chip
               label="FOR DEVELOPERS & BUSINESSES"
               size="small"
               sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', mb: 2, fontWeight: 600 }}
             />
-            <Typography variant="h4" fontWeight={700} sx={{ mb: 2 }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                mb: 2
+              }}>
               Own this {toolName}
             </Typography>
             {pricing ? (
-              <Typography variant="h3" fontWeight={800} color={accent} sx={{ mb: 1 }}>
+              <Typography
+                variant="h3"
+                color={accent}
+                sx={{
+                  fontWeight: 800,
+                  mb: 1
+                }}>
                 ${pricing.price}{' '}
-                <Typography component="span" variant="h6" color="text.secondary">
+                <Typography component="span" variant="h6" sx={{
+                  color: "text.secondary"
+                }}>
                   {pricing.currency}
                 </Typography>
               </Typography>
             ) : (
-              <Typography variant="h4" fontWeight={700} color={accent} sx={{ mb: 1 }}>
+              <Typography
+                variant="h4"
+                color={accent}
+                sx={{
+                  fontWeight: 700,
+                  mb: 1
+                }}>
                 Contact for Pricing
               </Typography>
             )}
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "text.secondary",
+                mb: 3
+              }}>
               Get the complete source code and deploy on your own infrastructure.
             </Typography>
 
@@ -102,7 +128,9 @@ const OwnThisTool: React.FC<OwnThisToolProps> = ({ toolId }) => {
                 <Typography
                   variant="body2"
                   color={isDark ? 'warning.light' : 'warning.dark'}
-                  fontWeight={500}
+                  sx={{
+                    fontWeight: 500
+                  }}
                 >
                   ⚠️ {pricing.alterationNote}
                 </Typography>
@@ -126,7 +154,12 @@ const OwnThisTool: React.FC<OwnThisToolProps> = ({ toolId }) => {
               </Button>
             </Box>
 
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+                mt: 1
+              }}>
               Mail to services@exyconn.com if you are interested to purchase
             </Typography>
           </Grid>
@@ -141,40 +174,61 @@ const OwnThisTool: React.FC<OwnThisToolProps> = ({ toolId }) => {
                 textAlign: 'center',
               }}
             >
-              <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 2 }}>
+              <Typography
+                variant="overline"
+                sx={{
+                  color: "text.secondary",
+                  letterSpacing: 2
+                }}>
                 WHAT YOU GET
               </Typography>
               <Divider sx={{ my: 2 }} />
               <Box sx={{ textAlign: 'left' }}>
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="text.primary">
+                  <Typography variant="subtitle2" sx={{
+                    color: "text.primary"
+                  }}>
                     📦 Source Code
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" sx={{
+                    color: "text.secondary"
+                  }}>
                     Complete React + TypeScript codebase
                   </Typography>
                 </Box>
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="text.primary">
+                  <Typography variant="subtitle2" sx={{
+                    color: "text.primary"
+                  }}>
                     🔧 Backend API
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" sx={{
+                    color: "text.secondary"
+                  }}>
                     Node.js/Express server with all endpoints
                   </Typography>
                 </Box>
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="text.primary">
+                  <Typography variant="subtitle2" sx={{
+                    color: "text.primary"
+                  }}>
                     📖 Documentation
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" sx={{
+                    color: "text.secondary"
+                  }}>
                     Setup guide and API documentation
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="subtitle2" color="text.primary">
+                  <Typography variant="subtitle2" sx={{
+                    color: "text.primary"
+                  }}>
                     🎯 Lifetime License
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" sx={{
+                    color: "text.secondary"
+                  }}>
                     Use in unlimited projects
                   </Typography>
                 </Box>

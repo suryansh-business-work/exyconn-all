@@ -7,7 +7,9 @@ const SettingsHeader: React.FC<SettingsHeaderProps> = ({ hasCustomChanges, onRes
   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
       <Tune sx={{ fontSize: 18 }} color="primary" />
-      <Typography variant="subtitle2" fontWeight={600}>
+      <Typography variant="subtitle2" sx={{
+        fontWeight: 600
+      }}>
         Settings
       </Typography>
     </Box>

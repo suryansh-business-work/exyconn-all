@@ -31,10 +31,16 @@ const NotFoundPage: React.FC = () => {
         }}>
           404
         </Typography>
-        <Typography variant="h5" fontWeight={700}>
+        <Typography variant="h5" sx={{
+          fontWeight: 700
+        }}>
           Page not found
         </Typography>
-        <Typography color="text.secondary" sx={{ maxWidth: 420 }}>
+        <Typography
+          sx={{
+            color: "text.secondary",
+            maxWidth: 420
+          }}>
           The page you are looking for doesn&apos;t exist or may have moved.
           Browse all free tools instead.
         </Typography>

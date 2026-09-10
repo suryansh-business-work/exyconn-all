@@ -18,9 +18,10 @@ export const Flex = forwardRef<HTMLDivElement, FlexProps>(
       ref={ref}
       direction={direction}
       useFlexGap={wrap}
-      flexWrap={wrap ? 'wrap' : undefined}
       {...props}
-    />
+      sx={[{
+        flexWrap: wrap ? 'wrap' : undefined
+      }, ...(Array.isArray(props.sx) ? props.sx : [props.sx])]} />
   ),
 );
 Flex.displayName = 'Flex';

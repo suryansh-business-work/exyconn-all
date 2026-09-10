@@ -63,7 +63,9 @@ export function AttachmentPicker({ value, onChange, folder }: Readonly<Attachmen
 
   return (
     <Stack spacing={1}>
-      <Stack direction="row" spacing={1} alignItems="center">
+      <Stack direction="row" spacing={1} sx={{
+        alignItems: "center"
+      }}>
         <Button
           type="button"
           variant="outlined"

@@ -26,11 +26,18 @@ export function SharedProjectProgress({
   return (
     <Flex direction="column" spacing={2}>
       <Card variant="outlined" sx={{ p: { xs: 2, md: 3 } }}>
-        <Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 700,
+            mb: 1.5
+          }}>
           Milestones
         </Typography>
         {milestones.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             No milestones have been set for this project.
           </Typography>
         ) : (
@@ -45,7 +52,9 @@ export function SharedProjectProgress({
                 <Typography variant="body2" sx={{ flex: 1 }}>
                   {milestone.name}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" sx={{
+                  color: "text.secondary"
+                }}>
                   {milestone.dueOn ? formatWith(milestone.dueOn, DATE_FORMAT) : 'No date'}
                 </Typography>
               </Flex>
@@ -55,11 +64,18 @@ export function SharedProjectProgress({
       </Card>
 
       <Card variant="outlined" sx={{ p: { xs: 2, md: 3 } }}>
-        <Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 700,
+            mb: 1.5
+          }}>
           Where the work is ({totalTickets} {totalTickets === 1 ? 'ticket' : 'tickets'})
         </Typography>
         {totalTickets === 0 ? (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             No tickets have been raised on this project yet.
           </Typography>
         ) : (
@@ -75,7 +91,12 @@ export function SharedProjectProgress({
                   aria-label={`${entry.status} share of tickets`}
                   sx={{ flex: 1, height: 8, borderRadius: 1 }}
                 />
-                <Typography variant="body2" fontWeight={700} sx={{ minWidth: 32 }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 700,
+                    minWidth: 32
+                  }}>
                   {entry.count}
                 </Typography>
               </Flex>

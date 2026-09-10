@@ -43,7 +43,9 @@ const SignaturePreview: React.FC<SignaturePreviewProps> = ({ values }) => {
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Visibility fontSize="small" color="primary" />
-          <Typography variant="subtitle2" fontWeight={600}>
+          <Typography variant="subtitle2" sx={{
+            fontWeight: 600
+          }}>
             Live Preview
           </Typography>
         </Box>
@@ -98,10 +100,14 @@ const SignaturePreview: React.FC<SignaturePreviewProps> = ({ values }) => {
               px: 4,
             }}
           >
-            <Typography variant="h6" color="text.secondary" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{
+              color: "text.secondary"
+            }}>
               Start Creating Your Signature
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{
+              color: "text.secondary"
+            }}>
               Enter your name in the form to see a live preview of your email signature here.
             </Typography>
           </Box>
@@ -119,7 +125,9 @@ const SignaturePreview: React.FC<SignaturePreviewProps> = ({ values }) => {
             bgcolor: 'background.default',
           }}
         >
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" sx={{
+            color: "text.secondary"
+          }}>
             This is how your signature will appear at the bottom of your emails.
           </Typography>
         </Box>

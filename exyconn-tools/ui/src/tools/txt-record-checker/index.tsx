@@ -3,7 +3,7 @@ import {
   Container, Alert, Snackbar, Chip, Box, Typography,
   Accordion, AccordionSummary, AccordionDetails,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { TextSnippet, ExpandMore } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay } from '../../shared/components/DomainToolShared';
@@ -53,7 +53,9 @@ const TXTRecordChecker: React.FC = () => {
                     {(result.spf as string[])?.map((r, i) => (
                       <Typography key={i} variant="body2" sx={{ fontFamily: 'monospace', fontSize: 12, mb: 1, wordBreak: 'break-all' }}>{r}</Typography>
                     ))}
-                    {!(result.spf as string[])?.length && <Typography variant="body2" color="text.secondary">No SPF records found</Typography>}
+                    {!(result.spf as string[])?.length && <Typography variant="body2" sx={{
+                      color: "text.secondary"
+                    }}>No SPF records found</Typography>}
                   </AccordionDetails>
                 </Accordion>
                 <Accordion defaultExpanded>
@@ -70,7 +72,9 @@ const TXTRecordChecker: React.FC = () => {
                         ))}
                       </Box>
                     ))}
-                    {!(result.dkim as unknown[])?.length && <Typography variant="body2" color="text.secondary">No DKIM records found</Typography>}
+                    {!(result.dkim as unknown[])?.length && <Typography variant="body2" sx={{
+                      color: "text.secondary"
+                    }}>No DKIM records found</Typography>}
                   </AccordionDetails>
                 </Accordion>
                 <Accordion defaultExpanded>
@@ -82,7 +86,9 @@ const TXTRecordChecker: React.FC = () => {
                     {(result.dmarc as string[])?.map((r, i) => (
                       <Typography key={i} variant="body2" sx={{ fontFamily: 'monospace', fontSize: 12, mb: 1, wordBreak: 'break-all' }}>{r}</Typography>
                     ))}
-                    {!(result.dmarc as string[])?.length && <Typography variant="body2" color="text.secondary">No DMARC records found</Typography>}
+                    {!(result.dmarc as string[])?.length && <Typography variant="body2" sx={{
+                      color: "text.secondary"
+                    }}>No DMARC records found</Typography>}
                   </AccordionDetails>
                 </Accordion>
                 <Accordion>

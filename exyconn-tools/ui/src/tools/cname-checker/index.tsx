@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar, Chip, Box, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { CompareArrows } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay } from '../../shared/components/DomainToolShared';
@@ -47,14 +47,24 @@ const CNAMEChecker: React.FC = () => {
                     color={result.hasCNAME ? 'success' : 'warning'} sx={{ mb: 2 }} />
                   {(result.records as string[])?.length > 0 && (
                     <Box sx={{ mt: 2 }}>
-                      <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>CNAME Records</Typography>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: 600,
+                          mb: 1
+                        }}>CNAME Records</Typography>
                       {(result.records as string[]).map((r, i) => (
                         <Chip key={i} label={r} sx={{ m: 0.5 }} variant="outlined" />
                       ))}
                     </Box>
                   )}
                   {Boolean(result.message) && (
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>{result.message as string}</Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "text.secondary",
+                        mt: 2
+                      }}>{result.message as string}</Typography>
                   )}
                 </Box>
               </DomainResultDisplay>

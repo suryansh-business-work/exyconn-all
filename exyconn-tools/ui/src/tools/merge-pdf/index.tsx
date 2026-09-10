@@ -11,7 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import MergeType from '@mui/icons-material/MergeType';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import ArrowUpward from '@mui/icons-material/ArrowUpward';
@@ -87,7 +87,12 @@ export default function MergePdf() {
             >
               <CloudUpload sx={{ fontSize: 48, color: '#ef4444', mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop PDFs Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>or click to browse</Typography>
               <Button variant="outlined" component="label" color="error">
                 Browse Files
                 <input hidden multiple accept="application/pdf" type="file" onChange={onFileChange} />
@@ -118,7 +123,12 @@ export default function MergePdf() {
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>Merge Options</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>
                 {files.length} file(s) selected. Reorder files on the left, then click merge.
               </Typography>
               {processing && <LinearProgress sx={{ mb: 2 }} color="error" />}

@@ -101,16 +101,15 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({ children, toolName, toolIcon, t
               <Link
                 component="button"
                 underline="hover"
-                color="text.secondary"
                 onClick={() => navigate('/tools')}
                 sx={{
+                  color: "text.secondary",
                   display: 'flex',
                   alignItems: 'center',
                   gap: 0.5,
                   fontSize: '0.8rem',
-                  cursor: 'pointer',
-                }}
-              >
+                  cursor: 'pointer'
+                }}>
                 <Home sx={{ fontSize: 16 }} />
                 Tools
               </Link>

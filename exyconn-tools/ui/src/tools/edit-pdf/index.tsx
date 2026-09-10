@@ -7,7 +7,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Edit from '@mui/icons-material/Edit';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import NavigateBefore from '@mui/icons-material/NavigateBefore';
@@ -140,7 +140,12 @@ export default function EditPdf() {
           >
             <CloudUpload sx={{ fontSize: 48, color: '#6366f1', mb: 1 }} />
             <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+                mb: 2
+              }}>or click to browse</Typography>
             <Button variant="outlined" component="label" sx={{ color: '#6366f1', borderColor: '#6366f1' }}>
               Browse Files<input hidden accept="application/pdf" type="file" onChange={onFileChange} />
             </Button>
@@ -162,7 +167,13 @@ export default function EditPdf() {
                 <Box sx={{ overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, textAlign: 'center', bgcolor: '#f5f5f5' }}>
                   <canvas ref={canvasRef} onClick={onCanvasClick} style={{ cursor: 'crosshair', maxWidth: '100%', display: 'block', margin: '0 auto' }} />
                 </Box>
-                {clickPos && <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>Click position (PDF): x={clickPos.x}, y={clickPos.y}</Typography>}
+                {clickPos && <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                    mt: 0.5,
+                    display: 'block'
+                  }}>Click position (PDF): x={clickPos.x}, y={clickPos.y}</Typography>}
               </Paper>
             </Grid>
 

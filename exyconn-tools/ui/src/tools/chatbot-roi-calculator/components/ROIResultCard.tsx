@@ -65,14 +65,28 @@ const ROIResultCard: React.FC<ROIResultCardProps> = ({
       }}
     >
       {icon && <Box sx={{ mb: 1, color: colors.text }}>{icon}</Box>}
-      <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mb: 0.5 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: "text.secondary",
+          fontWeight: 500,
+          mb: 0.5
+        }}>
         {label}
       </Typography>
-      <Typography variant="h4" fontWeight={700} sx={{ color: colors.text, mb: 0.5 }}>
+      <Typography
+        variant="h4"
+        sx={{
+          fontWeight: 700,
+          color: colors.text,
+          mb: 0.5
+        }}>
         {value}
       </Typography>
       {subtitle && (
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{
+          color: "text.secondary"
+        }}>
           {subtitle}
         </Typography>
       )}

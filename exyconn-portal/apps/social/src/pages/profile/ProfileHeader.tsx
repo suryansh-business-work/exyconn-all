@@ -38,7 +38,9 @@ export function ProfileHeader({ profile }: Readonly<ProfileHeaderProps>) {
   return (
     <Card variant="outlined">
       <CardContent>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems="center">
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} sx={{
+          alignItems: "center"
+        }}>
           <Avatar
             src={user.avatarUrl ?? undefined}
             alt={user.name}
@@ -49,15 +51,25 @@ export function ProfileHeader({ profile }: Readonly<ProfileHeaderProps>) {
           <Box sx={{ textAlign: { xs: 'center', sm: 'left' }, minWidth: 0 }}>
             <Typography variant="h5">{user.name}</Typography>
             {role && (
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{
+                color: "text.secondary"
+              }}>
                 {role}
               </Typography>
             )}
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{
+              color: "text.secondary"
+            }}>
               {user.email}
             </Typography>
             {profile.joinDate && (
-              <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>
+              <Typography
+                variant="caption"
+                component="div"
+                sx={{
+                  color: "text.secondary",
+                  mt: 0.5
+                }}>
                 Joined {formatDate(profile.joinDate)}
               </Typography>
             )}

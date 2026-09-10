@@ -57,10 +57,18 @@ export function AiSpendPanel({ summary, loading, periodLabel }: Readonly<AiSpend
         from Tech &rsaquo; Environment Variables &rsaquo; AI Pricing.
       </Text>
       <Grid container spacing={1.5}>
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <DataTable columns={USER_COLUMNS} rows={userRows} emptyMessage={empty} />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <DataTable columns={MODEL_COLUMNS} rows={modelRows} emptyMessage={empty} />
         </Grid>
       </Grid>

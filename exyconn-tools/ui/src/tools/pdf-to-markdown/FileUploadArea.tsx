@@ -58,10 +58,17 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
       >
         <input id="pdf-input" type="file" accept=".pdf" hidden onChange={onFileChange} />
         <Upload sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-        <Typography variant="body1" fontWeight={500}>
+        <Typography variant="body1" sx={{
+          fontWeight: 500
+        }}>
           {file ? file.name : 'Drop PDF file here or click to upload'}
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mt: 1
+          }}>
           Supports PDF files up to 50MB
         </Typography>
       </Paper>
@@ -72,10 +79,14 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <PictureAsPdf color="error" />
               <Box>
-                <Typography variant="body2" fontWeight={500}>
+                <Typography variant="body2" sx={{
+                  fontWeight: 500
+                }}>
                   {file.name}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" sx={{
+                  color: "text.secondary"
+                }}>
                   {(file.size / 1024 / 1024).toFixed(2)} MB
                 </Typography>
               </Box>

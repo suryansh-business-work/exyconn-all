@@ -49,7 +49,13 @@ export function ReadinessCard({ hasAccess, consented, loading }: Readonly<Readin
   const items = buildItems(hasAccess, consented);
   return (
     <Box sx={[glass, { p: 2, mb: 1.5 }]}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 1.5
+        }}>
         <Typography variant="subtitle1">Before you start</Typography>
         {loading && <Chip size="small" variant="outlined" label="Checking…" />}
       </Stack>
@@ -63,7 +69,9 @@ export function ReadinessCard({ hasAccess, consented, loading }: Readonly<Readin
             )}
             <Box>
               <Typography variant="subtitle2">{item.label}</Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" sx={{
+                color: "text.secondary"
+              }}>
                 {item.hint}
               </Typography>
             </Box>

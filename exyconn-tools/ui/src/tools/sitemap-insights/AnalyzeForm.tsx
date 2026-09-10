@@ -1,6 +1,6 @@
 import React from 'react';
 import { Paper, TextField, Button, CircularProgress, LinearProgress } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Insights, Language } from '@mui/icons-material';
 
 interface AnalyzeFormProps {
@@ -17,7 +17,9 @@ const AnalyzeForm: React.FC<AnalyzeFormProps> = ({
   onAnalyze,
 }) => (
   <Paper elevation={0} sx={{ p: 2, mb: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-    <Grid container spacing={2} alignItems="center">
+    <Grid container spacing={2} sx={{
+      alignItems: "center"
+    }}>
       <Grid size={{ xs: 12, md: 8 }}>
         <TextField
           fullWidth
@@ -25,8 +27,10 @@ const AnalyzeForm: React.FC<AnalyzeFormProps> = ({
           placeholder="https://example.com/sitemap.xml"
           value={sitemapUrl}
           onChange={(e) => onUrlChange(e.target.value)}
-          InputProps={{
-            startAdornment: <Language color="action" sx={{ mr: 1 }} />,
+          slotProps={{
+            input: {
+              startAdornment: <Language color="action" sx={{ mr: 1 }} />,
+            }
           }}
         />
       </Grid>

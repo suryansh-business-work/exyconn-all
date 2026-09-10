@@ -12,7 +12,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Numbers from '@mui/icons-material/Numbers';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -111,7 +111,12 @@ export default function PdfPageNumbers() {
             >
               <CloudUpload sx={{ fontSize: 48, color: '#0ea5e9', mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>or click to browse</Typography>
               <Button variant="outlined" component="label" color="info">
                 Browse Files<input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
@@ -119,7 +124,9 @@ export default function PdfPageNumbers() {
             {file && (
               <Paper sx={{ p: 2, mt: 2 }}>
                 <Typography variant="body2"><strong>{file.name}</strong></Typography>
-                <Typography variant="body2" color="text.secondary">Size: {formatSize(file.size)}</Typography>
+                <Typography variant="body2" sx={{
+                  color: "text.secondary"
+                }}>Size: {formatSize(file.size)}</Typography>
               </Paper>
             )}
             {file && (

@@ -15,8 +15,16 @@ function JobRow({ job, formatDateTime }: Readonly<JobRowProps>) {
   const lastRun = job.lastRunAt ? formatDateTime(job.lastRunAt) : 'Not since restart';
   return (
     <Box sx={{ py: 1, borderTop: `${borderWidth.hairline}px solid`, borderColor: 'divider' }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-        <Typography variant="body2" fontWeight={600}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}>
+        <Typography variant="body2" sx={{
+          fontWeight: 600
+        }}>
           {job.label}
         </Typography>
         <Chip
@@ -26,11 +34,15 @@ function JobRow({ job, formatDateTime }: Readonly<JobRowProps>) {
           variant="outlined"
         />
       </Stack>
-      <Typography variant="caption" color="text.secondary" component="p">
+      <Typography variant="caption" component="p" sx={{
+        color: "text.secondary"
+      }}>
         Last run: {lastRun}
       </Typography>
       {job.lastRunSummary && (
-        <Typography variant="caption" color="text.secondary" component="p">
+        <Typography variant="caption" component="p" sx={{
+          color: "text.secondary"
+        }}>
           {job.lastRunSummary}
         </Typography>
       )}

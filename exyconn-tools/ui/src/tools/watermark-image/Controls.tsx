@@ -7,7 +7,7 @@ import Slider from '@mui/material/Slider';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import ToggleButton from '@mui/material/ToggleButton';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import FiberManualRecord from '@mui/icons-material/FiberManualRecord';
 import { POSITIONS, WatermarkPosition, WatermarkMode, TextWatermarkOptions, ImageWatermarkOptions } from './utils';
 
@@ -90,7 +90,12 @@ const ImageControls = ({ options, onChange, watermarkName, onWatermarkFile }: Re
           {watermarkName ? 'Replace Watermark Image' : 'Upload Watermark Image'}
           <input hidden accept="image/*" type="file" onChange={onFileChange} />
         </Button>
-        {watermarkName && <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{watermarkName}</Typography>}
+        {watermarkName && <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mt: 1
+          }}>{watermarkName}</Typography>}
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
         <Typography variant="caption">Scale: {options.scale}% of image width</Typography>

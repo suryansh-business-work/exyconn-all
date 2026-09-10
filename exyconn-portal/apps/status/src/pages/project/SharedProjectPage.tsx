@@ -61,10 +61,20 @@ export function SharedProjectPage() {
     return (
       <Card variant="outlined" sx={{ p: { xs: 3, md: 4 }, textAlign: 'center' }}>
         <LockPersonIcon color="disabled" sx={{ fontSize: iconSize['5xl'] }} />
-        <Typography variant="h5" fontWeight={800} sx={{ mt: 1 }}>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 800,
+            mt: 1
+          }}>
           This link no longer works
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography
+          variant="body1"
+          sx={{
+            color: "text.secondary",
+            mt: 1
+          }}>
           It has expired, been revoked, or was never valid. Ask whoever sent it for a new one.
         </Typography>
       </Card>
@@ -75,14 +85,18 @@ export function SharedProjectPage() {
     <Flex direction="column" spacing={3}>
       <Box>
         <Flex alignItems="center" spacing={1.5} sx={{ mb: 0.5 }}>
-          <Typography variant="h4" fontWeight={800}>
+          <Typography variant="h4" sx={{
+            fontWeight: 800
+          }}>
             {project.name}
           </Typography>
           {project.clientName ? (
             <Chip size="small" variant="outlined" label={project.clientName} />
           ) : null}
         </Flex>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" sx={{
+          color: "text.secondary"
+        }}>
           Where this project has got to.
         </Typography>
       </Box>

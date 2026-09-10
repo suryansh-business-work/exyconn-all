@@ -29,10 +29,17 @@ const ToolCard: React.FC<Readonly<ToolCardProps>> = ({ tool, onToolClick }) => (
             }}>
               {tool.name}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{
-              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-              overflow: 'hidden', lineHeight: 1.45, fontSize: '0.75rem',
-            }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                lineHeight: 1.45,
+                fontSize: '0.75rem'
+              }}>
               {tool.description}
             </Typography>
           </Box>

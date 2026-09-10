@@ -4,7 +4,7 @@ import {
   Paper, LinearProgress, Chip, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Link, Search, OpenInNew } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -72,8 +72,12 @@ const BacklinkChecker: React.FC = () => {
                     { label: 'Nofollow', value: `${result.externalLinks.nofollow} (${result.summary.nofollowPercentage})`, color: '#f59e0b' },
                   ].map((m) => (
                     <Paper key={m.label} variant="outlined" sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }}>
-                      <Typography variant="h6" fontWeight="bold" color={m.color}>{m.value}</Typography>
-                      <Typography variant="caption" color="text.secondary">{m.label}</Typography>
+                      <Typography variant="h6" color={m.color} sx={{
+                        fontWeight: "bold"
+                      }}>{m.value}</Typography>
+                      <Typography variant="caption" sx={{
+                        color: "text.secondary"
+                      }}>{m.label}</Typography>
                     </Paper>
                   ))}
                 </Box>
@@ -117,7 +121,9 @@ const BacklinkChecker: React.FC = () => {
             {!result && !isLoading && (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <Link sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography color="text.secondary">Enter a URL to analyze its link profile</Typography>
+                <Typography sx={{
+                  color: "text.secondary"
+                }}>Enter a URL to analyze its link profile</Typography>
               </Paper>
             )}
           </Grid>

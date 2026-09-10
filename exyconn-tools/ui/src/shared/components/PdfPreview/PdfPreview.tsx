@@ -81,7 +81,9 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ file, maxHeight = 360, showPage
     return (
       <Paper sx={{ p: 3, textAlign: 'center' }}>
         <PictureAsPdf sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-        <Typography variant="body2" color="text.secondary">Unable to preview PDF</Typography>
+        <Typography variant="body2" sx={{
+          color: "text.secondary"
+        }}>Unable to preview PDF</Typography>
       </Paper>
     );
   }
@@ -99,7 +101,9 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ file, maxHeight = 360, showPage
           <IconButton size="small" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage <= 1}>
             <NavigateBefore fontSize="small" />
           </IconButton>
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" sx={{
+            color: "text.secondary"
+          }}>
             Page {currentPage} of {totalPages}
           </Typography>
           <IconButton size="small" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage >= totalPages}>
@@ -108,7 +112,13 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ file, maxHeight = 360, showPage
         </Box>
       )}
       {totalPages === 1 && (
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+            mt: 0.5,
+            display: 'block'
+          }}>
           1 page
         </Typography>
       )}

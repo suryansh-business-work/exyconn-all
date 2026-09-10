@@ -78,7 +78,13 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
     <ScreenLayout maxWidth={520}>
       <Surface sx={{ p: 3 }}>
         <Typography variant="h5">Grant permissions</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mt: 0.5,
+            mb: 2
+          }}>
           macOS needs your permission before the tracker can work. Grant each item below, then
           re-check.
         </Typography>
@@ -107,7 +113,13 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
         >
           Re-check
         </Button>
-        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1.5 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+            display: "block",
+            mt: 1.5
+          }}>
           Some features will not work until these are granted.
         </Typography>
       </Surface>

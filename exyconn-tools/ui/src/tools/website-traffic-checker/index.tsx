@@ -4,7 +4,7 @@ import {
   Paper, LinearProgress, Chip, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Insights, Search, Speed, Code, Share, Language, Link } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -21,8 +21,12 @@ interface TrafficResult {
 
 const MetricCard: React.FC<{ label: string; value: string | number; color?: string }> = ({ label, value, color = '#14b8a6' }) => (
   <Paper variant="outlined" sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }}>
-    <Typography variant="h6" fontWeight="bold" color={color}>{value}</Typography>
-    <Typography variant="caption" color="text.secondary">{label}</Typography>
+    <Typography variant="h6" color={color} sx={{
+      fontWeight: "bold"
+    }}>{value}</Typography>
+    <Typography variant="caption" sx={{
+      color: "text.secondary"
+    }}>{label}</Typography>
   </Paper>
 );
 
@@ -56,7 +60,9 @@ const WebsiteTrafficChecker: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
             <Paper sx={{ p: 3 }}>
-              <Typography variant="subtitle2" fontWeight={700} gutterBottom>
+              <Typography variant="subtitle2" gutterBottom sx={{
+                fontWeight: 700
+              }}>
                 <Search sx={{ mr: 0.5, verticalAlign: 'middle', fontSize: 18 }} />Analyze Website
               </Typography>
               <TextField fullWidth size="small" label="URL" placeholder="https://example.com"
@@ -77,7 +83,15 @@ const WebsiteTrafficChecker: React.FC = () => {
             {result ? (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Paper sx={{ p: 3 }}>
-                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.5
+                    }}>
                     <Speed sx={{ color: '#14b8a6', fontSize: 18 }} /> Performance — {result.domain}
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
@@ -90,14 +104,28 @@ const WebsiteTrafficChecker: React.FC = () => {
                   </Box>
                 </Paper>
                 <Paper sx={{ p: 3 }}>
-                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 1.5,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.5
+                    }}>
                     <Code sx={{ color: '#14b8a6', fontSize: 18 }} /> Content & SEO
                   </Typography>
                   {result.content.title && (
                     <Typography variant="body2" sx={{ mb: 0.5 }}><b>Title:</b> {result.content.title}</Typography>
                   )}
                   {result.content.metaDescription && (
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "text.secondary",
+                        display: 'block',
+                        mb: 1
+                      }}>
                       <b>Meta:</b> {result.content.metaDescription}
                     </Typography>
                   )}
@@ -109,7 +137,15 @@ const WebsiteTrafficChecker: React.FC = () => {
                 </Paper>
                 {result.technology.detected.length > 0 && (
                   <Paper sx={{ p: 3 }}>
-                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5
+                      }}>
                       <Language sx={{ color: '#14b8a6', fontSize: 18 }} /> Technology Stack
                     </Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
@@ -121,7 +157,15 @@ const WebsiteTrafficChecker: React.FC = () => {
                 )}
                 {result.social.platforms.length > 0 && (
                   <Paper sx={{ p: 3 }}>
-                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5
+                      }}>
                       <Share sx={{ color: '#14b8a6', fontSize: 18 }} /> Social Presence
                     </Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
@@ -131,7 +175,15 @@ const WebsiteTrafficChecker: React.FC = () => {
                 )}
                 {result.links.externalDomainList.length > 0 && (
                   <Paper sx={{ p: 3 }}>
-                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5
+                      }}>
                       <Link sx={{ color: '#14b8a6', fontSize: 18 }} /> External Domains ({result.links.externalDomains})
                     </Typography>
                     <TableContainer sx={{ maxHeight: 300 }}>
@@ -150,7 +202,9 @@ const WebsiteTrafficChecker: React.FC = () => {
             ) : (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <Insights sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography color="text.secondary">Enter a URL to analyze website performance and technology stack</Typography>
+                <Typography sx={{
+                  color: "text.secondary"
+                }}>Enter a URL to analyze website performance and technology stack</Typography>
               </Paper>
             )}
           </Grid>

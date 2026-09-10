@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, Tooltip, Divider, alpha, } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { LightMode, DarkMode, Gradient, Domain, AutoAwesomeMotion } from '@mui/icons-material';
 import { ThemeType, signatureThemes } from '../../types';
 
@@ -62,7 +62,9 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ selectedTheme, onThemeCha
                 >
                   <Box sx={{ color: theme.accentColor }}>{themeIcons[theme.id]}</Box>
                 </Box>
-                <Typography variant="caption" fontWeight={600}>
+                <Typography variant="caption" sx={{
+                  fontWeight: 600
+                }}>
                   {theme.name}
                 </Typography>
               </Box>

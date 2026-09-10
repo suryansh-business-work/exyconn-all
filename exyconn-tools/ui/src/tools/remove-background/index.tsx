@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import { MdBrokenImage } from 'react-icons/md';
@@ -74,7 +74,12 @@ export default function RemoveBackground() {
             >
               <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop Image Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>JPG, PNG, or WEBP — one image</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>JPG, PNG, or WEBP — one image</Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                 Browse Files
                 <input hidden accept="image/jpeg,image/png,image/webp" type="file" onChange={onFileChange} />
@@ -98,7 +103,12 @@ export default function RemoveBackground() {
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>Remove Background</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 1
+                }}>
                 AI detects the subject and erases the background, leaving a transparent PNG.
               </Typography>
 
@@ -110,7 +120,13 @@ export default function RemoveBackground() {
                 {processing ? 'Removing Background…' : 'Remove Background'}
               </Button>
 
-              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 2 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  display: "block",
+                  mt: 2
+                }}>
                 Processing happens on the Exyconn server — your image is uploaded for background removal and is never stored or shared.
               </Typography>
             </Paper>

@@ -11,7 +11,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Compare from '@mui/icons-material/Compare';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import CheckCircle from '@mui/icons-material/CheckCircle';

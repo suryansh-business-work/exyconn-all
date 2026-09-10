@@ -3,7 +3,7 @@ import {
   Container, Alert, Snackbar, Chip, Box, Typography,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { SettingsEthernet } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay } from '../../shared/components/DomainToolShared';
@@ -50,7 +50,12 @@ const HTTPHeadersCheck: React.FC = () => {
                   <Chip label={`Status: ${result.statusCode}`} color={Number(result.statusCode) < 400 ? 'success' : 'error'} />
                   <Chip label={`Server: ${result.server}`} variant="outlined" />
                 </Box>
-                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Security Headers</Typography>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                    mb: 1
+                  }}>Security Headers</Typography>
                 <TableContainer sx={{ mb: 2 }}>
                   <Table size="small">
                     <TableHead>
@@ -74,7 +79,12 @@ const HTTPHeadersCheck: React.FC = () => {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>All Response Headers</Typography>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                    mb: 1
+                  }}>All Response Headers</Typography>
                 <TableContainer>
                   <Table size="small">
                     <TableBody>

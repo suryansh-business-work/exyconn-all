@@ -71,7 +71,12 @@ export function TrackerDeviceDetails({
       <DialogContent dividers>
         <Grid container spacing={1.5}>
           {toFacts(device, formatDateTime, timezone).map((fact) => (
-            <Grid item xs={12} sm={6} key={fact.label}>
+            <Grid
+              key={fact.label}
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <Text size="caption" color="text.secondary" component="div">
                 {fact.label}
               </Text>

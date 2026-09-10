@@ -43,7 +43,9 @@ export default function TotalsPanel({ lastSyncAt }: Readonly<Props>): ReactEleme
     <Stack spacing={1}>
       <Stack spacing={0.25}>
         <Typography variant="subtitle2">All time</Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{
+          color: "text.secondary"
+        }}>
           Everything you have tracked, across every session — it never resets.
         </Typography>
       </Stack>

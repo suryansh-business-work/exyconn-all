@@ -31,7 +31,14 @@ export default function TitleBar({ title, actions }: Readonly<Props>): ReactElem
         ...DRAG,
       })}
     >
-      <Typography variant="caption" color="text.secondary" noWrap sx={{ flex: 1, fontWeight: 600 }}>
+      <Typography
+        variant="caption"
+        noWrap
+        sx={{
+          color: "text.secondary",
+          flex: 1,
+          fontWeight: 600
+        }}>
         {title}
       </Typography>
       {actions}

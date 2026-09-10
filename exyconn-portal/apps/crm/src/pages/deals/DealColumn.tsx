@@ -40,11 +40,19 @@ export function DealColumn({
         }
       }}
     >
-      <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ mb: 1 }}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "baseline",
+          mb: 1
+        }}>
         <Typography variant="subtitle2" sx={{ color: accent }}>
           {stageLabel(stage)}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{
+          color: "text.secondary"
+        }}>
           {deals.length} · {formatMoney(total)}
         </Typography>
       </Stack>
@@ -60,7 +68,9 @@ export function DealColumn({
       ))}
 
       {deals.length === 0 && (
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{
+          color: "text.secondary"
+        }}>
           Nothing here.
         </Typography>
       )}

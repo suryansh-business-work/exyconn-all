@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar, Chip, Box, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { SwapHoriz } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay } from '../../shared/components/DomainToolShared';
@@ -49,7 +49,12 @@ const ReverseIPLookup: React.FC = () => {
                   ))}
                 </Box>
                 {Boolean(result.message) && (
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>{result.message as string}</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                      mt: 2
+                    }}>{result.message as string}</Typography>
                 )}
               </DomainResultDisplay>
             )}

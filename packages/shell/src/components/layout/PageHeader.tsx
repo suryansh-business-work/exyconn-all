@@ -15,15 +15,18 @@ export function PageHeader({ title, subtitle, actionLabel, onAction, children }:
   return (
     <Stack
       direction={{ xs: 'column', sm: 'row' }}
-      justifyContent="space-between"
-      alignItems={{ xs: 'flex-start', sm: 'center' }}
       spacing={2}
-      sx={{ mb: 2 }}
-    >
+      sx={{
+        justifyContent: "space-between",
+        alignItems: { xs: 'flex-start', sm: 'center' },
+        mb: 2
+      }}>
       <Box>
         <Typography variant="h4">{title}</Typography>
         {subtitle && (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             {subtitle}
           </Typography>
         )}

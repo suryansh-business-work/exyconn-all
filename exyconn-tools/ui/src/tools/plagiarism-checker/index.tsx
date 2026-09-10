@@ -4,7 +4,7 @@ import {
   Chip, LinearProgress, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { ContentPaste } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -55,12 +55,24 @@ const PlagiarismChecker: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2, fontSize: '1rem' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 2,
+                  fontSize: '1rem'
+                }}>
                 Check Content Uniqueness
               </Typography>
               <TextField fullWidth size="small" label="Enter text" placeholder="Paste your content here..."
                 value={text} onChange={(e) => setText(e.target.value)} multiline rows={10} sx={{ mb: 2 }} />
-              <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  mb: 1.5,
+                  display: 'block'
+                }}>
                 {text.split(/\s+/).filter(Boolean).length} words
               </Typography>
               <Button fullWidth variant="contained" color="error" onClick={handleCheck}
@@ -76,18 +88,29 @@ const PlagiarismChecker: React.FC = () => {
             {result && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Paper sx={{ p: 3, borderRadius: 2 }}>
-                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2 }}>Uniqueness Score</Typography>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 2
+                    }}>Uniqueness Score</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                     <Box sx={{
                       width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                       bgcolor: result.uniquenessScore >= 80 ? 'success.main' : result.uniquenessScore >= 50 ? 'warning.main' : 'error.main',
                       color: 'white',
                     }}>
-                      <Typography variant="h5" fontWeight={800}>{result.uniquenessScore}%</Typography>
+                      <Typography variant="h5" sx={{
+                        fontWeight: 800
+                      }}>{result.uniquenessScore}%</Typography>
                     </Box>
                     <Box>
-                      <Typography variant="body2" fontWeight={600}>Content Uniqueness</Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant="body2" sx={{
+                        fontWeight: 600
+                      }}>Content Uniqueness</Typography>
+                      <Typography variant="caption" sx={{
+                        color: "text.secondary"
+                      }}>
                         {result.totalWords} words, {result.totalSentences} sentences
                       </Typography>
                     </Box>
@@ -103,7 +126,12 @@ const PlagiarismChecker: React.FC = () => {
 
                 {result.repeatedPhrases.length > 0 && (
                   <Paper sx={{ p: 3, borderRadius: 2 }}>
-                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>Repeated Phrases</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 1.5
+                      }}>Repeated Phrases</Typography>
                     <TableContainer>
                       <Table size="small">
                         <TableHead>

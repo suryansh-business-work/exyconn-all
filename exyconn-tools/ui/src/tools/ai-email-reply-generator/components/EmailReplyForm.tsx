@@ -40,7 +40,9 @@ const EmailReplyForm: React.FC<EmailFormProps> = ({ onSubmit, isLoading }) => {
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <MailOutline color="primary" />
-        <Typography variant="h6" fontWeight={600}>
+        <Typography variant="h6" sx={{
+          fontWeight: 600
+        }}>
           Generate Email Reply
         </Typography>
       </Box>

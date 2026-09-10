@@ -4,7 +4,7 @@ import {
   Paper, LinearProgress, Chip, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Analytics, Search, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -103,7 +103,9 @@ const KeywordVolumeChecker: React.FC = () => {
             {results.length === 0 && !isLoading && (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <Analytics sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography color="text.secondary">Enter keywords to get real suggestions from Google</Typography>
+                <Typography sx={{
+                  color: "text.secondary"
+                }}>Enter keywords to get real suggestions from Google</Typography>
               </Paper>
             )}
           </Grid>

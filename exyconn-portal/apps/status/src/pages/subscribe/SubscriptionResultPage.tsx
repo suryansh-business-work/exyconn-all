@@ -42,7 +42,9 @@ export function SubscriptionResultPage({
   return (
     <Flex direction="column" spacing={2}>
       <Box>
-        <Typography variant="h5" fontWeight={800}>
+        <Typography variant="h5" sx={{
+          fontWeight: 800
+        }}>
           {title}
         </Typography>
       </Box>

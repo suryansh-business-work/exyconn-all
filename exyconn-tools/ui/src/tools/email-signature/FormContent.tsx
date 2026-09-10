@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Box, Paper, Tab, Tabs } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { FormikProps, useFormikContext } from 'formik';
 import { Person, Image, Share, Palette, TuneRounded, Campaign } from '@mui/icons-material';
 

@@ -31,7 +31,12 @@ const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
           size="small"
           sx={{ width: 40, '& input': { p: 0.25, cursor: 'pointer', height: 24 } }}
         />
-        <Typography variant="caption" color="text.secondary" fontFamily="monospace">
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+            fontFamily: "monospace"
+          }}>
           {backgroundColor}
         </Typography>
       </Box>
@@ -55,7 +60,13 @@ const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
       {extractedColors.length > 0 && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
           <ColorLens sx={{ fontSize: 14 }} color="action" />
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem', mr: 0.5 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              fontSize: '0.6rem',
+              mr: 0.5
+            }}>
             From Image:
           </Typography>
           {extractedColors.map((color, index) => (

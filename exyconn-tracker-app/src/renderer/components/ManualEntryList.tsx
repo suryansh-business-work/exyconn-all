@@ -39,15 +39,21 @@ function EntryRow({ entry, timezone, onWithdraw }: Readonly<RowProps>): ReactEle
         <Typography variant="subtitle2">{formatHoursMinutes(entry.durationMs)}</Typography>
         <Chip size="small" color={STATUS_COLOR[entry.status]} label={STATUS_LABEL[entry.status]} />
       </Flex>
-      <Typography variant="caption" color="text.secondary">
+      <Typography variant="caption" sx={{
+        color: "text.secondary"
+      }}>
         {formatDateTime(entry.startedAt, timezone)} — {formatDateTime(entry.endedAt, timezone)}
       </Typography>
-      <Typography variant="caption" color="text.secondary">
+      <Typography variant="caption" sx={{
+        color: "text.secondary"
+      }}>
         {bookedTo(entry)}
       </Typography>
       <Typography variant="body2">{entry.note}</Typography>
       {entry.reviewNote !== '' && (
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{
+          color: "text.secondary"
+        }}>
           Reviewer: {entry.reviewNote}
         </Typography>
       )}
@@ -77,7 +83,9 @@ export default function ManualEntryList({
   if (entries.length === 0) {
     return (
       <Surface>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{
+          color: "text.secondary"
+        }}>
           You have not claimed any off-computer time in the last 90 days.
         </Typography>
       </Surface>

@@ -81,13 +81,13 @@ export function TrackerNoticeForm({ employees }: Readonly<TrackerNoticeFormProps
         app. Leave the recipients empty to reach {audience}.
       </Alert>
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <RhfTextField name="title" label="Title" />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <RhfTextField name="body" label="Message" multiline minRows={4} />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <RhfMultiSelect
             name="userIds"
             label="Recipients (optional)"

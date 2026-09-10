@@ -11,7 +11,7 @@ import {
   ToggleButton,
   Divider,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { ExpandMore, Image, AccountCircle, InsertPhoto, CloudUpload, Link } from '@mui/icons-material';
 import { FormikProps } from 'formik';
 import { SignatureFormValues } from '../types';
@@ -34,7 +34,9 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ formik }) => {
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Image color="primary" fontSize="small" />
-          <Typography fontWeight={600}>Branding & Images</Typography>
+          <Typography sx={{
+            fontWeight: 600
+          }}>Branding & Images</Typography>
         </Box>
       </AccordionSummary>
       <AccordionDetails>
@@ -50,7 +52,11 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ formik }) => {
               <CloudUpload sx={{ mr: 1 }} fontSize="small" /> Upload
             </ToggleButton>
             <ToggleButton value="url">
-              <Link sx={{ mr: 1 }} fontSize="small" /> URL
+              <Link
+                sx={{
+                  fontSize: "small",
+                  mr: 1
+                }} /> URL
             </ToggleButton>
           </ToggleButtonGroup>
         </Box>
@@ -130,12 +136,14 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ formik }) => {
                 helperText={
                   (touched.profilePhotoUrl && errors.profilePhotoUrl) || 'Square images work best (e.g., 200x200)'
                 }
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <AccountCircle fontSize="small" color="action" />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <AccountCircle fontSize="small" color="action" />
+                      </InputAdornment>
+                    ),
+                  }
                 }}
               />
             </Grid>
@@ -151,12 +159,14 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ formik }) => {
                 onBlur={handleBlur}
                 error={touched.logoUrl && Boolean(errors.logoUrl)}
                 helperText={(touched.logoUrl && errors.logoUrl) || 'Use a transparent PNG for best results'}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Image fontSize="small" color="action" />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Image fontSize="small" color="action" />
+                      </InputAdornment>
+                    ),
+                  }
                 }}
               />
             </Grid>
@@ -172,12 +182,14 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ formik }) => {
                 onBlur={handleBlur}
                 error={touched.bannerUrl && Boolean(errors.bannerUrl)}
                 helperText={(touched.bannerUrl && errors.bannerUrl) || 'Optional promotional banner (max 400px width)'}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <InsertPhoto fontSize="small" color="action" />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <InsertPhoto fontSize="small" color="action" />
+                      </InputAdornment>
+                    ),
+                  }
                 }}
               />
             </Grid>

@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Create from '@mui/icons-material/Create';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import { PDFDocument } from 'pdf-lib';
@@ -97,7 +97,12 @@ export default function SignPdf() {
               onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)} onDrop={onDrop}>
               <CloudUpload sx={{ fontSize: 48, color: '#0ea5e9', mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>or click to browse</Typography>
               <Button variant="outlined" component="label" sx={{ color: '#0ea5e9', borderColor: '#0ea5e9' }}>
                 Browse Files<input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>

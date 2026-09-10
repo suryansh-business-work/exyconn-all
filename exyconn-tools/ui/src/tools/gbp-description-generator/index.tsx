@@ -3,7 +3,7 @@ import {
   Container, Box, Typography, TextField, Button, Paper, Alert, Snackbar, Chip,
   List, ListItem, ListItemIcon, ListItemText,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { LocationOn, CheckCircle, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -71,7 +71,13 @@ const GBPDescriptionGenerator: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2, fontSize: '1rem' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 2,
+                  fontSize: '1rem'
+                }}>
                 Generate Business Description
               </Typography>
               <TextField fullWidth size="small" label="Business Name" placeholder="Exyconn Technologies"
@@ -98,7 +104,9 @@ const GBPDescriptionGenerator: React.FC = () => {
                 {result.descriptions.map((desc) => (
                   <Paper key={desc.variant} sx={{ p: 3, borderRadius: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                      <Typography variant="subtitle2" fontWeight={700}>Variant {desc.variant}</Typography>
+                      <Typography variant="subtitle2" sx={{
+                        fontWeight: 700
+                      }}>Variant {desc.variant}</Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Chip size="small" label={`${desc.length}/750 chars`}
                           color={desc.isWithinLimit ? 'success' : 'error'} variant="outlined" />
@@ -116,14 +124,21 @@ const GBPDescriptionGenerator: React.FC = () => {
                 ))}
 
                 <Paper sx={{ p: 3, borderRadius: 2 }}>
-                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>Tips</Typography>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 1
+                    }}>Tips</Typography>
                   <List dense>
                     {result.tips.map((tip, idx) => (
                       <ListItem key={idx} disablePadding sx={{ mb: 0.5 }}>
                         <ListItemIcon sx={{ minWidth: 28 }}>
                           <CheckCircle sx={{ fontSize: 14, color: 'success.main' }} />
                         </ListItemIcon>
-                        <ListItemText primary={tip} primaryTypographyProps={{ variant: 'body2', fontSize: '0.8rem' }} />
+                        <ListItemText primary={tip} slotProps={{
+                          primary: { variant: 'body2', fontSize: '0.8rem' }
+                        }} />
                       </ListItem>
                     ))}
                   </List>

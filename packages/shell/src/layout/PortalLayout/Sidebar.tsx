@@ -91,7 +91,12 @@ export function Sidebar({
       {!collapsed && isHub && (
         <List sx={{ px: 1, py: 0 }}>
           {modules.length === 0 && (
-            <Typography variant="caption" color="text.secondary" sx={{ px: 2 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+                px: 2
+              }}>
               No modules match “{query}”.
             </Typography>
           )}

@@ -33,12 +33,16 @@ function ReportStatusLine({ status }: Readonly<{ status: ReportStatus }>) {
   return (
     <Box sx={{ mt: 1 }}>
       <Flex alignItems="center" spacing={1} flexWrap="wrap">
-        <Typography variant="subtitle2" fontWeight={700}>
+        <Typography variant="subtitle2" sx={{
+          fontWeight: 700
+        }}>
           {status.reference}
         </Typography>
         <StatusChip value={status.status} />
       </Flex>
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" sx={{
+        color: "text.secondary"
+      }}>
         {status.serviceName || 'Whole platform'} · last updated{' '}
         {formatWith(status.updatedAt, TIME_FORMAT)}
       </Typography>

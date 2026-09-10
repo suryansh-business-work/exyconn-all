@@ -24,7 +24,9 @@ interface StepProps {
 /** One numbered install step. */
 function InstallStep({ index, text, accent }: Readonly<StepProps>) {
   return (
-    <Stack direction="row" spacing={1.5} alignItems="flex-start">
+    <Stack direction="row" spacing={1.5} sx={{
+      alignItems: "flex-start"
+    }}>
       <Box
         sx={{
           flexShrink: 0,
@@ -70,13 +72,21 @@ export function InstallGuide({ platform }: Readonly<{ platform: PlatformConfig }
 
       <Divider sx={{ my: 2 }} />
 
-      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          alignItems: "center",
+          mb: 1
+        }}>
         <LockIcon sx={{ fontSize: iconSize.lg, color: 'text.secondary' }} />
         <Typography variant="subtitle2">Permissions it will ask for</Typography>
       </Stack>
       <Stack component="ul" spacing={0.5} sx={{ m: 0, pl: 2.5 }}>
         {platform.permissions.map((permission) => (
-          <Typography key={permission} component="li" variant="body2" color="text.secondary">
+          <Typography key={permission} component="li" variant="body2" sx={{
+            color: "text.secondary"
+          }}>
             {permission}
           </Typography>
         ))}

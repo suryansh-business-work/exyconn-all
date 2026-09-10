@@ -6,7 +6,7 @@ import Paper from '@mui/material/Paper';
 import LinearProgress from '@mui/material/LinearProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import PictureAsPdf from '@mui/icons-material/PictureAsPdf';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -120,7 +120,9 @@ export default function PdfToPowerpoint() {
               <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
               <Typography variant="h6">{file ? file.name : 'Drop PDF here or click to upload'}</Typography>
               {file && (
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" sx={{
+                  color: "text.secondary"
+                }}>
                   {(file.size / 1024).toFixed(1)} KB
                 </Typography>
               )}

@@ -47,20 +47,36 @@ export function UserDetailsPage() {
             Employee details
           </Heading>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={7}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 7
+              }}>
               <UserProfileCard user={user} />
             </Grid>
-            <Grid item xs={12} md={5}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 5
+              }}>
               <UserActions
                 user={user}
                 onChanged={() => void refetch()}
                 editPath={fromHr ? `/hr/employees/${user.id}/edit` : undefined}
               />
             </Grid>
-            <Grid item xs={12} md={7}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 7
+              }}>
               <EmployeeLeavePanel employeeId={user.id} />
             </Grid>
-            <Grid item xs={12} md={5}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 5
+              }}>
               <EmployeeAttendancePanel employeeId={user.id} />
             </Grid>
           </Grid>

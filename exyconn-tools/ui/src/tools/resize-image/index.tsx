@@ -14,7 +14,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import Link from '@mui/icons-material/Link';
@@ -100,7 +100,12 @@ export default function ResizeImage() {
             >
               <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop Image Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>JPG, PNG, WEBP, or GIF</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 2
+                }}>JPG, PNG, WEBP, or GIF</Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                 Browse Files
                 <input hidden accept="image/jpeg,image/png,image/webp,image/gif" type="file" onChange={onFileChange} />
@@ -110,7 +115,9 @@ export default function ResizeImage() {
             {file && original && (
               <Paper sx={{ p: 2, mt: 2, textAlign: 'center' }}>
                 <Typography variant="body2" sx={{ wordBreak: 'break-all' }}><strong>{file.name}</strong></Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>Original: {original.width} × {original.height} px</Typography>
+                <Typography variant="body2" gutterBottom sx={{
+                  color: "text.secondary"
+                }}>Original: {original.width} × {original.height} px</Typography>
                 <Box component="img" src={previewUrl} alt={`Preview of ${file.name}`} sx={{ maxWidth: '100%', maxHeight: 280, borderRadius: 1 }} />
               </Paper>
             )}
@@ -120,7 +127,13 @@ export default function ResizeImage() {
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>Resize Options</Typography>
 
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  alignItems: "center",
+                  mb: 2
+                }}>
                 <TextField size="small" type="number" label="Width (px)" value={width || ''} disabled={!original} onChange={(e) => onWidthChange(e.target.value)} />
                 <Tooltip title={locked ? 'Aspect ratio locked' : 'Aspect ratio unlocked'}>
                   <span>
@@ -164,7 +177,13 @@ export default function ResizeImage() {
                 </Button>
               )}
 
-              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 2 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  display: "block",
+                  mt: 2
+                }}>
                 Images are processed locally in your browser — they never leave your device.
               </Typography>
             </Paper>

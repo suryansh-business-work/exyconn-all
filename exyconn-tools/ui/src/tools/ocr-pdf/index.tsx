@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import DocumentScanner from '@mui/icons-material/DocumentScanner';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import Download from '@mui/icons-material/Download';
@@ -115,7 +115,9 @@ export default function OcrPdf() {
             <input id="ocr-upload" type="file" accept=".pdf" hidden onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
             <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
             <Typography variant="h6">{file ? file.name : 'Drop PDF here or click to upload'}</Typography>
-            {file && <Typography variant="body2" color="text.secondary">{(file.size / 1024).toFixed(1)} KB</Typography>}
+            {file && <Typography variant="body2" sx={{
+              color: "text.secondary"
+            }}>{(file.size / 1024).toFixed(1)} KB</Typography>}
           </Paper>
           {file && <PdfPreview file={file} />}
         </Grid>

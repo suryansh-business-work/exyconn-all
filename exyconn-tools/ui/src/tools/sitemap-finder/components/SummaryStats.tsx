@@ -29,10 +29,17 @@ const SummaryStats: React.FC<SummaryStatsProps> = ({ validCount, totalUrls, inva
         textAlign: 'center',
       }}
     >
-      <Typography variant="h4" fontWeight={700} color="success.main">
+      <Typography
+        variant="h4"
+        sx={{
+          fontWeight: 700,
+          color: "success.main"
+        }}>
         {validCount}
       </Typography>
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" sx={{
+        color: "text.secondary"
+      }}>
         Valid Sitemaps
       </Typography>
     </Paper>
@@ -48,10 +55,17 @@ const SummaryStats: React.FC<SummaryStatsProps> = ({ validCount, totalUrls, inva
         textAlign: 'center',
       }}
     >
-      <Typography variant="h4" fontWeight={700} color="primary.main">
+      <Typography
+        variant="h4"
+        sx={{
+          fontWeight: 700,
+          color: "primary.main"
+        }}>
         {totalUrls.toLocaleString()}
       </Typography>
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" sx={{
+        color: "text.secondary"
+      }}>
         Total URLs
       </Typography>
     </Paper>
@@ -68,10 +82,17 @@ const SummaryStats: React.FC<SummaryStatsProps> = ({ validCount, totalUrls, inva
           textAlign: 'center',
         }}
       >
-        <Typography variant="h4" fontWeight={700} color="error.main">
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 700,
+            color: "error.main"
+          }}>
           {invalidCount}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{
+          color: "text.secondary"
+        }}>
           Invalid
         </Typography>
       </Paper>
@@ -96,7 +117,9 @@ const SummaryStats: React.FC<SummaryStatsProps> = ({ validCount, totalUrls, inva
           <ErrorIcon color="disabled" fontSize="small" />
         )}
       </Box>
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" sx={{
+        color: "text.secondary"
+      }}>
         robots.txt
       </Typography>
     </Paper>

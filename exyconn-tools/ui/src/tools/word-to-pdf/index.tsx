@@ -11,7 +11,7 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import { FaFileWord } from 'react-icons/fa';
@@ -88,7 +88,12 @@ export default function WordToPdf() {
             >
               <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
               <Typography variant="h6" gutterBottom>Drag & Drop Word File Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Supports .doc and .docx files</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  mb: 1
+                }}>Supports .doc and .docx files</Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                 Browse Files <input hidden accept={ACCEPT_ATTR} type="file" onChange={onFileChange} />
               </Button>
@@ -108,7 +113,9 @@ export default function WordToPdf() {
                 {converting && (
                   <Box sx={{ mt: 2 }}>
                     <LinearProgress sx={{ mb: 1 }} />
-                    <Typography variant="caption" color="text.secondary">Converting on Exyconn server…</Typography>
+                    <Typography variant="caption" sx={{
+                      color: "text.secondary"
+                    }}>Converting on Exyconn server…</Typography>
                   </Box>
                 )}
                 {convertError && <Alert severity="error" sx={{ mt: 2 }}>{convertError}</Alert>}
@@ -123,7 +130,9 @@ export default function WordToPdf() {
               <Paper sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}>
                   <Box sx={{ fontSize: 64, color: 'text.disabled', mb: 2, display: 'flex' }}><FaFileWord /></Box>
-                  <Typography color="text.secondary">Upload a Word document to get started</Typography>
+                  <Typography sx={{
+                    color: "text.secondary"
+                  }}>Upload a Word document to get started</Typography>
                 </Box>
               </Paper>
             )}

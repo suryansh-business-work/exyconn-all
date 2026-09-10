@@ -39,10 +39,14 @@ const SizeSettingsDrawer: React.FC<Props> = ({
   };
 
   return (
-    <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: 320, p: 2 } }}>
+    <Drawer anchor="right" open={open} onClose={onClose} slotProps={{
+      paper: { sx: { width: 320, p: 2 } }
+    }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="subtitle1" fontWeight={600}>
+          <Typography variant="subtitle1" sx={{
+            fontWeight: 600
+          }}>
             ⚙️ {sizeLabel}
           </Typography>
           {hasCustomSettings && (

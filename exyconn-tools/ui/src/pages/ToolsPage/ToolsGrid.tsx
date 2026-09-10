@@ -15,7 +15,12 @@ const ToolsGrid: React.FC<Readonly<ToolsGridProps>> = ({ category, onToolClick }
       }}>
         <Box component={category.icon} sx={{ width: 18, height: 18, color: category.color }} />
       </Box>
-      <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '0.95rem' }}>
+      <Typography
+        variant="subtitle1"
+        sx={{
+          fontWeight: 700,
+          fontSize: '0.95rem'
+        }}>
         {category.category}
       </Typography>
       <Chip label={category.items.length} size="small"

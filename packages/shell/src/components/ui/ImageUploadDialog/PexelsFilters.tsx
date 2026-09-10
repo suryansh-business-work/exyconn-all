@@ -54,7 +54,9 @@ export function PexelsFilters({ kind, value, onChange }: Readonly<PexelsFiltersP
     onChange({ ...value, [key]: next });
 
   return (
-    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+    <Stack direction="row" spacing={1} useFlexGap sx={{
+      flexWrap: "wrap"
+    }}>
       <FilterSelect
         label="Orientation"
         value={value.orientation}

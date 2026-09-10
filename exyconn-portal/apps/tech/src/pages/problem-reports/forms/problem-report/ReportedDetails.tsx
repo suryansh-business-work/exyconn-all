@@ -13,10 +13,14 @@ export function ReportedDetails({ report }: Readonly<ReportedDetailsProps>) {
 
   return (
     <Card variant="outlined" sx={{ p: 2 }}>
-      <Typography variant="subtitle2" fontWeight={700}>
+      <Typography variant="subtitle2" sx={{
+        fontWeight: 700
+      }}>
         {report.reference} · {report.subject}
       </Typography>
-      <Typography variant="caption" color="text.secondary">
+      <Typography variant="caption" sx={{
+        color: "text.secondary"
+      }}>
         {service} · {report.category} · {report.reporterName} ({report.reporterEmail}) · {received}
       </Typography>
       <Divider sx={{ my: 1.5 }} />
@@ -25,7 +29,9 @@ export function ReportedDetails({ report }: Readonly<ReportedDetailsProps>) {
       </Typography>
       {report.pageUrl && (
         <Box sx={{ mt: 1 }}>
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" sx={{
+            color: "text.secondary"
+          }}>
             Reported from {report.pageUrl}
           </Typography>
         </Box>

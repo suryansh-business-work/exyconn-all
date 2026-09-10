@@ -12,7 +12,7 @@ import {
   InputAdornment,
   alpha,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { ExpandMore, Share, LinkedIn, X, Facebook, Instagram, GitHub, Language } from '@mui/icons-material';
 import { FormikProps } from 'formik';
 import { SignatureFormValues, SocialLink } from '../types';
@@ -68,8 +68,15 @@ const SocialLinksForm: React.FC<SocialLinksFormProps> = ({ formik }) => {
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Share color="primary" fontSize="small" />
-          <Typography fontWeight={600}>Social Links</Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+          <Typography sx={{
+            fontWeight: 600
+          }}>Social Links</Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              ml: 1
+            }}>
             ({values.socialLinks.filter((s: SocialLink) => s.enabled).length} active)
           </Typography>
         </Box>
@@ -98,7 +105,9 @@ const SocialLinksForm: React.FC<SocialLinksFormProps> = ({ formik }) => {
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     {platformIcons[link.platform]}
-                    <Typography variant="body2" fontWeight={500}>
+                    <Typography variant="body2" sx={{
+                      fontWeight: 500
+                    }}>
                       {platformLabels[link.platform]}
                     </Typography>
                   </Box>
@@ -115,8 +124,10 @@ const SocialLinksForm: React.FC<SocialLinksFormProps> = ({ formik }) => {
                     placeholder={platformPlaceholders[link.platform]}
                     value={link.url}
                     onChange={(e) => handleUrlChange(index, e.target.value)}
-                    InputProps={{
-                      startAdornment: <InputAdornment position="start">{platformIcons[link.platform]}</InputAdornment>,
+                    slotProps={{
+                      input: {
+                        startAdornment: <InputAdornment position="start">{platformIcons[link.platform]}</InputAdornment>,
+                      }
                     }}
                   />
                 )}

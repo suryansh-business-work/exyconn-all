@@ -55,7 +55,9 @@ const ResultsSummary: React.FC<ResultsSummaryProps> = ({ result }) => {
   return (
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h6" fontWeight={600}>
+        <Typography variant="h6" sx={{
+          fontWeight: 600
+        }}>
           Extraction Results
         </Typography>
         <Chip label={`${result.pagesScanned} pages scanned`} size="small" color="primary" />
@@ -158,8 +160,10 @@ const ResultsSummary: React.FC<ResultsSummaryProps> = ({ result }) => {
                   <ListItemText
                     primary={platform.charAt(0).toUpperCase() + platform.slice(1)}
                     secondary={url}
-                    secondaryTypographyProps={{
-                      sx: { fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis' },
+                    slotProps={{
+                      secondary: {
+                        sx: { fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis' },
+                      }
                     }}
                   />
                 </ListItem>
@@ -172,7 +176,12 @@ const ResultsSummary: React.FC<ResultsSummaryProps> = ({ result }) => {
       {result.totalEmails.length === 0 &&
         result.totalPhones.length === 0 &&
         Object.keys(result.socialLinks).length === 0 && (
-          <Typography color="text.secondary" textAlign="center" py={3}>
+          <Typography
+            sx={{
+              color: "text.secondary",
+              textAlign: "center",
+              py: 3
+            }}>
             No contacts found on this website
           </Typography>
         )}

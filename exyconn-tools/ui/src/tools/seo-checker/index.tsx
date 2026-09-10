@@ -3,7 +3,7 @@ import {
   Container, Typography, TextField, Button, Alert, Snackbar,
   Paper, LinearProgress,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { FindInPage } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -45,7 +45,13 @@ const SEOChecker: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
             <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2, fontSize: '1rem' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 2,
+                  fontSize: '1rem'
+                }}>
                 Analyze Website SEO
               </Typography>
               <TextField

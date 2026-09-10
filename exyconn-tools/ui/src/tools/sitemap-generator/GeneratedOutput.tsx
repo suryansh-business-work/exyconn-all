@@ -34,7 +34,9 @@ const GeneratedOutput: React.FC<GeneratedOutputProps> = ({
             justifyContent: 'space-between',
           }}
         >
-          <Typography variant="subtitle2" fontWeight={600}>
+          <Typography variant="subtitle2" sx={{
+            fontWeight: 600
+          }}>
             Generated Sitemap
           </Typography>
           <Box>
@@ -56,7 +58,9 @@ const GeneratedOutput: React.FC<GeneratedOutputProps> = ({
             multiline
             rows={18}
             value={generatedXml}
-            InputProps={{ readOnly: true, sx: { fontFamily: 'monospace', fontSize: 12 } }}
+            slotProps={{
+              input: { readOnly: true, sx: { fontFamily: 'monospace', fontSize: 12 } }
+            }}
           />
         </Box>
       </>

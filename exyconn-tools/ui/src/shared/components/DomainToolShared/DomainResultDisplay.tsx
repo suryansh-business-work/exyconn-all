@@ -41,7 +41,9 @@ const DomainResultDisplay: React.FC<ResultDisplayProps> = ({ title, icon, data, 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {icon}
-          <Typography variant="subtitle2" fontWeight={600}>{title}</Typography>
+          <Typography variant="subtitle2" sx={{
+            fontWeight: 600
+          }}>{title}</Typography>
         </Box>
         <Box>
           <Tooltip title={copied ? 'Copied!' : 'Copy JSON'}>

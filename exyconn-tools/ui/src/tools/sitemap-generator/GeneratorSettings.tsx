@@ -8,7 +8,7 @@ import {
   MenuItem,
   Slider,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 interface GeneratorSettingsProps {
   defaultChangefreq: string;
@@ -26,7 +26,9 @@ const GeneratorSettings: React.FC<GeneratorSettingsProps> = ({
   onPriorityChange,
 }) => (
   <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-    <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+    <Typography variant="subtitle2" gutterBottom sx={{
+      fontWeight: 600
+    }}>
       Default Settings
     </Typography>
     <Grid container spacing={2}>
@@ -47,7 +49,9 @@ const GeneratorSettings: React.FC<GeneratorSettingsProps> = ({
         </FormControl>
       </Grid>
       <Grid size={{ xs: 6 }}>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{
+          color: "text.secondary"
+        }}>
           Priority: {defaultPriority.toFixed(1)}
         </Typography>
         <Slider

@@ -3,7 +3,7 @@ import {
   Container, Box, Typography, TextField, Button, Paper, Alert, Snackbar, Chip,
   List, ListItem, ListItemIcon, ListItemText,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { ShortText, Lightbulb } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -38,7 +38,13 @@ const SentenceRewriter: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2, fontSize: '1rem' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 2,
+                  fontSize: '1rem'
+                }}>
                 Make Writing Clearer
               </Typography>
               <TextField fullWidth size="small" label="Enter sentence(s)" placeholder="Type your sentence(s)..."
@@ -55,7 +61,12 @@ const SentenceRewriter: React.FC = () => {
             {result && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Paper sx={{ p: 3, borderRadius: 2 }}>
-                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2 }}>Analysis</Typography>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 2
+                    }}>Analysis</Typography>
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
                     <Chip size="small" label={`${result.wordCount} words`} />
                     <Chip size="small" label={`${result.sentenceCount} sentences`} />
@@ -66,14 +77,21 @@ const SentenceRewriter: React.FC = () => {
                 </Paper>
                 {Array.isArray(result.suggestions) && result.suggestions.length > 0 && (
                   <Paper sx={{ p: 3, borderRadius: 2 }}>
-                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>Improvement Suggestions</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 1
+                      }}>Improvement Suggestions</Typography>
                     <List dense>
                       {(result.suggestions as string[]).map((s, idx) => (
                         <ListItem key={idx} disablePadding sx={{ mb: 0.5 }}>
                           <ListItemIcon sx={{ minWidth: 28 }}>
                             <Lightbulb sx={{ fontSize: 16, color: 'warning.main' }} />
                           </ListItemIcon>
-                          <ListItemText primary={s} primaryTypographyProps={{ variant: 'body2', fontSize: '0.8rem' }} />
+                          <ListItemText primary={s} slotProps={{
+                            primary: { variant: 'body2', fontSize: '0.8rem' }
+                          }} />
                         </ListItem>
                       ))}
                     </List>

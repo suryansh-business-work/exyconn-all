@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar, Chip, Typography, Box } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Lock } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay, KeyValueTable } from '../../shared/components/DomainToolShared';
@@ -49,13 +49,23 @@ const SSLChecker: React.FC = () => {
                 <KeyValueTable data={result} excludeKeys={['subjectAltNames', 'subject', 'issuer']} />
                 {Boolean(result.subject) && (
                   <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Subject</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1
+                      }}>Subject</Typography>
                     <KeyValueTable data={result.subject as Record<string, unknown>} />
                   </Box>
                 )}
                 {Boolean(result.issuer) && (
                   <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Issuer</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1
+                      }}>Issuer</Typography>
                     <KeyValueTable data={result.issuer as Record<string, unknown>} />
                   </Box>
                 )}

@@ -47,7 +47,13 @@ const IssueTable: React.FC<{ issues: ValidationIssue[]; max: number }> = ({ issu
       </Table>
     </TableContainer>
     {issues.length > max && (
-      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: "text.secondary",
+          mt: 1,
+          display: 'block'
+        }}>
         Showing {max} of {issues.length} issues
       </Typography>
     )}
@@ -61,7 +67,9 @@ const IssuesPanel: React.FC<IssuesPanelProps> = ({ result, errors, warnings }) =
         <AccordionSummary expandIcon={<ExpandMore />}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <ErrorIcon color="error" fontSize="small" />
-            <Typography fontWeight={600}>Errors ({errors.length})</Typography>
+            <Typography sx={{
+              fontWeight: 600
+            }}>Errors ({errors.length})</Typography>
           </Box>
         </AccordionSummary>
         <AccordionDetails>
@@ -75,7 +83,9 @@ const IssuesPanel: React.FC<IssuesPanelProps> = ({ result, errors, warnings }) =
         <AccordionSummary expandIcon={<ExpandMore />}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Warning color="warning" fontSize="small" />
-            <Typography fontWeight={600}>Warnings ({warnings.length})</Typography>
+            <Typography sx={{
+              fontWeight: 600
+            }}>Warnings ({warnings.length})</Typography>
           </Box>
         </AccordionSummary>
         <AccordionDetails>

@@ -12,7 +12,13 @@ interface FormActionsProps {
 export function FormActions({ submitting, isEdit, onCancel, submitLabel }: FormActionsProps) {
   const label = submitLabel ?? (isEdit ? 'Update' : 'Create');
   return (
-    <Stack direction="row" spacing={1.5} justifyContent="flex-end" sx={{ pt: 1 }}>
+    <Stack
+      direction="row"
+      spacing={1.5}
+      sx={{
+        justifyContent: "flex-end",
+        pt: 1
+      }}>
       <Button type="button" color="inherit" onClick={onCancel}>
         Cancel
       </Button>
