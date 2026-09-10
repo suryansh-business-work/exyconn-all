@@ -83,6 +83,7 @@ import DnsIcon from '@mui/icons-material/Dns';
 import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import PaletteIcon from '@mui/icons-material/Palette';
 import SavingsIcon from '@mui/icons-material/Savings';
+import QuickreplyIcon from '@mui/icons-material/Quickreply';
 import ForumIcon from '@mui/icons-material/Forum';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import { ROLES, type Role } from '@/auth/roles';
@@ -255,6 +256,18 @@ export const MODULES: ModuleDefinition[] = [
         icon: SupportAgentIcon,
       },
       { key: 'support-sla', label: 'SLA Policies', path: '/support/sla', icon: ScheduleIcon },
+      {
+        key: 'support-knowledge-base',
+        label: 'Knowledge Base',
+        path: '/support/knowledge-base',
+        icon: MenuBookIcon,
+      },
+      {
+        key: 'support-canned-replies',
+        label: 'Canned Replies',
+        path: '/support/canned-replies',
+        icon: QuickreplyIcon,
+      },
     ],
   },
   {

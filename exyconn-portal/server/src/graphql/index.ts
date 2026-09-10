@@ -36,7 +36,12 @@ import {
 import { integrationsTypeDefs, integrationsResolvers } from '../modules/integrations';
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
 import { employeeTypeDefs, employeeResolvers } from '../modules/employee';
-import { supportTypeDefs, supportResolvers } from '../modules/support';
+import {
+  supportTypeDefs,
+  supportResolvers,
+  supportLibraryTypeDefs,
+  supportLibraryResolvers,
+} from '../modules/support';
 import {
   marketingTypeDefs,
   marketingResolvers,
@@ -133,6 +138,7 @@ export const typeDefs = [
   hrTypeDefs,
   employeeTypeDefs,
   supportTypeDefs,
+  supportLibraryTypeDefs,
   marketingTypeDefs,
   marketingMetricsTypeDefs,
   legalTypeDefs,
@@ -195,6 +201,7 @@ export const resolvers = mergeResolvers([
   hrResolvers,
   employeeResolvers,
   supportResolvers,
+  supportLibraryResolvers,
   marketingResolvers,
   marketingMetricsResolvers,
   legalResolvers,

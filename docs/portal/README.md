@@ -88,6 +88,8 @@ pnpm codegen                              # regenerate GraphQL hooks after a .gr
   decides pending items across every module without owning any of them.
 - [budgets.md](./budgets.md) — cost centres, monthly budgets, and what counts as an actual
   when the report compares the two.
+- [support-library.md](./support-library.md) — knowledge-base articles and canned replies:
+  what separates them, and why only published articles are searchable.
 - [working-day.md](./working-day.md) — the employee working day: which module owns each
   fact, and how HR, Legal, Projects and the desktop tracker share it.
 - [website-content.md](./website-content.md) — every piece of exyconn.com is read from the

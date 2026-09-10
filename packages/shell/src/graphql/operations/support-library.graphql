@@ -1,0 +1,117 @@
+# The support team's reusable writing: knowledge-base articles and canned replies.
+
+fragment KbArticleFields on KbArticle {
+  id
+  title
+  slug
+  category
+  summary
+  body
+  isPublished
+  updatedByName
+  updatedAt
+}
+
+query ListKbArticlesPaged($input: TableQueryInput!) {
+  listKbArticlesPaged(input: $input) {
+    totalCount
+    rows {
+      ...KbArticleFields
+    }
+  }
+}
+
+query ListKbArticlesStats {
+  listKbArticlesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query SearchKnowledgeBase($query: String!) {
+  searchKnowledgeBase(query: $query) {
+    ...KbArticleFields
+  }
+}
+
+mutation CreateKbArticle($input: KbArticleInput!) {
+  createKbArticle(input: $input) {
+    id
+  }
+}
+
+mutation UpdateKbArticle($id: ID!, $input: KbArticleInput!) {
+  updateKbArticle(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteKbArticle($id: ID!) {
+  deleteKbArticle(id: $id)
+}
+
+fragment CannedReplyFields on CannedReply {
+  id
+  title
+  category
+  body
+  isActive
+}
+
+query ListCannedRepliesPaged($input: TableQueryInput!) {
+  listCannedRepliesPaged(input: $input) {
+    totalCount
+    rows {
+      ...CannedReplyFields
+    }
+  }
+}
+
+query ListCannedRepliesStats {
+  listCannedRepliesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query ListActiveCannedReplies {
+  listActiveCannedReplies {
+    ...CannedReplyFields
+  }
+}
+
+mutation CreateCannedReply($input: CannedReplyInput!) {
+  createCannedReply(input: $input) {
+    id
+  }
+}
+
+mutation UpdateCannedReply($id: ID!, $input: CannedReplyInput!) {
+  updateCannedReply(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteCannedReply($id: ID!) {
+  deleteCannedReply(id: $id)
+}

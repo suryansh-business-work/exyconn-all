@@ -11,6 +11,7 @@ import {
   type AttachmentItem,
 } from '@exyconn/shell/components/upload';
 import { useAddSupportReplyMutation } from '@exyconn/shell/graphql/generated';
+import { CannedReplyPicker } from './CannedReplyPicker';
 
 const VISIBILITY_OPTIONS: SelectOption[] = [
   { value: 'false', label: 'Reply to the requester' },
@@ -58,6 +59,16 @@ export function SupportReplyForm({ ticketId, onDone, onCancel }: Readonly<Suppor
     }
   };
 
+  /**
+   * Appends rather than replaces. An agent who has already typed half an answer and then
+   * reaches for a snippet wants both — losing their words would be the last time they used
+   * this.
+   */
+  const insertSnippet = (body: string) => {
+    const current = methods.getValues('body').trim();
+    methods.setValue('body', current ? `${current}\n\n${body}` : body, { shouldDirty: true });
+  };
+
   return (
     <EntityForm
       methods={methods}
@@ -67,6 +78,7 @@ export function SupportReplyForm({ ticketId, onDone, onCancel }: Readonly<Suppor
       submitLabel="Send"
     >
       <RhfSelect name="internal" label="Visibility" options={VISIBILITY_OPTIONS} />
+      <CannedReplyPicker onPick={insertSnippet} />
       <RhfTextField name="body" label="Message" multiline rows={4} />
       <AttachmentPicker
         value={attachments}
