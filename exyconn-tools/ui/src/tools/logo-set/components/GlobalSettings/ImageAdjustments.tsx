@@ -21,13 +21,17 @@ const ImageAdjustments: React.FC<Props> = ({ settings, onChange }) => {
           direction="row"
           spacing={1}
           sx={{
-            alignItems: "center",
-            mb: 0.5
-          }}>
+            alignItems: 'center',
+            mb: 0.5,
+          }}
+        >
           <Brightness6 fontSize="small" color="action" />
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Brightness: {settings.brightness}%
           </Typography>
         </Stack>
@@ -47,13 +51,17 @@ const ImageAdjustments: React.FC<Props> = ({ settings, onChange }) => {
           direction="row"
           spacing={1}
           sx={{
-            alignItems: "center",
-            mb: 0.5
-          }}>
+            alignItems: 'center',
+            mb: 0.5,
+          }}
+        >
           <Contrast fontSize="small" color="action" />
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Contrast: {settings.contrast}%
           </Typography>
         </Stack>
@@ -73,13 +81,17 @@ const ImageAdjustments: React.FC<Props> = ({ settings, onChange }) => {
           direction="row"
           spacing={1}
           sx={{
-            alignItems: "center",
-            mb: 0.5
-          }}>
+            alignItems: 'center',
+            mb: 0.5,
+          }}
+        >
           <FilterBAndW fontSize="small" color="action" />
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Grayscale: {settings.grayscale}%
           </Typography>
         </Stack>

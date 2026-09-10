@@ -85,9 +85,13 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
               <Typography variant="body2" noWrap>
                 {zone}
               </Typography>
-              <Typography variant="caption" noWrap sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="caption"
+                noWrap
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {offsets.get(zone)}
               </Typography>
             </Box>
@@ -101,22 +105,25 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
             helperText={`Every date and time in this app is shown in this zone (${offsetLabel(timezone)}).`}
             slotProps={{
               input: {
-                ...params.InputProps,
+                ...params.slotProps.input,
                 endAdornment: (
                   <>
                     {saving ? <CircularProgress color="inherit" size={16} /> : null}
-                    {params.InputProps.endAdornment}
+                    {params.slotProps.input.endAdornment}
                   </>
                 ),
-              }
+              },
             }}
           />
         )}
       />
 
-      <Typography variant="caption" sx={{
-        color: "text.secondary"
-      }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         It is {formatTimeOfDay(new Date().toISOString(), timezone)} there right now.
       </Typography>
 

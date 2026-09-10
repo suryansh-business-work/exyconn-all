@@ -31,8 +31,9 @@ export function Portal() {
                 xs: 12,
                 sm: 6,
                 md: 4,
-                lg: 3
-              }}>
+                lg: 3,
+              }}
+            >
               <Box sx={[glass, { height: '100%', overflow: 'hidden' }]}>
                 <CardActionArea
                   onClick={() => navigateTo(module.key, module.path)}

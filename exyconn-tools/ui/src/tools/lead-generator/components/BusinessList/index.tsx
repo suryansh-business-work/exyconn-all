@@ -59,9 +59,10 @@ const BusinessList: React.FC<BusinessListProps> = ({ businesses, selectedBusines
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
-            textAlign: "center"
-          }}>
+            color: 'text.secondary',
+            textAlign: 'center',
+          }}
+        >
           Searching for businesses...
         </Typography>
       </Paper>
@@ -92,9 +93,12 @@ const BusinessList: React.FC<BusinessListProps> = ({ businesses, selectedBusines
           borderColor: 'divider',
         }}
       >
-        <Typography variant="subtitle2" sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="subtitle2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Found Businesses ({businesses.length})
         </Typography>
         <Button size="small" startIcon={<FileDownload />} onClick={handleExportCSV} variant="outlined">

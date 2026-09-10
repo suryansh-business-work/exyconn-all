@@ -106,15 +106,17 @@ export function PurchaseOrderForm({ initial, onDone, onCancel }: Readonly<Purcha
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfSelect name="supplierId" label="Supplier" options={supplierOptions} />
         </Grid>
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfSelect
             name="status"
             label="Status"
@@ -127,22 +129,25 @@ export function PurchaseOrderForm({ initial, onDone, onCancel }: Readonly<Purcha
         <Grid
           size={{
             xs: 12,
-            sm: 4
-          }}>
+            sm: 4,
+          }}
+        >
           <RhfTextField name="currency" label="Currency" />
         </Grid>
         <Grid
           size={{
             xs: 12,
-            sm: 4
-          }}>
+            sm: 4,
+          }}
+        >
           <RhfDatePicker name="orderDate" label="Ordered on" />
         </Grid>
         <Grid
           size={{
             xs: 12,
-            sm: 4
-          }}>
+            sm: 4,
+          }}
+        >
           <RhfDatePicker name="expectedDate" label="Expected (optional)" />
         </Grid>
       </Grid>

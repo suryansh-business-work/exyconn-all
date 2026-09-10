@@ -47,9 +47,10 @@ export function TimeLogBilling({
       direction="row"
       spacing={1}
       sx={{
-        alignItems: "center",
-        flexWrap: "wrap"
-      }}>
+        alignItems: 'center',
+        flexWrap: 'wrap',
+      }}
+    >
       <Typography variant="body2">
         Billing: {row.hours} h · {money.format(row.amount)}
         {budgetLabel}

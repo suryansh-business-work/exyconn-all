@@ -59,9 +59,13 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
 
   return (
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 2 }}>
-      <Typography variant="subtitle2" gutterBottom sx={{
-        fontWeight: 600
-      }}>
+      <Typography
+        variant="subtitle2"
+        gutterBottom
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         Search Businesses
       </Typography>
 
@@ -81,7 +85,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
                   <Search fontSize="small" />
                 </InputAdornment>
               ),
-            }
+            },
           }}
         />
 
@@ -91,9 +95,10 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
             variant="caption"
             gutterBottom
             sx={{
-              color: "text.secondary",
-              display: 'block'
-            }}>
+              color: 'text.secondary',
+              display: 'block',
+            }}
+          >
             Popular Categories
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -123,8 +128,10 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
               }
             }}
             MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 300 },
+              slotProps: {
+                paper: {
+                  sx: { maxHeight: 300 },
+                },
               },
             }}
           >
@@ -154,9 +161,12 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
         {selectedTypes.length > 0 && (
           <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="caption" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Selected ({selectedTypes.length})
               </Typography>
               <Button size="small" onClick={handleClearTypes} startIcon={<Clear />}>
@@ -195,9 +205,10 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
           <Typography
             variant="caption"
             sx={{
-              color: "warning.main",
-              textAlign: "center"
-            }}>
+              color: 'warning.main',
+              textAlign: 'center',
+            }}
+          >
             Draw a polygon on the map first to define the search area
           </Typography>
         )}

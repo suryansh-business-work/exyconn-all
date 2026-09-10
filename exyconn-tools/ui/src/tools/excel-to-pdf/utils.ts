@@ -6,8 +6,7 @@ export const ACCEPT_ATTR =
 export const SERVICE_UNAVAILABLE_MESSAGE =
   'The conversion service is temporarily unavailable. Please try again in a few minutes.';
 
-export const NETWORK_ERROR_MESSAGE =
-  'Could not reach the conversion server. Check your connection and try again.';
+export const NETWORK_ERROR_MESSAGE = 'Could not reach the conversion server. Check your connection and try again.';
 
 export const isAcceptedFile = (name: string): boolean => {
   const lower = name.toLowerCase();

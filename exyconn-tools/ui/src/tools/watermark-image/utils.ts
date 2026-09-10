@@ -1,7 +1,13 @@
 export type WatermarkPosition =
-  | 'top-left' | 'top-center' | 'top-right'
-  | 'middle-left' | 'middle-center' | 'middle-right'
-  | 'bottom-left' | 'bottom-center' | 'bottom-right';
+  | 'top-left'
+  | 'top-center'
+  | 'top-right'
+  | 'middle-left'
+  | 'middle-center'
+  | 'middle-right'
+  | 'bottom-left'
+  | 'bottom-center'
+  | 'bottom-right';
 
 export type WatermarkMode = 'text' | 'image';
 
@@ -42,7 +48,7 @@ export const anchorPoint = (
   canvasW: number,
   canvasH: number,
   itemW: number,
-  itemH: number,
+  itemH: number
 ): { x: number; y: number } => {
   const [row, col] = position.split('-');
   let x = MARGIN;
@@ -55,7 +61,12 @@ export const anchorPoint = (
 };
 
 /** Grid of origins that tiles an area of canvasW×canvasH with the given steps. */
-export const tileOrigins = (canvasW: number, canvasH: number, stepX: number, stepY: number): { x: number; y: number }[] => {
+export const tileOrigins = (
+  canvasW: number,
+  canvasH: number,
+  stepX: number,
+  stepY: number
+): { x: number; y: number }[] => {
   const points: { x: number; y: number }[] = [];
   for (let y = 0; y < canvasH; y += stepY) {
     for (let x = 0; x < canvasW; x += stepX) {
@@ -65,7 +76,12 @@ export const tileOrigins = (canvasW: number, canvasH: number, stepX: number, ste
   return points;
 };
 
-export const drawTextWatermark = (ctx: CanvasRenderingContext2D, canvasW: number, canvasH: number, opts: TextWatermarkOptions): void => {
+export const drawTextWatermark = (
+  ctx: CanvasRenderingContext2D,
+  canvasW: number,
+  canvasH: number,
+  opts: TextWatermarkOptions
+): void => {
   ctx.save();
   ctx.globalAlpha = opts.opacity;
   ctx.fillStyle = opts.color;
@@ -73,7 +89,9 @@ export const drawTextWatermark = (ctx: CanvasRenderingContext2D, canvasW: number
   ctx.textBaseline = 'top';
   const textW = ctx.measureText(opts.text).width;
   if (opts.tile) {
-    tileOrigins(canvasW, canvasH, textW + opts.fontSize * 2, opts.fontSize * 3).forEach((p) => ctx.fillText(opts.text, p.x, p.y));
+    tileOrigins(canvasW, canvasH, textW + opts.fontSize * 2, opts.fontSize * 3).forEach((p) =>
+      ctx.fillText(opts.text, p.x, p.y)
+    );
   } else {
     const { x, y } = anchorPoint(opts.position, canvasW, canvasH, textW, opts.fontSize);
     ctx.fillText(opts.text, x, y);
@@ -86,7 +104,7 @@ export const drawImageWatermark = (
   canvasW: number,
   canvasH: number,
   watermark: HTMLImageElement,
-  opts: ImageWatermarkOptions,
+  opts: ImageWatermarkOptions
 ): void => {
   const width = (canvasW * opts.scale) / 100;
   const height = width * (watermark.naturalHeight / watermark.naturalWidth);

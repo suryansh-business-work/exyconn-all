@@ -39,8 +39,9 @@ export function TrackerMessageInbox() {
       <Grid
         size={{
           xs: 12,
-          md: 4
-        }}>
+          md: 4,
+        }}
+      >
         <Card variant="outlined">
           <TrackerMessageThreadList
             threads={threads}
@@ -52,15 +53,19 @@ export function TrackerMessageInbox() {
       <Grid
         size={{
           xs: 12,
-          md: 8
-        }}>
+          md: 8,
+        }}
+      >
         <Card variant="outlined" sx={{ p: 2, minHeight: 360 }}>
           {selected ? (
             <TrackerMessageThread userId={selected.userId} userName={selected.userName} />
           ) : (
-            <Typography variant="body2" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Pick a conversation to read and reply to it.
             </Typography>
           )}

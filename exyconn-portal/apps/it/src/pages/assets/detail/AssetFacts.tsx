@@ -18,18 +18,25 @@ export function AssetFacts({ facts }: Readonly<AssetFactsProps>) {
           key={fact.label}
           size={{
             xs: 6,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <Card variant="outlined" sx={{ p: 1.75, height: '100%' }}>
-            <Typography variant="caption" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {fact.label}
             </Typography>
             <Box>
-              <Typography variant="subtitle1" sx={{
-                fontWeight: 700
-              }}>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 {fact.value}
               </Typography>
             </Box>

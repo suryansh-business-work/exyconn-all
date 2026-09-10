@@ -37,14 +37,18 @@ export function AssetLicenceSeats({
         variant="h6"
         sx={{
           fontWeight: 700,
-          mb: 1.5
-        }}>
+          mb: 1.5,
+        }}
+      >
         Licences {employeeName ? `held by ${employeeName}` : 'held'} ({seats.length})
       </Typography>
       {seats.length === 0 ? (
-        <Typography variant="body2" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           No licence seats are assigned to this person.
         </Typography>
       ) : (
@@ -54,9 +58,12 @@ export function AssetLicenceSeats({
               <Typography variant="body2" sx={{ flex: 1 }}>
                 {seat.name} · {seat.vendor}
               </Typography>
-              <Typography variant="caption" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Renews {formatDate(seat.renewalDate)}
               </Typography>
               <StatusChip value={seat.status} />

@@ -116,22 +116,23 @@ const SitemapFrequencyAnalyzer: React.FC = () => {
         </Paper>
 
         {!stats && !loading && (
-          <Paper
-            elevation={0}
-            sx={{ p: 4, border: 1, borderColor: 'divider', borderRadius: 2, textAlign: 'center' }}
-          >
+          <Paper elevation={0} sx={{ p: 4, border: 1, borderColor: 'divider', borderRadius: 2, textAlign: 'center' }}>
             <Speed sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#8b5cf6' }} />
-            <Typography variant="body1" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="body1"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Enter a sitemap URL to analyze update frequency and priority
             </Typography>
             <Typography
               variant="body2"
               sx={{
-                color: "text.secondary",
-                mt: 1
-              }}>
+                color: 'text.secondary',
+                mt: 1,
+              }}
+            >
               Get insights on changefreq distribution, priority settings, and optimization recommendations
             </Typography>
           </Paper>
@@ -143,9 +144,12 @@ const SitemapFrequencyAnalyzer: React.FC = () => {
               <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Typography variant="subtitle2" sx={{
-                      fontWeight: 600
-                    }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                      }}
+                    >
                       Analysis Results
                     </Typography>
                     <Chip size="small" label={`${stats.totalUrls.toLocaleString()} URLs`} color="primary" />

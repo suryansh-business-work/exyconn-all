@@ -51,9 +51,12 @@ const ExtractForm: React.FC<ExtractFormProps> = ({ onSubmit, isLoading, loadingM
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
         <Language color="primary" />
-        <Typography variant="h6" sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Extract from Website
         </Typography>
       </Box>
@@ -77,16 +80,19 @@ const ExtractForm: React.FC<ExtractFormProps> = ({ onSubmit, isLoading, loadingM
                   <Language fontSize="small" color="action" />
                 </InputAdornment>
               ),
-            }
+            },
           }}
         />
 
         <Box sx={{ mb: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
             <Settings fontSize="small" color="action" />
-            <Typography variant="body2" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Max Pages to Scan: <strong>{formik.values.maxPages}</strong>
             </Typography>
           </Box>
@@ -105,9 +111,12 @@ const ExtractForm: React.FC<ExtractFormProps> = ({ onSubmit, isLoading, loadingM
             ]}
             valueLabelDisplay="auto"
           />
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             More pages = more contacts but longer extraction time
           </Typography>
         </Box>
@@ -124,9 +133,12 @@ const ExtractForm: React.FC<ExtractFormProps> = ({ onSubmit, isLoading, loadingM
           label={
             <Box>
               <Typography variant="body2">Follow internal links</Typography>
-              <Typography variant="caption" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Crawl linked pages on the same domain
               </Typography>
             </Box>

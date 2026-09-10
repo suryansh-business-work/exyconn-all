@@ -34,9 +34,12 @@ const LocationStep: React.FC<LocationStepProps> = ({
       <StepLabel
         optional={
           locationName ? (
-            <Typography variant="caption" sx={{
-              color: "success.main"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'success.main',
+              }}
+            >
               ✓ {locationName}
             </Typography>
           ) : null
@@ -48,9 +51,10 @@ const LocationStep: React.FC<LocationStepProps> = ({
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
-            mb: 2
-          }}>
+            color: 'text.secondary',
+            mb: 2,
+          }}
+        >
           Choose how you want to set your search location.
         </Typography>
 
@@ -91,7 +95,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
                       <LocationOn fontSize="small" />
                     </InputAdornment>
                   ),
-                }
+                },
               }}
             />
             <Button

@@ -48,10 +48,11 @@ export default function SettingsScreen({
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
+            color: 'text.secondary',
             mt: 0.5,
-            mb: 2
-          }}>
+            mb: 2,
+          }}
+        >
           Your workspace sets a default. Pick your own if you work somewhere else.
         </Typography>
         <TimezonePicker timezone={timezone} />
@@ -63,10 +64,11 @@ export default function SettingsScreen({
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
+            color: 'text.secondary',
             mt: 0.5,
-            mb: 2
-          }}>
+            mb: 2,
+          }}
+        >
           How the tracker behaves on this computer.
         </Typography>
         <TrayPreference preferences={preferences} />
@@ -77,8 +79,9 @@ export default function SettingsScreen({
           variant="body2"
           sx={{
             fontWeight: 600,
-            mb: 1
-          }}>
+            mb: 1,
+          }}
+        >
           Appearance
         </Typography>
         <ThemeModePicker mode={preferences.themeMode} />
@@ -87,8 +90,9 @@ export default function SettingsScreen({
           sx={{
             fontWeight: 600,
             mt: 2,
-            mb: 1
-          }}>
+            mb: 1,
+          }}
+        >
           Today’s progress
         </Typography>
         <ProgressStylePicker style={preferences.progressStyle} />
@@ -103,10 +107,11 @@ export default function SettingsScreen({
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
+            color: 'text.secondary',
             mt: 0.5,
-            mb: 1
-          }}>
+            mb: 1,
+          }}
+        >
           Configured by your workspace administrator in the Exyconn portal. This app cannot change
           them.
         </Typography>
@@ -129,10 +134,11 @@ export default function SettingsScreen({
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
+            color: 'text.secondary',
             mt: 0.5,
-            mb: 2
-          }}>
+            mb: 2,
+          }}
+        >
           Everything this app has recorded about you is visible to you in the portal.
         </Typography>
         <Stack spacing={1.25}>
@@ -153,29 +159,41 @@ export default function SettingsScreen({
         <Divider sx={{ my: 1.5 }} />
         <Stack spacing={0.5}>
           {appVersion !== '' ? (
-            <Typography variant="body2" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Version {appVersion}
             </Typography>
           ) : null}
           {legalName !== '' ? (
-            <Typography variant="body2" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {legalName}
             </Typography>
           ) : null}
           {supportEmail !== '' ? (
-            <Typography variant="body2" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Support: {supportEmail}
             </Typography>
           ) : null}
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Keystrokes and clicks are counted, never recorded. Nothing is captured while tracking is
             stopped or paused.
           </Typography>

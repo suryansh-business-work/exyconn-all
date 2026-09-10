@@ -49,9 +49,9 @@ export function NavSectionGroup({
 
               sx: {
                 letterSpacing: 0.8,
-                lineHeight: 1.8
-              }
-            }
+                lineHeight: 1.8,
+              },
+            },
           }}
         />
         {expanded ? (

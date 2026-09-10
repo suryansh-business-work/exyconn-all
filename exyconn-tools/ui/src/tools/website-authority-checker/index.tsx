@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import {
-  Container, Box, Typography, TextField, Button, Alert, Snackbar,
-  Paper, LinearProgress, Chip,
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Snackbar,
+  Paper,
+  LinearProgress,
+  Chip,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { Leaderboard, Search, TrendingUp } from '@mui/icons-material';
@@ -64,12 +72,32 @@ const WebsiteAuthorityChecker: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" gutterBottom><Search sx={{ mr: 1, verticalAlign: 'middle' }} />Check Domain Authority</Typography>
-              <TextField fullWidth size="small" label="Domain" placeholder="example.com" value={domain} onChange={(e) => setDomain(e.target.value)} sx={{ mb: 2 }} />
-              <Button fullWidth variant="contained" onClick={handleCheck} disabled={isLoading || !domain.trim()} sx={{ textTransform: 'none', bgcolor: '#3b82f6', '&:hover': { bgcolor: '#2563eb' } }}>
+              <Typography variant="h6" gutterBottom>
+                <Search sx={{ mr: 1, verticalAlign: 'middle' }} />
+                Check Domain Authority
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                label="Domain"
+                placeholder="example.com"
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleCheck}
+                disabled={isLoading || !domain.trim()}
+                sx={{ textTransform: 'none', bgcolor: '#3b82f6', '&:hover': { bgcolor: '#2563eb' } }}
+              >
                 {isLoading ? 'Analyzing...' : 'Check Authority'}
               </Button>
-              <Alert severity="info" sx={{ mt: 2 }}>This tool analyzes on-page SEO factors to estimate domain quality. For full authority scores (DA/DR), consider using Moz or Ahrefs.</Alert>
+              <Alert severity="info" sx={{ mt: 2 }}>
+                This tool analyzes on-page SEO factors to estimate domain quality. For full authority scores (DA/DR),
+                consider using Moz or Ahrefs.
+              </Alert>
             </Paper>
           </Grid>
           <Grid size={{ xs: 12, md: 7 }}>
@@ -78,16 +106,38 @@ const WebsiteAuthorityChecker: React.FC = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 2 }}>
                   <TrendingUp sx={{ fontSize: 32, color: getScoreColor(result.score) }} />
                   <Box>
-                    <Typography variant="h5" color={getScoreColor(result.score)} sx={{
-                      fontWeight: "bold"
-                    }}>{result.score}/100</Typography>
-                    <Typography variant="body2" sx={{
-                      color: "text.secondary"
-                    }}>{result.domain}</Typography>
+                    <Typography
+                      variant="h5"
+                      color={getScoreColor(result.score)}
+                      sx={{
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {result.score}/100
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      {result.domain}
+                    </Typography>
                   </Box>
                 </Box>
-                <LinearProgress variant="determinate" value={result.score} sx={{ height: 10, borderRadius: 5, mb: 3, '& .MuiLinearProgress-bar': { bgcolor: getScoreColor(result.score) } }} />
-                <Typography variant="subtitle2" gutterBottom>Key Metrics</Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={result.score}
+                  sx={{
+                    height: 10,
+                    borderRadius: 5,
+                    mb: 3,
+                    '& .MuiLinearProgress-bar': { bgcolor: getScoreColor(result.score) },
+                  }}
+                />
+                <Typography variant="subtitle2" gutterBottom>
+                  Key Metrics
+                </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
                   {result.metrics.map((m) => (
                     <Chip key={m.label} label={`${m.label}: ${m.value}`} variant="outlined" size="small" />
@@ -95,9 +145,13 @@ const WebsiteAuthorityChecker: React.FC = () => {
                 </Box>
                 {result.tips.length > 0 && (
                   <>
-                    <Typography variant="subtitle2" gutterBottom>Improvement Tips</Typography>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Improvement Tips
+                    </Typography>
                     {result.tips.slice(0, 8).map((tip, i) => (
-                      <Alert key={i} severity="warning" sx={{ mb: 1, py: 0 }}>{tip}</Alert>
+                      <Alert key={i} severity="warning" sx={{ mb: 1, py: 0 }}>
+                        {tip}
+                      </Alert>
                     ))}
                   </>
                 )}
@@ -106,15 +160,21 @@ const WebsiteAuthorityChecker: React.FC = () => {
             {!result && !isLoading && (
               <Paper sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
                 <Leaderboard sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography sx={{
-                  color: "text.secondary"
-                }}>Enter a domain to check its authority</Typography>
+                <Typography
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
+                  Enter a domain to check its authority
+                </Typography>
               </Paper>
             )}
           </Grid>
         </Grid>
         <Snackbar open={!!error} autoHideDuration={5000} onClose={() => setError(null)}>
-          <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+          <Alert severity="error" onClose={() => setError(null)}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

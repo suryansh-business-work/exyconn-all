@@ -50,18 +50,26 @@ export function TimeLogSessions({
 
   if (loading) {
     return (
-      <Typography variant="body2" sx={{
-        color: "text.secondary"
-      }}>Loading runs…
-              </Typography>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
+        Loading runs…
+      </Typography>
     );
   }
   if (sessions.length === 0) {
     return (
-      <Typography variant="body2" sx={{
-        color: "text.secondary"
-      }}>This time was claimed off-computer — there are no tracked runs behind it.
-              </Typography>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
+        This time was claimed off-computer — there are no tracked runs behind it.
+      </Typography>
     );
   }
 
@@ -79,18 +87,22 @@ export function TimeLogSessions({
               direction="row"
               spacing={1.5}
               sx={{
-                alignItems: "center",
+                alignItems: 'center',
                 flexWrap: 'wrap',
-                width: '100%'
-              }}>
+                width: '100%',
+              }}
+            >
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 {formatDateTime(session.startedAt)}
               </Typography>
               <Chip size="small" label={formatDuration(session.activeMs)} />
               {session.idleMs > 0 ? (
-                <Typography variant="caption" sx={{
-                  color: "text.secondary"
-                }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   {formatDuration(session.idleMs)} idle
                 </Typography>
               ) : null}
@@ -98,13 +110,20 @@ export function TimeLogSessions({
                 <Chip size="small" color="success" label="Running" />
               ) : null}
               {session.screenshotCount > 0 ? (
-                <Stack direction="row" spacing={0.5} sx={{
-                  alignItems: "center"
-                }}>
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  sx={{
+                    alignItems: 'center',
+                  }}
+                >
                   <PhotoCameraIcon sx={{ fontSize: iconSize.sm }} color="disabled" />
-                  <Typography variant="caption" sx={{
-                    color: "text.secondary"
-                  }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {session.screenshotCount}
                   </Typography>
                 </Stack>

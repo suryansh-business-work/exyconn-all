@@ -64,9 +64,12 @@ function DayProgressBar({ figures, activeMs }: Readonly<ShapeProps>): ReactEleme
         sx={{ height: 8, borderRadius: 4, my: 0.75 }}
         aria-label={`${formatHoursMinutes(activeMs)} of ${formatHoursMinutes(figures.targetMs)} worked today`}
       />
-      <Typography variant="caption" sx={{
-        color: "text.secondary"
-      }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {summaryOf(figures)}
       </Typography>
     </>
@@ -80,9 +83,10 @@ function DayProgressRing({ figures, activeMs }: Readonly<ShapeProps>): ReactElem
       direction="row"
       spacing={2}
       sx={{
-        alignItems: "center",
-        mt: 1
-      }}>
+        alignItems: 'center',
+        mt: 1,
+      }}
+    >
       <ProgressRing
         value={figures.percent}
         label={`${figures.percent}%`}
@@ -92,10 +96,11 @@ function DayProgressRing({ figures, activeMs }: Readonly<ShapeProps>): ReactElem
       <Typography
         variant="body2"
         sx={{
-          color: "text.secondary",
+          color: 'text.secondary',
           flex: 1,
-          minWidth: 0
-        }}>
+          minWidth: 0,
+        }}
+      >
         {summaryOf(figures)}
       </Typography>
     </Stack>
@@ -129,16 +134,24 @@ export default function DayProgress({
         direction="row"
         spacing={1}
         sx={{
-          alignItems: "baseline",
-          justifyContent: "space-between"
-        }}>
+          alignItems: 'baseline',
+          justifyContent: 'space-between',
+        }}
+      >
         <Typography variant="subtitle2">Today</Typography>
-        <Stack direction="row" spacing={0.5} sx={{
-          alignItems: "center"
-        }}>
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+        <Stack
+          direction="row"
+          spacing={0.5}
+          sx={{
+            alignItems: 'center',
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {formatHoursMinutes(activeMs)} of {formatHoursMinutes(figures.targetMs)}
           </Typography>
           <Tooltip

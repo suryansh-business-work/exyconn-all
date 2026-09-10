@@ -47,8 +47,7 @@ export const canvasPoint = (canvas: CanvasSizeLike, clientX: number, clientY: nu
   };
 };
 
-export const pixelSizeForIntensity = (intensity: number): number =>
-  Math.min(64, Math.max(2, Math.round(intensity)));
+export const pixelSizeForIntensity = (intensity: number): number => Math.min(64, Math.max(2, Math.round(intensity)));
 
 export const blurRadiusForIntensity = (intensity: number): number =>
   Math.min(32, Math.max(1, Math.round(intensity / 2)));
@@ -59,7 +58,7 @@ const blurPass = (
   width: number,
   height: number,
   radius: number,
-  horizontal: boolean,
+  horizontal: boolean
 ): void => {
   const count = radius * 2 + 1;
   for (let y = 0; y < height; y++) {
@@ -90,7 +89,7 @@ export const boxBlurImageData = (
   data: Uint8ClampedArray,
   width: number,
   height: number,
-  radius: number,
+  radius: number
 ): Uint8ClampedArray => {
   const result = new Uint8ClampedArray(data);
   if (radius < 1 || width < 1 || height < 1) return result;
@@ -126,7 +125,7 @@ export const applyRegionEffect = (
   ctx: CanvasRenderingContext2D,
   region: Rect,
   mode: BlurMode,
-  intensity: number,
+  intensity: number
 ): void => {
   if (mode === 'pixelate') {
     pixelateRegion(ctx, region, pixelSizeForIntensity(intensity));
@@ -140,7 +139,7 @@ export const renderRedacted = (
   image: HTMLImageElement,
   regions: readonly Rect[],
   mode: BlurMode,
-  intensity: number,
+  intensity: number
 ): CanvasRenderingContext2D => {
   canvas.width = image.naturalWidth;
   canvas.height = image.naturalHeight;
@@ -155,7 +154,7 @@ export const drawRegionOutlines = (
   ctx: CanvasRenderingContext2D,
   regions: readonly Rect[],
   draft: Rect | null,
-  color: string,
+  color: string
 ): void => {
   ctx.save();
   ctx.strokeStyle = color;

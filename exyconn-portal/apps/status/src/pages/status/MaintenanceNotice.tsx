@@ -30,8 +30,9 @@ export function MaintenanceNotice({ maintenance, services }: Readonly<Maintenanc
         variant="h6"
         sx={{
           fontWeight: 700,
-          mb: 2
-        }}>
+          mb: 2,
+        }}
+      >
         Scheduled maintenance
       </Typography>
       <Flex direction="column" spacing={1.5}>
@@ -42,9 +43,12 @@ export function MaintenanceNotice({ maintenance, services }: Readonly<Maintenanc
             icon={<EngineeringIcon fontSize="inherit" />}
           >
             <Flex alignItems="center" spacing={1} flexWrap="wrap">
-              <Typography variant="subtitle2" sx={{
-                fontWeight: 700
-              }}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 {window.title}
               </Typography>
               <Chip
@@ -63,10 +67,11 @@ export function MaintenanceNotice({ maintenance, services }: Readonly<Maintenanc
               <Typography
                 variant="body2"
                 sx={{
-                  color: "text.secondary",
+                  color: 'text.secondary',
                   mt: 0.5,
-                  whiteSpace: 'pre-wrap'
-                }}>
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
                 {window.body}
               </Typography>
             )}

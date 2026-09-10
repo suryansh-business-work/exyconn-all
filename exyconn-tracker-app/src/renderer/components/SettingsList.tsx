@@ -30,17 +30,19 @@ export default function SettingsList({ rows }: Readonly<Props>): ReactElement {
           // the next line, which is what the old absolute positioning could never do.
           useFlexGap
           sx={{
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-            py: 1.25
-          }}>
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            py: 1.25,
+          }}
+        >
           <Typography
             variant="body2"
             sx={{
-              color: "text.secondary",
-              flexShrink: 0
-            }}>
+              color: 'text.secondary',
+              flexShrink: 0,
+            }}
+          >
             {row.label}
           </Typography>
           <Typography

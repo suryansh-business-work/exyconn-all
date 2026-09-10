@@ -42,8 +42,9 @@ export function BrandingColorsFields() {
           key={field.name}
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <ColorField name={field.name} label={field.label} />
         </Grid>
       ))}

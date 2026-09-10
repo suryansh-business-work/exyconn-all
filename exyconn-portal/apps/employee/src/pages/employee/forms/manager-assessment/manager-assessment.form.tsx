@@ -91,7 +91,7 @@ export function ManagerAssessmentForm({
         type="number"
         helperText={`Between ${SCORE_MIN} and ${SCORE_MAX}.`}
         slotProps={{
-          htmlInput: { min: SCORE_MIN, max: SCORE_MAX, step: 1 }
+          htmlInput: { min: SCORE_MIN, max: SCORE_MAX, step: 1 },
         }}
       />
     </EntityForm>

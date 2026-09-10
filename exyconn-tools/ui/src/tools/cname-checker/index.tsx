@@ -35,24 +35,41 @@ const CNAMEChecker: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<CompareArrows color="primary" />}
-              title="CNAME Record Check" placeholder="subdomain.example.com"
-              buttonText="Check CNAME" loadingText="Checking..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<CompareArrows color="primary" />}
+              title="CNAME Record Check"
+              placeholder="subdomain.example.com"
+              buttonText="Check CNAME"
+              loadingText="Checking..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
-              <DomainResultDisplay title={`CNAME - ${result.domain}`} icon={<CompareArrows fontSize="small" />} data={result}>
+              <DomainResultDisplay
+                title={`CNAME - ${result.domain}`}
+                icon={<CompareArrows fontSize="small" />}
+                data={result}
+              >
                 <Box sx={{ textAlign: 'center', py: 3 }}>
-                  <Chip label={result.hasCNAME ? 'CNAME Found' : 'No CNAME'} size="medium"
-                    color={result.hasCNAME ? 'success' : 'warning'} sx={{ mb: 2 }} />
+                  <Chip
+                    label={result.hasCNAME ? 'CNAME Found' : 'No CNAME'}
+                    size="medium"
+                    color={result.hasCNAME ? 'success' : 'warning'}
+                    sx={{ mb: 2 }}
+                  />
                   {(result.records as string[])?.length > 0 && (
                     <Box sx={{ mt: 2 }}>
                       <Typography
                         variant="subtitle2"
                         sx={{
                           fontWeight: 600,
-                          mb: 1
-                        }}>CNAME Records</Typography>
+                          mb: 1,
+                        }}
+                      >
+                        CNAME Records
+                      </Typography>
                       {(result.records as string[]).map((r, i) => (
                         <Chip key={i} label={r} sx={{ m: 0.5 }} variant="outlined" />
                       ))}
@@ -62,9 +79,12 @@ const CNAMEChecker: React.FC = () => {
                     <Typography
                       variant="body2"
                       sx={{
-                        color: "text.secondary",
-                        mt: 2
-                      }}>{result.message as string}</Typography>
+                        color: 'text.secondary',
+                        mt: 2,
+                      }}
+                    >
+                      {result.message as string}
+                    </Typography>
                   )}
                 </Box>
               </DomainResultDisplay>
@@ -73,7 +93,9 @@ const CNAMEChecker: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

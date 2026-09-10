@@ -32,7 +32,7 @@ export const fitFontSize = (
   text: string,
   maxWidth: number,
   maxSize: number,
-  minSize: number = MIN_FONT_SIZE,
+  minSize: number = MIN_FONT_SIZE
 ): number => {
   let size = maxSize;
   while (size > minSize && measure(text, size) > maxWidth) size -= 2;
@@ -59,7 +59,7 @@ const drawCaption = (
   text: string,
   canvasWidth: number,
   y: number,
-  baseline: CanvasTextBaseline,
+  baseline: CanvasTextBaseline
 ): void => {
   const maxWidth = canvasWidth * 0.9;
   const measure = (t: string, fontSize: number): number => {

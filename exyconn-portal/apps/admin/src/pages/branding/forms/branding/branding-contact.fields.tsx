@@ -27,8 +27,9 @@ export function BrandingContactFields() {
           key={field.name}
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfTextField name={field.name} label={field.label} />
         </Grid>
       ))}
@@ -37,8 +38,9 @@ export function BrandingContactFields() {
           key={field.name}
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfTextField name={field.name} label={field.label} helperText="Full profile URL" />
         </Grid>
       ))}

@@ -16,7 +16,9 @@ const SliderControl: React.FC<SliderControlProps> = ({ icon, label, value, min, 
   <Box sx={{ mb: 1.5 }}>
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        {React.cloneElement(icon as React.ReactElement<{ sx?: object }>, { sx: { fontSize: 16, color: 'action.active' } })}
+        {React.cloneElement(icon as React.ReactElement<{ sx?: object }>, {
+          sx: { fontSize: 16, color: 'action.active' },
+        })}
         <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
           {label}
         </Typography>

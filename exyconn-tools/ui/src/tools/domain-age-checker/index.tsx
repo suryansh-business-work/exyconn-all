@@ -37,12 +37,22 @@ const DomainAgeChecker: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<CalendarToday color="primary" />}
-              title="Domain Age Check" buttonText="Check Age" loadingText="Checking..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<CalendarToday color="primary" />}
+              title="Domain Age Check"
+              buttonText="Check Age"
+              loadingText="Checking..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
-              <DomainResultDisplay title={`Domain Age - ${result.domain}`} icon={<CalendarToday fontSize="small" />} data={result}>
+              <DomainResultDisplay
+                title={`Domain Age - ${result.domain}`}
+                icon={<CalendarToday fontSize="small" />}
+                data={result}
+              >
                 <Box sx={{ textAlign: 'center', py: 3, mb: 2 }}>
                   {age ? (
                     <>
@@ -50,35 +60,54 @@ const DomainAgeChecker: React.FC = () => {
                         variant="h3"
                         sx={{
                           fontWeight: 700,
-                          color: "primary.main"
-                        }}>
+                          color: 'primary.main',
+                        }}
+                      >
                         {age.years}
                       </Typography>
-                      <Typography variant="h6" sx={{
-                        color: "text.secondary"
-                      }}>years old</Typography>
-                      <Typography variant="body1" sx={{ mt: 1 }}>{result.ageString as string}</Typography>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
+                        years old
+                      </Typography>
+                      <Typography variant="body1" sx={{ mt: 1 }}>
+                        {result.ageString as string}
+                      </Typography>
                       <Chip label={`${result.totalDays} total days`} sx={{ mt: 1 }} variant="outlined" />
                     </>
                   ) : (
-                    <Typography variant="body1" sx={{
-                      color: "text.secondary"
-                    }}>{result.message as string}</Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      {result.message as string}
+                    </Typography>
                   )}
                 </Box>
-                <KeyValueTable data={{
-                  Domain: result.domain,
-                  'Registration Date': result.registrationDate ? new Date(result.registrationDate as string).toLocaleDateString() : 'N/A',
-                  'Total Days': result.totalDays ?? 'N/A',
-                  Age: result.ageString ?? 'N/A',
-                }} />
+                <KeyValueTable
+                  data={{
+                    Domain: result.domain,
+                    'Registration Date': result.registrationDate
+                      ? new Date(result.registrationDate as string).toLocaleDateString()
+                      : 'N/A',
+                    'Total Days': result.totalDays ?? 'N/A',
+                    Age: result.ageString ?? 'N/A',
+                  }}
+                />
               </DomainResultDisplay>
             )}
           </Grid>
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

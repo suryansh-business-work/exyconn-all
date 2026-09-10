@@ -63,9 +63,13 @@ const MapLoadingStates: React.FC<MapLoadingStatesProps> = ({ apiKey, loadError, 
         }}
       >
         <CircularProgress />
-        <Typography sx={{
-          color: "text.secondary"
-        }}>Loading Google Maps...</Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          Loading Google Maps...
+        </Typography>
       </Box>
     );
   }

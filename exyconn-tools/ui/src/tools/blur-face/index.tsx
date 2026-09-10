@@ -18,8 +18,14 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import BlurCanvas from './BlurCanvas';
 import RegionList from './RegionList';
 import {
-  ACCEPTED_TYPES, BlurMode, Rect, Region,
-  downloadCanvas, loadImage, outputFileName, renderRedacted,
+  ACCEPTED_TYPES,
+  BlurMode,
+  Rect,
+  Region,
+  downloadCanvas,
+  loadImage,
+  outputFileName,
+  renderRedacted,
 } from './utils';
 
 const COLOR = '#f59e0b';
@@ -34,7 +40,10 @@ export default function BlurFace() {
   const [error, setError] = useState('');
 
   const loadFile = useCallback(async (f: File) => {
-    if (!ACCEPTED_TYPES.has(f.type)) { setError('Please select a JPG, PNG, or WEBP image.'); return; }
+    if (!ACCEPTED_TYPES.has(f.type)) {
+      setError('Please select a JPG, PNG, or WEBP image.');
+      return;
+    }
     try {
       const img = await loadImage(f);
       setImage(img);
@@ -45,10 +54,14 @@ export default function BlurFace() {
     }
   }, []);
 
-  const onDrop = useCallback((e: DragEvent) => {
-    e.preventDefault(); setDragOver(false);
-    if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
-  }, [loadFile]);
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+    },
+    [loadFile]
+  );
 
   const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) loadFile(e.target.files[0]);
@@ -78,18 +91,34 @@ export default function BlurFace() {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 7 }}>
             <Paper
-              sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: dragOver ? COLOR : 'divider', cursor: 'pointer', transition: '0.2s' }}
-              onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)} onDrop={onDrop}
+              sx={{
+                p: 4,
+                textAlign: 'center',
+                border: '2px dashed',
+                borderColor: dragOver ? COLOR : 'divider',
+                cursor: 'pointer',
+                transition: '0.2s',
+              }}
+              onDragOver={(e: DragEvent) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={onDrop}
             >
               <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
-              <Typography variant="h6" gutterBottom>Drag & Drop Image Here</Typography>
+              <Typography variant="h6" gutterBottom>
+                Drag & Drop Image Here
+              </Typography>
               <Typography
                 variant="body2"
                 sx={{
-                  color: "text.secondary",
-                  mb: 2
-                }}>JPG, PNG, or WEBP</Typography>
+                  color: 'text.secondary',
+                  mb: 2,
+                }}
+              >
+                JPG, PNG, or WEBP
+              </Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                 Browse Files
                 <input hidden accept="image/jpeg,image/png,image/webp" type="file" onChange={onFileChange} />
@@ -99,16 +128,22 @@ export default function BlurFace() {
             {image && (
               <>
                 <BlurCanvas
-                  image={image} regions={regions} mode={mode} intensity={intensity}
-                  color={COLOR} onAddRegion={addRegion} onError={setError}
+                  image={image}
+                  regions={regions}
+                  mode={mode}
+                  intensity={intensity}
+                  color={COLOR}
+                  onAddRegion={addRegion}
+                  onError={setError}
                 />
                 <Typography
                   variant="caption"
                   sx={{
-                    color: "text.secondary",
-                    display: "block",
-                    mt: 1
-                  }}>
+                    color: 'text.secondary',
+                    display: 'block',
+                    mt: 1,
+                  }}
+                >
                   Drag on the image (mouse or touch) to draw a rectangle over each face or area you want to hide.
                 </Typography>
               </>
@@ -117,42 +152,67 @@ export default function BlurFace() {
 
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>Blur Options</Typography>
+              <Typography variant="h6" gutterBottom>
+                Blur Options
+              </Typography>
 
-              <Typography variant="subtitle2" sx={{ mb: 1 }}>Effect</Typography>
-              <ToggleButtonGroup exclusive size="small" value={mode} onChange={(_, v) => v !== null && setMode(v)} sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                Effect
+              </Typography>
+              <ToggleButtonGroup
+                exclusive
+                size="small"
+                value={mode}
+                onChange={(_, v) => v !== null && setMode(v)}
+                sx={{ mb: 2 }}
+              >
                 <ToggleButton value="pixelate">Pixelate</ToggleButton>
                 <ToggleButton value="blur">Box Blur</ToggleButton>
               </ToggleButtonGroup>
 
-              <Typography variant="subtitle2" id="intensity-slider-label">Intensity: {intensity}</Typography>
+              <Typography variant="subtitle2" id="intensity-slider-label">
+                Intensity: {intensity}
+              </Typography>
               <Slider
-                value={intensity} min={4} max={48} step={2}
+                value={intensity}
+                min={4}
+                max={48}
+                step={2}
                 onChange={(_, v) => setIntensity(v as number)}
                 aria-labelledby="intensity-slider-label"
                 sx={{ color: COLOR, mb: 2 }}
               />
 
-              <Typography variant="subtitle2" sx={{ mb: 1 }}>Regions ({regions.length})</Typography>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                Regions ({regions.length})
+              </Typography>
               <RegionList regions={regions} onRemove={removeRegion} />
               {regions.length > 0 && (
                 <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
                   <Button size="small" startIcon={<Undo />} onClick={() => setRegions((prev) => prev.slice(0, -1))}>
                     Undo Last
                   </Button>
-                  <Button size="small" color="error" onClick={() => setRegions([])}>Clear All</Button>
+                  <Button size="small" color="error" onClick={() => setRegions([])}>
+                    Clear All
+                  </Button>
                 </Stack>
               )}
               {regions.length === 0 && (
-                <Typography variant="caption" sx={{
-                  color: "text.secondary"
-                }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   No regions yet — upload an image and drag on the preview to add one.
                 </Typography>
               )}
 
               <Button
-                variant="contained" fullWidth startIcon={<Download />} onClick={download}
+                variant="contained"
+                fullWidth
+                startIcon={<Download />}
+                onClick={download}
                 disabled={!image || regions.length === 0}
                 sx={{ bgcolor: COLOR, '&:hover': { bgcolor: '#d97706' }, mt: 3 }}
               >
@@ -162,19 +222,27 @@ export default function BlurFace() {
               <Typography
                 variant="caption"
                 sx={{
-                  color: "text.secondary",
-                  display: "block",
-                  mt: 2
-                }}>
-                Regions are selected manually — this tool does not auto-detect faces. Images are
-                processed locally in your browser and never leave your device.
+                  color: 'text.secondary',
+                  display: 'block',
+                  mt: 2,
+                }}
+              >
+                Regions are selected manually — this tool does not auto-detect faces. Images are processed locally in
+                your browser and never leave your device.
               </Typography>
             </Paper>
           </Grid>
         </Grid>
 
-        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity="error" onClose={() => setError('')}>{error}</Alert>
+        <Snackbar
+          open={!!error}
+          autoHideDuration={4000}
+          onClose={() => setError('')}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert severity="error" onClose={() => setError('')}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

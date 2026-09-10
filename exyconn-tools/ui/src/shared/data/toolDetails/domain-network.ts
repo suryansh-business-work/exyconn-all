@@ -33,23 +33,28 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Which DNS record types can I look up?',
-        answer: 'A, AAAA, CNAME, MX, TXT, NS, SOA, and SRV. Select ALL to query every one of them for the domain in a single lookup.',
+        answer:
+          'A, AAAA, CNAME, MX, TXT, NS, SOA, and SRV. Select ALL to query every one of them for the domain in a single lookup.',
       },
       {
         question: 'Why do results differ from what I see on my own machine?',
-        answer: 'The lookup runs from the Exyconn server, not your computer, so it bypasses your local and ISP caches. If your machine shows old values, your resolver is still caching the previous records.',
+        answer:
+          'The lookup runs from the Exyconn server, not your computer, so it bypasses your local and ISP caches. If your machine shows old values, your resolver is still caching the previous records.',
       },
       {
         question: 'How long does a DNS change take to appear here?',
-        answer: 'It depends on the record’s TTL. Once the authoritative zone is updated and the old TTL expires, the new value shows up — often within minutes, sometimes up to 48 hours.',
+        answer:
+          'It depends on the record’s TTL. Once the authoritative zone is updated and the old TTL expires, the new value shows up — often within minutes, sometimes up to 48 hours.',
       },
       {
         question: 'Can I look up a subdomain instead of a root domain?',
-        answer: 'Yes. Enter the full hostname such as api.example.com and the lookup resolves records for that exact name.',
+        answer:
+          'Yes. Enter the full hostname such as api.example.com and the lookup resolves records for that exact name.',
       },
       {
         question: 'Is the domain I enter stored anywhere?',
-        answer: 'The domain is sent to the Exyconn server only to perform the resolution and return the result. No account is needed and results are not published anywhere.',
+        answer:
+          'The domain is sent to the Exyconn server only to perform the resolution and return the result. No account is needed and results are not published anywhere.',
       },
     ],
     keywords: [
@@ -97,23 +102,28 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What is the difference between WHOIS and RDAP?',
-        answer: 'RDAP is the structured, JSON-based successor to the plain-text WHOIS protocol. This tool queries RDAP first for reliable parsing and falls back to a TCP WHOIS query when a registry has no RDAP endpoint.',
+        answer:
+          'RDAP is the structured, JSON-based successor to the plain-text WHOIS protocol. This tool queries RDAP first for reliable parsing and falls back to a TCP WHOIS query when a registry has no RDAP endpoint.',
       },
       {
         question: 'Why does the registrant show as "Private"?',
-        answer: 'Most registrars apply privacy protection and GDPR redaction, so the registry withholds personal details. In that case only the registrar, dates, status, and nameservers are public.',
+        answer:
+          'Most registrars apply privacy protection and GDPR redaction, so the registry withholds personal details. In that case only the registrar, dates, status, and nameservers are public.',
       },
       {
         question: 'Does this work for all domain extensions?',
-        answer: 'It works for gTLDs like .com, .net, and .org and for the many ccTLDs with RDAP support. A few country registries expose limited data, in which case fewer fields are returned.',
+        answer:
+          'It works for gTLDs like .com, .net, and .org and for the many ccTLDs with RDAP support. A few country registries expose limited data, in which case fewer fields are returned.',
       },
       {
         question: 'Can I see when a domain expires?',
-        answer: 'Yes. The Events section lists the expiration event with its exact date, alongside the original registration date and any recent changes.',
+        answer:
+          'Yes. The Events section lists the expiration event with its exact date, alongside the original registration date and any recent changes.',
       },
       {
         question: 'Is there a lookup limit or account requirement?',
-        answer: 'No account is needed. Lookups are free; heavy automated querying may be rate-limited by the upstream registries themselves.',
+        answer:
+          'No account is needed. Lookups are free; heavy automated querying may be rate-limited by the upstream registries themselves.',
       },
     ],
     keywords: [
@@ -158,23 +168,28 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'How accurate is IP geolocation?',
-        answer: 'Country-level accuracy is very high; city-level is an estimate based on where the ISP registers the block. It identifies the network’s service area, not a person’s street address.',
+        answer:
+          'Country-level accuracy is very high; city-level is an estimate based on where the ISP registers the block. It identifies the network’s service area, not a person’s street address.',
       },
       {
         question: 'Can I look up private addresses like 192.168.1.1?',
-        answer: 'No. Private and reserved ranges (10.x, 172.16–31.x, 192.168.x) are not routed on the internet and have no public location or ownership data.',
+        answer:
+          'No. Private and reserved ranges (10.x, 172.16–31.x, 192.168.x) are not routed on the internet and have no public location or ownership data.',
       },
       {
         question: 'What is an AS number?',
-        answer: 'An autonomous system number identifies the network operator that announces the IP block on the internet, such as an ISP, cloud provider, or large enterprise. It is the most reliable way to attribute an address.',
+        answer:
+          'An autonomous system number identifies the network operator that announces the IP block on the internet, such as an ISP, cloud provider, or large enterprise. It is the most reliable way to attribute an address.',
       },
       {
         question: 'Why does a VPN user’s IP show a different country?',
-        answer: 'Geolocation reflects where the IP block is registered and routed. A VPN or proxy shows its exit server’s location, not the user’s.',
+        answer:
+          'Geolocation reflects where the IP block is registered and routed. A VPN or proxy shows its exit server’s location, not the user’s.',
       },
       {
         question: 'Is my searched IP address logged or shared?',
-        answer: 'The address you enter is used only to run the lookup and return the result to you. No account is required.',
+        answer:
+          'The address you enter is used only to run the lookup and return the result to you. No account is required.',
       },
     ],
     keywords: [
@@ -219,19 +234,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What is a PTR record?',
-        answer: 'A PTR record maps an IP address back to a hostname — the mirror image of an A record. It lives in a special reverse DNS zone managed by whoever controls the IP block.',
+        answer:
+          'A PTR record maps an IP address back to a hostname — the mirror image of an A record. It lives in a special reverse DNS zone managed by whoever controls the IP block.',
       },
       {
         question: 'Why does my IP show no reverse DNS records?',
-        answer: 'The owner of the IP block — usually your ISP or hosting provider — has not created a PTR record. You normally have to request it from them; you cannot set it at your domain’s DNS host.',
+        answer:
+          'The owner of the IP block — usually your ISP or hosting provider — has not created a PTR record. You normally have to request it from them; you cannot set it at your domain’s DNS host.',
       },
       {
         question: 'Does this list every website hosted on an IP?',
-        answer: 'No. It returns the PTR hostnames published in reverse DNS, typically one per address. Shared hosting servers with hundreds of sites usually publish a single generic hostname.',
+        answer:
+          'No. It returns the PTR hostnames published in reverse DNS, typically one per address. Shared hosting servers with hundreds of sites usually publish a single generic hostname.',
       },
       {
         question: 'Why does reverse DNS matter for email?',
-        answer: 'Most receiving mail servers check that a sender’s IP has a PTR record, and many also verify it matches the server’s hostname. Missing or generic reverse DNS is a common cause of rejected or spam-foldered mail.',
+        answer:
+          'Most receiving mail servers check that a sender’s IP has a PTR record, and many also verify it matches the server’s hostname. Missing or generic reverse DNS is a common cause of rejected or spam-foldered mail.',
       },
     ],
     keywords: [
@@ -275,19 +294,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What is a CNAME record?',
-        answer: 'A CNAME is an alias: it says "this hostname is really that other hostname". Resolvers then look up the target’s records, which lets a provider change IPs without you touching your DNS.',
+        answer:
+          'A CNAME is an alias: it says "this hostname is really that other hostname". Resolvers then look up the target’s records, which lets a provider change IPs without you touching your DNS.',
       },
       {
         question: 'Why does the root domain show "No CNAME"?',
-        answer: 'The DNS standard forbids a CNAME at a zone apex (example.com itself) because it must coexist with SOA and NS records. Roots use A/AAAA or provider-specific ALIAS/ANAME records, which resolve as A records here.',
+        answer:
+          'The DNS standard forbids a CNAME at a zone apex (example.com itself) because it must coexist with SOA and NS records. Roots use A/AAAA or provider-specific ALIAS/ANAME records, which resolve as A records here.',
       },
       {
         question: 'I added the CNAME but the checker doesn’t see it. Why?',
-        answer: 'Either the record was added on the wrong host label, or the previous record’s TTL has not expired yet. Double-check the name matches exactly and re-test after the TTL window.',
+        answer:
+          'Either the record was added on the wrong host label, or the previous record’s TTL has not expired yet. Double-check the name matches exactly and re-test after the TTL window.',
       },
       {
         question: 'Can a hostname have both a CNAME and other records?',
-        answer: 'No. A name with a CNAME may carry no other record types. If a service asks for a CNAME plus TXT on the same name, use a different label or the provider’s alternative verification method.',
+        answer:
+          'No. A name with a CNAME may carry no other record types. If a service asks for a CNAME plus TXT on the same name, use a different label or the provider’s alternative verification method.',
       },
     ],
     keywords: [
@@ -331,19 +354,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What does the priority number mean?',
-        answer: 'Lower numbers are tried first. Sending servers attempt the lowest-priority MX host and only fall back to higher numbers if it is unreachable, so equal numbers share load and higher numbers are backups.',
+        answer:
+          'Lower numbers are tried first. Sending servers attempt the lowest-priority MX host and only fall back to higher numbers if it is unreachable, so equal numbers share load and higher numbers are backups.',
       },
       {
         question: 'My domain shows no MX records — can it still get email?',
-        answer: 'Some servers fall back to the domain’s A record, but you cannot rely on that. Without MX records most mail will bounce; add the records your email provider specifies.',
+        answer:
+          'Some servers fall back to the domain’s A record, but you cannot rely on that. Without MX records most mail will bounce; add the records your email provider specifies.',
       },
       {
         question: 'How many MX records should a domain have?',
-        answer: 'Whatever your provider prescribes. Google Workspace currently uses one record, Microsoft 365 one, and self-hosted setups often add a backup MX. Extra leftover records from an old provider can misroute mail and should be removed.',
+        answer:
+          'Whatever your provider prescribes. Google Workspace currently uses one record, Microsoft 365 one, and self-hosted setups often add a backup MX. Extra leftover records from an old provider can misroute mail and should be removed.',
       },
       {
         question: 'I changed my MX records — how soon will mail flow to the new host?',
-        answer: 'After the old records’ TTL expires, typically minutes to a few hours. This checker shows the live authoritative answer, so once it lists only the new hosts, senders will follow.',
+        answer:
+          'After the old records’ TTL expires, typically minutes to a few hours. This checker shows the live authoritative answer, so once it lists only the new hosts, senders will follow.',
       },
     ],
     keywords: [
@@ -390,23 +417,28 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What are SPF, DKIM, and DMARC?',
-        answer: 'SPF lists which servers may send mail for your domain, DKIM lets receivers verify messages were signed by you, and DMARC tells receivers what to do when either check fails. Together they are the standard email-authentication trio.',
+        answer:
+          'SPF lists which servers may send mail for your domain, DKIM lets receivers verify messages were signed by you, and DMARC tells receivers what to do when either check fails. Together they are the standard email-authentication trio.',
       },
       {
         question: 'Why does the DKIM section show nothing when I have DKIM set up?',
-        answer: 'DKIM records live under a selector name (selector._domainkey.domain) and the tool probes only common selectors like google or default. If your provider uses a custom selector, look it up in their dashboard and query that hostname directly with the DNS Lookup tool.',
+        answer:
+          'DKIM records live under a selector name (selector._domainkey.domain) and the tool probes only common selectors like google or default. If your provider uses a custom selector, look it up in their dashboard and query that hostname directly with the DNS Lookup tool.',
       },
       {
         question: 'Can a domain have more than one SPF record?',
-        answer: 'No — multiple SPF records are invalid and cause receivers to fail the check. If you see two records starting with v=spf1, merge them into one.',
+        answer:
+          'No — multiple SPF records are invalid and cause receivers to fail the check. If you see two records starting with v=spf1, merge them into one.',
       },
       {
         question: 'Do I need DMARC if I already have SPF and DKIM?',
-        answer: 'Yes for serious sending: Google and Yahoo require DMARC for bulk senders, and without it you get no reporting and no policy control over spoofed mail.',
+        answer:
+          'Yes for serious sending: Google and Yahoo require DMARC for bulk senders, and without it you get no reporting and no policy control over spoofed mail.',
       },
       {
         question: 'What are the other TXT records I see on my domain?',
-        answer: 'Commonly site-verification tokens from Google, Microsoft, Facebook, and similar services proving domain ownership. They are harmless to keep, but remove ones for services you no longer use.',
+        answer:
+          'Commonly site-verification tokens from Google, Microsoft, Facebook, and similar services proving domain ownership. They are harmless to keep, but remove ones for services you no longer use.',
       },
     ],
     keywords: [
@@ -451,19 +483,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What do nameservers actually do?',
-        answer: 'They are the authoritative source for every DNS record on your domain — A, MX, TXT, and the rest. Whoever runs your nameservers effectively controls where your website and email go.',
+        answer:
+          'They are the authoritative source for every DNS record on your domain — A, MX, TXT, and the rest. Whoever runs your nameservers effectively controls where your website and email go.',
       },
       {
         question: 'I changed nameservers at my registrar — when will this tool show the new ones?',
-        answer: 'Delegation changes propagate through the parent zone, usually within a few hours and at most about 48. Once this tool shows the new set, resolvers worldwide are using them.',
+        answer:
+          'Delegation changes propagate through the parent zone, usually within a few hours and at most about 48. Once this tool shows the new set, resolvers worldwide are using them.',
       },
       {
         question: 'How many nameservers should a domain have?',
-        answer: 'At least two, on separate networks, so DNS survives a single server failure. Most managed providers assign two to four automatically.',
+        answer:
+          'At least two, on separate networks, so DNS survives a single server failure. Most managed providers assign two to four automatically.',
       },
       {
         question: 'The listed nameservers are a mix of old and new providers. Is that a problem?',
-        answer: 'Yes — resolvers may query either set, and the old provider’s zone can serve stale records. Replace the full set at your registrar so only the current provider’s nameservers remain.',
+        answer:
+          'Yes — resolvers may query either set, and the old provider’s zone can serve stale records. Replace the full set at your registrar so only the current provider’s nameservers remain.',
       },
     ],
     keywords: [
@@ -509,23 +545,28 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Why does the checker show the old certificate after I renewed?',
-        answer: 'Your server is still serving the old file — renewing with the CA does not deploy it. Reload or restart the web server (or check your load balancer’s certificate binding) and re-test.',
+        answer:
+          'Your server is still serving the old file — renewing with the CA does not deploy it. Reload or restart the web server (or check your load balancer’s certificate binding) and re-test.',
       },
       {
         question: 'What does "Valid" actually verify?',
-        answer: 'That the TLS handshake succeeded and the certificate chain was accepted by the server-side trust store — the same style of validation a browser performs, including hostname matching via SNI.',
+        answer:
+          'That the TLS handshake succeeded and the certificate chain was accepted by the server-side trust store — the same style of validation a browser performs, including hostname matching via SNI.',
       },
       {
         question: 'What are subject alternative names?',
-        answer: 'The SAN list is the set of hostnames the certificate is valid for. Browsers match against SANs, not the common name, so a subdomain missing from this list will trigger a warning.',
+        answer:
+          'The SAN list is the set of hostnames the certificate is valid for. Browsers match against SANs, not the common name, so a subdomain missing from this list will trigger a warning.',
       },
       {
         question: 'Can I check a certificate on a port other than 443?',
-        answer: 'This tool checks the standard HTTPS port 443 only. Services on other ports (mail, databases) need a dedicated client such as openssl s_client.',
+        answer:
+          'This tool checks the standard HTTPS port 443 only. Services on other ports (mail, databases) need a dedicated client such as openssl s_client.',
       },
       {
         question: 'My Let’s Encrypt certificate shows about 90 days validity. Is that right?',
-        answer: 'Yes — Let’s Encrypt issues 90-day certificates by design and expects automated renewal roughly every 60 days. Short lifetimes are normal, not a problem.',
+        answer:
+          'Yes — Let’s Encrypt issues 90-day certificates by design and expects automated renewal roughly every 60 days. Short lifetimes are normal, not a problem.',
       },
     ],
     keywords: [
@@ -571,19 +612,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'At what point should I renew a certificate?',
-        answer: 'Renew when the status hits warning (30 days out). That leaves time to fix deployment problems before expiry — critical (7 days) means act immediately.',
+        answer:
+          'Renew when the status hits warning (30 days out). That leaves time to fix deployment problems before expiry — critical (7 days) means act immediately.',
       },
       {
         question: 'What happens when a certificate expires?',
-        answer: 'Browsers block the site behind a full-page security warning and API clients refuse the connection. Traffic effectively drops to zero until a valid certificate is deployed.',
+        answer:
+          'Browsers block the site behind a full-page security warning and API clients refuse the connection. Traffic effectively drops to zero until a valid certificate is deployed.',
       },
       {
         question: 'I renewed but the tool still shows the old expiry date. Why?',
-        answer: 'The new certificate has not been deployed to the server — renewal and deployment are separate steps. Reload the web server or check your automation, then re-test.',
+        answer:
+          'The new certificate has not been deployed to the server — renewal and deployment are separate steps. Reload the web server or check your automation, then re-test.',
       },
       {
         question: 'Does this tool keep monitoring my domain automatically?',
-        answer: 'It performs an on-demand check each time you run it; it does not schedule background checks or send alerts. Re-run it as part of your routine, e.g. weekly.',
+        answer:
+          'It performs an on-demand check each time you run it; it does not schedule background checks or send alerts. Re-run it as part of your routine, e.g. weekly.',
       },
     ],
     keywords: [
@@ -627,19 +672,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does domain age affect SEO rankings?',
-        answer: 'Google has said age itself is not a direct ranking factor, but older domains have had more time to earn links and history. Age matters most as a trust and valuation signal, not a ranking switch.',
+        answer:
+          'Google has said age itself is not a direct ranking factor, but older domains have had more time to earn links and history. Age matters most as a trust and valuation signal, not a ranking switch.',
       },
       {
         question: 'Is the age based on registration or on when the website launched?',
-        answer: 'Registration. The tool reads the registry’s registration event, which can predate the first website on the domain by years.',
+        answer:
+          'Registration. The tool reads the registry’s registration event, which can predate the first website on the domain by years.',
       },
       {
         question: 'Does the age reset if a domain expires and is re-registered?',
-        answer: 'Yes. Once a domain fully drops and is registered again, the registry records a new registration event, and this tool shows the new date.',
+        answer:
+          'Yes. Once a domain fully drops and is registered again, the registry records a new registration event, and this tool shows the new date.',
       },
       {
         question: 'Why does the tool say the registration date was not found?',
-        answer: 'A few registries, mostly ccTLDs, do not publish registration events over RDAP or WHOIS. In that case no reliable age can be computed from public data.',
+        answer:
+          'A few registries, mostly ccTLDs, do not publish registration events over RDAP or WHOIS. In that case no reliable age can be computed from public data.',
       },
     ],
     keywords: [
@@ -683,23 +732,28 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'The tool says "might be available" — is the domain definitely free?',
-        answer: 'Not guaranteed. The check is DNS-based, so a registered domain with no DNS records can appear available. Treat it as a strong hint and confirm with a registrar search before deciding.',
+        answer:
+          'Not guaranteed. The check is DNS-based, so a registered domain with no DNS records can appear available. Treat it as a strong hint and confirm with a registrar search before deciding.',
       },
       {
         question: 'If the tool says the domain is registered, is that certain?',
-        answer: 'Yes. A name only resolves to IP addresses if it is registered and delegated, so the "registered" verdict is definitive.',
+        answer:
+          'Yes. A name only resolves to IP addresses if it is registered and delegated, so the "registered" verdict is definitive.',
       },
       {
         question: 'Does checking a domain here risk someone front-running my idea?',
-        answer: 'The lookup is an ordinary DNS query answered by public resolvers, the same as typing the name into a browser. It is not sent to any registrar or marketplace.',
+        answer:
+          'The lookup is an ordinary DNS query answered by public resolvers, the same as typing the name into a browser. It is not sent to any registrar or marketplace.',
       },
       {
         question: 'Can I check any extension, like .io or .dev?',
-        answer: 'Yes — the DNS check works identically for every TLD. Availability and pricing for the actual registration still depend on the registrar and registry.',
+        answer:
+          'Yes — the DNS check works identically for every TLD. Availability and pricing for the actual registration still depend on the registrar and registry.',
       },
       {
         question: 'How do I check who owns a taken domain?',
-        answer: 'Use the WHOIS Lookup tool on this site: it shows the registrar, registration and expiry dates, and status codes for any registered domain.',
+        answer:
+          'Use the WHOIS Lookup tool on this site: it shows the registrar, registration and expiry dates, and status codes for any registered domain.',
       },
     ],
     keywords: [
@@ -744,23 +798,28 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What happens when a domain actually expires?',
-        answer: 'Typically a grace period of 0–45 days where the owner can renew at normal price, then a redemption period (~30 days) with a hefty recovery fee, then release for public registration. Websites and email usually stop working early in that timeline.',
+        answer:
+          'Typically a grace period of 0–45 days where the owner can renew at normal price, then a redemption period (~30 days) with a hefty recovery fee, then release for public registration. Websites and email usually stop working early in that timeline.',
       },
       {
         question: 'Why does the expiry date differ from my registrar dashboard by a day?',
-        answer: 'Registries record expiry in UTC and dashboards often render it in your local timezone. A one-day apparent difference across timezones is normal.',
+        answer:
+          'Registries record expiry in UTC and dashboards often render it in your local timezone. A one-day apparent difference across timezones is normal.',
       },
       {
         question: 'Can I check domains I don’t own?',
-        answer: 'Yes. Expiry dates are public registry data, so you can check any registered domain — useful for monitoring a domain you hope to acquire.',
+        answer:
+          'Yes. Expiry dates are public registry data, so you can check any registered domain — useful for monitoring a domain you hope to acquire.',
       },
       {
         question: 'The tool shows no expiry date. Why?',
-        answer: 'Some ccTLD registries do not publish expiration events over RDAP or WHOIS. For those extensions the registrar of record is the only reliable source.',
+        answer:
+          'Some ccTLD registries do not publish expiration events over RDAP or WHOIS. For those extensions the registrar of record is the only reliable source.',
       },
       {
         question: 'Does auto-renew at my registrar make this check unnecessary?',
-        answer: 'Auto-renew fails silently when a card expires or a payment bounces. Checking the registry-recorded date confirms the renewal actually happened.',
+        answer:
+          'Auto-renew fails silently when a card expires or a payment bounces. Checking the registry-recorded date confirms the renewal actually happened.',
       },
     ],
     keywords: [
@@ -805,19 +864,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does this find every subdomain a domain has?',
-        answer: 'No. It tests a curated list of 48 common names, so it finds the usual ones fast but misses custom or randomly-named subdomains. It is a quick reconnaissance pass, not an exhaustive enumeration.',
+        answer:
+          'No. It tests a curated list of 48 common names, so it finds the usual ones fast but misses custom or randomly-named subdomains. It is a quick reconnaissance pass, not an exhaustive enumeration.',
       },
       {
         question: 'Is running this scan legal?',
-        answer: 'The scan only sends ordinary DNS queries — the same lookups a browser makes — and never contacts the target’s servers directly. That is generally fine, but only run reconnaissance against domains you own or are authorized to assess.',
+        answer:
+          'The scan only sends ordinary DNS queries — the same lookups a browser makes — and never contacts the target’s servers directly. That is generally fine, but only run reconnaissance against domains you own or are authorized to assess.',
       },
       {
         question: 'Why does a subdomain resolve but its website not load?',
-        answer: 'A DNS record can exist while the service behind it is down, moved, or firewalled. Resolution proves the record is published, not that a live site answers on it.',
+        answer:
+          'A DNS record can exist while the service behind it is down, moved, or firewalled. Resolution proves the record is published, not that a live site answers on it.',
       },
       {
         question: 'A found subdomain points to an internal-looking IP — is that a risk?',
-        answer: 'Subdomains that resolve to private ranges or forgotten staging hosts often expose unpatched dashboards. Treat any admin, staging, dev, or vpn hit as something to review or lock down.',
+        answer:
+          'Subdomains that resolve to private ranges or forgotten staging hosts often expose unpatched dashboards. Treat any admin, staging, dev, or vpn hit as something to review or lock down.',
       },
     ],
     keywords: [
@@ -861,19 +924,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What is a DNSBL?',
-        answer: 'A DNS-based blocklist is a list of IP addresses known for sending spam or abuse. Receiving mail servers query these lists and may reject or spam-folder mail from any listed IP.',
+        answer:
+          'A DNS-based blocklist is a list of IP addresses known for sending spam or abuse. Receiving mail servers query these lists and may reject or spam-folder mail from any listed IP.',
       },
       {
         question: 'My IP is listed — how do I get removed?',
-        answer: 'First fix the cause (a compromised account, open relay, or bad sending practice), then use the delisting form on the specific blocklist’s website. Delisting before fixing the root cause usually results in a fast re-listing.',
+        answer:
+          'First fix the cause (a compromised account, open relay, or bad sending practice), then use the delisting form on the specific blocklist’s website. Delisting before fixing the root cause usually results in a fast re-listing.',
       },
       {
         question: 'Does this check the domain or the IP?',
-        answer: 'It resolves the domain to its primary IP and checks that IP against the blocklists, since DNSBLs list IP addresses. For accurate mail-reputation results, check the IP your mail actually sends from.',
+        answer:
+          'It resolves the domain to its primary IP and checks that IP against the blocklists, since DNSBLs list IP addresses. For accurate mail-reputation results, check the IP your mail actually sends from.',
       },
       {
         question: 'Why am I listed on one blocklist but clean on the others?',
-        answer: 'Each list has its own criteria and data sources. A listing on a single minor list has limited impact; a listing on a major one like Spamhaus ZEN affects deliverability widely.',
+        answer:
+          'Each list has its own criteria and data sources. A listing on a single minor list has limited impact; a listing on a major one like Spamhaus ZEN affects deliverability widely.',
       },
     ],
     keywords: [
@@ -920,19 +987,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Which security headers should every site have?',
-        answer: 'At minimum Strict-Transport-Security, X-Content-Type-Options, and a solid Content-Security-Policy. X-Frame-Options, Referrer-Policy, and Permissions-Policy add further protection against clickjacking and data leakage.',
+        answer:
+          'At minimum Strict-Transport-Security, X-Content-Type-Options, and a solid Content-Security-Policy. X-Frame-Options, Referrer-Policy, and Permissions-Policy add further protection against clickjacking and data leakage.',
       },
       {
         question: 'Why hide the Server and X-Powered-By headers?',
-        answer: 'They reveal your web server and framework versions, which helps attackers target known vulnerabilities. Suppressing or genericizing them is a small but worthwhile hardening step.',
+        answer:
+          'They reveal your web server and framework versions, which helps attackers target known vulnerabilities. Suppressing or genericizing them is a small but worthwhile hardening step.',
       },
       {
         question: 'Does this send a full page request?',
-        answer: 'It issues a lightweight request to read the headers and does not render or execute the page. You get the server’s response metadata without downloading the whole document.',
+        answer:
+          'It issues a lightweight request to read the headers and does not render or execute the page. You get the server’s response metadata without downloading the whole document.',
       },
       {
         question: 'Why do the headers differ from my browser’s dev tools?',
-        answer: 'Browser extensions, service workers, and caches can alter what you see locally. This server-side check shows the unmodified headers a fresh client receives.',
+        answer:
+          'Browser extensions, service workers, and caches can alter what you see locally. This server-side check shows the unmodified headers a fresh client receives.',
       },
     ],
     keywords: [
@@ -978,19 +1049,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What is the difference between closed and filtered?',
-        answer: 'Closed means the host actively refused the connection (nothing is listening), while filtered means the probe timed out with no response — usually a firewall silently dropping the packets.',
+        answer:
+          'Closed means the host actively refused the connection (nothing is listening), while filtered means the probe timed out with no response — usually a firewall silently dropping the packets.',
       },
       {
         question: 'Which ports does the default scan cover?',
-        answer: 'The 17 most common: 21, 22, 25, 53, 80, 110, 143, 443, 465, 587, 993, 995, 3306, 3389, 5432, 8080, and 8443, spanning web, mail, DNS, database, and remote-access services.',
+        answer:
+          'The 17 most common: 21, 22, 25, 53, 80, 110, 143, 443, 465, 587, 993, 995, 3306, 3389, 5432, 8080, and 8443, spanning web, mail, DNS, database, and remote-access services.',
       },
       {
         question: 'Is scanning ports on a host legal?',
-        answer: 'Scanning hosts you own or are authorized to test is fine. Unsolicited scanning of third-party systems may violate acceptable-use policies, so only scan targets you have permission for.',
+        answer:
+          'Scanning hosts you own or are authorized to test is fine. Unsolicited scanning of third-party systems may violate acceptable-use policies, so only scan targets you have permission for.',
       },
       {
         question: 'An important database port is open — what should I do?',
-        answer: 'Restrict it immediately. Database and admin ports should be firewalled to trusted IPs or a VPN, never exposed to the public internet, to avoid brute-force and exploitation attacks.',
+        answer:
+          'Restrict it immediately. Database and admin ports should be firewalled to trusted IPs or a VPN, never exposed to the public internet, to avoid brute-force and exploitation attacks.',
       },
     ],
     keywords: [
@@ -1036,19 +1111,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What is the difference between a 301 and a 302 redirect?',
-        answer: 'A 301 is permanent and passes SEO ranking signals to the new URL; a 302 is temporary and search engines keep the original URL indexed. Use 301 for moves you intend to keep.',
+        answer:
+          'A 301 is permanent and passes SEO ranking signals to the new URL; a 302 is temporary and search engines keep the original URL indexed. Use 301 for moves you intend to keep.',
       },
       {
         question: 'Why are long redirect chains bad?',
-        answer: 'Each hop adds latency for users and consumes crawl budget for search engines. Chains longer than one or two hops should be collapsed so the first URL points directly at the final destination.',
+        answer:
+          'Each hop adds latency for users and consumes crawl budget for search engines. Chains longer than one or two hops should be collapsed so the first URL points directly at the final destination.',
       },
       {
         question: 'What happens if there is a redirect loop?',
-        answer: 'The checker follows a bounded number of hops and stops, so an infinite loop is reported rather than hanging. A loop in the chain is a bug that will break the page for real users.',
+        answer:
+          'The checker follows a bounded number of hops and stops, so an infinite loop is reported rather than hanging. A loop in the chain is a bug that will break the page for real users.',
       },
       {
         question: 'Does it follow HTTPS and cross-domain redirects?',
-        answer: 'Yes. It follows redirects across protocols and domains, resolving relative locations against the current URL, so you see the true end-to-end path.',
+        answer:
+          'Yes. It follows redirects across protocols and domains, resolving relative locations against the current URL, so you see the true end-to-end path.',
       },
     ],
     keywords: [
@@ -1094,19 +1173,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'The tool says the site is up but I can’t reach it. Why?',
-        answer: 'The check runs from the server’s network, so an "up" result with a failure on your end points to a local cause — your DNS cache, ISP routing, a firewall, or a VPN. Try another network or flush your DNS.',
+        answer:
+          'The check runs from the server’s network, so an "up" result with a failure on your end points to a local cause — your DNS cache, ISP routing, a firewall, or a VPN. Try another network or flush your DNS.',
       },
       {
         question: 'What counts as "up"?',
-        answer: 'A response with a status code in the 200–399 range. Codes of 400 and above (like 404 or 500) mean the server answered but returned an error, which the tool reports with the exact code.',
+        answer:
+          'A response with a status code in the 200–399 range. Codes of 400 and above (like 404 or 500) mean the server answered but returned an error, which the tool reports with the exact code.',
       },
       {
         question: 'Does a fast response time mean the whole site is fast?',
-        answer: 'It measures the server’s time to respond to a single request, not full page render. For a complete performance picture including page weight and resource counts, use the Page Speed Checker.',
+        answer:
+          'It measures the server’s time to respond to a single request, not full page render. For a complete performance picture including page weight and resource counts, use the Page Speed Checker.',
       },
       {
         question: 'Does this check keep monitoring the site?',
-        answer: 'No — it performs a single on-demand check each time you run it. It does not run continuous monitoring or send downtime alerts.',
+        answer:
+          'No — it performs a single on-demand check each time you run it. It does not run continuous monitoring or send downtime alerts.',
       },
     ],
     keywords: [
@@ -1151,19 +1234,23 @@ export const domainNetworkToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What load time counts as fast?',
-        answer: 'This tool rates under 1 second as Fast, 1–3 seconds as Average, and over 3 seconds as Slow. Users start abandoning pages beyond roughly 3 seconds, so aim to stay in the Fast band.',
+        answer:
+          'This tool rates under 1 second as Fast, 1–3 seconds as Average, and over 3 seconds as Slow. Users start abandoning pages beyond roughly 3 seconds, so aim to stay in the Fast band.',
       },
       {
         question: 'Why is my page size larger than the visible content suggests?',
-        answer: 'The figure is the HTML document’s byte size. A large number often means heavy inline styles, embedded data, or bloated markup — separate from the images and scripts the page then loads.',
+        answer:
+          'The figure is the HTML document’s byte size. A large number often means heavy inline styles, embedded data, or bloated markup — separate from the images and scripts the page then loads.',
       },
       {
         question: 'Does a high script count always mean a slow page?',
-        answer: 'Not always, but many blocking scripts and stylesheets are a frequent cause of slow rendering. Reducing, deferring, or combining them is usually the highest-impact fix.',
+        answer:
+          'Not always, but many blocking scripts and stylesheets are a frequent cause of slow rendering. Reducing, deferring, or combining them is usually the highest-impact fix.',
       },
       {
         question: 'Is this the same as Google PageSpeed Insights?',
-        answer: 'No. This is a fast triage of load time and page composition. It does not compute Core Web Vitals or Lighthouse scores — use it for a quick check, then a full audit tool for detailed field metrics.',
+        answer:
+          'No. This is a fast triage of load time and page composition. It does not compute Core Web Vitals or Lighthouse scores — use it for a quick check, then a full audit tool for detailed field metrics.',
       },
     ],
     keywords: [

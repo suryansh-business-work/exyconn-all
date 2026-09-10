@@ -18,9 +18,10 @@ const GeneratedOutput: React.FC<GeneratedOutputProps> = ({ generatedTxt, onCopy,
           <Typography
             variant="body2"
             sx={{
-              color: "text.secondary",
-              mt: 1
-            }}>
+              color: 'text.secondary',
+              mt: 1,
+            }}
+          >
             Add sitemaps, set crawl rules for different bots
           </Typography>
         </Box>
@@ -36,9 +37,12 @@ const GeneratedOutput: React.FC<GeneratedOutputProps> = ({ generatedTxt, onCopy,
               justifyContent: 'space-between',
             }}
           >
-            <Typography variant="subtitle2" sx={{
-              fontWeight: 600
-            }}>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: 600,
+              }}
+            >
               Generated robots.txt
             </Typography>
             <Box>
@@ -61,7 +65,7 @@ const GeneratedOutput: React.FC<GeneratedOutputProps> = ({ generatedTxt, onCopy,
               rows={18}
               value={generatedTxt}
               slotProps={{
-                input: { readOnly: true, sx: { fontFamily: 'monospace', fontSize: 12 } }
+                input: { readOnly: true, sx: { fontFamily: 'monospace', fontSize: 12 } },
               }}
             />
           </Box>

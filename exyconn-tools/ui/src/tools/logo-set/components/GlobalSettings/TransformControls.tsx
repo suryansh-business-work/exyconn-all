@@ -22,13 +22,17 @@ const TransformControls: React.FC<Props> = ({ settings, onChange, showMore }) =>
           direction="row"
           spacing={1}
           sx={{
-            alignItems: "center",
-            mb: 0.5
-          }}>
+            alignItems: 'center',
+            mb: 0.5,
+          }}
+        >
           <ZoomIn fontSize="small" color="action" />
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Scale: {settings.scale}%
           </Typography>
         </Stack>
@@ -47,13 +51,17 @@ const TransformControls: React.FC<Props> = ({ settings, onChange, showMore }) =>
           direction="row"
           spacing={1}
           sx={{
-            alignItems: "center",
-            mb: 0.5
-          }}>
+            alignItems: 'center',
+            mb: 0.5,
+          }}
+        >
           <RotateRight fontSize="small" color="action" />
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Rotation: {settings.rotation}°
           </Typography>
         </Stack>
@@ -72,13 +80,17 @@ const TransformControls: React.FC<Props> = ({ settings, onChange, showMore }) =>
           direction="row"
           spacing={1}
           sx={{
-            alignItems: "center",
-            mb: 0.5
-          }}>
+            alignItems: 'center',
+            mb: 0.5,
+          }}
+        >
           <Padding fontSize="small" color="action" />
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Padding: {settings.padding}%
           </Typography>
         </Stack>
@@ -99,13 +111,17 @@ const TransformControls: React.FC<Props> = ({ settings, onChange, showMore }) =>
               direction="row"
               spacing={1}
               sx={{
-                alignItems: "center",
-                mb: 0.5
-              }}>
+                alignItems: 'center',
+                mb: 0.5,
+              }}
+            >
               <SwapHoriz fontSize="small" color="action" />
-              <Typography variant="caption" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 X Offset: {settings.x}%
               </Typography>
             </Stack>
@@ -124,13 +140,17 @@ const TransformControls: React.FC<Props> = ({ settings, onChange, showMore }) =>
               direction="row"
               spacing={1}
               sx={{
-                alignItems: "center",
-                mb: 0.5
-              }}>
+                alignItems: 'center',
+                mb: 0.5,
+              }}
+            >
               <SwapVert fontSize="small" color="action" />
-              <Typography variant="caption" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Y Offset: {settings.y}%
               </Typography>
             </Stack>

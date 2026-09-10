@@ -2,7 +2,17 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import CropImage from './index';
-import { ASPECT_PRESETS, outputMime, mimeToExt, cropFileName, clampCropArea, drawCroppedImage, canvasToBlob, getCroppedBlob, loadImage } from './utils';
+import {
+  ASPECT_PRESETS,
+  outputMime,
+  mimeToExt,
+  cropFileName,
+  clampCropArea,
+  drawCroppedImage,
+  canvasToBlob,
+  getCroppedBlob,
+  loadImage,
+} from './utils';
 
 vi.mock('../../shared/components/ToolLayout/ToolLayout', () => ({
   default: ({ children, toolName }: { children: React.ReactNode; toolName: string }) => (
@@ -28,8 +38,12 @@ const ctxStub = { drawImage: vi.fn() };
 
 beforeEach(() => {
   vi.stubGlobal('Image', MockImage);
-  HTMLCanvasElement.prototype.getContext = vi.fn(() => ctxStub) as unknown as typeof HTMLCanvasElement.prototype.getContext;
-  HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback) { cb(new Blob(['img'], { type: 'image/png' })); };
+  HTMLCanvasElement.prototype.getContext = vi.fn(
+    () => ctxStub
+  ) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback) {
+    cb(new Blob(['img'], { type: 'image/png' }));
+  };
   URL.createObjectURL = vi.fn(() => 'blob:mock');
   URL.revokeObjectURL = vi.fn();
 });
@@ -68,9 +82,24 @@ describe('crop-image utils', () => {
   });
 
   it('clampCropArea keeps the area inside the image and rounds values', () => {
-    expect(clampCropArea({ x: 10.4, y: 5.6, width: 50.2, height: 20.8 }, 400, 200)).toEqual({ x: 10, y: 6, width: 50, height: 21 });
-    expect(clampCropArea({ x: -5, y: -5, width: 500, height: 300 }, 400, 200)).toEqual({ x: 0, y: 0, width: 400, height: 200 });
-    expect(clampCropArea({ x: 390, y: 195, width: 100, height: 100 }, 400, 200)).toEqual({ x: 390, y: 195, width: 10, height: 5 });
+    expect(clampCropArea({ x: 10.4, y: 5.6, width: 50.2, height: 20.8 }, 400, 200)).toEqual({
+      x: 10,
+      y: 6,
+      width: 50,
+      height: 21,
+    });
+    expect(clampCropArea({ x: -5, y: -5, width: 500, height: 300 }, 400, 200)).toEqual({
+      x: 0,
+      y: 0,
+      width: 400,
+      height: 200,
+    });
+    expect(clampCropArea({ x: 390, y: 195, width: 100, height: 100 }, 400, 200)).toEqual({
+      x: 390,
+      y: 195,
+      width: 10,
+      height: 5,
+    });
     expect(clampCropArea({ x: 0, y: 0, width: 0, height: 0 }, 400, 200)).toEqual({ x: 0, y: 0, width: 1, height: 1 });
   });
 
@@ -84,15 +113,21 @@ describe('crop-image utils', () => {
   });
 
   it('drawCroppedImage throws when the 2d context is unavailable', () => {
-    HTMLCanvasElement.prototype.getContext = vi.fn(() => null) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = vi.fn(
+      () => null
+    ) as unknown as typeof HTMLCanvasElement.prototype.getContext;
     const canvas = document.createElement('canvas');
-    expect(() => drawCroppedImage(new MockImage() as unknown as CanvasImageSource, { x: 0, y: 0, width: 1, height: 1 }, canvas)).toThrow('Canvas is not supported');
+    expect(() =>
+      drawCroppedImage(new MockImage() as unknown as CanvasImageSource, { x: 0, y: 0, width: 1, height: 1 }, canvas)
+    ).toThrow('Canvas is not supported');
   });
 
   it('canvasToBlob resolves with the encoded blob and rejects on null', async () => {
     const canvas = document.createElement('canvas');
     await expect(canvasToBlob(canvas, 'image/png')).resolves.toBeInstanceOf(Blob);
-    HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback) { cb(null); };
+    HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback) {
+      cb(null);
+    };
     await expect(canvasToBlob(canvas, 'image/png')).rejects.toThrow('Failed to export image.');
   });
 

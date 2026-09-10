@@ -7,15 +7,15 @@ interface BulkUrlInputProps {
   onParseBulkUrls: () => void;
 }
 
-const BulkUrlInput: React.FC<BulkUrlInputProps> = ({
-  bulkUrls,
-  onBulkUrlsChange,
-  onParseBulkUrls,
-}) => (
+const BulkUrlInput: React.FC<BulkUrlInputProps> = ({ bulkUrls, onBulkUrlsChange, onParseBulkUrls }) => (
   <Paper elevation={0} sx={{ p: 2, mt: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-    <Typography variant="subtitle2" gutterBottom sx={{
-      fontWeight: 600
-    }}>
+    <Typography
+      variant="subtitle2"
+      gutterBottom
+      sx={{
+        fontWeight: 600,
+      }}
+    >
       Bulk Add URLs
     </Typography>
     <TextField

@@ -64,15 +64,21 @@ const APISettingsPanel: React.FC<APISettingsDialogProps> = ({ onSettingsChange }
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Settings fontSize="small" color={hasKeys ? 'success' : 'warning'} />
-          <Typography variant="subtitle2" sx={{
-            fontWeight: 600
-          }}>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             API Settings
           </Typography>
           {hasKeys && (
-            <Typography variant="caption" sx={{
-              color: "success.main"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'success.main',
+              }}
+            >
               ✓ Configured
             </Typography>
           )}
@@ -83,9 +89,12 @@ const APISettingsPanel: React.FC<APISettingsDialogProps> = ({ onSettingsChange }
       <Collapse in={expanded}>
         <Box sx={{ p: 2 }}>
           <Alert severity="warning" icon={<Warning />} sx={{ mb: 5 }}>
-            <Typography variant="body2" sx={{
-              fontWeight: 600
-            }}>
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: 600,
+              }}
+            >
               ⚠️ MVP Tool - Local Storage Only
             </Typography>
             <Typography variant="caption">
@@ -117,7 +126,7 @@ const APISettingsPanel: React.FC<APISettingsDialogProps> = ({ onSettingsChange }
                       </IconButton>
                     </InputAdornment>
                   ),
-                }
+                },
               }}
             />
 
@@ -144,16 +153,19 @@ const APISettingsPanel: React.FC<APISettingsDialogProps> = ({ onSettingsChange }
                       </IconButton>
                     </InputAdornment>
                   ),
-                }
+                },
               }}
             />
 
             <Divider />
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="caption" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Get your API keys from{' '}
                 <a href="https://console.cloud.google.com/apis" target="_blank" rel="noopener noreferrer">
                   Google Cloud Console

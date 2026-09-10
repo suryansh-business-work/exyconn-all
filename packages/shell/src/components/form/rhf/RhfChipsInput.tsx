@@ -27,10 +27,11 @@ export function RhfChipsInput({ name, label, helperText }: Readonly<RhfChipsInpu
           value={(field.value as string[]) ?? []}
           onChange={(_event, value) => field.onChange(value)}
           onBlur={field.onBlur}
-          renderTags={(value: readonly string[], getTagProps) =>
+          // MUI 9 renamed `renderTags` to `renderValue`; the item props arrive the same way.
+          renderValue={(value, getItemProps) =>
             value.map((option, index) => {
-              const { key, ...tagProps } = getTagProps({ index });
-              return <Chip key={key} label={option} size="small" {...tagProps} />;
+              const { key, ...itemProps } = getItemProps({ index });
+              return <Chip key={key} label={option} size="small" {...itemProps} />;
             })
           }
           renderInput={(params) => (

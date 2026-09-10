@@ -10,16 +10,15 @@ interface AnalyzeFormProps {
   onAnalyze: () => void;
 }
 
-const AnalyzeForm: React.FC<AnalyzeFormProps> = ({
-  sitemapUrl,
-  isLoading,
-  onUrlChange,
-  onAnalyze,
-}) => (
+const AnalyzeForm: React.FC<AnalyzeFormProps> = ({ sitemapUrl, isLoading, onUrlChange, onAnalyze }) => (
   <Paper elevation={0} sx={{ p: 2, mb: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-    <Grid container spacing={2} sx={{
-      alignItems: "center"
-    }}>
+    <Grid
+      container
+      spacing={2}
+      sx={{
+        alignItems: 'center',
+      }}
+    >
       <Grid size={{ xs: 12, md: 8 }}>
         <TextField
           fullWidth
@@ -30,7 +29,7 @@ const AnalyzeForm: React.FC<AnalyzeFormProps> = ({
           slotProps={{
             input: {
               startAdornment: <Language color="action" sx={{ mr: 1 }} />,
-            }
+            },
           }}
         />
       </Grid>

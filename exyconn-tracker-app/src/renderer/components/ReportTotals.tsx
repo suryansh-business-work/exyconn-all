@@ -46,9 +46,10 @@ export default function ReportTotals({ totals }: Readonly<Props>): ReactElement 
             variant="caption"
             noWrap
             sx={{
-              color: "text.secondary",
-              display: "block"
-            }}>
+              color: 'text.secondary',
+              display: 'block',
+            }}
+          >
             {item.label}
           </Typography>
           <Typography variant="h6" noWrap>

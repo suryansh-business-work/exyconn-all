@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 import {
-  Container, Alert, Snackbar, Chip, Box,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, LinearProgress,
+  Container,
+  Alert,
+  Snackbar,
+  Chip,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  LinearProgress,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { AccountTree } from '@mui/icons-material';
@@ -38,13 +48,23 @@ const SubdomainFinder: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<AccountTree color="primary" />}
-              title="Find Subdomains" buttonText="Find Subdomains" loadingText="Scanning..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<AccountTree color="primary" />}
+              title="Find Subdomains"
+              buttonText="Find Subdomains"
+              loadingText="Scanning..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {isLoading && <LinearProgress sx={{ mb: 2 }} />}
             {result && (
-              <DomainResultDisplay title={`Subdomains of ${result.domain}`} icon={<AccountTree fontSize="small" />} data={result}>
+              <DomainResultDisplay
+                title={`Subdomains of ${result.domain}`}
+                icon={<AccountTree fontSize="small" />}
+                data={result}
+              >
                 <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
                   <Chip label={`${result.totalFound} found`} color="primary" />
                   <Chip label={`${result.totalChecked} checked`} variant="outlined" />
@@ -77,7 +97,9 @@ const SubdomainFinder: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

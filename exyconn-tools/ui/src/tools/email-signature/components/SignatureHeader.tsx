@@ -59,9 +59,12 @@ const SignatureHeader: React.FC = () => {
               Email Signature Generator
             </Typography>
             {!isMobile && (
-              <Typography variant="caption" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Create professional email signatures in minutes
               </Typography>
             )}

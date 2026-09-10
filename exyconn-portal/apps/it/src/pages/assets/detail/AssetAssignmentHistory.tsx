@@ -52,8 +52,9 @@ export function AssetAssignmentHistory({
         variant="h6"
         sx={{
           fontWeight: 700,
-          mb: 1.5
-        }}>
+          mb: 1.5,
+        }}
+      >
         Assignment history ({rows.length})
       </Typography>
       <DataTable

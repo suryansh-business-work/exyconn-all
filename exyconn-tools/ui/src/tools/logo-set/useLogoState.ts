@@ -135,11 +135,27 @@ export const useLogoState = () => {
   };
 
   return {
-    image, settings, format, setFormat, applyScope, setApplyScope,
-    customSizes, setCustomSizes, customSizesDialogOpen, setCustomSizesDialogOpen,
-    croppedImages, sizeSettings, history, hasCustomChanges,
-    handleImageUpload, handleUndo, handleRedo,
-    handleCroppedImage, handleSizeSettings, handleSettingsChange,
-    handleDelete, handleReset,
+    image,
+    settings,
+    format,
+    setFormat,
+    applyScope,
+    setApplyScope,
+    customSizes,
+    setCustomSizes,
+    customSizesDialogOpen,
+    setCustomSizesDialogOpen,
+    croppedImages,
+    sizeSettings,
+    history,
+    hasCustomChanges,
+    handleImageUpload,
+    handleUndo,
+    handleRedo,
+    handleCroppedImage,
+    handleSizeSettings,
+    handleSettingsChange,
+    handleDelete,
+    handleReset,
   };
 };

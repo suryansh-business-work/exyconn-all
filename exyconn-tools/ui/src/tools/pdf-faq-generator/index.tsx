@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import {
-  Container, Alert, Snackbar, Paper, Box, Typography, TextField, Button, MenuItem, CircularProgress,
+  Container,
+  Alert,
+  Snackbar,
+  Paper,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+  CircularProgress,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { PictureAsPdf, Send, UploadFile } from '@mui/icons-material';
@@ -76,25 +85,55 @@ const PdfFAQGenerator: React.FC = () => {
             <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <PictureAsPdf color="primary" />
-                <Typography variant="h6" sx={{
-                  fontWeight: 600
-                }}>Upload PDF</Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 600,
+                  }}
+                >
+                  Upload PDF
+                </Typography>
               </Box>
               <Button component="label" variant="outlined" fullWidth startIcon={<UploadFile />} sx={{ mb: 2, py: 1.5 }}>
                 {file ? file.name : 'Choose PDF File'}
                 <input type="file" accept=".pdf" hidden onChange={handleFileChange} />
               </Button>
-              <TextField fullWidth select label="Number of FAQs" value={count} onChange={(e) => setCount(Number(e.target.value))} sx={{ mb: 2 }}>
-                {[5, 10, 15, 20, 25, 30].map((n) => (<MenuItem key={n} value={n}>{n} FAQs</MenuItem>))}
+              <TextField
+                fullWidth
+                select
+                label="Number of FAQs"
+                value={count}
+                onChange={(e) => setCount(Number(e.target.value))}
+                sx={{ mb: 2 }}
+              >
+                {[5, 10, 15, 20, 25, 30].map((n) => (
+                  <MenuItem key={n} value={n}>
+                    {n} FAQs
+                  </MenuItem>
+                ))}
               </TextField>
-              <TextField fullWidth select label="Tone" value={tone} onChange={(e) => setTone(e.target.value)} sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                select
+                label="Tone"
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+                sx={{ mb: 3 }}
+              >
                 <MenuItem value="professional">Professional</MenuItem>
                 <MenuItem value="friendly">Friendly</MenuItem>
                 <MenuItem value="technical">Technical</MenuItem>
                 <MenuItem value="casual">Casual</MenuItem>
               </TextField>
-              <Button type="button" variant="contained" fullWidth disabled={isLoading || !file} onClick={handleGenerate}
-                startIcon={isLoading ? <CircularProgress size={18} /> : <Send />} sx={{ py: 1.25 }}>
+              <Button
+                type="button"
+                variant="contained"
+                fullWidth
+                disabled={isLoading || !file}
+                onClick={handleGenerate}
+                startIcon={isLoading ? <CircularProgress size={18} /> : <Send />}
+                sx={{ py: 1.25 }}
+              >
                 {isLoading ? 'Generating FAQs...' : 'Generate FAQs'}
               </Button>
             </Paper>
@@ -113,7 +152,9 @@ const PdfFAQGenerator: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

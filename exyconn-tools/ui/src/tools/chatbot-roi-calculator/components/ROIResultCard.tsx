@@ -68,10 +68,11 @@ const ROIResultCard: React.FC<ROIResultCardProps> = ({
       <Typography
         variant="body2"
         sx={{
-          color: "text.secondary",
+          color: 'text.secondary',
           fontWeight: 500,
-          mb: 0.5
-        }}>
+          mb: 0.5,
+        }}
+      >
         {label}
       </Typography>
       <Typography
@@ -79,14 +80,18 @@ const ROIResultCard: React.FC<ROIResultCardProps> = ({
         sx={{
           fontWeight: 700,
           color: colors.text,
-          mb: 0.5
-        }}>
+          mb: 0.5,
+        }}
+      >
         {value}
       </Typography>
       {subtitle && (
-        <Typography variant="caption" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {subtitle}
         </Typography>
       )}

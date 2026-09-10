@@ -18,8 +18,9 @@ export function NotifyPage() {
         <Grid
           size={{
             xs: 12,
-            md: 7
-          }}>
+            md: 7,
+          }}
+        >
           <Box sx={[glass, { p: 2.5 }]}>
             <SendNotificationForm onSent={setLastSent} />
           </Box>
@@ -27,8 +28,9 @@ export function NotifyPage() {
         <Grid
           size={{
             xs: 12,
-            md: 5
-          }}>
+            md: 5,
+          }}
+        >
           <Box sx={[glass, { p: 2.5 }]}>
             <Heading level={6}>How it lands</Heading>
             <Text size="sm" color="text.secondary" sx={{ mt: 1 }}>

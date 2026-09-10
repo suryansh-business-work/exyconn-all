@@ -124,7 +124,7 @@ export function WorkArrangementFields() {
         type="number"
         helperText={`Hours in a working day. Defaults to ${DEFAULT_WORK_HOURS} — the desktop tracker shows progress against this.`}
         slotProps={{
-          htmlInput: { min: 1, max: 24, step: 0.5 }
+          htmlInput: { min: 1, max: 24, step: 0.5 },
         }}
       />
       {/* Where they actually are, which is what every date, time and deadline is read in.

@@ -46,8 +46,9 @@ export function PoliciesPage() {
               size={{
                 xs: 12,
                 sm: 6,
-                md: 4
-              }}>
+                md: 4,
+              }}
+            >
               <PolicyCard policy={policy} onOpen={setReading} />
             </Grid>
           ))}

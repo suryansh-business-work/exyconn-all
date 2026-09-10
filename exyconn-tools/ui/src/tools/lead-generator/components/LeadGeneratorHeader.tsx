@@ -64,9 +64,10 @@ const LeadGeneratorHeader: React.FC = () => {
             <Typography
               variant="caption"
               sx={{
-                color: "text.secondary",
-                display: { xs: 'none', sm: 'block' }
-              }}>
+                color: 'text.secondary',
+                display: { xs: 'none', sm: 'block' },
+              }}
+            >
               Find businesses in any area using Google Maps
             </Typography>
           </Box>

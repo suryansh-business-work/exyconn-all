@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import {
-  validateUserPassword, protectedFileName, formatSize, requestProtectedPdf, SERVICE_UNAVAILABLE,
-} from './utils';
+import { validateUserPassword, protectedFileName, formatSize, requestProtectedPdf, SERVICE_UNAVAILABLE } from './utils';
 import ProtectPdf from './index';
 
 vi.mock('../../shared/components/ToolLayout/ToolLayout', async () => {
@@ -81,20 +79,25 @@ describe('protect-pdf utils', () => {
     });
     it('throws SERVICE_UNAVAILABLE on a 503', async () => {
       fetchMock.mockResolvedValueOnce({ ok: false, status: 503, json: () => Promise.reject(new Error('no body')) });
-      await expect(requestProtectedPdf('http://api/protect', pdfFile(), VALID_KEY, ''))
-        .rejects.toThrow(SERVICE_UNAVAILABLE);
+      await expect(requestProtectedPdf('http://api/protect', pdfFile(), VALID_KEY, '')).rejects.toThrow(
+        SERVICE_UNAVAILABLE
+      );
     });
     it('surfaces the server error message on other failures', async () => {
       fetchMock.mockResolvedValueOnce({
-        ok: false, status: 400, json: () => Promise.resolve({ error: 'Invalid PDF file' }),
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ error: 'Invalid PDF file' }),
       });
-      await expect(requestProtectedPdf('http://api/protect', pdfFile(), VALID_KEY, ''))
-        .rejects.toThrow('Invalid PDF file');
+      await expect(requestProtectedPdf('http://api/protect', pdfFile(), VALID_KEY, '')).rejects.toThrow(
+        'Invalid PDF file'
+      );
     });
     it('falls back to a status message when the error body is not JSON', async () => {
       fetchMock.mockResolvedValueOnce({ ok: false, status: 500, json: () => Promise.reject(new Error('no body')) });
-      await expect(requestProtectedPdf('http://api/protect', pdfFile(), VALID_KEY, ''))
-        .rejects.toThrow('Request failed with status 500.');
+      await expect(requestProtectedPdf('http://api/protect', pdfFile(), VALID_KEY, '')).rejects.toThrow(
+        'Request failed with status 500.'
+      );
     });
   });
 });
@@ -124,7 +127,8 @@ describe('ProtectPdf component', () => {
 
   it('offers the encrypted download after a successful request', async () => {
     fetchMock.mockResolvedValueOnce({
-      ok: true, status: 200,
+      ok: true,
+      status: 200,
       blob: () => Promise.resolve(new Blob(['encrypted'], { type: 'application/pdf' })),
     });
     const { container } = render(<ProtectPdf />);
@@ -142,6 +146,7 @@ describe('ProtectPdf component', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Protect PDF' }));
     expect(await screen.findByText(/temporarily unavailable/)).toBeInTheDocument();
     await waitFor(() =>
-      expect(screen.queryByRole('button', { name: 'Download Protected PDF' })).not.toBeInTheDocument());
+      expect(screen.queryByRole('button', { name: 'Download Protected PDF' })).not.toBeInTheDocument()
+    );
   });
 });

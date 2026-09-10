@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import {
-  formatBytes, computeScaledDimensions, computeSavedPercent, outputFileName, compressImage,
-} from './utils';
+import { formatBytes, computeScaledDimensions, computeSavedPercent, outputFileName, compressImage } from './utils';
 import CompressImage from './index';
 
 vi.mock('../../shared/components/ToolLayout/ToolLayout', async () => {

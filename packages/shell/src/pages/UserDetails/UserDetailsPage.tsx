@@ -50,15 +50,17 @@ export function UserDetailsPage() {
             <Grid
               size={{
                 xs: 12,
-                md: 7
-              }}>
+                md: 7,
+              }}
+            >
               <UserProfileCard user={user} />
             </Grid>
             <Grid
               size={{
                 xs: 12,
-                md: 5
-              }}>
+                md: 5,
+              }}
+            >
               <UserActions
                 user={user}
                 onChanged={() => void refetch()}
@@ -68,15 +70,17 @@ export function UserDetailsPage() {
             <Grid
               size={{
                 xs: 12,
-                md: 7
-              }}>
+                md: 7,
+              }}
+            >
               <EmployeeLeavePanel employeeId={user.id} />
             </Grid>
             <Grid
               size={{
                 xs: 12,
-                md: 5
-              }}>
+                md: 5,
+              }}
+            >
               <EmployeeAttendancePanel employeeId={user.id} />
             </Grid>
           </Grid>

@@ -43,8 +43,9 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
           sx={{
             fontWeight: 600,
             fontSize: '0.65rem',
-            color: 'text.primary'
-          }}>
+            color: 'text.primary',
+          }}
+        >
           {size.label}
         </Typography>
         <Chip

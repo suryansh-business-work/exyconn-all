@@ -13,15 +13,16 @@ function Money({ name, label, help }: Readonly<{ name: string; label: string; he
     <Grid
       size={{
         xs: 12,
-        sm: 6
-      }}>
+        sm: 6,
+      }}
+    >
       <RhfTextField
         name={name}
         label={label}
         type="number"
         helperText={help}
         slotProps={{
-          htmlInput: { min: 0, step: 'any' }
+          htmlInput: { min: 0, step: 'any' },
         }}
       />
     </Grid>
@@ -61,15 +62,17 @@ export function CompensationFields() {
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfSelect name="payType" label="Pay type" options={PAY_TYPE_OPTIONS} />
         </Grid>
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfTextField name="currency" label="Currency" />
         </Grid>
 
@@ -94,8 +97,9 @@ export function CompensationFields() {
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfDatePicker name="effectiveFrom" label="Effective from" />
         </Grid>
       </Grid>

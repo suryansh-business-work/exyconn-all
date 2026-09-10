@@ -16,9 +16,10 @@ export function FormActions({ submitting, isEdit, onCancel, submitLabel }: FormA
       direction="row"
       spacing={1.5}
       sx={{
-        justifyContent: "flex-end",
-        pt: 1
-      }}>
+        justifyContent: 'flex-end',
+        pt: 1,
+      }}
+    >
       <Button type="button" color="inherit" onClick={onCancel}>
         Cancel
       </Button>

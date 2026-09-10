@@ -1,9 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import QRCode from 'qrcode';
-import {
-  QR_SIZE_DEFAULT, buildReviewUrl, clampQrSize, buildQrOptions,
-} from './utils';
+import { QR_SIZE_DEFAULT, buildReviewUrl, clampQrSize, buildQrOptions } from './utils';
 import ReviewQRCode from './index';
 
 vi.mock('../../shared/components/ToolLayout/ToolLayout', async () => {
@@ -86,7 +84,9 @@ describe('ReviewQRCode component', () => {
     generate();
     await waitFor(() => expect(QRCode.toCanvas).toHaveBeenCalled());
     const [canvas, text, options] = vi.mocked(QRCode.toCanvas).mock.calls[0] as unknown as [
-      HTMLCanvasElement, string, { errorCorrectionLevel: string },
+      HTMLCanvasElement,
+      string,
+      { errorCorrectionLevel: string },
     ];
     expect(canvas).toBeInstanceOf(HTMLCanvasElement);
     expect(text).toBe(EXPECTED_URL);
@@ -99,10 +99,12 @@ describe('ReviewQRCode component', () => {
     render(<ReviewQRCode />);
     generate();
     fireEvent.click(await screen.findByRole('button', { name: 'Download PNG' }));
-    await waitFor(() => expect(QRCode.toDataURL).toHaveBeenCalledWith(
-      EXPECTED_URL,
-      expect.objectContaining({ errorCorrectionLevel: 'M' }),
-    ));
+    await waitFor(() =>
+      expect(QRCode.toDataURL).toHaveBeenCalledWith(
+        EXPECTED_URL,
+        expect.objectContaining({ errorCorrectionLevel: 'M' })
+      )
+    );
     await waitFor(() => expect(clickSpy).toHaveBeenCalled());
     clickSpy.mockRestore();
   });
@@ -110,7 +112,8 @@ describe('ReviewQRCode component', () => {
   it('copies the review link to the clipboard', async () => {
     const writeText = vi.fn(() => Promise.resolve());
     Object.defineProperty(globalThis.navigator, 'clipboard', {
-      value: { writeText }, configurable: true,
+      value: { writeText },
+      configurable: true,
     });
     render(<ReviewQRCode />);
     generate();

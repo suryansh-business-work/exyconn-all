@@ -1,11 +1,25 @@
 import React from 'react';
 import {
-  Box, Typography, TextField, IconButton, Button, Chip,
-  InputAdornment, Divider, Tooltip, Link as MuiLink,
+  Box,
+  Typography,
+  TextField,
+  IconButton,
+  Button,
+  Chip,
+  InputAdornment,
+  Divider,
+  Tooltip,
+  Link as MuiLink,
 } from '@mui/material';
 import {
-  Visibility, VisibilityOff, CheckCircle, OpenInNew,
-  ContentCopy, Delete, Save, Info,
+  Visibility,
+  VisibilityOff,
+  CheckCircle,
+  OpenInNew,
+  ContentCopy,
+  Delete,
+  Save,
+  Info,
 } from '@mui/icons-material';
 import { SecretField } from './secretsConfig';
 
@@ -23,8 +37,16 @@ interface SecretFieldItemProps {
 }
 
 const SecretFieldItem: React.FC<SecretFieldItemProps> = ({
-  field, value, isVisible, isSaved, isCopied,
-  onValueChange, onToggleVisibility, onSave, onClear, onCopy,
+  field,
+  value,
+  isVisible,
+  isSaved,
+  isCopied,
+  onValueChange,
+  onToggleVisibility,
+  onSave,
+  onClear,
+  onCopy,
 }) => (
   <Box sx={{ mb: 2, '&:last-child': { mb: 0 } }}>
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
@@ -32,15 +54,26 @@ const SecretFieldItem: React.FC<SecretFieldItemProps> = ({
         variant="body2"
         sx={{
           fontWeight: 600,
-          fontSize: 12
-        }}>{field.label}</Typography>
+          fontSize: 12,
+        }}
+      >
+        {field.label}
+      </Typography>
       {isSaved && (
-        <Chip size="small" icon={<CheckCircle sx={{ fontSize: '12px !important' }} />}
-          label="Saved" color="success" variant="outlined"
-          sx={{ height: 20, fontSize: '0.65rem' }} />
+        <Chip
+          size="small"
+          icon={<CheckCircle sx={{ fontSize: '12px !important' }} />}
+          label="Saved"
+          color="success"
+          variant="outlined"
+          sx={{ height: 20, fontSize: '0.65rem' }}
+        />
       )}
     </Box>
-    <TextField fullWidth size="small" placeholder={field.placeholder}
+    <TextField
+      fullWidth
+      size="small"
+      placeholder={field.placeholder}
       value={value}
       onChange={(e) => onValueChange(e.target.value)}
       type={isVisible ? 'text' : 'password'}
@@ -65,17 +98,27 @@ const SecretFieldItem: React.FC<SecretFieldItemProps> = ({
               </Box>
             </InputAdornment>
           ),
-        }
+        },
       }}
     />
     <Box sx={{ display: 'flex', gap: 0.5, mt: 0.75 }}>
-      <Button size="small" variant="contained" startIcon={<Save sx={{ fontSize: '14px !important' }} />}
-        onClick={onSave} sx={{ fontSize: '0.7rem', textTransform: 'none', py: 0.25 }}>
+      <Button
+        size="small"
+        variant="contained"
+        startIcon={<Save sx={{ fontSize: '14px !important' }} />}
+        onClick={onSave}
+        sx={{ fontSize: '0.7rem', textTransform: 'none', py: 0.25 }}
+      >
         Save
       </Button>
       {isSaved && (
-        <Button size="small" color="error" startIcon={<Delete sx={{ fontSize: '14px !important' }} />}
-          onClick={onClear} sx={{ fontSize: '0.7rem', textTransform: 'none', py: 0.25 }}>
+        <Button
+          size="small"
+          color="error"
+          startIcon={<Delete sx={{ fontSize: '14px !important' }} />}
+          onClick={onClear}
+          sx={{ fontSize: '0.7rem', textTransform: 'none', py: 0.25 }}
+        >
           Clear
         </Button>
       )}
@@ -90,23 +133,31 @@ const SecretFieldItem: React.FC<SecretFieldItemProps> = ({
           variant="caption"
           sx={{
             fontWeight: 600,
-            color: "info.main"
-          }}>How to get this key</Typography>
+            color: 'info.main',
+          }}
+        >
+          How to get this key
+        </Typography>
       </Box>
       <Typography
         variant="caption"
         component="pre"
         sx={{
-          color: "text.secondary",
+          color: 'text.secondary',
           whiteSpace: 'pre-wrap',
           fontFamily: 'inherit',
           m: 0,
-          lineHeight: 1.6
-        }}>
+          lineHeight: 1.6,
+        }}
+      >
         {field.instruction}
       </Typography>
-      <MuiLink href={field.helpUrl} target="_blank" rel="noopener noreferrer"
-        sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 0.75, fontSize: '0.75rem' }}>
+      <MuiLink
+        href={field.helpUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 0.75, fontSize: '0.75rem' }}
+      >
         Open Console <OpenInNew sx={{ fontSize: 12 }} />
       </MuiLink>
     </Box>

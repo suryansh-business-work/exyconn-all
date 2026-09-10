@@ -35,30 +35,45 @@ const WhoisLookup: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<Search color="primary" />}
-              title="Whois Lookup" buttonText="Lookup" loadingText="Looking up..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<Search color="primary" />}
+              title="Whois Lookup"
+              buttonText="Lookup"
+              loadingText="Looking up..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
-              <DomainResultDisplay title={`Whois for ${result.domain}`} icon={<Search fontSize="small" />} data={result}>
+              <DomainResultDisplay
+                title={`Whois for ${result.domain}`}
+                icon={<Search fontSize="small" />}
+                data={result}
+              >
                 <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   {(result.status as string[])?.map((s, i) => (
                     <Chip key={i} label={s} size="small" variant="outlined" />
                   ))}
                 </Box>
-                <KeyValueTable data={{
-                  Domain: result.domain,
-                  Registrar: result.registrar,
-                  Registrant: result.registrant,
-                }} />
+                <KeyValueTable
+                  data={{
+                    Domain: result.domain,
+                    Registrar: result.registrar,
+                    Registrant: result.registrant,
+                  }}
+                />
                 {Boolean(result.nameservers) && (
                   <Box sx={{ mt: 2 }}>
                     <Typography
                       variant="subtitle2"
                       sx={{
                         fontWeight: 600,
-                        mb: 1
-                      }}>Nameservers</Typography>
+                        mb: 1,
+                      }}
+                    >
+                      Nameservers
+                    </Typography>
                     {(result.nameservers as string[]).map((ns, i) => (
                       <Chip key={i} label={ns} size="small" sx={{ mr: 1, mb: 1 }} variant="outlined" />
                     ))}
@@ -70,12 +85,17 @@ const WhoisLookup: React.FC = () => {
                       variant="subtitle2"
                       sx={{
                         fontWeight: 600,
-                        mb: 1
-                      }}>Events</Typography>
+                        mb: 1,
+                      }}
+                    >
+                      Events
+                    </Typography>
                     {(result.events as Array<{ eventAction: string; eventDate: string }>).map((e, i) => (
                       <Box key={i} sx={{ mb: 0.5 }}>
                         <Chip label={e.eventAction} size="small" color="primary" sx={{ mr: 1 }} />
-                        <Typography variant="body2" component="span">{new Date(e.eventDate).toLocaleDateString()}</Typography>
+                        <Typography variant="body2" component="span">
+                          {new Date(e.eventDate).toLocaleDateString()}
+                        </Typography>
                       </Box>
                     ))}
                   </Box>
@@ -86,7 +106,9 @@ const WhoisLookup: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

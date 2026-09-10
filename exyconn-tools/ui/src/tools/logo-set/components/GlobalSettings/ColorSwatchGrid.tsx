@@ -12,7 +12,12 @@ interface ColorSwatchGridProps {
 }
 
 const ColorSwatchGrid: React.FC<ColorSwatchGridProps> = ({
-  label, colors, selectedColor, onSelect, icon, isLoading,
+  label,
+  colors,
+  selectedColor,
+  onSelect,
+  icon,
+  isLoading,
 }) => {
   if (isLoading) {
     return <CircularProgress size={16} />;
@@ -26,13 +31,17 @@ const ColorSwatchGrid: React.FC<ColorSwatchGridProps> = ({
         direction="row"
         spacing={0.5}
         sx={{
-          alignItems: "center",
-          mb: 0.5
-        }}>
+          alignItems: 'center',
+          mb: 0.5,
+        }}
+      >
         {icon || <ColorLens fontSize="small" sx={{ fontSize: 14 }} />}
-        <Typography variant="caption" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {label}
         </Typography>
       </Stack>

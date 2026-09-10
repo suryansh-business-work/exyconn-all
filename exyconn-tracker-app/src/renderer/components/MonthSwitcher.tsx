@@ -21,9 +21,13 @@ export default function MonthSwitcher({
   onChange,
 }: Readonly<Props>): ReactElement {
   return (
-    <Stack direction="row" spacing={1} sx={{
-      alignItems: "center"
-    }}>
+    <Stack
+      direction="row"
+      spacing={1}
+      sx={{
+        alignItems: 'center',
+      }}
+    >
       <Tooltip title="Previous month">
         <IconButton
           size="small"

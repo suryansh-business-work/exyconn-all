@@ -4,7 +4,7 @@ import type { ToolDetailsMap } from './types';
 export const sitemapToolDetails: ToolDetailsMap = {
   'sitemap-finder': {
     longDescription: [
-      'Sitemap Finder Pro discovers every sitemap a website exposes, including ones that are not linked anywhere on the site. Enter a domain and the tool reads robots.txt for Sitemap: directives, probes common locations such as /sitemap.xml, /sitemap_index.xml, and /sitemap.txt, and walks any sitemap index it finds down to the child sitemaps, reporting each file\'s type, URL count, size, and last-modified date.',
+      "Sitemap Finder Pro discovers every sitemap a website exposes, including ones that are not linked anywhere on the site. Enter a domain and the tool reads robots.txt for Sitemap: directives, probes common locations such as /sitemap.xml, /sitemap_index.xml, and /sitemap.txt, and walks any sitemap index it finds down to the child sitemaps, reporting each file's type, URL count, size, and last-modified date.",
       'Browsers block cross-origin requests to other domains, so the scan runs through the Exyconn server: it fetches only the public URLs involved, returns the results, and stores nothing. Three options control the scan — parse robots.txt, check common paths, and a maximum index depth — letting you run a quick check on a small site or a deeper traversal of a large sitemap index from the same form.',
       'Results include summary stats (sitemaps found, combined URL count, whether robots.txt exists, scan time) plus the full list of locations that were checked, so negative results are visible too. Found sitemaps can be exported as JSON, CSV, or TXT. It is built for SEO consultants auditing client sites, developers verifying deployments, and anyone who needs a URL inventory of a site fast.',
     ],
@@ -18,9 +18,9 @@ export const sitemapToolDetails: ToolDetailsMap = {
       'Exports the results to JSON, CSV, or TXT',
     ],
     useCases: [
-      'Audit a new SEO client\'s site to see exactly which sitemaps search engines can discover',
+      "Audit a new SEO client's site to see exactly which sitemaps search engines can discover",
       'Verify that a migration or CMS switch left all sitemaps reachable and referenced in robots.txt',
-      'Find a competitor\'s sitemap before pulling its URLs into a content-gap analysis',
+      "Find a competitor's sitemap before pulling its URLs into a content-gap analysis",
       'Seed a crawler or scraper with every sitemap a domain publishes',
       'Get a quick total URL count for a site without opening each sitemap by hand',
     ],
@@ -28,7 +28,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
       'Enter the website URL — the bare domain is enough, no need to guess the sitemap path',
       'Toggle robots.txt parsing and common-path checks, and set the index traversal depth',
       'Click the find button and let the server scan the site',
-      'Review each discovered sitemap\'s type, URL count, validity, and last-modified date',
+      "Review each discovered sitemap's type, URL count, validity, and last-modified date",
       'Export the sitemap list as JSON, CSV, or TXT if you need it in another tool',
     ],
     faqs: [
@@ -141,7 +141,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
   },
   'sitemap-generator': {
     longDescription: [
-      'Sitemap Generator Online builds a standards-compliant sitemap.xml from a list of URLs, entirely in your browser — nothing you type is uploaded anywhere. Add pages one at a time with their own changefreq and priority, or paste a whole list into the bulk box (one URL per line) and let the tool apply your default settings to every line. Each entry gets a lastmod stamped with today\'s date.',
+      "Sitemap Generator Online builds a standards-compliant sitemap.xml from a list of URLs, entirely in your browser — nothing you type is uploaded anywhere. Add pages one at a time with their own changefreq and priority, or paste a whole list into the bulk box (one URL per line) and let the tool apply your default settings to every line. Each entry gets a lastmod stamped with today's date.",
       'The output is a proper sitemaps.org <urlset> document: XML declaration, the 0.9 namespace, and a <url> block with <loc>, <lastmod>, <changefreq>, and <priority> for every page. Copy it to the clipboard or download it as sitemap.xml, upload the file to your site root, and reference it from robots.txt or submit it in Search Console — no build pipeline or plugin required.',
       'It suits small and mid-size sites with no CMS generating sitemaps for them — landing pages, static sites, hand-written HTML, or a quick sitemap for a staging build. Because generation happens instantly in the page, you can tweak changefreq and priority values and regenerate as many times as you like without waiting on a server or hitting a quota.',
     ],
@@ -164,7 +164,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
       'Paste your URLs into the bulk input (one per line) and add them, or add entries one by one',
       'Adjust changefreq or priority on individual URLs where they differ from the default',
       'Click Generate Sitemap to build the XML instantly in your browser',
-      'Copy the result or download sitemap.xml and upload it to your site\'s root directory',
+      "Copy the result or download sitemap.xml and upload it to your site's root directory",
     ],
     faqs: [
       {
@@ -190,7 +190,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
       {
         question: 'What lastmod value does the tool write?',
         answer:
-          'Each generated entry uses today\'s date in YYYY-MM-DD format. If specific pages need different dates, edit the XML after downloading.',
+          "Each generated entry uses today's date in YYYY-MM-DD format. If specific pages need different dates, edit the XML after downloading.",
       },
     ],
     keywords: [
@@ -222,9 +222,9 @@ export const sitemapToolDetails: ToolDetailsMap = {
     ],
     useCases: [
       'Feed a full URL list into Screaming Frog, a rank tracker, or a load-testing script',
-      'Build a redirect map for a site migration from the old site\'s sitemap',
+      "Build a redirect map for a site migration from the old site's sitemap",
       'Inventory every published page on your own site to find stale content',
-      'Pull a competitor\'s public URL list for a content-gap analysis',
+      "Pull a competitor's public URL list for a content-gap analysis",
       'Filter a huge sitemap down to one section, like /blog/ or /products/',
     ],
     howTo: [
@@ -274,7 +274,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
   },
   'sitemap-compare': {
     longDescription: [
-      'Sitemap Compare Tool diffs two XML sitemaps the way git diffs code. Give it two sitemap URLs — an old snapshot and the current file, staging versus production, or your site versus a competitor\'s — and it fetches both (following sitemap indexes on each side), matches entries by URL, and reports exactly which URLs were added, which were removed, and which changed their lastmod date.',
+      "Sitemap Compare Tool diffs two XML sitemaps the way git diffs code. Give it two sitemap URLs — an old snapshot and the current file, staging versus production, or your site versus a competitor's — and it fetches both (following sitemap indexes on each side), matches entries by URL, and reports exactly which URLs were added, which were removed, and which changed their lastmod date.",
       'The summary shows the URL count of each sitemap plus added, removed, and modified counts at a glance, and the results table lists each difference with its old and new lastmod values, so you can tell genuinely new content apart from pages that were merely touched. Unchanged URLs are counted but not listed, which keeps the diff readable even on large sites.',
       'Both fetches run on the Exyconn server (cross-origin rules block direct browser access) and nothing is stored. It is most useful around migrations and releases: run it before and after a deploy to prove no URLs were dropped, or weekly against a competitor to watch what they publish and prune — no exporting or spreadsheet wrangling needed.',
     ],
@@ -287,7 +287,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
     ],
     useCases: [
       'Verify a site migration or redesign dropped no URLs by comparing pre- and post-deploy sitemaps',
-      'Monitor a competitor\'s sitemap weekly to see what content they add and remove',
+      "Monitor a competitor's sitemap weekly to see what content they add and remove",
       'Compare staging and production sitemaps before a release',
       'Find out which pages a CMS update silently removed from the sitemap',
       'Track how many pages actually changed (lastmod) after a bulk content update',
@@ -307,7 +307,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
       {
         question: 'Can I compare sitemaps from two different websites?',
         answer:
-          'Yes — the tool just matches URL strings, so comparing your sitemap against a competitor\'s works fine; expect almost everything to land in added and removed.',
+          "Yes — the tool just matches URL strings, so comparing your sitemap against a competitor's works fine; expect almost everything to land in added and removed.",
       },
       {
         question: 'Does it handle sitemap index files?',
@@ -315,7 +315,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
           'Yes. Each side is expanded through its sitemap index (up to ten child sitemaps per index) before the diff runs.',
       },
       {
-        question: 'How do I compare today\'s sitemap with last month\'s?',
+        question: "How do I compare today's sitemap with last month's?",
         answer:
           'Sitemaps are compared live, so both versions must be reachable at a URL. Keep dated copies (for example sitemap-2026-08.xml) on your server or a storage bucket and compare those snapshots.',
       },
@@ -340,7 +340,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
   'sitemap-split-merge': {
     longDescription: [
       'Sitemap Split & Merge takes a sitemap that has grown past the protocol limits and turns it into a set of compliant parts. Paste the sitemap URL, choose how many URLs each part should hold (1,000 to 50,000 via the slider), and the tool fetches the file — expanding any sitemap index it meets — and chunks the URLs into numbered sitemap files, each a complete, valid <urlset> document.',
-      'Alongside the parts it generates the matching sitemap-index.xml that merges them back into a single entry point for search engines: one <sitemap> entry per generated file, ready to upload and reference from robots.txt. Download files individually, grab every part plus the index with one click, or copy any file\'s XML straight from the preview panel.',
+      "Alongside the parts it generates the matching sitemap-index.xml that merges them back into a single entry point for search engines: one <sitemap> entry per generated file, ready to upload and reference from robots.txt. Download files individually, grab every part plus the index with one click, or copy any file's XML straight from the preview panel.",
       'The split runs on the Exyconn server, which fetches the public sitemap you name and stores nothing. It is the fastest fix when Search Console rejects a sitemap for exceeding 50,000 URLs or 50MB, and equally useful when you simply want smaller sitemaps that are easier to debug and faster for crawlers to re-fetch after partial site updates.',
     ],
     features: [
@@ -377,8 +377,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Do the split files keep lastmod, changefreq, and priority?',
-        answer:
-          'Yes — each URL entry carries its original metadata into whichever part it lands in.',
+        answer: 'Yes — each URL entry carries its original metadata into whichever part it lands in.',
       },
       {
         question: 'What do I do with the downloaded files?',
@@ -407,7 +406,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
     longDescription: [
       'Sitemap Insights Tool turns a raw sitemap into a structural report of the site behind it. Paste a sitemap URL and the analyzer fetches it (expanding sitemap indexes), then breaks the URL set down along seven axes: top path patterns by first URL segment, folder depth distribution, domain and subdomain breakdown, file-type extensions, lastmod freshness buckets, changefreq distribution, and priority ranges.',
       'The freshness buckets are the quickest win: URLs are grouped into last 7 days, last 30 days, last 90 days, last year, and older, which instantly shows whether a site is actively maintained or coasting on stale lastmod values. Pattern and depth cards reveal how content is distributed — how much of the site is /blog/ versus /products/, and how deeply the architecture nests.',
-      'Analysis runs on the Exyconn server (browsers cannot fetch cross-origin XML) and nothing is retained; only aggregated statistics come back. Each dimension renders as its own card, so the whole report scans in seconds. Use it to profile a competitor\'s content strategy from the outside, sanity-check your own information architecture, or scope a prospective client\'s site before an audit.',
+      "Analysis runs on the Exyconn server (browsers cannot fetch cross-origin XML) and nothing is retained; only aggregated statistics come back. Each dimension renders as its own card, so the whole report scans in seconds. Use it to profile a competitor's content strategy from the outside, sanity-check your own information architecture, or scope a prospective client's site before an audit.",
     ],
     features: [
       'Top URL patterns by first path segment, with counts and percentages',
@@ -419,11 +418,11 @@ export const sitemapToolDetails: ToolDetailsMap = {
       'Follows sitemap indexes automatically before analyzing',
     ],
     useCases: [
-      'Profile a competitor\'s content mix — how much of their site is blog, product, or category pages',
+      "Profile a competitor's content mix — how much of their site is blog, product, or category pages",
       'Check whether lastmod dates show a site is actively updated or stagnant',
       'Audit site architecture depth before an SEO restructure',
       'Spot unexpected subdomains or foreign domains inside a sitemap',
-      'Scope the size and shape of a prospective client\'s site in one pass',
+      "Scope the size and shape of a prospective client's site in one pass",
     ],
     howTo: [
       'Paste the sitemap URL into the field at the top',
@@ -440,12 +439,11 @@ export const sitemapToolDetails: ToolDetailsMap = {
       {
         question: 'How is freshness calculated?',
         answer:
-          'From each URL\'s lastmod date, bucketed into last 7 days, last 30 days, last 90 days, last year, and older than 1 year. URLs without lastmod simply do not appear in the freshness card.',
+          "From each URL's lastmod date, bucketed into last 7 days, last 30 days, last 90 days, last year, and older than 1 year. URLs without lastmod simply do not appear in the freshness card.",
       },
       {
         question: 'Does it work on sitemap index files?',
-        answer:
-          'Yes. Indexes are expanded (up to ten child sitemaps) and the combined URL set is analyzed as one.',
+        answer: 'Yes. Indexes are expanded (up to ten child sitemaps) and the combined URL set is analyzed as one.',
       },
       {
         question: 'Can I analyze a site I do not own?',
@@ -491,7 +489,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
     ],
     howTo: [
       'Add a row for each sitemap and paste its full URL, e.g. https://example.com/sitemap-posts.xml',
-      'Set each sitemap\'s last-modified date, or keep the default of today',
+      "Set each sitemap's last-modified date, or keep the default of today",
       'Click Generate Sitemap Index to build the XML instantly',
       'Copy the output or download sitemap-index.xml',
       'Upload it to your site root, reference it in robots.txt, and submit it in Search Console',
@@ -509,8 +507,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Do my sitemap URLs get uploaded anywhere?',
-        answer:
-          'No. The index is generated entirely in your browser; nothing you enter leaves your machine.',
+        answer: 'No. The index is generated entirely in your browser; nothing you enter leaves your machine.',
       },
       {
         question: 'Can an index reference sitemaps on a different domain?',
@@ -619,7 +616,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
     useCases: [
       'Audit whether a sitemap generator sets sensible changefreq and priority values',
       'Find sites that mark every page priority 1.0, which tells crawlers nothing',
-      'Check a competitor\'s crawl hints to see how they stage content importance',
+      "Check a competitor's crawl hints to see how they stage content importance",
       'Attach a JSON crawl-hint report to an SEO audit deliverable',
     ],
     howTo: [
@@ -646,8 +643,7 @@ export const sitemapToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Does it work with sitemap indexes?',
-        answer:
-          'Yes. Child sitemaps are fetched (up to ten per index) and analyzed together as one URL set.',
+        answer: 'Yes. Child sitemaps are fetched (up to ten per index) and analyzed together as one URL set.',
       },
       {
         question: 'Is the sitemap stored after analysis?',

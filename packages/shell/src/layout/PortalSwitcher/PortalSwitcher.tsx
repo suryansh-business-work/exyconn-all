@@ -52,16 +52,19 @@ export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcher
       onClose={onClose}
       ModalProps={{ keepMounted: true }}
       slotProps={{
-        paper: { sx: { width: { xs: '100%', sm: 380 } } }
+        paper: { sx: { width: { xs: '100%', sm: 380 } } },
       }}
     >
       <Box sx={{ p: 2, pb: 1.5 }}>
         <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <AppsIcon fontSize="small" /> Other Portals
         </Typography>
-        <Typography variant="caption" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {caption}
         </Typography>
       </Box>
@@ -81,7 +84,7 @@ export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcher
                   <SearchIcon fontSize="small" />
                 </InputAdornment>
               ),
-            }
+            },
           }}
         />
       </Box>
@@ -93,9 +96,10 @@ export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcher
           <Typography
             variant="caption"
             sx={{
-              color: "text.secondary",
-              px: 1.5
-            }}>
+              color: 'text.secondary',
+              px: 1.5,
+            }}
+          >
             No portal matches “{query}”.
           </Typography>
         )}

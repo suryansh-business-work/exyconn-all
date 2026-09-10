@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, alpha, } from '@mui/material';
+import { Box, Typography, alpha } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { BusinessCenter, AutoAwesome, MinimizeRounded, BrushRounded } from '@mui/icons-material';
 import { TemplateType } from '../../types';
@@ -52,14 +52,20 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ selectedTemplate, o
               <Box sx={{ color: selectedTemplate === template.id ? 'primary.main' : 'text.secondary', mb: 0.5 }}>
                 {template.icon}
               </Box>
-              <Typography variant="body2" sx={{
-                fontWeight: 600
-              }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 {template.name}
               </Typography>
-              <Typography variant="caption" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {template.description}
               </Typography>
             </Box>

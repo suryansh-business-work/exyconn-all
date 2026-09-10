@@ -94,9 +94,10 @@ export function Sidebar({
             <Typography
               variant="caption"
               sx={{
-                color: "text.secondary",
-                px: 2
-              }}>
+                color: 'text.secondary',
+                px: 2,
+              }}
+            >
               No modules match “{query}”.
             </Typography>
           )}

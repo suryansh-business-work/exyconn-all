@@ -122,9 +122,12 @@ export default function PdfToWord() {
               <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
               <Typography variant="h6">{file ? file.name : 'Drop PDF here or click to upload'}</Typography>
               {file && (
-                <Typography variant="body2" sx={{
-                  color: "text.secondary"
-                }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   {(file.size / 1024).toFixed(1)} KB
                 </Typography>
               )}

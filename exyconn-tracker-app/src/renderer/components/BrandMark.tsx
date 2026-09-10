@@ -56,9 +56,10 @@ export default function BrandMark({
       direction="row"
       spacing={1.25}
       sx={{
-        alignItems: "center",
-        minWidth: 0
-      }}>
+        alignItems: 'center',
+        minWidth: 0,
+      }}
+    >
       <Box
         component="img"
         src={logo}
@@ -67,9 +68,13 @@ export default function BrandMark({
         sx={{ height, maxWidth: 180, objectFit: 'contain', display: 'block' }}
       />
       {showName ? (
-        <Typography variant="subtitle2" noWrap sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="subtitle2"
+          noWrap
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {name}
         </Typography>
       ) : null}

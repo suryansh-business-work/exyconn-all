@@ -32,8 +32,9 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
         <Grid
           size={{
             xs: 6,
-            md: 3
-          }}>
+            md: 3,
+          }}
+        >
           <StatCard
             label="Hours"
             value={String(billing?.totalHours ?? 0)}
@@ -43,8 +44,9 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
         <Grid
           size={{
             xs: 6,
-            md: 3
-          }}>
+            md: 3,
+          }}
+        >
           <StatCard
             label="Amount"
             value={money.format(billing?.totalAmount ?? 0)}

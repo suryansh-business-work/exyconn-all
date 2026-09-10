@@ -123,9 +123,12 @@ const CropTool: React.FC<Props> = ({ image, onSave, onClose, targetSize }) => {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <CropIcon color="primary" />
-          <Typography variant="subtitle1" sx={{
-            fontWeight: 600
-          }}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             Crop {targetSize.width}×{targetSize.height}
           </Typography>
         </Box>

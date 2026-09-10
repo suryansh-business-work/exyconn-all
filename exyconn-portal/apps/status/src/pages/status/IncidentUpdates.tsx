@@ -35,9 +35,12 @@ export function IncidentUpdates({ updates }: Readonly<IncidentUpdatesProps>) {
               variant="outlined"
               label={update.status.toLowerCase()}
             />
-            <Typography variant="caption" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {formatWith(update.createdAt, TIME_FORMAT)}
             </Typography>
           </Flex>

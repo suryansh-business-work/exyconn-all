@@ -1,8 +1,16 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import {
-  normalizeRect, clampRegion, canvasPoint, pixelSizeForIntensity, blurRadiusForIntensity,
-  boxBlurImageData, renderRedacted, outputFileName, loadImage, MIN_REGION_SIZE,
+  normalizeRect,
+  clampRegion,
+  canvasPoint,
+  pixelSizeForIntensity,
+  blurRadiusForIntensity,
+  boxBlurImageData,
+  renderRedacted,
+  outputFileName,
+  loadImage,
+  MIN_REGION_SIZE,
 } from './utils';
 import BlurFace from './index';
 
@@ -62,12 +70,20 @@ describe('blur-face utils', () => {
 
   describe('clampRegion', () => {
     it('rounds and keeps an in-bounds region', () => {
-      expect(clampRegion({ x: 10.4, y: 20.6, width: 30, height: 30 }, 100, 100))
-        .toEqual({ x: 10, y: 21, width: 30, height: 30 });
+      expect(clampRegion({ x: 10.4, y: 20.6, width: 30, height: 30 }, 100, 100)).toEqual({
+        x: 10,
+        y: 21,
+        width: 30,
+        height: 30,
+      });
     });
     it('clamps a region that overflows the image', () => {
-      expect(clampRegion({ x: -10, y: 80, width: 50, height: 50 }, 100, 100))
-        .toEqual({ x: 0, y: 80, width: 40, height: 20 });
+      expect(clampRegion({ x: -10, y: 80, width: 50, height: 50 }, 100, 100)).toEqual({
+        x: 0,
+        y: 80,
+        width: 40,
+        height: 20,
+      });
     });
     it('rejects regions smaller than the minimum size', () => {
       expect(clampRegion({ x: 10, y: 10, width: MIN_REGION_SIZE - 1, height: 30 }, 100, 100)).toBeNull();

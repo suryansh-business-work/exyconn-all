@@ -23,7 +23,10 @@ import { PDFDocument } from 'pdf-lib';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 
 type PageSize = 'a4' | 'letter' | 'fit';
-interface ImageItem { file: File; preview: string; }
+interface ImageItem {
+  file: File;
+  preview: string;
+}
 
 const ACCEPT = 'image/jpeg,image/png,image/webp';
 const A4 = { w: 595.28, h: 841.89 };
@@ -39,28 +42,43 @@ export default function JpgToPdf() {
 
   const addFiles = useCallback((files: FileList) => {
     const valid = Array.from(files).filter((f) => f.type.startsWith('image/'));
-    if (valid.length === 0) { setError('Please select image files (JPG, PNG, WebP).'); return; }
+    if (valid.length === 0) {
+      setError('Please select image files (JPG, PNG, WebP).');
+      return;
+    }
     const items: ImageItem[] = valid.map((f) => ({ file: f, preview: URL.createObjectURL(f) }));
-    setImages((prev) => [...prev, ...items]); setResult(null);
+    setImages((prev) => [...prev, ...items]);
+    setResult(null);
   }, []);
 
-  const onDrop = useCallback((e: DragEvent) => {
-    e.preventDefault(); setDragOver(false);
-    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
-  }, [addFiles]);
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+    },
+    [addFiles]
+  );
 
   const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.length) addFiles(e.target.files); e.target.value = '';
+    if (e.target.files?.length) addFiles(e.target.files);
+    e.target.value = '';
   };
 
   const move = (i: number, dir: -1 | 1) => {
-    const arr = [...images]; const j = i + dir;
+    const arr = [...images];
+    const j = i + dir;
     if (j < 0 || j >= arr.length) return;
-    [arr[i], arr[j]] = [arr[j], arr[i]]; setImages(arr); setResult(null);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    setImages(arr);
+    setResult(null);
   };
 
   const remove = (i: number) => {
-    setImages((prev) => { URL.revokeObjectURL(prev[i].preview); return prev.filter((_, idx) => idx !== i); });
+    setImages((prev) => {
+      URL.revokeObjectURL(prev[i].preview);
+      return prev.filter((_, idx) => idx !== i);
+    });
     setResult(null);
   };
 
@@ -80,25 +98,41 @@ export default function JpgToPdf() {
         const dims = embedded.scale(1);
         let pw: number, ph: number, dx: number, dy: number, dw: number, dh: number;
         if (pageSize === 'fit') {
-          pw = dims.width; ph = dims.height; dx = 0; dy = 0; dw = dims.width; dh = dims.height;
+          pw = dims.width;
+          ph = dims.height;
+          dx = 0;
+          dy = 0;
+          dw = dims.width;
+          dh = dims.height;
         } else {
           const ref = pageSize === 'a4' ? A4 : LETTER;
-          pw = ref.w; ph = ref.h;
+          pw = ref.w;
+          ph = ref.h;
           const scale = Math.min(pw / dims.width, ph / dims.height);
-          dw = dims.width * scale; dh = dims.height * scale;
-          dx = (pw - dw) / 2; dy = (ph - dh) / 2;
+          dw = dims.width * scale;
+          dh = dims.height * scale;
+          dx = (pw - dw) / 2;
+          dy = (ph - dh) / 2;
         }
         const page = doc.addPage([pw, ph]);
         page.drawImage(embedded, { x: dx, y: dy, width: dw, height: dh });
       }
       setResult(await doc.save());
-    } catch { setError('Failed to convert images to PDF.'); } finally { setProcessing(false); }
+    } catch {
+      setError('Failed to convert images to PDF.');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const download = () => {
     if (!result) return;
     const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
-    const a = document.createElement('a'); a.href = url; a.download = 'images.pdf'; a.click(); URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'images.pdf';
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -107,25 +141,49 @@ export default function JpgToPdf() {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper
-              sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: dragOver ? '#06b6d4' : 'divider', cursor: 'pointer', transition: '0.2s' }}
-              onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)} onDrop={onDrop}
+              sx={{
+                p: 4,
+                textAlign: 'center',
+                border: '2px dashed',
+                borderColor: dragOver ? '#06b6d4' : 'divider',
+                cursor: 'pointer',
+                transition: '0.2s',
+              }}
+              onDragOver={(e: DragEvent) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={onDrop}
             >
               <CloudUpload sx={{ fontSize: 48, color: '#06b6d4', mb: 1 }} />
-              <Typography variant="h6" gutterBottom>Drag & Drop Images Here</Typography>
+              <Typography variant="h6" gutterBottom>
+                Drag & Drop Images Here
+              </Typography>
               <Typography
                 variant="body2"
                 sx={{
-                  color: "text.secondary",
-                  mb: 2
-                }}>JPG, PNG, or WebP</Typography>
+                  color: 'text.secondary',
+                  mb: 2,
+                }}
+              >
+                JPG, PNG, or WebP
+              </Typography>
               <Button variant="outlined" component="label" color="info">
-                Browse Files<input hidden accept={ACCEPT} type="file" multiple onChange={onFileChange} />
+                Browse Files
+                <input hidden accept={ACCEPT} type="file" multiple onChange={onFileChange} />
               </Button>
             </Paper>
             <FormControl size="small" fullWidth sx={{ mt: 2 }}>
               <InputLabel>Page Size</InputLabel>
-              <Select value={pageSize} label="Page Size" onChange={(e) => { setPageSize(e.target.value as PageSize); setResult(null); }}>
+              <Select
+                value={pageSize}
+                label="Page Size"
+                onChange={(e) => {
+                  setPageSize(e.target.value as PageSize);
+                  setResult(null);
+                }}
+              >
                 <MenuItem value="a4">A4 (595 x 842)</MenuItem>
                 <MenuItem value="letter">Letter (612 x 792)</MenuItem>
                 <MenuItem value="fit">Fit to Image</MenuItem>
@@ -136,22 +194,51 @@ export default function JpgToPdf() {
             {images.length > 0 && (
               <Paper sx={{ maxHeight: 360, overflow: 'auto', mb: 2, p: 1 }}>
                 {images.map((img, i) => (
-                  <Box key={img.preview} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, p: 1, borderRadius: 1, bgcolor: 'action.hover' }}>
-                    <Box component="img" src={img.preview} alt={img.file.name}
-                      sx={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 1 }} />
-                    <Typography variant="body2" sx={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <Box
+                    key={img.preview}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      mb: 1,
+                      p: 1,
+                      borderRadius: 1,
+                      bgcolor: 'action.hover',
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={img.preview}
+                      alt={img.file.name}
+                      sx={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 1 }}
+                    />
+                    <Typography
+                      variant="body2"
+                      sx={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                    >
                       {img.file.name}
                     </Typography>
-                    <IconButton size="small" onClick={() => move(i, -1)} disabled={i === 0}><ArrowUpward fontSize="small" /></IconButton>
-                    <IconButton size="small" onClick={() => move(i, 1)} disabled={i === images.length - 1}><ArrowDownward fontSize="small" /></IconButton>
-                    <IconButton size="small" color="error" onClick={() => remove(i)}><Delete fontSize="small" /></IconButton>
+                    <IconButton size="small" onClick={() => move(i, -1)} disabled={i === 0}>
+                      <ArrowUpward fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" onClick={() => move(i, 1)} disabled={i === images.length - 1}>
+                      <ArrowDownward fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" color="error" onClick={() => remove(i)}>
+                      <Delete fontSize="small" />
+                    </IconButton>
                   </Box>
                 ))}
               </Paper>
             )}
             {processing && <LinearProgress sx={{ mb: 2 }} color="info" />}
-            <Button variant="contained" fullWidth sx={{ bgcolor: '#06b6d4', mb: 2, '&:hover': { bgcolor: '#0891b2' } }}
-              onClick={convert} disabled={images.length === 0 || processing}>
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{ bgcolor: '#06b6d4', mb: 2, '&:hover': { bgcolor: '#0891b2' } }}
+              onClick={convert}
+              disabled={images.length === 0 || processing}
+            >
               {processing ? 'Converting...' : `Convert ${images.length} Image${images.length !== 1 ? 's' : ''} to PDF`}
             </Button>
             {result && (
@@ -161,9 +248,15 @@ export default function JpgToPdf() {
             )}
           </Grid>
         </Grid>
-        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity="error" onClose={() => setError('')}>{error}</Alert>
+        <Snackbar
+          open={!!error}
+          autoHideDuration={4000}
+          onClose={() => setError('')}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert severity="error" onClose={() => setError('')}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

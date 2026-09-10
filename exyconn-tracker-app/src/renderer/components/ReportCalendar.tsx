@@ -62,9 +62,10 @@ export default function ReportCalendar({
         <Typography
           variant="caption"
           sx={{
-            color: "text.secondary",
-            textAlign: "center"
-          }}>
+            color: 'text.secondary',
+            textAlign: 'center',
+          }}
+        >
           Dotted days have tracked time. Pick one to see its screenshots.
         </Typography>
       </Stack>

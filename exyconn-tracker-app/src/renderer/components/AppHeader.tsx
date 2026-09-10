@@ -64,12 +64,13 @@ export default function AppHeader({
           variant="caption"
           noWrap
           sx={{
-            color: "text.secondary",
+            color: 'text.secondary',
             flex: '1 1 auto',
             minWidth: 0,
             textAlign: 'right',
-            fontWeight: 600
-          }}>
+            fontWeight: 600,
+          }}
+        >
           {title}
         </Typography>
 

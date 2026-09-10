@@ -34,9 +34,13 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ formik }) => {
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Image color="primary" fontSize="small" />
-          <Typography sx={{
-            fontWeight: 600
-          }}>Branding & Images</Typography>
+          <Typography
+            sx={{
+              fontWeight: 600,
+            }}
+          >
+            Branding & Images
+          </Typography>
         </Box>
       </AccordionSummary>
       <AccordionDetails>
@@ -54,17 +58,21 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ formik }) => {
             <ToggleButton value="url">
               <Link
                 sx={{
-                  fontSize: "small",
-                  mr: 1
-                }} /> URL
+                  fontSize: 'small',
+                  mr: 1,
+                }}
+              />{' '}
+              URL
             </ToggleButton>
           </ToggleButtonGroup>
         </Box>
 
         <Divider sx={{ mb: 2 }} />
 
+        {/* MUI 9's Grid only types `row` directions; the column moves to `sx`, where it
+            renders exactly as before — each item keeps the width its `size` gives it. */}
         {inputMode === 'upload' ? (
-          <Grid container spacing={3} direction={'column'}>
+          <Grid container spacing={3} sx={{ flexDirection: 'column' }}>
             <Grid size={{ xs: 12, sm: 4 }}>
               <Typography variant="subtitle2" gutterBottom>
                 Profile Photo
@@ -143,7 +151,7 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ formik }) => {
                         <AccountCircle fontSize="small" color="action" />
                       </InputAdornment>
                     ),
-                  }
+                  },
                 }}
               />
             </Grid>
@@ -166,7 +174,7 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ formik }) => {
                         <Image fontSize="small" color="action" />
                       </InputAdornment>
                     ),
-                  }
+                  },
                 }}
               />
             </Grid>
@@ -189,7 +197,7 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ formik }) => {
                         <InsertPhoto fontSize="small" color="action" />
                       </InputAdornment>
                     ),
-                  }
+                  },
                 }}
               />
             </Grid>

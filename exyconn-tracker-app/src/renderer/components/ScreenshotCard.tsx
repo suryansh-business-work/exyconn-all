@@ -65,16 +65,21 @@ export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Prop
         direction="row"
         spacing={1}
         sx={{
-          alignItems: "center",
-          justifyContent: "space-between",
-          mt: 1.25
-        }}>
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          mt: 1.25,
+        }}
+      >
         <Typography variant="body2" noWrap title={capturedAt}>
           {capturedAt}
         </Typography>
-        <Stack direction="row" spacing={0.5} sx={{
-          alignItems: "center"
-        }}>
+        <Stack
+          direction="row"
+          spacing={0.5}
+          sx={{
+            alignItems: 'center',
+          }}
+        >
           {shot.blurred ? (
             <Tooltip title="Blurred by your workspace's settings">
               <BlurOnRounded fontSize="small" sx={{ color: 'text.secondary' }} />

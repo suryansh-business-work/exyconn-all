@@ -12,8 +12,9 @@ export function SettingsPage() {
         <Grid
           size={{
             xs: 12,
-            md: 6
-          }}>
+            md: 6,
+          }}
+        >
           <Box sx={[glass, { p: 3 }]}>
             <Heading level={6} sx={{ mb: 0.5 }}>
               Change password

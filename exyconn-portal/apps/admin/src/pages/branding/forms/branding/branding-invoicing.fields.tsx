@@ -10,8 +10,9 @@ export function BrandingInvoicingFields() {
       <Grid
         size={{
           xs: 12,
-          sm: 6
-        }}>
+          sm: 6,
+        }}
+      >
         <RhfTextField
           name="gstin"
           label="GSTIN"
@@ -21,8 +22,9 @@ export function BrandingInvoicingFields() {
       <Grid
         size={{
           xs: 12,
-          sm: 6
-        }}>
+          sm: 6,
+        }}
+      >
         <RhfSelect
           name="stateCode"
           label="GST state"
@@ -40,8 +42,9 @@ export function BrandingInvoicingFields() {
       <Grid
         size={{
           xs: 12,
-          sm: 6
-        }}>
+          sm: 6,
+        }}
+      >
         <RhfTextField
           name="invoicePrefix"
           label="Invoice number prefix"
@@ -51,8 +54,9 @@ export function BrandingInvoicingFields() {
       <Grid
         size={{
           xs: 12,
-          sm: 6
-        }}>
+          sm: 6,
+        }}
+      >
         <RhfTextField
           name="defaultTaxPercent"
           label="Default tax %"

@@ -156,7 +156,7 @@ export function WebhooksPanel() {
                     )
                   }
                   slotProps={{
-                    input: { 'aria-label': `Enable ${hook.name}` }
+                    input: { 'aria-label': `Enable ${hook.name}` },
                   }}
                 />
               </TableCell>

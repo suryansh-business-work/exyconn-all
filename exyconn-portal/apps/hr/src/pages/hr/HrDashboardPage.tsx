@@ -97,8 +97,9 @@ export function HrDashboardPage() {
               xs: 6,
               sm: 4,
               md: 3,
-              lg: 2
-            }}>
+              lg: 2,
+            }}
+          >
             <StatCard {...tile} />
           </Grid>
         ))}
@@ -108,22 +109,25 @@ export function HrDashboardPage() {
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <HrPendingLeave rows={derived.pending.slice(0, 6)} formatDate={formatDate} />
         </Grid>
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <HrNewJoiners users={derived.joiners.slice(0, 6)} formatDate={formatDate} />
         </Grid>
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <HrUpcomingHolidays holidays={derived.nextHolidays} formatDate={formatDate} />
         </Grid>
       </Grid>
@@ -132,8 +136,9 @@ export function HrDashboardPage() {
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <HrProbations
             rows={(probations.data?.probationsEnding ?? []).slice(0, 6)}
             formatDate={formatDate}
@@ -145,8 +150,9 @@ export function HrDashboardPage() {
         <Grid
           size={{
             xs: 12,
-            md: 7
-          }}>
+            md: 7,
+          }}
+        >
           <Box sx={[glass, { p: 2, height: '100%' }]}>
             <Flex direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
               <Text size="label">Employee count over time</Text>
@@ -168,8 +174,9 @@ export function HrDashboardPage() {
         <Grid
           size={{
             xs: 12,
-            md: 5
-          }}>
+            md: 5,
+          }}
+        >
           <Grid container spacing={1.5}>
             <Grid size={12}>
               <HrAnnouncements
@@ -181,8 +188,9 @@ export function HrDashboardPage() {
               size={{
                 xs: 12,
                 sm: 6,
-                md: 12
-              }}>
+                md: 12,
+              }}
+            >
               <HrAnniversaries
                 anniversaries={derived.anniversaries.slice(0, 4)}
                 formatDate={(d) => formatDate(d.toISOString())}
@@ -192,8 +200,9 @@ export function HrDashboardPage() {
               size={{
                 xs: 12,
                 sm: 6,
-                md: 12
-              }}>
+                md: 12,
+              }}
+            >
               <HrBirthdays
                 birthdays={derived.birthdays.slice(0, 4)}
                 formatDate={(d) => formatDate(d.toISOString())}

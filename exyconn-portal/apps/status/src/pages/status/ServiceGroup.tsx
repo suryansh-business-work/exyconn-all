@@ -16,9 +16,10 @@ export function ServiceGroup({ title, services, maintenanceKeys }: Readonly<Serv
       <Typography
         variant="overline"
         sx={{
-          color: "text.secondary",
-          fontWeight: 700
-        }}>
+          color: 'text.secondary',
+          fontWeight: 700,
+        }}
+      >
         {title}
       </Typography>
       <Card variant="outlined" sx={{ px: { xs: 2, md: 3 }, py: 0.5, mt: 0.5 }}>

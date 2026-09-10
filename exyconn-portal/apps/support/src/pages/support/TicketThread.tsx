@@ -55,9 +55,10 @@ export function TicketThread({ ticketId }: Readonly<TicketThreadProps>) {
             direction="row"
             spacing={1}
             sx={{
-              alignItems: "center",
-              mb: 0.5
-            }}>
+              alignItems: 'center',
+              mb: 0.5,
+            }}
+          >
             <Text size="sm" weight="medium">
               {reply.authorName}
             </Text>

@@ -25,9 +25,12 @@ const OptimizerForm: React.FC<OptimizerFormProps> = ({ onSubmit, isLoading }) =>
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <TuneOutlined color="primary" />
-        <Typography variant="h6" sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Optimize Your Prompt
         </Typography>
       </Box>

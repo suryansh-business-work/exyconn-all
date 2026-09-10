@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import {
-  Container, Box, Typography, TextField, Button, Paper, Alert, Snackbar, Chip,
-  List, ListItem, ListItemIcon, ListItemText,
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Alert,
+  Snackbar,
+  Chip,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { ContentCopy, Lightbulb } from '@mui/icons-material';
@@ -26,7 +37,10 @@ const ParagraphRewriter: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleRewrite = async () => {
-    if (text.trim().length < 10) { setError('Enter at least 10 characters.'); return; }
+    if (text.trim().length < 10) {
+      setError('Enter at least 10 characters.');
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -40,7 +54,9 @@ const ParagraphRewriter: React.FC = () => {
       setResult(data.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed');
-    } finally { setIsLoading(false); }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -54,15 +70,31 @@ const ParagraphRewriter: React.FC = () => {
                 sx={{
                   fontWeight: 700,
                   mb: 2,
-                  fontSize: '1rem'
-                }}>
+                  fontSize: '1rem',
+                }}
+              >
                 Analyze & Improve Text
               </Typography>
-              <TextField fullWidth size="small" label="Enter text" placeholder="Paste your paragraph..."
-                value={text} onChange={(e) => setText(e.target.value)} multiline rows={10} sx={{ mb: 2 }} />
-              <Button fullWidth variant="contained" color="success" onClick={handleRewrite}
+              <TextField
+                fullWidth
+                size="small"
+                label="Enter text"
+                placeholder="Paste your paragraph..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                multiline
+                rows={10}
+                sx={{ mb: 2 }}
+              />
+              <Button
+                fullWidth
+                variant="contained"
+                color="success"
+                onClick={handleRewrite}
                 disabled={isLoading || text.trim().length < 10}
-                startIcon={<ContentCopy />} sx={{ textTransform: 'none' }}>
+                startIcon={<ContentCopy />}
+                sx={{ textTransform: 'none' }}
+              >
                 {isLoading ? 'Analyzing...' : 'Analyze Text'}
               </Button>
             </Paper>
@@ -75,14 +107,26 @@ const ParagraphRewriter: React.FC = () => {
                     variant="subtitle2"
                     sx={{
                       fontWeight: 700,
-                      mb: 2
-                    }}>Text Analysis</Typography>
+                      mb: 2,
+                    }}
+                  >
+                    Text Analysis
+                  </Typography>
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
                     <Chip size="small" label={`${result.wordCount} words`} />
                     <Chip size="small" label={`${result.sentenceCount} sentences`} />
                     <Chip size="small" label={`Avg ${result.averageSentenceLength} words/sentence`} />
-                    <Chip size="small" label={`Readability: ${result.readability}`}
-                      color={result.readability === 'Easy' ? 'success' : result.readability === 'Moderate' ? 'warning' : 'error'} />
+                    <Chip
+                      size="small"
+                      label={`Readability: ${result.readability}`}
+                      color={
+                        result.readability === 'Easy'
+                          ? 'success'
+                          : result.readability === 'Moderate'
+                            ? 'warning'
+                            : 'error'
+                      }
+                    />
                   </Box>
                 </Paper>
 
@@ -92,23 +136,29 @@ const ParagraphRewriter: React.FC = () => {
                       variant="subtitle2"
                       sx={{
                         fontWeight: 700,
-                        mb: 1
-                      }}>Suggestions</Typography>
+                        mb: 1,
+                      }}
+                    >
+                      Suggestions
+                    </Typography>
                     <List dense>
                       {result.suggestions.map((s, idx) => (
                         <ListItem key={idx} disablePadding sx={{ mb: 0.5 }}>
                           <ListItemIcon sx={{ minWidth: 28 }}>
                             <Lightbulb sx={{ fontSize: 16, color: 'warning.main' }} />
                           </ListItemIcon>
-                          <ListItemText primary={s} slotProps={{
-                            primary: {
-                              variant: 'body2',
+                          <ListItemText
+                            primary={s}
+                            slotProps={{
+                              primary: {
+                                variant: 'body2',
 
-                              sx: {
-                                fontSize: '0.8rem'
-                              }
-                            }
-                          }} />
+                                sx: {
+                                  fontSize: '0.8rem',
+                                },
+                              },
+                            }}
+                          />
                         </ListItem>
                       ))}
                     </List>
@@ -124,7 +174,9 @@ const ParagraphRewriter: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

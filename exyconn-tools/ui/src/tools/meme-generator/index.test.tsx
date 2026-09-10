@@ -2,8 +2,14 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import {
-  ACCEPTED_TYPES, MIN_FONT_SIZE, canvasToPngBlob, drawMeme, fitFontSize,
-  memeFileName, memeFont, prepareCaption,
+  ACCEPTED_TYPES,
+  MIN_FONT_SIZE,
+  canvasToPngBlob,
+  drawMeme,
+  fitFontSize,
+  memeFileName,
+  memeFont,
+  prepareCaption,
 } from './utils';
 import MemeGenerator from './index';
 
@@ -43,7 +49,13 @@ beforeAll(() => {
       fillText: vi.fn(),
       strokeText: vi.fn(),
       measureText: vi.fn((text: string) => ({ width: text.length * 10 })),
-      font: '', textAlign: '', textBaseline: '', lineJoin: '', lineWidth: 0, strokeStyle: '', fillStyle: '',
+      font: '',
+      textAlign: '',
+      textBaseline: '',
+      lineJoin: '',
+      lineWidth: 0,
+      strokeStyle: '',
+      fillStyle: '',
     };
     return lastCtx;
   }) as unknown as typeof HTMLCanvasElement.prototype.getContext;

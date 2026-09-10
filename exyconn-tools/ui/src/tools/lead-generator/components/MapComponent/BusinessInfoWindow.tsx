@@ -17,17 +17,21 @@ const BusinessInfoWindow: React.FC<BusinessInfoWindowProps> = ({ business, onClo
     onCloseClick={onClose}
   >
     <Box sx={{ maxWidth: 250, p: 0.5 }}>
-      <Typography variant="subtitle2" sx={{
-        fontWeight: 600
-      }}>
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         {business.name}
       </Typography>
       <Typography
         variant="body2"
         sx={{
-          color: "text.secondary",
-          mt: 0.5
-        }}>
+          color: 'text.secondary',
+          mt: 0.5,
+        }}
+      >
         {business.address}
       </Typography>
       {business.rating && (

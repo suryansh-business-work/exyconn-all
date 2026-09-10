@@ -39,7 +39,12 @@ export default function ResultsList({ items, onDownload }: Readonly<ResultsListP
           secondaryAction={
             item.status === 'done' && (
               <Tooltip title="Download">
-                <IconButton edge="end" size="small" onClick={() => onDownload(item)} aria-label={`Download ${item.file.name}`}>
+                <IconButton
+                  edge="end"
+                  size="small"
+                  onClick={() => onDownload(item)}
+                  aria-label={`Download ${item.file.name}`}
+                >
                   <Download fontSize="small" />
                 </IconButton>
               </Tooltip>
@@ -54,7 +59,11 @@ export default function ResultsList({ items, onDownload }: Readonly<ResultsListP
               </Typography>
             }
             secondary={
-              <Typography variant="caption" color={item.status === 'error' ? 'error' : 'text.secondary'} component="span">
+              <Typography
+                variant="caption"
+                color={item.status === 'error' ? 'error' : 'text.secondary'}
+                component="span"
+              >
                 {secondaryText(item)}
               </Typography>
             }

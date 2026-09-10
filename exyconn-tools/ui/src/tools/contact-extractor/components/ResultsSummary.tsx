@@ -55,9 +55,12 @@ const ResultsSummary: React.FC<ResultsSummaryProps> = ({ result }) => {
   return (
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h6" sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Extraction Results
         </Typography>
         <Chip label={`${result.pagesScanned} pages scanned`} size="small" color="primary" />
@@ -163,7 +166,7 @@ const ResultsSummary: React.FC<ResultsSummaryProps> = ({ result }) => {
                     slotProps={{
                       secondary: {
                         sx: { fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis' },
-                      }
+                      },
                     }}
                   />
                 </ListItem>
@@ -178,10 +181,11 @@ const ResultsSummary: React.FC<ResultsSummaryProps> = ({ result }) => {
         Object.keys(result.socialLinks).length === 0 && (
           <Typography
             sx={{
-              color: "text.secondary",
-              textAlign: "center",
-              py: 3
-            }}>
+              color: 'text.secondary',
+              textAlign: 'center',
+              py: 3,
+            }}
+          >
             No contacts found on this website
           </Typography>
         )}

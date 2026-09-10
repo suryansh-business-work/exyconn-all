@@ -32,15 +32,17 @@ export function AutoStartScheduleFields() {
           <Grid
             size={{
               xs: 12,
-              sm: 6
-            }}>
+              sm: 6,
+            }}
+          >
             <RhfTextField name="autoStartHour" label="Start at (hour, 0–23)" type="number" />
           </Grid>
           <Grid
             size={{
               xs: 12,
-              sm: 6
-            }}>
+              sm: 6,
+            }}
+          >
             <RhfTextField
               name="autoStopHour"
               label="Stop at (hour, 0–23)"

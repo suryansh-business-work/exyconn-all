@@ -60,15 +60,17 @@ export function AiSpendPanel({ summary, loading, periodLabel }: Readonly<AiSpend
         <Grid
           size={{
             xs: 12,
-            md: 6
-          }}>
+            md: 6,
+          }}
+        >
           <DataTable columns={USER_COLUMNS} rows={userRows} emptyMessage={empty} />
         </Grid>
         <Grid
           size={{
             xs: 12,
-            md: 6
-          }}>
+            md: 6,
+          }}
+        >
           <DataTable columns={MODEL_COLUMNS} rows={modelRows} emptyMessage={empty} />
         </Grid>
       </Grid>

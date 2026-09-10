@@ -40,21 +40,41 @@ export default function MergePdf() {
 
   const addFiles = useCallback((incoming: FileList | File[]) => {
     const pdfs = Array.from(incoming).filter((f) => f.type === 'application/pdf');
-    if (!pdfs.length) { setError('Please select PDF files only.'); return; }
+    if (!pdfs.length) {
+      setError('Please select PDF files only.');
+      return;
+    }
     setFiles((prev) => [...prev, ...pdfs.map((f) => ({ file: f, name: f.name, size: f.size }))]);
     setResult(null);
   }, []);
 
-  const onDrop = useCallback((e: DragEvent) => { e.preventDefault(); setDragOver(false); addFiles(e.dataTransfer.files); }, [addFiles]);
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => { if (e.target.files) addFiles(e.target.files); e.target.value = ''; };
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      addFiles(e.dataTransfer.files);
+    },
+    [addFiles]
+  );
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) addFiles(e.target.files);
+    e.target.value = '';
+  };
 
   const move = (i: number, dir: -1 | 1) => {
-    setFiles((prev) => { const a = [...prev]; [a[i], a[i + dir]] = [a[i + dir], a[i]]; return a; });
+    setFiles((prev) => {
+      const a = [...prev];
+      [a[i], a[i + dir]] = [a[i + dir], a[i]];
+      return a;
+    });
   };
   const remove = (i: number) => setFiles((prev) => prev.filter((_, idx) => idx !== i));
 
   const merge = async () => {
-    if (files.length < 2) { setError('Add at least 2 PDFs to merge.'); return; }
+    if (files.length < 2) {
+      setError('Add at least 2 PDFs to merge.');
+      return;
+    }
     setProcessing(true);
     try {
       const merged = await PDFDocument.create();
@@ -65,13 +85,21 @@ export default function MergePdf() {
         pages.forEach((p) => merged.addPage(p));
       }
       setResult(await merged.save());
-    } catch { setError('Failed to merge PDFs.'); } finally { setProcessing(false); }
+    } catch {
+      setError('Failed to merge PDFs.');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const download = () => {
     if (!result) return;
     const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
-    const a = document.createElement('a'); a.href = url; a.download = 'merged.pdf'; a.click(); URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'merged.pdf';
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -80,19 +108,34 @@ export default function MergePdf() {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper
-              sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: dragOver ? '#ef4444' : 'divider', cursor: 'pointer', transition: '0.2s' }}
-              onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }}
+              sx={{
+                p: 4,
+                textAlign: 'center',
+                border: '2px dashed',
+                borderColor: dragOver ? '#ef4444' : 'divider',
+                cursor: 'pointer',
+                transition: '0.2s',
+              }}
+              onDragOver={(e: DragEvent) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
               onDragLeave={() => setDragOver(false)}
               onDrop={onDrop}
             >
               <CloudUpload sx={{ fontSize: 48, color: '#ef4444', mb: 1 }} />
-              <Typography variant="h6" gutterBottom>Drag & Drop PDFs Here</Typography>
+              <Typography variant="h6" gutterBottom>
+                Drag & Drop PDFs Here
+              </Typography>
               <Typography
                 variant="body2"
                 sx={{
-                  color: "text.secondary",
-                  mb: 2
-                }}>or click to browse</Typography>
+                  color: 'text.secondary',
+                  mb: 2,
+                }}
+              >
+                or click to browse
+              </Typography>
               <Button variant="outlined" component="label" color="error">
                 Browse Files
                 <input hidden multiple accept="application/pdf" type="file" onChange={onFileChange} />
@@ -103,13 +146,22 @@ export default function MergePdf() {
               <Paper sx={{ mt: 2, maxHeight: 320, overflow: 'auto' }}>
                 <List dense>
                   {files.map((f, i) => (
-                    <ListItem key={`${f.name}-${i}`} secondaryAction={
-                      <Box>
-                        <IconButton size="small" disabled={i === 0} onClick={() => move(i, -1)}><ArrowUpward fontSize="small" /></IconButton>
-                        <IconButton size="small" disabled={i === files.length - 1} onClick={() => move(i, 1)}><ArrowDownward fontSize="small" /></IconButton>
-                        <IconButton size="small" onClick={() => remove(i)}><Delete fontSize="small" /></IconButton>
-                      </Box>
-                    }>
+                    <ListItem
+                      key={`${f.name}-${i}`}
+                      secondaryAction={
+                        <Box>
+                          <IconButton size="small" disabled={i === 0} onClick={() => move(i, -1)}>
+                            <ArrowUpward fontSize="small" />
+                          </IconButton>
+                          <IconButton size="small" disabled={i === files.length - 1} onClick={() => move(i, 1)}>
+                            <ArrowDownward fontSize="small" />
+                          </IconButton>
+                          <IconButton size="small" onClick={() => remove(i)}>
+                            <Delete fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      }
+                    >
                       <ListItemText primary={f.name} secondary={formatSize(f.size)} />
                     </ListItem>
                   ))}
@@ -122,18 +174,26 @@ export default function MergePdf() {
 
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>Merge Options</Typography>
+              <Typography variant="h6" gutterBottom>
+                Merge Options
+              </Typography>
               <Typography
                 variant="body2"
                 sx={{
-                  color: "text.secondary",
-                  mb: 2
-                }}>
+                  color: 'text.secondary',
+                  mb: 2,
+                }}
+              >
                 {files.length} file(s) selected. Reorder files on the left, then click merge.
               </Typography>
               {processing && <LinearProgress sx={{ mb: 2 }} color="error" />}
-              <Button variant="contained" fullWidth onClick={merge} disabled={processing || files.length < 2}
-                sx={{ bgcolor: '#ef4444', '&:hover': { bgcolor: '#dc2626' }, mb: 2 }}>
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={merge}
+                disabled={processing || files.length < 2}
+                sx={{ bgcolor: '#ef4444', '&:hover': { bgcolor: '#dc2626' }, mb: 2 }}
+              >
                 {processing ? 'Merging…' : 'Merge PDFs'}
               </Button>
               {result && (
@@ -145,8 +205,15 @@ export default function MergePdf() {
           </Grid>
         </Grid>
 
-        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity="error" onClose={() => setError('')}>{error}</Alert>
+        <Snackbar
+          open={!!error}
+          autoHideDuration={4000}
+          onClose={() => setError('')}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert severity="error" onClose={() => setError('')}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

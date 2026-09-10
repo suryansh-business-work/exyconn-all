@@ -47,9 +47,10 @@ const TransformControls: React.FC<TransformControlsProps> = ({
         <Typography
           variant="caption"
           sx={{
-            color: "text.secondary",
-            ml: 1
-          }}>
+            color: 'text.secondary',
+            ml: 1,
+          }}
+        >
           {rotation}°
         </Typography>
       )}

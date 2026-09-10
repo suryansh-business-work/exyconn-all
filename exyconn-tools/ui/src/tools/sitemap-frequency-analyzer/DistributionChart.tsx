@@ -9,21 +9,19 @@ interface DistributionChartProps {
   emptyMessage: string;
 }
 
-const DistributionChart: React.FC<DistributionChartProps> = ({
-  title,
-  data,
-  totalUrls,
-  getColor,
-  emptyMessage,
-}) => {
+const DistributionChart: React.FC<DistributionChartProps> = ({ title, data, totalUrls, getColor, emptyMessage }) => {
   const maxCount = Math.max(...Object.values(data), 1);
   const entries = Object.entries(data);
 
   return (
     <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-      <Typography variant="subtitle2" gutterBottom sx={{
-        fontWeight: 600
-      }}>
+      <Typography
+        variant="subtitle2"
+        gutterBottom
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         {title}
       </Typography>
       <Box sx={{ mt: 2 }}>
@@ -37,13 +35,17 @@ const DistributionChart: React.FC<DistributionChartProps> = ({
                     variant="body2"
                     sx={{
                       fontWeight: 500,
-                      textTransform: 'capitalize'
-                    }}>
+                      textTransform: 'capitalize',
+                    }}
+                  >
                     {title.includes('Priority') ? `Priority ${key}` : key}
                   </Typography>
-                  <Typography variant="body2" sx={{
-                    color: "text.secondary"
-                  }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {count.toLocaleString()} ({((count / totalUrls) * 100).toFixed(1)}%)
                   </Typography>
                 </Box>
@@ -63,10 +65,11 @@ const DistributionChart: React.FC<DistributionChartProps> = ({
           <Typography
             variant="body2"
             sx={{
-              color: "text.secondary",
+              color: 'text.secondary',
               textAlign: 'center',
-              py: 2
-            }}>
+              py: 2,
+            }}
+          >
             {emptyMessage}
           </Typography>
         )}

@@ -33,10 +33,7 @@ export const SecretsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setHighlightKey(undefined);
   }, []);
 
-  const value = useMemo(
-    () => ({ openSecrets, closeSecrets, isOpen }),
-    [openSecrets, closeSecrets, isOpen],
-  );
+  const value = useMemo(() => ({ openSecrets, closeSecrets, isOpen }), [openSecrets, closeSecrets, isOpen]);
 
   return (
     <SecretsContext.Provider value={value}>

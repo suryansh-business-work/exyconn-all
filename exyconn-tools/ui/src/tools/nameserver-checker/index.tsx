@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import {
-  Container, Alert, Snackbar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip,
+  Container,
+  Alert,
+  Snackbar,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { Storage } from '@mui/icons-material';
@@ -37,12 +46,22 @@ const NameserverChecker: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<Storage color="primary" />}
-              title="Nameserver Check" buttonText="Check NS" loadingText="Checking..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<Storage color="primary" />}
+              title="Nameserver Check"
+              buttonText="Check NS"
+              loadingText="Checking..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
-              <DomainResultDisplay title={`Nameservers for ${result.domain}`} icon={<Storage fontSize="small" />} data={result}>
+              <DomainResultDisplay
+                title={`Nameservers for ${result.domain}`}
+                icon={<Storage fontSize="small" />}
+                data={result}
+              >
                 <Chip label={`${result.count} nameserver(s)`} color="primary" sx={{ mb: 2 }} />
                 <TableContainer>
                   <Table size="small">
@@ -56,9 +75,11 @@ const NameserverChecker: React.FC = () => {
                       {(result.nameservers as Array<{ nameserver: string; ips: string[] }>)?.map((ns, i) => (
                         <TableRow key={i}>
                           <TableCell sx={{ fontFamily: 'monospace' }}>{ns.nameserver}</TableCell>
-                          <TableCell>{ns.ips.map((ip, j) => (
-                            <Chip key={j} label={ip} size="small" sx={{ mr: 0.5, mb: 0.5 }} variant="outlined" />
-                          ))}</TableCell>
+                          <TableCell>
+                            {ns.ips.map((ip, j) => (
+                              <Chip key={j} label={ip} size="small" sx={{ mr: 0.5, mb: 0.5 }} variant="outlined" />
+                            ))}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -70,7 +91,9 @@ const NameserverChecker: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

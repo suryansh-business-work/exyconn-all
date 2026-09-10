@@ -1,5 +1,6 @@
 import { forwardRef, type CSSProperties } from 'react';
 import MuiStack, { type StackProps } from '@mui/material/Stack';
+import type { ResponsiveStyleValue } from '@mui/system';
 
 /**
  * The flexbox properties Flex accepts directly.
@@ -11,11 +12,11 @@ import MuiStack, { type StackProps } from '@mui/material/Stack';
  * They are merged into `sx` here, before the caller's own `sx`, so a caller can still win.
  */
 export interface FlexAlignment {
-  alignItems?: CSSProperties['alignItems'];
-  justifyContent?: CSSProperties['justifyContent'];
-  flexWrap?: CSSProperties['flexWrap'];
-  flexGrow?: CSSProperties['flexGrow'];
-  gap?: number | string;
+  alignItems?: ResponsiveStyleValue<CSSProperties['alignItems']>;
+  justifyContent?: ResponsiveStyleValue<CSSProperties['justifyContent']>;
+  flexWrap?: ResponsiveStyleValue<CSSProperties['flexWrap']>;
+  flexGrow?: ResponsiveStyleValue<CSSProperties['flexGrow']>;
+  gap?: ResponsiveStyleValue<number | string>;
 }
 
 /**
@@ -32,17 +33,7 @@ export type FlexProps = StackProps &
 
 export const Flex = forwardRef<HTMLDivElement, FlexProps>(
   (
-    {
-      direction = 'row',
-      wrap,
-      alignItems,
-      justifyContent,
-      flexWrap,
-      flexGrow,
-      gap,
-      sx,
-      ...props
-    },
+    { direction = 'row', wrap, alignItems, justifyContent, flexWrap, flexGrow, gap, sx, ...props },
     ref,
   ) => (
     <MuiStack

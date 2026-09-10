@@ -25,27 +25,34 @@ const NotFoundPage: React.FC = () => {
         }}
       >
         <SearchOff sx={{ fontSize: 64, color: 'text.disabled' }} />
-        <Typography variant="h1" sx={{
-          fontWeight: 800, lineHeight: 1, color: 'text.disabled',
-          fontSize: { xs: '3.5rem', sm: '5rem' },
-        }}>
+        <Typography
+          variant="h1"
+          sx={{
+            fontWeight: 800,
+            lineHeight: 1,
+            color: 'text.disabled',
+            fontSize: { xs: '3.5rem', sm: '5rem' },
+          }}
+        >
           404
         </Typography>
-        <Typography variant="h5" sx={{
-          fontWeight: 700
-        }}>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 700,
+          }}
+        >
           Page not found
         </Typography>
         <Typography
           sx={{
-            color: "text.secondary",
-            maxWidth: 420
-          }}>
-          The page you are looking for doesn&apos;t exist or may have moved.
-          Browse all free tools instead.
+            color: 'text.secondary',
+            maxWidth: 420,
+          }}
+        >
+          The page you are looking for doesn&apos;t exist or may have moved. Browse all free tools instead.
         </Typography>
-        <Button variant="contained" startIcon={<Home />}
-          onClick={() => navigate('/tools')} sx={{ mt: 1 }}>
+        <Button variant="contained" startIcon={<Home />} onClick={() => navigate('/tools')} sx={{ mt: 1 }}>
           Browse all tools
         </Button>
       </Box>

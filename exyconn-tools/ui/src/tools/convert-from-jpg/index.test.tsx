@@ -1,9 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import {
-  ACCEPTED_TYPES, formatBytes, outputFileName, convertFromJpg,
-} from './utils';
+import { ACCEPTED_TYPES, formatBytes, outputFileName, convertFromJpg } from './utils';
 import ConvertFromJpg from './index';
 
 vi.mock('../../shared/components/ToolLayout/ToolLayout', async () => {

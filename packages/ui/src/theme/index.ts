@@ -1,6 +1,1 @@
-export {
-  createAppTheme,
-  theme,
-  type ColorMode,
-  type ThemeDirection,
-} from './createAppTheme';
+export { createAppTheme, theme, type ColorMode, type ThemeDirection } from './createAppTheme';

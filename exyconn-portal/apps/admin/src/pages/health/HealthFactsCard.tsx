@@ -24,20 +24,27 @@ export function HealthFactsCard({ title, facts }: Readonly<HealthFactsCardProps>
           direction="row"
           spacing={2}
           sx={{
-            justifyContent: "space-between",
-            alignItems: "baseline",
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
             py: 0.75,
             borderTop: `${borderWidth.hairline}px solid`,
-            borderColor: 'divider'
-          }}>
-          <Typography variant="body2" sx={{
-            color: "text.secondary"
-          }}>
+            borderColor: 'divider',
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {fact.label}
           </Typography>
-          <Typography variant="body2" sx={{
-            fontWeight: 600
-          }}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             {fact.value}
           </Typography>
         </Stack>

@@ -67,7 +67,10 @@ export default function EditPdf() {
   }, [pdfDoc, currentPage, annotations, renderPage]);
 
   const loadFile = useCallback(async (f: File) => {
-    if (f.type !== 'application/pdf') { setError('Please select a PDF file.'); return; }
+    if (f.type !== 'application/pdf') {
+      setError('Please select a PDF file.');
+      return;
+    }
     try {
       const bytes = await f.arrayBuffer();
       const doc = await pdfjsLib.getDocument({ data: new Uint8Array(bytes) }).promise;
@@ -77,11 +80,23 @@ export default function EditPdf() {
       setFile(f);
       setAnnotations([]);
       setClickPos(null);
-    } catch { setError('Failed to read PDF.'); }
+    } catch {
+      setError('Failed to read PDF.');
+    }
   }, []);
 
-  const onDrop = useCallback((e: DragEvent) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); }, [loadFile]);
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => { if (e.target.files?.[0]) loadFile(e.target.files[0]); e.target.value = ''; };
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+    },
+    [loadFile]
+  );
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) loadFile(e.target.files[0]);
+    e.target.value = '';
+  };
 
   const onCanvasClick = (e: MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -97,9 +112,18 @@ export default function EditPdf() {
   };
 
   const addAnnotation = () => {
-    if (!text.trim()) { setError('Enter text to add.'); return; }
-    if (!clickPos) { setError('Click on the PDF to set position.'); return; }
-    setAnnotations((prev) => [...prev, { text, x: clickPos.x, y: clickPos.y, size: fontSize, color, page: currentPage }]);
+    if (!text.trim()) {
+      setError('Enter text to add.');
+      return;
+    }
+    if (!clickPos) {
+      setError('Click on the PDF to set position.');
+      return;
+    }
+    setAnnotations((prev) => [
+      ...prev,
+      { text, x: clickPos.x, y: clickPos.y, size: fontSize, color, page: currentPage },
+    ]);
     setText('');
     setClickPos(null);
   };
@@ -125,7 +149,11 @@ export default function EditPdf() {
       link.download = `edited-${file.name}`;
       link.click();
       URL.revokeObjectURL(url);
-    } catch { setError('Failed to edit PDF.'); } finally { setProcessing(false); }
+    } catch {
+      setError('Failed to edit PDF.');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (
@@ -133,21 +161,39 @@ export default function EditPdf() {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         {!file ? (
           <Paper
-            sx={{ p: 6, textAlign: 'center', border: '2px dashed', borderColor: dragOver ? '#6366f1' : 'divider', cursor: 'pointer', transition: '0.2s', maxWidth: 600, mx: 'auto' }}
-            onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }}
+            sx={{
+              p: 6,
+              textAlign: 'center',
+              border: '2px dashed',
+              borderColor: dragOver ? '#6366f1' : 'divider',
+              cursor: 'pointer',
+              transition: '0.2s',
+              maxWidth: 600,
+              mx: 'auto',
+            }}
+            onDragOver={(e: DragEvent) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
             onDragLeave={() => setDragOver(false)}
             onDrop={onDrop}
           >
             <CloudUpload sx={{ fontSize: 48, color: '#6366f1', mb: 1 }} />
-            <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
+            <Typography variant="h6" gutterBottom>
+              Drag & Drop PDF Here
+            </Typography>
             <Typography
               variant="body2"
               sx={{
-                color: "text.secondary",
-                mb: 2
-              }}>or click to browse</Typography>
+                color: 'text.secondary',
+                mb: 2,
+              }}
+            >
+              or click to browse
+            </Typography>
             <Button variant="outlined" component="label" sx={{ color: '#6366f1', borderColor: '#6366f1' }}>
-              Browse Files<input hidden accept="application/pdf" type="file" onChange={onFileChange} />
+              Browse Files
+              <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
             </Button>
           </Paper>
         ) : (
@@ -155,34 +201,72 @@ export default function EditPdf() {
             <Grid size={{ xs: 12, md: 7 }}>
               <Paper sx={{ p: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                  <Button variant="outlined" component="label" size="small" sx={{ color: '#6366f1', borderColor: '#6366f1' }}>
-                    Change PDF<input hidden accept="application/pdf" type="file" onChange={onFileChange} />
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    size="small"
+                    sx={{ color: '#6366f1', borderColor: '#6366f1' }}
+                  >
+                    Change PDF
+                    <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
                   </Button>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <IconButton size="small" disabled={currentPage <= 1} onClick={() => setCurrentPage((p) => p - 1)}><NavigateBefore /></IconButton>
-                    <Typography variant="body2">Page {currentPage} / {totalPages}</Typography>
-                    <IconButton size="small" disabled={currentPage >= totalPages} onClick={() => setCurrentPage((p) => p + 1)}><NavigateNext /></IconButton>
+                    <IconButton size="small" disabled={currentPage <= 1} onClick={() => setCurrentPage((p) => p - 1)}>
+                      <NavigateBefore />
+                    </IconButton>
+                    <Typography variant="body2">
+                      Page {currentPage} / {totalPages}
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      disabled={currentPage >= totalPages}
+                      onClick={() => setCurrentPage((p) => p + 1)}
+                    >
+                      <NavigateNext />
+                    </IconButton>
                   </Box>
                 </Box>
-                <Box sx={{ overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, textAlign: 'center', bgcolor: '#f5f5f5' }}>
-                  <canvas ref={canvasRef} onClick={onCanvasClick} style={{ cursor: 'crosshair', maxWidth: '100%', display: 'block', margin: '0 auto' }} />
-                </Box>
-                {clickPos && <Typography
-                  variant="caption"
+                <Box
                   sx={{
-                    color: "text.secondary",
-                    mt: 0.5,
-                    display: 'block'
-                  }}>Click position (PDF): x={clickPos.x}, y={clickPos.y}</Typography>}
+                    overflow: 'auto',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    textAlign: 'center',
+                    bgcolor: '#f5f5f5',
+                  }}
+                >
+                  <canvas
+                    ref={canvasRef}
+                    onClick={onCanvasClick}
+                    style={{ cursor: 'crosshair', maxWidth: '100%', display: 'block', margin: '0 auto' }}
+                  />
+                </Box>
+                {clickPos && (
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: 'text.secondary',
+                      mt: 0.5,
+                      display: 'block',
+                    }}
+                  >
+                    Click position (PDF): x={clickPos.x}, y={clickPos.y}
+                  </Typography>
+                )}
               </Paper>
             </Grid>
 
             <Grid size={{ xs: 12, md: 5 }}>
               <AnnotationPanel
-                text={text} onTextChange={setText}
-                fontSize={fontSize} onFontSizeChange={setFontSize}
-                color={color} onColorChange={setColor}
-                clickPos={clickPos} currentPage={currentPage}
+                text={text}
+                onTextChange={setText}
+                fontSize={fontSize}
+                onFontSizeChange={setFontSize}
+                color={color}
+                onColorChange={setColor}
+                clickPos={clickPos}
+                currentPage={currentPage}
                 annotations={annotations}
                 onAddAnnotation={addAnnotation}
                 onRemoveAnnotation={removeAnnotation}
@@ -193,8 +277,15 @@ export default function EditPdf() {
           </Grid>
         )}
 
-        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity="error" onClose={() => setError('')}>{error}</Alert>
+        <Snackbar
+          open={!!error}
+          autoHideDuration={4000}
+          onClose={() => setError('')}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert severity="error" onClose={() => setError('')}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

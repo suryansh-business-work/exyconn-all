@@ -19,14 +19,20 @@ interface ChartPanelProps {
 function ChartPanel({ title, caption, labels, data, color }: Readonly<ChartPanelProps>) {
   return (
     <Card variant="outlined" sx={{ p: 2, height: '100%' }}>
-      <Typography variant="subtitle2" sx={{
-        fontWeight: 700
-      }}>
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 700,
+        }}
+      >
         {title}
       </Typography>
-      <Typography variant="caption" sx={{
-        color: "text.secondary"
-      }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {caption}
       </Typography>
       <Box sx={{ mt: 1 }}>
@@ -43,9 +49,12 @@ export function StatusCharts({ daily }: Readonly<StatusChartsProps>) {
   if (measured.length === 0) {
     return (
       <Card variant="outlined" sx={{ p: 3 }}>
-        <Typography variant="body2" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Daily charts appear once the monitor has collected a full day of checks.
         </Typography>
       </Card>
@@ -59,8 +68,9 @@ export function StatusCharts({ daily }: Readonly<StatusChartsProps>) {
       <Grid
         size={{
           xs: 12,
-          md: 6
-        }}>
+          md: 6,
+        }}
+      >
         <ChartPanel
           title="Daily uptime"
           caption="Share of checks that succeeded, per day"
@@ -72,8 +82,9 @@ export function StatusCharts({ daily }: Readonly<StatusChartsProps>) {
       <Grid
         size={{
           xs: 12,
-          md: 6
-        }}>
+          md: 6,
+        }}
+      >
         <ChartPanel
           title="Average response time"
           caption="Mean round trip across all services, in milliseconds"

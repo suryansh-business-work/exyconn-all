@@ -59,22 +59,25 @@ export function SystemHealthPage() {
           <Grid
             size={{
               xs: 12,
-              md: 4
-            }}>
+              md: 4,
+            }}
+          >
             <HealthFactsCard title="Runtime" facts={runtimeFacts(health)} />
           </Grid>
           <Grid
             size={{
               xs: 12,
-              md: 4
-            }}>
+              md: 4,
+            }}
+          >
             <HealthJobsCard jobs={health.jobs} formatDateTime={formatDateTime} />
           </Grid>
           <Grid
             size={{
               xs: 12,
-              md: 4
-            }}>
+              md: 4,
+            }}
+          >
             <HealthFactsCard
               title="Workload"
               facts={health.counts.map((count) => ({

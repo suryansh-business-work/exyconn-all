@@ -44,7 +44,7 @@ export function TranslationEditor({ locale, source, text, onSaved }: Readonly<Pr
         value={value}
         onChange={(event) => setValue(event.target.value)}
         slotProps={{
-          htmlInput: { 'aria-label': `Translation of "${source}"` }
+          htmlInput: { 'aria-label': `Translation of "${source}"` },
         }}
       />
       <Button

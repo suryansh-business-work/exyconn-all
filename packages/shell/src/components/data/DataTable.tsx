@@ -57,9 +57,13 @@ export function DataTable<T extends { id: string }>({
   if (rows.length === 0) {
     return (
       <Box sx={{ p: 4, textAlign: 'center' }}>
-        <Typography sx={{
-          color: "text.secondary"
-        }}>{emptyMessage}</Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          {emptyMessage}
+        </Typography>
       </Box>
     );
   }
@@ -101,9 +105,13 @@ export function DataTable<T extends { id: string }>({
               ))}
               {hasActions && (
                 <TableCell align="right" onClick={(e) => e.stopPropagation()}>
-                  <Stack direction="row" spacing={0.5} sx={{
-                    justifyContent: "flex-end"
-                  }}>
+                  <Stack
+                    direction="row"
+                    spacing={0.5}
+                    sx={{
+                      justifyContent: 'flex-end',
+                    }}
+                  >
                     {actions
                       ?.filter((action) => !action.hidden?.(row))
                       .map((action) => (

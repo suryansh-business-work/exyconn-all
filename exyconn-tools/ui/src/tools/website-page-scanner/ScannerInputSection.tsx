@@ -41,9 +41,12 @@ const ScannerInputSection: React.FC<ScannerInputSectionProps> = ({
       <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           <Language color="primary" fontSize="small" />
-          <Typography variant="subtitle2" sx={{
-            fontWeight: 600
-          }}>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             Enter Website URL
           </Typography>
         </Box>
@@ -59,9 +62,10 @@ const ScannerInputSection: React.FC<ScannerInputSectionProps> = ({
           variant="caption"
           gutterBottom
           sx={{
-            color: "text.secondary",
-            display: "block"
-          }}>
+            color: 'text.secondary',
+            display: 'block',
+          }}
+        >
           Max Pages to Scan: {maxPages}
         </Typography>
         <Slider
@@ -85,9 +89,12 @@ const ScannerInputSection: React.FC<ScannerInputSectionProps> = ({
         </Button>
         {isLoading && (
           <Box sx={{ mt: 2 }}>
-            <Typography variant="caption" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Crawling pages, this may take a moment...
             </Typography>
             <LinearProgress sx={{ mt: 1 }} />
@@ -98,9 +105,12 @@ const ScannerInputSection: React.FC<ScannerInputSectionProps> = ({
       {result && (
         <Paper elevation={0} sx={{ p: 2, mt: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="subtitle2" sx={{
-              fontWeight: 600
-            }}>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: 600,
+              }}
+            >
               Summary
             </Typography>
             <Tooltip title="Export JSON">
@@ -111,38 +121,56 @@ const ScannerInputSection: React.FC<ScannerInputSectionProps> = ({
           </Box>
           <Stack spacing={1}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Pages Scanned
               </Typography>
-              <Typography variant="body2" sx={{
-                fontWeight: 600
-              }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 {result.totalPages}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Total Words
               </Typography>
-              <Typography variant="body2" sx={{
-                fontWeight: 600
-              }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 {result.pages.reduce((a, p) => a + p.wordCount, 0).toLocaleString()}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="body2" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Total Images
               </Typography>
-              <Typography variant="body2" sx={{
-                fontWeight: 600
-              }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 {result.pages.reduce((a, p) => a + p.images, 0)}
               </Typography>
             </Box>

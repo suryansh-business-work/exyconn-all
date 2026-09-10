@@ -40,7 +40,7 @@ export function RhfMultiSelect({ name, label, options, helperText }: RhfMultiSel
                   ))}
                 </Box>
               ),
-            }
+            },
           }}
         >
           {options.map((option) => (

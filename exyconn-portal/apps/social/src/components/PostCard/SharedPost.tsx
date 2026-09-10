@@ -31,10 +31,11 @@ export function SharedPost({ original }: Readonly<SharedPostProps>) {
       <Typography
         variant="caption"
         sx={{
-          color: "text.secondary",
+          color: 'text.secondary',
           display: 'block',
-          mt: 1
-        }}>
+          mt: 1,
+        }}
+      >
         Originally posted
       </Typography>
       <PostBody body={original.body} imageUrl={original.imageUrl} />

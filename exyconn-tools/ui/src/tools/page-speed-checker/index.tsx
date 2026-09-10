@@ -39,28 +39,48 @@ const PageSpeedChecker: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<Speed color="primary" />}
-              title="Page Speed Check" label="URL" placeholder="https://example.com"
-              buttonText="Check Speed" loadingText="Analyzing..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<Speed color="primary" />}
+              title="Page Speed Check"
+              label="URL"
+              placeholder="https://example.com"
+              buttonText="Check Speed"
+              loadingText="Analyzing..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
               <DomainResultDisplay title="Page Speed Results" icon={<Speed fontSize="small" />} data={result}>
                 <Box sx={{ textAlign: 'center', py: 2, mb: 2 }}>
-                  <Typography variant="h3" color={perf?.rating === 'Fast' ? 'success.main' : perf?.rating === 'Average' ? 'warning.main' : 'error.main'}
+                  <Typography
+                    variant="h3"
+                    color={
+                      perf?.rating === 'Fast'
+                        ? 'success.main'
+                        : perf?.rating === 'Average'
+                          ? 'warning.main'
+                          : 'error.main'
+                    }
                     sx={{
-                      fontWeight: 700
-                    }}>
+                      fontWeight: 700,
+                    }}
+                  >
                     {String(result.loadTime)}ms
                   </Typography>
-                  <Chip label={perf?.rating as string} sx={{ mt: 1 }}
-                    color={perf?.rating === 'Fast' ? 'success' : perf?.rating === 'Average' ? 'warning' : 'error'} />
+                  <Chip
+                    label={perf?.rating as string}
+                    sx={{ mt: 1 }}
+                    color={perf?.rating === 'Fast' ? 'success' : perf?.rating === 'Average' ? 'warning' : 'error'}
+                  />
                   <Typography
                     variant="body2"
                     sx={{
-                      color: "text.secondary",
-                      mt: 1
-                    }}>
+                      color: 'text.secondary',
+                      mt: 1,
+                    }}
+                  >
                     Page Size: {result.pageSizeFormatted as string}
                   </Typography>
                 </Box>
@@ -70,14 +90,19 @@ const PageSpeedChecker: React.FC = () => {
                       variant="subtitle2"
                       sx={{
                         fontWeight: 600,
-                        mb: 1
-                      }}>Resource Count</Typography>
-                    <KeyValueTable data={{
-                      Scripts: resources.scripts,
-                      Stylesheets: resources.stylesheets,
-                      Images: resources.images,
-                      'Inline Styles': resources.inlineStyles,
-                    }} />
+                        mb: 1,
+                      }}
+                    >
+                      Resource Count
+                    </Typography>
+                    <KeyValueTable
+                      data={{
+                        Scripts: resources.scripts,
+                        Stylesheets: resources.stylesheets,
+                        Images: resources.images,
+                        'Inline Styles': resources.inlineStyles,
+                      }}
+                    />
                   </Box>
                 )}
               </DomainResultDisplay>
@@ -86,7 +111,9 @@ const PageSpeedChecker: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

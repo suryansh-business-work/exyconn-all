@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Container, Typography, TextField, Button, Alert, Snackbar,
-  Paper, LinearProgress,
-} from '@mui/material';
+import { Container, Typography, TextField, Button, Alert, Snackbar, Paper, LinearProgress } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { FindInPage } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
@@ -50,18 +47,25 @@ const SEOChecker: React.FC = () => {
                 sx={{
                   fontWeight: 700,
                   mb: 2,
-                  fontSize: '1rem'
-                }}>
+                  fontSize: '1rem',
+                }}
+              >
                 Analyze Website SEO
               </Typography>
               <TextField
-                fullWidth size="small" label="Website URL" placeholder="https://example.com"
-                value={url} onChange={(e) => setUrl(e.target.value)}
+                fullWidth
+                size="small"
+                label="Website URL"
+                placeholder="https://example.com"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
                 sx={{ mb: 2 }}
               />
               <Button
-                fullWidth variant="contained" onClick={handleCheck}
+                fullWidth
+                variant="contained"
+                onClick={handleCheck}
                 disabled={isLoading || !url.trim()}
                 startIcon={<FindInPage />}
                 sx={{ textTransform: 'none' }}
@@ -72,13 +76,13 @@ const SEOChecker: React.FC = () => {
             </Paper>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 8 }}>
-            {result && <SeoResultDisplay result={result} />}
-          </Grid>
+          <Grid size={{ xs: 12, md: 8 }}>{result && <SeoResultDisplay result={result} />}</Grid>
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

@@ -70,16 +70,18 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
             sx={{
               fontWeight: 700,
               display: 'block',
-              lineHeight: 1.3
-            }}>
+              lineHeight: 1.3,
+            }}
+          >
             {user?.name}
           </Typography>
           <Typography
             variant="caption"
             sx={{
-              color: "text.secondary",
-              display: 'block'
-            }}>
+              color: 'text.secondary',
+              display: 'block',
+            }}
+          >
             {user?.roles.join(', ')}
           </Typography>
         </Box>

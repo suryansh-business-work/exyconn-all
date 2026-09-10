@@ -88,15 +88,17 @@ export function OffComputerTimeForm({ projects, onDone }: Readonly<OffComputerTi
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfDateTimePicker name="startedAt" label="Started" maxDateTime={new Date()} />
         </Grid>
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfDateTimePicker
             name="endedAt"
             label="Ended"

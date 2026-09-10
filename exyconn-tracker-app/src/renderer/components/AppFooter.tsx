@@ -35,9 +35,12 @@ function noticeOf(branding: Branding | null): string {
 export default function AppFooter({ branding }: Readonly<Props>): ReactElement {
   return (
     <Box sx={{ flexShrink: 0, px: 2, pb: 1.5, textAlign: 'center' }}>
-      <Typography variant="caption" sx={{
-        color: "text.secondary"
-      }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {noticeOf(branding)}
       </Typography>
     </Box>

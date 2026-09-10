@@ -49,10 +49,11 @@ export default function WorkArrangementCard({ workProfile }: Readonly<Props>): R
       <Typography
         variant="body2"
         sx={{
-          color: "text.secondary",
+          color: 'text.secondary',
           mt: 0.5,
-          mb: 1
-        }}>
+          mb: 1,
+        }}
+      >
         Set by HR on your employee record. Today&apos;s progress bar fills against these hours. Ask
         HR if it does not match your contract.
       </Typography>

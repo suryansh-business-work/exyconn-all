@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  Drawer, Box, Typography, Divider, Chip, Button, IconButton,
-} from '@mui/material';
+import { Drawer, Box, Typography, Divider, Chip, Button, IconButton } from '@mui/material';
 import { RestartAlt, ContentCopy, Close } from '@mui/icons-material';
 import { LogoSettings, DEFAULT_SETTINGS } from '../../types';
 import TransformControls from './TransformControls';
@@ -20,8 +18,15 @@ interface Props {
 }
 
 const SizeSettingsDrawer: React.FC<Props> = ({
-  open, onClose, sizeLabel, settings, onChange, onReset,
-  hasCustomSettings, globalSettings, isIcon = false,
+  open,
+  onClose,
+  sizeLabel,
+  settings,
+  onChange,
+  onReset,
+  hasCustomSettings,
+  globalSettings,
+  isIcon = false,
 }) => {
   const update = (key: keyof LogoSettings, value: number | string | boolean) => {
     onChange({ ...settings, [key]: value });
@@ -39,14 +44,22 @@ const SizeSettingsDrawer: React.FC<Props> = ({
   };
 
   return (
-    <Drawer anchor="right" open={open} onClose={onClose} slotProps={{
-      paper: { sx: { width: 320, p: 2 } }
-    }}>
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={onClose}
+      slotProps={{
+        paper: { sx: { width: 320, p: 2 } },
+      }}
+    >
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="subtitle1" sx={{
-            fontWeight: 600
-          }}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             ⚙️ {sizeLabel}
           </Typography>
           {hasCustomSettings && (
@@ -59,12 +72,23 @@ const SizeSettingsDrawer: React.FC<Props> = ({
       </Box>
 
       <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-        <Button size="small" startIcon={<RestartAlt sx={{ fontSize: 14 }} />}
-          onClick={handleReset} color="warning" variant="outlined" fullWidth>
+        <Button
+          size="small"
+          startIcon={<RestartAlt sx={{ fontSize: 14 }} />}
+          onClick={handleReset}
+          color="warning"
+          variant="outlined"
+          fullWidth
+        >
           Reset
         </Button>
-        <Button size="small" startIcon={<ContentCopy sx={{ fontSize: 14 }} />}
-          onClick={handleCopyFromGlobal} variant="outlined" fullWidth>
+        <Button
+          size="small"
+          startIcon={<ContentCopy sx={{ fontSize: 14 }} />}
+          onClick={handleCopyFromGlobal}
+          variant="outlined"
+          fullWidth
+        >
           Copy Global
         </Button>
       </Box>
@@ -73,20 +97,13 @@ const SizeSettingsDrawer: React.FC<Props> = ({
         <Chip label="Transform" size="small" sx={{ fontSize: '0.65rem' }} />
       </Divider>
 
-      <TransformControls
-        settings={settings}
-        onUpdate={(key, v) => update(key, v)}
-        isIcon={isIcon}
-      />
+      <TransformControls settings={settings} onUpdate={(key, v) => update(key, v)} isIcon={isIcon} />
 
       <Divider sx={{ my: 2 }}>
         <Chip label="Appearance" size="small" sx={{ fontSize: '0.65rem' }} />
       </Divider>
 
-      <AppearanceControls
-        settings={settings}
-        onUpdate={(key, v) => update(key, v)}
-      />
+      <AppearanceControls settings={settings} onUpdate={(key, v) => update(key, v)} />
     </Drawer>
   );
 };

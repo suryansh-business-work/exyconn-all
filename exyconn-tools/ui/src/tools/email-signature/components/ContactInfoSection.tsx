@@ -6,7 +6,6 @@ import {
   Box,
   TextField,
   Typography,
-  
   InputAdornment,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
@@ -30,9 +29,13 @@ const ContactInfoSection: React.FC<ContactInfoSectionProps> = ({ formik }) => {
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Phone color="primary" fontSize="small" />
-          <Typography sx={{
-            fontWeight: 600
-          }}>Contact Information</Typography>
+          <Typography
+            sx={{
+              fontWeight: 600,
+            }}
+          >
+            Contact Information
+          </Typography>
         </Box>
       </AccordionSummary>
       <AccordionDetails>
@@ -56,7 +59,7 @@ const ContactInfoSection: React.FC<ContactInfoSectionProps> = ({ formik }) => {
                       <Email fontSize="small" color="action" />
                     </InputAdornment>
                   ),
-                }
+                },
               }}
             />
           </Grid>
@@ -78,7 +81,7 @@ const ContactInfoSection: React.FC<ContactInfoSectionProps> = ({ formik }) => {
                       <Phone fontSize="small" color="action" />
                     </InputAdornment>
                   ),
-                }
+                },
               }}
             />
           </Grid>
@@ -100,7 +103,7 @@ const ContactInfoSection: React.FC<ContactInfoSectionProps> = ({ formik }) => {
                       <PhoneAndroid fontSize="small" color="action" />
                     </InputAdornment>
                   ),
-                }
+                },
               }}
             />
           </Grid>
@@ -124,7 +127,7 @@ const ContactInfoSection: React.FC<ContactInfoSectionProps> = ({ formik }) => {
                       <LocationOn fontSize="small" color="action" />
                     </InputAdornment>
                   ),
-                }
+                },
               }}
             />
           </Grid>

@@ -18,9 +18,12 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, tokenUsage }) => 
   if (messages.length === 0) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', p: 3 }}>
-        <Typography variant="body2" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Start a conversation by asking a question...
         </Typography>
       </Box>
@@ -65,9 +68,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, tokenUsage }) => 
       ))}
       {tokenUsage && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-          <Stack direction="row" spacing={0.5} sx={{
-            alignItems: "center"
-          }}>
+          <Stack
+            direction="row"
+            spacing={0.5}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             <Token sx={{ fontSize: 14, color: 'text.secondary' }} />
             <Chip
               label={`In: ${tokenUsage.promptTokens}`}

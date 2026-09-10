@@ -237,8 +237,7 @@ export const aiGeneratorToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Can I make sure specific points appear in the reply?',
-        answer:
-          'Yes — list them in the Additional Context field and the generated reply will work them in naturally.',
+        answer: 'Yes — list them in the Additional Context field and the generated reply will work them in naturally.',
       },
       {
         question: 'Is the message I paste kept private?',

@@ -40,8 +40,9 @@ function LoginPageCard({ index, app }: Readonly<LoginPageCardProps>) {
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <RhfImageField
             editableUrl
             name={`loginPages.${index}.backgroundImageUrl`}
@@ -53,8 +54,9 @@ function LoginPageCard({ index, app }: Readonly<LoginPageCardProps>) {
         <Grid
           size={{
             xs: 12,
-            md: 8
-          }}>
+            md: 8,
+          }}
+        >
           <Flex direction="column" spacing={1.5}>
             <RhfTextField
               name={`loginPages.${index}.name`}

@@ -100,7 +100,7 @@ const UrlResultsTable: React.FC<UrlResultsTableProps> = ({ urls, onCopyAll, onEx
                   <Search fontSize="small" />
                 </InputAdornment>
               ),
-            }
+            },
           }}
         />
         <Tooltip title="Copy All">
@@ -130,9 +130,13 @@ const UrlResultsTable: React.FC<UrlResultsTableProps> = ({ urls, onCopyAll, onEx
                   <Typography variant="body2" noWrap sx={{ maxWidth: 400 }}>
                     {u.url}
                   </Typography>
-                  <Typography variant="caption" noWrap sx={{
-                    color: "text.secondary"
-                  }}>
+                  <Typography
+                    variant="caption"
+                    noWrap
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {u.text}
                   </Typography>
                 </TableCell>

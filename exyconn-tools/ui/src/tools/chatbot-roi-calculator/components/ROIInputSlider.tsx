@@ -58,14 +58,18 @@ const ROIInputSlider: React.FC<ROIInputSliderProps> = ({
             variant="body1"
             sx={{
               fontWeight: 500,
-              color: "text.primary"
-            }}>
+              color: 'text.primary',
+            }}
+          >
             {label}
           </Typography>
           {helperText && (
-            <Typography variant="caption" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {helperText}
             </Typography>
           )}
@@ -84,9 +88,12 @@ const ROIInputSlider: React.FC<ROIInputSliderProps> = ({
             input: {
               endAdornment: unit ? (
                 <InputAdornment position="end">
-                  <Typography variant="caption" sx={{
-                    color: "text.secondary"
-                  }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {unit}
                   </Typography>
                 </InputAdornment>
@@ -98,8 +105,9 @@ const ROIInputSlider: React.FC<ROIInputSliderProps> = ({
               max,
               step,
               style: { textAlign: 'center', width: 60 },
-            }
-          }} />
+            },
+          }}
+        />
       </Box>
       <Slider
         value={value}

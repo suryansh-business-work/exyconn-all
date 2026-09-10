@@ -9,7 +9,7 @@ function ControlledSelect() {
       value={value}
       onChange={(event) => setValue(event.target.value as string)}
       slotProps={{
-        htmlInput: { 'aria-label': 'demo-select' }
+        htmlInput: { 'aria-label': 'demo-select' },
       }}
     >
       <MenuItem value="a">Alpha</MenuItem>

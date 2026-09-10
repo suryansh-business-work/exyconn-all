@@ -75,16 +75,17 @@ export default function NavDrawer({
             backgroundColor: theme.palette.background.paper,
             borderRight: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
           }),
-        }
+        },
       }}
     >
       <Stack
         direction="row"
         spacing={1.5}
         sx={{
-          alignItems: "center",
-          p: 2.5
-        }}>
+          alignItems: 'center',
+          p: 2.5,
+        }}
+      >
         <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40, fontWeight: 700 }}>
           {initials(name)}
         </Avatar>
@@ -96,9 +97,10 @@ export default function NavDrawer({
             variant="caption"
             noWrap
             sx={{
-              color: "text.secondary",
-              display: "block"
-            }}>
+              color: 'text.secondary',
+              display: 'block',
+            }}
+          >
             {user?.email ?? ''}
           </Typography>
         </Box>
@@ -120,8 +122,9 @@ export default function NavDrawer({
               secondary={item.caption}
               slotProps={{
                 primary: { variant: 'subtitle2' },
-                secondary: { variant: 'caption' }
-              }} />
+                secondary: { variant: 'caption' },
+              }}
+            />
           </ListItemButton>
         ))}
       </List>

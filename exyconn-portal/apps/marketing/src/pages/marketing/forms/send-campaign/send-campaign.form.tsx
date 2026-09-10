@@ -105,9 +105,13 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
           Add an email subject and body to this campaign before sending.
         </Alert>
       )}
-      <Stack direction="row" spacing={1} sx={{
-        alignItems: "flex-start"
-      }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          alignItems: 'flex-start',
+        }}
+      >
         <RhfTextField
           name="testEmail"
           label="Test address"

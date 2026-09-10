@@ -11,12 +11,28 @@ import { useLogoState } from './useLogoState';
 
 const LogoSet: React.FC = () => {
   const {
-    image, settings, format, setFormat, applyScope, setApplyScope,
-    customSizes, setCustomSizes, customSizesDialogOpen, setCustomSizesDialogOpen,
-    croppedImages, sizeSettings, history, hasCustomChanges,
-    handleImageUpload, handleUndo, handleRedo,
-    handleCroppedImage, handleSizeSettings, handleSettingsChange,
-    handleDelete, handleReset,
+    image,
+    settings,
+    format,
+    setFormat,
+    applyScope,
+    setApplyScope,
+    customSizes,
+    setCustomSizes,
+    customSizesDialogOpen,
+    setCustomSizesDialogOpen,
+    croppedImages,
+    sizeSettings,
+    history,
+    hasCustomChanges,
+    handleImageUpload,
+    handleUndo,
+    handleRedo,
+    handleCroppedImage,
+    handleSizeSettings,
+    handleSettingsChange,
+    handleDelete,
+    handleReset,
   } = useLogoState();
 
   const historyActions = (

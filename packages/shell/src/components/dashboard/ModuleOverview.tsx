@@ -58,8 +58,9 @@ export function ModuleOverview({
             key={stat.label}
             size={{
               xs: 6,
-              md: statCols
-            }}>
+              md: statCols,
+            }}
+          >
             <StatCard {...stat} />
           </Grid>
         ))}
@@ -72,8 +73,9 @@ export function ModuleOverview({
               key={breakdown.title}
               size={{
                 xs: 12,
-                md: breakdownCols
-              }}>
+                md: breakdownCols,
+              }}
+            >
               <StatBreakdown
                 title={breakdown.title}
                 buckets={breakdown.buckets}
@@ -90,9 +92,10 @@ export function ModuleOverview({
           spacing={1}
           useFlexGap
           sx={{
-            flexWrap: "wrap",
-            mb: 1.5
-          }}>
+            flexWrap: 'wrap',
+            mb: 1.5,
+          }}
+        >
           {links.map((link) => (
             <Button key={link.to} variant="outlined" onClick={() => navigate(link.to)}>
               {link.label}

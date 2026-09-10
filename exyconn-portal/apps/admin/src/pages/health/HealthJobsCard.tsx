@@ -19,12 +19,16 @@ function JobRow({ job, formatDateTime }: Readonly<JobRowProps>) {
         direction="row"
         spacing={1}
         sx={{
-          justifyContent: "space-between",
-          alignItems: "center"
-        }}>
-        <Typography variant="body2" sx={{
-          fontWeight: 600
-        }}>
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           {job.label}
         </Typography>
         <Chip
@@ -34,15 +38,23 @@ function JobRow({ job, formatDateTime }: Readonly<JobRowProps>) {
           variant="outlined"
         />
       </Stack>
-      <Typography variant="caption" component="p" sx={{
-        color: "text.secondary"
-      }}>
+      <Typography
+        variant="caption"
+        component="p"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         Last run: {lastRun}
       </Typography>
       {job.lastRunSummary && (
-        <Typography variant="caption" component="p" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          component="p"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {job.lastRunSummary}
         </Typography>
       )}

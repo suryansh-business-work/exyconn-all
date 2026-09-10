@@ -51,9 +51,7 @@ const SitemapValidator: React.FC = () => {
               onUrlChange={setSitemapUrl}
               onValidate={handleValidate}
             />
-            {result && (
-              <ValidationSummary result={result} errorCount={errors.length} warningCount={warnings.length} />
-            )}
+            {result && <ValidationSummary result={result} errorCount={errors.length} warningCount={warnings.length} />}
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, minHeight: 400 }}>
@@ -64,9 +62,10 @@ const SitemapValidator: React.FC = () => {
                   <Typography
                     variant="body2"
                     sx={{
-                      color: "text.secondary",
-                      mt: 1
-                    }}>
+                      color: 'text.secondary',
+                      mt: 1,
+                    }}
+                  >
                     Checks XML syntax, URL format, lastmod, changefreq, priority, and size limits
                   </Typography>
                 </Box>

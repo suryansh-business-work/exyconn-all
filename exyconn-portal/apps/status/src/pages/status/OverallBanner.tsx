@@ -27,14 +27,20 @@ export function OverallBanner({ overview }: Readonly<OverallBannerProps>) {
       <Flex alignItems="center" spacing={2}>
         <Icon sx={{ fontSize: iconSize['4xl'], color }} />
         <Box>
-          <Typography variant="h5" sx={{
-            fontWeight: 800
-          }}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 800,
+            }}
+          >
             {headline}
           </Typography>
-          <Typography variant="body2" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {overview.operational} of {overview.total} services operational · {checkedLine}
           </Typography>
         </Box>

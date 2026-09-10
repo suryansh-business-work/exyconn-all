@@ -37,9 +37,13 @@ const BusinessListItem: React.FC<BusinessListItemProps> = ({
         <ListItemText
           primary={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body2" noWrap sx={{
-                fontWeight: 500
-              }}>
+              <Typography
+                variant="body2"
+                noWrap
+                sx={{
+                  fontWeight: 500,
+                }}
+              >
                 {business.name}
               </Typography>
               {business.rating && (
@@ -54,9 +58,13 @@ const BusinessListItem: React.FC<BusinessListItemProps> = ({
             </Box>
           }
           secondary={
-            <Typography variant="caption" noWrap sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              noWrap
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {business.address}
             </Typography>
           }

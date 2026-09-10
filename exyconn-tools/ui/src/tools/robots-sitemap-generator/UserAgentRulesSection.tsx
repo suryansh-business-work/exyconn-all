@@ -37,16 +37,24 @@ const PathEditor: React.FC<{
 }> = ({ label, paths, ruleId, type, onAdd, onUpdate, onRemove }) => (
   <Box sx={{ mb: 1 }}>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-      <Typography variant="caption" sx={{
-        fontWeight: 600
-      }}>
+      <Typography
+        variant="caption"
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         {label}:
       </Typography>
       <Chip size="small" label="+" onClick={() => onAdd(ruleId, type)} />
     </Box>
-    <Stack direction="row" spacing={0.5} useFlexGap sx={{
-      flexWrap: "wrap"
-    }}>
+    <Stack
+      direction="row"
+      spacing={0.5}
+      useFlexGap
+      sx={{
+        flexWrap: 'wrap',
+      }}
+    >
       {paths.map((path, i) => (
         <Chip
           key={i}
@@ -59,7 +67,7 @@ const PathEditor: React.FC<{
               onChange={(e) => onUpdate(ruleId, type, i, e.target.value)}
               sx={{ width: 80 }}
               slotProps={{
-                input: { disableUnderline: true, sx: { fontSize: 12 } }
+                input: { disableUnderline: true, sx: { fontSize: 12 } },
               }}
             />
           }
@@ -85,9 +93,12 @@ const UserAgentRulesSection: React.FC<UserAgentRulesSectionProps> = ({
       sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2, maxHeight: 280, overflow: 'auto' }}
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="subtitle2" sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="subtitle2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           User Agent Rules
         </Typography>
         <Button size="small" startIcon={<Add />} onClick={onAddRule}>

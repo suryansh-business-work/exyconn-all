@@ -79,9 +79,10 @@ export default function LoginScreen({
       <ScreenLayout maxWidth={420}>
         <Stack
           sx={{
-            alignItems: "center",
-            mb: 2
-          }}>
+            alignItems: 'center',
+            mb: 2,
+          }}
+        >
           <BrandMark branding={branding} height={44} />
         </Stack>
 
@@ -92,9 +93,10 @@ export default function LoginScreen({
           <Typography
             variant="body2"
             sx={{
-              color: "text.secondary",
-              mb: 2
-            }}>
+              color: 'text.secondary',
+              mb: 2,
+            }}
+          >
             Use your Exyconn portal email and password.
           </Typography>
 

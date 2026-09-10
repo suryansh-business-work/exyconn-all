@@ -10,19 +10,17 @@ interface UrlInputPanelProps {
   onConvert: () => void;
 }
 
-const UrlInputPanel: React.FC<UrlInputPanelProps> = ({
-  url,
-  loading,
-  title,
-  onUrlChange,
-  onConvert,
-}) => {
+const UrlInputPanel: React.FC<UrlInputPanelProps> = ({ url, loading, title, onUrlChange, onConvert }) => {
   return (
     <>
       <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-        <Typography variant="subtitle2" gutterBottom sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="subtitle2"
+          gutterBottom
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Google Docs URL
         </Typography>
         <TextField
@@ -36,10 +34,11 @@ const UrlInputPanel: React.FC<UrlInputPanelProps> = ({
         <Typography
           variant="caption"
           sx={{
-            color: "text.secondary",
+            color: 'text.secondary',
             mt: 1,
-            display: 'block'
-          }}>
+            display: 'block',
+          }}
+        >
           Enter a Google Docs URL to convert to Markdown
         </Typography>
       </Paper>
@@ -63,14 +62,20 @@ const UrlInputPanel: React.FC<UrlInputPanelProps> = ({
 
       {title && (
         <Paper elevation={0} sx={{ p: 2, mt: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Document Title
           </Typography>
-          <Typography variant="body2" sx={{
-            fontWeight: 500
-          }}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 500,
+            }}
+          >
             {title}
           </Typography>
         </Paper>

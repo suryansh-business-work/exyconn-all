@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
 import {
-  Container, Alert, Snackbar, Paper, Box, Typography, TextField, Button, MenuItem, CircularProgress,
-  Chip, Accordion, AccordionSummary, AccordionDetails,
+  Container,
+  Alert,
+  Snackbar,
+  Paper,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+  CircularProgress,
+  Chip,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { Dns, Send, ExpandMore } from '@mui/icons-material';
@@ -52,21 +64,51 @@ const DNSLookup: React.FC = () => {
             <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Dns color="primary" />
-                <Typography variant="h6" sx={{
-                  fontWeight: 600
-                }}>DNS Lookup</Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 600,
+                  }}
+                >
+                  DNS Lookup
+                </Typography>
               </Box>
               <form onSubmit={formik.handleSubmit}>
-                <TextField fullWidth name="domain" label="Domain" placeholder="example.com"
-                  value={formik.values.domain} onChange={formik.handleChange} onBlur={formik.handleBlur}
+                <TextField
+                  fullWidth
+                  name="domain"
+                  label="Domain"
+                  placeholder="example.com"
+                  value={formik.values.domain}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   error={formik.touched.domain && Boolean(formik.errors.domain)}
-                  helperText={formik.touched.domain && formik.errors.domain} sx={{ mb: 2 }} />
-                <TextField fullWidth select name="type" label="Record Type" value={formik.values.type}
-                  onChange={formik.handleChange} sx={{ mb: 3 }}>
-                  {DNS_TYPES.map((t) => (<MenuItem key={t} value={t}>{t}</MenuItem>))}
+                  helperText={formik.touched.domain && formik.errors.domain}
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  fullWidth
+                  select
+                  name="type"
+                  label="Record Type"
+                  value={formik.values.type}
+                  onChange={formik.handleChange}
+                  sx={{ mb: 3 }}
+                >
+                  {DNS_TYPES.map((t) => (
+                    <MenuItem key={t} value={t}>
+                      {t}
+                    </MenuItem>
+                  ))}
                 </TextField>
-                <Button type="submit" variant="contained" fullWidth disabled={isLoading}
-                  startIcon={isLoading ? <CircularProgress size={18} /> : <Send />} sx={{ py: 1.25 }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  disabled={isLoading}
+                  startIcon={isLoading ? <CircularProgress size={18} /> : <Send />}
+                  sx={{ py: 1.25 }}
+                >
                   {isLoading ? 'Looking up...' : 'Lookup DNS'}
                 </Button>
               </form>
@@ -74,7 +116,11 @@ const DNSLookup: React.FC = () => {
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
-              <DomainResultDisplay title={`DNS Records for ${result.domain}`} icon={<Dns fontSize="small" />} data={result}>
+              <DomainResultDisplay
+                title={`DNS Records for ${result.domain}`}
+                icon={<Dns fontSize="small" />}
+                data={result}
+              >
                 {Object.entries(result)
                   .filter(([key]) => key !== 'domain')
                   .map(([key, value]) => (
@@ -86,7 +132,10 @@ const DNSLookup: React.FC = () => {
                         </Typography>
                       </AccordionSummary>
                       <AccordionDetails>
-                        <Typography variant="body2" sx={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap', fontSize: 12 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap', fontSize: 12 }}
+                        >
                           {JSON.stringify(value, null, 2)}
                         </Typography>
                       </AccordionDetails>
@@ -98,7 +147,9 @@ const DNSLookup: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

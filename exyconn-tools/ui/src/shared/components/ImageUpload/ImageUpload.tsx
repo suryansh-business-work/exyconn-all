@@ -134,10 +134,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         <Typography
           variant="caption"
           sx={{
-            color: "text.secondary",
+            color: 'text.secondary',
             mt: 0.5,
-            display: 'block'
-          }}>
+            display: 'block',
+          }}
+        >
           {helperText}
         </Typography>
       )}

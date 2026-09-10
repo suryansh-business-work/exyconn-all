@@ -8,15 +8,8 @@ interface GeneratedOutputProps {
   onDownload: () => void;
 }
 
-const GeneratedOutput: React.FC<GeneratedOutputProps> = ({
-  generatedXml,
-  onCopy,
-  onDownload,
-}) => (
-  <Paper
-    elevation={0}
-    sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 500 }}
-  >
+const GeneratedOutput: React.FC<GeneratedOutputProps> = ({ generatedXml, onCopy, onDownload }) => (
+  <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 500 }}>
     {!generatedXml ? (
       <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
         <ListAlt sx={{ fontSize: 48, mb: 2, opacity: 0.3 }} />
@@ -34,9 +27,12 @@ const GeneratedOutput: React.FC<GeneratedOutputProps> = ({
             justifyContent: 'space-between',
           }}
         >
-          <Typography variant="subtitle2" sx={{
-            fontWeight: 600
-          }}>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             Generated Sitemap
           </Typography>
           <Box>
@@ -59,7 +55,7 @@ const GeneratedOutput: React.FC<GeneratedOutputProps> = ({
             rows={18}
             value={generatedXml}
             slotProps={{
-              input: { readOnly: true, sx: { fontFamily: 'monospace', fontSize: 12 } }
+              input: { readOnly: true, sx: { fontFamily: 'monospace', fontSize: 12 } },
             }}
           />
         </Box>

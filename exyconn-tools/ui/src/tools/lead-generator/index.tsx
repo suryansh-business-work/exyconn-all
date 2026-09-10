@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { Box, Container, } from '@mui/material';
+import { Box, Container } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { TravelExplore } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';

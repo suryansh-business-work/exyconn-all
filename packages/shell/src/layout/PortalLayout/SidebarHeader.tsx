@@ -81,9 +81,9 @@ export function SidebarHeader({
                       variant: 'body2',
 
                       sx: {
-                        fontWeight: 600
-                      }
-                    }
+                        fontWeight: 600,
+                      },
+                    },
                   }}
                 />
                 <ChevronRightIcon fontSize="small" color="disabled" />
@@ -128,8 +128,9 @@ export function SidebarHeader({
                     </IconButton>
                   </InputAdornment>
                 ) : undefined,
-              }
-            }} />
+              },
+            }}
+          />
         </Box>
       )}
     </>

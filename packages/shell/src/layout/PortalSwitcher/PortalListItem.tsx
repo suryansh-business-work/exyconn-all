@@ -52,11 +52,12 @@ export function PortalListItem({ entry, onSelect }: Readonly<PortalListItemProps
         slotProps={{
           primary: {
             sx: {
-              fontWeight: 600
-            }
+              fontWeight: 600,
+            },
           },
-          secondary: { variant: 'caption' }
-        }} />
+          secondary: { variant: 'caption' },
+        }}
+      />
       {entry.isCurrent && (
         <Chip size="small" label="Current" icon={<CheckIcon />} sx={{ ml: 1, mt: 0.25 }} />
       )}

@@ -84,12 +84,18 @@ const ChatWithWebsite: React.FC = () => {
             <APIKeyInput />
             <Paper elevation={0} sx={{ p: 2, mt: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Link color="primary" sx={{
-                  fontSize: "small"
-                }} />
-                <Typography variant="subtitle2" sx={{
-                  fontWeight: 600
-                }}>
+                <Link
+                  color="primary"
+                  sx={{
+                    fontSize: 'small',
+                  }}
+                />
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                  }}
+                >
                   Website URL
                 </Typography>
               </Box>
@@ -130,9 +136,12 @@ const ChatWithWebsite: React.FC = () => {
               }}
             >
               <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider', bgcolor: 'grey.50' }}>
-                <Typography variant="subtitle2" sx={{
-                  fontWeight: 600
-                }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                  }}
+                >
                   Chat
                 </Typography>
               </Box>

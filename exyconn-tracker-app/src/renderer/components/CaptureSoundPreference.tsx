@@ -28,18 +28,28 @@ export default function CaptureSoundPreference({
   const caption = describe(mutedByWorkspace, preferences.muteCaptureSound);
 
   return (
-    <Stack direction="row" spacing={2} sx={{
-      alignItems: "flex-start"
-    }}>
+    <Stack
+      direction="row"
+      spacing={2}
+      sx={{
+        alignItems: 'flex-start',
+      }}
+    >
       <Stack spacing={0.25} sx={{ flex: 1, minWidth: 0 }}>
-        <Typography variant="body2" sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Mute the screenshot sound
         </Typography>
-        <Typography variant="caption" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {caption}
         </Typography>
       </Stack>
@@ -50,7 +60,7 @@ export default function CaptureSoundPreference({
           run(() => window.tracker.setPreferences({ muteCaptureSound: event.target.checked }))
         }
         slotProps={{
-          input: { 'aria-label': 'Mute the camera shutter on this computer' }
+          input: { 'aria-label': 'Mute the camera shutter on this computer' },
         }}
       />
     </Stack>

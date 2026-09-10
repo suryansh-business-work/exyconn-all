@@ -17,16 +17,20 @@ export function PageHeader({ title, subtitle, actionLabel, onAction, children }:
       direction={{ xs: 'column', sm: 'row' }}
       spacing={2}
       sx={{
-        justifyContent: "space-between",
+        justifyContent: 'space-between',
         alignItems: { xs: 'flex-start', sm: 'center' },
-        mb: 2
-      }}>
+        mb: 2,
+      }}
+    >
       <Box>
         <Typography variant="h4">{title}</Typography>
         {subtitle && (
-          <Typography variant="body2" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {subtitle}
           </Typography>
         )}

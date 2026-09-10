@@ -60,14 +60,20 @@ export function UptimeBars({ days }: Readonly<UptimeBarsProps>) {
         ))}
       </Flex>
       <Flex justifyContent="space-between" sx={{ mt: 0.5 }}>
-        <Typography variant="caption" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {formatWith(first?.date, DATE_FORMAT)}
         </Typography>
-        <Typography variant="caption" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {formatWith(last?.date, DATE_FORMAT)}
         </Typography>
       </Flex>

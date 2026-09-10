@@ -12,9 +12,12 @@ const InsightCard: React.FC<InsightCardProps> = ({ title, icon, children }) => (
     <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
         {icon}
-        <Typography variant="subtitle2" sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="subtitle2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           {title}
         </Typography>
       </Box>

@@ -77,7 +77,7 @@ export function RhfImageField({
                   error={Boolean(error)}
                   helperText={error ?? helperText}
                   slotProps={{
-                    htmlInput: { 'aria-label': label }
+                    htmlInput: { 'aria-label': label },
                   }}
                 />
               ) : (

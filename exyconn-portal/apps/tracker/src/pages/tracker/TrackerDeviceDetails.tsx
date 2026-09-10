@@ -75,8 +75,9 @@ export function TrackerDeviceDetails({
               key={fact.label}
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <Text size="caption" color="text.secondary" component="div">
                 {fact.label}
               </Text>

@@ -35,27 +35,33 @@ export const websiteUrlToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does it crawl the whole website or just one page?',
-        answer: 'It extracts the links found in the HTML of the single URL you submit, up to 500 of them. To follow links across many pages, use the Website Page Scanner or Site Structure Analyzer instead.',
+        answer:
+          'It extracts the links found in the HTML of the single URL you submit, up to 500 of them. To follow links across many pages, use the Website Page Scanner or Site Structure Analyzer instead.',
       },
       {
         question: 'What counts as a resource URL?',
-        answer: 'Links that point to files such as images, stylesheets, scripts, and documents rather than to other web pages. They are flagged separately so one filter chip can include or exclude them.',
+        answer:
+          'Links that point to files such as images, stylesheets, scripts, and documents rather than to other web pages. They are flagged separately so one filter chip can include or exclude them.',
       },
       {
         question: 'Is the URL I submit or the extracted data stored anywhere?',
-        answer: 'No. The Exyconn server fetches the page, parses it in memory, and sends the results straight back to your browser. Neither the URL you enter nor the extracted links are saved.',
+        answer:
+          'No. The Exyconn server fetches the page, parses it in memory, and sends the results straight back to your browser. Neither the URL you enter nor the extracted links are saved.',
       },
       {
         question: 'Can it extract links from pages behind a login?',
-        answer: 'No. The server fetches pages anonymously, so only publicly accessible URLs work. A password-protected page will fail or return only the links on its login screen.',
+        answer:
+          'No. The server fetches pages anonymously, so only publicly accessible URLs work. A password-protected page will fail or return only the links on its login screen.',
       },
       {
         question: 'Why are some links on the page missing from the results?',
-        answer: 'The extractor parses the HTML the server returns. Links generated purely by client-side JavaScript after the page loads are not in that HTML, so they cannot be captured.',
+        answer:
+          'The extractor parses the HTML the server returns. Links generated purely by client-side JavaScript after the page loads are not in that HTML, so they cannot be captured.',
       },
       {
         question: 'What does the CSV export contain?',
-        answer: 'Four columns per link: the URL, its anchor text, whether it is internal or external, and whether it is a resource file.',
+        answer:
+          'Four columns per link: the URL, its anchor text, whether it is internal or external, and whether it is a resource file.',
       },
     ],
     keywords: [
@@ -103,23 +109,28 @@ export const websiteUrlToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'How does the scanner decide which pages to visit?',
-        answer: 'It starts at the URL you enter and follows the internal links it discovers, recording each page’s depth, until it reaches your page limit. Pages not linked from any crawled page are never reached.',
+        answer:
+          'It starts at the URL you enter and follows the internal links it discovers, recording each page’s depth, until it reaches your page limit. Pages not linked from any crawled page are never reached.',
       },
       {
         question: 'What information is captured for each page?',
-        answer: 'The URL, title, meta description, HTTP status code, word count, H1–H3 headings, image count, link count, and crawl depth.',
+        answer:
+          'The URL, title, meta description, HTTP status code, word count, H1–H3 headings, image count, link count, and crawl depth.',
       },
       {
         question: 'Does it work on JavaScript-heavy single-page apps?',
-        answer: 'Partially. The scanner parses the HTML each page serves on first load, so content rendered only by client-side JavaScript may show empty headings or low word counts.',
+        answer:
+          'Partially. The scanner parses the HTML each page serves on first load, so content rendered only by client-side JavaScript may show empty headings or low word counts.',
       },
       {
         question: 'Is my scan data stored on your servers?',
-        answer: 'No. The crawl runs in memory on the Exyconn server and the results are returned directly to your browser. Nothing about the site or the scan is kept.',
+        answer:
+          'No. The crawl runs in memory on the Exyconn server and the results are returned directly to your browser. Nothing about the site or the scan is kept.',
       },
       {
         question: 'Why does the scan show fewer pages than my site actually has?',
-        answer: 'The crawl stops at your max-pages limit and only follows internal links reachable from the start URL. Raise the limit or start from a hub page like the homepage to cover more of the site.',
+        answer:
+          'The crawl stops at your max-pages limit and only follows internal links reachable from the start URL. Raise the limit or start from a hub page like the homepage to cover more of the site.',
       },
       {
         question: 'Can I scan a staging site behind a password?',
@@ -172,27 +183,33 @@ export const websiteUrlToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What is an orphan page?',
-        answer: 'A page found during the crawl that no other crawled page links to. Orphans are hard for visitors and search engines to discover, so they usually deserve internal links from related content.',
+        answer:
+          'A page found during the crawl that no other crawled page links to. Orphans are hard for visitors and search engines to discover, so they usually deserve internal links from related content.',
       },
       {
         question: 'What does click depth mean and why does it matter?',
-        answer: 'Depth is the minimum number of clicks needed to reach a page from the start URL. Pages buried several clicks deep tend to receive less crawl attention and less link equity, so important pages should stay shallow.',
+        answer:
+          'Depth is the minimum number of clicks needed to reach a page from the start URL. Pages buried several clicks deep tend to receive less crawl attention and less link equity, so important pages should stay shallow.',
       },
       {
         question: 'Why do incoming internal links matter for SEO?',
-        answer: 'Internal links pass authority and signal importance. A page with many incoming links is easier to crawl and typically ranks better than an equivalent page with few or none.',
+        answer:
+          'Internal links pass authority and signal importance. A page with many incoming links is easier to crawl and typically ranks better than an equivalent page with few or none.',
       },
       {
         question: 'How many pages can it analyze?',
-        answer: 'You set the limit before each run; the default is 30 pages. The crawl follows internal links from the start URL and stops when it hits your limit or runs out of links.',
+        answer:
+          'You set the limit before each run; the default is 30 pages. The crawl follows internal links from the start URL and stops when it hits your limit or runs out of links.',
       },
       {
         question: 'Is anything from my crawl stored?',
-        answer: 'No. The Exyconn server builds the structure in memory and returns it to your browser. Neither the URL nor the crawl results are saved.',
+        answer:
+          'No. The Exyconn server builds the structure in memory and returns it to your browser. Neither the URL nor the crawl results are saved.',
       },
       {
         question: 'Does it analyze external links too?',
-        answer: 'No. The analyzer is focused on site architecture, so it only follows and counts internal links within the domain you enter.',
+        answer:
+          'No. The analyzer is focused on site architecture, so it only follows and counts internal links within the domain you enter.',
       },
     ],
     keywords: [

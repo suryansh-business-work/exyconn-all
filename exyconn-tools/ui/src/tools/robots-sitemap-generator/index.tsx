@@ -92,9 +92,10 @@ const RobotsSitemapGenerator: React.FC = () => {
                 variant="caption"
                 gutterBottom
                 sx={{
-                  color: "text.secondary",
-                  display: "block"
-                }}>
+                  color: 'text.secondary',
+                  display: 'block',
+                }}
+              >
                 Crawl Delay: {crawlDelay === 0 ? 'None' : `${crawlDelay} seconds`}
               </Typography>
               <Slider

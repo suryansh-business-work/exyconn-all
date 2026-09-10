@@ -32,9 +32,13 @@ export default function MessageComposer({ sending, onSend }: Readonly<Props>): R
   };
 
   return (
-    <Stack direction="row" spacing={1} sx={{
-      alignItems: "flex-end"
-    }}>
+    <Stack
+      direction="row"
+      spacing={1}
+      sx={{
+        alignItems: 'flex-end',
+      }}
+    >
       <TextField
         fullWidth
         multiline
@@ -51,7 +55,7 @@ export default function MessageComposer({ sending, onSend }: Readonly<Props>): R
           }
         }}
         slotProps={{
-          htmlInput: { maxLength: MAX_CHARS, 'aria-label': 'Message' }
+          htmlInput: { maxLength: MAX_CHARS, 'aria-label': 'Message' },
         }}
       />
       <IconButton color="primary" aria-label="Send message" disabled={!canSend} onClick={submit}>

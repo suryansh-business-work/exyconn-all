@@ -49,10 +49,11 @@ export function PostList({
       <Typography
         variant="body2"
         sx={{
-          color: "text.secondary",
+          color: 'text.secondary',
           py: 4,
-          textAlign: 'center'
-        }}>
+          textAlign: 'center',
+        }}
+      >
         {emptyMessage}
       </Typography>
     );

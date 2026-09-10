@@ -17,8 +17,9 @@ export function ProfilePage() {
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <Box sx={[glass, { p: 3, textAlign: 'center' }]}>
             <AvatarUploader />
             <Heading level={6} sx={{ mt: 2 }}>
@@ -48,8 +49,9 @@ export function ProfilePage() {
         <Grid
           size={{
             xs: 12,
-            md: 8
-          }}>
+            md: 8,
+          }}
+        >
           <Box sx={[glass, { p: 3 }]}>
             <Heading level={6} sx={{ mb: 2 }}>
               Personal details

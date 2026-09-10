@@ -23,7 +23,7 @@ export function GoalProgressControl({
       onChange={(event) => onChange(Number(event.target.value))}
       sx={{ minWidth: 96 }}
       slotProps={{
-        htmlInput: { 'aria-label': 'Goal progress' }
+        htmlInput: { 'aria-label': 'Goal progress' },
       }}
     >
       {STEPS.map((step) => (

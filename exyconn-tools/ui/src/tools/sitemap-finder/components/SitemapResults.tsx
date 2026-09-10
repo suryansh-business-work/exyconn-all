@@ -1,20 +1,6 @@
 import React from 'react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Chip,
-  IconButton,
-  Tooltip,
-  List,
-  Divider,
-  Alert,
-} from '@mui/material';
-import {
-  Map,
-  CheckCircle,
-  ContentCopy,
-} from '@mui/icons-material';
+import { Box, Paper, Typography, Chip, IconButton, Tooltip, List, Divider, Alert } from '@mui/material';
+import { Map, CheckCircle, ContentCopy } from '@mui/icons-material';
 import { SitemapResult } from '../types';
 import SummaryStats from './SummaryStats';
 import SitemapListItem from './SitemapListItem';
@@ -47,9 +33,12 @@ const SitemapResults: React.FC<SitemapResultsProps> = ({ result }) => {
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 3 }}>
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h6" sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Sitemap Results
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -77,9 +66,12 @@ const SitemapResults: React.FC<SitemapResultsProps> = ({ result }) => {
       {result.sitemapsFound.length > 0 ? (
         <>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="subtitle1" sx={{
-              fontWeight: 600
-            }}>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontWeight: 600,
+              }}
+            >
               Found Sitemaps
             </Typography>
             <Tooltip title="Copy all sitemap URLs">
@@ -95,13 +87,7 @@ const SitemapResults: React.FC<SitemapResultsProps> = ({ result }) => {
 
           <List disablePadding>
             {result.sitemapsFound.map((sitemap, idx) => (
-              <SitemapListItem
-                key={idx}
-                sitemap={sitemap}
-                index={idx}
-                copiedItem={copiedItem}
-                onCopy={handleCopy}
-              />
+              <SitemapListItem key={idx} sitemap={sitemap} index={idx} copiedItem={copiedItem} onCopy={handleCopy} />
             ))}
           </List>
         </>

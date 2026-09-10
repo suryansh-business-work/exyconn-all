@@ -59,10 +59,11 @@ export function TicketDetailBody({ ticket, onChanged, onCancel }: Readonly<Ticke
         direction="row"
         spacing={1}
         sx={{
-          alignItems: "center",
+          alignItems: 'center',
           flexWrap: 'wrap',
-          gap: 1
-        }}>
+          gap: 1,
+        }}
+      >
         <StatusChip value={ticket.status} />
         <StatusChip value={ticket.priority} />
         <StatusChip value={ticket.slaState} />

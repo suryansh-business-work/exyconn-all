@@ -46,9 +46,10 @@ export default function ReportTable({ days, loading }: Readonly<Props>): ReactEl
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
-            mt: 0.5
-          }}>
+            color: 'text.secondary',
+            mt: 0.5,
+          }}
+        >
           Days appear here once you start tracking and sync.
         </Typography>
       </Surface>

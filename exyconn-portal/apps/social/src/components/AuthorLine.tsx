@@ -28,9 +28,13 @@ export function AuthorLine({ author, at, dense = false }: Readonly<AuthorLinePro
   const size = dense ? 32 : 44;
 
   return (
-    <Stack direction="row" spacing={1.5} sx={{
-      alignItems: "center"
-    }}>
+    <Stack
+      direction="row"
+      spacing={1.5}
+      sx={{
+        alignItems: 'center',
+      }}
+    >
       <Avatar
         src={author.avatarUrl ?? undefined}
         alt={author.name}
@@ -45,14 +49,20 @@ export function AuthorLine({ author, at, dense = false }: Readonly<AuthorLinePro
           underline="hover"
           variant={dense ? 'body2' : 'subtitle2'}
           sx={{
-            color: "text.primary",
-            fontWeight: 600
-          }}>
+            color: 'text.primary',
+            fontWeight: 600,
+          }}
+        >
           {author.name}
         </Link>
-        <Typography variant="caption" component="div" noWrap sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          component="div"
+          noWrap
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {role ? `${role} · ` : ''}
           {formatRelative(at)}
         </Typography>

@@ -86,8 +86,9 @@ export function FinanceOverviewPage() {
           <Grid
             size={{
               xs: 12,
-              md: 4
-            }}>
+              md: 4,
+            }}
+          >
             <FinanceMoneyPanel
               title="Earned and spent"
               basis="Accrual — dated when it was invoiced or incurred, whenever the money moves."
@@ -97,8 +98,9 @@ export function FinanceOverviewPage() {
           <Grid
             size={{
               xs: 12,
-              md: 4
-            }}>
+              md: 4,
+            }}
+          >
             <FinanceMoneyPanel
               title="Cash movement"
               basis="Cash — dated when the money actually arrived or left."
@@ -108,8 +110,9 @@ export function FinanceOverviewPage() {
           <Grid
             size={{
               xs: 12,
-              md: 4
-            }}>
+              md: 4,
+            }}
+          >
             <FinanceMoneyPanel
               title="Position today"
               basis="As of now, not the period — an old unpaid invoice is still owed today."
@@ -120,8 +123,9 @@ export function FinanceOverviewPage() {
           <Grid
             size={{
               xs: 12,
-              md: 7
-            }}>
+              md: 7,
+            }}
+          >
             <Box sx={{ p: 1 }}>
               <LineChart
                 labels={months.map((month) => month.label)}
@@ -133,8 +137,9 @@ export function FinanceOverviewPage() {
           <Grid
             size={{
               xs: 12,
-              md: 5
-            }}>
+              md: 5,
+            }}
+          >
             <StatBreakdown
               title="Spend by category"
               buckets={spend}

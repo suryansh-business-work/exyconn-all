@@ -83,9 +83,12 @@ const RtfToMarkdown: React.FC = () => {
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="subtitle2" sx={{
-                  fontWeight: 600
-                }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                  }}
+                >
                   RTF Content
                 </Typography>
                 <Button component="label" size="small" variant="outlined">
@@ -138,9 +141,10 @@ const RtfToMarkdown: React.FC = () => {
                   <Typography
                     variant="body2"
                     sx={{
-                      color: "text.secondary",
-                      mt: 1
-                    }}>
+                      color: 'text.secondary',
+                      mt: 1,
+                    }}
+                  >
                     The converted Markdown will appear here
                   </Typography>
                 </Box>
@@ -156,9 +160,12 @@ const RtfToMarkdown: React.FC = () => {
                       alignItems: 'center',
                     }}
                   >
-                    <Typography variant="subtitle2" sx={{
-                      fontWeight: 600
-                    }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                      }}
+                    >
                       Converted Markdown
                     </Typography>
                     <Box>

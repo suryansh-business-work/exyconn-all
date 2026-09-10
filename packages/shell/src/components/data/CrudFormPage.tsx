@@ -30,18 +30,22 @@ export function CrudFormPage({
       <Stack
         direction="row"
         sx={{
-          alignItems: "center",
-          mb: 1
-        }}>
+          alignItems: 'center',
+          mb: 1,
+        }}
+      >
         <Button onClick={onBack} startIcon={<ArrowBackIcon />} color="inherit" size="small">
           {backLabel}
         </Button>
       </Stack>
       <Typography variant="h4">{title}</Typography>
       {subtitle && (
-        <Typography variant="body2" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {subtitle}
         </Typography>
       )}

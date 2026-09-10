@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Tooltip, } from '@mui/material';
+import { Box, Typography, Tooltip } from '@mui/material';
 import Grid from '@mui/material/Grid';
 
 interface ColorPickerProps {
@@ -39,9 +39,12 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, colors, selectedColor,
         ))}
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-        <Typography variant="caption" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Custom:
         </Typography>
         <input

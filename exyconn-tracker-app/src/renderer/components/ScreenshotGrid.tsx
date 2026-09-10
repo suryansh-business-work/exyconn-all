@@ -27,11 +27,13 @@ export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Pro
       <Typography
         variant="body2"
         sx={{
-          color: "text.secondary",
-          textAlign: "center",
-          py: 3
-        }}>No screenshots on this day.
-              </Typography>
+          color: 'text.secondary',
+          textAlign: 'center',
+          py: 3,
+        }}
+      >
+        No screenshots on this day.
+      </Typography>
     );
   }
 
@@ -76,10 +78,11 @@ export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Pro
             <Typography
               variant="caption"
               sx={{
-                color: "text.secondary",
-                display: "block",
-                mt: 0.5
-              }}>
+                color: 'text.secondary',
+                display: 'block',
+                mt: 0.5,
+              }}
+            >
               {capturedAt} · {activityLabel(shot.activityPercent)}
             </Typography>
           </ButtonBase>

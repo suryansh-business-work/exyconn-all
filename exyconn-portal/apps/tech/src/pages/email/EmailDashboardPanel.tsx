@@ -65,8 +65,9 @@ export function EmailDashboardPanel() {
             key={stat.label}
             size={{
               xs: 6,
-              md: 3
-            }}>
+              md: 3,
+            }}
+          >
             <StatCard {...stat} />
           </Grid>
         ))}
@@ -76,8 +77,9 @@ export function EmailDashboardPanel() {
         <Grid
           size={{
             xs: 12,
-            md: 7
-          }}>
+            md: 7,
+          }}
+        >
           <Text size="label" component="div" sx={{ mb: 1 }}>
             Sent per day
           </Text>
@@ -90,8 +92,9 @@ export function EmailDashboardPanel() {
         <Grid
           size={{
             xs: 12,
-            md: 5
-          }}>
+            md: 5,
+          }}
+        >
           <StatBreakdown
             title="Busiest templates"
             buckets={usage}

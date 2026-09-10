@@ -98,9 +98,10 @@ const BackgroundRemovalDialog: React.FC<Props> = ({ open, onClose, currentImage,
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
-            mb: 2
-          }}>
+            color: 'text.secondary',
+            mb: 2,
+          }}
+        >
           Choose a background removal service:
         </Typography>
         <RadioGroup

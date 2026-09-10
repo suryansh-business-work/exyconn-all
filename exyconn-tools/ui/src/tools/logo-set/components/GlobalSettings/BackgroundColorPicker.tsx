@@ -34,9 +34,10 @@ const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
         <Typography
           variant="caption"
           sx={{
-            color: "text.secondary",
-            fontFamily: "monospace"
-          }}>
+            color: 'text.secondary',
+            fontFamily: 'monospace',
+          }}
+        >
           {backgroundColor}
         </Typography>
       </Box>
@@ -63,10 +64,11 @@ const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
           <Typography
             variant="caption"
             sx={{
-              color: "text.secondary",
+              color: 'text.secondary',
               fontSize: '0.6rem',
-              mr: 0.5
-            }}>
+              mr: 0.5,
+            }}
+          >
             From Image:
           </Typography>
           {extractedColors.map((color, index) => (

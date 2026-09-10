@@ -15,7 +15,8 @@ import { PDFDocument } from 'pdf-lib';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { PdfPreview } from '../../shared/components/PdfPreview';
 
-const formatSize = (b: number) => (b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(2)} MB`);
+const formatSize = (b: number) =>
+  b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(2)} MB`;
 
 export default function CompressPdf() {
   const [file, setFile] = useState<File | null>(null);
@@ -27,12 +28,28 @@ export default function CompressPdf() {
   const [result, setResult] = useState<Uint8Array | null>(null);
 
   const loadFile = useCallback((f: File) => {
-    if (f.type !== 'application/pdf') { setError('Please select a PDF file.'); return; }
-    setFile(f); setOriginalSize(f.size); setResult(null); setCompressedSize(0);
+    if (f.type !== 'application/pdf') {
+      setError('Please select a PDF file.');
+      return;
+    }
+    setFile(f);
+    setOriginalSize(f.size);
+    setResult(null);
+    setCompressedSize(0);
   }, []);
 
-  const onDrop = useCallback((e: DragEvent) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); }, [loadFile]);
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => { if (e.target.files?.[0]) loadFile(e.target.files[0]); e.target.value = ''; };
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+    },
+    [loadFile]
+  );
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) loadFile(e.target.files[0]);
+    e.target.value = '';
+  };
 
   const compress = async () => {
     if (!file) return;
@@ -43,18 +60,25 @@ export default function CompressPdf() {
       const saved = await doc.save();
       setResult(saved);
       setCompressedSize(saved.length);
-    } catch { setError('Failed to compress PDF.'); } finally { setProcessing(false); }
+    } catch {
+      setError('Failed to compress PDF.');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const download = () => {
     if (!result) return;
     const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
-    const a = document.createElement('a'); a.href = url; a.download = `compressed-${file?.name ?? 'document.pdf'}`; a.click(); URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `compressed-${file?.name ?? 'document.pdf'}`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
-  const reduction = originalSize > 0 && compressedSize > 0
-    ? (((originalSize - compressedSize) / originalSize) * 100).toFixed(1)
-    : null;
+  const reduction =
+    originalSize > 0 && compressedSize > 0 ? (((originalSize - compressedSize) / originalSize) * 100).toFixed(1) : null;
 
   return (
     <ToolLayout toolName="Compress PDF" toolIcon={<Compress />} toolColor="#10b981">
@@ -62,18 +86,34 @@ export default function CompressPdf() {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper
-              sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: dragOver ? '#10b981' : 'divider', cursor: 'pointer', transition: '0.2s' }}
-              onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)} onDrop={onDrop}
+              sx={{
+                p: 4,
+                textAlign: 'center',
+                border: '2px dashed',
+                borderColor: dragOver ? '#10b981' : 'divider',
+                cursor: 'pointer',
+                transition: '0.2s',
+              }}
+              onDragOver={(e: DragEvent) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={onDrop}
             >
               <CloudUpload sx={{ fontSize: 48, color: '#10b981', mb: 1 }} />
-              <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
+              <Typography variant="h6" gutterBottom>
+                Drag & Drop PDF Here
+              </Typography>
               <Typography
                 variant="body2"
                 sx={{
-                  color: "text.secondary",
-                  mb: 2
-                }}>or click to browse</Typography>
+                  color: 'text.secondary',
+                  mb: 2,
+                }}
+              >
+                or click to browse
+              </Typography>
               <Button variant="outlined" component="label" color="success">
                 Browse Files
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
@@ -81,10 +121,17 @@ export default function CompressPdf() {
             </Paper>
             {file && (
               <Paper sx={{ p: 2, mt: 2 }}>
-                <Typography variant="body2"><strong>{file.name}</strong></Typography>
-                <Typography variant="body2" sx={{
-                  color: "text.secondary"
-                }}>Original size: {formatSize(originalSize)}</Typography>
+                <Typography variant="body2">
+                  <strong>{file.name}</strong>
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
+                  Original size: {formatSize(originalSize)}
+                </Typography>
               </Paper>
             )}
 
@@ -93,13 +140,21 @@ export default function CompressPdf() {
 
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>Compression</Typography>
+              <Typography variant="h6" gutterBottom>
+                Compression
+              </Typography>
               <Alert severity="info" sx={{ mb: 2 }}>
-                This tool performs basic compression by re-serializing the PDF, which strips unused objects and may reduce file size. For advanced compression, consider dedicated tools.
+                This tool performs basic compression by re-serializing the PDF, which strips unused objects and may
+                reduce file size. For advanced compression, consider dedicated tools.
               </Alert>
               {processing && <LinearProgress sx={{ mb: 2 }} color="success" />}
-              <Button variant="contained" fullWidth onClick={compress} disabled={!file || processing}
-                sx={{ bgcolor: '#10b981', '&:hover': { bgcolor: '#059669' }, mb: 2 }}>
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={compress}
+                disabled={!file || processing}
+                sx={{ bgcolor: '#10b981', '&:hover': { bgcolor: '#059669' }, mb: 2 }}
+              >
                 {processing ? 'Compressing…' : 'Compress PDF'}
               </Button>
 
@@ -108,28 +163,57 @@ export default function CompressPdf() {
                   <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
                     <Grid container spacing={2}>
                       <Grid size={{ xs: 4 }}>
-                        <Typography variant="caption" sx={{
-                          color: "text.secondary"
-                        }}>Original</Typography>
-                        <Typography variant="body1" sx={{
-                          fontWeight: 600
-                        }}>{formatSize(originalSize)}</Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        >
+                          Original
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: 600,
+                          }}
+                        >
+                          {formatSize(originalSize)}
+                        </Typography>
                       </Grid>
                       <Grid size={{ xs: 4 }}>
-                        <Typography variant="caption" sx={{
-                          color: "text.secondary"
-                        }}>Compressed</Typography>
-                        <Typography variant="body1" sx={{
-                          fontWeight: 600
-                        }}>{formatSize(compressedSize)}</Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        >
+                          Compressed
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: 600,
+                          }}
+                        >
+                          {formatSize(compressedSize)}
+                        </Typography>
                       </Grid>
                       <Grid size={{ xs: 4 }}>
-                        <Typography variant="caption" sx={{
-                          color: "text.secondary"
-                        }}>Reduction</Typography>
-                        <Typography variant="body1" color={Number(reduction) > 0 ? 'success.main' : 'warning.main'} sx={{
-                          fontWeight: 600
-                        }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        >
+                          Reduction
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color={Number(reduction) > 0 ? 'success.main' : 'warning.main'}
+                          sx={{
+                            fontWeight: 600,
+                          }}
+                        >
                           {reduction}%
                         </Typography>
                       </Grid>
@@ -144,8 +228,15 @@ export default function CompressPdf() {
           </Grid>
         </Grid>
 
-        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity="error" onClose={() => setError('')}>{error}</Alert>
+        <Snackbar
+          open={!!error}
+          autoHideDuration={4000}
+          onClose={() => setError('')}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert severity="error" onClose={() => setError('')}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

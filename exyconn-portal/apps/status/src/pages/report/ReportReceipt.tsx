@@ -26,16 +26,18 @@ export function ReportReceipt({ reference, onAnother }: Readonly<ReportReceiptPr
         variant="h5"
         sx={{
           fontWeight: 800,
-          mt: 1
-        }}>
+          mt: 1,
+        }}
+      >
         Thank you — your report is with our tech team
       </Typography>
       <Typography
         variant="body1"
         sx={{
-          color: "text.secondary",
-          mt: 1
-        }}>
+          color: 'text.secondary',
+          mt: 1,
+        }}
+      >
         Quote this reference if you need to follow it up.
       </Typography>
       <Box

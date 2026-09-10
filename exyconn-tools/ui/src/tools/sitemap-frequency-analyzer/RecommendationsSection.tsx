@@ -19,9 +19,13 @@ const RecommendationsSection: React.FC<RecommendationsSectionProps> = ({ recomme
 
   return (
     <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-      <Typography variant="subtitle2" gutterBottom sx={{
-        fontWeight: 600
-      }}>
+      <Typography
+        variant="subtitle2"
+        gutterBottom
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         Recommendations
       </Typography>
       <Box sx={{ mt: 1 }}>
@@ -33,9 +37,12 @@ const RecommendationsSection: React.FC<RecommendationsSectionProps> = ({ recomme
             </Box>
           ))
         ) : (
-          <Typography variant="body2" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Add changefreq and priority values to your sitemap for optimization recommendations
           </Typography>
         )}

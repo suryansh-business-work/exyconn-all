@@ -78,7 +78,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
                     <AlternateEmailIcon fontSize="small" />
                   </InputAdornment>
                 ),
-              }
+              },
             }}
           />
           <RhfTextField
@@ -109,7 +109,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
                     </IconButton>
                   </InputAdornment>
                 ),
-              }
+              },
             }}
           />
           <Button

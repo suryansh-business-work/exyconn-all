@@ -8,7 +8,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  
   InputAdornment,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
@@ -38,9 +37,13 @@ const CTADisclaimerForm: React.FC<CTADisclaimerFormProps> = ({ formik }) => {
         <AccordionSummary expandIcon={<ExpandMore />}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Campaign color="primary" fontSize="small" />
-            <Typography sx={{
-              fontWeight: 600
-            }}>Call to Action</Typography>
+            <Typography
+              sx={{
+                fontWeight: 600,
+              }}
+            >
+              Call to Action
+            </Typography>
           </Box>
         </AccordionSummary>
         <AccordionDetails>
@@ -64,7 +67,7 @@ const CTADisclaimerForm: React.FC<CTADisclaimerFormProps> = ({ formik }) => {
                         <TextSnippet fontSize="small" color="action" />
                       </InputAdornment>
                     ),
-                  }
+                  },
                 }}
               />
             </Grid>
@@ -84,12 +87,15 @@ const CTADisclaimerForm: React.FC<CTADisclaimerFormProps> = ({ formik }) => {
                   input: {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Link color="action" sx={{
-                          fontSize: "small"
-                        }} />
+                        <Link
+                          color="action"
+                          sx={{
+                            fontSize: 'small',
+                          }}
+                        />
                       </InputAdornment>
                     ),
-                  }
+                  },
                 }}
               />
             </Grid>
@@ -101,19 +107,24 @@ const CTADisclaimerForm: React.FC<CTADisclaimerFormProps> = ({ formik }) => {
         <AccordionSummary expandIcon={<ExpandMore />}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <TextSnippet color="primary" fontSize="small" />
-            <Typography sx={{
-              fontWeight: 600
-            }}>Disclaimer (Legal Text)</Typography>
+            <Typography
+              sx={{
+                fontWeight: 600,
+              }}
+            >
+              Disclaimer (Legal Text)
+            </Typography>
           </Box>
         </AccordionSummary>
         <AccordionDetails>
           <Typography
             variant="caption"
             sx={{
-              color: "text.secondary",
+              color: 'text.secondary',
               mb: 1.5,
-              display: 'block'
-            }}>
+              display: 'block',
+            }}
+          >
             Add confidentiality notices, legal disclaimers, or other text that appears below your signature.
           </Typography>
           <Box

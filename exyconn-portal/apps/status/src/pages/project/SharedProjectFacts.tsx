@@ -18,18 +18,25 @@ export function SharedProjectFacts({ facts }: Readonly<SharedProjectFactsProps>)
           key={fact.label}
           size={{
             xs: 6,
-            md: 3
-          }}>
+            md: 3,
+          }}
+        >
           <Card variant="outlined" sx={{ p: 2, height: '100%' }}>
-            <Typography variant="caption" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {fact.label}
             </Typography>
             <Box>
-              <Typography variant="h6" sx={{
-                fontWeight: 700
-              }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 {fact.value}
               </Typography>
             </Box>

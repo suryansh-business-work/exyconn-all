@@ -42,10 +42,12 @@ export function TimeLogScreenshots({
       <Typography
         variant="body2"
         sx={{
-          color: "text.secondary",
-          mt: 1
-        }}>No screenshots were captured during this session.
-              </Typography>
+          color: 'text.secondary',
+          mt: 1,
+        }}
+      >
+        No screenshots were captured during this session.
+      </Typography>
     );
   }
 
@@ -75,9 +77,12 @@ export function TimeLogScreenshots({
                 sx={{ width: '100%', height: 110, objectFit: 'cover', display: 'block' }}
               />
             </Box>
-            <Typography variant="caption" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {formatDateTime(shot.capturedAt)}
               {shot.blurred ? ' · blurred' : ''}
             </Typography>

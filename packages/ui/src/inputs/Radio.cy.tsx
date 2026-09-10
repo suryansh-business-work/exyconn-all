@@ -3,21 +3,31 @@ import { RadioGroup } from './RadioGroup';
 
 describe('Radio (branded)', () => {
   it('renders unchecked by default', () => {
-    cy.mount(<Radio slotProps={{
-      input: { 'aria-label': 'option-a' }
-    }} />);
+    cy.mount(
+      <Radio
+        slotProps={{
+          input: { 'aria-label': 'option-a' },
+        }}
+      />,
+    );
     cy.get('input[type="radio"]').should('not.be.checked');
   });
 
   it('becomes checked when selected within a RadioGroup', () => {
     cy.mount(
       <RadioGroup name="demo" defaultValue="a">
-        <Radio value="a" slotProps={{
-          input: { 'aria-label': 'option-a' }
-        }} />
-        <Radio value="b" slotProps={{
-          input: { 'aria-label': 'option-b' }
-        }} />
+        <Radio
+          value="a"
+          slotProps={{
+            input: { 'aria-label': 'option-a' },
+          }}
+        />
+        <Radio
+          value="b"
+          slotProps={{
+            input: { 'aria-label': 'option-b' },
+          }}
+        />
       </RadioGroup>,
     );
     cy.get('input[value="b"]').click();

@@ -58,8 +58,9 @@ export function HostPanel() {
             key={stat.label}
             size={{
               xs: 6,
-              md: 3
-            }}>
+              md: 3,
+            }}
+          >
             <StatCard {...stat} />
           </Grid>
         ))}
@@ -68,8 +69,9 @@ export function HostPanel() {
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <InfraDetailCard
             title="Docker host"
             icon={<DnsIcon fontSize="small" />}
@@ -95,8 +97,9 @@ export function HostPanel() {
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <InfraDetailCard
             title="This API process"
             icon={<MemoryIcon fontSize="small" />}
@@ -124,8 +127,9 @@ export function HostPanel() {
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <InfraDetailCard
             title="MongoDB"
             icon={<StorageIcon fontSize="small" />}

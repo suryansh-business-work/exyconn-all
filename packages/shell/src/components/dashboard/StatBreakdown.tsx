@@ -41,9 +41,12 @@ export function StatBreakdown({
         {title}
       </Typography>
       {ordered.length === 0 && (
-        <Typography variant="caption" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {emptyMessage}
         </Typography>
       )}
@@ -53,17 +56,24 @@ export function StatBreakdown({
             <Stack
               direction="row"
               sx={{
-                justifyContent: "space-between",
-                mb: 0.25
-              }}>
-              <Typography variant="caption" sx={{
-                color: "text.secondary"
-              }}>
+                justifyContent: 'space-between',
+                mb: 0.25,
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {humanise(bucket.value)}
               </Typography>
-              <Typography variant="caption" sx={{
-                fontWeight: 700
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 {bucket.count}
               </Typography>
             </Stack>

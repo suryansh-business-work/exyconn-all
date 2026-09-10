@@ -15,16 +15,24 @@ export type TimeLogRow = ProjectTimeLogRowFieldsFragment;
 function TicketCell({ row }: Readonly<{ row: TimeLogRow }>) {
   if (!row.taskKey) {
     return (
-      <Typography variant="body2" sx={{
-        color: "text.secondary"
-      }}>No ticket
-              </Typography>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
+        No ticket
+      </Typography>
     );
   }
   return (
-    <Stack direction="row" spacing={1} sx={{
-      alignItems: "center"
-    }}>
+    <Stack
+      direction="row"
+      spacing={1}
+      sx={{
+        alignItems: 'center',
+      }}
+    >
       <Chip size="small" label={row.taskKey} />
       <Typography variant="body2" noWrap sx={{ maxWidth: 280 }}>
         {row.taskTitle}
@@ -47,9 +55,12 @@ function TimeCell({ row }: Readonly<{ row: TimeLogRow }>) {
   return (
     <Stack>
       <Typography variant="body2">{formatDuration(row.activeMs)}</Typography>
-      <Typography variant="caption" sx={{
-        color: "text.secondary"
-      }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         + {formatDuration(row.manualMs)} off-computer
       </Typography>
     </Stack>

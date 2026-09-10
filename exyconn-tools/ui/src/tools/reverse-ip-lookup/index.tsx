@@ -35,13 +35,24 @@ const ReverseIPLookup: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<SwapHoriz color="primary" />}
-              title="Reverse IP Lookup" label="IP Address" placeholder="8.8.8.8"
-              buttonText="Reverse Lookup" loadingText="Looking up..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<SwapHoriz color="primary" />}
+              title="Reverse IP Lookup"
+              label="IP Address"
+              placeholder="8.8.8.8"
+              buttonText="Reverse Lookup"
+              loadingText="Looking up..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
-              <DomainResultDisplay title={`Domains on ${result.ip}`} icon={<SwapHoriz fontSize="small" />} data={result}>
+              <DomainResultDisplay
+                title={`Domains on ${result.ip}`}
+                icon={<SwapHoriz fontSize="small" />}
+                data={result}
+              >
                 <Chip label={`${result.count} hostname(s) found`} color="primary" sx={{ mb: 2 }} />
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                   {(result.hostnames as string[])?.map((h, i) => (
@@ -52,9 +63,12 @@ const ReverseIPLookup: React.FC = () => {
                   <Typography
                     variant="body2"
                     sx={{
-                      color: "text.secondary",
-                      mt: 2
-                    }}>{result.message as string}</Typography>
+                      color: 'text.secondary',
+                      mt: 2,
+                    }}
+                  >
+                    {result.message as string}
+                  </Typography>
                 )}
               </DomainResultDisplay>
             )}
@@ -62,7 +76,9 @@ const ReverseIPLookup: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

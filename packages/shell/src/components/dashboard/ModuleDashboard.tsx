@@ -44,8 +44,9 @@ export function ModuleDashboard({
             key={stat.label}
             size={{
               xs: 6,
-              md: statCols
-            }}>
+              md: statCols,
+            }}
+          >
             <StatCard {...stat} />
           </Grid>
         ))}
@@ -56,10 +57,11 @@ export function ModuleDashboard({
           <Stack
             direction="row"
             sx={{
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 0.5
-            }}>
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 0.5,
+            }}
+          >
             <Typography variant="subtitle2">{chartTitle}</Typography>
             <Chip label="Last 16 periods" size="small" variant="outlined" />
           </Stack>

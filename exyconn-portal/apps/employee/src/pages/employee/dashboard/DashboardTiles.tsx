@@ -16,8 +16,9 @@ export function DashboardTiles({ stats }: Readonly<DashboardTilesProps>) {
             xs: 12,
             sm: 6,
             md: 4,
-            lg: 2
-          }}>
+            lg: 2,
+          }}
+        >
           <StatCard {...stat} />
         </Grid>
       ))}

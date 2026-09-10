@@ -29,14 +29,20 @@ export function ReportPage() {
   return (
     <Flex direction="column" spacing={3}>
       <Box>
-        <Typography variant="h5" sx={{
-          fontWeight: 800
-        }}>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 800,
+          }}
+        >
           Report a problem
         </Typography>
-        <Typography variant="body1" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="body1"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Tell us what broke and our tech team picks it up directly. You do not need an account, and
           you will get a reference to quote if you follow it up.
         </Typography>
@@ -56,14 +62,20 @@ export function ReportPage() {
       </Card>
 
       <Box>
-        <Typography variant="h6" sx={{
-          fontWeight: 700
-        }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 700,
+          }}
+        >
           Check a report
         </Typography>
-        <Typography variant="body2" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Already reported something? Quote the reference from your receipt to see where it is.
         </Typography>
       </Box>

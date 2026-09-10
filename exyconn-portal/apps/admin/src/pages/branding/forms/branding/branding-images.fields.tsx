@@ -23,8 +23,9 @@ export function BrandingImagesFields() {
           size={{
             xs: 12,
             sm: 6,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <RhfImageField
             name={field.name}
             label={field.label}

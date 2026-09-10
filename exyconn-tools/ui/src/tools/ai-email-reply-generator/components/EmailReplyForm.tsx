@@ -11,7 +11,7 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { MailOutline, Send } from '@mui/icons-material';
+import { MailOutlineOutlined, Send } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
@@ -39,10 +39,13 @@ const EmailReplyForm: React.FC<EmailFormProps> = ({ onSubmit, isLoading }) => {
   return (
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-        <MailOutline color="primary" />
-        <Typography variant="h6" sx={{
-          fontWeight: 600
-        }}>
+        <MailOutlineOutlined color="primary" />
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Generate Email Reply
         </Typography>
       </Box>

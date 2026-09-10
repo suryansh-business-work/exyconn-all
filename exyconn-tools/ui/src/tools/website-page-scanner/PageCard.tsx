@@ -1,22 +1,6 @@
 import React from 'react';
-import {
-  Box,
-  Typography,
-  Chip,
-  Stack,
-  IconButton,
-  Card,
-  CardContent,
-  Collapse,
-} from '@mui/material';
-import {
-  ExpandMore,
-  ExpandLess,
-  Article,
-  Image as ImageIcon,
-  Link as LinkIcon,
-  Title,
-} from '@mui/icons-material';
+import { Box, Typography, Chip, Stack, IconButton, Card, CardContent, Collapse } from '@mui/material';
+import { ExpandMore, ExpandLess, Article, Image as ImageIcon, Link as LinkIcon, Title } from '@mui/icons-material';
 import { PageInfo } from './types';
 
 interface PageCardProps {
@@ -44,8 +28,9 @@ const PageCard: React.FC<PageCardProps> = ({ page, isExpanded, onToggle }) => {
                 noWrap
                 sx={{
                   fontWeight: 600,
-                  flex: 1
-                }}>
+                  flex: 1,
+                }}
+              >
                 {page.title}
               </Typography>
               <Chip
@@ -60,9 +45,10 @@ const PageCard: React.FC<PageCardProps> = ({ page, isExpanded, onToggle }) => {
               variant="caption"
               noWrap
               sx={{
-                color: "text.secondary",
-                display: "block"
-              }}>
+                color: 'text.secondary',
+                display: 'block',
+              }}
+            >
               {page.url}
             </Typography>
             <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
@@ -75,9 +61,12 @@ const PageCard: React.FC<PageCardProps> = ({ page, isExpanded, onToggle }) => {
                 <Typography variant="caption">{page.images} images</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <LinkIcon color="action" sx={{
-                  fontSize: "small"
-                }} />
+                <LinkIcon
+                  color="action"
+                  sx={{
+                    fontSize: 'small',
+                  }}
+                />
                 <Typography variant="caption">{page.links} links</Typography>
               </Box>
             </Stack>
@@ -92,9 +81,10 @@ const PageCard: React.FC<PageCardProps> = ({ page, isExpanded, onToggle }) => {
               <Typography
                 variant="body2"
                 sx={{
-                  color: "text.secondary",
-                  mb: 1
-                }}>
+                  color: 'text.secondary',
+                  mb: 1,
+                }}
+              >
                 {page.description}
               </Typography>
             )}
@@ -102,15 +92,23 @@ const PageCard: React.FC<PageCardProps> = ({ page, isExpanded, onToggle }) => {
               <Box sx={{ mb: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
                   <Title fontSize="small" />
-                  <Typography variant="caption" sx={{
-                    fontWeight: 600
-                  }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 600,
+                    }}
+                  >
                     H1 Headings
                   </Typography>
                 </Box>
-                <Stack direction="row" spacing={0.5} useFlexGap sx={{
-                  flexWrap: "wrap"
-                }}>
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  useFlexGap
+                  sx={{
+                    flexWrap: 'wrap',
+                  }}
+                >
                   {page.headings.h1.map((h, i) => (
                     <Chip key={i} label={h} size="small" variant="outlined" />
                   ))}
@@ -123,20 +121,24 @@ const PageCard: React.FC<PageCardProps> = ({ page, isExpanded, onToggle }) => {
                   variant="caption"
                   sx={{
                     fontWeight: 600,
-                    display: "block",
-                    mb: 0.5
-                  }}>
+                    display: 'block',
+                    mb: 0.5,
+                  }}
+                >
                   H2 Headings
                 </Typography>
-                <Stack direction="row" spacing={0.5} useFlexGap sx={{
-                  flexWrap: "wrap"
-                }}>
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  useFlexGap
+                  sx={{
+                    flexWrap: 'wrap',
+                  }}
+                >
                   {page.headings.h2.slice(0, 5).map((h, i) => (
                     <Chip key={i} label={h} size="small" variant="outlined" sx={{ fontSize: 10 }} />
                   ))}
-                  {page.headings.h2.length > 5 && (
-                    <Chip label={`+${page.headings.h2.length - 5} more`} size="small" />
-                  )}
+                  {page.headings.h2.length > 5 && <Chip label={`+${page.headings.h2.length - 5} more`} size="small" />}
                 </Stack>
               </Box>
             )}

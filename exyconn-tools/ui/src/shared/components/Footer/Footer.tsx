@@ -38,18 +38,22 @@ const Footer: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Logo height={24} sx={{ opacity: 0.85 }} />
             <Divider orientation="vertical" flexItem sx={{ height: 20, alignSelf: 'center' }} />
-            <Typography variant="body2" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               © {currentYear} Exyconn. All rights reserved.
             </Typography>
             <Typography
               variant="caption"
               sx={{
-                color: "text.disabled",
+                color: 'text.disabled',
                 fontSize: '0.65rem',
-                opacity: 0.6
-              }}>
+                opacity: 0.6,
+              }}
+            >
               v1.0.0
             </Typography>
           </Box>
@@ -69,14 +73,15 @@ const Footer: React.FC = () => {
                 rel="noopener noreferrer"
                 underline="hover"
                 sx={{
-                  color: "text.secondary",
+                  color: 'text.secondary',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 0.5,
                   fontSize: '0.8rem',
                   transition: 'color 0.2s',
-                  '&:hover': { color: 'primary.main' }
-                }}>
+                  '&:hover': { color: 'primary.main' },
+                }}
+              >
                 {link.label}
                 <OpenInNew sx={{ fontSize: 12, opacity: 0.6 }} />
               </Link>

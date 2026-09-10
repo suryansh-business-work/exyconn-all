@@ -66,12 +66,16 @@ const SizeItem: React.FC<SizeItemProps> = ({ size, index, sizeErrors, sizeTouche
           error={sizeTouched.width && Boolean(sizeErrors.width)}
           helperText={sizeTouched.width && sizeErrors.width}
           slotProps={{
-            htmlInput: { min: 1, max: 8192 }
+            htmlInput: { min: 1, max: 8192 },
           }}
         />
-        <Typography sx={{
-          color: "text.secondary"
-        }}>×</Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          ×
+        </Typography>
         <Field
           as={TextField}
           name={`sizes.${index}.height`}
@@ -82,7 +86,7 @@ const SizeItem: React.FC<SizeItemProps> = ({ size, index, sizeErrors, sizeTouche
           error={sizeTouched.height && Boolean(sizeErrors.height)}
           helperText={sizeTouched.height && sizeErrors.height}
           slotProps={{
-            htmlInput: { min: 1, max: 8192 }
+            htmlInput: { min: 1, max: 8192 },
           }}
         />
         <Chip label={`${size.width}×${size.height}`} size="small" variant="filled" sx={{ minWidth: 90 }} />
@@ -92,9 +96,10 @@ const SizeItem: React.FC<SizeItemProps> = ({ size, index, sizeErrors, sizeTouche
         <Typography
           variant="caption"
           sx={{
-            color: "text.secondary",
-            mr: 1
-          }}>
+            color: 'text.secondary',
+            mr: 1,
+          }}
+        >
           Quick:
         </Typography>
         {quickPresets.map((preset) => (

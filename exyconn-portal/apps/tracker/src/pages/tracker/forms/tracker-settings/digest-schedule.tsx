@@ -29,8 +29,9 @@ export function DigestScheduleFields() {
           <Grid
             size={{
               xs: 12,
-              sm: 6
-            }}>
+              sm: 6,
+            }}
+          >
             <RhfTextField
               name="digestHour"
               label="Send at (hour, 0–23)"

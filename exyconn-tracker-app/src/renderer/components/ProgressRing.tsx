@@ -69,9 +69,10 @@ export default function ProgressRing({
           <Typography
             variant="caption"
             sx={{
-              color: "text.secondary",
-              display: "block"
-            }}>
+              color: 'text.secondary',
+              display: 'block',
+            }}
+          >
             {caption}
           </Typography>
         ) : null}

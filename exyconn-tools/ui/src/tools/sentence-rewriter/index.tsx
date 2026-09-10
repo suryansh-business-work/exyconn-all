@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import {
-  Container, Box, Typography, TextField, Button, Paper, Alert, Snackbar, Chip,
-  List, ListItem, ListItemIcon, ListItemText,
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Alert,
+  Snackbar,
+  Chip,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { ShortText, Lightbulb } from '@mui/icons-material';
@@ -15,7 +26,10 @@ const SentenceRewriter: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleAnalyze = async () => {
-    if (text.trim().length < 10) { setError('Enter at least 10 characters.'); return; }
+    if (text.trim().length < 10) {
+      setError('Enter at least 10 characters.');
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -29,7 +43,9 @@ const SentenceRewriter: React.FC = () => {
       setResult(data.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed');
-    } finally { setIsLoading(false); }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -43,16 +59,30 @@ const SentenceRewriter: React.FC = () => {
                 sx={{
                   fontWeight: 700,
                   mb: 2,
-                  fontSize: '1rem'
-                }}>
+                  fontSize: '1rem',
+                }}
+              >
                 Make Writing Clearer
               </Typography>
-              <TextField fullWidth size="small" label="Enter sentence(s)" placeholder="Type your sentence(s)..."
-                value={text} onChange={(e) => setText(e.target.value)} multiline rows={6} sx={{ mb: 2 }} />
-              <Button fullWidth variant="contained" onClick={handleAnalyze}
+              <TextField
+                fullWidth
+                size="small"
+                label="Enter sentence(s)"
+                placeholder="Type your sentence(s)..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                multiline
+                rows={6}
+                sx={{ mb: 2 }}
+              />
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleAnalyze}
                 disabled={isLoading || text.trim().length < 10}
                 startIcon={<ShortText />}
-                sx={{ textTransform: 'none', bgcolor: '#ec4899', '&:hover': { bgcolor: '#db2777' } }}>
+                sx={{ textTransform: 'none', bgcolor: '#ec4899', '&:hover': { bgcolor: '#db2777' } }}
+              >
                 {isLoading ? 'Analyzing...' : 'Analyze Sentences'}
               </Button>
             </Paper>
@@ -65,14 +95,26 @@ const SentenceRewriter: React.FC = () => {
                     variant="subtitle2"
                     sx={{
                       fontWeight: 700,
-                      mb: 2
-                    }}>Analysis</Typography>
+                      mb: 2,
+                    }}
+                  >
+                    Analysis
+                  </Typography>
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
                     <Chip size="small" label={`${result.wordCount} words`} />
                     <Chip size="small" label={`${result.sentenceCount} sentences`} />
                     <Chip size="small" label={`Avg ${result.averageSentenceLength} words/sentence`} />
-                    <Chip size="small" label={`Readability: ${result.readability}`}
-                      color={result.readability === 'Easy' ? 'success' : result.readability === 'Moderate' ? 'warning' : 'error'} />
+                    <Chip
+                      size="small"
+                      label={`Readability: ${result.readability}`}
+                      color={
+                        result.readability === 'Easy'
+                          ? 'success'
+                          : result.readability === 'Moderate'
+                            ? 'warning'
+                            : 'error'
+                      }
+                    />
                   </Box>
                 </Paper>
                 {Array.isArray(result.suggestions) && result.suggestions.length > 0 && (
@@ -81,23 +123,29 @@ const SentenceRewriter: React.FC = () => {
                       variant="subtitle2"
                       sx={{
                         fontWeight: 700,
-                        mb: 1
-                      }}>Improvement Suggestions</Typography>
+                        mb: 1,
+                      }}
+                    >
+                      Improvement Suggestions
+                    </Typography>
                     <List dense>
                       {(result.suggestions as string[]).map((s, idx) => (
                         <ListItem key={idx} disablePadding sx={{ mb: 0.5 }}>
                           <ListItemIcon sx={{ minWidth: 28 }}>
                             <Lightbulb sx={{ fontSize: 16, color: 'warning.main' }} />
                           </ListItemIcon>
-                          <ListItemText primary={s} slotProps={{
-                            primary: {
-                              variant: 'body2',
+                          <ListItemText
+                            primary={s}
+                            slotProps={{
+                              primary: {
+                                variant: 'body2',
 
-                              sx: {
-                                fontSize: '0.8rem'
-                              }
-                            }
-                          }} />
+                                sx: {
+                                  fontSize: '0.8rem',
+                                },
+                              },
+                            }}
+                          />
                         </ListItem>
                       ))}
                     </List>
@@ -114,7 +162,9 @@ const SentenceRewriter: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

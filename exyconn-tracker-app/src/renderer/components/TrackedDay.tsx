@@ -21,7 +21,7 @@ export default function TrackedDay({
   day,
   outsideCurrentMonth,
   ...rest
-}: Readonly<PickerDayProps<Date>>): ReactElement {
+}: Readonly<PickerDayProps>): ReactElement {
   const tracked = useContext(TrackedDatesContext);
   const isTracked = !outsideCurrentMonth && tracked.has(dateKey(day));
 

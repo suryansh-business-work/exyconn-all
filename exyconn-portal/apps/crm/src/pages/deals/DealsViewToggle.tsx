@@ -16,9 +16,10 @@ export function DealsViewToggle() {
     <Stack
       direction="row"
       sx={{
-        justifyContent: "flex-end",
-        mb: 1
-      }}>
+        justifyContent: 'flex-end',
+        mb: 1,
+      }}
+    >
       <ToggleButtonGroup
         size="small"
         exclusive

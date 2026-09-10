@@ -1,11 +1,26 @@
 import React from 'react';
 import {
-  Box, Typography, Chip, IconButton, Tooltip,
-  ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction, Link,
+  Box,
+  Typography,
+  Chip,
+  IconButton,
+  Tooltip,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListItemSecondaryAction,
+  Link,
 } from '@mui/material';
 import {
-  CheckCircle, ContentCopy, OpenInNew, Description,
-  Folder, TextSnippet, Language, Map, Numbers,
+  CheckCircle,
+  ContentCopy,
+  OpenInNew,
+  Description,
+  Folder,
+  TextSnippet,
+  Language,
+  Map,
+  Numbers,
 } from '@mui/icons-material';
 import { SitemapInfo } from '../types';
 
@@ -18,21 +33,31 @@ interface SitemapListItemProps {
 
 const getTypeIcon = (type: SitemapInfo['type']) => {
   switch (type) {
-    case 'index': return <Folder color="primary" />;
-    case 'xml': return <Description color="success" />;
-    case 'txt': return <TextSnippet color="action" />;
-    case 'html': return <Language color="warning" />;
-    default: return <Map color="action" />;
+    case 'index':
+      return <Folder color="primary" />;
+    case 'xml':
+      return <Description color="success" />;
+    case 'txt':
+      return <TextSnippet color="action" />;
+    case 'html':
+      return <Language color="warning" />;
+    default:
+      return <Map color="action" />;
   }
 };
 
 const getTypeLabel = (type: SitemapInfo['type']) => {
   switch (type) {
-    case 'index': return 'Sitemap Index';
-    case 'xml': return 'XML Sitemap';
-    case 'txt': return 'Text Sitemap';
-    case 'html': return 'HTML Sitemap';
-    default: return 'Unknown';
+    case 'index':
+      return 'Sitemap Index';
+    case 'xml':
+      return 'XML Sitemap';
+    case 'txt':
+      return 'Text Sitemap';
+    case 'html':
+      return 'HTML Sitemap';
+    default:
+      return 'Unknown';
   }
 };
 
@@ -64,30 +89,42 @@ const SitemapListItemComponent: React.FC<SitemapListItemProps> = ({ sitemap, ind
       }
       secondary={
         <Box sx={{ display: 'flex', gap: 2, mt: 0.5, flexWrap: 'wrap' }}>
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             <Numbers fontSize="inherit" sx={{ verticalAlign: 'middle', mr: 0.5 }} />
             {sitemap.urlCount.toLocaleString()} URLs
           </Typography>
           {sitemap.size && (
-            <Typography variant="caption" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Size: {sitemap.size}
             </Typography>
           )}
           {sitemap.lastModified && (
-            <Typography variant="caption" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Modified: {sitemap.lastModified}
             </Typography>
           )}
           {sitemap.errorMessage && (
-            <Typography variant="caption" sx={{
-              color: "error.main"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'error.main',
+              }}
+            >
               {sitemap.errorMessage}
             </Typography>
           )}
@@ -106,13 +143,7 @@ const SitemapListItemComponent: React.FC<SitemapListItemProps> = ({ sitemap, ind
           </IconButton>
         </Tooltip>
         <Tooltip title="Open in new tab">
-          <IconButton
-            size="small"
-            component={Link}
-            href={sitemap.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <IconButton size="small" component={Link} href={sitemap.url} target="_blank" rel="noopener noreferrer">
             <OpenInNew fontSize="small" />
           </IconButton>
         </Tooltip>

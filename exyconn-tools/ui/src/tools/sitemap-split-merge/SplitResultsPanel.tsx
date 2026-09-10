@@ -18,11 +18,7 @@ interface SplitResultsPanelProps {
   onCopyContent: (content: string) => void;
 }
 
-const SplitResultsPanel: React.FC<SplitResultsPanelProps> = ({
-  result,
-  onDownloadFile,
-  onCopyContent,
-}) => (
+const SplitResultsPanel: React.FC<SplitResultsPanelProps> = ({ result, onDownloadFile, onCopyContent }) => (
   <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, minHeight: 480 }}>
     {!result ? (
       <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
@@ -31,9 +27,10 @@ const SplitResultsPanel: React.FC<SplitResultsPanelProps> = ({
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
-            mt: 1
-          }}>
+            color: 'text.secondary',
+            mt: 1,
+          }}
+        >
           Creates multiple smaller sitemaps and a sitemap index file
         </Typography>
       </Box>
@@ -41,9 +38,13 @@ const SplitResultsPanel: React.FC<SplitResultsPanelProps> = ({
       <Box sx={{ p: 2, maxHeight: 480, overflow: 'auto' }}>
         <Accordion defaultExpanded>
           <AccordionSummary expandIcon={<ExpandMore />}>
-            <Typography sx={{
-              fontWeight: 600
-            }}>sitemap-index.xml</Typography>
+            <Typography
+              sx={{
+                fontWeight: 600,
+              }}
+            >
+              sitemap-index.xml
+            </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
@@ -64,7 +65,7 @@ const SplitResultsPanel: React.FC<SplitResultsPanelProps> = ({
               rows={6}
               value={result.indexFile}
               slotProps={{
-                input: { readOnly: true, sx: { fontFamily: 'monospace', fontSize: 11 } }
+                input: { readOnly: true, sx: { fontFamily: 'monospace', fontSize: 11 } },
               }}
             />
           </AccordionDetails>
@@ -74,12 +75,19 @@ const SplitResultsPanel: React.FC<SplitResultsPanelProps> = ({
           <Accordion key={s.index}>
             <AccordionSummary expandIcon={<ExpandMore />}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
-                <Typography sx={{
-                  fontWeight: 600
-                }}>sitemap-{s.index}.xml</Typography>
-                <Typography variant="caption" sx={{
-                  color: "text.secondary"
-                }}>
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                  }}
+                >
+                  sitemap-{s.index}.xml
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   ({s.urlCount.toLocaleString()} URLs)
                 </Typography>
               </Box>
@@ -103,7 +111,7 @@ const SplitResultsPanel: React.FC<SplitResultsPanelProps> = ({
                 rows={6}
                 value={s.content.substring(0, 2000) + (s.content.length > 2000 ? '\n...' : '')}
                 slotProps={{
-                  input: { readOnly: true, sx: { fontFamily: 'monospace', fontSize: 11 } }
+                  input: { readOnly: true, sx: { fontFamily: 'monospace', fontSize: 11 } },
                 }}
               />
             </AccordionDetails>

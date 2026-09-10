@@ -70,11 +70,7 @@ const WebsiteUrlExtractor: React.FC = () => {
             />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
-            <UrlResultsTable
-              urls={result?.urls || []}
-              onCopyAll={handleCopyAll}
-              onExportCSV={handleExportCSV}
-            />
+            <UrlResultsTable urls={result?.urls || []} onCopyAll={handleCopyAll} onExportCSV={handleExportCSV} />
           </Grid>
         </Grid>
       </Container>

@@ -65,9 +65,10 @@ const DropZone: React.FC<DropZoneProps> = ({
           <Typography
             variant="caption"
             sx={{
-              color: "text.secondary",
-              textAlign: "center"
-            }}>
+              color: 'text.secondary',
+              textAlign: 'center',
+            }}
+          >
             {label}
           </Typography>
         </>

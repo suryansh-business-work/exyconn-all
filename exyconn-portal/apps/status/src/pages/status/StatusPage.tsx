@@ -65,8 +65,9 @@ export function StatusPage() {
           variant="h6"
           sx={{
             fontWeight: 700,
-            mb: 2
-          }}>
+            mb: 2,
+          }}
+        >
           Services · last {HISTORY_DAYS} days
         </Typography>
         {groupByCategory(overview.services).map((group) => (
@@ -84,8 +85,9 @@ export function StatusPage() {
           variant="h6"
           sx={{
             fontWeight: 700,
-            mb: 2
-          }}>
+            mb: 2,
+          }}
+        >
           Recent incidents
         </Typography>
         <IncidentList incidents={overview.incidents} />

@@ -71,15 +71,17 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
         <Grid
           size={{
             xs: 6,
-            md: 3
-          }}>
+            md: 3,
+          }}
+        >
           <Metric label="Sent" value={String(metrics.sent)} />
         </Grid>
         <Grid
           size={{
             xs: 6,
-            md: 3
-          }}>
+            md: 3,
+          }}
+        >
           <Metric
             label="Opened"
             value={`${metrics.openRate}%`}
@@ -89,8 +91,9 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
         <Grid
           size={{
             xs: 6,
-            md: 3
-          }}>
+            md: 3,
+          }}
+        >
           <Metric
             label="Clicked"
             value={`${metrics.clickRate}%`}
@@ -100,8 +103,9 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
         <Grid
           size={{
             xs: 6,
-            md: 3
-          }}>
+            md: 3,
+          }}
+        >
           <Metric
             label="Click-through"
             value={`${metrics.clickThroughRate}%`}

@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState, PointerEvent } from 'react';
 import Box from '@mui/material/Box';
 import {
-  BlurMode, Rect, Region, canvasPoint, clampRegion, drawRegionOutlines, normalizeRect, renderRedacted,
+  BlurMode,
+  Rect,
+  Region,
+  canvasPoint,
+  clampRegion,
+  drawRegionOutlines,
+  normalizeRect,
+  renderRedacted,
 } from './utils';
 
 interface BlurCanvasProps {
@@ -15,7 +22,13 @@ interface BlurCanvasProps {
 }
 
 export default function BlurCanvas({
-  image, regions, mode, intensity, color, onAddRegion, onError,
+  image,
+  regions,
+  mode,
+  intensity,
+  color,
+  onAddRegion,
+  onError,
 }: Readonly<BlurCanvasProps>) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const startRef = useRef<{ x: number; y: number } | null>(null);
@@ -56,7 +69,7 @@ export default function BlurCanvas({
     const rect = clampRegion(
       normalizeRect(start.x, start.y, point.x, point.y),
       image.naturalWidth,
-      image.naturalHeight,
+      image.naturalHeight
     );
     if (rect) onAddRegion(rect);
   };
@@ -67,7 +80,9 @@ export default function BlurCanvas({
   };
 
   return (
-    <Box sx={{ mt: 2, borderRadius: 1, overflow: 'hidden', border: '1px solid', borderColor: 'divider', lineHeight: 0 }}>
+    <Box
+      sx={{ mt: 2, borderRadius: 1, overflow: 'hidden', border: '1px solid', borderColor: 'divider', lineHeight: 0 }}
+    >
       <canvas
         ref={canvasRef}
         aria-label="Image preview — drag to select a region to hide"

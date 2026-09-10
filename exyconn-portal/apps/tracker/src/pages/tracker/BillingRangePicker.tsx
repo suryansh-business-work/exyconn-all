@@ -26,8 +26,9 @@ export function BillingRangePicker({ range, onChange }: Readonly<BillingRangePic
         size={{
           xs: 12,
           sm: 6,
-          md: 3
-        }}>
+          md: 3,
+        }}
+      >
         <DatePicker
           label="From"
           value={new Date(range.from)}
@@ -39,8 +40,9 @@ export function BillingRangePicker({ range, onChange }: Readonly<BillingRangePic
         size={{
           xs: 12,
           sm: 6,
-          md: 3
-        }}>
+          md: 3,
+        }}
+      >
         <DatePicker
           label="To"
           value={new Date(range.to)}

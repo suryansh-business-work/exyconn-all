@@ -63,9 +63,12 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
       <Stack spacing={2}>
         <Stack spacing={0.25}>
           <Typography variant="h6">My Report</Typography>
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             This is your own tracked time, as your workspace sees it.
           </Typography>
         </Stack>

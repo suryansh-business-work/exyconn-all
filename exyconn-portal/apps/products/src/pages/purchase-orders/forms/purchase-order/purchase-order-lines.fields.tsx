@@ -19,49 +19,56 @@ function LineRow({ index, cost, products, onRemove }: Readonly<LineRowProps>) {
       container
       spacing={1}
       sx={{
-        alignItems: "center",
-        mb: 1
-      }}>
+        alignItems: 'center',
+        mb: 1,
+      }}
+    >
       <Grid
         size={{
           xs: 12,
-          sm: 4
-        }}>
+          sm: 4,
+        }}
+      >
         <RhfSelect name={`lines.${index}.productId`} label="Product" options={products} />
       </Grid>
       <Grid
         size={{
           xs: 4,
-          sm: 2
-        }}>
+          sm: 2,
+        }}
+      >
         <RhfTextField name={`lines.${index}.quantity`} label="Qty" type="number" />
       </Grid>
       <Grid
         size={{
           xs: 4,
-          sm: 2
-        }}>
+          sm: 2,
+        }}
+      >
         <RhfTextField name={`lines.${index}.unitCost`} label="Unit cost" type="number" />
       </Grid>
       <Grid
         size={{
           xs: 4,
-          sm: 2
-        }}>
+          sm: 2,
+        }}
+      >
         <RhfTextField name={`lines.${index}.taxPercent`} label="Tax %" type="number" />
       </Grid>
       <Grid
         size={{
           xs: 10,
-          sm: 1
-        }}>
+          sm: 1,
+        }}
+      >
         <Text size="sm">{cost}</Text>
       </Grid>
       <Grid
         size={{
           xs: 2,
-          sm: 1
-        }}>
+          sm: 1,
+        }}
+      >
         <IconButton aria-label="Remove line" onClick={onRemove} size="small">
           <DeleteOutlineIcon fontSize="small" />
         </IconButton>

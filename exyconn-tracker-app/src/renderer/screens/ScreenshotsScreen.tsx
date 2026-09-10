@@ -41,9 +41,12 @@ export default function ScreenshotsScreen({
     <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', p: 3 }}>
       <Stack spacing={0.25} sx={{ mb: 2.5 }}>
         <Typography variant="h6">My screenshots</Typography>
-        <Typography variant="caption" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {formatDayInZone(startISO, timezone)} · times shown in {timezone} ({offsetLabel(timezone)}
           )
         </Typography>
@@ -67,10 +70,11 @@ export default function ScreenshotsScreen({
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
-            textAlign: "center",
-            py: 6
-          }}>
+            color: 'text.secondary',
+            textAlign: 'center',
+            py: 6,
+          }}
+        >
           No screenshots were captured on this day.
         </Typography>
       ) : null}
@@ -80,10 +84,11 @@ export default function ScreenshotsScreen({
           <Typography
             variant="caption"
             sx={{
-              color: "text.secondary",
-              display: "block",
-              mb: 1.5
-            }}>
+              color: 'text.secondary',
+              display: 'block',
+              mb: 1.5,
+            }}
+          >
             {formatCount(shots.length)} captured
           </Typography>
           <Box sx={GRID}>

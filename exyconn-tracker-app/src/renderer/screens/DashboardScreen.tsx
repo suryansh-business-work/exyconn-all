@@ -48,17 +48,22 @@ export default function DashboardScreen({ state }: Readonly<Props>): ReactElemen
           direction="row"
           spacing={1.5}
           sx={{
-            alignItems: "center",
-            justifyContent: "space-between",
-            mb: 2
-          }}>
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 2,
+          }}
+        >
           <Box sx={{ minWidth: 0 }}>
             <Typography variant="subtitle1" noWrap sx={{ fontWeight: 700 }}>
               {user?.name ?? 'Signed in'}
             </Typography>
-            <Typography variant="caption" noWrap sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              noWrap
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {user?.email ?? ''}
             </Typography>
           </Box>
@@ -95,9 +100,12 @@ export default function DashboardScreen({ state }: Readonly<Props>): ReactElemen
       <Stack spacing={1}>
         <Stack spacing={0.25}>
           <Typography variant="subtitle2">This session</Typography>
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Live counters for the run in progress — they reset to zero when you stop.
           </Typography>
         </Stack>

@@ -20,9 +20,12 @@ const ROICalculator: React.FC<ROICalculatorProps> = ({ inputs, onChange, onReset
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Calculate color="primary" />
-          <Typography variant="h6" sx={{
-            fontWeight: 600
-          }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             ROI Calculator
           </Typography>
         </Box>
@@ -34,9 +37,10 @@ const ROICalculator: React.FC<ROICalculatorProps> = ({ inputs, onChange, onReset
       <Typography
         variant="body2"
         sx={{
-          color: "text.secondary",
-          mb: 3
-        }}>
+          color: 'text.secondary',
+          mb: 3,
+        }}
+      >
         Adjust the sliders below to calculate your potential savings with Smart Exy Bot.
       </Typography>
 

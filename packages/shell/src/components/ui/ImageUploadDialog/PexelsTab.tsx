@@ -84,8 +84,9 @@ export function PexelsTab({ kind, onPick }: Readonly<PexelsTabProps>) {
                 </IconButton>
               </InputAdornment>
             ),
-          }
-        }} />
+          },
+        }}
+      />
 
       <PexelsFilters kind={kind} value={filters} onChange={setFilters} />
 
@@ -100,9 +101,12 @@ export function PexelsTab({ kind, onPick }: Readonly<PexelsTabProps>) {
         />
       </Box>
 
-      <Typography variant="caption" sx={{
-        color: "text.secondary"
-      }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {creditLine}
       </Typography>
     </Stack>
@@ -134,9 +138,10 @@ function PexelsPanel({
     return (
       <Stack
         sx={{
-          alignItems: "center",
-          py: 6
-        }}>
+          alignItems: 'center',
+          py: 6,
+        }}
+      >
         <CircularProgress size={28} />
       </Stack>
     );
@@ -146,11 +151,13 @@ function PexelsPanel({
       <Typography
         variant="body2"
         sx={{
-          color: "text.secondary",
+          color: 'text.secondary',
           py: 6,
-          textAlign: 'center'
-        }}>Search to browse free stock {noun}.
-              </Typography>
+          textAlign: 'center',
+        }}
+      >
+        Search to browse free stock {noun}.
+      </Typography>
     );
   }
   if (items.length === 0) {
@@ -158,11 +165,13 @@ function PexelsPanel({
       <Typography
         variant="body2"
         sx={{
-          color: "text.secondary",
+          color: 'text.secondary',
           py: 6,
-          textAlign: 'center'
-        }}>No {noun}matched that search.
-              </Typography>
+          textAlign: 'center',
+        }}
+      >
+        No {noun}matched that search.
+      </Typography>
     );
   }
   return <PexelsGrid items={items} onPick={onPick} />;

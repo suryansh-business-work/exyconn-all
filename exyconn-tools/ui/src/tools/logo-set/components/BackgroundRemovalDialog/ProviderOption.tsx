@@ -51,9 +51,13 @@ const ProviderOption: React.FC<ProviderOptionProps> = ({
         label={
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {icon}
-            <Typography sx={{
-              fontWeight: 600
-            }}>{title}</Typography>
+            <Typography
+              sx={{
+                fontWeight: 600,
+              }}
+            >
+              {title}
+            </Typography>
             {chips.map((chip, index) => (
               <Chip
                 key={index}
@@ -69,10 +73,11 @@ const ProviderOption: React.FC<ProviderOptionProps> = ({
       <Typography
         variant="caption"
         sx={{
-          color: "text.secondary",
+          color: 'text.secondary',
           ml: 4,
-          display: 'block'
-        }}>
+          display: 'block',
+        }}
+      >
         {description}
       </Typography>
 

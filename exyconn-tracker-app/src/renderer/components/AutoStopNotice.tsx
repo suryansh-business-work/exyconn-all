@@ -47,14 +47,20 @@ export default function AutoStopNotice({
       sx={{ borderRadius: `${TRACKER_RADIUS}px` }}
     >
       <Stack spacing={0.25}>
-        <Typography variant="body2" sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           {notice.title}
         </Typography>
-        <Typography variant="caption" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {notice.detail}
         </Typography>
       </Stack>

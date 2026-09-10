@@ -30,7 +30,7 @@ export const requestProtectedPdf = async (
   url: string,
   file: File,
   userPassword: string,
-  ownerPassword: string,
+  ownerPassword: string
 ): Promise<Blob> => {
   const formData = new FormData();
   formData.append('file', file);

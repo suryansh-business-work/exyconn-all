@@ -29,13 +29,13 @@ export function TopbarSearch({ roles }: TopbarSearchProps) {
           placeholder="Search…"
           slotProps={{
             input: {
-              ...params.InputProps,
+              ...params.slotProps.input,
               startAdornment: (
                 <InputAdornment position="start">
                   <SearchIcon fontSize="small" />
                 </InputAdornment>
               ),
-            }
+            },
           }}
         />
       )}

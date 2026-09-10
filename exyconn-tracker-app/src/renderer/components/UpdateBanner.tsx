@@ -35,9 +35,12 @@ export default function UpdateBanner({ update }: Readonly<Props>): ReactElement 
   if (update.stage === 'downloading') {
     return (
       <Stack sx={{ px: 2, pt: 1.5 }} spacing={0.5}>
-        <Typography variant="caption" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Downloading version {update.version} in the background — carry on working.
         </Typography>
         <LinearProgress variant="determinate" value={update.percent} />

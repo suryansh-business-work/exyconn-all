@@ -54,9 +54,10 @@ export default function MessageList({
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
-            mt: 0.5
-          }}>
+            color: 'text.secondary',
+            mt: 0.5,
+          }}
+        >
           {emptyBody}
         </Typography>
       </Surface>

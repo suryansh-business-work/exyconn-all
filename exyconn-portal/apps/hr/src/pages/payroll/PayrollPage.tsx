@@ -178,8 +178,9 @@ export function PayrollPage() {
             size={{
               xs: 6,
               sm: 4,
-              md: 2.4
-            }}>
+              md: 2.4,
+            }}
+          >
             <StatCard {...tile} />
           </Grid>
         ))}

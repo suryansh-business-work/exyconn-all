@@ -69,7 +69,7 @@ function TaskRow({ index, onRemove }: Readonly<TaskRowProps>) {
           label="Due (days)"
           type="number"
           slotProps={{
-            htmlInput: { min: 0, max: 365 }
+            htmlInput: { min: 0, max: 365 },
           }}
         />
       </Box>

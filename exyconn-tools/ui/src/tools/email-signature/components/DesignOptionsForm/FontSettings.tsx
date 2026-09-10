@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  ToggleButtonGroup,
-  ToggleButton,
-  
-} from '@mui/material';
+import { Typography, FormControl, InputLabel, Select, MenuItem, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { FormatSize } from '@mui/icons-material';
 import { fontOptions } from '../../types';

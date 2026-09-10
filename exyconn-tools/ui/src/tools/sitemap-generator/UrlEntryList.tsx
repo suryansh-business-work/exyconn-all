@@ -10,20 +10,18 @@ interface UrlEntryListProps {
   onUpdateUrl: (id: string, field: keyof UrlEntry, value: string | number) => void;
 }
 
-const UrlEntryList: React.FC<UrlEntryListProps> = ({
-  urls,
-  onAddUrl,
-  onRemoveUrl,
-  onUpdateUrl,
-}) => (
+const UrlEntryList: React.FC<UrlEntryListProps> = ({ urls, onAddUrl, onRemoveUrl, onUpdateUrl }) => (
   <Paper
     elevation={0}
     sx={{ p: 2, mt: 2, border: 1, borderColor: 'divider', borderRadius: 2, maxHeight: 280, overflow: 'auto' }}
   >
     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-      <Typography variant="subtitle2" sx={{
-        fontWeight: 600
-      }}>
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         URLs ({urls.length})
       </Typography>
       <Button size="small" startIcon={<Add />} onClick={onAddUrl}>
@@ -36,9 +34,10 @@ const UrlEntryList: React.FC<UrlEntryListProps> = ({
           <Typography
             variant="caption"
             sx={{
-              color: "text.secondary",
-              minWidth: 20
-            }}>
+              color: 'text.secondary',
+              minWidth: 20,
+            }}
+          >
             #{index + 1}
           </Typography>
           <TextField

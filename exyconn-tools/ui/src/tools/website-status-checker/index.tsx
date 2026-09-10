@@ -36,45 +36,63 @@ const WebsiteStatusChecker: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<MonitorHeart color="primary" />}
-              title="Website Status" label="URL" placeholder="https://example.com"
-              buttonText="Check Status" loadingText="Checking..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<MonitorHeart color="primary" />}
+              title="Website Status"
+              label="URL"
+              placeholder="https://example.com"
+              buttonText="Check Status"
+              loadingText="Checking..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
               <DomainResultDisplay title="Website Status" icon={<MonitorHeart fontSize="small" />} data={result}>
                 <Box sx={{ textAlign: 'center', py: 3, mb: 2 }}>
-                  <Typography variant="h2" color={result.isUp ? 'success.main' : 'error.main'}
+                  <Typography
+                    variant="h2"
+                    color={result.isUp ? 'success.main' : 'error.main'}
                     sx={{
-                      fontWeight: 700
-                    }}>
+                      fontWeight: 700,
+                    }}
+                  >
                     {result.isUp ? 'UP' : 'DOWN'}
                   </Typography>
-                  <Chip label={`${result.statusCode} ${result.statusText}`}
-                    color={result.isUp ? 'success' : 'error'} sx={{ mt: 1 }} />
+                  <Chip
+                    label={`${result.statusCode} ${result.statusText}`}
+                    color={result.isUp ? 'success' : 'error'}
+                    sx={{ mt: 1 }}
+                  />
                   <Typography
                     variant="body2"
                     sx={{
-                      color: "text.secondary",
-                      mt: 1
-                    }}>
+                      color: 'text.secondary',
+                      mt: 1,
+                    }}
+                  >
                     Response Time: {String(result.responseTime)}ms
                   </Typography>
                 </Box>
-                <KeyValueTable data={{
-                  URL: result.url,
-                  'Status Code': result.statusCode,
-                  'Response Time': `${result.responseTime}ms`,
-                  Server: result.server,
-                  'Content Type': result.contentType,
-                }} />
+                <KeyValueTable
+                  data={{
+                    URL: result.url,
+                    'Status Code': result.statusCode,
+                    'Response Time': `${result.responseTime}ms`,
+                    Server: result.server,
+                    'Content Type': result.contentType,
+                  }}
+                />
               </DomainResultDisplay>
             )}
           </Grid>
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

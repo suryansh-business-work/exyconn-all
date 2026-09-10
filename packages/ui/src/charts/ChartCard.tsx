@@ -54,18 +54,22 @@ export function ChartCard({
         direction="row"
         spacing={1}
         sx={{
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          mb: 1.5
-        }}>
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          mb: 1.5,
+        }}
+      >
         <Stack spacing={0.25} sx={{ minWidth: 0 }}>
           <Typography id={headingId} variant="subtitle2" sx={{ fontWeight: 700 }}>
             {title}
           </Typography>
           {subtitle ? (
-            <Typography variant="caption" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {subtitle}
             </Typography>
           ) : null}
@@ -96,10 +100,11 @@ export function ChartCard({
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
+            color: 'text.secondary',
             py: 3,
-            textAlign: 'center'
-          }}>
+            textAlign: 'center',
+          }}
+        >
           {emptyText}
         </Typography>
       ) : (

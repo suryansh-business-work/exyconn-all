@@ -136,8 +136,9 @@ export function RecurringInvoiceForm({
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfSelect
             name="frequency"
             label="Bills every"
@@ -147,29 +148,33 @@ export function RecurringInvoiceForm({
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfTextField name="currency" label="Currency" />
         </Grid>
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfDatePicker name="startDate" label="First invoice on" />
         </Grid>
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfDatePicker name="endDate" label="Stop after (optional)" />
         </Grid>
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfTextField
             name="dueDays"
             label="Payment terms (days)"
@@ -180,8 +185,9 @@ export function RecurringInvoiceForm({
         <Grid
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <RhfSelect
             name="placeOfSupplyStateCode"
             label="Place of supply"

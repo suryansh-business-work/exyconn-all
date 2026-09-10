@@ -43,9 +43,10 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({ settings, onUpd
           <Typography
             variant="caption"
             sx={{
-              color: "text.secondary",
-              fontFamily: "monospace"
-            }}>
+              color: 'text.secondary',
+              fontFamily: 'monospace',
+            }}
+          >
             {settings.backgroundColor}
           </Typography>
         </Box>

@@ -54,9 +54,12 @@ const SitemapForm: React.FC<SitemapFormProps> = ({ onSubmit, isLoading }) => {
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
         <Language color="primary" />
-        <Typography variant="h6" sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Find Sitemaps
         </Typography>
       </Box>
@@ -80,7 +83,7 @@ const SitemapForm: React.FC<SitemapFormProps> = ({ onSubmit, isLoading }) => {
                   <Language fontSize="small" color="action" />
                 </InputAdornment>
               ),
-            }
+            },
           }}
         />
 
@@ -96,9 +99,12 @@ const SitemapForm: React.FC<SitemapFormProps> = ({ onSubmit, isLoading }) => {
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
           <Settings fontSize="small" color="action" />
-          <Typography variant="body2" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Advanced Options
           </Typography>
           <IconButton size="small">
@@ -140,9 +146,10 @@ const SitemapForm: React.FC<SitemapFormProps> = ({ onSubmit, isLoading }) => {
               <Typography
                 variant="body2"
                 sx={{
-                  color: "text.secondary",
-                  mb: 1
-                }}>
+                  color: 'text.secondary',
+                  mb: 1,
+                }}
+              >
                 Max Sitemap Index Depth: <strong>{formik.values.maxDepth}</strong>
               </Typography>
               <Slider
@@ -161,9 +168,12 @@ const SitemapForm: React.FC<SitemapFormProps> = ({ onSubmit, isLoading }) => {
                 valueLabelDisplay="auto"
                 size="small"
               />
-              <Typography variant="caption" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 How deep to follow sitemap index files
               </Typography>
             </Box>

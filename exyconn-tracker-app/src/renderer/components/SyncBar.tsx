@@ -49,9 +49,13 @@ export default function SyncBar({ stats, settings, timezone }: Readonly<Props>):
 
   return (
     <Surface sx={{ p: 2 }}>
-      <Stack direction="row" spacing={1.5} sx={{
-        alignItems: "center"
-      }}>
+      <Stack
+        direction="row"
+        spacing={1.5}
+        sx={{
+          alignItems: 'center',
+        }}
+      >
         <StatusIcon fontSize="small" sx={{ color: settled ? 'success.main' : 'warning.main' }} />
         <Typography variant="subtitle2" noWrap sx={{ flex: 1, minWidth: 0 }}>
           {pendingText(stats)}
@@ -61,10 +65,11 @@ export default function SyncBar({ stats, settings, timezone }: Readonly<Props>):
       <Typography
         variant="caption"
         sx={{
-          color: "text.secondary",
-          display: "block",
-          mt: 0.75
-        }}>
+          color: 'text.secondary',
+          display: 'block',
+          mt: 0.75,
+        }}
+      >
         Last synced {formatLastSync(stats.lastSyncAt, timezone)} · {policyText(settings)}
       </Typography>
 

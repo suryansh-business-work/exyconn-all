@@ -58,20 +58,27 @@ export function ServiceCard({ service, divided, underMaintenance }: Readonly<Ser
               variant="subtitle1"
               sx={{
                 fontWeight: 700,
-                color: "text.primary"
-              }}>
+                color: 'text.primary',
+              }}
+            >
               {service.name}
             </Link>
-            <Typography variant="body2" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {service.description}
             </Typography>
           </Box>
           <Flex alignItems="center" spacing={1.5}>
-            <Typography variant="body2" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {figures}
             </Typography>
             <StateBadge service={service} underMaintenance={underMaintenance} />
@@ -83,10 +90,11 @@ export function ServiceCard({ service, divided, underMaintenance }: Readonly<Ser
         <Typography
           variant="caption"
           sx={{
-            color: "text.secondary",
+            color: 'text.secondary',
             display: 'block',
-            mt: 0.5
-          }}>
+            mt: 0.5,
+          }}
+        >
           {uptimeLine}
           {service.lastError ? ` · ${service.lastError}` : ''}
         </Typography>

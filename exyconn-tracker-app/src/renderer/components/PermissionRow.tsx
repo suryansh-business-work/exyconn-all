@@ -22,9 +22,13 @@ export default function PermissionRow({
   const Icon = icon;
   return (
     <Surface sx={{ p: 2 }}>
-      <Stack direction="row" spacing={1.75} sx={{
-        alignItems: "center"
-      }}>
+      <Stack
+        direction="row"
+        spacing={1.75}
+        sx={{
+          alignItems: 'center',
+        }}
+      >
         <Box
           sx={(theme) => ({
             display: 'grid',
@@ -41,9 +45,12 @@ export default function PermissionRow({
         </Box>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography variant="subtitle2">{title}</Typography>
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {reason}
           </Typography>
         </Box>

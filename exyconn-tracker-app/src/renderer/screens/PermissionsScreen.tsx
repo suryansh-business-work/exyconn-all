@@ -81,10 +81,11 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
+            color: 'text.secondary',
             mt: 0.5,
-            mb: 2
-          }}>
+            mb: 2,
+          }}
+        >
           macOS needs your permission before the tracker can work. Grant each item below, then
           re-check.
         </Typography>
@@ -116,10 +117,11 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
         <Typography
           variant="caption"
           sx={{
-            color: "text.secondary",
-            display: "block",
-            mt: 1.5
-          }}>
+            color: 'text.secondary',
+            display: 'block',
+            mt: 1.5,
+          }}
+        >
           Some features will not work until these are granted.
         </Typography>
       </Surface>

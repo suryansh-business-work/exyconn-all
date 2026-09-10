@@ -114,8 +114,9 @@ const SearchStepper: React.FC<SearchStepperProps> = ({
           variant="subtitle2"
           sx={{
             fontWeight: 600,
-            color: "primary.main"
-          }}>
+            color: 'primary.main',
+          }}
+        >
           🔍 Business Search Wizard
         </Typography>
       </Box>

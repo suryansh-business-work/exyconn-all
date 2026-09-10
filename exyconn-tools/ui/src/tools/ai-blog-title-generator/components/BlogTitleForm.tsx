@@ -25,9 +25,12 @@ const BlogTitleForm: React.FC<BlogTitleFormProps> = ({ onSubmit, isLoading }) =>
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <Title color="primary" />
-        <Typography variant="h6" sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Generate Blog Titles
         </Typography>
       </Box>
@@ -60,9 +63,10 @@ const BlogTitleForm: React.FC<BlogTitleFormProps> = ({ onSubmit, isLoading }) =>
           <Typography
             variant="body2"
             sx={{
-              color: "text.secondary",
-              mb: 1
-            }}>
+              color: 'text.secondary',
+              mb: 1,
+            }}
+          >
             Number of titles: {formik.values.count}
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>

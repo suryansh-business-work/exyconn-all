@@ -35,30 +35,65 @@ export default function CropImage() {
   const [resultUrl, setResultUrl] = useState('');
 
   const loadFile = useCallback((f: File) => {
-    if (!f.type.startsWith('image/')) { setError('Please select an image file.'); return; }
-    setFile(f); setAreaPixels(null); setCrop({ x: 0, y: 0 }); setZoom(1);
-    setResultUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return ''; });
-    setImageSrc((prev) => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(f); });
+    if (!f.type.startsWith('image/')) {
+      setError('Please select an image file.');
+      return;
+    }
+    setFile(f);
+    setAreaPixels(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setResultUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return '';
+    });
+    setImageSrc((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(f);
+    });
   }, []);
 
-  const onDrop = useCallback((e: DragEvent) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); }, [loadFile]);
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => { if (e.target.files?.[0]) loadFile(e.target.files[0]); e.target.value = ''; };
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+    },
+    [loadFile]
+  );
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) loadFile(e.target.files[0]);
+    e.target.value = '';
+  };
 
   const aspect = ASPECT_PRESETS.find((p) => p.label === aspectLabel)?.value ?? mediaAspect;
 
   const cropImage = async () => {
-    if (!file || !imageSrc || !areaPixels) { setError('Upload an image and adjust the crop area first.'); return; }
+    if (!file || !imageSrc || !areaPixels) {
+      setError('Upload an image and adjust the crop area first.');
+      return;
+    }
     setProcessing(true);
     try {
       const blob = await getCroppedBlob(imageSrc, areaPixels, outputMime(file.type));
       const url = URL.createObjectURL(blob);
-      setResultUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return url; });
-    } catch (err) { setError(err instanceof Error ? err.message : 'Crop failed.'); } finally { setProcessing(false); }
+      setResultUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return url;
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Crop failed.');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const download = () => {
     if (!resultUrl || !file) return;
-    const a = document.createElement('a'); a.href = resultUrl; a.download = cropFileName(file.name, outputMime(file.type)); a.click();
+    const a = document.createElement('a');
+    a.href = resultUrl;
+    a.download = cropFileName(file.name, outputMime(file.type));
+    a.click();
   };
 
   return (
@@ -68,18 +103,34 @@ export default function CropImage() {
           <Grid size={{ xs: 12, md: 7 }}>
             {!imageSrc && (
               <Paper
-                sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: dragOver ? COLOR : 'divider', cursor: 'pointer', transition: '0.2s' }}
-                onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)} onDrop={onDrop}
+                sx={{
+                  p: 4,
+                  textAlign: 'center',
+                  border: '2px dashed',
+                  borderColor: dragOver ? COLOR : 'divider',
+                  cursor: 'pointer',
+                  transition: '0.2s',
+                }}
+                onDragOver={(e: DragEvent) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={onDrop}
               >
                 <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
-                <Typography variant="h6" gutterBottom>Drag & Drop Image Here</Typography>
+                <Typography variant="h6" gutterBottom>
+                  Drag & Drop Image Here
+                </Typography>
                 <Typography
                   variant="body2"
                   sx={{
-                    color: "text.secondary",
-                    mb: 2
-                  }}>or click to browse</Typography>
+                    color: 'text.secondary',
+                    mb: 2,
+                  }}
+                >
+                  or click to browse
+                </Typography>
                 <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                   Browse Files
                   <input hidden accept="image/*" type="file" onChange={onFileChange} />
@@ -88,10 +139,23 @@ export default function CropImage() {
             )}
             {imageSrc && (
               <Paper sx={{ p: 1 }}>
-                <Box sx={{ position: 'relative', width: '100%', height: { xs: 300, md: 420 }, bgcolor: 'action.hover', borderRadius: 1, overflow: 'hidden' }}>
+                <Box
+                  sx={{
+                    position: 'relative',
+                    width: '100%',
+                    height: { xs: 300, md: 420 },
+                    bgcolor: 'action.hover',
+                    borderRadius: 1,
+                    overflow: 'hidden',
+                  }}
+                >
                   <Cropper
-                    image={imageSrc} crop={crop} zoom={zoom} aspect={aspect}
-                    onCropChange={setCrop} onZoomChange={setZoom}
+                    image={imageSrc}
+                    crop={crop}
+                    zoom={zoom}
+                    aspect={aspect}
+                    onCropChange={setCrop}
+                    onZoomChange={setZoom}
                     onCropComplete={(_, px) => setAreaPixels(px)}
                     onMediaLoaded={(size) => setMediaAspect(size.naturalWidth / size.naturalHeight)}
                   />
@@ -106,38 +170,75 @@ export default function CropImage() {
 
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>Crop Options</Typography>
-              <Typography variant="subtitle2" sx={{ mb: 1 }}>Aspect Ratio</Typography>
+              <Typography variant="h6" gutterBottom>
+                Crop Options
+              </Typography>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                Aspect Ratio
+              </Typography>
               <ToggleButtonGroup
-                exclusive size="small" value={aspectLabel}
-                onChange={(_, v: string | null) => { if (v !== null) setAspectLabel(v); }}
+                exclusive
+                size="small"
+                value={aspectLabel}
+                onChange={(_, v: string | null) => {
+                  if (v !== null) setAspectLabel(v);
+                }}
                 sx={{ mb: 2, flexWrap: 'wrap' }}
               >
-                {ASPECT_PRESETS.map((p) => <ToggleButton key={p.label} value={p.label}>{p.label}</ToggleButton>)}
+                {ASPECT_PRESETS.map((p) => (
+                  <ToggleButton key={p.label} value={p.label}>
+                    {p.label}
+                  </ToggleButton>
+                ))}
               </ToggleButtonGroup>
 
               <Typography variant="subtitle2">Zoom: {zoom.toFixed(1)}x</Typography>
-              <Slider min={1} max={5} step={0.1} value={zoom} disabled={!imageSrc} onChange={(_, v) => setZoom(v as number)} sx={{ color: COLOR, mb: 1 }} />
+              <Slider
+                min={1}
+                max={5}
+                step={0.1}
+                value={zoom}
+                disabled={!imageSrc}
+                onChange={(_, v) => setZoom(v as number)}
+                sx={{ color: COLOR, mb: 1 }}
+              />
               {areaPixels && (
                 <Typography
                   variant="body2"
                   sx={{
-                    color: "text.secondary",
-                    mb: 1
-                  }}>
+                    color: 'text.secondary',
+                    mb: 1,
+                  }}
+                >
                   Selection: {areaPixels.width} × {areaPixels.height}px
                 </Typography>
               )}
 
               {processing && <LinearProgress sx={{ my: 2 }} color="warning" />}
-              <Button variant="contained" fullWidth onClick={cropImage} disabled={!imageSrc || processing}
-                sx={{ bgcolor: COLOR, '&:hover': { bgcolor: '#d97706' }, mt: 1 }}>
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={cropImage}
+                disabled={!imageSrc || processing}
+                sx={{ bgcolor: COLOR, '&:hover': { bgcolor: '#d97706' }, mt: 1 }}
+              >
                 {processing ? 'Cropping…' : 'Crop Image'}
               </Button>
               {resultUrl && (
                 <>
-                  <Box component="img" src={resultUrl} alt="Cropped result preview" sx={{ mt: 2, maxWidth: '100%', borderRadius: 1, border: 1, borderColor: 'divider' }} />
-                  <Button variant="outlined" fullWidth startIcon={<Download />} onClick={download} sx={{ mt: 2, color: COLOR, borderColor: COLOR }}>
+                  <Box
+                    component="img"
+                    src={resultUrl}
+                    alt="Cropped result preview"
+                    sx={{ mt: 2, maxWidth: '100%', borderRadius: 1, border: 1, borderColor: 'divider' }}
+                  />
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    startIcon={<Download />}
+                    onClick={download}
+                    sx={{ mt: 2, color: COLOR, borderColor: COLOR }}
+                  >
                     Download Cropped Image
                   </Button>
                 </>
@@ -145,18 +246,26 @@ export default function CropImage() {
               <Typography
                 variant="caption"
                 sx={{
-                  color: "text.secondary",
+                  color: 'text.secondary',
                   display: 'block',
-                  mt: 2
-                }}>
+                  mt: 2,
+                }}
+              >
                 Your image is processed locally in your browser — it never leaves your device.
               </Typography>
             </Paper>
           </Grid>
         </Grid>
 
-        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity="error" onClose={() => setError('')}>{error}</Alert>
+        <Snackbar
+          open={!!error}
+          autoHideDuration={4000}
+          onClose={() => setError('')}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert severity="error" onClose={() => setError('')}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

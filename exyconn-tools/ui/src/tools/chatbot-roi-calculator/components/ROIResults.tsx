@@ -33,9 +33,12 @@ const ROIResults: React.FC<ROIResultsProps> = ({ results }) => {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <TrendingUp color="success" />
-          <Typography variant="h6" sx={{
-            fontWeight: 600
-          }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             Your Savings
           </Typography>
         </Box>
@@ -79,18 +82,20 @@ const ROIResults: React.FC<ROIResultsProps> = ({ results }) => {
             <Typography
               variant="body2"
               sx={{
-                color: "text.secondary",
+                color: 'text.secondary',
                 fontWeight: 500,
-                mb: 0.5
-              }}>
+                mb: 0.5,
+              }}
+            >
               Smart Exy Bot Cost
             </Typography>
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 700,
-                color: "text.primary"
-              }}>
+                color: 'text.primary',
+              }}
+            >
               ${results.smartExyBotCost.toLocaleString()} /yr
             </Typography>
           </Paper>
@@ -113,15 +118,19 @@ const ROIResults: React.FC<ROIResultsProps> = ({ results }) => {
         <Typography
           variant="h6"
           sx={{
-            color: "success.main",
+            color: 'success.main',
             fontWeight: 600,
-            mb: 1
-          }}>
+            mb: 1,
+          }}
+        >
           Ready to capture this ROI?
         </Typography>
-        <Typography variant="body2" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Build your chatbot with Smart Exy Bot and start automating support today.
         </Typography>
       </Box>

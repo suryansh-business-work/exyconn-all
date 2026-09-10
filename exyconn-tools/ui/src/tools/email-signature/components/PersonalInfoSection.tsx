@@ -6,7 +6,6 @@ import {
   Box,
   TextField,
   Typography,
-  
   InputAdornment,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
@@ -30,9 +29,13 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ formik }) => 
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Person color="primary" fontSize="small" />
-          <Typography sx={{
-            fontWeight: 600
-          }}>Personal Information</Typography>
+          <Typography
+            sx={{
+              fontWeight: 600,
+            }}
+          >
+            Personal Information
+          </Typography>
         </Box>
       </AccordionSummary>
       <AccordionDetails>
@@ -56,7 +59,7 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ formik }) => 
                       <Person fontSize="small" color="action" />
                     </InputAdornment>
                   ),
-                }
+                },
               }}
             />
           </Grid>
@@ -78,7 +81,7 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ formik }) => 
                       <Work fontSize="small" color="action" />
                     </InputAdornment>
                   ),
-                }
+                },
               }}
             />
           </Grid>
@@ -113,7 +116,7 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ formik }) => 
                       <Business fontSize="small" color="action" />
                     </InputAdornment>
                   ),
-                }
+                },
               }}
             />
           </Grid>

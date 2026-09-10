@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import {
-  Container, Box, Typography, TextField, Button, Alert, Snackbar,
-  Paper, LinearProgress, Chip,
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Snackbar,
+  Paper,
+  LinearProgress,
+  Chip,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { TrendingUp, Search, Info } from '@mui/icons-material';
@@ -39,8 +47,10 @@ const KeywordRankChecker: React.FC = () => {
       if (!data.success) throw new Error(data.error || 'Failed to analyze');
       const d = data.data;
       setResult({
-        title: d.title || '', description: d.metaDescription || '',
-        score: d.score || 0, headings: d.headings || { h1: 0, h2: 0, h3: 0 },
+        title: d.title || '',
+        description: d.metaDescription || '',
+        score: d.score || 0,
+        headings: d.headings || { h1: 0, h2: 0, h3: 0 },
         links: { internal: d.links?.internal || 0, external: d.links?.external || 0 },
         loadTime: d.performance?.loadTime || 0,
       });
@@ -58,13 +68,32 @@ const KeywordRankChecker: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom><Search sx={{ mr: 1, verticalAlign: 'middle' }} />Rank Analysis</Typography>
-              <TextField fullWidth size="small" label="Website URL" placeholder="https://example.com" value={domain} onChange={(e) => setDomain(e.target.value)} sx={{ mb: 2 }} onKeyDown={(e) => e.key === 'Enter' && handleCheck()} />
-              <Button fullWidth variant="contained" onClick={handleCheck} disabled={isLoading || !domain.trim()} sx={{ textTransform: 'none', bgcolor: '#ef4444', '&:hover': { bgcolor: '#dc2626' } }}>
+              <Typography variant="h6" gutterBottom>
+                <Search sx={{ mr: 1, verticalAlign: 'middle' }} />
+                Rank Analysis
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                label="Website URL"
+                placeholder="https://example.com"
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
+                sx={{ mb: 2 }}
+                onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
+              />
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleCheck}
+                disabled={isLoading || !domain.trim()}
+                sx={{ textTransform: 'none', bgcolor: '#ef4444', '&:hover': { bgcolor: '#dc2626' } }}
+              >
                 {isLoading ? 'Analyzing...' : 'Analyze SEO'}
               </Button>
               <Alert severity="warning" sx={{ mt: 2 }}>
-                Actual keyword position tracking requires Google Search Console API. This tool analyzes your site&apos;s SEO health which directly impacts rankings.
+                Actual keyword position tracking requires Google Search Console API. This tool analyzes your site&apos;s
+                SEO health which directly impacts rankings.
               </Alert>
             </Paper>
           </Grid>
@@ -77,51 +106,86 @@ const KeywordRankChecker: React.FC = () => {
                 </Box>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
                   <Paper variant="outlined" sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }}>
-                    <Typography variant="h4" color={result.score >= 70 ? '#22c55e' : result.score >= 40 ? '#f59e0b' : '#ef4444'} sx={{
-                      fontWeight: "bold"
-                    }}>
+                    <Typography
+                      variant="h4"
+                      color={result.score >= 70 ? '#22c55e' : result.score >= 40 ? '#f59e0b' : '#ef4444'}
+                      sx={{
+                        fontWeight: 'bold',
+                      }}
+                    >
                       {result.score}
                     </Typography>
-                    <Typography variant="caption" sx={{
-                      color: "text.secondary"
-                    }}>SEO Score</Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      SEO Score
+                    </Typography>
                   </Paper>
                   <Paper variant="outlined" sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }}>
                     <Typography
                       variant="h5"
                       sx={{
-                        fontWeight: "bold",
-                        color: "#0ea5e9"
-                      }}>{result.links.internal}</Typography>
-                    <Typography variant="caption" sx={{
-                      color: "text.secondary"
-                    }}>Internal Links</Typography>
+                        fontWeight: 'bold',
+                        color: '#0ea5e9',
+                      }}
+                    >
+                      {result.links.internal}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      Internal Links
+                    </Typography>
                   </Paper>
                   <Paper variant="outlined" sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }}>
                     <Typography
                       variant="h5"
                       sx={{
-                        fontWeight: "bold",
-                        color: "#8b5cf6"
-                      }}>{result.links.external}</Typography>
-                    <Typography variant="caption" sx={{
-                      color: "text.secondary"
-                    }}>External Links</Typography>
+                        fontWeight: 'bold',
+                        color: '#8b5cf6',
+                      }}
+                    >
+                      {result.links.external}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      External Links
+                    </Typography>
                   </Paper>
                 </Box>
                 {result.title && (
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{
-                      color: "text.secondary"
-                    }}>Page Title</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      Page Title
+                    </Typography>
                     <Typography variant="body1">{result.title}</Typography>
                   </Box>
                 )}
                 {result.description && (
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{
-                      color: "text.secondary"
-                    }}>Meta Description</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      Meta Description
+                    </Typography>
                     <Typography variant="body2">{result.description}</Typography>
                   </Box>
                 )}
@@ -130,7 +194,11 @@ const KeywordRankChecker: React.FC = () => {
                   <Chip label={`H2: ${result.headings.h2}`} size="small" variant="outlined" />
                   <Chip label={`H3: ${result.headings.h3}`} size="small" variant="outlined" />
                   {result.loadTime > 0 && (
-                    <Chip label={`Load: ${(result.loadTime / 1000).toFixed(2)}s`} size="small" color={result.loadTime < 3000 ? 'success' : 'warning'} />
+                    <Chip
+                      label={`Load: ${(result.loadTime / 1000).toFixed(2)}s`}
+                      size="small"
+                      color={result.loadTime < 3000 ? 'success' : 'warning'}
+                    />
                   )}
                 </Box>
               </Paper>
@@ -138,15 +206,21 @@ const KeywordRankChecker: React.FC = () => {
             {!result && !isLoading && (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <TrendingUp sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography sx={{
-                  color: "text.secondary"
-                }}>Enter a URL to analyze its SEO health and ranking potential</Typography>
+                <Typography
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
+                  Enter a URL to analyze its SEO health and ranking potential
+                </Typography>
               </Paper>
             )}
           </Grid>
         </Grid>
         <Snackbar open={!!error} autoHideDuration={5000} onClose={() => setError(null)}>
-          <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+          <Alert severity="error" onClose={() => setError(null)}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

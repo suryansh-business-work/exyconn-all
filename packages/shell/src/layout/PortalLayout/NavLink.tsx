@@ -37,9 +37,9 @@ export function NavLink({ item, selected, accent, onSelect }: Readonly<Props>) {
             noWrap: true,
 
             sx: {
-              fontWeight: selected ? 600 : 400
-            }
-          }
+              fontWeight: selected ? 600 : 400,
+            },
+          },
         }}
       />
     </ListItemButton>

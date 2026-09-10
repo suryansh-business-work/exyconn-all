@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  Paper,
-  Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Slider,
-} from '@mui/material';
+import { Paper, Typography, FormControl, InputLabel, Select, MenuItem, Slider } from '@mui/material';
 import Grid from '@mui/material/Grid';
 
 interface GeneratorSettingsProps {
@@ -26,20 +18,20 @@ const GeneratorSettings: React.FC<GeneratorSettingsProps> = ({
   onPriorityChange,
 }) => (
   <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-    <Typography variant="subtitle2" gutterBottom sx={{
-      fontWeight: 600
-    }}>
+    <Typography
+      variant="subtitle2"
+      gutterBottom
+      sx={{
+        fontWeight: 600,
+      }}
+    >
       Default Settings
     </Typography>
     <Grid container spacing={2}>
       <Grid size={{ xs: 6 }}>
         <FormControl fullWidth size="small">
           <InputLabel>Change Freq</InputLabel>
-          <Select
-            value={defaultChangefreq}
-            onChange={(e) => onChangefreqChange(e.target.value)}
-            label="Change Freq"
-          >
+          <Select value={defaultChangefreq} onChange={(e) => onChangefreqChange(e.target.value)} label="Change Freq">
             {CHANGE_FREQUENCIES.map((f) => (
               <MenuItem key={f} value={f}>
                 {f}
@@ -49,9 +41,12 @@ const GeneratorSettings: React.FC<GeneratorSettingsProps> = ({
         </FormControl>
       </Grid>
       <Grid size={{ xs: 6 }}>
-        <Typography variant="caption" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Priority: {defaultPriority.toFixed(1)}
         </Typography>
         <Slider

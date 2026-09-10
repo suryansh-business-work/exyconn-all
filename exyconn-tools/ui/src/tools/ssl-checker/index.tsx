@@ -35,16 +35,38 @@ const SSLChecker: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<Lock color="primary" />}
-              title="SSL Certificate Check" buttonText="Check SSL" loadingText="Checking SSL..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<Lock color="primary" />}
+              title="SSL Certificate Check"
+              buttonText="Check SSL"
+              loadingText="Checking SSL..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
-              <DomainResultDisplay title="SSL Certificate Details" icon={<Lock fontSize="small" color="success" />} data={result}>
+              <DomainResultDisplay
+                title="SSL Certificate Details"
+                icon={<Lock fontSize="small" color="success" />}
+                data={result}
+              >
                 <Box sx={{ mb: 2 }}>
-                  <Chip label={result.valid ? 'Valid' : 'Invalid'} color={result.valid ? 'success' : 'error'} sx={{ mr: 1 }} />
-                  <Chip label={`${result.daysRemaining} days remaining`}
-                    color={Number(result.daysRemaining) > 30 ? 'success' : Number(result.daysRemaining) > 7 ? 'warning' : 'error'} />
+                  <Chip
+                    label={result.valid ? 'Valid' : 'Invalid'}
+                    color={result.valid ? 'success' : 'error'}
+                    sx={{ mr: 1 }}
+                  />
+                  <Chip
+                    label={`${result.daysRemaining} days remaining`}
+                    color={
+                      Number(result.daysRemaining) > 30
+                        ? 'success'
+                        : Number(result.daysRemaining) > 7
+                          ? 'warning'
+                          : 'error'
+                    }
+                  />
                 </Box>
                 <KeyValueTable data={result} excludeKeys={['subjectAltNames', 'subject', 'issuer']} />
                 {Boolean(result.subject) && (
@@ -53,8 +75,11 @@ const SSLChecker: React.FC = () => {
                       variant="subtitle2"
                       sx={{
                         fontWeight: 600,
-                        mb: 1
-                      }}>Subject</Typography>
+                        mb: 1,
+                      }}
+                    >
+                      Subject
+                    </Typography>
                     <KeyValueTable data={result.subject as Record<string, unknown>} />
                   </Box>
                 )}
@@ -64,8 +89,11 @@ const SSLChecker: React.FC = () => {
                       variant="subtitle2"
                       sx={{
                         fontWeight: 600,
-                        mb: 1
-                      }}>Issuer</Typography>
+                        mb: 1,
+                      }}
+                    >
+                      Issuer
+                    </Typography>
                     <KeyValueTable data={result.issuer as Record<string, unknown>} />
                   </Box>
                 )}
@@ -75,7 +103,9 @@ const SSLChecker: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

@@ -13,14 +13,21 @@ const InsightsResultsGrid: React.FC<InsightsResultsGridProps> = ({ result }) => 
   <Grid container spacing={2}>
     <Grid size={{ xs: 12, md: 4 }}>
       <InsightCard title="Overview" icon={<TrendingUp color="primary" />}>
-        <Typography variant="h4" color="primary" sx={{
-          fontWeight: 700
-        }}>
+        <Typography
+          variant="h4"
+          color="primary"
+          sx={{
+            fontWeight: 700,
+          }}
+        >
           {result.totalUrls.toLocaleString()}
         </Typography>
-        <Typography variant="body2" sx={{
-          color: "text.secondary"
-        }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Total URLs
         </Typography>
       </InsightCard>
@@ -63,9 +70,12 @@ const InsightsResultsGrid: React.FC<InsightsResultsGridProps> = ({ result }) => 
                 /{p.pattern}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="caption" sx={{
-                  color: "text.secondary"
-                }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   {p.percentage}%
                 </Typography>
                 <Chip label={p.count} size="small" variant="outlined" />
@@ -86,9 +96,12 @@ const InsightsResultsGrid: React.FC<InsightsResultsGridProps> = ({ result }) => 
             </Box>
           ))}
           {result.changefreqDistribution.length === 0 && (
-            <Typography variant="body2" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               No changefreq data
             </Typography>
           )}
@@ -108,9 +121,12 @@ const InsightsResultsGrid: React.FC<InsightsResultsGridProps> = ({ result }) => 
             </Box>
           ))}
           {result.priorityDistribution.length === 0 && (
-            <Typography variant="body2" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               No priority data
             </Typography>
           )}
@@ -120,9 +136,14 @@ const InsightsResultsGrid: React.FC<InsightsResultsGridProps> = ({ result }) => 
 
     <Grid size={{ xs: 12, md: 6 }}>
       <InsightCard title="File Types" icon={<Folder color="warning" />}>
-        <Stack direction="row" spacing={1} useFlexGap sx={{
-          flexWrap: "wrap"
-        }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          sx={{
+            flexWrap: 'wrap',
+          }}
+        >
           {result.fileTypes.map((f) => (
             <Chip key={f.extension} label={`${f.extension} (${f.count})`} size="small" variant="outlined" />
           ))}

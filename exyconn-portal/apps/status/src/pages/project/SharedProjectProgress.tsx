@@ -30,14 +30,18 @@ export function SharedProjectProgress({
           variant="h6"
           sx={{
             fontWeight: 700,
-            mb: 1.5
-          }}>
+            mb: 1.5,
+          }}
+        >
           Milestones
         </Typography>
         {milestones.length === 0 ? (
-          <Typography variant="body2" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             No milestones have been set for this project.
           </Typography>
         ) : (
@@ -52,9 +56,12 @@ export function SharedProjectProgress({
                 <Typography variant="body2" sx={{ flex: 1 }}>
                   {milestone.name}
                 </Typography>
-                <Typography variant="caption" sx={{
-                  color: "text.secondary"
-                }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   {milestone.dueOn ? formatWith(milestone.dueOn, DATE_FORMAT) : 'No date'}
                 </Typography>
               </Flex>
@@ -68,14 +75,18 @@ export function SharedProjectProgress({
           variant="h6"
           sx={{
             fontWeight: 700,
-            mb: 1.5
-          }}>
+            mb: 1.5,
+          }}
+        >
           Where the work is ({totalTickets} {totalTickets === 1 ? 'ticket' : 'tickets'})
         </Typography>
         {totalTickets === 0 ? (
-          <Typography variant="body2" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             No tickets have been raised on this project yet.
           </Typography>
         ) : (
@@ -95,8 +106,9 @@ export function SharedProjectProgress({
                   variant="body2"
                   sx={{
                     fontWeight: 700,
-                    minWidth: 32
-                  }}>
+                    minWidth: 32,
+                  }}
+                >
                   {entry.count}
                 </Typography>
               </Flex>

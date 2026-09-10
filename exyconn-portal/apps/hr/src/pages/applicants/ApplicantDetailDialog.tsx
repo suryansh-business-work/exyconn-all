@@ -44,9 +44,10 @@ export function ApplicantDetailDialog({
           direction="row"
           spacing={1}
           sx={{
-            alignItems: "center",
-            flexWrap: "wrap"
-          }}>
+            alignItems: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
           <StatusChip value={applicant.stage} />
           <StatusChip value={applicant.source} />
           <Text size="sm" color="text.secondary">

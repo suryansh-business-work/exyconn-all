@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Box, Alert, Snackbar } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { MailOutline } from '@mui/icons-material';
+import { MailOutlineOutlined } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIKeyInput, AIResultDisplay, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
 import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyAlert';
@@ -45,7 +45,7 @@ const AIEmailReplyGenerator: React.FC = () => {
   };
 
   return (
-    <ToolLayout toolName="AI Email Reply Generator" toolIcon={<MailOutline />} toolColor="#0ea5e9">
+    <ToolLayout toolName="AI Email Reply Generator" toolIcon={<MailOutlineOutlined />} toolColor="#0ea5e9">
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>

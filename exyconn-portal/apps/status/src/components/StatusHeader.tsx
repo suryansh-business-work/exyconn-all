@@ -59,13 +59,17 @@ export function StatusHeader() {
                 variant="subtitle1"
                 sx={{
                   fontWeight: 700,
-                  lineHeight: 1.2
-                }}>
+                  lineHeight: 1.2,
+                }}
+              >
                 {title}
               </Typography>
-              <Typography variant="caption" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Live availability of every service
               </Typography>
             </Box>

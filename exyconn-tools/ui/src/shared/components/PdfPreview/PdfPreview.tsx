@@ -3,10 +3,7 @@ import { Box, Typography, Paper, IconButton, Skeleton } from '@mui/material';
 import { NavigateBefore, NavigateNext, PictureAsPdf } from '@mui/icons-material';
 import * as pdfjsLib from 'pdfjs-dist';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.mjs',
-  import.meta.url
-).href;
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
 interface PdfPreviewProps {
   file: File | null;
@@ -30,37 +27,49 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ file, maxHeight = 360, showPage
     }
     let cancelled = false;
     setLoading(true);
-    file.arrayBuffer().then((buf) => {
-      if (cancelled) return;
-      return pdfjsLib.getDocument({ data: buf }).promise;
-    }).then((doc) => {
-      if (cancelled || !doc) return;
-      setPdfDoc(doc);
-      setTotalPages(doc.numPages);
-      setCurrentPage(1);
-    }).catch(() => {
-      setPdfDoc(null);
-    }).finally(() => {
-      if (!cancelled) setLoading(false);
-    });
-    return () => { cancelled = true; };
+    file
+      .arrayBuffer()
+      .then((buf) => {
+        if (cancelled) return;
+        return pdfjsLib.getDocument({ data: buf }).promise;
+      })
+      .then((doc) => {
+        if (cancelled || !doc) return;
+        setPdfDoc(doc);
+        setTotalPages(doc.numPages);
+        setCurrentPage(1);
+      })
+      .catch(() => {
+        setPdfDoc(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [file]);
 
-  const renderPage = useCallback(async (doc: pdfjsLib.PDFDocumentProxy, pageNum: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    try {
-      const page = await doc.getPage(pageNum);
-      const baseViewport = page.getViewport({ scale: 1 });
-      const scale = Math.min(maxHeight / baseViewport.height, 1.5);
-      const viewport = page.getViewport({ scale });
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      const ctx = canvas.getContext('2d')!;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      await page.render({ canvas, canvasContext: ctx, viewport }).promise;
-    } catch { /* ignore render errors */ }
-  }, [maxHeight]);
+  const renderPage = useCallback(
+    async (doc: pdfjsLib.PDFDocumentProxy, pageNum: number) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      try {
+        const page = await doc.getPage(pageNum);
+        const baseViewport = page.getViewport({ scale: 1 });
+        const scale = Math.min(maxHeight / baseViewport.height, 1.5);
+        const viewport = page.getViewport({ scale });
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+      } catch {
+        /* ignore render errors */
+      }
+    },
+    [maxHeight]
+  );
 
   useEffect(() => {
     if (pdfDoc) renderPage(pdfDoc, currentPage);
@@ -81,9 +90,14 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ file, maxHeight = 360, showPage
     return (
       <Paper sx={{ p: 3, textAlign: 'center' }}>
         <PictureAsPdf sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-        <Typography variant="body2" sx={{
-          color: "text.secondary"
-        }}>Unable to preview PDF</Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          Unable to preview PDF
+        </Typography>
       </Paper>
     );
   }
@@ -91,22 +105,30 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ file, maxHeight = 360, showPage
   return (
     <Paper variant="outlined" sx={{ p: 1.5, textAlign: 'center' }}>
       <Box sx={{ display: 'flex', justifyContent: 'center', bgcolor: 'grey.100', borderRadius: 1, overflow: 'hidden' }}>
-        <canvas
-          ref={canvasRef}
-          style={{ maxWidth: '100%', maxHeight, display: 'block' }}
-        />
+        <canvas ref={canvasRef} style={{ maxWidth: '100%', maxHeight, display: 'block' }} />
       </Box>
       {showPageNav && totalPages > 1 && (
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: 1 }}>
-          <IconButton size="small" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage <= 1}>
+          <IconButton
+            size="small"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage <= 1}
+          >
             <NavigateBefore fontSize="small" />
           </IconButton>
-          <Typography variant="caption" sx={{
-            color: "text.secondary"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Page {currentPage} of {totalPages}
           </Typography>
-          <IconButton size="small" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage >= totalPages}>
+          <IconButton
+            size="small"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage >= totalPages}
+          >
             <NavigateNext fontSize="small" />
           </IconButton>
         </Box>
@@ -115,10 +137,11 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ file, maxHeight = 360, showPage
         <Typography
           variant="caption"
           sx={{
-            color: "text.secondary",
+            color: 'text.secondary',
             mt: 0.5,
-            display: 'block'
-          }}>
+            display: 'block',
+          }}
+        >
           1 page
         </Typography>
       )}

@@ -6,7 +6,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  
   Switch,
   FormControlLabel,
   InputAdornment,
@@ -68,15 +67,20 @@ const SocialLinksForm: React.FC<SocialLinksFormProps> = ({ formik }) => {
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Share color="primary" fontSize="small" />
-          <Typography sx={{
-            fontWeight: 600
-          }}>Social Links</Typography>
+          <Typography
+            sx={{
+              fontWeight: 600,
+            }}
+          >
+            Social Links
+          </Typography>
           <Typography
             variant="caption"
             sx={{
-              color: "text.secondary",
-              ml: 1
-            }}>
+              color: 'text.secondary',
+              ml: 1,
+            }}
+          >
             ({values.socialLinks.filter((s: SocialLink) => s.enabled).length} active)
           </Typography>
         </Box>
@@ -105,9 +109,12 @@ const SocialLinksForm: React.FC<SocialLinksFormProps> = ({ formik }) => {
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     {platformIcons[link.platform]}
-                    <Typography variant="body2" sx={{
-                      fontWeight: 500
-                    }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 500,
+                      }}
+                    >
                       {platformLabels[link.platform]}
                     </Typography>
                   </Box>
@@ -126,8 +133,10 @@ const SocialLinksForm: React.FC<SocialLinksFormProps> = ({ formik }) => {
                     onChange={(e) => handleUrlChange(index, e.target.value)}
                     slotProps={{
                       input: {
-                        startAdornment: <InputAdornment position="start">{platformIcons[link.platform]}</InputAdornment>,
-                      }
+                        startAdornment: (
+                          <InputAdornment position="start">{platformIcons[link.platform]}</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 )}

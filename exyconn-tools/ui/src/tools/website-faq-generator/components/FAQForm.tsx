@@ -26,9 +26,12 @@ const FAQForm: React.FC<FAQFormProps> = ({ onSubmit, isLoading }) => {
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <Language color="primary" />
-        <Typography variant="h6" sx={{
-          fontWeight: 600
-        }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Website URL
         </Typography>
       </Box>
@@ -57,7 +60,9 @@ const FAQForm: React.FC<FAQFormProps> = ({ onSubmit, isLoading }) => {
           sx={{ mb: 2 }}
         >
           {[5, 10, 15, 20, 25, 30].map((n) => (
-            <MenuItem key={n} value={n}>{n} FAQs</MenuItem>
+            <MenuItem key={n} value={n}>
+              {n} FAQs
+            </MenuItem>
           ))}
         </TextField>
 

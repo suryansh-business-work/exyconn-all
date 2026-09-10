@@ -28,9 +28,10 @@ export function PostCard({ post, onLike, onShare, onDelete }: Readonly<PostCardP
           direction="row"
           spacing={1}
           sx={{
-            justifyContent: "space-between",
-            alignItems: "flex-start"
-          }}>
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+          }}
+        >
           <AuthorLine author={post.author} at={post.createdAt} />
           {post.canDelete && (
             <Tooltip title="Delete post">

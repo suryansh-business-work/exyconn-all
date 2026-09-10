@@ -1,8 +1,21 @@
 import React, { useState } from 'react';
 import {
-  Container, Box, Typography, TextField, Button, Alert, Snackbar,
-  Paper, LinearProgress, Chip, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow,
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Snackbar,
+  Paper,
+  LinearProgress,
+  Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { Search, TrendingUp, ContentCopy } from '@mui/icons-material';
@@ -59,12 +72,33 @@ const KeywordTool: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
             <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom><TrendingUp sx={{ mr: 1, verticalAlign: 'middle' }} />Find Keywords</Typography>
-              <TextField fullWidth size="small" label="Seed Keyword" placeholder="e.g., digital marketing" value={seed} onChange={(e) => setSeed(e.target.value)} sx={{ mb: 2 }} onKeyDown={(e) => e.key === 'Enter' && handleSearch()} />
-              <Button fullWidth variant="contained" onClick={handleSearch} disabled={isLoading || !seed.trim()} sx={{ textTransform: 'none', bgcolor: '#f59e0b', '&:hover': { bgcolor: '#d97706' } }}>
+              <Typography variant="h6" gutterBottom>
+                <TrendingUp sx={{ mr: 1, verticalAlign: 'middle' }} />
+                Find Keywords
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                label="Seed Keyword"
+                placeholder="e.g., digital marketing"
+                value={seed}
+                onChange={(e) => setSeed(e.target.value)}
+                sx={{ mb: 2 }}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              />
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleSearch}
+                disabled={isLoading || !seed.trim()}
+                sx={{ textTransform: 'none', bgcolor: '#f59e0b', '&:hover': { bgcolor: '#d97706' } }}
+              >
                 {isLoading ? 'Finding...' : 'Find Keywords'}
               </Button>
-              <Alert severity="info" sx={{ mt: 2 }}>Real keyword suggestions powered by Google Autocomplete. These are actual search queries people type on Google.</Alert>
+              <Alert severity="info" sx={{ mt: 2 }}>
+                Real keyword suggestions powered by Google Autocomplete. These are actual search queries people type on
+                Google.
+              </Alert>
             </Paper>
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
@@ -91,7 +125,9 @@ const KeywordTool: React.FC = () => {
                         <TableRow key={i} hover>
                           <TableCell>{i + 1}</TableCell>
                           <TableCell>{r.keyword}</TableCell>
-                          <TableCell align="center"><Chip label={r.wordCount} size="small" variant="outlined" /></TableCell>
+                          <TableCell align="center">
+                            <Chip label={r.wordCount} size="small" variant="outlined" />
+                          </TableCell>
                           <TableCell align="center">{r.charCount}</TableCell>
                         </TableRow>
                       ))}
@@ -103,15 +139,21 @@ const KeywordTool: React.FC = () => {
             {results.length === 0 && !isLoading && (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <Search sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography sx={{
-                  color: "text.secondary"
-                }}>Enter a seed keyword to find real Google suggestions</Typography>
+                <Typography
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
+                  Enter a seed keyword to find real Google suggestions
+                </Typography>
               </Paper>
             )}
           </Grid>
         </Grid>
         <Snackbar open={!!error} autoHideDuration={5000} onClose={() => setError(null)}>
-          <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+          <Alert severity="error" onClose={() => setError(null)}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

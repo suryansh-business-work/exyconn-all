@@ -20,9 +20,12 @@ const EmailSignature: React.FC = () => {
     defaultFormValues
   );
 
-  const handleFormChange = useCallback((values: SignatureFormValues) => {
-    setSavedFormData(values);
-  }, [setSavedFormData]);
+  const handleFormChange = useCallback(
+    (values: SignatureFormValues) => {
+      setSavedFormData(values);
+    },
+    [setSavedFormData]
+  );
 
   return (
     <ToolLayout toolName="Email Signature Generator" toolIcon={<Email />} toolColor="#10b981">

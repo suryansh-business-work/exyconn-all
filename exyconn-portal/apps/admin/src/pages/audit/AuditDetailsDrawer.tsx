@@ -84,9 +84,13 @@ export function AuditDetailsDrawer({
   return (
     <CrudDialog open title="Audit details" onClose={onClose}>
       <Stack spacing={2}>
-        <Stack direction="row" spacing={1} sx={{
-          alignItems: "center"
-        }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: 'center',
+          }}
+        >
           <StatusChip value={row.action} />
           <Text size="sm" color="text.secondary">
             {row.module}

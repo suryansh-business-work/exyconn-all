@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Container,
-  Alert,
-  Snackbar,
-  Paper,
-  Button,
-} from '@mui/material';
+import { Container, Alert, Snackbar, Paper, Button } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { ListAlt } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
@@ -106,11 +100,7 @@ ${sitemapEntries}
               elevation={0}
               sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 450 }}
             >
-              <GeneratedXmlOutput
-                generatedXml={generatedXml}
-                onCopy={handleCopy}
-                onDownload={handleDownload}
-              />
+              <GeneratedXmlOutput generatedXml={generatedXml} onCopy={handleCopy} onDownload={handleDownload} />
             </Paper>
           </Grid>
         </Grid>

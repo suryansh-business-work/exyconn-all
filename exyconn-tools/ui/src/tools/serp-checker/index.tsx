@@ -1,15 +1,32 @@
 import React, { useState } from 'react';
 import {
-  Container, Box, Typography, TextField, Button, Alert, Snackbar,
-  Paper, LinearProgress, Chip, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow,
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Snackbar,
+  Paper,
+  LinearProgress,
+  Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { ListAlt, Search, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 
-interface KeywordResult { keyword: string; wordCount: number; charCount: number }
+interface KeywordResult {
+  keyword: string;
+  wordCount: number;
+  charCount: number;
+}
 
 const SerpChecker: React.FC = () => {
   const [keyword, setKeyword] = useState('');
@@ -52,13 +69,32 @@ const SerpChecker: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
             <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom><Search sx={{ mr: 1, verticalAlign: 'middle' }} />SERP Analysis</Typography>
-              <TextField fullWidth size="small" label="Keyword" placeholder="e.g., best seo tools" value={keyword} onChange={(e) => setKeyword(e.target.value)} sx={{ mb: 2 }} onKeyDown={(e) => e.key === 'Enter' && handleSearch()} />
-              <Button fullWidth variant="contained" onClick={handleSearch} disabled={isLoading || !keyword.trim()} sx={{ textTransform: 'none', bgcolor: '#f97316', '&:hover': { bgcolor: '#ea580c' } }}>
+              <Typography variant="h6" gutterBottom>
+                <Search sx={{ mr: 1, verticalAlign: 'middle' }} />
+                SERP Analysis
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                label="Keyword"
+                placeholder="e.g., best seo tools"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                sx={{ mb: 2 }}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              />
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleSearch}
+                disabled={isLoading || !keyword.trim()}
+                sx={{ textTransform: 'none', bgcolor: '#f97316', '&:hover': { bgcolor: '#ea580c' } }}
+              >
                 {isLoading ? 'Analyzing...' : 'Analyze SERP'}
               </Button>
               <Alert severity="warning" sx={{ mt: 2 }}>
-                Live Google SERP results require Google Custom Search API. This tool shows real related search queries from Google Autocomplete to help understand SERP landscape.
+                Live Google SERP results require Google Custom Search API. This tool shows real related search queries
+                from Google Autocomplete to help understand SERP landscape.
               </Alert>
             </Paper>
           </Grid>
@@ -84,9 +120,17 @@ const SerpChecker: React.FC = () => {
                     <TableBody>
                       {results.map((r, i) => (
                         <TableRow key={i} hover>
-                          <TableCell><Chip label={i + 1} size="small" color={i < 3 ? 'success' : i < 10 ? 'primary' : 'default'} /></TableCell>
+                          <TableCell>
+                            <Chip
+                              label={i + 1}
+                              size="small"
+                              color={i < 3 ? 'success' : i < 10 ? 'primary' : 'default'}
+                            />
+                          </TableCell>
                           <TableCell>{r.keyword}</TableCell>
-                          <TableCell align="center"><Chip label={r.wordCount} size="small" variant="outlined" /></TableCell>
+                          <TableCell align="center">
+                            <Chip label={r.wordCount} size="small" variant="outlined" />
+                          </TableCell>
                           <TableCell align="center">{r.charCount}</TableCell>
                         </TableRow>
                       ))}
@@ -98,15 +142,21 @@ const SerpChecker: React.FC = () => {
             {results.length === 0 && !isLoading && (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <ListAlt sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography sx={{
-                  color: "text.secondary"
-                }}>Enter a keyword to analyze related search queries</Typography>
+                <Typography
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
+                  Enter a keyword to analyze related search queries
+                </Typography>
               </Paper>
             )}
           </Grid>
         </Grid>
         <Snackbar open={!!error} autoHideDuration={5000} onClose={() => setError(null)}>
-          <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+          <Alert severity="error" onClose={() => setError(null)}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

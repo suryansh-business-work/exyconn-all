@@ -26,14 +26,13 @@ const details = (overrides: Partial<ToolDetailContent> = {}): ToolDetailContent 
     { question: 'Mobile?', answer: 'Yes, the interface is fully responsive on phones too.' },
   ],
   keywords: ['sitemap finder', 'sitemap checker', 'xml sitemap', 'seo tool', 'free tool'],
-  metaDescription: 'Find every sitemap on any website in seconds. Free, private and instant, with no signup and no limits on how many sites you check.',
+  metaDescription:
+    'Find every sitemap on any website in seconds. Free, private and instant, with no signup and no limits on how many sites you check.',
   ...overrides,
 });
 
 const typeOf = (jsonLd: object[], type: string) =>
-  jsonLd.find((entry) => (entry as Record<string, unknown>)['@type'] === type) as
-    | Record<string, unknown>
-    | undefined;
+  jsonLd.find((entry) => (entry as Record<string, unknown>)['@type'] === type) as Record<string, unknown> | undefined;
 
 describe('buildToolMeta', () => {
   describe('title', () => {

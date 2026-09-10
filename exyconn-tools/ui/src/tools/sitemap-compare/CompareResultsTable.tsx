@@ -34,9 +34,10 @@ const CompareResultsTable: React.FC<CompareResultsTableProps> = ({ result }) => 
           <Typography
             variant="body2"
             sx={{
-              color: "text.secondary",
-              mt: 1
-            }}>
+              color: 'text.secondary',
+              mt: 1,
+            }}
+          >
             Find added, removed, and modified URLs between versions
           </Typography>
         </Box>
@@ -44,8 +45,7 @@ const CompareResultsTable: React.FC<CompareResultsTableProps> = ({ result }) => 
     );
   }
 
-  const activeData =
-    activeTab === 0 ? result.added : activeTab === 1 ? result.removed : result.modified;
+  const activeData = activeTab === 0 ? result.added : activeTab === 1 ? result.removed : result.modified;
   const totalCount = activeData.length;
   const paginatedData = activeData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -57,12 +57,7 @@ const CompareResultsTable: React.FC<CompareResultsTableProps> = ({ result }) => 
   return (
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, minHeight: 480 }}>
       <Tabs value={activeTab} onChange={handleTabChange} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tab
-          label={`Added (${result.added.length})`}
-          icon={<Add />}
-          iconPosition="start"
-          sx={{ minHeight: 48 }}
-        />
+        <Tab label={`Added (${result.added.length})`} icon={<Add />} iconPosition="start" sx={{ minHeight: 48 }} />
         <Tab
           label={`Removed (${result.removed.length})`}
           icon={<Remove />}
@@ -126,14 +121,10 @@ const CompareResultsTable: React.FC<CompareResultsTableProps> = ({ result }) => 
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="caption">
-                      {'oldLastmod' in u ? u.oldLastmod || '-' : '-'}
-                    </Typography>
+                    <Typography variant="caption">{'oldLastmod' in u ? u.oldLastmod || '-' : '-'}</Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="caption">
-                      {'newLastmod' in u ? u.newLastmod || '-' : '-'}
-                    </Typography>
+                    <Typography variant="caption">{'newLastmod' in u ? u.newLastmod || '-' : '-'}</Typography>
                   </TableCell>
                 </TableRow>
               ))}

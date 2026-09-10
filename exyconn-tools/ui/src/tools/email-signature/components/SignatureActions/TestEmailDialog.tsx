@@ -48,9 +48,10 @@ const TestEmailDialog: React.FC<TestEmailDialogProps> = ({
         <Typography
           variant="body2"
           sx={{
-            color: "text.secondary",
-            mb: 2
-          }}>
+            color: 'text.secondary',
+            mb: 2,
+          }}
+        >
           Send a test email to preview how your signature looks in an actual email.
         </Typography>
 
