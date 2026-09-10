@@ -18,6 +18,7 @@ export function SidebarRail({ items, activePath, onSelect }: Readonly<SidebarRai
         <Tooltip key={item.key} title={item.label} placement="right">
           <ListItemButton
             selected={activePath === item.path}
+            aria-current={activePath === item.path ? 'page' : undefined}
             onClick={() => onSelect(item)}
             aria-label={item.label}
             sx={{ borderRadius: 1.5, mb: 0.25, justifyContent: 'center', px: 1 }}

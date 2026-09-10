@@ -8,6 +8,15 @@ export interface NavItem {
   label: string;
   path: string;
   icon: SvgIconComponent;
+  /** The section this page sits under, or undefined for the ungrouped ones that lead. */
+  group?: string;
+}
+
+/** A run of pages under one heading. The leading run has no label and no heading. */
+export interface NavSection {
+  /** Empty for the ungrouped pages that lead the list. */
+  label: string;
+  items: NavItem[];
 }
 
 /**
@@ -25,16 +34,26 @@ export function navModules(roles: Role[], currentApp: PortalAppKey): ModuleDefin
 /**
  * The pages a module contributes to its own sidebar: its children, or the module
  * itself when it has none, filtered by a free-text query.
+ *
+ * The query is matched against the section name as well as the page's own label, so
+ * somebody who remembers a page as "one of the pay ones" finds it without remembering
+ * which one.
  */
 export function moduleNavItems(module: ModuleDefinition, query = ''): NavItem[] {
   const children = module.children ?? [];
   const items: NavItem[] = children.length
-    ? children.map((c) => ({ key: c.key, label: c.label, path: c.path, icon: c.icon }))
+    ? children.map((c) => ({
+        key: c.key,
+        label: c.label,
+        path: c.path,
+        icon: c.icon,
+        group: c.group,
+      }))
     : [{ key: module.key, label: module.label, path: module.path, icon: module.icon }];
 
   const q = query.trim().toLowerCase();
   if (!q) return items;
-  return items.filter((item) => item.label.toLowerCase().includes(q));
+  return items.filter((item) => `${item.label} ${item.group ?? ''}`.toLowerCase().includes(q));
 }
 
 /** A collapsed-sidebar entry: a nav item plus where it goes and how it is tinted. */
@@ -61,4 +80,27 @@ export function railItems(modules: ModuleDefinition[], isHub: boolean): RailItem
   return modules.flatMap((module) =>
     moduleNavItems(module).map((item) => ({ ...item, app: module.key, accent: module.accent })),
   );
+}
+
+/**
+ * A module's pages as the sidebar draws them: the ungrouped ones first with no heading,
+ * then one section per group, in the order the config declares them.
+ *
+ * A module whose pages carry no group at all comes back as a single unlabelled section, so
+ * a five-page portal stays a plain list. Headings over two items each are noise, and the
+ * sidebar is read at a glance or not at all.
+ */
+export function navSections(module: ModuleDefinition, query = ''): NavSection[] {
+  const items = moduleNavItems(module, query);
+  const sections: NavSection[] = [];
+  for (const item of items) {
+    const label = item.group ?? '';
+    const last = sections[sections.length - 1];
+    if (last?.label === label) {
+      last.items.push(item);
+    } else {
+      sections.push({ label, items: [item] });
+    }
+  }
+  return sections;
 }

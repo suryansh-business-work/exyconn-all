@@ -7,7 +7,8 @@ import { Sidebar } from './Sidebar';
 import { useAuth } from '@/auth/AuthContext';
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
 
-const DRAWER_WIDTH = 248;
+/** Wide enough that a page like "Onboarding Templates" is read, not truncated. */
+const DRAWER_WIDTH = 288;
 /** Collapsed width: one icon plus its hit area, nothing else. */
 const RAIL_WIDTH = 64;
 
@@ -41,7 +42,11 @@ export function PortalLayout() {
     >
       <Topbar drawerWidth={width} onMenuClick={() => setMobileOpen((o) => !o)} />
 
-      <Box component="nav" sx={{ width: { md: width }, flexShrink: { md: 0 } }}>
+      <Box
+        component="nav"
+        aria-label="Portal pages"
+        sx={{ width: { md: width }, flexShrink: { md: 0 } }}
+      >
         <Drawer
           variant="temporary"
           open={mobileOpen}

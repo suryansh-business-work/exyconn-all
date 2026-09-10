@@ -29,6 +29,7 @@ export function HubModuleItem({ module, activePath, onSelect }: Readonly<HubModu
     return (
       <ListItemButton
         selected={activePath === module.path}
+        aria-current={activePath === module.path ? 'page' : undefined}
         onClick={() => onSelect(module.path)}
         sx={itemSx}
       >
@@ -55,6 +56,7 @@ export function HubModuleItem({ module, activePath, onSelect }: Readonly<HubModu
             <ListItemButton
               key={child.key}
               selected={activePath === child.path}
+              aria-current={activePath === child.path ? 'page' : undefined}
               onClick={() => onSelect(child.path)}
               sx={itemSx}
             >

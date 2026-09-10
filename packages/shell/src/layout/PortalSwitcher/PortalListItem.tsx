@@ -27,6 +27,7 @@ export function PortalListItem({ entry, onSelect }: Readonly<PortalListItemProps
   return (
     <ListItemButton
       selected={entry.isCurrent}
+      aria-current={entry.isCurrent ? 'page' : undefined}
       onClick={() => onSelect(entry)}
       sx={{ borderRadius: 2, mb: 0.5, alignItems: 'flex-start', py: 1.25 }}
     >
