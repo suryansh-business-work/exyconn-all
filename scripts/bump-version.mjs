@@ -1,20 +1,25 @@
 #!/usr/bin/env node
 /**
- * Bumps the desktop tracker's version.
+ * Bumps the tracker's version — the desktop app's, mirrored into the mobile app's.
  *
  * This is the number that makes updates work at all: electron-builder stamps it on the
  * installer, the update feed serves it, and electron-updater compares the running app against
  * it to decide whether a newer build exists. A release shipped without bumping it is a release
  * no installed tracker will ever notice — which is exactly the symptom this fixes.
  *
- * Only the tracker app is bumped. The root manifest's version describes the repository, not a
- * shipped artifact, and forcing the two to match would change what the root number means.
+ * The mobile app carries the SAME number: one tracker release builds the desktop installers and
+ * the APK/AAB/IPA together, and Android derives its versionCode from it, so the phone must never
+ * lag the desktop by a bump. Only the tracker apps are bumped. The root manifest's version
+ * describes the repository, not a shipped artifact, and forcing the two to match would change
+ * what the root number means.
  *
  * Usage: node scripts/bump-version.mjs [major|minor|patch]
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const MANIFEST = 'exyconn-tracker-app/package.json';
+/** Kept equal to MANIFEST's version on every bump. */
+const MIRRORS = ['exyconn-tracker-mobile/package.json'];
 const LEVELS = new Set(['major', 'minor', 'patch']);
 
 const level = process.argv[2] ?? 'patch';
@@ -41,5 +46,11 @@ const next = {
 const before = manifest.version;
 manifest.version = next;
 writeFileSync(MANIFEST, `${JSON.stringify(manifest, null, 2)}\n`);
-
 console.log(`${MANIFEST}: ${before} -> ${next} (${level})`);
+
+for (const mirror of MIRRORS) {
+  const copy = JSON.parse(readFileSync(mirror, 'utf8'));
+  copy.version = next;
+  writeFileSync(mirror, `${JSON.stringify(copy, null, 2)}\n`);
+  console.log(`${mirror}: -> ${next} (mirrored)`);
+}

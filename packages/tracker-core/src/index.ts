@@ -11,6 +11,8 @@ export * from './activity';
 export * from './auto-stop';
 export * from './capture-overlay';
 export * from './capture-policy';
+export * from './controller';
+export * from './engine';
 export * from './foreground-usage';
 export * from './format';
 export * from './outbox';

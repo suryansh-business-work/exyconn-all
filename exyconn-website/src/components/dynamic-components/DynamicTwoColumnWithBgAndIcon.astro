@@ -44,7 +44,10 @@ const {
                   class={`${item.icon?.toString().split(" ")[0]} ${item.icon?.toString().split(" ")[1] || ""} text-on-solid text-sm`}
                 />
               </div>
-              <p class="text-fg-secondary leading-relaxed text-sm font-medium" set:html={item.text} />
+              <p
+                class="text-fg-secondary leading-relaxed text-sm font-medium"
+                set:html={item.text}
+              />
             </div>
           ))
         }

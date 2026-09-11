@@ -29,6 +29,7 @@ COPY packages/login/package.json packages/login/
 COPY packages/regex/package.json packages/regex/
 COPY packages/tabber/package.json packages/tabber/
 COPY packages/time/package.json packages/time/
+COPY packages/tracker-core/package.json packages/tracker-core/
 COPY packages/ui/package.json packages/ui/
 COPY exyconn-portal/package.json exyconn-portal/
 COPY exyconn-portal/server/package.json exyconn-portal/server/

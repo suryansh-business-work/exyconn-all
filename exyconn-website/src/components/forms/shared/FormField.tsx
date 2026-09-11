@@ -4,8 +4,8 @@ import { ERROR_CLASSES, LABEL_CLASSES } from "./fieldClasses";
 type Marker = "required" | "optional";
 
 const MARKERS: Record<Marker, ReactNode> = {
-  required: <span className="text-red-500">*</span>,
-  optional: <span className="text-gray-400 font-normal">(optional)</span>,
+  required: <span className="text-red-fg">*</span>,
+  optional: <span className="text-fg-faint font-normal">(optional)</span>,
 };
 
 interface FormFieldProps {

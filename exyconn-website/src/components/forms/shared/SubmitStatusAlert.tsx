@@ -9,7 +9,7 @@ interface SubmitStatusAlertProps {
 export function SubmitStatusAlert({ status, successMessage }: Readonly<SubmitStatusAlertProps>) {
   if (status === "success") {
     return (
-      <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 flex items-center gap-2">
+      <div className="mb-6 p-4 bg-green-subtle border border-green-muted rounded-xl text-green-fg-strong flex items-center gap-2">
         <i className="fa-solid fa-check-circle"></i>
         <span>{successMessage}</span>
       </div>
@@ -17,7 +17,7 @@ export function SubmitStatusAlert({ status, successMessage }: Readonly<SubmitSta
   }
   if (status === "error") {
     return (
-      <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+      <div className="mb-6 p-4 bg-red-subtle border border-red-muted rounded-xl text-red-fg-strong flex items-center gap-2">
         <i className="fa-solid fa-exclamation-circle"></i>
         <span>Something went wrong. Please try again.</span>
       </div>

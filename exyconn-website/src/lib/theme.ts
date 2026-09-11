@@ -14,5 +14,4 @@ export const DARK_MEDIA_QUERY = "(prefers-color-scheme: dark)";
 /** `[data-theme="dark"]` — the selector the night roles are declared under. */
 export const themeSelector = (theme: Theme): string => `[${THEME_ATTRIBUTE}="${theme}"]`;
 
-export const isTheme = (value: unknown): value is Theme =>
-  THEMES.some((theme) => theme === value);
+export const isTheme = (value: unknown): value is Theme => THEMES.some((theme) => theme === value);

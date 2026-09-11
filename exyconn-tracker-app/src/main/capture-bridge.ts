@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { ipcMain, type BrowserWindow } from 'electron';
-import { IPC, type CaptureRequest, type CaptureResult, type WebcamCorner } from '@shared/types';
+import type { ComposeInput } from '@exyconn/tracker-core';
+import { IPC, type CaptureRequest, type CaptureResult } from '@shared/types';
 
 /**
  * How long main waits for a renderer to answer a capture request. A webcam warms up in well
@@ -23,12 +24,7 @@ export function registerCaptureBridge(): void {
   });
 }
 
-export interface ComposeInput {
-  screen: string;
-  mimeType: string;
-  corner: WebcamCorner;
-  quality: number;
-}
+export type { ComposeInput };
 
 /**
  * Asks the renderer to take a webcam photo and composite it into the corner of a screenshot.

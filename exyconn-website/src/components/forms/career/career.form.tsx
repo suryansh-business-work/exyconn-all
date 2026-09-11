@@ -14,7 +14,7 @@ import type { CareerFormValues } from "./career.types";
 import { ResumeField } from "./ResumeField";
 
 const SUBMIT_CLASSES =
-  "cursor-pointer w-full bg-blue-600 text-white font-semibold py-4 px-6 rounded-xl hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2";
+  "cursor-pointer w-full bg-blue-strong text-on-solid font-semibold py-4 px-6 rounded-xl hover:bg-blue-deep focus:ring-4 focus:ring-blue-muted transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2";
 
 /** The job application form (React Hook Form + Zod), validated in the browser before it sends. */
 export function CareerFormReact() {
@@ -52,7 +52,10 @@ export function CareerFormReact() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto mt-20" id="apply-now-form">
+    <div
+      className="bg-surface rounded-2xl shadow-xl p-8 max-w-2xl mx-auto mt-20"
+      id="apply-now-form"
+    >
       <h3 className="text-2xl font-bold text-[var(--color-primary)] mb-6 text-center">Apply Now</h3>
 
       <SubmitStatusAlert

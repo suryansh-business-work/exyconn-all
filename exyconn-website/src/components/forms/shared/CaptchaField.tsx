@@ -3,12 +3,12 @@ import { type Accent, ERROR_CLASSES, LABEL_CLASSES, inputClassName } from "./fie
 
 const ACCENT_CLASSES: Record<Accent, { icon: string; refresh: string }> = {
   blue: {
-    icon: "fa-solid fa-shield-halved text-blue-500",
-    refresh: "p-2 text-gray-500 hover:text-blue-600 transition-colors",
+    icon: "fa-solid fa-shield-halved text-blue-fg",
+    refresh: "p-2 text-fg-subtle hover:text-blue-fg transition-colors",
   },
   amber: {
-    icon: "fa-solid fa-shield-halved text-amber-500",
-    refresh: "p-2 text-gray-500 hover:text-amber-600 transition-colors",
+    icon: "fa-solid fa-shield-halved text-amber-fg",
+    refresh: "p-2 text-fg-subtle hover:text-amber-fg transition-colors",
   },
 };
 
@@ -34,14 +34,14 @@ export function CaptchaField({
 }: Readonly<CaptchaFieldProps>) {
   const invalid = Boolean(error) || Boolean(captchaError);
   return (
-    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+    <div className="bg-surface-subtle rounded-xl p-4 border border-line">
       <label className={LABEL_CLASSES} htmlFor="captcha">
-        Security Check <span className="text-red-500">*</span>
+        Security Check <span className="text-red-fg">*</span>
       </label>
       <div className="flex items-center gap-4 flex-wrap">
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200">
+        <div className="flex items-center gap-2 bg-surface px-4 py-2 rounded-lg border border-line">
           <i className={ACCENT_CLASSES[accent].icon}></i>
-          <span className="font-mono font-bold text-gray-800">{question}</span>
+          <span className="font-mono font-bold text-fg">{question}</span>
         </div>
         <input
           type="text"

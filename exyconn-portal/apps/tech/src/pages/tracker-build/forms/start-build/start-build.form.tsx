@@ -6,7 +6,11 @@ import { RhfMultiSelect, RhfTextField } from '@exyconn/shell/components/form/rhf
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { TrackerPlatform, useStartTrackerBuildMutation } from '@exyconn/shell/graphql/generated';
-import { BUILD_PLATFORMS, DEFAULT_BUILD_REF, MOBILE_BUILD_HINT } from '../../trackerBuild.constants';
+import {
+  BUILD_PLATFORMS,
+  DEFAULT_BUILD_REF,
+  MOBILE_BUILD_HINT,
+} from '../../trackerBuild.constants';
 
 const PLATFORM_OPTIONS = BUILD_PLATFORMS.map((p) => ({
   value: p.value as string,

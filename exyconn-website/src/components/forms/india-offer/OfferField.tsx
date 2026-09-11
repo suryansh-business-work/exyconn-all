@@ -31,7 +31,7 @@ export function OfferField({
         {required && (
           <>
             {" "}
-            <span className="text-red-500">*</span>
+            <span className="text-red-fg">*</span>
           </>
         )}
       </label>

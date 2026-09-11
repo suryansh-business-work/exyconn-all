@@ -12,7 +12,7 @@ import { CONTACT_FORM_DEFAULTS, contactFormSchema } from "./contact.schema";
 import type { ContactFormValues } from "./contact.types";
 
 const SUBMIT_CLASSES =
-  "cursor-pointer w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold px-8 py-4 rounded-xl hover:opacity-90 transition-all duration-300 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed";
+  "cursor-pointer w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-strong to-purple-strong text-on-solid font-semibold px-8 py-4 rounded-xl hover:opacity-90 transition-all duration-300 shadow-lg shadow-blue/20 disabled:opacity-50 disabled:cursor-not-allowed";
 
 /** The contact page form (React Hook Form + Zod), validated in the browser before it sends. */
 export function ContactFormReact() {
@@ -34,7 +34,7 @@ export function ContactFormReact() {
   const onSubmit = ({ captcha: answer, ...payload }: ContactFormValues) => submit(answer, payload);
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 p-8 lg:p-10">
+    <div className="bg-surface rounded-3xl border border-line-subtle shadow-xl shadow-surface-muted/50 p-8 lg:p-10">
       <SubmitStatusAlert
         status={status}
         successMessage="Thank you! Your message has been sent successfully."
@@ -136,9 +136,9 @@ export function ContactFormReact() {
           busyLabel="Sending..."
         />
 
-        <p className="text-center text-xs text-gray-500">
+        <p className="text-center text-xs text-fg-subtle">
           By submitting this form, you agree to our{" "}
-          <a href="/privacy-policy" className="text-blue-600 hover:underline">
+          <a href="/privacy-policy" className="text-blue-fg hover:underline">
             Privacy Policy
           </a>
           .

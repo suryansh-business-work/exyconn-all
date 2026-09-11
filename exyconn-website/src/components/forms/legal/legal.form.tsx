@@ -12,7 +12,7 @@ import { LEGAL_FORM_DEFAULTS, legalFormSchema } from "./legal.schema";
 import type { LegalFormValues } from "./legal.types";
 
 const SUBMIT_CLASSES =
-  "cursor-pointer w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold py-4 px-6 rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20";
+  "cursor-pointer w-full bg-gradient-to-r from-amber to-orange text-on-solid font-semibold py-4 px-6 rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-amber/20";
 
 const legalOptions = [
   { value: "", label: "Select an option" },
@@ -43,7 +43,7 @@ export function LegalFormReact() {
   const onSubmit = ({ captcha: answer, ...payload }: LegalFormValues) => submit(answer, payload);
 
   return (
-    <section className="max-w-xl mx-auto mt-12 bg-white rounded-2xl shadow-xl p-8">
+    <section className="max-w-xl mx-auto mt-12 bg-surface rounded-2xl shadow-xl p-8">
       <h2 className="text-2xl font-bold text-[var(--color-primary)] mb-6 text-center">
         Submit a Legal Request
       </h2>
@@ -136,7 +136,7 @@ export function LegalFormReact() {
         />
       </form>
 
-      <p className="text-xs text-gray-500 mt-4 text-center">
+      <p className="text-xs text-fg-subtle mt-4 text-center">
         By submitting, you confirm that the information provided is accurate and you have the
         authority to make this request. Exyconn will review and respond in accordance with
         applicable law and our policies.

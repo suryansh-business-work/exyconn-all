@@ -101,7 +101,11 @@ export function TrackerDevicesPage() {
   };
 
   return (
-    <ModuleDashboard title="Tracker Devices" subtitle="Enrolled desktop and phone agents" stats={stats}>
+    <ModuleDashboard
+      title="Tracker Devices"
+      subtitle="Enrolled desktop and phone agents"
+      stats={stats}
+    >
       <DataTable
         columns={columns}
         rows={rows}

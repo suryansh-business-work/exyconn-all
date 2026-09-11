@@ -1,76 +1,109 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { brandFallback } from "../src/styles/tokens/brand.tokens";
+import { palette } from "../src/styles/tokens/palette.tokens";
+import {
+  darkRoles,
+  highContrastRoles,
+  lightRoles,
+  roles,
+} from "../src/styles/tokens/semantic.tokens";
 
-const read = (relative: string): string =>
-  readFileSync(fileURLToPath(new URL(relative, import.meta.url)), "utf8");
+const SRC = fileURLToPath(new URL("../src/", import.meta.url));
+const TOKENS_DIR = "styles/tokens/";
 
-const RAMPS = read("../src/styles/tokens/colors.tokens.scss");
+/** Every stylable source file outside the tokens folder, as [relative path, contents]. */
+const sources: [string, string][] = readdirSync(SRC, { recursive: true, encoding: "utf8" })
+  .filter((file) => /\.(astro|tsx?|jsx|s?css)$/.test(file) && !file.startsWith(TOKENS_DIR))
+  .map((file) => [file, readFileSync(SRC + file, "utf8")]);
 
-/** Every `--palette-*` declaration in the ramp file, as name -> hex. */
-const palette = new Map<string, string>(
-  [...RAMPS.matchAll(/--(palette-[\w-]+):\s*(#[0-9a-f]{6});/g)].map((m) => [m[1], m[2]])
+const findAll = (pattern: RegExp, pick = 0): string[] =>
+  sources.flatMap(([file, text]) => [...text.matchAll(pattern)].map((m) => `${file}: ${m[pick]}`));
+
+const paletteVars = new Set(
+  Object.entries(palette).flatMap(([family, steps]) =>
+    Object.keys(steps).map((step) => `palette-${family}-${step}`)
+  )
 );
+const roleNames = new Set(Object.keys(roles));
 
-describe("colour ramps", () => {
-  it("defines every shade as a six-digit lowercase hex", () => {
-    expect(palette.size).toBeGreaterThan(50);
+describe("palette", () => {
+  it("holds only hex or oklch values", () => {
+    const values = Object.values(palette).flatMap((steps) => Object.values(steps));
+    expect(values.filter((v) => !/^(#[0-9a-f]{6}|oklch\([^)]+\))$/.test(v))).toEqual([]);
   });
 
   it("never repeats a value under two names", () => {
-    const byHex = new Map<string, string>();
-    const duplicates: string[] = [];
-    for (const [name, hex] of palette) {
-      const first = byHex.get(hex);
-      if (first) {
-        duplicates.push(`${hex} is both ${first} and ${name}`);
-      }
-      byHex.set(hex, name);
-    }
-    expect(duplicates).toEqual([]);
+    const values = Object.values(palette).flatMap((steps) => Object.values(steps));
+    expect(values.length).toBe(new Set(values).size);
+  });
+
+  it("gives the browser chrome a literal brand colour", () => {
+    expect(brandFallback.primary).toBe(palette.brand[500]);
   });
 });
 
-describe("brand fallback", () => {
-  /**
-   * The TS copy exists only for `<meta name="theme-color">` and friends, which cannot read
-   * a CSS variable. If it drifts from the ramp, the browser chrome and the page stop
-   * agreeing on what the brand blue is — a difference nobody sees until it ships.
-   */
-  it.each([
-    ["primary", "palette-brand-500"],
-    ["secondary", "palette-purple-500"],
-    ["accent", "palette-cyan-500"],
-    ["background", "palette-neutral-0"],
-    ["text", "palette-gray-900"],
-  ] as const)("keeps %s equal to its ramp entry", (role, token) => {
-    expect(brandFallback[role]).toBe(palette.get(token));
+describe("semantic roles", () => {
+  const answers = [
+    ...Object.values(lightRoles),
+    ...Object.values(darkRoles),
+    ...Object.values(highContrastRoles),
+  ];
+
+  it("paint only from the ramps and from other roles", () => {
+    const literal = answers.filter((value) =>
+      /#[0-9a-f]{3,8}\b|oklch\(|rgba?\(|hsla?\(/i.test(value)
+    );
+    expect(literal).toEqual([]);
+  });
+
+  it("reference only ramps and roles that exist", () => {
+    const refs = answers.flatMap((value) =>
+      [...value.matchAll(/var\(--([\w-]+)\)/g)].map((m) => m[1])
+    );
+    const missing = refs.filter(
+      (ref) => !paletteVars.has(ref) && !roleNames.has(ref.replace(/^color-/, ""))
+    );
+    expect(missing).toEqual([]);
+  });
+
+  it("answer every night override with a role that exists by day", () => {
+    expect(Object.keys(darkRoles).filter((role) => !(role in lightRoles))).toEqual([]);
   });
 });
 
-describe("mode parity", () => {
-  const light = read("../src/styles/tokens/modes/light.token.scss");
-  const dark = read("../src/styles/tokens/modes/dark.token.scss");
-  const rolesIn = (css: string, block: RegExp): Set<string> => {
-    const body = block.exec(css)?.[1] ?? "";
-    return new Set([...body.matchAll(/--(color-[\w-]+|focus-ring-color):/g)].map((m) => m[1]));
-  };
+describe("components paint only with roles", () => {
+  const PALETTE_CLASS =
+    /(?<![\w-])(?:[\w-]+:)*!?(?:bg|text|border(?:-[trblxy])?|from|via|to|ring|fill|stroke|shadow|divide|outline|placeholder|decoration|accent|caret)-(?:white|black|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}(?![\w-])/g;
 
   /**
-   * A role answered in one mode and missing in the other is how a screen ends up designed
-   * in daylight and discovered at night.
+   * Tailwind's own palette is switched off in global.css, so a raw `text-gray-600` silently
+   * renders as inherited ink — in daylight it can look fine, at night it is wrong.
    */
-  it("answers the same roles in light and dark", () => {
-    const inLight = rolesIn(light, /^:root \{([\s\S]*?)^\}/m);
-    const inDark = rolesIn(dark, /^\.dark \{([\s\S]*?)^\}/m);
-    expect([...inLight].filter((role) => !inDark.has(role))).toEqual([]);
-    expect([...inDark].filter((role) => !inLight.has(role))).toEqual([]);
+  it("writes no raw Tailwind palette classes", () => {
+    expect(findAll(PALETTE_CLASS)).toEqual([]);
   });
 
-  it("paints both modes only from the ramps", () => {
-    for (const css of [light, dark]) {
-      expect(css).not.toMatch(/#[0-9a-f]{3,8}\b/i);
-    }
+  it("never reaches past the roles into a ramp", () => {
+    expect(findAll(/var\(--palette-[\w-]+\)/g)).toEqual([]);
+  });
+
+  it("writes no colour literals", () => {
+    const literals =
+      /(?<![\w&-])(?:#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3})|%23[0-9a-f]{3,8}|(?:rgba?|hsla?|oklch)\()(?![\w-])/gi;
+    expect(findAll(literals)).toEqual([]);
+  });
+
+  it("names only roles that exist, in utilities and in var()", () => {
+    const utility =
+      /(?<![\w-])(?:[\w-]+:)*!?(?:bg|text|border|from|via|to|ring|fill|stroke|shadow|divide|placeholder)-((?:page|surface|inverse|fg|line|on-solid|on-primary|scrim|primary|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)(?:-[a-z]+)*)(?:\/[\d.]+)?(?![\w-])/g;
+    const unknownUtilities = findAll(utility, 1).filter(
+      (hit) => !roleNames.has(hit.split(": ")[1])
+    );
+    const unknownVars = findAll(/var\(--color-([\w-]+)\)/g, 1).filter(
+      (hit) => !roleNames.has(hit.split(": ")[1])
+    );
+    expect([...unknownUtilities, ...unknownVars]).toEqual([]);
   });
 });

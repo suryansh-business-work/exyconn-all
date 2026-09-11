@@ -12,7 +12,7 @@ import { GRIEVANCE_FORM_DEFAULTS, grievanceFormSchema } from "./grievance.schema
 import type { GrievanceFormValues } from "./grievance.types";
 
 const SUBMIT_CLASSES =
-  "cursor-pointer w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-6 rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20";
+  "cursor-pointer w-full bg-gradient-to-r from-blue-strong to-purple-strong text-on-solid font-semibold py-4 px-6 rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue/20";
 
 /** The grievance page form (React Hook Form + Zod), validated in the browser before it sends. */
 export function GrievanceFormReact() {
@@ -36,7 +36,7 @@ export function GrievanceFormReact() {
 
   return (
     <section className="max-w-xl mx-auto mt-12 rounded-xl p-5">
-      <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="bg-surface rounded-2xl shadow-xl p-8">
         <h2 className="text-2xl font-bold text-[var(--color-primary)] mb-6 text-center">
           Submit Your Grievance
         </h2>
@@ -109,7 +109,7 @@ export function GrievanceFormReact() {
           />
         </form>
 
-        <p className="text-xs text-gray-500 mt-4 text-center">
+        <p className="text-xs text-fg-subtle mt-4 text-center">
           By submitting, you agree that your grievance will be reviewed in accordance with Exyconn's
           grievance redressal policy.
         </p>

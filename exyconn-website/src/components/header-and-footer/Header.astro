@@ -44,7 +44,11 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
     <div class="flex lg:flex-1 items-center gap-2 animate-fade-in">
       <a href="/" class="flex items-center gap-2" aria-label={`${businessName} Home`}>
         <span class="sr-only">{businessName}</span>
-        <BrandLogo branding={branding} class="h-9 w-auto transition duration-300" alt={businessName} />
+        <BrandLogo
+          branding={branding}
+          class="h-9 w-auto transition duration-300"
+          alt={businessName}
+        />
       </a>
     </div>
 

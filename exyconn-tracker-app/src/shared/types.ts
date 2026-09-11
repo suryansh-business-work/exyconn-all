@@ -7,20 +7,10 @@
  * preferences of this install, and the capture round-trip only a renderer can finish.
  */
 import type {
-  AuthUser,
-  Branding,
-  ConsentPolicy,
-  LiveStats,
-  PresenceState,
+  TrackerState as CoreTrackerState,
   ProgressStyle,
   ThemeMode,
-  TrackerProject,
-  TrackerSettings,
-  TrackerStatus,
-  TrackerTask,
   WebcamCorner,
-  WorkProfile,
-  Workday,
 } from '@exyconn/tracker-core';
 
 export type {
@@ -201,43 +191,8 @@ export const IPC = {
   updateChanged: 'tracker:update-changed',
 } as const;
 
-export interface TrackerState {
-  status: TrackerStatus;
-  user: AuthUser | null;
-  settings: TrackerSettings | null;
-  branding: Branding | null;
-  permissions: PermissionState;
-  stats: LiveStats;
-  /** This install's own preferences (tray behaviour), not the workspace's settings. */
-  preferences: AppPreferences;
-  /** What HR contracted this employee to work. Null until the portal has been read. */
-  workProfile: WorkProfile | null;
-  /** Today's target, progress and attendance gate. Null until the portal has been read. */
-  workday: Workday | null;
-  /** Projects time may be booked against, the house-wide "Global Project" first. */
-  projects: TrackerProject[];
-  /** The project the next session will book against. Empty means "the first one". */
-  selectedProjectId: string;
-  /** Tickets on the selected project, the employee's own assigned ones first. */
-  tasks: TrackerTask[];
-  /** The ticket the next session books against. '' means "the project, no ticket". */
-  selectedTaskId: string;
-  /** The Legal policy behind the consent screen, when the workspace has chosen one. */
-  consentPolicy: ConsentPolicy | null;
-  /** Whether the stored session was remembered (drives the login checkbox default). */
-  rememberMe: boolean;
-  /** Why the app signed the employee out on its own (revoked access), shown on the login screen. */
-  signedOutReason: string | null;
-  /**
-   * The zone EVERY date and time in this app is rendered in: the employee's own pick, else
-   * the admin's house default, else this device's zone. Never empty.
-   */
-  timezone: string;
-  /** What the employee last said they were doing — lunch, a break, a meeting. */
-  presence: PresenceState;
-  /** Messages from the tracker desk they have not read, for the drawer's badge. */
-  unreadMessages: number;
-}
+/** The full snapshot the renderer renders from: core's state, with this app's own shell. */
+export type TrackerState = CoreTrackerState<PermissionState, AppPreferences>;
 
 /**
  * What main asks a renderer to produce: the screen it already captured, plus the webcam photo

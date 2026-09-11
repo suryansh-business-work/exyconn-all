@@ -21,8 +21,8 @@ export function ResumeField({ file, error, onChange }: Readonly<ResumeFieldProps
   return (
     <div>
       <label className={LABEL_CLASSES} htmlFor="resume">
-        Resume <span className="text-gray-500 font-normal">(PDF, DOCX, Max 5MB)</span>
-        <span className="text-red-500"> *</span>
+        Resume <span className="text-fg-subtle font-normal">(PDF, DOCX, Max 5MB)</span>
+        <span className="text-red-fg"> *</span>
       </label>
       <input
         type="file"
@@ -30,11 +30,11 @@ export function ResumeField({ file, error, onChange }: Readonly<ResumeFieldProps
         name="resume"
         accept=".pdf,.doc,.docx"
         onChange={handleChange}
-        className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all"
+        className="w-full border border-line rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue/20 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-subtle file:text-blue-fg-strong hover:file:bg-blue-soft transition-all"
       />
       {error && <div className={ERROR_CLASSES}>{error}</div>}
       {file && (
-        <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
+        <p className="text-sm text-green-fg mt-1 flex items-center gap-1">
           <i className="fa-solid fa-check"></i>
           {file.name}
         </p>

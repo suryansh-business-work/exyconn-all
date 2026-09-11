@@ -9,7 +9,11 @@ export const BUILD_PLATFORMS: ReadonlyArray<{
   { value: TrackerPlatform.Windows, label: 'Windows', artifact: 'Installer (.exe)' },
   { value: TrackerPlatform.Macos, label: 'macOS', artifact: 'Disk image (.dmg)' },
   { value: TrackerPlatform.Linux, label: 'Linux', artifact: 'Portable app (.AppImage)' },
-  { value: TrackerPlatform.Android, label: 'Android', artifact: 'App package (.apk) + Play bundle (.aab)' },
+  {
+    value: TrackerPlatform.Android,
+    label: 'Android',
+    artifact: 'App package (.apk) + Play bundle (.aab)',
+  },
   { value: TrackerPlatform.Ios, label: 'iOS', artifact: 'Unsigned app (.ipa)' },
 ];
 

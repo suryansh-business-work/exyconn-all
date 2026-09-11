@@ -177,7 +177,8 @@ export const PLATFORMS: PlatformConfig[] = [
     permissions: [
       'Install unknown apps, for the browser or file manager that opens the .apk — once.',
     ],
-    caution: 'The app is installed straight from the .apk, so Android will ask you to allow it once.',
+    caution:
+      'The app is installed straight from the .apk, so Android will ask you to allow it once.',
     hardware: PHONE_HARDWARE,
   },
   {
@@ -190,7 +191,7 @@ export const PLATFORMS: PlatformConfig[] = [
     recommendedOs: 'The newest iOS version your iPhone offers',
     steps: [
       'Download the .ipa — an iPhone will not install it as it is, because it is unsigned.',
-      'Ask Tech to re-sign it with your team\'s Apple certificate and provisioning profile.',
+      "Ask Tech to re-sign it with your team's Apple certificate and provisioning profile.",
       'Install the re-signed build on your iPhone.',
       'If iOS says the developer is not trusted, trust it under Settings › General › VPN & Device Management.',
       'Launch Exyconn Tracker, sign in with your portal email and password, and accept the consent screen.',
