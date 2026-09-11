@@ -238,6 +238,7 @@ export type BlogAuthorInput = {
 export type BlogPostInput = {
   author: BlogAuthorInput;
   content: InputMaybe<Scalars['String']['input']>;
+  contentCss: InputMaybe<Scalars['String']['input']>;
   coverImage: InputMaybe<Scalars['String']['input']>;
   featured: InputMaybe<Scalars['Boolean']['input']>;
   isActive: InputMaybe<Scalars['Boolean']['input']>;
@@ -358,6 +359,7 @@ export type CaseStudyInput = {
   author: InputMaybe<Scalars['String']['input']>;
   category: InputMaybe<Scalars['String']['input']>;
   content: InputMaybe<Scalars['String']['input']>;
+  contentCss: InputMaybe<Scalars['String']['input']>;
   coverImage: InputMaybe<Scalars['String']['input']>;
   excerpt: InputMaybe<Scalars['String']['input']>;
   featured: InputMaybe<Scalars['Boolean']['input']>;
