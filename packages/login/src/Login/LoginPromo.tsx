@@ -1,4 +1,5 @@
 import {
+  CARD_RADIUS,
   alpha,
   borderWidth,
   Box,
@@ -35,7 +36,7 @@ export function LoginPromo({ name, slogan, accentColor }: Readonly<LoginPromoPro
         width: 300,
         minHeight: 520,
         p: 3.5,
-        borderRadius: 6,
+        borderRadius: `${CARD_RADIUS}px`,
         background: t.palette.background.paper,
         border: `${borderWidth.hairline}px solid ${t.palette.divider}`,
         boxShadow: boxShadow[t.palette.mode].md,

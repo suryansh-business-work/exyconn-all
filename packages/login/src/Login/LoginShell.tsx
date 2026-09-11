@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import {
+  CARD_RADIUS,
   Box,
   Button,
   color,
@@ -69,7 +70,9 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
         sx={{ position: 'relative', zIndex: zIndex.raised }}
       >
         <Flex direction="column" spacing={2}>
-          <Box sx={[glass, { width: { xs: '100%', sm: 380 }, p: 3, borderRadius: 4 }]}>
+          <Box
+            sx={[glass, { width: { xs: '100%', sm: 380 }, p: 3, borderRadius: `${CARD_RADIUS}px` }]}
+          >
             <Flex direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
               <Box component="img" src={page.logoUrl} alt={page.businessName} sx={{ height: 26 }} />
               <Button
@@ -93,7 +96,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
             sx={{
               bgcolor: page.accentColor,
               color: color.white,
-              borderRadius: 4,
+              borderRadius: `${CARD_RADIUS}px`,
               px: 3,
               py: 2,
               textAlign: 'center',

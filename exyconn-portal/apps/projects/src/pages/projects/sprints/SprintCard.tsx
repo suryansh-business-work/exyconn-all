@@ -1,4 +1,5 @@
 import {
+  CARD_RADIUS,
   Box,
   Button,
   Chip,
@@ -47,7 +48,7 @@ export function SprintCard({
   const isActive = sprint.state === SprintState.Active;
 
   return (
-    <Box sx={{ p: 2, borderRadius: 2, border: 1, borderColor: 'divider' }}>
+    <Box sx={{ p: 2, borderRadius: `${CARD_RADIUS}px`, border: 1, borderColor: 'divider' }}>
       <Flex direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
         <Text size="label">{sprint.name}</Text>
         <Chip size="small" color={STATE_COLOR[sprint.state]} label={sprint.state} />

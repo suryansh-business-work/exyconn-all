@@ -6,7 +6,7 @@ import {
   type TrackerSettings,
 } from '@exyconn/tracker-core';
 import { PORTAL_GRAPHQL_URL } from '../config';
-import { documentFile } from '../json-file';
+import { documentFile, documentImages } from '../json-file';
 import { mobileStore } from '../store';
 
 /** The portal, with this phone's device token. */
@@ -38,7 +38,10 @@ export interface PlatformContext {
 export function baseDeps(): Pick<EngineDeps, 'portal' | 'outbox' | 'input'> {
   return {
     portal,
-    outbox: new Outbox(documentFile('tracker-outbox.json')),
+    outbox: new Outbox(
+      documentFile('tracker-outbox.json'),
+      documentImages('tracker-outbox-images'),
+    ),
     input: noInputCounter,
   };
 }

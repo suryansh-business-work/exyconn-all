@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { Box, Button, Chip, Flex, IconButton, Text } from '@exyconn/shell/components/ui';
+import {
+  CARD_RADIUS,
+  Box,
+  Button,
+  Chip,
+  Flex,
+  IconButton,
+  Text,
+} from '@exyconn/shell/components/ui';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EditIcon from '@mui/icons-material/Edit';
@@ -108,7 +116,7 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
             direction="row"
             alignItems="center"
             spacing={1.5}
-            sx={{ p: 1.25, borderRadius: 2, border: 1, borderColor: 'divider' }}
+            sx={{ p: 1.25, borderRadius: `${CARD_RADIUS}px`, border: 1, borderColor: 'divider' }}
           >
             <Chip
               size="small"

@@ -1,4 +1,4 @@
-import { Box, Button, Chip, Flex, Text } from '@exyconn/shell/components/ui';
+import { CARD_RADIUS, Box, Button, Chip, Flex, Text } from '@exyconn/shell/components/ui';
 import BlockIcon from '@mui/icons-material/Block';
 import type { ProjectShareFieldsFragment } from '@exyconn/shell/graphql/generated';
 
@@ -22,7 +22,7 @@ export function ShareRow({ share, expiry, onRevoke }: Readonly<ShareRowProps>) {
   const state = stateOf(share);
 
   return (
-    <Box sx={{ p: 1.5, borderRadius: 2, border: 1, borderColor: 'divider' }}>
+    <Box sx={{ p: 1.5, borderRadius: `${CARD_RADIUS}px`, border: 1, borderColor: 'divider' }}>
       <Flex direction="row" alignItems="center" spacing={1}>
         <Text size="sm" weight="medium" sx={{ flex: 1, minWidth: 0 }}>
           {share.label || 'Untitled link'}

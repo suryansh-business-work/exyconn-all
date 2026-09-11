@@ -1,4 +1,12 @@
-import { Box, Flex, Typography, alpha, useTheme, iconSize } from '@exyconn/shell/components/ui';
+import {
+  CARD_RADIUS,
+  Box,
+  Flex,
+  Typography,
+  alpha,
+  useTheme,
+  iconSize,
+} from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { STATE_META, TIME_FORMAT } from '../../status.constants';
 import type { StatusOverview } from './status.types';
@@ -18,7 +26,7 @@ export function OverallBanner({ overview }: Readonly<OverallBannerProps>) {
     <Box
       sx={{
         p: { xs: 2.5, md: 3.5 },
-        borderRadius: 3,
+        borderRadius: `${CARD_RADIUS}px`,
         border: 1,
         borderColor: alpha(color, 0.4),
         bgcolor: alpha(color, 0.08),
