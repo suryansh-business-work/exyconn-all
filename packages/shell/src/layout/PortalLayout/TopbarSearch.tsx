@@ -28,6 +28,7 @@ export function TopbarSearch({ roles }: TopbarSearchProps) {
           size="small"
           placeholder="Search…"
           slotProps={{
+            ...params.slotProps,
             input: {
               ...params.slotProps.input,
               startAdornment: (

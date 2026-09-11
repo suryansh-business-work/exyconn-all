@@ -104,6 +104,7 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
             fullWidth
             helperText={`Every date and time in this app is shown in this zone (${offsetLabel(timezone)}).`}
             slotProps={{
+              ...params.slotProps,
               input: {
                 ...params.slotProps.input,
                 endAdornment: (
