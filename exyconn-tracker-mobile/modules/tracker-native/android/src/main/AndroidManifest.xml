@@ -1,0 +1,48 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <!-- The session's foreground service, and one permission per type it can run as. -->
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+  <!-- HeadlessJsTaskService holds a partial wake lock so JS timers keep firing off screen. -->
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <uses-permission android:name="android.permission.CAMERA" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <!-- Granted by the employee in Settings > Usage access, never at install. -->
+  <uses-permission
+    android:name="android.permission.PACKAGE_USAGE_STATS"
+    tools:ignore="ProtectedPermissions" />
+
+  <!-- The webcam photo is optional: a phone without a camera still tracks. Without these the
+       CAMERA permission would make Play hide the app from every camera-less device. -->
+  <uses-feature android:name="android.hardware.camera" android:required="false" />
+  <uses-feature android:name="android.hardware.camera.front" android:required="false" />
+
+  <!-- Usage stats name the app in front by package; turning that into "Chrome" needs the package
+       to be visible (Android 11+). Every app a person can open from the drawer or the home
+       screen is covered by these two intents — QUERY_ALL_PACKAGES would add only apps nobody
+       can bring to the front, at the cost of a Play policy declaration. -->
+  <queries>
+    <intent>
+      <action android:name="android.intent.action.MAIN" />
+      <category android:name="android.intent.category.LAUNCHER" />
+    </intent>
+    <intent>
+      <action android:name="android.intent.action.MAIN" />
+      <category android:name="android.intent.category.HOME" />
+    </intent>
+  </queries>
+
+  <application>
+    <service
+      android:name="expo.modules.trackernative.KeepAliveService"
+      android:exported="false"
+      android:foregroundServiceType="specialUse|mediaProjection|camera">
+      <property
+        android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+        android:value="Employee-consented work-time tracking that must keep counting active time, the app in use and scheduled screenshots while the tracker app is not on screen." />
+    </service>
+  </application>
+</manifest>

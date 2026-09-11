@@ -1,0 +1,6 @@
+<resources>
+  <!-- Notification channel names, shown in the app's notification settings. -->
+  <string name="tracker_native_status_channel">Tracking status</string>
+  <string name="tracker_native_captures_channel">Captures</string>
+  <string name="tracker_native_captures_silent_channel">Captures (silent)</string>
+</resources>

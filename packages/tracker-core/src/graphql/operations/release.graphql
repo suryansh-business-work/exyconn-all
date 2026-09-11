@@ -1,0 +1,16 @@
+# The newest published tracker build carrying an installer for one platform — what an app's
+# update check compares its own version against. Any signed-in employee (or device) may read it.
+
+query TrackerLatestRelease($platform: String) {
+  trackerLatestRelease(platform: $platform) {
+    version
+    url
+    publishedAt
+    assets {
+      name
+      platform
+      url
+      sizeBytes
+    }
+  }
+}

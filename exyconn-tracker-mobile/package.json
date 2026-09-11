@@ -3,18 +3,19 @@
   "version": "1.9.8",
   "private": true,
   "description": "Exyconn Tracker for Android and iOS — the desktop tracker's rules (@exyconn/tracker-core) in an Expo + Tamagui shell. Built only on GitHub Actions (tracker-release.yml).",
-  "main": "expo-router/entry",
+  "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint \"src/**/*.{ts,tsx}\" \"modules/**/*.ts\" \"__tests__/**/*.{ts,tsx}\"",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"modules/**/*.ts\" \"__tests__/**/*.{ts,tsx}\" \"plugins/**/*.js\" app.config.ts",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" \"__tests__/**/*.{ts,tsx}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"__tests__/**/*.{ts,tsx}\" \"plugins/**/*.js\" app.config.ts",
     "test": "vitest run"
   },
   "prettier": "@exyconn/config/prettier.json",
   "dependencies": {
     "@expo/metro-runtime": "~57.0.15",
     "@expo/vector-icons": "^15.0.2",
+    "@exyconn/regex": "workspace:*",
     "@exyconn/tracker-core": "workspace:*",
     "@exyconn/ui": "workspace:*",
     "@hookform/resolvers": "^5.9.1",

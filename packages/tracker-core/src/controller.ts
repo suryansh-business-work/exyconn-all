@@ -120,7 +120,27 @@ export interface TrackerPermissions<Permissions, PermissionKind> {
 }
 
 export interface ControllerDeps<Permissions, Preferences, PermissionKind> {
-  portal: Omit<PortalClient, 'startSession' | 'stopSession' | 'syncIntervals' | 'uploadScreenshot'>;
+  portal: Pick<
+    PortalClient,
+    | 'login'
+    | 'fetchBranding'
+    | 'trackerMe'
+    | 'heartbeat'
+    | 'fetchMyReport'
+    | 'fetchMyDay'
+    | 'setTimezone'
+    | 'fetchMyTotals'
+    | 'acceptConsent'
+    | 'markAttendance'
+    | 'fetchTasks'
+    | 'fetchManualEntries'
+    | 'createManualEntry'
+    | 'withdrawManualEntry'
+    | 'fetchMessages'
+    | 'sendMessage'
+    | 'markMessagesRead'
+    | 'setPresence'
+  >;
   store: () => TrackerStore<Preferences>;
   deviceInfo: () => DeviceInfo;
   notifier: TrackerNotifier;

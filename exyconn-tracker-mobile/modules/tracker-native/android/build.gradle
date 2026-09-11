@@ -1,0 +1,25 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'com.exyconn.tracker'
+version = '1.0.0'
+
+android {
+  namespace "expo.modules.trackernative"
+  defaultConfig {
+    versionCode 1
+    // Required by expo-module-gradle-plugin's publication setup, even for a local module.
+    versionName "1.0.0"
+  }
+}
+
+dependencies {
+  // KeepAliveService extends React Native's HeadlessJsTaskService. expo-modules-core only
+  // reaches this module as compileOnly, so React Native's classes must be declared here, the
+  // way expo-localization and expo-splash-screen do.
+  implementation 'com.facebook.react:react-android'
+  // ServiceCompat.startForeground with types, ContextCompat.registerReceiver, NotificationCompat.
+  implementation 'androidx.core:core-ktx:1.17.0'
+}

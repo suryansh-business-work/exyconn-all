@@ -9,6 +9,7 @@
 export * from './types';
 export * from './activity';
 export * from './auto-stop';
+export * from './branding';
 export * from './capture-overlay';
 export * from './capture-policy';
 export * from './controller';
@@ -23,6 +24,7 @@ export * from './settings-rows';
 export * from './sync-text';
 export * from './time';
 export * from './timezone';
+export * from './version';
 export * from './work-day';
 export * from './portal/client';
 export * from './portal/day-summary';
