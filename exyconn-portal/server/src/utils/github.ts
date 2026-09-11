@@ -21,6 +21,9 @@ const ASSET_PLATFORMS = new Map<string, string>([
   ['.dmg', 'macos'],
   ['.appimage', 'linux'],
   ['.apk', 'android'],
+  // The Play Store bundle is offered beside the APK: the APK installs on a phone, the AAB is
+  // what an administrator uploads to the Play Console.
+  ['.aab', 'android'],
   ['.ipa', 'ios'],
 ]);
 

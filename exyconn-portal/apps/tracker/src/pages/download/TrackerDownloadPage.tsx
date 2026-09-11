@@ -41,7 +41,7 @@ export function TrackerDownloadPage() {
   );
 
   const release = releaseQuery.data?.trackerLatestRelease ?? null;
-  const asset = release?.assets.find((entry) => entry.platform === platform.key) ?? null;
+  const assets = (release?.assets ?? []).filter((entry) => entry.platform === platform.key);
   const available = new Set((release?.assets ?? []).map((entry) => entry.platform));
   const access = accessQuery.data?.myTrackerAccess ?? null;
 
@@ -81,9 +81,9 @@ export function TrackerDownloadPage() {
       {header}
       <DownloadHero
         platform={platform}
-        asset={asset}
+        assets={assets}
         // A platform's newest build can come from an older release than the newest one.
-        version={asset?.version ?? release.version}
+        version={assets[0]?.version ?? release.version}
         releasedOn={formatDate(release.publishedAt)}
         releaseUrl={release.url}
         detected={platform.key === detected.key}
