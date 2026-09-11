@@ -126,6 +126,9 @@ export {
 // The Exyconn theme itself.
 export * from './theme';
 
+// Shared surface recipes (the round header button).
+export { ROUND_BUTTON_SIZE, roundButton } from './surfaces';
+
 // Design-system additions: tokens (scales + a standalone ThemeProvider for
 // isolated mounts), typography, spacing, layout, inputs, and cards. Each
 // subfolder is a self-contained group of branded wrappers — see its own

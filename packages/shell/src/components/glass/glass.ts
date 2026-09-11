@@ -1,4 +1,4 @@
-import { borderWidth, boxShadow } from '@exyconn/ui';
+import { CARD_RADIUS, borderWidth, boxShadow } from '@exyconn/ui';
 import type { Theme, SystemStyleObject } from '@exyconn/ui/styles';
 
 /**
@@ -12,7 +12,7 @@ import type { Theme, SystemStyleObject } from '@exyconn/ui/styles';
 export const glass = (theme: Theme): SystemStyleObject<Theme> => ({
   background: theme.palette.background.paper,
   border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
-  // 1 unit of the theme's own radius, so a panel and a card are the same shape.
-  borderRadius: 1,
+  // The card corner, as a px string: a panel and a card are the same shape.
+  borderRadius: `${CARD_RADIUS}px`,
   boxShadow: boxShadow[theme.palette.mode].sm,
 });

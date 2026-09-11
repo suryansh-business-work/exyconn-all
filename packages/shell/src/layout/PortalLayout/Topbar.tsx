@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Avatar,
-  borderWidth,
   Box,
   fontSize,
   IconButton,
   Menu,
   MenuItem,
+  roundButton,
   Toolbar,
   Typography,
 } from '@/components/ui';
@@ -20,13 +20,17 @@ import { useColorMode } from '@/theme/ColorModeContext';
 import { TopbarSearch } from './TopbarSearch';
 import { NotificationBell } from './NotificationBell';
 import { ApprovalsBell } from './ApprovalsBell';
+import { TOPBAR_HEIGHT } from './metrics';
 
 interface TopbarProps {
   drawerWidth: number;
   onMenuClick: () => void;
 }
 
-/** Top app bar with global search, the notification bell and the user account menu. */
+/**
+ * Top app bar with global search, the bells and the user account menu. It sits on the page's
+ * own ground, borderless, with round paper buttons — the trackers' header, in the portal.
+ */
 export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
   const { user, signOut } = useAuth();
   const { mode, toggle } = useColorMode();
@@ -52,11 +56,10 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
       sx={(t) => ({
         width: { md: `calc(100% - ${drawerWidth}px)` },
         ml: { md: `${drawerWidth}px` },
-        background: t.palette.background.paper,
-        borderBottom: `${borderWidth.hairline}px solid ${t.palette.divider}`,
+        background: t.palette.background.default,
       })}
     >
-      <Toolbar variant="dense">
+      <Toolbar sx={{ minHeight: { xs: TOPBAR_HEIGHT }, px: { xs: 1.5, md: 2.5 } }}>
         <IconButton edge="start" onClick={onMenuClick} sx={{ mr: 1, display: { md: 'none' } }}>
           <MenuIcon />
         </IconButton>
@@ -87,13 +90,21 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         </Box>
         <ApprovalsBell />
         <NotificationBell />
-        <IconButton onClick={toggle} aria-label="toggle color mode" sx={{ mr: 0.5 }}>
+        <IconButton
+          onClick={toggle}
+          aria-label="toggle color mode"
+          sx={(t) => ({ ...roundButton(t), mr: 1 })}
+        >
           {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
         </IconButton>
-        <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} aria-label="account menu">
+        <IconButton
+          onClick={(e) => setAnchorEl(e.currentTarget)}
+          aria-label="account menu"
+          sx={{ p: 0 }}
+        >
           <Avatar
             src={user?.avatarUrl ?? undefined}
-            sx={{ bgcolor: 'primary.main', width: 30, height: 30, fontSize: fontSize.md }}
+            sx={{ bgcolor: 'primary.main', width: 40, height: 40, fontSize: fontSize.md }}
           >
             {user?.name?.charAt(0).toUpperCase()}
           </Avatar>

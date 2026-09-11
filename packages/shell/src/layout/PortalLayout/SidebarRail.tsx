@@ -28,7 +28,7 @@ export function SidebarRail({ nodes, trail, onSelect }: Readonly<SidebarRailProp
               aria-current={current && isPage ? 'page' : undefined}
               aria-label={node.label}
               onClick={() => onSelect(node)}
-              sx={{ borderRadius: 1.5, justifyContent: 'center', minHeight: 40, px: 1 }}
+              sx={{ borderRadius: 1, justifyContent: 'center', minHeight: 40, px: 1 }}
             >
               <ListItemIcon sx={{ minWidth: 0, color: node.accent }}>
                 <node.icon fontSize="small" />

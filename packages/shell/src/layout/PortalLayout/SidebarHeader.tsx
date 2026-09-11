@@ -16,6 +16,7 @@ import {
   Tooltip,
 } from '@/components/ui';
 import { env } from '@/config/env';
+import { TOPBAR_HEIGHT } from './metrics';
 
 interface SidebarHeaderProps {
   collapsed: boolean;
@@ -39,8 +40,12 @@ export function SidebarHeader({
   return (
     <>
       <Toolbar
-        variant="dense"
-        sx={{ justifyContent: collapsed ? 'center' : 'space-between', gap: 1, px: 1.5 }}
+        sx={{
+          minHeight: { xs: TOPBAR_HEIGHT },
+          justifyContent: collapsed ? 'center' : 'space-between',
+          gap: 1,
+          px: 1.5,
+        }}
       >
         <Box component="img" src={env.iconUrl} alt="Exyconn" sx={{ height: 22 }} />
         {onToggleCollapse && !collapsed && (
@@ -67,7 +72,7 @@ export function SidebarHeader({
         <Tooltip title={collapsed ? 'Other Portals' : ''} placement="right">
           <ListItemButton
             onClick={onOpenSwitcher}
-            sx={{ borderRadius: 1.5, justifyContent: collapsed ? 'center' : 'flex-start' }}
+            sx={{ borderRadius: 1, justifyContent: collapsed ? 'center' : 'flex-start' }}
           >
             <ListItemIcon sx={{ minWidth: collapsed ? 0 : 36 }}>
               <AppsIcon fontSize="small" />

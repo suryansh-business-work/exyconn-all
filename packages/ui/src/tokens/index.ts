@@ -12,6 +12,7 @@ export * from './font-size.token';
 export * from './typography.token';
 export * from './spacing.token';
 export * from './border.token';
+export * from './selection.token';
 export * from './tracker.token';
 export * from './box-shadow.token';
 export * from './backgrounds.token';
