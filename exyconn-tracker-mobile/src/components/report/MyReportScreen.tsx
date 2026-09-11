@@ -1,25 +1,27 @@
 import { useMemo, useState } from 'react';
-import { YStack } from 'tamagui';
-import { formatMonthLabel } from '@exyconn/tracker-core';
+import { formatMonthLabel, type PeriodLength } from '@exyconn/tracker-core';
 import { useMyDay } from '../../hooks/useMyDay';
 import { useMyReport } from '../../hooks/useMyReport';
+import { usePeriodInsights } from '../../hooks/usePeriodInsights';
 import { canGoForward, monthKeyOf, startOfMonth } from '../../lib/report/month';
 import { Notice } from '../ui/Notice';
 import { ScreenLayout } from '../ui/ScreenLayout';
-import { Caption, Title } from '../ui/Typography';
+import { Caption } from '../ui/Typography';
 import { DayDetailPanel } from './DayDetailPanel';
 import { MonthSwitcher } from './MonthSwitcher';
 import { ReportActivityChart } from './ReportActivityChart';
 import { ReportCalendar } from './ReportCalendar';
 import { ReportDownloadButton } from './ReportDownloadButton';
 import { ReportMonthChart } from './ReportMonthChart';
+import { ReportOverview } from './overview/ReportOverview';
 import { ReportTable } from './ReportTable';
 import { ReportTotals } from './ReportTotals';
 import { SegmentedControl, type SegmentOption } from '../ui/SegmentedControl';
 
-type TabId = 'calendar' | 'days';
+type TabId = 'overview' | 'calendar' | 'days';
 
 const TABS: readonly SegmentOption<TabId>[] = [
+  { value: 'overview', label: 'Overview' },
   { value: 'calendar', label: 'Calendar' },
   { value: 'days', label: 'Days' },
 ];
@@ -30,17 +32,20 @@ interface Props {
 }
 
 /**
- * The employee's own tracked time. "Calendar" browses it date by date, with that day's
- * screenshots; "Days" keeps the month-at-a-glance table. Nobody else's data is reachable here.
+ * The employee's own tracked time. "Overview" compares the last 7 or 30 days with the period
+ * before; "Calendar" browses it date by date, with that day's screenshots; "Days" keeps the
+ * month-at-a-glance table. Nobody else's data is reachable here.
  */
 export function MyReportScreen({ timezone }: Readonly<Props>) {
   const today = useMemo(() => new Date(), []);
-  const [tab, setTab] = useState<TabId>('calendar');
+  const [tab, setTab] = useState<TabId>('overview');
+  const [length, setLength] = useState<PeriodLength>(7);
   const [month, setMonth] = useState<Date>(() => startOfMonth(today));
   const [selected, setSelected] = useState<Date>(today);
 
   const report = useMyReport(month, timezone);
   const day = useMyDay(selected, timezone);
+  const insights = usePeriodInsights(length, timezone);
   const monthLabel = formatMonthLabel(month);
 
   const selectDate = (date: Date): void => {
@@ -51,18 +56,20 @@ export function MyReportScreen({ timezone }: Readonly<Props>) {
   const refresh = (): void => {
     report.reload();
     day.reload();
+    insights.reload();
   };
 
   return (
     <ScreenLayout onRefresh={refresh} refreshing={report.loading}>
-      <YStack gap="$1">
-        <Title>My Report</Title>
-        <Caption>This is your own tracked time, as your workspace sees it.</Caption>
-      </YStack>
+      <Caption>This is your own tracked time, as your workspace sees it.</Caption>
 
       <SegmentedControl options={TABS} value={tab} onChange={setTab} label="Report view" full />
 
       {report.error === null ? null : <Notice severity="error">{report.error}</Notice>}
+
+      {tab === 'overview' ? (
+        <ReportOverview length={length} onLengthChange={setLength} insights={insights} />
+      ) : null}
 
       {tab === 'calendar' ? (
         <>
@@ -82,7 +89,9 @@ export function MyReportScreen({ timezone }: Readonly<Props>) {
             timezone={timezone}
           />
         </>
-      ) : (
+      ) : null}
+
+      {tab === 'days' ? (
         <>
           <MonthSwitcher
             month={month}
@@ -101,7 +110,7 @@ export function MyReportScreen({ timezone }: Readonly<Props>) {
             monthLabel={monthLabel}
           />
         </>
-      )}
+      ) : null}
     </ScreenLayout>
   );
 }

@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
-import { Box, LinearProgress, Stack, Tooltip, Typography, iconSize } from '@exyconn/ui';
+import { Box, Stack, Tooltip, Typography, iconSize, letterSpacing } from '@exyconn/ui';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import type { ProgressStyle, WorkProfile, Workday } from '@shared/types';
+import GradientBar from './GradientBar';
 import ProgressRing from './ProgressRing';
 import { DEFAULT_WORK_HOURS, formatHoursMinutes } from '@exyconn/tracker-core';
 
@@ -52,26 +53,30 @@ interface ShapeProps {
   activeMs: number;
 }
 
-/** The original: a bar across the whole card, with the remainder as a length. */
+/** The big figure over a gradient bar that fills towards the day's target. */
 function DayProgressBar({ figures, activeMs }: Readonly<ShapeProps>): ReactElement {
   return (
-    <>
-      <LinearProgress
-        variant="determinate"
-        value={figures.percent}
-        color={figures.done ? 'success' : 'primary'}
-        sx={{ height: 8, borderRadius: 4, my: 0.75 }}
-        aria-label={`${formatHoursMinutes(activeMs)} of ${formatHoursMinutes(figures.targetMs)} worked today`}
-      />
+    <Stack spacing={1.5}>
       <Typography
-        variant="caption"
+        variant="h3"
         sx={{
-          color: 'text.secondary',
+          fontWeight: 700,
+          letterSpacing: letterSpacing.tighter,
+          fontVariantNumeric: 'tabular-nums',
         }}
       >
+        {formatHoursMinutes(activeMs)}
+      </Typography>
+      <GradientBar
+        percent={figures.percent}
+        label="Worked"
+        trailing={`of ${formatHoursMinutes(figures.targetMs)}`}
+        ariaLabel={`${formatHoursMinutes(activeMs)} of ${formatHoursMinutes(figures.targetMs)} worked today`}
+      />
+      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
         {summaryOf(figures)}
       </Typography>
-    </>
+    </Stack>
   );
 }
 
@@ -132,26 +137,11 @@ export default function DayProgress({
       <Stack
         direction="row"
         spacing={1}
-        sx={{
-          alignItems: 'baseline',
-          justifyContent: 'space-between',
-        }}
+        sx={{ alignItems: 'center', justifyContent: 'space-between' }}
       >
-        <Typography variant="subtitle2">Today</Typography>
-        <Stack
-          direction="row"
-          spacing={0.5}
-          sx={{
-            alignItems: 'center',
-          }}
-        >
-          <Typography
-            variant="caption"
-            sx={{
-              color: 'text.secondary',
-            }}
-          >
-            {formatHoursMinutes(activeMs)} of {formatHoursMinutes(figures.targetMs)}
+        <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+            Worked today
           </Typography>
           <Tooltip
             title={`Your working day is ${figures.hours} hours, set by HR on your employee record. The default is ${DEFAULT_WORK_HOURS}. Only ACTIVE time counts — idle minutes do not fill this bar.`}
@@ -159,12 +149,20 @@ export default function DayProgress({
             <InfoOutlined sx={{ fontSize: iconSize.md, color: 'text.secondary' }} />
           </Tooltip>
         </Stack>
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 700, color: figures.done ? 'success.main' : 'primary.main' }}
+        >
+          {figures.percent}%
+        </Typography>
       </Stack>
 
       {style === 'ring' ? (
         <DayProgressRing figures={figures} activeMs={activeMs} />
       ) : (
-        <DayProgressBar figures={figures} activeMs={activeMs} />
+        <Box sx={{ mt: 1 }}>
+          <DayProgressBar figures={figures} activeMs={activeMs} />
+        </Box>
       )}
     </Box>
   );

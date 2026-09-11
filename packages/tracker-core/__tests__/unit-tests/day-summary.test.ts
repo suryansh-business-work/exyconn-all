@@ -12,12 +12,33 @@ function shot(id: string, capturedAt: string): DayScreenshot {
   };
 }
 
+const TEN_MINUTES = 600_000;
+
+/** A ten-minute interval starting at `startedAt`, with the portal's own activity figure. */
+function interval(
+  startedAt: string,
+  activeMs: number,
+  idleMs: number,
+  keyCount: number,
+  mouseCount: number,
+): RawDay['intervals'][number] {
+  return {
+    startedAt,
+    endedAt: new Date(Date.parse(startedAt) + TEN_MINUTES).toISOString(),
+    activeMs,
+    idleMs,
+    keyCount,
+    mouseCount,
+    activityPercent: Math.round((activeMs / (activeMs + idleMs)) * 100),
+  };
+}
+
 describe('summarizeDay', () => {
-  it('sums every interval and counts the sessions of the day', () => {
+  it('sums every interval, counts the sessions and orders the intervals oldest first', () => {
     const day: RawDay = {
       intervals: [
-        { activeMs: 540_000, idleMs: 60_000, keyCount: 400, mouseCount: 120 },
-        { activeMs: 300_000, idleMs: 300_000, keyCount: 90, mouseCount: 30 },
+        interval('2026-02-03T09:10:00.000Z', 300_000, 300_000, 90, 30),
+        interval('2026-02-03T09:00:00.000Z', 540_000, 60_000, 400, 120),
       ],
       screenshots: [shot('a', '2026-02-03T09:10:00.000Z')],
       sessions: [{ id: 's1' }, { id: 's2' }],
@@ -30,6 +51,22 @@ describe('summarizeDay', () => {
       mouseCount: 150,
       sessions: 2,
       screenshots: [shot('a', '2026-02-03T09:10:00.000Z')],
+      intervals: [
+        {
+          startedAt: '2026-02-03T09:00:00.000Z',
+          endedAt: '2026-02-03T09:10:00.000Z',
+          activeMs: 540_000,
+          idleMs: 60_000,
+          activityPercent: 90,
+        },
+        {
+          startedAt: '2026-02-03T09:10:00.000Z',
+          endedAt: '2026-02-03T09:20:00.000Z',
+          activeMs: 300_000,
+          idleMs: 300_000,
+          activityPercent: 50,
+        },
+      ],
     });
   });
 
@@ -41,6 +78,7 @@ describe('summarizeDay', () => {
       mouseCount: 0,
       sessions: 0,
       screenshots: [],
+      intervals: [],
     });
   });
 

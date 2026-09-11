@@ -39,6 +39,9 @@ const DEFAULT_PREFERENCES: AppPreferences = {
   // object, so an old default sat on disk for most installs — and the only choice anybody
   // could have made with it was turning it on.
   updateAutomatically: true,
+  // Solid until the employee asks: a see-through window is a look, not a default.
+  transparentBackground: false,
+  backgroundOpacity: 0.7,
 };
 
 /**

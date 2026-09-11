@@ -1,4 +1,5 @@
 import {
+  TRACKER_CARD_RADIUS,
   TRACKER_RADIUS,
   alpha,
   borderWidth,
@@ -9,7 +10,9 @@ import {
   fontSize,
   fontWeight,
   letterSpacing,
+  radius,
   spacing,
+  trackerSelected,
 } from '@exyconn/ui';
 import type { CSSObject, Theme } from '@exyconn/ui';
 import type { Branding, ThemeMode } from '@shared/types';
@@ -87,9 +90,15 @@ export function brandColors(branding: Branding | null): BrandColors {
   };
 }
 
+/** The ink-on-paper inversion a selected tab or chip wears — dark on light, light on dark. */
+export function selectedFill(theme: Theme): { backgroundColor: string; color: string } {
+  const selected = trackerSelected[theme.palette.mode];
+  return { backgroundColor: selected.fill, color: selected.ink };
+}
+
 /**
  * The one surface recipe every panel in this app uses: opaque fill, hairline border, a shadow
- * just deep enough to lift it off the page.
+ * just deep enough to lift it off the page, and the soft card corner.
  *
  * Deliberately NOT frosted glass. `backdrop-filter` made Chromium re-sample the panel's own
  * painted text as its backdrop, which ghosted a blurred duplicate of every glyph behind it —
@@ -101,8 +110,8 @@ export function surface(theme: Theme): CSSObject {
     backgroundColor: theme.palette.background.paper,
     border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
     // A STRING, not a number: this object is spread into an `sx` prop, where a number is a
-    // multiplier of theme.shape.borderRadius and would silently render four times too round.
-    borderRadius: `${TRACKER_RADIUS}px`,
+    // multiplier of theme.shape.borderRadius.
+    borderRadius: `${TRACKER_CARD_RADIUS}px`,
     boxShadow: isDark ? boxShadow.dark.none : boxShadow.light.sm,
   };
 }
@@ -145,10 +154,12 @@ export function buildTheme(
       text: { primary: chrome.text, secondary: chrome.muted },
       divider,
     },
-    // Product decision: nothing in the app is rounded by more than 4px.
+    // Controls round to 16px; cards (see `surface`) to 24px; buttons, chips and tabs are pills.
     shape: { borderRadius: TRACKER_RADIUS },
     typography: {
-      fontFamily: fontFamily.system,
+      // Inter ships inside the app (main.tsx imports it), so it renders offline too.
+      fontFamily: fontFamily.tracker,
+      h4: { fontWeight: fontWeight.bold, letterSpacing: letterSpacing.tighter },
       h5: { fontWeight: fontWeight.bold, letterSpacing: letterSpacing.snug },
       h6: { fontWeight: fontWeight.bold, letterSpacing: letterSpacing.snug },
       subtitle2: { fontWeight: fontWeight.semibold },
@@ -162,7 +173,7 @@ export function buildTheme(
       MuiButton: {
         defaultProps: { disableElevation: true },
         styleOverrides: {
-          root: { borderRadius: TRACKER_RADIUS, paddingInline: BUTTON_INLINE_PADDING },
+          root: { borderRadius: radius.pill, paddingInline: BUTTON_INLINE_PADDING },
           outlined: { borderColor: divider },
         },
       },
@@ -178,10 +189,13 @@ export function buildTheme(
         },
       },
       MuiChip: {
-        styleOverrides: { root: { borderRadius: TRACKER_RADIUS, fontWeight: fontWeight.semibold } },
+        styleOverrides: { root: { borderRadius: radius.pill, fontWeight: fontWeight.semibold } },
       },
       MuiLinearProgress: {
-        styleOverrides: { root: { borderRadius: TRACKER_RADIUS, height: PROGRESS_HEIGHT } },
+        styleOverrides: {
+          root: { borderRadius: radius.pill, height: PROGRESS_HEIGHT },
+          bar: { borderRadius: radius.pill },
+        },
       },
       MuiTooltip: {
         styleOverrides: {
@@ -193,10 +207,31 @@ export function buildTheme(
         },
       },
       MuiTableCell: { styleOverrides: { root: { borderColor: divider } } },
-      MuiTabs: { styleOverrides: { root: { minHeight: TAB_HEIGHT } } },
-      MuiTab: { styleOverrides: { root: { minHeight: TAB_HEIGHT, paddingBlock: spacing(1) } } },
-      // MUI X paints calendar cells as circles by default; the 4px ceiling applies to them too.
-      MuiPickerDay: { styleOverrides: { root: { borderRadius: TRACKER_RADIUS } } },
+      // Tabs are a pill track with the selected tab as a filled pill inside it.
+      MuiTabs: {
+        styleOverrides: {
+          root: {
+            minHeight: TAB_HEIGHT,
+            padding: spacing(0.5),
+            borderRadius: radius.pill,
+            backgroundColor: chrome.paper,
+            border: `${borderWidth.hairline}px solid ${divider}`,
+          },
+          indicator: { display: 'none' },
+        },
+      },
+      MuiTab: {
+        styleOverrides: {
+          root: ({ theme: current }) => ({
+            minHeight: TAB_HEIGHT - spacing(1),
+            paddingBlock: spacing(1),
+            borderRadius: radius.pill,
+            fontWeight: fontWeight.semibold,
+            textTransform: 'none',
+            '&.Mui-selected': selectedFill(current),
+          }),
+        },
+      },
     },
   });
 }

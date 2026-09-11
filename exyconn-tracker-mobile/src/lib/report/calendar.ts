@@ -1,4 +1,10 @@
-import { formatDayLabel, type ReportDay } from '@exyconn/tracker-core';
+import {
+  activityLevel,
+  activityPercent,
+  formatDayLabel,
+  type ActivityLevel,
+  type ReportDay,
+} from '@exyconn/tracker-core';
 
 /**
  * The month grid behind the report's calendar — the phone's stand-in for MUI's DateCalendar.
@@ -15,6 +21,8 @@ export interface CalendarCell {
   inMonth: boolean;
   /** The employee tracked time on this day — it gets a dot. */
   tracked: boolean;
+  /** How active that day was — the dot's colour. Null on a day with nothing tracked. */
+  level: ActivityLevel | null;
   selected: boolean;
   /** Today is ringed, as the desktop's picker rings it. */
   today: boolean;
@@ -28,7 +36,8 @@ export interface CalendarWeek {
 }
 
 export interface GridOptions {
-  tracked: ReadonlySet<string>;
+  /** `yyyy-MM-dd` → how active that day was, for every day with tracked time. */
+  tracked: ReadonlyMap<string, ActivityLevel>;
   selected: Date;
   /** Today — nothing after it can be picked. */
   maxDate: Date;
@@ -43,10 +52,15 @@ export function dateKey(date: Date): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-/** The `yyyy-MM-dd` keys of the days that have tracked time. */
-export function trackedDateKeys(days: readonly ReportDay[]): Set<string> {
-  return new Set(
-    days.filter((day) => day.activeMs + day.idleMs > 0).map((day) => day.date.slice(0, 10)),
+/** The days that have tracked time, keyed `yyyy-MM-dd`, with how active each was. */
+export function trackedDateLevels(days: readonly ReportDay[]): Map<string, ActivityLevel> {
+  return new Map(
+    days
+      .filter((day) => day.activeMs + day.idleMs > 0)
+      .map((day) => [
+        day.date.slice(0, 10),
+        activityLevel(activityPercent(day.activeMs, day.idleMs)),
+      ]),
   );
 }
 
@@ -54,12 +68,14 @@ function cellOf(date: Date, month: number, options: GridOptions): CalendarCell {
   const key = dateKey(date);
   const inMonth = date.getMonth() === month;
   const todayKey = dateKey(options.maxDate);
+  const level = inMonth ? (options.tracked.get(key) ?? null) : null;
   return {
     key,
     date,
     dayOfMonth: date.getDate(),
     inMonth,
-    tracked: inMonth && options.tracked.has(key),
+    tracked: level !== null,
+    level,
     selected: key === dateKey(options.selected),
     today: key === todayKey,
     // `yyyy-MM-dd` keys sort as the dates they name.

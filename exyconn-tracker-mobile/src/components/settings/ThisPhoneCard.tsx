@@ -6,6 +6,7 @@ import { CaptureSoundPreference } from './CaptureSoundPreference';
 import { ProgressStylePicker } from './ProgressStylePicker';
 import { SettingsCard } from './SettingsCard';
 import { ThemeModePicker } from './ThemeModePicker';
+import { TransparencyPreference } from './TransparencyPreference';
 import { UpdateSection } from './UpdateSection';
 
 interface Props {
@@ -27,6 +28,10 @@ export function ThisPhoneCard({ preferences, settings }: Readonly<Props>) {
         <Body fontWeight="600">Appearance</Body>
         <ThemeModePicker mode={preferences.themeMode} />
       </YStack>
+      <TransparencyPreference
+        transparent={preferences.transparentBackground}
+        opacity={preferences.backgroundOpacity}
+      />
       <YStack gap="$2">
         <Body fontWeight="600">Today’s progress</Body>
         <ProgressStylePicker progressStyle={preferences.progressStyle} />

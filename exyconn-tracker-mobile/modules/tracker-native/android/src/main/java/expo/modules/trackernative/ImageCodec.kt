@@ -43,6 +43,27 @@ internal object ImageCodec {
     return BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options) ?: throw ImageDecodeException(what)
   }
 
+  /**
+   * Decodes at the largest power-of-two reduction that still covers [side] on the long edge. A
+   * full-resolution capture decoded whole is tens of megabytes of pixels — enough to run a
+   * background thread out of memory just to draw a notification thumbnail.
+   */
+  fun decodeWithin(base64: String, what: String, side: Int): Bitmap {
+    val bytes = try {
+      Base64.decode(base64, Base64.DEFAULT)
+    } catch (e: IllegalArgumentException) {
+      throw ImageDecodeException(what, e)
+    }
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+    var sample = 1
+    while (max(bounds.outWidth, bounds.outHeight) / (sample * 2) >= side) {
+      sample *= 2
+    }
+    val options = BitmapFactory.Options().apply { inSampleSize = sample }
+    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options) ?: throw ImageDecodeException(what)
+  }
+
   /** Filtered resize to [width], keeping the aspect. The same bitmap when nothing changes. */
   fun scaleToWidth(bitmap: Bitmap, width: Int): Bitmap {
     if (width == bitmap.width) {

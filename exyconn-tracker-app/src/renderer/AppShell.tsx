@@ -5,12 +5,12 @@ import { LogErrorBoundary } from '@exyconn/logger/react';
 import type { TrackerState } from '@shared/types';
 import AppHeader from './components/AppHeader';
 import CrashFallback from './components/CrashFallback';
-import NavDrawer from './components/NavDrawer';
 import DashboardScreen from './screens/DashboardScreen';
 import MessagesScreen from './screens/MessagesScreen';
 import MyReportScreen from './screens/MyReportScreen';
 import OffComputerScreen from './screens/OffComputerScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import TabBar from './components/TabBar';
 import { NAV_ITEMS, type Section } from './sections';
 import { logger } from './logger';
 
@@ -53,38 +53,29 @@ interface Props {
   state: TrackerState;
 }
 
-/** The signed-in shell: glass app bar, hamburger drawer, and a scrollable content pane. */
+/** The signed-in shell: the page header, a scrollable content pane, and the floating tab bar. */
 export default function AppShell({ state }: Readonly<Props>): ReactElement {
   const [section, setSection] = useState<Section>('dashboard');
-  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     logger.setRoute(section);
   }, [section]);
 
-  function select(next: Section): void {
-    setSection(next);
-    setMenuOpen(false);
-  }
-
   return (
-    <>
+    <Box
+      sx={{ position: 'relative', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+    >
       <AppHeader
         branding={state.branding}
         title={titleOf(section)}
         status={state.status}
-        onOpenMenu={() => setMenuOpen(true)}
-      />
-      <NavDrawer
-        open={menuOpen}
-        section={section}
         user={state.user}
-        unreadMessages={state.unreadMessages}
-        onClose={() => setMenuOpen(false)}
-        onSelect={select}
+        themeMode={state.preferences.themeMode}
+        onOpenAccount={() => setSection('settings')}
       />
-      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', p: 2.5 }}>
-        {/* Keyed by section: a crashed pane leaves the drawer working, and moving on clears it. */}
+      {/* Bottom padding clears the floating tab bar, so the last card can scroll above it. */}
+      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', px: 2.5, pt: 0.5, pb: 12 }}>
+        {/* Keyed by section: a crashed pane leaves the tab bar working, and moving on clears it. */}
         <LogErrorBoundary
           key={section}
           logger={logger}
@@ -93,6 +84,7 @@ export default function AppShell({ state }: Readonly<Props>): ReactElement {
           <SectionView section={section} state={state} />
         </LogErrorBoundary>
       </Box>
-    </>
+      <TabBar section={section} unreadMessages={state.unreadMessages} onSelect={setSection} />
+    </Box>
   );
 }

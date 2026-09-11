@@ -117,6 +117,7 @@ export {
   useTheme,
   createTheme,
   CssBaseline,
+  GlobalStyles,
   type Theme,
   type SxProps,
   type CSSObject,

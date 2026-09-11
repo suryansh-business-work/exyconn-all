@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { XStack, YStack } from 'tamagui';
 import { dayBounds, formatCount, formatDayLabel, type DayDetail } from '@exyconn/tracker-core';
 import { dayTotals, inputSummary } from '../../lib/report/totals';
+import { DayActivityChart } from '../charts/DayActivityChart';
 import { galleryRoute } from '../../lib/screenshots/gallery-day';
 import { AppButton } from '../ui/AppButton';
 import { Notice } from '../ui/Notice';
@@ -68,6 +69,7 @@ export function DayDetailPanel({ date, detail, loading, error, timezone }: Reado
       {heading}
       <ReportTotals totals={dayTotals(detail)} />
       <Caption>{inputSummary(detail)}</Caption>
+      <DayActivityChart title="Activity" detail={detail} loading={false} timezone={timezone} />
       <Surface>
         <XStack alignItems="center" justifyContent="space-between" gap="$2">
           <Heading size="$4">Screenshots ({formatCount(detail.screenshots.length)})</Heading>

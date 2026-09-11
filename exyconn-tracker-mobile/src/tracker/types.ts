@@ -26,6 +26,13 @@ export interface MobilePreferences {
   /** Silences the capture sound on THIS phone. The capture notification still appears. */
   muteCaptureSound: boolean;
   progressStyle: ProgressStyle;
+  /**
+   * The ground behind the cards turns to the workspace's brand gradient — the desktop's
+   * see-through window, on a phone that has no desktop to show. Cards stay opaque.
+   */
+  transparentBackground: boolean;
+  /** How much of the plain ground stays painted over that gradient, 0.3–0.9. */
+  backgroundOpacity: number;
 }
 
 export type MobileTrackerState = TrackerState<MobilePermissions, MobilePreferences>;

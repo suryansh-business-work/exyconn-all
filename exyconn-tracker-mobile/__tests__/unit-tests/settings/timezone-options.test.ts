@@ -5,8 +5,11 @@ import { timezoneOptions } from '../../../src/lib/settings/timezone-options';
 /** A fixed instant, so daylight saving cannot move a zone between runs. */
 const AT = new Date('2026-01-15T12:00:00Z');
 
+/** What the portal's `trackerTimezones` returns: the server runtime's list (Node has one). */
+const SUPPORTED = Intl.supportedValuesOf('timeZone');
+
 describe('timezoneOptions', () => {
-  const options = timezoneOptions('Asia/Kolkata', AT);
+  const options = timezoneOptions('Asia/Kolkata', SUPPORTED, AT);
 
   it('includes the current zone even when the runtime lists only its old alias', () => {
     expect(options.some((option) => option.value === 'Asia/Kolkata')).toBe(true);

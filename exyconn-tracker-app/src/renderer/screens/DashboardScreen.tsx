@@ -11,6 +11,7 @@ import TicketPicker from '../components/TicketPicker';
 import StatGrid from '../components/StatGrid';
 import StatusChip from '../components/StatusChip';
 import SyncBar from '../components/SyncBar';
+import TodayActivity from '../components/TodayActivity';
 import TotalsPanel from '../components/TotalsPanel';
 import TrackingControls from '../components/TrackingControls';
 import { sessionTiles } from '../tiles';
@@ -94,6 +95,8 @@ export default function DashboardScreen({ state }: Readonly<Props>): ReactElemen
           <TrackingControls status={status} attendanceMarked={workday?.attendanceMarked ?? false} />
         </Stack>
       </Surface>
+
+      <TodayActivity timezone={timezone} lastSyncAt={stats.lastSyncAt} />
 
       <SyncBar stats={stats} settings={settings} timezone={timezone} />
 

@@ -16,13 +16,14 @@ import ReportCalendar from '../components/ReportCalendar';
 import ReportActivityChart from '../components/ReportActivityChart';
 import ReportDownloadButton from '../components/ReportDownloadButton';
 import ReportMonthChart from '../components/ReportMonthChart';
+import ReportOverview from '../components/ReportOverview';
 import ReportTable from '../components/ReportTable';
 import ReportTotals from '../components/ReportTotals';
 import { formatMonthLabel } from '@exyconn/tracker-core';
 import useMyDay from '../hooks/useMyDay';
 import useMyReport from '../hooks/useMyReport';
 
-type TabId = 'calendar' | 'days';
+type TabId = 'overview' | 'calendar' | 'days';
 
 interface Props {
   /** The employee's chosen zone: the day bounds and every timestamp below are read in it. */
@@ -39,12 +40,13 @@ function monthKeyOf(month: Date): string {
 }
 
 /**
- * The employee's own tracked time. "Calendar" browses it date by date, with that day's
- * screenshots; "Days" keeps the month-at-a-glance table. Nobody else's data is reachable here.
+ * The employee's own tracked time. "Overview" compares the last 7 or 30 days with the period
+ * before; "Calendar" browses it date by date, with that day's screenshots; "Days" keeps the
+ * month-at-a-glance table. Nobody else's data is reachable here.
  */
 export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElement {
   const today = useMemo(() => new Date(), []);
-  const [tab, setTab] = useState<TabId>('calendar');
+  const [tab, setTab] = useState<TabId>('overview');
   const [month, setMonth] = useState<Date>(() => startOfMonth(today));
   const [selected, setSelected] = useState<Date>(today);
 
@@ -61,17 +63,9 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Stack spacing={2}>
-        <Stack spacing={0.25}>
-          <Typography variant="h6">My Report</Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              color: 'text.secondary',
-            }}
-          >
-            This is your own tracked time, as your workspace sees it.
-          </Typography>
-        </Stack>
+        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+          This is your own tracked time, as your workspace sees it.
+        </Typography>
 
         <Tabs
           value={tab}
@@ -79,6 +73,7 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
           variant="fullWidth"
           aria-label="Report view"
         >
+          <Tab value="overview" label="Overview" />
           <Tab value="calendar" label="Calendar" />
           <Tab value="days" label="Days" />
         </Tabs>
@@ -88,6 +83,8 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
             {error}
           </Alert>
         ) : null}
+
+        {tab === 'overview' && <ReportOverview timezone={timezone} />}
 
         {tab === 'calendar' && (
           <>

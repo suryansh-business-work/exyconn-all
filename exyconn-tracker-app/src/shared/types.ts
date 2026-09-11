@@ -109,6 +109,13 @@ export interface AppPreferences {
    * the employee presses the buttons for it.
    */
   updateAutomatically: boolean;
+  /**
+   * Lets the desktop show through the window's ground (macOS vibrancy, Windows 11 acrylic).
+   * Cards stay opaque, so text keeps its contrast. Not offered where the OS has no material.
+   */
+  transparentBackground: boolean;
+  /** How much of the ground stays painted while transparent, 0.3–0.95. */
+  backgroundOpacity: number;
 }
 
 /** Where a saved report landed, or null when the employee cancelled the dialog. */

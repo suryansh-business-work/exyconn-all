@@ -14,6 +14,7 @@ import {
   TrackerHeartbeatDocument,
   TrackerLatestReleaseDocument,
   TrackerLoginDocument,
+  TrackerTimezonesDocument,
   TrackerMarkAttendanceDocument,
   TrackerMeDocument,
   TrackerSetTimezoneDocument,
@@ -282,6 +283,11 @@ export function createPortalClient(config: PortalClientConfig) {
     /** The employee's OWN all-time totals. */
     async fetchMyTotals(): Promise<TrackerTotals> {
       return (await authed(MyTrackerTotalsDocument, {})).myTrackerTotals;
+    },
+
+    /** Every zone the server resolves — the zone list for a runtime that cannot produce one. */
+    async fetchTimezones(): Promise<string[]> {
+      return (await authed(TrackerTimezonesDocument, {})).trackerTimezones;
     },
 
     /**

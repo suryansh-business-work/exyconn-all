@@ -8,6 +8,7 @@ import {
   FALLBACK_TIMEZONE,
   isValidTimezone,
   resolveEffectiveTimezone,
+  supportedTimezones,
 } from '../../src/modules/tracker/tracker.timezone';
 import { TrackerAccessModel, TrackerDeviceModel } from '../../src/modules/tracker/models';
 
@@ -48,6 +49,16 @@ describe('isValidTimezone', () => {
       expect(isValidTimezone(zone)).toBe(false);
     },
   );
+});
+
+describe('supportedTimezones', () => {
+  it('lists the runtime zones, sorted, with UTC added', () => {
+    const zones = supportedTimezones();
+    expect(zones).toContain('UTC');
+    expect(zones).toContain('Europe/London');
+    expect(zones).toEqual([...zones].sort((a, b) => a.localeCompare(b)));
+    expect(new Set(zones).size).toBe(zones.length);
+  });
 });
 
 describe('resolveEffectiveTimezone', () => {

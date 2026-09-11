@@ -35,7 +35,10 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  const zones = useMemo(() => timezoneNames(timezone), [timezone]);
+  const zones = useMemo(
+    () => timezoneNames(timezone, Intl.supportedValuesOf('timeZone')),
+    [timezone],
+  );
   // Precomputed once per list: an Intl formatter per option per keystroke would make typing
   // in a 400-row Autocomplete visibly laggy.
   const offsets = useMemo(

@@ -5,6 +5,7 @@ import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import type { SvgIconComponent } from '@mui/icons-material';
 import type { ThemeMode } from '@shared/types';
+import { roundButton } from '../round-button';
 import { run } from '../run';
 import { NO_DRAG } from '../window-drag';
 
@@ -23,14 +24,25 @@ const STEPS: Readonly<Record<ThemeMode, Step>> = {
 
 interface Props {
   mode: ThemeMode;
+  /** The page header's round paper button, instead of the title bar's compact one. */
+  round?: boolean;
 }
+
+const COMPACT_SX = {
+  ...NO_DRAG,
+  borderRadius: `${TRACKER_RADIUS}px`,
+  width: 30,
+  height: 26,
+  color: 'text.secondary',
+  '&:hover': { color: 'text.primary' },
+} as const;
 
 /**
  * The light/dark switch for bars that have no room for the settings screen's full picker —
  * one button that cycles system → light → dark. It writes the same install preference, so a
  * choice made here is the choice the whole app (and the next launch) uses.
  */
-export default function ThemeToggleButton({ mode }: Readonly<Props>): ReactElement {
+export default function ThemeToggleButton({ mode, round = false }: Readonly<Props>): ReactElement {
   const step = STEPS[mode];
   const Icon = step.icon;
   const hint = `Theme: ${step.label}. Switch to ${STEPS[step.next].label.toLowerCase()}.`;
@@ -40,14 +52,7 @@ export default function ThemeToggleButton({ mode }: Readonly<Props>): ReactEleme
       <IconButton
         size="small"
         aria-label={hint}
-        sx={{
-          ...NO_DRAG,
-          borderRadius: `${TRACKER_RADIUS}px`,
-          width: 30,
-          height: 26,
-          color: 'text.secondary',
-          '&:hover': { color: 'text.primary' },
-        }}
+        sx={round ? roundButton : COMPACT_SX}
         onClick={() => run(() => window.tracker.setPreferences({ themeMode: step.next }))}
       >
         <Icon sx={{ fontSize: iconSize.md }} />

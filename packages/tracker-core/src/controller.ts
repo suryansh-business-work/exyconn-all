@@ -130,6 +130,7 @@ export interface ControllerDeps<Permissions, Preferences, PermissionKind> {
     | 'fetchMyDay'
     | 'setTimezone'
     | 'fetchMyTotals'
+    | 'fetchTimezones'
     | 'acceptConsent'
     | 'markAttendance'
     | 'fetchTasks'
@@ -526,6 +527,11 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
   /** The employee's own all-time totals (device-token scoped — never anybody else's). */
   getTotals(): Promise<TrackerTotals> {
     return this.deps.portal.fetchMyTotals();
+  }
+
+  /** The zones the portal can resolve, for a picker on a runtime without its own list. */
+  getTimezones(): Promise<string[]> {
+    return this.deps.portal.fetchTimezones();
   }
 
   /**

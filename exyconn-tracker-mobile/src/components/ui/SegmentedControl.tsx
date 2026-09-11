@@ -1,7 +1,7 @@
 import { Pressable } from 'react-native';
 import { XStack } from 'tamagui';
 import { useBrand } from '../../theme/BrandProvider';
-import { TRACKER_RADIUS, borderWidth } from '../../theme/tokens';
+import { borderWidth, radius, trackerSelected } from '../../theme/tokens';
 import { Icon, type IconName } from './Icon';
 import { Body } from './Typography';
 
@@ -45,8 +45,9 @@ function Segment<T extends string>({
   full,
   onPress,
 }: Readonly<SegmentProps<T>>) {
-  const brand = useBrand();
-  const ink = selected ? brand.onPrimary : undefined;
+  const { scheme } = useBrand();
+  const pill = trackerSelected[scheme];
+  const ink = selected ? pill.ink : undefined;
   const state = kind === 'tabs' ? { selected } : { checked: selected };
   return (
     <Pressable
@@ -62,8 +63,8 @@ function Segment<T extends string>({
         alignItems="center"
         paddingVertical="$2"
         paddingHorizontal="$3"
-        borderRadius={TRACKER_RADIUS}
-        backgroundColor={selected ? brand.primary : 'transparent'}
+        borderRadius={radius.pill}
+        backgroundColor={selected ? pill.fill : 'transparent'}
       >
         {option.icon === undefined ? null : <Icon name={option.icon} size={18} color={ink} />}
         <Body size="$3" fontWeight="600" color={ink ?? '$muted'}>
@@ -76,8 +77,8 @@ function Segment<T extends string>({
 
 /**
  * A row of mutually exclusive options — the MUI Tabs and ToggleButtonGroup the desktop uses,
- * drawn as one segmented control. One option is always selected, and it carries the brand
- * colour.
+ * drawn as one pill track. One option is always selected, and wears the inverted ink pill the
+ * desktop's selected tab does.
  */
 export function SegmentedControl<T extends string>({
   options,
@@ -93,7 +94,8 @@ export function SegmentedControl<T extends string>({
       accessibilityLabel={label}
       borderWidth={borderWidth.hairline}
       borderColor="$hairline"
-      borderRadius={TRACKER_RADIUS}
+      borderRadius={radius.pill}
+      backgroundColor="$paper"
       padding="$1"
       gap="$1"
       alignSelf={full ? 'stretch' : 'flex-start'}

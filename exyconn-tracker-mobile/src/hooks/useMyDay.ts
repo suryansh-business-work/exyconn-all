@@ -15,7 +15,12 @@ export interface DayQuery {
  * (a route handed its bounds as params) uses this directly; the report screen goes through
  * `useMyDay` below, which derives the bounds from the calendar date that was tapped.
  */
-export function useDayDetail(startISO: string, endISO: string): DayQuery {
+export function useDayDetail(
+  startISO: string,
+  endISO: string,
+  /** A new value re-reads the day — today's chart passes the last sync, which adds intervals. */
+  refreshKey: string | null = null,
+): DayQuery {
   const [detail, setDetail] = useState<DayDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +49,7 @@ export function useDayDetail(startISO: string, endISO: string): DayQuery {
     return () => {
       active = false;
     };
-  }, [startISO, endISO, attempt]);
+  }, [startISO, endISO, attempt, refreshKey]);
 
   const reload = useCallback(() => setAttempt((count) => count + 1), []);
 
@@ -58,7 +63,7 @@ export function useDayDetail(startISO: string, endISO: string): DayQuery {
  * someone whose zone is ahead of their phone's, the device's midnight falls in the middle of
  * their working day — so the day they tapped would have been served to them cut in half.
  */
-export function useMyDay(date: Date, zone: string): DayQuery {
+export function useMyDay(date: Date, zone: string, refreshKey: string | null = null): DayQuery {
   const { startISO, endISO } = dayBounds(date, zone);
-  return useDayDetail(startISO, endISO);
+  return useDayDetail(startISO, endISO, refreshKey);
 }

@@ -1,6 +1,7 @@
 import { defaultConfig } from '@tamagui/config/v5';
 import { animations } from '@tamagui/config/v5-rn';
 import { createTamagui } from 'tamagui';
+import { fonts } from './fonts';
 import { CHROME, type Chrome } from './palette';
 
 /** Tamagui's base theme with the tracker's chrome laid over it, plus named keys for it. */
@@ -30,6 +31,7 @@ function withChrome(base: typeof defaultConfig.themes.light, chrome: Chrome) {
 const config = createTamagui({
   ...defaultConfig,
   animations,
+  fonts,
   settings: {
     ...defaultConfig.settings,
     // Full prop names read better than two-letter shorthands in a codebase this size.

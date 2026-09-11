@@ -21,6 +21,7 @@ import { TrackerTray } from './tray';
 import { closeScreenshotsWindow, openScreenshotsWindow } from './screenshots-window';
 import { composeWithWebcam, registerCaptureBridge } from './capture-bridge';
 import { applyWindowChrome, registerWindowControls } from './window-chrome';
+import { applyWindowMaterial } from './window-material';
 import { holdForUpload, type CloseGuardHooks } from './close-guard';
 import { secureStore } from './store';
 import { AppUpdater } from './updater';
@@ -150,6 +151,7 @@ function createWindow(): BrowserWindow {
     },
   });
 
+  applyWindowMaterial(win, secureStore().preferences.transparentBackground);
   win.on('ready-to-show', () => win.show());
   applyWindowChrome(win);
   /**
@@ -240,6 +242,9 @@ function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.requestPermission, (_e, kind: PermissionKind) => ctrl.requestPermission(kind));
   ipcMain.handle(IPC.setPreferences, (_e, update: Partial<AppPreferences>) => {
     const preferences = ctrl.setPreferences(update);
+    if (window !== null) {
+      applyWindowMaterial(window, preferences.transparentBackground);
+    }
     // Applied to the live updater, not just stored: turning automatic updates on is a
     // request for the version already waiting, not a preference for the next launch.
     updater.setAutomatic(preferences.updateAutomatically);

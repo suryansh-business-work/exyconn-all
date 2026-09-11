@@ -77,16 +77,23 @@ describe('timezoneNames', () => {
     // `Intl.supportedValuesOf` omits both of these (it lists the legacy `Asia/Calcutta`, and no
     // `UTC`), yet the portal accepts and stores them. An Autocomplete whose value is missing
     // from its options renders empty — the employee's own zone would vanish from the picker.
-    expect(timezoneNames('Asia/Kolkata')).toContain('Asia/Kolkata');
-    expect(timezoneNames('UTC')).toContain('UTC');
+    const supported = Intl.supportedValuesOf('timeZone');
+    expect(timezoneNames('Asia/Kolkata', supported)).toContain('Asia/Kolkata');
+    expect(timezoneNames('UTC', supported)).toContain('UTC');
   });
 
   it('is sorted, de-duplicated, and not a hardcoded list', () => {
-    const names = timezoneNames('Europe/London');
+    const names = timezoneNames('Europe/London', Intl.supportedValuesOf('timeZone'));
     expect(names.length).toBeGreaterThan(300);
     expect(names).toContain('Europe/London');
     expect(new Set(names).size).toBe(names.length);
     expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+  });
+
+  it('builds the list from the zones it is handed — the portal list on a phone', () => {
+    expect(timezoneNames('UTC', ['Europe/Paris', 'Asia/Tokyo'])).toEqual(
+      expect.arrayContaining(['Asia/Tokyo', 'Europe/Paris', 'UTC']),
+    );
   });
 });
 

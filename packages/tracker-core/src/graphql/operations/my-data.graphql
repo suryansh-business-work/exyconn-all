@@ -15,10 +15,13 @@ query MyTrackerCalendar($from: DateTime!, $to: DateTime!, $timezone: String!) {
 query MyTrackerDay($start: DateTime!, $end: DateTime!) {
   myTrackerDay(start: $start, end: $end) {
     intervals {
+      startedAt
+      endedAt
       activeMs
       idleMs
       keyCount
       mouseCount
+      activityPercent
     }
     screenshots {
       id
@@ -31,6 +34,11 @@ query MyTrackerDay($start: DateTime!, $end: DateTime!) {
       id
     }
   }
+}
+
+# Hermes (the phone's JS engine) has no Intl.supportedValuesOf, so the phone asks the server.
+query TrackerTimezones {
+  trackerTimezones
 }
 
 query MyTrackerTotals {

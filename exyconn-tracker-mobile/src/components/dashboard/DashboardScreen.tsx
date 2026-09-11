@@ -9,6 +9,7 @@ import { DayProgress } from './DayProgress';
 import { SectionHeading } from './SectionHeading';
 import { StatGrid } from './StatGrid';
 import { SyncBar } from './SyncBar';
+import { TodayActivity } from './TodayActivity';
 import { TotalsPanel } from './TotalsPanel';
 import { TrackerCard } from './TrackerCard';
 
@@ -42,6 +43,8 @@ export function DashboardScreen({ state }: Readonly<Props>) {
       </Surface>
 
       <TrackerCard state={state} />
+
+      <TodayActivity timezone={timezone} lastSyncAt={stats.lastSyncAt} />
 
       <SyncBar stats={stats} settings={settings} timezone={timezone} />
 

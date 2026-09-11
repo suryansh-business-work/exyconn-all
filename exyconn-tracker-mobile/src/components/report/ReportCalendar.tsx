@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { ReportDay } from '@exyconn/tracker-core';
-import { trackedDateKeys } from '../../lib/report/calendar';
+import { trackedDateLevels } from '../../lib/report/calendar';
 import { canGoForward } from '../../lib/report/month';
 import { Surface } from '../ui/Surface';
 import { Caption } from '../ui/Typography';
@@ -20,7 +20,7 @@ interface Props {
   onMonthChange: (month: Date) => void;
 }
 
-/** A jump-to-date picker, plus a month grid that dots every day with tracked time. */
+/** A jump-to-date picker, plus a month grid that dots every day with tracked time by activity. */
 export function ReportCalendar({
   days,
   month,
@@ -29,7 +29,7 @@ export function ReportCalendar({
   onSelect,
   onMonthChange,
 }: Readonly<Props>) {
-  const tracked = useMemo(() => trackedDateKeys(days), [days]);
+  const tracked = useMemo(() => trackedDateLevels(days), [days]);
 
   return (
     <Surface>
@@ -47,7 +47,8 @@ export function ReportCalendar({
         onSelect={onSelect}
       />
       <Caption textAlign="center">
-        Dotted days have tracked time. Tap one to see its screenshots.
+        Dotted days have tracked time, coloured by how active they were. Tap one to see its
+        screenshots.
       </Caption>
     </Surface>
   );

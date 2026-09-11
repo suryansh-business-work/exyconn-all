@@ -15,6 +15,7 @@ export * from './capture-policy';
 export * from './controller';
 export * from './engine';
 export * from './foreground-usage';
+export * from './insights';
 export * from './format';
 export * from './logger';
 export * from './outbox';

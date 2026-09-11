@@ -52,7 +52,7 @@ internal object CaptureNotifier {
     }
     try {
       ensureChannels(context)
-      val picture = fitWithin(ImageCodec.decode(options.image, "capture preview"), MAX_PICTURE_SIDE)
+      val picture = fitWithin(ImageCodec.decodeWithin(options.image, "capture preview", MAX_PICTURE_SIDE), MAX_PICTURE_SIDE)
       val notification = NotificationCompat.Builder(context, if (options.silent) SILENT_CHANNEL_ID else CHANNEL_ID)
         .setSmallIcon(NotificationSupport.smallIcon(context))
         .setContentTitle(options.title)
@@ -64,6 +64,9 @@ internal object CaptureNotifier {
       NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
     } catch (e: Exception) {
       Log.e(LOG_TAG, "The capture notification could not be shown", e)
+    } catch (e: OutOfMemoryError) {
+      // This runs on a background scope with no handler: an escaping error kills the process.
+      Log.e(LOG_TAG, "The capture preview was too large to show", e)
     }
   }
 
