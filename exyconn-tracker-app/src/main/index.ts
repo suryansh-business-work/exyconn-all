@@ -37,11 +37,33 @@ const APP_USER_MODEL_ID = 'com.exyconn.timetracker';
 let window: BrowserWindow | null = null;
 let tray: TrackerTray | null = null;
 let controller: TrackerController | null = null;
-const updater = new AppUpdater((update) => announceUpdate(update));
+const updater = new AppUpdater((update) => {
+  announceUpdate(update);
+  installUpdateWhenIdle();
+});
 
 function broadcast(state: TrackerState): void {
   window?.webContents.send(IPC.stateChanged, state);
   tray?.update(state);
+  installUpdateWhenIdle();
+}
+
+/**
+ * With "Update automatically" on, a downloaded version installs itself — but only between
+ * sessions, and never while an upload is going up. Restarting mid-session would end the
+ * employee's tracking; mid-upload it would send that work up twice. So this is re-asked on
+ * every state change, and the first one that finds the app idle restarts it.
+ */
+function installUpdateWhenIdle(): void {
+  if (controller === null || !updater.installsAutomatically) {
+    return;
+  }
+  const { status, stats } = controller.getState();
+  if (status === 'tracking' || status === 'paused' || stats.syncing) {
+    return;
+  }
+  isQuitting = true;
+  updater.install();
 }
 
 /**
@@ -215,9 +237,10 @@ function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.requestPermission, (_e, kind: PermissionKind) => ctrl.requestPermission(kind));
   ipcMain.handle(IPC.setPreferences, (_e, update: Partial<AppPreferences>) => {
     const preferences = ctrl.setPreferences(update);
-    // Applied to the live updater, not just stored: turning background updates on is a
+    // Applied to the live updater, not just stored: turning automatic updates on is a
     // request for the version already waiting, not a preference for the next launch.
-    updater.setAutoDownload(preferences.autoUpdate);
+    updater.setAutomatic(preferences.updateAutomatically);
+    installUpdateWhenIdle();
     return preferences;
   });
   ipcMain.handle(IPC.getTasks, (_e, projectId: string) => ctrl.getTasks(projectId));
@@ -315,7 +338,7 @@ if (!app.requestSingleInstanceLock()) {
     registerIpc(controller);
     // Only a packaged app has an installer to replace; in dev there is nothing to update.
     if (app.isPackaged) {
-      updater.start(PORTAL_GRAPHQL_URL, secureStore().preferences.autoUpdate);
+      updater.start(PORTAL_GRAPHQL_URL, secureStore().preferences.updateAutomatically);
     }
     await controller.restore();
     broadcast(controller.getState());

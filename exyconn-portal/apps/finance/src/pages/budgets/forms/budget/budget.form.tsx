@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { YEAR_MONTH } from '@exyconn/regex';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -10,7 +11,7 @@ import type { BudgetRow, CostCenterOption } from './budget.types';
 const schema = z.object({
   costCenterId: z.string().min(1, 'Pick a cost centre'),
   // Matches the server's monthKey exactly; anything else could never be compared to actuals.
-  month: z.string().regex(/^\d{4}-\d{2}$/, 'Use YYYY-MM, e.g. 2026-04'),
+  month: z.string().regex(YEAR_MONTH, 'Use YYYY-MM, e.g. 2026-04'),
   amount: z.coerce.number({ message: 'Amount must be a number' }).min(0, 'Must be ≥ 0'),
   currency: z.string().trim().min(1, 'Currency is required'),
   note: z.string().trim(),

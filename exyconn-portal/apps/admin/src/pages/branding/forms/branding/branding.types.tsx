@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { EMAIL, HEX_COLOR, HTTP_URL } from '@exyconn/regex';
 import { gstStateCodeField, gstinField } from '@exyconn/shell/utils/gstFields';
 import type { BrandingQuery } from '@exyconn/shell/graphql/generated';
 
@@ -7,9 +8,9 @@ export type BrandingRow = BrandingQuery['branding'];
 
 const text = z.string().trim();
 /** Optional URL — the API stores an empty string when a field is unset. */
-const url = z.string().trim().url('Enter a valid URL').or(z.literal(''));
-const email = z.string().trim().email('Enter a valid email address').or(z.literal(''));
-const color = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Use a 6-digit hex colour, e.g. #155dfc');
+const url = z.string().trim().regex(HTTP_URL, 'Enter a valid URL').or(z.literal(''));
+const email = z.string().trim().regex(EMAIL, 'Enter a valid email address').or(z.literal(''));
+const color = z.string().regex(HEX_COLOR, 'Use a 6-digit hex colour, e.g. #155dfc');
 
 /** One portal's login screen. `app` is the portal key and is never edited in the UI. */
 const loginPage = z.object({

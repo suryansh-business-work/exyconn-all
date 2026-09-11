@@ -27,7 +27,7 @@ type SignerRow = {
  */
 export function PolicySignersDialog({ policy, onClose }: Readonly<Props>) {
   const { formatDateTime } = useSettings();
-  const { data, loading } = usePolicyAcknowledgementsQuery({
+  const { data, loading, refetch } = usePolicyAcknowledgementsQuery({
     variables: { policyId: policy?.id ?? '' },
     skip: policy === null,
     fetchPolicy: 'cache-and-network',
@@ -58,7 +58,9 @@ export function PolicySignersDialog({ policy, onClose }: Readonly<Props>) {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'Nobody has signed this policy yet.'}
+          emptyMessage="Nobody has signed this policy yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </DialogContent>
     </Dialog>

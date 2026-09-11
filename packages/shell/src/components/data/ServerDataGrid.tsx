@@ -1,5 +1,5 @@
 import { lazy, Suspense, useMemo } from 'react';
-import { Box, CircularProgress } from '@/components/ui';
+import { Skeleton, Stack } from '@/components/ui';
 import { useSettings } from '@/hooks/useSettings';
 import { gridContextWith } from './gridContext';
 import type { ServerDataGridProps } from './ServerDataGrid.impl';
@@ -22,9 +22,10 @@ export function ServerDataGrid<T>(props: Readonly<ServerDataGridProps<T>>) {
   return (
     <Suspense
       fallback={
-        <Box sx={{ display: 'grid', placeItems: 'center', height }}>
-          <CircularProgress />
-        </Box>
+        <Stack spacing={1} sx={{ height }} aria-busy>
+          <Skeleton variant="rounded" height={40} sx={{ width: { xs: '100%', sm: 320 } }} />
+          <Skeleton variant="rounded" sx={{ flex: 1 }} />
+        </Stack>
       }
     >
       <ServerDataGridImpl

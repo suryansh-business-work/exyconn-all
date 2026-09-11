@@ -16,25 +16,25 @@ const coreValues = [
     icon: "fa-lightbulb",
     title: "Innovation",
     description: "We embrace new ideas and technologies to deliver cutting-edge solutions.",
-    color: "from-yellow-400 to-orange-500",
+    color: "from-yellow to-orange",
   },
   {
     icon: "fa-handshake-angle",
     title: "Collaboration",
     description: "We believe in strong partnerships and teamwork with our clients.",
-    color: "from-blue-400 to-cyan-500",
+    color: "from-blue to-cyan",
   },
   {
     icon: "fa-shield-halved",
     title: "Integrity",
     description: "We act with honesty, transparency, and ethical business practices.",
-    color: "from-emerald-400 to-teal-500",
+    color: "from-emerald to-teal",
   },
   {
     icon: "fa-bullseye",
     title: "Excellence",
     description: "We strive for the highest quality in everything we create.",
-    color: "from-purple-400 to-pink-500",
+    color: "from-purple to-pink",
   },
 ];
 
@@ -53,17 +53,17 @@ const whatWeDo = [
   metaKeywords="about Exyconn, our team, AI experts, automation, digital transformation, company values, mission, vision"
   metaImage="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
 >
-  <main class="bg-white min-h-screen">
+  <main class="bg-surface min-h-screen">
     <!-- Hero Section -->
     <section
-      class="relative py-24 px-6 bg-gradient-to-br from-gray-50 via-white to-blue-50 overflow-hidden"
+      class="relative py-24 px-6 bg-gradient-to-br from-surface-subtle via-surface to-blue-subtle overflow-hidden"
     >
       <div
-        class="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-200/40 to-cyan-200/40 rounded-full blur-3xl"
+        class="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-muted/40 to-cyan-muted/40 rounded-full blur-3xl"
       >
       </div>
       <div
-        class="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"
+        class="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-purple-muted/30 to-pink-muted/30 rounded-full blur-3xl"
       >
       </div>
 
@@ -71,18 +71,18 @@ const whatWeDo = [
         <div class="grid lg:grid-cols-2 gap-12 items-center">
           <div>
             <span
-              class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-100 rounded-full text-sm font-semibold text-blue-600 mb-6"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-blue-subtle border border-blue-soft rounded-full text-sm font-semibold text-blue-fg mb-6"
             >
               <i class="fa-solid fa-users"></i>
               About Exyconn
             </span>
-            <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+            <h1 class="text-5xl md:text-6xl font-bold text-fg mb-6 tracking-tight">
               Building the Future of
-              <span class="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"
+              <span class="bg-gradient-to-r from-blue-strong to-cyan bg-clip-text text-transparent"
                 >AI & SaaS</span
               >
             </h1>
-            <p class="text-xl text-gray-600 leading-relaxed mb-8">
+            <p class="text-xl text-fg-muted leading-relaxed mb-8">
               We're a team of passionate technologists, strategists, and innovators dedicated to
               helping businesses thrive in the digital era through AI, automation, and digital
               expertise.
@@ -90,13 +90,13 @@ const whatWeDo = [
             <div class="flex flex-wrap gap-4">
               <a
                 href="/contact"
-                class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-6 py-3 rounded-full hover:bg-gray-800 transition shadow-lg"
+                class="inline-flex items-center gap-2 bg-inverse text-on-solid font-semibold px-6 py-3 rounded-full hover:bg-inverse-muted transition shadow-lg"
               >
                 <i class="fa-solid fa-calendar-check"></i> Work With Us
               </a>
               <a
                 href="/our-vision"
-                class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-6 py-3 rounded-full hover:bg-gray-50 transition"
+                class="inline-flex items-center gap-2 bg-surface border border-line text-fg font-semibold px-6 py-3 rounded-full hover:bg-surface-subtle transition"
               >
                 <i class="fa-solid fa-eye"></i> Our Vision
               </a>
@@ -110,17 +110,17 @@ const whatWeDo = [
               loading="lazy"
             />
             <div
-              class="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-4 border border-gray-100"
+              class="absolute -bottom-6 -left-6 bg-surface rounded-2xl shadow-xl p-4 border border-line-subtle"
             >
               <div class="flex items-center gap-3">
                 <div
-                  class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center"
+                  class="w-12 h-12 bg-gradient-to-br from-blue to-cyan rounded-xl flex items-center justify-center"
                 >
-                  <i class="fa-solid fa-award text-white text-xl"></i>
+                  <i class="fa-solid fa-award text-on-solid text-xl"></i>
                 </div>
                 <div>
-                  <p class="text-sm text-gray-500">Trusted by</p>
-                  <p class="font-bold text-gray-900">50+ Clients</p>
+                  <p class="text-sm text-fg-subtle">Trusted by</p>
+                  <p class="font-bold text-fg">50+ Clients</p>
                 </div>
               </div>
             </div>
@@ -130,19 +130,19 @@ const whatWeDo = [
     </section>
 
     <!-- Stats Section -->
-    <section class="py-16 px-6 bg-white border-y border-gray-100">
+    <section class="py-16 px-6 bg-surface border-y border-line-subtle">
       <div class="max-w-5xl mx-auto">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
           {
             teamStats.map((stat) => (
               <div class="text-center">
-                <div class="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <i class={`fa-solid ${stat.icon} text-gray-600 text-xl`} />
+                <div class="w-14 h-14 bg-surface-muted rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <i class={`fa-solid ${stat.icon} text-fg-muted text-xl`} />
                 </div>
-                <div class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent mb-1">
+                <div class="text-3xl font-bold bg-gradient-to-r from-blue-strong to-cyan bg-clip-text text-transparent mb-1">
                   {stat.value}
                 </div>
-                <p class="text-gray-500 text-sm">{stat.label}</p>
+                <p class="text-fg-subtle text-sm">{stat.label}</p>
               </div>
             ))
           }
@@ -151,30 +151,30 @@ const whatWeDo = [
     </section>
 
     <!-- Mission & Vision -->
-    <section class="py-20 px-6 bg-gray-50">
+    <section class="py-20 px-6 bg-surface-subtle">
       <div class="max-w-6xl mx-auto">
         <div class="grid md:grid-cols-2 gap-8">
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <div class="bg-surface rounded-2xl shadow-sm border border-line-subtle p-8">
             <div
-              class="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6"
+              class="w-14 h-14 bg-gradient-to-br from-blue to-cyan rounded-2xl flex items-center justify-center mb-6"
             >
-              <i class="fa-solid fa-bullseye text-white text-xl"></i>
+              <i class="fa-solid fa-bullseye text-on-solid text-xl"></i>
             </div>
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
-            <p class="text-gray-600 leading-relaxed">
+            <h2 class="text-2xl font-bold text-fg mb-4">Our Mission</h2>
+            <p class="text-fg-muted leading-relaxed">
               To empower organizations with innovative technology, creativity, and
               expertise—enabling them to achieve their full potential and stay ahead in a rapidly
               evolving world.
             </p>
           </div>
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <div class="bg-surface rounded-2xl shadow-sm border border-line-subtle p-8">
             <div
-              class="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-6"
+              class="w-14 h-14 bg-gradient-to-br from-purple to-pink rounded-2xl flex items-center justify-center mb-6"
             >
-              <i class="fa-solid fa-eye text-white text-xl"></i>
+              <i class="fa-solid fa-eye text-on-solid text-xl"></i>
             </div>
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">Our Vision</h2>
-            <p class="text-gray-600 leading-relaxed">
+            <h2 class="text-2xl font-bold text-fg mb-4">Our Vision</h2>
+            <p class="text-fg-muted leading-relaxed">
               To be a global leader in AI-driven transformation, enabling smarter, faster, and more
               efficient business outcomes for our clients worldwide.
             </p>
@@ -184,28 +184,28 @@ const whatWeDo = [
     </section>
 
     <!-- What We Do -->
-    <section class="py-20 px-6 bg-white">
+    <section class="py-20 px-6 bg-surface">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-12">
           <span
-            class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-full text-sm font-semibold text-emerald-600 mb-6"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-subtle border border-emerald-soft rounded-full text-sm font-semibold text-emerald-fg mb-6"
           >
             <i class="fa-solid fa-briefcase"></i>
             Our Expertise
           </span>
-          <h2 class="text-4xl font-bold text-gray-900 mb-4">What We Do</h2>
-          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          <h2 class="text-4xl font-bold text-fg mb-4">What We Do</h2>
+          <p class="text-xl text-fg-muted max-w-2xl mx-auto">
             We deliver comprehensive solutions across AI, automation, and digital transformation.
           </p>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
           {
             whatWeDo.map((item) => (
-              <div class="bg-gray-50 rounded-xl p-6 text-center hover:bg-blue-50 hover:border-blue-100 border border-gray-100 transition-all duration-300">
-                <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm">
-                  <i class={`fa-solid ${item.icon} text-blue-600 text-lg`} />
+              <div class="bg-surface-subtle rounded-xl p-6 text-center hover:bg-blue-subtle hover:border-blue-soft border border-line-subtle transition-all duration-300">
+                <div class="w-12 h-12 bg-surface rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm">
+                  <i class={`fa-solid ${item.icon} text-blue-fg text-lg`} />
                 </div>
-                <p class="text-sm font-medium text-gray-700">{item.label}</p>
+                <p class="text-sm font-medium text-fg-secondary">{item.label}</p>
               </div>
             ))
           }
@@ -214,31 +214,31 @@ const whatWeDo = [
     </section>
 
     <!-- Core Values -->
-    <section class="py-20 px-6 bg-gray-50">
+    <section class="py-20 px-6 bg-surface-subtle">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-12">
           <span
-            class="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-100 rounded-full text-sm font-semibold text-purple-600 mb-6"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-purple-subtle border border-purple-soft rounded-full text-sm font-semibold text-purple-fg mb-6"
           >
             <i class="fa-solid fa-star"></i>
             Our Values
           </span>
-          <h2 class="text-4xl font-bold text-gray-900 mb-4">Core Values</h2>
-          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          <h2 class="text-4xl font-bold text-fg mb-4">Core Values</h2>
+          <p class="text-xl text-fg-muted max-w-2xl mx-auto">
             The principles that guide everything we do.
           </p>
         </div>
         <div class="grid md:grid-cols-4 gap-6">
           {
             coreValues.map((value) => (
-              <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center hover:shadow-lg transition-all duration-300">
+              <div class="bg-surface rounded-2xl shadow-sm border border-line-subtle p-6 text-center hover:shadow-lg transition-all duration-300">
                 <div
                   class={`w-14 h-14 bg-gradient-to-br ${value.color} rounded-2xl flex items-center justify-center mx-auto mb-4`}
                 >
-                  <i class={`fa-solid ${value.icon} text-white text-xl`} />
+                  <i class={`fa-solid ${value.icon} text-on-solid text-xl`} />
                 </div>
-                <h3 class="font-bold text-gray-900 mb-2">{value.title}</h3>
-                <p class="text-sm text-gray-600">{value.description}</p>
+                <h3 class="font-bold text-fg mb-2">{value.title}</h3>
+                <p class="text-sm text-fg-muted">{value.description}</p>
               </div>
             ))
           }
@@ -247,34 +247,34 @@ const whatWeDo = [
     </section>
 
     <!-- CTA Section -->
-    <section class="py-20 px-6 bg-white">
+    <section class="py-20 px-6 bg-surface">
       <div class="max-w-4xl mx-auto">
         <div
-          class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl shadow-2xl p-12 text-white relative overflow-hidden"
+          class="bg-gradient-to-br from-inverse via-inverse-muted to-inverse rounded-3xl shadow-2xl p-12 text-on-solid relative overflow-hidden"
         >
           <div
-            class="absolute top-0 right-0 w-60 h-60 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl"
+            class="absolute top-0 right-0 w-60 h-60 bg-gradient-to-br from-cyan/20 to-blue/20 rounded-full blur-3xl"
           >
           </div>
           <div class="relative z-10 text-center">
             <h2 class="text-3xl md:text-4xl font-bold mb-4">
               Ready to Transform Your Business with AI?
             </h2>
-            <p class="mb-8 text-xl text-gray-300 max-w-2xl mx-auto">
+            <p class="mb-8 text-xl text-on-solid-muted max-w-2xl mx-auto">
               Partner with Exyconn to unlock the power of AI automation, intelligent agents, and
               enterprise SaaS.
             </p>
             <div class="flex flex-wrap justify-center gap-4">
               <a
                 href="/contact"
-                class="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-cyan-500/40 hover:scale-105 transition-all"
+                class="inline-flex items-center gap-2 bg-gradient-to-r from-cyan to-blue-strong text-on-solid font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-cyan/40 hover:scale-105 transition-all"
               >
                 <i class="fa-solid fa-calendar-check"></i>
                 Schedule a Consultation
               </a>
               <a
                 href="/our-products"
-                class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white font-semibold px-8 py-4 rounded-full hover:bg-white/20 transition-all"
+                class="inline-flex items-center gap-2 bg-on-solid/10 backdrop-blur-sm border border-on-solid/30 text-on-solid font-semibold px-8 py-4 rounded-full hover:bg-on-solid/20 transition-all"
               >
                 <i class="fa-solid fa-cube"></i>
                 Explore Our Products

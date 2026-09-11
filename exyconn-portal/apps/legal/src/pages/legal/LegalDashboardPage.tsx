@@ -12,7 +12,7 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Legal → Dashboard: a real-count overview of contracts and documents. */
 export function LegalDashboardPage() {
-  const { data: contractsData, loading } = useListContractsQuery();
+  const { data: contractsData, loading, refetch } = useListContractsQuery();
   const { data: documentsData } = useListLegalDocumentsQuery();
   const { formatDate } = useSettings();
 
@@ -45,7 +45,9 @@ export function LegalDashboardPage() {
       <DataTable
         columns={columns}
         rows={contracts.slice(0, 8)}
-        emptyMessage={loading ? 'Loading…' : 'No contracts yet.'}
+        emptyMessage="No contracts yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleDashboard>
   );

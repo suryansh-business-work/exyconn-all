@@ -155,13 +155,18 @@ export const trackerResolvers = {
     },
 
     /**
-     * Latest desktop installers. Guarded by a session only, not the TRACKER role:
-     * the people who need to install the app are the employees being tracked, not
-     * the managers who administer it.
+     * Latest installers. Guarded by a session only, not the TRACKER role: the people who
+     * need to install the app are the employees being tracked, not the managers who
+     * administer it. A tracker device token is a session too, so the phone app's update
+     * check can pass its own platform.
      */
-    trackerLatestRelease: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+    trackerLatestRelease: async (
+      _p: unknown,
+      { platform }: { platform?: string | null },
+      ctx: GraphQLContext,
+    ) => {
       assertAuthenticated(ctx);
-      return githubActions.latestTrackerRelease();
+      return githubActions.latestTrackerRelease(platform);
     },
 
     /** Desktop app rehydrating a remembered (non-expiring) session. */

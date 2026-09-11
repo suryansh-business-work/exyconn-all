@@ -54,7 +54,9 @@ export function RequestsPage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'You have not raised any requests yet.'}
+          emptyMessage="You have not raised any requests yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

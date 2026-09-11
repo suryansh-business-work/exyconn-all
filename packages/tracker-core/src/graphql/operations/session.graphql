@@ -1,0 +1,62 @@
+# Signing in, staying in step with the portal, and the one-off answers that unlock tracking.
+
+mutation TrackerLogin($email: String!, $password: String!, $device: TrackerDeviceInput!) {
+  trackerLogin(email: $email, password: $password, device: $device) {
+    token
+    user {
+      id
+      name
+      email
+    }
+    consentRequired
+    settings {
+      ...TrackerSettingsFields
+    }
+  }
+}
+
+query PublicBranding {
+  publicBranding {
+    ...BrandingFields
+  }
+}
+
+query TrackerMe {
+  trackerMe {
+    ...TrackerMeFields
+  }
+}
+
+mutation TrackerHeartbeat($device: TrackerDeviceInput!) {
+  trackerHeartbeat(device: $device) {
+    ...TrackerMeFields
+  }
+}
+
+mutation TrackerSetTimezone($timezone: String!) {
+  trackerSetTimezone(timezone: $timezone) {
+    timezone
+  }
+}
+
+mutation TrackerAcceptConsent($signedName: String) {
+  trackerAcceptConsent(signedName: $signedName)
+}
+
+mutation TrackerMarkAttendance($status: AttendanceStatus!, $note: String) {
+  trackerMarkAttendance(status: $status, note: $note) {
+    ...WorkdayFields
+  }
+}
+
+query TrackerTaskOptions($projectId: ID!) {
+  trackerTaskOptions(projectId: $projectId) {
+    ...TaskFields
+  }
+}
+
+mutation SetMyTrackerPresence($status: TrackerPresence!, $note: String) {
+  setMyTrackerPresence(status: $status, note: $note) {
+    ...PresenceFields
+  }
+}

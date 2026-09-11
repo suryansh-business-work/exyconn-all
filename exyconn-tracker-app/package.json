@@ -1,6 +1,6 @@
 {
   "name": "exyconn-tracker-app",
-  "version": "1.9.4",
+  "version": "1.9.8",
   "private": true,
   "description": "Exyconn Tracker — cross-platform desktop time tracker (Windows + macOS).",
   "main": "out/main/index.js",
@@ -32,6 +32,7 @@
     "@eslint/js": "^10.0.1",
     "@exyconn/config": "workspace:*",
     "@exyconn/time": "workspace:*",
+    "@exyconn/tracker-core": "workspace:*",
     "@exyconn/ui": "workspace:*",
     "@mui/icons-material": "^9.4.0",
     "@mui/material": "^9.4.0",

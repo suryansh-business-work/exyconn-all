@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { EMAIL } from '@exyconn/regex';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -9,7 +10,7 @@ import { useSendContractMutation } from '@exyconn/shell/graphql/generated';
 import type { SendContractTarget } from './send-contract.types';
 
 const schema = z.object({
-  email: z.string().trim().email('Enter a valid email'),
+  email: z.string().trim().regex(EMAIL, 'Enter a valid email'),
   message: z.string().trim().max(1000, 'Keep the message under 1000 characters'),
 });
 type Values = z.infer<typeof schema>;

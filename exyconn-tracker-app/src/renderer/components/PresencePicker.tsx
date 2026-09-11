@@ -2,8 +2,12 @@ import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
 import { MenuItem, Stack, TextField, Typography } from '@exyconn/ui';
 import type { PresenceState, PresenceStatus } from '@shared/types';
-import { PRESENCE_OPTIONS, isAwayPresence } from '@shared/presence';
-import { formatElapsed, formatTimeOfDay } from '../time';
+import {
+  formatElapsed,
+  formatTimeOfDay,
+  isAwayPresence,
+  PRESENCE_OPTIONS,
+} from '@exyconn/tracker-core';
 import { run } from '../run';
 
 interface Props {

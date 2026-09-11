@@ -18,24 +18,23 @@ const { heading = "Agentic AI Types", tabs = [] } = Astro.props;
     height: 4px;
   }
   .tabs-scrollbar::-webkit-scrollbar-track {
-    background: var(--palette-slate-100);
+    background: var(--color-surface-muted);
     border-radius: var(--radius-sm);
   }
   .tabs-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--palette-slate-300);
+    background: var(--color-surface-strong);
     border-radius: var(--radius-sm);
   }
   .tabs-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--palette-slate-400);
+    background: var(--color-line-strong);
   }
 </style>
 
 <div class="w-full max-w-5xl mx-auto my-12 px-4" id="simple-horizontal-tabs">
   <!-- Tab Heading -->
   <div class="text-center mb-10">
-    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">{heading}</h2>
-    <div class="mt-3 w-20 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 mx-auto rounded-full">
-    </div>
+    <h2 class="text-3xl md:text-4xl font-bold text-fg tracking-tight">{heading}</h2>
+    <div class="mt-3 w-20 h-1 bg-gradient-to-r from-blue to-cyan mx-auto rounded-full"></div>
   </div>
 
   <!-- Tab Buttons -->
@@ -49,10 +48,10 @@ const { heading = "Agentic AI Types", tabs = [] } = Astro.props;
       tabs.map((tab: { label: unknown; description: unknown; icon?: string }, idx: unknown) => (
         <button
           type="button"
-          class={`cursor-pointer tab-btn flex-shrink-0 px-5 py-4 rounded-2xl text-left focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300 min-w-[180px] ${
+          class={`cursor-pointer tab-btn flex-shrink-0 px-5 py-4 rounded-2xl text-left focus:outline-none focus:ring-2 focus:ring-blue/50 transition-all duration-300 min-w-[180px] ${
             idx === 0
-              ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30"
-              : "bg-white border border-gray-200 text-gray-600 hover:border-blue-200 hover:bg-blue-50/50"
+              ? "bg-gradient-to-br from-blue-strong to-blue-deep text-on-solid shadow-lg shadow-blue/30"
+              : "bg-surface border border-line text-fg-muted hover:border-blue-muted hover:bg-blue-subtle/50"
           }`}
           data-tab={idx}
           aria-selected={idx === 0}
@@ -61,10 +60,10 @@ const { heading = "Agentic AI Types", tabs = [] } = Astro.props;
           role="tab"
           tabindex={idx === 0 ? 0 : -1}
         >
-          <div class={`font-semibold text-sm ${idx === 0 ? "text-white" : "text-gray-900"}`}>
+          <div class={`font-semibold text-sm ${idx === 0 ? "text-on-solid" : "text-fg"}`}>
             {tab.label}
           </div>
-          <div class={`text-xs mt-1 ${idx === 0 ? "text-blue-100" : "text-gray-500"}`}>
+          <div class={`text-xs mt-1 ${idx === 0 ? "text-on-solid-muted" : "text-fg-subtle"}`}>
             {tab.description}
           </div>
         </button>
@@ -74,7 +73,7 @@ const { heading = "Agentic AI Types", tabs = [] } = Astro.props;
 
   <!-- Tab Content -->
   <div
-    class="p-8 bg-white border border-gray-100 rounded-2xl shadow-sm tab-fade tab-fade-active"
+    class="p-8 bg-surface border border-line-subtle rounded-2xl shadow-sm tab-fade tab-fade-active"
     id="tab-content"
     data-tab-index="0"
     data-tabs={JSON.stringify(tabs)}
@@ -97,36 +96,36 @@ const { heading = "Agentic AI Types", tabs = [] } = Astro.props;
         if (i === idx) {
           btn.classList.add(
             "bg-gradient-to-br",
-            "from-blue-600",
-            "to-blue-700",
-            "text-white",
+            "from-blue-strong",
+            "to-blue-deep",
+            "text-on-solid",
             "shadow-lg",
-            "shadow-blue-500/30"
+            "shadow-blue/30"
           );
           btn.classList.remove(
-            "bg-white",
+            "bg-surface",
             "border",
-            "border-gray-200",
-            "text-gray-600",
-            "hover:border-blue-200",
-            "hover:bg-blue-50/50"
+            "border-line",
+            "text-fg-muted",
+            "hover:border-blue-muted",
+            "hover:bg-blue-subtle/50"
           );
         } else {
           btn.classList.remove(
             "bg-gradient-to-br",
-            "from-blue-600",
-            "to-blue-700",
-            "text-white",
+            "from-blue-strong",
+            "to-blue-deep",
+            "text-on-solid",
             "shadow-lg",
-            "shadow-blue-500/30"
+            "shadow-blue/30"
           );
           btn.classList.add(
-            "bg-white",
+            "bg-surface",
             "border",
-            "border-gray-200",
-            "text-gray-600",
-            "hover:border-blue-200",
-            "hover:bg-blue-50/50"
+            "border-line",
+            "text-fg-muted",
+            "hover:border-blue-muted",
+            "hover:bg-blue-subtle/50"
           );
         }
 
@@ -135,15 +134,15 @@ const { heading = "Agentic AI Types", tabs = [] } = Astro.props;
         const descDiv = btn.querySelector(".text-xs");
         if (headingDiv && descDiv) {
           if (i === idx) {
-            headingDiv.classList.add("text-white");
-            headingDiv.classList.remove("text-gray-900");
-            descDiv.classList.add("text-blue-100");
-            descDiv.classList.remove("text-gray-500");
+            headingDiv.classList.add("text-on-solid");
+            headingDiv.classList.remove("text-fg");
+            descDiv.classList.add("text-on-solid-muted");
+            descDiv.classList.remove("text-fg-subtle");
           } else {
-            headingDiv.classList.remove("text-white");
-            headingDiv.classList.add("text-gray-900");
-            descDiv.classList.remove("text-blue-100");
-            descDiv.classList.add("text-gray-500");
+            headingDiv.classList.remove("text-on-solid");
+            headingDiv.classList.add("text-fg");
+            descDiv.classList.remove("text-on-solid-muted");
+            descDiv.classList.add("text-fg-subtle");
           }
         }
         btn.setAttribute("aria-selected", i === idx ? "true" : "false");

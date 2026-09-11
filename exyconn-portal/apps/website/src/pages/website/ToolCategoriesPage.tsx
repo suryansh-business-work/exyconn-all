@@ -70,7 +70,9 @@ export function ToolCategoriesPage() {
         rows={rows}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
-        emptyMessage={loading ? 'Loading…' : 'No tool categories yet.'}
+        emptyMessage="No tool categories yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleDashboard>
   );

@@ -6,3 +6,4 @@ packages:
   - 'exyconn-portal/apps/*'
   - 'exyconn-website'
   - 'exyconn-tracker-app'
+  - 'exyconn-tracker-mobile'

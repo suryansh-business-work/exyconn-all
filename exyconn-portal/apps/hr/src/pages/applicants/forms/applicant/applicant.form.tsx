@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { EMAIL, HTTP_URL, PHONE, SLUG } from '@exyconn/regex';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -14,12 +15,27 @@ import type { ApplicantFormValues, ApplicantRow } from './applicant.types';
 
 export const applicantSchema = z.object({
   name: z.string().trim().min(2, 'Name is required').max(80, 'Keep the name under 80 characters'),
-  email: z.string().trim().min(1, 'Email is required').email('Enter a valid email address'),
-  phone: z.string().trim().max(40, 'Keep the phone number under 40 characters'),
+  email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email address'),
+  phone: z
+    .string()
+    .trim()
+    .max(40, 'Keep the phone number under 40 characters')
+    .regex(PHONE, 'Enter a valid phone number')
+    .or(z.literal('')),
   jobCode: z.string().trim().max(40, 'Keep the job code under 40 characters'),
   jobTitle: z.string().trim().min(2, 'Job title is required').max(120, 'Keep the title short'),
-  companySlug: z.string().trim().max(80, 'Keep the company slug under 80 characters'),
-  resumeUrl: z.string().trim().max(500, 'That link is too long'),
+  companySlug: z
+    .string()
+    .trim()
+    .max(80, 'Keep the company slug under 80 characters')
+    .regex(SLUG, 'Lower-case letters, numbers and hyphens only')
+    .or(z.literal('')),
+  resumeUrl: z
+    .string()
+    .trim()
+    .max(500, 'That link is too long')
+    .regex(HTTP_URL, 'Enter a full URL starting with https://')
+    .or(z.literal('')),
   coverLetter: z.string().trim().max(8000, 'Keep the cover letter under 8000 characters'),
   source: z.nativeEnum(ApplicantSource),
   rating: z.coerce.number().int().min(0).max(5),

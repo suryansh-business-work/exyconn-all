@@ -19,33 +19,33 @@ interface Props {
 const { title, subtitle, description, primaryCta, secondaryCta, variant = "dark" } = Astro.props;
 
 const bgClasses = {
-  dark: "bg-gradient-to-br from-gray-900 to-gray-800",
-  light: "bg-gradient-to-br from-gray-50 to-blue-50",
-  gradient: "bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-500",
+  dark: "bg-gradient-to-br from-inverse to-inverse-muted",
+  light: "bg-gradient-to-br from-surface-subtle to-blue-subtle",
+  gradient: "bg-gradient-to-br from-blue-strong via-cyan to-teal",
 };
 
 const textClasses = {
-  dark: "text-white",
-  light: "text-gray-900",
-  gradient: "text-white",
+  dark: "text-on-solid",
+  light: "text-fg",
+  gradient: "text-on-solid",
 };
 
 const subtextClasses = {
-  dark: "text-gray-400",
-  light: "text-gray-600",
-  gradient: "text-white/80",
+  dark: "text-fg-faint",
+  light: "text-fg-muted",
+  gradient: "text-on-solid/80",
 };
 
 const primaryBtnClasses = {
-  dark: "bg-white text-gray-900 hover:bg-gray-100",
-  light: "bg-gray-900 text-white hover:bg-gray-800",
-  gradient: "bg-white text-gray-900 hover:bg-gray-100",
+  dark: "bg-surface text-fg hover:bg-surface-muted",
+  light: "bg-inverse text-on-solid hover:bg-inverse-muted",
+  gradient: "bg-surface text-fg hover:bg-surface-muted",
 };
 
 const secondaryBtnClasses = {
-  dark: "bg-white/10 border border-white/20 text-white hover:bg-white/20",
-  light: "bg-white border border-gray-200 text-gray-900 hover:bg-gray-50",
-  gradient: "bg-white/20 border border-white/30 text-white hover:bg-white/30",
+  dark: "bg-on-solid/10 border border-on-solid/20 text-on-solid hover:bg-on-solid/20",
+  light: "bg-surface border border-line text-fg hover:bg-surface-subtle",
+  gradient: "bg-on-solid/20 border border-on-solid/30 text-on-solid hover:bg-on-solid/30",
 };
 ---
 
@@ -53,8 +53,8 @@ const secondaryBtnClasses = {
   {
     variant !== "light" && (
       <>
-        <div class="absolute top-20 left-20 w-80 h-80 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl" />
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl" />
+        <div class="absolute top-20 left-20 w-80 h-80 bg-gradient-to-r from-blue/20 to-cyan/20 rounded-full blur-3xl" />
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-purple/20 to-pink/20 rounded-full blur-3xl" />
       </>
     )
   }

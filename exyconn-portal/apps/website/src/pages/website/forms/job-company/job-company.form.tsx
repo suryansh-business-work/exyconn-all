@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { HEX_COLOR, HTTP_URL, LINK, SLUG } from '@exyconn/regex';
 import { Divider, Typography } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -20,26 +21,62 @@ const benefitSchema = z.object({
 
 const schema = z.object({
   companyCode: z.string().trim().min(1, 'Company code is required'),
-  slug: z.string().trim().min(1, 'Slug is required'),
+  slug: z
+    .string()
+    .trim()
+    .min(1, 'Slug is required')
+    .regex(SLUG, 'Lower-case letters, numbers and hyphens only'),
   name: z.string().trim().min(1, 'Name is required'),
-  logo: z.string().trim(),
+  logo: z
+    .string()
+    .trim()
+    .regex(LINK, 'Enter a full URL or a path starting with /')
+    .or(z.literal('')),
   tagline: z.string().trim(),
   description: z.string().trim(),
   culture: z.string().trim(),
-  website: z.string().trim(),
+  website: z
+    .string()
+    .trim()
+    .regex(HTTP_URL, 'Enter a full URL starting with https://')
+    .or(z.literal('')),
   founded: z.string().trim(),
   employees: z.string().trim(),
   industry: z.string().trim(),
   headquarters: z.string().trim(),
   benefits: z.array(benefitSchema),
   socialLinks: z.object({
-    linkedin: z.string().trim(),
-    twitter: z.string().trim(),
-    facebook: z.string().trim(),
-    instagram: z.string().trim(),
+    linkedin: z
+      .string()
+      .trim()
+      .regex(HTTP_URL, 'Enter a full URL starting with https://')
+      .or(z.literal('')),
+    twitter: z
+      .string()
+      .trim()
+      .regex(HTTP_URL, 'Enter a full URL starting with https://')
+      .or(z.literal('')),
+    facebook: z
+      .string()
+      .trim()
+      .regex(HTTP_URL, 'Enter a full URL starting with https://')
+      .or(z.literal('')),
+    instagram: z
+      .string()
+      .trim()
+      .regex(HTTP_URL, 'Enter a full URL starting with https://')
+      .or(z.literal('')),
   }),
-  brandColor: z.string().trim(),
-  secondaryColor: z.string().trim(),
+  brandColor: z
+    .string()
+    .trim()
+    .regex(HEX_COLOR, 'Use a 6-digit hex colour, e.g. #f9851f')
+    .or(z.literal('')),
+  secondaryColor: z
+    .string()
+    .trim()
+    .regex(HEX_COLOR, 'Use a 6-digit hex colour, e.g. #f9851f')
+    .or(z.literal('')),
   isActive: z.boolean(),
   order: z.coerce.number({ message: 'Order must be a number' }).min(0, 'Order must be ≥ 0'),
 });

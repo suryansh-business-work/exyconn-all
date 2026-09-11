@@ -89,7 +89,9 @@ export function PexelsConfigsPanel() {
         actions={actions}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
-        emptyMessage={loading ? 'Loading…' : 'No Pexels configs yet.'}
+        emptyMessage="No Pexels configs yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </Box>
   );

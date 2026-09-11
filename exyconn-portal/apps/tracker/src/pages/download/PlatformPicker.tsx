@@ -10,7 +10,7 @@ interface PlatformPickerProps {
   onSelect: (key: PlatformKey) => void;
 }
 
-/** The three platform tiles, with the visitor's own platform ticked. */
+/** One tile per platform, with the visitor's own platform ticked. */
 export function PlatformPicker({
   selected,
   detected,

@@ -1,5 +1,6 @@
 ---
 import Page from "../../../../layouts/Page.astro";
+import { gigCategoryColors } from "../../../../lib/gigCategoryColors";
 import { getDaysAgo, getGig, getOpenGigs } from "../../../../lib/portal";
 
 // gigId carries the gig code (e.g. "GIG-DES-001")
@@ -21,7 +22,7 @@ const relatedGigs = openGigs
   .filter((g) => g.category === gig.category && g.gigCode !== gig.gigCode)
   .slice(0, 3);
 
-// Category icons and colors
+// Category icons (their colours come from lib/gigCategoryColors)
 const gigCategoryIcons: Record<string, string> = {
   Development: "fa-code",
   Design: "fa-palette",
@@ -30,37 +31,28 @@ const gigCategoryIcons: Record<string, string> = {
   Data: "fa-database",
   Marketing: "fa-bullhorn",
 };
-
-const gigCategoryColors: Record<string, string> = {
-  Development: "var(--palette-blue-500)",
-  Design: "var(--palette-pink-500)",
-  Writing: "var(--palette-violet-400)",
-  Video: "var(--palette-red-500)",
-  Data: "var(--palette-emerald-500)",
-  Marketing: "var(--palette-amber-500)",
-};
 ---
 
 <Page title={`${gig.title} | Freelance Gig | Exyconn`} description={gig.shortDescription}>
-  <main class="bg-slate-50 min-h-screen">
+  <main class="bg-surface-subtle min-h-screen">
     <!-- Header -->
     <section
-      class="border-b border-slate-200 py-6 px-6 sticky top-0 z-50 backdrop-blur-lg bg-white/95"
+      class="border-b border-line py-6 px-6 sticky top-0 z-50 backdrop-blur-lg bg-surface/95"
     >
       <div class="max-w-6xl mx-auto flex items-center justify-between">
         <a
           href="/career/gigs"
-          class="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition"
+          class="flex items-center gap-2 text-fg-muted hover:text-fg transition"
         >
           <i class="fa-solid fa-arrow-left"></i>
           <span class="font-medium">Back to All Gigs</span>
         </a>
 
         <div class="flex items-center gap-3">
-          <span class="text-sm text-slate-500">Posted {postedAgo}</span>
+          <span class="text-sm text-fg-subtle">Posted {postedAgo}</span>
           {
             gig.isUrgent && (
-              <span class="px-3 py-1.5 bg-red-500 text-white rounded-full text-xs font-bold animate-pulse">
+              <span class="px-3 py-1.5 bg-red text-on-solid rounded-full text-xs font-bold animate-pulse">
                 <i class="fa-solid fa-fire mr-1" />
                 URGENT
               </span>
@@ -68,7 +60,7 @@ const gigCategoryColors: Record<string, string> = {
           }
           <a
             href={`mailto:${gig.applicationContact}?subject=Application for ${gig.title}`}
-            class="px-6 py-2.5 bg-amber-500 text-white font-bold rounded-full hover:bg-amber-600 transition shadow-lg"
+            class="px-6 py-2.5 bg-amber text-on-solid font-bold rounded-full hover:bg-amber-strong transition shadow-lg"
           >
             Apply Now
           </a>
@@ -77,15 +69,15 @@ const gigCategoryColors: Record<string, string> = {
     </section>
 
     <!-- Hero -->
-    <section class="py-16 px-6 bg-gradient-to-br from-slate-50 to-slate-100">
+    <section class="py-16 px-6 bg-gradient-to-br from-surface-subtle to-surface-muted">
       <div class="max-w-6xl mx-auto">
         <div class="flex items-start gap-6">
           <!-- Icon -->
           <div
             class="w-20 h-20 rounded-2xl flex items-center justify-center shrink-0 shadow-lg"
-            style={`background: ${gigCategoryColors[gig.category]};`}
+            style={`background: ${gigCategoryColors(gig.category).solid};`}
           >
-            <i class={`fa-solid ${gigCategoryIcons[gig.category]} text-3xl text-white`}></i>
+            <i class={`fa-solid ${gigCategoryIcons[gig.category]} text-3xl text-on-solid`}></i>
           </div>
 
           <!-- Content -->
@@ -93,16 +85,16 @@ const gigCategoryColors: Record<string, string> = {
             <div class="flex items-center gap-3 mb-4">
               <span
                 class="px-3 py-1.5 rounded-lg text-sm font-semibold"
-                style={`background: ${gigCategoryColors[gig.category]}15; color: ${gigCategoryColors[gig.category]};`}
+                style={`background: ${gigCategoryColors(gig.category).tint}; color: ${gigCategoryColors(gig.category).ink};`}
               >
                 {gig.category}
               </span>
-              <span class="px-2.5 py-1 bg-slate-200 text-slate-600 rounded text-sm font-mono">
+              <span class="px-2.5 py-1 bg-surface-strong text-fg-muted rounded text-sm font-mono">
                 #{gig.gigCode}
               </span>
               {
                 gig.status === "open" && (
-                  <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                  <span class="px-3 py-1 bg-green-soft text-green-fg-strong rounded-full text-xs font-bold">
                     <i class="fa-solid fa-circle text-[8px] mr-1 animate-pulse" />
                     OPEN
                   </span>
@@ -110,36 +102,36 @@ const gigCategoryColors: Record<string, string> = {
               }
             </div>
 
-            <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 leading-tight">
+            <h1 class="text-4xl md:text-5xl font-black text-fg mb-4 leading-tight">
               {gig.title}
             </h1>
 
-            <p class="text-xl text-slate-600 mb-6">
+            <p class="text-xl text-fg-muted mb-6">
               {gig.shortDescription}
             </p>
 
             <div class="flex flex-wrap items-center gap-6">
               <div class="flex items-center gap-2">
-                <i class="fa-solid fa-wallet text-emerald-600"></i>
+                <i class="fa-solid fa-wallet text-emerald-fg"></i>
                 <div>
-                  <div class="text-xs text-slate-500">Budget</div>
-                  <div class="text-lg font-bold text-emerald-600">{gig.budget}</div>
+                  <div class="text-xs text-fg-subtle">Budget</div>
+                  <div class="text-lg font-bold text-emerald-fg">{gig.budget}</div>
                 </div>
               </div>
 
               <div class="flex items-center gap-2">
-                <i class="fa-solid fa-clock text-blue-600"></i>
+                <i class="fa-solid fa-clock text-blue-fg"></i>
                 <div>
-                  <div class="text-xs text-slate-500">Duration</div>
-                  <div class="text-lg font-bold text-slate-900">{gig.duration}</div>
+                  <div class="text-xs text-fg-subtle">Duration</div>
+                  <div class="text-lg font-bold text-fg">{gig.duration}</div>
                 </div>
               </div>
 
               <div class="flex items-center gap-2">
-                <i class="fa-solid fa-calendar text-purple-600"></i>
+                <i class="fa-solid fa-calendar text-purple-fg"></i>
                 <div>
-                  <div class="text-xs text-slate-500">Posted</div>
-                  <div class="text-lg font-bold text-slate-900">Posted {postedAgo}</div>
+                  <div class="text-xs text-fg-subtle">Posted</div>
+                  <div class="text-lg font-bold text-fg">Posted {postedAgo}</div>
                 </div>
               </div>
             </div>
@@ -154,26 +146,26 @@ const gigCategoryColors: Record<string, string> = {
         <!-- Left Column - Main Content -->
         <div class="lg:col-span-2 space-y-8">
           <!-- Description -->
-          <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-            <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
-              <i class="fa-solid fa-file-lines text-amber-500"></i>
+          <div class="bg-surface rounded-2xl p-8 shadow-sm border border-line">
+            <h2 class="text-2xl font-bold text-fg mb-6 flex items-center gap-3">
+              <i class="fa-solid fa-file-lines text-amber-fg"></i>
               Project Description
             </h2>
             <div class="prose prose-slate max-w-none" set:html={gig.fullDescription} />
           </div>
 
           <!-- Deliverables -->
-          <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-            <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
-              <i class="fa-solid fa-box-check text-emerald-500"></i>
+          <div class="bg-surface rounded-2xl p-8 shadow-sm border border-line">
+            <h2 class="text-2xl font-bold text-fg mb-6 flex items-center gap-3">
+              <i class="fa-solid fa-box-check text-emerald-fg"></i>
               Deliverables
             </h2>
             <ul class="space-y-3">
               {
                 gig.deliverables.map((deliverable) => (
                   <li class="flex items-start gap-3">
-                    <i class="fa-solid fa-circle-check text-emerald-600 mt-1" />
-                    <span class="text-slate-700">{deliverable}</span>
+                    <i class="fa-solid fa-circle-check text-emerald-fg mt-1" />
+                    <span class="text-fg-secondary">{deliverable}</span>
                   </li>
                 ))
               }
@@ -181,17 +173,17 @@ const gigCategoryColors: Record<string, string> = {
           </div>
 
           <!-- Requirements -->
-          <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-            <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
-              <i class="fa-solid fa-list-check text-blue-500"></i>
+          <div class="bg-surface rounded-2xl p-8 shadow-sm border border-line">
+            <h2 class="text-2xl font-bold text-fg mb-6 flex items-center gap-3">
+              <i class="fa-solid fa-list-check text-blue-fg"></i>
               Requirements
             </h2>
             <ul class="space-y-3">
               {
                 gig.requirements.map((requirement) => (
                   <li class="flex items-start gap-3">
-                    <i class="fa-solid fa-star text-amber-500 mt-1" />
-                    <span class="text-slate-700">{requirement}</span>
+                    <i class="fa-solid fa-star text-amber-fg mt-1" />
+                    <span class="text-fg-secondary">{requirement}</span>
                   </li>
                 ))
               }
@@ -199,15 +191,15 @@ const gigCategoryColors: Record<string, string> = {
           </div>
 
           <!-- Tags -->
-          <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-            <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
-              <i class="fa-solid fa-tags text-purple-500"></i>
+          <div class="bg-surface rounded-2xl p-8 shadow-sm border border-line">
+            <h2 class="text-2xl font-bold text-fg mb-6 flex items-center gap-3">
+              <i class="fa-solid fa-tags text-purple-fg"></i>
               Skills & Technologies
             </h2>
             <div class="flex flex-wrap gap-2">
               {
                 gig.tags.map((tag) => (
-                  <span class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition">
+                  <span class="px-4 py-2 bg-surface-muted text-fg-secondary rounded-lg font-medium hover:bg-surface-strong transition">
                     {tag}
                   </span>
                 ))
@@ -220,67 +212,67 @@ const gigCategoryColors: Record<string, string> = {
         <div class="lg:col-span-1">
           <div class="sticky top-24 space-y-6">
             <!-- Apply Card -->
-            <div class="bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
-              <h3 class="text-xl font-bold text-slate-900 mb-4">Ready to Apply?</h3>
-              <p class="text-sm text-slate-600 mb-6">
+            <div class="bg-surface rounded-2xl p-6 shadow-lg border border-line">
+              <h3 class="text-xl font-bold text-fg mb-4">Ready to Apply?</h3>
+              <p class="text-sm text-fg-muted mb-6">
                 Send us your portfolio and a brief introduction. We'll get back to you within 48
                 hours.
               </p>
 
               <a
                 href={`mailto:${gig.applicationContact}?subject=Application for ${gig.title} (${gig.gigCode})`}
-                class="block w-full px-6 py-4 bg-amber-500 text-white text-center font-bold rounded-xl hover:bg-amber-600 transition shadow-lg mb-4"
+                class="block w-full px-6 py-4 bg-amber text-on-solid text-center font-bold rounded-xl hover:bg-amber-strong transition shadow-lg mb-4"
               >
                 <i class="fa-solid fa-envelope mr-2"></i>
                 Apply via Email
               </a>
 
-              <div class="text-center text-xs text-slate-500">
+              <div class="text-center text-xs text-fg-subtle">
                 Application contact: {gig.applicationContact}
               </div>
             </div>
 
             <!-- Project Info Card -->
             <div
-              class="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-2xl p-6 shadow-lg text-white"
+              class="bg-gradient-to-br from-inverse to-indigo-night rounded-2xl p-6 shadow-lg text-on-solid"
             >
               <h3 class="text-lg font-bold mb-4">Project Details</h3>
 
               <div class="space-y-4">
-                <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                  <span class="text-white/70 text-sm">Budget</span>
-                  <span class="font-bold text-emerald-400">{gig.budget}</span>
+                <div class="flex items-center justify-between pb-3 border-b border-on-solid/10">
+                  <span class="text-on-solid/70 text-sm">Budget</span>
+                  <span class="font-bold text-emerald-bright">{gig.budget}</span>
                 </div>
 
-                <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                  <span class="text-white/70 text-sm">Duration</span>
+                <div class="flex items-center justify-between pb-3 border-b border-on-solid/10">
+                  <span class="text-on-solid/70 text-sm">Duration</span>
                   <span class="font-semibold">{gig.duration}</span>
                 </div>
 
-                <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                  <span class="text-white/70 text-sm">Category</span>
+                <div class="flex items-center justify-between pb-3 border-b border-on-solid/10">
+                  <span class="text-on-solid/70 text-sm">Category</span>
                   <span class="font-semibold">{gig.category}</span>
                 </div>
 
-                <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                  <span class="text-white/70 text-sm">Status</span>
+                <div class="flex items-center justify-between pb-3 border-b border-on-solid/10">
+                  <span class="text-on-solid/70 text-sm">Status</span>
                   <span
-                    class="px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-bold"
+                    class="px-2 py-1 bg-green/20 text-green-bright rounded-full text-xs font-bold"
                   >
                     {gig.status === "open" ? "OPEN" : "CLOSED"}
                   </span>
                 </div>
 
                 <div class="flex items-center justify-between">
-                  <span class="text-white/70 text-sm">Urgency</span>
+                  <span class="text-on-solid/70 text-sm">Urgency</span>
                   {
                     gig.isUrgent ? (
-                      <span class="px-2 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-bold animate-pulse">
+                      <span class="px-2 py-1 bg-red/20 text-red-bright rounded-full text-xs font-bold animate-pulse">
                         <i class="fa-solid fa-fire mr-1" />
                         URGENT
                       </span>
                     ) : (
-                      <span class="text-white/70 text-sm">Normal</span>
+                      <span class="text-on-solid/70 text-sm">Normal</span>
                     )
                   }
                 </div>
@@ -288,27 +280,27 @@ const gigCategoryColors: Record<string, string> = {
             </div>
 
             <!-- Why Work With Us -->
-            <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100">
-              <h3 class="text-lg font-bold text-slate-900 mb-4">
-                <i class="fa-solid fa-heart text-red-500 mr-2"></i>
+            <div class="bg-blue-subtle rounded-2xl p-6 border border-blue-soft">
+              <h3 class="text-lg font-bold text-fg mb-4">
+                <i class="fa-solid fa-heart text-red-fg mr-2"></i>
                 Why Work With Us?
               </h3>
               <ul class="space-y-3 text-sm">
                 <li class="flex items-start gap-2">
-                  <i class="fa-solid fa-check text-green-600 mt-0.5"></i>
-                  <span class="text-slate-700">Fast payment within 7 days</span>
+                  <i class="fa-solid fa-check text-green-fg mt-0.5"></i>
+                  <span class="text-fg-secondary">Fast payment within 7 days</span>
                 </li>
                 <li class="flex items-start gap-2">
-                  <i class="fa-solid fa-check text-green-600 mt-0.5"></i>
-                  <span class="text-slate-700">Clear requirements & assets</span>
+                  <i class="fa-solid fa-check text-green-fg mt-0.5"></i>
+                  <span class="text-fg-secondary">Clear requirements & assets</span>
                 </li>
                 <li class="flex items-start gap-2">
-                  <i class="fa-solid fa-check text-green-600 mt-0.5"></i>
-                  <span class="text-slate-700">Ongoing collaboration opportunities</span>
+                  <i class="fa-solid fa-check text-green-fg mt-0.5"></i>
+                  <span class="text-fg-secondary">Ongoing collaboration opportunities</span>
                 </li>
                 <li class="flex items-start gap-2">
-                  <i class="fa-solid fa-check text-green-600 mt-0.5"></i>
-                  <span class="text-slate-700">Work with real SaaS products</span>
+                  <i class="fa-solid fa-check text-green-fg mt-0.5"></i>
+                  <span class="text-fg-secondary">Work with real SaaS products</span>
                 </li>
               </ul>
             </div>
@@ -318,38 +310,36 @@ const gigCategoryColors: Record<string, string> = {
     </section>
 
     <!-- Related Gigs -->
-    <section class="py-16 px-6 bg-slate-100">
+    <section class="py-16 px-6 bg-surface-muted">
       <div class="max-w-6xl mx-auto">
-        <h2 class="text-3xl font-black text-slate-900 mb-8">More Gigs in {gig.category}</h2>
+        <h2 class="text-3xl font-black text-fg mb-8">More Gigs in {gig.category}</h2>
 
         <div class="grid md:grid-cols-3 gap-6">
           {
             relatedGigs.map((relatedGig) => (
               <a
                 href={`/career/gig/${relatedGig.gigCode}`}
-                class="group block bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-200 transition-all duration-300"
+                class="group block bg-surface rounded-2xl p-6 shadow-sm hover:shadow-xl border border-line transition-all duration-300"
               >
                 <div
                   class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                  style={`background: ${gigCategoryColors[relatedGig.category]}15;`}
+                  style={`background: ${gigCategoryColors(relatedGig.category).tint};`}
                 >
                   <i
                     class={`fa-solid ${gigCategoryIcons[relatedGig.category]} text-xl`}
-                    style={`color: ${gigCategoryColors[relatedGig.category]};`}
+                    style={`color: ${gigCategoryColors(relatedGig.category).ink};`}
                   />
                 </div>
 
-                <h3 class="text-lg font-bold text-slate-900 mb-2 group-hover:text-amber-600 transition">
+                <h3 class="text-lg font-bold text-fg mb-2 group-hover:text-amber-fg transition">
                   {relatedGig.title}
                 </h3>
 
-                <p class="text-sm text-slate-600 mb-4 line-clamp-2">
-                  {relatedGig.shortDescription}
-                </p>
+                <p class="text-sm text-fg-muted mb-4 line-clamp-2">{relatedGig.shortDescription}</p>
 
                 <div class="flex items-center justify-between text-sm">
-                  <span class="text-emerald-600 font-bold">{relatedGig.budget}</span>
-                  <span class="text-slate-500">{relatedGig.duration}</span>
+                  <span class="text-emerald-fg font-bold">{relatedGig.budget}</span>
+                  <span class="text-fg-subtle">{relatedGig.duration}</span>
                 </div>
               </a>
             ))
@@ -359,7 +349,7 @@ const gigCategoryColors: Record<string, string> = {
         <div class="text-center mt-8">
           <a
             href="/career/gigs"
-            class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-full hover:bg-slate-800 transition"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-inverse text-on-solid font-bold rounded-full hover:bg-inverse-muted transition"
           >
             View All Gigs
             <i class="fa-solid fa-arrow-right"></i>

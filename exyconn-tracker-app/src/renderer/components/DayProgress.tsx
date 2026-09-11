@@ -3,8 +3,7 @@ import { Box, LinearProgress, Stack, Tooltip, Typography, iconSize } from '@exyc
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import type { ProgressStyle, WorkProfile, Workday } from '@shared/types';
 import ProgressRing from './ProgressRing';
-import { formatHoursMinutes } from '../format';
-import { DEFAULT_WORK_HOURS } from '../work-day';
+import { DEFAULT_WORK_HOURS, formatHoursMinutes } from '@exyconn/tracker-core';
 
 interface Props {
   workday: Workday | null;

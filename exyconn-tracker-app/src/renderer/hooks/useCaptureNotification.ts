@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { dayBoundsOfInstant } from '../time';
+import { dayBoundsOfInstant } from '@exyconn/tracker-core';
 import { run } from '../run';
 
 /**

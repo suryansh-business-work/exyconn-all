@@ -64,7 +64,9 @@ export function MyLeavePage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'You have no leave requests yet.'}
+          emptyMessage="You have no leave requests yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

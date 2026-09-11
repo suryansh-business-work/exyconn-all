@@ -2,8 +2,9 @@
  * Form controls.
  *
  * Every value here is a semantic token, which is why this file no longer carries a `.dark`
- * twin of each rule: the tokens themselves flip inside `.dark` (see tokens/modes/), so one
- * rule paints both modes. The duplicated dark blocks this replaced had already drifted —
+ * twin of each rule: the tokens themselves flip under `[data-theme="dark"]` (see
+ * tokens/semantic.tokens.ts), so one rule paints both modes. The duplicated dark blocks
+ * this replaced had already drifted —
  * one of their selectors was mis-typed and had never matched anything.
  */
 
@@ -17,12 +18,12 @@ select,
 textarea {
   width: 100%;
   border-radius: var(--radius-lg);
-  border: var(--border-width-thick) solid var(--color-border-subtle);
+  border: var(--border-width-thick) solid var(--color-line);
   background: var(--color-field-bg);
   font-size: var(--font-size-md);
-  color: var(--color-text-primary);
+  color: var(--color-fg);
   transition: var(--transition-surface);
-  box-shadow: 0 2px 8px 0 var(--tint-brand-faint);
+  box-shadow: 0 2px 8px 0 var(--color-primary-faint);
   outline: none;
 
   &:focus {
@@ -32,7 +33,7 @@ textarea {
   }
 
   &::placeholder {
-    color: var(--color-text-placeholder);
+    color: var(--color-fg-placeholder);
     opacity: 1;
     font-weight: var(--font-weight-regular);
   }
@@ -44,7 +45,7 @@ input[type="checkbox"] {
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
-  border: var(--border-width-heavy) solid var(--color-border-subtle);
+  border: var(--border-width-heavy) solid var(--color-line);
   border-radius: 0.35em;
   background: var(--color-field-bg);
   outline: none;
@@ -72,7 +73,7 @@ input[type="checkbox"] {
     top: 0.08em;
     width: 0.3em;
     height: 0.6em;
-    border: solid var(--color-text-on-primary);
+    border: solid var(--color-on-primary);
     border-width: 0 0.18em 0.18em 0;
     transform: rotate(45deg);
   }
@@ -83,7 +84,7 @@ label {
   margin-bottom: var(--space-2);
   margin-top: var(--space-2);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--color-fg);
   letter-spacing: 0.01em;
   font-size: var(--font-size-md);
   cursor: pointer;
@@ -102,7 +103,7 @@ input[type="button"] {
   font-size: var(--font-size-md);
   border: none;
   cursor: pointer;
-  box-shadow: 0 2px 8px 0 var(--tint-brand-subtle);
+  box-shadow: 0 2px 8px 0 var(--color-primary-subtle);
   letter-spacing: 0.01em;
   transition:
     var(--transition-surface),
@@ -112,8 +113,8 @@ input[type="button"] {
   &:hover,
   &:focus {
     background: var(--color-primary-hover);
-    color: var(--color-text-on-primary);
-    box-shadow: 0 4px 16px 0 var(--tint-brand-soft);
+    color: var(--color-on-primary);
+    box-shadow: 0 4px 16px 0 var(--color-primary-soft);
     outline: none;
     transform: translateY(-2px) scale(1.03);
   }
@@ -125,7 +126,7 @@ input[type="button"] {
 
   &:disabled {
     background: var(--color-surface-disabled);
-    color: var(--color-text-disabled);
+    color: var(--color-fg-disabled);
     cursor: not-allowed;
     box-shadow: var(--shadow-none);
   }

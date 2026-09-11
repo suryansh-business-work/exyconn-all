@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { EMAIL } from '@exyconn/regex';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -8,7 +9,7 @@ import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvid
 import { useSendTestEmailMutation } from '@exyconn/shell/graphql/generated';
 
 const schema = z.object({
-  to: z.string().trim().min(1, 'Recipient email is required').email('Enter a valid email'),
+  to: z.string().trim().min(1, 'Recipient email is required').regex(EMAIL, 'Enter a valid email'),
 });
 type Values = z.infer<typeof schema>;
 

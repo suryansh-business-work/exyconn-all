@@ -30,7 +30,7 @@ describe('AnnouncementForm', () => {
     mount();
     cy.get('input[name="title"]').type('Diwali holiday');
     cy.get('textarea[name="body"]').first().type('Office closed.');
-    cy.get('input[name="expiresAt"]').clear().type('01/01/2000');
+    cy.get('input[name="expiresAt"]').typeDate('01012000');
     cy.contains('button', 'Create').click();
     cy.contains('Expiry must be after the publish date').should('be.visible');
   });

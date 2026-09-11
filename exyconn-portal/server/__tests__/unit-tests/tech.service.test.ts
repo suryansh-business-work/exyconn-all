@@ -4,6 +4,7 @@ import { ImageConfigModel } from '../../src/modules/tech/image-config.model';
 import { SlackConfigModel } from '../../src/modules/tech/slack-config.model';
 import { GithubConfigModel } from '../../src/modules/tech/github-config.model';
 import { InboundMailConfigModel } from '../../src/modules/tech/inbound-mail-config.model';
+import { githubActions } from '../../src/utils/github';
 
 const emailInput = {
   label: 'Primary',
@@ -145,6 +146,18 @@ describe('TechService', () => {
 
   it('refuses a build with no platform chosen', async () => {
     await expect(techService.startTrackerBuild([], 'main')).rejects.toThrow();
+  });
+
+  it('passes the phone platforms to the build workflow as the inputs it accepts', async () => {
+    const dispatch = jest.spyOn(githubActions, 'dispatchTrackerBuild').mockResolvedValue();
+    await techService.saveTrackerBuildSettings(['C001']);
+
+    await techService.startTrackerBuild(['WINDOWS', 'ANDROID', 'IOS'], 'main');
+
+    expect(dispatch).toHaveBeenCalledWith('main', {
+      platforms: 'windows,android,ios',
+      slack_channels: 'C001',
+    });
   });
 
   it('keeps a single active inbound mailbox', async () => {

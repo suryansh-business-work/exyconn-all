@@ -18,7 +18,7 @@ import ReportDownloadButton from '../components/ReportDownloadButton';
 import ReportMonthChart from '../components/ReportMonthChart';
 import ReportTable from '../components/ReportTable';
 import ReportTotals from '../components/ReportTotals';
-import { formatMonthLabel } from '../time';
+import { formatMonthLabel } from '@exyconn/tracker-core';
 import useMyDay from '../hooks/useMyDay';
 import useMyReport from '../hooks/useMyReport';
 

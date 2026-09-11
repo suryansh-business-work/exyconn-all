@@ -80,7 +80,9 @@ export function EmployeeLeavePanel({ employeeId }: { employeeId: string }) {
         columns={columns}
         rows={rows}
         actions={actions}
-        emptyMessage={loading ? 'Loading…' : 'No leave requests.'}
+        emptyMessage="No leave requests."
+        loading={loading}
+        onRefresh={refetch}
       />
     </Box>
   );

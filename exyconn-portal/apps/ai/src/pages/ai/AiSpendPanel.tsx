@@ -27,6 +27,7 @@ const MODEL_COLUMNS: Column<ModelSpend>[] = [
 interface AiSpendPanelProps {
   summary?: Summary;
   loading: boolean;
+  onRefresh: () => Promise<unknown>;
   /** How the window is described above the tables, e.g. "this month". */
   periodLabel: string;
 }
@@ -38,8 +39,13 @@ interface AiSpendPanelProps {
  * less, by person is who to talk to. Runs on models with no price on file contribute
  * nothing, so a total that looks low usually means a missing price rather than a quiet month.
  */
-export function AiSpendPanel({ summary, loading, periodLabel }: Readonly<AiSpendPanelProps>) {
-  const empty = loading ? 'Loading…' : 'Nothing spent in this period.';
+export function AiSpendPanel({
+  summary,
+  loading,
+  onRefresh,
+  periodLabel,
+}: Readonly<AiSpendPanelProps>) {
+  const empty = 'Nothing spent in this period.';
   const userRows: UserSpend[] = (summary?.byUser ?? []).map((row) => ({
     ...row,
     id: row.userId || 'unattributed',
@@ -63,7 +69,13 @@ export function AiSpendPanel({ summary, loading, periodLabel }: Readonly<AiSpend
             md: 6,
           }}
         >
-          <DataTable columns={USER_COLUMNS} rows={userRows} emptyMessage={empty} />
+          <DataTable
+            columns={USER_COLUMNS}
+            rows={userRows}
+            emptyMessage={empty}
+            loading={loading}
+            onRefresh={onRefresh}
+          />
         </Grid>
         <Grid
           size={{
@@ -71,7 +83,13 @@ export function AiSpendPanel({ summary, loading, periodLabel }: Readonly<AiSpend
             md: 6,
           }}
         >
-          <DataTable columns={MODEL_COLUMNS} rows={modelRows} emptyMessage={empty} />
+          <DataTable
+            columns={MODEL_COLUMNS}
+            rows={modelRows}
+            emptyMessage={empty}
+            loading={loading}
+            onRefresh={onRefresh}
+          />
         </Grid>
       </Grid>
     </Box>

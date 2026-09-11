@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { GITHUB_NAME } from '@exyconn/regex';
 import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -15,21 +16,18 @@ const BOOL_OPTIONS: SelectOption[] = [
   { value: 'false', label: 'No' },
 ];
 
-/** GitHub owners and repository names allow letters, digits, dot, dash and underscore. */
-const NAME_PATTERN = /^[\w.-]+$/;
-
 const schema = z.object({
   label: z.string().trim().min(1, 'Label is required'),
   owner: z
     .string()
     .trim()
     .min(1, 'Owner is required')
-    .regex(NAME_PATTERN, 'Use the owner exactly as it appears in the repository URL'),
+    .regex(GITHUB_NAME, 'Use the owner exactly as it appears in the repository URL'),
   repo: z
     .string()
     .trim()
     .min(1, 'Repository is required')
-    .regex(NAME_PATTERN, 'Use the repository name exactly as it appears in its URL'),
+    .regex(GITHUB_NAME, 'Use the repository name exactly as it appears in its URL'),
   token: z.string().trim().min(1, 'Access token is required'),
   isActive: z.enum(['true', 'false']),
 });

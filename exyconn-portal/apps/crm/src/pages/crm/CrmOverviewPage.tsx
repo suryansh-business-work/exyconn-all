@@ -31,7 +31,7 @@ export function CrmOverviewPage() {
   const { data: companyStats } = useListCompaniesStatsQuery();
   const { data: contactStats } = useListContactsStatsQuery();
   const { data: forecastData } = useDealForecastQuery();
-  const { data: leadsData, loading } = useListLeadsQuery();
+  const { data: leadsData, loading, refetch } = useListLeadsQuery();
 
   const source: CrmOverviewSource = {
     leads: leadStats?.listLeadsStats,
@@ -58,7 +58,9 @@ export function CrmOverviewPage() {
       <DataTable
         columns={COLUMNS}
         rows={leads.slice(0, RECENT_LEADS)}
-        emptyMessage={loading ? 'Loading…' : 'No leads yet.'}
+        emptyMessage="No leads yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleOverview>
   );

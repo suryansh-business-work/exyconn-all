@@ -11,12 +11,12 @@ const {
 ---
 
 <section class="max-w-5xl mx-auto px-4 py-12">
-  <h2 class="text-2xl font-bold text-cyan-700 mb-8 text-center">
+  <h2 class="text-2xl font-bold text-cyan-fg-strong mb-8 text-center">
     {title}
   </h2>
   <div class="overflow-x-auto">
     <table
-      class="min-w-full bg-gradient-to-br from-white via-cyan-50 to-indigo-50 rounded-2xl shadow-xl text-left border-separate border-spacing-0"
+      class="min-w-full bg-gradient-to-br from-surface via-cyan-subtle to-indigo-subtle rounded-2xl shadow-xl text-left border-separate border-spacing-0"
     >
       <thead>
         <tr>
@@ -25,10 +25,10 @@ const {
               <th
                 class={`px-6 py-4 font-semibold text-lg ${
                   idx === 0
-                    ? "bg-cyan-500/90 text-white rounded-tl-2xl"
+                    ? "bg-cyan/90 text-on-solid rounded-tl-2xl"
                     : idx === headers.length - 1
-                      ? "bg-indigo-500/90 text-white rounded-tr-2xl"
-                      : "bg-cyan-400/90 text-white"
+                      ? "bg-indigo/90 text-on-solid rounded-tr-2xl"
+                      : "bg-cyan/90 text-on-solid"
                 }`}
               >
                 {header}
@@ -40,10 +40,10 @@ const {
       <tbody class="text-base">
         {
           rows.map((row: unknown[], rowIdx: number) => (
-            <tr class={rowIdx % 2 === 1 ? "bg-white/70" : "bg-cyan-50/60"}>
+            <tr class={rowIdx % 2 === 1 ? "bg-surface/70" : "bg-cyan-subtle/60"}>
               {row.map((cell: unknown, _cellIdx: number) => (
-                <td class="px-6 py-4 border-t align-top border-gray-100">
-                  <span class="text-gray-800">{cell}</span>
+                <td class="px-6 py-4 border-t align-top border-line-subtle">
+                  <span class="text-fg">{cell}</span>
                 </td>
               ))}
             </tr>

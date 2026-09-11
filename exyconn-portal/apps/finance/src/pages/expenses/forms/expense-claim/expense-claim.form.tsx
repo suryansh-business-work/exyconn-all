@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { HTTP_URL } from '@exyconn/regex';
 import {
   RhfTextField,
   RhfSelect,
@@ -25,7 +26,11 @@ const schema = z.object({
   amount: z.coerce.number({ message: 'Amount must be a number' }).min(0, 'Must be ≥ 0'),
   currency: z.string().trim().min(1, 'Currency is required'),
   incurredOn: z.string().min(1, 'Incurred on is required'),
-  receiptUrl: z.string().trim(),
+  receiptUrl: z
+    .string()
+    .trim()
+    .regex(HTTP_URL, 'Enter a full URL starting with https://')
+    .or(z.literal('')),
   status: z.nativeEnum(ExpenseStatus),
   approvedAmount: z.union([z.literal(''), z.coerce.number().min(0, 'Must be ≥ 0')]),
 });

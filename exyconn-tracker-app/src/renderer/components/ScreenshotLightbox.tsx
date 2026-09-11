@@ -5,8 +5,7 @@ import CloseRounded from '@mui/icons-material/CloseRounded';
 import ChevronLeftRounded from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded';
 import type { DayScreenshot } from '@shared/types';
-import { activityColor, activityLabel } from '../activity';
-import { formatDateTime } from '../time';
+import { activityColor, activityLabel, formatDateTime } from '@exyconn/tracker-core';
 
 interface Props {
   shots: readonly DayScreenshot[];

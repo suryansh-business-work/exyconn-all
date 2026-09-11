@@ -61,7 +61,9 @@ export function SignBoardPage() {
             onClick: setSignTarget,
           },
         ]}
-        emptyMessage={loading ? 'Loading…' : 'No contracts to sign.'}
+        emptyMessage="No contracts to sign."
+        loading={loading}
+        onRefresh={refetch}
       />
       <CrudDialog
         open={Boolean(signTarget)}

@@ -20,7 +20,7 @@
 <button
   id="a11y-open-btn"
   type="button"
-  class="fixed left-4 bottom-20 z-[9999] w-12 h-12 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 flex items-center justify-center cursor-pointer"
+  class="fixed left-4 bottom-20 z-[9999] w-12 h-12 rounded-full bg-blue-strong text-on-solid shadow-lg hover:bg-blue-deep focus:outline-none focus:ring-4 focus:ring-blue-muted transition-all duration-200 flex items-center justify-center cursor-pointer"
   aria-label="Open accessibility options"
   aria-controls="a11y-drawer"
   aria-expanded="false"
@@ -31,7 +31,7 @@
 <!-- Backdrop -->
 <div
   id="a11y-backdrop"
-  class="fixed inset-0 bg-black/40 z-[10000] opacity-0 pointer-events-none transition-opacity duration-300"
+  class="fixed inset-0 bg-scrim/40 z-[10000] opacity-0 pointer-events-none transition-opacity duration-300"
   aria-hidden="true"
 >
 </div>
@@ -39,7 +39,7 @@
 <!-- Drawer -->
 <aside
   id="a11y-drawer"
-  class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white shadow-2xl z-[10001] translate-x-full transition-transform duration-300 ease-out flex flex-col"
+  class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-surface shadow-2xl z-[10001] translate-x-full transition-transform duration-300 ease-out flex flex-col"
   role="dialog"
   aria-modal="true"
   aria-labelledby="a11y-drawer-title"
@@ -47,21 +47,21 @@
 >
   <!-- Header -->
   <div
-    class="flex items-center justify-between p-5 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+    class="flex items-center justify-between p-5 border-b border-line-subtle bg-gradient-to-r from-blue-strong to-indigo-strong text-on-solid"
   >
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+      <div class="w-10 h-10 rounded-xl bg-on-solid/20 flex items-center justify-center">
         <i class="fa-solid fa-universal-access text-xl" aria-hidden="true"></i>
       </div>
       <div>
         <h2 id="a11y-drawer-title" class="text-lg font-bold">Accessibility</h2>
-        <p class="text-xs text-white/80">Customize your viewing experience</p>
+        <p class="text-xs text-on-solid/80">Customize your viewing experience</p>
       </div>
     </div>
     <button
       id="a11y-close-btn"
       type="button"
-      class="w-9 h-9 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-white"
+      class="w-9 h-9 rounded-lg bg-on-solid/15 hover:bg-on-solid/25 flex items-center justify-center transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-on-solid"
       aria-label="Close accessibility panel"
     >
       <i class="fa-solid fa-times" aria-hidden="true"></i>
@@ -74,12 +74,12 @@
     <section>
       <div class="flex items-center justify-between mb-3">
         <div>
-          <h3 class="text-sm font-semibold text-gray-900">Text size</h3>
-          <p class="text-xs text-gray-500">Scale all text on the site</p>
+          <h3 class="text-sm font-semibold text-fg">Text size</h3>
+          <p class="text-xs text-fg-subtle">Scale all text on the site</p>
         </div>
         <span
           id="a11y-font-label"
-          class="text-xs font-mono px-2 py-1 rounded-md bg-gray-100 text-gray-700"
+          class="text-xs font-mono px-2 py-1 rounded-md bg-surface-muted text-fg-secondary"
         >
           100%
         </span>
@@ -88,7 +88,7 @@
         <button
           type="button"
           data-a11y-font="dec"
-          class="flex-1 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300"
+          class="flex-1 py-2 rounded-lg border border-line hover:bg-surface-subtle text-fg-secondary font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-muted"
           aria-label="Decrease text size"
         >
           <i class="fa-solid fa-minus" aria-hidden="true"></i>
@@ -96,14 +96,14 @@
         <button
           type="button"
           data-a11y-font="reset"
-          class="flex-1 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300"
+          class="flex-1 py-2 rounded-lg border border-line hover:bg-surface-subtle text-fg-secondary text-sm font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-muted"
         >
           Default
         </button>
         <button
           type="button"
           data-a11y-font="inc"
-          class="flex-1 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300"
+          class="flex-1 py-2 rounded-lg border border-line hover:bg-surface-subtle text-fg-secondary font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-muted"
           aria-label="Increase text size"
         >
           <i class="fa-solid fa-plus" aria-hidden="true"></i>
@@ -113,21 +113,21 @@
 
     <!-- Toggle options -->
     <section>
-      <h3 class="text-sm font-semibold text-gray-900 mb-3">Visual adjustments</h3>
+      <h3 class="text-sm font-semibold text-fg mb-3">Visual adjustments</h3>
       <ul class="space-y-2">
         <li>
           <label
-            class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+            class="flex items-center justify-between p-3 rounded-xl border border-line hover:border-blue-muted cursor-pointer transition-colors"
           >
             <span class="flex items-center gap-3">
               <span
-                class="w-9 h-9 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center"
+                class="w-9 h-9 rounded-lg bg-amber-soft text-amber-fg flex items-center justify-center"
               >
                 <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
               </span>
               <span>
-                <span class="block text-sm font-medium text-gray-900">High contrast</span>
-                <span class="block text-xs text-gray-500">Boost contrast for readability</span>
+                <span class="block text-sm font-medium text-fg">High contrast</span>
+                <span class="block text-xs text-fg-subtle">Boost contrast for readability</span>
               </span>
             </span>
             <input type="checkbox" data-a11y-toggle="contrast" class="a11y-switch" />
@@ -135,17 +135,17 @@
         </li>
         <li>
           <label
-            class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+            class="flex items-center justify-between p-3 rounded-xl border border-line hover:border-blue-muted cursor-pointer transition-colors"
           >
             <span class="flex items-center gap-3">
               <span
-                class="w-9 h-9 rounded-lg bg-gray-200 text-gray-700 flex items-center justify-center"
+                class="w-9 h-9 rounded-lg bg-surface-strong text-fg-secondary flex items-center justify-center"
               >
                 <i class="fa-solid fa-droplet-slash" aria-hidden="true"></i>
               </span>
               <span>
-                <span class="block text-sm font-medium text-gray-900">Grayscale</span>
-                <span class="block text-xs text-gray-500">Remove colors</span>
+                <span class="block text-sm font-medium text-fg">Grayscale</span>
+                <span class="block text-xs text-fg-subtle">Remove colors</span>
               </span>
             </span>
             <input type="checkbox" data-a11y-toggle="grayscale" class="a11y-switch" />
@@ -153,17 +153,17 @@
         </li>
         <li>
           <label
-            class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+            class="flex items-center justify-between p-3 rounded-xl border border-line hover:border-blue-muted cursor-pointer transition-colors"
           >
             <span class="flex items-center gap-3">
               <span
-                class="w-9 h-9 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center"
+                class="w-9 h-9 rounded-lg bg-blue-soft text-blue-fg flex items-center justify-center"
               >
                 <i class="fa-solid fa-link" aria-hidden="true"></i>
               </span>
               <span>
-                <span class="block text-sm font-medium text-gray-900">Highlight links</span>
-                <span class="block text-xs text-gray-500">Underline all links</span>
+                <span class="block text-sm font-medium text-fg">Highlight links</span>
+                <span class="block text-xs text-fg-subtle">Underline all links</span>
               </span>
             </span>
             <input type="checkbox" data-a11y-toggle="links" class="a11y-switch" />
@@ -171,17 +171,17 @@
         </li>
         <li>
           <label
-            class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+            class="flex items-center justify-between p-3 rounded-xl border border-line hover:border-blue-muted cursor-pointer transition-colors"
           >
             <span class="flex items-center gap-3">
               <span
-                class="w-9 h-9 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center"
+                class="w-9 h-9 rounded-lg bg-purple-soft text-purple-fg flex items-center justify-center"
               >
                 <i class="fa-solid fa-font" aria-hidden="true"></i>
               </span>
               <span>
-                <span class="block text-sm font-medium text-gray-900">Readable font</span>
-                <span class="block text-xs text-gray-500">Use a dyslexia-friendly font</span>
+                <span class="block text-sm font-medium text-fg">Readable font</span>
+                <span class="block text-xs text-fg-subtle">Use a dyslexia-friendly font</span>
               </span>
             </span>
             <input type="checkbox" data-a11y-toggle="readable" class="a11y-switch" />
@@ -189,17 +189,17 @@
         </li>
         <li>
           <label
-            class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+            class="flex items-center justify-between p-3 rounded-xl border border-line hover:border-blue-muted cursor-pointer transition-colors"
           >
             <span class="flex items-center gap-3">
               <span
-                class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center"
+                class="w-9 h-9 rounded-lg bg-emerald-soft text-emerald-fg flex items-center justify-center"
               >
                 <i class="fa-solid fa-pause" aria-hidden="true"></i>
               </span>
               <span>
-                <span class="block text-sm font-medium text-gray-900">Pause animations</span>
-                <span class="block text-xs text-gray-500">Reduce motion site-wide</span>
+                <span class="block text-sm font-medium text-fg">Pause animations</span>
+                <span class="block text-xs text-fg-subtle">Reduce motion site-wide</span>
               </span>
             </span>
             <input type="checkbox" data-a11y-toggle="motion" class="a11y-switch" />
@@ -207,17 +207,17 @@
         </li>
         <li>
           <label
-            class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors"
+            class="flex items-center justify-between p-3 rounded-xl border border-line hover:border-blue-muted cursor-pointer transition-colors"
           >
             <span class="flex items-center gap-3">
               <span
-                class="w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center"
+                class="w-9 h-9 rounded-lg bg-rose-soft text-rose-fg flex items-center justify-center"
               >
                 <i class="fa-solid fa-arrow-pointer" aria-hidden="true"></i>
               </span>
               <span>
-                <span class="block text-sm font-medium text-gray-900">Larger cursor</span>
-                <span class="block text-xs text-gray-500">Easier pointer tracking</span>
+                <span class="block text-sm font-medium text-fg">Larger cursor</span>
+                <span class="block text-xs text-fg-subtle">Easier pointer tracking</span>
               </span>
             </span>
             <input type="checkbox" data-a11y-toggle="cursor" class="a11y-switch" />
@@ -228,17 +228,17 @@
   </div>
 
   <!-- Footer actions -->
-  <div class="p-4 border-t border-gray-100 bg-gray-50 flex items-center gap-3">
+  <div class="p-4 border-t border-line-subtle bg-surface-subtle flex items-center gap-3">
     <button
       id="a11y-reset-btn"
       type="button"
-      class="flex-1 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm font-medium hover:bg-gray-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300"
+      class="flex-1 py-2.5 rounded-xl border border-line bg-surface text-fg-secondary text-sm font-medium hover:bg-surface-muted cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-muted"
     >
       <i class="fa-solid fa-rotate-left mr-2" aria-hidden="true"></i>Reset all
     </button>
     <a
       href="/contact"
-      class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold text-center hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-blue-300"
+      class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-blue-strong to-indigo-strong text-on-solid text-sm font-semibold text-center hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-blue-muted"
     >
       Get help
     </a>
@@ -297,7 +297,7 @@
     min-width: 44px !important;
     border: none !important;
     border-radius: var(--radius-pill) !important;
-    background: var(--palette-gray-300) !important;
+    background: var(--color-surface-strong) !important;
     position: relative !important;
     cursor: pointer !important;
     transition:
@@ -306,7 +306,7 @@
     flex-shrink: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
-    box-shadow: inset 0 1px 2px color-mix(in srgb, var(--palette-neutral-1000) 10%, transparent) !important;
+    box-shadow: inset 0 1px 2px color-mix(in srgb, var(--color-scrim) 10%, transparent) !important;
     vertical-align: middle !important;
   }
   input[type="checkbox"].a11y-switch::before,
@@ -322,19 +322,19 @@
     width: 20px !important;
     height: 20px !important;
     border-radius: var(--radius-pill) !important;
-    background: var(--palette-neutral-0) !important;
-    box-shadow: 0 1px 3px color-mix(in srgb, var(--palette-neutral-1000) 20%, transparent) !important;
+    background: var(--color-surface) !important;
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--color-scrim) 20%, transparent) !important;
     transition: transform 0.2s !important;
   }
   input[type="checkbox"].a11y-switch:checked {
-    background: var(--palette-blue-600) !important;
+    background: var(--color-blue-strong) !important;
     border: none !important;
   }
   input[type="checkbox"].a11y-switch:checked::after {
     transform: translateX(20px) !important;
   }
   input[type="checkbox"].a11y-switch:focus-visible {
-    outline: 2px solid var(--palette-blue-500) !important;
+    outline: 2px solid var(--color-blue) !important;
     outline-offset: 2px !important;
   }
 </style>

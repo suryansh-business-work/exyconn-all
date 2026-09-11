@@ -34,7 +34,7 @@ function warrantyEndingSoon(asset: { warrantyExpiry?: string | null }): boolean 
 /** IT → Overview: what the company owns, who holds it, and what needs attention. */
 export function ItOverviewPage() {
   const { data: statsData } = useListAssetsStatsQuery();
-  const { data: assetsData, loading } = useListAssetsQuery();
+  const { data: assetsData, loading, refetch } = useListAssetsQuery();
   const { data: licencesData } = useListLicencesQuery();
   const { formatDate } = useSettings();
 
@@ -97,7 +97,9 @@ export function ItOverviewPage() {
       <DataTable
         columns={columns}
         rows={rows.slice(0, RECENT_ASSETS)}
-        emptyMessage={loading ? 'Loading…' : 'No assets yet.'}
+        emptyMessage="No assets yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleOverview>
   );

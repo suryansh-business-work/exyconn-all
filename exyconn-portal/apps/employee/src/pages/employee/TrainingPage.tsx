@@ -69,7 +69,9 @@ export function TrainingPage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'No training assigned to you yet.'}
+          emptyMessage="No training assigned to you yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { HTTP_URL } from '@exyconn/regex';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -17,7 +18,7 @@ const schema = z.object({
   title: z.string().trim().min(1, 'Title is required'),
   category: z.nativeEnum(DocumentCategory),
   owner: z.string().trim().max(120, 'Keep the owner under 120 characters'),
-  fileUrl: z.union([z.literal(''), z.string().trim().url('Enter a valid URL')]),
+  fileUrl: z.union([z.literal(''), z.string().trim().regex(HTTP_URL, 'Enter a valid URL')]),
   status: z.nativeEnum(DocumentStatus),
 });
 type Values = z.infer<typeof schema>;

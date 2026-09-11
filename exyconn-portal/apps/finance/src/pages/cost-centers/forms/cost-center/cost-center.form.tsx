@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { CODE } from '@exyconn/regex';
 import { RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -16,7 +17,7 @@ const schema = z.object({
     .trim()
     .min(2, 'Code must be at least 2 characters')
     .max(12, 'Keep the code short — it is quoted, not read')
-    .regex(/^[A-Za-z0-9-]+$/, 'Letters, digits and hyphens only'),
+    .regex(CODE, 'Letters, digits and hyphens only'),
   name: z.string().trim().min(1, 'Name is required'),
   description: z.string().trim(),
   isActive: z.boolean(),

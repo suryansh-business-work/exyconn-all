@@ -37,4 +37,4 @@ fi
 [ -z "$level" ] && level=patch
 
 node scripts/bump-version.mjs "$level" || exit 1
-git add exyconn-tracker-app/package.json
+git add exyconn-tracker-app/package.json exyconn-tracker-mobile/package.json

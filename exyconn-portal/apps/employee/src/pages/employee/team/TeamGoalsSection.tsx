@@ -55,7 +55,9 @@ export function TeamGoalsSection({ nameOf }: Readonly<TeamSectionProps>) {
         columns={columns}
         rows={rows}
         actions={actions}
-        emptyMessage={loading ? 'Loading…' : 'No goals are set for your team.'}
+        emptyMessage="No goals are set for your team."
+        loading={loading}
+        onRefresh={refetch}
       />
       <CrudDialog
         open={commenting !== null}

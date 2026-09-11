@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { NetworkStatus } from '@apollo/client';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Alert, Box, CircularProgress, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { useDockerContainersQuery } from '@exyconn/shell/graphql/generated';
@@ -46,7 +47,7 @@ const COLUMNS: Column<ContainerRow>[] = [
 
 /** The Containers tab: every container on the host, and one click to its full inspect. */
 export function ContainersPanel() {
-  const { data, loading, error } = useDockerContainersQuery({
+  const { data, loading, error, refetch, networkStatus } = useDockerContainersQuery({
     fetchPolicy: 'cache-and-network',
     pollInterval: POLL_MS,
   });
@@ -68,13 +69,14 @@ export function ContainersPanel() {
 
   return (
     <Box>
-      {loading && rows.length === 0 && <CircularProgress size={24} />}
       <DataTable
         columns={COLUMNS}
         rows={rows}
         actions={actions}
         onRowClick={(row) => setSelected(row)}
-        emptyMessage={loading ? 'Reading the Docker engine…' : 'No containers on this host.'}
+        emptyMessage="No containers on this host."
+        loading={loading && networkStatus !== NetworkStatus.poll}
+        onRefresh={refetch}
       />
       <ContainerDetailDialog
         containerId={selected?.id ?? null}

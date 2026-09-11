@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { EMAIL, HTTP_URL } from '@exyconn/regex';
 import { ProblemCategory, ProblemSeverity } from '@exyconn/shell/graphql/generated';
 
 /**
@@ -28,12 +29,12 @@ export const reportProblemSchema = z.object({
     .string()
     .trim()
     .min(1, 'Email is required')
-    .email('Enter a valid email address so we can reply'),
+    .regex(EMAIL, 'Enter a valid email address so we can reply'),
   pageUrl: z
     .string()
     .trim()
     .max(500, 'That URL is too long')
-    .refine((url) => url === '' || url.startsWith('http'), {
+    .refine((url) => url === '' || HTTP_URL.test(url), {
       message: 'Enter the full address, starting with http',
     }),
 });

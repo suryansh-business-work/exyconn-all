@@ -38,7 +38,9 @@ export function TeamLeaveSection({ nameOf }: Readonly<TeamSectionProps>) {
           (row) => decide(row, LeaveStatus.Approved),
           (row) => decide(row, LeaveStatus.Rejected),
         )}
-        emptyMessage={loading ? 'Loading…' : 'No leave requests from your team.'}
+        emptyMessage="No leave requests from your team."
+        loading={loading}
+        onRefresh={refetch}
       />
     </Box>
   );

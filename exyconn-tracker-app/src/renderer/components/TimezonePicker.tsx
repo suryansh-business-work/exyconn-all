@@ -10,7 +10,7 @@ import {
   TRACKER_RADIUS,
   Typography,
 } from '@exyconn/ui';
-import { formatTimeOfDay, offsetLabel, timezoneNames } from '../time';
+import { formatTimeOfDay, offsetLabel, timezoneNames } from '@exyconn/tracker-core';
 
 interface Props {
   /** The zone in force: this employee's pick, else the admin default, else this device's. */
@@ -104,6 +104,7 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
             fullWidth
             helperText={`Every date and time in this app is shown in this zone (${offsetLabel(timezone)}).`}
             slotProps={{
+              ...params.slotProps,
               input: {
                 ...params.slotProps.input,
                 endAdornment: (

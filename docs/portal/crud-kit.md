@@ -238,6 +238,30 @@ page — Departments, Positions, Nav links, the Tech panels. Pass the list query
 `refetch`, ignore `refreshSignal`, and wire `onEdit={crud.openEdit}` /
 `onDelete={crud.remove}` on `DataTable`.
 
+Every `DataTable` also takes the list query's `loading` and `refetch`:
+`loading={loading} onRefresh={refetch}`. `loading` swaps the rows for skeleton rows (so
+no row action can be clicked mid-fetch) and `onRefresh` adds a Refresh button that is
+disabled while loading. Leave "Loading…" out of `emptyMessage` — the skeleton says it. A
+query that polls passes `loading && networkStatus !== NetworkStatus.poll`, so a background
+poll does not blank the table every interval.
+
+## Loading, refresh and locking in `ServerDataGrid`
+
+Every server-paged grid gets these without any module code:
+
+- **Skeleton rows.** The default column's `cellRendererSelector` draws a skeleton in every
+  cell of a row whose page has not arrived; it wins over the column's own renderer, so
+  column factories never see a row without `data`.
+- **Locked while loading.** While any page request is in flight the grid is `inert`: the
+  search box, Refresh, sort headers, column filters, pager and row actions all ignore
+  input, so nothing queues behind the running request. Whatever held focus gets it back
+  when the rows arrive.
+- **Refresh button** beside the search box, re-reading the current page from the server.
+- **Debounced input.** The search box and text filters wait `SEARCH_DEBOUNCE_MS` (300 ms)
+  of quiet before querying, and a search that trims to what was already loaded — the
+  empty box on mount, say — does not query at all.
+- **Load failures** show an error above the grid until a later request succeeds.
+
 ## Tests
 
 `packages/crud/__tests__/unit-tests/columns.test.ts` covers the column factories: which

@@ -75,7 +75,9 @@ export function EmailConfigsPanel() {
         actions={actions}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
-        emptyMessage={loading ? 'Loading…' : 'No email configs yet.'}
+        emptyMessage="No email configs yet."
+        loading={loading}
+        onRefresh={refetch}
       />
       <CrudDialog
         open={Boolean(testTarget)}

@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { DOMAIN, PHONE } from '@exyconn/regex';
 import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -19,20 +20,18 @@ const SIZE_OPTIONS: SelectOption[] = COMPANY_SIZES.map((size) => ({
   label: `${size} people`,
 }));
 
-/** A domain, not a URL — "exyconn.com", so two rows for one company are avoidable. */
-const DOMAIN_PATTERN = /^[a-z0-9-]+(\.[a-z0-9-]+)+$/i;
-
 const schema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
+  /** A domain, not a URL — "exyconn.com", so two rows for one company are avoidable. */
   domain: z
     .string()
     .trim()
     .min(1, 'Domain is required')
-    .regex(DOMAIN_PATTERN, 'Enter the domain on its own, e.g. exyconn.com'),
+    .regex(DOMAIN, 'Enter the domain on its own, e.g. exyconn.com'),
   industry: z.string().trim(),
   size: z.enum(COMPANY_SIZES),
   status: z.nativeEnum(CompanyStatus),
-  phone: z.string().trim(),
+  phone: z.string().trim().regex(PHONE, 'Enter a valid phone number').or(z.literal('')),
   location: z.string().trim(),
   owner: z.string().trim().min(1, 'Owner is required'),
   notes: z.string().trim(),

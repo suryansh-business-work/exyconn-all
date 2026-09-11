@@ -1,0 +1,837 @@
+import type { CaptureReport, ComposeInput, EngineHooks, TrackerEngine } from './engine';
+import type { PortalClient, TrackerMeResponse } from './portal/client';
+import { describeLoginFailure } from './portal/login-message';
+import { TrackerAuthError } from './portal/portal-error';
+import { describeSyncFailure } from './portal/sync-message';
+import { isAwayPresence } from './presence';
+import { decideAutoAction, formatHourLabel, hourIn, isWithinWindow } from './schedule';
+import { deviceTimezone, effectiveTimezone } from './timezone';
+import type {
+  AttendanceStatus,
+  AuthUser,
+  Branding,
+  ConsentPolicy,
+  DayDetail,
+  DeviceInfo,
+  LiveStats,
+  LoginResult,
+  ManualEntry,
+  ManualEntryDraft,
+  PresenceState,
+  PresenceStatus,
+  ReportDay,
+  TrackerMessage,
+  TrackerMessageKind,
+  TrackerProject,
+  TrackerSettings,
+  TrackerStatus,
+  TrackerTask,
+  TrackerTotals,
+  WorkProfile,
+  Workday,
+} from './types';
+
+/**
+ * How often the app checks in with the portal while signed in. Fast enough that the Devices
+ * console's "last seen" means something and an admin's settings change lands within a
+ * minute; slow enough to be one small request per employee per minute.
+ */
+const PORTAL_POLL_MS = 60_000;
+
+/**
+ * The full snapshot a tracker UI renders from.
+ *
+ * `Permissions` and `Preferences` are the two parts that belong to the app rather than the
+ * portal: the OS grants it needs (macOS TCC on a desktop, usage access and notifications on a
+ * phone), and the choices this install has made about its own behaviour.
+ */
+export interface TrackerState<Permissions, Preferences> {
+  status: TrackerStatus;
+  user: AuthUser | null;
+  settings: TrackerSettings | null;
+  branding: Branding | null;
+  permissions: Permissions;
+  stats: LiveStats;
+  /** This install's own preferences, not the workspace's settings. */
+  preferences: Preferences;
+  /** What HR contracted this employee to work. Null until the portal has been read. */
+  workProfile: WorkProfile | null;
+  /** Today's target, progress and attendance gate. Null until the portal has been read. */
+  workday: Workday | null;
+  /** Projects time may be booked against, the house-wide "Global Project" first. */
+  projects: TrackerProject[];
+  /** The project the next session will book against. Empty means "the first one". */
+  selectedProjectId: string;
+  /** Tickets on the selected project, the employee's own assigned ones first. */
+  tasks: TrackerTask[];
+  /** The ticket the next session books against. '' means "the project, no ticket". */
+  selectedTaskId: string;
+  /** The Legal policy behind the consent screen, when the workspace has chosen one. */
+  consentPolicy: ConsentPolicy | null;
+  /** Whether the stored session was remembered (drives the login checkbox default). */
+  rememberMe: boolean;
+  /** Why the app signed the employee out on its own (revoked access), shown on the login screen. */
+  signedOutReason: string | null;
+  /**
+   * The zone EVERY date and time in the app is rendered in: the employee's own pick, else the
+   * admin's house default, else this device's zone. Never empty.
+   */
+  timezone: string;
+  /** What the employee last said they were doing — lunch, a break, a meeting. */
+  presence: PresenceState;
+  /** Messages from the tracker desk they have not read, for the drawer's badge. */
+  unreadMessages: number;
+}
+
+/**
+ * Where an install keeps its sign-in and its own choices. Synchronous, like the outbox: the
+ * desktop reads a file under userData, the phone its secure store.
+ */
+export interface TrackerStore<Preferences> {
+  getToken(): string | null;
+  /** With `remember`, the token outlives the process; without it, it lives in memory only. */
+  setToken(token: string, remember: boolean): void;
+  clearToken(): void;
+  /** True when a remembered session is stored (drives the login screen's checkbox). */
+  readonly remembered: boolean;
+  readonly preferences: Preferences;
+  setPreferences(update: Partial<Preferences>): Preferences;
+  /** The project the employee last booked time against. */
+  readonly selectedProjectId: string;
+  /** Records the project, and forgets the ticket that belonged to the old one. */
+  setSelectedProject(projectId: string): void;
+  readonly selectedTaskId: string;
+  setSelectedTask(taskId: string): void;
+}
+
+/** The OS notifications the controller raises. Best-effort: none of these may throw. */
+export interface TrackerNotifier {
+  autoPaused(idleMinutes: number): void;
+  autoStopped(stopLabel: string): void;
+  messages(count: number): void;
+  notice(title: string, body: string): void;
+}
+
+/** The OS grants an app needs, and how to ask for one. */
+export interface TrackerPermissions<Permissions, PermissionKind> {
+  /** Camera only counts as required when the workspace has webcam capture switched on. */
+  get(webcamEnabled: boolean): Permissions;
+  request(kind: PermissionKind): Promise<void>;
+}
+
+export interface ControllerDeps<Permissions, Preferences, PermissionKind> {
+  portal: Omit<PortalClient, 'startSession' | 'stopSession' | 'syncIntervals' | 'uploadScreenshot'>;
+  store: () => TrackerStore<Preferences>;
+  deviceInfo: () => DeviceInfo;
+  notifier: TrackerNotifier;
+  permissions: TrackerPermissions<Permissions, PermissionKind>;
+  /** Builds the platform's tracking engine for a signed-in employee. */
+  createEngine: (settings: TrackerSettings, hooks: EngineHooks) => TrackerEngine;
+  onChange: (state: TrackerState<Permissions, Preferences>) => void;
+  /** Fired on every capture so the shell can announce it (notification + shutter sound). */
+  onCapture: (report: CaptureReport) => void;
+  /** Adds the webcam photo to a screenshot — somewhere only the shell can reach a camera. */
+  composeWithWebcam: (input: ComposeInput) => Promise<string | null>;
+}
+
+function idleStats(): LiveStats {
+  return {
+    status: 'signed-out',
+    sessionActiveMs: 0,
+    sessionIdleMs: 0,
+    keyCount: 0,
+    mouseCount: 0,
+    currentApp: '',
+    screenshotCount: 0,
+    pendingSync: 0,
+    lastSyncAt: null,
+    syncing: false,
+    dayActiveMs: 0,
+    lastSyncOutcome: null,
+  };
+}
+
+/**
+ * Owns tracker app state and mediates every command from the UI. It never imports a platform
+ * itself — the portal, the store, the notifier, the permissions and the engine are all handed
+ * in — so its logic is unit-testable and the desktop and phone apps run the same one. State
+ * changes are pushed out through `onChange`.
+ */
+export class TrackerController<Permissions, Preferences, PermissionKind> {
+  private user: AuthUser | null = null;
+  private settings: TrackerSettings | null = null;
+  private branding: Branding | null = null;
+  private workProfile: WorkProfile | null = null;
+  private workday: Workday | null = null;
+  private projects: TrackerProject[] = [];
+  /** Tickets on the SELECTED project. Reloaded when that changes, not on every heartbeat. */
+  private tasks: TrackerTask[] = [];
+  private consentPolicy: ConsentPolicy | null = null;
+  /** What the employee last told the portal they were doing. Working until they say otherwise. */
+  private presence: PresenceState = { status: 'WORKING', note: '', since: null };
+  /** Chat messages waiting for them. Drives the drawer's badge, and the arrival notification. */
+  private unreadMessages = 0;
+  private engine: TrackerEngine | null = null;
+  private status: TrackerStatus = 'signed-out';
+  private permissions: Permissions;
+  private stats: LiveStats = idleStats();
+  /** Why the app signed the employee out on its own; cleared as soon as they sign back in. */
+  private signedOutReason: string | null = null;
+  /**
+   * The zone the whole UI renders in. Signed out, that is simply this device's zone; signed
+   * in, it is whatever the portal resolved for this employee (their pick, else the house
+   * default). Held here so the report query and the UI agree on ONE zone.
+   */
+  private timezone: string = deviceTimezone();
+  /** The keep-alive/settings poll; runs only while somebody is signed in. */
+  private pollTimer: ReturnType<typeof setInterval> | null = null;
+  /**
+   * The employee stopped or paused tracking themselves inside the scheduled window.
+   *
+   * Without it the schedule would restart within the minute and there would be no way to
+   * finish early. Cleared as soon as the window ends, so tomorrow starts on schedule again.
+   */
+  private autoOverride = false;
+
+  constructor(private readonly deps: ControllerDeps<Permissions, Preferences, PermissionKind>) {
+    this.permissions = deps.permissions.get(false);
+  }
+
+  getState(): TrackerState<Permissions, Preferences> {
+    const store = this.deps.store();
+    return {
+      status: this.status,
+      user: this.user,
+      settings: this.settings,
+      branding: this.branding,
+      permissions: this.permissions,
+      stats: { ...this.stats, status: this.status, dayActiveMs: this.dayActiveMs() },
+      workProfile: this.workProfile,
+      workday: this.workday,
+      projects: this.projects,
+      selectedProjectId: this.selectedProjectId(),
+      tasks: this.tasks,
+      selectedTaskId: this.selectedTaskId(),
+      consentPolicy: this.consentPolicy,
+      preferences: store.preferences,
+      rememberMe: store.remembered,
+      signedOutReason: this.signedOutReason,
+      timezone: this.timezone,
+      presence: this.presence,
+      unreadMessages: this.unreadMessages,
+    };
+  }
+
+  /**
+   * Active ms worked today, live.
+   *
+   * The engine owns it once one exists, because only it knows the session in progress. Before
+   * that — a just-restored app, or one sitting idle — the portal's number for the day is the
+   * whole answer, and reading it here is what stops the progress bar showing zero until the
+   * first tick lands.
+   */
+  private dayActiveMs(): number {
+    return this.engine?.dayActiveMs ?? this.workday?.activeMs ?? 0;
+  }
+
+  /**
+   * Restores a remembered session on launch. The stored device token never expires, so we
+   * ask the portal who it belongs to and rebuild the full session — without this the app
+   * would hold a valid token but show the login screen, and "Remember me" would do nothing.
+   */
+  async restore(): Promise<void> {
+    await this.loadBranding();
+
+    if (!this.deps.store().getToken()) {
+      this.emit();
+      return;
+    }
+
+    try {
+      this.applyPortalState(await this.deps.portal.trackerMe());
+      this.loadTasks().catch((error: unknown) => console.error('Loading tickets failed', error));
+      this.buildEngine();
+      this.startPolling();
+    } catch {
+      // Device or access revoked while we were away — drop the stale token.
+      this.deps.store().clearToken();
+      this.status = 'signed-out';
+    }
+
+    this.refreshPermissions();
+    this.emit();
+  }
+
+  /** Branding is public, so it loads before sign-in (the login screen shows the logo). */
+  private async loadBranding(): Promise<void> {
+    try {
+      this.branding = await this.deps.portal.fetchBranding();
+    } catch {
+      // A branding outage must not block sign-in; the UI falls back to its defaults.
+      this.branding = null;
+    }
+  }
+
+  async login(email: string, password: string, rememberMe: boolean): Promise<LoginResult> {
+    try {
+      const result = await this.deps.portal.login(email, password, this.deps.deviceInfo());
+      this.deps.store().setToken(result.token, rememberMe);
+      this.signedOutReason = null;
+      this.user = result.user;
+      this.settings = result.settings;
+      this.status = result.consentRequired ? 'consent-required' : 'idle';
+      this.buildEngine();
+      this.refreshPermissions();
+      this.emit();
+      this.startPolling();
+      await this.syncFromPortal();
+      return { ok: true, consentRequired: result.consentRequired, user: result.user };
+    } catch (error) {
+      // The raw failure is logged, never shown: the login screen gets a sentence, the
+      // developer console keeps the status code and the portal's reason.
+      console.error('Tracker sign-in failed', error);
+      return { ok: false, error: describeLoginFailure(error) };
+    }
+  }
+
+  /**
+   * The sign-in payload carries no zone (the portal's TrackerLoginPayload has no `timezone`
+   * field), so the full state is fetched right after. It runs AFTER the sign-in has been
+   * emitted and swallows its own failure: an employee who is signed in must not be bounced
+   * back to the login screen because one follow-up query failed. They keep this device's zone
+   * until the next heartbeat corrects it.
+   */
+  private async syncFromPortal(): Promise<void> {
+    try {
+      this.applyPortalState(await this.deps.portal.trackerMe());
+      this.loadTasks().catch((error: unknown) => console.error('Loading tickets failed', error));
+      this.emit();
+    } catch (error) {
+      console.error('Could not read the portal after sign-in; using this device’s zone', error);
+    }
+  }
+
+  /**
+   * Adopts the portal's view of this employee: their settings, their consent state and the
+   * zone every time in the app is rendered in. The engine reads the settings on every tick,
+   * so handing them over here is what makes an admin's change to the interval, the screenshot
+   * rules or the sync cadence take effect on a RUNNING app rather than at the next restart.
+   *
+   * Returns whether anything actually moved, so a quiet heartbeat does not re-render the UI
+   * once a minute for nothing.
+   */
+  private applyPortalState(me: TrackerMeResponse): boolean {
+    const before = this.stateSignature();
+
+    this.user = me.user;
+    this.settings = me.settings;
+    this.workProfile = me.workProfile;
+    this.projects = me.projects;
+    this.consentPolicy = me.consentPolicy;
+    this.adoptWorkday(me.workday);
+    this.timezone = effectiveTimezone(me.timezone);
+    this.presence = me.presence;
+    this.announceMessages(me.unreadMessages);
+    this.announceNotices(me.notices);
+    this.status = this.statusFor(me.consentRequired);
+    this.engine?.updateSettings(me.settings);
+    // Turning webcam capture on introduces a permission the employee has never been asked for.
+    this.permissions = this.deps.permissions.get(me.settings.webcamEnabled);
+
+    return this.stateSignature() !== before;
+  }
+
+  /** The portal-owned slice of the state, for spotting a change without comparing by hand. */
+  private stateSignature(): string {
+    return JSON.stringify([
+      this.user,
+      this.settings,
+      this.timezone,
+      this.status,
+      this.permissions,
+      this.workProfile,
+      this.workday,
+      this.projects,
+      this.consentPolicy,
+      this.presence,
+      this.unreadMessages,
+    ]);
+  }
+
+  /**
+   * Takes the portal's view of today, and decides whether it may reset the day's baseline.
+   *
+   * Mid-session it may not: the portal's number already includes the intervals this very
+   * session has uploaded, and adding the live session on top of that would count those
+   * minutes twice. A new calendar date is the exception — the day has genuinely restarted,
+   * and yesterday's session is not today's progress.
+   */
+  private adoptWorkday(next: Workday): void {
+    const rolledOver = this.workday !== null && this.workday.date !== next.date;
+    const running = this.status === 'tracking' || this.status === 'paused';
+    this.workday = next;
+    if (!running || rolledOver) {
+      this.engine?.setDayBase(next.activeMs);
+    }
+  }
+
+  /**
+   * The project the next session books against: the employee's own pick if it is still one
+   * they may book to, else the first project the portal offered — which is the house-wide
+   * Global Project. Never empty once the portal has answered.
+   */
+  private selectedProjectId(): string {
+    const stored = this.deps.store().selectedProjectId;
+    const known = this.projects.some((project) => project.id === stored);
+    return known ? stored : (this.projects[0]?.id ?? '');
+  }
+
+  /**
+   * The ticket the next session books against, or '' for "the project, no ticket".
+   *
+   * A stored id that is not on the current board resolves to '' rather than being sent
+   * anyway: the portal would refuse it, and losing the ticket is better than losing the
+   * session it was attached to.
+   */
+  private selectedTaskId(): string {
+    const stored = this.deps.store().selectedTaskId;
+    return this.tasks.some((task) => task.id === stored) ? stored : '';
+  }
+
+  /** Records which project the employee wants their next session booked against. */
+  setProject(projectId: string): string {
+    this.deps.store().setSelectedProject(projectId);
+    this.emit();
+    // The board changed, so the ticket list has to as well. Fire-and-forget: the picker
+    // shows "no ticket" until it lands, which is exactly what is booked in the meantime.
+    this.loadTasks().catch((error: unknown) => console.error('Loading tickets failed', error));
+    return this.selectedProjectId();
+  }
+
+  /** Records which ticket the employee wants their next session booked against. */
+  setTask(taskId: string): string {
+    this.deps.store().setSelectedTask(taskId);
+    this.emit();
+    return this.selectedTaskId();
+  }
+
+  /** Loads the selected project's tickets. Never throws into a caller — the picker degrades. */
+  private async loadTasks(): Promise<void> {
+    const projectId = this.selectedProjectId();
+    if (!this.user || projectId === '') {
+      this.tasks = [];
+      return;
+    }
+    this.tasks = await this.deps.portal.fetchTasks(projectId);
+    this.emit();
+  }
+
+  /**
+   * Marks the employee in for their local day, which is what unlocks tracking.
+   *
+   * The portal decides which day that is (from the zone it resolved for them) and upserts the
+   * same record HR's own page writes — so somebody who marked in from the portal this morning
+   * is already marked in here.
+   */
+  async markAttendance(status: AttendanceStatus, note: string | null): Promise<Workday> {
+    const workday = await this.deps.portal.markAttendance(status, note);
+    this.adoptWorkday(workday);
+    this.emit();
+    return workday;
+  }
+
+  /**
+   * Where the portal's consent answer leaves the app. A heartbeat must never interrupt work
+   * in progress, so only the resting states follow the portal; `tracking` and `paused` are
+   * left exactly as they are.
+   */
+  private statusFor(consentRequired: boolean): TrackerStatus {
+    if (this.status === 'tracking' || this.status === 'paused') {
+      return this.status;
+    }
+    return consentRequired ? 'consent-required' : 'idle';
+  }
+
+  /**
+   * Keeps this app and the portal in step for as long as somebody is signed in.
+   *
+   * Without it the app read the portal exactly once, at sign-in: settings an admin changed
+   * never arrived, the Devices console's "last seen" stayed frozen at enrolment, and an app
+   * sitting idle after its access was revoked only found out at its next upload — which,
+   * with nothing to upload, never came.
+   */
+  private startPolling(): void {
+    this.stopPolling();
+    this.pollTimer = setInterval(() => {
+      this.poll().catch((error: unknown) => console.error('Portal poll failed', error));
+    }, PORTAL_POLL_MS);
+  }
+
+  private stopPolling(): void {
+    if (this.pollTimer !== null) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = null;
+    }
+  }
+
+  /** One check-in: adopt whatever the portal now says, and sign out if it says we are revoked. */
+  private async poll(): Promise<void> {
+    try {
+      if (this.applyPortalState(await this.deps.portal.heartbeat(this.deps.deviceInfo()))) {
+        this.emit();
+      }
+      await this.runSchedule();
+    } catch (error) {
+      if (error instanceof TrackerAuthError) {
+        await this.logout(describeSyncFailure(error));
+        return;
+      }
+      // A portal that is briefly unreachable must not disturb a tracking session — the work
+      // keeps accruing in the durable outbox and the next check-in picks the change up.
+      console.error('Portal heartbeat failed', error);
+    }
+  }
+
+  /**
+   * Records the zone this employee picked, and re-renders the whole app in it. The portal is
+   * the source of truth: we adopt what it stored, not what we sent.
+   */
+  async setTimezone(timezone: string): Promise<string> {
+    const stored = await this.deps.portal.setTimezone(timezone);
+    this.timezone = effectiveTimezone(stored);
+    this.emit();
+    return this.timezone;
+  }
+
+  /** The employee's own all-time totals (device-token scoped — never anybody else's). */
+  getTotals(): Promise<TrackerTotals> {
+    return this.deps.portal.fetchMyTotals();
+  }
+
+  /**
+   * Records the employee's acceptance. `signedName` is their typed signature, which the
+   * portal also files in Legal's ledger when the workspace has chosen a policy.
+   *
+   * The portal is re-read afterwards rather than assumed: it owns whether consent is still
+   * required, and a signature that failed to land must not leave the app believing it did.
+   */
+  async acceptConsent(signedName: string): Promise<void> {
+    await this.deps.portal.acceptConsent(signedName);
+    await this.syncFromPortal();
+  }
+
+  /**
+   * The outbox is only uploadable while the device token exists, so a final flush runs BEFORE
+   * the token is dropped — otherwise signing out would strand the employee's queued work.
+   */
+  async logout(reason: string | null = null): Promise<void> {
+    // Before the re-entry guard: a poll that lands mid-sign-out must not restart the timer's
+    // life beyond the session it belongs to.
+    this.stopPolling();
+    if (this.status === 'signed-out') {
+      return; // an auth error during the sign-out flush would otherwise re-enter here
+    }
+    await this.stopTracking();
+    try {
+      await this.engine?.syncNow();
+    } catch (error) {
+      // A failing portal must never trap someone in a signed-in app.
+      console.error('Final sync before sign-out failed', error);
+    }
+    this.deps.store().clearToken();
+    this.user = null;
+    this.settings = null;
+    this.workProfile = null;
+    this.workday = null;
+    this.projects = [];
+    this.tasks = [];
+    this.consentPolicy = null;
+    this.presence = { status: 'WORKING', note: '', since: null };
+    this.unreadMessages = 0;
+    this.engine = null;
+    this.status = 'signed-out';
+    this.stats = idleStats();
+    // The zone belonged to the employee who just left, not to this device.
+    this.timezone = deviceTimezone();
+    // Set AFTER the stats reset — idleStats() would otherwise wipe the very reason we are here.
+    this.signedOutReason = reason;
+    this.emit();
+  }
+
+  /**
+   * Starts tracking, against the chosen project.
+   *
+   * Attendance is checked here as well as on the portal so the refusal is instant and says
+   * what to do about it — but the portal is the one that actually enforces it.
+   */
+  async start(): Promise<void> {
+    if (!this.engine || this.status === 'consent-required') {
+      return;
+    }
+    if (!this.workday?.attendanceMarked) {
+      throw new Error('Mark your attendance for today before tracking can start.');
+    }
+    // Starting by hand inside the window clears an earlier early-finish: the employee has
+    // said they are working again, and the schedule should stop holding yesterday's answer.
+    this.autoOverride = false;
+    this.engine.setDayBase(this.workday.activeMs);
+    await this.engine.start(this.selectedProjectId(), this.selectedTaskId());
+    this.status = 'tracking';
+    this.emit();
+  }
+
+  pause(): void {
+    this.autoOverride = true;
+    this.engine?.pause();
+    this.status = 'paused';
+    this.emit();
+  }
+
+  resume(): void {
+    this.autoOverride = false;
+    this.engine?.resume();
+    this.status = 'tracking';
+    this.emit();
+  }
+
+  /** Stopped by the employee: the schedule must not restart it before the window ends. */
+  async stop(): Promise<void> {
+    this.autoOverride = true;
+    await this.stopTracking();
+  }
+
+  /**
+   * Flushes the outbox now rather than on the next cadence.
+   *
+   * There is exactly one caller: the employee opened a capture notification to see the shot.
+   * The gallery reads the portal, and a shot taken seconds ago is still in the outbox — so
+   * without this the one screenshot they opened it for is the one that is missing.
+   */
+  async syncNow(): Promise<void> {
+    await this.engine?.syncNow();
+  }
+
+  /** Stops without recording an override — used by sign-out and by the schedule itself. */
+  private async stopTracking(): Promise<void> {
+    await this.engine?.stop();
+    if (this.user) {
+      this.status = 'idle';
+    }
+    this.emit();
+  }
+
+  /**
+   * Applies the workspace's tracking schedule. Called on every portal poll, so a change to the
+   * window lands within the minute without a restart.
+   */
+  private async runSchedule(): Promise<void> {
+    const settings = this.settings;
+    if (!settings?.autoStartEnabled || !this.user) {
+      return;
+    }
+    const hour = hourIn(this.timezone);
+    // Leaving the window is what forgives an early finish; without this the override would
+    // outlive the day it was made on and the schedule would never start again.
+    if (!isWithinWindow(settings.autoStartHour, settings.autoStopHour, hour)) {
+      this.autoOverride = false;
+    }
+
+    const action = decideAutoAction({
+      enabled: settings.autoStartEnabled,
+      startHour: settings.autoStartHour,
+      stopHour: settings.autoStopHour,
+      hour,
+      status: this.status,
+      attendanceMarked: this.workday?.attendanceMarked ?? false,
+      overridden: this.autoOverride,
+    });
+
+    try {
+      if (action === 'start') {
+        await this.start();
+      } else if (action === 'stop') {
+        await this.stopTracking();
+        this.deps.notifier.autoStopped(formatHourLabel(settings.autoStopHour));
+      }
+    } catch (error) {
+      // A schedule that cannot start (no permission yet, portal briefly down) must not throw
+      // into the poll timer — it simply tries again on the next check-in.
+      console.error('Scheduled tracking action failed', error);
+    }
+  }
+
+  /**
+   * The employee's own tracked time (the portal scopes this to them). The portal buckets the
+   * days by the zone we send, so it must be the SAME zone the UI computed the range in and
+   * will label the rows with — this device's zone is no longer that zone once an employee has
+   * picked one.
+   */
+  getReport(from: string, to: string): Promise<ReportDay[]> {
+    return this.deps.portal.fetchMyReport(from, to, this.timezone);
+  }
+
+  /** One day of the employee's own work — totals plus that day's screenshots. */
+  getDay(start: string, end: string): Promise<DayDetail> {
+    return this.deps.portal.fetchMyDay(start, end);
+  }
+
+  /**
+   * Tickets on any project, for the off-computer time form.
+   *
+   * Deliberately not `loadTasks`: that one replaces the list the session picker is bound to,
+   * and browsing projects in a claim form must not re-point what the next session books to.
+   */
+  getTasks(projectId: string): Promise<TrackerTask[]> {
+    return this.deps.portal.fetchTasks(projectId);
+  }
+
+  /**
+   * Records what the employee says they are doing, and makes the tracker agree with it.
+   *
+   * Saying "I am at lunch" while the tracker keeps counting would bill lunch as work, so
+   * every status but Working pauses a running session; going back to Working resumes a
+   * paused one. Pausing here also sets the schedule override, which is what stops the
+   * workspace's auto-start putting somebody back to work halfway through their sandwich.
+   *
+   * The portal is written FIRST and its answer is what we keep: a presence the server never
+   * accepted must not sit on screen looking like it did.
+   */
+  async setPresence(status: PresenceStatus, note: string): Promise<PresenceState> {
+    this.presence = await this.deps.portal.setPresence(status, note);
+    if (isAwayPresence(status) && this.status === 'tracking') {
+      this.pause();
+    } else if (!isAwayPresence(status) && this.status === 'paused') {
+      this.resume();
+    } else {
+      this.emit();
+    }
+    return this.presence;
+  }
+
+  /**
+   * The employee's own thread with whoever administers tracking, or the announcements sent
+   * to them. Scoped to them by the portal, like every other read this app makes.
+   */
+  getMessages(kind: TrackerMessageKind): Promise<TrackerMessage[]> {
+    return this.deps.portal.fetchMessages(kind);
+  }
+
+  /** Posts one line onto their own thread. The portal decides who it is from. */
+  sendMessage(body: string): Promise<TrackerMessage> {
+    return this.deps.portal.sendMessage(body);
+  }
+
+  /**
+   * Marks what was addressed to them as read, and clears the badge without waiting for the
+   * next heartbeat to confirm it — the employee is looking at the messages right now.
+   */
+  async markMessagesRead(kind: TrackerMessageKind): Promise<number> {
+    const count = await this.deps.portal.markMessagesRead(kind);
+    if (kind === 'CHAT' && this.unreadMessages !== 0) {
+      this.unreadMessages = 0;
+      this.emit();
+    }
+    return count;
+  }
+
+  /**
+   * Tells the employee a message arrived, when the count has actually gone UP.
+   *
+   * A heartbeat repeats the same unread count once a minute, so notifying on the count
+   * itself would notify every minute until they opened the app. Only the rise is news.
+   */
+  private announceMessages(unread: number): void {
+    if (unread > this.unreadMessages) {
+      this.deps.notifier.messages(unread - this.unreadMessages);
+    }
+    this.unreadMessages = unread;
+  }
+
+  /**
+   * Puts an administrator's announcement on the employee's screen, then marks it read.
+   *
+   * Marking read is what stops it being raised again on the next heartbeat, so it happens
+   * whether or not the notification centre was willing to show anything — a device with
+   * notifications muted must not be re-notified forever about the same message. It is
+   * fire-and-forget: a portal that briefly cannot record the read must not disturb tracking,
+   * and the worst case is one announcement shown twice.
+   */
+  private announceNotices(notices: readonly TrackerMessage[]): void {
+    if (notices.length === 0) {
+      return;
+    }
+    for (const notice of notices) {
+      this.deps.notifier.notice(notice.title, notice.body);
+    }
+    this.deps.portal.markMessagesRead('NOTICE').catch((error: unknown) => {
+      console.error('Marking announcements as read failed', error);
+    });
+  }
+
+  /** The employee's own claims for work done away from the tracker, in a date range. */
+  getManualEntries(from: string, to: string): Promise<ManualEntry[]> {
+    return this.deps.portal.fetchManualEntries(from, to);
+  }
+
+  /** Files a claim for off-computer time. It is always PENDING until a manager decides. */
+  createManualEntry(draft: ManualEntryDraft): Promise<ManualEntry> {
+    return this.deps.portal.createManualEntry(draft);
+  }
+
+  /** Takes back a claim that has not been decided yet. */
+  withdrawManualEntry(id: string): Promise<void> {
+    return this.deps.portal.withdrawManualEntry(id);
+  }
+
+  /**
+   * Re-reads the OS grants. Camera only counts as required when the workspace has webcam
+   * capture switched on, so the settings have to be in hand — which is why every caller runs
+   * after the portal state has been applied.
+   */
+  refreshPermissions(): Permissions {
+    this.permissions = this.deps.permissions.get(this.settings?.webcamEnabled ?? false);
+    return this.permissions;
+  }
+
+  requestPermission(kind: PermissionKind): Promise<void> {
+    return this.deps.permissions.request(kind);
+  }
+
+  /** Updates this install's own preferences and re-renders. */
+  setPreferences(update: Partial<Preferences>): Preferences {
+    const preferences = this.deps.store().setPreferences(update);
+    this.emit();
+    return preferences;
+  }
+
+  private buildEngine(): void {
+    if (!this.settings) {
+      return;
+    }
+    this.engine = this.deps.createEngine(this.settings, {
+      onStats: (stats) => {
+        this.stats = stats;
+        this.emit();
+      },
+      onCapture: (report: CaptureReport) => this.deps.onCapture(report),
+      onAutoPaused: (idleMinutes: number) => this.deps.notifier.autoPaused(idleMinutes),
+      onAuthError: (reason: string) => {
+        this.logout(reason).catch((cause: unknown) =>
+          console.error('Forced sign-out failed', cause),
+        );
+      },
+      composeWithWebcam: (input) => this.deps.composeWithWebcam(input),
+    });
+    // The portal's view of the day is usually already in hand by the time an engine exists
+    // (applyPortalState runs first, on a controller that has none), so the new engine has to
+    // be told where the day stands — otherwise the progress bar restarts from zero on every
+    // launch and only recovers at the next heartbeat.
+    if (this.workday !== null) {
+      this.engine.setDayBase(this.workday.activeMs);
+    }
+  }
+
+  private emit(): void {
+    this.deps.onChange(this.getState());
+  }
+}

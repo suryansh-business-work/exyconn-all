@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { SLUG } from '@exyconn/regex';
 import { Alert, radius } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -11,15 +12,13 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import type { EmailTemplateRow } from './email-template.types';
 
-/** Code sends by this key, so it has to be typeable and stable. */
-const KEY_PATTERN = /^[a-z0-9-]+$/;
-
 const schema = z.object({
+  /** Code sends by this key, so it has to be typeable and stable. */
   key: z
     .string()
     .trim()
     .min(1, 'Key is required')
-    .regex(KEY_PATTERN, 'Lower-case letters, numbers and hyphens only'),
+    .regex(SLUG, 'Lower-case letters, numbers and hyphens only'),
   name: z.string().trim().min(1, 'Name is required'),
   description: z.string().trim(),
   subject: z.string().trim().min(1, 'Subject is required'),

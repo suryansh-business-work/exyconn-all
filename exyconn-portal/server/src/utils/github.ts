@@ -6,17 +6,22 @@ const GITHUB_API_URL = 'https://api.github.com';
 /** How many recent releases to scan for the newest one carrying tracker installers. */
 const RELEASE_SCAN = 20;
 
-/** The workflow that builds and publishes the desktop tracker installers. */
+/** The workflow that builds and publishes the tracker installers, desktop and mobile. */
 export const TRACKER_WORKFLOW_FILE = 'tracker-release.yml';
 
 /** Every tracker installer release is tagged `tracker-v<version>` by that workflow. */
 export const TRACKER_TAG_PREFIX = 'tracker-v';
 
-/** Installer file extension -> the platform it installs on. */
+/**
+ * Installer file extension -> the platform it installs on. An Android build also produces an
+ * `.aab`, but that is a Play Store upload bundle nobody can install, so it is not listed.
+ */
 const ASSET_PLATFORMS = new Map<string, string>([
   ['.exe', 'windows'],
   ['.dmg', 'macos'],
   ['.appimage', 'linux'],
+  ['.apk', 'android'],
+  ['.ipa', 'ios'],
 ]);
 
 /**
@@ -64,6 +69,11 @@ interface ReleasePayload {
     download_count: number;
     browser_download_url: string;
   }[];
+}
+
+/** Whether a release carries an installer for the given platform. */
+function hasInstallerFor(release: ReleasePayload, platform: string): boolean {
+  return release.assets.some((asset) => trackerAssetPlatform(asset.name) === platform);
 }
 
 /** Reshapes a GitHub release payload into the portal's own release type. */
@@ -175,43 +185,64 @@ class GithubActions {
     }));
   }
 
-  /** The newest tracker release, as the portal's Download page shows it. */
-  async latestTrackerRelease(): Promise<TrackerRelease | null> {
-    const payload = await this.findLatestTrackerRelease();
-    return payload ? toTrackerRelease(payload) : null;
+  /**
+   * The newest tracker release, as the portal's Download page shows it.
+   *
+   * With a `platform` (e.g. `android`), the newest release carrying an installer for that
+   * platform — a build can be run for a subset of platforms, so the newest release overall
+   * may not have one.
+   */
+  async latestTrackerRelease(platform?: string | null): Promise<TrackerRelease | null> {
+    const releases = await this.listTrackerReleases();
+    const release = platform
+      ? releases.find((entry) => hasInstallerFor(entry, platform))
+      : releases[0];
+    return release ? toTrackerRelease(release) : null;
   }
 
   /**
-   * Every file on the newest tracker release, keyed by file name.
+   * Every file the tracker releases carry, keyed by file name, each resolved to the NEWEST
+   * release that has a file of that name.
    *
    * Unlike {@link latestTrackerRelease} this keeps the files the Download page has no use
    * for — `latest.yml` and the `.blockmap`s — because they are exactly what the desktop
    * app's updater reads. See the /tracker-updates route that serves them.
+   *
+   * Merged across releases rather than read off the newest one: a build can be run for a
+   * subset of platforms, and a release holding only an `.apk` must not hide the macOS
+   * updater's `latest-mac.yml` on the release before it.
    */
   async latestTrackerReleaseFiles(): Promise<Map<string, string>> {
-    const payload = await this.findLatestTrackerRelease();
-    return new Map(
-      (payload?.assets ?? []).map((asset) => [asset.name, asset.browser_download_url]),
-    );
+    const files = new Map<string, string>();
+    for (const release of await this.listTrackerReleases()) {
+      for (const asset of release.assets) {
+        if (!files.has(asset.name)) {
+          files.set(asset.name, asset.browser_download_url);
+        }
+      }
+    }
+    return files;
   }
 
   /**
-   * The newest published `tracker-v*` release that actually carries installers.
+   * The published `tracker-v*` releases that actually carry installers, newest first.
    *
    * `/releases/latest` is not usable here: the repository releases more than the tracker,
    * so the latest release may well be somebody else's. This walks the release list
-   * newest-first and takes the first published tracker tag.
+   * newest-first and keeps the published tracker tags.
    */
-  private async findLatestTrackerRelease(): Promise<ReleasePayload | null> {
+  private async listTrackerReleases(): Promise<ReleasePayload[]> {
     const config = await this.getActiveConfig();
     const payload = await this.request<ReleasePayload[]>(
       config,
       `/releases?per_page=${RELEASE_SCAN}`,
     );
-    const release = (payload ?? [])
-      .filter((entry) => !entry.draft && entry.tag_name.startsWith(TRACKER_TAG_PREFIX))
-      .find((entry) => entry.assets.some((asset) => trackerAssetPlatform(asset.name) !== null));
-    return release ?? null;
+    return (payload ?? []).filter(
+      (entry) =>
+        !entry.draft &&
+        entry.tag_name.startsWith(TRACKER_TAG_PREFIX) &&
+        entry.assets.some((asset) => trackerAssetPlatform(asset.name) !== null),
+    );
   }
 
   /**

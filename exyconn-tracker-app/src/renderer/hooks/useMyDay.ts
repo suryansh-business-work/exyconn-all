@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { DayDetail } from '@shared/types';
-import { dayBounds } from '../time';
+import { dayBounds } from '@exyconn/tracker-core';
 
 export interface DayQuery {
   detail: DayDetail | null;

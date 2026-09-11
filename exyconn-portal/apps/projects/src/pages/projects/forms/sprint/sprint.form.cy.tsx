@@ -30,8 +30,8 @@ describe('SprintForm', () => {
   it('refuses a sprint that ends before it starts', () => {
     mount();
     cy.get('input[name="name"]').type('Sprint 12');
-    cy.get('input[name="startsOn"]').type('12/01/2026');
-    cy.get('input[name="endsOn"]').type('11/01/2026');
+    cy.get('input[name="startsOn"]').typeDate('12012026');
+    cy.get('input[name="endsOn"]').typeDate('11012026');
     cy.contains('button', 'Create').click();
     cy.contains('The sprint cannot end before it starts').should('be.visible');
   });

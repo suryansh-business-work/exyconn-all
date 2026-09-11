@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { EMAIL } from '@exyconn/regex';
 import {
   RhfTextField,
   RhfSelect,
@@ -21,7 +22,7 @@ import type { LeadRow } from './lead.types';
 
 const schema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
-  email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
+  email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
   source: z.nativeEnum(LeadSource),
   stage: z.nativeEnum(LeadStage),
   value: z.coerce.number({ message: 'Value must be a number' }).min(0, 'Must be ≥ 0'),

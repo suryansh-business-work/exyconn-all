@@ -26,7 +26,9 @@ export function TrackerApprovalsPage() {
   const { formatDateTime } = useSettings();
   const notify = useNotify();
   const confirm = useConfirm();
-  const { data } = useTrackerPendingManualEntriesQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, refetch } = useTrackerPendingManualEntriesQuery({
+    fetchPolicy: 'cache-and-network',
+  });
   const [review] = useReviewTrackerManualEntryMutation({
     refetchQueries: [TrackerPendingManualEntriesDocument],
   });
@@ -89,6 +91,8 @@ export function TrackerApprovalsPage() {
         columns={columns}
         actions={actions}
         emptyMessage="Nothing waiting for review."
+        loading={loading}
+        onRefresh={refetch}
       />
     </Box>
   );

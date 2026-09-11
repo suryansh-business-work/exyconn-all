@@ -14,8 +14,7 @@ import {
 } from '@exyconn/ui';
 import BlurOnRounded from '@mui/icons-material/BlurOnRounded';
 import type { DayScreenshot } from '@shared/types';
-import { activityColor, activityLabel } from '../activity';
-import { formatDateTime } from '../time';
+import { activityColor, activityLabel, formatDateTime } from '@exyconn/tracker-core';
 import Surface from './Surface';
 
 interface Props {

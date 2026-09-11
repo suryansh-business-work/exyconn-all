@@ -41,7 +41,7 @@ export function BudgetVariancePage() {
   const [periodKey, setPeriodKey] = useState(periods[1].key);
   const period = periodFor(periodKey);
 
-  const { data, loading } = useBudgetVsActualQuery({
+  const { data, loading, refetch } = useBudgetVsActualQuery({
     variables: { from: period.from.toISOString(), to: period.to.toISOString() },
     fetchPolicy: 'cache-and-network',
   });
@@ -86,7 +86,9 @@ export function BudgetVariancePage() {
         <DataTable
           columns={columns}
           rows={rows.map((row) => ({ ...row, id: row.costCenterId || 'unallocated' }))}
-          emptyMessage={loading ? 'Loading…' : 'No budgets set and no spend booked in this period.'}
+          emptyMessage="No budgets set and no spend booked in this period."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

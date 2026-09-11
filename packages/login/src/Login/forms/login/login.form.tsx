@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { EMAIL } from '@exyconn/regex';
 import {
   Alert,
   Box,
@@ -24,7 +25,7 @@ import { AdminRecovery } from './AdminRecovery';
 import { ForgotPasswordDialog } from '../forgot-password';
 
 const schema = z.object({
-  email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
+  email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
   password: z.string().min(1, 'Password is required').min(6, 'Minimum 6 characters'),
 });
 type Values = z.infer<typeof schema>;

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { Box, Stack, Typography } from '@exyconn/ui';
-import type { SettingRow } from '../settings-rows';
+import type { SettingRow } from '@exyconn/tracker-core';
 
 interface Props {
   rows: readonly SettingRow[];

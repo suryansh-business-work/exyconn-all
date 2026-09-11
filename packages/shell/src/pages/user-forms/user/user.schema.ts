@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { EMAIL } from '@exyconn/regex';
 import { isValidLocale, isValidTimezone } from '@exyconn/i18n';
 import {
   EmploymentStatus,
@@ -20,7 +21,7 @@ const NEEDS_NOTE = 'OTHER';
 const identitySchema = z
   .object({
     name: z.string().trim().min(1, 'Name is required'),
-    email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
+    email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
     password: z.string().refine((v) => !v || v.length >= 6, 'Minimum 6 characters'),
     roles: z.array(z.nativeEnum(Role)).min(1, 'Select at least one role'),
     isActive: z.enum(['true', 'false']),

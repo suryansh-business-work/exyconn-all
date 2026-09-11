@@ -3,7 +3,7 @@ import { Typography } from '@exyconn/ui';
 import type { WorkProfile } from '@shared/types';
 import Surface from './Surface';
 import SettingsList from './SettingsList';
-import { DEFAULT_WORK_HOURS, humanize } from '../work-day';
+import { DEFAULT_WORK_HOURS, humanize } from '@exyconn/tracker-core';
 
 interface Props {
   workProfile: WorkProfile | null;

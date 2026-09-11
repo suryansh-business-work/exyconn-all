@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { FINANCIAL_YEAR, UPPER_SNAKE } from '@exyconn/regex';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -11,9 +12,6 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import type { TaxRegimeRow } from './tax-regime.types';
 
-/** `2026-27` — the year a regime's figures belong to, as every band also records it. */
-const FINANCIAL_YEAR = /^\d{4}-\d{2}$/;
-
 const amount = (label: string) => z.coerce.number().min(0, `${label} cannot be negative`);
 
 const schema = z.object({
@@ -21,7 +19,7 @@ const schema = z.object({
     .string()
     .trim()
     .min(1, 'A key is required')
-    .regex(/^[A-Z0-9_]+$/, 'Use capitals, digits and underscores, e.g. NEW or OLD'),
+    .regex(UPPER_SNAKE, 'Use capitals, digits and underscores, e.g. NEW or OLD'),
   financialYear: z.string().trim().regex(FINANCIAL_YEAR, 'Write the financial year as 2026-27'),
   name: z.string().trim().min(1, 'A name is required'),
   standardDeduction: amount('The standard deduction'),

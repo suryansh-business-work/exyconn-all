@@ -1,25 +1,10 @@
 import { app, screen } from 'electron';
 import { machineIdSync } from 'node-machine-id';
 import { hostname, release, arch, cpus, totalmem, type } from 'node:os';
+import type { DeviceInfo } from '@exyconn/tracker-core';
 import { secureStore } from './store';
 
-export interface DeviceInfo {
-  deviceId: string;
-  platform: string;
-  hostname: string;
-  appVersion: string;
-  machineId: string;
-  osName: string;
-  osVersion: string;
-  arch: string;
-  cpuModel: string;
-  cpuCores: number;
-  totalMemoryMb: number;
-  locale: string;
-  timezone: string;
-  screenCount: number;
-  screenResolution: string;
-}
+export type { DeviceInfo };
 
 /**
  * A stable hardware identifier from the OS (registry MachineGuid on Windows,

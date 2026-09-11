@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { HTTP_URL, LINK, SLUG } from '@exyconn/regex';
 import {
   RhfTextField,
   RhfChipsInput,
@@ -17,15 +18,27 @@ import {
 import type { CaseStudyRow } from './case-study.types';
 
 const schema = z.object({
-  slug: z.string().trim().min(1, 'Slug is required'),
+  slug: z
+    .string()
+    .trim()
+    .min(1, 'Slug is required')
+    .regex(SLUG, 'Lower-case letters, numbers and hyphens only'),
   title: z.string().trim().min(1, 'Title is required'),
   excerpt: z.string(),
   content: z.string(),
-  coverImage: z.string(),
+  coverImage: z
+    .string()
+    .trim()
+    .regex(LINK, 'Enter a full URL or a path starting with /')
+    .or(z.literal('')),
   category: z.string(),
   author: z.string(),
   tags: z.array(z.string()),
-  pdfUrl: z.string(),
+  pdfUrl: z
+    .string()
+    .trim()
+    .regex(HTTP_URL, 'Enter a full URL starting with https://')
+    .or(z.literal('')),
   featured: z.boolean(),
   isActive: z.boolean(),
   publishedAt: z.string(),

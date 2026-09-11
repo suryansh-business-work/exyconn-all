@@ -19,6 +19,7 @@
     "@emotion/styled": "^11.14.0",
     "@exyconn/i18n": "workspace:*",
     "@exyconn/login": "workspace:*",
+    "@exyconn/regex": "workspace:*",
     "@exyconn/shell": "workspace:*",
     "@hookform/resolvers": "^5.9.1",
     "@mui/icons-material": "^9.4.0",

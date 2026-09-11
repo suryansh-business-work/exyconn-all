@@ -36,7 +36,11 @@ const OPEN_PAGE = {
  */
 export function SupportOverviewPage() {
   const { data: statsData } = useListSupportTicketsStatsQuery({ fetchPolicy: 'cache-and-network' });
-  const { data: openData, loading } = useListSupportTicketsPagedQuery({
+  const {
+    data: openData,
+    loading,
+    refetch,
+  } = useListSupportTicketsPagedQuery({
     variables: { input: OPEN_PAGE },
     fetchPolicy: 'cache-and-network',
   });
@@ -83,7 +87,9 @@ export function SupportOverviewPage() {
       <DataTable
         columns={columns}
         rows={openData?.listSupportTicketsPaged.rows ?? []}
-        emptyMessage={loading ? 'Loading…' : 'No open tickets.'}
+        emptyMessage="No open tickets."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleOverview>
   );

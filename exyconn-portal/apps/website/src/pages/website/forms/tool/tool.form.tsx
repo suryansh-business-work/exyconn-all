@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { HEX_COLOR, LINK } from '@exyconn/regex';
 import {
   RhfTextField,
   RhfSelect,
@@ -22,9 +23,17 @@ const schema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   description: z.string(),
   longDescription: z.string(),
-  url: z.string(),
+  url: z
+    .string()
+    .trim()
+    .regex(LINK, 'Enter a full URL or a path starting with /')
+    .or(z.literal('')),
   icon: z.string(),
-  color: z.string(),
+  color: z
+    .string()
+    .trim()
+    .regex(HEX_COLOR, 'Use a 6-digit hex colour, e.g. #f9851f')
+    .or(z.literal('')),
   features: z.array(z.string()),
   useCases: z.array(z.string()),
   keywords: z.array(z.string()),

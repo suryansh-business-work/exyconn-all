@@ -34,9 +34,11 @@ const DEFAULT_PREFERENCES: AppPreferences = {
   // The bar is the default because it is what every earlier build drew; the ring is the
   // employee's own choice to make, not a redesign handed to everybody at once.
   progressStyle: 'bar',
-  // Off by default: fetching a few hundred megabytes without asking spends somebody else's
-  // connection. Turning it on is how an employee says the connection is theirs to spend.
-  autoUpdate: false,
+  // On by default, so the fleet converges without anybody being asked to. A new key rather
+  // than the old `autoUpdate` (which defaulted off): every save writes the whole preferences
+  // object, so an old default sat on disk for most installs — and the only choice anybody
+  // could have made with it was turning it on.
+  updateAutomatically: true,
 };
 
 /**

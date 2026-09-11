@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { CODE, EMAIL, PHONE } from '@exyconn/regex';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -14,21 +15,19 @@ import type { SupplierRow } from './supplier.types';
 
 const STATUS_OPTIONS = enumOptions(Object.values(SupplierStatus));
 
-/** The short reference that goes on a purchase order: letters, digits and dashes. */
-const CODE_PATTERN = /^[A-Z0-9-]+$/;
-
 const schema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
+  /** The short reference that goes on a purchase order — upper-cased before the check. */
   code: z
     .string()
     .trim()
     .toUpperCase()
     .min(2, 'Code is required')
     .max(12, 'Keep the code short — it goes on purchase orders')
-    .regex(CODE_PATTERN, 'Use letters, digits and dashes only'),
+    .regex(CODE, 'Use letters, digits and dashes only'),
   contactName: z.string().trim(),
-  email: z.union([z.literal(''), z.string().trim().email('Enter a valid email')]),
-  phone: z.string().trim(),
+  email: z.union([z.literal(''), z.string().trim().regex(EMAIL, 'Enter a valid email')]),
+  phone: z.string().trim().regex(PHONE, 'Enter a valid phone number').or(z.literal('')),
   status: z.nativeEnum(SupplierStatus),
   notes: z.string().trim(),
 });

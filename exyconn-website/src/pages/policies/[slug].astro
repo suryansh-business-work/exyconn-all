@@ -25,18 +25,18 @@ const asDate = (value: string) =>
   metaDescription={policy.summary}
   metaKeywords={`${policy.title.toLowerCase()}, exyconn, policy`}
 >
-  <main class="bg-white min-h-screen">
-    <section class="py-16 px-6 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+  <main class="bg-surface min-h-screen">
+    <section class="py-16 px-6 bg-gradient-to-br from-blue-subtle via-surface to-purple-subtle">
       <div class="max-w-4xl mx-auto text-center">
-        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+        <h1 class="text-4xl md:text-5xl font-bold text-fg mb-4 tracking-tight">
           {policy.title}
         </h1>
         {
           policy.summary && (
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">{policy.summary}</p>
+            <p class="text-xl text-fg-muted max-w-2xl mx-auto leading-relaxed">{policy.summary}</p>
           )
         }
-        <p class="mt-6 text-sm text-gray-500">
+        <p class="mt-6 text-sm text-fg-subtle">
           Version {policy.version} · Effective {asDate(policy.effectiveDate)} · Last updated {
             asDate(policy.updatedAt)
           }
@@ -46,7 +46,7 @@ const asDate = (value: string) =>
 
     <section class="py-14 px-6">
       <article
-        class="max-w-3xl mx-auto prose prose-lg prose-headings:text-gray-900 prose-p:text-gray-600 prose-a:text-blue-600"
+        class="max-w-3xl mx-auto prose prose-lg prose-headings:text-fg prose-p:text-fg-muted prose-a:text-blue-fg"
         set:html={policy.body}
       />
     </section>

@@ -5,6 +5,7 @@ import Footer from "../components/header-and-footer/Footer.astro";
 import Header from "../components/header-and-footer/Header.astro";
 import SearchModal from "../components/SearchModal.astro";
 import { BRANDING_FALLBACK, getBrandingSafe } from "../lib/portal";
+import { DARK_MEDIA_QUERY, THEME_ATTRIBUTE, THEME_STORAGE_KEY, THEMES } from "../lib/theme";
 
 const {
   title,
@@ -116,6 +117,26 @@ const allLd = [...baselineLd, ...pageLd];
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Apply light/dark before first paint, so a night visitor never sees a white flash. -->
+    <script
+      is:inline
+      define:vars={{
+        attribute: THEME_ATTRIBUTE,
+        storageKey: THEME_STORAGE_KEY,
+        themes: THEMES,
+        darkQuery: DARK_MEDIA_QUERY,
+      }}
+    >
+      let stored = null;
+      try {
+        stored = localStorage.getItem(storageKey);
+      } catch (error) {
+        console.warn("Theme preference could not be read", error);
+      }
+      const osTheme = matchMedia(darkQuery).matches ? "dark" : "light";
+      document.documentElement.setAttribute(attribute, themes.includes(stored) ? stored : osTheme);
+    </script>
     <link rel="icon" type={faviconType} href={faviconUrl} />
     <meta name="generator" content={Astro.generator} />
     <title>{finalTitle}</title>
@@ -215,7 +236,7 @@ const allLd = [...baselineLd, ...pageLd];
     <!-- Back to top button with keyboard support -->
     <button
       id="back-to-top"
-      class="fixed bottom-6 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 z-50"
+      class="fixed bottom-6 right-6 bg-blue-strong text-on-solid p-3 rounded-full shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-blue-deep focus:ring-4 focus:ring-blue-muted z-50"
       aria-label="Back to top"
       title="Back to top"
     >

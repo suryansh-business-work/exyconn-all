@@ -73,9 +73,8 @@ export function LocalizationPage() {
     },
   ];
 
-  const emptyMessage = loading
-    ? 'Loading…'
-    : 'Nothing translated into this language yet. It fills in as people browse the portal.';
+  const emptyMessage =
+    'Nothing translated into this language yet. It fills in as people browse the portal.';
 
   return (
     <Box>
@@ -113,7 +112,13 @@ export function LocalizationPage() {
         </Flex>
       </Flex>
       <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
-        <DataTable columns={columns} rows={rows} emptyMessage={emptyMessage} />
+        <DataTable
+          columns={columns}
+          rows={rows}
+          emptyMessage={emptyMessage}
+          loading={loading}
+          onRefresh={refetch}
+        />
       </Box>
     </Box>
   );

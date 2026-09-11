@@ -8,6 +8,7 @@ const fake = {
   autoInstallOnAppQuit: false,
   feedUrl: null as unknown,
   quitCalls: 0,
+  quitArgs: [] as unknown[],
   checkCalls: 0,
   setFeedURL(options: unknown): void {
     fake.feedUrl = options;
@@ -19,8 +20,9 @@ const fake = {
     fake.checkCalls += 1;
     return Promise.resolve(null);
   },
-  quitAndInstall(): void {
+  quitAndInstall(...args: unknown[]): void {
     fake.quitCalls += 1;
+    fake.quitArgs = args;
   },
   downloadCalls: 0,
   downloadRejects: false,
@@ -72,8 +74,7 @@ describe('AppUpdater', () => {
       provider: 'generic',
       url: 'https://portal-server.exyconn.com/tracker-updates',
     });
-    // Never automatic: pulling hundreds of megabytes decides for the employee that now is a
-    // good moment to use their connection, and on a tethered phone it is not.
+    // Started with "Update automatically" off, so nothing is fetched until the employee asks.
     expect(fake.autoDownload).toBe(false);
     // Still installs itself on quit, so an employee who says yes once is not asked again.
     expect(fake.autoInstallOnAppQuit).toBe(true);
@@ -178,11 +179,11 @@ describe('AppUpdater', () => {
     expect(updater.current.lastCheckedAt).not.toBeNull();
   });
 
-  it('fetches on its own once background updates are turned on mid-session', () => {
+  it('fetches on its own once automatic updates are turned on mid-session', () => {
     emit('update-available', { version: '2.0.0' });
     expect(fake.downloadCalls).toBe(0);
 
-    updater.setAutoDownload(true);
+    updater.setAutomatic(true);
 
     // The employee turned it on because a version was already waiting — making them wait for
     // the next launch would answer a request with a delay.
@@ -190,8 +191,45 @@ describe('AppUpdater', () => {
     expect(fake.downloadCalls).toBe(1);
   });
 
-  it('installs the downloaded version on request', () => {
+  it('downloads without asking when started with automatic updates on', () => {
+    updater.stop();
+    updater = new AppUpdater((state) => seen.push(state));
+    updater.start('https://portal-server.exyconn.com/graphql', true);
+
+    expect(fake.autoDownload).toBe(true);
+  });
+
+  it('installs on its own only when automatic and a version is ready', () => {
+    expect(updater.installsAutomatically).toBe(false);
+
+    emit('update-downloaded', { version: '2.0.0' });
+    // Ready, but the employee asked to be asked.
+    expect(updater.installsAutomatically).toBe(false);
+
+    updater.setAutomatic(true);
+    expect(updater.installsAutomatically).toBe(true);
+  });
+
+  it('installs silently and starts the new version again', () => {
     updater.install();
+
     expect(fake.quitCalls).toBe(1);
+    expect(fake.quitArgs).toEqual([true, true]);
+  });
+
+  it('launches the installer once, however often it is asked', () => {
+    updater.install();
+    updater.install();
+
+    expect(fake.quitCalls).toBe(1);
+  });
+
+  it('may install again after an install failed', () => {
+    updater.install();
+    emit('error', new Error('code signature invalid'));
+
+    updater.install();
+
+    expect(fake.quitCalls).toBe(2);
   });
 });

@@ -34,7 +34,8 @@ export function feedUrlFor(graphqlUrl: string): string {
  *
  * Installers were handed out by hand — a Slack message per release, and an employee who
  * missed it stayed on an old build forever. This downloads a new version in the background
- * and installs it on the next quit, so the fleet converges without anybody being asked to.
+ * and installs it between sessions (or on the next quit), so the fleet converges without
+ * anybody being asked to.
  *
  * A failure here is never allowed to matter: an unreachable feed leaves the app tracking
  * exactly as it was, and the next check tries again.
@@ -48,6 +49,10 @@ export class AppUpdater {
    * than reporting a failure the developer cannot act on.
    */
   private started = false;
+  /** The employee's "Update automatically": fetch without asking, and install between sessions. */
+  private automatic = false;
+  /** Set once an install has begun, so repeated triggers cannot launch the installer twice. */
+  private installing = false;
 
   constructor(private readonly onChange: (state: UpdateState) => void) {}
 
@@ -55,15 +60,22 @@ export class AppUpdater {
     return this.state;
   }
 
+  /**
+   * Whether a downloaded version should be installed without asking. The caller still decides
+   * WHEN — only the main process knows whether a session is running.
+   */
+  get installsAutomatically(): boolean {
+    return this.automatic && this.state.stage === 'ready';
+  }
+
   /** Wires the feed and starts checking. Call once, and only from a packaged app. */
-  start(graphqlUrl: string, autoDownload: boolean): void {
+  start(graphqlUrl: string, automatic: boolean): void {
     autoUpdater.setFeedURL({ provider: 'generic', url: feedUrlFor(graphqlUrl) });
     this.started = true;
-    // Off unless the employee asked for it. A tracker that quietly pulls a few hundred
-    // megabytes decides for them that now is a good moment to use their connection — on a
-    // tethered phone or a hotel wifi it is not. Either way the fetch runs in the background
-    // without interrupting anything, and nothing is ever installed mid-session.
-    autoUpdater.autoDownload = autoDownload;
+    // The fetch runs in the background without interrupting anything, and nothing is ever
+    // installed mid-session.
+    this.automatic = automatic;
+    autoUpdater.autoDownload = automatic;
     // The employee is offered a restart, but never made to take it: whenever they quit the
     // app themselves, the version already on disk is the one that comes back.
     autoUpdater.autoInstallOnAppQuit = true;
@@ -95,6 +107,8 @@ export class AppUpdater {
     });
     autoUpdater.on('error', (error: Error) => {
       console.error('Update check failed', error);
+      // Whatever was under way has stopped, an install included — so it may be tried again.
+      this.installing = false;
       // The version is kept, so a failed download still offers the retry it belongs to rather
       // than forgetting which version it was trying to fetch.
       this.set({ stage: 'failed', percent: 0, lastCheckedAt: nowISO() });
@@ -127,9 +141,17 @@ export class AppUpdater {
     });
   }
 
-  /** Quits and installs the downloaded version. Only meaningful once the stage is 'ready'. */
+  /**
+   * Quits, installs the downloaded version and starts it again. Only meaningful once the
+   * stage is 'ready'. Silent, so a Windows update is a restart rather than an installer
+   * wizard — the same whether the employee pressed Restart or it happened on its own.
+   */
   install(): void {
-    autoUpdater.quitAndInstall();
+    if (this.installing) {
+      return;
+    }
+    this.installing = true;
+    autoUpdater.quitAndInstall(true, true);
   }
 
   stop(): void {
@@ -141,13 +163,14 @@ export class AppUpdater {
   }
 
   /**
-   * Fetches new versions as soon as they appear, or waits to be asked.
+   * Updates without asking, or waits to be asked.
    *
    * Applied live rather than only at launch: an employee who turns it on in Settings while
    * an update is already waiting expects that update to start arriving, not to arrive after
    * the next restart — so a version already found is picked up here too.
    */
-  setAutoDownload(enabled: boolean): void {
+  setAutomatic(enabled: boolean): void {
+    this.automatic = enabled;
     autoUpdater.autoDownload = enabled;
     if (enabled && this.state.stage === 'available') {
       this.download();

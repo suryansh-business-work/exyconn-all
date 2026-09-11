@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
-import { Button, Stack, Switch, Typography } from '@exyconn/ui';
+import { Button, Checkbox, FormControlLabel, Stack, Typography } from '@exyconn/ui';
 import RefreshRounded from '@mui/icons-material/RefreshRounded';
 import type { AppPreferences, UpdateState } from '@shared/types';
-import { formatElapsed } from '../time';
+import { formatElapsed } from '@exyconn/tracker-core';
 import { run } from '../run';
 
 interface Props {
@@ -42,52 +42,44 @@ function statusOf(update: UpdateState): string {
 /**
  * Updates, and whether they arrive on their own.
  *
- * Two separate things, deliberately: fetching in the background is a choice about somebody
- * else's connection, and checking NOW is a question ("is mine current?") that an app which
- * only looks every six hours could not answer. Neither installs anything mid-session — a
- * downloaded version waits for the employee's own next quit.
+ * Two separate things, deliberately: updating automatically is a standing choice, and
+ * checking NOW is a question ("is mine current?") that an app which only looks every six
+ * hours could not answer. Neither installs anything mid-session.
  */
 export default function UpdatePreference({ preferences, update }: Readonly<Props>): ReactElement {
   const busy = update.stage === 'checking' || update.stage === 'downloading';
 
   return (
     <Stack spacing={1.5}>
-      <Stack
-        direction="row"
-        spacing={2}
-        sx={{
-          alignItems: 'flex-start',
-        }}
-      >
-        <Stack spacing={0.25} sx={{ flex: 1, minWidth: 0 }}>
-          <Typography
-            variant="body2"
-            sx={{
-              fontWeight: 600,
-            }}
-          >
-            Download updates in the background
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              color: 'text.secondary',
-            }}
-          >
-            {preferences.autoUpdate
-              ? 'A new version is fetched as soon as it appears, and installs the next time you quit.'
-              : 'You are told when a new version exists, and nothing is fetched until you ask.'}
-          </Typography>
-        </Stack>
-        <Switch
-          checked={preferences.autoUpdate}
-          onChange={(event) =>
-            run(() => window.tracker.setPreferences({ autoUpdate: event.target.checked }))
+      <Stack spacing={0.25}>
+        <FormControlLabel
+          sx={{ my: -0.5 }}
+          control={
+            <Checkbox
+              checked={preferences.updateAutomatically}
+              onChange={(event) =>
+                run(() =>
+                  window.tracker.setPreferences({ updateAutomatically: event.target.checked }),
+                )
+              }
+            />
           }
-          slotProps={{
-            input: { 'aria-label': 'Download updates in the background' },
-          }}
+          label={
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              Update automatically
+            </Typography>
+          }
         />
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          {preferences.updateAutomatically
+            ? 'New versions download in the background and install with a quick restart whenever you are not tracking.'
+            : 'You are told when a new version exists, and nothing is fetched until you ask.'}
+        </Typography>
       </Stack>
 
       <Button

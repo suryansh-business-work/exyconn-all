@@ -1,6 +1,7 @@
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { SITE_PATH } from '@exyconn/regex';
 import { Button, Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect, RhfMultiSelect } from '@exyconn/shell/components/form/rhf';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
@@ -21,7 +22,7 @@ const schema = z
       .string()
       .trim()
       .refine(
-        (v) => v === '' || v.startsWith('/'),
+        (v) => v === '' || SITE_PATH.test(v),
         'Link must be an in-portal path like /me/announcements',
       ),
     audience: z.nativeEnum(NotificationAudience),

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { alpha, borderWidth, Box, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import type { TrackerMessage } from '@shared/types';
-import { formatDateTime } from '../time';
+import { formatDateTime } from '@exyconn/tracker-core';
 
 interface Props {
   message: TrackerMessage;

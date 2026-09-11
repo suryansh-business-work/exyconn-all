@@ -1,6 +1,7 @@
 import { alpha, color } from '@exyconn/ui';
 import type { CaptureRequest } from '@shared/types';
-import { grabWebcamFrame, loadImage, overlayRect } from './webcam';
+import { overlayRect } from '@exyconn/tracker-core';
+import { grabWebcamFrame, loadImage } from './webcam';
 
 /** Radius of the rounded frame drawn around the photo, as a share of its width. */
 const CORNER_RADIUS_RATIO = 0.06;

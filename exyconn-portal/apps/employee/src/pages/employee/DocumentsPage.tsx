@@ -10,7 +10,7 @@ type Row = { id: string; kind: string; title: string; url: string; issuedOn: str
 
 /** Employee self-service: the documents HR has issued to this employee. */
 export function DocumentsPage() {
-  const { data, loading } = useMyDocumentsQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, refetch } = useMyDocumentsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const rows = (data?.myDocuments ?? []) as Row[];
 
@@ -36,7 +36,9 @@ export function DocumentsPage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'No documents have been issued to you yet.'}
+          emptyMessage="No documents have been issued to you yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

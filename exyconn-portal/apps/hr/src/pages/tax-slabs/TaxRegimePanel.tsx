@@ -50,8 +50,6 @@ export function TaxRegimePanel({ regimes, loading, refetch }: Readonly<TaxRegime
     refetch,
   });
 
-  const emptyMessage = loading ? 'Loading…' : 'No regimes yet — add one before entering bands.';
-
   return (
     <Box sx={[glass, { p: { xs: 1.5, md: 2 }, mb: 1.5 }]}>
       <Flex direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
@@ -69,7 +67,9 @@ export function TaxRegimePanel({ regimes, loading, refetch }: Readonly<TaxRegime
         rows={[...regimes]}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
-        emptyMessage={emptyMessage}
+        emptyMessage="No regimes yet — add one before entering bands."
+        loading={loading}
+        onRefresh={refetch}
       />
       <CrudDialog
         open={crud.open}

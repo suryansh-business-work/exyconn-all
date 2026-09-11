@@ -52,7 +52,9 @@ export function PositionsPage() {
           rows={rows}
           onEdit={crud.openEdit}
           onDelete={crud.remove}
-          emptyMessage={loading ? 'Loading…' : 'No positions yet.'}
+          emptyMessage="No positions yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

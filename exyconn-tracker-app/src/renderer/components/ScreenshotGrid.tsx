@@ -9,8 +9,7 @@ import {
   Typography,
 } from '@exyconn/ui';
 import type { DayScreenshot } from '@shared/types';
-import { activityLabel } from '../activity';
-import { formatTimeOfDay } from '../time';
+import { activityLabel, formatTimeOfDay } from '@exyconn/tracker-core';
 
 interface Props {
   shots: readonly DayScreenshot[];

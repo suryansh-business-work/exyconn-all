@@ -12,9 +12,13 @@ import {
   Typography,
 } from '@exyconn/ui';
 import type { ReportDay } from '@shared/types';
-import { activityPercent, formatCount, formatHoursMinutes } from '../format';
-import { activityColor } from '../activity';
-import { formatDayLabel } from '../time';
+import {
+  activityColor,
+  activityPercent,
+  formatCount,
+  formatDayLabel,
+  formatHoursMinutes,
+} from '@exyconn/tracker-core';
 import Surface from './Surface';
 
 const COLUMNS = ['Day', 'Worked', 'Idle', 'Activity', 'Keys', 'Mouse', 'Sessions'] as const;

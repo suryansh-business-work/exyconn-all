@@ -14,7 +14,7 @@ import { userStatus } from '@exyconn/shell/pages/UserDetails/user-details.types'
 
 /** HR Employee Records — workforce directory; row click opens the detail screen. */
 export function EmployeeRecordsPage() {
-  const { data, loading } = useListUsersQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, refetch } = useListUsersQuery({ fetchPolicy: 'cache-and-network' });
   const navigate = useNavigate();
   const { formatDate } = useSettings();
   const { user } = useAuth();
@@ -64,7 +64,9 @@ export function EmployeeRecordsPage() {
           columns={columns}
           rows={rows}
           onRowClick={(row) => navigate(`/hr/employees/${row.id}`)}
-          emptyMessage={loading ? 'Loading…' : 'No employees yet.'}
+          emptyMessage="No employees yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

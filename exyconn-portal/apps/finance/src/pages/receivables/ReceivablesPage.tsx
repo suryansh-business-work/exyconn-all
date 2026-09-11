@@ -18,7 +18,7 @@ const money = (amount: number): string => `₹${Math.round(amount).toLocaleStrin
  * stored — an ageing report that is a day stale is worse than no ageing report.
  */
 export function ReceivablesPage() {
-  const { data, loading } = useReceivablesQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, refetch } = useReceivablesQuery({ fetchPolicy: 'cache-and-network' });
   const report = data?.receivables;
   const bands = toBands(report?.buckets ?? []);
 
@@ -54,7 +54,9 @@ export function ReceivablesPage() {
         <DataTable
           columns={columns}
           rows={bands}
-          emptyMessage={loading ? 'Loading…' : 'Nothing is outstanding.'}
+          emptyMessage="Nothing is outstanding."
+          loading={loading}
+          onRefresh={refetch}
         />
       </ModuleDashboard>
     </Box>

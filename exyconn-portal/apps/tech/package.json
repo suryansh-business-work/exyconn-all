@@ -23,6 +23,7 @@
     "@exyconn/crud": "workspace:*",
     "@exyconn/i18n": "workspace:*",
     "@exyconn/login": "workspace:*",
+    "@exyconn/regex": "workspace:*",
     "@exyconn/shell": "workspace:*",
     "@exyconn/tabber": "workspace:*",
     "@hookform/resolvers": "^5.9.1",

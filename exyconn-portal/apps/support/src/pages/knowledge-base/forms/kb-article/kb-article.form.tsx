@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { SLUG } from '@exyconn/regex';
 import { RhfTextField, RhfSelect, RhfSwitch } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -18,7 +19,7 @@ const schema = z.object({
     .string()
     .trim()
     .min(3, 'Slug must be at least 3 characters')
-    .regex(/^[a-z0-9-]+$/, 'Lowercase letters, digits and hyphens only'),
+    .regex(SLUG, 'Lowercase letters, digits and hyphens only'),
   category: z.nativeEnum(SupportCategory),
   summary: z.string().trim().max(200, 'Keep the summary to one line'),
   body: z.string().trim().min(20, 'An answer this short will not help anybody'),

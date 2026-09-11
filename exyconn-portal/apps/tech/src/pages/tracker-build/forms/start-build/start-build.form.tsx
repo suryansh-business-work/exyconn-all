@@ -6,7 +6,11 @@ import { RhfMultiSelect, RhfTextField } from '@exyconn/shell/components/form/rhf
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { TrackerPlatform, useStartTrackerBuildMutation } from '@exyconn/shell/graphql/generated';
-import { BUILD_PLATFORMS, DEFAULT_BUILD_REF } from '../../trackerBuild.constants';
+import {
+  BUILD_PLATFORMS,
+  DEFAULT_BUILD_REF,
+  MOBILE_BUILD_HINT,
+} from '../../trackerBuild.constants';
 
 const PLATFORM_OPTIONS = BUILD_PLATFORMS.map((p) => ({
   value: p.value as string,
@@ -58,7 +62,12 @@ export function StartBuildForm({ channelCount, onDone, onCancel }: Readonly<Star
         Pick the installers to build. Each one is built on its own runner, published on a GitHub
         release, and posted to the {channelCount} Slack channel(s) chosen in Settings.
       </Text>
-      <RhfMultiSelect name="platforms" label="Installers to build" options={PLATFORM_OPTIONS} />
+      <RhfMultiSelect
+        name="platforms"
+        label="Installers to build"
+        options={PLATFORM_OPTIONS}
+        helperText={MOBILE_BUILD_HINT}
+      />
       <RhfTextField name="ref" label="Branch" helperText="The branch the build runs off" />
     </EntityForm>
   );

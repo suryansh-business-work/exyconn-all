@@ -2,6 +2,7 @@
 import Newsletter from "./../fragments/Newsletter.astro";
 import CokkiesModel from "../CokkiesModel.astro";
 import AccessibilityDrawer from "../AccessibilityDrawer.astro";
+import BrandLogo from "../BrandLogo.astro";
 import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
 import { TOOLS_SITE_URL } from "../../lib/site";
 
@@ -19,7 +20,6 @@ const versionLabel = import.meta.env.PUBLIC_APP_VERSION || "v0.0.1-dev";
 // the site used to hardcode so it looks unchanged until then.
 const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
 const legalName = branding.legalName || BRANDING_FALLBACK.legalName;
-const logoUrl = branding.logoUrl || BRANDING_FALLBACK.logoUrl;
 
 // The portal can supply the whole notice; otherwise build it from the legal name + this year.
 const copyrightText =
@@ -34,7 +34,7 @@ const socialLinks = [
     icon: "fa-brands fa-linkedin-in",
     label: "Follow us on LinkedIn (opens in new tab)",
     classes:
-      "w-10 h-10 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+      "w-10 h-10 bg-surface-muted hover:bg-blue-subtle hover:text-blue-fg rounded-full flex items-center justify-center text-fg-subtle transition focus:ring-2 focus:ring-blue focus:ring-offset-2",
   },
   {
     id: "twitter",
@@ -42,7 +42,7 @@ const socialLinks = [
     icon: "fa-brands fa-x-twitter",
     label: "Follow us on X / Twitter (opens in new tab)",
     classes:
-      "w-10 h-10 bg-gray-100 hover:bg-blue-50 hover:text-blue-400 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+      "w-10 h-10 bg-surface-muted hover:bg-blue-subtle hover:text-blue-bright rounded-full flex items-center justify-center text-fg-subtle transition focus:ring-2 focus:ring-blue focus:ring-offset-2",
   },
   {
     id: "facebook",
@@ -50,7 +50,7 @@ const socialLinks = [
     icon: "fa-brands fa-facebook-f",
     label: "Follow us on Facebook (opens in new tab)",
     classes:
-      "w-10 h-10 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+      "w-10 h-10 bg-surface-muted hover:bg-blue-subtle hover:text-blue-fg rounded-full flex items-center justify-center text-fg-subtle transition focus:ring-2 focus:ring-blue focus:ring-offset-2",
   },
   {
     id: "instagram",
@@ -58,7 +58,7 @@ const socialLinks = [
     icon: "fa-brands fa-instagram",
     label: "Follow us on Instagram (opens in new tab)",
     classes:
-      "w-10 h-10 bg-gray-100 hover:bg-pink-50 hover:text-pink-600 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-pink-500 focus:ring-offset-2",
+      "w-10 h-10 bg-surface-muted hover:bg-pink-subtle hover:text-pink-fg rounded-full flex items-center justify-center text-fg-subtle transition focus:ring-2 focus:ring-pink focus:ring-offset-2",
   },
   {
     id: "youtube",
@@ -66,7 +66,7 @@ const socialLinks = [
     icon: "fa-brands fa-youtube",
     label: "Subscribe to us on YouTube (opens in new tab)",
     classes:
-      "w-10 h-10 bg-gray-100 hover:bg-red-50 hover:text-red-600 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-red-500 focus:ring-offset-2",
+      "w-10 h-10 bg-surface-muted hover:bg-red-subtle hover:text-red-fg rounded-full flex items-center justify-center text-fg-subtle transition focus:ring-2 focus:ring-red focus:ring-offset-2",
   },
   {
     id: "github",
@@ -74,7 +74,7 @@ const socialLinks = [
     icon: "fa-brands fa-github",
     label: "View our GitHub profile (opens in new tab)",
     classes:
-      "w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 transition focus:ring-2 focus:ring-gray-500 focus:ring-offset-2",
+      "w-10 h-10 bg-surface-muted hover:bg-surface-strong rounded-full flex items-center justify-center text-fg-subtle transition focus:ring-2 focus:ring-line-strong focus:ring-offset-2",
   },
 ].filter((link) => link.url !== "");
 ---
@@ -83,7 +83,7 @@ const socialLinks = [
 
 <!-- Footer Section - Modern Light Design -->
 <footer
-  class="w-full bg-gradient-to-b from-gray-50 to-white border-t border-gray-100"
+  class="w-full bg-gradient-to-b from-surface-subtle to-surface border-t border-line-subtle"
   role="contentinfo"
   aria-label="Site footer"
 >
@@ -93,9 +93,15 @@ const socialLinks = [
       <!-- Brand Column -->
       <div class="lg:col-span-2">
         <a href="/" class="inline-block mb-6" aria-label={`${businessName} - Go to homepage`}>
-          <img src={logoUrl} alt={`${businessName} Logo`} class="h-10" width="120" height="40" />
+          <BrandLogo
+            branding={branding}
+            alt={`${businessName} Logo`}
+            class="h-10"
+            width="120"
+            height="40"
+          />
         </a>
-        <p class="text-gray-600 text-sm leading-relaxed mb-6 max-w-sm">
+        <p class="text-fg-muted text-sm leading-relaxed mb-6 max-w-sm">
           Empowering businesses with AI-native intelligence and enterprise-ready SaaS solutions.
           From idea to MVP in weeks, not months.
         </p>
@@ -119,47 +125,43 @@ const socialLinks = [
 
       <!-- AI Solutions Column -->
       <nav aria-label="AI Solutions navigation">
-        <h4 class="font-semibold text-gray-900 mb-4">AI Solutions</h4>
+        <h4 class="font-semibold text-fg mb-4">AI Solutions</h4>
         <ul class="space-y-3 text-sm" role="list">
           <li>
-            <a href="/ai" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+            <a href="/ai" class="text-fg-muted hover:text-fg transition focus:underline"
               >AI Platform</a
             >
           </li>
           <li>
-            <a
-              href="/ai/agentic"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">Agentic AI</a
+            <a href="/ai/agentic" class="text-fg-muted hover:text-fg transition focus:underline"
+              >Agentic AI</a
             >
           </li>
           <li>
             <a
               href="/ai/bot-creation"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">Bot Creation</a
+              class="text-fg-muted hover:text-fg transition focus:underline">Bot Creation</a
             >
           </li>
           <li>
-            <a
-              href="/ai/workflows"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">AI Workflows</a
+            <a href="/ai/workflows" class="text-fg-muted hover:text-fg transition focus:underline"
+              >AI Workflows</a
             >
           </li>
           <li>
-            <a href="/ai/llms" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+            <a href="/ai/llms" class="text-fg-muted hover:text-fg transition focus:underline"
               >LLMs</a
             >
           </li>
           <li>
             <a
               href="/ai/custom-model-training"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline"
-              >Custom Training</a
+              class="text-fg-muted hover:text-fg transition focus:underline">Custom Training</a
             >
           </li>
           <li>
-            <a
-              href="/ai/mcp-server"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">MCP Server</a
+            <a href="/ai/mcp-server" class="text-fg-muted hover:text-fg transition focus:underline"
+              >MCP Server</a
             >
           </li>
         </ul>
@@ -167,71 +169,64 @@ const socialLinks = [
 
       <!-- Services Column -->
       <nav aria-label="Services navigation">
-        <h4 class="font-semibold text-gray-900 mb-4">Services</h4>
+        <h4 class="font-semibold text-fg mb-4">Services</h4>
         <ul class="space-y-3 text-sm" role="list">
           <li>
-            <a
-              href="/our-services"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">All Services</a
+            <a href="/our-services" class="text-fg-muted hover:text-fg transition focus:underline"
+              >All Services</a
             >
           </li>
           <li>
             <a
               href="/services/digital-consulting"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline"
-              >Digital Consulting</a
+              class="text-fg-muted hover:text-fg transition focus:underline">Digital Consulting</a
             >
           </li>
           <li>
             <a
               href="/services/software-as-a-service"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline"
-              >SaaS Development</a
+              class="text-fg-muted hover:text-fg transition focus:underline">SaaS Development</a
             >
           </li>
           <li>
             <a
               href="/services/enterprise-application"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline"
-              >Enterprise Apps</a
+              class="text-fg-muted hover:text-fg transition focus:underline">Enterprise Apps</a
             >
           </li>
           <li>
             <a
               href="/services/mobile-application-development"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">Mobile Apps</a
+              class="text-fg-muted hover:text-fg transition focus:underline">Mobile Apps</a
             >
           </li>
           <li>
             <a
               href="/services/data-analytics"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">Data Analytics</a
+              class="text-fg-muted hover:text-fg transition focus:underline">Data Analytics</a
             >
           </li>
           <li>
             <a
               href="/services/digital-marketing"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline"
-              >Digital Marketing</a
+              class="text-fg-muted hover:text-fg transition focus:underline">Digital Marketing</a
             >
           </li>
           <li>
             <a
               href="/services/application-modernization"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline"
-              >App Modernization</a
+              class="text-fg-muted hover:text-fg transition focus:underline">App Modernization</a
             >
           </li>
           <li>
             <a
               href="/services/software-development-outsourcing"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">Outsourcing</a
+              class="text-fg-muted hover:text-fg transition focus:underline">Outsourcing</a
             >
           </li>
           <li>
-            <a
-              href="/india/offer"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">India Offer</a
+            <a href="/india/offer" class="text-fg-muted hover:text-fg transition focus:underline"
+              >India Offer</a
             >
           </li>
         </ul>
@@ -239,18 +234,16 @@ const socialLinks = [
 
       <!-- Products Column -->
       <nav aria-label="Products navigation">
-        <h4 class="font-semibold text-gray-900 mb-4">Products</h4>
+        <h4 class="font-semibold text-fg mb-4">Products</h4>
         <ul class="space-y-3 text-sm" role="list">
           <li>
-            <a
-              href="/our-products"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">All Products</a
+            <a href="/our-products" class="text-fg-muted hover:text-fg transition focus:underline"
+              >All Products</a
             >
           </li>
           <li>
-            <a
-              href="/ai-services"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">AI Services</a
+            <a href="/ai-services" class="text-fg-muted hover:text-fg transition focus:underline"
+              >AI Services</a
             >
           </li>
           <li>
@@ -258,10 +251,10 @@ const socialLinks = [
               href="https://sibera.work"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-gray-600 hover:text-gray-900 transition inline-flex items-center gap-1 focus:underline"
+              class="text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
             >
               Sibera <i
-                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-400"
+                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-fg-faint"
                 aria-hidden="true"></i>
             </a>
           </li>
@@ -270,10 +263,10 @@ const socialLinks = [
               href="https://spentiva.com"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-gray-600 hover:text-gray-900 transition inline-flex items-center gap-1 focus:underline"
+              class="text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
             >
               Spentiva <i
-                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-400"
+                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-fg-faint"
                 aria-hidden="true"></i>
             </a>
           </li>
@@ -282,10 +275,10 @@ const socialLinks = [
               href="https://duncit.com"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-gray-600 hover:text-gray-900 transition inline-flex items-center gap-1 focus:underline"
+              class="text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
             >
               Duncit <i
-                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-400"
+                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-fg-faint"
                 aria-hidden="true"></i>
             </a>
           </li>
@@ -294,10 +287,10 @@ const socialLinks = [
               href={TOOLS_SITE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-gray-600 hover:text-gray-900 transition inline-flex items-center gap-1 focus:underline"
+              class="text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
             >
               Free Tools <i
-                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-400"
+                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-fg-faint"
                 aria-hidden="true"></i>
             </a>
           </li>
@@ -306,78 +299,70 @@ const socialLinks = [
 
       <!-- Company Column -->
       <nav aria-label="Company navigation">
-        <h4 class="font-semibold text-gray-900 mb-4">Company</h4>
+        <h4 class="font-semibold text-fg mb-4">Company</h4>
         <ul class="space-y-3 text-sm" role="list">
           <li>
-            <a href="/about-us" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+            <a href="/about-us" class="text-fg-muted hover:text-fg transition focus:underline"
               >About Us</a
             >
           </li>
           <li>
-            <a
-              href="/our-vision"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">Our Vision</a
+            <a href="/our-vision" class="text-fg-muted hover:text-fg transition focus:underline"
+              >Our Vision</a
             >
           </li>
           <li>
-            <a href="/career" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+            <a href="/career" class="text-fg-muted hover:text-fg transition focus:underline"
               >Careers</a
             >
           </li>
           <li>
-            <a href="/blog" class="text-gray-600 hover:text-gray-900 transition focus:underline"
-              >Blog</a
-            >
+            <a href="/blog" class="text-fg-muted hover:text-fg transition focus:underline">Blog</a>
           </li>
           <li>
             <a
               href={TOOLS_SITE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">Free Tools</a
+              class="text-fg-muted hover:text-fg transition focus:underline">Free Tools</a
             >
           </li>
           <li>
-            <a
-              href="/case-studies"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">Case Studies</a
+            <a href="/case-studies" class="text-fg-muted hover:text-fg transition focus:underline"
+              >Case Studies</a
             >
           </li>
           <li>
-            <a href="/contact" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+            <a href="/contact" class="text-fg-muted hover:text-fg transition focus:underline"
               >Contact</a
             >
           </li>
           <li>
-            <a
-              href="/get-a-quote"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">Get a Quote</a
+            <a href="/get-a-quote" class="text-fg-muted hover:text-fg transition focus:underline"
+              >Get a Quote</a
             >
           </li>
           <li>
-            <a
-              href="/grievance"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">Grievance</a
+            <a href="/grievance" class="text-fg-muted hover:text-fg transition focus:underline"
+              >Grievance</a
             >
           </li>
           <li>
-            <a
-              href="/privacy-policy"
-              class="text-gray-600 hover:text-gray-900 transition focus:underline">Privacy Policy</a
+            <a href="/privacy-policy" class="text-fg-muted hover:text-fg transition focus:underline"
+              >Privacy Policy</a
             >
           </li>
           <li>
-            <a href="/cookies" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+            <a href="/cookies" class="text-fg-muted hover:text-fg transition focus:underline"
               >Cookies</a
             >
           </li>
           <li>
-            <a href="/legal" class="text-gray-600 hover:text-gray-900 transition focus:underline"
-              >Legal</a
+            <a href="/legal" class="text-fg-muted hover:text-fg transition focus:underline">Legal</a
             >
           </li>
           <li>
-            <a href="/sitemap" class="text-gray-600 hover:text-gray-900 transition focus:underline"
+            <a href="/sitemap" class="text-fg-muted hover:text-fg transition focus:underline"
               >Sitemap</a
             >
           </li>
@@ -387,28 +372,27 @@ const socialLinks = [
   </div>
 
   <!-- Bottom Bar -->
-  <div class="border-t border-gray-100">
+  <div class="border-t border-line-subtle">
     <div class="max-w-7xl mx-auto px-6 py-6">
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <p class="text-sm text-gray-500">{copyrightText}</p>
+          <p class="text-sm text-fg-subtle">{copyrightText}</p>
           <span
-            class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded font-mono"
+            class="text-xs text-fg-faint bg-surface-muted px-2 py-0.5 rounded font-mono"
             title="Website Version">{versionLabel}</span
           >
         </div>
         <nav aria-label="Legal links" class="flex flex-wrap items-center gap-6 text-sm">
-          <a
-            href="/privacy-policy"
-            class="text-gray-500 hover:text-gray-900 transition focus:underline">Privacy Policy</a
+          <a href="/privacy-policy" class="text-fg-subtle hover:text-fg transition focus:underline"
+            >Privacy Policy</a
           >
-          <a href="/legal" class="text-gray-500 hover:text-gray-900 transition focus:underline"
+          <a href="/legal" class="text-fg-subtle hover:text-fg transition focus:underline"
             >Terms of Service</a
           >
-          <a href="/cookies" class="text-gray-500 hover:text-gray-900 transition focus:underline"
+          <a href="/cookies" class="text-fg-subtle hover:text-fg transition focus:underline"
             >Cookies</a
           >
-          <a href="/sitemap" class="text-gray-500 hover:text-gray-900 transition focus:underline"
+          <a href="/sitemap" class="text-fg-subtle hover:text-fg transition focus:underline"
             >Sitemap</a
           >
         </nav>
@@ -422,7 +406,7 @@ const socialLinks = [
   <!-- Single Back to Top Button -->
   <button
     id="backToTopBtn"
-    class="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-all duration-300 flex items-center justify-center opacity-0 pointer-events-none cursor-pointer"
+    class="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-blue-strong text-on-solid shadow-lg hover:bg-blue-deep transition-all duration-300 flex items-center justify-center opacity-0 pointer-events-none cursor-pointer"
     aria-label="Back to top"
   >
     <i class="fa-solid fa-arrow-up"></i>

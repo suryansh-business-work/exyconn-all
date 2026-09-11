@@ -6,9 +6,9 @@
 import { aiServiceCategories, aiServices, servicesInCategory } from "../lib/services/aiServices";
 ---
 
-<section class="py-24 px-4 md:px-8 bg-white w-full relative overflow-hidden">
+<section class="py-24 px-4 md:px-8 bg-surface w-full relative overflow-hidden">
   <div
-    class="absolute top-1/4 left-0 w-96 h-96 bg-gradient-to-br from-blue-100/40 to-cyan-100/40 rounded-full blur-3xl -z-10"
+    class="absolute top-1/4 left-0 w-96 h-96 bg-gradient-to-br from-blue-soft/40 to-cyan-soft/40 rounded-full blur-3xl -z-10"
     aria-hidden="true"
   >
   </div>
@@ -17,22 +17,19 @@ import { aiServiceCategories, aiServices, servicesInCategory } from "../lib/serv
     <!-- Section header -->
     <div class="text-center mb-16">
       <span
-        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-100 rounded-full text-sm font-semibold text-blue-600 mb-4"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-subtle border border-blue-soft rounded-full text-sm font-semibold text-blue-fg mb-4"
       >
         <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
         AI Services
       </span>
-      <h2
-        class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 tracking-tight"
-        data-anime="fade-up"
-      >
+      <h2 class="text-4xl md:text-5xl font-bold text-fg mb-6 tracking-tight" data-anime="fade-up">
         {aiServices.length} Ways We Put <span
-          class="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"
+          class="bg-gradient-to-r from-blue-strong to-cyan bg-clip-text text-transparent"
           >AI to Work</span
         >
       </h2>
       <p
-        class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
+        class="text-xl text-fg-muted max-w-3xl mx-auto leading-relaxed"
         data-anime="fade-up"
         data-anime-delay="100"
       >
@@ -47,12 +44,12 @@ import { aiServiceCategories, aiServices, servicesInCategory } from "../lib/serv
         aiServiceCategories.map((category) => (
           <div data-anime="fade-up">
             <div class="flex items-start gap-4 mb-6">
-              <div class="w-12 h-12 shrink-0 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-                <i class={`fa-solid ${category.icon} text-white text-lg`} aria-hidden="true" />
+              <div class="w-12 h-12 shrink-0 bg-gradient-to-br from-blue to-cyan rounded-xl flex items-center justify-center shadow-lg shadow-blue/25">
+                <i class={`fa-solid ${category.icon} text-on-solid text-lg`} aria-hidden="true" />
               </div>
               <div>
-                <h3 class="font-bold text-2xl text-gray-900">{category.title}</h3>
-                <p class="text-gray-600 mt-1 max-w-3xl">{category.description}</p>
+                <h3 class="font-bold text-2xl text-fg">{category.title}</h3>
+                <p class="text-fg-muted mt-1 max-w-3xl">{category.description}</p>
               </div>
             </div>
 
@@ -60,16 +57,16 @@ import { aiServiceCategories, aiServices, servicesInCategory } from "../lib/serv
               {servicesInCategory(category.slug).map((service) => (
                 <a
                   href={`/ai-services/${service.slug}`}
-                  class="group bg-white rounded-2xl border border-gray-200 p-5 flex flex-col hover:border-blue-300 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                  class="group bg-surface rounded-2xl border border-line p-5 flex flex-col hover:border-blue-muted hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
                 >
                   <div
                     class={`w-11 h-11 bg-gradient-to-br ${service.color} rounded-xl flex items-center justify-center mb-4 shadow-md group-hover:scale-110 transition-transform`}
                   >
-                    <i class={`fa-solid ${service.icon} text-white`} aria-hidden="true" />
+                    <i class={`fa-solid ${service.icon} text-on-solid`} aria-hidden="true" />
                   </div>
-                  <h4 class="font-semibold text-gray-900 mb-2 leading-snug">{service.title}</h4>
-                  <p class="text-sm text-gray-600 leading-relaxed grow">{service.summary}</p>
-                  <span class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 group-hover:text-blue-700">
+                  <h4 class="font-semibold text-fg mb-2 leading-snug">{service.title}</h4>
+                  <p class="text-sm text-fg-muted leading-relaxed grow">{service.summary}</p>
+                  <span class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-fg group-hover:text-blue-fg-strong">
                     Learn more
                     <i
                       class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"
@@ -88,7 +85,7 @@ import { aiServiceCategories, aiServices, servicesInCategory } from "../lib/serv
     <div class="mt-16 text-center">
       <a
         href="/ai-services"
-        class="inline-flex items-center justify-center gap-2 bg-gray-900 text-white font-semibold px-8 py-4 rounded-xl hover:bg-gray-800 transition-colors"
+        class="inline-flex items-center justify-center gap-2 bg-inverse text-on-solid font-semibold px-8 py-4 rounded-xl hover:bg-inverse-muted transition-colors"
       >
         Browse all AI services
         <i class="fa-solid fa-arrow-right text-sm" aria-hidden="true"></i>

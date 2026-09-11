@@ -66,65 +66,65 @@ const getStatusBadge = (status: string, badge?: string) => {
   const badgeText = badge || status;
   switch (status) {
     case "live":
-      return { text: badgeText, class: "bg-emerald-100 text-emerald-700" };
+      return { text: badgeText, class: "bg-emerald-soft text-emerald-fg-strong" };
     case "dev":
-      return { text: badgeText, class: "bg-blue-100 text-blue-700" };
+      return { text: badgeText, class: "bg-blue-soft text-blue-fg-strong" };
     case "soon":
-      return { text: badgeText, class: "bg-gray-100 text-gray-600" };
+      return { text: badgeText, class: "bg-surface-muted text-fg-muted" };
     default:
-      return { text: badgeText, class: "bg-gray-100 text-gray-600" };
+      return { text: badgeText, class: "bg-surface-muted text-fg-muted" };
   }
 };
 
 const getColorClasses = (color: string) => {
   const colors: Record<string, { bg: string; border: string; icon: string; text: string }> = {
     indigo: {
-      bg: "from-slate-50 to-indigo-50",
-      border: "border-indigo-100",
-      icon: "from-indigo-500 to-violet-600",
-      text: "text-indigo-600",
+      bg: "from-surface-subtle to-indigo-subtle",
+      border: "border-indigo-soft",
+      icon: "from-indigo to-violet-strong",
+      text: "text-indigo-fg",
     },
     emerald: {
-      bg: "from-white to-emerald-50",
-      border: "border-emerald-100",
-      icon: "from-emerald-500 to-teal-600",
-      text: "text-emerald-600",
+      bg: "from-surface to-emerald-subtle",
+      border: "border-emerald-soft",
+      icon: "from-emerald to-teal-strong",
+      text: "text-emerald-fg",
     },
     rose: {
-      bg: "from-gray-50 to-rose-50",
-      border: "border-rose-100",
-      icon: "from-rose-500 to-pink-600",
-      text: "text-rose-600",
+      bg: "from-surface-subtle to-rose-subtle",
+      border: "border-rose-soft",
+      icon: "from-rose to-pink-strong",
+      text: "text-rose-fg",
     },
     orange: {
-      bg: "from-white to-orange-50",
-      border: "border-orange-100",
-      icon: "from-orange-500 to-red-500",
-      text: "text-orange-600",
+      bg: "from-surface to-orange-subtle",
+      border: "border-orange-soft",
+      icon: "from-orange to-red",
+      text: "text-orange-fg",
     },
     pink: {
-      bg: "from-white to-pink-50",
-      border: "border-pink-100",
-      icon: "from-pink-500 to-rose-500",
-      text: "text-pink-600",
+      bg: "from-surface to-pink-subtle",
+      border: "border-pink-soft",
+      icon: "from-pink to-rose",
+      text: "text-pink-fg",
     },
     gray: {
-      bg: "from-gray-900 to-gray-800",
-      border: "border-gray-700",
-      icon: "from-red-500 to-red-600",
-      text: "text-gray-100",
+      bg: "from-inverse to-inverse-muted",
+      border: "border-inverse-muted",
+      icon: "from-red to-red-strong",
+      text: "text-on-solid-muted",
     },
     purple: {
-      bg: "from-gray-50 to-purple-50",
-      border: "border-purple-100",
-      icon: "from-purple-500 to-violet-600",
-      text: "text-purple-600",
+      bg: "from-surface-subtle to-purple-subtle",
+      border: "border-purple-soft",
+      icon: "from-purple to-violet-strong",
+      text: "text-purple-fg",
     },
     cyan: {
-      bg: "from-gray-50 to-cyan-50",
-      border: "border-cyan-100",
-      icon: "from-cyan-500 to-blue-600",
-      text: "text-cyan-600",
+      bg: "from-surface-subtle to-cyan-subtle",
+      border: "border-cyan-soft",
+      icon: "from-cyan to-blue-strong",
+      text: "text-cyan-fg",
     },
   };
   return colors[color] || colors.gray;
@@ -168,34 +168,34 @@ const productsJsonLd = {
   metaImage="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&w=1200&q=80"
   jsonLd={productsJsonLd}
 >
-  <main class="bg-white min-h-screen">
+  <main class="bg-surface min-h-screen">
     <!-- Hero Section -->
     <section
-      class="relative py-24 px-6 bg-gradient-to-br from-gray-50 via-white to-blue-50 overflow-hidden"
+      class="relative py-24 px-6 bg-gradient-to-br from-surface-subtle via-surface to-blue-subtle overflow-hidden"
     >
       <div
-        class="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-200/40 to-cyan-200/40 rounded-full blur-3xl"
+        class="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-muted/40 to-cyan-muted/40 rounded-full blur-3xl"
       >
       </div>
       <div
-        class="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"
+        class="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-purple-muted/30 to-pink-muted/30 rounded-full blur-3xl"
       >
       </div>
 
       <div class="relative z-10 max-w-6xl mx-auto text-center">
         <span
-          class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-6 shadow-sm"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-surface border border-line rounded-full text-sm font-medium text-fg-muted mb-6 shadow-sm"
         >
-          <i class="fa-solid fa-cubes text-blue-500"></i>
+          <i class="fa-solid fa-cubes text-blue-fg"></i>
           Product Ecosystem
         </span>
-        <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+        <h1 class="text-5xl md:text-6xl font-bold text-fg mb-6 tracking-tight">
           Products that
-          <span class="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"
+          <span class="bg-gradient-to-r from-blue-strong to-cyan bg-clip-text text-transparent"
             >Power Business</span
           >
         </h1>
-        <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-8">
+        <p class="text-xl text-fg-muted max-w-3xl mx-auto leading-relaxed mb-8">
           Exyconn is a multi-product technology company building B2B SaaS platforms, B2B2C
           applications, and consumer community apps.
         </p>
@@ -203,39 +203,39 @@ const productsJsonLd = {
         <!-- Quick Stats -->
         <div class="flex flex-wrap justify-center gap-6">
           <div
-            class="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm"
+            class="flex items-center gap-2 px-4 py-2 bg-surface rounded-xl border border-line-subtle shadow-sm"
           >
-            <span class="text-2xl font-bold text-gray-900">{products.length}</span>
-            <span class="text-sm text-gray-500">Products</span>
+            <span class="text-2xl font-bold text-fg">{products.length}</span>
+            <span class="text-sm text-fg-subtle">Products</span>
           </div>
           <div
-            class="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm"
+            class="flex items-center gap-2 px-4 py-2 bg-surface rounded-xl border border-line-subtle shadow-sm"
           >
-            <span class="text-2xl font-bold text-emerald-600"
+            <span class="text-2xl font-bold text-emerald-fg"
               >{products.filter((p) => p.status === "live").length}</span
             >
-            <span class="text-sm text-gray-500">Live</span>
+            <span class="text-sm text-fg-subtle">Live</span>
           </div>
           <div
-            class="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm"
+            class="flex items-center gap-2 px-4 py-2 bg-surface rounded-xl border border-line-subtle shadow-sm"
           >
-            <span class="text-2xl font-bold text-amber-600"
+            <span class="text-2xl font-bold text-amber-fg"
               >{
                 products.filter((p) => ["early-access", "dev", "soon"].includes(p.status)).length
               }</span
             >
-            <span class="text-sm text-gray-500">In Progress</span>
+            <span class="text-sm text-fg-subtle">In Progress</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Product Classification Table -->
-    <section class="py-16 px-6 bg-white">
+    <section class="py-16 px-6 bg-surface">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-10">
-          <h2 class="text-3xl font-bold text-gray-900 mb-4">Product Classification</h2>
-          <p class="text-gray-600">Complete overview of our product ecosystem</p>
+          <h2 class="text-3xl font-bold text-fg mb-4">Product Classification</h2>
+          <p class="text-fg-muted">Complete overview of our product ecosystem</p>
         </div>
 
         <DynamicTable
@@ -247,17 +247,17 @@ const productsJsonLd = {
     </section>
 
     <!-- SaaS Products -->
-    <section class="py-20 px-6 bg-gray-50">
+    <section class="py-20 px-6 bg-surface-subtle">
       <div class="max-w-7xl mx-auto">
         <div class="flex items-center gap-3 mb-10">
           <div
-            class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center"
+            class="w-12 h-12 bg-gradient-to-br from-blue to-cyan rounded-2xl flex items-center justify-center"
           >
-            <i class="fa-solid fa-cloud text-white text-lg"></i>
+            <i class="fa-solid fa-cloud text-on-solid text-lg"></i>
           </div>
           <div>
-            <h2 class="text-3xl font-bold text-gray-900">SaaS Products</h2>
-            <p class="text-gray-500">B2B & B2B2C Platforms</p>
+            <h2 class="text-3xl font-bold text-fg">SaaS Products</h2>
+            <p class="text-fg-subtle">B2B & B2B2C Platforms</p>
           </div>
         </div>
 
@@ -277,7 +277,7 @@ const productsJsonLd = {
                       {badge.text}
                     </span>
                     {product.badgeSubtext && (
-                      <p class="text-[10px] text-gray-500 mt-1">{product.badgeSubtext}</p>
+                      <p class="text-[10px] text-fg-subtle mt-1">{product.badgeSubtext}</p>
                     )}
                   </div>
 
@@ -288,24 +288,24 @@ const productsJsonLd = {
                       <div
                         class={`w-14 h-14 bg-gradient-to-br ${colors.icon} rounded-2xl flex items-center justify-center`}
                       >
-                        <i class={`fa-solid ${product.icon} text-white text-xl`} />
+                        <i class={`fa-solid ${product.icon} text-on-solid text-xl`} />
                       </div>
                     )}
                   </div>
 
-                  <h3 class="text-2xl font-bold text-gray-900 mb-2">{product.name}</h3>
+                  <h3 class="text-2xl font-bold text-fg mb-2">{product.name}</h3>
                   <p class={`${colors.text} font-medium mb-4`}>{product.tagline}</p>
-                  <p class="text-gray-600 mb-6 leading-relaxed">{product.description}</p>
+                  <p class="text-fg-muted mb-6 leading-relaxed">{product.description}</p>
 
                   <div class="mb-6">
-                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <span class="text-xs font-semibold text-fg-subtle uppercase tracking-wider">
                       {product.businessType}
                     </span>
                   </div>
 
                   <ul class="space-y-2 mb-8 text-sm">
                     {product.features.map((feature) => (
-                      <li class="flex items-center gap-2 text-gray-600">
+                      <li class="flex items-center gap-2 text-fg-muted">
                         <i class={`fa-solid fa-check ${colors.text}`} />
                         {feature}
                       </li>
@@ -316,7 +316,7 @@ const productsJsonLd = {
                     <a
                       href={product.url}
                       target={product.url.startsWith("http") ? "_blank" : "_self"}
-                      class={`inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-6 py-3 rounded-full hover:bg-gray-800 transition`}
+                      class={`inline-flex items-center gap-2 bg-inverse text-on-solid font-semibold px-6 py-3 rounded-full hover:bg-inverse-muted transition`}
                     >
                       <i class="fa-solid fa-arrow-up-right-from-square" />
                       Visit Website
@@ -333,15 +333,15 @@ const productsJsonLd = {
     <!-- Developer & Infrastructure Products -->
     {
       developerProducts.length > 0 && (
-        <section class="py-20 px-6 bg-white">
+        <section class="py-20 px-6 bg-surface">
           <div class="max-w-7xl mx-auto">
             <div class="flex items-center gap-3 mb-10">
-              <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl flex items-center justify-center">
-                <i class="fa-solid fa-code text-white text-lg" />
+              <div class="w-12 h-12 bg-gradient-to-br from-purple to-violet-strong rounded-2xl flex items-center justify-center">
+                <i class="fa-solid fa-code text-on-solid text-lg" />
               </div>
               <div>
-                <h2 class="text-3xl font-bold text-gray-900">Developer & Infrastructure</h2>
-                <p class="text-gray-500">PaaS & Developer Tools</p>
+                <h2 class="text-3xl font-bold text-fg">Developer & Infrastructure</h2>
+                <p class="text-fg-subtle">PaaS & Developer Tools</p>
               </div>
             </div>
 
@@ -353,14 +353,14 @@ const productsJsonLd = {
 
                 return (
                   <div
-                    class={`group relative rounded-3xl border p-6 hover:shadow-xl transition-all duration-300 ${isDark ? "bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700" : `bg-gradient-to-br ${colors.bg} ${colors.border}`}`}
+                    class={`group relative rounded-3xl border p-6 hover:shadow-xl transition-all duration-300 ${isDark ? "bg-gradient-to-br from-inverse to-inverse-muted border-inverse-muted" : `bg-gradient-to-br ${colors.bg} ${colors.border}`}`}
                   >
                     <div class="flex items-start justify-between mb-4">
                       <div
                         class={`w-12 h-12 bg-gradient-to-br ${colors.icon} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}
                       >
                         <i
-                          class={`${product.icon?.includes("fa-brands") ? product.icon : `fa-solid ${product.icon}`} text-white text-lg`}
+                          class={`${product.icon?.includes("fa-brands") ? product.icon : `fa-solid ${product.icon}`} text-on-solid text-lg`}
                         />
                       </div>
                       <span
@@ -370,21 +370,21 @@ const productsJsonLd = {
                       </span>
                     </div>
 
-                    <h3 class={`text-xl font-bold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>
+                    <h3 class={`text-xl font-bold mb-2 ${isDark ? "text-on-solid" : "text-fg"}`}>
                       {product.name}
                     </h3>
-                    <p class={`text-sm font-medium mb-3 ${isDark ? "text-gray-400" : colors.text}`}>
+                    <p class={`text-sm font-medium mb-3 ${isDark ? "text-fg-faint" : colors.text}`}>
                       {product.tagline}
                     </p>
                     <p
-                      class={`text-sm mb-4 leading-relaxed ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                      class={`text-sm mb-4 leading-relaxed ${isDark ? "text-on-solid-muted" : "text-fg-muted"}`}
                     >
                       {product.description}
                     </p>
 
                     <div class="mb-4">
                       <span
-                        class={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-gray-500" : "text-gray-500"}`}
+                        class={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-fg-subtle" : "text-fg-subtle"}`}
                       >
                         {product.businessType}
                       </span>
@@ -393,7 +393,7 @@ const productsJsonLd = {
                     <div class="flex flex-wrap gap-2">
                       {product.features.slice(0, 3).map((feature) => (
                         <span
-                          class={`px-2 py-1 text-xs rounded-lg ${isDark ? "bg-gray-700 text-gray-300" : "bg-white border border-gray-100 text-gray-600"}`}
+                          class={`px-2 py-1 text-xs rounded-lg ${isDark ? "bg-inverse-muted text-on-solid-muted" : "bg-surface border border-line-subtle text-fg-muted"}`}
                         >
                           {feature}
                         </span>
@@ -404,7 +404,7 @@ const productsJsonLd = {
                       <a
                         href={product.url}
                         target={product.url.startsWith("http") ? "_blank" : "_self"}
-                        class={`mt-4 inline-flex items-center gap-2 font-semibold text-sm transition ${isDark ? "text-white hover:text-gray-300" : `${colors.text} hover:opacity-80`}`}
+                        class={`mt-4 inline-flex items-center gap-2 font-semibold text-sm transition ${isDark ? "text-on-solid hover:text-on-solid-muted" : `${colors.text} hover:opacity-80`}`}
                       >
                         Learn More <i class="fa-solid fa-arrow-right text-xs" />
                       </a>
@@ -421,15 +421,15 @@ const productsJsonLd = {
     <!-- Consumer Products -->
     {
       consumerProducts.length > 0 && (
-        <section class="py-20 px-6 bg-gray-50">
+        <section class="py-20 px-6 bg-surface-subtle">
           <div class="max-w-7xl mx-auto">
             <div class="flex items-center gap-3 mb-10">
-              <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center">
-                <i class="fa-solid fa-users text-white text-lg" />
+              <div class="w-12 h-12 bg-gradient-to-br from-orange to-red rounded-2xl flex items-center justify-center">
+                <i class="fa-solid fa-users text-on-solid text-lg" />
               </div>
               <div>
-                <h2 class="text-3xl font-bold text-gray-900">Consumer Products</h2>
-                <p class="text-gray-500">B2C & Community Platforms</p>
+                <h2 class="text-3xl font-bold text-fg">Consumer Products</h2>
+                <p class="text-fg-subtle">B2C & Community Platforms</p>
               </div>
             </div>
 
@@ -440,13 +440,13 @@ const productsJsonLd = {
 
                 return (
                   <div
-                    class={`group relative bg-white rounded-3xl border ${colors.border} p-6 hover:shadow-xl transition-all duration-300`}
+                    class={`group relative bg-surface rounded-3xl border ${colors.border} p-6 hover:shadow-xl transition-all duration-300`}
                   >
                     <div class="flex items-start justify-between mb-4">
                       <div
                         class={`w-12 h-12 bg-gradient-to-br ${colors.icon} rounded-xl flex items-center justify-center`}
                       >
-                        <i class={`fa-solid ${product.icon} text-white text-lg`} />
+                        <i class={`fa-solid ${product.icon} text-on-solid text-lg`} />
                       </div>
                       <div class="flex items-center gap-2">
                         <span
@@ -457,17 +457,17 @@ const productsJsonLd = {
                       </div>
                     </div>
 
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
+                    <h3 class="text-xl font-bold text-fg mb-2">{product.name}</h3>
                     <p class={`${colors.text} font-medium text-sm mb-3`}>{product.tagline}</p>
-                    <p class="text-sm text-gray-600 leading-relaxed mb-4">{product.description}</p>
+                    <p class="text-sm text-fg-muted leading-relaxed mb-4">{product.description}</p>
 
-                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <span class="text-xs font-semibold text-fg-subtle uppercase tracking-wider">
                       {product.businessType}
                     </span>
 
                     <div class="flex flex-wrap gap-2 mt-4">
                       {product.features.slice(0, 4).map((feature) => (
-                        <span class="px-2 py-1 text-xs rounded-lg bg-gray-50 border border-gray-100 text-gray-600">
+                        <span class="px-2 py-1 text-xs rounded-lg bg-surface-subtle border border-line-subtle text-fg-muted">
                           {feature}
                         </span>
                       ))}
@@ -492,51 +492,59 @@ const productsJsonLd = {
     }
 
     <!-- How to Talk About Products -->
-    <section class="py-20 px-6 bg-white">
+    <section class="py-20 px-6 bg-surface">
       <div class="max-w-4xl mx-auto">
         <div class="text-center mb-12">
           <span
-            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-100 rounded-full text-sm font-semibold text-blue-600 mb-6"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-subtle border border-blue-soft rounded-full text-sm font-semibold text-blue-fg mb-6"
           >
             <i class="fa-solid fa-comments"></i>
             Quick Reference
           </span>
-          <h2 class="text-3xl font-bold text-gray-900 mb-4">Product Positioning</h2>
-          <p class="text-gray-600">How we talk about each product</p>
+          <h2 class="text-3xl font-bold text-fg mb-4">Product Positioning</h2>
+          <p class="text-fg-muted">How we talk about each product</p>
         </div>
 
         <div class="space-y-4">
-          <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100 flex items-start gap-4">
+          <div
+            class="bg-surface-subtle rounded-2xl p-5 border border-line-subtle flex items-start gap-4"
+          >
             <div
-              class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0"
+              class="w-10 h-10 bg-indigo-soft rounded-xl flex items-center justify-center shrink-0"
             >
-              <span class="font-bold text-indigo-600">S</span>
+              <span class="font-bold text-indigo-fg">S</span>
             </div>
             <div>
-              <h4 class="font-bold text-gray-900">Sibera</h4>
-              <p class="text-gray-600">"Our B2B marketing & sales enablement platform"</p>
+              <h4 class="font-bold text-fg">Sibera</h4>
+              <p class="text-fg-muted">"Our B2B marketing & sales enablement platform"</p>
             </div>
           </div>
-          <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100 flex items-start gap-4">
+          <div
+            class="bg-surface-subtle rounded-2xl p-5 border border-line-subtle flex items-start gap-4"
+          >
             <div
-              class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0"
+              class="w-10 h-10 bg-emerald-soft rounded-xl flex items-center justify-center shrink-0"
             >
-              <span class="font-bold text-emerald-600">S</span>
+              <span class="font-bold text-emerald-fg">S</span>
             </div>
             <div>
-              <h4 class="font-bold text-gray-900">Spentiva</h4>
-              <p class="text-gray-600">
+              <h4 class="font-bold text-fg">Spentiva</h4>
+              <p class="text-fg-muted">
                 "An expense manager for both professionals and businesses"
               </p>
             </div>
           </div>
-          <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100 flex items-start gap-4">
-            <div class="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center shrink-0">
-              <span class="font-bold text-pink-600">D</span>
+          <div
+            class="bg-surface-subtle rounded-2xl p-5 border border-line-subtle flex items-start gap-4"
+          >
+            <div
+              class="w-10 h-10 bg-pink-soft rounded-xl flex items-center justify-center shrink-0"
+            >
+              <span class="font-bold text-pink-fg">D</span>
             </div>
             <div>
-              <h4 class="font-bold text-gray-900">Duncit</h4>
-              <p class="text-gray-600">"A mobile web app for real friend connections"</p>
+              <h4 class="font-bold text-fg">Duncit</h4>
+              <p class="text-fg-muted">"A mobile web app for real friend connections"</p>
             </div>
           </div>
         </div>
@@ -544,23 +552,23 @@ const productsJsonLd = {
     </section>
 
     <!-- CTA Section -->
-    <section class="py-24 px-6 bg-gradient-to-br from-gray-50 to-blue-50">
+    <section class="py-24 px-6 bg-gradient-to-br from-surface-subtle to-blue-subtle">
       <div class="max-w-4xl mx-auto text-center">
-        <h2 class="text-4xl font-bold text-gray-900 mb-6">Ready to Build Something Amazing?</h2>
-        <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+        <h2 class="text-4xl font-bold text-fg mb-6">Ready to Build Something Amazing?</h2>
+        <p class="text-xl text-fg-muted mb-10 max-w-2xl mx-auto">
           Whether you need a SaaS platform, internal tools, or custom development—we're here to help
           you launch faster.
         </p>
         <div class="flex flex-wrap justify-center gap-4">
           <a
             href="/ai-services"
-            class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-8 py-4 rounded-full hover:bg-gray-800 transition shadow-xl"
+            class="inline-flex items-center gap-2 bg-inverse text-on-solid font-semibold px-8 py-4 rounded-full hover:bg-inverse-muted transition shadow-xl"
           >
             <i class="fa-solid fa-bolt"></i> Explore AI Services
           </a>
           <a
             href="/contact"
-            class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-8 py-4 rounded-full hover:bg-gray-50 transition shadow-lg"
+            class="inline-flex items-center gap-2 bg-surface border border-line text-fg font-semibold px-8 py-4 rounded-full hover:bg-surface-subtle transition shadow-lg"
           >
             <i class="fa-solid fa-message"></i> Contact Sales
           </a>

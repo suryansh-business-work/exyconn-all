@@ -8,8 +8,11 @@
  * would make this a keylogger. Do not add such a field.
  */
 
-/** Platforms the desktop app runs on. */
-export const DEVICE_PLATFORMS = ['win32', 'darwin'] as const;
+/**
+ * Platforms a tracker app runs on: the desktop app reports Node's `process.platform`,
+ * the phone app reports React Native's `Platform.OS`.
+ */
+export const DEVICE_PLATFORMS = ['win32', 'darwin', 'android', 'ios'] as const;
 
 /** Lifecycle of a tracking session. */
 export const SESSION_STATUSES = ['active', 'stopped'] as const;

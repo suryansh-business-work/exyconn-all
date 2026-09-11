@@ -9,7 +9,7 @@ type AttendanceRow = { id: string; date: string; status: string; note?: string |
 
 /** HR/ADMIN panel: an employee's recorded attendance entries (read-only). */
 export function EmployeeAttendancePanel({ employeeId }: { employeeId: string }) {
-  const { data, loading } = useAttendanceByEmployeeQuery({
+  const { data, loading, refetch } = useAttendanceByEmployeeQuery({
     variables: { employeeId },
     fetchPolicy: 'cache-and-network',
   });
@@ -31,7 +31,9 @@ export function EmployeeAttendancePanel({ employeeId }: { employeeId: string }) 
       <DataTable
         columns={columns}
         rows={rows}
-        emptyMessage={loading ? 'Loading…' : 'No attendance recorded.'}
+        emptyMessage="No attendance recorded."
+        loading={loading}
+        onRefresh={refetch}
       />
     </Box>
   );

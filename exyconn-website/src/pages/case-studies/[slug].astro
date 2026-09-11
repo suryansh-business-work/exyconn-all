@@ -60,29 +60,29 @@ const pageJsonLd = [
   ogType="article"
   jsonLd={pageJsonLd}
 >
-  <main class="bg-gradient-to-b from-gray-50 to-white min-h-screen">
+  <main class="bg-gradient-to-b from-surface-subtle to-surface min-h-screen">
     <!-- Hero Section -->
     <section class="relative pt-12 pb-8 px-6">
       <div class="max-w-4xl mx-auto">
         <!-- Breadcrumb -->
-        <nav class="flex items-center gap-2 text-sm text-gray-500 mb-8">
-          <a href="/" class="hover:text-blue-600 transition-colors">Home</a>
+        <nav class="flex items-center gap-2 text-sm text-fg-subtle mb-8">
+          <a href="/" class="hover:text-blue-fg transition-colors">Home</a>
           <i class="fa-solid fa-chevron-right text-xs"></i>
-          <a href="/case-studies" class="hover:text-blue-600 transition-colors">Case Studies</a>
+          <a href="/case-studies" class="hover:text-blue-fg transition-colors">Case Studies</a>
           <i class="fa-solid fa-chevron-right text-xs"></i>
-          <span class="text-gray-900 font-medium truncate max-w-[200px]">{caseStudy.title}</span>
+          <span class="text-fg font-medium truncate max-w-[200px]">{caseStudy.title}</span>
         </nav>
 
         <!-- Category + Tags -->
         <div class="flex flex-wrap gap-2 mb-4">
           <span
-            class="text-xs font-semibold text-purple-700 bg-purple-50 px-3 py-1 rounded-full uppercase tracking-wide"
+            class="text-xs font-semibold text-purple-fg-strong bg-purple-subtle px-3 py-1 rounded-full uppercase tracking-wide"
           >
             {caseStudy.category}
           </span>
           {
             caseStudy.tags.map((tag) => (
-              <span class="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              <span class="text-xs font-medium text-blue-fg bg-blue-subtle px-3 py-1 rounded-full">
                 {tag}
               </span>
             ))
@@ -90,18 +90,18 @@ const pageJsonLd = [
         </div>
 
         <!-- Title -->
-        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+        <h1 class="text-4xl md:text-5xl font-bold text-fg mb-6 leading-tight">
           {caseStudy.title}
         </h1>
 
         <!-- Excerpt -->
-        <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+        <p class="text-xl text-fg-muted mb-8 leading-relaxed">
           {caseStudy.excerpt}
         </p>
 
         <!-- Meta Info -->
         <div
-          class="flex flex-wrap items-center gap-4 pb-8 border-b border-gray-200 text-sm text-gray-500"
+          class="flex flex-wrap items-center gap-4 pb-8 border-b border-line text-sm text-fg-subtle"
         >
           <span class="flex items-center gap-1.5">
             <i class="fa-regular fa-user"></i>
@@ -117,7 +117,7 @@ const pageJsonLd = [
                 href={caseStudy.pdfUrl}
                 target="_blank"
                 rel="noopener"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white font-semibold rounded-full hover:bg-gray-800 transition-colors"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-inverse text-on-solid font-semibold rounded-full hover:bg-inverse-muted transition-colors"
               >
                 <i class="fa-solid fa-file-pdf" />
                 Download PDF
@@ -143,15 +143,15 @@ const pageJsonLd = [
     <section class="px-6 pb-16">
       <div class="max-w-3xl mx-auto">
         <article
-          class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-headings:font-bold prose-p:text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-li:text-gray-700"
+          class="prose prose-lg max-w-none prose-headings:text-fg prose-headings:font-bold prose-p:text-fg-secondary prose-a:text-blue-fg prose-strong:text-fg prose-blockquote:border-blue prose-blockquote:bg-blue-subtle prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-li:text-fg-secondary"
           set:html={body}
         />
 
         <!-- Back Link -->
-        <div class="mt-12 pt-8 border-t border-gray-200">
+        <div class="mt-12 pt-8 border-t border-line">
           <a
             href="/case-studies"
-            class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            class="inline-flex items-center gap-2 text-sm font-medium text-blue-fg hover:text-blue-fg-strong transition-colors"
           >
             <i class="fa-solid fa-arrow-left"></i>
             Back to all case studies
@@ -161,15 +161,15 @@ const pageJsonLd = [
     </section>
 
     <!-- CTA Section -->
-    <section class="px-6 py-16 bg-gradient-to-br from-blue-600 to-purple-600">
+    <section class="px-6 py-16 bg-gradient-to-br from-blue-strong to-purple-strong">
       <div class="max-w-3xl mx-auto text-center">
-        <h2 class="text-3xl font-bold text-white mb-4">Ready to Create Your Success Story?</h2>
-        <p class="text-blue-100 text-lg mb-8">
+        <h2 class="text-3xl font-bold text-on-solid mb-4">Ready to Create Your Success Story?</h2>
+        <p class="text-on-solid-muted text-lg mb-8">
           Let's discuss how Exyconn can transform your business with AI and automation.
         </p>
         <a
           href="/get-a-quote"
-          class="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 font-semibold rounded-full hover:shadow-xl transition-all"
+          class="inline-flex items-center gap-2 px-8 py-4 bg-surface text-blue-fg font-semibold rounded-full hover:shadow-xl transition-all"
         >
           Start Your Project
           <i class="fa-solid fa-arrow-right"></i>
@@ -183,6 +183,6 @@ const pageJsonLd = [
   .prose .lead {
     font-size: var(--font-size-xl);
     line-height: 1.75rem;
-    color: var(--palette-gray-600);
+    color: var(--color-fg-muted);
   }
 </style>

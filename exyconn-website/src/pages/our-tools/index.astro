@@ -14,32 +14,32 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
   title="Tools | Exyconn"
   description="Every tool Exyconn builds and maintains, grouped by what it is for."
 >
-  <main class="bg-slate-50 min-h-screen">
-    <section class="py-20 px-6 bg-gradient-to-br from-sky-50 via-indigo-50 to-slate-50">
+  <main class="bg-surface-subtle min-h-screen">
+    <section
+      class="py-20 px-6 bg-gradient-to-br from-sky-subtle via-indigo-subtle to-surface-subtle"
+    >
       <div class="max-w-6xl mx-auto text-center">
         <div
-          class="inline-flex items-center gap-3 px-5 py-2.5 bg-white/70 backdrop-blur-md rounded-full border border-slate-200 shadow-sm mb-8"
+          class="inline-flex items-center gap-3 px-5 py-2.5 bg-surface/70 backdrop-blur-md rounded-full border border-line shadow-sm mb-8"
         >
-          <i class="fa-solid fa-toolbox text-indigo-500"></i>
-          <span class="text-slate-700 font-medium">
+          <i class="fa-solid fa-toolbox text-indigo-fg"></i>
+          <span class="text-fg-secondary font-medium">
             {tools.length}
             {tools.length === 1 ? "tool" : "tools"} across {populated.length}
             {populated.length === 1 ? "category" : "categories"}
           </span>
         </div>
 
-        <h1
-          class="text-5xl md:text-6xl font-black text-slate-900 mb-6 leading-tight tracking-tight"
-        >
+        <h1 class="text-5xl md:text-6xl font-black text-fg mb-6 leading-tight tracking-tight">
           The Exyconn<br />
           <span
-            class="bg-gradient-to-r from-sky-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent"
+            class="bg-gradient-to-r from-sky-strong via-indigo-strong to-violet-strong bg-clip-text text-transparent"
           >
             Tools Directory
           </span>
         </h1>
 
-        <p class="text-xl text-slate-600 max-w-3xl mx-auto">
+        <p class="text-xl text-fg-muted max-w-3xl mx-auto">
           Everything we build and maintain, grouped by what it is for. {mvpCount} of them are early releases
           we are still shaping with the people using them.
         </p>
@@ -50,8 +50,8 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
       populated.length === 0 && (
         <section class="py-20 px-6">
           <div class="max-w-3xl mx-auto text-center">
-            <h2 class="text-2xl font-bold text-slate-900 mb-3">Nothing published yet</h2>
-            <p class="text-slate-600">
+            <h2 class="text-2xl font-bold text-fg mb-3">Nothing published yet</h2>
+            <p class="text-fg-muted">
               The directory fills up as tools are published from the portal. Check back shortly.
             </p>
           </div>
@@ -61,7 +61,7 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
 
     {
       populated.map((category) => (
-        <section id={category.slug} class="py-14 px-6 odd:bg-white scroll-mt-20">
+        <section id={category.slug} class="py-14 px-6 odd:bg-surface scroll-mt-20">
           <div class="max-w-6xl mx-auto">
             <div class="flex items-center gap-3 mb-8">
               <div
@@ -74,14 +74,14 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
                 />
               </div>
               <div>
-                <h2 class="text-2xl font-bold text-slate-900">{category.category}</h2>
-                <p class="text-sm text-slate-500">{category.description}</p>
+                <h2 class="text-2xl font-bold text-fg">{category.category}</h2>
+                <p class="text-sm text-fg-subtle">{category.description}</p>
               </div>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {toolsOf(category.slug).map((tool) => (
-                <div class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-100 hover:border-slate-200 transition-all duration-300">
+                <div class="group relative bg-surface rounded-2xl p-6 shadow-sm hover:shadow-xl border border-line-subtle hover:border-line transition-all duration-300">
                   <div
                     class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
                     style={`background: ${tool.color || category.color}15;`}
@@ -93,7 +93,7 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
                   </div>
 
                   <div class="flex items-center gap-2 mb-2">
-                    <h3 class="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition">
+                    <h3 class="text-lg font-bold text-fg group-hover:text-indigo-fg transition">
                       <a
                         href={`/our-tools/${tool.toolCode}`}
                         class="after:absolute after:inset-0 after:content-['']"
@@ -102,29 +102,29 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
                       </a>
                     </h3>
                     {tool.isMVP && (
-                      <span class="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-bold">
+                      <span class="px-2 py-0.5 bg-amber-soft text-amber-fg-strong rounded text-xs font-bold">
                         MVP
                       </span>
                     )}
                   </div>
 
-                  <p class="text-sm text-slate-600 line-clamp-3">{tool.description}</p>
+                  <p class="text-sm text-fg-muted line-clamp-3">{tool.description}</p>
 
-                  <div class="flex items-center justify-between pt-4 mt-4 border-t border-slate-100">
-                    <span class="px-2 py-0.5 bg-slate-200 text-slate-500 rounded text-xs font-mono">
+                  <div class="flex items-center justify-between pt-4 mt-4 border-t border-line-subtle">
+                    <span class="px-2 py-0.5 bg-surface-strong text-fg-subtle rounded text-xs font-mono">
                       #{tool.toolCode}
                     </span>
                     {isToolAppSlug(tool) ? (
                       <a
                         href={getToolLaunchUrl(tool)}
-                        class="relative z-10 w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-500 flex items-center justify-center transition-all"
+                        class="relative z-10 w-9 h-9 rounded-full bg-surface-muted hover:bg-indigo flex items-center justify-center transition-all"
                       >
-                        <i class="fa-solid fa-arrow-up-right-from-square text-slate-400 group-hover:text-indigo-500 hover:!text-white transition" />
+                        <i class="fa-solid fa-arrow-up-right-from-square text-fg-faint group-hover:text-indigo-fg hover:!text-on-solid transition" />
                         <span class="sr-only">Open {tool.name} on tools.exyconn.com</span>
                       </a>
                     ) : (
-                      <div class="w-9 h-9 rounded-full bg-slate-100 group-hover:bg-indigo-500 flex items-center justify-center transition-all">
-                        <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-white transition" />
+                      <div class="w-9 h-9 rounded-full bg-surface-muted group-hover:bg-indigo flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-arrow-right text-fg-faint group-hover:text-on-solid transition" />
                       </div>
                     )}
                   </div>

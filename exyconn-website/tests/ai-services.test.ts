@@ -13,6 +13,7 @@ import {
   findAiService,
   findAiServiceCategory,
 } from "../src/lib/services/aiServices";
+import { roles } from "../src/styles/tokens/semantic.tokens";
 
 describe("AI service catalogue", () => {
   it("has every category populated", () => {
@@ -76,7 +77,8 @@ describe("AI service catalogue", () => {
 
       it("carries the icon and gradient the cards render", () => {
         expect(service.icon).toMatch(/^fa-[a-z0-9-]+$/);
-        expect(service.color).toMatch(/^from-[a-z]+-\d{2,3} to-[a-z]+-\d{2,3}$/);
+        const [, from, to] = /^from-([a-z-]+) to-([a-z-]+)$/.exec(service.color) ?? [];
+        expect(Object.keys(roles)).toEqual(expect.arrayContaining([from, to]));
       });
 
       it("is findable by slug", () => {

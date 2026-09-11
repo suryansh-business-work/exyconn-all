@@ -90,7 +90,9 @@ export function HrPage() {
         onRowClick={(row) => navigate(`/hr/employees/${row.employeeId}`)}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
-        emptyMessage={loading ? 'Loading…' : 'No leave requests yet.'}
+        emptyMessage="No leave requests yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleDashboard>
   );
