@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Box, IconButton, Flex, TextField, Text } from '@exyconn/shell/components/ui';
+import { CARD_RADIUS, Box, IconButton, Flex, TextField, Text } from '@exyconn/shell/components/ui';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -62,7 +62,7 @@ export function BoardColumnCard({
         width: 280,
         flexShrink: 0,
         p: 1.25,
-        borderRadius: 2,
+        borderRadius: `${CARD_RADIUS}px`,
         bgcolor: 'action.hover',
         opacity: isDragging ? 0.5 : 1,
         transform: CSS.Transform.toString(transform),

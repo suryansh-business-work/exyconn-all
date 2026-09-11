@@ -46,7 +46,10 @@ function deps(order: string[], startSession: () => Promise<string>): EngineDeps 
       syncIntervals: vi.fn(() => Promise.resolve()),
       uploadScreenshot: vi.fn(() => Promise.resolve()),
     },
-    outbox: new Outbox({ read: () => saved, write: (contents) => (saved = contents) }),
+    outbox: new Outbox(
+      { read: () => saved, write: (contents) => (saved = contents) },
+      { put: () => undefined, get: () => null, remove: () => undefined },
+    ),
     idleSeconds: () => 0,
     input: {
       start: () => undefined,

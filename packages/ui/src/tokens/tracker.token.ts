@@ -1,4 +1,5 @@
-import { amber, emerald, neutral, red, slate, white } from './colors.tokens';
+import { amber, emerald, neutral, red, slate } from './colors.tokens';
+import { selectedInk } from './selection.token';
 
 /**
  * The trackers' (desktop and phone) own colour roles. Named for what they mean, and kept here
@@ -20,8 +21,5 @@ export const trackerProgressGradient = [red[300], amber[300], emerald[400]] as c
 /** The floating tab bar: dark on either palette, a step lighter on the dark one to lift off it. */
 export const trackerTabBar = { light: slate[950], dark: neutral[700] } as const;
 
-/** A selected tab, segment, chip or calendar day: ink-on-paper inverted, per mode. */
-export const trackerSelected = {
-  light: { fill: slate[950], ink: white },
-  dark: { fill: neutral[100], ink: neutral[900] },
-} as const;
+/** A selected tab, segment, chip or calendar day — the design system's own selection ink. */
+export const trackerSelected = selectedInk;

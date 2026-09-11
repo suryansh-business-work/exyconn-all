@@ -76,7 +76,6 @@ export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcher
           placeholder="Search portals…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
           slotProps={{
             input: {
               startAdornment: (

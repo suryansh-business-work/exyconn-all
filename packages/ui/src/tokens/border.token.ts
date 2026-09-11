@@ -19,8 +19,14 @@ export const radius = { sm: 4, md: 8, lg: 16, pill: 9999 } as const;
 
 export type Radius = keyof typeof radius;
 
-/** The theme's own corner, in px. One radius everywhere: a card and a panel are one shape. */
-export const BASE_RADIUS = radius.md;
+/**
+ * The portals' control corner, in px — the theme's `shape.borderRadius`: inputs, buttons, list
+ * rows, alerts. The 2026-09 redesign followed the trackers' soft look a step less round.
+ */
+export const BASE_RADIUS = 10;
+
+/** The portals' card corner: cards, panels, dialogs and grids — the trackers' 24, a step down. */
+export const CARD_RADIUS = radius.lg;
 
 /**
  * The trackers' (desktop and phone) control corner — inputs, tiles, calendar days. The 2026-09

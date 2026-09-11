@@ -81,6 +81,10 @@ const EXPECTED = [
   'useTheme',
   'createTheme',
   'CssBaseline',
+  'GlobalStyles',
+  'CARD_RADIUS',
+  'selectedInk',
+  'roundButton',
   'createAppTheme',
   'theme',
   // design-system groups

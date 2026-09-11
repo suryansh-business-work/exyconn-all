@@ -4,6 +4,7 @@ import type { Theme } from '@/components/ui';
 import { borderWidth, Box, Drawer, Toolbar } from '@/components/ui';
 import { Topbar } from './Topbar';
 import { Sidebar } from './Sidebar';
+import { TOPBAR_HEIGHT } from './metrics';
 import { useAuth } from '@/auth/AuthContext';
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
 import { PageErrorBoundary } from '@/logging/PageErrorBoundary';
@@ -74,8 +75,9 @@ export function PortalLayout() {
       </Box>
 
       <Box component="main" sx={{ flexGrow: 1, width: { md: `calc(100% - ${width}px)` } }}>
-        <Toolbar variant="dense" />
-        <Box sx={{ p: { xs: 1, md: 1.5 } }}>
+        {/* Spacer the height of the fixed topbar. */}
+        <Toolbar sx={{ minHeight: { xs: TOPBAR_HEIGHT } }} />
+        <Box sx={{ px: { xs: 1.5, md: 2.5 }, pb: { xs: 1.5, md: 2.5 }, pt: 0.5 }}>
           {/* Keyed by path: a crashed page leaves the sidebar working, and navigating clears it. */}
           <PageErrorBoundary key={pathname}>
             <Outlet />

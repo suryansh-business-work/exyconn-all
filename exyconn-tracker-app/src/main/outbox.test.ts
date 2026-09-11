@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -13,6 +13,7 @@ import { Outbox, type FailureKind, type OutboxItem } from './outbox';
 import type { IntervalPayload } from './portal-client';
 
 const OUTBOX_FILE = join(tempDir, 'tracker-outbox.json');
+const IMAGES_DIR = join(tempDir, 'tracker-outbox-images');
 
 /** The classifier the engine passes in: everything is worth retrying. */
 const alwaysRetry = (): FailureKind => 'retry';
@@ -152,7 +153,14 @@ describe('Outbox', () => {
     const second = new Outbox();
     expect(second.size).toBe(1);
 
-    const result = await second.flush(() => Promise.resolve(), alwaysRetry);
+    const sent: OutboxItem[] = [];
+    const result = await second.flush((item) => {
+      sent.push(item);
+      return Promise.resolve();
+    }, alwaysRetry);
     expect(result.sent).toBe(1);
+    // The image was kept as its own file, read back for the send, and removed after it.
+    expect(sent[0]?.kind === 'screenshot' && sent[0].payload.image).toBe('data');
+    expect(readdirSync(IMAGES_DIR)).toEqual([]);
   });
 });

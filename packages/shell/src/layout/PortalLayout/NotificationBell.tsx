@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Badge, IconButton } from '@/components/ui';
+import { Badge, IconButton, roundButton } from '@/components/ui';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useMyUnreadNotificationCountQuery } from '@/graphql/generated';
 
@@ -14,7 +14,11 @@ export function NotificationBell() {
   const label = unread > 0 ? `${unread} unread notifications` : 'notifications';
 
   return (
-    <IconButton onClick={() => navigate('/notifications')} aria-label={label} sx={{ mr: 0.5 }}>
+    <IconButton
+      onClick={() => navigate('/notifications')}
+      aria-label={label}
+      sx={(t) => ({ ...roundButton(t), mr: 1 })}
+    >
       <Badge badgeContent={unread} color="error" max={99}>
         <NotificationsIcon />
       </Badge>

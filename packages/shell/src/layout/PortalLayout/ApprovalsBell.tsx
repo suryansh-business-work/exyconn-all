@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Badge, IconButton } from '@/components/ui';
+import { Badge, IconButton, roundButton } from '@/components/ui';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import { useMyPendingApprovalCountQuery } from '@/graphql/generated';
 
@@ -21,7 +21,7 @@ export function ApprovalsBell() {
     <IconButton
       onClick={() => navigate('/approvals')}
       aria-label={`${waiting} approvals waiting on you`}
-      sx={{ mr: 0.5 }}
+      sx={(t) => ({ ...roundButton(t), mr: 1 })}
     >
       <Badge badgeContent={waiting} color="warning" max={99}>
         <FactCheckIcon />

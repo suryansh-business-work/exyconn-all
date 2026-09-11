@@ -1,6 +1,14 @@
 import type { SvgIconComponent } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
-import { Box, Chip, ListItemButton, ListItemIcon, ListItemText, color } from '@/components/ui';
+import {
+  CARD_RADIUS,
+  Box,
+  Chip,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  color,
+} from '@/components/ui';
 import type { PortalAppKey } from '@/config/apps';
 
 export interface PortalEntry {
@@ -29,7 +37,7 @@ export function PortalListItem({ entry, onSelect }: Readonly<PortalListItemProps
       selected={entry.isCurrent}
       aria-current={entry.isCurrent ? 'page' : undefined}
       onClick={() => onSelect(entry)}
-      sx={{ borderRadius: 2, mb: 0.5, alignItems: 'flex-start', py: 1.25 }}
+      sx={{ borderRadius: `${CARD_RADIUS}px`, mb: 0.5, alignItems: 'flex-start', py: 1.25 }}
     >
       <ListItemIcon sx={{ minWidth: 44, mt: 0.25 }}>
         <Box

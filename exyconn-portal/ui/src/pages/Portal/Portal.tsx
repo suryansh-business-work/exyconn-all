@@ -1,4 +1,12 @@
-import { Box, CardActionArea, Grid, Flex, Heading, Text } from '@exyconn/shell/components/ui';
+import {
+  CARD_RADIUS,
+  Box,
+  CardActionArea,
+  Grid,
+  Flex,
+  Heading,
+  Text,
+} from '@exyconn/shell/components/ui';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
 import { accessibleModules } from '@exyconn/shell/config/modules';
 import { glass } from '@exyconn/shell/components/glass/glass';
@@ -43,7 +51,7 @@ export function Portal() {
                     sx={{
                       width: 52,
                       height: 52,
-                      borderRadius: 2,
+                      borderRadius: `${CARD_RADIUS}px`,
                       display: 'grid',
                       placeItems: 'center',
                       color: '#fff',

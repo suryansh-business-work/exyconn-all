@@ -1,4 +1,4 @@
-import { Box, Typography } from '@exyconn/shell/components/ui';
+import { CARD_RADIUS, Box, Typography } from '@exyconn/shell/components/ui';
 import type { SocialPostFieldsFragment } from '@exyconn/shell/graphql/generated';
 import { AuthorLine } from '../AuthorLine';
 import { PostBody } from './PostBody';
@@ -21,7 +21,7 @@ export function SharedPost({ original }: Readonly<SharedPostProps>) {
       sx={{
         mt: 1.5,
         p: 2,
-        borderRadius: 2,
+        borderRadius: `${CARD_RADIUS}px`,
         border: 1,
         borderColor: 'divider',
         bgcolor: 'action.hover',

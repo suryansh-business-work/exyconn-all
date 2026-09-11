@@ -1,4 +1,4 @@
-import { Box, Typography } from '@exyconn/shell/components/ui';
+import { CARD_RADIUS, Box, Typography } from '@exyconn/shell/components/ui';
 
 interface PostBodyProps {
   body: string;
@@ -29,7 +29,7 @@ export function PostBody({ body, imageUrl }: Readonly<PostBodyProps>) {
           src={imageUrl}
           alt=""
           loading="lazy"
-          sx={{ mt: 1.5, width: '100%', borderRadius: 2, display: 'block' }}
+          sx={{ mt: 1.5, width: '100%', borderRadius: `${CARD_RADIUS}px`, display: 'block' }}
         />
       )}
     </>

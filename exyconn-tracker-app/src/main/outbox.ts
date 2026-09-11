@@ -1,5 +1,5 @@
 import { Outbox as CoreOutbox } from '@exyconn/tracker-core';
-import { userDataFile } from './file-storage';
+import { userDataFile, userDataImages } from './file-storage';
 
 export type { FailureKind, FlushResult, OutboxItem } from '@exyconn/tracker-core';
 
@@ -9,6 +9,6 @@ export type { FailureKind, FlushResult, OutboxItem } from '@exyconn/tracker-core
  */
 export class Outbox extends CoreOutbox {
   constructor() {
-    super(userDataFile('tracker-outbox.json'));
+    super(userDataFile('tracker-outbox.json'), userDataImages('tracker-outbox-images'));
   }
 }

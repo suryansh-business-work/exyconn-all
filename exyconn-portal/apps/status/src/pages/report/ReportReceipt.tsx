@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
+  CARD_RADIUS,
   Box,
   Button,
   Card,
@@ -45,7 +46,7 @@ export function ReportReceipt({ reference, onAnother }: Readonly<ReportReceiptPr
           mt: 2,
           mb: 3,
           py: 1.5,
-          borderRadius: 2,
+          borderRadius: `${CARD_RADIUS}px`,
           bgcolor: 'action.hover',
           fontFamily: 'monospace',
           fontSize: fontSize['3xl'],

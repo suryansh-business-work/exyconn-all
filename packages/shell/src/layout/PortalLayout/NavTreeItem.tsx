@@ -13,14 +13,15 @@ interface Props {
   onSelect: (node: NavNode) => void;
 }
 
-const rowSx = (depth: number) => ({ borderRadius: 1.5, mb: 0.25, py: 0.6, pl: 1.25 + depth * 1.5 });
+const rowSx = (depth: number) => ({ borderRadius: 1, mb: 0.25, py: 0.6, pl: 1.25 + depth * 1.5 });
 
 /**
  * One page in the sidebar.
  *
- * The icon is muted until the row is the current page. Thirty-three rows each wearing the
- * module's colour is thirty-three things competing to be looked at, and the one that
- * matters — where you are — stops standing out at all.
+ * The icon is muted until the row is the current page, which the theme then fills with the
+ * inverted selection ink — the icon takes that ink too. Thirty-three rows each wearing the
+ * module's colour is thirty-three things competing to be looked at, and the one that matters —
+ * where you are — stops standing out at all.
  */
 function NavLeaf({ node, depth, nav, onSelect }: Readonly<Props>) {
   const Icon = node.icon;
@@ -33,7 +34,7 @@ function NavLeaf({ node, depth, nav, onSelect }: Readonly<Props>) {
       onClick={() => onSelect(node)}
       sx={rowSx(depth)}
     >
-      <ListItemIcon sx={{ minWidth: 32, color: selected ? node.accent : 'text.disabled' }}>
+      <ListItemIcon sx={{ minWidth: 32, color: selected ? 'inherit' : 'text.disabled' }}>
         <Icon fontSize="small" />
       </ListItemIcon>
       <ListItemText

@@ -1,5 +1,6 @@
 import { createTheme, type Theme } from '../styles';
-import { BASE_RADIUS, borderWidth } from '../tokens/border.token';
+import { BASE_RADIUS, CARD_RADIUS, borderWidth, radius } from '../tokens/border.token';
+import { selectedInk } from '../tokens/selection.token';
 import { fontFamily, fontWeight, letterSpacing, numeric } from '../tokens/typography.token';
 import { spacing } from '../tokens/spacing.token';
 import { tokensFor, type ColorMode } from '../tokens/modes';
@@ -14,6 +15,14 @@ const DENSE_TOOLBAR_HEIGHT = spacing(6);
 const DENSE_CARD_PADDING = spacing(1.5);
 const DENSE_LIST_PADDING = spacing(0.5);
 const HAIRLINE = `${borderWidth.hairline}px solid`;
+/** Cards, panels and dialogs: the soft card corner, as a px string (a number in sx multiplies). */
+const CARD_CORNER = `${CARD_RADIUS}px`;
+/** Menus and popovers sit between a control and a card. */
+const FLOATING_CORNER = `${BASE_RADIUS + 2}px`;
+const PILL = `${radius.pill}px`;
+/** A tab inside its pill track. */
+const TAB_HEIGHT = spacing(4.5);
+const TAB_TRACK_PADDING = spacing(0.5);
 
 /**
  * Builds the Exyconn theme for the given mode.
@@ -27,6 +36,7 @@ const HAIRLINE = `${borderWidth.hairline}px solid`;
  */
 export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr'): Theme {
   const t = tokensFor(mode);
+  const selected = { backgroundColor: selectedInk[mode].fill, color: selectedInk[mode].ink };
   return createTheme({
     direction,
     palette: {
@@ -40,15 +50,16 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
       text: { primary: t.text.primary, secondary: t.text.secondary },
       divider: t.divider,
     },
-    // One radius everywhere. Cards at 6 and panels at 9 is a difference nobody chose and
-    // everybody sees, and `glass` follows this number rather than carrying its own.
+    // Two corners, both from tokens: controls at BASE_RADIUS, every card-like surface at
+    // CARD_RADIUS (Paper, Card, Dialog, `glass`, the grid). Chips and tabs are pills.
     shape: { borderRadius: BASE_RADIUS },
     typography: {
       fontFamily: fontFamily.sans,
       fontWeightRegular: fontWeight.regular,
       fontWeightMedium: fontWeight.medium,
       fontWeightBold: fontWeight.bold,
-      h4: { fontWeight: fontWeight.bold, letterSpacing: letterSpacing.tighter },
+      // The page title: big and tight, as the trackers draw theirs.
+      h4: { fontSize: '2rem', fontWeight: fontWeight.bold, letterSpacing: letterSpacing.tighter },
       h5: { fontWeight: fontWeight.bold, letterSpacing: letterSpacing.tight },
       h6: { fontWeight: fontWeight.semibold, letterSpacing: letterSpacing.snug },
       subtitle2: { fontWeight: fontWeight.semibold },
@@ -60,13 +71,55 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
       MuiTextField: { defaultProps: { size: 'small' } },
       MuiLink: { defaultProps: { underline: 'none' } },
       MuiToolbar: { styleOverrides: { dense: { minHeight: DENSE_TOOLBAR_HEIGHT } } },
-      MuiListItemButton: {
+      MuiTable: { defaultProps: { size: 'small' } },
+      MuiChip: {
+        defaultProps: { size: 'small' },
+        styleOverrides: { root: { borderRadius: PILL, fontWeight: fontWeight.semibold } },
+      },
+      // Tabs are a pill track on paper, the selected tab an inverted-ink pill inside it.
+      MuiTabs: {
         styleOverrides: {
-          root: { paddingTop: DENSE_LIST_PADDING, paddingBottom: DENSE_LIST_PADDING },
+          root: {
+            minHeight: TAB_HEIGHT + TAB_TRACK_PADDING * 2,
+            padding: TAB_TRACK_PADDING,
+            borderRadius: PILL,
+            backgroundColor: t.background.panel,
+            border: `${HAIRLINE} ${t.divider}`,
+            '&.MuiTabs-vertical': { borderRadius: CARD_CORNER },
+          },
+          indicator: { display: 'none' },
         },
       },
-      MuiTable: { defaultProps: { size: 'small' } },
-      MuiChip: { defaultProps: { size: 'small' } },
+      MuiTab: {
+        styleOverrides: {
+          root: {
+            minHeight: TAB_HEIGHT,
+            paddingBlock: spacing(0.75),
+            borderRadius: PILL,
+            textTransform: 'none',
+            fontWeight: fontWeight.semibold,
+            '&.Mui-selected': selected,
+          },
+        },
+      },
+      // The current row of any selectable list (the sidebar's page first of all).
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            paddingTop: DENSE_LIST_PADDING,
+            paddingBottom: DENSE_LIST_PADDING,
+            '&.Mui-selected, &.Mui-selected:hover, &.Mui-selected.Mui-focusVisible': selected,
+            '&.Mui-selected .MuiListItemIcon-root': { color: 'inherit' },
+          },
+        },
+      },
+      MuiLinearProgress: {
+        styleOverrides: { root: { borderRadius: PILL }, bar: { borderRadius: PILL } },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: { root: { backgroundColor: t.background.panel } },
+      },
+      MuiTooltip: { styleOverrides: { tooltip: { borderRadius: `${radius.md}px` } } },
       MuiSelect: { defaultProps: { size: 'small' } },
       MuiCardContent: {
         styleOverrides: {
@@ -85,25 +138,39 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
       MuiPaper: {
         styleOverrides: {
           root: { backgroundImage: 'none' },
+          rounded: { borderRadius: CARD_CORNER },
           outlined: { borderColor: t.divider },
         },
       },
       MuiCard: {
         defaultProps: { elevation: 0 },
         styleOverrides: {
-          root: { border: `${HAIRLINE} ${t.divider}`, boxShadow: t.shadow.sm },
+          root: {
+            borderRadius: CARD_CORNER,
+            border: `${HAIRLINE} ${t.divider}`,
+            boxShadow: t.shadow.sm,
+          },
         },
       },
       MuiMenu: {
         styleOverrides: {
-          paper: { border: `${HAIRLINE} ${t.divider}`, boxShadow: t.shadow.md },
+          paper: {
+            borderRadius: FLOATING_CORNER,
+            border: `${HAIRLINE} ${t.divider}`,
+            boxShadow: t.shadow.md,
+          },
         },
       },
       MuiPopover: {
         styleOverrides: {
-          paper: { border: `${HAIRLINE} ${t.divider}`, boxShadow: t.shadow.md },
+          paper: {
+            borderRadius: FLOATING_CORNER,
+            border: `${HAIRLINE} ${t.divider}`,
+            boxShadow: t.shadow.md,
+          },
         },
       },
+      MuiAutocomplete: { styleOverrides: { paper: { borderRadius: FLOATING_CORNER } } },
       // Tabular figures wherever digits line up in a column: a total that does not align
       // with the numbers above it is the first thing that makes a finance screen look cheap.
       MuiTableCell: {
