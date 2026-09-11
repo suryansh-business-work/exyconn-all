@@ -3,6 +3,7 @@ import cors from 'cors';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { typeDefs, resolvers } from './graphql';
+import { serverErrorLogPlugin } from './modules/logs';
 import { buildContext, type GraphQLContext } from './middleware/auth';
 import { env } from './config/env';
 import { TRACKER_UPDATES_PATH, trackerUpdatesRouter } from './modules/tracker/tracker.updates';
@@ -16,7 +17,11 @@ import {
  * Returned (not started) so tests can drive it via supertest.
  */
 export async function createApp(): Promise<Express> {
-  const apollo = new ApolloServer<GraphQLContext>({ typeDefs, resolvers });
+  const apollo = new ApolloServer<GraphQLContext>({
+    typeDefs,
+    resolvers,
+    plugins: [serverErrorLogPlugin],
+  });
   await apollo.start();
 
   const app = express();

@@ -61,4 +61,5 @@ export const {
   sendMessage,
   markMessagesRead,
   setPresence,
+  reportClientLogs,
 } = client;

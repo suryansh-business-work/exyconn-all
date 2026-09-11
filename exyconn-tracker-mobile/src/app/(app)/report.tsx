@@ -9,3 +9,5 @@ export default function ReportRoute() {
   }
   return <MyReportScreen timezone={state.timezone} />;
 }
+
+export { ScreenErrorBoundary as ErrorBoundary } from '../../components/shell/ScreenErrorBoundary';

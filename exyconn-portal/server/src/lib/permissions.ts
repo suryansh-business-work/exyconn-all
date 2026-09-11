@@ -13,6 +13,7 @@ import type { GraphQLContext } from '../middleware/auth';
  * lists them without every resolver file needing a registration line of its own.
  */
 const HAND_WRITTEN_MODULES = [
+  'AppLog',
   'AppSettings',
   'AuditLog',
   'Branding',

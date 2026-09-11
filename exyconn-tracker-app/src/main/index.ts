@@ -26,6 +26,8 @@ import { secureStore } from './store';
 import { AppUpdater } from './updater';
 import { saveReportFile } from './report-file';
 import { PORTAL_GRAPHQL_URL } from './portal-client';
+import { installMainCrashHandlers } from './crash-handlers';
+import { setLogUser } from './logger';
 
 /**
  * This app's Windows AppUserModelID. Kept identical to `appId` in electron-builder.yml, which
@@ -43,6 +45,7 @@ const updater = new AppUpdater((update) => {
 });
 
 function broadcast(state: TrackerState): void {
+  setLogUser(state.user);
   window?.webContents.send(IPC.stateChanged, state);
   tray?.update(state);
   installUpdateWhenIdle();
@@ -295,6 +298,9 @@ function lockDownPermissions(): void {
     callback(permission === 'media');
   });
 }
+
+// First, so an error anywhere after this reaches Tech > Logs.
+installMainCrashHandlers();
 
 // A single instance only — a second launch focuses the existing window.
 if (!app.requestSingleInstanceLock()) {

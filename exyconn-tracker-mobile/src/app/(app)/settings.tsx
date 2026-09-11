@@ -9,3 +9,5 @@ export default function SettingsRoute() {
   }
   return <SettingsScreen state={state} />;
 }
+
+export { ScreenErrorBoundary as ErrorBoundary } from '../../components/shell/ScreenErrorBoundary';

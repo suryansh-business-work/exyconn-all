@@ -9,3 +9,5 @@ export default function Dashboard() {
   }
   return <DashboardScreen state={state} />;
 }
+
+export { ScreenErrorBoundary as ErrorBoundary } from '../../components/shell/ScreenErrorBoundary';

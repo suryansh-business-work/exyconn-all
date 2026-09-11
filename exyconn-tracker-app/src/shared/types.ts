@@ -119,6 +119,8 @@ export interface SavedReport {
 /** Renderer → main command channels. */
 export const IPC = {
   login: 'tracker:login',
+  /** A renderer's batch of Tech > Logs entries, sent on by main (see main/crash-handlers.ts). */
+  reportLogs: 'tracker:report-logs',
   logout: 'tracker:logout',
   acceptConsent: 'tracker:accept-consent',
   markAttendance: 'tracker:mark-attendance',

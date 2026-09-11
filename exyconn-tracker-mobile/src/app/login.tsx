@@ -38,3 +38,5 @@ export default function LoginScreen() {
     </ScreenLayout>
   );
 }
+
+export { ScreenErrorBoundary as ErrorBoundary } from '../components/shell/ScreenErrorBoundary';

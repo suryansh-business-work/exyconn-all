@@ -99,6 +99,63 @@ export type AnnouncementInput = {
   title: Scalars['String']['input'];
 };
 
+export type AppLogBatchInput = {
+  app: Scalars['String']['input'];
+  appVersion: InputMaybe<Scalars['String']['input']>;
+  deviceId: InputMaybe<Scalars['String']['input']>;
+  deviceModel: InputMaybe<Scalars['String']['input']>;
+  entries: Array<AppLogEntryInput>;
+  osVersion: InputMaybe<Scalars['String']['input']>;
+  platform: InputMaybe<Scalars['String']['input']>;
+  sessionId: InputMaybe<Scalars['String']['input']>;
+  source: AppLogSource;
+  user: InputMaybe<AppLogUserInput>;
+};
+
+export type AppLogBreadcrumbInput = {
+  at: Scalars['DateTime']['input'];
+  level: AppLogLevel;
+  message: Scalars['String']['input'];
+};
+
+export type AppLogEntryInput = {
+  breadcrumbs: InputMaybe<Array<AppLogBreadcrumbInput>>;
+  componentStack: InputMaybe<Scalars['String']['input']>;
+  /** JSON text. */
+  context: InputMaybe<Scalars['String']['input']>;
+  count: InputMaybe<Scalars['Int']['input']>;
+  errorName: InputMaybe<Scalars['String']['input']>;
+  level: AppLogLevel;
+  message: Scalars['String']['input'];
+  occurredAt: Scalars['DateTime']['input'];
+  route: InputMaybe<Scalars['String']['input']>;
+  stack: InputMaybe<Scalars['String']['input']>;
+};
+
+export type AppLogLevel =
+  | 'DEBUG'
+  | 'ERROR'
+  | 'INFO'
+  | 'WARN';
+
+export type AppLogSource =
+  | 'DESKTOP'
+  | 'MOBILE'
+  | 'PORTAL'
+  | 'SERVER';
+
+export type AppLogStatus =
+  | 'IGNORED'
+  | 'OPEN'
+  | 'RESOLVED';
+
+/** The last signed-in user the client knew of — used only when the request carries no session. */
+export type AppLogUserInput = {
+  email: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type ApplicantInput = {
   companySlug: InputMaybe<Scalars['String']['input']>;
   coverLetter: Scalars['String']['input'];
@@ -2048,6 +2105,13 @@ export type TaskFieldsFragment = { id: string, key: string, title: string, assig
 
 export type TrackerMeFieldsFragment = { consentRequired: boolean, timezone: string, unreadMessages: number, user: { id: string, name: string, email: string }, settings: { intervalMinutes: number, screenshotsPerInterval: number, randomizeScreenshotTiming: boolean, blurScreenshots: boolean, trackWindowTitles: boolean, idleThresholdSeconds: number, idleAutoPauseMinutes: number, screenshotMaxWidth: number, screenshotQuality: number, captureSoundEnabled: boolean, webcamEnabled: boolean, webcamCorner: string, syncIntervalMinutes: number, consentText: string, autoStartEnabled: boolean, autoStartHour: number, autoStopHour: number }, workProfile: { workingTime: WorkingTime, workingTimeNote: string, workLocation: WorkLocation, workLocationNote: string, workHoursPerDay: number, targetMs: number }, workday: { date: string, targetMs: number, activeMs: number, attendanceStatus: AttendanceStatus | null, attendanceNote: string | null, attendanceMarked: boolean }, projects: Array<{ id: string, name: string, key: string }>, consentPolicy: { id: string, title: string, slug: string, summary: string, body: string, version: number, requiresAcknowledgement: boolean, acknowledged: boolean } | null, presence: { status: TrackerPresence, note: string, since: string | null }, notices: Array<{ id: string, kind: TrackerMessageKind, direction: TrackerMessageDirection, title: string, body: string, authorName: string, readAt: string | null, createdAt: string }> };
 
+export type ReportClientLogsMutationVariables = Exact<{
+  input: AppLogBatchInput;
+}>;
+
+
+export type ReportClientLogsMutation = { reportClientLogs: boolean };
+
 export type MyTrackerCalendarQueryVariables = Exact<{
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
@@ -2412,6 +2476,11 @@ fragment MessageFields on TrackerMessage {
   readAt
   createdAt
 }`, {"fragmentName":"TrackerMeFields"}) as unknown as TypedDocumentString<TrackerMeFieldsFragment, unknown>;
+export const ReportClientLogsDocument = new TypedDocumentString(`
+    mutation ReportClientLogs($input: AppLogBatchInput!) {
+  reportClientLogs(input: $input)
+}
+    `) as unknown as TypedDocumentString<ReportClientLogsMutation, ReportClientLogsMutationVariables>;
 export const MyTrackerCalendarDocument = new TypedDocumentString(`
     query MyTrackerCalendar($from: DateTime!, $to: DateTime!, $timezone: String!) {
   myTrackerCalendar(from: $from, to: $to, timezone: $timezone) {

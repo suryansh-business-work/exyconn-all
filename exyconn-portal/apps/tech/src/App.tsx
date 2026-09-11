@@ -11,6 +11,7 @@ import { ProblemReportsPage } from './pages/problem-reports';
 import { StatusMonitorsPage } from './pages/status-monitors';
 import { InfrastructurePage } from './pages/infrastructure';
 import { IncidentsPage } from './pages/incidents';
+import { LogsPage } from './pages/logs';
 
 /** Tech micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -24,6 +25,7 @@ export function App() {
       <Route path="/tech/status-monitors" element={<StatusMonitorsPage />} />
       <Route path="/tech/infrastructure/:tab?" element={<InfrastructurePage />} />
       <Route path="/tech/incidents/:tab?" element={<IncidentsPage />} />
+      <Route path="/tech/logs" element={<LogsPage />} />
       <Route path="/tech/settings" element={<SettingsPage />} />
     </PortalApp>
   );

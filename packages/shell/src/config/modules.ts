@@ -1054,6 +1054,13 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Operations',
       },
       {
+        key: 'tech-logs',
+        label: 'Logs',
+        path: '/tech/logs',
+        icon: BugReportIcon,
+        group: 'Operations',
+      },
+      {
         key: 'tech-tracker-build',
         label: 'Tracker Build',
         path: '/tech/tracker-build',

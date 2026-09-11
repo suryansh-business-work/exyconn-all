@@ -16,6 +16,7 @@ import { ProfilePage } from '@/pages/Profile';
 import { SettingsPage } from '@/pages/Settings';
 import { NotificationsPage } from '@/pages/Notifications';
 import { ApprovalsPage } from '@/pages/Approvals';
+import { RouteLogger } from '@/logging/RouteLogger';
 
 /**
  * Where a password reset email sends people. Public, like /login, and served by the same
@@ -63,6 +64,7 @@ export function PortalApp({
             <NotificationProvider>
               <ConfirmProvider>
                 <BrowserRouter>
+                  <RouteLogger />
                   <AuthProvider>
                     <Routes>
                       <Route path="/login" element={loginElement} />

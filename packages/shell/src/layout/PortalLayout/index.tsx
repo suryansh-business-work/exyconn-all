@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import type { Theme } from '@/components/ui';
 import { borderWidth, Box, Drawer, Toolbar } from '@/components/ui';
 import { Topbar } from './Topbar';
 import { Sidebar } from './Sidebar';
 import { useAuth } from '@/auth/AuthContext';
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
+import { PageErrorBoundary } from '@/logging/PageErrorBoundary';
 
 /** Wide enough that a page like "Onboarding Templates" is read, not truncated. */
 const DRAWER_WIDTH = 288;
@@ -25,6 +26,7 @@ const drawerPaper = (t: Theme, width: number) => ({
 /** Responsive portal shell: permanent drawer on desktop, temporary on mobile. */
 export function PortalLayout() {
   const { user } = useAuth();
+  const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, toggleCollapsed] = useSidebarCollapsed();
   if (!user) return null;
@@ -74,7 +76,10 @@ export function PortalLayout() {
       <Box component="main" sx={{ flexGrow: 1, width: { md: `calc(100% - ${width}px)` } }}>
         <Toolbar variant="dense" />
         <Box sx={{ p: { xs: 1, md: 1.5 } }}>
-          <Outlet />
+          {/* Keyed by path: a crashed page leaves the sidebar working, and navigating clears it. */}
+          <PageErrorBoundary key={pathname}>
+            <Outlet />
+          </PageErrorBoundary>
         </Box>
       </Box>
     </Box>

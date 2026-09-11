@@ -16,6 +16,7 @@ export * from './controller';
 export * from './engine';
 export * from './foreground-usage';
 export * from './format';
+export * from './logger';
 export * from './outbox';
 export * from './presence';
 export * from './report-csv';

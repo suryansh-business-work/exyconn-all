@@ -255,6 +255,135 @@ export type ApiKey = {
   roles: Array<Scalars['String']['output']>;
 };
 
+export type AppLogBatchInput = {
+  app: Scalars['String']['input'];
+  appVersion?: InputMaybe<Scalars['String']['input']>;
+  deviceId?: InputMaybe<Scalars['String']['input']>;
+  deviceModel?: InputMaybe<Scalars['String']['input']>;
+  entries: Array<AppLogEntryInput>;
+  osVersion?: InputMaybe<Scalars['String']['input']>;
+  platform?: InputMaybe<Scalars['String']['input']>;
+  sessionId?: InputMaybe<Scalars['String']['input']>;
+  source: AppLogSource;
+  user?: InputMaybe<AppLogUserInput>;
+};
+
+/** What the app did just before a log, oldest first. */
+export type AppLogBreadcrumb = {
+  __typename?: 'AppLogBreadcrumb';
+  at: Scalars['DateTime']['output'];
+  level: AppLogLevel;
+  message: Scalars['String']['output'];
+};
+
+export type AppLogBreadcrumbInput = {
+  at: Scalars['DateTime']['input'];
+  level: AppLogLevel;
+  message: Scalars['String']['input'];
+};
+
+export type AppLogEntryInput = {
+  breadcrumbs?: InputMaybe<Array<AppLogBreadcrumbInput>>;
+  componentStack?: InputMaybe<Scalars['String']['input']>;
+  /** JSON text. */
+  context?: InputMaybe<Scalars['String']['input']>;
+  count?: InputMaybe<Scalars['Int']['input']>;
+  errorName?: InputMaybe<Scalars['String']['input']>;
+  level: AppLogLevel;
+  message: Scalars['String']['input'];
+  occurredAt: Scalars['DateTime']['input'];
+  route?: InputMaybe<Scalars['String']['input']>;
+  stack?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** One occurrence: who, when, on which device and build, and what led up to it. */
+export type AppLogEvent = {
+  __typename?: 'AppLogEvent';
+  appVersion: Scalars['String']['output'];
+  breadcrumbs: Array<AppLogBreadcrumb>;
+  componentStack: Scalars['String']['output'];
+  context: Scalars['String']['output'];
+  /** Identical entries the client folded into this one. */
+  count: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  deviceId: Scalars['String']['output'];
+  deviceModel: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  ip: Scalars['String']['output'];
+  level: AppLogLevel;
+  message: Scalars['String']['output'];
+  occurredAt: Scalars['DateTime']['output'];
+  osVersion: Scalars['String']['output'];
+  platform: Scalars['String']['output'];
+  route: Scalars['String']['output'];
+  sessionId: Scalars['String']['output'];
+  stack: Scalars['String']['output'];
+  userAgent: Scalars['String']['output'];
+  userEmail: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
+  userName: Scalars['String']['output'];
+  /** False when the client named the user but sent no valid session. */
+  userVerified: Scalars['Boolean']['output'];
+};
+
+/** Every occurrence of one distinct problem, folded into one row. */
+export type AppLogGroup = {
+  __typename?: 'AppLogGroup';
+  /** Which app: a portal name (tech, hr), tracker-desktop, tracker-mobile or portal-server. */
+  app: Scalars['String']['output'];
+  appVersion: Scalars['String']['output'];
+  count: Scalars['Int']['output'];
+  errorName: Scalars['String']['output'];
+  firstSeenAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  lastSeenAt: Scalars['DateTime']['output'];
+  lastUserEmail: Scalars['String']['output'];
+  lastUserName: Scalars['String']['output'];
+  level: AppLogLevel;
+  message: Scalars['String']['output'];
+  platform: Scalars['String']['output'];
+  resolvedAt?: Maybe<Scalars['DateTime']['output']>;
+  route: Scalars['String']['output'];
+  source: AppLogSource;
+  /** The stack of the most recent occurrence. */
+  stack: Scalars['String']['output'];
+  status: AppLogStatus;
+  userCount: Scalars['Int']['output'];
+};
+
+export type AppLogGroupPage = {
+  __typename?: 'AppLogGroupPage';
+  rows: Array<AppLogGroup>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum AppLogLevel {
+  Debug = 'DEBUG',
+  Error = 'ERROR',
+  Info = 'INFO',
+  Warn = 'WARN'
+}
+
+export enum AppLogSource {
+  Desktop = 'DESKTOP',
+  Mobile = 'MOBILE',
+  Portal = 'PORTAL',
+  Server = 'SERVER'
+}
+
+export enum AppLogStatus {
+  Ignored = 'IGNORED',
+  Open = 'OPEN',
+  Resolved = 'RESOLVED'
+}
+
+/** The last signed-in user the client knew of — used only when the request carries no session. */
+export type AppLogUserInput = {
+  email: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type AppSettings = {
   __typename?: 'AppSettings';
   /** Machine-translate a string the first time a screen needs one and none exists. */
@@ -3218,6 +3347,8 @@ export type Mutation = {
   deleteAiJob: Scalars['Boolean']['output'];
   deleteAiModelPrice: Scalars['Boolean']['output'];
   deleteAnnouncement: Scalars['Boolean']['output'];
+  /** Deletes the group and every stored occurrence of it. */
+  deleteAppLogGroup: Scalars['Boolean']['output'];
   deleteApplicant: Scalars['Boolean']['output'];
   deleteAsset: Scalars['Boolean']['output'];
   deleteAudienceList: Scalars['Boolean']['output'];
@@ -3351,6 +3482,11 @@ export type Mutation = {
   renameColumn: BoardColumn;
   reorderColumns: Scalars['Boolean']['output'];
   /**
+   * Public, so a crash on the login screen still reaches us. The user is read from the
+   * session when there is one. Rate-limited per user, else per IP.
+   */
+  reportClientLogs: Scalars['Boolean']['output'];
+  /**
    * Self-service reset: emails a one-hour link to the address if an account has it.
    * Always true, so the answer does not reveal which addresses have accounts.
    */
@@ -3431,6 +3567,7 @@ export type Mutation = {
    */
   sendTrackerNotice: Scalars['Int']['output'];
   sendUserMail: Scalars['Boolean']['output'];
+  setAppLogGroupStatus: AppLogGroup;
   /** Moves an applicant along the pipeline. The applicant is emailed on INTERVIEW, OFFER and REJECTED. */
   setApplicantStage: Applicant;
   /** Marks a column as the end of the line, or takes that mark away. */
@@ -4285,6 +4422,11 @@ export type MutationDeleteAnnouncementArgs = {
 };
 
 
+export type MutationDeleteAppLogGroupArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteApplicantArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4813,6 +4955,11 @@ export type MutationReorderColumnsArgs = {
 };
 
 
+export type MutationReportClientLogsArgs = {
+  input: AppLogBatchInput;
+};
+
+
 export type MutationRequestPasswordResetArgs = {
   email: Scalars['String']['input'];
 };
@@ -4971,6 +5118,12 @@ export type MutationSendTrackerNoticeArgs = {
 export type MutationSendUserMailArgs = {
   id: Scalars['ID']['input'];
   input: SendMailInput;
+};
+
+
+export type MutationSetAppLogGroupStatusArgs = {
+  id: Scalars['ID']['input'];
+  status: AppLogStatus;
 };
 
 
@@ -6799,6 +6952,8 @@ export type Query = {
   aiSpendLimit: AiSpendLimit;
   /** What AI cost between two instants, broken down by person and by model. */
   aiSpendSummary: AiSpendSummary;
+  /** Markdown describing one group, ready to paste to Claude to fix. */
+  appLogFixPrompt: Scalars['String']['output'];
   appSettings: AppSettings;
   /** Every spell this asset has been held for, most recent first. */
   assetAssignments: Array<AssetAssignment>;
@@ -6855,6 +7010,7 @@ export type Query = {
   getActivity: Activity;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
+  getAppLogGroup: AppLogGroup;
   getApplicant: Applicant;
   getAsset: Asset;
   getAudienceList: AudienceList;
@@ -6955,6 +7111,10 @@ export type Query = {
   listAnnouncementsPaged: AnnouncementPage;
   listAnnouncementsStats: TableStats;
   listApiKeys: Array<ApiKey>;
+  /** The most recent occurrences of one group, newest first. */
+  listAppLogEvents: Array<AppLogEvent>;
+  listAppLogGroupsPaged: AppLogGroupPage;
+  listAppLogGroupsStats: TableStats;
   listApplicants: Array<Applicant>;
   listApplicantsPaged: ApplicantPage;
   listApplicantsStats: TableStats;
@@ -7262,6 +7422,8 @@ export type Query = {
   myTrackerTotals: TrackerTotals;
   myTrainings: Array<Training>;
   myUnreadNotificationCount: Scalars['Int']['output'];
+  /** Markdown describing every OPEN error (optionally from one source), ready to paste to Claude. */
+  openAppLogsFixPrompt: Scalars['String']['output'];
   /** HR/ADMIN: every active user with their managerId, for the org chart. */
   orgChart: Array<OrgNode>;
   /** The payslip email schedule. Created with its defaults on first read. */
@@ -7431,6 +7593,11 @@ export type QueryAiSpendSummaryArgs = {
 };
 
 
+export type QueryAppLogFixPromptArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryAssetAssignmentsArgs = {
   assetId: Scalars['ID']['input'];
 };
@@ -7521,6 +7688,11 @@ export type QueryGetAiJobArgs = {
 
 
 export type QueryGetAnnouncementArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetAppLogGroupArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7901,6 +8073,16 @@ export type QueryListAiJobsPagedArgs = {
 
 
 export type QueryListAnnouncementsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListAppLogEventsArgs = {
+  groupId: Scalars['ID']['input'];
+};
+
+
+export type QueryListAppLogGroupsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -8301,6 +8483,11 @@ export type QueryMyTrackerManualEntriesArgs = {
 
 export type QueryMyTrackerMessagesArgs = {
   kind?: InputMaybe<TrackerMessageKind>;
+};
+
+
+export type QueryOpenAppLogsFixPromptArgs = {
+  source?: InputMaybe<AppLogSource>;
 };
 
 
@@ -13051,6 +13238,65 @@ export type DeleteLicenceMutationVariables = Exact<{
 
 export type DeleteLicenceMutation = { __typename?: 'Mutation', deleteLicence: boolean };
 
+export type AppLogGroupFieldsFragment = { __typename?: 'AppLogGroup', id: string, source: AppLogSource, app: string, level: AppLogLevel, errorName: string, message: string, stack: string, route: string, status: AppLogStatus, count: number, userCount: number, lastUserName: string, lastUserEmail: string, platform: string, appVersion: string, firstSeenAt: string, lastSeenAt: string, resolvedAt?: string | null };
+
+export type AppLogEventFieldsFragment = { __typename?: 'AppLogEvent', id: string, level: AppLogLevel, message: string, stack: string, componentStack: string, route: string, context: string, count: number, occurredAt: string, createdAt: string, userId: string, userName: string, userEmail: string, userVerified: boolean, deviceId: string, platform: string, osVersion: string, deviceModel: string, appVersion: string, sessionId: string, userAgent: string, ip: string, breadcrumbs: Array<{ __typename?: 'AppLogBreadcrumb', at: string, level: AppLogLevel, message: string }> };
+
+export type ListAppLogGroupsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListAppLogGroupsPagedQuery = { __typename?: 'Query', listAppLogGroupsPaged: { __typename?: 'AppLogGroupPage', totalCount: number, rows: Array<{ __typename?: 'AppLogGroup', id: string, source: AppLogSource, app: string, level: AppLogLevel, errorName: string, message: string, stack: string, route: string, status: AppLogStatus, count: number, userCount: number, lastUserName: string, lastUserEmail: string, platform: string, appVersion: string, firstSeenAt: string, lastSeenAt: string, resolvedAt?: string | null }> } };
+
+export type ListAppLogGroupsStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListAppLogGroupsStatsQuery = { __typename?: 'Query', listAppLogGroupsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type ListAppLogEventsQueryVariables = Exact<{
+  groupId: Scalars['ID']['input'];
+}>;
+
+
+export type ListAppLogEventsQuery = { __typename?: 'Query', listAppLogEvents: Array<{ __typename?: 'AppLogEvent', id: string, level: AppLogLevel, message: string, stack: string, componentStack: string, route: string, context: string, count: number, occurredAt: string, createdAt: string, userId: string, userName: string, userEmail: string, userVerified: boolean, deviceId: string, platform: string, osVersion: string, deviceModel: string, appVersion: string, sessionId: string, userAgent: string, ip: string, breadcrumbs: Array<{ __typename?: 'AppLogBreadcrumb', at: string, level: AppLogLevel, message: string }> }> };
+
+export type AppLogFixPromptQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type AppLogFixPromptQuery = { __typename?: 'Query', appLogFixPrompt: string };
+
+export type OpenAppLogsFixPromptQueryVariables = Exact<{
+  source?: InputMaybe<AppLogSource>;
+}>;
+
+
+export type OpenAppLogsFixPromptQuery = { __typename?: 'Query', openAppLogsFixPrompt: string };
+
+export type ReportClientLogsMutationVariables = Exact<{
+  input: AppLogBatchInput;
+}>;
+
+
+export type ReportClientLogsMutation = { __typename?: 'Mutation', reportClientLogs: boolean };
+
+export type SetAppLogGroupStatusMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  status: AppLogStatus;
+}>;
+
+
+export type SetAppLogGroupStatusMutation = { __typename?: 'Mutation', setAppLogGroupStatus: { __typename?: 'AppLogGroup', id: string, source: AppLogSource, app: string, level: AppLogLevel, errorName: string, message: string, stack: string, route: string, status: AppLogStatus, count: number, userCount: number, lastUserName: string, lastUserEmail: string, platform: string, appVersion: string, firstSeenAt: string, lastSeenAt: string, resolvedAt?: string | null } };
+
+export type DeleteAppLogGroupMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteAppLogGroupMutation = { __typename?: 'Mutation', deleteAppLogGroup: boolean };
+
 export type CampaignFieldsFragment = { __typename?: 'Campaign', id: string, name: string, channel: CampaignChannel, budget: number, startDate: string, endDate: string, status: CampaignStatus, subject?: string | null, body?: string | null, templateKey?: string | null, lastSentAt?: string | null, recipientsCount?: number | null, scheduledAt?: string | null, scheduledAudienceListId?: string | null, scheduleDispatchedAt?: string | null };
 
 export type ListCampaignsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -16177,6 +16423,59 @@ export const LicenceFieldsFragmentDoc = gql`
   renewalDate
   status
   notes
+}
+    `;
+export const AppLogGroupFieldsFragmentDoc = gql`
+    fragment AppLogGroupFields on AppLogGroup {
+  id
+  source
+  app
+  level
+  errorName
+  message
+  stack
+  route
+  status
+  count
+  userCount
+  lastUserName
+  lastUserEmail
+  platform
+  appVersion
+  firstSeenAt
+  lastSeenAt
+  resolvedAt
+}
+    `;
+export const AppLogEventFieldsFragmentDoc = gql`
+    fragment AppLogEventFields on AppLogEvent {
+  id
+  level
+  message
+  stack
+  componentStack
+  route
+  context
+  breadcrumbs {
+    at
+    level
+    message
+  }
+  count
+  occurredAt
+  createdAt
+  userId
+  userName
+  userEmail
+  userVerified
+  deviceId
+  platform
+  osVersion
+  deviceModel
+  appVersion
+  sessionId
+  userAgent
+  ip
 }
     `;
 export const CampaignFieldsFragmentDoc = gql`
@@ -30543,6 +30842,322 @@ export function useDeleteLicenceMutation(baseOptions?: ApolloReactHooks.Mutation
         return ApolloReactHooks.useMutation<DeleteLicenceMutation, DeleteLicenceMutationVariables>(DeleteLicenceDocument, options);
       }
 export type DeleteLicenceMutationHookResult = ReturnType<typeof useDeleteLicenceMutation>;
+export const ListAppLogGroupsPagedDocument = gql`
+    query ListAppLogGroupsPaged($input: TableQueryInput!) {
+  listAppLogGroupsPaged(input: $input) {
+    totalCount
+    rows {
+      ...AppLogGroupFields
+    }
+  }
+}
+    ${AppLogGroupFieldsFragmentDoc}`;
+
+/**
+ * __useListAppLogGroupsPagedQuery__
+ *
+ * To run a query within a React component, call `useListAppLogGroupsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAppLogGroupsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAppLogGroupsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListAppLogGroupsPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ListAppLogGroupsPagedQuery, ListAppLogGroupsPagedQueryVariables> & ({ variables: ListAppLogGroupsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListAppLogGroupsPagedQuery, ListAppLogGroupsPagedQueryVariables>(ListAppLogGroupsPagedDocument, options);
+      }
+export function useListAppLogGroupsPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListAppLogGroupsPagedQuery, ListAppLogGroupsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListAppLogGroupsPagedQuery, ListAppLogGroupsPagedQueryVariables>(ListAppLogGroupsPagedDocument, options);
+        }
+// @ts-ignore
+export function useListAppLogGroupsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListAppLogGroupsPagedQuery, ListAppLogGroupsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAppLogGroupsPagedQuery, ListAppLogGroupsPagedQueryVariables>;
+// @ts-ignore
+export function useListAppLogGroupsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAppLogGroupsPagedQuery, ListAppLogGroupsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAppLogGroupsPagedQuery | undefined, ListAppLogGroupsPagedQueryVariables>;
+export function useListAppLogGroupsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAppLogGroupsPagedQuery, ListAppLogGroupsPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListAppLogGroupsPagedQuery, ListAppLogGroupsPagedQueryVariables>(ListAppLogGroupsPagedDocument, options);
+        }
+export type ListAppLogGroupsPagedQueryHookResult = ReturnType<typeof useListAppLogGroupsPagedQuery>;
+export type ListAppLogGroupsPagedLazyQueryHookResult = ReturnType<typeof useListAppLogGroupsPagedLazyQuery>;
+export type ListAppLogGroupsPagedSuspenseQueryHookResult = ReturnType<typeof useListAppLogGroupsPagedSuspenseQuery>;
+export const ListAppLogGroupsStatsDocument = gql`
+    query ListAppLogGroupsStats {
+  listAppLogGroupsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useListAppLogGroupsStatsQuery__
+ *
+ * To run a query within a React component, call `useListAppLogGroupsStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAppLogGroupsStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAppLogGroupsStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListAppLogGroupsStatsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListAppLogGroupsStatsQuery, ListAppLogGroupsStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListAppLogGroupsStatsQuery, ListAppLogGroupsStatsQueryVariables>(ListAppLogGroupsStatsDocument, options);
+      }
+export function useListAppLogGroupsStatsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListAppLogGroupsStatsQuery, ListAppLogGroupsStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListAppLogGroupsStatsQuery, ListAppLogGroupsStatsQueryVariables>(ListAppLogGroupsStatsDocument, options);
+        }
+// @ts-ignore
+export function useListAppLogGroupsStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListAppLogGroupsStatsQuery, ListAppLogGroupsStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAppLogGroupsStatsQuery, ListAppLogGroupsStatsQueryVariables>;
+// @ts-ignore
+export function useListAppLogGroupsStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAppLogGroupsStatsQuery, ListAppLogGroupsStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAppLogGroupsStatsQuery | undefined, ListAppLogGroupsStatsQueryVariables>;
+export function useListAppLogGroupsStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAppLogGroupsStatsQuery, ListAppLogGroupsStatsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListAppLogGroupsStatsQuery, ListAppLogGroupsStatsQueryVariables>(ListAppLogGroupsStatsDocument, options);
+        }
+export type ListAppLogGroupsStatsQueryHookResult = ReturnType<typeof useListAppLogGroupsStatsQuery>;
+export type ListAppLogGroupsStatsLazyQueryHookResult = ReturnType<typeof useListAppLogGroupsStatsLazyQuery>;
+export type ListAppLogGroupsStatsSuspenseQueryHookResult = ReturnType<typeof useListAppLogGroupsStatsSuspenseQuery>;
+export const ListAppLogEventsDocument = gql`
+    query ListAppLogEvents($groupId: ID!) {
+  listAppLogEvents(groupId: $groupId) {
+    ...AppLogEventFields
+  }
+}
+    ${AppLogEventFieldsFragmentDoc}`;
+
+/**
+ * __useListAppLogEventsQuery__
+ *
+ * To run a query within a React component, call `useListAppLogEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListAppLogEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListAppLogEventsQuery({
+ *   variables: {
+ *      groupId: // value for 'groupId'
+ *   },
+ * });
+ */
+export function useListAppLogEventsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ListAppLogEventsQuery, ListAppLogEventsQueryVariables> & ({ variables: ListAppLogEventsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListAppLogEventsQuery, ListAppLogEventsQueryVariables>(ListAppLogEventsDocument, options);
+      }
+export function useListAppLogEventsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListAppLogEventsQuery, ListAppLogEventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListAppLogEventsQuery, ListAppLogEventsQueryVariables>(ListAppLogEventsDocument, options);
+        }
+// @ts-ignore
+export function useListAppLogEventsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListAppLogEventsQuery, ListAppLogEventsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAppLogEventsQuery, ListAppLogEventsQueryVariables>;
+// @ts-ignore
+export function useListAppLogEventsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAppLogEventsQuery, ListAppLogEventsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListAppLogEventsQuery | undefined, ListAppLogEventsQueryVariables>;
+export function useListAppLogEventsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListAppLogEventsQuery, ListAppLogEventsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListAppLogEventsQuery, ListAppLogEventsQueryVariables>(ListAppLogEventsDocument, options);
+        }
+export type ListAppLogEventsQueryHookResult = ReturnType<typeof useListAppLogEventsQuery>;
+export type ListAppLogEventsLazyQueryHookResult = ReturnType<typeof useListAppLogEventsLazyQuery>;
+export type ListAppLogEventsSuspenseQueryHookResult = ReturnType<typeof useListAppLogEventsSuspenseQuery>;
+export const AppLogFixPromptDocument = gql`
+    query AppLogFixPrompt($id: ID!) {
+  appLogFixPrompt(id: $id)
+}
+    `;
+
+/**
+ * __useAppLogFixPromptQuery__
+ *
+ * To run a query within a React component, call `useAppLogFixPromptQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAppLogFixPromptQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAppLogFixPromptQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useAppLogFixPromptQuery(baseOptions: ApolloReactHooks.QueryHookOptions<AppLogFixPromptQuery, AppLogFixPromptQueryVariables> & ({ variables: AppLogFixPromptQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<AppLogFixPromptQuery, AppLogFixPromptQueryVariables>(AppLogFixPromptDocument, options);
+      }
+export function useAppLogFixPromptLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AppLogFixPromptQuery, AppLogFixPromptQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<AppLogFixPromptQuery, AppLogFixPromptQueryVariables>(AppLogFixPromptDocument, options);
+        }
+// @ts-ignore
+export function useAppLogFixPromptSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<AppLogFixPromptQuery, AppLogFixPromptQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<AppLogFixPromptQuery, AppLogFixPromptQueryVariables>;
+// @ts-ignore
+export function useAppLogFixPromptSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<AppLogFixPromptQuery, AppLogFixPromptQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<AppLogFixPromptQuery | undefined, AppLogFixPromptQueryVariables>;
+export function useAppLogFixPromptSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<AppLogFixPromptQuery, AppLogFixPromptQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<AppLogFixPromptQuery, AppLogFixPromptQueryVariables>(AppLogFixPromptDocument, options);
+        }
+export type AppLogFixPromptQueryHookResult = ReturnType<typeof useAppLogFixPromptQuery>;
+export type AppLogFixPromptLazyQueryHookResult = ReturnType<typeof useAppLogFixPromptLazyQuery>;
+export type AppLogFixPromptSuspenseQueryHookResult = ReturnType<typeof useAppLogFixPromptSuspenseQuery>;
+export const OpenAppLogsFixPromptDocument = gql`
+    query OpenAppLogsFixPrompt($source: AppLogSource) {
+  openAppLogsFixPrompt(source: $source)
+}
+    `;
+
+/**
+ * __useOpenAppLogsFixPromptQuery__
+ *
+ * To run a query within a React component, call `useOpenAppLogsFixPromptQuery` and pass it any options that fit your needs.
+ * When your component renders, `useOpenAppLogsFixPromptQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOpenAppLogsFixPromptQuery({
+ *   variables: {
+ *      source: // value for 'source'
+ *   },
+ * });
+ */
+export function useOpenAppLogsFixPromptQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<OpenAppLogsFixPromptQuery, OpenAppLogsFixPromptQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<OpenAppLogsFixPromptQuery, OpenAppLogsFixPromptQueryVariables>(OpenAppLogsFixPromptDocument, options);
+      }
+export function useOpenAppLogsFixPromptLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<OpenAppLogsFixPromptQuery, OpenAppLogsFixPromptQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<OpenAppLogsFixPromptQuery, OpenAppLogsFixPromptQueryVariables>(OpenAppLogsFixPromptDocument, options);
+        }
+// @ts-ignore
+export function useOpenAppLogsFixPromptSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<OpenAppLogsFixPromptQuery, OpenAppLogsFixPromptQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<OpenAppLogsFixPromptQuery, OpenAppLogsFixPromptQueryVariables>;
+// @ts-ignore
+export function useOpenAppLogsFixPromptSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<OpenAppLogsFixPromptQuery, OpenAppLogsFixPromptQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<OpenAppLogsFixPromptQuery | undefined, OpenAppLogsFixPromptQueryVariables>;
+export function useOpenAppLogsFixPromptSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<OpenAppLogsFixPromptQuery, OpenAppLogsFixPromptQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<OpenAppLogsFixPromptQuery, OpenAppLogsFixPromptQueryVariables>(OpenAppLogsFixPromptDocument, options);
+        }
+export type OpenAppLogsFixPromptQueryHookResult = ReturnType<typeof useOpenAppLogsFixPromptQuery>;
+export type OpenAppLogsFixPromptLazyQueryHookResult = ReturnType<typeof useOpenAppLogsFixPromptLazyQuery>;
+export type OpenAppLogsFixPromptSuspenseQueryHookResult = ReturnType<typeof useOpenAppLogsFixPromptSuspenseQuery>;
+export const ReportClientLogsDocument = gql`
+    mutation ReportClientLogs($input: AppLogBatchInput!) {
+  reportClientLogs(input: $input)
+}
+    `;
+
+/**
+ * __useReportClientLogsMutation__
+ *
+ * To run a mutation, you first call `useReportClientLogsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReportClientLogsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [reportClientLogsMutation, { data, loading, error }] = useReportClientLogsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useReportClientLogsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ReportClientLogsMutation, ReportClientLogsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ReportClientLogsMutation, ReportClientLogsMutationVariables>(ReportClientLogsDocument, options);
+      }
+export type ReportClientLogsMutationHookResult = ReturnType<typeof useReportClientLogsMutation>;
+export const SetAppLogGroupStatusDocument = gql`
+    mutation SetAppLogGroupStatus($id: ID!, $status: AppLogStatus!) {
+  setAppLogGroupStatus(id: $id, status: $status) {
+    ...AppLogGroupFields
+  }
+}
+    ${AppLogGroupFieldsFragmentDoc}`;
+
+/**
+ * __useSetAppLogGroupStatusMutation__
+ *
+ * To run a mutation, you first call `useSetAppLogGroupStatusMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetAppLogGroupStatusMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setAppLogGroupStatusMutation, { data, loading, error }] = useSetAppLogGroupStatusMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useSetAppLogGroupStatusMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetAppLogGroupStatusMutation, SetAppLogGroupStatusMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetAppLogGroupStatusMutation, SetAppLogGroupStatusMutationVariables>(SetAppLogGroupStatusDocument, options);
+      }
+export type SetAppLogGroupStatusMutationHookResult = ReturnType<typeof useSetAppLogGroupStatusMutation>;
+export const DeleteAppLogGroupDocument = gql`
+    mutation DeleteAppLogGroup($id: ID!) {
+  deleteAppLogGroup(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteAppLogGroupMutation__
+ *
+ * To run a mutation, you first call `useDeleteAppLogGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAppLogGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAppLogGroupMutation, { data, loading, error }] = useDeleteAppLogGroupMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteAppLogGroupMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteAppLogGroupMutation, DeleteAppLogGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteAppLogGroupMutation, DeleteAppLogGroupMutationVariables>(DeleteAppLogGroupDocument, options);
+      }
+export type DeleteAppLogGroupMutationHookResult = ReturnType<typeof useDeleteAppLogGroupMutation>;
 export const ListCampaignsDocument = gql`
     query ListCampaigns {
   listCampaigns {

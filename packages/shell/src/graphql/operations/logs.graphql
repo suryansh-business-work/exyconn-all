@@ -1,0 +1,104 @@
+fragment AppLogGroupFields on AppLogGroup {
+  id
+  source
+  app
+  level
+  errorName
+  message
+  stack
+  route
+  status
+  count
+  userCount
+  lastUserName
+  lastUserEmail
+  platform
+  appVersion
+  firstSeenAt
+  lastSeenAt
+  resolvedAt
+}
+
+fragment AppLogEventFields on AppLogEvent {
+  id
+  level
+  message
+  stack
+  componentStack
+  route
+  context
+  breadcrumbs {
+    at
+    level
+    message
+  }
+  count
+  occurredAt
+  createdAt
+  userId
+  userName
+  userEmail
+  userVerified
+  deviceId
+  platform
+  osVersion
+  deviceModel
+  appVersion
+  sessionId
+  userAgent
+  ip
+}
+
+query ListAppLogGroupsPaged($input: TableQueryInput!) {
+  listAppLogGroupsPaged(input: $input) {
+    totalCount
+    rows {
+      ...AppLogGroupFields
+    }
+  }
+}
+
+query ListAppLogGroupsStats {
+  listAppLogGroupsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query ListAppLogEvents($groupId: ID!) {
+  listAppLogEvents(groupId: $groupId) {
+    ...AppLogEventFields
+  }
+}
+
+query AppLogFixPrompt($id: ID!) {
+  appLogFixPrompt(id: $id)
+}
+
+query OpenAppLogsFixPrompt($source: AppLogSource) {
+  openAppLogsFixPrompt(source: $source)
+}
+
+mutation ReportClientLogs($input: AppLogBatchInput!) {
+  reportClientLogs(input: $input)
+}
+
+mutation SetAppLogGroupStatus($id: ID!, $status: AppLogStatus!) {
+  setAppLogGroupStatus(id: $id, status: $status) {
+    ...AppLogGroupFields
+  }
+}
+
+mutation DeleteAppLogGroup($id: ID!) {
+  deleteAppLogGroup(id: $id)
+}

@@ -254,6 +254,135 @@ export type ApiKey = {
   roles: Array<Scalars['String']['output']>;
 };
 
+export type AppLogBatchInput = {
+  app: Scalars['String']['input'];
+  appVersion?: InputMaybe<Scalars['String']['input']>;
+  deviceId?: InputMaybe<Scalars['String']['input']>;
+  deviceModel?: InputMaybe<Scalars['String']['input']>;
+  entries: Array<AppLogEntryInput>;
+  osVersion?: InputMaybe<Scalars['String']['input']>;
+  platform?: InputMaybe<Scalars['String']['input']>;
+  sessionId?: InputMaybe<Scalars['String']['input']>;
+  source: AppLogSource;
+  user?: InputMaybe<AppLogUserInput>;
+};
+
+/** What the app did just before a log, oldest first. */
+export type AppLogBreadcrumb = {
+  __typename?: 'AppLogBreadcrumb';
+  at: Scalars['DateTime']['output'];
+  level: AppLogLevel;
+  message: Scalars['String']['output'];
+};
+
+export type AppLogBreadcrumbInput = {
+  at: Scalars['DateTime']['input'];
+  level: AppLogLevel;
+  message: Scalars['String']['input'];
+};
+
+export type AppLogEntryInput = {
+  breadcrumbs?: InputMaybe<Array<AppLogBreadcrumbInput>>;
+  componentStack?: InputMaybe<Scalars['String']['input']>;
+  /** JSON text. */
+  context?: InputMaybe<Scalars['String']['input']>;
+  count?: InputMaybe<Scalars['Int']['input']>;
+  errorName?: InputMaybe<Scalars['String']['input']>;
+  level: AppLogLevel;
+  message: Scalars['String']['input'];
+  occurredAt: Scalars['DateTime']['input'];
+  route?: InputMaybe<Scalars['String']['input']>;
+  stack?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** One occurrence: who, when, on which device and build, and what led up to it. */
+export type AppLogEvent = {
+  __typename?: 'AppLogEvent';
+  appVersion: Scalars['String']['output'];
+  breadcrumbs: Array<AppLogBreadcrumb>;
+  componentStack: Scalars['String']['output'];
+  context: Scalars['String']['output'];
+  /** Identical entries the client folded into this one. */
+  count: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  deviceId: Scalars['String']['output'];
+  deviceModel: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  ip: Scalars['String']['output'];
+  level: AppLogLevel;
+  message: Scalars['String']['output'];
+  occurredAt: Scalars['DateTime']['output'];
+  osVersion: Scalars['String']['output'];
+  platform: Scalars['String']['output'];
+  route: Scalars['String']['output'];
+  sessionId: Scalars['String']['output'];
+  stack: Scalars['String']['output'];
+  userAgent: Scalars['String']['output'];
+  userEmail: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
+  userName: Scalars['String']['output'];
+  /** False when the client named the user but sent no valid session. */
+  userVerified: Scalars['Boolean']['output'];
+};
+
+/** Every occurrence of one distinct problem, folded into one row. */
+export type AppLogGroup = {
+  __typename?: 'AppLogGroup';
+  /** Which app: a portal name (tech, hr), tracker-desktop, tracker-mobile or portal-server. */
+  app: Scalars['String']['output'];
+  appVersion: Scalars['String']['output'];
+  count: Scalars['Int']['output'];
+  errorName: Scalars['String']['output'];
+  firstSeenAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  lastSeenAt: Scalars['DateTime']['output'];
+  lastUserEmail: Scalars['String']['output'];
+  lastUserName: Scalars['String']['output'];
+  level: AppLogLevel;
+  message: Scalars['String']['output'];
+  platform: Scalars['String']['output'];
+  resolvedAt?: Maybe<Scalars['DateTime']['output']>;
+  route: Scalars['String']['output'];
+  source: AppLogSource;
+  /** The stack of the most recent occurrence. */
+  stack: Scalars['String']['output'];
+  status: AppLogStatus;
+  userCount: Scalars['Int']['output'];
+};
+
+export type AppLogGroupPage = {
+  __typename?: 'AppLogGroupPage';
+  rows: Array<AppLogGroup>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum AppLogLevel {
+  Debug = 'DEBUG',
+  Error = 'ERROR',
+  Info = 'INFO',
+  Warn = 'WARN'
+}
+
+export enum AppLogSource {
+  Desktop = 'DESKTOP',
+  Mobile = 'MOBILE',
+  Portal = 'PORTAL',
+  Server = 'SERVER'
+}
+
+export enum AppLogStatus {
+  Ignored = 'IGNORED',
+  Open = 'OPEN',
+  Resolved = 'RESOLVED'
+}
+
+/** The last signed-in user the client knew of — used only when the request carries no session. */
+export type AppLogUserInput = {
+  email: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type AppSettings = {
   __typename?: 'AppSettings';
   /** Machine-translate a string the first time a screen needs one and none exists. */
@@ -3217,6 +3346,8 @@ export type Mutation = {
   deleteAiJob: Scalars['Boolean']['output'];
   deleteAiModelPrice: Scalars['Boolean']['output'];
   deleteAnnouncement: Scalars['Boolean']['output'];
+  /** Deletes the group and every stored occurrence of it. */
+  deleteAppLogGroup: Scalars['Boolean']['output'];
   deleteApplicant: Scalars['Boolean']['output'];
   deleteAsset: Scalars['Boolean']['output'];
   deleteAudienceList: Scalars['Boolean']['output'];
@@ -3350,6 +3481,11 @@ export type Mutation = {
   renameColumn: BoardColumn;
   reorderColumns: Scalars['Boolean']['output'];
   /**
+   * Public, so a crash on the login screen still reaches us. The user is read from the
+   * session when there is one. Rate-limited per user, else per IP.
+   */
+  reportClientLogs: Scalars['Boolean']['output'];
+  /**
    * Self-service reset: emails a one-hour link to the address if an account has it.
    * Always true, so the answer does not reveal which addresses have accounts.
    */
@@ -3430,6 +3566,7 @@ export type Mutation = {
    */
   sendTrackerNotice: Scalars['Int']['output'];
   sendUserMail: Scalars['Boolean']['output'];
+  setAppLogGroupStatus: AppLogGroup;
   /** Moves an applicant along the pipeline. The applicant is emailed on INTERVIEW, OFFER and REJECTED. */
   setApplicantStage: Applicant;
   /** Marks a column as the end of the line, or takes that mark away. */
@@ -4284,6 +4421,11 @@ export type MutationDeleteAnnouncementArgs = {
 };
 
 
+export type MutationDeleteAppLogGroupArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteApplicantArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4812,6 +4954,11 @@ export type MutationReorderColumnsArgs = {
 };
 
 
+export type MutationReportClientLogsArgs = {
+  input: AppLogBatchInput;
+};
+
+
 export type MutationRequestPasswordResetArgs = {
   email: Scalars['String']['input'];
 };
@@ -4970,6 +5117,12 @@ export type MutationSendTrackerNoticeArgs = {
 export type MutationSendUserMailArgs = {
   id: Scalars['ID']['input'];
   input: SendMailInput;
+};
+
+
+export type MutationSetAppLogGroupStatusArgs = {
+  id: Scalars['ID']['input'];
+  status: AppLogStatus;
 };
 
 
@@ -6798,6 +6951,8 @@ export type Query = {
   aiSpendLimit: AiSpendLimit;
   /** What AI cost between two instants, broken down by person and by model. */
   aiSpendSummary: AiSpendSummary;
+  /** Markdown describing one group, ready to paste to Claude to fix. */
+  appLogFixPrompt: Scalars['String']['output'];
   appSettings: AppSettings;
   /** Every spell this asset has been held for, most recent first. */
   assetAssignments: Array<AssetAssignment>;
@@ -6854,6 +7009,7 @@ export type Query = {
   getActivity: Activity;
   getAiJob: AiJob;
   getAnnouncement: Announcement;
+  getAppLogGroup: AppLogGroup;
   getApplicant: Applicant;
   getAsset: Asset;
   getAudienceList: AudienceList;
@@ -6954,6 +7110,10 @@ export type Query = {
   listAnnouncementsPaged: AnnouncementPage;
   listAnnouncementsStats: TableStats;
   listApiKeys: Array<ApiKey>;
+  /** The most recent occurrences of one group, newest first. */
+  listAppLogEvents: Array<AppLogEvent>;
+  listAppLogGroupsPaged: AppLogGroupPage;
+  listAppLogGroupsStats: TableStats;
   listApplicants: Array<Applicant>;
   listApplicantsPaged: ApplicantPage;
   listApplicantsStats: TableStats;
@@ -7261,6 +7421,8 @@ export type Query = {
   myTrackerTotals: TrackerTotals;
   myTrainings: Array<Training>;
   myUnreadNotificationCount: Scalars['Int']['output'];
+  /** Markdown describing every OPEN error (optionally from one source), ready to paste to Claude. */
+  openAppLogsFixPrompt: Scalars['String']['output'];
   /** HR/ADMIN: every active user with their managerId, for the org chart. */
   orgChart: Array<OrgNode>;
   /** The payslip email schedule. Created with its defaults on first read. */
@@ -7430,6 +7592,11 @@ export type QueryAiSpendSummaryArgs = {
 };
 
 
+export type QueryAppLogFixPromptArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryAssetAssignmentsArgs = {
   assetId: Scalars['ID']['input'];
 };
@@ -7520,6 +7687,11 @@ export type QueryGetAiJobArgs = {
 
 
 export type QueryGetAnnouncementArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetAppLogGroupArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7900,6 +8072,16 @@ export type QueryListAiJobsPagedArgs = {
 
 
 export type QueryListAnnouncementsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListAppLogEventsArgs = {
+  groupId: Scalars['ID']['input'];
+};
+
+
+export type QueryListAppLogGroupsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -8300,6 +8482,11 @@ export type QueryMyTrackerManualEntriesArgs = {
 
 export type QueryMyTrackerMessagesArgs = {
   kind?: InputMaybe<TrackerMessageKind>;
+};
+
+
+export type QueryOpenAppLogsFixPromptArgs = {
+  source?: InputMaybe<AppLogSource>;
 };
 
 
@@ -10826,6 +11013,17 @@ export type ResolversTypes = ResolversObject<{
   AnnouncementInput: AnnouncementInput;
   AnnouncementPage: ResolverTypeWrapper<AnnouncementPage>;
   ApiKey: ResolverTypeWrapper<ApiKey>;
+  AppLogBatchInput: AppLogBatchInput;
+  AppLogBreadcrumb: ResolverTypeWrapper<AppLogBreadcrumb>;
+  AppLogBreadcrumbInput: AppLogBreadcrumbInput;
+  AppLogEntryInput: AppLogEntryInput;
+  AppLogEvent: ResolverTypeWrapper<AppLogEvent>;
+  AppLogGroup: ResolverTypeWrapper<AppLogGroup>;
+  AppLogGroupPage: ResolverTypeWrapper<AppLogGroupPage>;
+  AppLogLevel: AppLogLevel;
+  AppLogSource: AppLogSource;
+  AppLogStatus: AppLogStatus;
+  AppLogUserInput: AppLogUserInput;
   AppSettings: ResolverTypeWrapper<AppSettings>;
   Applicant: ResolverTypeWrapper<Applicant>;
   ApplicantInput: ApplicantInput;
@@ -11377,6 +11575,14 @@ export type ResolversParentTypes = ResolversObject<{
   AnnouncementInput: AnnouncementInput;
   AnnouncementPage: AnnouncementPage;
   ApiKey: ApiKey;
+  AppLogBatchInput: AppLogBatchInput;
+  AppLogBreadcrumb: AppLogBreadcrumb;
+  AppLogBreadcrumbInput: AppLogBreadcrumbInput;
+  AppLogEntryInput: AppLogEntryInput;
+  AppLogEvent: AppLogEvent;
+  AppLogGroup: AppLogGroup;
+  AppLogGroupPage: AppLogGroupPage;
+  AppLogUserInput: AppLogUserInput;
   AppSettings: AppSettings;
   Applicant: Applicant;
   ApplicantInput: ApplicantInput;
@@ -11944,6 +12150,68 @@ export type ApiKeyResolvers<ContextType = GraphQLContext, ParentType extends Res
   prefix?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   revokedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AppLogBreadcrumbResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AppLogBreadcrumb'] = ResolversParentTypes['AppLogBreadcrumb']> = ResolversObject<{
+  at?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  level?: Resolver<ResolversTypes['AppLogLevel'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AppLogEventResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AppLogEvent'] = ResolversParentTypes['AppLogEvent']> = ResolversObject<{
+  appVersion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  breadcrumbs?: Resolver<Array<ResolversTypes['AppLogBreadcrumb']>, ParentType, ContextType>;
+  componentStack?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  context?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  deviceId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deviceModel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  ip?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  level?: Resolver<ResolversTypes['AppLogLevel'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  occurredAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  osVersion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  platform?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  route?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  stack?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userAgent?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AppLogGroupResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AppLogGroup'] = ResolversParentTypes['AppLogGroup']> = ResolversObject<{
+  app?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  appVersion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  errorName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  firstSeenAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastSeenAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  lastUserEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastUserName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  level?: Resolver<ResolversTypes['AppLogLevel'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  platform?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  resolvedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  route?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['AppLogSource'], ParentType, ContextType>;
+  stack?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['AppLogStatus'], ParentType, ContextType>;
+  userCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AppLogGroupPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AppLogGroupPage'] = ResolversParentTypes['AppLogGroupPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['AppLogGroup']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -13670,6 +13938,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteAiJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAiJobArgs, 'id'>>;
   deleteAiModelPrice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAiModelPriceArgs, 'id'>>;
   deleteAnnouncement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAnnouncementArgs, 'id'>>;
+  deleteAppLogGroup?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAppLogGroupArgs, 'id'>>;
   deleteApplicant?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteApplicantArgs, 'id'>>;
   deleteAsset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAssetArgs, 'id'>>;
   deleteAudienceList?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAudienceListArgs, 'id'>>;
@@ -13774,6 +14043,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   recordStockMovement?: Resolver<ResolversTypes['StockMovement'], ParentType, ContextType, RequireFields<MutationRecordStockMovementArgs, 'input'>>;
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
   reorderColumns?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReorderColumnsArgs, 'columnIds' | 'projectId'>>;
+  reportClientLogs?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReportClientLogsArgs, 'input'>>;
   requestPasswordReset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestPasswordResetArgs, 'email'>>;
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
@@ -13803,6 +14073,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   sendTrackerMessage?: Resolver<ResolversTypes['TrackerMessage'], ParentType, ContextType, RequireFields<MutationSendTrackerMessageArgs, 'body' | 'userId'>>;
   sendTrackerNotice?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationSendTrackerNoticeArgs, 'input'>>;
   sendUserMail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendUserMailArgs, 'id' | 'input'>>;
+  setAppLogGroupStatus?: Resolver<ResolversTypes['AppLogGroup'], ParentType, ContextType, RequireFields<MutationSetAppLogGroupStatusArgs, 'id' | 'status'>>;
   setApplicantStage?: Resolver<ResolversTypes['Applicant'], ParentType, ContextType, RequireFields<MutationSetApplicantStageArgs, 'id' | 'stage'>>;
   setColumnDone?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationSetColumnDoneArgs, 'id' | 'isDone'>>;
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
@@ -14506,6 +14777,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   aiModels?: Resolver<ResolversTypes['AiModelOptions'], ParentType, ContextType>;
   aiSpendLimit?: Resolver<ResolversTypes['AiSpendLimit'], ParentType, ContextType>;
   aiSpendSummary?: Resolver<ResolversTypes['AiSpendSummary'], ParentType, ContextType, RequireFields<QueryAiSpendSummaryArgs, 'from' | 'to'>>;
+  appLogFixPrompt?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryAppLogFixPromptArgs, 'id'>>;
   appSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType>;
   assetAssignments?: Resolver<Array<ResolversTypes['AssetAssignment']>, ParentType, ContextType, RequireFields<QueryAssetAssignmentsArgs, 'assetId'>>;
   attendanceByEmployee?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType, RequireFields<QueryAttendanceByEmployeeArgs, 'employeeId'>>;
@@ -14531,6 +14803,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getActivity?: Resolver<ResolversTypes['Activity'], ParentType, ContextType, RequireFields<QueryGetActivityArgs, 'id'>>;
   getAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<QueryGetAiJobArgs, 'id'>>;
   getAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<QueryGetAnnouncementArgs, 'id'>>;
+  getAppLogGroup?: Resolver<ResolversTypes['AppLogGroup'], ParentType, ContextType, RequireFields<QueryGetAppLogGroupArgs, 'id'>>;
   getApplicant?: Resolver<ResolversTypes['Applicant'], ParentType, ContextType, RequireFields<QueryGetApplicantArgs, 'id'>>;
   getAsset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType, RequireFields<QueryGetAssetArgs, 'id'>>;
   getAudienceList?: Resolver<ResolversTypes['AudienceList'], ParentType, ContextType, RequireFields<QueryGetAudienceListArgs, 'id'>>;
@@ -14620,6 +14893,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listAnnouncementsPaged?: Resolver<ResolversTypes['AnnouncementPage'], ParentType, ContextType, RequireFields<QueryListAnnouncementsPagedArgs, 'input'>>;
   listAnnouncementsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listApiKeys?: Resolver<Array<ResolversTypes['ApiKey']>, ParentType, ContextType>;
+  listAppLogEvents?: Resolver<Array<ResolversTypes['AppLogEvent']>, ParentType, ContextType, RequireFields<QueryListAppLogEventsArgs, 'groupId'>>;
+  listAppLogGroupsPaged?: Resolver<ResolversTypes['AppLogGroupPage'], ParentType, ContextType, RequireFields<QueryListAppLogGroupsPagedArgs, 'input'>>;
+  listAppLogGroupsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listApplicants?: Resolver<Array<ResolversTypes['Applicant']>, ParentType, ContextType>;
   listApplicantsPaged?: Resolver<ResolversTypes['ApplicantPage'], ParentType, ContextType, RequireFields<QueryListApplicantsPagedArgs, 'input'>>;
   listApplicantsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -14878,6 +15154,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myTrackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType>;
   myTrainings?: Resolver<Array<ResolversTypes['Training']>, ParentType, ContextType>;
   myUnreadNotificationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  openAppLogsFixPrompt?: Resolver<ResolversTypes['String'], ParentType, ContextType, Partial<QueryOpenAppLogsFixPromptArgs>>;
   orgChart?: Resolver<Array<ResolversTypes['OrgNode']>, ParentType, ContextType>;
   payrollSchedule?: Resolver<ResolversTypes['PayrollSchedule'], ParentType, ContextType>;
   payrollSettings?: Resolver<ResolversTypes['PayrollSettings'], ParentType, ContextType>;
@@ -16162,6 +16439,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Announcement?: AnnouncementResolvers<ContextType>;
   AnnouncementPage?: AnnouncementPageResolvers<ContextType>;
   ApiKey?: ApiKeyResolvers<ContextType>;
+  AppLogBreadcrumb?: AppLogBreadcrumbResolvers<ContextType>;
+  AppLogEvent?: AppLogEventResolvers<ContextType>;
+  AppLogGroup?: AppLogGroupResolvers<ContextType>;
+  AppLogGroupPage?: AppLogGroupPageResolvers<ContextType>;
   AppSettings?: AppSettingsResolvers<ContextType>;
   Applicant?: ApplicantResolvers<ContextType>;
   ApplicantPage?: ApplicantPageResolvers<ContextType>;

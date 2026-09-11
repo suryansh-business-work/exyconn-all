@@ -53,3 +53,8 @@ export function deviceInfo(): DeviceInfo {
   }
   return cached;
 }
+
+/** The same, or null before launch has read it — for the logger, which must never throw. */
+export function loadedDeviceInfo(): DeviceInfo | null {
+  return cached;
+}
