@@ -1,5 +1,5 @@
 import type { ColDef } from 'ag-grid-community';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import PaidOutlinedIcon from '@mui/icons-material/PaidOutlined';
 import {

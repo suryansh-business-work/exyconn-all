@@ -1,4 +1,4 @@
-import { Alert, borderWidth, Box, Grid2, Stack, Typography } from '@exyconn/shell/components/ui';
+import { Alert, borderWidth, Box, Grid, Stack, Typography } from '@exyconn/shell/components/ui';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useProjectTimeLogScreenshotsQuery } from '@exyconn/shell/graphql/generated';
 
@@ -39,16 +39,22 @@ export function TimeLogScreenshots({
   const shots = data?.projectTimeLogScreenshots ?? [];
   if (shots.length === 0) {
     return (
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+          mt: 1,
+        }}
+      >
         No screenshots were captured during this session.
       </Typography>
     );
   }
 
   return (
-    <Grid2 container spacing={1} sx={{ mt: 1 }}>
+    <Grid container spacing={1} sx={{ mt: 1 }}>
       {shots.map((shot) => (
-        <Grid2 key={shot.id} size={{ xs: 6, sm: 4, md: 3 }}>
+        <Grid key={shot.id} size={{ xs: 6, sm: 4, md: 3 }}>
           <Stack spacing={0.5}>
             <Box
               component="a"
@@ -71,13 +77,18 @@ export function TimeLogScreenshots({
                 sx={{ width: '100%', height: 110, objectFit: 'cover', display: 'block' }}
               />
             </Box>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {formatDateTime(shot.capturedAt)}
               {shot.blurred ? ' · blurred' : ''}
             </Typography>
           </Stack>
-        </Grid2>
+        </Grid>
       ))}
-    </Grid2>
+    </Grid>
   );
 }

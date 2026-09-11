@@ -6,10 +6,9 @@ import {
   Box,
   TextField,
   Typography,
-  
   InputAdornment,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { ExpandMore, Phone, Email, PhoneAndroid, LocationOn } from '@mui/icons-material';
 import { FormikProps } from 'formik';
 import { SignatureFormValues } from '../types';
@@ -30,7 +29,13 @@ const ContactInfoSection: React.FC<ContactInfoSectionProps> = ({ formik }) => {
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Phone color="primary" fontSize="small" />
-          <Typography fontWeight={600}>Contact Information</Typography>
+          <Typography
+            sx={{
+              fontWeight: 600,
+            }}
+          >
+            Contact Information
+          </Typography>
         </Box>
       </AccordionSummary>
       <AccordionDetails>
@@ -47,12 +52,14 @@ const ContactInfoSection: React.FC<ContactInfoSectionProps> = ({ formik }) => {
               onBlur={handleBlur}
               error={touched.email && Boolean(errors.email)}
               helperText={touched.email && errors.email}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Email fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Email fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
           </Grid>
@@ -67,12 +74,14 @@ const ContactInfoSection: React.FC<ContactInfoSectionProps> = ({ formik }) => {
               onBlur={handleBlur}
               error={touched.phone && Boolean(errors.phone)}
               helperText={touched.phone && errors.phone}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Phone fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Phone fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
           </Grid>
@@ -87,12 +96,14 @@ const ContactInfoSection: React.FC<ContactInfoSectionProps> = ({ formik }) => {
               onBlur={handleBlur}
               error={touched.mobile && Boolean(errors.mobile)}
               helperText={touched.mobile && errors.mobile}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PhoneAndroid fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PhoneAndroid fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
           </Grid>
@@ -109,12 +120,14 @@ const ContactInfoSection: React.FC<ContactInfoSectionProps> = ({ formik }) => {
               helperText={touched.address && errors.address}
               multiline
               rows={2}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1 }}>
-                    <LocationOn fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1 }}>
+                      <LocationOn fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
           </Grid>

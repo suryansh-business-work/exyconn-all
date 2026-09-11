@@ -27,7 +27,14 @@ export default function TrackingControls({
   const isPaused = status === 'paused';
 
   return (
-    <Stack direction="row" spacing={1.25} flexWrap="wrap" useFlexGap>
+    <Stack
+      direction="row"
+      spacing={1.25}
+      useFlexGap
+      sx={{
+        flexWrap: 'wrap',
+      }}
+    >
       <Button
         variant="contained"
         startIcon={<PlayArrowRounded />}

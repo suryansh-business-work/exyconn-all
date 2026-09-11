@@ -3,8 +3,15 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import WatermarkImage from './index';
 import {
-  POSITIONS, MARGIN, anchorPoint, tileOrigins, drawTextWatermark, drawImageWatermark,
-  watermarkedFileName, loadImageFromFile, TextWatermarkOptions,
+  POSITIONS,
+  MARGIN,
+  anchorPoint,
+  tileOrigins,
+  drawTextWatermark,
+  drawImageWatermark,
+  watermarkedFileName,
+  loadImageFromFile,
+  TextWatermarkOptions,
 } from './utils';
 
 vi.mock('../../shared/components/ToolLayout/ToolLayout', () => ({
@@ -51,7 +58,13 @@ afterEach(() => {
 });
 
 const textOpts = (over: Partial<TextWatermarkOptions> = {}): TextWatermarkOptions => ({
-  text: 'demo', fontSize: 20, color: '#ff0000', opacity: 0.4, position: 'bottom-right', tile: false, ...over,
+  text: 'demo',
+  fontSize: 20,
+  color: '#ff0000',
+  opacity: 0.4,
+  position: 'bottom-right',
+  tile: false,
+  ...over,
 });
 
 describe('watermark-image utils', () => {
@@ -77,8 +90,10 @@ describe('watermark-image utils', () => {
   it('tileOrigins covers the whole canvas with the given steps', () => {
     const points = tileOrigins(100, 60, 50, 30);
     expect(points).toEqual([
-      { x: 0, y: 0 }, { x: 50, y: 0 },
-      { x: 0, y: 30 }, { x: 50, y: 30 },
+      { x: 0, y: 0 },
+      { x: 50, y: 0 },
+      { x: 0, y: 30 },
+      { x: 50, y: 30 },
     ]);
   });
 
@@ -106,7 +121,11 @@ describe('watermark-image utils', () => {
   it('drawImageWatermark scales by canvas width, keeps ratio, and positions', () => {
     const ctx = makeCtx();
     const wm = new MockImage() as unknown as HTMLImageElement; // 100x50 => ratio 0.5
-    drawImageWatermark(ctx as unknown as CanvasRenderingContext2D, 800, 600, wm, { scale: 25, opacity: 0.7, position: 'top-left' });
+    drawImageWatermark(ctx as unknown as CanvasRenderingContext2D, 800, 600, wm, {
+      scale: 25,
+      opacity: 0.7,
+      position: 'top-left',
+    });
     expect(ctx.globalAlpha).toBe(0.7);
     expect(ctx.drawImage).toHaveBeenCalledWith(wm, MARGIN, MARGIN, 200, 100);
   });
@@ -114,7 +133,11 @@ describe('watermark-image utils', () => {
   it('drawImageWatermark centers the watermark for middle-center', () => {
     const ctx = makeCtx();
     const wm = new MockImage() as unknown as HTMLImageElement;
-    drawImageWatermark(ctx as unknown as CanvasRenderingContext2D, 800, 600, wm, { scale: 50, opacity: 1, position: 'middle-center' });
+    drawImageWatermark(ctx as unknown as CanvasRenderingContext2D, 800, 600, wm, {
+      scale: 50,
+      opacity: 1,
+      position: 'middle-center',
+    });
     expect(ctx.drawImage).toHaveBeenCalledWith(wm, (800 - 400) / 2, (600 - 200) / 2, 400, 200);
   });
 
@@ -132,7 +155,9 @@ describe('watermark-image utils', () => {
 
   it('loadImageFromFile rejects and revokes the URL for a broken file', async () => {
     URL.createObjectURL = vi.fn(() => 'blob:bad');
-    await expect(loadImageFromFile(new File(['x'], 'a.png', { type: 'image/png' }))).rejects.toThrow('Could not load image.');
+    await expect(loadImageFromFile(new File(['x'], 'a.png', { type: 'image/png' }))).rejects.toThrow(
+      'Could not load image.'
+    );
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:bad');
   });
 });

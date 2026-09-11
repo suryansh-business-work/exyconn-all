@@ -1,6 +1,7 @@
 import type { ApolloClient } from '@apollo/client';
 import type { DocumentNode } from 'graphql';
 import type { TableQueryInput } from '@exyconn/shell/graphql/generated';
+import { queryData } from '@exyconn/shell/utils/queryData';
 
 /** The server caps a page at 200 rows; exports walk pages until totalCount is reached. */
 const PAGE_SIZE = 200;
@@ -14,7 +15,7 @@ interface Page<Row> {
 
 /** Every row of a server-paged list, fetched page by page. */
 export async function fetchAllPages<TQuery, Row>(
-  client: ApolloClient<object>,
+  client: ApolloClient,
   document: DocumentNode,
   select: (data: TQuery) => Page<Row>,
 ): Promise<Row[]> {
@@ -26,7 +27,7 @@ export async function fetchAllPages<TQuery, Row>(
       variables: { input },
       fetchPolicy: 'network-only',
     });
-    const current = select(result.data);
+    const current = select(queryData(result, 'A report page'));
     rows.push(...current.rows);
     if (rows.length >= current.totalCount || current.rows.length === 0) break;
   }
@@ -35,10 +36,10 @@ export async function fetchAllPages<TQuery, Row>(
 
 /** A whole non-paged list query, e.g. `listUsers`. */
 export async function fetchList<TQuery, Row>(
-  client: ApolloClient<object>,
+  client: ApolloClient,
   document: DocumentNode,
   select: (data: TQuery) => Row[],
 ): Promise<Row[]> {
   const result = await client.query<TQuery>({ query: document, fetchPolicy: 'network-only' });
-  return select(result.data);
+  return select(queryData(result, 'A report list'));
 }

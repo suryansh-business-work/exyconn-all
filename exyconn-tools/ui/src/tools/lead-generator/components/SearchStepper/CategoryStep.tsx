@@ -54,11 +54,21 @@ const CategoryStep: React.FC<CategoryStepProps> = ({
       <StepLabel
         optional={
           selectedTypes.length > 0 ? (
-            <Typography variant="caption" color="success.main">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'success.main',
+              }}
+            >
               {selectedTypes.length} categories selected
             </Typography>
           ) : searchQuery.trim() ? (
-            <Typography variant="caption" color="success.main">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'success.main',
+              }}
+            >
               ✓ Custom query set
             </Typography>
           ) : null
@@ -67,7 +77,13 @@ const CategoryStep: React.FC<CategoryStepProps> = ({
         Select Business Categories
       </StepLabel>
       <StepContent>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            mb: 2,
+          }}
+        >
           Choose the types of businesses you want to find, or enter a custom search query.
         </Typography>
 
@@ -79,16 +95,25 @@ const CategoryStep: React.FC<CategoryStepProps> = ({
           value={searchQuery}
           onChange={(e) => onSearchQueryChange(e.target.value)}
           sx={{ mb: 2 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search fontSize="small" />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search fontSize="small" />
+                </InputAdornment>
+              ),
+            },
           }}
         />
 
-        <Typography variant="caption" color="text.secondary" gutterBottom sx={{ display: 'block' }}>
+        <Typography
+          variant="caption"
+          gutterBottom
+          sx={{
+            color: 'text.secondary',
+            display: 'block',
+          }}
+        >
           Popular Categories
         </Typography>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
@@ -116,8 +141,10 @@ const CategoryStep: React.FC<CategoryStepProps> = ({
               }
             }}
             MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 300 },
+              slotProps: {
+                paper: {
+                  sx: { maxHeight: 300 },
+                },
               },
             }}
           >
@@ -155,7 +182,12 @@ const CategoryStep: React.FC<CategoryStepProps> = ({
         {selectedTypes.length > 0 && (
           <Box sx={{ mb: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Selected ({selectedTypes.length})
               </Typography>
               <Button size="small" onClick={handleClearTypes} startIcon={<Clear />}>

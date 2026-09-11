@@ -28,7 +28,14 @@ export function SharedPost({ original }: Readonly<SharedPostProps>) {
       }}
     >
       <AuthorLine author={original.author} at={original.createdAt} dense />
-      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+          display: 'block',
+          mt: 1,
+        }}
+      >
         Originally posted
       </Typography>
       <PostBody body={original.body} imageUrl={original.imageUrl} />

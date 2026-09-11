@@ -97,7 +97,13 @@ export function MyOffComputerTime({ from, to, projects }: Readonly<MyOffComputer
         }
       />
       <Box sx={{ px: 2, pb: 2 }}>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            mb: 2,
+          }}
+        >
           Meetings, client visits and calls the tracker could not see. Every entry is reviewed
           before it counts towards your hours.
         </Typography>

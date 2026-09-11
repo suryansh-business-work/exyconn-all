@@ -46,7 +46,12 @@ export function AssetDetailPage() {
 
   if (!asset) {
     return (
-      <Typography variant="body1" color="text.secondary">
+      <Typography
+        variant="body1"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         That asset no longer exists.
       </Typography>
     );
@@ -74,7 +79,12 @@ export function AssetDetailPage() {
 
       <Card variant="outlined" sx={{ p: { xs: 2, md: 3 } }}>
         <Flex direction="row" alignItems="center" spacing={1.5}>
-          <Typography variant="h5" fontWeight={800}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 800,
+            }}
+          >
             {asset.name}
           </Typography>
           <Chip size="small" label={asset.assetTag} />
@@ -98,7 +108,13 @@ export function AssetDetailPage() {
       />
 
       <Card variant="outlined" sx={{ p: { xs: 2, md: 2.5 } }}>
-        <Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 700,
+            mb: 1.5,
+          }}
+        >
           Notes
         </Typography>
         <AssetNotesForm

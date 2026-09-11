@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar, Paper, Box, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { CheckCircle } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -51,9 +51,7 @@ const SitemapValidator: React.FC = () => {
               onUrlChange={setSitemapUrl}
               onValidate={handleValidate}
             />
-            {result && (
-              <ValidationSummary result={result} errorCount={errors.length} warningCount={warnings.length} />
-            )}
+            {result && <ValidationSummary result={result} errorCount={errors.length} warningCount={warnings.length} />}
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, minHeight: 400 }}>
@@ -61,7 +59,13 @@ const SitemapValidator: React.FC = () => {
                 <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
                   <CheckCircle sx={{ fontSize: 48, mb: 2, opacity: 0.3 }} />
                   <Typography variant="body1">Enter a sitemap URL to validate</Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                      mt: 1,
+                    }}
+                  >
                     Checks XML syntax, URL format, lastmod, changefreq, priority, and size limits
                   </Typography>
                 </Box>

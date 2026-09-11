@@ -20,7 +20,12 @@ const ImagePreviewDialog: React.FC<Props> = ({ open, onClose, imageUrl, label })
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md">
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1 }}>
-        <Typography variant="subtitle1" fontWeight={600}>
+        <Typography
+          variant="subtitle1"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           🔍 Preview: {label}
         </Typography>
         <Box sx={{ display: 'flex', gap: 0.5 }}>

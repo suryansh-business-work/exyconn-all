@@ -49,7 +49,12 @@ function Bubble({ message, formatDateTime }: Readonly<BubbleProps>) {
           {message.body}
         </Typography>
       </Box>
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {fromDesk ? `${message.authorName || 'Tracker desk'} · ` : ''}
         {formatDateTime(message.createdAt)}
       </Typography>
@@ -121,13 +126,24 @@ export function TrackerMessageThread({ userId, userName }: Readonly<TrackerMessa
           ))
         )}
         {!loading && messages.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Nothing has been said yet. Anything you write appears on their tracker.
           </Typography>
         ) : null}
       </Stack>
 
-      <Stack direction="row" spacing={1} alignItems="flex-end">
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          alignItems: 'flex-end',
+        }}
+      >
         <TextField
           fullWidth
           multiline
@@ -136,13 +152,15 @@ export function TrackerMessageThread({ userId, userName }: Readonly<TrackerMessa
           placeholder={`Reply to ${userName}…`}
           value={body}
           disabled={sending}
-          inputProps={{ maxLength: MAX_CHARS, 'aria-label': 'Reply' }}
           onChange={(event) => setBody(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === 'Enter' && !event.shiftKey) {
               event.preventDefault();
               void submit();
             }
+          }}
+          slotProps={{
+            htmlInput: { maxLength: MAX_CHARS, 'aria-label': 'Reply' },
           }}
         />
         <IconButton

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Container, Alert, Snackbar, Paper, Box, Typography, Button, CircularProgress } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Article, CloudUpload } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIKeyInput, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
@@ -92,7 +92,12 @@ const ChatWithWord: React.FC = () => {
             <Paper elevation={0} sx={{ p: 2, mt: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Article color="info" fontSize="small" />
-                <Typography variant="subtitle2" fontWeight={600}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                  }}
+                >
                   Upload Word Document
                 </Typography>
               </Box>
@@ -107,7 +112,12 @@ const ChatWithWord: React.FC = () => {
                 {isLoadingContent ? 'Extracting...' : 'Choose Word File'}
                 <input type="file" hidden accept=".doc,.docx" onChange={handleFileUpload} />
               </Button>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Supports: DOC, DOCX files
               </Typography>
               {fileName && (
@@ -130,7 +140,12 @@ const ChatWithWord: React.FC = () => {
               }}
             >
               <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider', bgcolor: 'grey.50' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                  }}
+                >
                   Chat
                 </Typography>
               </Box>

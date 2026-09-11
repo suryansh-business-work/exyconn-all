@@ -42,9 +42,7 @@ const UrlResultsTable: React.FC<UrlResultsTableProps> = ({
       </Box>
     ) : (
       <>
-        <Box
-          sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 1 }}
-        >
+        <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 1 }}>
           <FilterList fontSize="small" color="action" />
           <TextField
             size="small"
@@ -52,12 +50,14 @@ const UrlResultsTable: React.FC<UrlResultsTableProps> = ({
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             sx={{ flex: 1, maxWidth: 300 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search fontSize="small" />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search fontSize="small" />
+                  </InputAdornment>
+                ),
+              },
             }}
           />
           <Box sx={{ ml: 'auto' }}>
@@ -113,7 +113,12 @@ const UrlResultsTable: React.FC<UrlResultsTableProps> = ({
         </TableContainer>
         {filteredUrls.length > 200 && (
           <Box sx={{ p: 1, textAlign: 'center', borderTop: 1, borderColor: 'divider' }}>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Showing 200 of {filteredUrls.length} URLs
             </Typography>
           </Box>

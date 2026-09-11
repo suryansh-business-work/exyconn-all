@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -12,7 +12,7 @@ const requestMock = {
 
 const mount = (onDone = cy.stub().as('onDone')) =>
   cy.mount(
-    <MockedProvider mocks={[requestMock]} addTypename={false}>
+    <MockedProvider mocks={[requestMock]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <ForgotPasswordForm onCancel={cy.stub().as('onCancel')} onDone={onDone} />

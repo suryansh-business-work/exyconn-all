@@ -59,7 +59,13 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
 
   return (
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 2 }}>
-      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+      <Typography
+        variant="subtitle2"
+        gutterBottom
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         Search Businesses
       </Typography>
 
@@ -72,18 +78,27 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
           placeholder="e.g., pizza, coffee shop, dentist..."
           value={searchQuery}
           onChange={(e) => onSearchQueryChange(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search fontSize="small" />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search fontSize="small" />
+                </InputAdornment>
+              ),
+            },
           }}
         />
 
         {/* Popular types quick select */}
         <Box>
-          <Typography variant="caption" color="text.secondary" gutterBottom sx={{ display: 'block' }}>
+          <Typography
+            variant="caption"
+            gutterBottom
+            sx={{
+              color: 'text.secondary',
+              display: 'block',
+            }}
+          >
             Popular Categories
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -113,8 +128,10 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
               }
             }}
             MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 300 },
+              slotProps: {
+                paper: {
+                  sx: { maxHeight: 300 },
+                },
               },
             }}
           >
@@ -144,7 +161,12 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
         {selectedTypes.length > 0 && (
           <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Selected ({selectedTypes.length})
               </Typography>
               <Button size="small" onClick={handleClearTypes} startIcon={<Clear />}>
@@ -180,7 +202,13 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
         </Button>
 
         {!hasPolygon && (
-          <Typography variant="caption" color="warning.main" textAlign="center">
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'warning.main',
+              textAlign: 'center',
+            }}
+          >
             Draw a polygon on the map first to define the search area
           </Typography>
         )}

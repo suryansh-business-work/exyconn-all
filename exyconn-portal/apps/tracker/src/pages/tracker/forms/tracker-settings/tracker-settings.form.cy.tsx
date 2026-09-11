@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { TrackerSettingsForm } from './tracker-settings.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -34,7 +34,7 @@ const initial: TrackerSettingsRow = {
 
 const mount = () =>
   cy.mount(
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <TrackerSettingsForm initial={initial} />
@@ -65,10 +65,10 @@ describe('TrackerSettingsForm', () => {
 
   it('hides the webcam corner until a photo is actually being taken', () => {
     mount();
-    cy.contains('label', 'Webcam photo corner').should('not.exist');
+    cy.fieldLabel('Webcam photo corner').should('not.exist');
 
     cy.contains('label', 'Webcam photo with each screenshot').find('input').check();
-    cy.contains('label', 'Webcam photo corner').should('exist');
+    cy.fieldLabel('Webcam photo corner').should('exist');
   });
 
   it('opens with retention off, so nothing is deleted until an admin chooses a window', () => {

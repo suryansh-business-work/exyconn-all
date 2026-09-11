@@ -120,7 +120,12 @@ export function DashboardPage() {
       <DashboardTiles stats={stats} />
 
       <Grid container spacing={2}>
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4,
+          }}
+        >
           <LatestAnnouncements
             announcements={(
               (announcements.data?.activeAnnouncements ?? []) as AnnouncementSummary[]
@@ -128,10 +133,20 @@ export function DashboardPage() {
             formatDate={formatDate}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4,
+          }}
+        >
           <UpcomingHolidays holidays={nextHolidays} formatDate={formatDate} />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4,
+          }}
+        >
           <RecentLeave
             requests={((leave.data?.myLeaveRequests ?? []) as LeaveSummaryRow[]).slice(0, 4)}
             formatDate={formatDate}

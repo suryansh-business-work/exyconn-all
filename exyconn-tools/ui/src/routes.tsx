@@ -7,7 +7,14 @@ import NotFoundPage from './pages/NotFoundPage';
 import { getAllTools } from './shared/data/toolsData';
 
 const Loading: React.FC = () => (
-  <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+  <Box
+    sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '60vh',
+    }}
+  >
     <CircularProgress />
   </Box>
 );
@@ -28,7 +35,9 @@ const toolRoutes = getAllTools()
     const loader = toolModules[`./tools/${tool.id}/index.tsx`];
     return loader ? { path: tool.id, Component: React.lazy(loader) } : null;
   })
-  .filter((route): route is { path: string; Component: React.LazyExoticComponent<React.ComponentType> } => route !== null);
+  .filter(
+    (route): route is { path: string; Component: React.LazyExoticComponent<React.ComponentType> } => route !== null
+  );
 
 const AppRoutes: React.FC = () => (
   <Suspense fallback={<Loading />}>

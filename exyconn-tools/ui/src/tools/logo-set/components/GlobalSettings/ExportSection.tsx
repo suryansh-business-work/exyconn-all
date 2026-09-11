@@ -10,7 +10,12 @@ const ExportSection: React.FC<ExportFormatSelectorProps> = ({ format, onFormatCh
     </Divider>
 
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         Format:
       </Typography>
       <ToggleButtonGroup value={format} exclusive onChange={(_, v) => v && onFormatChange(v)} size="small">

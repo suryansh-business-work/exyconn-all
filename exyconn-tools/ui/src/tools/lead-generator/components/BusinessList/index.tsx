@@ -56,7 +56,13 @@ const BusinessList: React.FC<BusinessListProps> = ({ businesses, selectedBusines
   if (isLoading) {
     return (
       <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 2 }}>
-        <Typography variant="body2" color="text.secondary" textAlign="center">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            textAlign: 'center',
+          }}
+        >
           Searching for businesses...
         </Typography>
       </Paper>
@@ -87,7 +93,12 @@ const BusinessList: React.FC<BusinessListProps> = ({ businesses, selectedBusines
           borderColor: 'divider',
         }}
       >
-        <Typography variant="subtitle2" fontWeight={600}>
+        <Typography
+          variant="subtitle2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Found Businesses ({businesses.length})
         </Typography>
         <Button size="small" startIcon={<FileDownload />} onClick={handleExportCSV} variant="outlined">

@@ -38,7 +38,14 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        <Typography variant="caption" fontWeight={600} sx={{ fontSize: '0.65rem', color: 'text.primary' }}>
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 600,
+            fontSize: '0.65rem',
+            color: 'text.primary',
+          }}
+        >
           {size.label}
         </Typography>
         <Chip

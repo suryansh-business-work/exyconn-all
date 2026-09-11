@@ -1,8 +1,14 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import {
-  rotateBy, outputDimensions, cssTransform, isIdentity, outputType, outputFileName,
-  applyTransform, INITIAL_TRANSFORM,
+  rotateBy,
+  outputDimensions,
+  cssTransform,
+  isIdentity,
+  outputType,
+  outputFileName,
+  applyTransform,
+  INITIAL_TRANSFORM,
 } from './utils';
 import RotateImage from './index';
 
@@ -40,7 +46,7 @@ beforeAll(() => {
   URL.revokeObjectURL = vi.fn();
   vi.stubGlobal('Image', MockImage);
   HTMLCanvasElement.prototype.getContext = vi.fn(
-    () => ctxMock,
+    () => ctxMock
   ) as unknown as typeof HTMLCanvasElement.prototype.getContext;
   HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback, type?: string) {
     recordCanvas(this);

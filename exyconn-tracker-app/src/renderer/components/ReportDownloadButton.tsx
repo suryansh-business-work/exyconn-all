@@ -55,7 +55,12 @@ export default function ReportDownloadButton({
       >
         Download {monthLabel} as CSV
       </Button>
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         Your own tracked days, as a spreadsheet — one row per day, with the month’s totals.
       </Typography>
       <Snackbar

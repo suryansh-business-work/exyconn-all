@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 import {
-  Container, Box, Typography, TextField, Button, Alert, Snackbar,
-  Paper, LinearProgress, MenuItem, Chip,
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Snackbar,
+  Paper,
+  LinearProgress,
+  MenuItem,
+  Chip,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { AutoAwesome, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -85,19 +94,56 @@ const AITextGenerator: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" gutterBottom><AutoAwesome sx={{ mr: 1, verticalAlign: 'middle' }} />Generate Content</Typography>
-              <TextField fullWidth size="small" label="Topic / Subject" placeholder="e.g., Benefits of remote work" value={topic} onChange={(e) => setTopic(e.target.value)} sx={{ mb: 2 }} />
-              <TextField fullWidth size="small" select label="Content Type" value={type} onChange={(e) => setType(e.target.value)} sx={{ mb: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                <AutoAwesome sx={{ mr: 1, verticalAlign: 'middle' }} />
+                Generate Content
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                label="Topic / Subject"
+                placeholder="e.g., Benefits of remote work"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                size="small"
+                select
+                label="Content Type"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                sx={{ mb: 2 }}
+              >
                 {contentTypes.map((ct) => (
-                  <MenuItem key={ct.value} value={ct.value}>{ct.label}</MenuItem>
+                  <MenuItem key={ct.value} value={ct.value}>
+                    {ct.label}
+                  </MenuItem>
                 ))}
               </TextField>
-              <TextField fullWidth size="small" select label="Tone" value={tone} onChange={(e) => setTone(e.target.value)} sx={{ mb: 2 }}>
+              <TextField
+                fullWidth
+                size="small"
+                select
+                label="Tone"
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+                sx={{ mb: 2 }}
+              >
                 {tones.map((t) => (
-                  <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>
+                  <MenuItem key={t.value} value={t.value}>
+                    {t.label}
+                  </MenuItem>
                 ))}
               </TextField>
-              <Button fullWidth variant="contained" onClick={handleGenerate} disabled={isLoading || !topic.trim()} sx={{ textTransform: 'none', bgcolor: '#6366f1', '&:hover': { bgcolor: '#4f46e5' } }}>
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleGenerate}
+                disabled={isLoading || !topic.trim()}
+                sx={{ textTransform: 'none', bgcolor: '#6366f1', '&:hover': { bgcolor: '#4f46e5' } }}
+              >
                 {isLoading ? 'Generating...' : 'Generate'}
               </Button>
             </Paper>
@@ -114,7 +160,10 @@ const AITextGenerator: React.FC = () => {
                     {copied ? 'Copied!' : 'Copy'}
                   </Button>
                 </Box>
-                <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, whiteSpace: 'pre-wrap', fontFamily: 'inherit', lineHeight: 1.7 }}>
+                <Paper
+                  variant="outlined"
+                  sx={{ p: 2, borderRadius: 2, whiteSpace: 'pre-wrap', fontFamily: 'inherit', lineHeight: 1.7 }}
+                >
                   {result}
                 </Paper>
               </Paper>
@@ -122,13 +171,21 @@ const AITextGenerator: React.FC = () => {
             {!result && !isLoading && (
               <Paper sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
                 <AutoAwesome sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography color="text.secondary">Enter a topic and select content type to generate</Typography>
+                <Typography
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
+                  Enter a topic and select content type to generate
+                </Typography>
               </Paper>
             )}
           </Grid>
         </Grid>
         <Snackbar open={!!error} autoHideDuration={5000} onClose={() => setError(null)}>
-          <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+          <Alert severity="error" onClose={() => setError(null)}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

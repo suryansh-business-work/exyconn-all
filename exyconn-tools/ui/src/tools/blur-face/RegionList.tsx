@@ -22,7 +22,12 @@ export default function RegionList({ regions, onRemove }: Readonly<RegionListPro
           disableGutters
           secondaryAction={
             <Tooltip title="Remove region">
-              <IconButton edge="end" size="small" aria-label={`Remove region ${index + 1}`} onClick={() => onRemove(region.id)}>
+              <IconButton
+                edge="end"
+                size="small"
+                aria-label={`Remove region ${index + 1}`}
+                onClick={() => onRemove(region.id)}
+              >
                 <Delete fontSize="small" />
               </IconButton>
             </Tooltip>

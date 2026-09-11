@@ -41,7 +41,7 @@ vi.mock('pdfjs-dist', () => ({
           getViewport: () => ({ width: 100, height: 100, scale: 1 }),
           render: () => ({ promise: Promise.resolve() }),
           getTextContent: () => Promise.resolve({ items: [] }),
-        }),
+        })
       ),
       destroy: vi.fn(),
     }),
@@ -54,9 +54,7 @@ vi.mock('tesseract.js', () => {
   return {
     default: { recognize, createWorker: vi.fn() },
     recognize,
-    createWorker: vi.fn(() =>
-      Promise.resolve({ recognize, terminate: vi.fn(), setParameters: vi.fn() }),
-    ),
+    createWorker: vi.fn(() => Promise.resolve({ recognize, terminate: vi.fn(), setParameters: vi.fn() })),
   };
 });
 
@@ -163,7 +161,7 @@ const renderTool = async (id: string) => {
           </SecretsProvider>
         </MemoryRouter>
       </OpenAIProvider>
-    </ThemeProvider>,
+    </ThemeProvider>
   );
 };
 
@@ -204,6 +202,6 @@ describe('tool render matrix', () => {
       });
       expect(document.body.textContent).toContain(name);
     },
-    20000,
+    20000
   );
 });

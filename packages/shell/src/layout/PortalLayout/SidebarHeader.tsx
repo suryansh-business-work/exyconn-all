@@ -76,7 +76,15 @@ export function SidebarHeader({
               <>
                 <ListItemText
                   primary="Other Portals"
-                  primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
+                  slotProps={{
+                    primary: {
+                      variant: 'body2',
+
+                      sx: {
+                        fontWeight: 600,
+                      },
+                    },
+                  }}
                 />
                 <ChevronRightIcon fontSize="small" color="disabled" />
               </>
@@ -100,26 +108,27 @@ export function SidebarHeader({
             onKeyDown={(e) => {
               if (e.key === 'Escape') onQueryChange('');
             }}
-            // The placeholder disappears the moment anybody types, so it cannot be the
-            // only label this field has.
-            inputProps={{ 'aria-label': searchPlaceholder }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" color="disabled" />
-                </InputAdornment>
-              ),
-              endAdornment: query ? (
-                <InputAdornment position="end">
-                  <IconButton
-                    size="small"
-                    aria-label="Clear search"
-                    onClick={() => onQueryChange('')}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </InputAdornment>
-              ) : undefined,
+            slotProps={{
+              htmlInput: { 'aria-label': searchPlaceholder },
+
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" color="disabled" />
+                  </InputAdornment>
+                ),
+                endAdornment: query ? (
+                  <InputAdornment position="end">
+                    <IconButton
+                      size="small"
+                      aria-label="Clear search"
+                      onClick={() => onQueryChange('')}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ) : undefined,
+              },
             }}
           />
         </Box>

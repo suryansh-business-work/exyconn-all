@@ -62,7 +62,12 @@ export const loadImage = (src: string): Promise<HTMLImageElement> =>
   });
 
 /** Draw the image onto the canvas with the filter applied. `background` fills first (for JPG). */
-export const drawFiltered = (image: HTMLImageElement, canvas: HTMLCanvasElement, filter: string, background?: string): void => {
+export const drawFiltered = (
+  image: HTMLImageElement,
+  canvas: HTMLCanvasElement,
+  filter: string,
+  background?: string
+): void => {
   canvas.width = image.naturalWidth;
   canvas.height = image.naturalHeight;
   const ctx = canvas.getContext('2d');
@@ -83,7 +88,7 @@ export const canvasToBlob = (canvas: HTMLCanvasElement, mime: string): Promise<B
         else reject(new Error('Failed to export image.'));
       },
       mime,
-      0.92,
+      0.92
     );
   });
 

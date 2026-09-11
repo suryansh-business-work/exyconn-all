@@ -15,7 +15,13 @@ const GeneratedOutput: React.FC<GeneratedOutputProps> = ({ generatedTxt, onCopy,
         <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
           <SmartToy sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#84cc16' }} />
           <Typography variant="body1">Configure and generate your robots.txt</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              mt: 1,
+            }}
+          >
             Add sitemaps, set crawl rules for different bots
           </Typography>
         </Box>
@@ -31,7 +37,12 @@ const GeneratedOutput: React.FC<GeneratedOutputProps> = ({ generatedTxt, onCopy,
               justifyContent: 'space-between',
             }}
           >
-            <Typography variant="subtitle2" fontWeight={600}>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: 600,
+              }}
+            >
               Generated robots.txt
             </Typography>
             <Box>
@@ -53,7 +64,9 @@ const GeneratedOutput: React.FC<GeneratedOutputProps> = ({ generatedTxt, onCopy,
               multiline
               rows={18}
               value={generatedTxt}
-              InputProps={{ readOnly: true, sx: { fontFamily: 'monospace', fontSize: 12 } }}
+              slotProps={{
+                input: { readOnly: true, sx: { fontFamily: 'monospace', fontSize: 12 } },
+              }}
             />
           </Box>
         </>

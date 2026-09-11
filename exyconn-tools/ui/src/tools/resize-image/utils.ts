@@ -69,10 +69,14 @@ export const loadImage = (file: File): Promise<HTMLImageElement> =>
 
 const canvasToBlob = (canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob> =>
   new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (blob) resolve(blob);
-      else reject(new Error('Image encoding failed.'));
-    }, type, quality);
+    canvas.toBlob(
+      (blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error('Image encoding failed.'));
+      },
+      type,
+      quality
+    );
   });
 
 export const resizeImage = async (file: File, options: ResizeOptions): Promise<Blob> => {

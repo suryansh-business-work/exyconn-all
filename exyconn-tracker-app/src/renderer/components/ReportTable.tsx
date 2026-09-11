@@ -43,7 +43,13 @@ export default function ReportTable({ days, loading }: Readonly<Props>): ReactEl
     return (
       <Surface sx={{ p: 4, textAlign: 'center' }}>
         <Typography variant="subtitle1">No tracked time this month</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            mt: 0.5,
+          }}
+        >
           Days appear here once you start tracking and sync.
         </Typography>
       </Surface>

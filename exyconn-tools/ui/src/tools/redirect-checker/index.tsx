@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Container, Alert, Snackbar, Chip, Box, Typography,
-  Stepper, Step, StepLabel,
-} from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import { Container, Alert, Snackbar, Chip, Box, Typography, Stepper, Step, StepLabel } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { Directions } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay } from '../../shared/components/DomainToolShared';
@@ -41,16 +38,25 @@ const RedirectChecker: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<Directions color="primary" />}
-              title="Redirect Checker" label="URL" placeholder="https://example.com"
-              buttonText="Check Redirects" loadingText="Checking..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<Directions color="primary" />}
+              title="Redirect Checker"
+              label="URL"
+              placeholder="https://example.com"
+              buttonText="Check Redirects"
+              loadingText="Checking..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
               <DomainResultDisplay title="Redirect Chain" icon={<Directions fontSize="small" />} data={result}>
                 <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  <Chip label={result.hasRedirects ? `${result.totalRedirects} redirect(s)` : 'No redirects'}
-                    color={result.hasRedirects ? 'warning' : 'success'} />
+                  <Chip
+                    label={result.hasRedirects ? `${result.totalRedirects} redirect(s)` : 'No redirects'}
+                    color={result.hasRedirects ? 'warning' : 'success'}
+                  />
                   <Chip label={`Final: ${result.finalUrl}`} variant="outlined" sx={{ maxWidth: 300 }} />
                 </Box>
                 <Stepper orientation="vertical" activeStep={chain.length - 1}>
@@ -58,9 +64,21 @@ const RedirectChecker: React.FC = () => {
                     <Step key={i} completed>
                       <StepLabel>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                          <Chip label={step.statusCode || 'Error'} size="small"
-                            color={step.statusCode >= 300 && step.statusCode < 400 ? 'warning' : step.statusCode >= 200 && step.statusCode < 300 ? 'success' : 'error'} />
-                          <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: 12, wordBreak: 'break-all' }}>
+                          <Chip
+                            label={step.statusCode || 'Error'}
+                            size="small"
+                            color={
+                              step.statusCode >= 300 && step.statusCode < 400
+                                ? 'warning'
+                                : step.statusCode >= 200 && step.statusCode < 300
+                                  ? 'success'
+                                  : 'error'
+                            }
+                          />
+                          <Typography
+                            variant="body2"
+                            sx={{ fontFamily: 'monospace', fontSize: 12, wordBreak: 'break-all' }}
+                          >
                             {step.url}
                           </Typography>
                         </Box>
@@ -74,7 +92,9 @@ const RedirectChecker: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

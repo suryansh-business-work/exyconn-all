@@ -13,7 +13,13 @@ export function DealsViewToggle() {
   const view = pathname === DEALS_LIST_PATH ? 'list' : 'board';
 
   return (
-    <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
+    <Stack
+      direction="row"
+      sx={{
+        justifyContent: 'flex-end',
+        mb: 1,
+      }}
+    >
       <ToggleButtonGroup
         size="small"
         exclusive

@@ -17,7 +17,13 @@ export function CompanyBenefitsFields() {
 
   return (
     <Flex direction="column" spacing={1.5}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <Typography variant="subtitle2">Benefits</Typography>
         <Button
           type="button"
@@ -30,7 +36,12 @@ export function CompanyBenefitsFields() {
       </Stack>
 
       {fields.length === 0 && (
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           No benefits added yet.
         </Typography>
       )}
@@ -38,8 +49,19 @@ export function CompanyBenefitsFields() {
       {fields.map((field, index) => (
         <Box key={field.id} sx={{ p: 1.5, border: 1, borderColor: 'divider', borderRadius: 1 }}>
           <Flex direction="column" spacing={1.5}>
-            <Stack direction="row" alignItems="center" justifyContent="space-between">
-              <Typography variant="caption" color="text.secondary">
+            <Stack
+              direction="row"
+              sx={{
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Benefit {index + 1}
               </Typography>
               <IconButton

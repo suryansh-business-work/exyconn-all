@@ -1,10 +1,23 @@
 import React, { useState } from 'react';
 import {
-  Container, Box, Typography, TextField, Button, Paper, Alert, Snackbar,
-  Chip, LinearProgress, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow,
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Alert,
+  Snackbar,
+  Chip,
+  LinearProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { ContentPaste } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -55,17 +68,46 @@ const PlagiarismChecker: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2, fontSize: '1rem' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 2,
+                  fontSize: '1rem',
+                }}
+              >
                 Check Content Uniqueness
               </Typography>
-              <TextField fullWidth size="small" label="Enter text" placeholder="Paste your content here..."
-                value={text} onChange={(e) => setText(e.target.value)} multiline rows={10} sx={{ mb: 2 }} />
-              <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
+              <TextField
+                fullWidth
+                size="small"
+                label="Enter text"
+                placeholder="Paste your content here..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                multiline
+                rows={10}
+                sx={{ mb: 2 }}
+              />
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                  mb: 1.5,
+                  display: 'block',
+                }}
+              >
                 {text.split(/\s+/).filter(Boolean).length} words
               </Typography>
-              <Button fullWidth variant="contained" color="error" onClick={handleCheck}
+              <Button
+                fullWidth
+                variant="contained"
+                color="error"
+                onClick={handleCheck}
                 disabled={isLoading || text.trim().length < 10}
-                startIcon={<ContentPaste />} sx={{ textTransform: 'none' }}>
+                startIcon={<ContentPaste />}
+                sx={{ textTransform: 'none' }}
+              >
                 {isLoading ? 'Analyzing...' : 'Check Plagiarism'}
               </Button>
               {isLoading && <LinearProgress sx={{ mt: 2 }} />}
@@ -76,18 +118,57 @@ const PlagiarismChecker: React.FC = () => {
             {result && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Paper sx={{ p: 3, borderRadius: 2 }}>
-                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2 }}>Uniqueness Score</Typography>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 2,
+                    }}
+                  >
+                    Uniqueness Score
+                  </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                    <Box sx={{
-                      width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      bgcolor: result.uniquenessScore >= 80 ? 'success.main' : result.uniquenessScore >= 50 ? 'warning.main' : 'error.main',
-                      color: 'white',
-                    }}>
-                      <Typography variant="h5" fontWeight={800}>{result.uniquenessScore}%</Typography>
+                    <Box
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor:
+                          result.uniquenessScore >= 80
+                            ? 'success.main'
+                            : result.uniquenessScore >= 50
+                              ? 'warning.main'
+                              : 'error.main',
+                        color: 'white',
+                      }}
+                    >
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          fontWeight: 800,
+                        }}
+                      >
+                        {result.uniquenessScore}%
+                      </Typography>
                     </Box>
                     <Box>
-                      <Typography variant="body2" fontWeight={600}>Content Uniqueness</Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 600,
+                        }}
+                      >
+                        Content Uniqueness
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
                         {result.totalWords} words, {result.totalSentences} sentences
                       </Typography>
                     </Box>
@@ -96,27 +177,48 @@ const PlagiarismChecker: React.FC = () => {
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     <Chip size="small" label={`${result.uniqueWords} unique words`} />
                     <Chip size="small" label={`${result.averageWordsPerSentence} avg words/sentence`} />
-                    <Chip size="small" label={`Readability: ${result.readabilityLevel}`}
-                      color={result.readabilityLevel === 'Easy' ? 'success' : result.readabilityLevel === 'Moderate' ? 'warning' : 'error'} />
+                    <Chip
+                      size="small"
+                      label={`Readability: ${result.readabilityLevel}`}
+                      color={
+                        result.readabilityLevel === 'Easy'
+                          ? 'success'
+                          : result.readabilityLevel === 'Moderate'
+                            ? 'warning'
+                            : 'error'
+                      }
+                    />
                   </Box>
                 </Paper>
 
                 {result.repeatedPhrases.length > 0 && (
                   <Paper sx={{ p: 3, borderRadius: 2 }}>
-                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>Repeated Phrases</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 1.5,
+                      }}
+                    >
+                      Repeated Phrases
+                    </Typography>
                     <TableContainer>
                       <Table size="small">
                         <TableHead>
                           <TableRow>
                             <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Phrase</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }} align="right">Count</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }} align="right">
+                              Count
+                            </TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
                           {result.repeatedPhrases.map((item, idx) => (
                             <TableRow key={idx}>
                               <TableCell sx={{ fontSize: '0.75rem' }}>{item.phrase}</TableCell>
-                              <TableCell sx={{ fontSize: '0.75rem' }} align="right">{item.count}</TableCell>
+                              <TableCell sx={{ fontSize: '0.75rem' }} align="right">
+                                {item.count}
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -134,7 +236,9 @@ const PlagiarismChecker: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

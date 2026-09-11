@@ -37,7 +37,14 @@ export function FinanceMoneyPanel({ title, basis, lines }: Readonly<Props>) {
 
       <Stack spacing={0.75}>
         {lines.map((line) => (
-          <Stack key={line.id} direction="row" justifyContent="space-between" spacing={1.5}>
+          <Stack
+            key={line.id}
+            direction="row"
+            spacing={1.5}
+            sx={{
+              justifyContent: 'space-between',
+            }}
+          >
             <Text size="sm" color={line.total ? 'text.primary' : 'text.secondary'}>
               {line.label}
             </Text>

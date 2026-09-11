@@ -41,7 +41,13 @@ export default function MessageBubble({ message, timezone }: Readonly<Props>): R
           {message.body}
         </Typography>
       </Box>
-      <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25 }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+          mt: 0.25,
+        }}
+      >
         {/* Who wrote it only when it was not the person reading it — "You, 10:42" is a line
             of noise on every message somebody sends. */}
         {mine ? '' : `${message.authorName || 'Your workspace'} · `}

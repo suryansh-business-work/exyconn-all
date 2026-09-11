@@ -1,7 +1,17 @@
 import React from 'react';
 import {
-  Paper, Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Chip, IconButton, Tooltip,
+  Paper,
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { ContentCopy, CheckCircle, Download } from '@mui/icons-material';
 
@@ -38,10 +48,26 @@ const DomainResultDisplay: React.FC<ResultDisplayProps> = ({ title, icon, data, 
 
   return (
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, borderBottom: 1, borderColor: 'divider' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          p: 2,
+          borderBottom: 1,
+          borderColor: 'divider',
+        }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {icon}
-          <Typography variant="subtitle2" fontWeight={600}>{title}</Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
+            {title}
+          </Typography>
         </Box>
         <Box>
           <Tooltip title={copied ? 'Copied!' : 'Copy JSON'}>
@@ -56,9 +82,7 @@ const DomainResultDisplay: React.FC<ResultDisplayProps> = ({ title, icon, data, 
           </Tooltip>
         </Box>
       </Box>
-      <Box sx={{ p: 2 }}>
-        {children}
-      </Box>
+      <Box sx={{ p: 2 }}>{children}</Box>
     </Paper>
   );
 };

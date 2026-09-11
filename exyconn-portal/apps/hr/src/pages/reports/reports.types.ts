@@ -7,7 +7,7 @@ export interface ReportDef<Row> {
   label: string;
   description: string;
   columns: CsvColumn<Row>[];
-  load: (client: ApolloClient<object>) => Promise<Row[]>;
+  load: (client: ApolloClient) => Promise<Row[]>;
 }
 
 /** Row type erased so a heterogeneous list of reports can be rendered by one page. */
@@ -16,7 +16,7 @@ export interface AnyReport {
   label: string;
   description: string;
   columns: CsvColumn<unknown>[];
-  load: (client: ApolloClient<object>) => Promise<unknown[]>;
+  load: (client: ApolloClient) => Promise<unknown[]>;
 }
 
 /** Keeps each report fully typed at its definition; the one cast lives here. */

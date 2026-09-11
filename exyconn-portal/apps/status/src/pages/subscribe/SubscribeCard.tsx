@@ -15,10 +15,20 @@ export function SubscribeCard() {
     <Card variant="outlined" sx={{ p: { xs: 2, md: 3 } }}>
       <Flex direction="column" spacing={2}>
         <Box>
-          <Typography variant="h6" fontWeight={700}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 700,
+            }}
+          >
             Subscribe to updates
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Get an email when a service goes down, when it comes back, and when maintenance is
             planned. No account needed, and one click to stop.
           </Typography>

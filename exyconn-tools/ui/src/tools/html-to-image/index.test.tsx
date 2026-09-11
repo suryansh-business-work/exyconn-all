@@ -1,9 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { toJpeg, toPng, toSvg } from 'html-to-image';
-import {
-  captureNode, clampDimension, outputFileName, stripScripts, MAX_DIMENSION,
-} from './utils';
+import { captureNode, clampDimension, outputFileName, stripScripts, MAX_DIMENSION } from './utils';
 import HtmlToImage from './index';
 
 vi.mock('html-to-image', () => ({
@@ -66,7 +64,11 @@ describe('html-to-image utils', () => {
     it('calls toJpeg with a white background and quality', async () => {
       await captureNode(node, { format: 'jpeg', width: 100, height: 50, scale: 1 });
       expect(toJpeg).toHaveBeenCalledWith(node, {
-        width: 100, height: 50, pixelRatio: 1, quality: 0.95, backgroundColor: '#ffffff',
+        width: 100,
+        height: 50,
+        pixelRatio: 1,
+        quality: 0.95,
+        backgroundColor: '#ffffff',
       });
     });
     it('calls toSvg for svg output', async () => {

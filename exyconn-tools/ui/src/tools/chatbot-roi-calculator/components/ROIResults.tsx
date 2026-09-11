@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Paper, Typography, Divider, Chip } from '@mui/material';
 import { Savings, AccessTime, SmartToy, TrendingUp, AutoAwesome } from '@mui/icons-material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import ROIResultCard from './ROIResultCard';
 import { ROIResults as ROIResultsType } from '../types';
 
@@ -33,7 +33,12 @@ const ROIResults: React.FC<ROIResultsProps> = ({ results }) => {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <TrendingUp color="success" />
-          <Typography variant="h6" fontWeight={600}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             Your Savings
           </Typography>
         </Box>
@@ -74,10 +79,23 @@ const ROIResults: React.FC<ROIResultsProps> = ({ results }) => {
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
               <SmartToy color="action" />
             </Box>
-            <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mb: 0.5 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                fontWeight: 500,
+                mb: 0.5,
+              }}
+            >
               Smart Exy Bot Cost
             </Typography>
-            <Typography variant="h4" fontWeight={700} color="text.primary">
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                color: 'text.primary',
+              }}
+            >
               ${results.smartExyBotCost.toLocaleString()} /yr
             </Typography>
           </Paper>
@@ -97,10 +115,22 @@ const ROIResults: React.FC<ROIResultsProps> = ({ results }) => {
       <Divider sx={{ my: 3 }} />
 
       <Box sx={{ textAlign: 'center' }}>
-        <Typography variant="h6" color="success.main" fontWeight={600} sx={{ mb: 1 }}>
+        <Typography
+          variant="h6"
+          sx={{
+            color: 'success.main',
+            fontWeight: 600,
+            mb: 1,
+          }}
+        >
           Ready to capture this ROI?
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Build your chatbot with Smart Exy Bot and start automating support today.
         </Typography>
       </Box>

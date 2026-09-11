@@ -9,7 +9,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Image from '@mui/icons-material/Image';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -18,7 +18,11 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
-interface ConvertedImage { pageNum: number; url: string; blob: Blob }
+interface ConvertedImage {
+  pageNum: number;
+  url: string;
+  blob: Blob;
+}
 
 export default function PdfToJpg() {
   const [file, setFile] = useState<File | null>(null);
@@ -38,11 +42,14 @@ export default function PdfToJpg() {
     setPageCount(pdf.numPages);
   }, []);
 
-  const onDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    const f = e.dataTransfer.files[0];
-    if (f) handleFile(f);
-  }, [handleFile]);
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const f = e.dataTransfer.files[0];
+      if (f) handleFile(f);
+    },
+    [handleFile]
+  );
 
   const convert = useCallback(async () => {
     if (!file) return;
@@ -60,9 +67,7 @@ export default function PdfToJpg() {
       canvas.height = viewport.height;
       const ctx = canvas.getContext('2d')!;
       await page.render({ canvas, canvasContext: ctx, viewport }).promise;
-      const blob = await new Promise<Blob>((res) =>
-        canvas.toBlob((b) => res(b!), 'image/jpeg', quality)
-      );
+      const blob = await new Promise<Blob>((res) => canvas.toBlob((b) => res(b!), 'image/jpeg', quality));
       results.push({ pageNum: i, url: URL.createObjectURL(blob), blob });
     }
     setImages(results);
@@ -97,15 +102,25 @@ export default function PdfToJpg() {
             sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: 'divider', cursor: 'pointer' }}
             onClick={() => {
               const i = document.createElement('input');
-              i.type = 'file'; i.accept = '.pdf';
-              i.onchange = () => { if (i.files?.[0]) handleFile(i.files[0]); };
+              i.type = 'file';
+              i.accept = '.pdf';
+              i.onchange = () => {
+                if (i.files?.[0]) handleFile(i.files[0]);
+              };
               i.click();
             }}
           >
             <CloudUpload sx={{ fontSize: 48, color: '#ec4899', mb: 1 }} />
             <Typography>{file ? file.name : 'Drop a PDF here or click to upload'}</Typography>
             {pageCount > 0 && (
-              <Typography variant="body2" color="text.secondary">{pageCount} page(s)</Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
+                {pageCount} page(s)
+              </Typography>
             )}
           </Paper>
         </Grid>
@@ -116,9 +131,12 @@ export default function PdfToJpg() {
             <Grid size={{ xs: 12, sm: 6 }}>
               <Typography gutterBottom>Quality: {Math.round(quality * 100)}%</Typography>
               <Slider
-                min={50} max={100} value={quality * 100}
+                min={50}
+                max={100}
+                value={quality * 100}
                 onChange={(_, v) => setQuality((v as number) / 100)}
-                valueLabelDisplay="auto" sx={{ color: '#ec4899' }}
+                valueLabelDisplay="auto"
+                sx={{ color: '#ec4899' }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -134,16 +152,21 @@ export default function PdfToJpg() {
             <Grid size={12}>
               <Box sx={{ display: 'flex', gap: 2 }}>
                 <Button
-                  variant="contained" onClick={convert} disabled={converting}
+                  variant="contained"
+                  onClick={convert}
+                  disabled={converting}
                   sx={{ bgcolor: '#ec4899', '&:hover': { bgcolor: '#db2777' } }}
                 >
                   {converting ? `Converting page ${progress} of ${pageCount}...` : 'Convert to JPG'}
                 </Button>
-                <Button variant="outlined" onClick={reset}>Reset</Button>
+                <Button variant="outlined" onClick={reset}>
+                  Reset
+                </Button>
               </Box>
               {converting && (
                 <LinearProgress
-                  variant="determinate" value={(progress / pageCount) * 100}
+                  variant="determinate"
+                  value={(progress / pageCount) * 100}
                   sx={{ mt: 2, '& .MuiLinearProgress-bar': { bgcolor: '#ec4899' } }}
                 />
               )}
@@ -156,7 +179,9 @@ export default function PdfToJpg() {
           <>
             <Grid size={12}>
               <Button
-                variant="contained" startIcon={<Download />} onClick={downloadAll}
+                variant="contained"
+                startIcon={<Download />}
+                onClick={downloadAll}
                 sx={{ bgcolor: '#ec4899', '&:hover': { bgcolor: '#db2777' } }}
               >
                 Download All ({images.length})
@@ -166,12 +191,16 @@ export default function PdfToJpg() {
               <Grid size={{ xs: 6, sm: 4, md: 3 }} key={img.pageNum}>
                 <Paper sx={{ p: 1, textAlign: 'center' }}>
                   <Box
-                    component="img" src={img.url} alt={`Page ${img.pageNum}`}
+                    component="img"
+                    src={img.url}
+                    alt={`Page ${img.pageNum}`}
                     sx={{ width: '100%', borderRadius: 1 }}
                   />
                   <Button
-                    size="small" startIcon={<Download />}
-                    onClick={() => downloadOne(img)} sx={{ mt: 1, color: '#ec4899' }}
+                    size="small"
+                    startIcon={<Download />}
+                    onClick={() => downloadOne(img)}
+                    sx={{ mt: 1, color: '#ec4899' }}
                   >
                     Page {img.pageNum}
                   </Button>

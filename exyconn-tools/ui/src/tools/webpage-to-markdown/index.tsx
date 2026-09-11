@@ -12,7 +12,7 @@ import {
   Tooltip,
   CircularProgress,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Language, ContentCopy, Download } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -77,7 +77,13 @@ const WebpageToMarkdown: React.FC = () => {
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-              <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+              <Typography
+                variant="subtitle2"
+                gutterBottom
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 Webpage URL
               </Typography>
               <TextField
@@ -88,7 +94,14 @@ const WebpageToMarkdown: React.FC = () => {
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleConvert()}
               />
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                  mt: 1,
+                  display: 'block',
+                }}
+              >
                 Enter the URL of a webpage to convert its content to Markdown
               </Typography>
             </Paper>
@@ -106,10 +119,20 @@ const WebpageToMarkdown: React.FC = () => {
 
             {title && (
               <Paper elevation={0} sx={{ p: 2, mt: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   Page Title
                 </Typography>
-                <Typography variant="body2" fontWeight={500}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 500,
+                  }}
+                >
                   {title}
                 </Typography>
               </Paper>
@@ -135,7 +158,13 @@ const WebpageToMarkdown: React.FC = () => {
                 >
                   <Language sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#06b6d4' }} />
                   <Typography variant="body1">Enter a URL to convert</Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                      mt: 1,
+                    }}
+                  >
                     Extracts main content and converts to clean Markdown
                   </Typography>
                 </Box>
@@ -151,7 +180,12 @@ const WebpageToMarkdown: React.FC = () => {
                       alignItems: 'center',
                     }}
                   >
-                    <Typography variant="subtitle2" fontWeight={600}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                      }}
+                    >
                       Converted Markdown
                     </Typography>
                     <Box>

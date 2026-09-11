@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Container, useMediaQuery, useTheme as useMuiTheme } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { useTheme } from '../../shared/context/ThemeContext';
 import { useSecrets } from '../../shared/context/SecretsContext';
 import Footer from '../../shared/components/Footer/Footer';
@@ -52,8 +52,7 @@ const filterBySearch = (categories: ToolCategory[], query: string): ToolCategory
     .map((cat) => ({
       ...cat,
       items: cat.items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(q) || item.description.toLowerCase().includes(q)
+        (item) => item.name.toLowerCase().includes(q) || item.description.toLowerCase().includes(q)
       ),
     }))
     .filter((cat) => cat.items.length > 0);
@@ -71,9 +70,8 @@ const ToolsPage: React.FC = () => {
   const toolCounts = getToolCounts();
 
   const filteredData = useMemo(() => {
-    const byCategory = selectedCategory === 'All'
-      ? toolsData
-      : toolsData.filter((cat) => cat.category === selectedCategory);
+    const byCategory =
+      selectedCategory === 'All' ? toolsData : toolsData.filter((cat) => cat.category === selectedCategory);
     if (!searchQuery.trim()) return byCategory;
     return filterBySearch(byCategory, searchQuery);
   }, [searchQuery, selectedCategory]);
@@ -86,30 +84,34 @@ const ToolsPage: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <ToolsHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} mode={mode}
-        onToggleTheme={toggleTheme} onLogoClick={() => navigate('/tools')}
-        onOpenSecrets={() => openSecrets()} />
-      {isMobile && (
-        <CategoryChipRow selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
-      )}
+      <ToolsHeader
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        mode={mode}
+        onToggleTheme={toggleTheme}
+        onLogoClick={() => navigate('/tools')}
+        onOpenSecrets={() => openSecrets()}
+      />
+      {isMobile && <CategoryChipRow selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />}
       <Box sx={{ flex: 1, bgcolor: 'background.default', py: 3 }}>
         <Container maxWidth="xl">
-          <HeroSection title="Exyconn Free Tools"
+          <HeroSection
+            title="Exyconn Free Tools"
             subtitle="Powerful design, SEO, AI, and productivity tools. All free, all in one place."
-            totalTools={toolCounts.total} categoryCount={toolCounts.categories} />
+            totalTools={toolCounts.total}
+            categoryCount={toolCounts.categories}
+          />
           <Grid container spacing={2}>
             {!isMobile && (
               <Grid size={{ md: 3, lg: 2.5 }}>
-                <CategorySidebar selectedCategory={selectedCategory}
-                  onCategoryChange={setSelectedCategory} />
+                <CategorySidebar selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
               </Grid>
             )}
             <Grid size={{ xs: 12, md: 9, lg: 9.5 }}>
               {filteredData.length > 0 ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {filteredData.map((category) => (
-                    <ToolsGrid key={category.category} category={category}
-                      onToolClick={handleToolClick} />
+                    <ToolsGrid key={category.category} category={category} onToolClick={handleToolClick} />
                   ))}
                 </Box>
               ) : (

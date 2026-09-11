@@ -45,7 +45,13 @@ export function StatusStats({ overview }: Readonly<StatusStatsProps>) {
   return (
     <Grid container spacing={1.5}>
       {stats.map((stat) => (
-        <Grid key={stat.label} item xs={6} md={3}>
+        <Grid
+          key={stat.label}
+          size={{
+            xs: 6,
+            md: 3,
+          }}
+        >
           <StatCard {...stat} />
         </Grid>
       ))}

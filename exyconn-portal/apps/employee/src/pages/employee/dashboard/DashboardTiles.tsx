@@ -10,7 +10,15 @@ export function DashboardTiles({ stats }: Readonly<DashboardTilesProps>) {
   return (
     <Grid container spacing={2} sx={{ mb: 2 }}>
       {stats.map((stat) => (
-        <Grid key={stat.label} item xs={12} sm={6} md={4} lg={2}>
+        <Grid
+          key={stat.label}
+          size={{
+            xs: 12,
+            sm: 6,
+            md: 4,
+            lg: 2,
+          }}
+        >
           <StatCard {...stat} />
         </Grid>
       ))}

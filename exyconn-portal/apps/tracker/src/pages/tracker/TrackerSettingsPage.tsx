@@ -13,7 +13,13 @@ export function TrackerSettingsPage() {
     <Box>
       <PageHeader title="Tracker Settings" subtitle="Capture cadence & privacy controls" />
       <Grid container spacing={2.5}>
-        <Grid item xs={12} md={8} lg={7}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 8,
+            lg: 7,
+          }}
+        >
           <Box sx={[glass, { p: 3 }]}>
             <Heading level={6} sx={{ mb: 0.5 }}>
               Capture settings

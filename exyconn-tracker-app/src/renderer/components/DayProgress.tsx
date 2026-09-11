@@ -64,7 +64,12 @@ function DayProgressBar({ figures, activeMs }: Readonly<ShapeProps>): ReactEleme
         sx={{ height: 8, borderRadius: 4, my: 0.75 }}
         aria-label={`${formatHoursMinutes(activeMs)} of ${formatHoursMinutes(figures.targetMs)} worked today`}
       />
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {summaryOf(figures)}
       </Typography>
     </>
@@ -74,14 +79,28 @@ function DayProgressBar({ figures, activeMs }: Readonly<ShapeProps>): ReactEleme
 /** The ring: the percentage sits inside the shape that describes it. */
 function DayProgressRing({ figures, activeMs }: Readonly<ShapeProps>): ReactElement {
   return (
-    <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1 }}>
+    <Stack
+      direction="row"
+      spacing={2}
+      sx={{
+        alignItems: 'center',
+        mt: 1,
+      }}
+    >
       <ProgressRing
         value={figures.percent}
         label={`${figures.percent}%`}
         caption={formatHoursMinutes(activeMs)}
         color={figures.done ? 'success' : 'primary'}
       />
-      <Typography variant="body2" color="text.secondary" sx={{ flex: 1, minWidth: 0 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+          flex: 1,
+          minWidth: 0,
+        }}
+      >
         {summaryOf(figures)}
       </Typography>
     </Stack>
@@ -111,10 +130,28 @@ export default function DayProgress({
 
   return (
     <Box>
-      <Stack direction="row" alignItems="baseline" justifyContent="space-between" spacing={1}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          alignItems: 'baseline',
+          justifyContent: 'space-between',
+        }}
+      >
         <Typography variant="subtitle2">Today</Typography>
-        <Stack direction="row" spacing={0.5} alignItems="center">
-          <Typography variant="caption" color="text.secondary">
+        <Stack
+          direction="row"
+          spacing={0.5}
+          sx={{
+            alignItems: 'center',
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {formatHoursMinutes(activeMs)} of {formatHoursMinutes(figures.targetMs)}
           </Typography>
           <Tooltip

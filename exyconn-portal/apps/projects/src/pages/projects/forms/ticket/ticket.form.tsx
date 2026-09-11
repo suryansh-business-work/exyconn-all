@@ -10,7 +10,7 @@ import {
   RhfTextField,
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
-import { Grid2 } from '@exyconn/shell/components/ui';
+import { Grid } from '@exyconn/shell/components/ui';
 import { TaskPriority, TaskType, type TaskInput } from '@exyconn/shell/graphql/generated';
 import { TICKET_PRIORITY_OPTIONS, TICKET_TYPE_OPTIONS } from '../../ticket/ticket-meta';
 import type { TicketAssigneeOption, TicketRow } from './ticket.types';
@@ -93,26 +93,26 @@ export function TicketForm({ initial, assignees, onSubmit, onCancel }: Readonly<
       <RhfTextField name="title" label="Summary" />
       <RhfRichText name="description" label="Description" />
 
-      <Grid2 container spacing={2}>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <RhfSelect name="type" label="Type" options={TICKET_TYPE_OPTIONS} />
-        </Grid2>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <RhfSelect name="priority" label="Priority" options={TICKET_PRIORITY_OPTIONS} />
-        </Grid2>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <RhfAutocomplete name="assigneeId" label="Assignee" options={assigneeOptions} />
-        </Grid2>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <RhfTextField name="storyPoints" label="Story points" />
-        </Grid2>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <RhfDatePicker name="dueDate" label="Due date" />
-        </Grid2>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <RhfChipsInput name="labels" label="Labels" helperText="Type a label and press Enter" />
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
     </EntityForm>
   );
 }

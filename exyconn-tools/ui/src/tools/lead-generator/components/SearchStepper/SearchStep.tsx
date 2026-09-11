@@ -18,12 +18,25 @@ const SearchStep: React.FC<SearchStepProps> = ({
   <Step>
     <StepLabel>Search Businesses</StepLabel>
     <StepContent>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+          mb: 2,
+        }}
+      >
         Set the maximum number of results and click search.
       </Typography>
 
       <Box sx={{ mb: 3 }}>
-        <Typography variant="caption" color="text.secondary" gutterBottom sx={{ display: 'block' }}>
+        <Typography
+          variant="caption"
+          gutterBottom
+          sx={{
+            color: 'text.secondary',
+            display: 'block',
+          }}
+        >
           Maximum Results: <strong>{maxResults}</strong>
         </Typography>
         <Slider
@@ -45,7 +58,13 @@ const SearchStep: React.FC<SearchStepProps> = ({
       </Box>
 
       <Box sx={{ bgcolor: 'grey.50', p: 2, mb: 2 }}>
-        <Typography variant="caption" color="text.secondary" display="block">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+            display: 'block',
+          }}
+        >
           Search Summary:
         </Typography>
         <Typography variant="body2">• Location: {locationName ? `✓ ${locationName}` : '✗ Not set'}</Typography>

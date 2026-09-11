@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar, Chip, Box, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Schedule } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay, KeyValueTable } from '../../shared/components/DomainToolShared';
@@ -37,36 +37,69 @@ const DomainExpiryChecker: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<Schedule color="primary" />}
-              title="Domain Expiry Check" buttonText="Check Expiry" loadingText="Checking..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<Schedule color="primary" />}
+              title="Domain Expiry Check"
+              buttonText="Check Expiry"
+              loadingText="Checking..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
-              <DomainResultDisplay title={`Domain Expiry - ${result.domain}`} icon={<Schedule fontSize="small" />} data={result}>
+              <DomainResultDisplay
+                title={`Domain Expiry - ${result.domain}`}
+                icon={<Schedule fontSize="small" />}
+                data={result}
+              >
                 {days !== null && (
                   <Box sx={{ mb: 2, textAlign: 'center' }}>
-                    <Typography variant="h3" fontWeight={700}
-                      color={days > 90 ? 'success.main' : days > 30 ? 'warning.main' : 'error.main'}>
+                    <Typography
+                      variant="h3"
+                      color={days > 90 ? 'success.main' : days > 30 ? 'warning.main' : 'error.main'}
+                      sx={{
+                        fontWeight: 700,
+                      }}
+                    >
                       {days}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">days until expiry</Typography>
-                    <Chip label={days > 90 ? 'Safe' : days > 30 ? 'Renew Soon' : 'Critical'}
-                      color={days > 90 ? 'success' : days > 30 ? 'warning' : 'error'} sx={{ mt: 1 }} />
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      days until expiry
+                    </Typography>
+                    <Chip
+                      label={days > 90 ? 'Safe' : days > 30 ? 'Renew Soon' : 'Critical'}
+                      color={days > 90 ? 'success' : days > 30 ? 'warning' : 'error'}
+                      sx={{ mt: 1 }}
+                    />
                   </Box>
                 )}
-                <KeyValueTable data={{
-                  Domain: result.domain,
-                  'Registration Date': result.registrationDate ? new Date(result.registrationDate as string).toLocaleDateString() : 'N/A',
-                  'Expiry Date': result.expiryDate ? new Date(result.expiryDate as string).toLocaleDateString() : 'N/A',
-                  'Days Until Expiry': days ?? 'N/A',
-                }} />
+                <KeyValueTable
+                  data={{
+                    Domain: result.domain,
+                    'Registration Date': result.registrationDate
+                      ? new Date(result.registrationDate as string).toLocaleDateString()
+                      : 'N/A',
+                    'Expiry Date': result.expiryDate
+                      ? new Date(result.expiryDate as string).toLocaleDateString()
+                      : 'N/A',
+                    'Days Until Expiry': days ?? 'N/A',
+                  }}
+                />
               </DomainResultDisplay>
             )}
           </Grid>
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

@@ -42,7 +42,14 @@ export default function ReportTotals({ totals }: Readonly<Props>): ReactElement 
             '&:first-of-type': { borderLeft: 'none' },
           })}
         >
-          <Typography variant="caption" color="text.secondary" noWrap display="block">
+          <Typography
+            variant="caption"
+            noWrap
+            sx={{
+              color: 'text.secondary',
+              display: 'block',
+            }}
+          >
             {item.label}
           </Typography>
           <Typography variant="h6" noWrap>

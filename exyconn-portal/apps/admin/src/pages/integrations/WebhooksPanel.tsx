@@ -149,13 +149,15 @@ export function WebhooksPanel() {
               <TableCell>
                 <Switch
                   checked={hook.active}
-                  inputProps={{ 'aria-label': `Enable ${hook.name}` }}
                   onChange={(event) =>
                     run(
                       setActive({ variables: { id: hook.id, active: event.target.checked } }),
                       'Could not change the endpoint',
                     )
                   }
+                  slotProps={{
+                    input: { 'aria-label': `Enable ${hook.name}` },
+                  }}
                 />
               </TableCell>
               <TableCell align="right">

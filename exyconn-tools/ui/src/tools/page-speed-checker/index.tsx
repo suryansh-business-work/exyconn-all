@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar, Chip, Box, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Speed } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay, KeyValueTable } from '../../shared/components/DomainToolShared';
@@ -39,33 +39,70 @@ const PageSpeedChecker: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<Speed color="primary" />}
-              title="Page Speed Check" label="URL" placeholder="https://example.com"
-              buttonText="Check Speed" loadingText="Analyzing..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<Speed color="primary" />}
+              title="Page Speed Check"
+              label="URL"
+              placeholder="https://example.com"
+              buttonText="Check Speed"
+              loadingText="Analyzing..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
               <DomainResultDisplay title="Page Speed Results" icon={<Speed fontSize="small" />} data={result}>
                 <Box sx={{ textAlign: 'center', py: 2, mb: 2 }}>
-                  <Typography variant="h3" fontWeight={700}
-                    color={perf?.rating === 'Fast' ? 'success.main' : perf?.rating === 'Average' ? 'warning.main' : 'error.main'}>
+                  <Typography
+                    variant="h3"
+                    color={
+                      perf?.rating === 'Fast'
+                        ? 'success.main'
+                        : perf?.rating === 'Average'
+                          ? 'warning.main'
+                          : 'error.main'
+                    }
+                    sx={{
+                      fontWeight: 700,
+                    }}
+                  >
                     {String(result.loadTime)}ms
                   </Typography>
-                  <Chip label={perf?.rating as string} sx={{ mt: 1 }}
-                    color={perf?.rating === 'Fast' ? 'success' : perf?.rating === 'Average' ? 'warning' : 'error'} />
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  <Chip
+                    label={perf?.rating as string}
+                    sx={{ mt: 1 }}
+                    color={perf?.rating === 'Fast' ? 'success' : perf?.rating === 'Average' ? 'warning' : 'error'}
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                      mt: 1,
+                    }}
+                  >
                     Page Size: {result.pageSizeFormatted as string}
                   </Typography>
                 </Box>
                 {resources && (
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Resource Count</Typography>
-                    <KeyValueTable data={{
-                      Scripts: resources.scripts,
-                      Stylesheets: resources.stylesheets,
-                      Images: resources.images,
-                      'Inline Styles': resources.inlineStyles,
-                    }} />
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1,
+                      }}
+                    >
+                      Resource Count
+                    </Typography>
+                    <KeyValueTable
+                      data={{
+                        Scripts: resources.scripts,
+                        Stylesheets: resources.stylesheets,
+                        Images: resources.images,
+                        'Inline Styles': resources.inlineStyles,
+                      }}
+                    />
                   </Box>
                 )}
               </DomainResultDisplay>
@@ -74,7 +111,9 @@ const PageSpeedChecker: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

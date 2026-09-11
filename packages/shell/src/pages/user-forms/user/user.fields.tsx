@@ -122,8 +122,10 @@ export function WorkArrangementFields() {
         name="workHoursPerDay"
         label="Working hours per day"
         type="number"
-        inputProps={{ min: 1, max: 24, step: 0.5 }}
         helperText={`Hours in a working day. Defaults to ${DEFAULT_WORK_HOURS} — the desktop tracker shows progress against this.`}
+        slotProps={{
+          htmlInput: { min: 1, max: 24, step: 0.5 },
+        }}
       />
       {/* Where they actually are, which is what every date, time and deadline is read in.
           Asked here rather than left to the person: an employee hired into another country

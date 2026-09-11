@@ -319,8 +319,7 @@ export const businessUtilityToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Is anything I enter stored or sent anywhere?',
-        answer:
-          'No. The calculator runs entirely in your browser; no figures are transmitted, logged, or saved.',
+        answer: 'No. The calculator runs entirely in your browser; no figures are transmitted, logged, or saved.',
       },
       {
         question: 'What is Smart Exy Bot?',

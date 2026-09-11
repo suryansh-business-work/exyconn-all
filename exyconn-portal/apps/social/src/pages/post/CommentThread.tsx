@@ -7,7 +7,7 @@ import {
   Tooltip,
   Typography,
 } from '@exyconn/shell/components/ui';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
@@ -52,7 +52,12 @@ export function CommentThread({ postId }: Readonly<CommentThreadProps>) {
   const comments = data?.socialComments ?? [];
   if (comments.length === 0) {
     return (
-      <Typography variant="body2" color="text.secondary">
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         No comments yet.
       </Typography>
     );
@@ -62,7 +67,13 @@ export function CommentThread({ postId }: Readonly<CommentThreadProps>) {
     <Stack spacing={2}>
       {comments.map((comment) => (
         <Box key={comment.id}>
-          <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+          <Stack
+            direction="row"
+            sx={{
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+            }}
+          >
             <AuthorLine author={comment.author} at={comment.createdAt} dense />
             {comment.canDelete && (
               <Tooltip title="Delete comment">

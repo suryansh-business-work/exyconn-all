@@ -43,7 +43,9 @@ export function TranslationEditor({ locale, source, text, onSaved }: Readonly<Pr
         fullWidth
         value={value}
         onChange={(event) => setValue(event.target.value)}
-        inputProps={{ 'aria-label': `Translation of "${source}"` }}
+        slotProps={{
+          htmlInput: { 'aria-label': `Translation of "${source}"` },
+        }}
       />
       <Button
         size="small"

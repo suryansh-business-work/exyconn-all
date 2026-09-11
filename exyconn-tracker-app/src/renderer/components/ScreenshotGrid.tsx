@@ -24,7 +24,14 @@ interface Props {
 export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Props>): ReactElement {
   if (shots.length === 0) {
     return (
-      <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ py: 3 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+          textAlign: 'center',
+          py: 3,
+        }}
+      >
         No screenshots on this day.
       </Typography>
     );
@@ -68,7 +75,14 @@ export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Pro
                 border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
               })}
             />
-            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                display: 'block',
+                mt: 0.5,
+              }}
+            >
               {capturedAt} · {activityLabel(shot.activityPercent)}
             </Typography>
           </ButtonBase>

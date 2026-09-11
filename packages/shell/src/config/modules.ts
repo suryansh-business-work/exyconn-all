@@ -88,6 +88,7 @@ import ForumIcon from '@mui/icons-material/Forum';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import { ROLES, type Role } from '@/auth/roles';
 import { appUrl, type PortalAppKey } from './apps';
+import type { NavGroup } from './navGroups';
 import { color } from '@exyconn/ui';
 
 /** A nested navigation entry shown under a parent module in the sidebar. */
@@ -103,7 +104,12 @@ export interface ModuleChild {
    * list than as three headings with two items under each. Children with no group lead the
    * list, ungrouped — that is where a module's overview and its most-used page belong.
    */
-  group?: string;
+  group?: NavGroup;
+  /**
+   * Pages nested under this one. The sidebar draws at most `MAX_NAV_DEPTH` levels, counted
+   * from its top level: a section, then this page, then its children and theirs.
+   */
+  children?: ModuleChild[];
 }
 
 export interface ModuleDefinition {
@@ -1092,10 +1098,15 @@ export function accessibleModules(roles: Role[]): ModuleDefinition[] {
   return MODULES.filter((m) => roles.includes(ROLES.ADMIN) || roles.includes(m.role));
 }
 
+/** Every path under a list of children, however deeply they nest. */
+function childPaths(children: ModuleChild[] = []): string[] {
+  return children.flatMap((c) => [c.path, ...childPaths(c.children)]);
+}
+
 /** First path segment -> the app that serves it, e.g. "me" and "profile" -> employee. */
 const APP_BY_SEGMENT = new Map<string, PortalAppKey>(
   MODULES.flatMap((m) =>
-    [m.path, ...(m.children ?? []).map((c) => c.path)].map(
+    [m.path, ...childPaths(m.children)].map(
       (path) => [path.split('/')[1], m.key] as [string, PortalAppKey],
     ),
   ),

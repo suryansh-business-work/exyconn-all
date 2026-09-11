@@ -1,14 +1,42 @@
 import { describe, it, expect } from 'vitest';
 import {
+  MAX_NAV_DEPTH,
+  filterNavTree,
+  moduleNavTree,
+  navDepth,
   navModules,
-  moduleNavItems,
-  navSections,
-  railItems,
+  navPaths,
+  navTrail,
+  navTree,
 } from '../../src/layout/PortalLayout/moduleNav';
-import { MODULES } from '../../src/config/modules';
+import { MODULES, type ModuleDefinition } from '../../src/config/modules';
 import { ROLES } from '../../src/auth/roles';
 
 const moduleFor = (key: string) => MODULES.find((m) => m.key === key)!;
+const hr = moduleFor('hr');
+
+/** HR with one page nested three deep under its People section: four levels in all. */
+const deep: ModuleDefinition = {
+  ...hr,
+  children: [
+    {
+      key: 'l2',
+      label: 'Level two',
+      path: '/hr/l2',
+      icon: hr.icon,
+      group: 'People',
+      children: [
+        {
+          key: 'l3',
+          label: 'Level three',
+          path: '/hr/l2/l3',
+          icon: hr.icon,
+          children: [{ key: 'l4', label: 'Level four', path: '/hr/l2/l3/l4', icon: hr.icon }],
+        },
+      ],
+    },
+  ],
+};
 
 describe('navModules', () => {
   it('gives the hub every module the roles can open', () => {
@@ -26,73 +54,11 @@ describe('navModules', () => {
   });
 });
 
-describe('moduleNavItems', () => {
-  it('lists a module’s children when it has them', () => {
-    const hr = moduleFor('hr');
-    const items = moduleNavItems(hr);
-    expect(items).toHaveLength(hr.children!.length);
-    expect(items.map((i) => i.path)).toEqual(hr.children!.map((c) => c.path));
-  });
-
-  it('falls back to the module itself when it has no children', () => {
-    const childless = MODULES.find((m) => !m.children?.length);
-    if (!childless) return;
-    expect(moduleNavItems(childless)).toEqual([
-      {
-        key: childless.key,
-        label: childless.label,
-        path: childless.path,
-        icon: childless.icon,
-      },
-    ]);
-  });
-
-  it('filters by label, case-insensitively', () => {
-    const hr = moduleFor('hr');
-    const items = moduleNavItems(hr, 'LEAVE');
-    expect(items.length).toBeGreaterThan(0);
-    expect(items.every((i) => /leave/i.test(i.label))).toBe(true);
-    expect(moduleNavItems(hr, 'zzzznope')).toEqual([]);
-  });
-
-  it('every module produces at least one nav entry', () => {
-    for (const module of MODULES) {
-      expect(moduleNavItems(module).length).toBeGreaterThan(0);
-    }
-  });
-});
-
-describe('railItems', () => {
-  it('rails one entry per module in the hub, carrying its own accent', () => {
-    const modules = navModules([ROLES.ADMIN], 'hub');
-    const items = railItems(modules, true);
-
-    expect(items).toHaveLength(modules.length);
-    expect(items.map((i) => i.app)).toEqual(modules.map((m) => m.key));
-    expect(items.map((i) => i.accent)).toEqual(modules.map((m) => m.accent));
-  });
-
-  it('rails a module app’s own pages, all pointing back at that app', () => {
-    const modules = navModules([ROLES.ADMIN], 'hr');
-    const items = railItems(modules, false);
-
-    expect(items.map((i) => i.path)).toEqual(moduleNavItems(moduleFor('hr')).map((i) => i.path));
-    expect(items.every((i) => i.app === 'hr')).toBe(true);
-  });
-});
-
-describe('navSections', () => {
-  it('leads with the ungrouped pages, under no heading', () => {
-    const [first] = navSections(moduleFor('hr'));
-    expect(first.label).toBe('');
-    expect(first.items.map((i) => i.key)).toContain('hr-dashboard');
-  });
-
-  it('groups the rest in the order the config declares them', () => {
-    const labels = navSections(moduleFor('hr'))
-      .map((s) => s.label)
-      .filter(Boolean);
-    expect(labels).toEqual([
+describe('moduleNavTree', () => {
+  it('leads with the ungrouped pages, then one branch per section in config order', () => {
+    const tree = moduleNavTree(hr);
+    expect(tree.slice(0, 2).map((n) => n.key)).toEqual(['hr-dashboard', 'hr-reports']);
+    expect(tree.filter((n) => n.children.length > 0).map((n) => n.label)).toEqual([
       'People',
       'Hiring & onboarding',
       'Time & attendance',
@@ -103,33 +69,91 @@ describe('navSections', () => {
     ]);
   });
 
-  it('never repeats a section, so a page cannot appear under two headings', () => {
+  it('keeps every page exactly once, whatever the grouping', () => {
     for (const module of MODULES) {
-      const labels = navSections(module).map((s) => s.label);
-      expect(new Set(labels).size).toBe(labels.length);
+      const paths = navPaths(moduleNavTree(module));
+      const expected = module.children?.length ? module.children.map((c) => c.path) : [module.path];
+      expect(paths.toSorted((a, b) => a.localeCompare(b))).toEqual(
+        expected.toSorted((a, b) => a.localeCompare(b)),
+      );
     }
   });
 
-  it('keeps every page, whatever the grouping', () => {
+  it('leaves a small module as one plain list with no branches', () => {
+    expect(moduleNavTree(moduleFor('social')).every((n) => n.children.length === 0)).toBe(true);
+  });
+
+  it('falls back to the module itself when it has no children', () => {
+    const childless = MODULES.find((m) => !m.children?.length);
+    if (!childless) return;
+    expect(moduleNavTree(childless).map((n) => n.path)).toEqual([childless.path]);
+  });
+
+  it('nests pages below pages', () => {
+    expect(navDepth(moduleNavTree(deep))).toBe(4);
+    expect(navPaths(moduleNavTree(deep))).toEqual(['/hr/l2/l3/l4']);
+  });
+});
+
+describe('navTree', () => {
+  it('gives the hub one branch per module, carrying its own app and accent', () => {
+    const modules = navModules([ROLES.ADMIN], 'hub');
+    const tree = navTree(modules, true);
+
+    expect(tree.map((n) => n.app)).toEqual(modules.map((m) => m.key));
+    expect(tree.map((n) => n.accent)).toEqual(modules.map((m) => m.accent));
+  });
+
+  it('leaves sections out of the hub, so it nests no deeper than a module app', () => {
+    expect(navDepth(navTree([deep], true))).toBe(navDepth(navTree([deep], false)));
+  });
+
+  it(`never nests any module deeper than ${MAX_NAV_DEPTH} levels`, () => {
     for (const module of MODULES) {
-      const inSections = navSections(module).flatMap((s) => s.items.map((i) => i.key));
-      expect(inSections).toEqual(moduleNavItems(module).map((i) => i.key));
+      expect(navDepth(navTree([module], true))).toBeLessThanOrEqual(MAX_NAV_DEPTH);
+      expect(navDepth(navTree([module], false))).toBeLessThanOrEqual(MAX_NAV_DEPTH);
     }
   });
+});
 
-  it('leaves a small module as one plain list with no heading', () => {
-    const sections = navSections(moduleFor('social'));
-    expect(sections).toHaveLength(1);
-    expect(sections[0].label).toBe('');
+describe('filterNavTree', () => {
+  const tree = moduleNavTree(hr);
+
+  it('keeps only the branches with a match beneath them', () => {
+    const filtered = filterNavTree(tree, 'PAYSLIP');
+    expect(filtered.map((n) => n.label)).toEqual(['Pay']);
+    expect(navPaths(filtered).length).toBeGreaterThan(0);
   });
 
-  it('finds a page by the section it lives in', () => {
-    const keys = moduleNavItems(moduleFor('hr'), 'communication').map((i) => i.key);
-    expect(keys.toSorted()).toEqual(['hr-announcements', 'hr-notify']);
+  it('keeps a whole section when the section itself matches', () => {
+    const [section] = filterNavTree(tree, 'communication');
+    expect(section.children.map((n) => n.key).toSorted((a, b) => a.localeCompare(b))).toEqual([
+      'hr-announcements',
+      'hr-notify',
+    ]);
   });
 
-  it('drops empty sections when a search matches nothing in them', () => {
-    const labels = navSections(moduleFor('hr'), 'payslip').map((s) => s.label);
-    expect(labels).toEqual(['Pay']);
+  it('finds pages at any depth', () => {
+    expect(navPaths(filterNavTree(moduleNavTree(deep), 'level four'))).toEqual(['/hr/l2/l3/l4']);
+  });
+
+  it('matches a hub module by its description', () => {
+    const [match] = filterNavTree(navTree([hr], true), hr.description);
+    expect(match.key).toBe('hr');
+  });
+
+  it('returns nothing when nothing matches', () => {
+    expect(filterNavTree(tree, 'zzzznope')).toEqual([]);
+  });
+});
+
+describe('navTrail', () => {
+  it('names every branch from the top down to the page', () => {
+    expect(navTrail(moduleNavTree(deep), '/hr/l2/l3/l4')).toEqual(['hr:People', 'l2', 'l3', 'l4']);
+  });
+
+  it('is empty when no page has the path', () => {
+    expect(navTrail(moduleNavTree(hr), undefined)).toEqual([]);
+    expect(navTrail(moduleNavTree(hr), '/nowhere')).toEqual([]);
   });
 });

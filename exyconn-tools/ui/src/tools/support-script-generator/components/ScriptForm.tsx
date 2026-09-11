@@ -27,29 +27,73 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ onSubmit, isLoading }) => {
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <SupportAgent color="primary" />
-        <Typography variant="h6" fontWeight={600}>Script Details</Typography>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
+          Script Details
+        </Typography>
       </Box>
       <form onSubmit={formik.handleSubmit}>
-        <TextField fullWidth name="topic" label="Support Topic" placeholder="e.g., Product returns, billing issues..."
-          value={formik.values.topic} onChange={formik.handleChange} onBlur={formik.handleBlur}
+        <TextField
+          fullWidth
+          name="topic"
+          label="Support Topic"
+          placeholder="e.g., Product returns, billing issues..."
+          value={formik.values.topic}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           error={formik.touched.topic && Boolean(formik.errors.topic)}
-          helperText={formik.touched.topic && formik.errors.topic} sx={{ mb: 2 }} />
-        <TextField fullWidth name="industry" label="Industry" placeholder="e.g., E-commerce, SaaS, Healthcare..."
-          value={formik.values.industry} onChange={formik.handleChange} onBlur={formik.handleBlur}
+          helperText={formik.touched.topic && formik.errors.topic}
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          fullWidth
+          name="industry"
+          label="Industry"
+          placeholder="e.g., E-commerce, SaaS, Healthcare..."
+          value={formik.values.industry}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           error={formik.touched.industry && Boolean(formik.errors.industry)}
-          helperText={formik.touched.industry && formik.errors.industry} sx={{ mb: 2 }} />
-        <TextField fullWidth select name="tone" label="Tone" value={formik.values.tone}
-          onChange={formik.handleChange} sx={{ mb: 2 }}>
+          helperText={formik.touched.industry && formik.errors.industry}
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          fullWidth
+          select
+          name="tone"
+          label="Tone"
+          value={formik.values.tone}
+          onChange={formik.handleChange}
+          sx={{ mb: 2 }}
+        >
           <MenuItem value="professional">Professional</MenuItem>
           <MenuItem value="friendly">Friendly</MenuItem>
           <MenuItem value="empathetic">Empathetic</MenuItem>
           <MenuItem value="formal">Formal</MenuItem>
         </TextField>
-        <TextField fullWidth multiline rows={3} name="scenarios" label="Specific Scenarios (Optional)"
+        <TextField
+          fullWidth
+          multiline
+          rows={3}
+          name="scenarios"
+          label="Specific Scenarios (Optional)"
           placeholder="Describe specific customer scenarios..."
-          value={formik.values.scenarios} onChange={formik.handleChange} sx={{ mb: 3 }} />
-        <Button type="submit" variant="contained" fullWidth disabled={isLoading}
-          startIcon={isLoading ? <CircularProgress size={18} /> : <Send />} sx={{ py: 1.25 }}>
+          value={formik.values.scenarios}
+          onChange={formik.handleChange}
+          sx={{ mb: 3 }}
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={isLoading}
+          startIcon={isLoading ? <CircularProgress size={18} /> : <Send />}
+          sx={{ py: 1.25 }}
+        >
           {isLoading ? 'Generating Script...' : 'Generate Support Script'}
         </Button>
       </form>

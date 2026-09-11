@@ -2,10 +2,13 @@ import { useMemo } from 'react';
 import { Box } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { skipToken, useQuery } from '@apollo/client/react';
 import {
+  MyTrackerDayDocument,
+  type MyTrackerDayQuery,
+  type MyTrackerDayQueryVariables,
   useMyTrackerAccessQuery,
   useMyTrackerCalendarQuery,
-  useMyTrackerDayQuery,
   useTrackerProjectOptionsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { useTrackerMonth } from '@exyconn/shell/pages/tracker-view/useTrackerMonth';
@@ -24,8 +27,11 @@ export function MyTrackerPage() {
     variables: { from: month.range.from, to: month.range.to, timezone: settings.timezone },
   });
   const projectsQuery = useTrackerProjectOptionsQuery();
-  const dayQuery = useMyTrackerDayQuery(
-    month.dayRange ? { variables: month.dayRange } : { skip: true },
+  // Apollo 4 will not skip a query with required variables through `{ skip: true }` —
+  // the options still demand them. `skipToken` is its way of saying "not yet".
+  const dayQuery = useQuery<MyTrackerDayQuery, MyTrackerDayQueryVariables>(
+    MyTrackerDayDocument,
+    month.dayRange ? { variables: month.dayRange } : skipToken,
   );
 
   const buckets = useMemo(() => calendarQuery.data?.myTrackerCalendar ?? [], [calendarQuery.data]);

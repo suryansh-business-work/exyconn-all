@@ -1,8 +1,13 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import {
-  scaleByPercent, lockedHeight, lockedWidth, outputFileName, resizeImage,
-  PERCENT_PRESETS, SIZE_PRESETS,
+  scaleByPercent,
+  lockedHeight,
+  lockedWidth,
+  outputFileName,
+  resizeImage,
+  PERCENT_PRESETS,
+  SIZE_PRESETS,
 } from './utils';
 import ResizeImage from './index';
 

@@ -53,7 +53,12 @@ export default function ThemeModePicker({ mode }: Readonly<Props>): ReactElement
           );
         })}
       </ToggleButtonGroup>
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {mode === 'system'
           ? 'Following your operating system, and switching with it.'
           : 'Fixed to your choice, whatever the operating system does.'}

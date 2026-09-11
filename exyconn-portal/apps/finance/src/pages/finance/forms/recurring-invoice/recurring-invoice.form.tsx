@@ -133,23 +133,48 @@ export function RecurringInvoiceForm({
       <RhfAutocomplete name="clientId" label="Client" options={clientOptions} />
       <InvoiceLinesFields currency={currency} />
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfSelect
             name="frequency"
             label="Bills every"
             options={enumOptions(Object.values(RecurrenceFrequency))}
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfTextField name="currency" label="Currency" />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfDatePicker name="startDate" label="First invoice on" />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfDatePicker name="endDate" label="Stop after (optional)" />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfTextField
             name="dueDays"
             label="Payment terms (days)"
@@ -157,7 +182,12 @@ export function RecurringInvoiceForm({
             helperText="Days between an invoice's issue date and its due date."
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfSelect
             name="placeOfSupplyStateCode"
             label="Place of supply"

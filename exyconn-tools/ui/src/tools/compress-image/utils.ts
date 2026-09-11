@@ -36,7 +36,7 @@ export const formatBytes = (bytes: number): string => {
 export const computeScaledDimensions = (
   width: number,
   height: number,
-  maxDimension?: number,
+  maxDimension?: number
 ): { width: number; height: number } => {
   if (!maxDimension || Math.max(width, height) <= maxDimension) return { width, height };
   const scale = maxDimension / Math.max(width, height);
@@ -75,10 +75,14 @@ export const loadImage = (file: File): Promise<HTMLImageElement> =>
 
 const canvasToBlob = (canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob> =>
   new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (blob) resolve(blob);
-      else reject(new Error('Image encoding failed.'));
-    }, type, quality);
+    canvas.toBlob(
+      (blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error('Image encoding failed.'));
+      },
+      type,
+      quality
+    );
   });
 
 export const compressImage = async (file: File, options: CompressOptions): Promise<CompressOutput> => {

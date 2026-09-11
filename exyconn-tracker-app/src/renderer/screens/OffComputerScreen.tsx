@@ -67,7 +67,12 @@ export default function OffComputerScreen({ projects, timezone }: Readonly<Props
       <Flex direction="row" justifyContent="space-between" alignItems="flex-start" gap={1}>
         <Stack spacing={0.25}>
           <Typography variant="h6">Off-computer time</Typography>
-          <Typography variant="caption" color="text.secondary">
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Hours the tracker could not measure, and where each one stands.
           </Typography>
         </Stack>

@@ -34,7 +34,12 @@ const LocationStep: React.FC<LocationStepProps> = ({
       <StepLabel
         optional={
           locationName ? (
-            <Typography variant="caption" color="success.main">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'success.main',
+              }}
+            >
               ✓ {locationName}
             </Typography>
           ) : null
@@ -43,7 +48,13 @@ const LocationStep: React.FC<LocationStepProps> = ({
         Select Location
       </StepLabel>
       <StepContent>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            mb: 2,
+          }}
+        >
           Choose how you want to set your search location.
         </Typography>
 
@@ -74,15 +85,17 @@ const LocationStep: React.FC<LocationStepProps> = ({
               value={searchLocation}
               onChange={(e) => onSearchLocationChange(e.target.value)}
               disabled={!hasApiKey}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LocationOn fontSize="small" />
-                  </InputAdornment>
-                ),
-              }}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') onSearchLocation();
+              }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LocationOn fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
             <Button

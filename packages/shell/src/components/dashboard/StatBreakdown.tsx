@@ -41,18 +41,39 @@ export function StatBreakdown({
         {title}
       </Typography>
       {ordered.length === 0 && (
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {emptyMessage}
         </Typography>
       )}
       <Stack spacing={1.25}>
         {ordered.map((bucket) => (
           <Box key={bucket.value}>
-            <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.25 }}>
-              <Typography variant="caption" color="text.secondary">
+            <Stack
+              direction="row"
+              sx={{
+                justifyContent: 'space-between',
+                mb: 0.25,
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {humanise(bucket.value)}
               </Typography>
-              <Typography variant="caption" fontWeight={700}>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 {bucket.count}
               </Typography>
             </Stack>

@@ -61,7 +61,13 @@ const LeadGeneratorHeader: React.FC = () => {
                 sx={{ height: 20, '& .MuiChip-label': { px: 0.5, fontSize: 10 } }}
               />
             </Box>
-            <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' } }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                display: { xs: 'none', sm: 'block' },
+              }}
+            >
               Find businesses in any area using Google Maps
             </Typography>
           </Box>

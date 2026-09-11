@@ -34,23 +34,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Are my PDF files uploaded to a server?',
-        answer: 'No. The merge runs entirely in your browser using the pdf-lib library. Your files never leave your device, which makes the tool safe for contracts, financial records, and other confidential documents.',
+        answer:
+          'No. The merge runs entirely in your browser using the pdf-lib library. Your files never leave your device, which makes the tool safe for contracts, financial records, and other confidential documents.',
       },
       {
         question: 'Is there a limit on the number or size of files?',
-        answer: 'There is no fixed limit. Because processing happens locally, the practical ceiling is your device’s memory — merging dozens of files or several hundred pages works fine on a typical laptop.',
+        answer:
+          'There is no fixed limit. Because processing happens locally, the practical ceiling is your device’s memory — merging dozens of files or several hundred pages works fine on a typical laptop.',
       },
       {
         question: 'Can I change the order of the PDFs before merging?',
-        answer: 'Yes. Every file in the queue has up and down arrows, so you can arrange the documents in any order before clicking Merge.',
+        answer:
+          'Yes. Every file in the queue has up and down arrows, so you can arrange the documents in any order before clicking Merge.',
       },
       {
         question: 'Will merging reduce the quality of my PDFs?',
-        answer: 'No. Pages are copied byte-for-byte into the new document, so text, images, and vector graphics keep their original quality.',
+        answer:
+          'No. Pages are copied byte-for-byte into the new document, so text, images, and vector graphics keep their original quality.',
       },
       {
         question: 'Do merged files keep their bookmarks and form fields?',
-        answer: 'Page content is preserved exactly, but document-level extras such as bookmarks and interactive form fields from the source files are not carried into the merged PDF.',
+        answer:
+          'Page content is preserved exactly, but document-level extras such as bookmarks and interactive form fields from the source files are not carried into the merged PDF.',
       },
     ],
     keywords: [
@@ -99,23 +104,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is my PDF uploaded when I split it?',
-        answer: 'No. Splitting runs completely in your browser via pdf-lib, so the document never touches a server. You can even split files while offline once the page is loaded.',
+        answer:
+          'No. Splitting runs completely in your browser via pdf-lib, so the document never touches a server. You can even split files while offline once the page is loaded.',
       },
       {
         question: 'How do I write a custom page range?',
-        answer: 'Use commas to separate groups and hyphens for ranges, for example "1-3, 5, 7-10". Each group becomes its own PDF — that example produces three files.',
+        answer:
+          'Use commas to separate groups and hyphens for ranges, for example "1-3, 5, 7-10". Each group becomes its own PDF — that example produces three files.',
       },
       {
         question: 'Can I split every page into its own file?',
-        answer: 'Yes. Leave the default "All pages" option selected and every page of the document becomes a separate single-page PDF.',
+        answer:
+          'Yes. Leave the default "All pages" option selected and every page of the document becomes a separate single-page PDF.',
       },
       {
         question: 'What happens if I enter an invalid range?',
-        answer: 'The tool validates every entry against the real page count and shows an error naming the exact invalid range, such as "Invalid range: 12-9", so nothing incorrect is generated.',
+        answer:
+          'The tool validates every entry against the real page count and shows an error naming the exact invalid range, such as "Invalid range: 12-9", so nothing incorrect is generated.',
       },
       {
         question: 'Does splitting change the quality of the pages?',
-        answer: 'No. Pages are copied unchanged into the new files, so text sharpness, images, and formatting are identical to the original.',
+        answer:
+          'No. Pages are copied unchanged into the new files, so text sharpness, images, and formatting are identical to the original.',
       },
     ],
     keywords: [
@@ -162,23 +172,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is the rotation lossless?',
-        answer: 'Yes. Rotating only changes each page’s orientation flag — text, images, and layout are untouched, so there is zero quality loss.',
+        answer:
+          'Yes. Rotating only changes each page’s orientation flag — text, images, and layout are untouched, so there is zero quality loss.',
       },
       {
         question: 'Can I rotate only some pages?',
-        answer: 'Yes. Choose "Specific pages" and enter numbers or ranges such as "1-3, 5". Only those pages are rotated; the rest keep their orientation.',
+        answer:
+          'Yes. Choose "Specific pages" and enter numbers or ranges such as "1-3, 5". Only those pages are rotated; the rest keep their orientation.',
       },
       {
         question: 'Is my document uploaded anywhere?',
-        answer: 'No. Rotation happens in your browser with the pdf-lib library, so the file stays on your device the entire time.',
+        answer:
+          'No. Rotation happens in your browser with the pdf-lib library, so the file stays on your device the entire time.',
       },
       {
         question: 'What if a page is already rotated in the original file?',
-        answer: 'The chosen angle is added to the page’s existing rotation. A page already at 90° rotated by another 90° ends up at 180°, which is what you want for fixing mixed-orientation scans.',
+        answer:
+          'The chosen angle is added to the page’s existing rotation. A page already at 90° rotated by another 90° ends up at 180°, which is what you want for fixing mixed-orientation scans.',
       },
       {
         question: 'Which direction does the rotation go?',
-        answer: 'Angles are applied clockwise. To turn a page 90° counter-clockwise, choose 270° clockwise — the result is identical.',
+        answer:
+          'Angles are applied clockwise. To turn a page 90° counter-clockwise, choose 270° clockwise — the result is identical.',
       },
     ],
     keywords: [
@@ -224,15 +239,18 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What unit are the crop margins in?',
-        answer: 'PDF points, where 72 points equal one inch and roughly 28.35 points equal one centimeter. A typical A4 page is 595 × 842 points.',
+        answer:
+          'PDF points, where 72 points equal one inch and roughly 28.35 points equal one centimeter. A typical A4 page is 595 × 842 points.',
       },
       {
         question: 'Is cropping destructive?',
-        answer: 'No. The tool sets the page’s crop box, which controls what viewers display. The full original content stays in the file, and the crop can be undone later by resetting the crop box with another tool.',
+        answer:
+          'No. The tool sets the page’s crop box, which controls what viewers display. The full original content stays in the file, and the crop can be undone later by resetting the crop box with another tool.',
       },
       {
         question: 'Can I crop just one page?',
-        answer: 'Yes. Set "Apply to" to "Specific Page" and enter the page number — every other page keeps its original dimensions.',
+        answer:
+          'Yes. Set "Apply to" to "Specific Page" and enter the page number — every other page keeps its original dimensions.',
       },
       {
         question: 'Does my PDF get uploaded for cropping?',
@@ -240,7 +258,8 @@ export const pdfToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Why does my PDF viewer still show the old size?',
-        answer: 'A few viewers display the media box instead of the crop box. Mainstream viewers such as Adobe Acrobat, Chrome, and Firefox honor the crop box and will show the trimmed page.',
+        answer:
+          'A few viewers display the media box instead of the crop box. Mainstream viewers such as Adobe Acrobat, Chrome, and Firefox honor the crop box and will show the trimmed page.',
       },
     ],
     keywords: [
@@ -286,23 +305,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does deleting a page here change my original file?',
-        answer: 'No. Changes only apply to the new PDF the tool generates. Your original file on disk is never modified.',
+        answer:
+          'No. Changes only apply to the new PDF the tool generates. Your original file on disk is never modified.',
       },
       {
         question: 'Is the reordering done on a server?',
-        answer: 'No. The document is parsed and rebuilt entirely in your browser using pdf-lib, so the file never leaves your device.',
+        answer:
+          'No. The document is parsed and rebuilt entirely in your browser using pdf-lib, so the file never leaves your device.',
       },
       {
         question: 'Can I duplicate a page?',
-        answer: 'Not currently — the tool supports reordering and deleting. To duplicate pages, merge the file with itself first using the Merge PDF tool, then organize the result.',
+        answer:
+          'Not currently — the tool supports reordering and deleting. To duplicate pages, merge the file with itself first using the Merge PDF tool, then organize the result.',
       },
       {
         question: 'How do I know which page is which after moving things around?',
-        answer: 'Each row shows both its new position and its original page number, for example "Page 2 (original: 7)", plus the page dimensions, so you can always trace where a page came from.',
+        answer:
+          'Each row shows both its new position and its original page number, for example "Page 2 (original: 7)", plus the page dimensions, so you can always trace where a page came from.',
       },
       {
         question: 'Is there a page limit?',
-        answer: 'No fixed limit. Documents with hundreds of pages work; very large files are only constrained by your device’s memory.',
+        answer:
+          'No fixed limit. Documents with hundreds of pages work; very large files are only constrained by your device’s memory.',
       },
     ],
     keywords: [
@@ -347,23 +371,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Will compression make my PDF look worse?',
-        answer: 'No. The optimization is lossless — it restructures the file and removes unused data without recompressing images or altering text, so the pages render identically.',
+        answer:
+          'No. The optimization is lossless — it restructures the file and removes unused data without recompressing images or altering text, so the pages render identically.',
       },
       {
         question: 'How much smaller will my file get?',
-        answer: 'It depends on the file. PDFs bloated by repeated edits or inefficient generators can shrink noticeably, while image-heavy scans may only lose a little, since picture data is preserved unchanged.',
+        answer:
+          'It depends on the file. PDFs bloated by repeated edits or inefficient generators can shrink noticeably, while image-heavy scans may only lose a little, since picture data is preserved unchanged.',
       },
       {
         question: 'Is my document uploaded during compression?',
-        answer: 'No. The entire process runs in your browser with pdf-lib. Your file never leaves your device, so it is safe for confidential material.',
+        answer:
+          'No. The entire process runs in your browser with pdf-lib. Your file never leaves your device, so it is safe for confidential material.',
       },
       {
         question: 'Why did my file barely shrink?',
-        answer: 'Your PDF was probably already well optimized, or its size is dominated by embedded images. Lossless optimization cannot reduce image data; that would require lossy recompression, which this tool deliberately avoids.',
+        answer:
+          'Your PDF was probably already well optimized, or its size is dominated by embedded images. Lossless optimization cannot reduce image data; that would require lossy recompression, which this tool deliberately avoids.',
       },
       {
         question: 'Does compression remove passwords or signatures?',
-        answer: 'The tool is meant for regular, unencrypted PDFs. Digital signature appearances are kept, but cryptographic signatures may show as invalid after any modification — compress before signing, not after.',
+        answer:
+          'The tool is meant for regular, unencrypted PDFs. Digital signature appearances are kept, but cryptographic signatures may show as invalid after any modification — compress before signing, not after.',
       },
     ],
     keywords: [
@@ -408,19 +437,23 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does this compare the actual text of the PDFs?',
-        answer: 'No — it compares structure and metadata: page counts, file sizes, titles, authors, creator/producer software, and per-page dimensions. That is usually enough to spot a changed or regenerated document quickly.',
+        answer:
+          'No — it compares structure and metadata: page counts, file sizes, titles, authors, creator/producer software, and per-page dimensions. That is usually enough to spot a changed or regenerated document quickly.',
       },
       {
         question: 'Are my documents uploaded for comparison?',
-        answer: 'No. Both PDFs are parsed locally in your browser with pdf-lib, so confidential drafts and finals never leave your device.',
+        answer:
+          'No. Both PDFs are parsed locally in your browser with pdf-lib, so confidential drafts and finals never leave your device.',
       },
       {
         question: 'What if the two PDFs have different page counts?',
-        answer: 'The table still renders completely. Pages that exist in only one document show "N/A" on the other side, making added or removed pages easy to spot.',
+        answer:
+          'The table still renders completely. Pages that exist in only one document show "N/A" on the other side, making added or removed pages easy to spot.',
       },
       {
         question: 'Why do two visually identical PDFs show different producers?',
-        answer: 'The producer field records the software that generated the file. Two identical-looking documents exported by different apps (say, Word versus a print driver) will differ there — a useful clue about a file’s origin.',
+        answer:
+          'The producer field records the software that generated the file. Two identical-looking documents exported by different apps (say, Word versus a print driver) will differ there — a useful clue about a file’s origin.',
       },
       {
         question: 'Can I compare a PDF against a Word document?',
@@ -471,23 +504,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Are my photos uploaded to a server?',
-        answer: 'No. Images are embedded into the PDF locally in your browser using pdf-lib. Personal photos and document scans never leave your device.',
+        answer:
+          'No. Images are embedded into the PDF locally in your browser using pdf-lib. Personal photos and document scans never leave your device.',
       },
       {
         question: 'Which image formats are supported?',
-        answer: 'JPG and PNG. For other formats such as HEIC or WebP, convert them to JPG or PNG first — most phones and image editors can do this on export.',
+        answer:
+          'JPG and PNG. For other formats such as HEIC or WebP, convert them to JPG or PNG first — most phones and image editors can do this on export.',
       },
       {
         question: 'Will my images be stretched to fill the page?',
-        answer: 'No. On A4 and Letter pages images are scaled down proportionally and centered, so the aspect ratio is always preserved. Choose Fit to Image if you want zero margins.',
+        answer:
+          'No. On A4 and Letter pages images are scaled down proportionally and centered, so the aspect ratio is always preserved. Choose Fit to Image if you want zero margins.',
       },
       {
         question: 'Can I control the order of the pages?',
-        answer: 'Yes. Use the up and down arrows next to each image before converting — the list order is the page order.',
+        answer:
+          'Yes. Use the up and down arrows next to each image before converting — the list order is the page order.',
       },
       {
         question: 'Does converting reduce image quality?',
-        answer: 'No re-encoding is applied — the original image data is embedded directly into the PDF, so quality is identical to your source files.',
+        answer:
+          'No re-encoding is applied — the original image data is embedded directly into the PDF, so quality is identical to your source files.',
       },
     ],
     keywords: [
@@ -533,23 +571,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What resolution should I choose?',
-        answer: 'Use 1x for quick previews, 2x for crisp screen or web use, and 3x when you need print-quality images or plan to zoom in. Higher scales produce larger files and take a bit longer.',
+        answer:
+          'Use 1x for quick previews, 2x for crisp screen or web use, and 3x when you need print-quality images or plan to zoom in. Higher scales produce larger files and take a bit longer.',
       },
       {
         question: 'Is my PDF uploaded during conversion?',
-        answer: 'No. Pages are rendered in your browser by PDF.js and encoded to JPG locally. The document never leaves your device.',
+        answer:
+          'No. Pages are rendered in your browser by PDF.js and encoded to JPG locally. The document never leaves your device.',
       },
       {
         question: 'Can I convert only certain pages?',
-        answer: 'The tool converts every page, but each page gets its own download button — simply save only the ones you need from the results grid.',
+        answer:
+          'The tool converts every page, but each page gets its own download button — simply save only the ones you need from the results grid.',
       },
       {
         question: 'Why is my converted image blurry?',
-        answer: 'Increase the scale to 2x or 3x and push the quality slider toward 100%. At 1x, a standard page renders around 600 pixels wide, which can look soft on modern screens.',
+        answer:
+          'Increase the scale to 2x or 3x and push the quality slider toward 100%. At 1x, a standard page renders around 600 pixels wide, which can look soft on modern screens.',
       },
       {
         question: 'Does it work with scanned PDFs?',
-        answer: 'Yes. Scanned pages are images already, so they render exactly as stored. The output resolution follows your scale setting.',
+        answer:
+          'Yes. Scanned pages are images already, so they render exactly as stored. The output resolution follows your scale setting.',
       },
     ],
     keywords: [
@@ -594,23 +637,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Can numbering start from something other than 1?',
-        answer: 'Yes. Set the Start Number field to any value — useful when the file is part of a larger document and needs to continue from, say, page 47.',
+        answer:
+          'Yes. Set the Start Number field to any value — useful when the file is part of a larger document and needs to continue from, say, page 47.',
       },
       {
         question: 'What does the "1 of N" format show?',
-        answer: 'Each page displays its number plus the final page number, for example "3 of 12". The total accounts for your starting number automatically.',
+        answer:
+          'Each page displays its number plus the final page number, for example "3 of 12". The total accounts for your starting number automatically.',
       },
       {
         question: 'Is my document uploaded to add the numbers?',
-        answer: 'No. Numbers are drawn locally in your browser with pdf-lib, so the file stays on your device throughout.',
+        answer:
+          'No. Numbers are drawn locally in your browser with pdf-lib, so the file stays on your device throughout.',
       },
       {
         question: 'Can I skip numbering the cover page?',
-        answer: 'Not directly — numbers are applied to all pages. As a workaround, split off the cover with the Split PDF tool, number the body starting at 1, then merge them back together.',
+        answer:
+          'Not directly — numbers are applied to all pages. As a workaround, split off the cover with the Split PDF tool, number the body starting at 1, then merge them back together.',
       },
       {
         question: 'What font are the numbers printed in?',
-        answer: 'Helvetica, embedded into the PDF so numbers display identically on every device and printer. You control the size; the color is black.',
+        answer:
+          'Helvetica, embedded into the PDF so numbers display identically on every device and printer. You control the size; the color is black.',
       },
     ],
     keywords: [
@@ -655,23 +703,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Can the watermark be removed later?',
-        answer: 'The watermark is drawn into the page content, so it cannot be toggled off in a viewer. Determined editing tools can still remove content, so treat it as a strong deterrent and label rather than a security mechanism.',
+        answer:
+          'The watermark is drawn into the page content, so it cannot be toggled off in a viewer. Determined editing tools can still remove content, so treat it as a strong deterrent and label rather than a security mechanism.',
       },
       {
         question: 'Is my document uploaded when I add a watermark?',
-        answer: 'No. The watermark is drawn locally in your browser with pdf-lib. Confidential drafts stay on your device.',
+        answer:
+          'No. The watermark is drawn locally in your browser with pdf-lib. Confidential drafts stay on your device.',
       },
       {
         question: 'What opacity should I use?',
-        answer: 'The 30% default keeps the underlying text easy to read while remaining clearly visible. Go lower (15–20%) for dense text documents, higher (50%+) when you want the mark to dominate.',
+        answer:
+          'The 30% default keeps the underlying text easy to read while remaining clearly visible. Go lower (15–20%) for dense text documents, higher (50%+) when you want the mark to dominate.',
       },
       {
         question: 'Can I watermark only certain pages?',
-        answer: 'The watermark is applied to all pages. To watermark part of a document, split it first, watermark the relevant section, and merge the parts back.',
+        answer:
+          'The watermark is applied to all pages. To watermark part of a document, split it first, watermark the relevant section, and merge the parts back.',
       },
       {
         question: 'Can I use an image or logo as the watermark?',
-        answer: 'This tool stamps text only. For an image overlay, convert your logo page with the Edit PDF workflow or use an image-capable editor.',
+        answer:
+          'This tool stamps text only. For an image overlay, convert your logo page with the Edit PDF workflow or use an image-capable editor.',
       },
     ],
     keywords: [
@@ -718,23 +771,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is this a legally binding signature?',
-        answer: 'It creates an electronic signature image, which is widely accepted for everyday agreements in many jurisdictions (e.g., under ESIGN or eIDAS as a simple e-signature). For workflows requiring certificate-backed digital signatures, use a qualified signing service.',
+        answer:
+          'It creates an electronic signature image, which is widely accepted for everyday agreements in many jurisdictions (e.g., under ESIGN or eIDAS as a simple e-signature). For workflows requiring certificate-backed digital signatures, use a qualified signing service.',
       },
       {
         question: 'Is my signature or document uploaded anywhere?',
-        answer: 'No. The signature is captured and embedded entirely in your browser. Neither the document nor your signature image ever leaves your device.',
+        answer:
+          'No. The signature is captured and embedded entirely in your browser. Neither the document nor your signature image ever leaves your device.',
       },
       {
         question: 'Can I sign on my phone?',
-        answer: 'Yes. The signature pad supports touch input, so drawing with a finger or stylus on a phone or tablet works naturally — often better than a mouse.',
+        answer:
+          'Yes. The signature pad supports touch input, so drawing with a finger or stylus on a phone or tablet works naturally — often better than a mouse.',
       },
       {
         question: 'Can I put my signature on every page?',
-        answer: 'Yes. Set the page target to "All pages" and the signature is placed at your chosen position on each page — handy for initialing agreements.',
+        answer:
+          'Yes. Set the page target to "All pages" and the signature is placed at your chosen position on each page — handy for initialing agreements.',
       },
       {
         question: 'Can I position the signature anywhere on the page?',
-        answer: 'You choose from preset positions: bottom-left, bottom-right, or center. For pixel-precise placement of text near the signature line, pair it with the Edit PDF tool.',
+        answer:
+          'You choose from preset positions: bottom-left, bottom-right, or center. For pixel-precise placement of text near the signature line, pair it with the Edit PDF tool.',
       },
     ],
     keywords: [
@@ -781,23 +839,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Can I edit or delete text that is already in the PDF?',
-        answer: 'No — this tool adds new text on top of the existing content; it does not modify the original text layer. To visually replace text, you can cover it (e.g., with the Redact PDF tool) and type the correction over it.',
+        answer:
+          'No — this tool adds new text on top of the existing content; it does not modify the original text layer. To visually replace text, you can cover it (e.g., with the Redact PDF tool) and type the correction over it.',
       },
       {
         question: 'Is my document uploaded while I edit?',
-        answer: 'No. Rendering (PDF.js) and saving (pdf-lib) both run in your browser, so forms with personal data never leave your device.',
+        answer:
+          'No. Rendering (PDF.js) and saving (pdf-lib) both run in your browser, so forms with personal data never leave your device.',
       },
       {
         question: 'Are the added texts permanent?',
-        answer: 'Yes. On save, annotations are drawn into the page content itself, so they display and print in every PDF viewer and cannot be toggled off.',
+        answer:
+          'Yes. On save, annotations are drawn into the page content itself, so they display and print in every PDF viewer and cannot be toggled off.',
       },
       {
         question: 'Can I use a different font?',
-        answer: 'Text is written in embedded Helvetica, which renders consistently everywhere. You control size and color; alternative font families are not currently supported.',
+        answer:
+          'Text is written in embedded Helvetica, which renders consistently everywhere. You control size and color; alternative font families are not currently supported.',
       },
       {
         question: 'I clicked the wrong spot — how do I fix it?',
-        answer: 'Every annotation appears in the list with its page and coordinates. Delete the misplaced one, click the correct position, and add it again before saving.',
+        answer:
+          'Every annotation appears in the list with its page and coordinates. Delete the misplaced one, click the correct position, and add it again before saving.',
       },
     ],
     keywords: [
@@ -843,23 +906,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is the hidden text actually removed from the file?',
-        answer: 'The black boxes are drawn permanently into the page image, but the underlying text objects can remain in the file and may be selectable. For total removal, convert the redacted PDF to images and back (PDF to JPG, then JPG to PDF), which destroys the text layer.',
+        answer:
+          'The black boxes are drawn permanently into the page image, but the underlying text objects can remain in the file and may be selectable. For total removal, convert the redacted PDF to images and back (PDF to JPG, then JPG to PDF), which destroys the text layer.',
       },
       {
         question: 'Is my document uploaded during redaction?',
-        answer: 'No — and that is the point. Redaction runs entirely in your browser with pdf-lib, so the sensitive file never leaves your device.',
+        answer:
+          'No — and that is the point. Redaction runs entirely in your browser with pdf-lib, so the sensitive file never leaves your device.',
       },
       {
         question: 'How do the coordinates work?',
-        answer: 'Positions are in PDF points (72 per inch) measured from the bottom-left corner of the page. An A4 page is 595 × 842 points, so x:50, y:750 is near the top-left area.',
+        answer:
+          'Positions are in PDF points (72 per inch) measured from the bottom-left corner of the page. An A4 page is 595 × 842 points, so x:50, y:750 is near the top-left area.',
       },
       {
         question: 'Can I preview where a box will land before applying?',
-        answer: 'Use the document preview alongside the coordinate fields to judge placement, add the box, apply, and check the result. If a box is off, re-run the tool on the original with adjusted values.',
+        answer:
+          'Use the document preview alongside the coordinate fields to judge placement, add the box, apply, and check the result. If a box is off, re-run the tool on the original with adjusted values.',
       },
       {
         question: 'Can I undo a redaction after downloading?',
-        answer: 'Not on the redacted copy — the boxes are baked into the page content. Your original file is unmodified though, so simply start again from it.',
+        answer:
+          'Not on the redacted copy — the boxes are baked into the page content. Your original file is unmodified though, so simply start again from it.',
       },
     ],
     keywords: [
@@ -906,23 +974,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is my scanned document uploaded for OCR?',
-        answer: 'No. Recognition runs in your browser via Tesseract.js compiled to WebAssembly. The scan never leaves your device — only the language data files are fetched.',
+        answer:
+          'No. Recognition runs in your browser via Tesseract.js compiled to WebAssembly. The scan never leaves your device — only the language data files are fetched.',
       },
       {
         question: 'How accurate is the recognition?',
-        answer: 'On clean, well-lit scans of printed text, accuracy is typically very high. Skewed pages, low resolution, and handwriting reduce it — rescanning at 300 DPI in good contrast makes the biggest difference.',
+        answer:
+          'On clean, well-lit scans of printed text, accuracy is typically very high. Skewed pages, low resolution, and handwriting reduce it — rescanning at 300 DPI in good contrast makes the biggest difference.',
       },
       {
         question: 'Which languages are supported?',
-        answer: 'English, Hindi, Spanish, French, German, and Simplified Chinese. Pick the language that matches the document — running English OCR on Hindi text produces garbage.',
+        answer:
+          'English, Hindi, Spanish, French, German, and Simplified Chinese. Pick the language that matches the document — running English OCR on Hindi text produces garbage.',
       },
       {
         question: 'Does it produce a searchable PDF?',
-        answer: 'The tool outputs the extracted text itself, which you can copy or download as .txt. It does not currently re-embed an invisible text layer into the PDF.',
+        answer:
+          'The tool outputs the extracted text itself, which you can copy or download as .txt. It does not currently re-embed an invisible text layer into the PDF.',
       },
       {
         question: 'Why is OCR slow on my document?',
-        answer: 'Recognition is CPU-intensive and runs on your own machine — expect a few seconds per page, longer at high page counts or on older hardware. The progress bar shows exactly where it is.',
+        answer:
+          'Recognition is CPU-intensive and runs on your own machine — expect a few seconds per page, longer at high page counts or on older hardware. The progress bar shows exactly where it is.',
       },
     ],
     keywords: [
@@ -968,23 +1041,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Can every corrupt PDF be repaired?',
-        answer: 'No. If the underlying page data is destroyed or the file is severely truncated, no tool can reconstruct what is missing. This tool fixes structural corruption — broken cross-references, malformed trailers, orphaned objects — which covers many real-world failures.',
+        answer:
+          'No. If the underlying page data is destroyed or the file is severely truncated, no tool can reconstruct what is missing. This tool fixes structural corruption — broken cross-references, malformed trailers, orphaned objects — which covers many real-world failures.',
       },
       {
         question: 'Is my broken file uploaded for repair?',
-        answer: 'No. The recovery runs in your browser with pdf-lib, so even damaged confidential documents stay on your device.',
+        answer:
+          'No. The recovery runs in your browser with pdf-lib, so even damaged confidential documents stay on your device.',
       },
       {
         question: 'How do I know whether the repair worked?',
-        answer: 'The tool shows an explicit status: a green confirmation with the page count and metadata on success, or a clear failure message if the file could not be parsed at all.',
+        answer:
+          'The tool shows an explicit status: a green confirmation with the page count and metadata on success, or a clear failure message if the file could not be parsed at all.',
       },
       {
         question: 'Will the repaired file look different from the original?',
-        answer: 'No — repair rebuilds the file’s internal structure, not its visible content. Pages that could be recovered render exactly as they did before the corruption.',
+        answer:
+          'No — repair rebuilds the file’s internal structure, not its visible content. Pages that could be recovered render exactly as they did before the corruption.',
       },
       {
         question: 'The repair failed. What can I try next?',
-        answer: 'Re-download or re-request the file first, since truncation during transfer is the most common cause. If you have the source document, re-export it; a fresh export always beats deep forensic recovery.',
+        answer:
+          'Re-download or re-request the file first, since truncation during transfer is the most common cause. If you have the source document, re-export it; a fresh export always beats deep forensic recovery.',
       },
     ],
     keywords: [
@@ -1029,15 +1107,18 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What is PDF/A and why does it matter?',
-        answer: 'PDF/A (ISO 19005) is the archival profile of PDF used by courts, governments, and archives. It requires self-contained files with complete metadata so documents stay renderable for decades, independent of any particular software.',
+        answer:
+          'PDF/A (ISO 19005) is the archival profile of PDF used by courts, governments, and archives. It requires self-contained files with complete metadata so documents stay renderable for decades, independent of any particular software.',
       },
       {
         question: 'Is the output guaranteed to pass strict PDF/A validators?',
-        answer: 'The tool normalizes metadata and rebuilds the file cleanly, which resolves common archival objections. Full conformance also depends on the source file’s fonts and color spaces, so for certified submissions verify the result with a validator like veraPDF.',
+        answer:
+          'The tool normalizes metadata and rebuilds the file cleanly, which resolves common archival objections. Full conformance also depends on the source file’s fonts and color spaces, so for certified submissions verify the result with a validator like veraPDF.',
       },
       {
         question: 'Does the conversion change how my document looks?',
-        answer: 'No. Page content is preserved exactly — only document-level metadata and internal structure are updated.',
+        answer:
+          'No. Page content is preserved exactly — only document-level metadata and internal structure are updated.',
       },
       {
         question: 'Is my file uploaded during conversion?',
@@ -1045,7 +1126,8 @@ export const pdfToolDetails: ToolDetailsMap = {
       },
       {
         question: 'What metadata does the tool fill in?',
-        answer: 'Missing titles default to the file name, a missing author is filled in, and the creator/producer fields are set — you can see every value in the before/after comparison table.',
+        answer:
+          'Missing titles default to the file name, a missing author is filled in, and the creator/producer fields are set — you can see every value in the before/after comparison table.',
       },
     ],
     keywords: [
@@ -1090,23 +1172,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'How strong is the encryption?',
-        answer: 'The file is encrypted with AES-256 using qpdf, the current strongest encryption defined by the PDF standard. With a good password, brute-forcing it is not practical.',
+        answer:
+          'The file is encrypted with AES-256 using qpdf, the current strongest encryption defined by the PDF standard. With a good password, brute-forcing it is not practical.',
       },
       {
         question: 'Is my file stored on your server?',
-        answer: 'No. The PDF is uploaded over HTTPS, encrypted, returned to you, and the temporary files are deleted immediately after processing. Nothing is retained or logged.',
+        answer:
+          'No. The PDF is uploaded over HTTPS, encrypted, returned to you, and the temporary files are deleted immediately after processing. Nothing is retained or logged.',
       },
       {
         question: 'What is the difference between the user and owner passwords?',
-        answer: 'The user password is needed to open and read the document. The owner password controls permissions such as printing and editing. You can set either one or both.',
+        answer:
+          'The user password is needed to open and read the document. The owner password controls permissions such as printing and editing. You can set either one or both.',
       },
       {
         question: 'What happens if I forget the password?',
-        answer: 'There is no backdoor or recovery — AES-256 encryption cannot be bypassed. Store the password in a password manager and always keep an unencrypted copy somewhere safe.',
+        answer:
+          'There is no backdoor or recovery — AES-256 encryption cannot be bypassed. Store the password in a password manager and always keep an unencrypted copy somewhere safe.',
       },
       {
         question: 'Will the protected file open on phones and older readers?',
-        answer: 'Any standards-compliant viewer that supports AES-256 (Adobe Reader 9+, all modern browsers, iOS and Android viewers) will prompt for the password and open the file normally.',
+        answer:
+          'Any standards-compliant viewer that supports AES-256 (Adobe Reader 9+, all modern browsers, iOS and Android viewers) will prompt for the password and open the file normally.',
       },
     ],
     keywords: [
@@ -1151,23 +1238,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Can this crack a PDF whose password I do not know?',
-        answer: 'No. The tool decrypts documents using the correct password you supply — that is what makes it fast, reliable, and legitimate. It does not guess or brute-force passwords.',
+        answer:
+          'No. The tool decrypts documents using the correct password you supply — that is what makes it fast, reliable, and legitimate. It does not guess or brute-force passwords.',
       },
       {
         question: 'What happens to my file and password on the server?',
-        answer: 'The file is sent over HTTPS, decrypted in a temporary workspace, and deleted immediately after your download is served. The password is used only for the decryption and is never stored or logged.',
+        answer:
+          'The file is sent over HTTPS, decrypted in a temporary workspace, and deleted immediately after your download is served. The password is used only for the decryption and is never stored or logged.',
       },
       {
         question: 'Which encryption types can be removed?',
-        answer: 'All standard PDF schemes — RC4 40/128-bit and AES-128/256 — thanks to the qpdf engine. If a correct password opens the file in a reader, this tool can unlock it.',
+        answer:
+          'All standard PDF schemes — RC4 40/128-bit and AES-128/256 — thanks to the qpdf engine. If a correct password opens the file in a reader, this tool can unlock it.',
       },
       {
         question: 'I entered the password but unlocking failed. Why?',
-        answer: 'Double-check for typos, keyboard layout, and caps lock; bank PDFs often use specific formats like DDMMYYYY. If the password is genuinely correct and it still fails, the file may be corrupted — try the Repair PDF tool first.',
+        answer:
+          'Double-check for typos, keyboard layout, and caps lock; bank PDFs often use specific formats like DDMMYYYY. If the password is genuinely correct and it still fails, the file may be corrupted — try the Repair PDF tool first.',
       },
       {
         question: 'Is it legal to unlock a PDF?',
-        answer: 'Unlocking documents you own or are authorized to access — your statements, your payslips, files shared with you along with their password — is normal use. Do not use it on documents you have no right to open.',
+        answer:
+          'Unlocking documents you own or are authorized to access — your statements, your payslips, files shared with you along with their password — is normal use. Do not use it on documents you have no right to open.',
       },
     ],
     keywords: [
@@ -1212,11 +1304,13 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Will my document look exactly like it does in Word?',
-        answer: 'LibreOffice renders Word formats with high fidelity — layout, tables, images, headers, and footers convert accurately in the vast majority of documents. Files relying on rare fonts or exotic Word features may show minor spacing differences.',
+        answer:
+          'LibreOffice renders Word formats with high fidelity — layout, tables, images, headers, and footers convert accurately in the vast majority of documents. Files relying on rare fonts or exotic Word features may show minor spacing differences.',
       },
       {
         question: 'What happens to my file on the server?',
-        answer: 'It is uploaded over HTTPS, converted in an isolated temporary workspace, and deleted along with the output as soon as your download is served. Nothing is stored or reused.',
+        answer:
+          'It is uploaded over HTTPS, converted in an isolated temporary workspace, and deleted along with the output as soon as your download is served. Nothing is stored or reused.',
       },
       {
         question: 'Are .doc files from older Word versions supported?',
@@ -1224,11 +1318,13 @@ export const pdfToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Is there a watermark or page limit?',
-        answer: 'No watermark, ever. Typical documents of any normal length convert fine; extremely large files are only bounded by the upload size limit.',
+        answer:
+          'No watermark, ever. Typical documents of any normal length convert fine; extremely large files are only bounded by the upload size limit.',
       },
       {
         question: 'Can the PDF be edited after conversion?',
-        answer: 'The output is a standard PDF: readable and printable everywhere, and much harder to alter casually than a Word file. For small additions afterwards, use the Edit PDF tool.',
+        answer:
+          'The output is a standard PDF: readable and printable everywhere, and much harder to alter casually than a Word file. For small additions afterwards, use the Edit PDF tool.',
       },
     ],
     keywords: [
@@ -1273,23 +1369,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'How are wide spreadsheets handled?',
-        answer: 'The conversion follows the workbook’s print setup — page size, orientation, and print areas. Sheets wider than a page paginate across multiple pages, so setting the print area and orientation in Excel before converting gives the best result.',
+        answer:
+          'The conversion follows the workbook’s print setup — page size, orientation, and print areas. Sheets wider than a page paginate across multiple pages, so setting the print area and orientation in Excel before converting gives the best result.',
       },
       {
         question: 'Do formulas remain in the PDF?',
-        answer: 'The PDF shows the calculated values, not the formulas — which is usually the point when sharing. Your original workbook keeps its formulas untouched.',
+        answer:
+          'The PDF shows the calculated values, not the formulas — which is usually the point when sharing. Your original workbook keeps its formulas untouched.',
       },
       {
         question: 'Is my spreadsheet stored on the server?',
-        answer: 'No. It is converted in an isolated temporary workspace and deleted together with the PDF as soon as your download is served. Nothing is retained.',
+        answer:
+          'No. It is converted in an isolated temporary workspace and deleted together with the PDF as soon as your download is served. Nothing is retained.',
       },
       {
         question: 'Are all sheets in the workbook converted?',
-        answer: 'Yes, sheets are rendered in workbook order. To convert only one sheet, delete or hide the others in a copy of the file before uploading.',
+        answer:
+          'Yes, sheets are rendered in workbook order. To convert only one sheet, delete or hide the others in a copy of the file before uploading.',
       },
       {
         question: 'Will charts and cell colors be preserved?',
-        answer: 'Yes. LibreOffice renders charts, fills, borders, and conditional-formatting results into the PDF as they appear in the spreadsheet.',
+        answer:
+          'Yes. LibreOffice renders charts, fills, borders, and conditional-formatting results into the PDF as they appear in the spreadsheet.',
       },
     ],
     keywords: [
@@ -1334,23 +1435,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What happens to animations and transitions?',
-        answer: 'PDF is a static format, so each slide is rendered in its final state with all build steps completed. Content never disappears — it simply appears fully revealed.',
+        answer:
+          'PDF is a static format, so each slide is rendered in its final state with all build steps completed. Content never disappears — it simply appears fully revealed.',
       },
       {
         question: 'Is my presentation kept on the server?',
-        answer: 'No. The deck is converted in an isolated temporary workspace and deleted with its output right after your download is delivered.',
+        answer:
+          'No. The deck is converted in an isolated temporary workspace and deleted with its output right after your download is delivered.',
       },
       {
         question: 'Will my fonts look right in the PDF?',
-        answer: 'Fonts are embedded during rendering, so the PDF displays consistently even on machines without the original fonts. Very unusual fonts may be substituted with a close match if unavailable to the converter.',
+        answer:
+          'Fonts are embedded during rendering, so the PDF displays consistently even on machines without the original fonts. Very unusual fonts may be substituted with a close match if unavailable to the converter.',
       },
       {
         question: 'Are speaker notes included?',
-        answer: 'No — the standard conversion renders slides only, one per page, which is what audiences should receive. Keep your notes in the original .pptx.',
+        answer:
+          'No — the standard conversion renders slides only, one per page, which is what audiences should receive. Keep your notes in the original .pptx.',
       },
       {
         question: 'Does it handle widescreen (16:9) slides?',
-        answer: 'Yes. PDF pages take the deck’s own slide dimensions, so 16:9, 4:3, and custom sizes all convert without cropping or letterboxing.',
+        answer:
+          'Yes. PDF pages take the deck’s own slide dimensions, so 16:9, 4:3, and custom sizes all convert without cropping or letterboxing.',
       },
     ],
     keywords: [
@@ -1394,23 +1500,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is my PDF uploaded during conversion?',
-        answer: 'No. Text extraction (PDF.js) and .docx generation (the docx library) both run in your browser, so the document never leaves your device.',
+        answer:
+          'No. Text extraction (PDF.js) and .docx generation (the docx library) both run in your browser, so the document never leaves your device.',
       },
       {
         question: 'Will the Word file look identical to the PDF?',
-        answer: 'The conversion prioritizes clean, editable text: paragraphs and reading order are rebuilt faithfully, while complex visual layouts such as multi-column designs and floating images may be simplified. For pixel-perfect copies, keep the PDF; for editing, this is what you want.',
+        answer:
+          'The conversion prioritizes clean, editable text: paragraphs and reading order are rebuilt faithfully, while complex visual layouts such as multi-column designs and floating images may be simplified. For pixel-perfect copies, keep the PDF; for editing, this is what you want.',
       },
       {
         question: 'Why is my converted document empty?',
-        answer: 'Your PDF is almost certainly a scan — an image of text with no text layer. Run it through the OCR PDF tool first to recognize the text, then use that output.',
+        answer:
+          'Your PDF is almost certainly a scan — an image of text with no text layer. Run it through the OCR PDF tool first to recognize the text, then use that output.',
       },
       {
         question: 'Which programs open the converted file?',
-        answer: 'Any .docx-compatible editor: Microsoft Word 2007 or newer, Google Docs, LibreOffice Writer, and Pages.',
+        answer:
+          'Any .docx-compatible editor: Microsoft Word 2007 or newer, Google Docs, LibreOffice Writer, and Pages.',
       },
       {
         question: 'Are tables and images carried over?',
-        answer: 'The converter focuses on textual content. Table text is extracted, though grid formatting may need touch-up in Word; embedded images are not transferred.',
+        answer:
+          'The converter focuses on textual content. Table text is extracted, though grid formatting may need touch-up in Word; embedded images are not transferred.',
       },
     ],
     keywords: [
@@ -1455,23 +1566,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is my financial document uploaded anywhere?',
-        answer: 'No. Extraction and workbook generation run entirely in your browser, so statements and invoices stay on your device — no server ever sees them.',
+        answer:
+          'No. Extraction and workbook generation run entirely in your browser, so statements and invoices stay on your device — no server ever sees them.',
       },
       {
         question: 'How accurate is the table extraction?',
-        answer: 'Cleanly formatted tables with consistent columns convert very well. Tables with merged headers, wrapped cell text, or irregular spacing may need minor cleanup in Excel — still far faster than retyping.',
+        answer:
+          'Cleanly formatted tables with consistent columns convert very well. Tables with merged headers, wrapped cell text, or irregular spacing may need minor cleanup in Excel — still far faster than retyping.',
       },
       {
         question: 'Can it convert a scanned statement?',
-        answer: 'Not directly — a scan has no text layer to read. Run the document through the OCR PDF tool first, then work from the recognized text.',
+        answer:
+          'Not directly — a scan has no text layer to read. Run the document through the OCR PDF tool first, then work from the recognized text.',
       },
       {
         question: 'Are the extracted numbers usable in formulas?',
-        answer: 'Yes. Values are written into individual cells of a real .xlsx workbook, so SUM, sorting, filtering, and charts work immediately.',
+        answer:
+          'Yes. Values are written into individual cells of a real .xlsx workbook, so SUM, sorting, filtering, and charts work immediately.',
       },
       {
         question: 'Does it handle multi-page tables?',
-        answer: 'Yes. Every page is processed in order and the rows continue down the sheet, so a 12-page statement becomes one continuous table.',
+        answer:
+          'Yes. Every page is processed in order and the rows continue down the sheet, so a 12-page statement becomes one continuous table.',
       },
     ],
     keywords: [
@@ -1515,23 +1631,28 @@ export const pdfToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is my PDF uploaded during the conversion?',
-        answer: 'No. Page rendering and .pptx assembly happen entirely in your browser, so the document never leaves your device.',
+        answer:
+          'No. Page rendering and .pptx assembly happen entirely in your browser, so the document never leaves your device.',
       },
       {
         question: 'Can I edit the text on the converted slides?',
-        answer: 'Each PDF page arrives on its slide as rendered page content, so the layout is preserved exactly. You can freely add text boxes, shapes, and new slides around it; reflowing the original paragraph text works best via the PDF to Word tool.',
+        answer:
+          'Each PDF page arrives on its slide as rendered page content, so the layout is preserved exactly. You can freely add text boxes, shapes, and new slides around it; reflowing the original paragraph text works best via the PDF to Word tool.',
       },
       {
         question: 'What slide size does the deck use?',
-        answer: 'Slides follow the PDF’s page proportions, so the content fills each slide without stretching or cropping — portrait reports and widescreen exports both convert cleanly.',
+        answer:
+          'Slides follow the PDF’s page proportions, so the content fills each slide without stretching or cropping — portrait reports and widescreen exports both convert cleanly.',
       },
       {
         question: 'Which apps open the converted file?',
-        answer: 'Any .pptx-compatible app: Microsoft PowerPoint 2007 or newer, Google Slides, LibreOffice Impress, and Keynote.',
+        answer:
+          'Any .pptx-compatible app: Microsoft PowerPoint 2007 or newer, Google Slides, LibreOffice Impress, and Keynote.',
       },
       {
         question: 'How long does conversion take?',
-        answer: 'A few seconds for typical decks. Time grows with page count since every page is rendered at slide quality on your own machine — the progress indicator keeps you posted.',
+        answer:
+          'A few seconds for typical decks. Time grows with page count since every page is rendered at slide quality on your own machine — the progress indicator keeps you posted.',
       },
     ],
     keywords: [

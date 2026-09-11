@@ -29,12 +29,20 @@ export default function SettingsList({ rows }: Readonly<Props>): ReactElement {
           // Wraps instead of overlapping: a value that cannot fit beside its label drops to
           // the next line, which is what the old absolute positioning could never do.
           useFlexGap
-          flexWrap="wrap"
-          justifyContent="space-between"
-          alignItems="baseline"
-          sx={{ py: 1.25 }}
+          sx={{
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            py: 1.25,
+          }}
         >
-          <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              flexShrink: 0,
+            }}
+          >
             {row.label}
           </Typography>
           <Typography

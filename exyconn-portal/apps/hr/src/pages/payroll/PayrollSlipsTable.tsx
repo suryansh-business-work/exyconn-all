@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import DownloadIcon from '@mui/icons-material/Download';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -14,6 +14,7 @@ import {
   type ListSalarySlipsPagedQuery,
   type ListUsersQuery,
 } from '@exyconn/shell/graphql/generated';
+import { queryData } from '@exyconn/shell/utils/queryData';
 
 type Slip = ListSalarySlipsPagedQuery['listSalarySlipsPaged']['rows'][number] & {
   employeeName: string;
@@ -55,9 +56,11 @@ export function PayrollSlipsTable({ month, year, refreshKey }: Readonly<PayrollS
         client.query<ListUsersQuery>({ query: ListUsersDocument }),
       ]);
       if (cancelled) return;
-      const names = new Map(users.data.listUsers.map((u) => [u.id, u.name]));
+      const names = new Map(
+        queryData(users, 'The user list').listUsers.map((u) => [u.id, u.name]),
+      );
       setRows(
-        slips.data.listSalarySlipsPaged.rows.map((r) => ({
+        queryData(slips, 'The salary-slip list').listSalarySlipsPaged.rows.map((r) => ({
           ...r,
           employeeName: names.get(r.employeeId) ?? r.employeeId,
         })),

@@ -22,7 +22,9 @@ export function GoalProgressControl({
       disabled={disabled}
       onChange={(event) => onChange(Number(event.target.value))}
       sx={{ minWidth: 96 }}
-      inputProps={{ 'aria-label': 'Goal progress' }}
+      slotProps={{
+        htmlInput: { 'aria-label': 'Goal progress' },
+      }}
     >
       {STEPS.map((step) => (
         <MenuItem key={step} value={step}>

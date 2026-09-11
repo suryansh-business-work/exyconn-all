@@ -31,23 +31,28 @@ export const imageToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Are my images uploaded to a server?',
-        answer: 'No. Compression runs entirely in your browser using the Canvas API. The files never leave your device, so nothing is stored or transmitted.',
+        answer:
+          'No. Compression runs entirely in your browser using the Canvas API. The files never leave your device, so nothing is stored or transmitted.',
       },
       {
         question: 'How much smaller will my images get?',
-        answer: 'Typical JPG photos shrink 50–80% at the default quality setting. PNGs with large flat-color areas can shrink even more; results depend on the source image and the quality you choose.',
+        answer:
+          'Typical JPG photos shrink 50–80% at the default quality setting. PNGs with large flat-color areas can shrink even more; results depend on the source image and the quality you choose.',
       },
       {
         question: 'Does compressing reduce image quality?',
-        answer: 'Lossy compression discards some detail, but at moderate settings the difference is invisible at normal viewing sizes. Use the slider and preview to find the point where quality still looks right to you.',
+        answer:
+          'Lossy compression discards some detail, but at moderate settings the difference is invisible at normal viewing sizes. Use the slider and preview to find the point where quality still looks right to you.',
       },
       {
         question: 'Can I compress multiple images at once?',
-        answer: 'Yes. Drop as many files as you like — each one is compressed with the same quality setting and can be downloaded individually or together.',
+        answer:
+          'Yes. Drop as many files as you like — each one is compressed with the same quality setting and can be downloaded individually or together.',
       },
       {
         question: 'Is there a file size limit?',
-        answer: 'There is no hard limit because processing happens on your machine. Very large images (50 MP and up) simply take a few extra seconds depending on your device.',
+        answer:
+          'There is no hard limit because processing happens on your machine. Very large images (50 MP and up) simply take a few extra seconds depending on your device.',
       },
     ],
     keywords: [
@@ -93,11 +98,13 @@ export const imageToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Will resizing distort my image?',
-        answer: 'Not if the aspect-ratio lock is on — the tool calculates the matching height for any width you enter. Unlock it only when you intentionally need a fixed canvas like 400×400.',
+        answer:
+          'Not if the aspect-ratio lock is on — the tool calculates the matching height for any width you enter. Unlock it only when you intentionally need a fixed canvas like 400×400.',
       },
       {
         question: 'Can I make an image larger with this tool?',
-        answer: 'You can, but plain upscaling spreads existing pixels and looks soft. For enlargements that stay sharp, use the Upscale Image tool, which uses AI to add detail.',
+        answer:
+          'You can, but plain upscaling spreads existing pixels and looks soft. For enlargements that stay sharp, use the Upscale Image tool, which uses AI to add detail.',
       },
       {
         question: 'Do my images get uploaded?',
@@ -105,11 +112,13 @@ export const imageToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Does resizing change the file size too?',
-        answer: 'Yes — fewer pixels means a smaller file. A photo resized to 50% typically drops to roughly a quarter of its original file size.',
+        answer:
+          'Yes — fewer pixels means a smaller file. A photo resized to 50% typically drops to roughly a quarter of its original file size.',
       },
       {
         question: 'Can I resize several images to the same dimensions at once?',
-        answer: 'Yes. Drop multiple files and the same pixel or percentage rule is applied to every image in the batch.',
+        answer:
+          'Yes. Drop multiple files and the same pixel or percentage rule is applied to every image in the batch.',
       },
     ],
     keywords: [
@@ -158,7 +167,8 @@ export const imageToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Can I crop to an exact aspect ratio?',
-        answer: 'Yes — pick a preset like 1:1 or 16:9 and the selection stays locked to that ratio while you move and resize it.',
+        answer:
+          'Yes — pick a preset like 1:1 or 16:9 and the selection stays locked to that ratio while you move and resize it.',
       },
       {
         question: 'Does cropping reduce image quality?',
@@ -170,7 +180,8 @@ export const imageToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Can I undo a crop?',
-        answer: 'Your original file on disk is never modified, so you can simply re-upload it and crop again if the first attempt was not right.',
+        answer:
+          'Your original file on disk is never modified, so you can simply re-upload it and crop again if the first attempt was not right.',
       },
     ],
     keywords: [
@@ -215,19 +226,23 @@ export const imageToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Do my photos get uploaded during conversion?',
-        answer: 'No. Files are decoded and re-encoded entirely in your browser, so HEIC photos and private documents never leave your device.',
+        answer:
+          'No. Files are decoded and re-encoded entirely in your browser, so HEIC photos and private documents never leave your device.',
       },
       {
         question: 'What happens to transparent backgrounds?',
-        answer: 'JPG does not support transparency, so transparent pixels are filled with the background color you choose — white by default.',
+        answer:
+          'JPG does not support transparency, so transparent pixels are filled with the background color you choose — white by default.',
       },
       {
         question: 'Can I convert HEIC photos from an iPhone?',
-        answer: 'Yes. HEIC files are decoded in the browser and saved as standard JPGs that open on any device or website.',
+        answer:
+          'Yes. HEIC files are decoded in the browser and saved as standard JPGs that open on any device or website.',
       },
       {
         question: 'Will converting to JPG lose quality?',
-        answer: 'JPG is a lossy format, but at high quality settings the difference is imperceptible for photos. Sharp-edged graphics like screenshots keep more crispness as PNG, so only convert those when JPG is required.',
+        answer:
+          'JPG is a lossy format, but at high quality settings the difference is imperceptible for photos. Sharp-edged graphics like screenshots keep more crispness as PNG, so only convert those when JPG is required.',
       },
       {
         question: 'Can I convert an animated GIF?',
@@ -276,11 +291,13 @@ export const imageToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Will converting JPG to PNG improve the quality?',
-        answer: 'No — detail the JPG already discarded cannot be recovered. What PNG gives you is lossless storage from this point on, so future edits and re-saves stop degrading the image.',
+        answer:
+          'No — detail the JPG already discarded cannot be recovered. What PNG gives you is lossless storage from this point on, so future edits and re-saves stop degrading the image.',
       },
       {
         question: 'Why is my PNG bigger than the original JPG?',
-        answer: 'PNG is lossless, so it stores photographic detail without compression artifacts, which usually costs more bytes than JPG’s lossy encoding. That is normal and expected.',
+        answer:
+          'PNG is lossless, so it stores photographic detail without compression artifacts, which usually costs more bytes than JPG’s lossy encoding. That is normal and expected.',
       },
       {
         question: 'Are my images uploaded anywhere?',
@@ -288,7 +305,8 @@ export const imageToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Does the PNG output support transparency?',
-        answer: 'PNG supports transparency, but a JPG source has no transparent pixels to carry over. To remove a background and get a transparent PNG, use the Remove Background tool.',
+        answer:
+          'PNG supports transparency, but a JPG source has no transparent pixels to carry over. To remove a background and get a transparent PNG, use the Remove Background tool.',
       },
       {
         question: 'Can I convert many JPGs at once?',
@@ -347,7 +365,8 @@ export const imageToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Can I undo a change?',
-        answer: 'Yes, edits can be stepped back before you export. Your original file on disk is never touched, so you can always start over by re-uploading it.',
+        answer:
+          'Yes, edits can be stepped back before you export. Your original file on disk is never touched, so you can always start over by re-uploading it.',
       },
       {
         question: 'What image formats can I edit?',
@@ -355,7 +374,8 @@ export const imageToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Does editing reduce my photo’s quality?',
-        answer: 'Adjustments are applied once at export. Choose PNG output for lossless quality or JPG for a smaller file.',
+        answer:
+          'Adjustments are applied once at export. Choose PNG output for lossless quality or JPG for a smaller file.',
       },
     ],
     keywords: [
@@ -401,11 +421,13 @@ export const imageToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Where is my image processed?',
-        answer: 'On the Exyconn server — AI upscaling models are too heavy for a browser. The file is uploaded over HTTPS, processed, returned to you, and then deleted from the server.',
+        answer:
+          'On the Exyconn server — AI upscaling models are too heavy for a browser. The file is uploaded over HTTPS, processed, returned to you, and then deleted from the server.',
       },
       {
         question: 'How is this different from just resizing larger?',
-        answer: 'Plain resizing spreads the same pixels over a bigger area, which looks blurry. AI upscaling predicts and reconstructs detail — edges, textures, and patterns — so the enlarged image stays sharp.',
+        answer:
+          'Plain resizing spreads the same pixels over a bigger area, which looks blurry. AI upscaling predicts and reconstructs detail — edges, textures, and patterns — so the enlarged image stays sharp.',
       },
       {
         question: 'How long does upscaling take?',
@@ -413,11 +435,13 @@ export const imageToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Can it fix a badly blurry or pixelated photo?',
-        answer: 'It substantially improves soft or small images, but it cannot invent information that was never captured — extreme blur or heavy compression limits what any upscaler can recover.',
+        answer:
+          'It substantially improves soft or small images, but it cannot invent information that was never captured — extreme blur or heavy compression limits what any upscaler can recover.',
       },
       {
         question: 'What is the maximum upload size?',
-        answer: 'Standard photos up to typical camera resolutions work fine. If a file is rejected for size, compress or downscale it slightly first — the AI will restore the detail on the way back up.',
+        answer:
+          'Standard photos up to typical camera resolutions work fine. If a file is rejected for size, compress or downscale it slightly first — the AI will restore the detail on the way back up.',
       },
     ],
     keywords: [
@@ -462,15 +486,18 @@ export const imageToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is my photo stored after processing?',
-        answer: 'No. The image is uploaded over HTTPS to the Exyconn server, processed by the AI model, returned to you, and deleted. It is not kept, shared, or used for training.',
+        answer:
+          'No. The image is uploaded over HTTPS to the Exyconn server, processed by the AI model, returned to you, and deleted. It is not kept, shared, or used for training.',
       },
       {
         question: 'What format is the output?',
-        answer: 'A PNG with a transparent background, so you can place the cutout onto any color or design without a white box around it.',
+        answer:
+          'A PNG with a transparent background, so you can place the cutout onto any color or design without a white box around it.',
       },
       {
         question: 'How well does it handle hair and fuzzy edges?',
-        answer: 'The segmentation model is trained to preserve fine detail, so hair, fur, and fabric edges come out cleanly in most photos. Strong subject/background contrast gives the best results.',
+        answer:
+          'The segmentation model is trained to preserve fine detail, so hair, fur, and fabric edges come out cleanly in most photos. Strong subject/background contrast gives the best results.',
       },
       {
         question: 'Can it process product photos as well as people?',
@@ -478,11 +505,13 @@ export const imageToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Why does this tool need an upload when other image tools do not?',
-        answer: 'AI segmentation requires a model too large to run in the browser, so this tool processes on our server. All the simpler image tools on Exyconn run fully client-side.',
+        answer:
+          'AI segmentation requires a model too large to run in the browser, so this tool processes on our server. All the simpler image tools on Exyconn run fully client-side.',
       },
       {
         question: 'Is there a limit on how many images I can process?',
-        answer: 'The tool is free for normal use. Process images one at a time and download each transparent PNG as it finishes.',
+        answer:
+          'The tool is free for normal use. Process images one at a time and download each transparent PNG as it finishes.',
       },
     ],
     keywords: [
@@ -527,23 +556,28 @@ export const imageToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Are my photos uploaded when I watermark them?',
-        answer: 'No. The watermark is composited on a canvas in your browser, so your original photos stay on your device throughout.',
+        answer:
+          'No. The watermark is composited on a canvas in your browser, so your original photos stay on your device throughout.',
       },
       {
         question: 'Can I use my own logo as the watermark?',
-        answer: 'Yes. Upload a PNG of your logo — one with a transparent background works best — and place and scale it like any other watermark.',
+        answer:
+          'Yes. Upload a PNG of your logo — one with a transparent background works best — and place and scale it like any other watermark.',
       },
       {
         question: 'What opacity should I use?',
-        answer: 'Around 30–50% is a good balance: clearly visible but not distracting. Use higher opacity plus tiling for proofs you actively want to prevent from being reused.',
+        answer:
+          'Around 30–50% is a good balance: clearly visible but not distracting. Use higher opacity plus tiling for proofs you actively want to prevent from being reused.',
       },
       {
         question: 'Can I watermark many photos at once?',
-        answer: 'Yes. Drop a whole batch and the same watermark, position, and opacity settings are applied to every image.',
+        answer:
+          'Yes. Drop a whole batch and the same watermark, position, and opacity settings are applied to every image.',
       },
       {
         question: 'Does the watermark reduce photo quality?',
-        answer: 'No. The photo is re-exported at full resolution with the watermark layered on top; the underlying image detail is unchanged.',
+        answer:
+          'No. The photo is re-exported at full resolution with the watermark layered on top; the underlying image detail is unchanged.',
       },
     ],
     keywords: [
@@ -587,7 +621,8 @@ export const imageToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Can I use my own picture as the template?',
-        answer: 'Yes — any JPG, PNG, or WEBP you upload becomes the meme background, so you are not limited to stock templates.',
+        answer:
+          'Yes — any JPG, PNG, or WEBP you upload becomes the meme background, so you are not limited to stock templates.',
       },
       {
         question: 'Does the tool add its own watermark to my meme?',
@@ -595,11 +630,13 @@ export const imageToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Is my image uploaded anywhere?',
-        answer: 'No. The meme is drawn on a canvas in your browser and downloaded straight from memory, so the image never leaves your device.',
+        answer:
+          'No. The meme is drawn on a canvas in your browser and downloaded straight from memory, so the image never leaves your device.',
       },
       {
         question: 'Why is meme text usually white with a black outline?',
-        answer: 'The outline keeps the text readable over both light and dark parts of the photo — the tool applies that classic style automatically.',
+        answer:
+          'The outline keeps the text readable over both light and dark parts of the photo — the tool applies that classic style automatically.',
       },
       {
         question: 'What format does the meme download in?',
@@ -647,15 +684,18 @@ export const imageToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does rotating reduce image quality?',
-        answer: 'A 90-degree rotation rearranges pixels without resampling, so no detail is lost. The image is simply re-exported in its new orientation.',
+        answer:
+          'A 90-degree rotation rearranges pixels without resampling, so no detail is lost. The image is simply re-exported in its new orientation.',
       },
       {
         question: 'Why do my photos show sideways in the first place?',
-        answer: 'Cameras record orientation as EXIF metadata rather than rotating the pixels. Software that ignores EXIF shows the raw sideways image — this tool bakes the correct orientation into the pixels so it displays right everywhere.',
+        answer:
+          'Cameras record orientation as EXIF metadata rather than rotating the pixels. Software that ignores EXIF shows the raw sideways image — this tool bakes the correct orientation into the pixels so it displays right everywhere.',
       },
       {
         question: 'Can I rotate many photos at the same time?',
-        answer: 'Yes. Upload a batch and either rotate images individually or apply one rotation to all of them in a single click.',
+        answer:
+          'Yes. Upload a batch and either rotate images individually or apply one rotation to all of them in a single click.',
       },
       {
         question: 'Are my photos uploaded to a server?',
@@ -663,7 +703,8 @@ export const imageToolDetails: ToolDetailsMap = {
       },
       {
         question: 'What is the difference between rotate and flip?',
-        answer: 'Rotate turns the image in 90-degree steps; flip mirrors it left-right or top-bottom. Use flip for selfies or scans that appear as mirror images.',
+        answer:
+          'Rotate turns the image in 90-degree steps; flip mirrors it left-right or top-bottom. Use flip for selfies or scans that appear as mirror images.',
       },
     ],
     keywords: [
@@ -708,23 +749,28 @@ export const imageToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is my HTML sent to a server to be rendered?',
-        answer: 'No. Your browser renders the markup itself and the capture is taken client-side, so the code never leaves your machine.',
+        answer:
+          'No. Your browser renders the markup itself and the capture is taken client-side, so the code never leaves your machine.',
       },
       {
         question: 'Which output format should I choose?',
-        answer: 'PNG for sharp UI captures and transparency, JPG for photographic content and smaller files, SVG when you want a scalable vector wrapper around the rendered output.',
+        answer:
+          'PNG for sharp UI captures and transparency, JPG for photographic content and smaller files, SVG when you want a scalable vector wrapper around the rendered output.',
       },
       {
         question: 'Can I capture an external website by its URL?',
-        answer: 'The tool captures HTML you paste into the editor. To capture a live page, copy the relevant markup and styles in, or take the section of HTML you control.',
+        answer:
+          'The tool captures HTML you paste into the editor. To capture a live page, copy the relevant markup and styles in, or take the section of HTML you control.',
       },
       {
         question: 'Why do external images or fonts sometimes not appear?',
-        answer: 'Resources loaded from other domains can be blocked by CORS during capture. Inline your images as data URIs and embed fonts locally for reliable results.',
+        answer:
+          'Resources loaded from other domains can be blocked by CORS during capture. Inline your images as data URIs and embed fonts locally for reliable results.',
       },
       {
         question: 'How do I get a higher-resolution capture?',
-        answer: 'Increase the scale setting — 2x or 3x renders the same layout at double or triple the pixel density, ideal for retina displays and print.',
+        answer:
+          'Increase the scale setting — 2x or 3x renders the same layout at double or triple the pixel density, ideal for retina displays and print.',
       },
     ],
     keywords: [
@@ -769,15 +815,18 @@ export const imageToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is the original photo uploaded anywhere?',
-        answer: 'No. Blurring happens on a canvas in your browser, so the unblurred original never leaves your device — nothing is transmitted or stored.',
+        answer:
+          'No. Blurring happens on a canvas in your browser, so the unblurred original never leaves your device — nothing is transmitted or stored.',
       },
       {
         question: 'Can the blur be reversed by someone else?',
-        answer: 'The exported image contains only the blurred pixels; the original data is not embedded. For maximum safety on highly sensitive content, use pixelation or blur at high strength, which destroys the underlying detail.',
+        answer:
+          'The exported image contains only the blurred pixels; the original data is not embedded. For maximum safety on highly sensitive content, use pixelation or blur at high strength, which destroys the underlying detail.',
       },
       {
         question: 'Should I use blur or pixelation?',
-        answer: 'Both anonymize effectively. Pixelation reads clearly as deliberate censoring, while blur looks more natural in the photo — pick whichever suits the context.',
+        answer:
+          'Both anonymize effectively. Pixelation reads clearly as deliberate censoring, while blur looks more natural in the photo — pick whichever suits the context.',
       },
       {
         question: 'Can I blur several faces in one photo?',
@@ -785,7 +834,8 @@ export const imageToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Does blurring affect the rest of the photo?',
-        answer: 'No. Only the regions you select are altered — everything outside them is exported at original quality.',
+        answer:
+          'No. Only the regions you select are altered — everything outside them is exported at original quality.',
       },
     ],
     keywords: [

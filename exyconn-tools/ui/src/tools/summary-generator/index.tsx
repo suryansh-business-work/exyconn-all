@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Container, Box, Typography, TextField, Button, Paper, Alert, Snackbar, Chip,
-} from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import { Container, Box, Typography, TextField, Button, Paper, Alert, Snackbar, Chip } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { Summarize } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -23,7 +21,10 @@ const SummaryGenerator: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
-    if (text.trim().length < 10) { setError('Enter at least 10 characters.'); return; }
+    if (text.trim().length < 10) {
+      setError('Enter at least 10 characters.');
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -37,7 +38,9 @@ const SummaryGenerator: React.FC = () => {
       setResult(data.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed');
-    } finally { setIsLoading(false); }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -46,14 +49,35 @@ const SummaryGenerator: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2, fontSize: '1rem' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 2,
+                  fontSize: '1rem',
+                }}
+              >
                 Generate Summary
               </Typography>
-              <TextField fullWidth size="small" label="Enter text" placeholder="Paste your content here..."
-                value={text} onChange={(e) => setText(e.target.value)} multiline rows={12} sx={{ mb: 2 }} />
-              <Button fullWidth variant="contained" onClick={handleGenerate}
+              <TextField
+                fullWidth
+                size="small"
+                label="Enter text"
+                placeholder="Paste your content here..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                multiline
+                rows={12}
+                sx={{ mb: 2 }}
+              />
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleGenerate}
                 disabled={isLoading || text.trim().length < 10}
-                startIcon={<Summarize />} sx={{ textTransform: 'none' }}>
+                startIcon={<Summarize />}
+                sx={{ textTransform: 'none' }}
+              >
                 {isLoading ? 'Generating...' : 'Generate Summary'}
               </Button>
             </Paper>
@@ -61,7 +85,15 @@ const SummaryGenerator: React.FC = () => {
           <Grid size={{ xs: 12, md: 7 }}>
             {result && (
               <Paper sx={{ p: 3, borderRadius: 2 }}>
-                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2 }}>Summary</Typography>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 700,
+                    mb: 2,
+                  }}
+                >
+                  Summary
+                </Typography>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
                   <Chip size="small" label={`${result.compressionRatio}% compressed`} color="success" />
                   <Chip size="small" label={`${result.summarySentences}/${result.totalSentences} sentences`} />
@@ -72,8 +104,11 @@ const SummaryGenerator: React.FC = () => {
                     {result.summary}
                   </Typography>
                 </Paper>
-                <Button size="small" sx={{ mt: 1.5, textTransform: 'none' }}
-                  onClick={() => navigator.clipboard.writeText(result.summary)}>
+                <Button
+                  size="small"
+                  sx={{ mt: 1.5, textTransform: 'none' }}
+                  onClick={() => navigator.clipboard.writeText(result.summary)}
+                >
                   Copy Summary
                 </Button>
               </Paper>
@@ -82,7 +117,9 @@ const SummaryGenerator: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

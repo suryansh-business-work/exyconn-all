@@ -40,8 +40,7 @@ export const cssTransform = (transform: TransformState): string => {
 export const isIdentity = (transform: TransformState): boolean =>
   transform.rotation === 0 && !transform.flipH && !transform.flipV;
 
-export const outputType = (fileType: string): string =>
-  PASS_THROUGH_TYPES.has(fileType) ? fileType : 'image/png';
+export const outputType = (fileType: string): string => (PASS_THROUGH_TYPES.has(fileType) ? fileType : 'image/png');
 
 export const outputFileName = (name: string, fileType: string): string => {
   const dot = name.lastIndexOf('.');
@@ -66,10 +65,14 @@ export const loadImage = (file: File): Promise<HTMLImageElement> =>
 
 const canvasToBlob = (canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob> =>
   new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (blob) resolve(blob);
-      else reject(new Error('Image encoding failed.'));
-    }, type, quality);
+    canvas.toBlob(
+      (blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error('Image encoding failed.'));
+      },
+      type,
+      quality
+    );
   });
 
 export const applyTransform = async (file: File, transform: TransformState): Promise<Blob> => {

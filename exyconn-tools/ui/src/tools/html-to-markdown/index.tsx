@@ -12,7 +12,7 @@ import {
   Tooltip,
   CircularProgress,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Code, ContentCopy, Download } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -83,7 +83,12 @@ const HtmlToMarkdown: React.FC = () => {
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="subtitle2" fontWeight={600}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                  }}
+                >
                   HTML Content
                 </Typography>
                 <Button component="label" size="small" variant="outlined">
@@ -133,7 +138,13 @@ const HtmlToMarkdown: React.FC = () => {
                 >
                   <Code sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#f97316' }} />
                   <Typography variant="body1">Paste HTML content to convert</Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                      mt: 1,
+                    }}
+                  >
                     Converts headings, paragraphs, lists, links, and more
                   </Typography>
                 </Box>
@@ -149,7 +160,12 @@ const HtmlToMarkdown: React.FC = () => {
                       alignItems: 'center',
                     }}
                   >
-                    <Typography variant="subtitle2" fontWeight={600}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                      }}
+                    >
                       Converted Markdown
                     </Typography>
                     <Box>

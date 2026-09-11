@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  Paper,
-  Box,
-  Typography,
-  TextField,
-  Button,
-  CircularProgress,
-  Slider,
-  LinearProgress,
-} from '@mui/material';
+import { Paper, Box, Typography, TextField, Button, CircularProgress, Slider, LinearProgress } from '@mui/material';
 import { Language, CallSplit } from '@mui/icons-material';
 
 interface SplitFormProps {
@@ -31,7 +22,12 @@ const SplitForm: React.FC<SplitFormProps> = ({
   <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
       <Language color="primary" fontSize="small" />
-      <Typography variant="subtitle2" fontWeight={600}>
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         Sitemap URL to Split
       </Typography>
     </Box>
@@ -43,7 +39,14 @@ const SplitForm: React.FC<SplitFormProps> = ({
       onChange={(e) => onUrlChange(e.target.value)}
       sx={{ mb: 2 }}
     />
-    <Typography variant="caption" color="text.secondary" gutterBottom display="block">
+    <Typography
+      variant="caption"
+      gutterBottom
+      sx={{
+        color: 'text.secondary',
+        display: 'block',
+      }}
+    >
       URLs per file: {urlsPerFile.toLocaleString()}
     </Typography>
     <Slider

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Container, Alert, Snackbar } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { ContactMail } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import ExtractForm from './components/ExtractForm';

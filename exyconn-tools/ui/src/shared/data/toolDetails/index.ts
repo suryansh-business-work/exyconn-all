@@ -30,5 +30,4 @@ export const toolDetails: ToolDetailsMap = {
   ...seoToolDetails,
 };
 
-export const getToolDetails = (toolId: string): ToolDetailContent | undefined =>
-  toolDetails[toolId];
+export const getToolDetails = (toolId: string): ToolDetailContent | undefined => toolDetails[toolId];

@@ -35,7 +35,14 @@ export default function TileDetailDialog({ tile, onClose }: Readonly<Props>): Re
   return (
     <Dialog open onClose={onClose} maxWidth="xs" fullWidth aria-label={`${tile.label} detail`}>
       <DialogContent>
-        <Stack direction="row" spacing={1} alignItems="flex-start" sx={{ mb: 1.5 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: 'flex-start',
+            mb: 1.5,
+          }}
+        >
           <Icon fontSize="small" sx={{ color: 'primary.main', mt: 0.4 }} />
           <Typography variant="subtitle1" sx={{ flex: 1, fontWeight: 700 }}>
             {tile.label}
@@ -53,8 +60,20 @@ export default function TileDetailDialog({ tile, onClose }: Readonly<Props>): Re
 
         <Stack spacing={1} sx={{ my: 1.5 }}>
           {tile.detail.facts.map((fact) => (
-            <Stack key={fact.id} direction="row" spacing={1.5} justifyContent="space-between">
-              <Typography variant="body2" color="text.secondary">
+            <Stack
+              key={fact.id}
+              direction="row"
+              spacing={1.5}
+              sx={{
+                justifyContent: 'space-between',
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {fact.label}
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 600, textAlign: 'right' }}>

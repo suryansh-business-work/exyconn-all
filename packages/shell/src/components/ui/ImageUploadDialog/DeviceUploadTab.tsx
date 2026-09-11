@@ -12,7 +12,12 @@ interface DeviceUploadTabProps {
 /** "From your device" tab: shows what the field holds today and opens the file picker. */
 export function DeviceUploadTab({ currentUrl, inputRef, onPick }: Readonly<DeviceUploadTabProps>) {
   return (
-    <Stack spacing={2} alignItems="center">
+    <Stack
+      spacing={2}
+      sx={{
+        alignItems: 'center',
+      }}
+    >
       <ImagePreview url={currentUrl} />
       <input
         ref={inputRef}
@@ -29,7 +34,12 @@ export function DeviceUploadTab({ currentUrl, inputRef, onPick }: Readonly<Devic
       >
         Choose image
       </Button>
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         PNG, JPG or SVG · up to {MAX_MB} MB · you can crop it before uploading
       </Typography>
     </Stack>

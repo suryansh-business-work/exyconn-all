@@ -49,7 +49,12 @@ describe('powerpoint-to-pdf utils', () => {
       await expect(readErrorMessage(res)).resolves.toBe('Bad file');
     });
     it('falls back to a generic message for non-JSON bodies', async () => {
-      const res = { status: 500, json: async () => { throw new Error('not json'); } };
+      const res = {
+        status: 500,
+        json: async () => {
+          throw new Error('not json');
+        },
+      };
       await expect(readErrorMessage(res)).resolves.toBe('Conversion failed (HTTP 500).');
     });
   });
@@ -90,7 +95,12 @@ describe('PowerpointToPdf component', () => {
 
   it('shows progress while the server converts', async () => {
     let resolveFetch: (value: unknown) => void = () => {};
-    fetchMock.mockImplementation(() => new Promise((resolve) => { resolveFetch = resolve; }));
+    fetchMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve;
+        })
+    );
     render(<PowerpointToPdf />);
     selectFile('deck.pptx');
     fireEvent.click(screen.getByRole('button', { name: 'Convert to PDF' }));

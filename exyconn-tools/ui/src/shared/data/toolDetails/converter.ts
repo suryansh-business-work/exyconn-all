@@ -303,8 +303,7 @@ export const converterToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Is my document stored anywhere?',
-        answer:
-          'No. The RTF is parsed in memory on the Exyconn server and discarded once the Markdown is returned.',
+        answer: 'No. The RTF is parsed in memory on the Exyconn server and discarded once the Markdown is returned.',
       },
       {
         question: 'What formatting survives the conversion?',
@@ -373,8 +372,7 @@ export const converterToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Is my HTML stored on your servers?',
-        answer:
-          'No. It is converted in memory on the Exyconn server and discarded once the Markdown is returned.',
+        answer: 'No. It is converted in memory on the Exyconn server and discarded once the Markdown is returned.',
       },
       {
         question: 'Is the tool free to use?',
@@ -504,8 +502,7 @@ export const converterToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Are subpages converted too?',
-        answer:
-          'No — only the page at the URL you provide. Convert each subpage separately by pasting its own link.',
+        answer: 'No — only the page at the URL you provide. Convert each subpage separately by pasting its own link.',
       },
       {
         question: 'Is anything stored after conversion?',
@@ -570,8 +567,7 @@ export const converterToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Are images in the document converted?',
-        answer:
-          'The conversion focuses on text content. Embedded images are not extracted into the Markdown output.',
+        answer: 'The conversion focuses on text content. Embedded images are not extracted into the Markdown output.',
       },
       {
         question: 'Is my document stored after conversion?',

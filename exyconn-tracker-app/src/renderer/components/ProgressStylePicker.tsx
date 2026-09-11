@@ -51,7 +51,12 @@ export default function ProgressStylePicker({ style }: Readonly<Props>): ReactEl
           );
         })}
       </ToggleButtonGroup>
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {style === 'ring'
           ? 'Today’s progress is drawn as a ring, with the percentage inside it.'
           : 'Today’s progress is drawn as a bar, with what is left as a length.'}

@@ -56,16 +56,39 @@ export function ReceiveOrderForm({ order, onDone, onCancel }: Readonly<ReceiveOr
       </Text>
 
       {order.lines.map((line) => (
-        <Grid container spacing={1} alignItems="center" key={line.productId} sx={{ mb: 1.5 }}>
-          <Grid item xs={12} sm={5}>
+        <Grid
+          container
+          spacing={1}
+          key={line.productId}
+          sx={{
+            alignItems: 'center',
+            mb: 1.5,
+          }}
+        >
+          <Grid
+            size={{
+              xs: 12,
+              sm: 5,
+            }}
+          >
             <Text size="sm">{line.productName}</Text>
           </Grid>
-          <Grid item xs={6} sm={3}>
+          <Grid
+            size={{
+              xs: 6,
+              sm: 3,
+            }}
+          >
             <Text size="caption" color="text.secondary">
               {line.receivedQuantity} of {line.quantity} received
             </Text>
           </Grid>
-          <Grid item xs={6} sm={4}>
+          <Grid
+            size={{
+              xs: 6,
+              sm: 4,
+            }}
+          >
             <TextField
               label="Arriving now"
               type="number"

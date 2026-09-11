@@ -87,12 +87,23 @@ export default function ScreenshotLightbox({
       >
         <Stack
           direction="row"
-          alignItems="center"
-          justifyContent="space-between"
           spacing={1}
-          sx={{ px: 2, py: 1.25, color: 'common.white' }}
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 2,
+            py: 1.25,
+            color: 'common.white',
+          }}
         >
-          <Stack direction="row" spacing={1.25} alignItems="center" sx={{ minWidth: 0 }}>
+          <Stack
+            direction="row"
+            spacing={1.25}
+            sx={{
+              alignItems: 'center',
+              minWidth: 0,
+            }}
+          >
             <Typography variant="body2" noWrap>
               {capturedAt}
             </Typography>
@@ -104,7 +115,13 @@ export default function ScreenshotLightbox({
             />
             {shot.blurred ? <Chip size="small" variant="outlined" label="Blurred" /> : null}
           </Stack>
-          <Stack direction="row" spacing={1.5} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={1.5}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             {many ? (
               <Typography variant="caption" sx={{ opacity: 0.7 }}>
                 {(index ?? 0) + 1} / {shots.length}

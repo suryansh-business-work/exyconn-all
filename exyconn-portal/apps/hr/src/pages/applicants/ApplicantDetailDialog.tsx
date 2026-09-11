@@ -40,7 +40,14 @@ export function ApplicantDetailDialog({
   return (
     <CrudDialog open title={applicant.name} onClose={onClose}>
       <Stack spacing={2}>
-        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
           <StatusChip value={applicant.stage} />
           <StatusChip value={applicant.source} />
           <Text size="sm" color="text.secondary">

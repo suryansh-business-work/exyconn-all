@@ -9,10 +9,7 @@ interface MarkdownOutputProps {
 }
 
 const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDownload }) => (
-  <Paper
-    elevation={0}
-    sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 400 }}
-  >
+  <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 400 }}>
     {!markdown ? (
       <Box
         sx={{
@@ -27,7 +24,13 @@ const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDow
       >
         <TextFields sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#6b7280' }} />
         <Typography variant="body1">Paste plain text to convert</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            mt: 1,
+          }}
+        >
           Automatically detects and formats common patterns
         </Typography>
       </Box>
@@ -43,7 +46,12 @@ const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDow
             alignItems: 'center',
           }}
         >
-          <Typography variant="subtitle2" fontWeight={600}>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             Converted Markdown
           </Typography>
           <Box>
@@ -60,9 +68,7 @@ const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDow
           </Box>
         </Box>
         <Box sx={{ p: 2, maxHeight: 450, overflow: 'auto' }}>
-          <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: 13 }}>
-            {markdown}
-          </pre>
+          <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: 13 }}>{markdown}</pre>
         </Box>
       </>
     )}

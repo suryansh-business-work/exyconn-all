@@ -18,7 +18,14 @@ export function BrandingImagesFields() {
   return (
     <Grid container spacing={2.5}>
       {IMAGE_FIELDS.map((field) => (
-        <Grid item xs={12} sm={6} md={4} key={field.name}>
+        <Grid
+          key={field.name}
+          size={{
+            xs: 12,
+            sm: 6,
+            md: 4,
+          }}
+        >
           <RhfImageField
             name={field.name}
             label={field.label}

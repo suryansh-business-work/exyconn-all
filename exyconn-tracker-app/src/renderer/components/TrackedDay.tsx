@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import { createContext, useContext } from 'react';
-import { Badge, PickersDay, TRACKER_RADIUS } from '@exyconn/ui';
-import type { PickersDayProps } from '@exyconn/ui';
+import { Badge, PickerDay, TRACKER_RADIUS } from '@exyconn/ui';
+import type { PickerDayProps } from '@exyconn/ui';
 /**
  * The `yyyy-MM-dd` keys of the days that have tracked time. Passed by context rather than
- * `slotProps.day` because MUI types that slot as exactly `PickersDayProps` — smuggling an
+ * `slotProps.day` because MUI types that slot as exactly `PickerDayProps` — smuggling an
  * extra prop through it needs an `any` cast, which this repo bans.
  */
 export const TrackedDatesContext = createContext<ReadonlySet<string>>(new Set<string>());
@@ -21,7 +21,7 @@ export default function TrackedDay({
   day,
   outsideCurrentMonth,
   ...rest
-}: Readonly<PickersDayProps<Date>>): ReactElement {
+}: Readonly<PickerDayProps>): ReactElement {
   const tracked = useContext(TrackedDatesContext);
   const isTracked = !outsideCurrentMonth && tracked.has(dateKey(day));
 
@@ -33,7 +33,7 @@ export default function TrackedDay({
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       invisible={!isTracked}
     >
-      <PickersDay
+      <PickerDay
         {...rest}
         day={day}
         outsideCurrentMonth={outsideCurrentMonth}

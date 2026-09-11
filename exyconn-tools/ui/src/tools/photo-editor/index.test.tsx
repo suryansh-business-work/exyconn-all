@@ -2,7 +2,17 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import PhotoEditor from './index';
-import { DEFAULT_ADJUSTMENTS, SLIDER_CONFIGS, buildFilter, isDefault, editedFileName, drawFiltered, canvasToBlob, exportImage, loadImage } from './utils';
+import {
+  DEFAULT_ADJUSTMENTS,
+  SLIDER_CONFIGS,
+  buildFilter,
+  isDefault,
+  editedFileName,
+  drawFiltered,
+  canvasToBlob,
+  exportImage,
+  loadImage,
+} from './utils';
 
 vi.mock('../../shared/components/ToolLayout/ToolLayout', () => ({
   default: ({ children, toolName }: { children: React.ReactNode; toolName: string }) => (
@@ -30,8 +40,12 @@ beforeEach(() => {
   ctxStub.fillStyle = '';
   ctxStub.filter = 'none';
   vi.stubGlobal('Image', MockImage);
-  HTMLCanvasElement.prototype.getContext = vi.fn(() => ctxStub) as unknown as typeof HTMLCanvasElement.prototype.getContext;
-  HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback) { cb(new Blob(['img'], { type: 'image/png' })); };
+  HTMLCanvasElement.prototype.getContext = vi.fn(
+    () => ctxStub
+  ) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback) {
+    cb(new Blob(['img'], { type: 'image/png' }));
+  };
   URL.createObjectURL = vi.fn(() => 'blob:mock');
   URL.revokeObjectURL = vi.fn();
 });
@@ -44,13 +58,23 @@ afterEach(() => {
 describe('photo-editor utils', () => {
   it('buildFilter renders the neutral filter for defaults', () => {
     expect(buildFilter(DEFAULT_ADJUSTMENTS)).toBe(
-      'brightness(100%) contrast(100%) saturate(100%) grayscale(0%) sepia(0%) hue-rotate(0deg) blur(0px)',
+      'brightness(100%) contrast(100%) saturate(100%) grayscale(0%) sepia(0%) hue-rotate(0deg) blur(0px)'
     );
   });
 
   it('buildFilter reflects every adjustment', () => {
-    const filter = buildFilter({ brightness: 120, contrast: 80, saturate: 150, grayscale: 25, sepia: 10, hueRotate: -90, blur: 4 });
-    expect(filter).toBe('brightness(120%) contrast(80%) saturate(150%) grayscale(25%) sepia(10%) hue-rotate(-90deg) blur(4px)');
+    const filter = buildFilter({
+      brightness: 120,
+      contrast: 80,
+      saturate: 150,
+      grayscale: 25,
+      sepia: 10,
+      hueRotate: -90,
+      blur: 4,
+    });
+    expect(filter).toBe(
+      'brightness(120%) contrast(80%) saturate(150%) grayscale(25%) sepia(10%) hue-rotate(-90deg) blur(4px)'
+    );
   });
 
   it('isDefault detects untouched and modified adjustments', () => {
@@ -61,7 +85,15 @@ describe('photo-editor utils', () => {
   });
 
   it('SLIDER_CONFIGS covers all seven adjustments with valid ranges', () => {
-    expect(SLIDER_CONFIGS.map((c) => c.key)).toEqual(['brightness', 'contrast', 'saturate', 'grayscale', 'sepia', 'hueRotate', 'blur']);
+    expect(SLIDER_CONFIGS.map((c) => c.key)).toEqual([
+      'brightness',
+      'contrast',
+      'saturate',
+      'grayscale',
+      'sepia',
+      'hueRotate',
+      'blur',
+    ]);
     SLIDER_CONFIGS.forEach((c) => {
       expect(c.min).toBeLessThan(c.max);
       expect(DEFAULT_ADJUSTMENTS[c.key]).toBeGreaterThanOrEqual(c.min);
@@ -94,14 +126,22 @@ describe('photo-editor utils', () => {
   });
 
   it('drawFiltered throws when the 2d context is unavailable', () => {
-    HTMLCanvasElement.prototype.getContext = vi.fn(() => null) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = vi.fn(
+      () => null
+    ) as unknown as typeof HTMLCanvasElement.prototype.getContext;
     const canvas = document.createElement('canvas');
-    expect(() => drawFiltered(new MockImage() as unknown as HTMLImageElement, canvas, 'none')).toThrow('Canvas is not supported');
+    expect(() => drawFiltered(new MockImage() as unknown as HTMLImageElement, canvas, 'none')).toThrow(
+      'Canvas is not supported'
+    );
   });
 
   it('canvasToBlob rejects when encoding fails', async () => {
-    HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback) { cb(null); };
-    await expect(canvasToBlob(document.createElement('canvas'), 'image/png')).rejects.toThrow('Failed to export image.');
+    HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback) {
+      cb(null);
+    };
+    await expect(canvasToBlob(document.createElement('canvas'), 'image/png')).rejects.toThrow(
+      'Failed to export image.'
+    );
   });
 
   it('loadImage rejects for a broken source', async () => {

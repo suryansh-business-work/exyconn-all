@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import { Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { toCsv, downloadCsv } from '@exyconn/shell/utils/csv';

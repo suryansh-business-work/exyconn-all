@@ -79,19 +79,19 @@ export function TrackerDayPanel({
         {dayLabel}
       </Heading>
       <Grid container spacing={1.5}>
-        <Grid item xs={4}>
+        <Grid size={4}>
           <Metric label="Worked" value={formatDuration(totals.activeMs)} />
         </Grid>
-        <Grid item xs={4}>
+        <Grid size={4}>
           <Metric label="Idle" value={formatDuration(totals.idleMs)} />
         </Grid>
-        <Grid item xs={4}>
+        <Grid size={4}>
           <Metric label="Activity" value={`${activityPercent(totals.activeMs, totals.idleMs)}%`} />
         </Grid>
-        <Grid item xs={6}>
+        <Grid size={6}>
           <Metric label="Keystrokes" value={totals.keyCount.toLocaleString()} />
         </Grid>
-        <Grid item xs={6}>
+        <Grid size={6}>
           <Metric label="Mouse events" value={totals.mouseCount.toLocaleString()} />
         </Grid>
       </Grid>

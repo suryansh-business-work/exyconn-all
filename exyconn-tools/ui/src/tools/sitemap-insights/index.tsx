@@ -47,10 +47,21 @@ const SitemapInsights: React.FC = () => {
         {!result ? (
           <Paper elevation={0} sx={{ p: 4, textAlign: 'center', border: 1, borderColor: 'divider', borderRadius: 2 }}>
             <Insights sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#14b8a6' }} />
-            <Typography variant="body1" color="text.secondary">
+            <Typography
+              variant="body1"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Enter a sitemap URL to get detailed insights
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                mt: 1,
+              }}
+            >
               Analyze URL patterns, depth, freshness, and more
             </Typography>
           </Paper>

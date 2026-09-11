@@ -6,7 +6,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  
   IconButton,
   Button,
   MenuItem,
@@ -15,7 +14,7 @@ import {
   InputLabel,
   InputAdornment,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { ExpandMore, Add, Delete, TextFields, Link, Phone, TuneRounded } from '@mui/icons-material';
 import { FormikProps } from 'formik';
 import { SignatureFormValues, CustomField } from '../types';
@@ -27,7 +26,13 @@ interface CustomFieldsFormProps {
 
 const typeIcons: Record<string, React.ReactNode> = {
   text: <TextFields fontSize="small" />,
-  link: <Link fontSize="small" />,
+  link: (
+    <Link
+      sx={{
+        fontSize: 'small',
+      }}
+    />
+  ),
   phone: <Phone fontSize="small" />,
 };
 
@@ -63,8 +68,20 @@ const CustomFieldsForm: React.FC<CustomFieldsFormProps> = ({ formik }) => {
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <TuneRounded color="primary" fontSize="small" />
-          <Typography fontWeight={600}>Custom Fields</Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+          <Typography
+            sx={{
+              fontWeight: 600,
+            }}
+          >
+            Custom Fields
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+              ml: 1,
+            }}
+          >
             ({values.customFields.length})
           </Typography>
         </Box>
@@ -83,7 +100,12 @@ const CustomFieldsForm: React.FC<CustomFieldsFormProps> = ({ formik }) => {
                 }}
               >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     Field #{index + 1}
                   </Typography>
                   <IconButton size="small" color="error" onClick={() => removeField(field.id)}>
@@ -131,8 +153,10 @@ const CustomFieldsForm: React.FC<CustomFieldsFormProps> = ({ formik }) => {
                       }
                       value={field.value}
                       onChange={(e) => updateField(field.id, { value: e.target.value })}
-                      InputProps={{
-                        startAdornment: <InputAdornment position="start">{typeIcons[field.type]}</InputAdornment>,
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">{typeIcons[field.type]}</InputAdornment>,
+                        },
                       }}
                     />
                   </Grid>

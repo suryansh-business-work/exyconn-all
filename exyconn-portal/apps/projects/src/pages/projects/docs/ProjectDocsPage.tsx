@@ -7,7 +7,7 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Box, Button, CircularProgress, Flex, Grid2, Text } from '@exyconn/shell/components/ui';
+import { Box, Button, CircularProgress, Flex, Grid, Text } from '@exyconn/shell/components/ui';
 import AddIcon from '@mui/icons-material/Add';
 import { useProjectDocs } from './useProjectDocs';
 import { DocTree } from './DocTree';
@@ -43,8 +43,8 @@ export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
   }
 
   return (
-    <Grid2 container spacing={2}>
-      <Grid2 size={{ xs: 12, md: 4, lg: 3 }}>
+    <Grid container spacing={2}>
+      <Grid size={{ xs: 12, md: 4, lg: 3 }}>
         <Flex direction="row" alignItems="center" sx={{ mb: 1 }}>
           <Text size="label" sx={{ flex: 1 }}>
             Pages
@@ -75,9 +75,9 @@ export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
             </SortableContext>
           </DndContext>
         )}
-      </Grid2>
+      </Grid>
 
-      <Grid2 size={{ xs: 12, md: 8, lg: 9 }}>
+      <Grid size={{ xs: 12, md: 8, lg: 9 }}>
         {docs.selectedId === null ? (
           <Text size="sm" color="text.secondary">
             Pick a page to read or edit it.
@@ -92,7 +92,7 @@ export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
             onCancel={() => docs.setSelectedId(null)}
           />
         )}
-      </Grid2>
-    </Grid2>
+      </Grid>
+    </Grid>
   );
 }

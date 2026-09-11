@@ -42,7 +42,12 @@ const ImageUpload: React.FC<Props> = ({ onImageUpload, onDelete, currentImage })
   return (
     <Paper elevation={0} sx={{ p: 1.5, border: 1, borderColor: 'divider' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-        <Typography variant="subtitle2" fontWeight={600}>
+        <Typography
+          variant="subtitle2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Upload Logo
         </Typography>
         {currentImage && (
@@ -103,14 +108,25 @@ const ImageUpload: React.FC<Props> = ({ onImageUpload, onDelete, currentImage })
               alt="Logo"
               sx={{ maxHeight: 60, maxWidth: '100%', borderRadius: 1 }}
             />
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                fontSize: '0.65rem',
+              }}
+            >
               Click or drag to replace
             </Typography>
           </Box>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
             <CloudUpload sx={{ fontSize: 32, color: 'text.secondary' }} />
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Drag & drop or click
             </Typography>
           </Box>

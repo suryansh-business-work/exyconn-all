@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 import {
-  Container, Alert, Snackbar, Paper, Box, Typography, TextField, Button, MenuItem, CircularProgress,
+  Container,
+  Alert,
+  Snackbar,
+  Paper,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+  CircularProgress,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { CloudSync, Send } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIKeyInput, AIResultDisplay, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
@@ -68,21 +77,58 @@ const GoogleDocsFAQGenerator: React.FC = () => {
             <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <CloudSync color="primary" />
-                <Typography variant="h6" fontWeight={600}>Google Docs URL</Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 600,
+                  }}
+                >
+                  Google Docs URL
+                </Typography>
               </Box>
-              <TextField fullWidth label="Google Docs URL" placeholder="https://docs.google.com/document/d/..." value={url}
-                onChange={(e) => setUrl(e.target.value)} sx={{ mb: 2 }} />
-              <TextField fullWidth select label="Number of FAQs" value={count} onChange={(e) => setCount(Number(e.target.value))} sx={{ mb: 2 }}>
-                {[5, 10, 15, 20, 25, 30].map((n) => (<MenuItem key={n} value={n}>{n} FAQs</MenuItem>))}
+              <TextField
+                fullWidth
+                label="Google Docs URL"
+                placeholder="https://docs.google.com/document/d/..."
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                select
+                label="Number of FAQs"
+                value={count}
+                onChange={(e) => setCount(Number(e.target.value))}
+                sx={{ mb: 2 }}
+              >
+                {[5, 10, 15, 20, 25, 30].map((n) => (
+                  <MenuItem key={n} value={n}>
+                    {n} FAQs
+                  </MenuItem>
+                ))}
               </TextField>
-              <TextField fullWidth select label="Tone" value={tone} onChange={(e) => setTone(e.target.value)} sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                select
+                label="Tone"
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+                sx={{ mb: 3 }}
+              >
                 <MenuItem value="professional">Professional</MenuItem>
                 <MenuItem value="friendly">Friendly</MenuItem>
                 <MenuItem value="technical">Technical</MenuItem>
                 <MenuItem value="casual">Casual</MenuItem>
               </TextField>
-              <Button variant="contained" fullWidth disabled={isLoading || !url} onClick={handleGenerate}
-                startIcon={isLoading ? <CircularProgress size={18} /> : <Send />} sx={{ py: 1.25 }}>
+              <Button
+                variant="contained"
+                fullWidth
+                disabled={isLoading || !url}
+                onClick={handleGenerate}
+                startIcon={isLoading ? <CircularProgress size={18} /> : <Send />}
+                sx={{ py: 1.25 }}
+              >
                 {isLoading ? 'Generating FAQs...' : 'Generate FAQs'}
               </Button>
             </Paper>
@@ -101,7 +147,9 @@ const GoogleDocsFAQGenerator: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

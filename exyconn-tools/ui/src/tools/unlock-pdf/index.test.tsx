@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import {
-  unlockedFileName, formatSize, requestUnlockedPdf, SERVICE_UNAVAILABLE, INCORRECT_PASSWORD,
-} from './utils';
+import { unlockedFileName, formatSize, requestUnlockedPdf, SERVICE_UNAVAILABLE, INCORRECT_PASSWORD } from './utils';
 import UnlockPdf from './index';
 
 vi.mock('../../shared/components/ToolLayout/ToolLayout', async () => {
@@ -57,22 +55,23 @@ describe('unlock-pdf utils', () => {
     });
     it('throws INCORRECT_PASSWORD on a 400', async () => {
       fetchMock.mockResolvedValueOnce({
-        ok: false, status: 400, json: () => Promise.resolve({ error: 'Incorrect password' }),
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ error: 'Incorrect password' }),
       });
-      await expect(requestUnlockedPdf('http://api/unlock', pdfFile(), 'wrong123'))
-        .rejects.toThrow(INCORRECT_PASSWORD);
+      await expect(requestUnlockedPdf('http://api/unlock', pdfFile(), 'wrong123')).rejects.toThrow(INCORRECT_PASSWORD);
     });
     it('throws SERVICE_UNAVAILABLE on a 503', async () => {
       fetchMock.mockResolvedValueOnce({ ok: false, status: 503, json: () => Promise.reject(new Error('no body')) });
-      await expect(requestUnlockedPdf('http://api/unlock', pdfFile(), VALID_KEY))
-        .rejects.toThrow(SERVICE_UNAVAILABLE);
+      await expect(requestUnlockedPdf('http://api/unlock', pdfFile(), VALID_KEY)).rejects.toThrow(SERVICE_UNAVAILABLE);
     });
     it('surfaces the server error message on other failures', async () => {
       fetchMock.mockResolvedValueOnce({
-        ok: false, status: 500, json: () => Promise.resolve({ error: 'Decryption failed' }),
+        ok: false,
+        status: 500,
+        json: () => Promise.resolve({ error: 'Decryption failed' }),
       });
-      await expect(requestUnlockedPdf('http://api/unlock', pdfFile(), VALID_KEY))
-        .rejects.toThrow('Decryption failed');
+      await expect(requestUnlockedPdf('http://api/unlock', pdfFile(), VALID_KEY)).rejects.toThrow('Decryption failed');
     });
   });
 });
@@ -100,7 +99,9 @@ describe('UnlockPdf component', () => {
 
   it('shows an inline field error for an incorrect password', async () => {
     fetchMock.mockResolvedValueOnce({
-      ok: false, status: 400, json: () => Promise.resolve({ error: 'Incorrect password' }),
+      ok: false,
+      status: 400,
+      json: () => Promise.resolve({ error: 'Incorrect password' }),
     });
     const { container } = render(<UnlockPdf />);
     selectFile(container);
@@ -112,7 +113,8 @@ describe('UnlockPdf component', () => {
 
   it('offers the unlocked download after a successful request', async () => {
     fetchMock.mockResolvedValueOnce({
-      ok: true, status: 200,
+      ok: true,
+      status: 200,
       blob: () => Promise.resolve(new Blob(['decrypted'], { type: 'application/pdf' })),
     });
     const { container } = render(<UnlockPdf />);
@@ -131,6 +133,7 @@ describe('UnlockPdf component', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Unlock PDF' }));
     expect(await screen.findByText(/temporarily unavailable/)).toBeInTheDocument();
     await waitFor(() =>
-      expect(screen.queryByRole('button', { name: 'Download Unlocked PDF' })).not.toBeInTheDocument());
+      expect(screen.queryByRole('button', { name: 'Download Unlocked PDF' })).not.toBeInTheDocument()
+    );
   });
 });

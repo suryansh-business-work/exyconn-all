@@ -29,10 +29,20 @@ export function AutoStartScheduleFields() {
       </FormHelperText>
       {enabled ? (
         <Grid container spacing={2} sx={{ mt: 0.5 }}>
-          <Grid item xs={12} sm={6}>
+          <Grid
+            size={{
+              xs: 12,
+              sm: 6,
+            }}
+          >
             <RhfTextField name="autoStartHour" label="Start at (hour, 0–23)" type="number" />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid
+            size={{
+              xs: 12,
+              sm: 6,
+            }}
+          >
             <RhfTextField
               name="autoStopHour"
               label="Stop at (hour, 0–23)"

@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { RunPromptForm } from './run-prompt.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -23,7 +23,7 @@ const withVariables: RunPromptTarget = {
 
 const mount = (target: RunPromptTarget = prompt) =>
   cy.mount(
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <RunPromptForm prompt={target} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />

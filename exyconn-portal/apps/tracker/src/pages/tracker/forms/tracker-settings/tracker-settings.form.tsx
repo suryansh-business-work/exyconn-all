@@ -111,20 +111,40 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit onCancel={() => methods.reset()}>
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfTextField name="intervalMinutes" label="Interval (minutes)" type="number" />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfTextField
             name="screenshotsPerInterval"
             label="Screenshots / interval"
             type="number"
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfTextField name="idleThresholdSeconds" label="Idle threshold (s)" type="number" />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfTextField
             name="idleAutoPauseMinutes"
             label="Pause after idle (minutes)"
@@ -132,10 +152,20 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
             helperText="The desktop app pauses itself after this much unbroken idle time. 0 never pauses."
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfTextField name="screenshotMaxWidth" label="Screenshot max width" type="number" />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfTextField
             name="screenshotQuality"
             label="Screenshot quality (%)"
@@ -143,7 +173,12 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
             helperText="100 = native resolution, lossless. Below 100 downscales to the max width."
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfTextField
             name="screenshotRetentionDays"
             label="Delete screenshots after (days)"
@@ -151,7 +186,12 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
             helperText="0 keeps them forever. Any other value deletes the image and its record once it is that old — permanently, and on a schedule."
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfTextField
             name="syncIntervalMinutes"
             label="Auto-sync every (minutes)"

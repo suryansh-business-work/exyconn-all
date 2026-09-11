@@ -1,5 +1,5 @@
 import { Box, Flex, IconButton, Link, Text } from '@exyconn/shell/components/ui';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 /**
  * The shape this list draws. Structural rather than the generated fragment so the same

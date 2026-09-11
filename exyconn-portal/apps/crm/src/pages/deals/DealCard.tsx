@@ -34,19 +34,48 @@ export function DealCard({ deal, accent, onOpen }: Readonly<DealCardProps>) {
         '&:hover': { borderColor: accent },
       }}
     >
-      <Typography variant="body2" fontWeight={600} noWrap>
+      <Typography
+        variant="body2"
+        noWrap
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         {deal.title}
       </Typography>
       {deal.companyName && (
-        <Typography variant="caption" color="text.secondary" noWrap display="block">
+        <Typography
+          variant="caption"
+          noWrap
+          sx={{
+            color: 'text.secondary',
+            display: 'block',
+          }}
+        >
           {deal.companyName}
         </Typography>
       )}
-      <Stack direction="row" justifyContent="space-between" sx={{ mt: 0.5 }}>
-        <Typography variant="caption" fontWeight={700}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: 'space-between',
+          mt: 0.5,
+        }}
+      >
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 700,
+          }}
+        >
           {formatMoney(deal.value)}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {deal.probability}%
         </Typography>
       </Stack>

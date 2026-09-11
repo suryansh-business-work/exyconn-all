@@ -82,8 +82,19 @@ export function ImageCropper({ src, onCropChange }: Readonly<ImageCropperProps>)
         ))}
       </ToggleButtonGroup>
 
-      <Stack direction="row" spacing={2} alignItems="center">
-        <Typography variant="caption" color="text.secondary">
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{
+          alignItems: 'center',
+        }}
+      >
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Zoom
         </Typography>
         <Slider

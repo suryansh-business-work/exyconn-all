@@ -60,22 +60,51 @@ export function DownloadHero({
         },
       ]}
     >
-      <Grid container spacing={2.5} alignItems="center">
-        <Grid item xs={12} md={7}>
+      <Grid
+        container
+        spacing={2.5}
+        sx={{
+          alignItems: 'center',
+        }}
+      >
+        <Grid
+          size={{
+            xs: 12,
+            md: 7,
+          }}
+        >
           <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
             <Chip size="small" label={`Version ${version}`} color="primary" />
             <Chip size="small" variant="outlined" label={`Released ${releasedOn}`} />
           </Stack>
-          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 0.5 }}>
+          <Stack
+            direction="row"
+            spacing={1.5}
+            sx={{
+              alignItems: 'center',
+              mb: 0.5,
+            }}
+          >
             <Icon sx={{ fontSize: iconSize['3xl'], color: platform.accent }} />
             <Typography variant="h4">Exyconn Tracker for {platform.label}</Typography>
           </Stack>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              mb: 2,
+            }}
+          >
             {subtitle}
           </Typography>
 
           {asset ? (
-            <Stack spacing={0.75} alignItems="flex-start">
+            <Stack
+              spacing={0.75}
+              sx={{
+                alignItems: 'flex-start',
+              }}
+            >
               <Button
                 variant="contained"
                 size="large"
@@ -85,12 +114,22 @@ export function DownloadHero({
               >
                 Download for {platform.label}
               </Button>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {asset.name} · {formatBytes(asset.sizeBytes)} · {asset.downloadCount} downloads
               </Typography>
             </Stack>
           ) : (
-            <Typography variant="body2" color="warning.main">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'warning.main',
+              }}
+            >
               This release has no {platform.label} installer. Ask Tech to run a build that includes
               it.
             </Typography>
@@ -107,7 +146,12 @@ export function DownloadHero({
           </Link>
         </Grid>
 
-        <Grid item xs={12} md={5}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 5,
+          }}
+        >
           {picker}
         </Grid>
       </Grid>

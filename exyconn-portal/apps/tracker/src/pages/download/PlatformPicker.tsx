@@ -19,7 +19,12 @@ export function PlatformPicker({
 }: Readonly<PlatformPickerProps>) {
   return (
     <Stack spacing={1}>
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         All platforms
       </Typography>
       {PLATFORMS.map((platform) => (

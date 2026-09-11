@@ -55,7 +55,15 @@ export function TicketDetailBody({ ticket, onChanged, onCancel }: Readonly<Ticke
 
   return (
     <Stack spacing={2}>
-      <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'wrap', gap: 1 }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 1,
+        }}
+      >
         <StatusChip value={ticket.status} />
         <StatusChip value={ticket.priority} />
         <StatusChip value={ticket.slaState} />

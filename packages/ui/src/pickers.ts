@@ -4,9 +4,12 @@
  * The date-fns adapter is wired once per app via `LocalizationProvider`.
  */
 export { LocalizationProvider } from '@mui/x-date-pickers';
-export { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+// MUI X 9 dropped the `V3` suffix: `AdapterDateFns` is the date-fns v3/v4 adapter now,
+// and `AdapterDateFnsV2` is the legacy one.
+export { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 export { DatePicker } from '@mui/x-date-pickers/DatePicker';
 export { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 export { TimePicker } from '@mui/x-date-pickers/TimePicker';
 export { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-export { PickersDay, type PickersDayProps } from '@mui/x-date-pickers/PickersDay';
+// Renamed in MUI X 9 (PickersDay -> PickerDay); the barrel follows the library.
+export { PickerDay, type PickerDayProps } from '@mui/x-date-pickers/PickerDay';

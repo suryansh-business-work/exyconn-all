@@ -35,9 +35,22 @@ export default function StatTile({ label, value, icon, onOpen }: Readonly<Props>
           },
         })}
       >
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: 'center',
+            mb: 1,
+          }}
+        >
           <Icon fontSize="small" sx={{ color: 'primary.main' }} />
-          <Typography variant="caption" color="text.secondary" noWrap>
+          <Typography
+            variant="caption"
+            noWrap
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {label}
           </Typography>
         </Stack>

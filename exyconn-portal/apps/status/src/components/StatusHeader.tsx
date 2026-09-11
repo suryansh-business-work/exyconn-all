@@ -55,10 +55,21 @@ export function StatusHeader() {
           <Flex alignItems="center" spacing={1.5}>
             <BrandMark logoUrl={logoUrl} name={title} />
             <Box>
-              <Typography variant="subtitle1" fontWeight={700} lineHeight={1.2}>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 700,
+                  lineHeight: 1.2,
+                }}
+              >
                 {title}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Live availability of every service
               </Typography>
             </Box>

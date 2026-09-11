@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { AssetForm } from './asset.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -6,7 +6,7 @@ import { theme } from '@exyconn/shell/config/theme';
 
 const mount = () =>
   cy.mount(
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <AssetForm initial={null} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />
@@ -41,7 +41,7 @@ describe('AssetForm', () => {
 
   it('does not crash when a purchase date is typed by hand', () => {
     mount();
-    cy.get('input[name="purchaseDate"]').type('12/01/2026');
+    cy.get('input[name="purchaseDate"]').typeDate('12012026');
     cy.get('input[name="assetTag"]').should('exist');
   });
 

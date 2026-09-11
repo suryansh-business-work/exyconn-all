@@ -38,23 +38,28 @@ export const aiChatToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Where is my OpenAI API key stored?',
-        answer: "In your browser's localStorage only. Chat requests go directly from your browser to OpenAI; the key is never sent to or stored on Exyconn servers.",
+        answer:
+          "In your browser's localStorage only. Chat requests go directly from your browser to OpenAI; the key is never sent to or stored on Exyconn servers.",
       },
       {
         question: 'Why does the tool fetch the page through a server?',
-        answer: 'Browsers block cross-origin page reads, so the Exyconn server fetches the URL and returns the readable text to your browser. The page content is used for extraction and not kept.',
+        answer:
+          'Browsers block cross-origin page reads, so the Exyconn server fetches the URL and returns the readable text to your browser. The page content is used for extraction and not kept.',
       },
       {
         question: 'Can it read pages behind a login?',
-        answer: 'No. Only publicly accessible URLs can be fetched. Pages that require authentication or render entirely through JavaScript may return incomplete text.',
+        answer:
+          'No. Only publicly accessible URLs can be fetched. Pages that require authentication or render entirely through JavaScript may return incomplete text.',
       },
       {
         question: 'How much of the page does the AI actually see?',
-        answer: 'Up to the first 12,000 characters of extracted text are sent with each question, which covers most articles and landing pages end to end.',
+        answer:
+          'Up to the first 12,000 characters of extracted text are sent with each question, which covers most articles and landing pages end to end.',
       },
       {
         question: 'What does it cost?',
-        answer: "The tool is free. The only cost is OpenAI's usage on your own key (GPT-4o mini), and the token readout shows what each answer consumed.",
+        answer:
+          "The tool is free. The only cost is OpenAI's usage on your own key (GPT-4o mini), and the token readout shows what each answer consumed.",
       },
     ],
     keywords: [
@@ -101,11 +106,13 @@ export const aiChatToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is my pasted text uploaded anywhere?',
-        answer: 'It is never sent to Exyconn. The text stays in your browser and is included only in the request your browser sends to OpenAI when you ask a question.',
+        answer:
+          'It is never sent to Exyconn. The text stays in your browser and is included only in the request your browser sends to OpenAI when you ask a question.',
       },
       {
         question: 'How long can the pasted text be?',
-        answer: 'Any length, but only the first 12,000 characters are sent as context with each question — put the important part first for very long texts.',
+        answer:
+          'Any length, but only the first 12,000 characters are sent as context with each question — put the important part first for very long texts.',
       },
       {
         question: 'Do I need to re-paste the text for each question?',
@@ -117,7 +124,8 @@ export const aiChatToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Is the tool free?',
-        answer: "Yes. Exyconn charges nothing; you only pay OpenAI's per-token price on your own key, shown after each reply.",
+        answer:
+          "Yes. Exyconn charges nothing; you only pay OpenAI's per-token price on your own key, shown after each reply.",
       },
     ],
     keywords: [
@@ -165,23 +173,28 @@ export const aiChatToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What happens to my uploaded file?',
-        answer: 'It is sent to the Exyconn server once, converted to plain text, and the text is returned to your browser. The file is not stored after extraction.',
+        answer:
+          'It is sent to the Exyconn server once, converted to plain text, and the text is returned to your browser. The file is not stored after extraction.',
       },
       {
         question: 'Which file types are supported?',
-        answer: 'TXT, DOC, DOCX, and PDF. Image-only (scanned) PDFs have no embedded text to extract — run them through the OCR PDF tool first.',
+        answer:
+          'TXT, DOC, DOCX, and PDF. Image-only (scanned) PDFs have no embedded text to extract — run them through the OCR PDF tool first.',
       },
       {
         question: 'Does the AI read the whole document?',
-        answer: 'Up to the first 12,000 characters of extracted text accompany each question. For very long documents, ask about early sections or split the file.',
+        answer:
+          'Up to the first 12,000 characters of extracted text accompany each question. For very long documents, ask about early sections or split the file.',
       },
       {
         question: 'Is my OpenAI API key safe?',
-        answer: "It is stored only in your browser's localStorage and sent directly from your browser to OpenAI — never to Exyconn.",
+        answer:
+          "It is stored only in your browser's localStorage and sent directly from your browser to OpenAI — never to Exyconn.",
       },
       {
         question: 'Is there a file size limit?',
-        answer: 'Files are uploaded as base64 for extraction, so very large files can fail. Documents up to a few megabytes work best.',
+        answer:
+          'Files are uploaded as base64 for extraction, so very large files can fail. Documents up to a few megabytes work best.',
       },
       {
         question: 'Is it free?',
@@ -233,27 +246,33 @@ export const aiChatToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is my PDF stored on your servers?',
-        answer: 'No. It is uploaded once for text extraction, the text is returned to your browser, and the file is not kept.',
+        answer:
+          'No. It is uploaded once for text extraction, the text is returned to your browser, and the file is not kept.',
       },
       {
         question: 'My PDF is scanned — why are answers empty or wrong?',
-        answer: 'Scanned PDFs contain page images, not text, so there is nothing to extract. Run the file through the OCR PDF tool first, then chat with the result.',
+        answer:
+          'Scanned PDFs contain page images, not text, so there is nothing to extract. Run the file through the OCR PDF tool first, then chat with the result.',
       },
       {
         question: 'How big a PDF can I upload?',
-        answer: 'Uploads are base64-encoded, so keep files to a few megabytes. Only the first 12,000 characters of text are used per question either way.',
+        answer:
+          'Uploads are base64-encoded, so keep files to a few megabytes. Only the first 12,000 characters of text are used per question either way.',
       },
       {
         question: 'Does it work with password-protected PDFs?',
-        answer: 'No. Remove the password first — the Unlock PDF tool does this when you know the password — and then upload.',
+        answer:
+          'No. Remove the password first — the Unlock PDF tool does this when you know the password — and then upload.',
       },
       {
         question: 'Whose AI answers the questions?',
-        answer: "OpenAI's GPT-4o mini, using your own API key. The key stays in your browser's localStorage and is never sent to Exyconn.",
+        answer:
+          "OpenAI's GPT-4o mini, using your own API key. The key stays in your browser's localStorage and is never sent to Exyconn.",
       },
       {
         question: 'What does it cost?',
-        answer: "The tool is free. You pay only OpenAI's token price on your own key, and the usage readout after every reply shows exactly how much.",
+        answer:
+          "The tool is free. You pay only OpenAI's token price on your own key, and the usage readout after every reply shows exactly how much.",
       },
     ],
     keywords: [
@@ -301,11 +320,13 @@ export const aiChatToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Are my Word files kept after upload?',
-        answer: 'No. The file is converted to text on the Exyconn server and discarded; only the extracted text returns to your browser.',
+        answer:
+          'No. The file is converted to text on the Exyconn server and discarded; only the extracted text returns to your browser.',
       },
       {
         question: 'Does formatting like tables and comments survive?',
-        answer: 'Extraction keeps the readable text. Complex tables flatten into plain text, and tracked changes or comments may not come through — ask about content rather than layout.',
+        answer:
+          'Extraction keeps the readable text. Complex tables flatten into plain text, and tracked changes or comments may not come through — ask about content rather than layout.',
       },
       {
         question: 'Are both .doc and .docx supported?',
@@ -313,7 +334,8 @@ export const aiChatToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Where does my API key go?',
-        answer: "Only into your browser's localStorage and the requests your browser sends to OpenAI. Exyconn never receives it.",
+        answer:
+          "Only into your browser's localStorage and the requests your browser sends to OpenAI. Exyconn never receives it.",
       },
       {
         question: 'Can I chat with several documents at once?',
@@ -369,27 +391,33 @@ export const aiChatToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What format does the chat log need to be in?',
-        answer: "Plain text with speakers marked, e.g. 'User: ...' and 'Bot: ...' lines. Any readable transcript works, but clear turn labels give sharper analysis.",
+        answer:
+          "Plain text with speakers marked, e.g. 'User: ...' and 'Bot: ...' lines. Any readable transcript works, but clear turn labels give sharper analysis.",
       },
       {
         question: 'Is my transcript private?',
-        answer: 'It is never uploaded to Exyconn. The log stays in your browser and is sent only to OpenAI, under your own API key, when you ask a question.',
+        answer:
+          'It is never uploaded to Exyconn. The log stays in your browser and is sent only to OpenAI, under your own API key, when you ask a question.',
       },
       {
         question: 'How long a log can I analyze?',
-        answer: 'Up to 10,000 characters go to the model with each question. For longer histories, analyze sessions in batches.',
+        answer:
+          'Up to 10,000 characters go to the model with each question. For longer histories, analyze sessions in batches.',
       },
       {
         question: 'What do the focus areas actually change?',
-        answer: 'The selected focus is added to the prompt so answers concentrate on that dimension — satisfaction, accuracy, flow, or improvements — instead of a general review.',
+        answer:
+          'The selected focus is added to the prompt so answers concentrate on that dimension — satisfaction, accuracy, flow, or improvements — instead of a general review.',
       },
       {
         question: 'Can it analyze human-to-human chats too?',
-        answer: 'Yes. The prompt is tuned for bot conversations, but support or sales transcripts between people still get useful summaries and sentiment reads.',
+        answer:
+          'Yes. The prompt is tuned for bot conversations, but support or sales transcripts between people still get useful summaries and sentiment reads.',
       },
       {
         question: 'What does it cost?',
-        answer: "The tool is free; analysis runs on OpenAI's GPT-4o mini billed to your own key, with token counts shown per reply.",
+        answer:
+          "The tool is free; analysis runs on OpenAI's GPT-4o mini billed to your own key, with token counts shown per reply.",
       },
     ],
     keywords: [

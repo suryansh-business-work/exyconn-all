@@ -36,7 +36,12 @@ export default function DayDetailPanel({
   timezone,
 }: Readonly<Props>): ReactElement {
   const heading = (
-    <Typography variant="subtitle1" fontWeight={700}>
+    <Typography
+      variant="subtitle1"
+      sx={{
+        fontWeight: 700,
+      }}
+    >
       {formatDayLabel(date)}
     </Typography>
   );
@@ -84,7 +89,12 @@ export default function DayDetailPanel({
         }}
       />
 
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {inputSummary(detail)}
       </Typography>
 
@@ -92,9 +102,11 @@ export default function DayDetailPanel({
         <Stack
           direction="row"
           spacing={1}
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ mb: 1.5 }}
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 1.5,
+          }}
         >
           <Typography variant="subtitle2">
             Screenshots ({formatCount(detail.screenshots.length)})

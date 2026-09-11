@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 import {
-  Container, Alert, Snackbar, Chip, Box,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Container,
+  Alert,
+  Snackbar,
+  Chip,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { LockOpen } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay } from '../../shared/components/DomainToolShared';
@@ -38,13 +47,24 @@ const OpenPortsCheck: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<LockOpen color="primary" />}
-              title="Open Ports Scanner" label="Host" placeholder="example.com"
-              buttonText="Scan Ports" loadingText="Scanning ports..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<LockOpen color="primary" />}
+              title="Open Ports Scanner"
+              label="Host"
+              placeholder="example.com"
+              buttonText="Scan Ports"
+              loadingText="Scanning ports..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
-              <DomainResultDisplay title={`Port Scan - ${result.host}`} icon={<LockOpen fontSize="small" />} data={result}>
+              <DomainResultDisplay
+                title={`Port Scan - ${result.host}`}
+                icon={<LockOpen fontSize="small" />}
+                data={result}
+              >
                 <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
                   <Chip label={`${result.openCount} open`} color="warning" />
                   <Chip label={`${result.totalChecked} scanned`} variant="outlined" />
@@ -64,8 +84,11 @@ const OpenPortsCheck: React.FC = () => {
                           <TableCell sx={{ fontFamily: 'monospace' }}>{r.port}</TableCell>
                           <TableCell>{r.service}</TableCell>
                           <TableCell>
-                            <Chip size="small" label={r.status}
-                              color={r.status === 'open' ? 'success' : r.status === 'filtered' ? 'warning' : 'default'} />
+                            <Chip
+                              size="small"
+                              label={r.status}
+                              color={r.status === 'open' ? 'success' : r.status === 'filtered' ? 'warning' : 'default'}
+                            />
                           </TableCell>
                         </TableRow>
                       ))}
@@ -78,7 +101,9 @@ const OpenPortsCheck: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

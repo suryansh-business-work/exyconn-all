@@ -29,7 +29,13 @@ const DesignOptionsForm: React.FC<DesignOptionsFormProps> = ({ formik }) => {
         <AccordionSummary expandIcon={<ExpandMore />}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Palette color="primary" fontSize="small" />
-            <Typography fontWeight={600}>Design & Style</Typography>
+            <Typography
+              sx={{
+                fontWeight: 600,
+              }}
+            >
+              Design & Style
+            </Typography>
           </Box>
         </AccordionSummary>
         <AccordionDetails>

@@ -35,23 +35,28 @@ export const seoToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'What does the SEO score actually measure?',
-        answer: 'It measures on-page factors: title and meta description quality, heading structure, image alt text, link profile, content length, and structured data. It does not include off-page signals like backlinks from other sites.',
+        answer:
+          'It measures on-page factors: title and meta description quality, heading structure, image alt text, link profile, content length, and structured data. It does not include off-page signals like backlinks from other sites.',
       },
       {
         question: 'Can I check any website, or only my own?',
-        answer: 'Any publicly accessible URL works — the server simply fetches the page like a search engine crawler would. Pages behind logins or paywalls cannot be analyzed.',
+        answer:
+          'Any publicly accessible URL works — the server simply fetches the page like a search engine crawler would. Pages behind logins or paywalls cannot be analyzed.',
       },
       {
         question: 'Does the tool store the pages I check?',
-        answer: 'No. The page is fetched, analyzed in memory on the Exyconn server, and the results are returned to your browser. Nothing is saved.',
+        answer:
+          'No. The page is fetched, analyzed in memory on the Exyconn server, and the results are returned to your browser. Nothing is saved.',
       },
       {
         question: 'Why is my score low even though my content is good?',
-        answer: 'The score reflects technical on-page signals, not writing quality. Missing meta descriptions, absent H1 tags, images without alt text, or no structured data will lower it regardless of how well-written the content is.',
+        answer:
+          'The score reflects technical on-page signals, not writing quality. Missing meta descriptions, absent H1 tags, images without alt text, or no structured data will lower it regardless of how well-written the content is.',
       },
       {
         question: 'How often should I re-check a page?',
-        answer: 'Re-check after any meaningful edit, template change, or CMS update. For stable pages, a monthly check is enough to catch regressions.',
+        answer:
+          'Re-check after any meaningful edit, template change, or CMS update. For stable pages, a monthly check is enough to catch regressions.',
       },
     ],
     keywords: [
@@ -64,7 +69,8 @@ export const seoToolDetails: ToolDetailsMap = {
       'meta tag analyzer',
       'seo audit online free',
     ],
-    metaDescription: 'Free SEO checker: audit any page for title, meta, headings, links, images and schema. Get a 0-100 score with graded issues in seconds.',
+    metaDescription:
+      'Free SEO checker: audit any page for title, meta, headings, links, images and schema. Get a 0-100 score with graded issues in seconds.',
   },
 
   'serp-checker': {
@@ -97,15 +103,18 @@ export const seoToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does this show the actual ranking pages for a keyword?',
-        answer: 'No. Live Google result listings require the Google Custom Search API. This tool shows the real related search queries from Google Autocomplete, which reveal the intent and topic landscape around your keyword.',
+        answer:
+          'No. Live Google result listings require the Google Custom Search API. This tool shows the real related search queries from Google Autocomplete, which reveal the intent and topic landscape around your keyword.',
       },
       {
         question: 'Where does the data come from?',
-        answer: 'Directly from Google Autocomplete via the Exyconn server, so the queries reflect what people are actually typing into Google right now — not a cached keyword database.',
+        answer:
+          'Directly from Google Autocomplete via the Exyconn server, so the queries reflect what people are actually typing into Google right now — not a cached keyword database.',
       },
       {
         question: 'Can I check keywords in languages other than English?',
-        answer: 'Yes. Autocomplete responds in the language of the keyword you enter, so any language Google supports will return relevant related queries.',
+        answer:
+          'Yes. Autocomplete responds in the language of the keyword you enter, so any language Google supports will return relevant related queries.',
       },
       {
         question: 'Is there a limit on how many keywords I can check?',
@@ -121,7 +130,8 @@ export const seoToolDetails: ToolDetailsMap = {
       'search results checker',
       'keyword serp landscape',
     ],
-    metaDescription: 'Free SERP checker: pull real related search queries from Google for any keyword, spot long-tail variations, and copy the list in one click.',
+    metaDescription:
+      'Free SERP checker: pull real related search queries from Google for any keyword, spot long-tail variations, and copy the list in one click.',
   },
 
   'serp-simulator': {
@@ -154,19 +164,23 @@ export const seoToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Why do title and description length matter?',
-        answer: 'Google truncates titles beyond roughly 60 characters and descriptions beyond roughly 160, replacing the overflow with an ellipsis. A cut-off snippet loses information and usually earns fewer clicks.',
+        answer:
+          'Google truncates titles beyond roughly 60 characters and descriptions beyond roughly 160, replacing the overflow with an ellipsis. A cut-off snippet loses information and usually earns fewer clicks.',
       },
       {
         question: 'Will Google always use my meta description?',
-        answer: 'Not always — Google sometimes rewrites snippets to better match a query. But a well-written description within the limit is used far more often than a poor or missing one.',
+        answer:
+          'Not always — Google sometimes rewrites snippets to better match a query. But a well-written description within the limit is used far more often than a poor or missing one.',
       },
       {
         question: 'What does the score represent?',
-        answer: 'It reflects how well your title, description, and URL follow snippet best practices: correct lengths, no truncation, and both fields present. Fixing the listed issues raises the score.',
+        answer:
+          'It reflects how well your title, description, and URL follow snippet best practices: correct lengths, no truncation, and both fields present. Fixing the listed issues raises the score.',
       },
       {
         question: 'Can I preview a page that is not live yet?',
-        answer: 'Yes. The simulator works entirely from the text you type — the URL is only used for the display line, so unpublished pages work fine.',
+        answer:
+          'Yes. The simulator works entirely from the text you type — the URL is only used for the display line, so unpublished pages work fine.',
       },
     ],
     keywords: [
@@ -178,7 +192,8 @@ export const seoToolDetails: ToolDetailsMap = {
       'title tag simulator',
       'search snippet optimizer',
     ],
-    metaDescription: 'Free SERP simulator: preview your Google snippet live, check title and meta description length, and fix truncation before you publish.',
+    metaDescription:
+      'Free SERP simulator: preview your Google snippet live, check title and meta description length, and fix truncation before you publish.',
   },
 
   'plagiarism-checker': {
@@ -211,23 +226,28 @@ export const seoToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does this compare my text against the whole web?',
-        answer: 'No. It performs an internal uniqueness and repetition analysis of the text itself. For a web-wide duplicate search you would need a dedicated plagiarism detection API — this tool is a fast self-check for repetition and originality of phrasing.',
+        answer:
+          'No. It performs an internal uniqueness and repetition analysis of the text itself. For a web-wide duplicate search you would need a dedicated plagiarism detection API — this tool is a fast self-check for repetition and originality of phrasing.',
       },
       {
         question: 'Is my text stored anywhere?',
-        answer: 'No. The text is sent to the Exyconn server, analyzed in memory, and only the statistics are returned. Nothing is saved or shared.',
+        answer:
+          'No. The text is sent to the Exyconn server, analyzed in memory, and only the statistics are returned. Nothing is saved or shared.',
       },
       {
         question: 'What is a good uniqueness score?',
-        answer: '80% or higher is shown in green and indicates healthy variety. Scores below 50% suggest heavy repetition worth rewriting.',
+        answer:
+          '80% or higher is shown in green and indicates healthy variety. Scores below 50% suggest heavy repetition worth rewriting.',
       },
       {
         question: 'How is readability graded?',
-        answer: 'From sentence structure — primarily average words per sentence. Short, direct sentences grade Easy; long, nested ones grade Complex.',
+        answer:
+          'From sentence structure — primarily average words per sentence. Short, direct sentences grade Easy; long, nested ones grade Complex.',
       },
       {
         question: 'Is there a length limit?',
-        answer: 'The minimum is 10 characters; there is no enforced maximum, though very long documents are best checked in sections so the repeated-phrases table stays readable.',
+        answer:
+          'The minimum is 10 characters; there is no enforced maximum, though very long documents are best checked in sections so the repeated-phrases table stays readable.',
       },
     ],
     keywords: [
@@ -239,7 +259,8 @@ export const seoToolDetails: ToolDetailsMap = {
       'check content for repetition',
       'readability checker free',
     ],
-    metaDescription: 'Free content uniqueness checker: get a uniqueness score, find repeated phrases, and grade readability. Text is analyzed privately, never stored.',
+    metaDescription:
+      'Free content uniqueness checker: get a uniqueness score, find repeated phrases, and grade readability. Text is analyzed privately, never stored.',
   },
 
   'keyword-tool': {
@@ -273,15 +294,18 @@ export const seoToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Where do the keyword suggestions come from?',
-        answer: 'Directly from Google Autocomplete, fetched live by the Exyconn server. They are the same suggestions Google shows in its search box, driven by real search behavior.',
+        answer:
+          'Directly from Google Autocomplete, fetched live by the Exyconn server. They are the same suggestions Google shows in its search box, driven by real search behavior.',
       },
       {
         question: 'Does the tool show search volume for each keyword?',
-        answer: 'No — volume figures require the Google Ads Keyword Planner API. What this tool guarantees is that every suggestion is a query with real demand, since Google only suggests phrases people actually search.',
+        answer:
+          'No — volume figures require the Google Ads Keyword Planner API. What this tool guarantees is that every suggestion is a query with real demand, since Google only suggests phrases people actually search.',
       },
       {
         question: 'How do I find long-tail keywords in the results?',
-        answer: 'Use the Words column: suggestions with 3+ words are long-tail phrases, which are typically easier to rank for and convert better.',
+        answer:
+          'Use the Words column: suggestions with 3+ words are long-tail phrases, which are typically easier to rank for and convert better.',
       },
       {
         question: 'Can I use it for non-English keywords?',
@@ -302,7 +326,8 @@ export const seoToolDetails: ToolDetailsMap = {
       'keyword ideas generator',
       'seo keyword finder free',
     ],
-    metaDescription: 'Free keyword tool: expand any seed term into real Google Autocomplete queries, spot long-tail phrases, and copy the whole list instantly.',
+    metaDescription:
+      'Free keyword tool: expand any seed term into real Google Autocomplete queries, spot long-tail phrases, and copy the whole list instantly.',
   },
 
   'keyword-rank-checker': {
@@ -335,19 +360,23 @@ export const seoToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does this show my exact position for a keyword?',
-        answer: 'No — precise position tracking requires the Google Search Console API. This tool analyzes the on-page SEO health that determines your ranking ability, which is the part you can directly fix.',
+        answer:
+          'No — precise position tracking requires the Google Search Console API. This tool analyzes the on-page SEO health that determines your ranking ability, which is the part you can directly fix.',
       },
       {
         question: 'How does SEO health relate to rankings?',
-        answer: 'On-page factors are ranking prerequisites: a page with a missing H1, weak meta description, or slow load time is capped below its potential regardless of content quality. Fixing them removes the ceiling.',
+        answer:
+          'On-page factors are ranking prerequisites: a page with a missing H1, weak meta description, or slow load time is capped below its potential regardless of content quality. Fixing them removes the ceiling.',
       },
       {
         question: 'What is a good load time?',
-        answer: 'Under 3 seconds. The tool flags load time green below that threshold and amber above it, since slow pages lose both rankings and visitors.',
+        answer:
+          'Under 3 seconds. The tool flags load time green below that threshold and amber above it, since slow pages lose both rankings and visitors.',
       },
       {
         question: 'Can I analyze a competitor page?',
-        answer: 'Yes — any public URL works. Running the page that outranks you reveals how its on-page fundamentals compare to yours.',
+        answer:
+          'Yes — any public URL works. Running the page that outranks you reveals how its on-page fundamentals compare to yours.',
       },
     ],
     keywords: [
@@ -359,7 +388,8 @@ export const seoToolDetails: ToolDetailsMap = {
       'page ranking analysis tool',
       'website rank analysis free',
     ],
-    metaDescription: 'Free keyword rank checker: analyze the on-page SEO health that controls your Google rankings — score, headings, links, and load time.',
+    metaDescription:
+      'Free keyword rank checker: analyze the on-page SEO health that controls your Google rankings — score, headings, links, and load time.',
   },
 
   'keyword-volume-checker': {
@@ -392,11 +422,13 @@ export const seoToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does the tool show exact monthly search volumes?',
-        answer: 'No — precise volume, CPC, and competition figures require the Google Ads Keyword Planner API. Instead the tool returns real Autocomplete suggestions, each of which is a query with demonstrated demand.',
+        answer:
+          'No — precise volume, CPC, and competition figures require the Google Ads Keyword Planner API. Instead the tool returns real Autocomplete suggestions, each of which is a query with demonstrated demand.',
       },
       {
         question: 'Why only five keywords per run?',
-        answer: 'Each seed triggers its own live Autocomplete fetch; capping at five keeps the batch fast. Run additional batches for larger lists.',
+        answer:
+          'Each seed triggers its own live Autocomplete fetch; capping at five keeps the batch fast. Run additional batches for larger lists.',
       },
       {
         question: 'Are duplicate suggestions removed?',
@@ -404,7 +436,8 @@ export const seoToolDetails: ToolDetailsMap = {
       },
       {
         question: 'How can I gauge demand without a volume number?',
-        answer: 'Presence in Autocomplete is itself a demand signal — Google only suggests phrases people search. Shorter, broader phrases generally carry higher volume than long-tail ones.',
+        answer:
+          'Presence in Autocomplete is itself a demand signal — Google only suggests phrases people search. Shorter, broader phrases generally carry higher volume than long-tail ones.',
       },
     ],
     keywords: [
@@ -416,7 +449,8 @@ export const seoToolDetails: ToolDetailsMap = {
       'google keyword suggestions bulk',
       'keyword volume tool no signup',
     ],
-    metaDescription: 'Free bulk keyword tool: enter up to 5 seeds and get real Google search queries, merged and de-duplicated, ready to copy — no Ads account.',
+    metaDescription:
+      'Free bulk keyword tool: enter up to 5 seeds and get real Google search queries, merged and de-duplicated, ready to copy — no Ads account.',
   },
 
   'backlink-checker': {
@@ -450,19 +484,23 @@ export const seoToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does this show backlinks pointing TO my site from other websites?',
-        answer: 'It analyzes the links ON the page you enter — outbound and internal. A full inbound backlink index requires a crawler like Ahrefs or Google Search Console; this tool gives you the live on-page link profile instead.',
+        answer:
+          'It analyzes the links ON the page you enter — outbound and internal. A full inbound backlink index requires a crawler like Ahrefs or Google Search Console; this tool gives you the live on-page link profile instead.',
       },
       {
         question: 'What is the difference between dofollow and nofollow?',
-        answer: 'Dofollow links pass ranking signal to the target; nofollow links tell search engines not to. Sponsored and user-generated links should generally be nofollow.',
+        answer:
+          'Dofollow links pass ranking signal to the target; nofollow links tell search engines not to. Sponsored and user-generated links should generally be nofollow.',
       },
       {
         question: 'Why does my nofollow percentage matter?',
-        answer: 'A page whose paid or affiliate links are dofollow risks a Google link-scheme penalty. The breakdown makes it easy to spot links that should be marked nofollow.',
+        answer:
+          'A page whose paid or affiliate links are dofollow risks a Google link-scheme penalty. The breakdown makes it easy to spot links that should be marked nofollow.',
       },
       {
         question: 'Is the data live or from an index?',
-        answer: 'Live. The server fetches the page HTML at the moment you run the check, so recently added or removed links are reflected immediately.',
+        answer:
+          'Live. The server fetches the page HTML at the moment you run the check, so recently added or removed links are reflected immediately.',
       },
       {
         question: 'Can I analyze any website?',
@@ -478,13 +516,14 @@ export const seoToolDetails: ToolDetailsMap = {
       'website link audit free',
       'outbound link checker',
     ],
-    metaDescription: 'Free link analyzer: classify every link on a page — internal, external, dofollow, nofollow — with anchor text and unique domains, live.',
+    metaDescription:
+      'Free link analyzer: classify every link on a page — internal, external, dofollow, nofollow — with anchor text and unique domains, live.',
   },
 
   'website-authority-checker': {
     longDescription: [
       'The Website Authority Checker estimates the quality of any domain by auditing the on-page signals that authoritative sites consistently get right. Enter a domain and the Exyconn server fetches the live homepage, scoring it out of 100 and reporting the metrics behind the number: word count, internal and external link counts, image usage, and how many Schema.org types the site declares — followed by a list of concrete improvement tips drawn from the issues found.',
-      'Proprietary metrics like Moz DA or Ahrefs DR are computed from private backlink indexes; this tool takes the complementary approach and measures what the site itself demonstrates. Thin content, missing structured data, and a weak link structure are the on-page fingerprints of a low-authority site, and they are entirely within your control to fix — unlike someone else\'s backlink graph.',
+      "Proprietary metrics like Moz DA or Ahrefs DR are computed from private backlink indexes; this tool takes the complementary approach and measures what the site itself demonstrates. Thin content, missing structured data, and a weak link structure are the on-page fingerprints of a low-authority site, and they are entirely within your control to fix — unlike someone else's backlink graph.",
       'Site owners use it to benchmark their own domain and work through the tips list; link builders use it as a fast first-pass quality filter before spending paid credits on a full DA/DR lookup for a prospect. Because the score is recomputed live on every run, it doubles as a progress tracker — fix the flagged issues, re-check the domain, and the improvement shows up immediately.',
     ],
     features: [
@@ -492,11 +531,11 @@ export const seoToolDetails: ToolDetailsMap = {
       'Visual score bar with green / amber / red grading',
       'Key metrics: word count, links, images, schema types',
       'Concrete improvement tips generated from detected issues',
-      'Works on any public domain — yours or a prospect\'s',
+      "Works on any public domain — yours or a prospect's",
       'Instant results, no account required',
     ],
     useCases: [
-      'Benchmark your domain\'s on-page quality before a link-building campaign',
+      "Benchmark your domain's on-page quality before a link-building campaign",
       'Pre-screen guest post prospects before paying for DA/DR lookups',
       'Track score improvement while working through the tips list',
       'Compare on-page quality between your site and a competitor',
@@ -511,19 +550,23 @@ export const seoToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is this score the same as Moz DA or Ahrefs DR?',
-        answer: 'No. DA and DR are computed from private backlink indexes. This score measures on-page quality signals — content depth, link structure, and structured data — which correlate with authority and, unlike backlinks, are directly fixable by you.',
+        answer:
+          'No. DA and DR are computed from private backlink indexes. This score measures on-page quality signals — content depth, link structure, and structured data — which correlate with authority and, unlike backlinks, are directly fixable by you.',
       },
       {
         question: 'Why does on-page quality matter for authority?',
-        answer: 'Authoritative sites almost universally have substantial content, clean link structure, and structured data. A domain missing those basics rarely earns strong rankings regardless of its backlink count.',
+        answer:
+          'Authoritative sites almost universally have substantial content, clean link structure, and structured data. A domain missing those basics rarely earns strong rankings regardless of its backlink count.',
       },
       {
         question: 'What is a good score?',
-        answer: '80+ shows green and indicates solid fundamentals. Below 50 shows red, meaning several core on-page factors need attention — the tips list tells you which.',
+        answer:
+          '80+ shows green and indicates solid fundamentals. Below 50 shows red, meaning several core on-page factors need attention — the tips list tells you which.',
       },
       {
-        question: 'Can I check a competitor\'s domain?',
-        answer: 'Yes, any publicly accessible domain works. The server fetches the homepage the same way a crawler would.',
+        question: "Can I check a competitor's domain?",
+        answer:
+          'Yes, any publicly accessible domain works. The server fetches the homepage the same way a crawler would.',
       },
     ],
     keywords: [
@@ -535,14 +578,15 @@ export const seoToolDetails: ToolDetailsMap = {
       'domain strength checker free',
       'site authority test',
     ],
-    metaDescription: 'Free website authority checker: score any domain\'s on-page quality out of 100 with key metrics and concrete tips to raise it.',
+    metaDescription:
+      "Free website authority checker: score any domain's on-page quality out of 100 with key metrics and concrete tips to raise it.",
   },
 
   'website-traffic-checker': {
     longDescription: [
-      'The Website Traffic Checker profiles the signals that drive and reflect a website\'s traffic. Enter a URL and the Exyconn server fetches the live page and reports across five panels: performance (measured load time, page size, and counts of scripts, stylesheets, images, and iframes), content and SEO (title, meta description, word count, internal pages), the detected technology stack, linked social platforms, and the full list of external domains the site connects to.',
-      'Analytics-grade visitor numbers exist only inside a site\'s own analytics account, so this tool measures what is publicly observable instead — and those signals are revealing. Load time and page weight directly gate how much traffic a site can convert, internal page count indicates content depth, social links show which acquisition channels the site invests in, and the technology stack tells you what it runs on.',
-      'It is handy for competitive research and technical due diligence alike: profile a competitor\'s site to see its stack and social channels, or run your own site to catch bloated pages and slow load times before they cost you visitors. Everything is measured live at the moment you run the check — no cached third-party estimates — so a performance fix you deployed five minutes ago already shows in the numbers.',
+      "The Website Traffic Checker profiles the signals that drive and reflect a website's traffic. Enter a URL and the Exyconn server fetches the live page and reports across five panels: performance (measured load time, page size, and counts of scripts, stylesheets, images, and iframes), content and SEO (title, meta description, word count, internal pages), the detected technology stack, linked social platforms, and the full list of external domains the site connects to.",
+      "Analytics-grade visitor numbers exist only inside a site's own analytics account, so this tool measures what is publicly observable instead — and those signals are revealing. Load time and page weight directly gate how much traffic a site can convert, internal page count indicates content depth, social links show which acquisition channels the site invests in, and the technology stack tells you what it runs on.",
+      "It is handy for competitive research and technical due diligence alike: profile a competitor's site to see its stack and social channels, or run your own site to catch bloated pages and slow load times before they cost you visitors. Everything is measured live at the moment you run the check — no cached third-party estimates — so a performance fix you deployed five minutes ago already shows in the numbers.",
     ],
     features: [
       'Measured load time and total page size in KB',
@@ -553,7 +597,7 @@ export const seoToolDetails: ToolDetailsMap = {
       'Full list of external domains the site links to',
     ],
     useCases: [
-      'Profile a competitor\'s technology stack and social channels',
+      "Profile a competitor's technology stack and social channels",
       'Find out why your page loads slowly — scripts, images, or sheer size',
       'Do quick technical due diligence on a site before a partnership',
       'Audit page weight after adding a new marketing script',
@@ -568,19 +612,23 @@ export const seoToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does this show exact visitor numbers?',
-        answer: 'No tool outside a site\'s own analytics can show real visitor counts. This checker analyzes the public signals that drive traffic: performance, content depth, technology, social channels, and link profile.',
+        answer:
+          "No tool outside a site's own analytics can show real visitor counts. This checker analyzes the public signals that drive traffic: performance, content depth, technology, social channels, and link profile.",
       },
       {
         question: 'How is load time measured?',
-        answer: 'The Exyconn server times the actual fetch of the page at the moment you run the check, so it reflects real current performance rather than a cached estimate.',
+        answer:
+          'The Exyconn server times the actual fetch of the page at the moment you run the check, so it reflects real current performance rather than a cached estimate.',
       },
       {
         question: 'How does the technology detection work?',
-        answer: 'The page HTML is scanned for framework, CMS, and analytics fingerprints — script URLs, meta generators, and markup patterns — and each detected technology is listed as a chip.',
+        answer:
+          'The page HTML is scanned for framework, CMS, and analytics fingerprints — script URLs, meta generators, and markup patterns — and each detected technology is listed as a chip.',
       },
       {
         question: 'Why do script and stylesheet counts matter?',
-        answer: 'Every script and stylesheet is an extra request that slows first load. High counts are the most common cause of a slow site and are usually easy wins to consolidate.',
+        answer:
+          'Every script and stylesheet is an extra request that slows first load. High counts are the most common cause of a slow site and are usually easy wins to consolidate.',
       },
       {
         question: 'Can I analyze any website?',
@@ -596,13 +644,14 @@ export const seoToolDetails: ToolDetailsMap = {
       'what cms does a website use',
       'website performance checker',
     ],
-    metaDescription: 'Free website analyzer: check load time, page size, tech stack, social presence and link profile of any site — instant, no signup.',
+    metaDescription:
+      'Free website analyzer: check load time, page size, tech stack, social presence and link profile of any site — instant, no signup.',
   },
 
   'competitor-finder': {
     longDescription: [
       'The Competitor Finder discovers the websites most closely connected to any domain by analyzing where it links. Enter a URL and the Exyconn server fetches the site, extracts every external link, and ranks the linked domains by how often they are mentioned — sites referenced repeatedly are almost always industry peers, partners, tools, or direct competitors. Each result shows the mention count and the actual anchor texts used.',
-      'The tool also builds context for the analyzed site itself — its title, description, and detected technologies — so you can confirm you profiled the right property before reading the results. Because everything comes from the live page rather than a search index, the related-sites list reflects the site\'s real current ecosystem: who it cites, integrates with, and compares itself to.',
+      "The tool also builds context for the analyzed site itself — its title, description, and detected technologies — so you can confirm you profiled the right property before reading the results. Because everything comes from the live page rather than a search index, the related-sites list reflects the site's real current ecosystem: who it cites, integrates with, and compares itself to.",
       'Run it on your own domain to audit which sites you are sending visitors and link equity to, or on a known competitor to uncover their partners, suppliers, and the tools they rely on — each discovered domain opens in a new tab, and the whole list copies in one click. Content-rich pages such as blog posts and resource pages produce the richest results, since they carry the most outbound links to analyze.',
     ],
     features: [
@@ -614,13 +663,13 @@ export const seoToolDetails: ToolDetailsMap = {
       'Copy Domains exports the full list in one click',
     ],
     useCases: [
-      'Map a competitor\'s ecosystem of partners and suppliers',
+      "Map a competitor's ecosystem of partners and suppliers",
       'Discover which tools and platforms a rival site relies on',
       'Audit which sites your own domain endorses with links',
       'Build a prospect list of industry-adjacent sites for outreach',
     ],
     howTo: [
-      'Enter a website URL — yours or a competitor\'s.',
+      "Enter a website URL — yours or a competitor's.",
       'Click "Find Related Sites" or press Enter.',
       'Confirm the site context card matches the site you meant to analyze.',
       'Review the related sites table, sorted by mention count, with anchor texts.',
@@ -629,19 +678,23 @@ export const seoToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'How does linking reveal competitors?',
-        answer: 'Sites link most often to the domains in their own ecosystem: partners, industry resources, tools, and comparison targets. Ranking external links by frequency surfaces that ecosystem — which usually contains the real competitors.',
+        answer:
+          'Sites link most often to the domains in their own ecosystem: partners, industry resources, tools, and comparison targets. Ranking external links by frequency surfaces that ecosystem — which usually contains the real competitors.',
       },
       {
         question: 'Why did my site return few or no related sites?',
-        answer: 'The analysis is based on external links found on the page. A site with very few outbound links — common for minimal landing pages — gives the tool little to work with. Try a content-rich page like a blog index.',
+        answer:
+          'The analysis is based on external links found on the page. A site with very few outbound links — common for minimal landing pages — gives the tool little to work with. Try a content-rich page like a blog index.',
       },
       {
-        question: 'Whose URL should I enter — mine or my competitor\'s?',
-        answer: 'Both are useful. Your own URL audits who you link to; a competitor\'s URL reveals their partners, suppliers, and tooling.',
+        question: "Whose URL should I enter — mine or my competitor's?",
+        answer:
+          "Both are useful. Your own URL audits who you link to; a competitor's URL reveals their partners, suppliers, and tooling.",
       },
       {
         question: 'What do the anchor text chips tell me?',
-        answer: 'The words a site uses when linking to a domain reveal the relationship — "powered by", a brand name, or "read the comparison" each imply something different about how the two sites relate.',
+        answer:
+          'The words a site uses when linking to a domain reveal the relationship — "powered by", a brand name, or "read the comparison" each imply something different about how the two sites relate.',
       },
     ],
     keywords: [
@@ -653,7 +706,8 @@ export const seoToolDetails: ToolDetailsMap = {
       'website ecosystem analysis',
       'find similar websites',
     ],
-    metaDescription: 'Free competitor finder: analyze any site\'s external links to reveal its partners, tools and rivals, ranked by mentions with anchor text.',
+    metaDescription:
+      "Free competitor finder: analyze any site's external links to reveal its partners, tools and rivals, ranked by mentions with anchor text.",
   },
 
   'ai-search-visibility': {
@@ -686,23 +740,28 @@ export const seoToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Does this query ChatGPT or Perplexity directly?',
-        answer: 'No — it analyzes your site for the content signals those systems rely on when selecting sources: structure, depth, structured data, and links. Those are the factors you can actually fix.',
+        answer:
+          'No — it analyzes your site for the content signals those systems rely on when selecting sources: structure, depth, structured data, and links. Those are the factors you can actually fix.',
       },
       {
         question: 'Why does structured data matter for AI visibility?',
-        answer: 'Schema.org markup describes your content in machine-readable form — organization, product, FAQ, article. AI models and the search indexes they draw on use it to understand and confidently cite your pages.',
+        answer:
+          'Schema.org markup describes your content in machine-readable form — organization, product, FAQ, article. AI models and the search indexes they draw on use it to understand and confidently cite your pages.',
       },
       {
         question: 'Why is 300 words a threshold?',
-        answer: 'Pages under roughly 300 words rarely contain enough substance for an AI model to extract a useful answer from, so thin pages are seldom cited. The word count chip turns green above that mark.',
+        answer:
+          'Pages under roughly 300 words rarely contain enough substance for an AI model to extract a useful answer from, so thin pages are seldom cited. The word count chip turns green above that mark.',
       },
       {
         question: 'What is the fastest win from the tips list?',
-        answer: 'Adding an FAQ section with Schema.org FAQ markup — AI assistants frequently pull from question-and-answer formatted content, and it is usually a one-day change.',
+        answer:
+          'Adding an FAQ section with Schema.org FAQ markup — AI assistants frequently pull from question-and-answer formatted content, and it is usually a one-day change.',
       },
       {
         question: 'How is AI search visibility different from normal SEO?',
-        answer: 'They overlap heavily — AI systems build on search indexes — but AI answers weight machine-readable structure, entity consistency, and Q&A formats more strongly than classic ranking factors do.',
+        answer:
+          'They overlap heavily — AI systems build on search indexes — but AI answers weight machine-readable structure, entity consistency, and Q&A formats more strongly than classic ranking factors do.',
       },
     ],
     keywords: [
@@ -715,6 +774,7 @@ export const seoToolDetails: ToolDetailsMap = {
       'geo generative engine optimization',
       'get cited by chatgpt',
     ],
-    metaDescription: 'Free AI search visibility checker: see if ChatGPT, Perplexity and Gemini can parse your site, plus a concrete checklist to get cited.',
+    metaDescription:
+      'Free AI search visibility checker: see if ChatGPT, Perplexity and Gemini can parse your site, plus a concrete checklist to get cited.',
   },
 };

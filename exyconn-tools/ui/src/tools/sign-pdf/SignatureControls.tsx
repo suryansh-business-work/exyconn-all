@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import LinearProgress from '@mui/material/LinearProgress';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Download from '@mui/icons-material/Download';
 
 const CANVAS_H = 150;
@@ -27,9 +27,18 @@ interface SignatureControlsProps {
 }
 
 const SignatureControls: React.FC<SignatureControlsProps> = ({
-  position, onPositionChange, pageTarget, onPageTargetChange,
-  sigSize, onSigSizeChange, processing, hasFile, hasResult,
-  onSign, onDownload, canvasRef,
+  position,
+  onPositionChange,
+  pageTarget,
+  onPageTargetChange,
+  sigSize,
+  onSigSizeChange,
+  processing,
+  hasFile,
+  hasResult,
+  onSign,
+  onDownload,
+  canvasRef,
 }) => {
   const drawingRef = useRef(false);
 
@@ -89,7 +98,9 @@ const SignatureControls: React.FC<SignatureControlsProps> = ({
     ctx.stroke();
   };
 
-  const stopDraw = () => { drawingRef.current = false; };
+  const stopDraw = () => {
+    drawingRef.current = false;
+  };
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
@@ -103,30 +114,63 @@ const SignatureControls: React.FC<SignatureControlsProps> = ({
 
   return (
     <Paper sx={{ p: 3 }}>
-      <Typography variant="h6" gutterBottom>Draw Your Signature</Typography>
+      <Typography variant="h6" gutterBottom>
+        Draw Your Signature
+      </Typography>
       <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, mb: 2, touchAction: 'none' }}>
-        <canvas ref={canvasRef} style={{ width: '100%', height: CANVAS_H, cursor: 'crosshair', display: 'block' }}
-          onMouseDown={startDraw} onMouseMove={draw} onMouseUp={stopDraw} onMouseLeave={stopDraw}
-          onTouchStart={startDraw} onTouchMove={draw} onTouchEnd={stopDraw} />
+        <canvas
+          ref={canvasRef}
+          style={{ width: '100%', height: CANVAS_H, cursor: 'crosshair', display: 'block' }}
+          onMouseDown={startDraw}
+          onMouseMove={draw}
+          onMouseUp={stopDraw}
+          onMouseLeave={stopDraw}
+          onTouchStart={startDraw}
+          onTouchMove={draw}
+          onTouchEnd={stopDraw}
+        />
       </Box>
-      <Button size="small" onClick={clearCanvas} sx={{ mb: 2 }}>Clear Signature</Button>
+      <Button size="small" onClick={clearCanvas} sx={{ mb: 2 }}>
+        Clear Signature
+      </Button>
       <Grid container spacing={2}>
         <Grid size={{ xs: 4 }}>
-          <TextField select fullWidth label="Position" value={position} onChange={(e) => onPositionChange(e.target.value)} size="small">
+          <TextField
+            select
+            fullWidth
+            label="Position"
+            value={position}
+            onChange={(e) => onPositionChange(e.target.value)}
+            size="small"
+          >
             <MenuItem value="bottom-left">Bottom Left</MenuItem>
             <MenuItem value="bottom-right">Bottom Right</MenuItem>
             <MenuItem value="center">Center</MenuItem>
           </TextField>
         </Grid>
         <Grid size={{ xs: 4 }}>
-          <TextField select fullWidth label="Page" value={pageTarget} onChange={(e) => onPageTargetChange(e.target.value)} size="small">
+          <TextField
+            select
+            fullWidth
+            label="Page"
+            value={pageTarget}
+            onChange={(e) => onPageTargetChange(e.target.value)}
+            size="small"
+          >
             <MenuItem value="first">First</MenuItem>
             <MenuItem value="last">Last</MenuItem>
             <MenuItem value="all">All</MenuItem>
           </TextField>
         </Grid>
         <Grid size={{ xs: 4 }}>
-          <TextField select fullWidth label="Size" value={sigSize} onChange={(e) => onSigSizeChange(e.target.value)} size="small">
+          <TextField
+            select
+            fullWidth
+            label="Size"
+            value={sigSize}
+            onChange={(e) => onSigSizeChange(e.target.value)}
+            size="small"
+          >
             <MenuItem value="small">Small</MenuItem>
             <MenuItem value="medium">Medium</MenuItem>
             <MenuItem value="large">Large</MenuItem>
@@ -134,13 +178,23 @@ const SignatureControls: React.FC<SignatureControlsProps> = ({
         </Grid>
       </Grid>
       {processing && <LinearProgress sx={{ mt: 2 }} />}
-      <Button variant="contained" fullWidth onClick={onSign} disabled={!hasFile || processing}
-        sx={{ mt: 2, bgcolor: '#0ea5e9', '&:hover': { bgcolor: '#0284c7' } }}>
+      <Button
+        variant="contained"
+        fullWidth
+        onClick={onSign}
+        disabled={!hasFile || processing}
+        sx={{ mt: 2, bgcolor: '#0ea5e9', '&:hover': { bgcolor: '#0284c7' } }}
+      >
         {processing ? 'Signing…' : 'Sign PDF'}
       </Button>
       {hasResult && (
-        <Button variant="outlined" fullWidth startIcon={<Download />} onClick={onDownload}
-          sx={{ mt: 2, color: '#0ea5e9', borderColor: '#0ea5e9' }}>
+        <Button
+          variant="outlined"
+          fullWidth
+          startIcon={<Download />}
+          onClick={onDownload}
+          sx={{ mt: 2, color: '#0ea5e9', borderColor: '#0ea5e9' }}
+        >
           Download Signed PDF
         </Button>
       )}

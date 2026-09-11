@@ -16,10 +16,7 @@ export const WORKSPACE_DEFAULT_OPTION: SelectOption = {
  * keystroke in the autocomplete is what makes a picker feel slow.
  */
 export function useTimezoneOptions(current = ''): SelectOption[] {
-  return useMemo(
-    () => [WORKSPACE_DEFAULT_OPTION, ...timezoneOptions(current)],
-    [current],
-  );
+  return useMemo(() => [WORKSPACE_DEFAULT_OPTION, ...timezoneOptions(current)], [current]);
 }
 
 /**

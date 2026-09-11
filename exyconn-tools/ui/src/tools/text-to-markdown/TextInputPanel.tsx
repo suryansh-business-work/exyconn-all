@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  Paper,
-  Box,
-  Typography,
-  TextField,
-  Button,
-  FormControlLabel,
-  Checkbox,
-  Stack,
-} from '@mui/material';
+import { Paper, Box, Typography, TextField, Button, FormControlLabel, Checkbox, Stack } from '@mui/material';
 import { ConversionOptions } from './types';
 
 interface TextInputPanelProps {
@@ -29,7 +20,12 @@ const TextInputPanel: React.FC<TextInputPanelProps> = ({
   <>
     <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="subtitle2" fontWeight={600}>
+        <Typography
+          variant="subtitle2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Plain Text Content
         </Typography>
         <Button component="label" size="small" variant="outlined">
@@ -50,10 +46,22 @@ const TextInputPanel: React.FC<TextInputPanelProps> = ({
     </Paper>
 
     <Paper elevation={0} sx={{ p: 2, mt: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+      <Typography
+        variant="subtitle2"
+        gutterBottom
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         Detection Options
       </Typography>
-      <Stack direction="row" flexWrap="wrap" sx={{ gap: 1 }}>
+      <Stack
+        direction="row"
+        sx={{
+          flexWrap: 'wrap',
+          gap: 1,
+        }}
+      >
         <FormControlLabel
           control={
             <Checkbox

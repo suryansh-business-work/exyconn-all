@@ -1,8 +1,9 @@
 import { useCallback, useRef } from 'react';
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import type { DocumentNode } from 'graphql';
 import type { TablePageResult } from '@exyconn/shell/components/data/ServerDataGrid';
 import type { TableFilterInput, TableQueryInput } from '@exyconn/shell/graphql/generated';
+import { queryData } from '@exyconn/shell/utils/queryData';
 
 /**
  * Turns a generated `ListXxxPaged` document into the `fetchRows` callback
@@ -40,7 +41,7 @@ export function usePagedFetcher<TQuery, TRow>(
         variables: { input: { ...input, filters } },
         fetchPolicy: 'network-only',
       });
-      const page = selectRef.current(result.data);
+      const page = selectRef.current(queryData(result, 'The paged list query'));
       return { rows: page.rows, totalCount: page.totalCount };
     },
     [client, document],

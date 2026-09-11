@@ -53,8 +53,7 @@ export const aiWritingToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Can I control how the text sounds?',
-        answer:
-          'Yes — choose between professional, casual, persuasive, informative and witty tones before generating.',
+        answer: 'Yes — choose between professional, casual, persuasive, informative and witty tones before generating.',
       },
     ],
     keywords: [
@@ -122,8 +121,7 @@ export const aiWritingToolDetails: ToolDetailsMap = {
       },
       {
         question: 'Is there a minimum text length?',
-        answer:
-          'Yes, 10 characters — anything shorter has too little signal to analyze meaningfully.',
+        answer: 'Yes, 10 characters — anything shorter has too little signal to analyze meaningfully.',
       },
     ],
     keywords: [
@@ -306,8 +304,7 @@ export const aiWritingToolDetails: ToolDetailsMap = {
     faqs: [
       {
         question: 'Is the Summary Generator free?',
-        answer:
-          'Yes — unlimited summaries, no sign-up, no word-count paywall.',
+        answer: 'Yes — unlimited summaries, no sign-up, no word-count paywall.',
       },
       {
         question: 'How does it decide what to keep?',
@@ -346,12 +343,12 @@ export const aiWritingToolDetails: ToolDetailsMap = {
   'gbp-description-generator': {
     longDescription: [
       'The GBP Description Generator writes ready-to-paste "from the business" descriptions for your Google Business Profile. Enter your business name, type and location, optionally add comma-separated services and unique selling points, and the tool returns multiple description variants — each with a live character count checked against Google\'s 750-character limit.',
-      'Every variant is composed from your actual inputs, so the copy names your services and city naturally instead of resorting to generic filler — the pattern Google\'s local guidelines reward. A green or red chip on each variant shows at a glance whether it fits within the 750-character cap, and a per-variant Copy button puts the text on your clipboard ready for the Business Profile editor.',
-      'Alongside the variants you get a checklist of GBP-specific writing tips, such as leading with what makes you different and avoiding URLs or promotional offers that violate Google\'s description policy. It is aimed at local business owners setting up their first listing, and at agencies and SEOs who manage descriptions across many client profiles.',
+      "Every variant is composed from your actual inputs, so the copy names your services and city naturally instead of resorting to generic filler — the pattern Google's local guidelines reward. A green or red chip on each variant shows at a glance whether it fits within the 750-character cap, and a per-variant Copy button puts the text on your clipboard ready for the Business Profile editor.",
+      "Alongside the variants you get a checklist of GBP-specific writing tips, such as leading with what makes you different and avoiding URLs or promotional offers that violate Google's description policy. It is aimed at local business owners setting up their first listing, and at agencies and SEOs who manage descriptions across many client profiles.",
     ],
     features: [
       'Multiple description variants generated from one set of inputs',
-      'Live character count per variant against Google\'s 750-character limit',
+      "Live character count per variant against Google's 750-character limit",
       'Green/red limit indicator so an over-length variant is obvious',
       'Uses your real services, location and unique points — no generic filler',
       'GBP-specific writing tips alongside the generated copy',
@@ -361,21 +358,20 @@ export const aiWritingToolDetails: ToolDetailsMap = {
       'Write the description for a brand-new Google Business Profile',
       'Refresh a listing whose description no longer mentions current services',
       'Produce distinct on-policy descriptions for multiple client listings',
-      'Localize a franchise description to each branch\'s city',
+      "Localize a franchise description to each branch's city",
       'Rework a description that was rejected for exceeding the limit',
     ],
     howTo: [
       'Enter your business name, business type and location (all three required)',
       'Optionally list services and unique points, separated by commas',
       'Click Generate Descriptions',
-      'Compare the variants and check each one\'s 750-character chip',
+      "Compare the variants and check each one's 750-character chip",
       'Click Copy on your favorite and paste it into your Google Business Profile',
     ],
     faqs: [
       {
         question: 'Is the GBP Description Generator free?',
-        answer:
-          'Yes — generate as many description variants as you like with no sign-up or payment.',
+        answer: 'Yes — generate as many description variants as you like with no sign-up or payment.',
       },
       {
         question: 'What is the character limit for a Google Business Profile description?',

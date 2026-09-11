@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Bookmark } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -66,13 +66,7 @@ const NotionToMarkdown: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 2 }}>
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 5 }}>
-            <UrlInputPanel
-              url={url}
-              loading={loading}
-              title={title}
-              onUrlChange={setUrl}
-              onConvert={handleConvert}
-            />
+            <UrlInputPanel url={url} loading={loading} title={title} onUrlChange={setUrl} onConvert={handleConvert} />
           </Grid>
           <Grid size={{ xs: 12, md: 7 }}>
             <MarkdownOutput markdown={markdown} onCopy={handleCopy} onDownload={handleDownload} />

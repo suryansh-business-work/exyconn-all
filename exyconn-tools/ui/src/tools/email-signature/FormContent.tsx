@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Box, Paper, Tab, Tabs } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { FormikProps, useFormikContext } from 'formik';
 import { Person, Image, Share, Palette, TuneRounded, Campaign } from '@mui/icons-material';
 
@@ -48,14 +48,7 @@ interface FormContentProps {
   onSave: (values: SignatureFormValues) => void;
 }
 
-const FormContent: React.FC<FormContentProps> = ({
-  formik,
-  activeTab,
-  setActiveTab,
-  isMobile,
-  onReset,
-  onSave,
-}) => {
+const FormContent: React.FC<FormContentProps> = ({ formik, activeTab, setActiveTab, isMobile, onReset, onSave }) => {
   return (
     <Box sx={{ p: { xs: 2, sm: 3 } }}>
       <AutoSave onSave={onSave} />
@@ -130,11 +123,7 @@ const FormContent: React.FC<FormContentProps> = ({
                 p: 2,
               }}
             >
-              <SignatureActions
-                values={formik.values}
-                isValid={formik.isValid}
-                onReset={onReset}
-              />
+              <SignatureActions values={formik.values} isValid={formik.isValid} onReset={onReset} />
             </Paper>
 
             <Box sx={{ minHeight: isMobile ? 400 : 500 }}>

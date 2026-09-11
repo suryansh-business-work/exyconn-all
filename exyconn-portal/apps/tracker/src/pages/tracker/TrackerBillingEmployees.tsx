@@ -29,14 +29,24 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
   return (
     <Box sx={{ pt: 2 }}>
       <Grid container spacing={2} sx={{ mb: 2.5 }}>
-        <Grid item xs={6} md={3}>
+        <Grid
+          size={{
+            xs: 6,
+            md: 3,
+          }}
+        >
           <StatCard
             label="Hours"
             value={String(billing?.totalHours ?? 0)}
             accent={color.sky[500]}
           />
         </Grid>
-        <Grid item xs={6} md={3}>
+        <Grid
+          size={{
+            xs: 6,
+            md: 3,
+          }}
+        >
           <StatCard
             label="Amount"
             value={money.format(billing?.totalAmount ?? 0)}

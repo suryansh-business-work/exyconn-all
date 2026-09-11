@@ -32,7 +32,12 @@ export function IncidentList({ incidents }: Readonly<IncidentListProps>) {
   if (incidents.length === 0) {
     return (
       <Card variant="outlined" sx={{ p: 3 }}>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           No incidents recorded. Every service has answered every check.
         </Typography>
       </Card>
@@ -52,10 +57,20 @@ export function IncidentList({ incidents }: Readonly<IncidentListProps>) {
               spacing={1}
             >
               <Box>
-                <Typography variant="subtitle2" fontWeight={700}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 700,
+                  }}
+                >
                   {incident.title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   {incident.serviceName} · {formatWith(incident.startedAt, TIME_FORMAT)} ·{' '}
                   {duration(incident.durationMinutes)}
                 </Typography>

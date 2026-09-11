@@ -22,15 +22,29 @@ export function HealthFactsCard({ title, facts }: Readonly<HealthFactsCardProps>
         <Stack
           key={fact.label}
           direction="row"
-          justifyContent="space-between"
-          alignItems="baseline"
           spacing={2}
-          sx={{ py: 0.75, borderTop: `${borderWidth.hairline}px solid`, borderColor: 'divider' }}
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            py: 0.75,
+            borderTop: `${borderWidth.hairline}px solid`,
+            borderColor: 'divider',
+          }}
         >
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {fact.label}
           </Typography>
-          <Typography variant="body2" fontWeight={600}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             {fact.value}
           </Typography>
         </Stack>

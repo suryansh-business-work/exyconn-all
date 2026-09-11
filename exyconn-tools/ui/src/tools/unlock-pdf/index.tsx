@@ -8,15 +8,19 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import LockOpen from '@mui/icons-material/LockOpen';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import {
-  formatSize, unlockedFileName, requestUnlockedPdf, downloadBlob,
-  SERVICE_UNAVAILABLE, INCORRECT_PASSWORD,
+  formatSize,
+  unlockedFileName,
+  requestUnlockedPdf,
+  downloadBlob,
+  SERVICE_UNAVAILABLE,
+  INCORRECT_PASSWORD,
 } from './utils';
 
 export default function UnlockPdf() {
@@ -30,24 +34,41 @@ export default function UnlockPdf() {
   const [result, setResult] = useState<Blob | null>(null);
 
   const loadFile = useCallback((f: File) => {
-    if (f.type !== 'application/pdf') { setError('Please select a PDF file.'); return; }
-    setFile(f); setResult(null); setServiceDown(false); setPasswordError('');
+    if (f.type !== 'application/pdf') {
+      setError('Please select a PDF file.');
+      return;
+    }
+    setFile(f);
+    setResult(null);
+    setServiceDown(false);
+    setPasswordError('');
   }, []);
 
-  const onDrop = useCallback((e: DragEvent) => {
-    e.preventDefault(); setDragOver(false);
-    if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
-  }, [loadFile]);
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+    },
+    [loadFile]
+  );
 
   const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) { loadFile(e.target.files[0]); }
+    if (e.target.files?.[0]) {
+      loadFile(e.target.files[0]);
+    }
     e.target.value = '';
   };
 
   const unlock = async () => {
     if (!file) return;
-    if (!password) { setPasswordError('Password is required.'); return; }
-    setProcessing(true); setServiceDown(false); setResult(null);
+    if (!password) {
+      setPasswordError('Password is required.');
+      return;
+    }
+    setProcessing(true);
+    setServiceDown(false);
+    setResult(null);
     try {
       const blob = await requestUnlockedPdf(APIs.pdfTools.unlock, file, password);
       setResult(blob);
@@ -60,7 +81,9 @@ export default function UnlockPdf() {
       } else {
         setError(message);
       }
-    } finally { setProcessing(false); }
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const download = () => {
@@ -74,35 +97,75 @@ export default function UnlockPdf() {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper
-              sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: dragOver ? '#ef4444' : 'divider', cursor: 'pointer', transition: '0.2s' }}
-              onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)} onDrop={onDrop}
+              sx={{
+                p: 4,
+                textAlign: 'center',
+                border: '2px dashed',
+                borderColor: dragOver ? '#ef4444' : 'divider',
+                cursor: 'pointer',
+                transition: '0.2s',
+              }}
+              onDragOver={(e: DragEvent) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={onDrop}
             >
               <CloudUpload sx={{ fontSize: 48, color: '#ef4444', mb: 1 }} />
-              <Typography variant="h6" gutterBottom>Drag & Drop Protected PDF</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+              <Typography variant="h6" gutterBottom>
+                Drag & Drop Protected PDF
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                  mb: 2,
+                }}
+              >
+                or click to browse
+              </Typography>
               <Button variant="outlined" component="label" color="error">
-                Browse Files<input hidden accept="application/pdf" type="file" onChange={onFileChange} />
+                Browse Files
+                <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>
             {file && (
               <Paper sx={{ p: 2, mt: 2 }}>
-                <Typography variant="body2"><strong>{file.name}</strong></Typography>
-                <Typography variant="body2" color="text.secondary">Size: {formatSize(file.size)}</Typography>
+                <Typography variant="body2">
+                  <strong>{file.name}</strong>
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
+                  Size: {formatSize(file.size)}
+                </Typography>
               </Paper>
             )}
             <Box sx={{ mt: 2 }}>
-              <TextField label="PDF Password" type="password" fullWidth size="small"
-                required error={!!passwordError}
+              <TextField
+                label="PDF Password"
+                type="password"
+                fullWidth
+                size="small"
+                required
+                error={!!passwordError}
                 helperText={passwordError || 'Enter the password used to protect this PDF'}
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); setPasswordError(''); }} />
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError('');
+                }}
+              />
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <Alert severity="info" sx={{ mb: 2 }}>
-              The password is removed on our server and the decrypted PDF is returned to you.
-              Files are processed transiently and never stored.
+              The password is removed on our server and the decrypted PDF is returned to you. Files are processed
+              transiently and never stored.
             </Alert>
             {serviceDown && (
               <Alert severity="warning" sx={{ mb: 2 }}>
@@ -110,13 +173,20 @@ export default function UnlockPdf() {
               </Alert>
             )}
             {processing && <LinearProgress sx={{ mb: 2 }} color="error" />}
-            <Button variant="contained" fullWidth sx={{ bgcolor: '#ef4444', mb: 2, '&:hover': { bgcolor: '#dc2626' } }}
-              onClick={unlock} disabled={!file || processing}>
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{ bgcolor: '#ef4444', mb: 2, '&:hover': { bgcolor: '#dc2626' } }}
+              onClick={unlock}
+              disabled={!file || processing}
+            >
               {processing ? 'Unlocking...' : 'Unlock PDF'}
             </Button>
             {result && (
               <Box>
-                <Alert severity="success" sx={{ mb: 2 }}>PDF unlocked successfully!</Alert>
+                <Alert severity="success" sx={{ mb: 2 }}>
+                  PDF unlocked successfully!
+                </Alert>
                 <Button variant="outlined" fullWidth startIcon={<Download />} color="error" onClick={download}>
                   Download Unlocked PDF
                 </Button>
@@ -124,9 +194,15 @@ export default function UnlockPdf() {
             )}
           </Grid>
         </Grid>
-        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity="error" onClose={() => setError('')}>{error}</Alert>
+        <Snackbar
+          open={!!error}
+          autoHideDuration={4000}
+          onClose={() => setError('')}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert severity="error" onClose={() => setError('')}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

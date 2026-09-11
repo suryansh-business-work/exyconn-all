@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Chip, Flex, IconButton, Text } from '@exyconn/shell/components/ui';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';

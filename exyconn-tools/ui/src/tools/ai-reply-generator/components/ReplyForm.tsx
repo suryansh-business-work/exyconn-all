@@ -39,7 +39,12 @@ const ReplyForm: React.FC<ReplyFormProps> = ({ onSubmit, isLoading }) => {
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <Reply color="primary" />
-        <Typography variant="h6" fontWeight={600}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Generate Reply
         </Typography>
       </Box>

@@ -11,15 +11,21 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
 import { FaFilePowerpoint } from 'react-icons/fa';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 import {
-  ACCEPT_ATTR, NETWORK_ERROR_MESSAGE, SERVICE_UNAVAILABLE_MESSAGE,
-  downloadBlob, formatSize, isAcceptedFile, pdfFileName, readErrorMessage,
+  ACCEPT_ATTR,
+  NETWORK_ERROR_MESSAGE,
+  SERVICE_UNAVAILABLE_MESSAGE,
+  downloadBlob,
+  formatSize,
+  isAcceptedFile,
+  pdfFileName,
+  readErrorMessage,
 } from './utils';
 
 const COLOR = '#8b5cf6';
@@ -34,13 +40,27 @@ export default function PowerpointToPdf() {
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
 
   const loadFile = useCallback((f: File) => {
-    if (!isAcceptedFile(f.name)) { setFileError('Please select a PowerPoint file (.ppt or .pptx).'); return; }
-    setFile(f); setPdfBlob(null); setConvertError('');
+    if (!isAcceptedFile(f.name)) {
+      setFileError('Please select a PowerPoint file (.ppt or .pptx).');
+      return;
+    }
+    setFile(f);
+    setPdfBlob(null);
+    setConvertError('');
   }, []);
 
-  const onDrop = useCallback((e: DragEvent) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); }, [loadFile]);
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+    },
+    [loadFile]
+  );
   const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) { loadFile(e.target.files[0]); }
+    if (e.target.files?.[0]) {
+      loadFile(e.target.files[0]);
+    }
     e.target.value = '';
   };
 
@@ -53,8 +73,14 @@ export default function PowerpointToPdf() {
       const formData = new FormData();
       formData.append('file', file);
       const res = await fetch(APIs.officeTools.officeToPdf, { method: 'POST', body: formData });
-      if (res.status === 503) { setConvertError(SERVICE_UNAVAILABLE_MESSAGE); return; }
-      if (!res.ok) { setConvertError(await readErrorMessage(res)); return; }
+      if (res.status === 503) {
+        setConvertError(SERVICE_UNAVAILABLE_MESSAGE);
+        return;
+      }
+      if (!res.ok) {
+        setConvertError(await readErrorMessage(res));
+        return;
+      }
       setPdfBlob(await res.blob());
     } catch {
       setConvertError(NETWORK_ERROR_MESSAGE);
@@ -65,13 +91,23 @@ export default function PowerpointToPdf() {
 
   const outputName = file ? pdfFileName(file.name) : '';
   const actionButton = pdfBlob ? (
-    <Button variant="contained" fullWidth startIcon={<Download />} onClick={() => downloadBlob(pdfBlob, outputName)}
-      sx={{ mt: 2, bgcolor: COLOR, '&:hover': { bgcolor: HOVER } }}>
+    <Button
+      variant="contained"
+      fullWidth
+      startIcon={<Download />}
+      onClick={() => downloadBlob(pdfBlob, outputName)}
+      sx={{ mt: 2, bgcolor: COLOR, '&:hover': { bgcolor: HOVER } }}
+    >
       Download {outputName}
     </Button>
   ) : (
-    <Button variant="contained" fullWidth onClick={convert} disabled={converting}
-      sx={{ mt: 2, bgcolor: COLOR, '&:hover': { bgcolor: HOVER } }}>
+    <Button
+      variant="contained"
+      fullWidth
+      onClick={convert}
+      disabled={converting}
+      sx={{ mt: 2, bgcolor: COLOR, '&:hover': { bgcolor: HOVER } }}
+    >
       {converting ? 'Converting…' : 'Convert to PDF'}
     </Button>
   );
@@ -82,13 +118,34 @@ export default function PowerpointToPdf() {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper
-              sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: dragOver ? COLOR : 'divider', cursor: 'pointer', transition: '0.2s' }}
-              onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)} onDrop={onDrop}
+              sx={{
+                p: 4,
+                textAlign: 'center',
+                border: '2px dashed',
+                borderColor: dragOver ? COLOR : 'divider',
+                cursor: 'pointer',
+                transition: '0.2s',
+              }}
+              onDragOver={(e: DragEvent) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={onDrop}
             >
               <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
-              <Typography variant="h6" gutterBottom>Drag & Drop PowerPoint File Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Supports .ppt and .pptx files</Typography>
+              <Typography variant="h6" gutterBottom>
+                Drag & Drop PowerPoint File Here
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                  mb: 1,
+                }}
+              >
+                Supports .ppt and .pptx files
+              </Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
                 Browse Files <input hidden accept={ACCEPT_ATTR} type="file" onChange={onFileChange} />
               </Button>
@@ -98,20 +155,39 @@ export default function PowerpointToPdf() {
           <Grid size={{ xs: 12, md: 6 }}>
             {file ? (
               <Paper sx={{ p: 3 }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>File Details</Typography>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  File Details
+                </Typography>
                 <Table size="small">
                   <TableBody>
-                    <TableRow><TableCell sx={{ fontWeight: 600 }}>File Name</TableCell><TableCell>{file.name}</TableCell></TableRow>
-                    <TableRow><TableCell sx={{ fontWeight: 600 }}>File Size</TableCell><TableCell>{formatSize(file.size)}</TableCell></TableRow>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600 }}>File Name</TableCell>
+                      <TableCell>{file.name}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600 }}>File Size</TableCell>
+                      <TableCell>{formatSize(file.size)}</TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
                 {converting && (
                   <Box sx={{ mt: 2 }}>
                     <LinearProgress sx={{ mb: 1 }} />
-                    <Typography variant="caption" color="text.secondary">Converting on Exyconn server…</Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      Converting on Exyconn server…
+                    </Typography>
                   </Box>
                 )}
-                {convertError && <Alert severity="error" sx={{ mt: 2 }}>{convertError}</Alert>}
+                {convertError && (
+                  <Alert severity="error" sx={{ mt: 2 }}>
+                    {convertError}
+                  </Alert>
+                )}
                 {pdfBlob && (
                   <Alert severity="success" sx={{ mt: 2 }}>
                     Conversion complete — {outputName} ({formatSize(pdfBlob.size)}) is ready to download.
@@ -122,15 +198,30 @@ export default function PowerpointToPdf() {
             ) : (
               <Paper sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}>
-                  <Box sx={{ fontSize: 64, color: 'text.disabled', mb: 2, display: 'flex' }}><FaFilePowerpoint /></Box>
-                  <Typography color="text.secondary">Upload a PowerPoint presentation to get started</Typography>
+                  <Box sx={{ fontSize: 64, color: 'text.disabled', mb: 2, display: 'flex' }}>
+                    <FaFilePowerpoint />
+                  </Box>
+                  <Typography
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
+                    Upload a PowerPoint presentation to get started
+                  </Typography>
                 </Box>
               </Paper>
             )}
           </Grid>
         </Grid>
-        <Snackbar open={!!fileError} autoHideDuration={4000} onClose={() => setFileError('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity="error" onClose={() => setFileError('')}>{fileError}</Alert>
+        <Snackbar
+          open={!!fileError}
+          autoHideDuration={4000}
+          onClose={() => setFileError('')}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert severity="error" onClose={() => setFileError('')}>
+            {fileError}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

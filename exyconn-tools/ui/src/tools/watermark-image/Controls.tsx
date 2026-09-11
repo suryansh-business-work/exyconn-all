@@ -7,7 +7,7 @@ import Slider from '@mui/material/Slider';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import ToggleButton from '@mui/material/ToggleButton';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import FiberManualRecord from '@mui/icons-material/FiberManualRecord';
 import { POSITIONS, WatermarkPosition, WatermarkMode, TextWatermarkOptions, ImageWatermarkOptions } from './utils';
 
@@ -23,8 +23,13 @@ const PositionGrid = ({ value, onChange, disabled = false }: Readonly<PositionGr
   <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 36px)', gap: 0.5 }}>
     {POSITIONS.map((p) => (
       <ToggleButton
-        key={p.id} value={p.id} size="small" aria-label={p.label} disabled={disabled}
-        selected={value === p.id} onChange={() => onChange(p.id)}
+        key={p.id}
+        value={p.id}
+        size="small"
+        aria-label={p.label}
+        disabled={disabled}
+        selected={value === p.id}
+        onChange={() => onChange(p.id)}
         sx={{ width: 36, height: 36, p: 0, '&.Mui-selected': { color: COLOR } }}
       >
         <FiberManualRecord sx={{ fontSize: 10 }} />
@@ -41,22 +46,46 @@ interface TextControlsProps {
 const TextControls = ({ options, onChange }: Readonly<TextControlsProps>) => (
   <Grid container spacing={2}>
     <Grid size={12}>
-      <TextField fullWidth size="small" label="Watermark Text" value={options.text}
-        onChange={(e) => onChange({ ...options, text: e.target.value })} />
+      <TextField
+        fullWidth
+        size="small"
+        label="Watermark Text"
+        value={options.text}
+        onChange={(e) => onChange({ ...options, text: e.target.value })}
+      />
     </Grid>
     <Grid size={{ xs: 12, sm: 6 }}>
       <Typography variant="caption">Font Size: {options.fontSize}px</Typography>
-      <Slider min={10} max={200} value={options.fontSize} onChange={(_, v) => onChange({ ...options, fontSize: v as number })} sx={{ color: COLOR }} />
+      <Slider
+        min={10}
+        max={200}
+        value={options.fontSize}
+        onChange={(_, v) => onChange({ ...options, fontSize: v as number })}
+        sx={{ color: COLOR }}
+      />
     </Grid>
     <Grid size={{ xs: 12, sm: 6 }}>
       <Typography variant="caption">Opacity: {options.opacity.toFixed(2)}</Typography>
-      <Slider min={0.05} max={1} step={0.05} value={options.opacity} onChange={(_, v) => onChange({ ...options, opacity: v as number })} sx={{ color: COLOR }} />
+      <Slider
+        min={0.05}
+        max={1}
+        step={0.05}
+        value={options.opacity}
+        onChange={(_, v) => onChange({ ...options, opacity: v as number })}
+        sx={{ color: COLOR }}
+      />
     </Grid>
     <Grid size={{ xs: 12, sm: 6 }}>
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>Color</Typography>
-      <input type="color" aria-label="Watermark color" value={options.color}
+      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+        Color
+      </Typography>
+      <input
+        type="color"
+        aria-label="Watermark color"
+        value={options.color}
         onChange={(e) => onChange({ ...options, color: e.target.value })}
-        style={{ width: '100%', height: 36, border: 'none', cursor: 'pointer' }} />
+        style={{ width: '100%', height: 36, border: 'none', cursor: 'pointer' }}
+      />
     </Grid>
     <Grid size={{ xs: 12, sm: 6 }}>
       <FormControlLabel
@@ -65,8 +94,14 @@ const TextControls = ({ options, onChange }: Readonly<TextControlsProps>) => (
       />
     </Grid>
     <Grid size={12}>
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>Position</Typography>
-      <PositionGrid value={options.position} disabled={options.tile} onChange={(position) => onChange({ ...options, position })} />
+      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+        Position
+      </Typography>
+      <PositionGrid
+        value={options.position}
+        disabled={options.tile}
+        onChange={(position) => onChange({ ...options, position })}
+      />
     </Grid>
   </Grid>
 );
@@ -90,18 +125,43 @@ const ImageControls = ({ options, onChange, watermarkName, onWatermarkFile }: Re
           {watermarkName ? 'Replace Watermark Image' : 'Upload Watermark Image'}
           <input hidden accept="image/*" type="file" onChange={onFileChange} />
         </Button>
-        {watermarkName && <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{watermarkName}</Typography>}
+        {watermarkName && (
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              mt: 1,
+            }}
+          >
+            {watermarkName}
+          </Typography>
+        )}
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
         <Typography variant="caption">Scale: {options.scale}% of image width</Typography>
-        <Slider min={5} max={100} value={options.scale} onChange={(_, v) => onChange({ ...options, scale: v as number })} sx={{ color: COLOR }} />
+        <Slider
+          min={5}
+          max={100}
+          value={options.scale}
+          onChange={(_, v) => onChange({ ...options, scale: v as number })}
+          sx={{ color: COLOR }}
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
         <Typography variant="caption">Opacity: {options.opacity.toFixed(2)}</Typography>
-        <Slider min={0.05} max={1} step={0.05} value={options.opacity} onChange={(_, v) => onChange({ ...options, opacity: v as number })} sx={{ color: COLOR }} />
+        <Slider
+          min={0.05}
+          max={1}
+          step={0.05}
+          value={options.opacity}
+          onChange={(_, v) => onChange({ ...options, opacity: v as number })}
+          sx={{ color: COLOR }}
+        />
       </Grid>
       <Grid size={12}>
-        <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>Position</Typography>
+        <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+          Position
+        </Typography>
         <PositionGrid value={options.position} onChange={(position) => onChange({ ...options, position })} />
       </Grid>
     </Grid>
@@ -119,8 +179,21 @@ interface WatermarkControlsProps {
 }
 
 export default function WatermarkControls({
-  mode, textOptions, onTextChange, imageOptions, onImageChange, watermarkName, onWatermarkFile,
+  mode,
+  textOptions,
+  onTextChange,
+  imageOptions,
+  onImageChange,
+  watermarkName,
+  onWatermarkFile,
 }: Readonly<WatermarkControlsProps>) {
   if (mode === 'text') return <TextControls options={textOptions} onChange={onTextChange} />;
-  return <ImageControls options={imageOptions} onChange={onImageChange} watermarkName={watermarkName} onWatermarkFile={onWatermarkFile} />;
+  return (
+    <ImageControls
+      options={imageOptions}
+      onChange={onImageChange}
+      watermarkName={watermarkName}
+      onWatermarkFile={onWatermarkFile}
+    />
+  );
 }

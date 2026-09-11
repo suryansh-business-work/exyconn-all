@@ -16,7 +16,6 @@ const EXPECTED = [
   'Box',
   'Stack',
   'Grid',
-  'Grid2',
   'Paper',
   'Typography',
   'Link',
@@ -75,7 +74,7 @@ const EXPECTED = [
   'DateTimePicker',
   'TimePicker',
   'DateCalendar',
-  'PickersDay',
+  'PickerDay',
   // styles + theme
   'styled',
   'alpha',

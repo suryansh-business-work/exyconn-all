@@ -27,7 +27,12 @@ const ChatbotNameForm: React.FC<ChatbotNameFormProps> = ({ onSubmit, isLoading }
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <SmartToy color="primary" />
-        <Typography variant="h6" fontWeight={600}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Generate Chatbot Names
         </Typography>
       </Box>
@@ -49,7 +54,13 @@ const ChatbotNameForm: React.FC<ChatbotNameFormProps> = ({ onSubmit, isLoading }
         />
 
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              mb: 1,
+            }}
+          >
             Personality
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -66,7 +77,13 @@ const ChatbotNameForm: React.FC<ChatbotNameFormProps> = ({ onSubmit, isLoading }
         </Box>
 
         <Box sx={{ mb: 3 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              mb: 1,
+            }}
+          >
             Number of names: {formik.values.count}
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>

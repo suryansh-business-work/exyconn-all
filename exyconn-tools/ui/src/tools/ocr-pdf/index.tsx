@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import DocumentScanner from '@mui/icons-material/DocumentScanner';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import Download from '@mui/icons-material/Download';
@@ -44,11 +44,14 @@ export default function OcrPdf() {
     setExtractedText('');
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    const f = e.dataTransfer.files[0];
-    if (f) handleFile(f);
-  }, [handleFile]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const f = e.dataTransfer.files[0];
+      if (f) handleFile(f);
+    },
+    [handleFile]
+  );
 
   const extractText = useCallback(async () => {
     if (!file) return;
@@ -67,7 +70,9 @@ export default function OcrPdf() {
         canvas.height = viewport.height;
         const ctx = canvas.getContext('2d')!;
         await page.render({ canvas, canvasContext: ctx, viewport }).promise;
-        const { data: { text } } = await Tesseract.recognize(canvas, language);
+        const {
+          data: { text },
+        } = await Tesseract.recognize(canvas, language);
         fullText += `--- Page ${i} ---\n${text}\n\n`;
       }
       setExtractedText(fullText);
@@ -109,35 +114,80 @@ export default function OcrPdf() {
           <Paper
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
-            sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: file ? COLOR : 'divider', cursor: 'pointer' }}
+            sx={{
+              p: 4,
+              textAlign: 'center',
+              border: '2px dashed',
+              borderColor: file ? COLOR : 'divider',
+              cursor: 'pointer',
+            }}
             onClick={() => !processing && document.getElementById('ocr-upload')?.click()}
           >
-            <input id="ocr-upload" type="file" accept=".pdf" hidden onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+            <input
+              id="ocr-upload"
+              type="file"
+              accept=".pdf"
+              hidden
+              onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+            />
             <CloudUpload sx={{ fontSize: 48, color: COLOR, mb: 1 }} />
             <Typography variant="h6">{file ? file.name : 'Drop PDF here or click to upload'}</Typography>
-            {file && <Typography variant="body2" color="text.secondary">{(file.size / 1024).toFixed(1)} KB</Typography>}
+            {file && (
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
+                {(file.size / 1024).toFixed(1)} KB
+              </Typography>
+            )}
           </Paper>
           {file && <PdfPreview file={file} />}
         </Grid>
 
         {/* Language & Actions */}
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField select fullWidth label="OCR Language" value={language} onChange={(e) => setLanguage(e.target.value)} disabled={processing}>
-            {LANGUAGES.map((l) => <MenuItem key={l.value} value={l.value}>{l.label}</MenuItem>)}
+          <TextField
+            select
+            fullWidth
+            label="OCR Language"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            disabled={processing}
+          >
+            {LANGUAGES.map((l) => (
+              <MenuItem key={l.value} value={l.value}>
+                {l.label}
+              </MenuItem>
+            ))}
           </TextField>
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Button variant="contained" onClick={extractText} disabled={!file || processing} sx={{ bgcolor: COLOR, '&:hover': { bgcolor: '#4f46e5' } }}>
+          <Button
+            variant="contained"
+            onClick={extractText}
+            disabled={!file || processing}
+            sx={{ bgcolor: COLOR, '&:hover': { bgcolor: '#4f46e5' } }}
+          >
             Extract Text
           </Button>
-          <Button variant="outlined" startIcon={<RestartAlt />} onClick={reset} disabled={processing}>Reset</Button>
+          <Button variant="outlined" startIcon={<RestartAlt />} onClick={reset} disabled={processing}>
+            Reset
+          </Button>
         </Grid>
 
         {/* Progress */}
         {processing && (
           <Grid size={12}>
-            <Typography variant="body2" sx={{ mb: 1 }}>Processing page {progress.current} of {progress.total}...</Typography>
-            <LinearProgress variant="determinate" value={progress.total ? (progress.current / progress.total) * 100 : 0} sx={{ '& .MuiLinearProgress-bar': { bgcolor: COLOR } }} />
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Processing page {progress.current} of {progress.total}...
+            </Typography>
+            <LinearProgress
+              variant="determinate"
+              value={progress.total ? (progress.current / progress.total) * 100 : 0}
+              sx={{ '& .MuiLinearProgress-bar': { bgcolor: COLOR } }}
+            />
           </Grid>
         )}
 
@@ -145,10 +195,23 @@ export default function OcrPdf() {
         {extractedText && (
           <Grid size={12}>
             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-              <Button variant="outlined" startIcon={<ContentCopy />} onClick={copyText}>{copied ? 'Copied!' : 'Copy Text'}</Button>
-              <Button variant="outlined" startIcon={<Download />} onClick={downloadTxt}>Download as TXT</Button>
+              <Button variant="outlined" startIcon={<ContentCopy />} onClick={copyText}>
+                {copied ? 'Copied!' : 'Copy Text'}
+              </Button>
+              <Button variant="outlined" startIcon={<Download />} onClick={downloadTxt}>
+                Download as TXT
+              </Button>
             </Box>
-            <Paper sx={{ p: 2, maxHeight: 500, overflow: 'auto', fontFamily: 'monospace', whiteSpace: 'pre-wrap', fontSize: 14 }}>
+            <Paper
+              sx={{
+                p: 2,
+                maxHeight: 500,
+                overflow: 'auto',
+                fontFamily: 'monospace',
+                whiteSpace: 'pre-wrap',
+                fontSize: 14,
+              }}
+            >
               {extractedText}
             </Paper>
           </Grid>

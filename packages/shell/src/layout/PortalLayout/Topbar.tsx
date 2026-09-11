@@ -65,10 +65,23 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         </Typography>
         {user && <TopbarSearch roles={user.roles} />}
         <Box sx={{ textAlign: 'right', mx: 1.5, display: { xs: 'none', sm: 'block' } }}>
-          <Typography variant="caption" fontWeight={700} sx={{ display: 'block', lineHeight: 1.3 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: 700,
+              display: 'block',
+              lineHeight: 1.3,
+            }}
+          >
             {user?.name}
           </Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+              display: 'block',
+            }}
+          >
             {user?.roles.join(', ')}
           </Typography>
         </Box>

@@ -196,7 +196,7 @@ export function buildTheme(
       MuiTabs: { styleOverrides: { root: { minHeight: TAB_HEIGHT } } },
       MuiTab: { styleOverrides: { root: { minHeight: TAB_HEIGHT, paddingBlock: spacing(1) } } },
       // MUI X paints calendar cells as circles by default; the 4px ceiling applies to them too.
-      MuiPickersDay: { styleOverrides: { root: { borderRadius: TRACKER_RADIUS } } },
+      MuiPickerDay: { styleOverrides: { root: { borderRadius: TRACKER_RADIUS } } },
     },
   });
 }

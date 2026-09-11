@@ -12,7 +12,15 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { toolsData, getAllTools, getCategories, getToolCounts, findToolById, getCategoryOfTool, getToolsByCategory } from '../shared/data/toolsData';
+import {
+  toolsData,
+  getAllTools,
+  getCategories,
+  getToolCounts,
+  findToolById,
+  getCategoryOfTool,
+  getToolsByCategory,
+} from '../shared/data/toolsData';
 import { toolDetails } from '../shared/data/toolDetails';
 
 const EXPECTED_CATEGORIES = [
@@ -143,60 +151,57 @@ describe('toolDetails content coverage', () => {
   });
 });
 
-describe.each(allTools.map((tool) => [tool.id, tool.name] as const))(
-  'content for %s',
-  (id) => {
-    const details = toolDetails[id];
+describe.each(allTools.map((tool) => [tool.id, tool.name] as const))('content for %s', (id) => {
+  const details = toolDetails[id];
 
-    it('exists', () => {
-      expect(details).toBeDefined();
-    });
+  it('exists', () => {
+    expect(details).toBeDefined();
+  });
 
-    it('has 2-3 longDescription paragraphs of at least 200 chars each', () => {
-      expect(details.longDescription.length).toBeGreaterThanOrEqual(2);
-      expect(details.longDescription.length).toBeLessThanOrEqual(3);
-      const short = details.longDescription
-        .map((paragraph, index) => ({ index, length: paragraph.length }))
-        .filter((entry) => entry.length < 200);
-      expect(short).toEqual([]);
-    });
+  it('has 2-3 longDescription paragraphs of at least 200 chars each', () => {
+    expect(details.longDescription.length).toBeGreaterThanOrEqual(2);
+    expect(details.longDescription.length).toBeLessThanOrEqual(3);
+    const short = details.longDescription
+      .map((paragraph, index) => ({ index, length: paragraph.length }))
+      .filter((entry) => entry.length < 200);
+    expect(short).toEqual([]);
+  });
 
-    it('has 4-8 features', () => {
-      expect(details.features.length).toBeGreaterThanOrEqual(4);
-      expect(details.features.length).toBeLessThanOrEqual(8);
-      expect(details.features.every((feature) => feature.trim().length > 0)).toBe(true);
-    });
+  it('has 4-8 features', () => {
+    expect(details.features.length).toBeGreaterThanOrEqual(4);
+    expect(details.features.length).toBeLessThanOrEqual(8);
+    expect(details.features.every((feature) => feature.trim().length > 0)).toBe(true);
+  });
 
-    it('has 3-6 use cases', () => {
-      expect(details.useCases.length).toBeGreaterThanOrEqual(3);
-      expect(details.useCases.length).toBeLessThanOrEqual(6);
-      expect(details.useCases.every((useCase) => useCase.trim().length > 0)).toBe(true);
-    });
+  it('has 3-6 use cases', () => {
+    expect(details.useCases.length).toBeGreaterThanOrEqual(3);
+    expect(details.useCases.length).toBeLessThanOrEqual(6);
+    expect(details.useCases.every((useCase) => useCase.trim().length > 0)).toBe(true);
+  });
 
-    it('has 3-6 howTo steps', () => {
-      expect(details.howTo.length).toBeGreaterThanOrEqual(3);
-      expect(details.howTo.length).toBeLessThanOrEqual(6);
-      expect(details.howTo.every((step) => step.trim().length > 0)).toBe(true);
-    });
+  it('has 3-6 howTo steps', () => {
+    expect(details.howTo.length).toBeGreaterThanOrEqual(3);
+    expect(details.howTo.length).toBeLessThanOrEqual(6);
+    expect(details.howTo.every((step) => step.trim().length > 0)).toBe(true);
+  });
 
-    it('has 4-6 faqs, each answered in at least 40 chars', () => {
-      expect(details.faqs.length).toBeGreaterThanOrEqual(4);
-      expect(details.faqs.length).toBeLessThanOrEqual(6);
-      const weak = details.faqs
-        .filter((faq) => !faq.question.trim() || faq.answer.length < 40)
-        .map((faq) => faq.question);
-      expect(weak).toEqual([]);
-    });
+  it('has 4-6 faqs, each answered in at least 40 chars', () => {
+    expect(details.faqs.length).toBeGreaterThanOrEqual(4);
+    expect(details.faqs.length).toBeLessThanOrEqual(6);
+    const weak = details.faqs
+      .filter((faq) => !faq.question.trim() || faq.answer.length < 40)
+      .map((faq) => faq.question);
+    expect(weak).toEqual([]);
+  });
 
-    it('has 5-10 keywords', () => {
-      expect(details.keywords.length).toBeGreaterThanOrEqual(5);
-      expect(details.keywords.length).toBeLessThanOrEqual(10);
-      expect(details.keywords.every((keyword) => keyword.trim().length > 0)).toBe(true);
-    });
+  it('has 5-10 keywords', () => {
+    expect(details.keywords.length).toBeGreaterThanOrEqual(5);
+    expect(details.keywords.length).toBeLessThanOrEqual(10);
+    expect(details.keywords.every((keyword) => keyword.trim().length > 0)).toBe(true);
+  });
 
-    it('has a metaDescription of 100-165 chars', () => {
-      expect(details.metaDescription.length).toBeGreaterThanOrEqual(100);
-      expect(details.metaDescription.length).toBeLessThanOrEqual(165);
-    });
-  },
-);
+  it('has a metaDescription of 100-165 chars', () => {
+    expect(details.metaDescription.length).toBeGreaterThanOrEqual(100);
+    expect(details.metaDescription.length).toBeLessThanOrEqual(165);
+  });
+});

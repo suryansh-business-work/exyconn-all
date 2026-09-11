@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  Drawer, Box, Typography, IconButton, Chip,
-  Alert, Accordion, AccordionSummary,
+  Drawer,
+  Box,
+  Typography,
+  IconButton,
+  Chip,
+  Alert,
+  Accordion,
+  AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
-import {
-  Close, Key, CheckCircle, ExpandMore,
-} from '@mui/icons-material';
+import { Close, Key, CheckCircle, ExpandMore } from '@mui/icons-material';
 import { secretsConfig, secretCategories, SecretField } from './secretsConfig';
 import SecretFieldItem from './SecretFieldItem';
 import { readSecret, writeSecret } from '../../services/secrets';
@@ -71,31 +75,64 @@ const SecretsDrawer: React.FC<Readonly<SecretsDrawerProps>> = ({ open, onClose, 
   };
 
   const configuredCount = Object.values(saved).filter(Boolean).length;
-  const highlightField = highlightKey
-    ? secretsConfig.find((field) => field.key === highlightKey)
-    : undefined;
+  const highlightField = highlightKey ? secretsConfig.find((field) => field.key === highlightKey) : undefined;
   const highlightCategory = highlightField?.category;
 
   return (
-    <Drawer anchor="right" open={open} onClose={onClose}
-      PaperProps={{ sx: { width: { xs: '100%', sm: 460 }, bgcolor: 'background.default', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' } }}>
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={onClose}
+      slotProps={{
+        paper: {
+          sx: {
+            width: { xs: '100%', sm: 460 },
+            bgcolor: 'background.default',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            overflow: 'hidden',
+          },
+        },
+      }}
+    >
       {/* Header - fixed at top */}
       <Box sx={{ flexShrink: 0, px: 2.5, py: 2, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Key sx={{ color: 'primary.main', fontSize: 22 }} />
-            <Typography variant="h6" fontWeight={700} fontSize={16}>API Keys & Secrets</Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                fontSize: 16,
+              }}
+            >
+              API Keys & Secrets
+            </Typography>
           </Box>
-          <IconButton size="small" onClick={onClose}><Close fontSize="small" /></IconButton>
+          <IconButton size="small" onClick={onClose}>
+            <Close fontSize="small" />
+          </IconButton>
         </Box>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            mt: 0.5,
+          }}
+        >
           Configure your API keys once — they auto-apply across all tools.
         </Typography>
         <Box sx={{ mt: 1.5, display: 'flex', gap: 1 }}>
-          <Chip size="small" icon={<CheckCircle sx={{ fontSize: '14px !important' }} />}
+          <Chip
+            size="small"
+            icon={<CheckCircle sx={{ fontSize: '14px !important' }} />}
             label={`${configuredCount}/${secretsConfig.length} configured`}
             color={configuredCount === secretsConfig.length ? 'success' : 'default'}
-            variant="outlined" sx={{ fontSize: '0.75rem' }} />
+            variant="outlined"
+            sx={{ fontSize: '0.75rem' }}
+          />
         </Box>
       </Box>
 
@@ -103,8 +140,8 @@ const SecretsDrawer: React.FC<Readonly<SecretsDrawerProps>> = ({ open, onClose, 
       <Box sx={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', px: 2.5, py: 2, minHeight: 0 }}>
         {highlightField ? (
           <Alert severity="warning" sx={{ mb: 2, '& .MuiAlert-message': { fontSize: '0.8rem' } }}>
-            Paste your <strong>{highlightField.label}</strong> in the highlighted field below,
-            then press Save. Steps to get one are in that card.
+            Paste your <strong>{highlightField.label}</strong> in the highlighted field below, then press Save. Steps to
+            get one are in that card.
           </Alert>
         ) : (
           <Alert severity="info" variant="outlined" sx={{ mb: 2, '& .MuiAlert-message': { fontSize: '0.8rem' } }}>
@@ -119,23 +156,33 @@ const SecretsDrawer: React.FC<Readonly<SecretsDrawerProps>> = ({ open, onClose, 
               defaultExpanded
               expanded={highlightCategory === category ? true : undefined}
               disableGutters
-              sx={{ 
-                '&:before': { display: 'none' }, 
-                bgcolor: 'background.paper', 
-                border: 1, 
-                borderColor: 'divider', 
+              sx={{
+                '&:before': { display: 'none' },
+                bgcolor: 'background.paper',
+                border: 1,
+                borderColor: 'divider',
                 borderRadius: '8px !important',
                 overflow: 'visible',
                 boxShadow: 'none',
-              }}>
-              <AccordionSummary 
-                expandIcon={<ExpandMore />} 
-                sx={{ 
-                  minHeight: 44, 
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMore />}
+                sx={{
+                  minHeight: 44,
                   '& .MuiAccordionSummary-content': { my: 0.5 },
                   borderRadius: '8px',
-                }}>
-                <Typography variant="subtitle2" fontWeight={600} fontSize={13}>{category}</Typography>
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: 13,
+                  }}
+                >
+                  {category}
+                </Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ pt: 0, pb: 2, px: 2, overflow: 'visible' }}>
                 {secretsConfig
@@ -160,18 +207,18 @@ const SecretsDrawer: React.FC<Readonly<SecretsDrawerProps>> = ({ open, onClose, 
                           : undefined
                       }
                     >
-                    <SecretFieldItem
-                      field={field}
-                      value={values[field.key] || ''}
-                      isVisible={!!visibility[field.key]}
-                      isSaved={!!saved[field.key]}
-                      isCopied={copied === field.key}
-                      onValueChange={(val) => setValues((prev) => ({ ...prev, [field.key]: val }))}
-                      onToggleVisibility={() => setVisibility((prev) => ({ ...prev, [field.key]: !prev[field.key] }))}
-                      onSave={() => handleSave(field)}
-                      onClear={() => handleClear(field)}
-                      onCopy={() => handleCopy(field.key)}
-                    />
+                      <SecretFieldItem
+                        field={field}
+                        value={values[field.key] || ''}
+                        isVisible={!!visibility[field.key]}
+                        isSaved={!!saved[field.key]}
+                        isCopied={copied === field.key}
+                        onValueChange={(val) => setValues((prev) => ({ ...prev, [field.key]: val }))}
+                        onToggleVisibility={() => setVisibility((prev) => ({ ...prev, [field.key]: !prev[field.key] }))}
+                        onSave={() => handleSave(field)}
+                        onClear={() => handleClear(field)}
+                        onCopy={() => handleCopy(field.key)}
+                      />
                     </Box>
                   ))}
               </AccordionDetails>

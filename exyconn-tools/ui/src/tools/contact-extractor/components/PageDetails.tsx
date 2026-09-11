@@ -18,7 +18,12 @@ const PageDetails: React.FC<PageDetailsProps> = ({ pages }) => {
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <Description color="primary" />
-        <Typography variant="h6" fontWeight={600}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Page-by-Page Results
         </Typography>
       </Box>
@@ -41,8 +46,12 @@ const PageDetails: React.FC<PageDetailsProps> = ({ pages }) => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%', pr: 2 }}>
                 <Typography
                   variant="body2"
-                  fontWeight={500}
-                  sx={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}
+                  sx={{
+                    fontWeight: 500,
+                    flex: 1,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
                 >
                   {page.title || page.url}
                 </Typography>
@@ -83,7 +92,14 @@ const PageDetails: React.FC<PageDetailsProps> = ({ pages }) => {
 
               {page.contacts.emails.length > 0 && (
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="caption" color="text.secondary" gutterBottom sx={{ display: 'block' }}>
+                  <Typography
+                    variant="caption"
+                    gutterBottom
+                    sx={{
+                      color: 'text.secondary',
+                      display: 'block',
+                    }}
+                  >
                     Emails:
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -96,7 +112,14 @@ const PageDetails: React.FC<PageDetailsProps> = ({ pages }) => {
 
               {page.contacts.phones.length > 0 && (
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="caption" color="text.secondary" gutterBottom sx={{ display: 'block' }}>
+                  <Typography
+                    variant="caption"
+                    gutterBottom
+                    sx={{
+                      color: 'text.secondary',
+                      display: 'block',
+                    }}
+                  >
                     Phones:
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -108,7 +131,12 @@ const PageDetails: React.FC<PageDetailsProps> = ({ pages }) => {
               )}
 
               {!hasContacts && (
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   No contacts found on this page
                 </Typography>
               )}

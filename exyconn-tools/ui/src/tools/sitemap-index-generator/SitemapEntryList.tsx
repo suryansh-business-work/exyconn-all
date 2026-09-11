@@ -18,7 +18,12 @@ interface SitemapEntryListProps {
 const SitemapEntryList: React.FC<SitemapEntryListProps> = ({ sitemaps, onAdd, onRemove, onUpdate }) => (
   <>
     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-      <Typography variant="subtitle2" fontWeight={600}>
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         Sitemap Files ({sitemaps.length})
       </Typography>
       <Button size="small" startIcon={<Add />} onClick={onAdd}>
@@ -30,15 +35,16 @@ const SitemapEntryList: React.FC<SitemapEntryListProps> = ({ sitemaps, onAdd, on
       {sitemaps.map((sitemap, index) => (
         <Box key={sitemap.id} sx={{ mb: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <Typography variant="caption" fontWeight={600}>
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 600,
+              }}
+            >
               Sitemap #{index + 1}
             </Typography>
             <Box sx={{ flex: 1 }} />
-            <IconButton
-              size="small"
-              onClick={() => onRemove(sitemap.id)}
-              disabled={sitemaps.length === 1}
-            >
+            <IconButton size="small" onClick={() => onRemove(sitemap.id)} disabled={sitemaps.length === 1}>
               <Delete fontSize="small" />
             </IconButton>
           </Box>
@@ -58,7 +64,9 @@ const SitemapEntryList: React.FC<SitemapEntryListProps> = ({ sitemaps, onAdd, on
             type="date"
             value={sitemap.lastmod}
             onChange={(e) => onUpdate(sitemap.id, 'lastmod', e.target.value)}
-            InputLabelProps={{ shrink: true }}
+            slotProps={{
+              inputLabel: { shrink: true },
+            }}
           />
         </Box>
       ))}

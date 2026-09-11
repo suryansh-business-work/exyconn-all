@@ -65,7 +65,7 @@ export const canvasToBlob = (canvas: HTMLCanvasElement, mime: string): Promise<B
         else reject(new Error('Failed to export image.'));
       },
       mime,
-      0.92,
+      0.92
     );
   });
 

@@ -32,7 +32,13 @@ export function TrackerMessageThreadList({
     return (
       <Box sx={{ p: 3, textAlign: 'center' }}>
         <Typography variant="subtitle1">No conversations yet</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            mt: 0.5,
+          }}
+        >
           A thread appears here as soon as an employee writes from their tracker.
         </Typography>
       </Box>
@@ -56,15 +62,29 @@ export function TrackerMessageThreadList({
             }
             secondary={
               <>
-                <Typography variant="caption" color="text.secondary" noWrap display="block">
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{
+                    color: 'text.secondary',
+                    display: 'block',
+                  }}
+                >
                   {thread.lastMessageBody}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   {thread.lastMessageAt ? formatDateTime(thread.lastMessageAt) : ''}
                 </Typography>
               </>
             }
-            secondaryTypographyProps={{ component: 'div' }}
+            slotProps={{
+              secondary: { component: 'div' },
+            }}
           />
         </ListItemButton>
       ))}

@@ -38,7 +38,12 @@ export function MediaReview({ selection, uploading, onCropChange }: Readonly<Med
           sx={{ width: '100%', maxHeight: 280, objectFit: 'contain' }}
         />
       )}
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {selection.fileName}
       </Typography>
       {uploading && <LinearProgress />}

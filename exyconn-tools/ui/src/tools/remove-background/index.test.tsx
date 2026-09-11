@@ -4,8 +4,12 @@ import type { ReactNode } from 'react';
 import RemoveBackground from './index';
 import APIs from '../../shared/config/apis';
 import {
-  ACCEPTED_TYPES, fileToDataUrl, formatBytes, outputFileName,
-  removeBackground, removeBackgroundErrorMessage,
+  ACCEPTED_TYPES,
+  fileToDataUrl,
+  formatBytes,
+  outputFileName,
+  removeBackground,
+  removeBackgroundErrorMessage,
 } from './utils';
 
 vi.mock('../../shared/components/ToolLayout/ToolLayout', () => ({
@@ -57,8 +61,12 @@ describe('removeBackgroundErrorMessage', () => {
   });
 
   it('reports service unavailability for 5xx statuses', () => {
-    expect(removeBackgroundErrorMessage(500)).toBe('Background removal service is temporarily unavailable. Please try again later.');
-    expect(removeBackgroundErrorMessage(502)).toBe('Background removal service is temporarily unavailable. Please try again later.');
+    expect(removeBackgroundErrorMessage(500)).toBe(
+      'Background removal service is temporarily unavailable. Please try again later.'
+    );
+    expect(removeBackgroundErrorMessage(502)).toBe(
+      'Background removal service is temporarily unavailable. Please try again later.'
+    );
   });
 
   it('falls back to a generic message with the status code', () => {

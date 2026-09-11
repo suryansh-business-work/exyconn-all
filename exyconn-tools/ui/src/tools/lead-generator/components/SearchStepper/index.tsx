@@ -110,7 +110,13 @@ const SearchStepper: React.FC<SearchStepperProps> = ({
   return (
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', overflow: 'hidden' }}>
       <Box sx={{ px: 2, py: 1.5, bgcolor: 'primary.50', borderBottom: 1, borderColor: 'divider' }}>
-        <Typography variant="subtitle2" fontWeight={600} color="primary.main">
+        <Typography
+          variant="subtitle2"
+          sx={{
+            fontWeight: 600,
+            color: 'primary.main',
+          }}
+        >
           🔍 Business Search Wizard
         </Typography>
       </Box>

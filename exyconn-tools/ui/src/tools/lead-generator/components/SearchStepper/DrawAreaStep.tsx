@@ -8,7 +8,12 @@ const DrawAreaStep: React.FC<DrawAreaStepProps> = ({ hasPolygon, hasApiKey, onDr
     <StepLabel
       optional={
         hasPolygon ? (
-          <Typography variant="caption" color="success.main">
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'success.main',
+            }}
+          >
             ✓ Area selected
           </Typography>
         ) : null
@@ -17,7 +22,13 @@ const DrawAreaStep: React.FC<DrawAreaStepProps> = ({ hasPolygon, hasApiKey, onDr
       Draw Search Area
     </StepLabel>
     <StepContent>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+          mb: 2,
+        }}
+      >
         Click the button below to draw a polygon on the map. This defines the area where businesses will be searched.
       </Typography>
 

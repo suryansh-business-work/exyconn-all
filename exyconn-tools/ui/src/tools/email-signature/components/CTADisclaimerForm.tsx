@@ -8,10 +8,9 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  
   InputAdornment,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { ExpandMore, Campaign, Link, TextSnippet } from '@mui/icons-material';
 import { FormikProps } from 'formik';
 import { SignatureFormValues } from '../types';
@@ -38,7 +37,13 @@ const CTADisclaimerForm: React.FC<CTADisclaimerFormProps> = ({ formik }) => {
         <AccordionSummary expandIcon={<ExpandMore />}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Campaign color="primary" fontSize="small" />
-            <Typography fontWeight={600}>Call to Action</Typography>
+            <Typography
+              sx={{
+                fontWeight: 600,
+              }}
+            >
+              Call to Action
+            </Typography>
           </Box>
         </AccordionSummary>
         <AccordionDetails>
@@ -55,12 +60,14 @@ const CTADisclaimerForm: React.FC<CTADisclaimerFormProps> = ({ formik }) => {
                 onBlur={handleBlur}
                 error={touched.ctaText && Boolean(errors.ctaText)}
                 helperText={touched.ctaText && errors.ctaText}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <TextSnippet fontSize="small" color="action" />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <TextSnippet fontSize="small" color="action" />
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
             </Grid>
@@ -76,12 +83,19 @@ const CTADisclaimerForm: React.FC<CTADisclaimerFormProps> = ({ formik }) => {
                 onBlur={handleBlur}
                 error={touched.ctaUrl && Boolean(errors.ctaUrl)}
                 helperText={touched.ctaUrl && errors.ctaUrl}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Link fontSize="small" color="action" />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Link
+                          color="action"
+                          sx={{
+                            fontSize: 'small',
+                          }}
+                        />
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
             </Grid>
@@ -93,11 +107,24 @@ const CTADisclaimerForm: React.FC<CTADisclaimerFormProps> = ({ formik }) => {
         <AccordionSummary expandIcon={<ExpandMore />}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <TextSnippet color="primary" fontSize="small" />
-            <Typography fontWeight={600}>Disclaimer (Legal Text)</Typography>
+            <Typography
+              sx={{
+                fontWeight: 600,
+              }}
+            >
+              Disclaimer (Legal Text)
+            </Typography>
           </Box>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+              mb: 1.5,
+              display: 'block',
+            }}
+          >
             Add confidentiality notices, legal disclaimers, or other text that appears below your signature.
           </Typography>
           <Box

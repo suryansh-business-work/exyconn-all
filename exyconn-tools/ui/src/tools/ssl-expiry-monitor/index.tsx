@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Alert, Snackbar, Chip, Box, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Timer } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay, KeyValueTable } from '../../shared/components/DomainToolShared';
@@ -30,42 +30,71 @@ const SSLExpiryMonitor: React.FC = () => {
     }
   };
 
-  const statusColor = (s: string) => s === 'valid' ? 'success' : s === 'warning' ? 'warning' : 'error';
+  const statusColor = (s: string) => (s === 'valid' ? 'success' : s === 'warning' ? 'warning' : 'error');
 
   return (
     <ToolLayout toolName="SSL Expiry Monitor" toolIcon={<Timer />} toolColor="#f97316">
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <DomainInputForm onSubmit={handleCheck} isLoading={isLoading} icon={<Timer color="primary" />}
-              title="SSL Expiry Monitor" buttonText="Check SSL Expiry" loadingText="Checking..." />
+            <DomainInputForm
+              onSubmit={handleCheck}
+              isLoading={isLoading}
+              icon={<Timer color="primary" />}
+              title="SSL Expiry Monitor"
+              buttonText="Check SSL Expiry"
+              loadingText="Checking..."
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             {result && (
-              <DomainResultDisplay title={`SSL Expiry - ${result.domain}`} icon={<Timer fontSize="small" />} data={result}>
+              <DomainResultDisplay
+                title={`SSL Expiry - ${result.domain}`}
+                icon={<Timer fontSize="small" />}
+                data={result}
+              >
                 <Box sx={{ textAlign: 'center', py: 3, mb: 2 }}>
-                  <Typography variant="h3" fontWeight={700}
-                    color={`${statusColor(result.status as string)}.main`}>
+                  <Typography
+                    variant="h3"
+                    color={`${statusColor(result.status as string)}.main`}
+                    sx={{
+                      fontWeight: 700,
+                    }}
+                  >
                     {result.daysRemaining as number}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">days until SSL expiry</Typography>
-                  <Chip label={(result.status as string).toUpperCase()} sx={{ mt: 1 }}
-                    color={statusColor(result.status as string)} />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
+                    days until SSL expiry
+                  </Typography>
+                  <Chip
+                    label={(result.status as string).toUpperCase()}
+                    sx={{ mt: 1 }}
+                    color={statusColor(result.status as string)}
+                  />
                 </Box>
-                <KeyValueTable data={{
-                  Domain: result.domain,
-                  'Valid From': result.validFrom,
-                  'Valid To': result.validTo,
-                  'Days Remaining': result.daysRemaining,
-                  Status: result.status,
-                }} />
+                <KeyValueTable
+                  data={{
+                    Domain: result.domain,
+                    'Valid From': result.validFrom,
+                    'Valid To': result.validTo,
+                    'Days Remaining': result.daysRemaining,
+                    Status: result.status,
+                  }}
+                />
               </DomainResultDisplay>
             )}
           </Grid>
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

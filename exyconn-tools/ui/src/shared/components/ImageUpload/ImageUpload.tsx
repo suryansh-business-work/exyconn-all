@@ -131,7 +131,14 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       )}
 
       {helperText && !error && (
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+            mt: 0.5,
+            display: 'block',
+          }}
+        >
           {helperText}
         </Typography>
       )}

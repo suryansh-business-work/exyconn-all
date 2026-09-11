@@ -46,7 +46,14 @@ export default function WorkArrangementCard({ workProfile }: Readonly<Props>): R
   return (
     <Surface sx={{ p: 2.5 }}>
       <Typography variant="h6">Your working day</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 1 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+          mt: 0.5,
+          mb: 1,
+        }}
+      >
         Set by HR on your employee record. Today&apos;s progress bar fills against these hours. Ask
         HR if it does not match your contract.
       </Typography>

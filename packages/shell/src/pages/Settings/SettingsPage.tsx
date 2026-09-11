@@ -9,7 +9,12 @@ export function SettingsPage() {
     <Box>
       <PageHeader title="Settings" subtitle="Manage your account security" />
       <Grid container spacing={2.5}>
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6,
+          }}
+        >
           <Box sx={[glass, { p: 3 }]}>
             <Heading level={6} sx={{ mb: 0.5 }}>
               Change password

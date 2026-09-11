@@ -67,7 +67,7 @@ export function ImageUploadDialog({
   };
 
   return (
-    <Dialog open={open} disableEscapeKeyDown fullWidth maxWidth="sm">
+    <Dialog open={open} fullWidth maxWidth="sm">
       <DialogTitle>{selection ? `${title} — review` : title}</DialogTitle>
       {!selection && (
         <Tabs

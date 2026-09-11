@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import type { ColDef } from 'ag-grid-community';
 import DownloadIcon from '@mui/icons-material/Download';
 import { Button } from '@exyconn/shell/components/ui';
@@ -17,6 +17,7 @@ import { downloadCsv, toCsv, type CsvColumn } from '@exyconn/shell/utils/csv';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { csvColumnsFromDefs, fetchAllRows } from './export';
 import { assertExportAllowed } from './permissions';
+import { queryData } from '@exyconn/shell/utils/queryData';
 
 interface ExportCsvButtonProps<Row> {
   /** The file's name; the date is appended and `.csv` added. */
@@ -110,12 +111,12 @@ export function GridExportButton<Row>({
   );
   const canExport = useCallback(
     async (module: string) => {
-      const { data } = await client.query<CanExportQuery, CanExportQueryVariables>({
+      const result = await client.query<CanExportQuery, CanExportQueryVariables>({
         query: CanExportDocument,
         variables: { module },
         fetchPolicy: 'network-only',
       });
-      return data.canExport;
+      return queryData(result, 'The export-permission query').canExport;
     },
     [client],
   );

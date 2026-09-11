@@ -1,6 +1,6 @@
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { Box, Button, Flex, Grid, IconButton, Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { lineCost, linesTotal, type PurchaseOrderLineValues } from './purchase-order.types';
@@ -15,23 +15,60 @@ interface LineRowProps {
 /** One ordered line. Hoisted to module scope — never defined inside its parent. */
 function LineRow({ index, cost, products, onRemove }: Readonly<LineRowProps>) {
   return (
-    <Grid container spacing={1} alignItems="center" sx={{ mb: 1 }}>
-      <Grid item xs={12} sm={4}>
+    <Grid
+      container
+      spacing={1}
+      sx={{
+        alignItems: 'center',
+        mb: 1,
+      }}
+    >
+      <Grid
+        size={{
+          xs: 12,
+          sm: 4,
+        }}
+      >
         <RhfSelect name={`lines.${index}.productId`} label="Product" options={products} />
       </Grid>
-      <Grid item xs={4} sm={2}>
+      <Grid
+        size={{
+          xs: 4,
+          sm: 2,
+        }}
+      >
         <RhfTextField name={`lines.${index}.quantity`} label="Qty" type="number" />
       </Grid>
-      <Grid item xs={4} sm={2}>
+      <Grid
+        size={{
+          xs: 4,
+          sm: 2,
+        }}
+      >
         <RhfTextField name={`lines.${index}.unitCost`} label="Unit cost" type="number" />
       </Grid>
-      <Grid item xs={4} sm={2}>
+      <Grid
+        size={{
+          xs: 4,
+          sm: 2,
+        }}
+      >
         <RhfTextField name={`lines.${index}.taxPercent`} label="Tax %" type="number" />
       </Grid>
-      <Grid item xs={10} sm={1}>
+      <Grid
+        size={{
+          xs: 10,
+          sm: 1,
+        }}
+      >
         <Text size="sm">{cost}</Text>
       </Grid>
-      <Grid item xs={2} sm={1}>
+      <Grid
+        size={{
+          xs: 2,
+          sm: 1,
+        }}
+      >
         <IconButton aria-label="Remove line" onClick={onRemove} size="small">
           <DeleteOutlineIcon fontSize="small" />
         </IconButton>

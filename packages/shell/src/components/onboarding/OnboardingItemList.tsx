@@ -26,7 +26,9 @@ function OnboardingItemRow({
         checked={item.done}
         disabled={!editable || busy}
         onChange={(event) => onToggle(item, event.target.checked)}
-        inputProps={{ 'aria-label': item.label }}
+        slotProps={{
+          input: { 'aria-label': item.label },
+        }}
       />
       <Box sx={{ minWidth: 0, flexGrow: 1 }}>
         <Text weight="medium">{item.label}</Text>

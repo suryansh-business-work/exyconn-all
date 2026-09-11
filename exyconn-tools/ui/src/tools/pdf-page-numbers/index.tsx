@@ -12,7 +12,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Numbers from '@mui/icons-material/Numbers';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Download from '@mui/icons-material/Download';
@@ -34,13 +34,20 @@ const getCoords = (pos: Position, pw: number, ph: number, tw: number, _fs: numbe
   const xCenter = (pw - tw) / 2;
   const xRight = pw - tw - margin;
   switch (pos) {
-    case 'bottom-center': return { x: xCenter, y: yBottom };
-    case 'bottom-left': return { x: xLeft, y: yBottom };
-    case 'bottom-right': return { x: xRight, y: yBottom };
-    case 'top-center': return { x: xCenter, y: yTop };
-    case 'top-left': return { x: xLeft, y: yTop };
-    case 'top-right': return { x: xRight, y: yTop };
-    default: return { x: xCenter, y: yBottom };
+    case 'bottom-center':
+      return { x: xCenter, y: yBottom };
+    case 'bottom-left':
+      return { x: xLeft, y: yBottom };
+    case 'bottom-right':
+      return { x: xRight, y: yBottom };
+    case 'top-center':
+      return { x: xCenter, y: yTop };
+    case 'top-left':
+      return { x: xLeft, y: yTop };
+    case 'top-right':
+      return { x: xRight, y: yTop };
+    default:
+      return { x: xCenter, y: yBottom };
   }
 };
 
@@ -56,17 +63,26 @@ export default function PdfPageNumbers() {
   const [format, setFormat] = useState<Format>('x');
 
   const loadFile = useCallback((f: File) => {
-    if (f.type !== 'application/pdf') { setError('Please select a PDF file.'); return; }
-    setFile(f); setResult(null);
+    if (f.type !== 'application/pdf') {
+      setError('Please select a PDF file.');
+      return;
+    }
+    setFile(f);
+    setResult(null);
   }, []);
 
-  const onDrop = useCallback((e: DragEvent) => {
-    e.preventDefault(); setDragOver(false);
-    if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
-  }, [loadFile]);
+  const onDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+    },
+    [loadFile]
+  );
 
   const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) loadFile(e.target.files[0]); e.target.value = '';
+    if (e.target.files?.[0]) loadFile(e.target.files[0]);
+    e.target.value = '';
   };
 
   const addNumbers = async () => {
@@ -89,14 +105,21 @@ export default function PdfPageNumbers() {
         page.drawText(text, { x, y, size: fontSize, font, color: rgb(0, 0, 0) });
       }
       setResult(await doc.save());
-    } catch { setError('Failed to add page numbers.'); } finally { setProcessing(false); }
+    } catch {
+      setError('Failed to add page numbers.');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const download = () => {
     if (!result) return;
     const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
-    const a = document.createElement('a'); a.href = url;
-    a.download = `numbered-${file?.name ?? 'document.pdf'}`; a.click(); URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `numbered-${file?.name ?? 'document.pdf'}`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -105,21 +128,52 @@ export default function PdfPageNumbers() {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper
-              sx={{ p: 4, textAlign: 'center', border: '2px dashed', borderColor: dragOver ? '#0ea5e9' : 'divider', cursor: 'pointer', transition: '0.2s' }}
-              onDragOver={(e: DragEvent) => { e.preventDefault(); setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)} onDrop={onDrop}
+              sx={{
+                p: 4,
+                textAlign: 'center',
+                border: '2px dashed',
+                borderColor: dragOver ? '#0ea5e9' : 'divider',
+                cursor: 'pointer',
+                transition: '0.2s',
+              }}
+              onDragOver={(e: DragEvent) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={onDrop}
             >
               <CloudUpload sx={{ fontSize: 48, color: '#0ea5e9', mb: 1 }} />
-              <Typography variant="h6" gutterBottom>Drag & Drop PDF Here</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>or click to browse</Typography>
+              <Typography variant="h6" gutterBottom>
+                Drag & Drop PDF Here
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                  mb: 2,
+                }}
+              >
+                or click to browse
+              </Typography>
               <Button variant="outlined" component="label" color="info">
-                Browse Files<input hidden accept="application/pdf" type="file" onChange={onFileChange} />
+                Browse Files
+                <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>
             {file && (
               <Paper sx={{ p: 2, mt: 2 }}>
-                <Typography variant="body2"><strong>{file.name}</strong></Typography>
-                <Typography variant="body2" color="text.secondary">Size: {formatSize(file.size)}</Typography>
+                <Typography variant="body2">
+                  <strong>{file.name}</strong>
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
+                  Size: {formatSize(file.size)}
+                </Typography>
               </Paper>
             )}
             {file && (
@@ -149,26 +203,56 @@ export default function PdfPageNumbers() {
                   <MenuItem value="x-of-y">1 of N, 2 of N...</MenuItem>
                 </Select>
               </FormControl>
-              <TextField label="Font Size" type="number" size="small" fullWidth
-                value={fontSize} onChange={(e) => setFontSize(Math.max(6, +e.target.value))} />
-              <TextField label="Start Number" type="number" size="small" fullWidth
-                value={startNum} onChange={(e) => setStartNum(Math.max(1, +e.target.value))} />
+              <TextField
+                label="Font Size"
+                type="number"
+                size="small"
+                fullWidth
+                value={fontSize}
+                onChange={(e) => setFontSize(Math.max(6, +e.target.value))}
+              />
+              <TextField
+                label="Start Number"
+                type="number"
+                size="small"
+                fullWidth
+                value={startNum}
+                onChange={(e) => setStartNum(Math.max(1, +e.target.value))}
+              />
             </Box>
             {processing && <LinearProgress sx={{ my: 2 }} color="info" />}
-            <Button variant="contained" fullWidth sx={{ mt: 2, bgcolor: '#0ea5e9', '&:hover': { bgcolor: '#0284c7' } }}
-              onClick={addNumbers} disabled={!file || processing}>
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{ mt: 2, bgcolor: '#0ea5e9', '&:hover': { bgcolor: '#0284c7' } }}
+              onClick={addNumbers}
+              disabled={!file || processing}
+            >
               {processing ? 'Processing...' : 'Add Page Numbers'}
             </Button>
             {result && (
-              <Button variant="outlined" fullWidth startIcon={<Download />} color="info" sx={{ mt: 2 }} onClick={download}>
+              <Button
+                variant="outlined"
+                fullWidth
+                startIcon={<Download />}
+                color="info"
+                sx={{ mt: 2 }}
+                onClick={download}
+              >
                 Download Numbered PDF
               </Button>
             )}
           </Grid>
         </Grid>
-        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-          <Alert severity="error" onClose={() => setError('')}>{error}</Alert>
+        <Snackbar
+          open={!!error}
+          autoHideDuration={4000}
+          onClose={() => setError('')}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert severity="error" onClose={() => setError('')}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

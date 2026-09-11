@@ -16,13 +16,20 @@ export function CrudDialog({ open, title, onClose, children }: CrudDialogProps) 
       anchor="right"
       open={open}
       onClose={onClose}
-      PaperProps={{ sx: { width: { xs: '100%', sm: 440 }, maxWidth: '100%' } }}
+      slotProps={{
+        paper: { sx: { width: { xs: '100%', sm: 440 }, maxWidth: '100%' } },
+      }}
     >
       <Stack
         direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ px: 2.5, py: 2, borderBottom: 1, borderColor: 'divider' }}
+        sx={{
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: 2.5,
+          py: 2,
+          borderBottom: 1,
+          borderColor: 'divider',
+        }}
       >
         <Typography variant="h6">{title}</Typography>
         <IconButton onClick={onClose} aria-label="Close" edge="end">

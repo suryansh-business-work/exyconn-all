@@ -35,7 +35,13 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({ settings, onUpd
           size="small"
           sx={{ width: 50, '& input': { p: 0.5, cursor: 'pointer', height: 28 } }}
         />
-        <Typography variant="caption" color="text.secondary" fontFamily="monospace">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+            fontFamily: 'monospace',
+          }}
+        >
           {settings.backgroundColor}
         </Typography>
       </Box>

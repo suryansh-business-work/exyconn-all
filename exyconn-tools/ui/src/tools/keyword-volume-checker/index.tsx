@@ -1,15 +1,32 @@
 import React, { useState } from 'react';
 import {
-  Container, Box, Typography, TextField, Button, Alert, Snackbar,
-  Paper, LinearProgress, Chip, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow,
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Snackbar,
+  Paper,
+  LinearProgress,
+  Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Analytics, Search, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
 
-interface SuggestionResult { keyword: string; wordCount: number; charCount: number }
+interface SuggestionResult {
+  keyword: string;
+  wordCount: number;
+  charCount: number;
+}
 
 const KeywordVolumeChecker: React.FC = () => {
   const [keywords, setKeywords] = useState('');
@@ -19,7 +36,10 @@ const KeywordVolumeChecker: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
   const handleCheck = async () => {
-    const kwList = keywords.split('\n').map((k) => k.trim()).filter(Boolean);
+    const kwList = keywords
+      .split('\n')
+      .map((k) => k.trim())
+      .filter(Boolean);
     if (kwList.length === 0) return;
     setIsLoading(true);
     setError(null);
@@ -36,7 +56,13 @@ const KeywordVolumeChecker: React.FC = () => {
         if (data.success && data.data.keywords) allResults.push(...data.data.keywords);
       }
       const seen = new Set<string>();
-      setResults(allResults.filter((r) => { if (seen.has(r.keyword)) return false; seen.add(r.keyword); return true; }));
+      setResults(
+        allResults.filter((r) => {
+          if (seen.has(r.keyword)) return false;
+          seen.add(r.keyword);
+          return true;
+        })
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -57,13 +83,33 @@ const KeywordVolumeChecker: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom><Search sx={{ mr: 1, verticalAlign: 'middle' }} />Keyword Ideas</Typography>
-              <TextField fullWidth size="small" multiline rows={6} label="Keywords (one per line, max 5)" placeholder={'digital marketing\nseo tools\ncontent marketing'} value={keywords} onChange={(e) => setKeywords(e.target.value)} sx={{ mb: 2 }} />
-              <Button fullWidth variant="contained" onClick={handleCheck} disabled={isLoading || !keywords.trim()} sx={{ textTransform: 'none', bgcolor: '#6366f1', '&:hover': { bgcolor: '#4f46e5' } }}>
+              <Typography variant="h6" gutterBottom>
+                <Search sx={{ mr: 1, verticalAlign: 'middle' }} />
+                Keyword Ideas
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                multiline
+                rows={6}
+                label="Keywords (one per line, max 5)"
+                placeholder={'digital marketing\nseo tools\ncontent marketing'}
+                value={keywords}
+                onChange={(e) => setKeywords(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleCheck}
+                disabled={isLoading || !keywords.trim()}
+                sx={{ textTransform: 'none', bgcolor: '#6366f1', '&:hover': { bgcolor: '#4f46e5' } }}
+              >
                 {isLoading ? 'Fetching...' : 'Get Keyword Ideas'}
               </Button>
               <Alert severity="warning" sx={{ mt: 2 }}>
-                Search volume, CPC, and competition data require Google Ads API (Keyword Planner). This tool shows real keyword suggestions from Google Autocomplete instead.
+                Search volume, CPC, and competition data require Google Ads API (Keyword Planner). This tool shows real
+                keyword suggestions from Google Autocomplete instead.
               </Alert>
             </Paper>
           </Grid>
@@ -91,7 +137,9 @@ const KeywordVolumeChecker: React.FC = () => {
                         <TableRow key={i} hover>
                           <TableCell>{i + 1}</TableCell>
                           <TableCell>{r.keyword}</TableCell>
-                          <TableCell align="center"><Chip label={r.wordCount} size="small" variant="outlined" /></TableCell>
+                          <TableCell align="center">
+                            <Chip label={r.wordCount} size="small" variant="outlined" />
+                          </TableCell>
                           <TableCell align="center">{r.charCount}</TableCell>
                         </TableRow>
                       ))}
@@ -103,13 +151,21 @@ const KeywordVolumeChecker: React.FC = () => {
             {results.length === 0 && !isLoading && (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <Analytics sx={{ fontSize: 48, color: 'action.disabled', mb: 1 }} />
-                <Typography color="text.secondary">Enter keywords to get real suggestions from Google</Typography>
+                <Typography
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
+                  Enter keywords to get real suggestions from Google
+                </Typography>
               </Paper>
             )}
           </Grid>
         </Grid>
         <Snackbar open={!!error} autoHideDuration={5000} onClose={() => setError(null)}>
-          <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+          <Alert severity="error" onClose={() => setError(null)}>
+            {error}
+          </Alert>
         </Snackbar>
       </Container>
     </ToolLayout>

@@ -1,4 +1,5 @@
 import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
+import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { env } from './env';
@@ -12,8 +13,13 @@ const authLink = setContext((_operation, { headers }) => {
   return { headers: { ...headers, ...(token ? { authorization: `Bearer ${token}` } : {}) } };
 });
 
-const errorLink = onError(({ graphQLErrors }) => {
-  const unauthenticated = graphQLErrors?.some((e) => e.extensions?.code === 'UNAUTHENTICATED');
+// Apollo 4 hands the handler one `error` rather than separate GraphQL and network lists;
+// the GraphQL errors are inside it when it is a CombinedGraphQLErrors.
+const errorLink = onError(({ error }) => {
+  if (!CombinedGraphQLErrors.is(error)) {
+    return;
+  }
+  const unauthenticated = error.errors.some((e) => e.extensions?.code === 'UNAUTHENTICATED');
   if (unauthenticated) {
     tokenStore.clear();
   }

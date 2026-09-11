@@ -9,19 +9,19 @@ interface DistributionChartProps {
   emptyMessage: string;
 }
 
-const DistributionChart: React.FC<DistributionChartProps> = ({
-  title,
-  data,
-  totalUrls,
-  getColor,
-  emptyMessage,
-}) => {
+const DistributionChart: React.FC<DistributionChartProps> = ({ title, data, totalUrls, getColor, emptyMessage }) => {
   const maxCount = Math.max(...Object.values(data), 1);
   const entries = Object.entries(data);
 
   return (
     <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-      <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+      <Typography
+        variant="subtitle2"
+        gutterBottom
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         {title}
       </Typography>
       <Box sx={{ mt: 2 }}>
@@ -31,10 +31,21 @@ const DistributionChart: React.FC<DistributionChartProps> = ({
             .map(([key, count]) => (
               <Box key={key} sx={{ mb: 1.5 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="body2" fontWeight={500} sx={{ textTransform: 'capitalize' }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 500,
+                      textTransform: 'capitalize',
+                    }}
+                  >
                     {title.includes('Priority') ? `Priority ${key}` : key}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {count.toLocaleString()} ({((count / totalUrls) * 100).toFixed(1)}%)
                   </Typography>
                 </Box>
@@ -51,7 +62,14 @@ const DistributionChart: React.FC<DistributionChartProps> = ({
               </Box>
             ))
         ) : (
-          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              textAlign: 'center',
+              py: 2,
+            }}
+          >
             {emptyMessage}
           </Typography>
         )}

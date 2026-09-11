@@ -70,7 +70,12 @@ export function TrackerView({
       </Flex>
 
       <Grid container spacing={1.5}>
-        <Grid item xs={12} md={7}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 7,
+          }}
+        >
           <Box sx={[glass, { p: 1.5 }]}>
             <TrackerCalendar days={days} selectedDate={selectedDate} onSelectDay={onSelectDay} />
           </Box>
@@ -78,7 +83,12 @@ export function TrackerView({
             <TrackerMonthChart buckets={buckets} monthLabel={monthLabel} />
           </Box>
         </Grid>
-        <Grid item xs={12} md={5}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 5,
+          }}
+        >
           <Box sx={[glass, { p: 2 }]}>
             <TrackerDayPanel
               day={day}

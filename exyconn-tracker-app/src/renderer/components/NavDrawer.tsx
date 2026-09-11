@@ -68,15 +68,24 @@ export default function NavDrawer({
     <Drawer
       open={open}
       onClose={onClose}
-      PaperProps={{
-        sx: (theme) => ({
-          width: 268,
-          backgroundColor: theme.palette.background.paper,
-          borderRight: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
-        }),
+      slotProps={{
+        paper: {
+          sx: (theme) => ({
+            width: 268,
+            backgroundColor: theme.palette.background.paper,
+            borderRight: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
+          }),
+        },
       }}
     >
-      <Stack direction="row" spacing={1.5} alignItems="center" sx={{ p: 2.5 }}>
+      <Stack
+        direction="row"
+        spacing={1.5}
+        sx={{
+          alignItems: 'center',
+          p: 2.5,
+        }}
+      >
         <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40, fontWeight: 700 }}>
           {initials(name)}
         </Avatar>
@@ -84,7 +93,14 @@ export default function NavDrawer({
           <Typography variant="subtitle2" noWrap>
             {name}
           </Typography>
-          <Typography variant="caption" color="text.secondary" noWrap display="block">
+          <Typography
+            variant="caption"
+            noWrap
+            sx={{
+              color: 'text.secondary',
+              display: 'block',
+            }}
+          >
             {user?.email ?? ''}
           </Typography>
         </Box>
@@ -104,8 +120,10 @@ export default function NavDrawer({
             <ListItemText
               primary={item.label}
               secondary={item.caption}
-              primaryTypographyProps={{ variant: 'subtitle2' }}
-              secondaryTypographyProps={{ variant: 'caption' }}
+              slotProps={{
+                primary: { variant: 'subtitle2' },
+                secondary: { variant: 'caption' },
+              }}
             />
           </ListItemButton>
         ))}

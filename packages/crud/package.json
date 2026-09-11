@@ -13,18 +13,19 @@
   },
   "prettier": "@exyconn/config/prettier.json",
   "dependencies": {
-    "@apollo/client": "^3.12.5",
+    "@apollo/client": "^4.2.12",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@exyconn/i18n": "workspace:*",
     "@exyconn/shell": "workspace:*",
     "@exyconn/ui": "workspace:*",
-    "@mui/icons-material": "^6.4.0",
-    "@mui/material": "^6.4.0",
+    "@mui/icons-material": "^9.4.0",
+    "@mui/material": "^9.4.0",
     "ag-grid-community": "^36.0.0",
     "graphql": "^16.10.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "rxjs": "^7.8.2"
   },
   "devDependencies": {
     "@exyconn/config": "workspace:*",

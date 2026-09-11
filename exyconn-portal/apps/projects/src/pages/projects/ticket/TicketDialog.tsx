@@ -13,7 +13,7 @@ import {
   Text,
 } from '@exyconn/shell/components/ui';
 import CloseIcon from '@mui/icons-material/Close';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useListProjectMembersQuery, type TaskInput } from '@exyconn/shell/graphql/generated';

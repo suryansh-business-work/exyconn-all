@@ -1,4 +1,5 @@
-import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
+import { type MockedResponse } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { LocalizationProvider, AdapterDateFns } from '@exyconn/shell/components/ui';
@@ -45,7 +46,7 @@ const updateMock: MockedResponse = {
 
 const mount = (initial: MaintenanceRow | null, mocks: MockedResponse[] = []) =>
   cy.mount(
-    <MockedProvider mocks={[monitorsMock, ...mocks]} addTypename={false}>
+    <MockedProvider mocks={[monitorsMock, ...mocks]}>
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <NotificationProvider>

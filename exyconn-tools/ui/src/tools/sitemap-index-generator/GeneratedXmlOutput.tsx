@@ -14,7 +14,13 @@ const GeneratedXmlOutput: React.FC<GeneratedXmlOutputProps> = ({ generatedXml, o
       <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
         <ListAlt sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#6366f1' }} />
         <Typography variant="body1">Add sitemap URLs and generate your index file</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            mt: 1,
+          }}
+        >
           A sitemap index file helps search engines discover multiple sitemaps
         </Typography>
       </Box>
@@ -33,7 +39,12 @@ const GeneratedXmlOutput: React.FC<GeneratedXmlOutputProps> = ({ generatedXml, o
           justifyContent: 'space-between',
         }}
       >
-        <Typography variant="subtitle2" fontWeight={600}>
+        <Typography
+          variant="subtitle2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           Generated Sitemap Index
         </Typography>
         <Box>
@@ -55,7 +66,9 @@ const GeneratedXmlOutput: React.FC<GeneratedXmlOutputProps> = ({ generatedXml, o
           multiline
           rows={16}
           value={generatedXml}
-          InputProps={{ readOnly: true, sx: { fontFamily: 'monospace', fontSize: 12 } }}
+          slotProps={{
+            input: { readOnly: true, sx: { fontFamily: 'monospace', fontSize: 12 } },
+          }}
         />
       </Box>
     </>

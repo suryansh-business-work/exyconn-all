@@ -5,8 +5,18 @@ describe('RadioGroup (branded)', () => {
   it('renders all radio children', () => {
     cy.mount(
       <RadioGroup name="demo" defaultValue="a">
-        <Radio value="a" inputProps={{ 'aria-label': 'option-a' }} />
-        <Radio value="b" inputProps={{ 'aria-label': 'option-b' }} />
+        <Radio
+          value="a"
+          slotProps={{
+            input: { 'aria-label': 'option-a' },
+          }}
+        />
+        <Radio
+          value="b"
+          slotProps={{
+            input: { 'aria-label': 'option-b' },
+          }}
+        />
       </RadioGroup>,
     );
     cy.get('input[type="radio"]').should('have.length', 2);
@@ -16,8 +26,18 @@ describe('RadioGroup (branded)', () => {
     const onChange = cy.stub().as('change');
     cy.mount(
       <RadioGroup name="demo" defaultValue="a" onChange={onChange}>
-        <Radio value="a" inputProps={{ 'aria-label': 'option-a' }} />
-        <Radio value="b" inputProps={{ 'aria-label': 'option-b' }} />
+        <Radio
+          value="a"
+          slotProps={{
+            input: { 'aria-label': 'option-a' },
+          }}
+        />
+        <Radio
+          value="b"
+          slotProps={{
+            input: { 'aria-label': 'option-b' },
+          }}
+        />
       </RadioGroup>,
     );
     cy.get('input[value="b"]').click();

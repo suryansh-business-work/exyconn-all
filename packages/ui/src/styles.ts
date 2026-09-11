@@ -4,7 +4,7 @@
  * `no-restricted-imports` guard). Theme construction lives in `./theme`.
  *
  * The pickers' theme augmentation is pulled in here so `createTheme` accepts
- * `MuiPickersDay` & co. wherever a theme is built.
+ * `MuiPickerDay` & co. wherever a theme is built.
  */
 import type {} from '@mui/x-date-pickers/themeAugmentation';
 

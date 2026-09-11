@@ -99,7 +99,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
               textAlign: 'center',
             }}
           >
-            <Text fontWeight={700}>{page.tagline}</Text>
+            <Text weight="bold">{page.tagline}</Text>
           </Box>
         </Flex>
 

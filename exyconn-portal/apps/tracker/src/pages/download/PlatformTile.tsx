@@ -47,16 +47,35 @@ export function PlatformTile({
         '&:hover': { borderColor: platform.accent },
       })}
     >
-      <Stack direction="row" spacing={1.25} alignItems="center">
+      <Stack
+        direction="row"
+        spacing={1.25}
+        sx={{
+          alignItems: 'center',
+        }}
+      >
         <Icon sx={{ color: platform.accent }} />
         <Box sx={{ minWidth: 0, flex: 1 }}>
-          <Stack direction="row" spacing={0.5} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={0.5}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             <Typography variant="subtitle2" noWrap>
               {platform.label}
             </Typography>
             {detected && <CheckCircleIcon sx={{ fontSize: iconSize.sm, color: platform.accent }} />}
           </Stack>
-          <Typography variant="caption" color="text.secondary" noWrap display="block">
+          <Typography
+            variant="caption"
+            noWrap
+            sx={{
+              color: 'text.secondary',
+              display: 'block',
+            }}
+          >
             {available ? platform.fileLabel : 'Not in this release'}
           </Typography>
         </Box>

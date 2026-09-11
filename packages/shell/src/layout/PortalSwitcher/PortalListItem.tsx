@@ -49,8 +49,14 @@ export function PortalListItem({ entry, onSelect }: Readonly<PortalListItemProps
       <ListItemText
         primary={entry.label}
         secondary={entry.description}
-        primaryTypographyProps={{ fontWeight: 600 }}
-        secondaryTypographyProps={{ variant: 'caption' }}
+        slotProps={{
+          primary: {
+            sx: {
+              fontWeight: 600,
+            },
+          },
+          secondary: { variant: 'caption' },
+        }}
       />
       {entry.isCurrent && (
         <Chip size="small" label="Current" icon={<CheckIcon />} sx={{ ml: 1, mt: 0.25 }} />

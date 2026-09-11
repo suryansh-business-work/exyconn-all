@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  Paper,
-  Box,
-  Typography,
-  Button,
-  IconButton,
-  CircularProgress,
-  LinearProgress,
-} from '@mui/material';
+import { Paper, Box, Typography, Button, IconButton, CircularProgress, LinearProgress } from '@mui/material';
 import { Description, Upload, Delete } from '@mui/icons-material';
 
 interface FileUploadAreaProps {
@@ -58,10 +50,21 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
       >
         <input id="docx-input" type="file" accept=".docx" hidden onChange={onFileChange} />
         <Upload sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-        <Typography variant="body1" fontWeight={500}>
+        <Typography
+          variant="body1"
+          sx={{
+            fontWeight: 500,
+          }}
+        >
           {file ? file.name : 'Drop Word document here or click to upload'}
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            mt: 1,
+          }}
+        >
           Supports .docx files up to 50MB
         </Typography>
       </Paper>
@@ -72,10 +75,20 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Description color="primary" />
               <Box>
-                <Typography variant="body2" fontWeight={500}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 500,
+                  }}
+                >
                   {file.name}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   {(file.size / 1024 / 1024).toFixed(2)} MB
                 </Typography>
               </Box>

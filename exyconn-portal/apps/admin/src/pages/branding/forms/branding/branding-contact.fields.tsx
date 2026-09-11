@@ -23,16 +23,28 @@ export function BrandingContactFields() {
   return (
     <Grid container spacing={2.5}>
       {CONTACT_FIELDS.map((field) => (
-        <Grid item xs={12} sm={6} key={field.name}>
+        <Grid
+          key={field.name}
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfTextField name={field.name} label={field.label} />
         </Grid>
       ))}
       {SOCIAL_FIELDS.map((field) => (
-        <Grid item xs={12} sm={6} key={field.name}>
+        <Grid
+          key={field.name}
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <RhfTextField name={field.name} label={field.label} helperText="Full profile URL" />
         </Grid>
       ))}
-      <Grid item xs={12}>
+      <Grid size={12}>
         <RhfTextField
           name="copyrightText"
           label="Copyright text"

@@ -1,6 +1,18 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, AppBar, Toolbar, Typography, IconButton, Breadcrumbs, Link, Chip, Tooltip, Divider, Badge } from '@mui/material';
+import {
+  Box,
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Breadcrumbs,
+  Link,
+  Chip,
+  Tooltip,
+  Divider,
+  Badge,
+} from '@mui/material';
 import { ArrowBack, DarkMode, LightMode, Home, NavigateNext, Key } from '@mui/icons-material';
 import { useTheme } from '../../context/ThemeContext';
 import { useSecrets } from '../../context/SecretsContext';
@@ -46,7 +58,7 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({ children, toolName, toolIcon, t
           description: tool.description,
           categoryName: getCategoryOfTool(tool.id)?.category ?? 'Tools',
           details: getToolDetails(tool.id),
-        }),
+        })
       );
     } else {
       document.title = `${toolName} | Exyconn Tools`;
@@ -101,9 +113,9 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({ children, toolName, toolIcon, t
               <Link
                 component="button"
                 underline="hover"
-                color="text.secondary"
                 onClick={() => navigate('/tools')}
                 sx={{
+                  color: 'text.secondary',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 0.5,

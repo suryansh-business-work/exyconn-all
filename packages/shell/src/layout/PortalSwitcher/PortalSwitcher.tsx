@@ -51,13 +51,20 @@ export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcher
       open={open}
       onClose={onClose}
       ModalProps={{ keepMounted: true }}
-      PaperProps={{ sx: { width: { xs: '100%', sm: 380 } } }}
+      slotProps={{
+        paper: { sx: { width: { xs: '100%', sm: 380 } } },
+      }}
     >
       <Box sx={{ p: 2, pb: 1.5 }}>
         <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <AppsIcon fontSize="small" /> Other Portals
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {caption}
         </Typography>
       </Box>
@@ -69,14 +76,16 @@ export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcher
           placeholder="Search portals…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          }}
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+            },
+          }}
         />
       </Box>
 
@@ -84,7 +93,13 @@ export function PortalSwitcher({ roles, open, onClose }: Readonly<PortalSwitcher
 
       <List sx={{ px: 1.5, py: 1, overflowY: 'auto' }}>
         {entries.length === 0 && (
-          <Typography variant="caption" color="text.secondary" sx={{ px: 1.5 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+              px: 1.5,
+            }}
+          >
             No portal matches “{query}”.
           </Typography>
         )}

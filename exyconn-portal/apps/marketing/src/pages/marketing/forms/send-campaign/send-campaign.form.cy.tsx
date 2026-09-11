@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { SendCampaignForm } from './send-campaign.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import type { SendCampaignTarget } from './send-campaign.types';
@@ -12,7 +12,7 @@ const campaign = {
 
 const mount = () =>
   cy.mount(
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider mocks={[]}>
       <NotificationProvider>
         <SendCampaignForm
           campaign={campaign}

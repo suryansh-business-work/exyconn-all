@@ -6,10 +6,9 @@ import {
   Box,
   TextField,
   Typography,
-  
   InputAdornment,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { ExpandMore, Person, Work, Business } from '@mui/icons-material';
 import { FormikProps } from 'formik';
 import { SignatureFormValues } from '../types';
@@ -30,7 +29,13 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ formik }) => 
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Person color="primary" fontSize="small" />
-          <Typography fontWeight={600}>Personal Information</Typography>
+          <Typography
+            sx={{
+              fontWeight: 600,
+            }}
+          >
+            Personal Information
+          </Typography>
         </Box>
       </AccordionSummary>
       <AccordionDetails>
@@ -47,12 +52,14 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ formik }) => 
               error={touched.fullName && Boolean(errors.fullName)}
               helperText={touched.fullName && errors.fullName}
               required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Person fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Person fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
           </Grid>
@@ -67,12 +74,14 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ formik }) => 
               onBlur={handleBlur}
               error={touched.jobTitle && Boolean(errors.jobTitle)}
               helperText={touched.jobTitle && errors.jobTitle}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Work fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Work fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
           </Grid>
@@ -100,12 +109,14 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ formik }) => 
               onBlur={handleBlur}
               error={touched.company && Boolean(errors.company)}
               helperText={touched.company && errors.company}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Business fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Business fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
           </Grid>

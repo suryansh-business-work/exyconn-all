@@ -1,9 +1,20 @@
 import React, { useState } from 'react';
 import {
-  Container, Box, Typography, TextField, Button, Paper, Alert, Snackbar, Chip,
-  List, ListItem, ListItemIcon, ListItemText,
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Alert,
+  Snackbar,
+  Chip,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Reply, Lightbulb } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
@@ -15,7 +26,10 @@ const ParaphrasingTool: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleAnalyze = async () => {
-    if (text.trim().length < 10) { setError('Enter at least 10 characters.'); return; }
+    if (text.trim().length < 10) {
+      setError('Enter at least 10 characters.');
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -29,7 +43,9 @@ const ParaphrasingTool: React.FC = () => {
       setResult(data.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed');
-    } finally { setIsLoading(false); }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -38,14 +54,36 @@ const ParaphrasingTool: React.FC = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2, fontSize: '1rem' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 2,
+                  fontSize: '1rem',
+                }}
+              >
                 Improve Content Tone & Structure
               </Typography>
-              <TextField fullWidth size="small" label="Enter text" placeholder="Paste your text..."
-                value={text} onChange={(e) => setText(e.target.value)} multiline rows={10} sx={{ mb: 2 }} />
-              <Button fullWidth variant="contained" color="warning" onClick={handleAnalyze}
+              <TextField
+                fullWidth
+                size="small"
+                label="Enter text"
+                placeholder="Paste your text..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                multiline
+                rows={10}
+                sx={{ mb: 2 }}
+              />
+              <Button
+                fullWidth
+                variant="contained"
+                color="warning"
+                onClick={handleAnalyze}
                 disabled={isLoading || text.trim().length < 10}
-                startIcon={<Reply />} sx={{ textTransform: 'none' }}>
+                startIcon={<Reply />}
+                sx={{ textTransform: 'none' }}
+              >
                 {isLoading ? 'Analyzing...' : 'Analyze & Suggest'}
               </Button>
             </Paper>
@@ -54,24 +92,60 @@ const ParaphrasingTool: React.FC = () => {
             {result && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Paper sx={{ p: 3, borderRadius: 2 }}>
-                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2 }}>Analysis</Typography>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 2,
+                    }}
+                  >
+                    Analysis
+                  </Typography>
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
                     <Chip size="small" label={`${result.wordCount} words`} />
                     <Chip size="small" label={`${result.sentenceCount} sentences`} />
-                    <Chip size="small" label={`Readability: ${result.readability}`}
-                      color={result.readability === 'Easy' ? 'success' : result.readability === 'Moderate' ? 'warning' : 'error'} />
+                    <Chip
+                      size="small"
+                      label={`Readability: ${result.readability}`}
+                      color={
+                        result.readability === 'Easy'
+                          ? 'success'
+                          : result.readability === 'Moderate'
+                            ? 'warning'
+                            : 'error'
+                      }
+                    />
                   </Box>
                 </Paper>
                 {Array.isArray(result.suggestions) && result.suggestions.length > 0 && (
                   <Paper sx={{ p: 3, borderRadius: 2 }}>
-                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>Suggestions</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 1,
+                      }}
+                    >
+                      Suggestions
+                    </Typography>
                     <List dense>
                       {(result.suggestions as string[]).map((s, idx) => (
                         <ListItem key={idx} disablePadding sx={{ mb: 0.5 }}>
                           <ListItemIcon sx={{ minWidth: 28 }}>
                             <Lightbulb sx={{ fontSize: 16, color: 'warning.main' }} />
                           </ListItemIcon>
-                          <ListItemText primary={s} primaryTypographyProps={{ variant: 'body2', fontSize: '0.8rem' }} />
+                          <ListItemText
+                            primary={s}
+                            slotProps={{
+                              primary: {
+                                variant: 'body2',
+
+                                sx: {
+                                  fontSize: '0.8rem',
+                                },
+                              },
+                            }}
+                          />
                         </ListItem>
                       ))}
                     </List>
@@ -88,7 +162,9 @@ const ParaphrasingTool: React.FC = () => {
         </Grid>
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       </Snackbar>
     </ToolLayout>
   );

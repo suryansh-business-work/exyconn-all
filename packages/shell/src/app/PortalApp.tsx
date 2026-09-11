@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { LocalizationProvider, AdapterDateFns } from '@exyconn/ui/pickers';
 import { apolloClient } from '@/config/apolloClient';

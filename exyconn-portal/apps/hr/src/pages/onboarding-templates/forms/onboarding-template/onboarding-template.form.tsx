@@ -68,7 +68,9 @@ function TaskRow({ index, onRemove }: Readonly<TaskRowProps>) {
           name={`tasks.${index}.dueDaysFromJoin`}
           label="Due (days)"
           type="number"
-          inputProps={{ min: 0, max: 365 }}
+          slotProps={{
+            htmlInput: { min: 0, max: 365 },
+          }}
         />
       </Box>
       <IconButton aria-label={`remove task ${index + 1}`} onClick={onRemove} color="error">

@@ -99,7 +99,12 @@ const PreviewGrid: React.FC<Props> = ({
           gap: 1,
         }}
       >
-        <Typography variant="subtitle1" fontWeight={600}>
+        <Typography
+          variant="subtitle1"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           🎨 Preview Gallery
         </Typography>
         <Button
