@@ -1,6 +1,6 @@
 {
   "name": "exyconn-tracker-mobile",
-  "version": "1.9.8",
+  "version": "1.9.9",
   "private": true,
   "description": "Exyconn Tracker for Android and iOS — the desktop tracker's rules (@exyconn/tracker-core) in an Expo + Tamagui shell. Built only on GitHub Actions (tracker-release.yml).",
   "main": "index.ts",

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable } from 'react-native';
 import { XStack } from 'tamagui';
 import { TRACKER_RADIUS } from '../../theme/tokens';
-import { FieldFrame } from '../form/FieldFrame';
+import { FieldFrame } from './FieldFrame';
 import { Icon } from '../ui/Icon';
 import { OptionSheet, type Option } from '../ui/OptionSheet';
 import { Body } from '../ui/Typography';
@@ -15,14 +15,17 @@ interface Props {
   /** Shown in the field when nothing in `options` matches `selected`. */
   placeholder: string;
   hint?: string;
+  /** A validation message; replaces the hint and outlines the field. */
+  error?: string;
   disabled: boolean;
   searchable?: boolean;
   onSelect: (value: string) => void;
 }
 
 /**
- * A picker that acts the moment a choice is made — the project and ticket the next session
- * books against. Not a form field: there is nothing to submit, the choice IS the command.
+ * The app's one picker: the current choice in a field, the list in a bottom sheet. Used bare
+ * where the choice IS the command (the project and ticket the next session books against), and
+ * wrapped by SelectField for React Hook Form.
  */
 export function PickerField({
   id,
@@ -31,6 +34,7 @@ export function PickerField({
   selected,
   placeholder,
   hint,
+  error,
   disabled,
   searchable = false,
   onSelect,
@@ -40,7 +44,7 @@ export function PickerField({
   const shown = current?.label ?? placeholder;
 
   return (
-    <FieldFrame id={id} label={label} hint={hint}>
+    <FieldFrame id={id} label={label} hint={hint} error={error}>
       <Pressable
         onPress={() => setOpen(true)}
         disabled={disabled}
@@ -51,7 +55,7 @@ export function PickerField({
       >
         <XStack
           borderWidth={1}
-          borderColor="$hairline"
+          borderColor={error === undefined ? '$hairline' : '$error'}
           borderRadius={TRACKER_RADIUS}
           backgroundColor="$paper"
           padding="$3"

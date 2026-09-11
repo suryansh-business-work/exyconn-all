@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import type { TrackerTask } from '@exyconn/tracker-core';
 import { NO_TICKET, ticketOptions } from '../../lib/dashboard/ticket-options';
 import { tracker } from '../../tracker/instance';
-import { PickerField } from './PickerField';
+import { PickerField } from '../form/PickerField';
 
 interface Props {
   tasks: TrackerTask[];

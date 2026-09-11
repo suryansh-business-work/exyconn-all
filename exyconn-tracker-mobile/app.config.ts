@@ -6,6 +6,8 @@ import { version } from './package.json';
 
 /** The production portal. CI builds for staging point at it with PORTAL_GRAPHQL_URL instead. */
 const PRODUCTION_GRAPHQL_URL = 'https://portal-server.exyconn.com/graphql';
+/** Where an employee reads their own tracker data in the portal (PORTAL_WEB_URL overrides it). */
+const PRODUCTION_PORTAL_URL = 'https://portal.exyconn.com';
 
 /**
  * Android's versionCode must rise with every build a device is asked to install over the last
@@ -78,5 +80,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   experiments: { typedRoutes: true },
   extra: {
     portalGraphqlUrl: process.env.PORTAL_GRAPHQL_URL ?? PRODUCTION_GRAPHQL_URL,
+    portalWebUrl: process.env.PORTAL_WEB_URL ?? PRODUCTION_PORTAL_URL,
   },
 });

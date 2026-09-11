@@ -1,9 +1,13 @@
+import { Linking } from 'react-native';
 import type { MobileTrackerState } from '../../tracker/types';
 import { ScreenLayout } from '../ui/ScreenLayout';
 import { AboutCard } from './AboutCard';
 import { CapabilityCard } from './CapabilityCard';
 import { SettingsCard } from './SettingsCard';
+import { MY_DATA_URL } from '../../tracker/config';
+import { run } from '../../tracker/run';
 import { SignOutButton } from '../shell/SignOutButton';
+import { AppButton } from '../ui/AppButton';
 import { ThisPhoneCard } from './ThisPhoneCard';
 import { TimezonePicker } from './TimezonePicker';
 import { WorkArrangementCard } from './WorkArrangementCard';
@@ -36,6 +40,12 @@ export function SettingsScreen({ state }: Readonly<Props>) {
         title="Your data"
         description="Everything this app has recorded about you is visible to you in the portal."
       >
+        <AppButton
+          label="View my data in the portal"
+          icon="open-in-new"
+          full
+          onPress={() => run(() => Linking.openURL(MY_DATA_URL))}
+        />
         <SignOutButton status={state.status} pendingSync={state.stats.pendingSync} />
       </SettingsCard>
       <AboutCard branding={state.branding} />

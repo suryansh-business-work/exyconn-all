@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { TrackerProject } from '@exyconn/tracker-core';
 import { tracker } from '../../tracker/instance';
-import { PickerField } from './PickerField';
+import { PickerField } from '../form/PickerField';
 
 /** Past this many projects the sheet gets a search box; a short list reads faster without. */
 const SEARCH_FROM = 8;
