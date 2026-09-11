@@ -80,6 +80,8 @@ export default function TabBar({
       aria-label="Sections"
       sx={(theme) => ({
         position: 'absolute',
+        // Above the page's own stacked pieces — an outlined field's label sits at z-index 1.
+        zIndex: theme.zIndex.appBar,
         left: '50%',
         bottom: theme.spacing(2),
         transform: 'translateX(-50%)',

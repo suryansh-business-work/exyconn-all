@@ -23,4 +23,8 @@ describe('groundOpacity', () => {
     expect(groundOpacity(false, on)).toBe(1);
     expect(groundOpacity(true, { ...on, transparentBackground: false })).toBe(1);
   });
+
+  it('keeps an older, clearer saved opacity frosted', () => {
+    expect(groundOpacity(true, { ...on, backgroundOpacity: 0.3 })).toBe(0.5);
+  });
 });

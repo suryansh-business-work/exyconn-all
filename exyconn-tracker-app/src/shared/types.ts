@@ -114,7 +114,7 @@ export interface AppPreferences {
    * Cards stay opaque, so text keeps its contrast. Not offered where the OS has no material.
    */
   transparentBackground: boolean;
-  /** How much of the ground stays painted while transparent, 0.3–0.95. */
+  /** How much of the ground stays painted while transparent, 0.5–0.95. */
   backgroundOpacity: number;
 }
 

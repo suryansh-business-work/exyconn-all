@@ -41,7 +41,7 @@ const DEFAULT_PREFERENCES: AppPreferences = {
   updateAutomatically: true,
   // Solid until the employee asks: a see-through window is a look, not a default.
   transparentBackground: false,
-  backgroundOpacity: 0.7,
+  backgroundOpacity: 0.75,
 };
 
 /**

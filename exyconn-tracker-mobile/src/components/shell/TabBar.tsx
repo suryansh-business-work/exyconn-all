@@ -97,7 +97,8 @@ export function TabBar({ state, navigation, insets, unreadMessages }: Readonly<P
   return (
     <View
       pointerEvents="box-none"
-      style={{ position: 'absolute', left: 0, right: 0, bottom, alignItems: 'center' }}
+      // Above every screen's own stacked pieces, whatever order the navigator mounts them in.
+      style={{ position: 'absolute', left: 0, right: 0, bottom, alignItems: 'center', zIndex: 10 }}
       onLayout={(event) => reportHeight?.(event.nativeEvent.layout.height + bottom)}
     >
       <XStack

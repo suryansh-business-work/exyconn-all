@@ -4,10 +4,12 @@ import { tracker } from '../../tracker/instance';
 import { SegmentedControl, type SegmentOption } from '../ui/SegmentedControl';
 import { Body, Caption } from '../ui/Typography';
 
-/** How much of the plain ground stays painted over the gradient — the desktop's slider, in steps. */
+/**
+ * How much of the plain ground stays painted over the gradient — the desktop's slider, in
+ * steps, and never under half, so text on the ground keeps its contrast.
+ */
 const OPACITY: readonly SegmentOption<string>[] = [
-  { value: '0.3', label: '30%' },
-  { value: '0.45', label: '45%' },
+  { value: '0.5', label: '50%' },
   { value: '0.6', label: '60%' },
   { value: '0.75', label: '75%' },
   { value: '0.9', label: '90%' },
