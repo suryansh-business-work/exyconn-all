@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { EMAIL, PHONE } from '@exyconn/regex';
 import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -17,8 +18,8 @@ const STATUS_OPTIONS = enumOptions(Object.values(ContactStatus));
 
 const schema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
-  email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
-  phone: z.string().trim(),
+  email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
+  phone: z.string().trim().regex(PHONE, 'Enter a valid phone number').or(z.literal('')),
   title: z.string().trim(),
   companyId: z.string().trim(),
   status: z.nativeEnum(ContactStatus),

@@ -132,6 +132,10 @@ export const techTypeDefs = gql`
     WINDOWS
     MACOS
     LINUX
+    "An APK to install directly, plus an AAB for the Play Store."
+    ANDROID
+    "An unsigned IPA, installable only once re-signed."
+    IOS
   }
 
   input EmailConfigInput {

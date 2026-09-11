@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { HTTP_URL } from '@exyconn/regex';
 import {
   RhfTextField,
   RhfSelect,
@@ -22,7 +23,11 @@ const schema = z.object({
   employeeId: z.string().min(1, 'Employee is required'),
   kind: z.nativeEnum(DocumentKind),
   title: z.string().trim().min(1, 'Title is required'),
-  url: z.string().trim().min(1, 'File link is required'),
+  url: z
+    .string()
+    .trim()
+    .min(1, 'File link is required')
+    .regex(HTTP_URL, 'Enter a full URL starting with https://'),
   issuedOn: z.string().min(1, 'Issued on is required'),
 });
 type Values = z.infer<typeof schema>;

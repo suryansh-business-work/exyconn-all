@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { EMAIL } from '@exyconn/regex';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfDatePicker } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -15,7 +16,11 @@ const schema = z.object({
   value: z.coerce.number({ message: 'Value must be a number' }).min(0, 'Value cannot be negative'),
   expectedCloseDate: z.date().nullable(),
   contactName: z.string().trim().min(1, 'Contact name is required'),
-  contactEmail: z.string().trim().min(1, 'Contact email is required').email('Enter a valid email'),
+  contactEmail: z
+    .string()
+    .trim()
+    .min(1, 'Contact email is required')
+    .regex(EMAIL, 'Enter a valid email'),
 });
 type Values = z.infer<typeof schema>;
 

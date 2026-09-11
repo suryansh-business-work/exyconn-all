@@ -1,7 +1,6 @@
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css");
 @import url("https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap");
 @import url("./input.scss");
-@import "./tokens/index.scss";
 
 /* Focus Styles - Global accessibility */
 *:focus {
@@ -9,7 +8,7 @@
 }
 
 *:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
   outline-offset: var(--focus-ring-offset);
   border-radius: var(--radius-sm);
 }
@@ -21,7 +20,7 @@
   left: 50%;
   transform: translateX(-50%);
   background: var(--color-primary);
-  color: var(--color-text-on-primary);
+  color: var(--color-on-primary);
   padding: 0.75rem 1.5rem;
   font-weight: var(--font-weight-semibold);
   border-radius: 0 0 var(--radius-md) var(--radius-md);
@@ -59,7 +58,7 @@
   }
 }
 
-/* High Contrast Mode Support — the colour half lives in tokens/modes/light.token.scss. */
+/* High Contrast Mode Support — the colour half is `highContrastRoles` in tokens/semantic.tokens.ts. */
 @media (prefers-contrast: high) {
   button,
   a {
@@ -69,7 +68,8 @@
 
 body {
   font-family: var(--font-family-sans);
-  color: var(--color-text-primary);
+  background-color: var(--color-page);
+  color: var(--color-fg);
   line-height: var(--line-height-normal);
 }
 
@@ -95,7 +95,7 @@ select {
 input:focus,
 textarea:focus,
 select:focus {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
   outline-offset: var(--focus-ring-offset);
 }
 

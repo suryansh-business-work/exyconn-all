@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { HTTP_URL } from '@exyconn/regex';
 import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -22,7 +23,11 @@ const schema = z.object({
   provider: z.string().trim().min(1, 'Provider is required'),
   publicKey: z.string().trim().min(1, 'Public key is required'),
   privateKey: z.string().trim().min(1, 'Private key is required'),
-  urlEndpoint: z.string().trim().min(1, 'URL endpoint is required').url('Enter a valid URL'),
+  urlEndpoint: z
+    .string()
+    .trim()
+    .min(1, 'URL endpoint is required')
+    .regex(HTTP_URL, 'Enter a valid URL'),
   isActive: z.enum(['true', 'false']),
 });
 type Values = z.infer<typeof schema>;

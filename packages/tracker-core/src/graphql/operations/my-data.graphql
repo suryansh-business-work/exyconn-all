@@ -1,0 +1,75 @@
+# The employee's OWN data. Every `myTracker*` resolver scopes to the device token's user, so
+# the app can never read anybody else's report, day, claims or messages.
+
+query MyTrackerCalendar($from: DateTime!, $to: DateTime!, $timezone: String!) {
+  myTrackerCalendar(from: $from, to: $to, timezone: $timezone) {
+    date
+    activeMs
+    idleMs
+    keyCount
+    mouseCount
+    sessions
+  }
+}
+
+query MyTrackerDay($start: DateTime!, $end: DateTime!) {
+  myTrackerDay(start: $start, end: $end) {
+    intervals {
+      activeMs
+      idleMs
+      keyCount
+      mouseCount
+    }
+    screenshots {
+      id
+      capturedAt
+      imageUrl
+      blurred
+      activityPercent
+    }
+    sessions {
+      id
+    }
+  }
+}
+
+query MyTrackerTotals {
+  myTrackerTotals {
+    activeMs
+    idleMs
+    screenshots
+    sessions
+  }
+}
+
+query MyTrackerManualEntries($from: DateTime!, $to: DateTime!) {
+  myTrackerManualEntries(from: $from, to: $to) {
+    ...ManualEntryFields
+  }
+}
+
+mutation CreateTrackerManualEntry($input: TrackerManualEntryInput!) {
+  createTrackerManualEntry(input: $input) {
+    ...ManualEntryFields
+  }
+}
+
+mutation WithdrawTrackerManualEntry($id: ID!) {
+  withdrawTrackerManualEntry(id: $id)
+}
+
+query MyTrackerMessages($kind: TrackerMessageKind) {
+  myTrackerMessages(kind: $kind) {
+    ...MessageFields
+  }
+}
+
+mutation SendMyTrackerMessage($body: String!) {
+  sendMyTrackerMessage(body: $body) {
+    ...MessageFields
+  }
+}
+
+mutation MarkMyTrackerMessagesRead($kind: TrackerMessageKind) {
+  markMyTrackerMessagesRead(kind: $kind)
+}

@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
 import { Alert, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import type { TrackerSettings, TrackerStatus } from '@shared/types';
-import { autoStopNotice } from '../auto-stop';
+import { autoStopNotice } from '@exyconn/tracker-core';
 
 interface Props {
   settings: TrackerSettings | null;

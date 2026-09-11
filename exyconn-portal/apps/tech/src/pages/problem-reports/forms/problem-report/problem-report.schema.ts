@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { EMAIL, HTTP_URL } from '@exyconn/regex';
 import { ProblemCategory, ProblemSeverity, ProblemStatus } from '@exyconn/shell/graphql/generated';
 import type { ProblemReportRow } from './problem-report.types';
 
@@ -24,8 +25,17 @@ export const problemReportSchema = z
       .min(20, 'Describe the problem — at least 20 characters')
       .max(4000, 'Keep the description under 4000 characters'),
     reporterName: z.string().trim().min(2, 'Reporter name is required').max(80, 'Name is too long'),
-    reporterEmail: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
-    pageUrl: z.string().trim().max(500, 'That URL is too long'),
+    reporterEmail: z
+      .string()
+      .trim()
+      .min(1, 'Email is required')
+      .regex(EMAIL, 'Enter a valid email'),
+    pageUrl: z
+      .string()
+      .trim()
+      .max(500, 'That URL is too long')
+      .regex(HTTP_URL, 'Enter a full URL starting with https://')
+      .or(z.literal('')),
     assignee: z.string().trim().max(80, 'Keep the assignee under 80 characters'),
     resolutionNotes: z.string().trim().max(4000, 'Keep the notes under 4000 characters'),
   })

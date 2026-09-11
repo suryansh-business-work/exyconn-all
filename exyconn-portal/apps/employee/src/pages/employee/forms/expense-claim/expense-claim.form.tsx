@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { HTTP_URL } from '@exyconn/regex';
 import { RhfTextField, RhfDatePicker } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -12,7 +13,7 @@ const schema = z.object({
   amount: z.coerce.number({ message: 'Amount must be a number' }).positive('Must be more than 0'),
   currency: z.string().trim().min(1, 'Currency is required'),
   incurredOn: z.string().min(1, 'Date is required'),
-  receiptUrl: z.string().trim().url('Must be a valid link').or(z.literal('')),
+  receiptUrl: z.string().trim().regex(HTTP_URL, 'Must be a valid link').or(z.literal('')),
 });
 type Values = z.infer<typeof schema>;
 

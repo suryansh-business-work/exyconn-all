@@ -24,7 +24,7 @@ function buildItems(hasAccess: boolean, consented: boolean): ReadinessItem[] {
       label: 'Tracker access granted',
       done: hasAccess,
       hint: hasAccess
-        ? 'Your account may run the desktop tracker.'
+        ? 'Your account may run the tracker.'
         : 'Ask your manager to grant access — the app will refuse to sign you in until they do.',
     },
     {

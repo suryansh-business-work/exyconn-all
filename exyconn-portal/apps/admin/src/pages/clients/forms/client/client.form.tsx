@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { EMAIL, PHONE } from '@exyconn/regex';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -16,8 +17,8 @@ import type { ClientRow } from './client.types';
 
 const schema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
-  email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
-  phone: z.string().trim().min(1, 'Phone is required').min(7, 'Enter a valid phone'),
+  email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
+  phone: z.string().trim().min(1, 'Phone is required').regex(PHONE, 'Enter a valid phone'),
   company: z.string().trim().min(1, 'Company is required'),
   status: z.nativeEnum(ClientStatus),
   gstin: gstinField,

@@ -1,0 +1,35 @@
+{
+  "name": "@exyconn/tracker-core",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Everything the Exyconn Tracker does that is not tied to a platform — the portal's GraphQL operations (codegen-typed), the durable outbox, the schedule and presence rules, and the zone-aware formatting. Shared by the desktop (Electron) and mobile (Expo) trackers.",
+  "main": "./src/index.ts",
+  "scripts": {
+    "codegen": "graphql-codegen --config codegen.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\" \"__tests__/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"__tests__/**/*.ts\" \"!src/graphql/generated/**\"",
+    "test": "vitest run"
+  },
+  "prettier": "@exyconn/config/prettier.json",
+  "dependencies": {
+    "@exyconn/time": "workspace:*",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "date-fns": "^4.4.0",
+    "date-fns-tz": "^3.2.0"
+  },
+  "devDependencies": {
+    "@exyconn/config": "workspace:*",
+    "@graphql-codegen/cli": "^5.0.3",
+    "@graphql-codegen/typed-document-node": "^5.1.2",
+    "@graphql-codegen/typescript": "^4.1.2",
+    "@graphql-codegen/typescript-operations": "^4.4.0",
+    "@types/node": "^22.10.5",
+    "eslint": "^10.9.1",
+    "graphql": "^16.14.2",
+    "prettier": "^3.4.2",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.0"
+  }
+}

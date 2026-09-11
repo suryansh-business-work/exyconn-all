@@ -87,7 +87,7 @@ export const aiServices: AiService[] = [
       'Handover documentation so your team can adjust it without us',
     ],
     icon: 'fa-robot',
-    color: 'from-blue-500 to-cyan-500',
+    color: 'from-blue to-cyan',
     categorySlug: 'agents-automation',
   },
   {
@@ -103,7 +103,7 @@ export const aiServices: AiService[] = [
       'Run history you can audit when something looks wrong',
     ],
     icon: 'fa-diagram-project',
-    color: 'from-indigo-500 to-blue-500',
+    color: 'from-indigo to-blue',
     categorySlug: 'agents-automation',
   },
   {
@@ -119,7 +119,7 @@ export const aiServices: AiService[] = [
       'Transcripts and outcomes written back to your CRM',
     ],
     icon: 'fa-phone-volume',
-    color: 'from-violet-500 to-purple-500',
+    color: 'from-violet to-purple',
     categorySlug: 'agents-automation',
   },
   {
@@ -135,7 +135,7 @@ export const aiServices: AiService[] = [
       'Conversations logged against the customer record',
     ],
     icon: 'fa-comment-dots',
-    color: 'from-green-500 to-emerald-500',
+    color: 'from-green to-emerald',
     categorySlug: 'agents-automation',
   },
   {
@@ -151,7 +151,7 @@ export const aiServices: AiService[] = [
       'Straight into your ERP or accounting system',
     ],
     icon: 'fa-file-invoice',
-    color: 'from-amber-500 to-orange-500',
+    color: 'from-amber to-orange',
     categorySlug: 'agents-automation',
   },
   {
@@ -167,7 +167,7 @@ export const aiServices: AiService[] = [
       'Runs in your tenancy, not a shared third-party account',
     ],
     icon: 'fa-user-astronaut',
-    color: 'from-sky-500 to-blue-500',
+    color: 'from-sky to-blue',
     categorySlug: 'agents-automation',
   },
 
@@ -185,7 +185,7 @@ export const aiServices: AiService[] = [
       'CRM records updated without rep data entry',
     ],
     icon: 'fa-bullseye',
-    color: 'from-rose-500 to-pink-500',
+    color: 'from-rose to-pink',
     categorySlug: 'revenue-growth',
   },
   {
@@ -201,7 +201,7 @@ export const aiServices: AiService[] = [
       'Gaps in your documentation surfaced from real questions',
     ],
     icon: 'fa-headset',
-    color: 'from-teal-500 to-cyan-500',
+    color: 'from-teal to-cyan',
     categorySlug: 'revenue-growth',
   },
   {
@@ -217,7 +217,7 @@ export const aiServices: AiService[] = [
       'Performance reported against pipeline, not opens',
     ],
     icon: 'fa-bullhorn',
-    color: 'from-fuchsia-500 to-purple-500',
+    color: 'from-fuchsia to-purple',
     categorySlug: 'revenue-growth',
   },
   {
@@ -233,7 +233,7 @@ export const aiServices: AiService[] = [
       'Works on your current platform',
     ],
     icon: 'fa-cart-shopping',
-    color: 'from-orange-500 to-red-500',
+    color: 'from-orange to-red',
     categorySlug: 'revenue-growth',
   },
   {
@@ -249,7 +249,7 @@ export const aiServices: AiService[] = [
       'Positioned for assistant-driven buying as it grows',
     ],
     icon: 'fa-robot',
-    color: 'from-cyan-500 to-blue-500',
+    color: 'from-cyan to-blue',
     categorySlug: 'revenue-growth',
   },
 
@@ -267,7 +267,7 @@ export const aiServices: AiService[] = [
       'Launched, then iterated on real usage',
     ],
     icon: 'fa-layer-group',
-    color: 'from-indigo-500 to-violet-500',
+    color: 'from-indigo to-violet',
     categorySlug: 'vertical-platforms',
   },
   {
@@ -283,7 +283,7 @@ export const aiServices: AiService[] = [
       'Clinician review retained on anything clinical',
     ],
     icon: 'fa-heart-pulse',
-    color: 'from-red-500 to-rose-500',
+    color: 'from-red to-rose',
     categorySlug: 'vertical-platforms',
   },
   {
@@ -299,7 +299,7 @@ export const aiServices: AiService[] = [
       'Integrated with your CRM and portals',
     ],
     icon: 'fa-building',
-    color: 'from-amber-500 to-yellow-500',
+    color: 'from-amber to-yellow',
     categorySlug: 'vertical-platforms',
   },
   {
@@ -315,7 +315,7 @@ export const aiServices: AiService[] = [
       'Progress analytics for teaching teams',
     ],
     icon: 'fa-graduation-cap',
-    color: 'from-blue-500 to-indigo-500',
+    color: 'from-blue to-indigo',
     categorySlug: 'vertical-platforms',
   },
   {
@@ -331,7 +331,7 @@ export const aiServices: AiService[] = [
       'Documentation and customs paperwork automated',
     ],
     icon: 'fa-truck-fast',
-    color: 'from-emerald-500 to-teal-500',
+    color: 'from-emerald to-teal',
     categorySlug: 'vertical-platforms',
   },
   {
@@ -347,7 +347,7 @@ export const aiServices: AiService[] = [
       'Set up for you, with nothing to administer',
     ],
     icon: 'fa-store',
-    color: 'from-lime-500 to-green-500',
+    color: 'from-lime to-green',
     categorySlug: 'vertical-platforms',
   },
 
@@ -365,7 +365,7 @@ export const aiServices: AiService[] = [
       'Decision records kept for audit',
     ],
     icon: 'fa-users',
-    color: 'from-purple-500 to-indigo-500',
+    color: 'from-purple to-indigo',
     categorySlug: 'business-operations',
   },
   {
@@ -381,7 +381,7 @@ export const aiServices: AiService[] = [
       'Marketplace analytics on liquidity and fill rate',
     ],
     icon: 'fa-handshake',
-    color: 'from-pink-500 to-rose-500',
+    color: 'from-pink to-rose',
     categorySlug: 'business-operations',
   },
   {
@@ -397,7 +397,7 @@ export const aiServices: AiService[] = [
       'A complete audit trail on every automated action',
     ],
     icon: 'fa-calculator',
-    color: 'from-teal-500 to-emerald-500',
+    color: 'from-teal to-emerald',
     categorySlug: 'business-operations',
   },
   {
@@ -413,7 +413,7 @@ export const aiServices: AiService[] = [
       'Audit reports produced from live data',
     ],
     icon: 'fa-clipboard-check',
-    color: 'from-slate-500 to-gray-600',
+    color: 'from-fg-subtle to-fg-subtle',
     categorySlug: 'business-operations',
   },
 
@@ -431,7 +431,7 @@ export const aiServices: AiService[] = [
       'Permissions respected so answers never leak content',
     ],
     icon: 'fa-magnifying-glass-chart',
-    color: 'from-blue-500 to-sky-500',
+    color: 'from-blue to-sky',
     categorySlug: 'platform-infrastructure',
   },
   {
@@ -447,7 +447,7 @@ export const aiServices: AiService[] = [
       'Usage data showing what people cannot find',
     ],
     icon: 'fa-book-open',
-    color: 'from-violet-500 to-fuchsia-500',
+    color: 'from-violet to-fuchsia',
     categorySlug: 'platform-infrastructure',
   },
   {
@@ -463,7 +463,7 @@ export const aiServices: AiService[] = [
       'Metrics defined once, consistent everywhere',
     ],
     icon: 'fa-chart-column',
-    color: 'from-cyan-500 to-teal-500',
+    color: 'from-cyan to-teal',
     categorySlug: 'platform-infrastructure',
   },
   {
@@ -479,7 +479,7 @@ export const aiServices: AiService[] = [
       'Model swaps without touching product code',
     ],
     icon: 'fa-server',
-    color: 'from-indigo-500 to-blue-600',
+    color: 'from-indigo to-blue-strong',
     categorySlug: 'platform-infrastructure',
   },
   {
@@ -495,7 +495,7 @@ export const aiServices: AiService[] = [
       'Alerts on quality drift, not just errors',
     ],
     icon: 'fa-gauge-high',
-    color: 'from-amber-500 to-orange-600',
+    color: 'from-amber to-orange-strong',
     categorySlug: 'platform-infrastructure',
   },
   {
@@ -511,7 +511,7 @@ export const aiServices: AiService[] = [
       'Adoption measured on cycle time, not licence count',
     ],
     icon: 'fa-code',
-    color: 'from-slate-600 to-gray-700',
+    color: 'from-fg-subtle to-inverse-muted',
     categorySlug: 'platform-infrastructure',
   },
 
@@ -529,7 +529,7 @@ export const aiServices: AiService[] = [
       'Response runbooks with automated first steps',
     ],
     icon: 'fa-shield-halved',
-    color: 'from-red-500 to-orange-600',
+    color: 'from-red to-orange-strong',
     categorySlug: 'trust-security',
   },
   {
@@ -545,7 +545,7 @@ export const aiServices: AiService[] = [
       'Decision records that stand up to scrutiny',
     ],
     icon: 'fa-scale-balanced',
-    color: 'from-blue-600 to-indigo-600',
+    color: 'from-blue-strong to-indigo-strong',
     categorySlug: 'trust-security',
   },
 ];

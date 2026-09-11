@@ -17,7 +17,7 @@ const {
   title = "Powered By Leading Technology",
   subtitle = "Built with industry-leading AI and cloud platforms",
   logos,
-  bgClass = "bg-gradient-to-b from-gray-50 to-white",
+  bgClass = "bg-gradient-to-b from-surface-subtle to-surface",
   lightBg = false,
 } = Astro.props;
 
@@ -38,11 +38,11 @@ const techLogos = logos || defaultLogos;
     <!-- Section Header -->
     <div class="text-center mb-12">
       <h2
-        class={`text-2xl md:text-3xl lg:text-4xl font-bold mb-3 ${lightBg ? "text-gray-900" : "text-gray-900"}`}
+        class={`text-2xl md:text-3xl lg:text-4xl font-bold mb-3 ${lightBg ? "text-fg" : "text-fg"}`}
       >
         {title}
       </h2>
-      <p class={`text-lg ${lightBg ? "text-gray-600" : "text-gray-600"}`}>{subtitle}</p>
+      <p class={`text-lg ${lightBg ? "text-fg-muted" : "text-fg-muted"}`}>{subtitle}</p>
     </div>
 
     <!-- Logo Grid -->
@@ -52,7 +52,7 @@ const techLogos = logos || defaultLogos;
       {
         techLogos.map((logo) => (
           <div
-            class={`flex items-center justify-center p-4 rounded-2xl border transition-all duration-300 w-full h-24 ${lightBg ? "bg-white border-gray-100 hover:border-gray-200 hover:shadow-lg" : "bg-white border-gray-100 hover:border-gray-200 hover:shadow-lg"}`}
+            class={`flex items-center justify-center p-4 rounded-2xl border transition-all duration-300 w-full h-24 ${lightBg ? "bg-surface border-line-subtle hover:border-line hover:shadow-lg" : "bg-surface border-line-subtle hover:border-line hover:shadow-lg"}`}
           >
             <img
               src={logo.src}

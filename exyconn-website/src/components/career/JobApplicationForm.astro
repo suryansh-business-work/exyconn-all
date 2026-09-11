@@ -10,7 +10,7 @@ interface Props {
 const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
 ---
 
-<div class="bg-white rounded-2xl shadow-xl p-8">
+<div class="bg-surface rounded-2xl shadow-xl p-8">
   <form id="job-application-form" class="space-y-6">
     <input type="hidden" name="jobId" value={jobId} />
     <input type="hidden" name="jobTitle" value={jobTitle} />
@@ -19,32 +19,32 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
 
     <!-- Personal Information -->
     <div class="space-y-4">
-      <h3 class="font-semibold text-gray-900 text-lg">Personal Information</h3>
+      <h3 class="font-semibold text-fg text-lg">Personal Information</h3>
 
       <div class="grid md:grid-cols-2 gap-4">
         <div>
-          <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">
-            First Name <span class="text-red-500">*</span>
+          <label for="firstName" class="block text-sm font-medium text-fg-secondary mb-1">
+            First Name <span class="text-red-fg">*</span>
           </label>
           <input
             type="text"
             id="firstName"
             name="firstName"
             required
-            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition"
             placeholder="John"
           />
         </div>
         <div>
-          <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">
-            Last Name <span class="text-red-500">*</span>
+          <label for="lastName" class="block text-sm font-medium text-fg-secondary mb-1">
+            Last Name <span class="text-red-fg">*</span>
           </label>
           <input
             type="text"
             id="lastName"
             name="lastName"
             required
-            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition"
             placeholder="Doe"
           />
         </div>
@@ -52,62 +52,62 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
 
       <div class="grid md:grid-cols-2 gap-4">
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-            Email Address <span class="text-red-500">*</span>
+          <label for="email" class="block text-sm font-medium text-fg-secondary mb-1">
+            Email Address <span class="text-red-fg">*</span>
           </label>
           <input
             type="email"
             id="email"
             name="email"
             required
-            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition"
             placeholder="john@example.com"
           />
         </div>
         <div>
-          <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
-            Phone Number <span class="text-red-500">*</span>
+          <label for="phone" class="block text-sm font-medium text-fg-secondary mb-1">
+            Phone Number <span class="text-red-fg">*</span>
           </label>
           <input
             type="tel"
             id="phone"
             name="phone"
             required
-            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition"
             placeholder="+91 98765 43210"
           />
         </div>
       </div>
 
       <div>
-        <label for="location" class="block text-sm font-medium text-gray-700 mb-1">
-          Current Location <span class="text-red-500">*</span>
+        <label for="location" class="block text-sm font-medium text-fg-secondary mb-1">
+          Current Location <span class="text-red-fg">*</span>
         </label>
         <input
           type="text"
           id="location"
           name="location"
           required
-          class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+          class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition"
           placeholder="City, State"
         />
       </div>
     </div>
 
     <!-- Professional Information -->
-    <div class="space-y-4 pt-4 border-t border-gray-100">
-      <h3 class="font-semibold text-gray-900 text-lg">Professional Information</h3>
+    <div class="space-y-4 pt-4 border-t border-line-subtle">
+      <h3 class="font-semibold text-fg text-lg">Professional Information</h3>
 
       <div class="grid md:grid-cols-2 gap-4">
         <div>
-          <label for="experience" class="block text-sm font-medium text-gray-700 mb-1">
-            Years of Experience <span class="text-red-500">*</span>
+          <label for="experience" class="block text-sm font-medium text-fg-secondary mb-1">
+            Years of Experience <span class="text-red-fg">*</span>
           </label>
           <select
             id="experience"
             name="experience"
             required
-            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition"
           >
             <option value="">Select experience</option>
             <option value="0-1">0-1 years</option>
@@ -119,14 +119,14 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
           </select>
         </div>
         <div>
-          <label for="noticePeriod" class="block text-sm font-medium text-gray-700 mb-1">
-            Notice Period <span class="text-red-500">*</span>
+          <label for="noticePeriod" class="block text-sm font-medium text-fg-secondary mb-1">
+            Notice Period <span class="text-red-fg">*</span>
           </label>
           <select
             id="noticePeriod"
             name="noticePeriod"
             required
-            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition"
           >
             <option value="">Select notice period</option>
             <option value="immediate">Immediate</option>
@@ -140,27 +140,27 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
 
       <div class="grid md:grid-cols-2 gap-4">
         <div>
-          <label for="currentCTC" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="currentCTC" class="block text-sm font-medium text-fg-secondary mb-1">
             Current CTC (LPA)
           </label>
           <input
             type="text"
             id="currentCTC"
             name="currentCTC"
-            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition"
             placeholder="e.g., 12"
           />
         </div>
         <div>
-          <label for="expectedCTC" class="block text-sm font-medium text-gray-700 mb-1">
-            Expected CTC (LPA) <span class="text-red-500">*</span>
+          <label for="expectedCTC" class="block text-sm font-medium text-fg-secondary mb-1">
+            Expected CTC (LPA) <span class="text-red-fg">*</span>
           </label>
           <input
             type="text"
             id="expectedCTC"
             name="expectedCTC"
             required
-            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition"
             placeholder="e.g., 15"
           />
         </div>
@@ -168,39 +168,39 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
     </div>
 
     <!-- Links & Resume -->
-    <div class="space-y-4 pt-4 border-t border-gray-100">
-      <h3 class="font-semibold text-gray-900 text-lg">Portfolio & Resume</h3>
+    <div class="space-y-4 pt-4 border-t border-line-subtle">
+      <h3 class="font-semibold text-fg text-lg">Portfolio & Resume</h3>
 
       <div class="grid md:grid-cols-2 gap-4">
         <div>
-          <label for="linkedin" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="linkedin" class="block text-sm font-medium text-fg-secondary mb-1">
             LinkedIn Profile
           </label>
           <input
             type="url"
             id="linkedin"
             name="linkedin"
-            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition"
             placeholder="https://linkedin.com/in/username"
           />
         </div>
         <div>
-          <label for="portfolio" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="portfolio" class="block text-sm font-medium text-fg-secondary mb-1">
             Portfolio / GitHub
           </label>
           <input
             type="url"
             id="portfolio"
             name="portfolio"
-            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition"
             placeholder="https://github.com/username"
           />
         </div>
       </div>
 
       <div>
-        <label for="resume" class="block text-sm font-medium text-gray-700 mb-1">
-          Resume / CV <span class="text-red-500">*</span>
+        <label for="resume" class="block text-sm font-medium text-fg-secondary mb-1">
+          Resume / CV <span class="text-red-fg">*</span>
         </label>
         <div class="relative">
           <input
@@ -213,14 +213,14 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
           />
           <label
             for="resume"
-            class="flex items-center justify-center gap-3 w-full px-4 py-6 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-400 cursor-pointer transition bg-gray-50 hover:bg-blue-50"
+            class="flex items-center justify-center gap-3 w-full px-4 py-6 rounded-lg border-2 border-dashed border-line-strong hover:border-blue cursor-pointer transition bg-surface-subtle hover:bg-blue-subtle"
           >
-            <i class="fa-solid fa-cloud-upload-alt text-2xl text-gray-400"></i>
+            <i class="fa-solid fa-cloud-upload-alt text-2xl text-fg-faint"></i>
             <div>
-              <span class="font-medium text-gray-700" id="resume-label">
+              <span class="font-medium text-fg-secondary" id="resume-label">
                 Click to upload your resume
               </span>
-              <p class="text-xs text-gray-500 mt-1">PDF, DOC, or DOCX (max 5MB)</p>
+              <p class="text-xs text-fg-subtle mt-1">PDF, DOC, or DOCX (max 5MB)</p>
             </div>
           </label>
         </div>
@@ -228,31 +228,31 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
     </div>
 
     <!-- Cover Letter -->
-    <div class="space-y-4 pt-4 border-t border-gray-100">
-      <h3 class="font-semibold text-gray-900 text-lg">Additional Information</h3>
+    <div class="space-y-4 pt-4 border-t border-line-subtle">
+      <h3 class="font-semibold text-fg text-lg">Additional Information</h3>
 
       <div>
-        <label for="coverLetter" class="block text-sm font-medium text-gray-700 mb-1">
-          Why do you want to join {companyName}? <span class="text-red-500">*</span>
+        <label for="coverLetter" class="block text-sm font-medium text-fg-secondary mb-1">
+          Why do you want to join {companyName}? <span class="text-red-fg">*</span>
         </label>
         <textarea
           id="coverLetter"
           name="coverLetter"
           required
           rows="4"
-          class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition resize-none"
+          class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition resize-none"
           placeholder="Tell us why you're excited about this role and what you'll bring to the team..."
         ></textarea>
       </div>
 
       <div>
-        <label for="referral" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="referral" class="block text-sm font-medium text-fg-secondary mb-1">
           How did you hear about this position?
         </label>
         <select
           id="referral"
           name="referral"
-          class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+          class="w-full px-4 py-3 rounded-lg border border-line-strong focus:border-blue focus:ring-2 focus:ring-blue-muted transition"
         >
           <option value="">Select an option</option>
           <option value="linkedin">LinkedIn</option>
@@ -267,15 +267,15 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
     </div>
 
     <!-- Consent -->
-    <div class="pt-4 border-t border-gray-100">
+    <div class="pt-4 border-t border-line-subtle">
       <label class="flex items-start gap-3 cursor-pointer">
         <input
           type="checkbox"
           name="consent"
           required
-          class="mt-1 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          class="mt-1 w-5 h-5 rounded border-line-strong text-blue-fg focus:ring-blue"
         />
-        <span class="text-sm text-gray-600">
+        <span class="text-sm text-fg-muted">
           I agree to the processing of my personal data for recruitment purposes. I understand that
           my information will be kept confidential and used only for evaluating my application.
         </span>
@@ -286,7 +286,7 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
     <div class="pt-4">
       <button
         type="submit"
-        class="w-full inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold text-white transition hover:opacity-90 shadow-lg"
+        class="w-full inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold text-on-solid transition hover:opacity-90 shadow-lg"
         style={`background: ${brandColor};`}
         id="submit-btn"
       >
@@ -299,12 +299,12 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
   <!-- Success Message (Hidden by default) -->
   <div id="success-message" class="hidden text-center py-12">
     <div
-      class="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-6"
+      class="w-20 h-20 rounded-full bg-emerald-soft flex items-center justify-center mx-auto mb-6"
     >
-      <i class="fa-solid fa-check text-3xl text-emerald-600"></i>
+      <i class="fa-solid fa-check text-3xl text-emerald-fg"></i>
     </div>
-    <h3 class="text-2xl font-bold text-gray-900 mb-3">Application Submitted!</h3>
-    <p class="text-gray-600 mb-6">
+    <h3 class="text-2xl font-bold text-fg mb-3">Application Submitted!</h3>
+    <p class="text-fg-muted mb-6">
       Thank you for applying to <strong>{jobTitle}</strong> at <strong>{companyName}</strong>.<br />
       We'll review your application and get back to you within 48 hours.
     </p>

@@ -1,0 +1,76 @@
+---
+/**
+ * Flips the site between light and dark mode and remembers the choice. Until the visitor
+ * picks one the page follows their operating system — see `lib/theme.ts`, and the inline
+ * script in `Page.astro` that applies the mode before first paint.
+ */
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  aria-label="Dark mode"
+  aria-pressed="false"
+  title="Toggle dark mode"
+  class="cursor-pointer inline-flex items-center justify-center rounded-full p-2.5 text-fg-secondary hover:bg-surface-muted transition shrink-0"
+>
+  <i class="fa-solid fa-moon text-lg dark:hidden" aria-hidden="true"></i>
+  <i class="fa-solid fa-sun text-lg hidden dark:inline" aria-hidden="true"></i>
+</button>
+
+<script>
+  import {
+    DARK_MEDIA_QUERY,
+    THEME_ATTRIBUTE,
+    THEME_STORAGE_KEY,
+    isTheme,
+    type Theme,
+  } from "../lib/theme";
+
+  const root = document.documentElement;
+  const toggles = document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]");
+
+  const currentTheme = (): Theme => (root.getAttribute(THEME_ATTRIBUTE) === "dark" ? "dark" : "light");
+
+  const applyTheme = (theme: Theme): void => {
+    root.setAttribute(THEME_ATTRIBUTE, theme);
+    for (const toggle of toggles) {
+      toggle.setAttribute("aria-pressed", String(theme === "dark"));
+    }
+  };
+
+  const storedTheme = (): Theme | null => {
+    try {
+      const stored = localStorage.getItem(THEME_STORAGE_KEY);
+      return isTheme(stored) ? stored : null;
+    } catch (error) {
+      console.warn("Theme preference could not be read", error);
+      return null;
+    }
+  };
+
+  const storeTheme = (theme: Theme): void => {
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (error) {
+      console.warn("Theme preference could not be saved", error);
+    }
+  };
+
+  applyTheme(currentTheme());
+
+  for (const toggle of toggles) {
+    toggle.addEventListener("click", () => {
+      const next: Theme = currentTheme() === "dark" ? "light" : "dark";
+      applyTheme(next);
+      storeTheme(next);
+    });
+  }
+
+  // Keep following the OS until the visitor makes a choice of their own.
+  globalThis.matchMedia(DARK_MEDIA_QUERY).addEventListener("change", (event) => {
+    if (storedTheme() === null) {
+      applyTheme(event.matches ? "dark" : "light");
+    }
+  });
+</script>

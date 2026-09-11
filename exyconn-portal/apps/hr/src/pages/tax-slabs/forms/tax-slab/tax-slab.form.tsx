@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { FINANCIAL_YEAR } from '@exyconn/regex';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';
@@ -18,10 +19,7 @@ const OPEN_ENDED = '';
 const schema = z
   .object({
     regimeKey: z.string().trim().min(1, 'Choose the regime this band belongs to'),
-    financialYear: z
-      .string()
-      .trim()
-      .regex(/^\d{4}-\d{2}$/, 'Write the financial year as 2026-27'),
+    financialYear: z.string().trim().regex(FINANCIAL_YEAR, 'Write the financial year as 2026-27'),
     fromAmount: z.coerce.number().min(0, 'The lower bound cannot be negative'),
     toAmount: z.union([
       z.literal(OPEN_ENDED),

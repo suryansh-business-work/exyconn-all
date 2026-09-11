@@ -64,7 +64,7 @@ const jobPostingSchema = {
   metaImage={company.logo}
   jsonLd={jobPostingSchema}
 >
-  <main class="bg-white min-h-screen">
+  <main class="bg-surface min-h-screen">
     <!-- Header Section -->
     <section
       class="relative py-16 px-6 overflow-hidden"
@@ -81,19 +81,19 @@ const jobPostingSchema = {
         <nav class="mb-8">
           <ol class="flex items-center gap-2 text-sm flex-wrap">
             <li>
-              <a href="/career" class="text-gray-500 hover:text-gray-700 transition">Careers</a>
+              <a href="/career" class="text-fg-subtle hover:text-fg-secondary transition">Careers</a>
             </li>
-            <li class="text-gray-400">/</li>
+            <li class="text-fg-faint">/</li>
             <li>
               <a
                 href={`/career/company/${company.slug}`}
-                class="text-gray-500 hover:text-gray-700 transition"
+                class="text-fg-subtle hover:text-fg-secondary transition"
               >
                 {company.name}
               </a>
             </li>
-            <li class="text-gray-400">/</li>
-            <li class="font-medium text-gray-900">{job.title}</li>
+            <li class="text-fg-faint">/</li>
+            <li class="font-medium text-fg">{job.title}</li>
           </ol>
         </nav>
 
@@ -102,7 +102,7 @@ const jobPostingSchema = {
           <div class="flex-1">
             <div class="flex items-center gap-4 mb-4">
               <div
-                class="w-16 h-16 bg-white rounded-xl shadow-lg flex items-center justify-center overflow-hidden"
+                class="w-16 h-16 bg-surface rounded-xl shadow-lg flex items-center justify-center overflow-hidden"
               >
                 <img
                   src={company.logo}
@@ -118,46 +118,46 @@ const jobPostingSchema = {
                 >
                   {company.name}
                 </a>
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-900">{job.title}</h1>
+                <h1 class="text-3xl md:text-4xl font-bold text-fg">{job.title}</h1>
               </div>
             </div>
 
             <!-- Job Meta Tags -->
             <div class="flex flex-wrap gap-3 mb-6">
               <span
-                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-sm text-gray-600 shadow-sm"
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-surface rounded-full text-sm text-fg-muted shadow-sm"
               >
-                <i class="fa-solid fa-location-dot text-gray-400"></i>
+                <i class="fa-solid fa-location-dot text-fg-faint"></i>
                 {job.location}
               </span>
               <span
-                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-sm text-gray-600 shadow-sm"
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-surface rounded-full text-sm text-fg-muted shadow-sm"
               >
-                <i class="fa-solid fa-clock text-gray-400"></i>
+                <i class="fa-solid fa-clock text-fg-faint"></i>
                 {job.jobType}
               </span>
               <span
-                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-sm text-gray-600 shadow-sm"
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-surface rounded-full text-sm text-fg-muted shadow-sm"
               >
-                <i class="fa-solid fa-laptop-house text-gray-400"></i>
+                <i class="fa-solid fa-laptop-house text-fg-faint"></i>
                 {job.workMode}
               </span>
               <span
-                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-sm text-gray-600 shadow-sm"
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-surface rounded-full text-sm text-fg-muted shadow-sm"
               >
-                <i class="fa-solid fa-layer-group text-gray-400"></i>
+                <i class="fa-solid fa-layer-group text-fg-faint"></i>
                 {job.experienceLevel}
               </span>
               <span
-                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-sm text-gray-600 shadow-sm"
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-surface rounded-full text-sm text-fg-muted shadow-sm"
               >
-                <i class="fa-solid fa-tag text-gray-400"></i>
+                <i class="fa-solid fa-tag text-fg-faint"></i>
                 {job.category}
               </span>
               {
                 job.salaryRange && (
-                  <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full text-sm text-emerald-700 shadow-sm font-medium">
-                    <i class="fa-solid fa-indian-rupee-sign text-emerald-500" />
+                  <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-subtle rounded-full text-sm text-emerald-fg-strong shadow-sm font-medium">
+                    <i class="fa-solid fa-indian-rupee-sign text-emerald-fg" />
                     {job.salaryRange}
                   </span>
                 )
@@ -165,7 +165,7 @@ const jobPostingSchema = {
             </div>
 
             <!-- Posted Date -->
-            <p class="text-sm text-gray-500">
+            <p class="text-sm text-fg-subtle">
               <i class="fa-solid fa-calendar-plus mr-2"></i>
               Posted {formatDate(job.jobPostDate)} ({getDaysAgo(job.jobPostDate)})
             </p>
@@ -173,17 +173,17 @@ const jobPostingSchema = {
 
           <!-- Quick Apply Card (Desktop) -->
           <div class="hidden lg:block w-80">
-            <div class="bg-white rounded-2xl shadow-xl p-6 sticky top-6">
-              <h3 class="font-bold text-gray-900 mb-4">Quick Apply</h3>
+            <div class="bg-surface rounded-2xl shadow-xl p-6 sticky top-6">
+              <h3 class="font-bold text-fg mb-4">Quick Apply</h3>
               <a
                 href="#apply-section"
-                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold text-white transition mb-3"
+                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold text-on-solid transition mb-3"
                 style={`background: ${company.brandColor};`}
               >
                 <i class="fa-solid fa-paper-plane"></i>
                 Apply Now
               </a>
-              <p class="text-xs text-gray-500 text-center">or send resume to</p>
+              <p class="text-xs text-fg-subtle text-center">or send resume to</p>
               <a
                 href={`mailto:careers@${company.slug}.com?subject=Application for ${job.title} (${job.jobCode})`}
                 class="text-sm font-medium block text-center mt-1 hover:underline"
@@ -205,8 +205,8 @@ const jobPostingSchema = {
           <div class="flex-1">
             <!-- Skills Required -->
             <div class="mb-10">
-              <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-code text-gray-400"></i>
+              <h2 class="text-xl font-bold text-fg mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-code text-fg-faint"></i>
                 Skills Required
               </h2>
               <div class="flex flex-wrap gap-2">
@@ -226,15 +226,15 @@ const jobPostingSchema = {
             <!-- Job Description -->
             <div class="mb-12">
               <h2
-                class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-blue-100"
+                class="text-2xl font-bold text-fg mb-6 flex items-center gap-3 pb-3 border-b-2 border-blue-soft"
               >
-                <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <i class="fa-solid fa-file-lines text-blue-600"></i>
+                <div class="w-10 h-10 rounded-lg bg-blue-soft flex items-center justify-center">
+                  <i class="fa-solid fa-file-lines text-blue-fg"></i>
                 </div>
                 About This Role
               </h2>
               <div
-                class="prose prose-lg max-w-none text-gray-700 prose-headings:text-lg prose-headings:font-bold prose-headings:text-gray-900 prose-headings:mt-6 prose-headings:mb-3 prose-p:text-gray-700 prose-p:leading-7 prose-p:mb-4 prose-ul:my-4 prose-li:text-gray-700 prose-li:leading-7 prose-strong:text-gray-900 prose-strong:font-semibold"
+                class="prose prose-lg max-w-none text-fg-secondary prose-headings:text-lg prose-headings:font-bold prose-headings:text-fg prose-headings:mt-6 prose-headings:mb-3 prose-p:text-fg-secondary prose-p:leading-7 prose-p:mb-4 prose-ul:my-4 prose-li:text-fg-secondary prose-li:leading-7 prose-strong:text-fg prose-strong:font-semibold"
                 set:html={job.jobDescription}
               />
             </div>
@@ -242,16 +242,16 @@ const jobPostingSchema = {
             <!-- Responsibilities -->
             <div class="mb-12">
               <h2
-                class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-emerald-100"
+                class="text-2xl font-bold text-fg mb-6 flex items-center gap-3 pb-3 border-b-2 border-emerald-soft"
               >
-                <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                  <i class="fa-solid fa-list-check text-emerald-600"></i>
+                <div class="w-10 h-10 rounded-lg bg-emerald-soft flex items-center justify-center">
+                  <i class="fa-solid fa-list-check text-emerald-fg"></i>
                 </div>
                 Key Responsibilities
               </h2>
               <div class="space-y-3">
                 <div
-                  class="prose prose-lg max-w-none text-gray-700 prose-ul:my-0 prose-li:text-gray-700 prose-li:leading-7 prose-strong:text-gray-900 prose-strong:font-semibold"
+                  class="prose prose-lg max-w-none text-fg-secondary prose-ul:my-0 prose-li:text-fg-secondary prose-li:leading-7 prose-strong:text-fg prose-strong:font-semibold"
                   set:html={job.jobResponsibilities}
                 />
               </div>
@@ -260,10 +260,10 @@ const jobPostingSchema = {
             <!-- Requirements -->
             <div class="mb-12">
               <h2
-                class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-purple-100"
+                class="text-2xl font-bold text-fg mb-6 flex items-center gap-3 pb-3 border-b-2 border-purple-soft"
               >
-                <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <i class="fa-solid fa-clipboard-check text-purple-600"></i>
+                <div class="w-10 h-10 rounded-lg bg-purple-soft flex items-center justify-center">
+                  <i class="fa-solid fa-clipboard-check text-purple-fg"></i>
                 </div>
                 Requirements
               </h2>
@@ -271,10 +271,10 @@ const jobPostingSchema = {
                 {
                   job.requirements.map((req) => (
                     <li class="flex items-start gap-4 group">
-                      <div class="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-purple-200 transition-colors">
-                        <i class="fa-solid fa-check text-purple-600 text-sm" />
+                      <div class="w-6 h-6 rounded-full bg-purple-soft flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-purple-muted transition-colors">
+                        <i class="fa-solid fa-check text-purple-fg text-sm" />
                       </div>
-                      <span class="text-gray-700 leading-7 text-base">{req}</span>
+                      <span class="text-fg-secondary leading-7 text-base">{req}</span>
                     </li>
                   ))
                 }
@@ -285,19 +285,19 @@ const jobPostingSchema = {
             {
               job.niceToHave && job.niceToHave.length > 0 && (
                 <div class="mb-12">
-                  <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-amber-100">
-                    <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                      <i class="fa-solid fa-star text-amber-600" />
+                  <h2 class="text-2xl font-bold text-fg mb-6 flex items-center gap-3 pb-3 border-b-2 border-amber-soft">
+                    <div class="w-10 h-10 rounded-lg bg-amber-soft flex items-center justify-center">
+                      <i class="fa-solid fa-star text-amber-fg" />
                     </div>
                     Nice to Have
                   </h2>
                   <ul class="space-y-4">
                     {job.niceToHave.map((item) => (
                       <li class="flex items-start gap-4 group">
-                        <div class="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-amber-200 transition-colors">
-                          <i class="fa-solid fa-plus text-amber-600 text-sm" />
+                        <div class="w-6 h-6 rounded-full bg-amber-soft flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-amber-muted transition-colors">
+                          <i class="fa-solid fa-plus text-amber-fg text-sm" />
                         </div>
-                        <span class="text-gray-700 leading-7 text-base">{item}</span>
+                        <span class="text-fg-secondary leading-7 text-base">{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -309,19 +309,19 @@ const jobPostingSchema = {
             {
               job.benefits && job.benefits.length > 0 && (
                 <div class="mb-12">
-                  <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-rose-100">
-                    <div class="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center">
-                      <i class="fa-solid fa-gift text-rose-600" />
+                  <h2 class="text-2xl font-bold text-fg mb-6 flex items-center gap-3 pb-3 border-b-2 border-rose-soft">
+                    <div class="w-10 h-10 rounded-lg bg-rose-soft flex items-center justify-center">
+                      <i class="fa-solid fa-gift text-rose-fg" />
                     </div>
                     Benefits
                   </h2>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {job.benefits.map((benefit) => (
-                      <div class="flex items-start gap-4 p-4 bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl border border-rose-100 hover:shadow-md transition-shadow group">
-                        <div class="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-rose-200 transition-colors">
-                          <i class="fa-solid fa-check-circle text-rose-600 text-sm" />
+                      <div class="flex items-start gap-4 p-4 bg-gradient-to-br from-rose-subtle to-pink-subtle rounded-xl border border-rose-soft hover:shadow-md transition-shadow group">
+                        <div class="w-6 h-6 rounded-full bg-rose-soft flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-rose-muted transition-colors">
+                          <i class="fa-solid fa-check-circle text-rose-fg text-sm" />
                         </div>
-                        <span class="text-gray-700 leading-6 text-base">{benefit}</span>
+                        <span class="text-fg-secondary leading-6 text-base">{benefit}</span>
                       </div>
                     ))}
                   </div>
@@ -333,11 +333,11 @@ const jobPostingSchema = {
           <!-- Sidebar -->
           <div class="lg:w-80 shrink-0">
             <!-- About Company Card -->
-            <div class="bg-gray-50 rounded-2xl p-6 mb-6 sticky top-6">
-              <h3 class="font-bold text-gray-900 mb-4">About {company.name}</h3>
+            <div class="bg-surface-subtle rounded-2xl p-6 mb-6 sticky top-6">
+              <h3 class="font-bold text-fg mb-4">About {company.name}</h3>
               <div class="flex items-center gap-3 mb-4">
                 <div
-                  class="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden"
+                  class="w-12 h-12 bg-surface rounded-lg flex items-center justify-center overflow-hidden"
                 >
                   <img
                     src={company.logo}
@@ -346,29 +346,29 @@ const jobPostingSchema = {
                   />
                 </div>
                 <div>
-                  <p class="font-semibold text-gray-900">{company.name}</p>
-                  <p class="text-sm text-gray-500">{company.industry}</p>
+                  <p class="font-semibold text-fg">{company.name}</p>
+                  <p class="text-sm text-fg-subtle">{company.industry}</p>
                 </div>
               </div>
-              <p class="text-sm text-gray-600 mb-4">{company.tagline}</p>
+              <p class="text-sm text-fg-muted mb-4">{company.tagline}</p>
 
               <div class="space-y-2 text-sm mb-4">
-                <div class="flex items-center gap-2 text-gray-600">
-                  <i class="fa-solid fa-location-dot w-4 text-gray-400"></i>
+                <div class="flex items-center gap-2 text-fg-muted">
+                  <i class="fa-solid fa-location-dot w-4 text-fg-faint"></i>
                   {company.headquarters}
                 </div>
                 {
                   company.employees && (
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <i class="fa-solid fa-users w-4 text-gray-400" />
+                    <div class="flex items-center gap-2 text-fg-muted">
+                      <i class="fa-solid fa-users w-4 text-fg-faint" />
                       {company.employees} employees
                     </div>
                   )
                 }
                 {
                   company.founded && (
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <i class="fa-solid fa-calendar w-4 text-gray-400" />
+                    <div class="flex items-center gap-2 text-fg-muted">
+                      <i class="fa-solid fa-calendar w-4 text-fg-faint" />
                       Founded {company.founded}
                     </div>
                   )
@@ -386,14 +386,14 @@ const jobPostingSchema = {
             </div>
 
             <!-- Share Card -->
-            <div class="bg-gray-50 rounded-2xl p-6 mb-6">
-              <h3 class="font-bold text-gray-900 mb-4">Share This Job</h3>
+            <div class="bg-surface-subtle rounded-2xl p-6 mb-6">
+              <h3 class="font-bold text-fg mb-4">Share This Job</h3>
               <div class="flex gap-3">
                 <a
                   href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.href)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-600 hover:bg-blue-600 hover:text-white transition shadow-sm"
+                  class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-fg-muted hover:bg-blue-strong hover:text-on-solid transition shadow-sm"
                   title="Share on LinkedIn"
                 >
                   <i class="fa-brands fa-linkedin-in"></i>
@@ -402,7 +402,7 @@ const jobPostingSchema = {
                   href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(Astro.url.href)}&text=${encodeURIComponent(`${job.title} at ${company.name}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-600 hover:bg-sky-500 hover:text-white transition shadow-sm"
+                  class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-fg-muted hover:bg-sky hover:text-on-solid transition shadow-sm"
                   title="Share on Twitter"
                 >
                   <i class="fa-brands fa-twitter"></i>
@@ -411,14 +411,14 @@ const jobPostingSchema = {
                   href={`https://wa.me/?text=${encodeURIComponent(`Check out this job: ${job.title} at ${company.name} - ${Astro.url.href}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-600 hover:bg-green-500 hover:text-white transition shadow-sm"
+                  class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-fg-muted hover:bg-green hover:text-on-solid transition shadow-sm"
                   title="Share on WhatsApp"
                 >
                   <i class="fa-brands fa-whatsapp"></i>
                 </a>
                 <button
                   id="copy-link-btn"
-                  class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-600 hover:bg-gray-700 hover:text-white transition shadow-sm"
+                  class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-fg-muted hover:bg-inverse-muted hover:text-on-solid transition shadow-sm"
                   title="Copy link"
                 >
                   <i class="fa-solid fa-link"></i>
@@ -431,11 +431,11 @@ const jobPostingSchema = {
     </section>
 
     <!-- Application Section -->
-    <section id="apply-section" class="py-16 px-6 bg-gradient-to-br from-gray-50 to-blue-50">
+    <section id="apply-section" class="py-16 px-6 bg-gradient-to-br from-surface-subtle to-blue-subtle">
       <div class="max-w-3xl mx-auto">
         <div class="text-center mb-10">
-          <h2 class="text-3xl font-bold text-gray-900 mb-4">Apply for This Position</h2>
-          <p class="text-gray-600">
+          <h2 class="text-3xl font-bold text-fg mb-4">Apply for This Position</h2>
+          <p class="text-fg-muted">
             Fill out the form below and we'll get back to you within 48 hours.
           </p>
         </div>
@@ -453,9 +453,9 @@ const jobPostingSchema = {
     <!-- Other Jobs Section -->
     {
       otherJobs.length > 0 && (
-        <section class="py-16 px-6 bg-white">
+        <section class="py-16 px-6 bg-surface">
           <div class="max-w-5xl mx-auto">
-            <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">
+            <h2 class="text-2xl font-bold text-fg mb-8 text-center">
               Other Opportunities at {company.name}
             </h2>
 
@@ -463,21 +463,21 @@ const jobPostingSchema = {
               {otherJobs.map((otherJob) => (
                 <a
                   href={`/career/company/${company.slug}/job/${otherJob.jobCode}`}
-                  class="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 border border-gray-100"
+                  class="group bg-surface-subtle rounded-2xl p-6 hover:shadow-lg transition-all duration-300 border border-line-subtle"
                 >
-                  <span class="text-xs font-medium px-2 py-1 rounded-full bg-white text-gray-600 mb-3 inline-block">
+                  <span class="text-xs font-medium px-2 py-1 rounded-full bg-surface text-fg-muted mb-3 inline-block">
                     {otherJob.category}
                   </span>
-                  <h3 class="font-bold text-gray-900 group-hover:text-blue-600 transition mb-2">
+                  <h3 class="font-bold text-fg group-hover:text-blue-fg transition mb-2">
                     {otherJob.title}
                   </h3>
-                  <p class="text-sm text-gray-600 line-clamp-2 mb-3">
+                  <p class="text-sm text-fg-muted line-clamp-2 mb-3">
                     {otherJob.shortJobDescription}
                   </p>
-                  <div class="flex items-center gap-2 text-xs text-gray-500">
+                  <div class="flex items-center gap-2 text-xs text-fg-subtle">
                     <i class="fa-solid fa-location-dot" />
                     {otherJob.location}
-                    <span class="text-gray-300">•</span>
+                    <span class="text-line-strong">•</span>
                     {otherJob.jobType}
                   </div>
                 </a>
@@ -500,10 +500,10 @@ const jobPostingSchema = {
     }
 
     <!-- Mobile Apply Button -->
-    <div class="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 z-50">
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-surface border-t border-line z-50">
       <a
         href="#apply-section"
-        class="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full font-semibold text-white transition"
+        class="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full font-semibold text-on-solid transition"
         style={`background: ${company.brandColor};`}
       >
         <i class="fa-solid fa-paper-plane"></i>
@@ -512,19 +512,19 @@ const jobPostingSchema = {
     </div>
 
     <!-- Back Navigation -->
-    <section class="py-8 px-6 bg-gray-50 lg:mb-0 mb-20">
+    <section class="py-8 px-6 bg-surface-subtle lg:mb-0 mb-20">
       <div class="max-w-5xl mx-auto flex flex-wrap gap-4 justify-center">
         <a
           href={`/career/company/${company.slug}`}
-          class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
+          class="inline-flex items-center gap-2 text-fg-muted hover:text-fg transition"
         >
           <i class="fa-solid fa-arrow-left"></i>
           Back to {company.name} Jobs
         </a>
-        <span class="text-gray-300">|</span>
+        <span class="text-line-strong">|</span>
         <a
           href="/career"
-          class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
+          class="inline-flex items-center gap-2 text-fg-muted hover:text-fg transition"
         >
           <i class="fa-solid fa-building"></i>
           All Companies

@@ -57,7 +57,7 @@ export function trackerUpdatesRouter(): Router {
       .then((files) => {
         const url = files.get(file);
         if (!url) {
-          res.status(404).json({ error: `No ${file} on the latest tracker release.` });
+          res.status(404).json({ error: `No ${file} on a recent tracker release.` });
           return;
         }
         res.redirect(302, url);

@@ -46,6 +46,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -363,6 +366,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -517,6 +523,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -674,6 +683,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -831,6 +843,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -1148,6 +1163,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -1305,6 +1323,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -1462,6 +1483,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -1767,6 +1791,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -1882,6 +1909,9 @@ importers:
       '@exyconn/i18n':
         specifier: workspace:*
         version: link:../../../packages/i18n
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -2024,6 +2054,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -2181,6 +2214,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -2504,6 +2540,9 @@ importers:
       '@exyconn/login':
         specifier: workspace:*
         version: link:../../../packages/login
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../../../packages/regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../../../packages/shell
@@ -2949,6 +2988,9 @@ importers:
       '@exyconn/time':
         specifier: workspace:*
         version: link:../packages/time
+      '@exyconn/tracker-core':
+        specifier: workspace:*
+        version: link:../packages/tracker-core
       '@exyconn/ui':
         specifier: workspace:*
         version: link:../packages/ui
@@ -3033,6 +3075,12 @@ importers:
       '@astrojs/react':
         specifier: ^4.4.2
         version: 4.4.2(@types/node@25.9.5)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(jiti@2.7.0)(lightningcss@1.33.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0)
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../packages/regex
+      '@hookform/resolvers':
+        specifier: ^5.9.1
+        version: 5.9.1(@sinclair/typebox@0.27.10)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@18.2.3)(react-hook-form@7.87.0(react@19.2.7))(typanion@3.13.0)(yup@1.7.1)(zod@4.4.3)
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.3.2(vite@6.4.3(@types/node@25.9.5)(jiti@2.7.0)(lightningcss@1.33.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))
@@ -3042,15 +3090,15 @@ importers:
       astro:
         specifier: ^5.17.1
         version: 5.18.2(@types/node@25.9.5)(jiti@2.7.0)(lightningcss@1.33.0)(rollup@4.62.2)(sass@1.101.0)(tsx@4.23.1)(typescript@6.0.3)(yaml@2.9.0)
-      formik:
-        specifier: ^2.4.9
-        version: 2.4.9(@types/react@19.2.17)(react@19.2.7)
       react:
         specifier: ^19.2.4
         version: 19.2.7
       react-dom:
         specifier: ^19.2.4
         version: 19.2.7(react@19.2.7)
+      react-hook-form:
+        specifier: ^7.87.0
+        version: 7.87.0(react@19.2.7)
       sanitize-html:
         specifier: ^2.14.0
         version: 2.17.7
@@ -3060,9 +3108,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.18
         version: 4.3.2
-      yup:
-        specifier: ^1.7.1
-        version: 1.7.1
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.6
@@ -3295,6 +3343,9 @@ importers:
       '@exyconn/i18n':
         specifier: workspace:*
         version: link:../i18n
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../regex
       '@exyconn/shell':
         specifier: workspace:*
         version: link:../shell
@@ -3393,6 +3444,27 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))
 
+  packages/regex:
+    devDependencies:
+      '@exyconn/config':
+        specifier: workspace:*
+        version: link:../config
+      '@testing-library/jest-dom':
+        specifier: ^7.0.1
+        version: 7.0.1(@testing-library/dom@10.4.1)(vitest@5.0.0)
+      eslint:
+        specifier: ^10.9.1
+        version: 10.9.1(jiti@2.7.0)
+      prettier:
+        specifier: ^3.4.2
+        version: 3.9.5
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^5.0.0
+        version: 5.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))
+
   packages/shell:
     dependencies:
       '@apollo/client':
@@ -3422,6 +3494,9 @@ importers:
       '@exyconn/i18n':
         specifier: workspace:*
         version: link:../i18n
+      '@exyconn/regex':
+        specifier: workspace:*
+        version: link:../regex
       '@exyconn/ui':
         specifier: workspace:*
         version: link:../ui
@@ -3649,6 +3724,55 @@ importers:
       vitest:
         specifier: ^5.0.0
         version: 5.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))
+
+  packages/tracker-core:
+    dependencies:
+      '@exyconn/time':
+        specifier: workspace:*
+        version: link:../time
+      '@graphql-typed-document-node/core':
+        specifier: ^3.2.0
+        version: 3.2.0(graphql@16.14.2)
+      date-fns:
+        specifier: ^4.4.0
+        version: 4.4.0
+      date-fns-tz:
+        specifier: ^3.2.0
+        version: 3.2.0(date-fns@4.4.0)
+    devDependencies:
+      '@exyconn/config':
+        specifier: workspace:*
+        version: link:../config
+      '@graphql-codegen/cli':
+        specifier: ^5.0.3
+        version: 5.0.7(@parcel/watcher@2.5.6)(@types/node@22.20.1)(crossws@0.3.5)(encoding@0.1.13)(enquirer@2.4.1)(graphql@16.14.2)(typescript@6.0.3)
+      '@graphql-codegen/typed-document-node':
+        specifier: ^5.1.2
+        version: 5.1.2(graphql@16.14.2)
+      '@graphql-codegen/typescript':
+        specifier: ^4.1.2
+        version: 4.1.6(graphql@16.14.2)
+      '@graphql-codegen/typescript-operations':
+        specifier: ^4.4.0
+        version: 4.6.1(graphql@16.14.2)
+      '@types/node':
+        specifier: ^22.10.5
+        version: 22.20.1
+      eslint:
+        specifier: ^10.9.1
+        version: 10.9.1(jiti@2.7.0)
+      graphql:
+        specifier: ^16.14.2
+        version: 16.14.2
+      prettier:
+        specifier: ^3.4.2
+        version: 3.9.5
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^5.0.0
+        version: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))
 
   packages/ui:
     dependencies:
@@ -6724,11 +6848,6 @@ packages:
   '@types/hast@3.0.5':
     resolution: {integrity: sha512-rp/ezSWaD1m44dPKICGhiskI13nVr7qTloFwDa/IYkhhf5nzwP+zIQcIJh3WIFSBOy/H1PzB40jPjMDksN4F+g==}
 
-  '@types/hoist-non-react-statics@3.3.7':
-    resolution: {integrity: sha512-PQTyIulDkIDro8P+IHbKCsw7U2xxBYflVzW/FgWdCAePD9xGSidgA76/GeJ6lBKoblyhf9pBY763gbrN+1dI8g==}
-    peerDependencies:
-      '@types/react': '*'
-
   '@types/http-cache-semantics@4.2.0':
     resolution: {integrity: sha512-L3LgimLHXtGkWikKnsPg0/VFx9OGZaC+eN1u4r+OB1XRqH3meBIAVC2zr1WdMH+RHmnRkqliQAOHNJ/E0j/e0Q==}
 
@@ -8191,10 +8310,6 @@ packages:
     resolution: {integrity: sha512-uqbvqLUMrc6p0MO+WBRtTxY55hmyh94WRwI5a++PZe54X+bfVh59FSN7uWCBCW1CCVjzjnrwzfI8zidE2obMMw==}
     engines: {node: '>=16.9.0'}
 
-  deepmerge@2.2.1:
-    resolution: {integrity: sha512-R9hc1Xa/NOBi9WRVUWg19rl1UB7Tt4kuPd+thNJgFZoxXsTz7ncaPaeIm+40oSGuP33DfMb4sZt1QIGiJzC4EA==}
-    engines: {node: '>=0.10.0'}
-
   deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
     engines: {node: '>=0.10.0'}
@@ -8852,11 +8967,6 @@ packages:
   formidable@3.5.4:
     resolution: {integrity: sha512-YikH+7CUTOtP44ZTnUhR7Ic2UASBPOqmaRkRKxRbywPTe5VxF7RRCck4af9wutiZ/QKM5nME9Bie2fFaPz5Gug==}
     engines: {node: '>=14.0.0'}
-
-  formik@2.4.9:
-    resolution: {integrity: sha512-5nI94BMnlFDdQRBY4Sz39WkhxajZJ57Fzs8wVbtsQlm5ScKIR1QLYqv/ultBnobObtlUyxpxoLodpixrsf36Og==}
-    peerDependencies:
-      react: '>=16.8.0'
 
   forwarded@0.2.0:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
@@ -10056,9 +10166,6 @@ packages:
   locate-path@6.0.0:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
-
-  lodash-es@4.18.1:
-    resolution: {integrity: sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A==}
 
   lodash.defaults@4.2.0:
     resolution: {integrity: sha512-qjxPLHd3r5DnsdGacqOMU6pb/avJzdh9tFX2ymgoZE27BmjXrNy/y4LoaiTeAb+O3gL8AfpJGtqfX/ae2leYYQ==}
@@ -11544,9 +11651,6 @@ packages:
       react: '>=16.4.0'
       react-dom: '>=16.4.0'
 
-  react-fast-compare@2.0.4:
-    resolution: {integrity: sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==}
-
   react-hook-form@7.87.0:
     resolution: {integrity: sha512-zhFzWvLxNHH+8839OnZcUxgMZw88ah2jZWDWvKWgF3Tpbnd0vKL+dlcuU3nZVWESZQjd81EW8K+wU+cYfYAc0w==}
     engines: {node: '>=18.0.0'}
@@ -12299,9 +12403,6 @@ packages:
 
   tiny-typed-emitter@2.1.0:
     resolution: {integrity: sha512-qVtvMxeXbVej0cQWKqVSSAHmKZEHAvxdF8HEUBFWts8h+xEo5m/lEiPakuyZ3BnCBjOD8i24kzNOiOLLgsSxhA==}
-
-  tiny-warning@1.0.3:
-    resolution: {integrity: sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==}
 
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
@@ -15414,6 +15515,19 @@ snapshots:
     dependencies:
       '@hapi/hoek': 11.0.7
 
+  '@hookform/resolvers@5.9.1(@sinclair/typebox@0.27.10)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@18.2.3)(react-hook-form@7.87.0(react@19.2.7))(typanion@3.13.0)(yup@1.7.1)(zod@4.4.3)':
+    dependencies:
+      '@standard-schema/utils': 0.3.0
+      react-hook-form: 7.87.0(react@19.2.7)
+    optionalDependencies:
+      '@sinclair/typebox': 0.27.10
+      '@standard-schema/spec': 1.1.0
+      ajv: 8.20.0
+      joi: 18.2.3
+      typanion: 3.13.0
+      yup: 1.7.1
+      zod: 4.4.3
+
   '@hookform/resolvers@5.9.1(@sinclair/typebox@0.27.10)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@18.2.3)(react-hook-form@7.87.0(react@19.2.8))(typanion@3.13.0)(yup@1.7.1)(zod@4.4.3)':
     dependencies:
       '@standard-schema/utils': 0.3.0
@@ -16647,11 +16761,6 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
 
-  '@types/hoist-non-react-statics@3.3.7(@types/react@19.2.17)':
-    dependencies:
-      '@types/react': 19.2.17
-      hoist-non-react-statics: 3.3.2
-
   '@types/http-cache-semantics@4.2.0': {}
 
   '@types/http-errors@2.0.5': {}
@@ -17035,6 +17144,15 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 5.4.21(@types/node@25.9.5)(lightningcss@1.33.0)(sass@1.101.0)
+
+  '@vitest/mocker@5.0.0(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))':
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      '@vitest/spy': 5.0.0
+      estree-walker: 3.0.3
+      magic-string: 1.2.3
+    optionalDependencies:
+      vite: 8.2.2(@types/node@22.20.1)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0)
 
   '@vitest/mocker@5.0.0(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))':
     dependencies:
@@ -18493,8 +18611,6 @@ snapshots:
 
   deepmerge-ts@8.0.2: {}
 
-  deepmerge@2.2.1: {}
-
   deepmerge@4.3.1: {}
 
   defaults@1.0.4:
@@ -19367,20 +19483,6 @@ snapshots:
       '@paralleldrive/cuid2': 2.3.1
       dezalgo: 1.0.4
       once: 1.4.0
-
-  formik@2.4.9(@types/react@19.2.17)(react@19.2.7):
-    dependencies:
-      '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.17)
-      deepmerge: 2.2.1
-      hoist-non-react-statics: 3.3.2
-      lodash: 4.18.1
-      lodash-es: 4.18.1
-      react: 19.2.7
-      react-fast-compare: 2.0.4
-      tiny-warning: 1.0.3
-      tslib: 2.8.1
-    transitivePeerDependencies:
-      - '@types/react'
 
   forwarded@0.2.0: {}
 
@@ -20949,8 +21051,6 @@ snapshots:
   locate-path@6.0.0:
     dependencies:
       p-locate: 5.0.0
-
-  lodash-es@4.18.1: {}
 
   lodash.defaults@4.2.0: {}
 
@@ -22873,7 +22973,8 @@ snapshots:
       object-assign: 4.1.1
       react-is: 16.13.1
 
-  property-expr@2.0.6: {}
+  property-expr@2.0.6:
+    optional: true
 
   property-information@7.2.0: {}
 
@@ -23018,7 +23119,9 @@ snapshots:
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
 
-  react-fast-compare@2.0.4: {}
+  react-hook-form@7.87.0(react@19.2.7):
+    dependencies:
+      react: 19.2.7
 
   react-hook-form@7.87.0(react@19.2.8):
     dependencies:
@@ -23967,13 +24070,12 @@ snapshots:
 
   timeout-signal@2.0.0: {}
 
-  tiny-case@1.0.3: {}
+  tiny-case@1.0.3:
+    optional: true
 
   tiny-inflate@1.0.3: {}
 
   tiny-typed-emitter@2.1.0: {}
-
-  tiny-warning@1.0.3: {}
 
   tinybench@2.9.0: {}
 
@@ -24040,7 +24142,8 @@ snapshots:
 
   toidentifier@1.0.1: {}
 
-  toposort@2.0.2: {}
+  toposort@2.0.2:
+    optional: true
 
   tough-cookie@5.1.2:
     dependencies:
@@ -24132,7 +24235,8 @@ snapshots:
 
   type-fest@0.8.1: {}
 
-  type-fest@2.19.0: {}
+  type-fest@2.19.0:
+    optional: true
 
   type-fest@4.41.0: {}
 
@@ -24462,6 +24566,22 @@ snapshots:
       tsx: 4.23.1
       yaml: 2.9.0
 
+  vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0):
+    dependencies:
+      lightningcss: 1.33.0
+      picomatch: 4.0.5
+      postcss: 8.5.27
+      rolldown: 1.2.7
+      tinyglobby: 0.2.17
+    optionalDependencies:
+      '@types/node': 22.20.1
+      esbuild: 0.28.1
+      fsevents: 2.3.3
+      jiti: 2.7.0
+      sass: 1.101.0
+      tsx: 4.23.1
+      yaml: 2.9.0
+
   vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0):
     dependencies:
       lightningcss: 1.33.0
@@ -24597,6 +24717,29 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+
+  vitest@5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0)):
+    dependencies:
+      '@types/chai': 5.2.3
+      '@vitest/mocker': 5.0.0(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0))
+      chai: 6.2.2
+      es-module-lexer: 2.3.2
+      expect-type: 1.4.0
+      magic-string: 1.2.3
+      obug: 2.1.4
+      picomatch: 4.0.7
+      std-env: 4.2.0
+      tinybench: 6.1.4
+      tinyexec: 1.3.0
+      tinyglobby: 0.2.17
+      vite: 8.2.2(@types/node@22.20.1)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/node': 22.20.1
+      '@vitest/coverage-v8': 5.0.0(vitest@5.0.0)
+      jsdom: 30.0.1(@noble/hashes@1.8.0)
+    transitivePeerDependencies:
+      - msw
 
   vitest@5.0.0(@types/node@25.9.5)(@vitest/coverage-v8@5.0.0)(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(tsx@4.23.1)(yaml@2.9.0)):
     dependencies:
@@ -24953,6 +25096,7 @@ snapshots:
       tiny-case: 1.0.3
       toposort: 2.0.2
       type-fest: 2.19.0
+    optional: true
 
   zip-stream@4.1.1:
     dependencies:

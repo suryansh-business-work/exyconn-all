@@ -16,7 +16,7 @@ const breadcrumbs = [
 
 <nav
   aria-label="Breadcrumb"
-  class="w-full py-3 sm:py-4 px-4 sm:px-6 bg-gray-50 border-b border-gray-100 overflow-x-auto"
+  class="w-full py-3 sm:py-4 px-4 sm:px-6 bg-surface-subtle border-b border-line-subtle overflow-x-auto"
 >
   <ol class="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm mx-auto max-w-7xl flex-wrap">
     {
@@ -26,16 +26,16 @@ const breadcrumbs = [
           aria-current={idx === breadcrumbs.length - 1 ? "page" : undefined}
         >
           {idx !== 0 && (
-            <i class="fa-solid fa-chevron-right text-gray-300 text-[10px] sm:text-xs" />
+            <i class="fa-solid fa-chevron-right text-line-strong text-[10px] sm:text-xs" />
           )}
 
           {idx < breadcrumbs.length - 1 ? (
-            <a href={crumb.href} class="text-gray-500 hover:text-blue-600 transition-colors">
+            <a href={crumb.href} class="text-fg-subtle hover:text-blue-fg transition-colors">
               {idx === 0 && <i class="fa-solid fa-home mr-1 text-[10px] sm:text-xs" />}
               <span class="break-words">{crumb.name}</span>
             </a>
           ) : (
-            <span class="font-semibold text-gray-900 break-words">{crumb.name}</span>
+            <span class="font-semibold text-fg break-words">{crumb.name}</span>
           )}
         </li>
       ))

@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { HTTP_URL } from '@exyconn/regex';
 import {
   RhfTextField,
   RhfSelect,
@@ -27,7 +28,11 @@ const schema = z.object({
   coverage: z.string().trim().min(1, 'Coverage is required'),
   validFrom: z.string(),
   validTo: z.string(),
-  documentUrl: z.string().trim(),
+  documentUrl: z
+    .string()
+    .trim()
+    .regex(HTTP_URL, 'Enter a full URL starting with https://')
+    .or(z.literal('')),
 });
 type Values = z.infer<typeof schema>;
 

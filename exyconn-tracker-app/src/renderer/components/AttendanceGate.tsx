@@ -2,7 +2,7 @@ import { useState, type ReactElement } from 'react';
 import { Alert, Button, MenuItem, Stack, TextField, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import HowToRegOutlined from '@mui/icons-material/HowToRegOutlined';
 import type { AttendanceStatus, Workday } from '@shared/types';
-import { ATTENDANCE_OPTIONS, humanize } from '../work-day';
+import { ATTENDANCE_OPTIONS, humanize } from '@exyconn/tracker-core';
 
 interface Props {
   workday: Workday | null;

@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import { alpha, borderWidth, Box, Typography } from '@exyconn/ui';
 import Surface from './Surface';
 import type { ReportTotals as Totals } from '../hooks/useMyReport';
-import { formatHoursMinutes } from '../format';
+import { formatHoursMinutes } from '@exyconn/tracker-core';
 
 interface Props {
   totals: Totals;

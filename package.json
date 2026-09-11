@@ -17,7 +17,7 @@
     "format": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn --parallel run format",
     "test": "pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=1 run test",
     "test:ct": "pnpm --filter '@exyconn/*' --workspace-concurrency=1 run test:ct",
-    "codegen": "pnpm --filter exyconn-portal-server run codegen && pnpm --filter @exyconn/shell run codegen",
+    "codegen": "pnpm --filter exyconn-portal-server run codegen && pnpm --filter @exyconn/shell run codegen && pnpm --filter @exyconn/tracker-core run codegen",
     "seed": "pnpm --filter exyconn-portal-server run seed"
   }
 }

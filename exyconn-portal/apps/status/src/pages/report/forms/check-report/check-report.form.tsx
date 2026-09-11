@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { REPORT_REFERENCE } from '@exyconn/regex';
 import { Box, Flex, Typography } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -19,7 +20,7 @@ export const checkReportSchema = z.object({
     .string()
     .trim()
     .toUpperCase()
-    .regex(/^EXY-[A-Z2-9]{6}$/, 'A reference looks like EXY-4KQ7W2'),
+    .regex(REPORT_REFERENCE, 'A reference looks like EXY-4KQ7W2'),
 });
 
 type Values = z.infer<typeof checkReportSchema>;

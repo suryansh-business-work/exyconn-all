@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { SLUG } from '@exyconn/regex';
 import {
   RhfTextField,
   RhfSelect,
@@ -18,16 +19,14 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import type { PolicyRow } from './policy.types';
 
-/** The slug is a public URL segment for PUBLIC policies, so it has to be URL-safe. */
-const SLUG_PATTERN = /^[a-z0-9-]+$/;
-
 const schema = z.object({
   title: z.string().trim().min(1, 'Title is required'),
+  /** A public URL segment for PUBLIC policies, so it has to be URL-safe. */
   slug: z
     .string()
     .trim()
     .min(1, 'Slug is required')
-    .regex(SLUG_PATTERN, 'Lower-case letters, numbers and hyphens only'),
+    .regex(SLUG, 'Lower-case letters, numbers and hyphens only'),
   summary: z.string().trim(),
   body: z.string().trim().min(1, 'The policy cannot be empty'),
   audience: z.nativeEnum(PolicyAudience),

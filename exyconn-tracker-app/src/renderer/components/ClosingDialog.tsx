@@ -10,7 +10,7 @@ import {
   Typography,
 } from '@exyconn/ui';
 import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
-import { formatCount } from '../format';
+import { formatCount } from '@exyconn/tracker-core';
 
 /**
  * Shown when the employee closes the app while an upload is still going up.

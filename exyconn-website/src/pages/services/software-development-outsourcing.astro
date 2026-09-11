@@ -380,10 +380,13 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
 <style>
   /* ═══════════════ VARIABLES ═══════════════ */
   :root {
-    --os-primary: var(--palette-indigo-600);
-    --os-primary-light: var(--palette-indigo-400);
-    --os-dark: var(--palette-indigo-900);
-    --os-bg: var(--palette-slate-50);
+    /* Indigo as text and icons — lightens at night. */
+    --os-primary: var(--color-indigo-fg-strong);
+    --os-primary-light: var(--color-indigo-fg);
+    /* Indigo as a fill behind white text — the same in both modes. */
+    --os-primary-fill: var(--color-indigo-deep);
+    --os-dark: var(--color-indigo-night);
+    --os-bg: var(--color-surface-subtle);
   }
 
   /* ═══════════════ HERO ═══════════════ */
@@ -393,15 +396,15 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     background: var(--os-dark);
     padding: 7rem 1.5rem 5rem;
     text-align: center;
-    color: var(--palette-neutral-0);
+    color: var(--color-on-solid);
   }
 
   .hero-bg-grid {
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(color-mix(in srgb, var(--palette-indigo-400) 6%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in srgb, var(--palette-indigo-400) 6%, transparent) 1px, transparent 1px);
+      linear-gradient(color-mix(in srgb, var(--color-indigo) 6%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--color-indigo) 6%, transparent) 1px, transparent 1px);
     background-size: 60px 60px;
   }
 
@@ -415,7 +418,7 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   .hero-glow-1 {
     width: 500px;
     height: 500px;
-    background: color-mix(in srgb, var(--palette-indigo-400) 15%, transparent);
+    background: color-mix(in srgb, var(--color-indigo) 15%, transparent);
     top: -150px;
     right: -100px;
   }
@@ -423,7 +426,7 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   .hero-glow-2 {
     width: 400px;
     height: 400px;
-    background: color-mix(in srgb, var(--palette-violet-400) 10%, transparent);
+    background: color-mix(in srgb, var(--color-violet) 10%, transparent);
     bottom: -100px;
     left: -80px;
   }
@@ -439,9 +442,9 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: color-mix(in srgb, var(--palette-neutral-0) 8%, transparent);
-    border: 1px solid color-mix(in srgb, var(--palette-neutral-0) 12%, transparent);
-    color: color-mix(in srgb, var(--palette-neutral-0) 85%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-surface) 12%, transparent);
+    color: color-mix(in srgb, var(--color-on-solid) 85%, transparent);
     font-weight: 600;
     font-size: var(--font-size-sm);
     padding: 0.5rem 1.25rem;
@@ -458,7 +461,7 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   }
 
   .hero-gradient-text {
-    background: linear-gradient(135deg, var(--palette-indigo-300), var(--palette-purple-300), var(--palette-pink-400));
+    background: linear-gradient(135deg, var(--color-indigo), var(--color-purple), var(--color-pink));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -466,7 +469,7 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
 
   .hero-desc {
     font-size: var(--font-size-lg);
-    color: color-mix(in srgb, var(--palette-neutral-0) 65%, transparent);
+    color: color-mix(in srgb, var(--color-on-solid) 65%, transparent);
     line-height: 1.7;
     margin-bottom: 2.5rem;
     max-width: 650px;
@@ -486,20 +489,20 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: var(--os-primary);
-    color: var(--palette-neutral-0);
+    background: var(--os-primary-fill);
+    color: var(--color-on-solid);
     font-weight: 700;
     font-size: var(--font-size-md);
     padding: 0.9rem 2.2rem;
     border-radius: var(--radius-pill);
     text-decoration: none;
     transition: all 0.2s;
-    box-shadow: 0 4px 20px color-mix(in srgb, var(--palette-indigo-600) 40%, transparent);
+    box-shadow: 0 4px 20px color-mix(in srgb, var(--color-indigo-deep) 40%, transparent);
   }
 
   .hero-btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px color-mix(in srgb, var(--palette-indigo-600) 50%, transparent);
+    box-shadow: 0 8px 30px color-mix(in srgb, var(--color-indigo-deep) 50%, transparent);
   }
 
   .hero-btn-ghost {
@@ -507,20 +510,20 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     align-items: center;
     gap: 0.5rem;
     background: transparent;
-    color: color-mix(in srgb, var(--palette-neutral-0) 70%, transparent);
+    color: color-mix(in srgb, var(--color-on-solid) 70%, transparent);
     font-weight: 600;
     font-size: var(--font-size-md);
     padding: 0.9rem 2.2rem;
     border-radius: var(--radius-pill);
-    border: 1px solid color-mix(in srgb, var(--palette-neutral-0) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-surface) 15%, transparent);
     text-decoration: none;
     transition: all 0.2s;
   }
 
   .hero-btn-ghost:hover {
-    background: color-mix(in srgb, var(--palette-neutral-0) 5%, transparent);
-    color: var(--palette-neutral-0);
-    border-color: color-mix(in srgb, var(--palette-neutral-0) 30%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 5%, transparent);
+    color: var(--color-on-solid);
+    border-color: color-mix(in srgb, var(--color-surface) 30%, transparent);
   }
 
   .hero-stats {
@@ -540,12 +543,12 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   .stat-num {
     font-size: var(--font-size-4xl);
     font-weight: 800;
-    color: var(--palette-neutral-0);
+    color: var(--color-on-solid);
   }
 
   .stat-label {
     font-size: var(--font-size-xs);
-    color: color-mix(in srgb, var(--palette-neutral-0) 45%, transparent);
+    color: color-mix(in srgb, var(--color-on-solid) 45%, transparent);
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-top: 0.15rem;
@@ -554,13 +557,13 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   .hero-stat-divider {
     width: 1px;
     height: 40px;
-    background: color-mix(in srgb, var(--palette-neutral-0) 12%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 12%, transparent);
   }
 
   /* ═══════════════ INTRO ═══════════════ */
   .intro-section {
     padding: 5rem 1.5rem;
-    background: var(--palette-neutral-0);
+    background: var(--color-surface);
   }
 
   .intro-inner {
@@ -579,7 +582,7 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     width: 100px;
     height: 100px;
     border-radius: var(--radius-3xl);
-    background: linear-gradient(135deg, var(--palette-indigo-50), var(--palette-indigo-100));
+    background: linear-gradient(135deg, var(--color-indigo-subtle), var(--color-indigo-soft));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -594,13 +597,13 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   .intro-text-col h2 {
     font-size: var(--font-size-3xl);
     font-weight: 800;
-    color: var(--palette-slate-800);
+    color: var(--color-fg);
     margin-bottom: 1rem;
   }
 
   .intro-text-col p {
     font-size: var(--font-size-md);
-    color: var(--palette-slate-500);
+    color: var(--color-fg-subtle);
     line-height: 1.8;
   }
 
@@ -627,18 +630,18 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     text-align: center;
     font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 800;
-    color: var(--palette-slate-800);
+    color: var(--color-fg);
     margin-bottom: 0.75rem;
   }
 
   .section-title-white {
-    color: var(--palette-neutral-0);
+    color: var(--color-on-solid);
   }
 
   .section-subtitle {
     text-align: center;
     font-size: var(--font-size-md);
-    color: var(--palette-slate-400);
+    color: var(--color-fg-faint);
     margin-bottom: 3.5rem;
   }
 
@@ -661,10 +664,10 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   }
 
   .svc-card {
-    background: var(--palette-neutral-0);
+    background: var(--color-surface);
     border-radius: var(--radius-2xl);
     padding: 2rem;
-    border: 1px solid var(--palette-slate-200);
+    border: 1px solid var(--color-line);
     transition:
       transform 0.25s,
       box-shadow 0.25s;
@@ -685,45 +688,45 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     justify-content: center;
     margin-bottom: 1.25rem;
     font-size: var(--font-size-xl);
-    color: var(--palette-neutral-0);
+    color: var(--color-on-solid);
   }
 
   .svc-icon-indigo {
-    background: var(--palette-indigo-500);
+    background: var(--color-indigo-strong);
   }
   .svc-icon-purple {
-    background: var(--palette-violet-500);
+    background: var(--color-violet-strong);
   }
   .svc-icon-cyan {
-    background: var(--palette-cyan-600);
+    background: var(--color-cyan-strong);
   }
   .svc-icon-emerald {
-    background: var(--palette-emerald-600);
+    background: var(--color-emerald-strong);
   }
   .svc-icon-amber {
-    background: var(--palette-amber-600);
+    background: var(--color-amber-strong);
   }
   .svc-icon-rose {
-    background: var(--palette-rose-500);
+    background: var(--color-rose-strong);
   }
 
   .svc-card h3 {
     font-size: var(--font-size-lg);
     font-weight: 700;
-    color: var(--palette-slate-800);
+    color: var(--color-fg);
     margin-bottom: 0.5rem;
   }
 
   .svc-card p {
     font-size: var(--font-size-md);
-    color: var(--palette-slate-500);
+    color: var(--color-fg-subtle);
     line-height: 1.65;
   }
 
   /* ═══════════════ BENEFITS ═══════════════ */
   .benefits-section {
     padding: 5rem 1.5rem;
-    background: var(--palette-neutral-0);
+    background: var(--color-surface);
   }
 
   .benefits-inner {
@@ -742,16 +745,16 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     display: flex;
     gap: 1.25rem;
     align-items: flex-start;
-    background: var(--palette-slate-50);
+    background: var(--color-surface-subtle);
     border-radius: var(--radius-xl);
     padding: 1.75rem;
-    border: 1px solid var(--palette-slate-200);
+    border: 1px solid var(--color-line);
     transition: all 0.2s;
   }
 
   .benefit-card:hover {
-    background: var(--palette-indigo-50);
-    border-color: var(--palette-indigo-200);
+    background: var(--color-indigo-subtle);
+    border-color: var(--color-indigo-muted);
     box-shadow: var(--shadow-md);
   }
 
@@ -759,25 +762,25 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     width: 48px;
     height: 48px;
     border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, var(--palette-indigo-500), var(--palette-violet-500));
+    background: linear-gradient(135deg, var(--color-indigo-strong), var(--color-violet-strong));
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: var(--palette-neutral-0);
+    color: var(--color-on-solid);
     font-size: var(--font-size-lg);
   }
 
   .benefit-content h3 {
     font-size: var(--font-size-md);
     font-weight: 700;
-    color: var(--palette-slate-800);
+    color: var(--color-fg);
     margin-bottom: 0.35rem;
   }
 
   .benefit-content p {
     font-size: var(--font-size-sm);
-    color: var(--palette-slate-500);
+    color: var(--color-fg-subtle);
     line-height: 1.6;
   }
 
@@ -801,11 +804,11 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   }
 
   .expertise-card {
-    background: var(--palette-neutral-0);
+    background: var(--color-surface);
     border-radius: var(--radius-2xl);
     padding: 2.5rem 2rem;
     text-align: center;
-    border: 1px solid var(--palette-slate-200);
+    border: 1px solid var(--color-line);
     box-shadow: var(--shadow-sm);
     transition:
       transform 0.2s,
@@ -822,7 +825,7 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     height: 72px;
     margin: 0 auto 1.25rem;
     border-radius: var(--radius-2xl);
-    background: linear-gradient(135deg, var(--palette-indigo-50), var(--palette-indigo-100));
+    background: linear-gradient(135deg, var(--color-indigo-subtle), var(--color-indigo-soft));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -830,7 +833,7 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   }
 
   .expertise-card:hover .expertise-icon {
-    background: linear-gradient(135deg, var(--palette-indigo-200), var(--palette-violet-200));
+    background: linear-gradient(135deg, var(--color-indigo-muted), var(--color-violet-muted));
   }
 
   .expertise-icon i {
@@ -841,20 +844,20 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   .expertise-card h3 {
     font-size: var(--font-size-lg);
     font-weight: 700;
-    color: var(--palette-slate-800);
+    color: var(--color-fg);
     margin-bottom: 0.5rem;
   }
 
   .expertise-card p {
     font-size: var(--font-size-sm);
-    color: var(--palette-slate-500);
+    color: var(--color-fg-subtle);
     line-height: 1.6;
   }
 
   /* ═══════════════ LIFECYCLE ═══════════════ */
   .lifecycle-section {
     padding: 5rem 1.5rem;
-    background: var(--palette-neutral-0);
+    background: var(--color-surface);
   }
 
   .lifecycle-inner {
@@ -875,11 +878,11 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     flex: 1;
     min-width: 200px;
     max-width: 260px;
-    background: var(--palette-neutral-0);
+    background: var(--color-surface);
     border-radius: var(--radius-2xl);
     padding: 2rem 1.5rem;
     text-align: center;
-    border: 1px solid var(--palette-slate-200);
+    border: 1px solid var(--color-line);
     box-shadow: var(--shadow-sm);
     position: relative;
     transition:
@@ -899,23 +902,23 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     transform: translateX(-50%);
     font-size: var(--font-size-2xs);
     font-weight: 800;
-    color: var(--palette-neutral-0);
+    color: var(--color-on-solid);
     padding: 0.3rem 1rem;
     border-radius: var(--radius-pill);
     letter-spacing: 1px;
   }
 
   .lc-step-1 {
-    background: var(--palette-indigo-500);
+    background: var(--color-indigo-strong);
   }
   .lc-step-2 {
-    background: var(--palette-violet-500);
+    background: var(--color-violet-strong);
   }
   .lc-step-3 {
-    background: var(--palette-emerald-600);
+    background: var(--color-emerald-strong);
   }
   .lc-step-4 {
-    background: var(--palette-rose-500);
+    background: var(--color-rose-strong);
   }
 
   .lc-icon {
@@ -930,20 +933,20 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   .lc-card h3 {
     font-size: var(--font-size-md);
     font-weight: 700;
-    color: var(--palette-slate-800);
+    color: var(--color-fg);
     margin-bottom: 0.5rem;
   }
 
   .lc-card p {
     font-size: var(--font-size-sm);
-    color: var(--palette-slate-500);
+    color: var(--color-fg-subtle);
     line-height: 1.6;
   }
 
   .lc-connector {
     display: flex;
     align-items: center;
-    color: var(--palette-indigo-200);
+    color: var(--color-on-solid-muted);
     font-size: var(--font-size-sm);
   }
 
@@ -966,24 +969,24 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   }
 
   .why-card {
-    background: color-mix(in srgb, var(--palette-neutral-0) 4%, transparent);
-    border: 1px solid color-mix(in srgb, var(--palette-neutral-0) 8%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 4%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-surface) 8%, transparent);
     border-radius: var(--radius-2xl);
     padding: 2rem;
     transition: all 0.2s;
   }
 
   .why-card:hover {
-    background: color-mix(in srgb, var(--palette-neutral-0) 8%, transparent);
-    border-color: color-mix(in srgb, var(--palette-neutral-0) 15%, transparent);
-    box-shadow: 0 8px 32px color-mix(in srgb, var(--palette-neutral-1000) 20%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 8%, transparent);
+    border-color: color-mix(in srgb, var(--color-surface) 15%, transparent);
+    box-shadow: 0 8px 32px color-mix(in srgb, var(--color-scrim) 20%, transparent);
   }
 
   .why-icon {
     width: 48px;
     height: 48px;
     border-radius: var(--radius-xl);
-    background: color-mix(in srgb, var(--palette-indigo-400) 15%, transparent);
+    background: color-mix(in srgb, var(--color-indigo) 15%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -992,28 +995,28 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
 
   .why-icon i {
     font-size: var(--font-size-xl);
-    color: var(--palette-indigo-300);
+    color: var(--color-indigo-bright);
   }
 
   .why-card h3 {
     font-size: var(--font-size-lg);
     font-weight: 700;
-    color: var(--palette-neutral-0);
+    color: var(--color-on-solid);
     margin-bottom: 0.5rem;
   }
 
   .why-card p {
     font-size: var(--font-size-sm);
-    color: color-mix(in srgb, var(--palette-neutral-0) 55%, transparent);
+    color: color-mix(in srgb, var(--color-on-solid) 55%, transparent);
     line-height: 1.65;
   }
 
   /* ═══════════════ CTA ═══════════════ */
   .outsource-cta {
     padding: 5rem 1.5rem;
-    background: linear-gradient(135deg, var(--palette-indigo-500), var(--palette-violet-500));
+    background: linear-gradient(135deg, var(--color-indigo-strong), var(--color-violet-strong));
     text-align: center;
-    color: var(--palette-neutral-0);
+    color: var(--color-on-solid);
   }
 
   .cta-inner {
@@ -1029,12 +1032,12 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
   }
 
   .cta-inner h2 span {
-    color: var(--palette-violet-300);
+    color: var(--color-violet-bright);
   }
 
   .cta-inner > p {
     font-size: var(--font-size-lg);
-    color: color-mix(in srgb, var(--palette-neutral-0) 75%, transparent);
+    color: color-mix(in srgb, var(--color-on-solid) 75%, transparent);
     line-height: 1.6;
     margin-bottom: 2rem;
   }
@@ -1043,20 +1046,20 @@ import DynamicBreadcrumb from "../../components/dynamic-components/DynamicBreadc
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: var(--palette-neutral-0);
-    color: var(--palette-indigo-600);
+    background: var(--color-surface);
+    color: var(--color-indigo-fg-strong);
     font-weight: 700;
     font-size: var(--font-size-lg);
     padding: 1rem 2.5rem;
     border-radius: var(--radius-pill);
     text-decoration: none;
     transition: all 0.2s;
-    box-shadow: 0 4px 20px color-mix(in srgb, var(--palette-neutral-1000) 15%, transparent);
+    box-shadow: 0 4px 20px color-mix(in srgb, var(--color-scrim) 15%, transparent);
   }
 
   .cta-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 32px color-mix(in srgb, var(--palette-neutral-1000) 25%, transparent);
+    box-shadow: 0 8px 32px color-mix(in srgb, var(--color-scrim) 25%, transparent);
   }
 
   /* ═══════════════ RESPONSIVE ═══════════════ */

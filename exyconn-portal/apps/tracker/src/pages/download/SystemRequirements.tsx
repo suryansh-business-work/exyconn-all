@@ -12,9 +12,9 @@ import {
 } from '@exyconn/shell/components/ui';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import ComputerIcon from '@mui/icons-material/Computer';
-import { REQUIREMENTS, type PlatformConfig, type RequirementRow } from './download.config';
+import type { PlatformConfig, RequirementRow } from './download.config';
 
-/** Minimum vs recommended machine for the tracker, with the OS row for this platform. */
+/** Minimum vs recommended device for the tracker, with the OS row for this platform. */
 export function SystemRequirements({ platform }: Readonly<{ platform: PlatformConfig }>) {
   const osRow: RequirementRow = {
     key: 'os',
@@ -23,7 +23,7 @@ export function SystemRequirements({ platform }: Readonly<{ platform: PlatformCo
     minimum: platform.minOs,
     recommended: platform.recommendedOs,
   };
-  const rows = [osRow, ...REQUIREMENTS];
+  const rows = [osRow, ...platform.hardware];
 
   return (
     <Box sx={[glass, { p: 2, height: '100%' }]}>

@@ -74,7 +74,7 @@ export interface OpenAiConfigInput {
 }
 
 /** Mirrors the GraphQL `TrackerPlatform` enum. */
-export type TrackerPlatform = 'WINDOWS' | 'MACOS' | 'LINUX';
+export type TrackerPlatform = 'WINDOWS' | 'MACOS' | 'LINUX' | 'ANDROID' | 'IOS';
 
 /** The settings row is a singleton, so it is always read and written under this key. */
 const SETTINGS_KEY = 'default';

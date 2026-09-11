@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { SLUG } from '@exyconn/regex';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -10,15 +11,13 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import type { EmailFragmentRow } from './email-fragment.types';
 
-/** Templates address a fragment as `{{> key }}`, so the key has to survive being typed. */
-const KEY_PATTERN = /^[a-z0-9-]+$/;
-
 const schema = z.object({
+  /** Templates address a fragment as `{{> key }}`, so the key has to survive being typed. */
   key: z
     .string()
     .trim()
     .min(1, 'Key is required')
-    .regex(KEY_PATTERN, 'Lower-case letters, numbers and hyphens only'),
+    .regex(SLUG, 'Lower-case letters, numbers and hyphens only'),
   name: z.string().trim().min(1, 'Name is required'),
   description: z.string().trim(),
   mjml: z.string().trim().min(1, 'The fragment cannot be empty'),

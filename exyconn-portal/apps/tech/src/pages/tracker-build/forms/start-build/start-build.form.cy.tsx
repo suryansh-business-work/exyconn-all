@@ -22,6 +22,16 @@ describe('StartBuildForm', () => {
     cy.contains('Choose at least one installer to build').should('be.visible');
   });
 
+  it('offers the phone builds and says what each one produces', () => {
+    mount();
+    cy.contains('Android produces an APK').should('be.visible');
+    cy.get('input[name="platforms"]').parent().find('[role="combobox"]').click();
+    cy.get('li[role="option"]').contains('Android').should('be.visible');
+    cy.get('li[role="option"]').contains('iOS').click();
+    cy.get('body').type('{esc}');
+    cy.contains('Unsigned app (.ipa)').should('be.visible');
+  });
+
   it('starts from a default branch rather than an empty one', () => {
     mount();
     cy.get('input[name="ref"]').should('not.have.value', '');

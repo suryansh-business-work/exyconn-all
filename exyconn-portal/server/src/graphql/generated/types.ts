@@ -7378,8 +7378,10 @@ export type Query = {
   trackerDay: TrackerDay;
   trackerDevices: Array<TrackerDevice>;
   /**
-   * The latest desktop installers. Any signed-in employee may read it — the files
-   * themselves live on a public GitHub release. Null until a release exists.
+   * The latest tracker installers. Any signed-in employee (or tracker device) may read it —
+   * the files themselves live on a public GitHub release. With a platform (android, ios,
+   * windows, macos, linux), the newest release carrying an installer for that platform.
+   * Null until such a release exists.
    */
   trackerLatestRelease?: Maybe<TrackerRelease>;
   /** One employee's off-computer entries in a range, any status (TRACKER role). */
@@ -8531,6 +8533,11 @@ export type QueryTrackerDayArgs = {
 
 export type QueryTrackerDevicesArgs = {
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryTrackerLatestReleaseArgs = {
+  platform?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -10181,6 +10188,10 @@ export type TrackerNoticeInput = {
 
 /** The installers a build can produce. */
 export enum TrackerPlatform {
+  /** An APK to install directly, plus an AAB for the Play Store. */
+  Android = 'ANDROID',
+  /** An unsigned IPA, installable only once re-signed. */
+  Ios = 'IOS',
   Linux = 'LINUX',
   Macos = 'MACOS',
   Windows = 'WINDOWS'
@@ -10217,7 +10228,7 @@ export type TrackerProject = {
   name: Scalars['String']['output'];
 };
 
-/** The newest published desktop tracker build, with its installers. */
+/** A published tracker build, with its desktop and mobile installers. */
 export type TrackerRelease = {
   __typename?: 'TrackerRelease';
   assets: Array<TrackerReleaseAsset>;
@@ -10235,7 +10246,7 @@ export type TrackerReleaseAsset = {
   __typename?: 'TrackerReleaseAsset';
   downloadCount: Scalars['Int']['output'];
   name: Scalars['String']['output'];
-  /** One of: windows, macos, linux. */
+  /** One of: windows, macos, linux, android, ios. */
   platform: Scalars['String']['output'];
   sizeBytes: Scalars['Float']['output'];
   /** Direct download URL on the public GitHub release. */
@@ -14915,7 +14926,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerCalendar?: Resolver<Array<ResolversTypes['TrackerDayBucket']>, ParentType, ContextType, RequireFields<QueryTrackerCalendarArgs, 'from' | 'timezone' | 'to' | 'userId'>>;
   trackerDay?: Resolver<ResolversTypes['TrackerDay'], ParentType, ContextType, RequireFields<QueryTrackerDayArgs, 'end' | 'start' | 'userId'>>;
   trackerDevices?: Resolver<Array<ResolversTypes['TrackerDevice']>, ParentType, ContextType, Partial<QueryTrackerDevicesArgs>>;
-  trackerLatestRelease?: Resolver<Maybe<ResolversTypes['TrackerRelease']>, ParentType, ContextType>;
+  trackerLatestRelease?: Resolver<Maybe<ResolversTypes['TrackerRelease']>, ParentType, ContextType, Partial<QueryTrackerLatestReleaseArgs>>;
   trackerManualEntries?: Resolver<Array<ResolversTypes['TrackerManualEntry']>, ParentType, ContextType, RequireFields<QueryTrackerManualEntriesArgs, 'from' | 'to' | 'userId'>>;
   trackerMe?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType>;
   trackerMessageThread?: Resolver<Array<ResolversTypes['TrackerMessage']>, ParentType, ContextType, RequireFields<QueryTrackerMessageThreadArgs, 'userId'>>;

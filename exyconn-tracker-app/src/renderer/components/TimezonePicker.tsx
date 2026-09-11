@@ -10,7 +10,7 @@ import {
   TRACKER_RADIUS,
   Typography,
 } from '@exyconn/ui';
-import { formatTimeOfDay, offsetLabel, timezoneNames } from '../time';
+import { formatTimeOfDay, offsetLabel, timezoneNames } from '@exyconn/tracker-core';
 
 interface Props {
   /** The zone in force: this employee's pick, else the admin default, else this device's. */

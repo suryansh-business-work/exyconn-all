@@ -25,18 +25,24 @@ import type {
   WorkProfile,
   Workday,
 } from '@shared/types';
-import { deviceTimezone, effectiveTimezone } from '@shared/timezone';
+import {
+  decideAutoAction,
+  describeLoginFailure,
+  describeSyncFailure,
+  deviceTimezone,
+  effectiveTimezone,
+  formatHourLabel,
+  hourIn,
+  isAwayPresence,
+  isWithinWindow,
+} from '@exyconn/tracker-core';
 import { secureStore } from './store';
 import { TrackerEngine, type CaptureReport } from './engine';
 import * as portal from './portal-client';
 import { TrackerAuthError } from './portal-client';
 import { collectDeviceInfo } from './device-info';
-import { describeLoginFailure } from './login-message';
-import { describeSyncFailure } from './sync-message';
 import { notifyAutoPaused, notifyAutoStopped, notifyMessages, notifyNotice } from './notifier';
-import { isAwayPresence } from '@shared/presence';
 import { getPermissions, requestPermission } from './trackers/permissions';
-import { decideAutoAction, formatHourLabel, hourIn, isWithinWindow } from '@shared/schedule';
 import type { ComposeInput } from './capture-bridge';
 
 /**

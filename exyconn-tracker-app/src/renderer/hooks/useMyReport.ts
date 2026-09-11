@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ReportDay } from '@shared/types';
-import { activityPercent } from '../format';
-import { monthBounds } from '../time';
+import { activityPercent, monthBounds } from '@exyconn/tracker-core';
 
 export interface ReportTotals {
   activeMs: number;

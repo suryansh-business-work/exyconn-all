@@ -1,0 +1,135 @@
+# Selections three or more operations share. `trackerLogin`, `trackerMe` and
+# `trackerHeartbeat` all return the settings, and the heartbeat must never learn less than
+# sign-in did — so each shape is written once and spread wherever it is needed.
+
+fragment TrackerSettingsFields on TrackerSettings {
+  intervalMinutes
+  screenshotsPerInterval
+  randomizeScreenshotTiming
+  blurScreenshots
+  trackWindowTitles
+  idleThresholdSeconds
+  idleAutoPauseMinutes
+  screenshotMaxWidth
+  screenshotQuality
+  captureSoundEnabled
+  webcamEnabled
+  webcamCorner
+  syncIntervalMinutes
+  consentText
+  autoStartEnabled
+  autoStartHour
+  autoStopHour
+}
+
+fragment BrandingFields on Branding {
+  businessName
+  legalName
+  slogan
+  logoUrl
+  logoDarkUrl
+  appIconUrl
+  faviconUrl
+  primaryColor
+  secondaryColor
+  accentColor
+  backgroundColor
+  textColor
+  supportEmail
+  websiteUrl
+  copyrightText
+}
+
+fragment WorkdayFields on TrackerWorkday {
+  date
+  targetMs
+  activeMs
+  attendanceStatus
+  attendanceNote
+  attendanceMarked
+}
+
+fragment PresenceFields on TrackerPresenceState {
+  status
+  note
+  since
+}
+
+fragment MessageFields on TrackerMessage {
+  id
+  kind
+  direction
+  title
+  body
+  authorName
+  readAt
+  createdAt
+}
+
+fragment ManualEntryFields on TrackerManualEntry {
+  id
+  projectName
+  taskKey
+  taskTitle
+  startedAt
+  endedAt
+  durationMs
+  note
+  status
+  reviewNote
+}
+
+fragment TaskFields on TrackerTask {
+  id
+  key
+  title
+  assignedToMe
+}
+
+# Everything the app renders itself from. `trackerMe` and `trackerHeartbeat` return the same
+# type, so they select the same fields through this one fragment.
+fragment TrackerMeFields on TrackerMe {
+  user {
+    id
+    name
+    email
+  }
+  consentRequired
+  timezone
+  settings {
+    ...TrackerSettingsFields
+  }
+  workProfile {
+    workingTime
+    workingTimeNote
+    workLocation
+    workLocationNote
+    workHoursPerDay
+    targetMs
+  }
+  workday {
+    ...WorkdayFields
+  }
+  projects {
+    id
+    name
+    key
+  }
+  consentPolicy {
+    id
+    title
+    slug
+    summary
+    body
+    version
+    requiresAcknowledgement
+    acknowledged
+  }
+  presence {
+    ...PresenceFields
+  }
+  notices {
+    ...MessageFields
+  }
+  unreadMessages
+}

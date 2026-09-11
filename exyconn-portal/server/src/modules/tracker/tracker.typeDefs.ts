@@ -622,7 +622,7 @@ export const trackerTypeDefs = gql`
   type TrackerReleaseAsset {
     name: String!
     """
-    One of: windows, macos, linux.
+    One of: windows, macos, linux, android, ios.
     """
     platform: String!
     sizeBytes: Float!
@@ -634,7 +634,7 @@ export const trackerTypeDefs = gql`
   }
 
   """
-  The newest published desktop tracker build, with its installers.
+  A published tracker build, with its desktop and mobile installers.
   """
   type TrackerRelease {
     version: String!
@@ -662,10 +662,12 @@ export const trackerTypeDefs = gql`
     ): [TrackerDayBucket!]!
     trackerDay(userId: ID!, start: DateTime!, end: DateTime!): TrackerDay!
     """
-    The latest desktop installers. Any signed-in employee may read it — the files
-    themselves live on a public GitHub release. Null until a release exists.
+    The latest tracker installers. Any signed-in employee (or tracker device) may read it —
+    the files themselves live on a public GitHub release. With a platform (android, ios,
+    windows, macos, linux), the newest release carrying an installer for that platform.
+    Null until such a release exists.
     """
-    trackerLatestRelease: TrackerRelease
+    trackerLatestRelease(platform: String): TrackerRelease
     trackerTotals(userId: ID!): TrackerTotals!
     "One employee's off-computer entries in a range, any status (TRACKER role)."
     trackerManualEntries(userId: ID!, from: DateTime!, to: DateTime!): [TrackerManualEntry!]!

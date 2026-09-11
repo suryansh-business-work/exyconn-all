@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { HTTP_URL } from '@exyconn/regex';
 import {
   RhfAutocomplete,
   RhfDatePicker,
@@ -27,7 +28,11 @@ const schema = z.object({
   dueOn: z.string(),
   completedOn: z.string(),
   status: z.nativeEnum(TrainingStatus),
-  certificateUrl: z.string().trim(),
+  certificateUrl: z
+    .string()
+    .trim()
+    .regex(HTTP_URL, 'Enter a full URL starting with https://')
+    .or(z.literal('')),
 });
 type Values = z.infer<typeof schema>;
 

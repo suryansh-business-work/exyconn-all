@@ -1,0 +1,23 @@
+# A tracking session: opening it, filling it, closing it.
+
+mutation TrackerStartSession($startedAt: DateTime!, $projectId: ID, $taskId: ID) {
+  trackerStartSession(startedAt: $startedAt, projectId: $projectId, taskId: $taskId) {
+    id
+  }
+}
+
+mutation TrackerStopSession($sessionId: ID!, $endedAt: DateTime!) {
+  trackerStopSession(sessionId: $sessionId, endedAt: $endedAt) {
+    id
+  }
+}
+
+mutation TrackerSyncIntervals($sessionId: ID!, $intervals: [TrackerIntervalInput!]!) {
+  trackerSyncIntervals(sessionId: $sessionId, intervals: $intervals)
+}
+
+mutation TrackerUploadScreenshot($input: TrackerScreenshotInput!) {
+  trackerUploadScreenshot(input: $input) {
+    id
+  }
+}

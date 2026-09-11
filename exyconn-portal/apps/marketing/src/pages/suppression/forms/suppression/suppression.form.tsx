@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { EMAIL } from '@exyconn/regex';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -13,7 +14,7 @@ import {
 import type { SuppressionRow } from './suppression.types';
 
 const schema = z.object({
-  email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
+  email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
   reason: z.nativeEnum(SuppressionReason),
   source: z.string().trim().max(200, 'Keep the note under 200 characters'),
 });

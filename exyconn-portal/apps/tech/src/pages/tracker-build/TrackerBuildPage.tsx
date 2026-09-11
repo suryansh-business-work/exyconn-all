@@ -29,7 +29,7 @@ const columns: Column<TrackerBuildRow>[] = [
 ];
 
 /**
- * Tracker Build — start a build of the desktop tracker for the installers you
+ * Tracker Build — start a build of the desktop and phone trackers for the installers you
  * want, and watch the recent runs. The installers land on a GitHub release and
  * are posted to the Slack channels chosen in Settings.
  */
@@ -66,7 +66,7 @@ export function TrackerBuildPage() {
     <Box>
       <PageHeader
         title="Tracker Build"
-        subtitle="Build the desktop tracker for Windows, macOS and Linux"
+        subtitle="Build the tracker for Windows, macOS, Linux, Android and iOS"
         actionLabel="Create build"
         onAction={() => setStarting(true)}
       />

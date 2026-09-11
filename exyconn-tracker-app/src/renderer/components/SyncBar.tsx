@@ -3,9 +3,7 @@ import { Alert, LinearProgress, Stack, TRACKER_RADIUS, Typography } from '@exyco
 import CloudDoneOutlined from '@mui/icons-material/CloudDoneOutlined';
 import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
 import type { LiveStats, TrackerSettings } from '@shared/types';
-import { formatCount } from '../format';
-import { formatLastSync } from '../time';
-import { syncMessage } from '../sync-text';
+import { formatCount, formatLastSync, syncMessage } from '@exyconn/tracker-core';
 import Surface from './Surface';
 
 interface Props {

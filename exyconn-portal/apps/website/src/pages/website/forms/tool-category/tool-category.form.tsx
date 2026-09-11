@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { HEX_COLOR, SLUG } from '@exyconn/regex';
 import { RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -11,11 +12,19 @@ import {
 import type { ToolCategoryRow } from './tool-category.types';
 
 const schema = z.object({
-  slug: z.string().trim().min(1, 'Slug is required'),
+  slug: z
+    .string()
+    .trim()
+    .min(1, 'Slug is required')
+    .regex(SLUG, 'Lower-case letters, numbers and hyphens only'),
   category: z.string().trim().min(1, 'Category is required'),
   description: z.string(),
   icon: z.string(),
-  color: z.string(),
+  color: z
+    .string()
+    .trim()
+    .regex(HEX_COLOR, 'Use a 6-digit hex colour, e.g. #f9851f')
+    .or(z.literal('')),
   isActive: z.boolean(),
   order: z.coerce.number({ message: 'Order must be a number' }).min(0, 'Must be ≥ 0'),
 });

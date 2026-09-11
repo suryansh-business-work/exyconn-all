@@ -5,7 +5,7 @@ import MouseOutlined from '@mui/icons-material/MouseOutlined';
 import PhotoCameraOutlined from '@mui/icons-material/PhotoCameraOutlined';
 import TimerOutlined from '@mui/icons-material/TimerOutlined';
 import type { LiveStats, TrackerSettings } from '@shared/types';
-import { formatClock, formatCount } from '../format';
+import { formatClock, formatCount } from '@exyconn/tracker-core';
 import type { Tile } from './tile.types';
 
 const onOff = (value: boolean): string => (value ? 'On' : 'Off');

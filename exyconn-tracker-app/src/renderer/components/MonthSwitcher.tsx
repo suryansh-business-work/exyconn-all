@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import { IconButton, Stack, Tooltip, Typography } from '@exyconn/ui';
 import ChevronLeftRounded from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded';
-import { formatMonthLabel } from '../time';
+import { formatMonthLabel } from '@exyconn/tracker-core';
 
 interface Props {
   month: Date;

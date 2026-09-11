@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { LINK } from '@exyconn/regex';
 import { RhfTextField, RhfSelect, RhfSwitch } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -13,7 +14,11 @@ import type { NavLinkRow } from './nav-link.types';
 
 const schema = z.object({
   label: z.string().trim().min(1, 'Label is required'),
-  href: z.string().trim().min(1, 'Link URL is required'),
+  href: z
+    .string()
+    .trim()
+    .min(1, 'Link URL is required')
+    .regex(LINK, 'Enter a full URL or a path starting with /'),
   description: z.string().trim(),
   category: z.string().trim().min(1, 'Category is required'),
   keywords: z.string().trim(),

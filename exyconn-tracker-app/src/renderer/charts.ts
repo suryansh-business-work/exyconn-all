@@ -1,6 +1,6 @@
 import { msToHours, type ChartData } from '@exyconn/ui';
 import type { ReportDay } from '@shared/types';
-import { activityPercent } from './format';
+import { activityPercent } from '@exyconn/tracker-core';
 
 /**
  * Shaping the employee's own tracked time into chart series. Pure — no React, no colour.

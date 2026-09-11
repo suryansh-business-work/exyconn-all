@@ -26,6 +26,7 @@ COPY packages/crud/package.json packages/crud/
 COPY packages/i18n/package.json packages/i18n/
 COPY packages/shell/package.json packages/shell/
 COPY packages/login/package.json packages/login/
+COPY packages/regex/package.json packages/regex/
 COPY packages/tabber/package.json packages/tabber/
 COPY packages/time/package.json packages/time/
 COPY packages/ui/package.json packages/ui/

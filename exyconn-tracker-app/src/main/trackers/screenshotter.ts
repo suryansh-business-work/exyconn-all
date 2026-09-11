@@ -6,7 +6,7 @@ import {
   needsFallback,
   JPEG_MIME,
   type CapturePolicy,
-} from './capture-policy';
+} from '@exyconn/tracker-core';
 
 export interface Capture {
   /** Base64 of the encoded capture (no data-URL prefix), ready to POST. */

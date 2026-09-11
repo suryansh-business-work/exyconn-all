@@ -65,24 +65,24 @@ const pageJsonLd = [
   ogType="article"
   jsonLd={pageJsonLd}
 >
-  <main class="bg-gradient-to-b from-gray-50 to-white min-h-screen">
+  <main class="bg-gradient-to-b from-surface-subtle to-surface min-h-screen">
     <!-- Hero Section -->
     <section class="relative pt-12 pb-8 px-6">
       <div class="max-w-4xl mx-auto">
         <!-- Breadcrumb -->
-        <nav class="flex items-center gap-2 text-sm text-gray-500 mb-8">
-          <a href="/" class="hover:text-blue-600 transition-colors">Home</a>
+        <nav class="flex items-center gap-2 text-sm text-fg-subtle mb-8">
+          <a href="/" class="hover:text-blue-fg transition-colors">Home</a>
           <i class="fa-solid fa-chevron-right text-xs"></i>
-          <a href="/blog" class="hover:text-blue-600 transition-colors">Blog</a>
+          <a href="/blog" class="hover:text-blue-fg transition-colors">Blog</a>
           <i class="fa-solid fa-chevron-right text-xs"></i>
-          <span class="text-gray-900 font-medium truncate max-w-[200px]">{post.title}</span>
+          <span class="text-fg font-medium truncate max-w-[200px]">{post.title}</span>
         </nav>
 
         <!-- Tags -->
         <div class="flex flex-wrap gap-2 mb-4">
           {
             post.tags.map((tag) => (
-              <span class="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              <span class="text-xs font-medium text-blue-fg bg-blue-subtle px-3 py-1 rounded-full">
                 {tag}
               </span>
             ))
@@ -90,18 +90,18 @@ const pageJsonLd = [
         </div>
 
         <!-- Title -->
-        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+        <h1 class="text-4xl md:text-5xl font-bold text-fg mb-6 leading-tight">
           {post.title}
         </h1>
 
         <!-- Summary -->
-        <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+        <p class="text-xl text-fg-muted mb-8 leading-relaxed">
           {post.summary}
         </p>
 
         <!-- Meta Info (Date & Read Time only) -->
         <div
-          class="flex flex-wrap items-center gap-4 pb-8 border-b border-gray-200 text-sm text-gray-500"
+          class="flex flex-wrap items-center gap-4 pb-8 border-b border-line text-sm text-fg-subtle"
         >
           <span class="flex items-center gap-1.5">
             <i class="fa-regular fa-calendar"></i>
@@ -130,20 +130,20 @@ const pageJsonLd = [
     <section class="px-6 pb-16">
       <div class="max-w-3xl mx-auto">
         <article
-          class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-headings:font-bold prose-p:text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-li:text-gray-700"
+          class="prose prose-lg max-w-none prose-headings:text-fg prose-headings:font-bold prose-p:text-fg-secondary prose-a:text-blue-fg prose-strong:text-fg prose-blockquote:border-blue prose-blockquote:bg-blue-subtle prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-li:text-fg-secondary"
           set:html={body}
         />
 
         <!-- Share Section -->
-        <div class="mt-12 pt-8 border-t border-gray-200">
+        <div class="mt-12 pt-8 border-t border-line">
           <div class="flex flex-wrap items-center justify-between gap-4">
-            <span class="text-gray-600 font-medium">Share this article:</span>
+            <span class="text-fg-muted font-medium">Share this article:</span>
             <div class="flex items-center gap-3">
               <a
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent("https://exyconn.com/blog/" + post.slug)}`}
                 target="_blank"
                 rel="noopener"
-                class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-blue-500 hover:text-white transition-colors"
+                class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-blue hover:text-on-solid transition-colors"
               >
                 <i class="fa-brands fa-x-twitter"></i>
               </a>
@@ -151,13 +151,13 @@ const pageJsonLd = [
                 href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://exyconn.com/blog/" + post.slug)}`}
                 target="_blank"
                 rel="noopener"
-                class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-blue-700 hover:text-white transition-colors"
+                class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-blue-deep hover:text-on-solid transition-colors"
               >
                 <i class="fa-brands fa-linkedin-in"></i>
               </a>
               <button
                 onclick="navigator.clipboard.writeText(window.location.href)"
-                class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-900 hover:text-white transition-colors"
+                class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-inverse hover:text-on-solid transition-colors"
                 title="Copy link"
               >
                 <i class="fa-solid fa-link"></i>
@@ -171,14 +171,14 @@ const pageJsonLd = [
     <!-- Related Articles -->
     {
       relatedPosts.length > 0 && (
-        <section class="px-6 py-16 bg-gray-50">
+        <section class="px-6 py-16 bg-surface-subtle">
           <div class="max-w-6xl mx-auto">
-            <h2 class="text-2xl font-bold text-gray-900 mb-8">Related Articles</h2>
+            <h2 class="text-2xl font-bold text-fg mb-8">Related Articles</h2>
             <div class="grid md:grid-cols-3 gap-8">
               {relatedPosts.map((related) => (
                 <a
                   href={`/blog/${related.slug}`}
-                  class="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all"
+                  class="group bg-surface rounded-2xl shadow-sm border border-line-subtle overflow-hidden hover:shadow-lg transition-all"
                 >
                   <div class="h-40 overflow-hidden">
                     <img
@@ -190,15 +190,15 @@ const pageJsonLd = [
                   <div class="p-5">
                     <div class="flex gap-2 mb-2">
                       {related.tags.slice(0, 2).map((tag) => (
-                        <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                        <span class="text-xs text-blue-fg bg-blue-subtle px-2 py-0.5 rounded-full">
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <h3 class="font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                    <h3 class="font-bold text-fg group-hover:text-blue-fg transition-colors line-clamp-2">
                       {related.title}
                     </h3>
-                    <p class="text-sm text-gray-500 mt-2">{formatDate(related.publishedAt)}</p>
+                    <p class="text-sm text-fg-subtle mt-2">{formatDate(related.publishedAt)}</p>
                   </div>
                 </a>
               ))}
@@ -209,15 +209,15 @@ const pageJsonLd = [
     }
 
     <!-- CTA Section -->
-    <section class="px-6 py-16 bg-gradient-to-br from-blue-600 to-purple-600">
+    <section class="px-6 py-16 bg-gradient-to-br from-blue-strong to-purple-strong">
       <div class="max-w-3xl mx-auto text-center">
-        <h2 class="text-3xl font-bold text-white mb-4">Ready to Transform Your Business?</h2>
-        <p class="text-blue-100 text-lg mb-8">
+        <h2 class="text-3xl font-bold text-on-solid mb-4">Ready to Transform Your Business?</h2>
+        <p class="text-on-solid-muted text-lg mb-8">
           Let's discuss how Exyconn can help you leverage AI and automation for growth.
         </p>
         <a
           href="/get-a-quote"
-          class="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 font-semibold rounded-full hover:shadow-xl transition-all"
+          class="inline-flex items-center gap-2 px-8 py-4 bg-surface text-blue-fg font-semibold rounded-full hover:shadow-xl transition-all"
         >
           Get Started
           <i class="fa-solid fa-arrow-right"></i>
@@ -237,6 +237,6 @@ const pageJsonLd = [
   .prose .lead {
     font-size: var(--font-size-xl);
     line-height: 1.75rem;
-    color: var(--palette-gray-600);
+    color: var(--color-fg-muted);
   }
 </style>

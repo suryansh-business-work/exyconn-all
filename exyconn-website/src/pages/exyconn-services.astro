@@ -324,27 +324,27 @@ const getCategoryIcon = (category: string) => {
 
 const getCategoryColor = (category: string) => {
   const colors: Record<string, string> = {
-    Global: "from-blue-500 to-cyan-500",
-    Communications: "from-purple-500 to-pink-500",
-    "Developer Tools": "from-emerald-500 to-teal-500",
-    "Storage & Files": "from-orange-500 to-amber-500",
-    "Monitoring & Analytics": "from-rose-500 to-red-500",
-    "Content & Media": "from-indigo-500 to-violet-500",
-    Infrastructure: "from-gray-600 to-gray-800",
+    Global: "from-blue to-cyan",
+    Communications: "from-purple to-pink",
+    "Developer Tools": "from-emerald to-teal",
+    "Storage & Files": "from-orange to-amber",
+    "Monitoring & Analytics": "from-rose to-red",
+    "Content & Media": "from-indigo to-violet",
+    Infrastructure: "from-fg-subtle to-inverse-muted",
   };
-  return colors[category] || "from-gray-500 to-gray-600";
+  return colors[category] || "from-fg-subtle to-fg-subtle";
 };
 
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "live":
-      return { text: "Live", class: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-500" };
+      return { text: "Live", class: "bg-emerald-soft text-emerald-fg-strong", dot: "bg-emerald" };
     case "dev":
-      return { text: "In Dev", class: "bg-amber-100 text-amber-700", dot: "bg-amber-500" };
+      return { text: "In Dev", class: "bg-amber-soft text-amber-fg-strong", dot: "bg-amber" };
     case "soon":
-      return { text: "Soon", class: "bg-gray-100 text-gray-600", dot: "bg-gray-400" };
+      return { text: "Soon", class: "bg-surface-muted text-fg-muted", dot: "bg-line-strong" };
     default:
-      return { text: status, class: "bg-gray-100 text-gray-600", dot: "bg-gray-400" };
+      return { text: status, class: "bg-surface-muted text-fg-muted", dot: "bg-line-strong" };
   }
 };
 
@@ -359,35 +359,35 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
   metaKeywords="infrastructure platform, API services, email service, payment processing, logging, themes, translations, Exyconn"
   metaImage="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&w=1200&q=80"
 >
-  <main class="bg-white min-h-screen">
+  <main class="bg-surface min-h-screen">
     <!-- Hero Section -->
     <section
-      class="relative py-24 px-6 bg-gradient-to-br from-cyan-50 via-white to-blue-50 overflow-hidden"
+      class="relative py-24 px-6 bg-gradient-to-br from-cyan-subtle via-surface to-blue-subtle overflow-hidden"
     >
       <div
-        class="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-cyan-200/40 to-blue-200/40 rounded-full blur-3xl"
+        class="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-cyan-muted/40 to-blue-muted/40 rounded-full blur-3xl"
       >
       </div>
       <div
-        class="absolute bottom-10 left-10 w-80 h-80 bg-gradient-to-r from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"
+        class="absolute bottom-10 left-10 w-80 h-80 bg-gradient-to-r from-purple-muted/30 to-pink-muted/30 rounded-full blur-3xl"
       >
       </div>
 
       <div class="relative z-10 max-w-6xl mx-auto">
         <div class="text-center mb-12">
           <span
-            class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-6 shadow-sm"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-surface border border-line rounded-full text-sm font-medium text-fg-muted mb-6 shadow-sm"
           >
-            <i class="fa-solid fa-terminal text-cyan-500"></i>
+            <i class="fa-solid fa-terminal text-cyan-fg"></i>
             Infrastructure Platform
           </span>
-          <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+          <h1 class="text-5xl md:text-6xl font-bold text-fg mb-6 tracking-tight">
             Exyconn <span
-              class="bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent"
+              class="bg-gradient-to-r from-cyan-strong to-blue-strong bg-clip-text text-transparent"
               >Infrastructure Platform</span
             >
           </h1>
-          <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p class="text-xl text-fg-muted max-w-3xl mx-auto leading-relaxed">
             Complete infrastructure platform powering your applications. Email, payments, logs,
             themes, translations, and more—all in one place.
           </p>
@@ -396,47 +396,47 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
         <!-- Stats Row -->
         <div class="flex flex-wrap justify-center gap-6 mb-10">
           <div
-            class="flex items-center gap-3 px-6 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm"
+            class="flex items-center gap-3 px-6 py-3 bg-surface rounded-2xl border border-line-subtle shadow-sm"
           >
-            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <i class="fa-solid fa-circle-check text-emerald-600"></i>
+            <div class="w-10 h-10 bg-emerald-soft rounded-xl flex items-center justify-center">
+              <i class="fa-solid fa-circle-check text-emerald-fg"></i>
             </div>
             <div>
-              <div class="text-2xl font-bold text-gray-900">{liveCount}</div>
-              <div class="text-sm text-gray-500">Live Services</div>
+              <div class="text-2xl font-bold text-fg">{liveCount}</div>
+              <div class="text-sm text-fg-subtle">Live Services</div>
             </div>
           </div>
           <div
-            class="flex items-center gap-3 px-6 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm"
+            class="flex items-center gap-3 px-6 py-3 bg-surface rounded-2xl border border-line-subtle shadow-sm"
           >
-            <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
-              <i class="fa-solid fa-code text-amber-600"></i>
+            <div class="w-10 h-10 bg-amber-soft rounded-xl flex items-center justify-center">
+              <i class="fa-solid fa-code text-amber-fg"></i>
             </div>
             <div>
-              <div class="text-2xl font-bold text-gray-900">{devCount}</div>
-              <div class="text-sm text-gray-500">In Development</div>
+              <div class="text-2xl font-bold text-fg">{devCount}</div>
+              <div class="text-sm text-fg-subtle">In Development</div>
             </div>
           </div>
           <div
-            class="flex items-center gap-3 px-6 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm"
+            class="flex items-center gap-3 px-6 py-3 bg-surface rounded-2xl border border-line-subtle shadow-sm"
           >
-            <div class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
-              <i class="fa-solid fa-clock text-gray-600"></i>
+            <div class="w-10 h-10 bg-surface-muted rounded-xl flex items-center justify-center">
+              <i class="fa-solid fa-clock text-fg-muted"></i>
             </div>
             <div>
-              <div class="text-2xl font-bold text-gray-900">{soonCount}</div>
-              <div class="text-sm text-gray-500">Coming Soon</div>
+              <div class="text-2xl font-bold text-fg">{soonCount}</div>
+              <div class="text-sm text-fg-subtle">Coming Soon</div>
             </div>
           </div>
           <div
-            class="flex items-center gap-3 px-6 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm"
+            class="flex items-center gap-3 px-6 py-3 bg-surface rounded-2xl border border-line-subtle shadow-sm"
           >
-            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-              <i class="fa-solid fa-layer-group text-blue-600"></i>
+            <div class="w-10 h-10 bg-blue-soft rounded-xl flex items-center justify-center">
+              <i class="fa-solid fa-layer-group text-blue-fg"></i>
             </div>
             <div>
-              <div class="text-2xl font-bold text-gray-900">{categoryOrder.length}</div>
-              <div class="text-sm text-gray-500">Categories</div>
+              <div class="text-2xl font-bold text-fg">{categoryOrder.length}</div>
+              <div class="text-sm text-fg-subtle">Categories</div>
             </div>
           </div>
         </div>
@@ -444,13 +444,13 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
         <div class="flex flex-wrap justify-center gap-4">
           <a
             href="/ai-services"
-            class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-8 py-4 rounded-full hover:bg-gray-800 transition shadow-xl"
+            class="inline-flex items-center gap-2 bg-inverse text-on-solid font-semibold px-8 py-4 rounded-full hover:bg-inverse-muted transition shadow-xl"
           >
             <i class="fa-solid fa-bolt"></i> AI Services
           </a>
           <a
             href="/contact"
-            class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-8 py-4 rounded-full hover:bg-gray-50 transition shadow-lg"
+            class="inline-flex items-center gap-2 bg-surface border border-line text-fg font-semibold px-8 py-4 rounded-full hover:bg-surface-subtle transition shadow-lg"
           >
             <i class="fa-solid fa-message"></i> Contact Sales
           </a>
@@ -459,7 +459,7 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
     </section>
 
     <!-- Services by Category -->
-    <section class="py-20 px-6 bg-white">
+    <section class="py-20 px-6 bg-surface">
       <div class="max-w-7xl mx-auto">
         {
           categoryOrder.map((category) => (
@@ -468,11 +468,11 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
                 <div
                   class={`w-12 h-12 bg-gradient-to-br ${getCategoryColor(category)} rounded-2xl flex items-center justify-center shadow-lg`}
                 >
-                  <i class={`fa-solid ${getCategoryIcon(category)} text-white text-lg`} />
+                  <i class={`fa-solid ${getCategoryIcon(category)} text-on-solid text-lg`} />
                 </div>
                 <div>
-                  <h2 class="text-3xl font-bold text-gray-900">{category}</h2>
-                  <p class="text-gray-500">{servicesByCategory[category]?.length || 0} services</p>
+                  <h2 class="text-3xl font-bold text-fg">{category}</h2>
+                  <p class="text-fg-subtle">{servicesByCategory[category]?.length || 0} services</p>
                 </div>
               </div>
 
@@ -480,12 +480,12 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
                 {servicesByCategory[category]?.map((service) => {
                   const badge = getStatusBadge(service.status);
                   return (
-                    <div class="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:border-blue-100 transition-all duration-300 group">
+                    <div class="bg-surface rounded-2xl border border-line-subtle p-6 hover:shadow-xl hover:border-blue-soft transition-all duration-300 group">
                       <div class="flex items-start justify-between mb-4">
                         <div
                           class={`w-12 h-12 bg-gradient-to-br ${getCategoryColor(category)} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`}
                         >
-                          <i class={`fa-solid ${service.icon} text-white`} />
+                          <i class={`fa-solid ${service.icon} text-on-solid`} />
                         </div>
                         <span
                           class={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full ${badge.class}`}
@@ -495,15 +495,15 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
                         </span>
                       </div>
 
-                      <h3 class="text-xl font-bold text-gray-900 mb-2">{service.name}</h3>
-                      <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                      <h3 class="text-xl font-bold text-fg mb-2">{service.name}</h3>
+                      <p class="text-fg-muted text-sm leading-relaxed mb-4">
                         {service.description}
                       </p>
 
                       {service.features && (
                         <div class="flex flex-wrap gap-2">
                           {service.features.map((feature) => (
-                            <span class="px-2.5 py-1 bg-gray-50 border border-gray-100 text-xs text-gray-600 rounded-lg">
+                            <span class="px-2.5 py-1 bg-surface-subtle border border-line-subtle text-xs text-fg-muted rounded-lg">
                               {feature}
                             </span>
                           ))}
@@ -520,11 +520,11 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
     </section>
 
     <!-- All Services Table -->
-    <section class="py-20 px-6 bg-gray-50">
+    <section class="py-20 px-6 bg-surface-subtle">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-12">
-          <h2 class="text-3xl font-bold text-gray-900 mb-4">Complete Services Directory</h2>
-          <p class="text-gray-600">All services at a glance with status and category</p>
+          <h2 class="text-3xl font-bold text-fg mb-4">Complete Services Directory</h2>
+          <p class="text-fg-muted">All services at a glance with status and category</p>
         </div>
 
         <DynamicTable
@@ -546,68 +546,68 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
     </section>
 
     <!-- Integration Section -->
-    <section class="py-20 px-6 bg-white">
+    <section class="py-20 px-6 bg-surface">
       <div class="max-w-5xl mx-auto text-center">
         <span
-          class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-full text-sm font-semibold text-indigo-600 mb-6"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-subtle border border-indigo-soft rounded-full text-sm font-semibold text-indigo-fg mb-6"
         >
           <i class="fa-solid fa-plug"></i>
           Integration
         </span>
-        <h2 class="text-4xl font-bold text-gray-900 mb-6">Easy Integration</h2>
-        <p class="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+        <h2 class="text-4xl font-bold text-fg mb-6">Easy Integration</h2>
+        <p class="text-xl text-fg-muted mb-12 max-w-3xl mx-auto">
           All services are accessible via REST API with comprehensive documentation and SDKs.
         </p>
 
         <div class="grid md:grid-cols-3 gap-6">
-          <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+          <div class="bg-surface-subtle rounded-2xl p-6 border border-line-subtle">
             <div
-              class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              class="w-14 h-14 bg-blue-soft rounded-2xl flex items-center justify-center mx-auto mb-4"
             >
-              <i class="fa-solid fa-book text-blue-600 text-xl"></i>
+              <i class="fa-solid fa-book text-blue-fg text-xl"></i>
             </div>
-            <h3 class="font-bold text-gray-900 mb-2">REST API</h3>
-            <p class="text-sm text-gray-600">Comprehensive REST endpoints for all services</p>
+            <h3 class="font-bold text-fg mb-2">REST API</h3>
+            <p class="text-sm text-fg-muted">Comprehensive REST endpoints for all services</p>
           </div>
-          <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+          <div class="bg-surface-subtle rounded-2xl p-6 border border-line-subtle">
             <div
-              class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              class="w-14 h-14 bg-emerald-soft rounded-2xl flex items-center justify-center mx-auto mb-4"
             >
-              <i class="fa-solid fa-code text-emerald-600 text-xl"></i>
+              <i class="fa-solid fa-code text-emerald-fg text-xl"></i>
             </div>
-            <h3 class="font-bold text-gray-900 mb-2">SDKs</h3>
-            <p class="text-sm text-gray-600">JavaScript, Python, and more coming soon</p>
+            <h3 class="font-bold text-fg mb-2">SDKs</h3>
+            <p class="text-sm text-fg-muted">JavaScript, Python, and more coming soon</p>
           </div>
-          <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+          <div class="bg-surface-subtle rounded-2xl p-6 border border-line-subtle">
             <div
-              class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              class="w-14 h-14 bg-purple-soft rounded-2xl flex items-center justify-center mx-auto mb-4"
             >
-              <i class="fa-solid fa-robot text-purple-600 text-xl"></i>
+              <i class="fa-solid fa-robot text-purple-fg text-xl"></i>
             </div>
-            <h3 class="font-bold text-gray-900 mb-2">MCP Ready</h3>
-            <p class="text-sm text-gray-600">AI agent compatible via Model Context Protocol</p>
+            <h3 class="font-bold text-fg mb-2">MCP Ready</h3>
+            <p class="text-sm text-fg-muted">AI agent compatible via Model Context Protocol</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- CTA Section -->
-    <section class="py-24 px-6 bg-gradient-to-br from-cyan-50 to-blue-50">
+    <section class="py-24 px-6 bg-gradient-to-br from-cyan-subtle to-blue-subtle">
       <div class="max-w-4xl mx-auto text-center">
-        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Ready to Get Started?</h2>
-        <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+        <h2 class="text-4xl md:text-5xl font-bold text-fg mb-6">Ready to Get Started?</h2>
+        <p class="text-xl text-fg-muted mb-10 max-w-2xl mx-auto">
           Access the complete infrastructure stack and launch your product faster.
         </p>
         <div class="flex flex-wrap justify-center gap-4">
           <a
             href="/contact"
-            class="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-10 py-4 rounded-full hover:bg-gray-800 transition shadow-xl"
+            class="inline-flex items-center gap-2 bg-inverse text-on-solid font-semibold px-10 py-4 rounded-full hover:bg-inverse-muted transition shadow-xl"
           >
             <i class="fa-solid fa-rocket"></i> Get Started
           </a>
           <a
             href="/ai-services"
-            class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-900 font-semibold px-10 py-4 rounded-full hover:bg-gray-50 transition shadow-lg"
+            class="inline-flex items-center gap-2 bg-surface border border-line text-fg font-semibold px-10 py-4 rounded-full hover:bg-surface-subtle transition shadow-lg"
           >
             <i class="fa-solid fa-bolt"></i> Explore AI Services
           </a>

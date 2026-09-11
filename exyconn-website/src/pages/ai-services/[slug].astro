@@ -70,26 +70,26 @@ const breadcrumbJsonLd = {
   canonical={serviceUrl}
   jsonLd={[serviceJsonLd, breadcrumbJsonLd]}
 >
-  <div class="bg-white min-h-screen">
+  <div class="bg-surface min-h-screen">
     <!-- Breadcrumb -->
-    <nav aria-label="Breadcrumb" class="border-b border-gray-100 bg-gray-50">
-      <ol class="max-w-6xl mx-auto flex items-center gap-2 px-6 py-3 text-sm text-gray-600">
-        <li><a href="/" class="hover:text-blue-700 transition-colors">Home</a></li>
-        <li aria-hidden="true" class="text-gray-400">/</li>
+    <nav aria-label="Breadcrumb" class="border-b border-line-subtle bg-surface-subtle">
+      <ol class="max-w-6xl mx-auto flex items-center gap-2 px-6 py-3 text-sm text-fg-muted">
+        <li><a href="/" class="hover:text-blue-fg-strong transition-colors">Home</a></li>
+        <li aria-hidden="true" class="text-fg-faint">/</li>
         <li>
-          <a href="/ai-services" class="hover:text-blue-700 transition-colors">AI Services</a>
+          <a href="/ai-services" class="hover:text-blue-fg-strong transition-colors">AI Services</a>
         </li>
-        <li aria-hidden="true" class="text-gray-400">/</li>
-        <li class="font-medium text-gray-900 truncate">{service.title}</li>
+        <li aria-hidden="true" class="text-fg-faint">/</li>
+        <li class="font-medium text-fg truncate">{service.title}</li>
       </ol>
     </nav>
 
     <!-- Hero -->
     <section
-      class="relative overflow-hidden px-6 py-20 bg-gradient-to-br from-gray-50 via-white to-blue-50"
+      class="relative overflow-hidden px-6 py-20 bg-gradient-to-br from-surface-subtle via-surface to-blue-subtle"
     >
       <div
-        class="absolute top-10 right-10 w-80 h-80 bg-gradient-to-r from-blue-200/40 to-cyan-200/40 rounded-full blur-3xl"
+        class="absolute top-10 right-10 w-80 h-80 bg-gradient-to-r from-blue-muted/40 to-cyan-muted/40 rounded-full blur-3xl"
         aria-hidden="true"
       >
       </div>
@@ -99,29 +99,29 @@ const breadcrumbJsonLd = {
           <div
             class={`w-20 h-20 shrink-0 rounded-3xl bg-gradient-to-br ${service.color} flex items-center justify-center shadow-lg`}
           >
-            <i class={`fa-solid ${service.icon} text-white text-3xl`} aria-hidden="true"></i>
+            <i class={`fa-solid ${service.icon} text-on-solid text-3xl`} aria-hidden="true"></i>
           </div>
 
           <div class="flex-1">
             <a
               href={categoryUrl}
-              class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-700 mb-6 shadow-sm hover:border-blue-200 hover:text-blue-700 transition-colors"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-surface border border-line rounded-full text-sm font-medium text-fg-secondary mb-6 shadow-sm hover:border-blue-muted hover:text-blue-fg-strong transition-colors"
             >
               <i
-                class={`fa-solid ${category?.icon ?? "fa-microchip"} text-blue-600`}
+                class={`fa-solid ${category?.icon ?? "fa-microchip"} text-blue-fg`}
                 aria-hidden="true"></i>
               {categoryTitle}
             </a>
 
             <h1
-              class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 tracking-tight leading-tight"
+              class="text-4xl md:text-5xl font-bold text-fg mb-6 tracking-tight leading-tight"
               data-anime="fade-up"
             >
               {service.title}
             </h1>
 
             <p
-              class="text-lg md:text-xl text-gray-600 max-w-3xl leading-relaxed"
+              class="text-lg md:text-xl text-fg-muted max-w-3xl leading-relaxed"
               data-anime="fade-up"
               data-anime-delay="100"
             >
@@ -136,27 +136,27 @@ const breadcrumbJsonLd = {
     <section class="px-6 py-16">
       <div class="max-w-6xl mx-auto grid lg:grid-cols-3 gap-10">
         <div class="lg:col-span-2 space-y-8">
-          <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-              <i class="fa-solid fa-circle-info text-blue-600" aria-hidden="true"></i>
+          <div class="bg-surface rounded-3xl border border-line-subtle shadow-sm p-8">
+            <h2 class="text-2xl font-bold text-fg mb-4 flex items-center gap-3">
+              <i class="fa-solid fa-circle-info text-blue-fg" aria-hidden="true"></i>
               How we approach it
             </h2>
-            <p class="text-gray-600 text-lg leading-relaxed">{service.description}</p>
+            <p class="text-fg-muted text-lg leading-relaxed">{service.description}</p>
           </div>
 
-          <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-              <i class="fa-solid fa-circle-check text-emerald-600" aria-hidden="true"></i>
+          <div class="bg-surface rounded-3xl border border-line-subtle shadow-sm p-8">
+            <h2 class="text-2xl font-bold text-fg mb-6 flex items-center gap-3">
+              <i class="fa-solid fa-circle-check text-emerald-fg" aria-hidden="true"></i>
               What you get
             </h2>
             <ul class="grid sm:grid-cols-2 gap-4">
               {
                 service.outcomes.map((outcome) => (
-                  <li class="flex items-start gap-3 rounded-2xl bg-gray-50 border border-gray-100 p-4">
-                    <span class="shrink-0 w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center mt-0.5">
-                      <i class="fa-solid fa-check text-emerald-700 text-xs" aria-hidden="true" />
+                  <li class="flex items-start gap-3 rounded-2xl bg-surface-subtle border border-line-subtle p-4">
+                    <span class="shrink-0 w-6 h-6 rounded-full bg-emerald-soft flex items-center justify-center mt-0.5">
+                      <i class="fa-solid fa-check text-emerald-fg-strong text-xs" aria-hidden="true" />
                     </span>
-                    <span class="text-gray-700 text-sm leading-relaxed">{outcome}</span>
+                    <span class="text-fg-secondary text-sm leading-relaxed">{outcome}</span>
                   </li>
                 ))
               }
@@ -166,33 +166,33 @@ const breadcrumbJsonLd = {
 
         <aside class="space-y-6">
           <div
-            class="bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl p-8 text-white shadow-xl"
+            class="bg-gradient-to-br from-blue-strong to-cyan rounded-3xl p-8 text-on-solid shadow-xl"
           >
             <h2 class="text-xl font-bold mb-3">Scope this for your business</h2>
-            <p class="text-blue-50 text-sm leading-relaxed mb-6">
+            <p class="text-on-solid-muted text-sm leading-relaxed mb-6">
               Send us the workflow you want {service.title.toLowerCase()} applied to. You get a scope,
               a timeline and a price — not a discovery invoice.
             </p>
             <a
               href="/get-a-quote"
-              class="inline-flex w-full items-center justify-center gap-2 bg-white text-blue-700 font-semibold px-6 py-3 rounded-full hover:bg-blue-50 transition"
+              class="inline-flex w-full items-center justify-center gap-2 bg-surface text-blue-fg-strong font-semibold px-6 py-3 rounded-full hover:bg-blue-subtle transition"
             >
               <i class="fa-solid fa-calculator" aria-hidden="true"></i> Get a Quote
             </a>
             <a
               href="/contact"
-              class="mt-3 inline-flex w-full items-center justify-center gap-2 bg-white/15 border border-white/40 text-white font-semibold px-6 py-3 rounded-full hover:bg-white/25 transition"
+              class="mt-3 inline-flex w-full items-center justify-center gap-2 bg-on-solid/15 border border-on-solid/40 text-on-solid font-semibold px-6 py-3 rounded-full hover:bg-on-solid/25 transition"
             >
               <i class="fa-solid fa-comments" aria-hidden="true"></i> Talk to Us
             </a>
           </div>
 
-          <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-            <h2 class="text-lg font-bold text-gray-900 mb-2">Part of {categoryTitle}</h2>
-            <p class="text-gray-600 text-sm leading-relaxed mb-4">{category?.description}</p>
+          <div class="bg-surface rounded-3xl border border-line-subtle shadow-sm p-6">
+            <h2 class="text-lg font-bold text-fg mb-2">Part of {categoryTitle}</h2>
+            <p class="text-fg-muted text-sm leading-relaxed mb-4">{category?.description}</p>
             <a
               href={categoryUrl}
-              class="inline-flex items-center gap-2 text-blue-700 font-medium text-sm hover:gap-3 transition-all"
+              class="inline-flex items-center gap-2 text-blue-fg-strong font-medium text-sm hover:gap-3 transition-all"
             >
               See the whole category
               <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
@@ -201,7 +201,7 @@ const breadcrumbJsonLd = {
 
           <a
             href="/ai-services"
-            class="flex items-center justify-center gap-2 text-gray-600 hover:text-blue-700 transition-colors py-3"
+            class="flex items-center justify-center gap-2 text-fg-muted hover:text-blue-fg-strong transition-colors py-3"
           >
             <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
             <span>Back to all AI services</span>
@@ -213,24 +213,24 @@ const breadcrumbJsonLd = {
     <!-- Related -->
     {
       relatedServices.length > 0 && (
-        <section class="px-6 py-16 bg-gray-50 border-t border-gray-100">
+        <section class="px-6 py-16 bg-surface-subtle border-t border-line-subtle">
           <div class="max-w-6xl mx-auto">
-            <h2 class="text-2xl font-bold text-gray-900 mb-8">More in {categoryTitle}</h2>
+            <h2 class="text-2xl font-bold text-fg mb-8">More in {categoryTitle}</h2>
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedServices.map((related) => (
                 <a
                   href={`/ai-services/${related.slug}`}
-                  class="group bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-xl hover:border-blue-100 hover:-translate-y-1 transition-all duration-300"
+                  class="group bg-surface rounded-2xl border border-line-subtle shadow-sm p-6 hover:shadow-xl hover:border-blue-soft hover:-translate-y-1 transition-all duration-300"
                 >
                   <div
                     class={`w-12 h-12 bg-gradient-to-br ${related.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
                   >
-                    <i class={`fa-solid ${related.icon} text-white`} aria-hidden="true" />
+                    <i class={`fa-solid ${related.icon} text-on-solid`} aria-hidden="true" />
                   </div>
-                  <h3 class="font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors">
+                  <h3 class="font-bold text-fg mb-2 group-hover:text-blue-fg-strong transition-colors">
                     {related.title}
                   </h3>
-                  <p class="text-gray-600 text-sm leading-relaxed">{related.summary}</p>
+                  <p class="text-fg-muted text-sm leading-relaxed">{related.summary}</p>
                 </a>
               ))}
             </div>

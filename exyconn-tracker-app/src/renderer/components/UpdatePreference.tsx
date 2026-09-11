@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import { Button, Checkbox, FormControlLabel, Stack, Typography } from '@exyconn/ui';
 import RefreshRounded from '@mui/icons-material/RefreshRounded';
 import type { AppPreferences, UpdateState } from '@shared/types';
-import { formatElapsed } from '../time';
+import { formatElapsed } from '@exyconn/tracker-core';
 import { run } from '../run';
 
 interface Props {

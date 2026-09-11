@@ -15,12 +15,16 @@ COPY exyconn-portal/server/package.json exyconn-portal/server/
 COPY exyconn-portal/ui/package.json exyconn-portal/ui/
 COPY exyconn-website/package.json exyconn-website/
 COPY exyconn-tracker-app/package.json exyconn-tracker-app/
+COPY packages/regex/package.json packages/regex/
 # The root `prepare` script runs on every install, this one included; it needs its own
 # file present. It no-ops without a .git directory, which an image never has.
 COPY scripts/install-git-hooks.mjs scripts/
 RUN pnpm install --frozen-lockfile --filter exyconn...
 
 FROM deps AS build
+# The forms' validation patterns: TS source that Vite inlines into the build, so it is only
+# needed here, never at runtime.
+COPY packages/regex packages/regex
 COPY exyconn-website exyconn-website
 # `pnpm deploy` packs with gitignore semantics and the website gitignores `dist/`, so it
 # would omit the Astro build. Deploy gives us the prod node_modules; copy dist in explicitly.

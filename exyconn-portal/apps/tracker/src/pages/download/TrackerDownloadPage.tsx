@@ -20,7 +20,7 @@ import { ReadinessCard } from './ReadinessCard';
 const PLATFORM_PARAM = 'platform';
 
 /**
- * Download console for the desktop tracker. The build, its version and the installer
+ * Download console for the tracker apps. The build, its version and the installer
  * URLs come from the latest `tracker-v*` GitHub release; the platform on screen lives
  * in the URL (`/tracker/download?platform=macos`) and defaults to the visitor's own.
  */
@@ -48,7 +48,7 @@ export function TrackerDownloadPage() {
   const header = (
     <PageHeader
       title="Download Tracker"
-      subtitle="Exyconn Tracker for Windows, macOS & Linux — always the latest build"
+      subtitle="Exyconn Tracker for Windows, macOS, Linux, Android & iOS — always the latest build"
     />
   );
 

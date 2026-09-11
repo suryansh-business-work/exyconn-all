@@ -11,7 +11,7 @@ import { WindowTracker } from './trackers/window-tracker';
 import { Screenshotter, type Capture } from './trackers/screenshotter';
 import { Outbox, type FlushResult, type OutboxItem } from './outbox';
 import type { ComposeInput } from './capture-bridge';
-import { classifyFailure, describeSyncFailure } from './sync-message';
+import { classifyFailure, describeSyncFailure } from '@exyconn/tracker-core';
 import * as portal from './portal-client';
 import { TrackerAuthError } from './portal-client';
 

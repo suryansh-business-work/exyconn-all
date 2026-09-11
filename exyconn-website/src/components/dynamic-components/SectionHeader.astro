@@ -20,21 +20,21 @@ const {
 } = Astro.props;
 
 const colorClasses = {
-  blue: "bg-blue-50 border-blue-100 text-blue-600",
-  emerald: "bg-emerald-50 border-emerald-100 text-emerald-600",
-  purple: "bg-purple-50 border-purple-100 text-purple-600",
-  orange: "bg-orange-50 border-orange-100 text-orange-600",
-  red: "bg-red-50 border-red-100 text-red-600",
-  gray: "bg-gray-100 border-gray-200 text-gray-600",
+  blue: "bg-blue-subtle border-blue-soft text-blue-fg",
+  emerald: "bg-emerald-subtle border-emerald-soft text-emerald-fg",
+  purple: "bg-purple-subtle border-purple-soft text-purple-fg",
+  orange: "bg-orange-subtle border-orange-soft text-orange-fg",
+  red: "bg-red-subtle border-red-soft text-red-fg",
+  gray: "bg-surface-muted border-line text-fg-muted",
 };
 
 const gradientClasses = {
-  blue: "from-blue-600 to-cyan-500",
-  emerald: "from-emerald-600 to-teal-500",
-  purple: "from-purple-600 to-pink-500",
-  orange: "from-orange-600 to-amber-500",
-  red: "from-red-600 to-rose-500",
-  gray: "from-gray-600 to-slate-500",
+  blue: "from-blue-strong to-cyan",
+  emerald: "from-emerald-strong to-teal",
+  purple: "from-purple-strong to-pink",
+  orange: "from-orange-strong to-amber",
+  red: "from-red-strong to-rose",
+  gray: "from-fg-subtle to-fg-subtle",
 };
 ---
 
@@ -49,7 +49,7 @@ const gradientClasses = {
       </span>
     )
   }
-  <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+  <h2 class="text-4xl md:text-5xl font-bold text-fg mb-4 tracking-tight">
     {title}
     {
       titleHighlight && (
@@ -64,7 +64,7 @@ const gradientClasses = {
   </h2>
   {
     description && (
-      <p class={`text-xl text-gray-600 leading-relaxed ${centered ? "max-w-3xl mx-auto" : ""}`}>
+      <p class={`text-xl text-fg-muted leading-relaxed ${centered ? "max-w-3xl mx-auto" : ""}`}>
         {description}
       </p>
     )

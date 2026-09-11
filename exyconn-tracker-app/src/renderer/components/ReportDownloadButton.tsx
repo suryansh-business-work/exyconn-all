@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button, Snackbar, Stack, Typography } from '@exyconn/ui';
 import DownloadRounded from '@mui/icons-material/DownloadRounded';
 import type { ReportDay } from '@shared/types';
-import { buildReportCsv } from '../report-csv';
+import { buildReportCsv } from '@exyconn/tracker-core';
 
 interface Props {
   days: readonly ReportDay[];

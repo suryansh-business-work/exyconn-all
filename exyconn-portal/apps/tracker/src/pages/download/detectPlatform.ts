@@ -1,7 +1,13 @@
 import { PLATFORMS, type PlatformConfig, type PlatformKey } from './download.config';
 
-/** User-agent fragment -> platform, checked in order. */
+/**
+ * User-agent fragment -> platform, checked in order. Phones come first: an Android agent
+ * also says "Linux", and an iPhone's says "like Mac OS X".
+ */
 const SIGNATURES: [string, PlatformKey][] = [
+  ['android', 'android'],
+  ['iphone', 'ios'],
+  ['ipad', 'ios'],
   ['win', 'windows'],
   ['mac', 'macos'],
   ['linux', 'linux'],

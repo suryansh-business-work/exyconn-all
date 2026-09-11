@@ -1,8 +1,7 @@
 import type { ReactElement } from 'react';
 import { Button, Chip, Divider, Flex, Stack, Typography } from '@exyconn/ui';
 import type { ManualEntry, ManualEntryStatus } from '@shared/types';
-import { formatHoursMinutes } from '../format';
-import { formatDateTime } from '../time';
+import { formatDateTime, formatHoursMinutes } from '@exyconn/tracker-core';
 import Surface from './Surface';
 
 /** The colour a decision is worth. Pending is deliberately neutral: it is not a promise. */

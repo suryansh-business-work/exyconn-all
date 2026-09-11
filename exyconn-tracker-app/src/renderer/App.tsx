@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { Box, CircularProgress, ThemeProvider } from '@exyconn/ui';
 import type { TrackerState } from '@shared/types';
-import { deviceTimezone } from '@shared/timezone';
+import { deviceTimezone } from '@exyconn/tracker-core';
 import AppFrame from './components/AppFrame';
 import ClosingDialog from './components/ClosingDialog';
 import AppShell from './AppShell';

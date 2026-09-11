@@ -58,6 +58,17 @@ describe('tracker device auth', () => {
     expect(result.consentRequired).toBe(true);
   });
 
+  it.each(['android', 'ios'])('enrols a %s phone as a device', async (platform) => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, { ...DEVICE, platform });
+
+    const device = await TrackerDeviceModel.findOne({ deviceId: DEVICE.deviceId });
+    expect(device?.platform).toBe(platform);
+    expect(device?.validateSync()).toBeUndefined();
+  });
+
   it('rejects tracker calls from a revoked device', async () => {
     const user = await makeEmployee();
     await trackerAdminService.grantAccess(user.id, 'admin');

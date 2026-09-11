@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { EMAIL } from '@exyconn/regex';
 import { Alert, Button, Stack, Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -16,7 +17,7 @@ import type { SendCampaignTarget } from './send-campaign.types';
 
 const schema = z.object({
   audienceListId: z.string().min(1, 'Choose the audience to send to'),
-  testEmail: z.string().trim().email('Enter a valid email').or(z.literal('')),
+  testEmail: z.string().trim().regex(EMAIL, 'Enter a valid email').or(z.literal('')),
 });
 type Values = z.infer<typeof schema>;
 

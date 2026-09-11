@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { EMAIL } from '@exyconn/regex';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
@@ -20,7 +21,7 @@ const schema = z.object({
     .trim()
     .min(name.min, 'Give the customer’s name')
     .max(name.max, `At most ${name.max} characters`),
-  requesterEmail: z.string().trim().email('Enter a valid email address'),
+  requesterEmail: z.string().trim().regex(EMAIL, 'Enter a valid email address'),
   subject: z
     .string()
     .trim()

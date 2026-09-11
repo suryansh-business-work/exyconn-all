@@ -3,7 +3,7 @@ import HistoryOutlined from '@mui/icons-material/HistoryOutlined';
 import HourglassEmptyOutlined from '@mui/icons-material/HourglassEmptyOutlined';
 import PlayCircleOutlined from '@mui/icons-material/PlayCircleOutlined';
 import type { TrackerTotals } from '@shared/types';
-import { formatCount, formatHoursMinutes } from '../format';
+import { formatCount, formatHoursMinutes } from '@exyconn/tracker-core';
 import type { Tile } from './tile.types';
 
 /** Active share of everything ever tracked, as a whole percentage. */

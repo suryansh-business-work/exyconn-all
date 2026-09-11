@@ -1,0 +1,31 @@
+---
+/**
+ * The site logo in whichever mode the page is in. Branding carries a separate logo for dark
+ * backgrounds (Admin > Branding); until one is uploaded the daylight logo is used for both.
+ */
+import type { HTMLAttributes } from "astro/types";
+import { BRANDING_FALLBACK, type Branding } from "../lib/portal";
+
+type Props = Readonly<
+  Omit<HTMLAttributes<"img">, "src"> & {
+    branding: Branding;
+    alt: string;
+  }
+>;
+
+const { branding, class: className, ...imgProps } = Astro.props;
+
+const lightSrc = branding.logoUrl || BRANDING_FALLBACK.logoUrl;
+const darkSrc = branding.logoDarkUrl || lightSrc;
+---
+
+{
+  darkSrc === lightSrc ? (
+    <img class={className} src={lightSrc} {...imgProps} />
+  ) : (
+    <>
+      <img class:list={[className, "dark:hidden"]} src={lightSrc} {...imgProps} />
+      <img class:list={[className, "hidden dark:inline"]} src={darkSrc} {...imgProps} />
+    </>
+  )
+}

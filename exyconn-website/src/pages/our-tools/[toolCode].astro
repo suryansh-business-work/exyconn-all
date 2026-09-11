@@ -1,6 +1,7 @@
 ---
 import Page from "../../layouts/Page.astro";
 import { getTool, getToolCategories, getToolLaunchUrl, getTools } from "../../lib/portal";
+import { roleVar } from "../../styles/tokens/semantic.tokens";
 
 const { toolCode } = Astro.params;
 
@@ -21,16 +22,18 @@ const [categories, siblings] = await Promise.all([
 
 const category = categories.find((one) => one.slug === tool.categorySlug) ?? null;
 const related = siblings.filter((one) => one.toolCode !== tool.toolCode).slice(0, 3);
-const accent = tool.color || category?.color || "var(--palette-indigo-500)";
+// An admin-chosen colour (any CSS colour) or the indigo role; the tint mixes whichever it is.
+const accent = tool.color || category?.color || roleVar("indigo-strong");
+const accentTint = `color-mix(in srgb, ${accent} 8%, transparent)`;
 ---
 
 <Page title={`${tool.name} | Exyconn Tools`} description={tool.description}>
-  <main class="bg-slate-50 min-h-screen">
-    <section class="border-b border-slate-200 py-6 px-6 bg-white">
+  <main class="bg-surface-subtle min-h-screen">
+    <section class="border-b border-line py-6 px-6 bg-surface">
       <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
         <a
           href="/our-tools"
-          class="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition"
+          class="flex items-center gap-2 text-fg-muted hover:text-fg transition"
         >
           <i class="fa-solid fa-arrow-left"></i>
           <span class="font-medium">Back to all tools</span>
@@ -40,7 +43,7 @@ const accent = tool.color || category?.color || "var(--palette-indigo-500)";
             <a
               href={`/our-tools#${category.slug}`}
               class="text-sm font-semibold px-3 py-1.5 rounded-lg"
-              style={`background: ${accent}15; color: ${accent};`}
+              style={`background: ${accentTint}; color: ${accent};`}
             >
               {category.category}
             </a>
@@ -54,25 +57,25 @@ const accent = tool.color || category?.color || "var(--palette-indigo-500)";
         <div class="flex items-start gap-5 mb-8">
           <div
             class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
-            style={`background: ${accent}15;`}
+            style={`background: ${accentTint};`}
           >
             <i class={`fa-solid ${tool.icon || "fa-wrench"} text-2xl`} style={`color: ${accent};`}
             ></i>
           </div>
           <div>
             <div class="flex items-center gap-3 mb-2">
-              <h1 class="text-4xl font-black text-slate-900">{tool.name}</h1>
+              <h1 class="text-4xl font-black text-fg">{tool.name}</h1>
               {
                 tool.isMVP && (
-                  <span class="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold">
+                  <span class="px-2.5 py-1 bg-amber-soft text-amber-fg-strong rounded-lg text-xs font-bold">
                     MVP
                   </span>
                 )
               }
             </div>
-            <p class="text-lg text-slate-600">{tool.description}</p>
+            <p class="text-lg text-fg-muted">{tool.description}</p>
             <span
-              class="inline-block mt-3 px-2 py-0.5 bg-slate-200 text-slate-500 rounded text-xs font-mono"
+              class="inline-block mt-3 px-2 py-0.5 bg-surface-strong text-fg-subtle rounded text-xs font-mono"
               >#{tool.toolCode}</span
             >
           </div>
@@ -82,20 +85,20 @@ const accent = tool.color || category?.color || "var(--palette-indigo-500)";
           <div class="lg:col-span-2 space-y-8">
             {
               tool.longDescription && (
-                <div class="bg-white rounded-2xl p-6 border border-slate-100">
-                  <h2 class="text-xl font-bold text-slate-900 mb-3">About this tool</h2>
-                  <p class="text-slate-600 whitespace-pre-line">{tool.longDescription}</p>
+                <div class="bg-surface rounded-2xl p-6 border border-line-subtle">
+                  <h2 class="text-xl font-bold text-fg mb-3">About this tool</h2>
+                  <p class="text-fg-muted whitespace-pre-line">{tool.longDescription}</p>
                 </div>
               )
             }
 
             {
               tool.features.length > 0 && (
-                <div class="bg-white rounded-2xl p-6 border border-slate-100">
-                  <h2 class="text-xl font-bold text-slate-900 mb-4">What it does</h2>
+                <div class="bg-surface rounded-2xl p-6 border border-line-subtle">
+                  <h2 class="text-xl font-bold text-fg mb-4">What it does</h2>
                   <ul class="space-y-2">
                     {tool.features.map((feature) => (
-                      <li class="flex items-start gap-3 text-slate-600">
+                      <li class="flex items-start gap-3 text-fg-muted">
                         <i class="fa-solid fa-check mt-1" style={`color: ${accent};`} />
                         <span>{feature}</span>
                       </li>
@@ -107,11 +110,11 @@ const accent = tool.color || category?.color || "var(--palette-indigo-500)";
 
             {
               tool.useCases.length > 0 && (
-                <div class="bg-white rounded-2xl p-6 border border-slate-100">
-                  <h2 class="text-xl font-bold text-slate-900 mb-4">Where people use it</h2>
+                <div class="bg-surface rounded-2xl p-6 border border-line-subtle">
+                  <h2 class="text-xl font-bold text-fg mb-4">Where people use it</h2>
                   <div class="flex flex-wrap gap-2">
                     {tool.useCases.map((useCase) => (
-                      <span class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-sm">
+                      <span class="px-3 py-1.5 bg-surface-muted text-fg-muted rounded-lg text-sm">
                         {useCase}
                       </span>
                     ))}
@@ -126,7 +129,7 @@ const accent = tool.color || category?.color || "var(--palette-indigo-500)";
               tool.url && (
                 <a
                   href={getToolLaunchUrl(tool)}
-                  class="block text-center px-6 py-4 rounded-2xl text-white font-bold shadow-lg transition hover:opacity-90"
+                  class="block text-center px-6 py-4 rounded-2xl text-on-solid font-bold shadow-lg transition hover:opacity-90"
                   style={`background: ${accent};`}
                 >
                   Open {tool.name}
@@ -137,18 +140,18 @@ const accent = tool.color || category?.color || "var(--palette-indigo-500)";
 
             {
               tool.pricing && (
-                <div class="bg-white rounded-2xl p-6 border border-slate-100">
-                  <h2 class="text-lg font-bold text-slate-900 mb-2">Pricing</h2>
-                  <p class="text-3xl font-black text-slate-900">
+                <div class="bg-surface rounded-2xl p-6 border border-line-subtle">
+                  <h2 class="text-lg font-bold text-fg mb-2">Pricing</h2>
+                  <p class="text-3xl font-black text-fg">
                     {tool.pricing.currency} {tool.pricing.price}
                   </p>
                   {tool.pricing.alterationNote && (
-                    <p class="text-sm text-slate-500 mt-2">{tool.pricing.alterationNote}</p>
+                    <p class="text-sm text-fg-subtle mt-2">{tool.pricing.alterationNote}</p>
                   )}
                   <ul class="mt-4 space-y-1.5">
                     {tool.pricing.features.map((feature) => (
-                      <li class="text-sm text-slate-600 flex items-start gap-2">
-                        <i class="fa-solid fa-check mt-1 text-emerald-500" />
+                      <li class="text-sm text-fg-muted flex items-start gap-2">
+                        <i class="fa-solid fa-check mt-1 text-emerald-fg" />
                         <span>{feature}</span>
                       </li>
                     ))}
@@ -159,14 +162,14 @@ const accent = tool.color || category?.color || "var(--palette-indigo-500)";
 
             {
               related.length > 0 && (
-                <div class="bg-white rounded-2xl p-6 border border-slate-100">
-                  <h2 class="text-lg font-bold text-slate-900 mb-3">More in this category</h2>
+                <div class="bg-surface rounded-2xl p-6 border border-line-subtle">
+                  <h2 class="text-lg font-bold text-fg mb-3">More in this category</h2>
                   <ul class="space-y-2">
                     {related.map((one) => (
                       <li>
                         <a
                           href={`/our-tools/${one.toolCode}`}
-                          class="text-slate-600 hover:text-indigo-600 transition"
+                          class="text-fg-muted hover:text-indigo-fg transition"
                         >
                           {one.name}
                         </a>

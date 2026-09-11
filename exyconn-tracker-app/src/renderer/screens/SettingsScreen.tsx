@@ -14,7 +14,7 @@ import UpdatePreference from '../components/UpdatePreference';
 import WorkArrangementCard from '../components/WorkArrangementCard';
 import useAppVersion from '../hooks/useAppVersion';
 import useUpdateState from '../hooks/useUpdateState';
-import { buildSettingRows } from '../settings-rows';
+import { buildSettingRows } from '@exyconn/tracker-core';
 import { run } from '../run';
 
 interface Props {
