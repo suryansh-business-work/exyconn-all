@@ -72,9 +72,7 @@ describe('moduleNavTree', () => {
   it('keeps every page exactly once, whatever the grouping', () => {
     for (const module of MODULES) {
       const paths = navPaths(moduleNavTree(module));
-      const expected = module.children?.length
-        ? module.children.map((c) => c.path)
-        : [module.path];
+      const expected = module.children?.length ? module.children.map((c) => c.path) : [module.path];
       expect(paths.toSorted((a, b) => a.localeCompare(b))).toEqual(
         expected.toSorted((a, b) => a.localeCompare(b)),
       );

@@ -19,7 +19,9 @@ const hr = MODULES.find((m) => m.key === 'hr')!;
 const tree = moduleNavTree(hr);
 
 function showRail(pathname = '/hr', onSelect = vi.fn()) {
-  render(<SidebarRail nodes={tree} trail={new Set(navTrail(tree, pathname))} onSelect={onSelect} />);
+  render(
+    <SidebarRail nodes={tree} trail={new Set(navTrail(tree, pathname))} onSelect={onSelect} />,
+  );
   return onSelect;
 }
 
@@ -80,10 +82,7 @@ describe('a rail entry with pages beneath it', () => {
 
     await user.click(screen.getByRole('button', { name: 'People' }));
 
-    expect(screen.getByRole('button', { name: 'People' })).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    );
+    expect(screen.getByRole('button', { name: 'People' })).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText('Employee Records')).toBeVisible();
   });
 });

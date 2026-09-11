@@ -132,7 +132,9 @@ export function filterNavTree(nodes: NavNode[], query: string): NavNode[] {
 
 /** Every page's path, however deep it sits. Branches are never destinations. */
 export function navPaths(nodes: NavNode[]): string[] {
-  return nodes.flatMap((node) => (node.children.length > 0 ? navPaths(node.children) : [node.path]));
+  return nodes.flatMap((node) =>
+    node.children.length > 0 ? navPaths(node.children) : [node.path],
+  );
 }
 
 /** Keys from the top of the tree down to the page at `path`, or none when no page has it. */
