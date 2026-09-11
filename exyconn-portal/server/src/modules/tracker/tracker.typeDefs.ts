@@ -731,6 +731,8 @@ export const trackerTypeDefs = gql`
     myTrackerAccess: TrackerAccess
     myTrackerCalendar(from: DateTime!, to: DateTime!, timezone: String!): [TrackerDayBucket!]!
     myTrackerDay(start: DateTime!, end: DateTime!): TrackerDay!
+    "Every IANA zone the server resolves, sorted - the phone zone picker has no runtime list."
+    trackerTimezones: [String!]!
     "The caller's own off-computer entries in a range, any status."
     myTrackerManualEntries(from: DateTime!, to: DateTime!): [TrackerManualEntry!]!
     """

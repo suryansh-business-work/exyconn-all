@@ -12,8 +12,9 @@
  */
 export const fontFamily = {
   sans: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif',
-  /** The desktop tracker ships no webfont — it paints with whatever the OS already has. */
-  system: '"Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif',
+  /** The desktop tracker bundles Inter's variable build (@fontsource-variable/inter). */
+  tracker:
+    '"Inter Variable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
 } as const;
 
 /**

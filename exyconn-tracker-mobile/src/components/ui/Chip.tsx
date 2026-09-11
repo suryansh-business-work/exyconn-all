@@ -1,5 +1,5 @@
 import { XStack } from 'tamagui';
-import { TRACKER_RADIUS } from '../../theme/tokens';
+import { radius } from '../../theme/tokens';
 import { useThemeColor, type ThemeColor } from '../../theme/useThemeColor';
 import { Icon, type IconName } from './Icon';
 import { Caption } from './Typography';
@@ -17,7 +17,7 @@ export function Chip({ label, tone = 'muted', icon }: Readonly<Props>) {
     <XStack
       borderWidth={1}
       borderColor={color}
-      borderRadius={TRACKER_RADIUS}
+      borderRadius={radius.pill}
       paddingHorizontal="$2"
       paddingVertical="$1"
       gap="$1.5"

@@ -7577,6 +7577,8 @@ export type Query = {
    * Used by the desktop picker and by the off-computer time form.
    */
   trackerTaskOptions: Array<TrackerTask>;
+  /** Every IANA zone the server resolves, sorted - the phone zone picker has no runtime list. */
+  trackerTimezones: Array<Scalars['String']['output']>;
   trackerTotals: TrackerTotals;
   /** The admin's review screen: what has been translated, and by what. ADMIN only. */
   translations: TranslationPage;

@@ -8,6 +8,8 @@ import config from './tamagui.config';
 interface BrandContextValue extends BrandColors {
   scheme: 'light' | 'dark';
   branding: Branding | null;
+  /** How much of the plain ground is painted over the brand gradient: 1 is solid. */
+  groundOpacity: number;
 }
 
 const BrandContext = createContext<BrandContextValue | null>(null);
@@ -15,6 +17,7 @@ const BrandContext = createContext<BrandContextValue | null>(null);
 interface Props {
   branding: Branding | null;
   themeMode: ThemeMode;
+  groundOpacity: number;
   children: ReactNode;
 }
 
@@ -24,7 +27,7 @@ interface Props {
  * that should carry the workspace's colour. Keyed on exactly what it reads, so the once-a-second
  * state republish does not rebuild the theme.
  */
-export function BrandProvider({ branding, themeMode, children }: Readonly<Props>) {
+export function BrandProvider({ branding, themeMode, groundOpacity, children }: Readonly<Props>) {
   const systemPrefersDark = useColorScheme() === 'dark';
   const value = useMemo<BrandContextValue>(() => {
     const colors = brandColors(branding);
@@ -32,8 +35,9 @@ export function BrandProvider({ branding, themeMode, children }: Readonly<Props>
       ...colors,
       scheme: resolveScheme(themeMode, colors.background, systemPrefersDark),
       branding,
+      groundOpacity,
     };
-  }, [branding, themeMode, systemPrefersDark]);
+  }, [branding, themeMode, systemPrefersDark, groundOpacity]);
 
   return (
     <TamaguiProvider config={config} defaultTheme={value.scheme}>

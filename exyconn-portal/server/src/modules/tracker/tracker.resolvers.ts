@@ -5,6 +5,7 @@ import { assertPermission } from '../../lib/permissions';
 import { withId, withIds } from '../../utils/serialize';
 import { recordAudit } from '../audit';
 import { githubActions } from '../../utils/github';
+import { supportedTimezones } from './tracker.timezone';
 import { assertEmployee, assertTrackerDevice } from './tracker.auth';
 import {
   trackerDeviceService,
@@ -214,6 +215,11 @@ export const trackerResolvers = {
     ) => {
       const user = assertAuthenticated(ctx);
       return serializeDay(await trackerAdminService.day(user.id, start, end));
+    },
+    /** The phone's zone picker: Hermes has no `Intl.supportedValuesOf`, Node does. */
+    trackerTimezones: (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertAuthenticated(ctx);
+      return supportedTimezones();
     },
     trackerProjectOptions: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       assertAuthenticated(ctx);

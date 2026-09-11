@@ -308,6 +308,16 @@ export interface TrackerTotals {
 }
 
 /** One calendar day of the employee's own work: their totals and their screenshots. */
+/** One synced tracking interval of a day, as the portal recorded it. */
+export interface DayInterval {
+  startedAt: string;
+  endedAt: string;
+  activeMs: number;
+  idleMs: number;
+  /** 0–100, the portal's own figure for the interval. */
+  activityPercent: number;
+}
+
 export interface DayDetail {
   activeMs: number;
   idleMs: number;
@@ -316,6 +326,8 @@ export interface DayDetail {
   mouseCount: number;
   sessions: number;
   screenshots: DayScreenshot[];
+  /** Oldest first — what the day's activity chart draws. */
+  intervals: DayInterval[];
 }
 
 /**

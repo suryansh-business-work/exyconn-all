@@ -37,3 +37,13 @@ export function activityPercent(activeMs: number, idleMs: number): number {
 export function formatCount(value: number): string {
   return value.toLocaleString();
 }
+
+/** "Asha Rao" → "AR"; a blank name → "?" — the avatar in both apps' headers. */
+export function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) {
+    return '?';
+  }
+  const last = parts.length > 1 ? (parts.at(-1)?.[0] ?? '') : '';
+  return `${parts[0][0]}${last}`.toUpperCase();
+}

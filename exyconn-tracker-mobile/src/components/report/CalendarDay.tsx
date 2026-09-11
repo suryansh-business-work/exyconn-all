@@ -3,7 +3,7 @@ import { YStack } from 'tamagui';
 import { formatDayLabel } from '@exyconn/tracker-core';
 import type { CalendarCell } from '../../lib/report/calendar';
 import { useBrand } from '../../theme/BrandProvider';
-import { TRACKER_RADIUS } from '../../theme/tokens';
+import { radius, trackerActivity, trackerSelected } from '../../theme/tokens';
 import { Body } from '../ui/Typography';
 
 interface Props {
@@ -18,22 +18,28 @@ function spokenLabel(cell: CalendarCell): string {
   if (cell.today) {
     parts.push('today');
   }
-  if (cell.tracked) {
-    parts.push('has tracked time');
+  if (cell.level !== null) {
+    parts.push(`has tracked time, ${cell.level} activity`);
   }
   return parts.join(', ');
 }
 
-function textColorOf(cell: CalendarCell, onPrimary: string): string {
+function textColorOf(cell: CalendarCell, selectedInk: string): string {
   if (cell.selected) {
-    return onPrimary;
+    return selectedInk;
   }
   return cell.disabled ? '$muted' : '$ink';
 }
 
-/** A calendar cell, dotted when the employee tracked time that day. Blank outside the month. */
+/**
+ * A round calendar cell, dotted in its activity colour when the employee tracked time that
+ * day, and filled with the inverted ink when selected — the desktop's calendar. Blank outside
+ * the month.
+ */
 export function CalendarDay({ cell, onSelect }: Readonly<Props>) {
   const brand = useBrand();
+  const pill = trackerSelected[brand.scheme];
+  const dot = cell.level === null ? 'transparent' : trackerActivity[brand.scheme][cell.level];
 
   if (!cell.inMonth) {
     return <YStack flex={1} aspectRatio={1} />;
@@ -53,13 +59,13 @@ export function CalendarDay({ cell, onSelect }: Readonly<Props>) {
         margin="$0.5"
         alignItems="center"
         justifyContent="center"
-        borderRadius={TRACKER_RADIUS}
+        borderRadius={radius.pill}
         borderWidth={cell.today && !cell.selected ? 1 : 0}
         borderColor={brand.primary}
-        backgroundColor={cell.selected ? brand.primary : 'transparent'}
+        backgroundColor={cell.selected ? pill.fill : 'transparent'}
         opacity={cell.disabled ? 0.45 : 1}
       >
-        <Body fontWeight={cell.selected ? '700' : '400'} color={textColorOf(cell, brand.onPrimary)}>
+        <Body fontWeight="600" color={textColorOf(cell, pill.ink)}>
           {cell.dayOfMonth}
         </Body>
         <YStack
@@ -67,8 +73,7 @@ export function CalendarDay({ cell, onSelect }: Readonly<Props>) {
           height={DOT}
           borderRadius={DOT}
           marginTop="$0.5"
-          backgroundColor={cell.selected ? brand.onPrimary : brand.secondary}
-          opacity={cell.tracked ? 1 : 0}
+          backgroundColor={dot}
         />
       </YStack>
     </Pressable>

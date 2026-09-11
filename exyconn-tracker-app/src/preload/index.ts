@@ -27,9 +27,12 @@ import {
   type UpdateState,
   type Workday,
 } from '@shared/types';
+import { supportsTransparency } from '@shared/transparency';
 
 /** The typed API exposed to the renderer over the context bridge (no Node access). */
 const api = {
+  /** Whether this OS can show the desktop through the window (see shared/transparency.ts). */
+  transparencySupported: supportsTransparency(process.platform, process.getSystemVersion()),
   getState: (): Promise<TrackerState> => ipcRenderer.invoke(IPC.getState),
   /** One batch of this window's Tech > Logs entries; main adds the device and user, then sends it. */
   reportLogs: (batch: LogBatch): Promise<boolean> => ipcRenderer.invoke(IPC.reportLogs, batch),

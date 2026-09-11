@@ -10,6 +10,7 @@ export {
   FALLBACK_TIMEZONE,
   isValidTimezone,
   resolveEffectiveTimezone,
+  supportedTimezones,
   type TimezoneCandidates,
 } from '../../utils/timezone';
 

@@ -27,6 +27,17 @@ export function isValidTimezone(value: string | null | undefined): boolean {
   }
 }
 
+/**
+ * Every zone this server can resolve, sorted — the list the phone tracker's picker offers,
+ * since Hermes has no `Intl.supportedValuesOf`. The runtime list omits UTC (see above), so it
+ * is added.
+ */
+export function supportedTimezones(): string[] {
+  const names = new Set(Intl.supportedValuesOf('timeZone'));
+  names.add(FALLBACK_TIMEZONE);
+  return [...names].sort((a, b) => a.localeCompare(b));
+}
+
 export interface TimezoneCandidates {
   /** The zone this person picked for themselves. */
   employeeTimezone?: string | null;

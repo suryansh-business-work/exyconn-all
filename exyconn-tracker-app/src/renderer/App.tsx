@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { Box, CircularProgress, ThemeProvider } from '@exyconn/ui';
 import type { TrackerState } from '@shared/types';
+import { groundOpacity } from '@shared/transparency';
 import { deviceTimezone } from '@exyconn/tracker-core';
 import AppFrame from './components/AppFrame';
 import ClosingDialog from './components/ClosingDialog';
@@ -76,7 +77,13 @@ export default function App(): ReactElement {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppFrame>
+      <AppFrame
+        groundOpacity={
+          state === null
+            ? 1
+            : groundOpacity(window.tracker.transparencySupported, state.preferences)
+        }
+      >
         {/* Above the router: a new version matters on the login screen too. */}
         <UpdateBanner update={update} />
         {state === null ? <Loading /> : <ScreenRouter state={state} />}

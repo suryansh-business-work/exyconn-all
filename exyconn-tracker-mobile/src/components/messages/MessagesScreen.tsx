@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { BottomTabBarHeightContext } from 'expo-router/tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { YStack } from 'tamagui';
 import type { TrackerMessageKind } from '@exyconn/tracker-core';
@@ -50,10 +51,13 @@ export function MessagesScreen({ timezone }: Readonly<Props>) {
   const { messages, loading, error, send } = useMessages(tab);
   const empty = EMPTY[tab];
   const insets = useSafeAreaInsets();
+  // The tab bar floats over the foot of the screen; the composer and the list sit above it.
+  const tabBarHeight = useContext(BottomTabBarHeightContext) ?? 0;
+  const foot = tabBarHeight > 0 ? tabBarHeight : Math.max(insets.bottom, COMPOSER_GAP);
 
   return (
     <ChatKeyboardView>
-      <YStack flex={1} backgroundColor="$app">
+      <YStack flex={1}>
         <YStack paddingHorizontal="$4" paddingTop="$3" gap="$2">
           <Caption>Between you and whoever administers tracking in your workspace.</Caption>
           <SegmentedControl
@@ -77,14 +81,16 @@ export function MessagesScreen({ timezone }: Readonly<Props>) {
         {tab === 'CHAT' ? (
           <YStack
             padding="$3"
-            paddingBottom={Math.max(insets.bottom, COMPOSER_GAP)}
+            paddingBottom={foot}
             borderTopWidth={1}
             borderTopColor="$hairline"
             backgroundColor="$paper"
           >
             <MessageForm onSend={send} />
           </YStack>
-        ) : null}
+        ) : (
+          <YStack height={foot} />
+        )}
       </YStack>
     </ChatKeyboardView>
   );

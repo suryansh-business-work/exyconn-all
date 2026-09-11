@@ -14,9 +14,13 @@ import { deviceTimezone, isValidTimezone } from './timezone';
  * `formatDayLabel`, which treats the key as a wall-calendar date and never converts it.
  */
 
-/** Every zone the runtime knows, plus `current`, plus this device's — never a hardcoded list. */
-export function timezoneNames(current: string): string[] {
-  const names = new Set(Intl.supportedValuesOf('timeZone'));
+/**
+ * The zone picker's list: `supported` (the runtime's own list on the desktop, the portal's on
+ * the phone, whose Hermes engine has no `Intl.supportedValuesOf`), plus `current`, plus this
+ * device's — never a hardcoded list.
+ */
+export function timezoneNames(current: string, supported: readonly string[]): string[] {
+  const names = new Set(supported);
   // `supportedValuesOf` is the PRE-canonicalisation list: it has `Asia/Calcutta` but not
   // `Asia/Kolkata`, and no `UTC` at all. Both are zones the portal accepts and an employee
   // can already be on, and an Autocomplete value that is absent from its own options is a

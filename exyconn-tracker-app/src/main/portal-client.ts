@@ -47,6 +47,7 @@ export const {
   fetchMyDay,
   setTimezone,
   fetchMyTotals,
+  fetchTimezones,
   acceptConsent,
   markAttendance,
   startSession,

@@ -11,10 +11,10 @@ import {
   type DayFigures,
 } from '../../lib/dashboard/day-progress';
 import { useBrand } from '../../theme/BrandProvider';
-import { TRACKER_RADIUS } from '../../theme/tokens';
 import { useThemeColor } from '../../theme/useThemeColor';
 import { Icon } from '../ui/Icon';
-import { Body, Caption, Heading } from '../ui/Typography';
+import { GradientBar } from '../charts/GradientBar';
+import { Body, Caption, Figure, Heading } from '../ui/Typography';
 import { ProgressRing } from './ProgressRing';
 
 interface Props {
@@ -33,22 +33,17 @@ interface ShapeProps {
   color: string;
 }
 
-/** The original: a bar across the whole card, with the remainder as a length. */
-function DayProgressBar({ figures, activeMs, color }: Readonly<ShapeProps>) {
+/** The big figure over a gradient bar that fills towards the day's target. */
+function DayProgressBar({ figures, activeMs }: Readonly<ShapeProps>) {
   return (
-    <YStack gap="$2">
-      <YStack
-        height={8}
-        borderRadius={TRACKER_RADIUS}
-        backgroundColor="$hairline"
-        overflow="hidden"
-        accessible
-        accessibilityRole="progressbar"
+    <YStack gap="$3">
+      <Figure>{formatHoursMinutes(activeMs)}</Figure>
+      <GradientBar
+        percent={figures.percent}
+        label="Worked"
+        trailing={`of ${formatHoursMinutes(figures.targetMs)}`}
         accessibilityLabel={dayProgressLabel(figures, activeMs)}
-        accessibilityValue={{ min: 0, max: 100, now: figures.percent }}
-      >
-        <YStack height="100%" width={`${figures.percent}%`} backgroundColor={color} />
-      </YStack>
+      />
       <Caption>{daySummary(figures)}</Caption>
     </YStack>
   );
@@ -94,11 +89,10 @@ export function DayProgress({ workday, workProfile, activeMs, style }: Readonly<
   return (
     <YStack gap="$2">
       <XStack justifyContent="space-between" alignItems="center" gap="$2">
-        <Heading>Today</Heading>
         <XStack alignItems="center" gap="$1.5">
-          <Caption>
-            {formatHoursMinutes(activeMs)} of {formatHoursMinutes(figures.targetMs)}
-          </Caption>
+          <Body color="$muted" fontWeight="600">
+            Worked today
+          </Body>
           <Pressable
             onPress={() => setExplained((open) => !open)}
             hitSlop={12}
@@ -109,6 +103,7 @@ export function DayProgress({ workday, workProfile, activeMs, style }: Readonly<
             <Icon name="information-outline" size={18} color={muted} />
           </Pressable>
         </XStack>
+        <Heading color={color}>{figures.percent}%</Heading>
       </XStack>
       {explained ? <Caption>{dayTargetSource(figures)}</Caption> : null}
       <Shape figures={figures} activeMs={activeMs} color={color} />

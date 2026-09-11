@@ -7576,6 +7576,8 @@ export type Query = {
    * Used by the desktop picker and by the off-computer time form.
    */
   trackerTaskOptions: Array<TrackerTask>;
+  /** Every IANA zone the server resolves, sorted - the phone zone picker has no runtime list. */
+  trackerTimezones: Array<Scalars['String']['output']>;
   trackerTotals: TrackerTotals;
   /** The admin's review screen: what has been translated, and by what. ADMIN only. */
   translations: TranslationPage;
@@ -15228,6 +15230,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerProjectOptions?: Resolver<Array<ResolversTypes['TrackerProject']>, ParentType, ContextType>;
   trackerSettings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType>;
   trackerTaskOptions?: Resolver<Array<ResolversTypes['TrackerTask']>, ParentType, ContextType, RequireFields<QueryTrackerTaskOptionsArgs, 'projectId'>>;
+  trackerTimezones?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   trackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType, RequireFields<QueryTrackerTotalsArgs, 'userId'>>;
   translations?: Resolver<ResolversTypes['TranslationPage'], ParentType, ContextType, RequireFields<QueryTranslationsArgs, 'locale'>>;
   webhookEvents?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;

@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
 import { XStack, YStack } from 'tamagui';
+import type { ActivityLevel } from '@exyconn/tracker-core';
 import { buildMonthGrid, weekdayLabels } from '../../lib/report/calendar';
 import { Caption } from '../ui/Typography';
 import { CalendarDay } from './CalendarDay';
 
 interface Props {
   month: Date;
-  /** `yyyy-MM-dd` keys of the days with tracked time. */
-  tracked: ReadonlySet<string>;
+  /** `yyyy-MM-dd` → how active the day was, for the days with tracked time. */
+  tracked: ReadonlyMap<string, ActivityLevel>;
   selected: Date;
   /** Today; the employee cannot look into the future. */
   maxDate: Date;

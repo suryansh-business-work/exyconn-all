@@ -24,6 +24,8 @@ const DEFAULT_PREFERENCES: MobilePreferences = {
   themeMode: 'system',
   muteCaptureSound: false,
   progressStyle: 'bar',
+  transparentBackground: false,
+  backgroundOpacity: 0.6,
 };
 
 /**
@@ -56,12 +58,25 @@ class MobileStore implements TrackerStore<MobilePreferences> {
       }
     }
     const fresh: PersistedState = { deviceId: randomUUID(), preferences: DEFAULT_PREFERENCES };
-    this.file.write(JSON.stringify(fresh));
+    this.write(fresh);
     return fresh;
   }
 
+  /**
+   * Never throws. The change already stands in memory; a failed write only loses it at the next
+   * launch — whereas a throw here runs inside a tap handler (a theme or project pick), where
+   * React Native treats it as fatal and closes the app.
+   */
+  private write(state: PersistedState): void {
+    try {
+      this.file.write(JSON.stringify(state));
+    } catch (error) {
+      console.error('Could not save the tracker state', error);
+    }
+  }
+
   private persist(): void {
-    this.file.write(JSON.stringify(this.state));
+    this.write(this.state);
   }
 
   get deviceId(): string {

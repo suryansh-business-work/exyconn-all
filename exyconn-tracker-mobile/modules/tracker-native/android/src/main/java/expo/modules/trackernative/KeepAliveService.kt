@@ -91,7 +91,16 @@ class KeepAliveService : HeadlessJsTaskService() {
   /** Android 14: startForeground as mediaProjection first, then the consent becomes a projection. */
   private fun attachProjection() {
     val grant = ScreenCaptureConsent.takeGrant() ?: return
-    grant.settle(ScreenCaptureSession.start(this, grant.resultCode, grant.data))
+    // onStartCommand runs on the main thread: a throw from the display or the ImageReader here
+    // would close the app, so a failed start is a declined capture instead.
+    val started = try {
+      ScreenCaptureSession.start(this, grant.resultCode, grant.data)
+    } catch (e: RuntimeException) {
+      Log.e(LOG_TAG, "Screen capture could not start", e)
+      ScreenCaptureSession.release()
+      false
+    }
+    grant.settle(started)
   }
 
   private fun startKeepAliveTaskOnce() {

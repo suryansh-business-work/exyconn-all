@@ -22,5 +22,11 @@ export type Radius = keyof typeof radius;
 /** The theme's own corner, in px. One radius everywhere: a card and a panel are one shape. */
 export const BASE_RADIUS = radius.md;
 
-/** The desktop tracker's ceiling — a product decision that nothing there is rounder. */
-export const TRACKER_RADIUS = radius.sm;
+/**
+ * The trackers' (desktop and phone) control corner — inputs, tiles, calendar days. The 2026-09
+ * redesign traded the old 4px ceiling for soft cards and pill controls.
+ */
+export const TRACKER_RADIUS = radius.lg;
+
+/** The trackers' card corner: every panel on the page. */
+export const TRACKER_CARD_RADIUS = 24;

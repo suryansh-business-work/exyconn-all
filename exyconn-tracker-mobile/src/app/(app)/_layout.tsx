@@ -1,40 +1,42 @@
-import { Drawer } from 'expo-router/drawer';
+import { Tabs } from 'expo-router/tabs';
 import { AppHeader } from '../../components/shell/AppHeader';
-import { NavDrawer } from '../../components/shell/NavDrawer';
+import { TabBar } from '../../components/shell/TabBar';
+import { useNotificationRouting } from '../../hooks/useNotificationRouting';
 import { useTrackerState } from '../../hooks/useTrackerState';
 import { NAV_ITEMS, titleOf, type Section } from '../../navigation/sections';
 
+/** Screens are transparent: the root layout's ground paints behind them. */
+const CLEAR_SCENE = { backgroundColor: 'transparent' } as const;
+
 /**
- * The signed-in shell: a header with the recording indicator on every page, and the drawer
- * holding the desktop's five sections. Every screen reads the one live tracker state.
+ * The signed-in shell: the big-title header on every page, and the floating tab bar holding the
+ * desktop's five sections. Every screen reads the one live tracker state.
  */
 export default function AppLayout() {
   const state = useTrackerState();
+  useNotificationRouting();
   const status = state?.status ?? 'idle';
 
   return (
-    <Drawer
-      drawerContent={(props) => (
-        <NavDrawer
-          {...props}
-          user={state?.user ?? null}
-          unreadMessages={state?.unreadMessages ?? 0}
-        />
-      )}
-      screenOptions={({ route }) => ({
-        header: ({ navigation }) => (
+    <Tabs
+      tabBar={(props) => <TabBar {...props} unreadMessages={state?.unreadMessages ?? 0} />}
+      screenOptions={({ route, navigation }) => ({
+        sceneStyle: CLEAR_SCENE,
+        header: () => (
           <AppHeader
             title={titleOf(route.name as Section)}
             status={status}
-            onOpenMenu={() => navigation.openDrawer()}
+            user={state?.user ?? null}
+            themeMode={state?.preferences.themeMode ?? 'system'}
+            onOpenAccount={() => navigation.navigate('settings')}
           />
         ),
       })}
     >
       {NAV_ITEMS.map((item) => (
-        <Drawer.Screen key={item.id} name={item.id} options={{ title: item.label }} />
+        <Tabs.Screen key={item.id} name={item.id} options={{ title: item.label }} />
       ))}
-    </Drawer>
+    </Tabs>
   );
 }
 

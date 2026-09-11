@@ -5,6 +5,7 @@ import type { DayDetail } from '@shared/types';
 import { activityPercent, dayBounds, formatCount, formatDayLabel } from '@exyconn/tracker-core';
 import { run } from '../run';
 import Surface from './Surface';
+import DayActivityChart from './DayActivityChart';
 import ReportTotals from './ReportTotals';
 import ScreenshotGrid from './ScreenshotGrid';
 
@@ -96,6 +97,8 @@ export default function DayDetailPanel({
       >
         {inputSummary(detail)}
       </Typography>
+
+      <DayActivityChart title="Activity" detail={detail} loading={false} timezone={timezone} />
 
       <Surface sx={{ p: 2 }}>
         <Stack

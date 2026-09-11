@@ -8,15 +8,20 @@ export interface TimezoneOption {
 }
 
 /**
- * Every zone the runtime knows (plus `current` and this device's — core's `timezoneNames`),
+ * Every zone in `supported` — the portal's list, since Hermes cannot produce one — plus
+ * `current` and this device's (core's `timezoneNames`),
  * ordered west to east by their offset right now, then by name. ~400 rows that read
  * "UTC-10:00 … UTC+14:00" are findable by scrolling; the same rows in alphabetical order are not.
  *
  * Offsets are computed once per call: an Intl formatter per row per keystroke would make typing
  * in the search box visibly laggy.
  */
-export function timezoneOptions(current: string, at: Date = new Date()): TimezoneOption[] {
-  const rows = timezoneNames(current).map((zone) => ({
+export function timezoneOptions(
+  current: string,
+  supported: readonly string[],
+  at: Date = new Date(),
+): TimezoneOption[] {
+  const rows = timezoneNames(current, supported).map((zone) => ({
     zone,
     minutes: offsetMinutes(zone, at),
     caption: offsetLabel(zone, at),

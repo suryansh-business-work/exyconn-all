@@ -2127,7 +2127,12 @@ export type MyTrackerDayQueryVariables = Exact<{
 }>;
 
 
-export type MyTrackerDayQuery = { myTrackerDay: { intervals: Array<{ activeMs: number, idleMs: number, keyCount: number, mouseCount: number }>, screenshots: Array<{ id: string, capturedAt: string, imageUrl: string, blurred: boolean, activityPercent: number }>, sessions: Array<{ id: string }> } };
+export type MyTrackerDayQuery = { myTrackerDay: { intervals: Array<{ startedAt: string, endedAt: string, activeMs: number, idleMs: number, keyCount: number, mouseCount: number, activityPercent: number }>, screenshots: Array<{ id: string, capturedAt: string, imageUrl: string, blurred: boolean, activityPercent: number }>, sessions: Array<{ id: string }> } };
+
+export type TrackerTimezonesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TrackerTimezonesQuery = { trackerTimezones: Array<string> };
 
 export type MyTrackerTotalsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2497,10 +2502,13 @@ export const MyTrackerDayDocument = new TypedDocumentString(`
     query MyTrackerDay($start: DateTime!, $end: DateTime!) {
   myTrackerDay(start: $start, end: $end) {
     intervals {
+      startedAt
+      endedAt
       activeMs
       idleMs
       keyCount
       mouseCount
+      activityPercent
     }
     screenshots {
       id
@@ -2515,6 +2523,11 @@ export const MyTrackerDayDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<MyTrackerDayQuery, MyTrackerDayQueryVariables>;
+export const TrackerTimezonesDocument = new TypedDocumentString(`
+    query TrackerTimezones {
+  trackerTimezones
+}
+    `) as unknown as TypedDocumentString<TrackerTimezonesQuery, TrackerTimezonesQueryVariables>;
 export const MyTrackerTotalsDocument = new TypedDocumentString(`
     query MyTrackerTotals {
   myTrackerTotals {

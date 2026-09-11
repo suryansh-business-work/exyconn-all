@@ -59,6 +59,7 @@ describe('totals', () => {
       mouseCount: 30,
       sessions: 2,
       screenshots: [],
+      intervals: [],
     };
     expect(dayTotals(detail).activityPercent).toBe(75);
     expect(inputSummary(detail)).toBe(`${(1200).toLocaleString()} keys · 30 clicks · 2 sessions`);

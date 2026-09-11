@@ -164,9 +164,15 @@ internal object CameraStill {
   private suspend fun shoot(camera: CameraDevice, session: CameraCaptureSession, rig: Rig): ByteArray =
     suspendCancellableCoroutine { continuation ->
       rig.still.setOnImageAvailableListener({ reader ->
-        val bytes = reader.acquireNextImage()?.use(::jpegBytes)
-        if (bytes != null && continuation.isActive) {
-          continuation.resume(bytes)
+        // The camera's own handler thread: a throw here would bypass the coroutine and kill the
+        // process, so it fails the photo instead.
+        try {
+          val bytes = reader.acquireNextImage()?.use(::jpegBytes)
+          if (bytes != null && continuation.isActive) {
+            continuation.resume(bytes)
+          }
+        } catch (e: RuntimeException) {
+          continuation.failIfActive("The front camera photo could not be read (${e.message})")
         }
       }, rig.handler)
       val request = camera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {

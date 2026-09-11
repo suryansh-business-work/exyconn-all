@@ -1,24 +1,24 @@
 import { describe, expect, it } from 'vitest';
-import type { ReportDay } from '@exyconn/tracker-core';
+import type { ActivityLevel, ReportDay } from '@exyconn/tracker-core';
 import {
   buildMonthGrid,
   dateKey,
-  trackedDateKeys,
+  trackedDateLevels,
   weekdayLabels,
 } from '../../../src/lib/report/calendar';
 
 const FEB_2026 = new Date(2026, 1, 1);
 
-const reportDay = (date: string, activeMs: number): ReportDay => ({
+const reportDay = (date: string, activeMs: number, idleMs = 0): ReportDay => ({
   date,
   activeMs,
-  idleMs: 0,
+  idleMs,
   keyCount: 0,
   mouseCount: 0,
   sessions: 1,
 });
 
-function grid(tracked: ReadonlySet<string> = new Set()) {
+function grid(tracked: ReadonlyMap<string, ActivityLevel> = new Map()) {
   return buildMonthGrid(FEB_2026, {
     tracked,
     selected: new Date(2026, 1, 10),
@@ -32,10 +32,17 @@ describe('dateKey', () => {
   });
 });
 
-describe('trackedDateKeys', () => {
-  it('keeps only the days with time on them', () => {
-    const keys = trackedDateKeys([reportDay('2026-02-03', 1000), reportDay('2026-02-04', 0)]);
-    expect([...keys]).toEqual(['2026-02-03']);
+describe('trackedDateLevels', () => {
+  it('keeps only the days with time on them, with how active each was', () => {
+    const levels = trackedDateLevels([
+      reportDay('2026-02-03', 1000),
+      reportDay('2026-02-04', 0),
+      reportDay('2026-02-05', 1000, 3000),
+    ]);
+    expect([...levels]).toEqual([
+      ['2026-02-03', 'high'],
+      ['2026-02-05', 'low'],
+    ]);
   });
 });
 
@@ -50,7 +57,7 @@ describe('buildMonthGrid', () => {
 
   it('pads with the neighbouring months, marked as outside', () => {
     const weeks = buildMonthGrid(new Date(2026, 2, 1), {
-      tracked: new Set(),
+      tracked: new Map(),
       selected: new Date(2026, 2, 1),
       maxDate: new Date(2026, 2, 31),
     });
@@ -61,11 +68,13 @@ describe('buildMonthGrid', () => {
   });
 
   it('dots tracked days, marks the selected one and today, and locks the future', () => {
-    const cells = grid(new Set(['2026-02-03'])).flatMap((week) => week.cells);
+    const cells = grid(new Map([['2026-02-03', 'medium']])).flatMap((week) => week.cells);
     const cell = (key: string) => cells.find((each) => each.key === key);
 
     expect(cell('2026-02-03')?.tracked).toBe(true);
+    expect(cell('2026-02-03')?.level).toBe('medium');
     expect(cell('2026-02-04')?.tracked).toBe(false);
+    expect(cell('2026-02-04')?.level).toBeNull();
     expect(cell('2026-02-10')?.selected).toBe(true);
     expect(cell('2026-02-12')?.today).toBe(true);
     expect(cell('2026-02-12')?.disabled).toBe(false);
