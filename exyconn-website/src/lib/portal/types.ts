@@ -204,6 +204,8 @@ export interface BlogPost {
   title: string;
   summary: string;
   content: string;
+  /** CSS of a body designed in the portal's live editor; empty for a rich-text body. */
+  contentCss: string;
   author: BlogAuthor;
   readTime: string;
   tags: string[];
@@ -220,6 +222,8 @@ export interface CaseStudy {
   title: string;
   excerpt: string;
   content: string;
+  /** CSS of a body designed in the portal's live editor; empty for a rich-text body. */
+  contentCss: string;
   coverImage: string;
   category: string;
   author: string;

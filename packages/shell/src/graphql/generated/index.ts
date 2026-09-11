@@ -638,6 +638,8 @@ export type BlogPost = {
   __typename?: 'BlogPost';
   author: BlogAuthor;
   content: Scalars['String']['output'];
+  /** CSS the live editor generated for the body; empty for a rich-text body. */
+  contentCss: Scalars['String']['output'];
   coverImage: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   featured: Scalars['Boolean']['output'];
@@ -655,6 +657,7 @@ export type BlogPost = {
 export type BlogPostInput = {
   author: BlogAuthorInput;
   content?: InputMaybe<Scalars['String']['input']>;
+  contentCss?: InputMaybe<Scalars['String']['input']>;
   coverImage?: InputMaybe<Scalars['String']['input']>;
   featured?: InputMaybe<Scalars['Boolean']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1054,6 +1057,8 @@ export type CaseStudy = {
   author: Scalars['String']['output'];
   category: Scalars['String']['output'];
   content: Scalars['String']['output'];
+  /** CSS the live editor generated for the body; empty for a rich-text body. */
+  contentCss: Scalars['String']['output'];
   coverImage: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   excerpt: Scalars['String']['output'];
@@ -1072,6 +1077,7 @@ export type CaseStudyInput = {
   author?: InputMaybe<Scalars['String']['input']>;
   category?: InputMaybe<Scalars['String']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
+  contentCss?: InputMaybe<Scalars['String']['input']>;
   coverImage?: InputMaybe<Scalars['String']['input']>;
   excerpt?: InputMaybe<Scalars['String']['input']>;
   featured?: InputMaybe<Scalars['Boolean']['input']>;
@@ -15305,24 +15311,31 @@ export type SendTrackerNoticeMutationVariables = Exact<{
 
 export type SendTrackerNoticeMutation = { __typename?: 'Mutation', sendTrackerNotice: number };
 
-export type BlogPostFieldsFragment = { __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } };
+export type BlogPostFieldsFragment = { __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } };
 
 export type ListBlogPostsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListBlogPostsQuery = { __typename?: 'Query', listBlogPosts: Array<{ __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> };
+export type ListBlogPostsQuery = { __typename?: 'Query', listBlogPosts: Array<{ __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> };
 
 export type ListBlogPostsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListBlogPostsPagedQuery = { __typename?: 'Query', listBlogPostsPaged: { __typename?: 'BlogPostPage', totalCount: number, rows: Array<{ __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> } };
+export type ListBlogPostsPagedQuery = { __typename?: 'Query', listBlogPostsPaged: { __typename?: 'BlogPostPage', totalCount: number, rows: Array<{ __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> } };
 
 export type ListBlogPostsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ListBlogPostsStatsQuery = { __typename?: 'Query', listBlogPostsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type GetBlogPostQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetBlogPostQuery = { __typename?: 'Query', getBlogPost: { __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } } };
 
 export type CreateBlogPostMutationVariables = Exact<{
   input: BlogPostInput;
@@ -15346,24 +15359,31 @@ export type DeleteBlogPostMutationVariables = Exact<{
 
 export type DeleteBlogPostMutation = { __typename?: 'Mutation', deleteBlogPost: boolean };
 
-export type CaseStudyFieldsFragment = { __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string };
+export type CaseStudyFieldsFragment = { __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string };
 
 export type ListCaseStudiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListCaseStudiesQuery = { __typename?: 'Query', listCaseStudies: Array<{ __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> };
+export type ListCaseStudiesQuery = { __typename?: 'Query', listCaseStudies: Array<{ __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> };
 
 export type ListCaseStudiesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListCaseStudiesPagedQuery = { __typename?: 'Query', listCaseStudiesPaged: { __typename?: 'CaseStudyPage', totalCount: number, rows: Array<{ __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> } };
+export type ListCaseStudiesPagedQuery = { __typename?: 'Query', listCaseStudiesPaged: { __typename?: 'CaseStudyPage', totalCount: number, rows: Array<{ __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> } };
 
 export type ListCaseStudiesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ListCaseStudiesStatsQuery = { __typename?: 'Query', listCaseStudiesStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type GetCaseStudyQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetCaseStudyQuery = { __typename?: 'Query', getCaseStudy: { __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string } };
 
 export type CreateCaseStudyMutationVariables = Exact<{
   input: CaseStudyInput;
@@ -16841,6 +16861,7 @@ export const BlogPostFieldsFragmentDoc = gql`
   title
   summary
   content
+  contentCss
   author {
     name
     role
@@ -16861,6 +16882,7 @@ export const CaseStudyFieldsFragmentDoc = gql`
   title
   excerpt
   content
+  contentCss
   coverImage
   category
   author
@@ -42875,6 +42897,50 @@ export function useListBlogPostsStatsSuspenseQuery(baseOptions?: ApolloReactHook
 export type ListBlogPostsStatsQueryHookResult = ReturnType<typeof useListBlogPostsStatsQuery>;
 export type ListBlogPostsStatsLazyQueryHookResult = ReturnType<typeof useListBlogPostsStatsLazyQuery>;
 export type ListBlogPostsStatsSuspenseQueryHookResult = ReturnType<typeof useListBlogPostsStatsSuspenseQuery>;
+export const GetBlogPostDocument = gql`
+    query GetBlogPost($id: ID!) {
+  getBlogPost(id: $id) {
+    ...BlogPostFields
+  }
+}
+    ${BlogPostFieldsFragmentDoc}`;
+
+/**
+ * __useGetBlogPostQuery__
+ *
+ * To run a query within a React component, call `useGetBlogPostQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBlogPostQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBlogPostQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetBlogPostQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetBlogPostQuery, GetBlogPostQueryVariables> & ({ variables: GetBlogPostQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetBlogPostQuery, GetBlogPostQueryVariables>(GetBlogPostDocument, options);
+      }
+export function useGetBlogPostLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetBlogPostQuery, GetBlogPostQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetBlogPostQuery, GetBlogPostQueryVariables>(GetBlogPostDocument, options);
+        }
+// @ts-ignore
+export function useGetBlogPostSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GetBlogPostQuery, GetBlogPostQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetBlogPostQuery, GetBlogPostQueryVariables>;
+// @ts-ignore
+export function useGetBlogPostSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetBlogPostQuery, GetBlogPostQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetBlogPostQuery | undefined, GetBlogPostQueryVariables>;
+export function useGetBlogPostSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetBlogPostQuery, GetBlogPostQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GetBlogPostQuery, GetBlogPostQueryVariables>(GetBlogPostDocument, options);
+        }
+export type GetBlogPostQueryHookResult = ReturnType<typeof useGetBlogPostQuery>;
+export type GetBlogPostLazyQueryHookResult = ReturnType<typeof useGetBlogPostLazyQuery>;
+export type GetBlogPostSuspenseQueryHookResult = ReturnType<typeof useGetBlogPostSuspenseQuery>;
 export const CreateBlogPostDocument = gql`
     mutation CreateBlogPost($input: BlogPostInput!) {
   createBlogPost(input: $input) {
@@ -43108,6 +43174,50 @@ export function useListCaseStudiesStatsSuspenseQuery(baseOptions?: ApolloReactHo
 export type ListCaseStudiesStatsQueryHookResult = ReturnType<typeof useListCaseStudiesStatsQuery>;
 export type ListCaseStudiesStatsLazyQueryHookResult = ReturnType<typeof useListCaseStudiesStatsLazyQuery>;
 export type ListCaseStudiesStatsSuspenseQueryHookResult = ReturnType<typeof useListCaseStudiesStatsSuspenseQuery>;
+export const GetCaseStudyDocument = gql`
+    query GetCaseStudy($id: ID!) {
+  getCaseStudy(id: $id) {
+    ...CaseStudyFields
+  }
+}
+    ${CaseStudyFieldsFragmentDoc}`;
+
+/**
+ * __useGetCaseStudyQuery__
+ *
+ * To run a query within a React component, call `useGetCaseStudyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCaseStudyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCaseStudyQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCaseStudyQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetCaseStudyQuery, GetCaseStudyQueryVariables> & ({ variables: GetCaseStudyQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetCaseStudyQuery, GetCaseStudyQueryVariables>(GetCaseStudyDocument, options);
+      }
+export function useGetCaseStudyLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetCaseStudyQuery, GetCaseStudyQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetCaseStudyQuery, GetCaseStudyQueryVariables>(GetCaseStudyDocument, options);
+        }
+// @ts-ignore
+export function useGetCaseStudySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GetCaseStudyQuery, GetCaseStudyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetCaseStudyQuery, GetCaseStudyQueryVariables>;
+// @ts-ignore
+export function useGetCaseStudySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetCaseStudyQuery, GetCaseStudyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetCaseStudyQuery | undefined, GetCaseStudyQueryVariables>;
+export function useGetCaseStudySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetCaseStudyQuery, GetCaseStudyQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GetCaseStudyQuery, GetCaseStudyQueryVariables>(GetCaseStudyDocument, options);
+        }
+export type GetCaseStudyQueryHookResult = ReturnType<typeof useGetCaseStudyQuery>;
+export type GetCaseStudyLazyQueryHookResult = ReturnType<typeof useGetCaseStudyLazyQuery>;
+export type GetCaseStudySuspenseQueryHookResult = ReturnType<typeof useGetCaseStudySuspenseQuery>;
 export const CreateCaseStudyDocument = gql`
     mutation CreateCaseStudy($input: CaseStudyInput!) {
   createCaseStudy(input: $input) {

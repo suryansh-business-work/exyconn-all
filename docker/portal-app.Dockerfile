@@ -24,12 +24,14 @@ COPY pnpm-workspace.yaml package.json pnpm-lock.yaml .npmrc ./
 COPY packages/config/package.json packages/config/
 COPY packages/crud/package.json packages/crud/
 COPY packages/i18n/package.json packages/i18n/
+COPY packages/live-editor/package.json packages/live-editor/
 COPY packages/shell/package.json packages/shell/
 COPY packages/login/package.json packages/login/
 COPY packages/regex/package.json packages/regex/
 COPY packages/tabber/package.json packages/tabber/
 COPY packages/time/package.json packages/time/
 COPY packages/tracker-core/package.json packages/tracker-core/
+COPY packages/rich-text/package.json packages/rich-text/
 COPY packages/ui/package.json packages/ui/
 COPY exyconn-portal/package.json exyconn-portal/
 COPY exyconn-portal/server/package.json exyconn-portal/server/

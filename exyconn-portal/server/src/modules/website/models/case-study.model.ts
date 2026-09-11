@@ -7,6 +7,12 @@ const caseStudySchema = new Schema(
     excerpt: { type: String, default: '', trim: true },
     /** Case-study body as rendered HTML. */
     content: { type: String, default: '' },
+    /**
+     * CSS for a body designed in the portal's live editor: the rules behind its styled
+     * components, keyed by their ids. Empty for a body written in the rich-text editor.
+     * The website scopes it to the article before rendering.
+     */
+    contentCss: { type: String, default: '' },
     coverImage: { type: String, default: '', trim: true },
     category: { type: String, default: '', trim: true },
     author: { type: String, default: 'Exyconn', trim: true },

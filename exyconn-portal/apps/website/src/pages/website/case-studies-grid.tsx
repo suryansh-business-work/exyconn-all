@@ -1,5 +1,7 @@
 import type { ColDef } from 'ag-grid-community';
 import {
+  DELETE_ACTION,
+  EDIT_ACTION,
   actionsColumn,
   boolColumn,
   dateColumn,
@@ -7,6 +9,7 @@ import {
   type DatedCrudGridContext,
 } from '@exyconn/crud';
 import type { ListCaseStudiesPagedQuery } from '@exyconn/shell/graphql/generated';
+import { LIVE_EDIT_ACTION } from './live-edit/live-edit.action';
 
 export type PagedCaseStudyRow = ListCaseStudiesPagedQuery['listCaseStudiesPaged']['rows'][number];
 
@@ -21,5 +24,5 @@ export const CASE_STUDY_COLUMNS: ColDef<PagedCaseStudyRow>[] = [
   textColumn('author', 'Author'),
   boolColumn('featured', 'Featured'),
   dateColumn('publishedAt', 'Published'),
-  actionsColumn(),
+  actionsColumn([EDIT_ACTION, LIVE_EDIT_ACTION, DELETE_ACTION]),
 ];

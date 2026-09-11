@@ -14,6 +14,7 @@ import {
   NavLinksPage,
 } from './pages/website';
 import { WebsiteOverviewPage } from './pages/overview';
+import { BlogLiveEditRoute, CaseStudyLiveEditRoute } from './pages/website/live-edit';
 
 /** Website micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -22,7 +23,9 @@ export function App() {
       <Route path="/website" element={<WebsiteOverviewPage />} />
       <Route path="/website/submissions" element={<WebsiteSubmissionsPage />} />
       <Route path="/website/blog" element={<BlogPage />} />
+      <Route path="/website/blog/:id/live-edit" element={<BlogLiveEditRoute />} />
       <Route path="/website/case-studies" element={<CaseStudiesPage />} />
+      <Route path="/website/case-studies/:id/live-edit" element={<CaseStudyLiveEditRoute />} />
       <Route path="/website/companies" element={<JobCompaniesPage />} />
       <Route path="/website/jobs" element={<JobsPage />} />
       <Route path="/website/gigs" element={<GigsPage />} />

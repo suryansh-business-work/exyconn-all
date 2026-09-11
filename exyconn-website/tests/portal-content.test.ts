@@ -5,7 +5,7 @@
 import { describe, it, expect } from "vitest";
 
 import { getAllTags, getToolLaunchUrl, isToolAppSlug } from "../src/lib/portal/helpers";
-import { sanitizeArticleHtml } from "../src/lib/portal/sanitize";
+import { sanitizeArticleHtml, scopeArticleCss } from "../src/lib/portal/sanitize";
 import type { BlogPost } from "../src/lib/portal/types";
 
 const post = (slug: string, tags: string[]): BlogPost => ({
@@ -14,6 +14,7 @@ const post = (slug: string, tags: string[]): BlogPost => ({
   title: slug,
   summary: "",
   content: "",
+  contentCss: "",
   author: { name: "Exyconn", role: "", initials: "EX" },
   readTime: "5 min read",
   tags,
@@ -83,5 +84,92 @@ describe("sanitizeArticleHtml", () => {
     expect(sanitizeArticleHtml('<a href="https://example.com">x</a>')).toContain(
       'rel="noopener noreferrer"'
     );
+  });
+});
+
+/**
+ * What the portal's rich-text editor writes (@exyconn/rich-text — its extensions test holds
+ * the same samples). A body the editor produced must come through untouched.
+ */
+describe("sanitizeArticleHtml — rich-text editor output", () => {
+  it("keeps tables with header cells, spans and column widths", () => {
+    // (sanitize-html writes a kept style back without spaces — the samples use that form.)
+    const html =
+      '<table style="min-width:75px"><colgroup><col style="width:120px" /></colgroup><tbody>' +
+      '<tr><th colspan="1" rowspan="1"><p>Plan</p></th></tr>' +
+      '<tr><td colspan="2" rowspan="1"><p>Custom</p></td></tr></tbody></table>';
+    expect(sanitizeArticleHtml(html)).toBe(html);
+  });
+
+  it("keeps alignment, colour and highlight, in hex or rgb", () => {
+    const html =
+      '<p style="text-align:center"><span style="color:rgb(21, 93, 252)">blue</span> ' +
+      '<mark data-color="#ffd166" style="background-color:#ffd166">marked</mark></p>';
+    expect(sanitizeArticleHtml(html)).toBe(html);
+  });
+
+  it("drops any other inline style", () => {
+    const clean = sanitizeArticleHtml(
+      '<p style="position:fixed;inset:0;color:#111827">x</p><span style="color:expression(alert(1))">y</span>'
+    );
+    expect(clean).toContain('<p style="color:#111827">x</p>');
+    expect(clean).not.toContain("position");
+    expect(clean).not.toContain("expression");
+  });
+
+  it("keeps check lists, and the reader cannot tick them", () => {
+    const clean = sanitizeArticleHtml(
+      '<ul data-type="taskList"><li data-type="taskItem" data-checked="true">' +
+        '<label><input type="checkbox" checked="checked" onclick="x()" /><span></span></label>' +
+        "<div><p>Ship it</p></div></li></ul>"
+    );
+    expect(clean).toContain('data-type="taskList"');
+    expect(clean).toContain('data-checked="true"');
+    expect(clean).toContain('<input type="checkbox" disabled checked />');
+    expect(clean).not.toContain("onclick");
+  });
+
+  it("keeps sized images", () => {
+    const html = '<img src="https://ik.imagekit.io/x/a.png" alt="Team" width="320" height="200" />';
+    expect(sanitizeArticleHtml(html)).toBe(html);
+  });
+});
+
+describe("sanitizeArticleHtml — live editor output", () => {
+  it("keeps the ids its CSS rules are keyed by", () => {
+    const html = '<div id="i3kd"><p id="ix9f">Callout</p></div>';
+    expect(sanitizeArticleHtml(html)).toBe(html);
+  });
+
+  it("renames its <strike> to <s>", () => {
+    expect(sanitizeArticleHtml("<p><strike>old</strike></p>")).toBe("<p><s>old</s></p>");
+  });
+});
+
+describe("scopeArticleCss", () => {
+  it("is empty for a rich-text body", () => {
+    expect(scopeArticleCss("")).toBe("");
+    expect(scopeArticleCss("   ")).toBe("");
+  });
+
+  it("nests every rule under the article", () => {
+    expect(
+      scopeArticleCss("#i3kd{padding:16px;}@media (max-width: 480px){#i3kd{padding:8px;}}")
+    ).toBe(".article-body{#i3kd{padding:16px;}@media (max-width: 480px){#i3kd{padding:8px;}}}");
+  });
+
+  it("cannot close the style element it is printed into", () => {
+    const scoped = scopeArticleCss('#a{content:"</style><script>x()</script>";}');
+    expect(scoped).not.toContain("<");
+    expect(scoped).toContain(String.raw`\3c /style>`);
+  });
+
+  it("drops rules whose braces would step out of the article", () => {
+    expect(scopeArticleCss("#a{color:red;}} body{display:none;")).toBe("");
+    expect(scopeArticleCss("#a{color:red;")).toBe("");
+  });
+
+  it("ignores braces inside comments", () => {
+    expect(scopeArticleCss("/* } */#a{color:red;}")).toBe(".article-body{/* } */#a{color:red;}}");
   });
 });

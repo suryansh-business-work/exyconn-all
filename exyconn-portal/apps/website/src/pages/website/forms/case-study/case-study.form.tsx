@@ -15,6 +15,8 @@ import {
   useUpdateCaseStudyMutation,
   type CaseStudyInput,
 } from '@exyconn/shell/graphql/generated';
+import { ArticleBodyField } from '../../live-edit';
+import { MEDIA_FOLDERS } from '../../live-edit/live-edit.config';
 import type { CaseStudyRow } from './case-study.types';
 
 const schema = z.object({
@@ -26,6 +28,7 @@ const schema = z.object({
   title: z.string().trim().min(1, 'Title is required'),
   excerpt: z.string(),
   content: z.string(),
+  contentCss: z.string(),
   coverImage: z
     .string()
     .trim()
@@ -50,6 +53,7 @@ const toInitial = (row: CaseStudyRow | null): Values => ({
   title: row?.title ?? '',
   excerpt: row?.excerpt ?? '',
   content: row?.content ?? '',
+  contentCss: row?.contentCss ?? '',
   coverImage: row?.coverImage ?? '',
   category: row?.category ?? '',
   author: row?.author ?? '',
@@ -94,13 +98,7 @@ export function CaseStudyForm({ initial, onDone, onCancel }: Readonly<CaseStudyF
       <RhfTextField name="slug" label="Slug" helperText="URL segment, e.g. acme-migration" />
       <RhfTextField name="title" label="Title" />
       <RhfTextField name="excerpt" label="Excerpt" multiline minRows={2} />
-      <RhfTextField
-        name="content"
-        label="Content"
-        multiline
-        minRows={8}
-        helperText="HTML is allowed — the body is rendered as-is on the public site."
-      />
+      <ArticleBodyField folder={MEDIA_FOLDERS.caseStudies} />
       <RhfTextField name="coverImage" label="Cover image URL" />
       <RhfTextField name="category" label="Category" />
       <RhfTextField name="author" label="Author" />

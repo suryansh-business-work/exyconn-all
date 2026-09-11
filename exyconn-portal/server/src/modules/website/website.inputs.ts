@@ -11,6 +11,7 @@ export interface BlogPostInput {
   title: string;
   summary?: string;
   content?: string;
+  contentCss?: string;
   author: BlogAuthorInput;
   readTime?: string;
   tags?: string[];
@@ -25,6 +26,7 @@ export interface CaseStudyInput {
   title: string;
   excerpt?: string;
   content?: string;
+  contentCss?: string;
   coverImage?: string;
   category?: string;
   author?: string;

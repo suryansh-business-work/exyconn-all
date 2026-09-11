@@ -1,6 +1,13 @@
 ---
 import Page from "../../../../layouts/Page.astro";
-import { getDaysAgo, getJobCompany, getJobs } from "../../../../lib/portal";
+import {
+  ARTICLE_CLASS,
+  getDaysAgo,
+  getJobCompany,
+  getJobs,
+  sanitizeArticleHtml,
+} from "../../../../lib/portal";
+import "../../../../styles/article.css";
 
 // Get company slug from URL
 const { companySlug } = Astro.params;
@@ -119,7 +126,7 @@ const categories = [...new Set(activeJobs.map((job) => job.category))];
     <section class="py-16 px-6 bg-surface border-b border-line-subtle">
       <div class="max-w-5xl mx-auto">
         <h2 class="text-2xl font-bold text-fg mb-6">About {company.name}</h2>
-        <div class="prose prose-lg max-w-none text-fg-muted" set:html={company.description} />
+        <div class={ARTICLE_CLASS} set:html={sanitizeArticleHtml(company.description)} />
       </div>
     </section>
 
@@ -127,7 +134,7 @@ const categories = [...new Set(activeJobs.map((job) => job.category))];
     <section class="py-16 px-6 bg-surface-subtle">
       <div class="max-w-5xl mx-auto">
         <h2 class="text-2xl font-bold text-fg mb-6">Our Culture</h2>
-        <div class="prose prose-lg max-w-none text-fg-muted" set:html={company.culture} />
+        <div class={ARTICLE_CLASS} set:html={sanitizeArticleHtml(company.culture)} />
       </div>
     </section>
 

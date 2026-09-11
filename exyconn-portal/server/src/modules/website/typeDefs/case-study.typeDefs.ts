@@ -7,6 +7,8 @@ export const caseStudyTypeDefs = gql`
     title: String!
     excerpt: String!
     content: String!
+    "CSS the live editor generated for the body; empty for a rich-text body."
+    contentCss: String!
     coverImage: String!
     category: String!
     author: String!
@@ -24,6 +26,7 @@ export const caseStudyTypeDefs = gql`
     title: String!
     excerpt: String
     content: String
+    contentCss: String
     coverImage: String
     category: String
     author: String

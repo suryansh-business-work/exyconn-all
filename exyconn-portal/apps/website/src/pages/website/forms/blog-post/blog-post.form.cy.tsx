@@ -18,6 +18,7 @@ const createMock: MockedResponse = {
         title: NEW_POST.title,
         summary: '',
         content: '',
+        contentCss: '',
         author: { name: NEW_POST.author, role: '', initials: '' },
         readTime: '',
         tags: [],

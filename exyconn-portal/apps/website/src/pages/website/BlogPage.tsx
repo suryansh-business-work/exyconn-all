@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -17,6 +18,7 @@ export function BlogPage() {
   const { data } = useListBlogPostsQuery();
   const [deleteBlogPost] = useDeleteBlogPostMutation();
   const { formatDate } = useSettings();
+  const navigate = useNavigate();
   const crud = useCrudResource<BlogRow, PagedBlogRow>({
     label: 'Blog post',
     onDelete: (row) => deleteBlogPost({ variables: { id: row.id } }),
@@ -45,7 +47,11 @@ export function BlogPage() {
   ];
 
   const gridContext: BlogGridContext = {
-    actions: { edit: crud.openEdit, delete: crud.remove },
+    actions: {
+      edit: crud.openEdit,
+      liveEdit: (row) => navigate(`/website/blog/${row.id}/live-edit`),
+      delete: crud.remove,
+    },
     formatDate,
   };
 

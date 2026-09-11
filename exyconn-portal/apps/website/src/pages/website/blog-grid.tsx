@@ -1,5 +1,7 @@
 import type { ColDef } from 'ag-grid-community';
 import {
+  DELETE_ACTION,
+  EDIT_ACTION,
   actionsColumn,
   boolColumn,
   dateColumn,
@@ -8,6 +10,7 @@ import {
   type DatedCrudGridContext,
 } from '@exyconn/crud';
 import type { ListBlogPostsPagedQuery } from '@exyconn/shell/graphql/generated';
+import { LIVE_EDIT_ACTION } from './live-edit/live-edit.action';
 
 export type PagedBlogRow = ListBlogPostsPagedQuery['listBlogPostsPaged']['rows'][number];
 
@@ -22,5 +25,5 @@ export const BLOG_COLUMNS: ColDef<PagedBlogRow>[] = [
   derivedColumn('tags', 'Tags', (row) => row.tags.join(', ')),
   boolColumn('featured', 'Featured'),
   dateColumn('publishedAt', 'Published'),
-  actionsColumn(),
+  actionsColumn([EDIT_ACTION, LIVE_EDIT_ACTION, DELETE_ACTION]),
 ];

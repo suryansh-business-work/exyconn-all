@@ -7,6 +7,7 @@ import {
   RhfSelect,
   RhfChipsInput,
   RhfSwitch,
+  RhfRichText,
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -16,6 +17,7 @@ import {
   useListToolCategoriesQuery,
 } from '@exyconn/shell/graphql/generated';
 import type { ToolRow } from './tool.types';
+import { MEDIA_FOLDERS } from '../../live-edit/live-edit.config';
 
 const schema = z.object({
   toolCode: z.string().trim().min(1, 'Tool code is required'),
@@ -103,12 +105,11 @@ export function ToolForm({ initial, onDone, onCancel }: Readonly<ToolFormProps>)
       />
       <RhfTextField name="name" label="Name" />
       <RhfTextField name="description" label="Description" multiline minRows={2} />
-      <RhfTextField
+      <RhfRichText
         name="longDescription"
         label="Long description"
-        multiline
-        minRows={6}
-        helperText="HTML is allowed — the body is rendered as-is on the public site."
+        folder={MEDIA_FOLDERS.tools}
+        helperText="Shown on the tool's page"
       />
       <RhfTextField name="url" label="URL" helperText="Where the tool lives, e.g. /tools/foo" />
       <RhfTextField name="icon" label="Icon" helperText="Icon name rendered on the site" />

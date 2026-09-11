@@ -1,12 +1,15 @@
 ---
 import Page from "../../../../../../layouts/Page.astro";
 import {
+  ARTICLE_CLASS,
   formatDate,
   getDaysAgo,
   getJob,
   getJobCompany,
   getJobs,
+  sanitizeArticleHtml,
 } from "../../../../../../lib/portal";
+import "../../../../../../styles/article.css";
 import JobApplicationForm from "../../../../../../components/career/JobApplicationForm.astro";
 
 // Get params from URL
@@ -234,10 +237,7 @@ const jobPostingSchema = {
                 </div>
                 About This Role
               </h2>
-              <div
-                class="prose prose-lg max-w-none text-fg-secondary prose-headings:text-lg prose-headings:font-bold prose-headings:text-fg prose-headings:mt-6 prose-headings:mb-3 prose-p:text-fg-secondary prose-p:leading-7 prose-p:mb-4 prose-ul:my-4 prose-li:text-fg-secondary prose-li:leading-7 prose-strong:text-fg prose-strong:font-semibold"
-                set:html={job.jobDescription}
-              />
+              <div class={ARTICLE_CLASS} set:html={sanitizeArticleHtml(job.jobDescription)} />
             </div>
 
             <!-- Responsibilities -->
@@ -252,8 +252,8 @@ const jobPostingSchema = {
               </h2>
               <div class="space-y-3">
                 <div
-                  class="prose prose-lg max-w-none text-fg-secondary prose-ul:my-0 prose-li:text-fg-secondary prose-li:leading-7 prose-strong:text-fg prose-strong:font-semibold"
-                  set:html={job.jobResponsibilities}
+                  class={ARTICLE_CLASS}
+                  set:html={sanitizeArticleHtml(job.jobResponsibilities)}
                 />
               </div>
             </div>

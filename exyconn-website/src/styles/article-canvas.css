@@ -1,0 +1,18 @@
+/*
+ * The article stylesheet on its own, for the portal's live-editor canvas (an iframe the
+ * site's layout never renders into). It adds what the page would otherwise supply: the
+ * site font, Tailwind's reset, the colour roles `article.css` is written in, and the
+ * article column's width.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap");
+@import "tailwindcss/preflight.css" layer(base);
+@plugin "./tokens/theme.plugin.ts";
+@import "./article.css";
+
+body {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+  background-color: var(--color-page);
+  font-family: "Inter Tight", sans-serif;
+}

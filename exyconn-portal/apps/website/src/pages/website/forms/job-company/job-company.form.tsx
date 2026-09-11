@@ -3,13 +3,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { HEX_COLOR, HTTP_URL, LINK, SLUG } from '@exyconn/regex';
 import { Divider, Typography } from '@exyconn/shell/components/ui';
-import { RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';
+import { RhfTextField, RhfSwitch, RhfRichText } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateJobCompanyMutation,
   useUpdateJobCompanyMutation,
 } from '@exyconn/shell/graphql/generated';
+import { MEDIA_FOLDERS } from '../../live-edit/live-edit.config';
 import { CompanyBenefitsFields } from './company-benefits.fields';
 import type { JobCompanyRow } from './job-company.types';
 
@@ -142,19 +143,17 @@ export function JobCompanyForm({ initial, onDone, onCancel }: Readonly<JobCompan
       <RhfTextField name="name" label="Name" />
       <RhfTextField name="logo" label="Logo URL" />
       <RhfTextField name="tagline" label="Tagline" />
-      <RhfTextField
+      <RhfRichText
         name="description"
-        label="Description (HTML)"
-        multiline
-        minRows={8}
-        helperText="Raw HTML rendered on the public website"
+        label="Description"
+        folder={MEDIA_FOLDERS.careers}
+        helperText="Shown on the company's careers page"
       />
-      <RhfTextField
+      <RhfRichText
         name="culture"
-        label="Culture (HTML)"
-        multiline
-        minRows={8}
-        helperText="Raw HTML rendered on the public website"
+        label="Culture"
+        folder={MEDIA_FOLDERS.careers}
+        helperText="Shown on the company's careers page"
       />
 
       <Divider />

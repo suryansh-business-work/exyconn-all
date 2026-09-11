@@ -1,7 +1,14 @@
 ---
 import Page from "../../../../layouts/Page.astro";
 import { gigCategoryColors } from "../../../../lib/gigCategoryColors";
-import { getDaysAgo, getGig, getOpenGigs } from "../../../../lib/portal";
+import {
+  ARTICLE_CLASS,
+  getDaysAgo,
+  getGig,
+  getOpenGigs,
+  sanitizeArticleHtml,
+} from "../../../../lib/portal";
+import "../../../../styles/article.css";
 
 // gigId carries the gig code (e.g. "GIG-DES-001")
 const { gigId } = Astro.params;
@@ -151,7 +158,7 @@ const gigCategoryIcons: Record<string, string> = {
               <i class="fa-solid fa-file-lines text-amber-fg"></i>
               Project Description
             </h2>
-            <div class="prose prose-slate max-w-none" set:html={gig.fullDescription} />
+            <div class={ARTICLE_CLASS} set:html={sanitizeArticleHtml(gig.fullDescription)} />
           </div>
 
           <!-- Deliverables -->
