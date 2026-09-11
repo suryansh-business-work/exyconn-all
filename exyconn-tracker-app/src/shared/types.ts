@@ -236,14 +236,12 @@ export interface AppPreferences {
    */
   progressStyle: ProgressStyle;
   /**
-   * Fetch a new version as soon as one appears, instead of waiting to be asked.
-   *
-   * Off by default: a tracker that quietly pulls a few hundred megabytes decides for the
-   * employee that now is a good moment to use their connection, and on a tethered phone it
-   * is not. It never installs behind their back either way — the downloaded version is the
-   * one that comes back whenever THEY next quit the app.
+   * Keep the app current without being asked: a new version downloads in the background as
+   * soon as it appears, and installs itself (a quiet restart) whenever no session is running —
+   * never mid-session. Off, a new version is only announced, and fetched and installed when
+   * the employee presses the buttons for it.
    */
-  autoUpdate: boolean;
+  updateAutomatically: boolean;
 }
 
 /** How the day's progress is drawn. */

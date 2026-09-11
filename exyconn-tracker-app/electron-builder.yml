@@ -34,10 +34,14 @@ asarUnpack:
   - '**/node_modules/get-windows/**'
   - '**/node_modules/@mapbox/node-pre-gyp/**'
 
+# Every artifactName spells the name with a dash, never `${productName}`. The product name
+# has a space, and GitHub stores an uploaded "Exyconn Tracker-…" as "Exyconn.Tracker-…" —
+# while latest*.yml still asks for the name with the space, which the update feed cannot
+# find, so every in-app update failed to download. artifact-names.test.ts guards this.
 win:
   target:
     - nsis
-  artifactName: ${productName}-Setup-${version}.${ext}
+  artifactName: Exyconn-Tracker-Setup-${version}.${ext}
 
 nsis:
   oneClick: false
@@ -46,6 +50,7 @@ nsis:
 
 mac:
   category: public.app-category.productivity
+  artifactName: Exyconn-Tracker-${version}-${arch}.${ext}
   target:
     - target: dmg
       arch: universal
@@ -69,4 +74,4 @@ linux:
   target:
     - AppImage
   category: Office
-  artifactName: ${productName}-${version}.${ext}
+  artifactName: Exyconn-Tracker-${version}.${ext}
