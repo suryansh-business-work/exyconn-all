@@ -50,8 +50,9 @@ describe('trackerAssetPlatform', () => {
     expect(trackerAssetPlatform('ExyconnTracker-1.3.0.ipa')).toBe('ios');
   });
 
-  it('does not offer the Play Store bundle as an installer', () => {
-    expect(trackerAssetPlatform('exyconn-tracker-1.3.0.aab')).toBeNull();
+  it('offers the Play Store bundle beside the APK, under Android', () => {
+    expect(trackerAssetPlatform('exyconn-tracker-1.3.0.aab')).toBe('android');
+    expect(trackerAssetPlatform('Exyconn-Tracker-1.3.0.AAB')).toBe('android');
   });
 
   it('ignores files that are not installers', () => {
@@ -159,6 +160,7 @@ describe('reading tracker releases from GitHub', () => {
     // builds from the releases before it, each labelled with its own version.
     expect(latest?.version).toBe('1.6.0');
     expect(latest?.assets.map((entry) => [entry.platform, entry.version])).toEqual([
+      ['android', '1.6.0'],
       ['android', '1.6.0'],
       ['macos', '1.5.0'],
       ['windows', '1.4.0'],

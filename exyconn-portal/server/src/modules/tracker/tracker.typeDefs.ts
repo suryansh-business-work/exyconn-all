@@ -622,7 +622,8 @@ export const trackerTypeDefs = gql`
   type TrackerReleaseAsset {
     name: String!
     """
-    One of: windows, macos, linux, android, ios.
+    One of: windows, macos, linux, android, ios. Android has two: the .apk that installs on a
+    phone and the .aab bundle for the Play Console.
     """
     platform: String!
     """

@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import {
   Box,
-  Button,
   Chip,
   Grid,
   Link,
@@ -11,22 +10,14 @@ import {
   tint,
 } from '@exyconn/shell/components/ui';
 import { glass } from '@exyconn/shell/components/glass/glass';
-import { formatBytes } from '@exyconn/shell/utils/file';
-import DownloadIcon from '@mui/icons-material/Download';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import type { PlatformConfig } from './download.config';
-
-/** The one installer file this hero offers. */
-export interface HeroAsset {
-  name: string;
-  url: string;
-  sizeBytes: number;
-  downloadCount: number;
-}
+import { DownloadButtons, type HeroAsset } from './DownloadButtons';
 
 interface DownloadHeroProps {
   platform: PlatformConfig;
-  asset: HeroAsset | null;
+  /** Every file the release has for this platform — Android has two. */
+  assets: readonly HeroAsset[];
   version: string;
   releasedOn: string;
   releaseUrl: string;
@@ -34,10 +25,10 @@ interface DownloadHeroProps {
   picker: ReactNode;
 }
 
-/** Version, the primary download button for the chosen platform, and the picker. */
+/** Version, the download buttons for the chosen platform, and the picker. */
 export function DownloadHero({
   platform,
-  asset,
+  assets,
   version,
   releasedOn,
   releaseUrl,
@@ -98,42 +89,7 @@ export function DownloadHero({
             {subtitle}
           </Typography>
 
-          {asset ? (
-            <Stack
-              spacing={0.75}
-              sx={{
-                alignItems: 'flex-start',
-              }}
-            >
-              <Button
-                variant="contained"
-                size="large"
-                startIcon={<DownloadIcon />}
-                href={asset.url}
-                sx={{ px: 3 }}
-              >
-                Download for {platform.label}
-              </Button>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                {asset.name} · {formatBytes(asset.sizeBytes)} · {asset.downloadCount} downloads
-              </Typography>
-            </Stack>
-          ) : (
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'warning.main',
-              }}
-            >
-              This release has no {platform.label} installer. Ask Tech to run a build that includes
-              it.
-            </Typography>
-          )}
+          <DownloadButtons assets={assets} platformLabel={platform.label} />
 
           <Link
             href={releaseUrl}

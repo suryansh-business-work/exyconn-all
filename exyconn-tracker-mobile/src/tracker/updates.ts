@@ -37,7 +37,11 @@ function set(next: MobileUpdateState): void {
 /** The download for this phone on a release: the APK on Android, the release page on iOS. */
 function downloadUrl(release: LatestRelease): string {
   if (Platform.OS === 'android') {
-    return release.assets.find((asset) => asset.platform === 'android')?.url ?? release.url;
+    // Android has two files: the APK installs, the AAB is only for the Play Console.
+    const apk = release.assets.find(
+      (asset) => asset.platform === 'android' && asset.name.toLowerCase().endsWith('.apk'),
+    );
+    return apk?.url ?? release.url;
   }
   return release.url;
 }

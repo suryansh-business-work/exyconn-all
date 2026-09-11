@@ -10253,7 +10253,10 @@ export type TrackerReleaseAsset = {
   __typename?: 'TrackerReleaseAsset';
   downloadCount: Scalars['Int']['output'];
   name: Scalars['String']['output'];
-  /** One of: windows, macos, linux, android, ios. */
+  /**
+   * One of: windows, macos, linux, android, ios. Android has two: the .apk that installs on a
+   * phone and the .aab bundle for the Play Console.
+   */
   platform: Scalars['String']['output'];
   sizeBytes: Scalars['Float']['output'];
   /** Direct download URL on the public GitHub release. */

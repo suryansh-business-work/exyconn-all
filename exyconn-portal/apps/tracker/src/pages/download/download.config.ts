@@ -162,13 +162,13 @@ export const PLATFORMS: PlatformConfig[] = [
   {
     key: 'android',
     label: 'Android',
-    fileLabel: '.apk app package',
+    fileLabel: '.apk to install, .aab for Google Play',
     icon: AndroidIcon,
     accent: color.green[500],
-    minOs: 'Android 7.0 (Nougat)',
+    minOs: 'Android 8.0 (Oreo)',
     recommendedOs: 'The newest Android version your phone offers',
     steps: [
-      'Open this page on your Android phone and download the .apk.',
+      'Open this page on your Android phone and tap Download APK. (The AAB is for publishing to Google Play — a phone cannot install it.)',
       'When Android asks, allow your browser (or file manager) to install unknown apps — the build does not come from the Play Store.',
       'Open the downloaded file and tap Install.',
       'Launch Exyconn Tracker and sign in with your portal email and password.',
@@ -187,7 +187,7 @@ export const PLATFORMS: PlatformConfig[] = [
     fileLabel: 'unsigned .ipa (needs re-signing)',
     icon: PhoneIphoneIcon,
     accent: color.sky[500],
-    minOs: 'iOS 15.1',
+    minOs: 'iOS 16.4',
     recommendedOs: 'The newest iOS version your iPhone offers',
     steps: [
       'Download the .ipa — an iPhone will not install it as it is, because it is unsigned.',
