@@ -1,7 +1,8 @@
 import { Divider, Flex, Typography } from '@exyconn/shell/components/ui';
-import { RhfTextField, RhfChipsInput } from '@exyconn/shell/components/form/rhf';
+import { RhfTextField, RhfChipsInput, RhfRichText } from '@exyconn/shell/components/form/rhf';
+import { MEDIA_FOLDERS } from '../../live-edit/live-edit.config';
 
-const HTML_HINT = 'Raw HTML rendered on the public website';
+const PAGE_HINT = 'Shown on the job page of the public website';
 
 /**
  * The long-form copy and open-ended list fields of a job. Reads the surrounding
@@ -17,19 +18,17 @@ export function JobContentFields() {
         multiline
         minRows={3}
       />
-      <RhfTextField
+      <RhfRichText
         name="jobDescription"
-        label="Job description (HTML)"
-        multiline
-        minRows={8}
-        helperText={HTML_HINT}
+        label="Job description"
+        folder={MEDIA_FOLDERS.careers}
+        helperText={PAGE_HINT}
       />
-      <RhfTextField
+      <RhfRichText
         name="jobResponsibilities"
-        label="Job responsibilities (HTML)"
-        multiline
-        minRows={8}
-        helperText={HTML_HINT}
+        label="Job responsibilities"
+        folder={MEDIA_FOLDERS.careers}
+        helperText={PAGE_HINT}
       />
 
       <Divider />

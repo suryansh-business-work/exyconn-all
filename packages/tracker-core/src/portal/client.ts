@@ -11,6 +11,7 @@ import {
   SetMyTrackerPresenceDocument,
   TrackerAcceptConsentDocument,
   TrackerHeartbeatDocument,
+  TrackerLatestReleaseDocument,
   TrackerLoginDocument,
   TrackerMarkAttendanceDocument,
   TrackerMeDocument,
@@ -77,6 +78,24 @@ export interface PortalClientConfig {
   url: string;
   /** The stored device token, or null when nobody is signed in. */
   getToken: () => string | null | Promise<string | null>;
+}
+
+/** One downloadable file on a tracker release. */
+export interface ReleaseAsset {
+  name: string;
+  /** windows, macos, linux, android or ios. */
+  platform: string;
+  url: string;
+  sizeBytes: number;
+}
+
+/** The newest published tracker build for one platform. */
+export interface LatestRelease {
+  version: string;
+  /** The release page, for a platform that cannot install from a direct download. */
+  url: string;
+  publishedAt: string;
+  assets: ReleaseAsset[];
 }
 
 export interface LoginResponse {
@@ -330,6 +349,14 @@ export function createPortalClient(config: PortalClientConfig) {
     /** Marks what was addressed to this employee as read. Answers how many that was. */
     async markMessagesRead(kind: TrackerMessageKind): Promise<number> {
       return (await authed(MarkMyTrackerMessagesReadDocument, { kind })).markMyTrackerMessagesRead;
+    },
+
+    /**
+     * The newest tracker release carrying an installer for `platform`, or null before one
+     * exists. What an app's own update check compares its version against.
+     */
+    async fetchLatestRelease(platform: string): Promise<LatestRelease | null> {
+      return (await authed(TrackerLatestReleaseDocument, { platform })).trackerLatestRelease;
     },
 
     /** Records what the employee says they are doing. Scoped to their own row by the token. */

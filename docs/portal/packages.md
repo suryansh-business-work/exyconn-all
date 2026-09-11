@@ -137,3 +137,38 @@ The server-paged CRUD kit. See [crud-kit.md](./crud-kit.md).
 The login screen. Every app passes it to `PortalApp` as `loginElement`, so an expired
 session on any subdomain lands on the same screen and the JWT cookie is shared across
 `.exyconn.com`.
+
+---
+
+## `@exyconn/rich-text`
+
+**Path:** `packages/rich-text` · **Depends on:** `@exyconn/ui`, TipTap 3.
+
+The one rich-text editor. `RichTextEditor` is TipTap behind an MUI toolbar — paragraph /
+heading / code-block picker; bold, italic, underline, strike, inline code, sub/superscript;
+text colour and highlight (design-system swatches); alignment; bullet, numbered and check
+lists; quote, divider, clear formatting; links (dialog); tables (insert, rows, columns,
+merge / split, header row / column, resizable columns); images (dialog with device upload or
+URL and required alt text, plus paste / drop straight into the document, resizable from the
+corners); an HTML source view and a live word count. The value is an HTML string, `''` when
+empty.
+
+It has no Apollo dependency: the host passes `uploadImage(file) => Promise<url>`. Forms use
+it through the shell's `RhfRichText`, which binds it to React Hook Form and uploads to
+ImageKit with `useImageKitUpload(folder)`. The HTML each feature produces is pinned in
+`__tests__/unit-tests/extensions.test.ts`; exyconn-website's sanitiser tests hold the same
+samples.
+
+---
+
+## `@exyconn/live-editor`
+
+**Path:** `packages/live-editor` · **Depends on:** `@exyconn/ui`, GrapesJS.
+
+`LiveEditor` mounts GrapesJS for an article body: article blocks (heading, paragraph,
+quote, list, callout, image, image + text, two columns, table, button, call to action,
+divider), the style manager, desktop / tablet / mobile previews, and an asset manager that
+uploads through the host's `uploadImage` instead of embedding base64. The host passes the
+canvas stylesheets and the class the live page wraps articles in; `ref.getDesign()` returns
+`{ html, css }` — the wrapper's children, and only the CSS rules they use. Used by the
+Website module's live-edit screens, which lazy-load it (GrapesJS is about a megabyte).

@@ -7,6 +7,8 @@ export interface CaseStudyFormValues {
   title: string;
   excerpt: string;
   content: string;
+  /** CSS of a body designed in the live editor; '' for a rich-text body. */
+  contentCss: string;
   coverImage: string;
   category: string;
   author: string;

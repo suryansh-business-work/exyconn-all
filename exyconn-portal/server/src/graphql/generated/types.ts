@@ -637,6 +637,8 @@ export type BlogPost = {
   __typename?: 'BlogPost';
   author: BlogAuthor;
   content: Scalars['String']['output'];
+  /** CSS the live editor generated for the body; empty for a rich-text body. */
+  contentCss: Scalars['String']['output'];
   coverImage: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   featured: Scalars['Boolean']['output'];
@@ -654,6 +656,7 @@ export type BlogPost = {
 export type BlogPostInput = {
   author: BlogAuthorInput;
   content?: InputMaybe<Scalars['String']['input']>;
+  contentCss?: InputMaybe<Scalars['String']['input']>;
   coverImage?: InputMaybe<Scalars['String']['input']>;
   featured?: InputMaybe<Scalars['Boolean']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1053,6 +1056,8 @@ export type CaseStudy = {
   author: Scalars['String']['output'];
   category: Scalars['String']['output'];
   content: Scalars['String']['output'];
+  /** CSS the live editor generated for the body; empty for a rich-text body. */
+  contentCss: Scalars['String']['output'];
   coverImage: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   excerpt: Scalars['String']['output'];
@@ -1071,6 +1076,7 @@ export type CaseStudyInput = {
   author?: InputMaybe<Scalars['String']['input']>;
   category?: InputMaybe<Scalars['String']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
+  contentCss?: InputMaybe<Scalars['String']['input']>;
   coverImage?: InputMaybe<Scalars['String']['input']>;
   excerpt?: InputMaybe<Scalars['String']['input']>;
   featured?: InputMaybe<Scalars['Boolean']['input']>;
@@ -10251,6 +10257,11 @@ export type TrackerReleaseAsset = {
   sizeBytes: Scalars['Float']['output'];
   /** Direct download URL on the public GitHub release. */
   url: Scalars['String']['output'];
+  /**
+   * The version of the release this file is on. A platform's newest build can be older than the
+   * release around it, when a later build was run for other platforms only.
+   */
+  version: Scalars['String']['output'];
 };
 
 export type TrackerScreenshot = {
@@ -12147,6 +12158,7 @@ export type BlogAuthorResolvers<ContextType = GraphQLContext, ParentType extends
 export type BlogPostResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['BlogPost'] = ResolversParentTypes['BlogPost']> = ResolversObject<{
   author?: Resolver<ResolversTypes['BlogAuthor'], ParentType, ContextType>;
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  contentCss?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   coverImage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   featured?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -12383,6 +12395,7 @@ export type CaseStudyResolvers<ContextType = GraphQLContext, ParentType extends 
   author?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  contentCss?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   coverImage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   excerpt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -15894,6 +15907,7 @@ export type TrackerReleaseAssetResolvers<ContextType = GraphQLContext, ParentTyp
   platform?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sizeBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

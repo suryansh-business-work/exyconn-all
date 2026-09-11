@@ -2,7 +2,6 @@
 /android/
 /ios/
 .expo/
-expo-env.d.ts
 # The upload keystore is decoded from a repository secret in CI and never committed.
 *.jks
 *.keystore

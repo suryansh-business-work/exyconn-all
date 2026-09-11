@@ -2,12 +2,13 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "modules", "__tests__", "app.config.ts", "expo-env.d.ts", ".expo/types/**/*.ts"]
+  "include": ["index.ts", "src", "modules", "__tests__", "app.config.ts", "expo-env.d.ts", ".expo/types/**/*.ts"]
 }

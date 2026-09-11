@@ -4,6 +4,7 @@ fragment BlogPostFields on BlogPost {
   title
   summary
   content
+  contentCss
   author {
     name
     role
@@ -49,6 +50,12 @@ query ListBlogPostsStats {
   }
 }
 
+query GetBlogPost($id: ID!) {
+  getBlogPost(id: $id) {
+    ...BlogPostFields
+  }
+}
+
 mutation CreateBlogPost($input: BlogPostInput!) {
   createBlogPost(input: $input) {
     id
@@ -71,6 +78,7 @@ fragment CaseStudyFields on CaseStudy {
   title
   excerpt
   content
+  contentCss
   coverImage
   category
   author
@@ -110,6 +118,12 @@ query ListCaseStudiesStats {
       field
       total
     }
+  }
+}
+
+query GetCaseStudy($id: ID!) {
+  getCaseStudy(id: $id) {
+    ...CaseStudyFields
   }
 }
 

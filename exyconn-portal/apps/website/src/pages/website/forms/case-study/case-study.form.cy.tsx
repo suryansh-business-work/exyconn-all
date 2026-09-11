@@ -18,6 +18,7 @@ const createMock: MockedResponse = {
         title: NEW_STUDY.title,
         excerpt: '',
         content: '',
+        contentCss: '',
         coverImage: '',
         category: '',
         author: '',

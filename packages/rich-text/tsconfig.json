@@ -1,0 +1,9 @@
+{
+  "extends": "@exyconn/config/tsconfig.app.json",
+  "compilerOptions": {
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["src", "__tests__", "../shell/src/vite-env.d.ts"],
+  "exclude": ["**/*.cy.ts", "**/*.cy.tsx"]
+}

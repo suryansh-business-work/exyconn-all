@@ -625,6 +625,11 @@ export const trackerTypeDefs = gql`
     One of: windows, macos, linux, android, ios.
     """
     platform: String!
+    """
+    The version of the release this file is on. A platform's newest build can be older than the
+    release around it, when a later build was run for other platforms only.
+    """
+    version: String!
     sizeBytes: Float!
     downloadCount: Int!
     """

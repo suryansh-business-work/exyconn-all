@@ -29,9 +29,29 @@ so an unfinished post is a draft simply by being inactive.
 ## Article bodies are HTML
 
 `BlogPost.content` and `CaseStudy.content` are HTML, the same contract as job descriptions,
-gig descriptions and policy bodies. The editor screens say so, and the site sanitises the
-value (`sanitizeArticleHtml`, allow-listed tags and attributes) before rendering it with
-`set:html`.
+gig descriptions and policy bodies. The site sanitises every one of them
+(`sanitizeArticleHtml`, allow-listed tags, attributes and inline styles) before rendering it
+with `set:html` inside `.article-body`, styled by
+[`styles/article.css`](../../exyconn-website/src/styles/article.css).
+
+There are two ways to write a body, and both produce that HTML:
+
+- **Rich text** — every HTML field in the Website module (and policies, project docs,
+  tickets, the tracker consent text) uses `RhfRichText`, i.e. the `@exyconn/rich-text`
+  editor: headings, marks, colour, alignment, lists and check lists, links, tables, and
+  images uploaded to ImageKit.
+- **Live edit** — the *Live edit* row action on Blog and Case studies opens
+  `@exyconn/live-editor` (GrapesJS) full-screen at `/website/blog/:id/live-edit` or
+  `/website/case-studies/:id/live-edit`. Its canvas loads
+  `https://exyconn.com/styles/article-canvas.css` (the same `article.css`, plus the font and
+  reset the page layout would supply), so the design looks as it will on the page. It saves
+  the body HTML to `content` and the CSS its styles need to `contentCss`; the detail page
+  prints that CSS nested under `.article-body` (`scopeArticleCss`), so it cannot reach the
+  rest of the page.
+
+A body with `contentCss` is shown in the edit form as "Designed in the live editor" instead
+of the rich-text editor, which cannot represent its layout; *Edit as rich text* clears the
+design on purpose.
 
 The bodies were seeded by
 [`modules/website/seed`](../../exyconn-portal/server/src/modules/website/seed), which upserts

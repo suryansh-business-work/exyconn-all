@@ -1,74 +1,45 @@
-import { useEffect } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
-import { EditorContent, useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import { Box, Flex, FormHelperText, Text, focusRing, transition } from '@/components/ui';
-import { RichTextToolbar } from './RichTextToolbar';
+import { RichTextEditor } from '@exyconn/rich-text';
+import { useImageKitUpload } from '@/hooks/useImageKitUpload';
 
 interface RhfRichTextProps {
   name: string;
   label: string;
   helperText?: string;
+  placeholder?: string;
+  /** ImageKit folder the editor's images are uploaded into. */
+  folder?: string;
+  minHeight?: number;
 }
 
 /**
- * React Hook Form-bound rich-text field. TipTap is headless, so the toolbar is
- * built from MUI icon buttons and the content area is styled like an outlined
- * MUI TextField. The form value is an HTML string; an empty document is written
- * back as `''` so a `min(1)` schema rule still catches "no content".
+ * React Hook Form-bound rich-text field — the `@exyconn/rich-text` editor with its
+ * images uploaded to ImageKit. The form value is an HTML string; an empty document is
+ * written back as `''` so a `min(1)` schema rule still catches "no content".
  */
-export function RhfRichText({ name, label, helperText }: Readonly<RhfRichTextProps>) {
+export function RhfRichText({
+  name,
+  label,
+  helperText,
+  placeholder,
+  folder = 'rich-text',
+  minHeight,
+}: Readonly<RhfRichTextProps>) {
   const { control } = useFormContext();
   const { field, fieldState } = useController({ name, control });
-  const value: string = field.value ?? '';
-  const hasError = Boolean(fieldState.error);
-  const accent = hasError ? 'error' : 'primary';
-
-  const editor = useEditor({
-    extensions: [StarterKit],
-    content: value,
-    onUpdate: ({ editor: instance }) => field.onChange(instance.isEmpty ? '' : instance.getHTML()),
-    onBlur: () => field.onBlur(),
-    editorProps: { attributes: { 'aria-label': label, 'aria-multiline': 'true' } },
-  });
-
-  // Re-sync when the value changes outside the editor (e.g. `reset()` on cancel
-  // or after a save). Typing is a no-op here: the value already matches.
-  useEffect(() => {
-    const current = editor.isEmpty ? '' : editor.getHTML();
-    if (current !== value) {
-      editor.commands.setContent(value, { emitUpdate: false });
-    }
-  }, [editor, value]);
-
-  const message = fieldState.error?.message ?? helperText;
+  const uploadImage = useImageKitUpload(folder);
 
   return (
-    <Flex direction="column" spacing={0.75}>
-      <Text size="sm" weight="medium" color={hasError ? 'error.main' : 'text.primary'}>
-        {label}
-      </Text>
-      <Box
-        sx={{
-          border: 1,
-          borderColor: hasError ? 'error.main' : 'divider',
-          borderRadius: 1,
-          transition: transition.surface,
-          '&:focus-within': {
-            borderColor: `${accent}.main`,
-            boxShadow: (theme) => focusRing(theme.palette[accent].main),
-          },
-          '& .tiptap': { minHeight: 160, p: 1.5, outline: 'none' },
-          '& .tiptap > :first-of-type': { mt: 0 },
-          '& .tiptap > :last-child': { mb: 0 },
-          '& .tiptap p': { my: 1 },
-          '& .tiptap ul, & .tiptap ol': { my: 1, pl: 3 },
-        }}
-      >
-        <RichTextToolbar editor={editor} />
-        <EditorContent editor={editor} />
-      </Box>
-      {message && <FormHelperText error={hasError}>{message}</FormHelperText>}
-    </Flex>
+    <RichTextEditor
+      value={field.value ?? ''}
+      onChange={field.onChange}
+      onBlur={field.onBlur}
+      uploadImage={uploadImage}
+      label={label}
+      helperText={helperText}
+      error={fieldState.error?.message}
+      placeholder={placeholder}
+      minHeight={minHeight}
+    />
   );
 }

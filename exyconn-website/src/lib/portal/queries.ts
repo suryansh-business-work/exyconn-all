@@ -15,12 +15,13 @@ import type {
 } from "./types";
 
 const BLOG_FIELDS = `
-  id slug title summary content readTime tags coverImage featured publishedAt
+  id slug title summary content contentCss readTime tags coverImage featured publishedAt
   author { name role initials }
 `;
 
 const CASE_STUDY_FIELDS = `
-  id slug title excerpt content coverImage category author tags pdfUrl featured publishedAt
+  id slug title excerpt content contentCss coverImage category author tags pdfUrl featured
+  publishedAt
 `;
 
 const COMPANY_FIELDS = `

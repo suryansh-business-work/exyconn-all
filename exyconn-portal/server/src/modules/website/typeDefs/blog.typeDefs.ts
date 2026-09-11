@@ -20,6 +20,8 @@ export const blogTypeDefs = gql`
     title: String!
     summary: String!
     content: String!
+    "CSS the live editor generated for the body; empty for a rich-text body."
+    contentCss: String!
     author: BlogAuthor!
     readTime: String!
     tags: [String!]!
@@ -36,6 +38,7 @@ export const blogTypeDefs = gql`
     title: String!
     summary: String
     content: String
+    contentCss: String
     author: BlogAuthorInput!
     readTime: String
     tags: [String!]

@@ -15,6 +15,8 @@ import {
   useUpdateBlogPostMutation,
   type BlogPostInput,
 } from '@exyconn/shell/graphql/generated';
+import { ArticleBodyField } from '../../live-edit';
+import { MEDIA_FOLDERS } from '../../live-edit/live-edit.config';
 import type { BlogRow } from './blog-post.types';
 
 const schema = z.object({
@@ -26,6 +28,7 @@ const schema = z.object({
   title: z.string().trim().min(1, 'Title is required'),
   summary: z.string(),
   content: z.string(),
+  contentCss: z.string(),
   author: z.object({
     name: z.string().trim().min(1, 'Author name is required'),
     role: z.string(),
@@ -49,6 +52,7 @@ const toInitial = (row: BlogRow | null): Values => ({
   title: row?.title ?? '',
   summary: row?.summary ?? '',
   content: row?.content ?? '',
+  contentCss: row?.contentCss ?? '',
   author: {
     name: row?.author.name ?? '',
     role: row?.author.role ?? '',
@@ -96,13 +100,7 @@ export function BlogPostForm({ initial, onDone, onCancel }: Readonly<BlogPostFor
       <RhfTextField name="slug" label="Slug" helperText="URL segment, e.g. scaling-graphql" />
       <RhfTextField name="title" label="Title" />
       <RhfTextField name="summary" label="Summary" multiline minRows={2} />
-      <RhfTextField
-        name="content"
-        label="Content"
-        multiline
-        minRows={10}
-        helperText="HTML is allowed — the body is rendered as-is on the public site."
-      />
+      <ArticleBodyField folder={MEDIA_FOLDERS.blog} />
       <RhfTextField name="author.name" label="Author name" />
       <RhfTextField name="author.role" label="Author role" />
       <RhfTextField name="author.initials" label="Author initials" />

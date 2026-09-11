@@ -13,6 +13,8 @@ export interface BlogPostFormValues {
   title: string;
   summary: string;
   content: string;
+  /** CSS of a body designed in the live editor; '' for a rich-text body. */
+  contentCss: string;
   author: BlogAuthorFormValues;
   readTime: string;
   tags: string[];

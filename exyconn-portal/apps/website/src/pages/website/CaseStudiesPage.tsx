@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -21,6 +22,7 @@ export function CaseStudiesPage() {
   const { data } = useListCaseStudiesQuery();
   const [deleteCaseStudy] = useDeleteCaseStudyMutation();
   const { formatDate } = useSettings();
+  const navigate = useNavigate();
   const crud = useCrudResource<CaseStudyRow, PagedCaseStudyRow>({
     label: 'Case study',
     onDelete: (row) => deleteCaseStudy({ variables: { id: row.id } }),
@@ -49,7 +51,11 @@ export function CaseStudiesPage() {
   ];
 
   const gridContext: CaseStudiesGridContext = {
-    actions: { edit: crud.openEdit, delete: crud.remove },
+    actions: {
+      edit: crud.openEdit,
+      liveEdit: (row) => navigate(`/website/case-studies/${row.id}/live-edit`),
+      delete: crud.remove,
+    },
     formatDate,
   };
 

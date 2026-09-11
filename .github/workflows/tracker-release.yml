@@ -1,23 +1,28 @@
 name: Tracker Release
 
-# Builds the Exyconn Tracker desktop installers for Windows (.exe), macOS (.dmg) and
-# Linux (.AppImage), publishes them on a GitHub Release tagged tracker-v<version>, and
-# uploads the files to Slack. Runs when tracker code lands on main, and on demand
-# from the portal's Tech > Tracker Build screen, which chooses the platforms and the
-# Slack channels.
+# Builds the Exyconn Tracker for every platform — the desktop installers for Windows (.exe),
+# macOS (.dmg) and Linux (.AppImage), and the phone app for Android (.apk + .aab) and iOS
+# (.ipa) — publishes them on one GitHub Release tagged tracker-v<version>, and uploads the
+# files to Slack. Runs when tracker code lands on main, and on demand from the portal's
+# Tech > Tracker Build screen, which chooses the platforms and the Slack channels.
+#
+# Nothing is ever built on a developer's machine: this workflow is the only place a tracker
+# binary comes from.
 on:
   push:
     branches: [main]
     paths:
       - 'exyconn-tracker-app/**'
+      - 'exyconn-tracker-mobile/**'
+      - 'packages/tracker-core/**'
       - '.github/workflows/tracker-release.yml'
       - '.github/scripts/slack-upload-files.sh'
   workflow_dispatch:
     inputs:
       platforms:
-        description: 'Installers to build, comma-separated: windows, macos, linux'
+        description: 'Builds to make, comma-separated: windows, macos, linux, android, ios'
         required: false
-        default: 'windows,macos,linux'
+        default: 'windows,macos,linux,android,ios'
       slack_channels:
         description: 'Slack channel ids to post the installers to, comma-separated'
         required: false
@@ -36,32 +41,42 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.pick.outputs.matrix }}
+      desktop: ${{ steps.pick.outputs.desktop }}
+      android: ${{ steps.pick.outputs.android }}
+      ios: ${{ steps.pick.outputs.ios }}
     steps:
       - id: pick
         env:
-          PLATFORMS: ${{ github.event_name == 'workflow_dispatch' && inputs.platforms || 'windows,macos,linux' }}
+          PLATFORMS: ${{ github.event_name == 'workflow_dispatch' && inputs.platforms || 'windows,macos,linux,android,ios' }}
         run: |
           all='[
             {"os":"windows-latest","key":"windows","label":"Windows","script":"package:win","glob":"*.exe"},
             {"os":"macos-latest","key":"macos","label":"macOS","script":"package:mac","glob":"*.dmg"},
             {"os":"ubuntu-latest","key":"linux","label":"Linux","script":"package:linux","glob":"*.AppImage"}
           ]'
+          keys=$(jq -c --arg want "$PLATFORMS" -n '$want | ascii_downcase | split(",") | map(gsub("^\\s+|\\s+$"; "")) | map(select(. != ""))')
           # `.key` has to be bound before the lookup: inside `index(...)` the input is
           # already the wanted-keys array, so a bare `.key` indexes that array and fails.
-          chosen=$(jq -c --arg want "$PLATFORMS" '
-            ($want | ascii_downcase | split(",") | map(gsub("^\\s+|\\s+$"; ""))) as $keys
-            | [ .[] | select(.key as $k | $keys | index($k)) ]
-          ' <<<"$all")
-          if [ "$(jq 'length' <<<"$chosen")" -eq 0 ]; then
-            echo "::error::No known platform in \"$PLATFORMS\" — expected windows, macos or linux."
+          chosen=$(jq -c --argjson keys "$keys" '[ .[] | select(.key as $k | $keys | index($k)) ]' <<<"$all")
+          android=$(jq -r 'index("android") != null' <<<"$keys")
+          ios=$(jq -r 'index("ios") != null' <<<"$keys")
+          desktop=$(jq -r 'length > 0' <<<"$chosen")
+          if [ "$desktop" = "false" ] && [ "$android" = "false" ] && [ "$ios" = "false" ]; then
+            echo "::error::No known platform in \"$PLATFORMS\" — expected windows, macos, linux, android or ios."
             exit 1
           fi
-          echo "matrix=$chosen" >> "$GITHUB_OUTPUT"
-          echo "Building: $(jq -r '[.[].label] | join(", ")' <<<"$chosen")"
+          {
+            echo "matrix=$chosen"
+            echo "desktop=$desktop"
+            echo "android=$android"
+            echo "ios=$ios"
+          } >> "$GITHUB_OUTPUT"
+          echo "Building: $PLATFORMS"
 
   build:
     name: Build ${{ matrix.label }}
     needs: plan
+    if: needs.plan.outputs.desktop == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -92,9 +107,121 @@ jobs:
             exyconn-tracker-app/dist/latest*.yml
           if-no-files-found: error
 
+  # The phone app (exyconn-tracker-mobile) shares its version with the desktop app, so one
+  # release carries every platform. The Android build is signed with the upload keystore from
+  # the repository secrets — and refuses to build without it rather than shipping a
+  # debug-signed APK that no later build could install over.
+  android:
+    name: Build Android (APK + AAB)
+    needs: plan
+    if: needs.plan.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: pnpm install --frozen-lockfile
+      - name: Check the mobile version matches the tracker version
+        run: node .github/scripts/check-tracker-versions.mjs
+      - name: Decode the upload keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::The Android upload keystore is not configured. Add the repository secrets ANDROID_KEYSTORE_BASE64 (base64 of the .jks), ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD."
+            exit 1
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+          echo "EXYCONN_UPLOAD_STORE_FILE=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+      - name: Generate the native project
+        working-directory: exyconn-tracker-mobile
+        run: pnpm exec expo prebuild --platform android --no-install --clean
+      - name: Build the signed APK and AAB
+        working-directory: exyconn-tracker-mobile/android
+        env:
+          EXYCONN_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          EXYCONN_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          EXYCONN_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        # Real devices only: arm64 for every current phone, armeabi-v7a for older ones.
+        run: ./gradlew assembleRelease bundleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a --no-daemon
+      - name: Name the files after the release
+        run: |
+          version=$(node -p "require('./exyconn-tracker-mobile/package.json').version")
+          mkdir -p mobile-out
+          cp exyconn-tracker-mobile/android/app/build/outputs/apk/release/app-release.apk "mobile-out/Exyconn-Tracker-$version.apk"
+          cp exyconn-tracker-mobile/android/app/build/outputs/bundle/release/app-release.aab "mobile-out/Exyconn-Tracker-$version.aab"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: tracker-Android
+          path: mobile-out/*
+          if-no-files-found: error
+
+  # No Apple Developer account is configured yet, so the IPA is built UNSIGNED: it installs only
+  # after being re-signed (Sideloadly, AltStore, or an enterprise/ad-hoc profile). Signing slots
+  # in here once a distribution certificate and provisioning profile exist.
+  ios:
+    name: Build iOS (unsigned IPA)
+    needs: plan
+    if: needs.plan.outputs.ios == 'true'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - run: pnpm install --frozen-lockfile
+      - name: Check the mobile version matches the tracker version
+        run: node .github/scripts/check-tracker-versions.mjs
+      - name: Generate the native project
+        working-directory: exyconn-tracker-mobile
+        run: pnpm exec expo prebuild --platform ios --no-install --clean
+      - name: Install pods
+        working-directory: exyconn-tracker-mobile/ios
+        run: pod install
+      - name: Archive without signing
+        working-directory: exyconn-tracker-mobile/ios
+        run: |
+          workspace=$(ls -d *.xcworkspace | head -1)
+          scheme="${workspace%.xcworkspace}"
+          xcodebuild -workspace "$workspace" -scheme "$scheme" -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/tracker.xcarchive" archive \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+      - name: Package the IPA
+        run: |
+          version=$(node -p "require('./exyconn-tracker-mobile/package.json').version")
+          mkdir -p "$RUNNER_TEMP/ipa/Payload" mobile-out
+          cp -R "$RUNNER_TEMP"/tracker.xcarchive/Products/Applications/*.app "$RUNNER_TEMP/ipa/Payload/"
+          (cd "$RUNNER_TEMP/ipa" && zip -qry "$GITHUB_WORKSPACE/mobile-out/Exyconn-Tracker-$version-unsigned.ipa" Payload)
+      - uses: actions/upload-artifact@v7
+        with:
+          name: tracker-iOS
+          path: mobile-out/*
+          if-no-files-found: error
+
   release:
     name: Publish release & post to Slack
-    needs: [plan, build]
+    needs: [plan, build, android, ios]
+    # A platform that was not asked for is skipped, not failed — publish whatever was built,
+    # but never a release missing a platform that was asked for and broke.
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -141,9 +268,10 @@ jobs:
           SLACK_CHANNEL_IDS: ${{ inputs.slack_channels || secrets.SLACK_CHANNEL_ID }}
           SLACK_MESSAGE: |
             :rocket: *Exyconn Tracker ${{ steps.app.outputs.version }}* is out — installers attached.
+            Desktop: .exe (Windows) · .dmg (macOS) · .AppImage (Linux). Phone: .apk (Android install) · .aab (Play Store upload) · .ipa (iOS, unsigned — re-sign before installing).
             Release: ${{ steps.gh_release.outputs.url }}
         # Installers only — the manifests and blockmaps beside them on the release are for
-        # the app's updater to read, not for anybody to download out of Slack.
+        # the desktop app's updater to read, not for anybody to download out of Slack.
         run: |
           shopt -s nullglob
-          .github/scripts/slack-upload-files.sh installers/*.exe installers/*.dmg installers/*.AppImage
+          .github/scripts/slack-upload-files.sh installers/*.exe installers/*.dmg installers/*.AppImage installers/*.apk installers/*.aab installers/*.ipa

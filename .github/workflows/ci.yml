@@ -51,9 +51,17 @@ jobs:
           pnpm codegen
           git diff --exit-code -- exyconn-portal/server/src/graphql/generated packages/shell/src/graphql/generated packages/tracker-core/src/graphql/generated \
             || { echo "::error::Committed GraphQL codegen output is stale — run 'pnpm codegen' and commit the result."; exit 1; }
-      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=2 run typecheck
-      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=3 run lint
-      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=1 run test
+      # The phone app only ever builds in tracker-release.yml, twenty minutes into a native build.
+      # Evaluating its Expo config (every config plugin included) here catches a broken config
+      # in seconds, on every push.
+      - name: Mobile app config evaluates
+        working-directory: exyconn-tracker-mobile
+        run: pnpm exec expo config --type prebuild > /dev/null
+      - name: Tracker versions agree
+        run: node .github/scripts/check-tracker-versions.mjs
+      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --filter exyconn-tracker-mobile --workspace-concurrency=2 run typecheck
+      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --filter exyconn-tracker-mobile --workspace-concurrency=3 run lint
+      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --filter exyconn-tracker-mobile --workspace-concurrency=1 run test
 
   component-tests:
     name: Component Tests (Cypress)

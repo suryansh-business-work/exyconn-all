@@ -162,11 +162,16 @@ pnpm --filter exyconn-tracker-app package:mac    # DMG (macOS, must run ON macOS
 pnpm --filter exyconn-tracker-app package:linux  # AppImage (Linux)
 ```
 
-CI does this for you: every push to `main` that touches `exyconn-tracker-app/` runs
-`.github/workflows/tracker-release.yml`, which builds all three installers, publishes them
-on a GitHub Release tagged `tracker-v<package.json version>`, and uploads the files to Slack
-(secrets `SLACK_BOT_TOKEN` + `SLACK_CHANNEL_ID`). Bump `version` in `package.json` before
-merging so the release gets a new tag.
+CI does this for you: every push to `main` that touches the tracker runs
+`.github/workflows/tracker-release.yml`, which builds all three installers — and the phone
+app's APK, AAB and IPA ([`exyconn-tracker-mobile`](../exyconn-tracker-mobile)) — publishes them
+on one GitHub Release tagged `tracker-v<package.json version>`, and uploads the files to Slack
+(secrets `SLACK_BOT_TOKEN` + `SLACK_CHANNEL_ID`). The pre-commit hook bumps `version` (and
+mirrors it into the mobile app) so every release gets a new tag.
+
+The tracker's rules — controller, engine, outbox, portal operations — live in
+[`@exyconn/tracker-core`](../packages/tracker-core), shared with the mobile app; this app is
+the Electron shell around them.
 
 A macOS DMG can only be built on macOS, and for distribution it must be **code-signed and
 notarized** with your Apple Developer ID — set that up in `electron-builder.yml` / CI. The

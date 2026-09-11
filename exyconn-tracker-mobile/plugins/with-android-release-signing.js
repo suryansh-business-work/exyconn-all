@@ -25,7 +25,8 @@ const RELEASE_SIGNING = `
         }`;
 
 const SIGNING_BLOCK = 'signingConfigs {';
-const RELEASE_BUILD_TYPE = /(buildTypes\s*\{[\s\S]*?release\s*\{[\s\S]*?)signingConfig signingConfigs\.debug/;
+const RELEASE_BUILD_TYPE =
+  /(buildTypes\s*\{[\s\S]*?release\s*\{[\s\S]*?)signingConfig signingConfigs\.debug/;
 
 function applyReleaseSigning(gradle) {
   if (gradle.includes("System.getenv('EXYCONN_UPLOAD_STORE_FILE')")) {

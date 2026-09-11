@@ -82,7 +82,8 @@ export function TrackerDownloadPage() {
       <DownloadHero
         platform={platform}
         asset={asset}
-        version={release.version}
+        // A platform's newest build can come from an older release than the newest one.
+        version={asset?.version ?? release.version}
         releasedOn={formatDate(release.publishedAt)}
         releaseUrl={release.url}
         detected={platform.key === detected.key}

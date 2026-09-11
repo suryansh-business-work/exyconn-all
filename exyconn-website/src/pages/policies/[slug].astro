@@ -1,6 +1,7 @@
 ---
 import Page from "../../layouts/Page.astro";
-import { getPublicPolicy } from "../../lib/portal";
+import { ARTICLE_CLASS, getPublicPolicy, sanitizeArticleHtml } from "../../lib/portal";
+import "../../styles/article.css";
 
 /**
  * A company policy, rendered from the portal.
@@ -46,8 +47,8 @@ const asDate = (value: string) =>
 
     <section class="py-14 px-6">
       <article
-        class="max-w-3xl mx-auto prose prose-lg prose-headings:text-fg prose-p:text-fg-muted prose-a:text-blue-fg"
-        set:html={policy.body}
+        class:list={["max-w-3xl mx-auto", ARTICLE_CLASS]}
+        set:html={sanitizeArticleHtml(policy.body)}
       />
     </section>
   </main>

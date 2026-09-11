@@ -1,6 +1,14 @@
 ---
 import Page from "../../layouts/Page.astro";
-import { formatDate, getBlogPost, getBlogPosts, sanitizeArticleHtml } from "../../lib/portal";
+import {
+  ARTICLE_CLASS,
+  formatDate,
+  getBlogPost,
+  getBlogPosts,
+  sanitizeArticleHtml,
+  scopeArticleCss,
+} from "../../lib/portal";
+import "../../styles/article.css";
 
 const { slug } = Astro.params;
 const post = slug ? await getBlogPost(slug) : null;
@@ -10,6 +18,8 @@ if (!post) {
 }
 
 const body = sanitizeArticleHtml(post.content);
+// A body designed in the portal's live editor brings its own CSS, scoped to the article.
+const designCss = scopeArticleCss(post.contentCss);
 
 // Get related posts (same tags, excluding current)
 const allPosts = await getBlogPosts();
@@ -129,10 +139,8 @@ const pageJsonLd = [
     <!-- Content -->
     <section class="px-6 pb-16">
       <div class="max-w-3xl mx-auto">
-        <article
-          class="prose prose-lg max-w-none prose-headings:text-fg prose-headings:font-bold prose-p:text-fg-secondary prose-a:text-blue-fg prose-strong:text-fg prose-blockquote:border-blue prose-blockquote:bg-blue-subtle prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-li:text-fg-secondary"
-          set:html={body}
-        />
+        {designCss && <style is:inline set:html={designCss} />}
+        <article class={ARTICLE_CLASS} set:html={body} />
 
         <!-- Share Section -->
         <div class="mt-12 pt-8 border-t border-line">

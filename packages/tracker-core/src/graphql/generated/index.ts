@@ -238,6 +238,7 @@ export type BlogAuthorInput = {
 export type BlogPostInput = {
   author: BlogAuthorInput;
   content: InputMaybe<Scalars['String']['input']>;
+  contentCss: InputMaybe<Scalars['String']['input']>;
   coverImage: InputMaybe<Scalars['String']['input']>;
   featured: InputMaybe<Scalars['Boolean']['input']>;
   isActive: InputMaybe<Scalars['Boolean']['input']>;
@@ -358,6 +359,7 @@ export type CaseStudyInput = {
   author: InputMaybe<Scalars['String']['input']>;
   category: InputMaybe<Scalars['String']['input']>;
   content: InputMaybe<Scalars['String']['input']>;
+  contentCss: InputMaybe<Scalars['String']['input']>;
   coverImage: InputMaybe<Scalars['String']['input']>;
   excerpt: InputMaybe<Scalars['String']['input']>;
   featured: InputMaybe<Scalars['Boolean']['input']>;
@@ -2111,6 +2113,13 @@ export type MarkMyTrackerMessagesReadMutationVariables = Exact<{
 
 export type MarkMyTrackerMessagesReadMutation = { markMyTrackerMessagesRead: number };
 
+export type TrackerLatestReleaseQueryVariables = Exact<{
+  platform: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type TrackerLatestReleaseQuery = { trackerLatestRelease: { version: string, url: string, publishedAt: string, assets: Array<{ name: string, platform: string, url: string, sizeBytes: number }> } | null };
+
 export type TrackerLoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -2525,6 +2534,21 @@ export const MarkMyTrackerMessagesReadDocument = new TypedDocumentString(`
   markMyTrackerMessagesRead(kind: $kind)
 }
     `) as unknown as TypedDocumentString<MarkMyTrackerMessagesReadMutation, MarkMyTrackerMessagesReadMutationVariables>;
+export const TrackerLatestReleaseDocument = new TypedDocumentString(`
+    query TrackerLatestRelease($platform: String) {
+  trackerLatestRelease(platform: $platform) {
+    version
+    url
+    publishedAt
+    assets {
+      name
+      platform
+      url
+      sizeBytes
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<TrackerLatestReleaseQuery, TrackerLatestReleaseQueryVariables>;
 export const TrackerLoginDocument = new TypedDocumentString(`
     mutation TrackerLogin($email: String!, $password: String!, $device: TrackerDeviceInput!) {
   trackerLogin(email: $email, password: $password, device: $device) {

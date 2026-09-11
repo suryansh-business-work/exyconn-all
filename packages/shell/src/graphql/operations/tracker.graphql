@@ -193,6 +193,7 @@ query TrackerLatestRelease {
     assets {
       name
       platform
+      version
       sizeBytes
       downloadCount
       url

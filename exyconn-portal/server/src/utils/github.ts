@@ -38,6 +38,8 @@ export function trackerAssetPlatform(fileName: string): string | null {
 export interface ReleaseAsset {
   name: string;
   platform: string;
+  /** The version of the release this file is on — not always the release around it. */
+  version: string;
   sizeBytes: number;
   downloadCount: number;
   url: string;
@@ -78,10 +80,12 @@ function hasInstallerFor(release: ReleasePayload, platform: string): boolean {
 
 /** Reshapes a GitHub release payload into the portal's own release type. */
 export function toTrackerRelease(release: ReleasePayload): TrackerRelease {
+  const version = release.tag_name.slice(TRACKER_TAG_PREFIX.length);
   const assets = release.assets
     .map((asset) => ({
       name: asset.name,
       platform: trackerAssetPlatform(asset.name),
+      version,
       sizeBytes: asset.size,
       downloadCount: asset.download_count,
       url: asset.browser_download_url,
@@ -89,7 +93,7 @@ export function toTrackerRelease(release: ReleasePayload): TrackerRelease {
     .filter((asset): asset is ReleaseAsset => asset.platform !== null);
 
   return {
-    version: release.tag_name.slice(TRACKER_TAG_PREFIX.length),
+    version,
     tag: release.tag_name,
     name: release.name ?? release.tag_name,
     notes: release.body ?? '',
@@ -97,6 +101,27 @@ export function toTrackerRelease(release: ReleasePayload): TrackerRelease {
     publishedAt: new Date(release.published_at ?? release.created_at),
     assets,
   };
+}
+
+/**
+ * The newest release, carrying for EVERY platform the installers of the newest release that has
+ * one. A build can be run for a subset of platforms, so a phone-only release must not make the
+ * desktop installers vanish from the Download page; each asset keeps its own `version`.
+ */
+export function mergeNewestPerPlatform(releases: readonly ReleasePayload[]): TrackerRelease | null {
+  if (releases.length === 0) {
+    return null;
+  }
+  const claimed = new Set<string>();
+  const assets: ReleaseAsset[] = [];
+  for (const release of releases) {
+    const found = toTrackerRelease(release).assets.filter((asset) => !claimed.has(asset.platform));
+    assets.push(...found);
+    for (const asset of found) {
+      claimed.add(asset.platform);
+    }
+  }
+  return { ...toTrackerRelease(releases[0]), assets };
 }
 
 /** One run of the tracker build workflow, as the portal shows it. */
@@ -186,17 +211,18 @@ class GithubActions {
   }
 
   /**
-   * The newest tracker release, as the portal's Download page shows it.
+   * The newest tracker release, as the portal's Download page shows it: every platform's
+   * newest installers (see {@link mergeNewestPerPlatform}).
    *
    * With a `platform` (e.g. `android`), the newest release carrying an installer for that
-   * platform — a build can be run for a subset of platforms, so the newest release overall
-   * may not have one.
+   * platform — what an app's own update check compares its version against.
    */
   async latestTrackerRelease(platform?: string | null): Promise<TrackerRelease | null> {
     const releases = await this.listTrackerReleases();
-    const release = platform
-      ? releases.find((entry) => hasInstallerFor(entry, platform))
-      : releases[0];
+    if (!platform) {
+      return mergeNewestPerPlatform(releases);
+    }
+    const release = releases.find((entry) => hasInstallerFor(entry, platform));
     return release ? toTrackerRelease(release) : null;
   }
 

@@ -7,6 +7,7 @@ import {
   RhfChipsInput,
   RhfSwitch,
   RhfDatePicker,
+  RhfRichText,
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -23,6 +24,7 @@ import {
   toOptions,
 } from '../../website.constants';
 import type { GigRow } from './gig.types';
+import { MEDIA_FOLDERS } from '../../live-edit/live-edit.config';
 
 const schema = z.object({
   gigCode: z.string().trim().min(1, 'Gig code is required'),
@@ -99,12 +101,11 @@ export function GigForm({ initial, onDone, onCancel }: Readonly<GigFormProps>) {
       <RhfTextField name="title" label="Title" />
       <RhfSelect name="category" label="Category" options={toOptions(GIG_CATEGORIES)} />
       <RhfTextField name="shortDescription" label="Short description" multiline minRows={2} />
-      <RhfTextField
+      <RhfRichText
         name="fullDescription"
         label="Full description"
-        multiline
-        minRows={8}
-        helperText="HTML is allowed — the body is rendered as-is on the public site."
+        folder={MEDIA_FOLDERS.careers}
+        helperText="Shown on the gig's page of the public website"
       />
       <RhfChipsInput name="deliverables" label="Deliverables" />
       <RhfChipsInput name="requirements" label="Requirements" />

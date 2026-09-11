@@ -1,11 +1,13 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 // A relative path into the design system, as the desktop tracker's build config does: the
 // config is evaluated by Node, and the token file is the one place a hex literal may live.
-import { neutral, sky, white } from '../packages/ui/src/tokens/colors.tokens';
+import { neutral, sky, white } from '../packages/ui/src/tokens/colors.tokens.ts';
 import { version } from './package.json';
 
 /** The production portal. CI builds for staging point at it with PORTAL_GRAPHQL_URL instead. */
 const PRODUCTION_GRAPHQL_URL = 'https://portal-server.exyconn.com/graphql';
+/** Where an employee reads their own tracker data in the portal (PORTAL_WEB_URL overrides it). */
+const PRODUCTION_PORTAL_URL = 'https://portal.exyconn.com';
 
 /**
  * Android's versionCode must rise with every build a device is asked to install over the last
@@ -26,7 +28,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
-  newArchEnabled: true,
   ios: {
     bundleIdentifier: 'com.exyconn.tracker',
     buildNumber: String(versionCode(version)),
@@ -71,7 +72,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-build-properties',
       {
         android: { minSdkVersion: 26, compileSdkVersion: 36, targetSdkVersion: 36 },
-        ios: { deploymentTarget: '16.0' },
+        ios: { deploymentTarget: '16.4' },
       },
     ],
     './plugins/with-android-release-signing',
@@ -79,5 +80,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   experiments: { typedRoutes: true },
   extra: {
     portalGraphqlUrl: process.env.PORTAL_GRAPHQL_URL ?? PRODUCTION_GRAPHQL_URL,
+    portalWebUrl: process.env.PORTAL_WEB_URL ?? PRODUCTION_PORTAL_URL,
   },
 });
