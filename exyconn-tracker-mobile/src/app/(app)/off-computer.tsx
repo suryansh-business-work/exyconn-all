@@ -9,3 +9,5 @@ export default function OffComputerRoute() {
   }
   return <OffComputerScreen projects={state.projects} timezone={state.timezone} />;
 }
+
+export { ScreenErrorBoundary as ErrorBoundary } from '../../components/shell/ScreenErrorBoundary';

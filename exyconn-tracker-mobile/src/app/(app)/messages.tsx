@@ -9,3 +9,5 @@ export default function MessagesRoute() {
   }
   return <MessagesScreen timezone={state.timezone} />;
 }
+
+export { ScreenErrorBoundary as ErrorBoundary } from '../../components/shell/ScreenErrorBoundary';

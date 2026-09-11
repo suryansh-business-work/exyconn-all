@@ -16,3 +16,5 @@ export default function ConsentRoute() {
     />
   );
 }
+
+export { ScreenErrorBoundary as ErrorBoundary } from '../components/shell/ScreenErrorBoundary';

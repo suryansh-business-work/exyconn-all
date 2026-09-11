@@ -15,6 +15,7 @@
   "prettier": "@exyconn/config/prettier.json",
   "dependencies": {
     "@exyconn/time": "workspace:*",
+    "@exyconn/logger": "workspace:*",
     "@graphql-typed-document-node/core": "^3.2.0",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0"

@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Spinner, YStack } from 'tamagui';
 import { UpdateBanner } from '../components/shell/UpdateBanner';
+import { useLogContext } from '../hooks/useLogContext';
 import { useTrackerState } from '../hooks/useTrackerState';
 import { BrandProvider, useBrand } from '../theme/BrandProvider';
 import { bootTracker } from '../tracker/instance';
@@ -72,6 +73,7 @@ function ThemedStatusBar() {
 export default function RootLayout() {
   const state = useTrackerState();
   useNotificationRouting();
+  useLogContext(state);
 
   const signedIn = state !== null && state.status !== 'signed-out';
 

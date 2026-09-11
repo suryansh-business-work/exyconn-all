@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import type { LogBatch } from '@exyconn/logger';
 import {
   IPC,
   type AppPreferences,
@@ -30,6 +31,8 @@ import {
 /** The typed API exposed to the renderer over the context bridge (no Node access). */
 const api = {
   getState: (): Promise<TrackerState> => ipcRenderer.invoke(IPC.getState),
+  /** One batch of this window's Tech > Logs entries; main adds the device and user, then sends it. */
+  reportLogs: (batch: LogBatch): Promise<boolean> => ipcRenderer.invoke(IPC.reportLogs, batch),
   login: (email: string, password: string, rememberMe: boolean): Promise<LoginResult> =>
     ipcRenderer.invoke(IPC.login, email, password, rememberMe),
   logout: (): Promise<void> => ipcRenderer.invoke(IPC.logout),

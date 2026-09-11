@@ -14,3 +14,5 @@ export default function ScreenshotsRoute() {
   }
   return <ScreenshotsScreen params={params} timezone={state.timezone} />;
 }
+
+export { ScreenErrorBoundary as ErrorBoundary } from '../components/shell/ScreenErrorBoundary';

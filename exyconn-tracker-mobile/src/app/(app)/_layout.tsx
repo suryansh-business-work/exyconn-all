@@ -37,3 +37,5 @@ export default function AppLayout() {
     </Drawer>
   );
 }
+
+export { ScreenErrorBoundary as ErrorBoundary } from '../../components/shell/ScreenErrorBoundary';

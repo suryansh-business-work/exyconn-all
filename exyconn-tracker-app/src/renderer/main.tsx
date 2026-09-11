@@ -1,6 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { LogErrorBoundary } from '@exyconn/logger/react';
 import App from './App';
+import CrashFallback from './components/CrashFallback';
+import { installRendererCrashHandlers, logger } from './logger';
+
+installRendererCrashHandlers('main-window');
 
 const container = document.getElementById('root');
 if (container === null) {
@@ -9,6 +14,11 @@ if (container === null) {
 
 createRoot(container).render(
   <StrictMode>
-    <App />
+    <LogErrorBoundary
+      logger={logger}
+      fallback={(error, reset) => <CrashFallback error={error} onRetry={reset} />}
+    >
+      <App />
+    </LogErrorBoundary>
   </StrictMode>,
 );

@@ -1,0 +1,5 @@
+# Tech > Logs: the tracker's errors and debug logs. Public on the portal, so a crash before
+# sign-in is still delivered; a token, when there is one, names the user.
+mutation ReportClientLogs($input: AppLogBatchInput!) {
+  reportClientLogs(input: $input)
+}

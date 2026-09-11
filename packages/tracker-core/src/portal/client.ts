@@ -7,6 +7,7 @@ import {
   MyTrackerMessagesDocument,
   MyTrackerTotalsDocument,
   PublicBrandingDocument,
+  ReportClientLogsDocument,
   SendMyTrackerMessageDocument,
   SetMyTrackerPresenceDocument,
   TrackerAcceptConsentDocument,
@@ -22,6 +23,7 @@ import {
   TrackerTaskOptionsDocument,
   TrackerUploadScreenshotDocument,
   WithdrawTrackerManualEntryDocument,
+  type AppLogBatchInput,
   type TrackerMeFieldsFragment,
   type TrackerSettingsFieldsFragment,
   type TypedDocumentString,
@@ -227,6 +229,16 @@ export function createPortalClient(config: PortalClientConfig) {
     async login(email: string, password: string, device: DeviceInfo): Promise<LoginResponse> {
       const data = await request(TrackerLoginDocument, { email, password, device }, null);
       return { ...data.trackerLogin, settings: toSettings(data.trackerLogin.settings) };
+    },
+
+    /**
+     * One batch of this app's error and debug logs for Tech > Logs. Sent signed in or not — a
+     * crash on the login screen must still arrive; the token, when there is one, names the
+     * user. False when the portal dropped the batch for being over its rate limit.
+     */
+    async reportClientLogs(input: AppLogBatchInput): Promise<boolean> {
+      const data = await request(ReportClientLogsDocument, { input }, await config.getToken());
+      return data.reportClientLogs;
     },
 
     /** Brand identity for the app's chrome. Unauthenticated — the login screen needs it. */

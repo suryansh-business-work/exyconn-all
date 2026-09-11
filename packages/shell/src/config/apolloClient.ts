@@ -4,6 +4,9 @@ import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { env } from './env';
 import { tokenStore } from '@/auth/tokenStore';
+import { ReportClientLogsDocument } from '@/graphql/generated';
+import { setLogTransport } from '@/logging/portalLogger';
+import { reportApolloError } from '@/logging/reportApolloError';
 
 /** Single ApolloClient instance shared across the app (singleton). */
 const httpLink = createHttpLink({ uri: env.graphqlUrl });
@@ -15,7 +18,8 @@ const authLink = setContext((_operation, { headers }) => {
 
 // Apollo 4 hands the handler one `error` rather than separate GraphQL and network lists;
 // the GraphQL errors are inside it when it is a CombinedGraphQLErrors.
-const errorLink = onError(({ error }) => {
+const errorLink = onError(({ error, operation }) => {
+  reportApolloError(error, operation.operationName);
   if (!CombinedGraphQLErrors.is(error)) {
     return;
   }
@@ -30,3 +34,7 @@ export const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
   defaultOptions: { watchQuery: { fetchPolicy: 'cache-and-network' } },
 });
+
+setLogTransport((batch) =>
+  apolloClient.mutate({ mutation: ReportClientLogsDocument, variables: { input: batch } }),
+);

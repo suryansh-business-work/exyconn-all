@@ -16,6 +16,8 @@ export interface GraphQLContext {
    * for it. Caller-supplied: check it against the CORS list before trusting it.
    */
   origin?: string;
+  /** The `User-Agent` header, stored with client logs (Tech > Logs). Caller-supplied. */
+  userAgent?: string;
 }
 
 /**
@@ -32,6 +34,7 @@ export interface GraphQLContext {
 export async function buildContext({ req }: { req: Request }): Promise<GraphQLContext> {
   const ip = req.ip ?? 'unknown';
   const origin = req.headers.origin;
+  const userAgent = req.headers['user-agent'];
   const header = req.headers.authorization ?? '';
 
   // A machine presents a key instead of a session. It resolves to the SAME shape a person
@@ -41,7 +44,7 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
   if (typeof apiKey === 'string' && apiKey !== '') {
     const principal = await principalForApiKey(apiKey);
     if (!principal) {
-      return { user: null, ip, origin };
+      return { user: null, ip, origin, userAgent };
     }
     return {
       user: {
@@ -51,19 +54,20 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
       } as TokenPayload,
       ip,
       origin,
+      userAgent,
     };
   }
 
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
   const decoded = token ? verifyToken(token) : null;
   if (!decoded) {
-    return { user: null, ip, origin };
+    return { user: null, ip, origin, userAgent };
   }
 
   const fresh = await UserModel.findById(decoded.id).select('roles isActive isBlocked').lean();
   if (!fresh || !fresh.isActive || fresh.isBlocked) {
-    return { user: null, ip, origin };
+    return { user: null, ip, origin, userAgent };
   }
 
-  return { user: { ...decoded, roles: fresh.roles as Role[] }, ip, origin };
+  return { user: { ...decoded, roles: fresh.roles as Role[] }, ip, origin, userAgent };
 }

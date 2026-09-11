@@ -15,3 +15,5 @@ export default function Index() {
   }
   return <Redirect href="/dashboard" />;
 }
+
+export { ScreenErrorBoundary as ErrorBoundary } from '../components/shell/ScreenErrorBoundary';

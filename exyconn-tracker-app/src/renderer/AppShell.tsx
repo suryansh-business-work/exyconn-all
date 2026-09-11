@@ -1,8 +1,10 @@
 import type { ReactElement } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box } from '@exyconn/ui';
+import { LogErrorBoundary } from '@exyconn/logger/react';
 import type { TrackerState } from '@shared/types';
 import AppHeader from './components/AppHeader';
+import CrashFallback from './components/CrashFallback';
 import NavDrawer from './components/NavDrawer';
 import DashboardScreen from './screens/DashboardScreen';
 import MessagesScreen from './screens/MessagesScreen';
@@ -10,6 +12,7 @@ import MyReportScreen from './screens/MyReportScreen';
 import OffComputerScreen from './screens/OffComputerScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import { NAV_ITEMS, type Section } from './sections';
+import { logger } from './logger';
 
 interface SectionProps {
   section: Section;
@@ -55,6 +58,10 @@ export default function AppShell({ state }: Readonly<Props>): ReactElement {
   const [section, setSection] = useState<Section>('dashboard');
   const [menuOpen, setMenuOpen] = useState(false);
 
+  useEffect(() => {
+    logger.setRoute(section);
+  }, [section]);
+
   function select(next: Section): void {
     setSection(next);
     setMenuOpen(false);
@@ -77,7 +84,14 @@ export default function AppShell({ state }: Readonly<Props>): ReactElement {
         onSelect={select}
       />
       <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', p: 2.5 }}>
-        <SectionView section={section} state={state} />
+        {/* Keyed by section: a crashed pane leaves the drawer working, and moving on clears it. */}
+        <LogErrorBoundary
+          key={section}
+          logger={logger}
+          fallback={(error, reset) => <CrashFallback error={error} onRetry={reset} />}
+        >
+          <SectionView section={section} state={state} />
+        </LogErrorBoundary>
       </Box>
     </>
   );

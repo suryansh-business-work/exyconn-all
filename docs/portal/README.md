@@ -83,6 +83,8 @@ pnpm codegen                              # regenerate GraphQL hooks after a .gr
 
 - [packages.md](./packages.md) — what lives in each package and what it exports.
 - [crud-kit.md](./crud-kit.md) — the CRUD kit, with a full worked module.
+- [app-logs.md](./app-logs.md) — Tech › Logs: where every error and debug log comes from,
+  and how to hand one to Claude to fix.
 - [adding-a-module.md](./adding-a-module.md) — adding a screen, and adding a whole app.
 - [approvals.md](./approvals.md) — the shared approval queue: how one screen reads and
   decides pending items across every module without owning any of them.
