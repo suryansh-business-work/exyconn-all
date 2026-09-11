@@ -69,6 +69,7 @@ describe('toTrackerRelease', () => {
     expect(result.tag).toBe('tracker-v1.3.0');
     expect(result.publishedAt.toISOString()).toBe('2026-09-01T10:00:00.000Z');
     expect(result.assets.map((entry) => entry.platform)).toEqual(['windows', 'macos', 'linux']);
+    expect(result.assets.every((entry) => entry.version === '1.3.0')).toBe(true);
     expect(result.assets[0].url).toBe('https://example.com/Exyconn Tracker-Setup-1.3.0.exe');
   });
 
@@ -151,11 +152,17 @@ describe('reading tracker releases from GitHub', () => {
     expect(files.has('site.exe')).toBe(false);
   });
 
-  it('still reads the newest tracker release when no platform is asked for', async () => {
+  it('gives every platform its newest installer when no platform is asked for', async () => {
     const latest = await githubActions.latestTrackerRelease();
 
+    // The newest release is phone-only; the Download page must still offer the desktop
+    // builds from the releases before it, each labelled with its own version.
     expect(latest?.version).toBe('1.6.0');
-    expect(latest?.assets.map((entry) => entry.platform)).toEqual(['android']);
+    expect(latest?.assets.map((entry) => [entry.platform, entry.version])).toEqual([
+      ['android', '1.6.0'],
+      ['macos', '1.5.0'],
+      ['windows', '1.4.0'],
+    ]);
   });
 
   it('finds the newest release carrying an installer for one platform', async () => {

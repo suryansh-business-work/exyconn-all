@@ -10257,6 +10257,11 @@ export type TrackerReleaseAsset = {
   sizeBytes: Scalars['Float']['output'];
   /** Direct download URL on the public GitHub release. */
   url: Scalars['String']['output'];
+  /**
+   * The version of the release this file is on. A platform's newest build can be older than the
+   * release around it, when a later build was run for other platforms only.
+   */
+  version: Scalars['String']['output'];
 };
 
 export type TrackerScreenshot = {
@@ -15902,6 +15907,7 @@ export type TrackerReleaseAssetResolvers<ContextType = GraphQLContext, ParentTyp
   platform?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sizeBytes?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

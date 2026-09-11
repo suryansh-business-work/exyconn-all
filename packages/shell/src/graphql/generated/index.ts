@@ -10258,6 +10258,11 @@ export type TrackerReleaseAsset = {
   sizeBytes: Scalars['Float']['output'];
   /** Direct download URL on the public GitHub release. */
   url: Scalars['String']['output'];
+  /**
+   * The version of the release this file is on. A platform's newest build can be older than the
+   * release around it, when a later build was run for other platforms only.
+   */
+  version: Scalars['String']['output'];
 };
 
 export type TrackerScreenshot = {
@@ -15167,7 +15172,7 @@ export type UpdateTrackerSettingsMutation = { __typename?: 'Mutation', updateTra
 export type TrackerLatestReleaseQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TrackerLatestReleaseQuery = { __typename?: 'Query', trackerLatestRelease?: { __typename?: 'TrackerRelease', version: string, tag: string, name: string, notes: string, url: string, publishedAt: string, assets: Array<{ __typename?: 'TrackerReleaseAsset', name: string, platform: string, sizeBytes: number, downloadCount: number, url: string }> } | null };
+export type TrackerLatestReleaseQuery = { __typename?: 'Query', trackerLatestRelease?: { __typename?: 'TrackerRelease', version: string, tag: string, name: string, notes: string, url: string, publishedAt: string, assets: Array<{ __typename?: 'TrackerReleaseAsset', name: string, platform: string, version: string, sizeBytes: number, downloadCount: number, url: string }> } | null };
 
 export type TrackerBillingQueryVariables = Exact<{
   from: Scalars['DateTime']['input'];
@@ -41932,6 +41937,7 @@ export const TrackerLatestReleaseDocument = gql`
     assets {
       name
       platform
+      version
       sizeBytes
       downloadCount
       url
