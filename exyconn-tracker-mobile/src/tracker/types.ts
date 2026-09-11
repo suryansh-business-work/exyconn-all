@@ -31,7 +31,7 @@ export interface MobilePreferences {
    * see-through window, on a phone that has no desktop to show. Cards stay opaque.
    */
   transparentBackground: boolean;
-  /** How much of the plain ground stays painted over that gradient, 0.3–0.9. */
+  /** How much of the plain ground stays painted over that gradient, 0.5–0.9. */
   backgroundOpacity: number;
 }
 

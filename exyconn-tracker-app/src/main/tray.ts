@@ -15,7 +15,8 @@ export class TrackerTray {
   private readonly tray: Tray;
 
   constructor(
-    private readonly window: BrowserWindow,
+    /** Read on each use: the window is rebuilt when the transparent background is toggled. */
+    private readonly window: () => BrowserWindow | null,
     private readonly actions: {
       start: () => void;
       pause: () => void;
@@ -67,8 +68,9 @@ export class TrackerTray {
   }
 
   private showWindow(): void {
-    this.window.show();
-    this.window.focus();
+    const win = this.window();
+    win?.show();
+    win?.focus();
   }
 
   destroy(): void {

@@ -25,7 +25,7 @@ const DEFAULT_PREFERENCES: MobilePreferences = {
   muteCaptureSound: false,
   progressStyle: 'bar',
   transparentBackground: false,
-  backgroundOpacity: 0.6,
+  backgroundOpacity: 0.75,
 };
 
 /**

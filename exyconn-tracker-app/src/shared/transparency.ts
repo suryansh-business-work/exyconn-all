@@ -19,10 +19,19 @@ export function supportsTransparency(platform: string, systemVersion: string): b
   return build >= FIRST_ACRYLIC_BUILD;
 }
 
-/** The ground's opacity for these preferences: 1 is solid. */
+/**
+ * How far the see-through ground may go. Below half, text sitting on the ground (section
+ * headings, captions) loses its contrast against a bright desktop — frosted, never clear.
+ */
+export const GROUND_OPACITY = { min: 0.5, max: 0.95 } as const;
+
+/** The ground's opacity for these preferences: 1 is solid. A saved value is kept in range. */
 export function groundOpacity(
   supported: boolean,
   preferences: { transparentBackground: boolean; backgroundOpacity: number },
 ): number {
-  return supported && preferences.transparentBackground ? preferences.backgroundOpacity : 1;
+  if (!supported || !preferences.transparentBackground) {
+    return 1;
+  }
+  return Math.min(GROUND_OPACITY.max, Math.max(GROUND_OPACITY.min, preferences.backgroundOpacity));
 }

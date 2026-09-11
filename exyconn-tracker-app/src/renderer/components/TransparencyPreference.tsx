@@ -2,14 +2,15 @@ import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
 import { Slider, Stack, Switch, Typography } from '@exyconn/ui';
 import type { AppPreferences } from '@shared/types';
+import { GROUND_OPACITY } from '@shared/transparency';
 import { run } from '../run';
 
 interface Props {
   preferences: AppPreferences;
 }
 
-const MIN_OPACITY = 30;
-const MAX_OPACITY = 95;
+const MIN_OPACITY = GROUND_OPACITY.min * 100;
+const MAX_OPACITY = GROUND_OPACITY.max * 100;
 
 function save(update: Partial<AppPreferences>): void {
   run(() => window.tracker.setPreferences(update));

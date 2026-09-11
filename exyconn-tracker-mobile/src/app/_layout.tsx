@@ -16,6 +16,9 @@ import { run } from '../tracker/run';
 import { scheduleUpdateChecks } from '../tracker/updates';
 import type { MobileTrackerState } from '../tracker/types';
 
+/** Below half, text sitting on the ground loses its contrast against the gradient. */
+const MIN_GROUND_OPACITY = 0.5;
+
 /** Every screen is transparent: the one `Ground` under the stack paints behind all of them. */
 const CLEAR_SCREEN = { backgroundColor: 'transparent' } as const;
 
@@ -66,7 +69,8 @@ function groundOpacityOf(state: MobileTrackerState | null): number {
   if (state?.preferences.transparentBackground !== true) {
     return 1;
   }
-  return state.preferences.backgroundOpacity;
+  // A value saved when the floor was 30% is kept frosted.
+  return Math.max(MIN_GROUND_OPACITY, state.preferences.backgroundOpacity);
 }
 
 export default function RootLayout() {

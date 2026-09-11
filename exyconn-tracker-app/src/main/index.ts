@@ -21,7 +21,7 @@ import { TrackerTray } from './tray';
 import { closeScreenshotsWindow, openScreenshotsWindow } from './screenshots-window';
 import { composeWithWebcam, registerCaptureBridge } from './capture-bridge';
 import { applyWindowChrome, registerWindowControls } from './window-chrome';
-import { applyWindowMaterial } from './window-material';
+import { wantsTransparency, windowGroundOptions } from './window-material';
 import { holdForUpload, type CloseGuardHooks } from './close-guard';
 import { secureStore } from './store';
 import { AppUpdater } from './updater';
@@ -129,13 +129,19 @@ function announceUpdate(update: UpdateState): void {
   window?.webContents.send(IPC.updateChanged, update);
 }
 
-function createWindow(): BrowserWindow {
+/** Where a rebuilt window goes: exactly where, and as visible as, the one it replaces. */
+interface Placement {
+  bounds: Electron.Rectangle;
+  visible: boolean;
+}
+
+function createWindow(placement: Placement | null = null): BrowserWindow {
   const win = new BrowserWindow({
-    width: 420,
-    height: 680,
+    ...(placement?.bounds ?? { width: 420, height: 680 }),
     minWidth: 380,
     minHeight: 560,
     show: false,
+    ...windowGroundOptions(wantsTransparency(secureStore().preferences.transparentBackground)),
     // No OS chrome: the tracker draws its own title bar, so minimise/maximise/close are part
     // of the app rather than a strip of Windows or macOS bolted to the top of it.
     frame: false,
@@ -151,8 +157,11 @@ function createWindow(): BrowserWindow {
     },
   });
 
-  applyWindowMaterial(win, secureStore().preferences.transparentBackground);
-  win.on('ready-to-show', () => win.show());
+  win.on('ready-to-show', () => {
+    if (placement?.visible !== false) {
+      win.show();
+    }
+  });
   applyWindowChrome(win);
   /**
    * Closing the window leaves the app running in the tray, unless the employee has turned
@@ -181,6 +190,20 @@ function createWindow(): BrowserWindow {
 }
 
 let isQuitting = false;
+
+/**
+ * Replaces the window with one built for the current ground (see window-material.ts), in the
+ * same place and state. `destroy` skips the close handler, so this never hides to the tray or
+ * quits — tracking runs in main and carries on untouched.
+ */
+function rebuildWindow(): void {
+  const old = window;
+  if (old === null || old.isDestroyed()) {
+    return;
+  }
+  window = createWindow({ bounds: old.getBounds(), visible: old.isVisible() });
+  old.destroy();
+}
 
 /**
  * What the close guard needs to know, read live rather than captured: `syncing` flips while
@@ -241,9 +264,11 @@ function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.getPermissions, () => ctrl.refreshPermissions());
   ipcMain.handle(IPC.requestPermission, (_e, kind: PermissionKind) => ctrl.requestPermission(kind));
   ipcMain.handle(IPC.setPreferences, (_e, update: Partial<AppPreferences>) => {
+    const before = secureStore().preferences.transparentBackground;
     const preferences = ctrl.setPreferences(update);
-    if (window !== null) {
-      applyWindowMaterial(window, preferences.transparentBackground);
+    if (preferences.transparentBackground !== before) {
+      // After this reply reaches the renderer: the window sending it is the one replaced.
+      setImmediate(rebuildWindow);
     }
     // Applied to the live updater, not just stored: turning automatic updates on is a
     // request for the version already waiting, not a preference for the next launch.
@@ -328,7 +353,7 @@ if (!app.requestSingleInstanceLock()) {
       composeWithWebcam(window, input),
     );
     window = createWindow();
-    tray = new TrackerTray(window, {
+    tray = new TrackerTray(() => window, {
       // Start can now be refused — attendance has to be marked for the day first — so the
       // tray's own Start must not drop that rejection on the floor.
       start: () => {
