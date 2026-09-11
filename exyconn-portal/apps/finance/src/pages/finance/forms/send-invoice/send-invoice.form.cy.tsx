@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { SendInvoiceForm } from './send-invoice.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -32,7 +32,7 @@ const clientMock = {
 
 const mount = () =>
   cy.mount(
-    <MockedProvider mocks={[clientMock]} addTypename={false}>
+    <MockedProvider mocks={[clientMock]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <SendInvoiceForm invoice={invoice} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import { useMeLazyQuery } from '@/graphql/generated';
 import { tokenStore } from './tokenStore';
 import { userStore } from './userStore';

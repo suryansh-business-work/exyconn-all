@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { LocalizationProvider, AdapterDateFns } from '@exyconn/shell/components/ui';
@@ -12,7 +12,7 @@ const projects = [
 
 const mount = (onDone = cy.stub()) =>
   cy.mount(
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <NotificationProvider>
@@ -23,8 +23,8 @@ const mount = (onDone = cy.stub()) =>
     </MockedProvider>,
   );
 
-/** The picker's text input, reached through its label (MUI owns the generated id). */
-const field = (label: string) => cy.contains('label', label).parent().find('input').first();
+/** The picker, reached by the name the form gives it — MUI owns everything else. */
+const field = (name: string) => cy.get(`input[name="${name}"]`);
 
 describe('OffComputerTimeForm', () => {
   it('books against the house-wide project until another is picked', () => {
@@ -47,8 +47,8 @@ describe('OffComputerTimeForm', () => {
 
   it('rejects a window that ends before it starts', () => {
     mount();
-    field('Started').type('09/03/2026 05:00 PM');
-    field('Ended').type('09/03/2026 09:00 AM');
+    field('startedAt').typeDate('090320260500PM');
+    field('endedAt').typeDate('090320260900AM');
     cy.get('textarea[name="note"]').type('Client kickoff');
     cy.contains('button', 'Send for approval').click();
     cy.contains('The entry must end after it starts').should('exist');
@@ -56,8 +56,8 @@ describe('OffComputerTimeForm', () => {
 
   it('rejects a single entry longer than a working day', () => {
     mount();
-    field('Started').type('09/01/2026 01:00 AM');
-    field('Ended').type('09/01/2026 11:00 PM');
+    field('startedAt').typeDate('090120260100AM');
+    field('endedAt').typeDate('090120261100PM');
     cy.get('textarea[name="note"]').type('Very long day');
     cy.contains('button', 'Send for approval').click();
     cy.contains('cannot cover more than 16 hours').should('exist');

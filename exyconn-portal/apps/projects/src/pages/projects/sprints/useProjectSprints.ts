@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import {
   SprintCompletionPlanDocument,
   useProjectSprintsQuery,
@@ -13,6 +13,7 @@ import {
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
+import { queryData } from '@exyconn/shell/utils/queryData';
 
 /**
  * A project's sprints, and the three lifecycle actions the list offers.
@@ -63,7 +64,7 @@ export function useProjectSprints(projectId: string, onChanged: () => void) {
   const complete = useCallback(
     async (sprint: SprintFieldsFragment) => {
       try {
-        const { data: planData } = await client.query<
+        const planResult = await client.query<
           SprintCompletionPlanQuery,
           SprintCompletionPlanQueryVariables
         >({
@@ -71,7 +72,7 @@ export function useProjectSprints(projectId: string, onChanged: () => void) {
           variables: { id: sprint.id },
           fetchPolicy: 'network-only',
         });
-        const plan = planData.sprintCompletionPlan;
+        const plan = queryData(planResult, 'The sprint completion plan').sprintCompletionPlan;
         const ticketWord = plan.unfinishedCount === 1 ? 'ticket' : 'tickets';
         const ok = await confirm({
           title: `Complete ${sprint.name}`,

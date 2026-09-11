@@ -1,4 +1,5 @@
-import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
+import { type MockedResponse } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { ToolForm } from './tool.form';
 import { CreateToolDocument, ListToolCategoriesDocument } from '@exyconn/shell/graphql/generated';
@@ -15,8 +16,8 @@ const categoriesMock: MockedResponse = {
     data: {
       listToolCategories: [
         {
-          // Apollo 3.14's MockedProvider ignores `addTypename={false}`, so a mock
-          // result without __typename no longer satisfies the query.
+          // The cache normalises on __typename, so a mock result without one does
+          // not satisfy the query.
           __typename: 'ToolCategory',
           id: 'cat-1',
           slug: CATEGORY.slug,
@@ -60,7 +61,7 @@ const createMock: MockedResponse = {
 
 const mount = (mocks: MockedResponse[]) =>
   cy.mount(
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <ToolForm

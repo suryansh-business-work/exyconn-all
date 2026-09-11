@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { ImageConfigForm } from './image-config.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -6,7 +6,7 @@ import { theme } from '@exyconn/shell/config/theme';
 
 const mount = () =>
   cy.mount(
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <ImageConfigForm initial={null} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />

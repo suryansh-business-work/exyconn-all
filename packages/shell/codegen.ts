@@ -14,6 +14,16 @@ const config: CodegenConfig = {
       plugins: ['typescript', 'typescript-operations', 'typescript-react-apollo'],
       config: {
         withHooks: true,
+        // Apollo 4 moved every React binding — the hooks and the result/option types
+        // the aliases below are built from — out of the root entry point.
+        apolloReactHooksImportFrom: '@apollo/client/react',
+        apolloReactCommonImportFrom: '@apollo/client/react',
+        // Aliases for types Apollo 4 no longer has (MutationFunction, BaseMutationOptions,
+        // QueryResult). Nothing in the workspace referenced them; generating them only
+        // produced three hundred references to members that are gone.
+        withMutationFn: false,
+        withMutationOptionsType: false,
+        withResultType: false,
         scalars: { DateTime: 'string' },
       },
     },

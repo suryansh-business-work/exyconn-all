@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -15,7 +15,7 @@ const policy: SlaPolicyRow = {
 
 const mount = (initial: SlaPolicyRow | null) =>
   cy.mount(
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <SlaPolicyForm initial={initial} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />

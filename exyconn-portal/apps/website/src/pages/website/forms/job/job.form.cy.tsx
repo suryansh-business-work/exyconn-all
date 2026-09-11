@@ -1,4 +1,5 @@
-import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
+import { type MockedResponse } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { JobForm } from './job.form';
 import { CreateJobDocument, ListJobCompaniesDocument } from '@exyconn/shell/graphql/generated';
@@ -6,8 +7,8 @@ import { NotificationProvider } from '@exyconn/shell/components/feedback/Notific
 import { theme } from '@exyconn/shell/config/theme';
 
 const COMPANY = {
-  // Apollo 3.14's MockedProvider ignores `addTypename={false}`, so a mock result
-  // without __typename no longer satisfies the query and the select stays empty.
+  // The cache normalises on __typename, so a mock result without one does not satisfy
+  // the query and the select stays empty.
   __typename: 'JobCompany',
   id: 'company-1',
   companyCode: 'EXY',
@@ -85,7 +86,7 @@ const createMock: MockedResponse = {
 
 const mount = (mocks: MockedResponse[]) =>
   cy.mount(
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <JobForm initial={null} onDone={cy.stub().as('done')} onCancel={cy.stub().as('cancel')} />

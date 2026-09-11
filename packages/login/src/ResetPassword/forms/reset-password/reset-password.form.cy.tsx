@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -21,7 +21,7 @@ const expiredMock = {
 
 const mount = () =>
   cy.mount(
-    <MockedProvider mocks={[resetMock, expiredMock]} addTypename={false}>
+    <MockedProvider mocks={[resetMock, expiredMock]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <MemoryRouter>

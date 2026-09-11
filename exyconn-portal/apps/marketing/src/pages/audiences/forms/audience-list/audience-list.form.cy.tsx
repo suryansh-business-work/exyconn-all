@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -12,7 +12,7 @@ const choose = (name: string, option: string) => {
 
 const mount = () =>
   cy.mount(
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <AudienceListForm initial={null} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />
@@ -37,9 +37,9 @@ describe('AudienceListForm', () => {
 
   it('asks for the account status only once that segment rule is chosen', () => {
     mount();
-    cy.contains('label', 'Account status').should('not.exist');
+    cy.fieldLabel('Account status').should('not.exist');
     choose('dynamicSegment', 'Contacts By Company Status');
-    cy.contains('label', 'Account status').should('be.visible');
+    cy.fieldLabel('Account status').should('be.visible');
   });
 
   it('accepts a segment rule instead of naming anybody', () => {

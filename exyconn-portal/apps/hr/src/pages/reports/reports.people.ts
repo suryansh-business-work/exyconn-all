@@ -17,7 +17,7 @@ import { fetchAllPages, fetchList } from './fetchAll';
 type User = ListUsersQuery['listUsers'][number];
 
 /** id → display name, so every report can show a person instead of an id. */
-export async function nameLookup(client: ApolloClient<object>): Promise<Map<string, string>> {
+export async function nameLookup(client: ApolloClient): Promise<Map<string, string>> {
   const users = await fetchList(client, ListUsersDocument, (d: ListUsersQuery) => d.listUsers);
   return new Map(users.map((u) => [u.id, u.name]));
 }

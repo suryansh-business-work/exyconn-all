@@ -1,4 +1,5 @@
-import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
+import { type MockedResponse } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { CreateNavLinkDocument } from '@exyconn/shell/graphql/generated';
 import { NavLinkForm } from './nav-link.form';
@@ -25,7 +26,7 @@ const createMock: MockedResponse = {
 
 const mount = (mocks: MockedResponse[]) =>
   cy.mount(
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <NavLinkForm

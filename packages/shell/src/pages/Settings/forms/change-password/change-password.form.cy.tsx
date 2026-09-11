@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@/components/ui/styles';
 import { ChangePasswordForm } from './change-password.form';
 import { NotificationProvider } from '@/components/feedback/NotificationProvider';
@@ -6,7 +6,7 @@ import { theme } from '@/config/theme';
 
 const mount = () =>
   cy.mount(
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <ChangePasswordForm />

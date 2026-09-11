@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -41,7 +41,7 @@ const POSTED = {
 
 const mount = (onPosted = cy.stub()) =>
   cy.mount(
-    <MockedProvider mocks={[POSTED]} addTypename={false}>
+    <MockedProvider mocks={[POSTED]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <PostForm onPosted={onPosted} />

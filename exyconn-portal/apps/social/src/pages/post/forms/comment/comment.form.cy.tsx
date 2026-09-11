@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -38,7 +38,7 @@ const COMMENTED = {
 
 const mount = () =>
   cy.mount(
-    <MockedProvider mocks={[COMMENTED]} addTypename={false}>
+    <MockedProvider mocks={[COMMENTED]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <CommentForm postId={POST_ID} />

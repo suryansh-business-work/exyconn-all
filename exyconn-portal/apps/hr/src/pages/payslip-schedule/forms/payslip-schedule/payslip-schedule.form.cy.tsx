@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -20,7 +20,7 @@ const schedule: PayslipScheduleRow = {
 
 const mount = (initial: PayslipScheduleRow = schedule) =>
   cy.mount(
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <PayslipScheduleForm
@@ -44,14 +44,14 @@ describe('PayslipScheduleForm', () => {
 
   it('offers only days that exist in every month', () => {
     mount();
-    cy.contains('label', 'Day of the month').parent().find('[role="combobox"]').click();
+    cy.fieldLabel('Day of the month').parent().find('[role="combobox"]').click();
     cy.contains('[role="option"]', 'Day 28').should('exist');
     cy.contains('[role="option"]', 'Day 29').should('not.exist');
   });
 
   it('lets HR choose which month is sent', () => {
     mount();
-    cy.contains('label', 'Send payslips for').parent().find('[role="combobox"]').click();
+    cy.fieldLabel('Send payslips for').parent().find('[role="combobox"]').click();
     cy.contains('[role="option"]', 'The current month').click();
     cy.contains('The current month').should('be.visible');
   });

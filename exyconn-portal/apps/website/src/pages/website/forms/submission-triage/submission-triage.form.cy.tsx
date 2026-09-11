@@ -1,4 +1,5 @@
-import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
+import { type MockedResponse } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { TriageWebsiteSubmissionDocument } from '@exyconn/shell/graphql/generated';
 import { SubmissionTriageForm } from './submission-triage.form';
@@ -30,7 +31,7 @@ const triageMock: MockedResponse = {
 
 const mount = (row: WebsiteSubmissionRow, mocks: MockedResponse[]) =>
   cy.mount(
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <SubmissionTriageForm

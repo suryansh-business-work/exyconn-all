@@ -1,22 +1,29 @@
 import type { SvgIconComponent } from '@mui/icons-material';
-import { accessibleModules, type ModuleDefinition } from '@/config/modules';
+import { accessibleModules, type ModuleChild, type ModuleDefinition } from '@/config/modules';
+import { NAV_GROUP_ICONS, type NavGroup } from '@/config/navGroups';
 import type { Role } from '@/auth/roles';
 import type { PortalAppKey } from '@/config/apps';
 
-export interface NavItem {
+/** How deep the sidebar nests, counting its top level as the first. */
+export const MAX_NAV_DEPTH = 4;
+
+/**
+ * One entry in the sidebar tree. An entry with children is a branch: clicking it opens and
+ * closes it rather than navigating. An entry without children is a page.
+ */
+export interface NavNode {
   key: string;
   label: string;
-  path: string;
   icon: SvgIconComponent;
-  /** The section this page sits under, or undefined for the ungrouped ones that lead. */
-  group?: string;
-}
-
-/** A run of pages under one heading. The leading run has no label and no heading. */
-export interface NavSection {
-  /** Empty for the ungrouped pages that lead the list. */
-  label: string;
-  items: NavItem[];
+  /** Where a page goes. A branch carries its own path but is never navigated to. */
+  path: string;
+  /** The micro-frontend that serves `path`. */
+  app: PortalAppKey;
+  /** The owning module's colour. */
+  accent: string;
+  /** Extra words a search matches besides the label, e.g. a module's description. */
+  keywords?: string;
+  children: NavNode[];
 }
 
 /**
@@ -31,76 +38,114 @@ export function navModules(roles: Role[], currentApp: PortalAppKey): ModuleDefin
   return all.filter((module) => module.key === currentApp);
 }
 
+function pageNode(child: ModuleChild, module: ModuleDefinition): NavNode {
+  return {
+    key: child.key,
+    label: child.label,
+    icon: child.icon,
+    path: child.path,
+    app: module.key,
+    accent: module.accent,
+    children: (child.children ?? []).map((c) => pageNode(c, module)),
+  };
+}
+
+function sectionNode(group: NavGroup, module: ModuleDefinition): NavNode {
+  return {
+    key: `${module.key}:${group}`,
+    label: group,
+    icon: NAV_GROUP_ICONS[group],
+    path: module.path,
+    app: module.key,
+    accent: module.accent,
+    children: [],
+  };
+}
+
+/** A childless module is one page: itself. */
+function moduleLeaf(module: ModuleDefinition): NavNode {
+  return {
+    key: module.key,
+    label: module.label,
+    icon: module.icon,
+    path: module.path,
+    app: module.key,
+    accent: module.accent,
+    keywords: module.description,
+    children: [],
+  };
+}
+
 /**
- * The pages a module contributes to its own sidebar: its children, or the module
- * itself when it has none, filtered by a free-text query.
+ * A module's pages as its own app draws them: the ungrouped ones first, then one branch
+ * per section in the order the config first names it.
  *
- * The query is matched against the section name as well as the page's own label, so
- * somebody who remembers a page as "one of the pay ones" finds it without remembering
- * which one.
+ * A module whose pages carry no group at all stays a plain list, so a five-page portal
+ * does not grow headings over two items each.
  */
-export function moduleNavItems(module: ModuleDefinition, query = ''): NavItem[] {
+export function moduleNavTree(module: ModuleDefinition): NavNode[] {
   const children = module.children ?? [];
-  const items: NavItem[] = children.length
-    ? children.map((c) => ({
-        key: c.key,
-        label: c.label,
-        path: c.path,
-        icon: c.icon,
-        group: c.group,
-      }))
-    : [{ key: module.key, label: module.label, path: module.path, icon: module.icon }];
+  if (children.length === 0) return [moduleLeaf(module)];
 
-  const q = query.trim().toLowerCase();
-  if (!q) return items;
-  return items.filter((item) => `${item.label} ${item.group ?? ''}`.toLowerCase().includes(q));
-}
-
-/** A collapsed-sidebar entry: a nav item plus where it goes and how it is tinted. */
-export interface RailItem extends NavItem {
-  app: PortalAppKey;
-  accent: string;
-}
-
-/**
- * The flat, icon-only list the collapsed sidebar shows. The hub rails one icon per
- * module (its children live behind the expanded list); a module app rails its own pages.
- */
-export function railItems(modules: ModuleDefinition[], isHub: boolean): RailItem[] {
-  if (isHub) {
-    return modules.map((module) => ({
-      key: module.key,
-      label: module.label,
-      path: module.path,
-      icon: module.icon,
-      app: module.key,
-      accent: module.accent,
-    }));
-  }
-  return modules.flatMap((module) =>
-    moduleNavItems(module).map((item) => ({ ...item, app: module.key, accent: module.accent })),
-  );
-}
-
-/**
- * A module's pages as the sidebar draws them: the ungrouped ones first with no heading,
- * then one section per group, in the order the config declares them.
- *
- * A module whose pages carry no group at all comes back as a single unlabelled section, so
- * a five-page portal stays a plain list. Headings over two items each are noise, and the
- * sidebar is read at a glance or not at all.
- */
-export function navSections(module: ModuleDefinition, query = ''): NavSection[] {
-  const items = moduleNavItems(module, query);
-  const sections: NavSection[] = [];
-  for (const item of items) {
-    const label = item.group ?? '';
-    const last = sections[sections.length - 1];
-    if (last?.label === label) {
-      last.items.push(item);
+  const lead: NavNode[] = [];
+  const sections = new Map<NavGroup, NavNode>();
+  for (const child of children) {
+    const node = pageNode(child, module);
+    if (child.group) {
+      const section = sections.get(child.group) ?? sectionNode(child.group, module);
+      section.children.push(node);
+      sections.set(child.group, section);
     } else {
-      sections.push({ label, items: [item] });
+      lead.push(node);
     }
   }
-  return sections;
+  return [...lead, ...sections.values()];
+}
+
+/**
+ * The whole sidebar tree. A module app draws its own pages; the hub draws one branch per
+ * module with that module's pages beneath it, sections left out, so both stop at the same
+ * depth for the same config.
+ */
+export function navTree(modules: ModuleDefinition[], isHub: boolean): NavNode[] {
+  if (!isHub) return modules.flatMap(moduleNavTree);
+  return modules.map((module) => ({
+    ...moduleLeaf(module),
+    children: (module.children ?? []).map((child) => pageNode(child, module)),
+  }));
+}
+
+/**
+ * The tree as a search leaves it. An entry whose own words match keeps everything under
+ * it — somebody who remembers a page as "one of the pay ones" finds it by its section —
+ * and a branch that does not match stays only for the matches beneath it.
+ */
+export function filterNavTree(nodes: NavNode[], query: string): NavNode[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return nodes;
+  return nodes.flatMap((node) => {
+    if (`${node.label} ${node.keywords ?? ''}`.toLowerCase().includes(q)) return [node];
+    const children = filterNavTree(node.children, q);
+    return children.length > 0 ? [{ ...node, children }] : [];
+  });
+}
+
+/** Every page's path, however deep it sits. Branches are never destinations. */
+export function navPaths(nodes: NavNode[]): string[] {
+  return nodes.flatMap((node) => (node.children.length > 0 ? navPaths(node.children) : [node.path]));
+}
+
+/** Keys from the top of the tree down to the page at `path`, or none when no page has it. */
+export function navTrail(nodes: NavNode[], path: string | undefined): string[] {
+  for (const node of nodes) {
+    if (node.children.length === 0 && node.path === path) return [node.key];
+    const below = navTrail(node.children, path);
+    if (below.length > 0) return [node.key, ...below];
+  }
+  return [];
+}
+
+/** How many levels a tree nests. */
+export function navDepth(nodes: NavNode[]): number {
+  return nodes.reduce((deepest, node) => Math.max(deepest, 1 + navDepth(node.children)), 0);
 }

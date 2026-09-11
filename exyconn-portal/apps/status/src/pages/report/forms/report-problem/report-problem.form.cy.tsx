@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -37,7 +37,7 @@ const successMock = {
 
 const mount = (mocks: unknown[] = []) =>
   cy.mount(
-    <MockedProvider mocks={mocks as never[]} addTypename={false}>
+    <MockedProvider mocks={mocks as never[]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <ReportProblemForm

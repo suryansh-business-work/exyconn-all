@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { ToolCategoryForm } from './tool-category.form';
 import { CreateToolCategoryDocument } from '@exyconn/shell/graphql/generated';
@@ -28,7 +28,7 @@ const createMock = {
 
 const mount = (mocks: (typeof createMock)[] = []) =>
   cy.mount(
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <ToolCategoryForm

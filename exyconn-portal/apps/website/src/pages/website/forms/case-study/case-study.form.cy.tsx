@@ -1,4 +1,5 @@
-import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
+import { type MockedResponse } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { CaseStudyForm } from './case-study.form';
 import { CreateCaseStudyDocument } from '@exyconn/shell/graphql/generated';
@@ -33,7 +34,7 @@ const createMock: MockedResponse = {
 
 const mount = (mocks: MockedResponse[] = []) =>
   cy.mount(
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <CaseStudyForm

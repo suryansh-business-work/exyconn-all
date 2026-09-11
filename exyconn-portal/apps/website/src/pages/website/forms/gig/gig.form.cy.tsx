@@ -1,4 +1,4 @@
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { GigForm } from './gig.form';
 import { CreateGigDocument } from '@exyconn/shell/graphql/generated';
@@ -45,7 +45,7 @@ const createMock = {
 
 const mount = (mocks: (typeof createMock)[] = []) =>
   cy.mount(
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <GigForm initial={null} onDone={cy.stub().as('done')} onCancel={cy.stub().as('cancel')} />
