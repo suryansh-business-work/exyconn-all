@@ -28,7 +28,7 @@ export function TrackerOverviewPage() {
   const { data: accessData } = useTrackerAccessListQuery();
   const { data: devicesData } = useTrackerDevicesQuery();
   const { data: pendingData } = useTrackerPendingManualEntriesQuery();
-  const { data: billingData, loading } = useTrackerBillingQuery({ variables: range });
+  const { data: billingData, loading, refetch } = useTrackerBillingQuery({ variables: range });
 
   const tracking = (accessData?.trackerAccessList ?? []).filter((row) => row.isActive);
   const devices = (devicesData?.trackerDevices ?? []).filter((row) => row.isActive);
@@ -91,7 +91,9 @@ export function TrackerOverviewPage() {
       <DataTable
         columns={columns}
         rows={rows}
-        emptyMessage={loading ? 'Loading…' : 'No tracked time this month.'}
+        emptyMessage="No tracked time this month."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleOverview>
   );

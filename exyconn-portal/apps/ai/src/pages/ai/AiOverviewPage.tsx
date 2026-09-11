@@ -29,11 +29,15 @@ const USD_DIGITS = 2;
 export function AiOverviewPage() {
   const { data: jobStatsData } = useListAiJobsStatsQuery();
   const { data: promptStatsData } = useListPromptsStatsQuery();
-  const { data: jobsData, loading } = useListAiJobsQuery();
+  const { data: jobsData, loading, refetch } = useListAiJobsQuery();
   // Recomputed only when the module reloads, so the two boundaries stay stable while the
   // page is open — a window that slid under the user would make the totals jump.
   const period = useMemo(monthToDate, []);
-  const { data: spendData, loading: spendLoading } = useAiSpendSummaryQuery({ variables: period });
+  const {
+    data: spendData,
+    loading: spendLoading,
+    refetch: refetchSpend,
+  } = useAiSpendSummaryQuery({ variables: period });
   const { data: limitData } = useAiSpendLimitQuery();
 
   const jobStats = jobStatsData?.listAiJobsStats;
@@ -108,12 +112,15 @@ export function AiOverviewPage() {
       <AiSpendPanel
         summary={spendData?.aiSpendSummary}
         loading={spendLoading}
+        onRefresh={refetchSpend}
         periodLabel="this month"
       />
       <DataTable
         columns={columns}
         rows={rows.slice(0, RECENT_JOBS)}
-        emptyMessage={loading ? 'Loading…' : 'No jobs yet.'}
+        emptyMessage="No jobs yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleOverview>
   );

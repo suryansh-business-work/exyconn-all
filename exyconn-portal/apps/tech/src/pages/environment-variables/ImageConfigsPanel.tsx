@@ -74,7 +74,9 @@ export function ImageConfigsPanel() {
         actions={actions}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
-        emptyMessage={loading ? 'Loading…' : 'No image configs yet.'}
+        emptyMessage="No image configs yet."
+        loading={loading}
+        onRefresh={refetch}
       />
       {testTarget && (
         <TestUploadDialog

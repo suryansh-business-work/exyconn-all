@@ -84,7 +84,9 @@ export function NotificationsPage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'Nothing here yet.'}
+          emptyMessage="Nothing here yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

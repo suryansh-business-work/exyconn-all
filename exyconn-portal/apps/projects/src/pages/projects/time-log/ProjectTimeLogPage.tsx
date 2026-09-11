@@ -33,7 +33,7 @@ export function ProjectTimeLogPage({
 }: Readonly<ProjectTimeLogPageProps>) {
   const month = useTrackerMonth();
   const [openRow, setOpenRow] = useState<TimeLogRow | null>(null);
-  const { data, loading } = useProjectTimeLogQuery({
+  const { data, loading, refetch } = useProjectTimeLogQuery({
     variables: { projectId, from: month.range.from, to: month.range.to },
     skip: projectId === '',
     fetchPolicy: 'cache-and-network',
@@ -93,9 +93,9 @@ export function ProjectTimeLogPage({
         rows={rows}
         columns={timeLogColumns}
         onRowClick={(row) => setOpenRow(openRow?.id === row.id ? null : row)}
-        emptyMessage={
-          loading ? 'Loading the time log…' : 'No tracked time on this project for this month.'
-        }
+        emptyMessage="No tracked time on this project for this month."
+        loading={loading}
+        onRefresh={refetch}
       />
 
       {openRow ? (

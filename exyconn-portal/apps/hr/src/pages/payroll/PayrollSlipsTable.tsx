@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 import DownloadIcon from '@mui/icons-material/Download';
 import { Box, Text } from '@exyconn/shell/components/ui';
@@ -34,45 +34,54 @@ export function PayrollSlipsTable({ month, year, refreshKey }: Readonly<PayrollS
   const [rows, setRows] = useState<Slip[]>([]);
   const [loading, setLoading] = useState(false);
 
+  /** Loads the month's slips; `isCancelled` stops a superseded load from writing state. */
+  const loadSlips = useCallback(
+    async (isCancelled: () => boolean) => {
+      setLoading(true);
+      try {
+        const [slips, users] = await Promise.all([
+          client.query<ListSalarySlipsPagedQuery>({
+            query: ListSalarySlipsPagedDocument,
+            fetchPolicy: 'network-only',
+            variables: {
+              input: {
+                page: 1,
+                pageSize: 200,
+                filters: [
+                  { field: 'month', op: FilterOp.Equals, value: String(month) },
+                  { field: 'year', op: FilterOp.Equals, value: String(year) },
+                ],
+              },
+            },
+          }),
+          client.query<ListUsersQuery>({ query: ListUsersDocument }),
+        ]);
+        if (isCancelled()) return;
+        const names = new Map(
+          queryData(users, 'The user list').listUsers.map((u) => [u.id, u.name]),
+        );
+        setRows(
+          queryData(slips, 'The salary-slip list').listSalarySlipsPaged.rows.map((r) => ({
+            ...r,
+            employeeName: names.get(r.employeeId) ?? r.employeeId,
+          })),
+        );
+      } finally {
+        if (!isCancelled()) setLoading(false);
+      }
+    },
+    [client, month, year],
+  );
+
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    (async () => {
-      const [slips, users] = await Promise.all([
-        client.query<ListSalarySlipsPagedQuery>({
-          query: ListSalarySlipsPagedDocument,
-          fetchPolicy: 'network-only',
-          variables: {
-            input: {
-              page: 1,
-              pageSize: 200,
-              filters: [
-                { field: 'month', op: FilterOp.Equals, value: String(month) },
-                { field: 'year', op: FilterOp.Equals, value: String(year) },
-              ],
-            },
-          },
-        }),
-        client.query<ListUsersQuery>({ query: ListUsersDocument }),
-      ]);
-      if (cancelled) return;
-      const names = new Map(
-        queryData(users, 'The user list').listUsers.map((u) => [u.id, u.name]),
-      );
-      setRows(
-        queryData(slips, 'The salary-slip list').listSalarySlipsPaged.rows.map((r) => ({
-          ...r,
-          employeeName: names.get(r.employeeId) ?? r.employeeId,
-        })),
-      );
-      setLoading(false);
-    })().catch(() => {
-      if (!cancelled) setLoading(false);
-    });
+    loadSlips(() => cancelled).catch((error: unknown) =>
+      console.error('Could not load the salary slips', error),
+    );
     return () => {
       cancelled = true;
     };
-  }, [client, month, year, refreshKey]);
+  }, [loadSlips, refreshKey]);
 
   const columns: Column<Slip>[] = [
     {
@@ -107,7 +116,9 @@ export function PayrollSlipsTable({ month, year, refreshKey }: Readonly<PayrollS
         columns={columns}
         rows={rows}
         actions={actions}
-        emptyMessage={loading ? 'Loading…' : 'No slips for this month yet — run payroll.'}
+        emptyMessage="No slips for this month yet — run payroll."
+        loading={loading}
+        onRefresh={() => loadSlips(() => false)}
       />
     </Box>
   );

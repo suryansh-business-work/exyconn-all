@@ -38,7 +38,11 @@ export function WebsiteOverviewPage() {
   const { data: submissionStatsData } = useListWebsiteSubmissionsStatsQuery();
   const { data: blogStatsData } = useListBlogPostsStatsQuery();
   const { data: jobStatsData } = useListJobsStatsQuery();
-  const { data: submissionsData, loading } = useListWebsiteSubmissionsPagedQuery({
+  const {
+    data: submissionsData,
+    loading,
+    refetch,
+  } = useListWebsiteSubmissionsPagedQuery({
     // No sort: the inbox's own default is newest-first, which is what an overview wants.
     variables: { input: { page: 1, pageSize: RECENT_SUBMISSIONS } },
   });
@@ -102,7 +106,9 @@ export function WebsiteOverviewPage() {
       <DataTable
         columns={columns}
         rows={submissions}
-        emptyMessage={loading ? 'Loading…' : 'No enquiries yet.'}
+        emptyMessage="No enquiries yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleOverview>
   );

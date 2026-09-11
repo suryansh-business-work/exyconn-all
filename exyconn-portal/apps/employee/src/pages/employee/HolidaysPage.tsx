@@ -17,7 +17,7 @@ type HolidayRow = {
 
 /** Employee self-service: read-only company holiday calendar. */
 export function HolidaysPage() {
-  const { data, loading } = useListHolidaysQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, refetch } = useListHolidaysQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
 
   const rows = (data?.listHolidays ?? []) as HolidayRow[];
@@ -37,7 +37,9 @@ export function HolidaysPage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'No holidays published yet.'}
+          emptyMessage="No holidays published yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

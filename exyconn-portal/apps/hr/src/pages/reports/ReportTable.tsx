@@ -6,12 +6,20 @@ interface ReportTableProps {
   columns: CsvColumn<unknown>[];
   rows: unknown[];
   loading: boolean;
+  /** Re-loads the report's rows. */
+  onRefresh: () => Promise<unknown>;
   /** Only this many rows render on screen; the CSV always has every row. */
   previewLimit: number;
 }
 
 /** Renders a report's rows with the same column definitions that drive its CSV. */
-export function ReportTable({ columns, rows, loading, previewLimit }: Readonly<ReportTableProps>) {
+export function ReportTable({
+  columns,
+  rows,
+  loading,
+  onRefresh,
+  previewLimit,
+}: Readonly<ReportTableProps>) {
   const tableColumns: Column<{ id: string; row: unknown }>[] = columns.map((c) => ({
     key: c.header,
     label: c.header,
@@ -28,7 +36,9 @@ export function ReportTable({ columns, rows, loading, previewLimit }: Readonly<R
       <DataTable
         columns={tableColumns}
         rows={preview}
-        emptyMessage={loading ? 'Loading…' : 'No rows.'}
+        emptyMessage="No rows."
+        loading={loading}
+        onRefresh={onRefresh}
       />
       {rows.length > previewLimit && (
         <Text size="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>

@@ -29,7 +29,7 @@ interface AudienceMembersProps {
  * the same question the send asks, so the count on screen is the count that will be mailed.
  */
 export function AudienceMembers({ audienceId, audienceName }: Readonly<AudienceMembersProps>) {
-  const { data, loading } = useAudienceMembersQuery({ variables: { id: audienceId } });
+  const { data, loading, refetch } = useAudienceMembersQuery({ variables: { id: audienceId } });
   const members = data?.audienceMembers ?? [];
 
   return (
@@ -40,7 +40,9 @@ export function AudienceMembers({ audienceId, audienceName }: Readonly<AudienceM
       <DataTable
         columns={COLUMNS}
         rows={members}
-        emptyMessage={loading ? 'Loading…' : 'Nobody matches this audience yet.'}
+        emptyMessage="Nobody matches this audience yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </Flex>
   );

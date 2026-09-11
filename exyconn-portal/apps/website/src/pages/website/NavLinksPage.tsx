@@ -68,7 +68,9 @@ export function NavLinksPage() {
         rows={rows}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
-        emptyMessage={loading ? 'Loading…' : 'No nav links yet.'}
+        emptyMessage="No nav links yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleDashboard>
   );

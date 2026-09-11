@@ -24,7 +24,7 @@ function shortDate(iso: string): string {
 
 /** Tech → Email → Dashboard: is email working, and what has it been doing. */
 export function EmailDashboardPanel() {
-  const { data, loading } = useEmailDashboardQuery({
+  const { data, loading, refetch } = useEmailDashboardQuery({
     variables: { days: TREND_DAYS },
     fetchPolicy: 'cache-and-network',
   });
@@ -110,7 +110,9 @@ export function EmailDashboardPanel() {
       <DataTable
         columns={failureColumns}
         rows={board?.recentFailures ?? []}
-        emptyMessage={loading ? 'Loading…' : 'Nothing has failed recently.'}
+        emptyMessage="Nothing has failed recently."
+        loading={loading}
+        onRefresh={refetch}
       />
     </Box>
   );

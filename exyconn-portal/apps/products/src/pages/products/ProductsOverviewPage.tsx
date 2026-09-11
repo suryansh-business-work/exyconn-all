@@ -23,7 +23,7 @@ const RECENT_PRODUCTS = 8;
 export function ProductsOverviewPage() {
   const { data: statsData } = useListProductsStatsQuery();
   const { data: valueData } = useInventoryValueQuery();
-  const { data: productsData, loading } = useListProductsQuery();
+  const { data: productsData, loading, refetch } = useListProductsQuery();
 
   const stats = statsData?.listProductsStats;
   const products = productsData?.listProducts ?? [];
@@ -77,7 +77,9 @@ export function ProductsOverviewPage() {
       <DataTable
         columns={columns}
         rows={rows.slice(0, RECENT_PRODUCTS)}
-        emptyMessage={loading ? 'Loading…' : 'No products yet.'}
+        emptyMessage="No products yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleOverview>
   );

@@ -78,7 +78,9 @@ export function ExpensesPage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'You have not filed any claims yet.'}
+          emptyMessage="You have not filed any claims yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

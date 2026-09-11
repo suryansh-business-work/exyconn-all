@@ -17,7 +17,7 @@ type SendRow = ListCampaignSendsQuery['listCampaignSends'][number];
  */
 export function CampaignDeliveryLog({ campaignId }: Readonly<{ campaignId: string }>) {
   const { formatDateTime } = useSettings();
-  const { data, loading } = useListCampaignSendsQuery({ variables: { campaignId } });
+  const { data, loading, refetch } = useListCampaignSendsQuery({ variables: { campaignId } });
   const { data: summaryData } = useCampaignSendSummaryQuery({ variables: { campaignId } });
   const rows = data?.listCampaignSends ?? [];
   const summary = summaryData?.campaignSendSummary;
@@ -40,7 +40,9 @@ export function CampaignDeliveryLog({ campaignId }: Readonly<{ campaignId: strin
       <DataTable
         columns={columns}
         rows={rows}
-        emptyMessage={loading ? 'Loading…' : 'This campaign has not been sent yet.'}
+        emptyMessage="This campaign has not been sent yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </Flex>
   );

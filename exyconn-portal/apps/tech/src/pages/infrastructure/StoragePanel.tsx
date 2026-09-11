@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Alert, Box, CircularProgress, Grid, Text, color } from '@exyconn/shell/components/ui';
+import { Alert, Box, Grid, Text, color } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
 import { formatBytes } from '@exyconn/shell/utils/file';
@@ -34,7 +34,9 @@ const COLUMNS: Column<ImageRow>[] = [
 
 /** The Storage tab: what the engine's disk is spent on, and every image on the host. */
 export function StoragePanel() {
-  const { data, loading, error } = useDockerStorageQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, error, refetch } = useDockerStorageQuery({
+    fetchPolicy: 'cache-and-network',
+  });
 
   if (error) {
     return <Alert severity="error">{error.message}</Alert>;
@@ -72,11 +74,12 @@ export function StoragePanel() {
           </Grid>
         ))}
       </Grid>
-      {loading && rows.length === 0 && <CircularProgress size={24} />}
       <DataTable
         columns={COLUMNS}
         rows={rows}
-        emptyMessage={loading ? 'Reading the Docker engine…' : 'No images on this host.'}
+        emptyMessage="No images on this host."
+        loading={loading}
+        onRefresh={refetch}
       />
     </Box>
   );

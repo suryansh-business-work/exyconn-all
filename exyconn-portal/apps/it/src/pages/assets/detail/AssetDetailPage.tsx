@@ -28,7 +28,11 @@ export function AssetDetailPage() {
   const navigate = useNavigate();
   const { formatDate } = useSettings();
   const { data, loading, refetch } = useGetAssetQuery({ variables: { id }, skip: id === '' });
-  const { data: historyData, loading: historyLoading } = useAssetAssignmentsQuery({
+  const {
+    data: historyData,
+    loading: historyLoading,
+    refetch: refetchHistory,
+  } = useAssetAssignmentsQuery({
     variables: { assetId: id },
     skip: id === '',
     fetchPolicy: 'cache-and-network',
@@ -98,6 +102,7 @@ export function AssetDetailPage() {
       <AssetAssignmentHistory
         rows={historyData?.assetAssignments ?? []}
         loading={historyLoading}
+        onRefresh={refetchHistory}
         formatDate={formatDate}
       />
 

@@ -145,7 +145,9 @@ export function TrackerAccessPage() {
       <DataTable
         columns={columns}
         rows={rows}
-        emptyMessage={usersQuery.loading ? 'Loading…' : 'No employees found.'}
+        emptyMessage="No employees found."
+        loading={usersQuery.loading || accessQuery.loading}
+        onRefresh={() => Promise.all([usersQuery.refetch(), accessQuery.refetch()])}
       />
     </ModuleDashboard>
   );

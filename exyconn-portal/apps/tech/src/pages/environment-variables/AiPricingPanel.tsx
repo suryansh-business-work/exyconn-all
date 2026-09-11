@@ -75,7 +75,9 @@ export function AiPricingPanel() {
         rows={data?.listAiModelPrices ?? []}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
-        emptyMessage={loading ? 'Loading…' : 'No model prices yet.'}
+        emptyMessage="No model prices yet."
+        loading={loading}
+        onRefresh={refetch}
       />
 
       <Divider sx={{ my: 3 }} />

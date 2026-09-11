@@ -32,7 +32,11 @@ const healthAccent = (down: number, degraded: number): string => {
  * the one question the individual pages cannot: is any of it broken right now.
  */
 export function TechOverviewPage() {
-  const { data: statusData, loading } = useStatusOverviewQuery({
+  const {
+    data: statusData,
+    loading,
+    refetch,
+  } = useStatusOverviewQuery({
     variables: { days: OVERVIEW_DAYS },
     fetchPolicy: 'cache-and-network',
   });
@@ -119,7 +123,9 @@ export function TechOverviewPage() {
       <DataTable
         columns={columns}
         rows={rows.slice(0, RECENT_SERVICES)}
-        emptyMessage={loading ? 'Loading…' : 'No services are being monitored yet.'}
+        emptyMessage="No services are being monitored yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleOverview>
   );

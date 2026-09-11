@@ -7,6 +7,8 @@ export type AssignmentRow = AssetAssignmentsQuery['assetAssignments'][number];
 interface AssetAssignmentHistoryProps {
   rows: readonly AssignmentRow[];
   loading: boolean;
+  /** Re-reads the assignment history. */
+  onRefresh: () => Promise<unknown>;
   /** The viewer's own date formatting, from Admin > Settings. */
   formatDate: (value: string) => string;
 }
@@ -32,6 +34,7 @@ function ReturnedCell({
 export function AssetAssignmentHistory({
   rows,
   loading,
+  onRefresh,
   formatDate,
 }: Readonly<AssetAssignmentHistoryProps>) {
   const columns: Column<AssignmentRow>[] = [
@@ -60,7 +63,9 @@ export function AssetAssignmentHistory({
       <DataTable
         columns={columns}
         rows={[...rows]}
-        emptyMessage={loading ? 'Loading…' : 'This asset has never been assigned.'}
+        emptyMessage="This asset has never been assigned."
+        loading={loading}
+        onRefresh={onRefresh}
       />
     </Card>
   );

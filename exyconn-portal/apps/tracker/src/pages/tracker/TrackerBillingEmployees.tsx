@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ExportCsvButton } from '@exyconn/crud';
-import { Box, CircularProgress, Flex, Grid, Text, color } from '@exyconn/shell/components/ui';
+import { Box, Flex, Grid, Text, color } from '@exyconn/shell/components/ui';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
 import { glass } from '@exyconn/shell/components/glass/glass';
 import { useTrackerBillingQuery } from '@exyconn/shell/graphql/generated';
@@ -16,7 +16,7 @@ import type { BillingRange } from './BillingRangePicker';
  * structure in HR, so this report and payroll can never disagree about what somebody costs.
  */
 export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRange }>) {
-  const { data, loading } = useTrackerBillingQuery({
+  const { data, loading, refetch } = useTrackerBillingQuery({
     variables: { from: range.from, to: range.to },
     fetchPolicy: 'cache-and-network',
   });
@@ -79,13 +79,7 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
       </Flex>
 
       <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
-        {loading && !billing ? (
-          <Flex justifyContent="center" sx={{ py: 4 }}>
-            <CircularProgress size={22} aria-label="Loading billing" />
-          </Flex>
-        ) : (
-          <TrackerBillingTable rows={rows} money={money} />
-        )}
+        <TrackerBillingTable rows={rows} money={money} loading={loading} onRefresh={refetch} />
       </Box>
     </Box>
   );

@@ -20,7 +20,7 @@ interface ProjectTicketsPageProps {
  */
 export function ProjectTicketsPage({ projectId }: Readonly<ProjectTicketsPageProps>) {
   const { formatDate } = useSettings();
-  const { data, refetch } = useProjectTasksQuery({
+  const { data, loading, refetch } = useProjectTasksQuery({
     variables: { projectId },
     fetchPolicy: 'cache-and-network',
   });
@@ -99,6 +99,8 @@ export function ProjectTicketsPage({ projectId }: Readonly<ProjectTicketsPagePro
         rows={filtered}
         onRowClick={(row) => setOpenId(row.id)}
         emptyMessage="No tickets match."
+        loading={loading}
+        onRefresh={refetch}
       />
 
       <TicketDialog

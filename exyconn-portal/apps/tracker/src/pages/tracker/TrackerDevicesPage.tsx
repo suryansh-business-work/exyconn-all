@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { NetworkStatus } from '@apollo/client';
 import BlockIcon from '@mui/icons-material/Block';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -26,7 +27,7 @@ const REFRESH_MS = 60_000;
 
 /** Tracker devices console — the kill-switch for a lost or retired laptop. */
 export function TrackerDevicesPage() {
-  const { data, loading, refetch } = useTrackerDevicesQuery({
+  const { data, loading, refetch, networkStatus } = useTrackerDevicesQuery({
     fetchPolicy: 'cache-and-network',
     pollInterval: REFRESH_MS,
   });
@@ -114,7 +115,9 @@ export function TrackerDevicesPage() {
             onClick: handleRevoke,
           },
         ]}
-        emptyMessage={loading ? 'Loading…' : 'No devices enrolled.'}
+        emptyMessage="No devices enrolled."
+        loading={loading && networkStatus !== NetworkStatus.poll}
+        onRefresh={refetch}
       />
       {selected && (
         <TrackerDeviceDetails

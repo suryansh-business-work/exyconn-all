@@ -102,7 +102,9 @@ export function ApprovalsPage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'You are all caught up.'}
+          emptyMessage="You are all caught up."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

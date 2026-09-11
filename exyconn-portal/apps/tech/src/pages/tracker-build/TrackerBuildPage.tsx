@@ -79,7 +79,9 @@ export function TrackerBuildPage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={builds.loading ? 'Loading…' : 'No builds yet.'}
+          emptyMessage="No builds yet."
+          loading={builds.loading}
+          onRefresh={builds.refetch}
         />
       </Box>
     </Box>

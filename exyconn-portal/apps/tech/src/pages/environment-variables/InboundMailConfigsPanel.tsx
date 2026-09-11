@@ -95,7 +95,9 @@ export function InboundMailConfigsPanel() {
         actions={actions}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
-        emptyMessage={loading ? 'Loading…' : 'No inbound mailboxes yet.'}
+        emptyMessage="No inbound mailboxes yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </Box>
   );

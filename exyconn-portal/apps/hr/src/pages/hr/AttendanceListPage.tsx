@@ -17,7 +17,7 @@ type AttendanceRow = {
 
 /** HR Attendance — every recorded attendance entry across the workforce. */
 export function AttendanceListPage() {
-  const { data, loading } = useListAttendanceQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, refetch } = useListAttendanceQuery({ fetchPolicy: 'cache-and-network' });
   const { data: usersData } = useListUsersQuery();
   const { formatDate } = useSettings();
 
@@ -47,7 +47,9 @@ export function AttendanceListPage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'No attendance recorded yet.'}
+          emptyMessage="No attendance recorded yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

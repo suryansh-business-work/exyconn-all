@@ -19,7 +19,7 @@ type Row = {
 
 /** Employee self-service: insurance, PF, gratuity and other company benefits. */
 export function BenefitsPage() {
-  const { data, loading } = useMyBenefitsQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, refetch } = useMyBenefitsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const rows = (data?.myBenefits ?? []) as Row[];
 
@@ -55,7 +55,9 @@ export function BenefitsPage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'No benefits recorded for you yet.'}
+          emptyMessage="No benefits recorded for you yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

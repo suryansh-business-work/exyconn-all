@@ -54,7 +54,9 @@ export function DepartmentsPage() {
           rows={rows}
           onEdit={crud.openEdit}
           onDelete={crud.remove}
-          emptyMessage={loading ? 'Loading…' : 'No departments yet.'}
+          emptyMessage="No departments yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

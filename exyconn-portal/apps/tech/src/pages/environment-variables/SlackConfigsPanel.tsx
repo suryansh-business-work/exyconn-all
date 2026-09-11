@@ -78,7 +78,9 @@ export function SlackConfigsPanel() {
         actions={actions}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
-        emptyMessage={loading ? 'Loading…' : 'No Slack configs yet.'}
+        emptyMessage="No Slack configs yet."
+        loading={loading}
+        onRefresh={refetch}
       />
       <CrudDialog
         open={Boolean(testTarget)}

@@ -87,7 +87,9 @@ export function SupportPage() {
           columns={columns}
           rows={rows}
           actions={actions}
-          emptyMessage={loading ? 'Loading…' : 'You have no support tickets yet.'}
+          emptyMessage="You have no support tickets yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
       <CrudDialog open={active !== null} title={active?.subject ?? ''} onClose={closeThread}>

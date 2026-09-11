@@ -57,7 +57,9 @@ export function MyAttendancePage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'No attendance recorded yet.'}
+          emptyMessage="No attendance recorded yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

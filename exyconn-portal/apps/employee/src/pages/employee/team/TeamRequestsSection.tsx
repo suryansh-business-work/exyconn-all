@@ -36,7 +36,9 @@ export function TeamRequestsSection({ nameOf }: Readonly<TeamSectionProps>) {
           (row) => decide(row, RequestStatus.Approved),
           (row) => decide(row, RequestStatus.Rejected),
         )}
-        emptyMessage={loading ? 'Loading…' : 'No requests from your team.'}
+        emptyMessage="No requests from your team."
+        loading={loading}
+        onRefresh={refetch}
       />
     </Box>
   );

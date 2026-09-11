@@ -41,7 +41,7 @@ function DetailRow({ label, value, strong }: { label: string; value: string; str
 
 /** Employee self-service: browse and inspect your monthly salary slips. */
 export function SalarySlipsPage() {
-  const { data, loading } = useMySalarySlipsQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, refetch } = useMySalarySlipsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const { download, downloading } = usePayslipDownload();
   const [selected, setSelected] = useState<SalarySlipRow | null>(null);
@@ -94,7 +94,9 @@ export function SalarySlipsPage() {
           columns={columns}
           rows={rows}
           actions={actions}
-          emptyMessage={loading ? 'Loading…' : 'No payslips yet.'}
+          emptyMessage="No payslips yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
       <CrudDialog

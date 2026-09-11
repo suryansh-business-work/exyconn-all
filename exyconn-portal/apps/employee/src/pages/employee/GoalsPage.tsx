@@ -77,7 +77,9 @@ export function GoalsPage() {
         <DataTable
           columns={columns}
           rows={rows}
-          emptyMessage={loading ? 'Loading…' : 'No goals have been set for you yet.'}
+          emptyMessage="No goals have been set for you yet."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Box>

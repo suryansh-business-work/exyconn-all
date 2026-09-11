@@ -26,7 +26,11 @@ export function AdminOverviewPage() {
   const { data: userStatsData } = useListUsersStatsQuery();
   const { data: clientStatsData } = useListClientsStatsQuery();
   const { data: auditStatsData } = useListAuditLogsStatsQuery();
-  const { data: auditData, loading } = useListAuditLogsPagedQuery({
+  const {
+    data: auditData,
+    loading,
+    refetch,
+  } = useListAuditLogsPagedQuery({
     // No sort: the log's own default is newest-first, which is what an overview wants.
     variables: { input: { page: 1, pageSize: RECENT_CHANGES } },
   });
@@ -87,7 +91,9 @@ export function AdminOverviewPage() {
       <DataTable
         columns={columns}
         rows={changes}
-        emptyMessage={loading ? 'Loading…' : 'Nothing has been changed yet.'}
+        emptyMessage="Nothing has been changed yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleOverview>
   );

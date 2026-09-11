@@ -8,10 +8,12 @@ type BillingRow = TrackerBillingQuery['trackerBilling']['rows'][number];
 interface Props {
   rows: BillingRow[];
   money: Intl.NumberFormat;
+  loading: boolean;
+  onRefresh: () => Promise<unknown>;
 }
 
 /** Per-employee hours and amount. Says plainly when a row has no rate behind it. */
-export function TrackerBillingTable({ rows, money }: Readonly<Props>) {
+export function TrackerBillingTable({ rows, money, loading, onRefresh }: Readonly<Props>) {
   const columns: Column<BillingRow>[] = [
     { key: 'name', label: 'Employee' },
     { key: 'email', label: 'Email' },
@@ -32,5 +34,13 @@ export function TrackerBillingTable({ rows, money }: Readonly<Props>) {
     { key: 'amount', label: 'Amount', render: (r) => money.format(r.amount) },
   ];
 
-  return <DataTable columns={columns} rows={rows} emptyMessage="No tracked time in this range." />;
+  return (
+    <DataTable
+      columns={columns}
+      rows={rows}
+      emptyMessage="No tracked time in this range."
+      loading={loading}
+      onRefresh={onRefresh}
+    />
+  );
 }

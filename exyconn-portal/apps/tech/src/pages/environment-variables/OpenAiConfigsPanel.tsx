@@ -91,7 +91,9 @@ export function OpenAiConfigsPanel() {
         actions={actions}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
-        emptyMessage={loading ? 'Loading…' : 'No OpenAI configs yet.'}
+        emptyMessage="No OpenAI configs yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </Box>
   );

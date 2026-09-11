@@ -24,7 +24,7 @@ const OPEN_BUG_STATUSES = ['OPEN', 'IN_PROGRESS'];
 export function ProjectsOverviewPage() {
   const { data: projectStatsData } = useListProjectsStatsQuery();
   const { data: bugStatsData } = useListBugsStatsQuery();
-  const { data: projectsData, loading } = useListProjectsQuery();
+  const { data: projectsData, loading, refetch } = useListProjectsQuery();
   const { formatDate } = useSettings();
 
   const projectStats = projectStatsData?.listProjectsStats;
@@ -87,7 +87,9 @@ export function ProjectsOverviewPage() {
       <DataTable
         columns={columns}
         rows={projects.slice(0, RECENT_PROJECTS)}
-        emptyMessage={loading ? 'Loading…' : 'No projects yet.'}
+        emptyMessage="No projects yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleOverview>
   );

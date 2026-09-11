@@ -3,15 +3,15 @@ import { AgGridReact } from 'ag-grid-react';
 import {
   ModuleRegistry,
   AllCommunityModule,
-  themeQuartz,
   type ColDef,
   type GridReadyEvent,
   type IDatasource,
   type IGetRowsParams,
   type RowClickedEvent,
 } from 'ag-grid-community';
-import { BASE_RADIUS, Box, TextField, fontSize, fontWeight, useTheme } from '@/components/ui';
+import { Box } from '@/components/ui';
 import type { TableQueryInput } from '@/graphql/generated';
+import { errorMessage } from '@/utils/errorMessage';
 import {
   SEARCH_DEBOUNCE_MS,
   TEXT_FILTER_PARAMS,
@@ -19,6 +19,11 @@ import {
   toSort,
   type GridQuery,
 } from './serverGridQuery';
+import { skeletonWhileLoading } from './GridSkeletonCell';
+import { ServerGridToolbar } from './ServerGridToolbar';
+import { useGridTheme } from './useGridTheme';
+import { useLoadingLock } from './useLoadingLock';
+import type { ServerDataGridProps } from './ServerDataGrid.types';
 
 // ag-grid v33+ requires explicit module registration; the Community bundle covers the
 // infinite row model, sorting and column text filters this grid relies on.
@@ -26,36 +31,16 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 
 const DEFAULT_PAGE_SIZE = 25;
 
-export interface TablePageResult<T> {
-  rows: T[];
-  totalCount: number;
-}
-
 export type { GridQuery } from './serverGridQuery';
-
-export interface ServerDataGridProps<T> {
-  columnDefs: ColDef<T>[];
-  /** Fetches one page from the server for the given query. */
-  fetchRows: (input: TableQueryInput) => Promise<TablePageResult<T>>;
-  pageSize?: number;
-  searchPlaceholder?: string;
-  onRowClick?: (row: T) => void;
-  /** Passed to ag-grid so cell renderers can reach page-level handlers. */
-  context?: object;
-  /** Bump to force a reload after a create/update/delete elsewhere on the page. */
-  refreshSignal?: number;
-  height?: number | string;
-  /**
-   * Told the search/sort/filters behind every page the grid loads, so an export can fetch
-   * ALL rows with exactly the query the person is looking at.
-   */
-  onQuery?: (query: GridQuery) => void;
-}
+export type { ServerDataGridProps, TablePageResult } from './ServerDataGrid.types';
 
 /**
  * Server-driven data grid (implementation): ag-grid Community in its infinite row model, so
  * every page, sort and column filter is resolved by the server via `fetchRows`. Loaded lazily
  * through `ServerDataGrid` so ag-grid stays out of the main bundle. Styled from the MUI theme.
+ *
+ * While a page is loading its rows draw skeletons and the whole grid — search, refresh,
+ * sorting, filters, pager and row actions — is locked until the server answers.
  */
 function ServerDataGridImpl({
   columnDefs,
@@ -68,29 +53,13 @@ function ServerDataGridImpl({
   height = 560,
   onQuery,
 }: Readonly<ServerDataGridProps<unknown>>) {
-  const theme = useTheme();
+  const gridTheme = useGridTheme();
   const gridRef = useRef<AgGridReact<unknown>>(null);
+  // The trimmed search the grid last loaded with; the box's live text debounces into it.
   const searchRef = useRef('');
   const [search, setSearch] = useState('');
-
-  const gridTheme = useMemo(
-    () =>
-      themeQuartz.withParams({
-        accentColor: theme.palette.primary.main,
-        backgroundColor: theme.palette.background.paper,
-        foregroundColor: theme.palette.text.primary,
-        borderColor: theme.palette.divider,
-        headerBackgroundColor: theme.palette.background.default,
-        headerTextColor: theme.palette.text.secondary,
-        rowHoverColor: theme.palette.action.hover,
-        fontFamily: theme.typography.fontFamily,
-        fontSize: fontSize.sm,
-        headerFontSize: fontSize.xs,
-        headerFontWeight: fontWeight.bold,
-        wrapperBorderRadius: BASE_RADIUS,
-      }),
-    [theme],
-  );
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const lock = useLoadingLock();
 
   const defaultColDef = useMemo<ColDef<unknown>>(
     () => ({
@@ -101,16 +70,17 @@ function ServerDataGridImpl({
       resizable: true,
       flex: 1,
       minWidth: 120,
+      cellRendererSelector: skeletonWhileLoading,
     }),
     [],
   );
 
+  const { begin, end } = lock;
   const datasource = useMemo<IDatasource>(
     () => ({
       getRows: (params: IGetRowsParams) => {
-        const searchValue = searchRef.current.trim();
         const query: GridQuery = {
-          search: searchValue === '' ? null : searchValue,
+          search: searchRef.current === '' ? null : searchRef.current,
           sort: toSort(params.sortModel),
           filters: toFilters(
             params.filterModel as Record<string, { type?: string; filter?: unknown }>,
@@ -122,12 +92,21 @@ function ServerDataGridImpl({
           page: Math.floor(params.startRow / pageSize),
           pageSize,
         };
+        begin();
         fetchRows(input)
-          .then((page) => params.successCallback(page.rows, page.totalCount))
-          .catch(() => params.failCallback());
+          .then((page) => {
+            setLoadError(null);
+            params.successCallback(page.rows, page.totalCount);
+          })
+          .catch((error: unknown) => {
+            console.error('Could not load the grid page', error);
+            setLoadError(errorMessage(error, 'The server did not answer'));
+            params.failCallback();
+          })
+          .finally(end);
       },
     }),
-    [fetchRows, pageSize, onQuery],
+    [fetchRows, pageSize, onQuery, begin, end],
   );
 
   const onGridReady = useCallback(
@@ -135,21 +114,28 @@ function ServerDataGridImpl({
     [datasource],
   );
 
-  // Debounce the search box, then reload from the first row.
+  const reload = useCallback(() => gridRef.current?.api?.purgeInfiniteCache(), []);
+
+  // Debounce the search box, then reload from the first row — but only when the text the
+  // grid would search for actually changed, so mounting or re-typing the same value is free.
   useEffect(() => {
+    const next = search.trim();
+    if (next === searchRef.current) {
+      return undefined;
+    }
     const id = setTimeout(() => {
-      searchRef.current = search;
-      gridRef.current?.api?.purgeInfiniteCache();
+      searchRef.current = next;
+      reload();
     }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(id);
-  }, [search]);
+  }, [search, reload]);
 
   // Reload when the host signals an external data change (create/update/delete).
   useEffect(() => {
     if (refreshSignal > 0) {
-      gridRef.current?.api?.purgeInfiniteCache();
+      reload();
     }
-  }, [refreshSignal]);
+  }, [refreshSignal, reload]);
 
   const handleRowClicked = useCallback(
     (event: RowClickedEvent<unknown>) => {
@@ -161,13 +147,14 @@ function ServerDataGridImpl({
   );
 
   return (
-    <Box>
-      <TextField
-        size="small"
-        placeholder={searchPlaceholder}
-        value={search}
-        onChange={(event) => setSearch(event.target.value)}
-        sx={{ mb: 1.5, width: { xs: '100%', sm: 320 } }}
+    <Box ref={lock.containerRef} inert={lock.loading} aria-busy={lock.loading}>
+      <ServerGridToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder={searchPlaceholder}
+        onRefresh={reload}
+        loading={lock.loading}
+        loadError={loadError}
       />
       <Box sx={{ height, width: '100%' }}>
         <AgGridReact<unknown>
@@ -178,6 +165,7 @@ function ServerDataGridImpl({
           context={context}
           rowModelType="infinite"
           cacheBlockSize={pageSize}
+          infiniteInitialRowCount={pageSize}
           pagination
           paginationPageSize={pageSize}
           paginationPageSizeSelector={false}

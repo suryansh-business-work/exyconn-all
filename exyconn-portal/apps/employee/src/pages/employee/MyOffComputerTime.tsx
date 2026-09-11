@@ -32,7 +32,7 @@ export function MyOffComputerTime({ from, to, projects }: Readonly<MyOffComputer
   const notify = useNotify();
   const confirm = useConfirm();
   const [adding, setAdding] = useState(false);
-  const { data } = useMyTrackerManualEntriesQuery({ variables: { from, to } });
+  const { data, loading, refetch } = useMyTrackerManualEntriesQuery({ variables: { from, to } });
   const [withdrawEntry] = useWithdrawTrackerManualEntryMutation({
     refetchQueries: [MyTrackerManualEntriesDocument],
   });
@@ -117,6 +117,8 @@ export function MyOffComputerTime({ from, to, projects }: Readonly<MyOffComputer
           columns={columns}
           actions={actions}
           emptyMessage="No off-computer time claimed this month."
+          loading={loading}
+          onRefresh={refetch}
         />
       </Box>
     </Card>

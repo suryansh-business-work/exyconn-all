@@ -22,7 +22,7 @@ const RECENT_CAMPAIGNS = 8;
 /** Marketing → Overview: what is running, what it costs, and who it reached. */
 export function MarketingOverviewPage() {
   const { data: statsData } = useListCampaignsStatsQuery();
-  const { data: campaignsData, loading } = useListCampaignsQuery();
+  const { data: campaignsData, loading, refetch } = useListCampaignsQuery();
   const { data: leadsData } = useCampaignLeadCountsQuery();
   const { formatDate } = useSettings();
 
@@ -83,7 +83,9 @@ export function MarketingOverviewPage() {
       <DataTable
         columns={columns}
         rows={campaigns.slice(0, RECENT_CAMPAIGNS)}
-        emptyMessage={loading ? 'Loading…' : 'No campaigns yet.'}
+        emptyMessage="No campaigns yet."
+        loading={loading}
+        onRefresh={refetch}
       />
     </ModuleOverview>
   );

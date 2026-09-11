@@ -58,6 +58,7 @@ export function ReportPanel({ report }: Readonly<{ report: AnyReport }>) {
         columns={report.columns}
         rows={rows}
         loading={loading}
+        onRefresh={load}
         previewLimit={PREVIEW_ROWS}
       />
     </>
