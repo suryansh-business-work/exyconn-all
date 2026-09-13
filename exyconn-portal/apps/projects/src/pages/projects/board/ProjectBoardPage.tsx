@@ -9,6 +9,7 @@ import { TaskCard } from './TaskCard';
 import { AddItemInput } from './AddItemInput';
 import { TicketDialog } from '../ticket';
 import { tasksForSprint } from '../sprints/sprint-progress';
+import { CenteredState } from '@exyconn/shell/components/feedback/CenteredState';
 
 interface ProjectBoardPageProps {
   projectId: string;
@@ -34,9 +35,9 @@ export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBo
 
   if (board.loading && board.columns.length === 0) {
     return (
-      <Box sx={{ display: 'grid', placeItems: 'center', flex: 1, py: 6 }}>
+      <CenteredState fill>
         <CircularProgress />
-      </Box>
+      </CenteredState>
     );
   }
 

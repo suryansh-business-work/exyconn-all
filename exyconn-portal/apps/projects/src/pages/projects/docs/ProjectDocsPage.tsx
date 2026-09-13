@@ -7,11 +7,12 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Box, Button, CircularProgress, Flex, Grid, Text } from '@exyconn/shell/components/ui';
+import { Button, Flex, Grid, Text } from '@exyconn/shell/components/ui';
 import AddIcon from '@mui/icons-material/Add';
 import { useProjectDocs } from './useProjectDocs';
 import { DocTree } from './DocTree';
 import { DocPageEditor } from './DocPageEditor';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 
 interface ProjectDocsPageProps {
   projectId: string;
@@ -35,11 +36,7 @@ export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
   };
 
   if (docs.loading && docs.pages.length === 0) {
-    return (
-      <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <LoadingState />;
   }
 
   return (

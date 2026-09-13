@@ -1,14 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  Box,
-  Button,
-  Card,
-  Chip,
-  CircularProgress,
-  Flex,
-  Stack,
-  Typography,
-} from '@exyconn/shell/components/ui';
+import { Button, Card, Chip, Flex, Stack, Typography } from '@exyconn/shell/components/ui';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -17,6 +8,7 @@ import { AssetNotesForm } from '../forms/asset-notes';
 import { AssetAssignmentHistory } from './AssetAssignmentHistory';
 import { AssetFacts, type AssetFact } from './AssetFacts';
 import { AssetLicenceSeats } from './AssetLicenceSeats';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 
 /**
  * One asset: what it is, who has it, what it has cost, and every hand-over it has been
@@ -41,11 +33,7 @@ export function AssetDetailPage() {
   const asset = data?.getAsset;
 
   if (loading && !asset) {
-    return (
-      <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <LoadingState />;
   }
 
   if (!asset) {

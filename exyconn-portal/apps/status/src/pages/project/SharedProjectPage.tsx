@@ -1,14 +1,5 @@
 import { useParams } from 'react-router-dom';
-import {
-  Alert,
-  Box,
-  Card,
-  Chip,
-  CircularProgress,
-  Flex,
-  Typography,
-  iconSize,
-} from '@exyconn/shell/components/ui';
+import { Alert, Box, Card, Chip, Flex, Typography, iconSize } from '@exyconn/shell/components/ui';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { useSharedProjectQuery } from '@exyconn/shell/graphql/generated';
@@ -16,6 +7,7 @@ import { DATE_FORMAT } from '../../status.constants';
 import { SharedProjectFacts } from './SharedProjectFacts';
 import { SharedProjectProgress } from './SharedProjectProgress';
 import type { SharedProjectView } from './shared-project.types';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 
 const dateOrDash = (value?: string | null) => (value ? formatWith(value, DATE_FORMAT) : '—');
 
@@ -48,11 +40,7 @@ export function SharedProjectPage() {
   });
 
   if (loading) {
-    return (
-      <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <LoadingState />;
   }
 
   const project = data?.sharedProject;
