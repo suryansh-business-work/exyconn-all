@@ -1,4 +1,8 @@
-import { organizationService, type OrganizationAdminInput, type OrganizationInput } from './organizations.service';
+import {
+  organizationService,
+  type OrganizationAdminInput,
+  type OrganizationInput,
+} from './organizations.service';
 import type { OrganizationStatus } from './organization.model';
 import { assertAuthenticated, assertPlatformAdmin } from '../../middleware/roleGuard';
 import { withId, withIds } from '../../utils/serialize';
@@ -68,7 +72,8 @@ export const organizationsResolvers = {
     /** Written before a field existed, a lean row comes back without it. */
     legalName: (organization: { legalName?: string | null }) => organization.legalName ?? '',
     country: (organization: { country?: string | null }) => organization.country ?? '',
-    contactEmail: (organization: { contactEmail?: string | null }) => organization.contactEmail ?? '',
+    contactEmail: (organization: { contactEmail?: string | null }) =>
+      organization.contactEmail ?? '',
   },
   User: {
     /** Which company a person belongs to; null for a platform administrator. */

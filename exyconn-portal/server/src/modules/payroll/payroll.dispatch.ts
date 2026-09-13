@@ -1,4 +1,5 @@
 import { SalarySlipModel } from '../employee/salarySlip.model';
+import { companyProfile } from '../../lib/company';
 import { SalaryStructureModel } from '../employee/salary.model';
 import { UserModel } from '../admin/user.model';
 import { BrandingModel } from '../branding/branding.model';
@@ -58,7 +59,9 @@ async function render(slip: SlipRow): Promise<RenderedPayslip> {
     notFound('The employee this payslip belongs to');
   }
 
+  const profile = await companyProfile();
   const data: PayslipData = {
+    locale: profile.locale,
     company: {
       name: branding?.businessName ?? 'Exyconn',
       address: branding?.address ?? '',
@@ -108,7 +111,7 @@ async function render(slip: SlipRow): Promise<RenderedPayslip> {
     employeeName: employee.name,
     employeeEmail: employee.email,
     period: periodLabel(slip.month, slip.year),
-    netPay: formatAmount(slip.net, slip.currency),
+    netPay: formatAmount(slip.net, slip.currency, profile.locale),
     status: slip.status,
   };
 }

@@ -2,7 +2,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { YEAR_MONTH } from '@exyconn/regex';
-import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfTextField,
+  RhfSelect,
+  RhfCurrencyField,
+  useCompanyCurrency,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { useCreateBudgetMutation, useUpdateBudgetMutation } from '@exyconn/shell/graphql/generated';
@@ -18,11 +23,11 @@ const schema = z.object({
 });
 type Values = z.infer<typeof schema>;
 
-const toInitial = (row: BudgetRow | null): Values => ({
+const toInitial = (row: BudgetRow | null, currency: string): Values => ({
   costCenterId: row?.costCenterId ?? '',
   month: row?.month ?? '',
   amount: row?.amount ?? 0,
-  currency: row?.currency ?? 'INR',
+  currency: row?.currency ?? currency,
   note: row?.note ?? '',
 });
 
@@ -43,9 +48,10 @@ interface BudgetFormProps {
 export function BudgetForm({ initial, costCentres, onDone, onCancel }: Readonly<BudgetFormProps>) {
   const [createBudget] = useCreateBudgetMutation();
   const [updateBudget] = useUpdateBudgetMutation();
+  const companyCurrency = useCompanyCurrency();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    defaultValues: toInitial(initial, companyCurrency),
   });
 
   const { isEdit, onSubmit } = useEntitySave({
@@ -61,7 +67,7 @@ export function BudgetForm({ initial, costCentres, onDone, onCancel }: Readonly<
       <RhfSelect name="costCenterId" label="Cost centre" options={costCentres} />
       <RhfTextField name="month" label="Month" helperText="YYYY-MM — one row per month" />
       <RhfTextField name="amount" label="Budget amount" type="number" />
-      <RhfTextField name="currency" label="Currency" />
+      <RhfCurrencyField />
       <RhfTextField name="note" label="Note" multiline rows={2} />
     </EntityForm>
   );

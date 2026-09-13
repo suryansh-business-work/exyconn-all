@@ -4,9 +4,6 @@ import { useLocaleBundleQuery } from '@/graphql/generated';
 import { useLocalePreference } from './useLocalePreference';
 import { useMissingStrings } from './useMissingStrings';
 
-/** The currency the portal's money is in. Workspace-wide, like its date patterns. */
-const CURRENCY = 'INR';
-
 interface Props {
   children: ReactNode;
 }
@@ -22,7 +19,7 @@ interface Props {
  */
 export function PortalI18nProvider({ children }: Readonly<Props>) {
   const preference = useLocalePreference();
-  const { locale, timezone, dateFormat, timeFormat } = preference;
+  const { locale, timezone, dateFormat, timeFormat, currency } = preference;
 
   const { data, refetch } = useLocaleBundleQuery({
     variables: { locale },
@@ -43,9 +40,10 @@ export function PortalI18nProvider({ children }: Readonly<Props>) {
     }
   }, [filled, refetch]);
 
+  // The money is the company's own (see Admin › Organizations), not the portal's.
   const settings = useMemo(
-    () => ({ timezone, dateFormat, timeFormat, currency: CURRENCY }),
-    [timezone, dateFormat, timeFormat],
+    () => ({ timezone, dateFormat, timeFormat, currency }),
+    [timezone, dateFormat, timeFormat, currency],
   );
 
   return (

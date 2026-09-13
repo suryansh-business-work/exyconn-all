@@ -44,7 +44,7 @@ const purchaseOrderSchema = new Schema(
     supplierId: { type: String, required: true, trim: true },
     supplierName: { type: String, default: '', trim: true },
     lines: { type: [purchaseOrderLineSchema], default: [] },
-    currency: { type: String, required: true, default: 'INR', trim: true },
+    currency: { type: String, required: true, trim: true },
     status: {
       type: String,
       enum: PURCHASE_ORDER_STATUSES,

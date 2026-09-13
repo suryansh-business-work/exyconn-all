@@ -3,7 +3,19 @@ import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 /** A suspended organization stays intact; nobody in it can sign in. */
 export const ORGANIZATION_STATUSES = ['ACTIVE', 'SUSPENDED'] as const;
 
+/**
+ * Which country's tax rules this company's paperwork follows.
+ *
+ * `INDIA_GST` turns on the Indian pack — GSTIN and place of supply on an invoice, CGST/SGST/
+ * IGST heads, PF/ESI/professional tax and the income-tax slabs in payroll. `VAT` is a single
+ * tax line at the company's own rate; `NONE` prints no tax at all. It is a choice rather than
+ * a consequence of the country so a company can invoice as it actually does.
+ */
+export const TAX_SYSTEMS = ['NONE', 'VAT', 'INDIA_GST'] as const;
+
 export type OrganizationStatus = (typeof ORGANIZATION_STATUSES)[number];
+
+export type TaxSystem = (typeof TAX_SYSTEMS)[number];
 
 /**
  * One company using the portal — the tenant every other record belongs to (see
@@ -32,6 +44,8 @@ const organizationSchema = new Schema(
     timezone: { type: String, required: true, trim: true, default: 'UTC' },
     /** 1–12. April (4) in India, January (1) in much of the world. */
     fiscalYearStartMonth: { type: Number, required: true, default: 1, min: 1, max: 12 },
+    /** Whose tax rules its invoices and payroll follow. */
+    taxSystem: { type: String, enum: TAX_SYSTEMS, required: true, default: 'NONE' },
     contactEmail: { type: String, default: '', lowercase: true, trim: true },
   },
   { timestamps: true },

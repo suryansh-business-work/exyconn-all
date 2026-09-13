@@ -38,7 +38,7 @@ const companyExpenseSchema = new Schema(
     category: { type: String, enum: EXPENSE_CATEGORIES, required: true, default: 'OTHER' },
     description: { type: String, default: '', trim: true },
     amount: { type: Number, required: true, min: 0 },
-    currency: { type: String, required: true, default: 'INR', trim: true },
+    currency: { type: String, required: true, trim: true },
     /**
      * Which cost centre carries this bill. Empty is a real answer — a company runs for
      * years before it splits its spend up, and refusing to record a bill until somebody

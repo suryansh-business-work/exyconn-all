@@ -3,6 +3,9 @@ import { SalaryStructureModel } from '../../src/modules/employee/salary.model';
 import { TrackerIntervalModel } from '../../src/modules/tracker/models';
 import { trackerBillingService } from '../../src/modules/tracker/tracker.billing.service';
 import { monthlyEarnings } from '../../src/modules/payroll/payroll.compute';
+import { useTestOrganization } from '../helpers';
+
+useTestOrganization();
 
 const FROM = new Date('2026-09-01T00:00:00.000Z');
 const TO = new Date('2026-10-01T00:00:00.000Z');

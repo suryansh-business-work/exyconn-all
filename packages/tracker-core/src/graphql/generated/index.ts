@@ -1199,6 +1199,7 @@ export type OrganizationInput = {
   locale: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   slug: InputMaybe<Scalars['String']['input']>;
+  taxSystem: InputMaybe<TaxSystem>;
   timezone: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1214,6 +1215,7 @@ export type OrganizationUpdateInput = {
   legalName: InputMaybe<Scalars['String']['input']>;
   locale: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
+  taxSystem: InputMaybe<TaxSystem>;
   timezone: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1829,6 +1831,15 @@ export type TaxSlabInput = {
   regimeKey: Scalars['String']['input'];
   toAmount: InputMaybe<Scalars['Float']['input']>;
 };
+
+/** Whose tax rules a company's invoices and payroll follow. */
+export type TaxSystem =
+  /** India: GSTIN and place of supply, CGST/SGST/IGST, PF/ESI/professional tax, income-tax slabs. */
+  | 'INDIA_GST'
+  /** No tax lines at all. */
+  | 'NONE'
+  /** One tax line at the company's own rate. */
+  | 'VAT';
 
 /**
  * How TDS is worked out. NONE withholds nothing; FLAT_PERCENT takes a percentage of taxable

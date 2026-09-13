@@ -6,6 +6,7 @@ export { RhfSwitch } from './RhfSwitch';
 export { RhfDatePicker } from './RhfDatePicker';
 export { RhfDateTimePicker } from './RhfDateTimePicker';
 export { RhfAutocomplete } from './RhfAutocomplete';
+export { RhfCurrencyField, useCompanyCurrency } from './RhfCurrencyField';
 export { RhfRichText } from './RhfRichText';
 export { RhfImageField } from './RhfImageField';
 export type { SelectOption } from './types';

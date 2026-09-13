@@ -6,7 +6,6 @@
  */
 export { CompensationFields } from './CompensationFields';
 export {
-  DEFAULT_CURRENCY,
   compensationSchema,
   rateLabel,
   toCompensationValues,

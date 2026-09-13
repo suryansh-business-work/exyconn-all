@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
+  DEFAULT_FORMAT_SETTINGS,
   browserLocale,
   canonicalLocale,
   deviceTimezone,
@@ -31,9 +32,11 @@ export interface LocalePreference {
   locale: string;
   /** The zone every date and time is rendered in. */
   timezone: string;
-  /** Patterns and currency, straight from the workspace's settings. */
+  /** Patterns, straight from the workspace's settings. */
   dateFormat: string;
   timeFormat: string;
+  /** The company's own money, as an ISO 4217 code. */
+  currency: string;
   /** Switches the language for this browser until the person saves it on their profile. */
   choose: (locale: string) => void;
   /** True once both the account and the workspace settings have been read. */
@@ -89,6 +92,9 @@ export function useLocalePreference(): LocalePreference {
     }),
     dateFormat: settings?.dateFormat ?? 'dd MMM yyyy',
     timeFormat: settings?.timeFormat ?? 'hh:mm a',
+    // The company's own money (ISO 4217). Empty until its settings land, or for a platform
+    // administrator, who belongs to no company.
+    currency: settings?.currency || DEFAULT_FORMAT_SETTINGS.currency,
     choose,
     ready: settingsData !== undefined,
   };

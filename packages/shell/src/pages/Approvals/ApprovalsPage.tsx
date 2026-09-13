@@ -47,7 +47,7 @@ function DecisionButtons({
 /** What is at stake, when the decision is about money. */
 function amountOf(row: Row): string {
   if (row.amount === null || row.amount === undefined) return '—';
-  return formatMoney(row.amount, row.currency ?? 'INR');
+  return formatMoney(row.amount, row.currency);
 }
 
 /**

@@ -7,6 +7,7 @@ import { SupportTicketModel } from '../modules/employee/support.model';
 import { DepartmentModel } from '../modules/hr/department.model';
 import { PositionModel } from '../modules/hr/position.model';
 import { logger } from '../utils/logger';
+import { companyProfile } from '../lib/company';
 
 const YEAR = new Date().getFullYear();
 
@@ -96,7 +97,6 @@ const HOLIDAYS = [
 ];
 
 const STRUCTURE = {
-  currency: 'INR',
   basic: 60000,
   hra: 24000,
   allowances: 16000,
@@ -148,13 +148,21 @@ export async function seedEmployeeData(): Promise<void> {
     );
   }
 
+  const { currency } = await companyProfile();
   const users = await UserModel.find().select('_id').lean();
   for (const user of users) {
     const employeeId = user._id.toString();
 
     await SalaryStructureModel.updateOne(
       { employeeId },
-      { $setOnInsert: { employeeId, ...STRUCTURE, effectiveFrom: new Date(YEAR, 0, 1) } },
+      {
+        $setOnInsert: {
+          employeeId,
+          currency,
+          ...STRUCTURE,
+          effectiveFrom: new Date(YEAR, 0, 1),
+        },
+      },
       { upsert: true },
     );
 
@@ -167,7 +175,7 @@ export async function seedEmployeeData(): Promise<void> {
             employeeId,
             year: d.getFullYear(),
             month: d.getMonth() + 1,
-            currency: STRUCTURE.currency,
+            currency,
             gross: GROSS,
             deductions: STRUCTURE.deductions,
             net: NET,

@@ -3,6 +3,7 @@ import { nextInvoiceNumber } from './invoice.number';
 import { DealModel } from '../crm/deal.model';
 import { ClientModel } from '../clients/clients.model';
 import { getBranding } from '../branding/branding.service';
+import { companyProfile } from '../../lib/company';
 import { assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { withId } from '../../utils/serialize';
@@ -66,7 +67,7 @@ export async function createInvoiceFromDeal(
       },
     ],
     amount: Math.round(deal.value * (1 + branding.defaultTaxPercent / 100) * 100) / 100,
-    currency: 'INR',
+    currency: (await companyProfile()).currency,
     status: 'DRAFT',
     issuedDate,
     dueDate: new Date(issuedDate.getTime() + DUE_IN_DAYS * DAY_MS),

@@ -54,6 +54,7 @@ export async function migrateLegacyDataIntoFirstOrganization(): Promise<void> {
       locale: settings?.defaultLocale ?? 'en',
       timezone: settings?.timezone ?? 'UTC',
       fiscalYearStartMonth: LEGACY_FISCAL_YEAR_START,
+      taxSystem: 'INDIA_GST',
       contactEmail: branding?.supportEmail ?? '',
     }),
   );

@@ -77,14 +77,37 @@ pnpm --filter exyconn-portal-server exec tsx src/scripts/migrate-to-organization
 ## International by default
 
 An organization states its country (ISO 3166-1), currency (ISO 4217), language (BCP 47),
-timezone (IANA) and the month its financial year opens. These are validated against the
-runtime's own ICU data (`utils/iso.ts`) rather than a list in this repository, and they are what
-a company's screens fall back to when a person has not chosen their own.
+timezone (IANA), the month its financial year opens and the tax system it bills under. These are
+validated against the runtime's own ICU data (`utils/iso.ts`) rather than a list in this
+repository, and they are what a company's screens fall back to when a person has not chosen
+their own.
+
+`lib/company.ts` is how the server reads them: `companyProfile()` answers with the company in
+scope, and every document that prints money or a date is written from it — an invoice, a payslip,
+the finance trend, the HR headcount chart. Nothing renders `₹` or `en-IN` because it was written
+that way; a German company's invoice reads `82.500,00 €` and says `Sept. 2026`.
+
+In the browser the same figures arrive on `appSettings` and reach the formatters through
+`@exyconn/i18n`, so `formatMoney()` and `RhfCurrencyField` are in the company's money without a
+screen being told what it is.
+
+### India is a regional pack, not the default
+
+`taxSystem` (`NONE`, `VAT`, `INDIA_GST`) decides whether India's rules apply. Only `INDIA_GST`:
+
+- prints a **Tax Invoice** carrying GSTINs, a place of supply, HSN/SAC codes and CGST/SGST/IGST
+  heads — everyone else gets an **Invoice** with a single Tax row;
+- starts payroll with **PF, ESI and professional tax** enabled (`readPayrollSettings`);
+- seeds the banded **income-tax table** (`ensureTaxSlabs`), which is meaningless elsewhere.
+
+A company's own financial year comes from its `fiscalYearStartMonth` — April in India, January in
+much of the world — rather than from a constant.
 
 ## Still to come
 
 - Per-company branding on the sign-in page (today the first organization's branding is shown,
   since no company is known before sign-in) — resolve it from the address instead.
 - Per-company SMTP identity; today one relay sends for the whole install.
-- India's GST/PF/TDS rules become one regional pack rather than the default.
 - The platform console's own audit trail for organization changes.
+- The interface itself in each company's language: the machinery is in place (`t()`), the
+  English strings are still written into the screens.

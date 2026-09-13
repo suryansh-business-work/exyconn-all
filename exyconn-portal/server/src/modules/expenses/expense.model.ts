@@ -8,7 +8,7 @@ const expenseSchema = new Schema(
     category: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     amount: { type: Number, required: true, min: 0 },
-    currency: { type: String, required: true, default: 'INR' },
+    currency: { type: String, required: true },
     incurredOn: { type: Date, required: true },
     /** Uploaded bill or invoice. */
     receiptUrl: { type: String, default: null },

@@ -12,6 +12,9 @@ import {
 import { trackerBillingService } from '../../src/modules/tracker/tracker.billing.service';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { useTestOrganization } from '../helpers';
+
+useTestOrganization();
 
 const HOUR = 3_600_000;
 const FROM = new Date('2026-09-01T00:00:00.000Z');
@@ -48,7 +51,12 @@ async function employee(name: string, billingRate?: number) {
   const user = await UserModel.create({ name, email: `${name}@exyconn.com`, passwordHash: 'x' });
   const id = String(user._id);
   if (billingRate !== undefined) {
-    await SalaryStructureModel.create({ employeeId: id, billingRate, effectiveFrom: FROM });
+    await SalaryStructureModel.create({
+      employeeId: id,
+      currency: 'USD',
+      billingRate,
+      effectiveFrom: FROM,
+    });
   }
   return id;
 }

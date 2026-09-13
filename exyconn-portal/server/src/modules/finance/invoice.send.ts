@@ -1,4 +1,5 @@
 import { isValidObjectId } from 'mongoose';
+import { companyProfile, followsIndianTaxRules } from '../../lib/company';
 import { InvoiceModel } from './finance.model';
 import { buildInvoicePdf, formatAmount, invoiceFilename, type InvoicePdfData } from './invoice.pdf';
 import { ClientModel } from '../clients/clients.model';
@@ -28,16 +29,21 @@ async function renderInvoice(id: string): Promise<RenderedInvoice> {
   if (!invoice) {
     notFound('Invoice');
   }
-  const [client, branding] = await Promise.all([
+  const [client, branding, profile] = await Promise.all([
     isValidObjectId(invoice.clientId)
       ? ClientModel.findById(invoice.clientId)
           .select('name company email gstin billingAddress')
           .lean()
       : null,
     getBranding(),
+    companyProfile(),
   ]);
 
   const data: InvoicePdfData = {
+    // The company's own language: what its money is written in on the document.
+    locale: profile.locale,
+    // GST heads, GSTINs and a place of supply belong on an Indian invoice and nowhere else.
+    indianTaxRules: followsIndianTaxRules(profile),
     company: {
       name: branding.businessName,
       address: branding.addressLine || branding.address,
@@ -99,8 +105,8 @@ export async function sendInvoice(
     variables: {
       clientName: client.name,
       invoiceNumber: invoice.number,
-      total: formatAmount(invoice.amount, invoice.currency),
-      balanceDue: formatAmount(invoice.amount - invoice.amountPaid, invoice.currency),
+      total: formatAmount(invoice.amount, invoice.currency, data.locale),
+      balanceDue: formatAmount(invoice.amount - invoice.amountPaid, invoice.currency, data.locale),
       dueDate: invoice.dueDate.toISOString().slice(0, 10),
       message: message ?? `Please find invoice ${invoice.number} attached.`,
     },

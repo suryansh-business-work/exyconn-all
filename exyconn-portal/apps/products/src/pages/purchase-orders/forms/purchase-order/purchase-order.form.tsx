@@ -2,7 +2,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Grid } from '@exyconn/shell/components/ui';
-import { RhfDatePicker, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfDatePicker,
+  RhfSelect,
+  RhfTextField,
+  RhfCurrencyField,
+  useCompanyCurrency,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
@@ -41,7 +47,7 @@ const schema = z.object({
 });
 type Values = z.infer<typeof schema>;
 
-const toInitial = (row: PurchaseOrderRow | null): Values => ({
+const toInitial = (row: PurchaseOrderRow | null, currency: string): Values => ({
   supplierId: row?.supplierId ?? '',
   lines: (row?.lines ?? []).map(({ productId, quantity, unitCost, taxPercent }) => ({
     productId,
@@ -49,7 +55,7 @@ const toInitial = (row: PurchaseOrderRow | null): Values => ({
     unitCost,
     taxPercent,
   })),
-  currency: row?.currency ?? 'INR',
+  currency: row?.currency ?? currency,
   status: row?.status ?? PurchaseOrderStatus.Draft,
   orderDate: row?.orderDate ?? '',
   expectedDate: row?.expectedDate ?? '',
@@ -71,9 +77,10 @@ interface PurchaseOrderFormProps {
  * stock existing on a screen and not on a shelf.
  */
 export function PurchaseOrderForm({ initial, onDone, onCancel }: Readonly<PurchaseOrderFormProps>) {
+  const companyCurrency = useCompanyCurrency();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    defaultValues: toInitial(initial, companyCurrency),
   });
   const { data: suppliersData } = useListSuppliersQuery();
   const { data: productsData } = useListProductsQuery();
@@ -132,7 +139,7 @@ export function PurchaseOrderForm({ initial, onDone, onCancel }: Readonly<Purcha
             sm: 4,
           }}
         >
-          <RhfTextField name="currency" label="Currency" />
+          <RhfCurrencyField />
         </Grid>
         <Grid
           size={{

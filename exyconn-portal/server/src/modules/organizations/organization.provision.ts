@@ -33,7 +33,13 @@ export async function provisionOrganization(organization: OrganizationDocument):
   );
   await BrandingModel.updateOne(
     { key: 'global' },
-    { $setOnInsert: { key: 'global', businessName: organization.name, legalName: organization.legalName } },
+    {
+      $setOnInsert: {
+        key: 'global',
+        businessName: organization.name,
+        legalName: organization.legalName,
+      },
+    },
     { upsert: true },
   );
   await ensureEmailDefaults();

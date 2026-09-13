@@ -1,4 +1,4 @@
-import { OrganizationModel, type OrganizationStatus } from './organization.model';
+import { OrganizationModel, type OrganizationStatus, type TaxSystem } from './organization.model';
 import { UserModel } from '../admin/user.model';
 import { ROLES, type Role } from '../../constants/roles';
 import { badRequest, notFound } from '../../utils/errors';
@@ -24,6 +24,7 @@ export interface OrganizationInput {
   locale?: string;
   timezone?: string;
   fiscalYearStartMonth?: number;
+  taxSystem?: TaxSystem;
   contactEmail?: string;
 }
 
@@ -46,7 +47,11 @@ function validate(input: Partial<OrganizationInput>): void {
   if (input.currency !== undefined && !isValidCurrency(input.currency.toUpperCase())) {
     badRequest(`"${input.currency}" is not an ISO 4217 currency code.`);
   }
-  if (input.country !== undefined && input.country !== '' && !isValidCountry(input.country.toUpperCase())) {
+  if (
+    input.country !== undefined &&
+    input.country !== '' &&
+    !isValidCountry(input.country.toUpperCase())
+  ) {
     badRequest(`"${input.country}" is not an ISO 3166-1 country code.`);
   }
   if (input.timezone !== undefined && !isValidTimezone(input.timezone)) {

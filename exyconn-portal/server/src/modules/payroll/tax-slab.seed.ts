@@ -1,4 +1,5 @@
 import { logger } from '../../utils/logger';
+import { companyProfile, followsIndianTaxRules } from '../../lib/company';
 import { DEFAULT_TDS_REGIME_KEY } from './payroll-settings.model';
 import { TaxRegimeModel, TaxSlabModel } from './tax-slab.model';
 
@@ -40,9 +41,13 @@ const SEED_SLABS = [
 /**
  * Puts the seed regime and its bands in when that regime and year are absent, and does
  * nothing at all otherwise. Returns how many bands were inserted, which is zero on every
- * restart after the first.
+ * restart after the first — and for every company that does not tax under India's rules,
+ * whose income tax is not banded like this at all.
  */
 export async function ensureTaxSlabs(): Promise<number> {
+  if (!followsIndianTaxRules(await companyProfile())) {
+    return 0;
+  }
   const existing = await TaxRegimeModel.findOne({
     regimeKey: SEED_REGIME.regimeKey,
     financialYear: SEED_REGIME.financialYear,

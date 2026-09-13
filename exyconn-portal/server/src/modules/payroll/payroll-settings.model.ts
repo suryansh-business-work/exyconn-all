@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { companyProfile, followsIndianTaxRules } from '../../lib/company';
 
 /**
  * How TDS is worked out for an employee.
@@ -18,6 +19,9 @@ export const TDS_MODES = ['NONE', 'FLAT_PERCENT', 'SLAB'] as const;
  */
 export const DEFAULT_TDS_REGIME_KEY = 'NEW';
 export const DEFAULT_FINANCIAL_YEAR_START_MONTH = 4;
+
+/** India's flat monthly professional tax; nil for a company under any other tax system. */
+const INDIA_PROFESSIONAL_TAX_MONTHLY = 200;
 
 /** One band of the TDS table. `upTo` is null for the open-ended top band. */
 const tdsSlabSchema = new Schema(
@@ -50,7 +54,12 @@ const payrollSettingsSchema = new Schema(
     esiEmployeePercent: { type: Number, required: true, min: 0, max: 100, default: 0.75 },
     /** ESI applies only while gross is at or below this figure. */
     esiWageLimit: { type: Number, required: true, min: 0, default: 21000 },
-    professionalTaxMonthly: { type: Number, required: true, min: 0, default: 200 },
+    professionalTaxMonthly: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: INDIA_PROFESSIONAL_TAX_MONTHLY,
+    },
     tdsMode: { type: String, enum: TDS_MODES, required: true, default: 'NONE' },
     tdsFlatPercent: { type: Number, required: true, min: 0, max: 100, default: 0 },
     /**
@@ -91,11 +100,28 @@ export const PayrollSettingsModel: Model<PayrollSettingsDocument> = model<Payrol
   payrollSettingsSchema,
 );
 
-/** The settings document, created with its defaults on first read. */
+/**
+ * The settings document, created on first read from what the company itself says.
+ *
+ * PF, ESI and professional tax are India's statutory deductions, so a company that does not
+ * pay under India's rules starts with them off rather than with a portal silently withholding
+ * a foreign country's contributions from its people's pay. The financial year opens in the
+ * month the organization was set up with (Admin › Organizations).
+ */
 export async function readPayrollSettings(): Promise<PayrollSettingsDocument> {
+  const profile = await companyProfile();
+  const india = followsIndianTaxRules(profile);
   const doc = await PayrollSettingsModel.findOneAndUpdate(
     { key: 'global' },
-    { $setOnInsert: { key: 'global' } },
+    {
+      $setOnInsert: {
+        key: 'global',
+        pfEnabled: india,
+        esiEnabled: india,
+        professionalTaxMonthly: india ? INDIA_PROFESSIONAL_TAX_MONTHLY : 0,
+        financialYearStartMonth: profile.fiscalYearStartMonth,
+      },
+    },
     { new: true, upsert: true, setDefaultsOnInsert: true },
   ).lean();
   return doc as PayrollSettingsDocument;

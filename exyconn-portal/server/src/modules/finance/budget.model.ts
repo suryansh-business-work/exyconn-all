@@ -14,7 +14,7 @@ const budgetSchema = new Schema(
     /** `YYYY-MM`, matching monthKey, so budget and actual bucket identically. */
     month: { type: String, required: true, match: /^\d{4}-\d{2}$/, index: true },
     amount: { type: Number, required: true, min: 0 },
-    currency: { type: String, required: true, default: 'INR', trim: true },
+    currency: { type: String, required: true, trim: true },
     note: { type: String, default: '', trim: true },
   },
   { timestamps: true },

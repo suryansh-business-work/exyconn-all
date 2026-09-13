@@ -6,6 +6,8 @@ import {
   RhfTextField,
   RhfSelect,
   RhfDatePicker,
+  RhfCurrencyField,
+  useCompanyCurrency,
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -45,7 +47,7 @@ const schema = z.object({
 });
 type Values = z.infer<typeof schema>;
 
-const toInitial = (row: InvoiceRow | null): Values => ({
+const toInitial = (row: InvoiceRow | null, currency: string): Values => ({
   number: row?.number ?? '',
   clientId: row?.clientId ?? '',
   lines: (row?.lines ?? []).map(({ description, quantity, rate, taxPercent, hsnSac }) => ({
@@ -56,7 +58,7 @@ const toInitial = (row: InvoiceRow | null): Values => ({
     hsnSac,
   })),
   amount: row?.amount ?? 0,
-  currency: row?.currency ?? 'INR',
+  currency: row?.currency ?? currency,
   status: row?.status ?? InvoiceStatus.Draft,
   issuedDate: row?.issuedDate ?? '',
   dueDate: row?.dueDate ?? '',
@@ -79,11 +81,12 @@ export function InvoiceForm({ initial, onDone, onCancel }: Readonly<InvoiceFormP
   const [createInvoice] = useCreateInvoiceMutation();
   const [updateInvoice] = useUpdateInvoiceMutation();
   const { data: clientsData } = useListClientsQuery();
+  const companyCurrency = useCompanyCurrency();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    defaultValues: toInitial(initial, companyCurrency),
   });
-  const currency = useWatch({ control: methods.control, name: 'currency' }) || 'INR';
+  const currency = useWatch({ control: methods.control, name: 'currency' }) || companyCurrency;
   const stateOptions = useGstStateOptions();
 
   const clientOptions = (clientsData?.listClients ?? []).map((client) => ({
@@ -109,7 +112,7 @@ export function InvoiceForm({ initial, onDone, onCancel }: Readonly<InvoiceFormP
         options={stateOptions}
         helperText="The client's GST state. Same as ours: CGST + SGST; otherwise IGST."
       />
-      <RhfTextField name="currency" label="Currency" />
+      <RhfCurrencyField />
       <InvoiceLinesFields currency={currency} />
       <RhfSelect name="status" label="Status" options={enumOptions(Object.values(InvoiceStatus))} />
       <RhfDatePicker name="issuedDate" label="Issued date" />

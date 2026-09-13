@@ -6,6 +6,16 @@ export const organizationsTypeDefs = gql`
     SUSPENDED
   }
 
+  "Whose tax rules a company's invoices and payroll follow."
+  enum TaxSystem {
+    "No tax lines at all."
+    NONE
+    "One tax line at the company's own rate."
+    VAT
+    "India: GSTIN and place of supply, CGST/SGST/IGST, PF/ESI/professional tax, income-tax slabs."
+    INDIA_GST
+  }
+
   "One company using the portal. Every other record belongs to exactly one of these."
   type Organization {
     id: ID!
@@ -24,6 +34,7 @@ export const organizationsTypeDefs = gql`
     timezone: String!
     "The month its financial year opens: 1 is January, 4 is April."
     fiscalYearStartMonth: Int!
+    taxSystem: TaxSystem!
     contactEmail: String!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -38,6 +49,7 @@ export const organizationsTypeDefs = gql`
     locale: String
     timezone: String
     fiscalYearStartMonth: Int
+    taxSystem: TaxSystem
     contactEmail: String
   }
 
@@ -49,6 +61,7 @@ export const organizationsTypeDefs = gql`
     locale: String
     timezone: String
     fiscalYearStartMonth: Int
+    taxSystem: TaxSystem
     contactEmail: String
   }
 

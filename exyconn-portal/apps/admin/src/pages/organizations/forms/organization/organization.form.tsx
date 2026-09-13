@@ -8,10 +8,11 @@ import { RhfAutocomplete, RhfSelect, RhfTextField } from '@exyconn/shell/compone
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
+  TaxSystem,
   useCreateOrganizationMutation,
   useUpdateOrganizationMutation,
 } from '@exyconn/shell/graphql/generated';
-import { MONTH_OPTIONS } from './months';
+import { MONTH_OPTIONS, TAX_SYSTEM_OPTIONS } from './months';
 import type { OrganizationRow } from './organization.types';
 
 /** A handle is what the company is filed under: lowercase letters, digits and dashes. */
@@ -31,6 +32,7 @@ const schema = z.object({
   timezone: z.string().trim().min(1, 'Pick the timezone it works by'),
   // A select hands back its option's value as text; it becomes a number on the way out.
   fiscalYearStartMonth: z.string().regex(/^([1-9]|1[0-2])$/, 'Pick a month'),
+  taxSystem: z.nativeEnum(TaxSystem),
   contactEmail: z.string().trim().regex(EMAIL, 'Enter a valid email').or(z.literal('')),
 });
 type Values = z.infer<typeof schema>;
@@ -44,6 +46,7 @@ const toInitial = (row: OrganizationRow | null): Values => ({
   locale: row?.locale ?? 'en',
   timezone: row?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
   fiscalYearStartMonth: String(row?.fiscalYearStartMonth ?? 1),
+  taxSystem: row?.taxSystem ?? TaxSystem.None,
   contactEmail: row?.contactEmail ?? '',
 });
 
@@ -54,7 +57,7 @@ function toInput(values: Values) {
 
 /** An edit changes everything except the handle, which the company is filed under. */
 function toUpdateInput(values: Values) {
-  const { name, legalName, country, currency, locale, timezone, contactEmail } = values;
+  const { name, legalName, country, currency, locale, timezone, contactEmail, taxSystem } = values;
   return {
     name,
     legalName,
@@ -63,6 +66,7 @@ function toUpdateInput(values: Values) {
     locale,
     timezone,
     contactEmail,
+    taxSystem,
     fiscalYearStartMonth: Number(values.fiscalYearStartMonth),
   };
 }
@@ -131,6 +135,12 @@ export function OrganizationForm({ initial, onDone, onCancel }: Readonly<Organiz
         label="Financial year starts"
         options={MONTH_OPTIONS}
         helperText="January in much of the world, April in India"
+      />
+      <RhfSelect
+        name="taxSystem"
+        label="Tax rules"
+        options={TAX_SYSTEM_OPTIONS}
+        helperText="What its invoices and payroll follow"
       />
       <RhfTextField name="contactEmail" label="Contact email" type="email" />
     </EntityForm>

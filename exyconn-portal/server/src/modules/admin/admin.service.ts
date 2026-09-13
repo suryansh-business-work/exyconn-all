@@ -1,6 +1,8 @@
 import { isValidObjectId } from 'mongoose';
 import { UserModel } from './user.model';
 import { AppSettingsModel } from './settings.model';
+import { OrganizationModel } from '../organizations/organization.model';
+import { currentOrganizationId, runAsPlatform } from '../../lib/tenant';
 import { hashPassword, generateTempPassword } from '../../utils/password';
 import { notFound, badRequest, forbidden } from '../../utils/errors';
 import { mailer } from '../../utils/mailer';
@@ -385,7 +387,35 @@ class AdminService {
     return true;
   }
 
+  /**
+   * The workspace's formats, with the company's own profile alongside them: the money it keeps
+   * books in, the country it operates in, when its financial year opens and whose tax rules its
+   * paperwork follows.
+   *
+   * They arrive together because every screen already reads these settings, and a second query
+   * for "which currency is this?" would be one more thing to forget on a screen showing money.
+   */
   async getSettings() {
+    const settings = await this.readOrCreateSettings();
+    const organizationId = currentOrganizationId();
+    if (organizationId === null) {
+      return settings;
+    }
+    const organization = await runAsPlatform(() =>
+      OrganizationModel.findById(organizationId)
+        .select('currency country fiscalYearStartMonth taxSystem')
+        .lean(),
+    );
+    return {
+      ...settings,
+      currency: organization?.currency ?? '',
+      country: organization?.country ?? '',
+      fiscalYearStartMonth: organization?.fiscalYearStartMonth ?? 1,
+      taxSystem: organization?.taxSystem ?? 'NONE',
+    };
+  }
+
+  private async readOrCreateSettings() {
     const existing = await AppSettingsModel.findOne({ key: 'global' }).lean();
     if (existing) return existing;
     // A plain object, like the lean read: `withId` spreads its input, which strips a document's fields.

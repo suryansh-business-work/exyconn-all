@@ -2,7 +2,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { HTTP_URL } from '@exyconn/regex';
-import { RhfTextField, RhfDatePicker } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfTextField,
+  RhfDatePicker,
+  RhfCurrencyField,
+  useCompanyCurrency,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useCreateMyExpenseClaimMutation } from '@exyconn/shell/graphql/generated';
@@ -17,14 +22,14 @@ const schema = z.object({
 });
 type Values = z.infer<typeof schema>;
 
-const INITIAL = {
+const initialValues = (currency: string) => ({
   category: '',
   description: '',
   amount: 0,
-  currency: 'INR',
+  currency,
   incurredOn: '',
   receiptUrl: '',
-};
+});
 
 interface ExpenseClaimFormProps {
   onCancel: () => void;
@@ -35,9 +40,11 @@ interface ExpenseClaimFormProps {
 export function ExpenseClaimForm({ onCancel, onDone }: Readonly<ExpenseClaimFormProps>) {
   const notify = useNotify();
   const [createClaim] = useCreateMyExpenseClaimMutation();
+  const companyCurrency = useCompanyCurrency();
+  const initial = initialValues(companyCurrency);
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
-    defaultValues: INITIAL,
+    defaultValues: initial,
   });
 
   const onSubmit = async (values: Values) => {
@@ -47,7 +54,7 @@ export function ExpenseClaimForm({ onCancel, onDone }: Readonly<ExpenseClaimForm
         variables: { input: { ...values, receiptUrl: values.receiptUrl || null } },
       });
       notify('Expense claim submitted');
-      methods.reset(INITIAL);
+      methods.reset(initial);
       onDone();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not submit the claim', 'error');
@@ -65,7 +72,7 @@ export function ExpenseClaimForm({ onCancel, onDone }: Readonly<ExpenseClaimForm
       <RhfTextField name="category" label="Category" />
       <RhfTextField name="description" label="Description" multiline minRows={2} />
       <RhfTextField name="amount" label="Amount" type="number" />
-      <RhfTextField name="currency" label="Currency" />
+      <RhfCurrencyField />
       <RhfDatePicker name="incurredOn" label="Incurred on" />
       <RhfTextField name="receiptUrl" label="Receipt link (optional)" />
     </EntityForm>

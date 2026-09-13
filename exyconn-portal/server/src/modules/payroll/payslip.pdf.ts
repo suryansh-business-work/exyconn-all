@@ -32,6 +32,8 @@ export interface PayslipIdentifiers {
 
 /** Everything one payslip prints, already resolved from the database. */
 export interface PayslipData {
+  /** The company's own language: what its money and dates are written in (BCP 47). */
+  locale: string;
   company: { name: string; address: string; supportEmail: string; hrEmail: string };
   employee: {
     name: string;
@@ -78,9 +80,12 @@ export function periodLabel(month: number, year: number): string {
   return `${MONTHS[month - 1]} ${year}`;
 }
 
-/** Money as the employee's own currency, e.g. `₹ 82,500.00`. */
-export function formatAmount(amount: number, currency: string): string {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(amount);
+/**
+ * Money in the employee's own currency, written in the company's own notation —
+ * "₹ 82,500.00" for a company reading in India, "82.500,00 €" for one reading in Germany.
+ */
+export function formatAmount(amount: number, currency: string, locale: string): string {
+  return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(amount);
 }
 
 /** A calendar day as ISO 8601 `2026-08-31`, which is unambiguous in every country. */
@@ -197,12 +202,23 @@ function drawDetails(doc: PDFKit.PDFDocument, top: number, data: PayslipData): n
 const AMOUNT_WIDTH = 86;
 
 /** How tall a breakdown column has to be to hold its rows, its heading and its total. */
-function columnHeight(doc: PDFKit.PDFDocument, lines: PayslipLine[], currency: string): number {
+function columnHeight(
+  doc: PDFKit.PDFDocument,
+  lines: PayslipLine[],
+  currency: string,
+  locale: string,
+): number {
   const innerWidth = COLUMN_WIDTH - SPACE.md * 2;
   const rows = lines.reduce(
     (total, line) =>
       total +
-      rowHeight(doc, innerWidth, line.label, formatAmount(line.amount, currency), AMOUNT_WIDTH),
+      rowHeight(
+        doc,
+        innerWidth,
+        line.label,
+        formatAmount(line.amount, currency, locale),
+        AMOUNT_WIDTH,
+      ),
     0,
   );
   return SPACE.md + SECTION_TITLE_HEIGHT + rows + SPACE.sm + ROW_HEIGHT + SPACE.md;
@@ -223,6 +239,7 @@ function drawBreakdownColumn(
   title: string,
   lines: PayslipLine[],
   currency: string,
+  locale: string,
 ): void {
   panel(doc, left, top, COLUMN_WIDTH, height);
   const inner = left + SPACE.md;
@@ -236,7 +253,7 @@ function drawBreakdownColumn(
       cursor,
       innerWidth,
       line.label,
-      formatAmount(line.amount, currency),
+      formatAmount(line.amount, currency, locale),
       AMOUNT_WIDTH,
     );
   }
@@ -250,7 +267,7 @@ function drawBreakdownColumn(
     totalTop,
     innerWidth,
     `Total ${title.toLowerCase()}`,
-    formatAmount(total, currency),
+    formatAmount(total, currency, locale),
     AMOUNT_WIDTH,
   );
 }
@@ -259,12 +276,13 @@ function drawBreakdownColumn(
 function drawBreakdown(doc: PDFKit.PDFDocument, top: number, data: PayslipData): number {
   const { earnings, deductions } = payslipLines(data.slip, data.structure);
   const currency = data.slip.currency;
+  const { locale } = data;
   const height = Math.max(
-    columnHeight(doc, earnings, currency),
-    columnHeight(doc, deductions, currency),
+    columnHeight(doc, earnings, currency, locale),
+    columnHeight(doc, deductions, currency, locale),
   );
-  drawBreakdownColumn(doc, MARGIN, top, height, 'Earnings', earnings, currency);
-  drawBreakdownColumn(doc, RIGHT_COLUMN, top, height, 'Deductions', deductions, currency);
+  drawBreakdownColumn(doc, MARGIN, top, height, 'Earnings', earnings, currency, locale);
+  drawBreakdownColumn(doc, RIGHT_COLUMN, top, height, 'Deductions', deductions, currency, locale);
   return top + height + SPACE.lg;
 }
 
@@ -292,10 +310,15 @@ function drawNet(doc: PDFKit.PDFDocument, top: number, data: PayslipData): void 
     .font(FONTS.bold)
     .fontSize(TEXT.title)
     .fillColor(INK)
-    .text(formatAmount(data.slip.net, data.slip.currency), MARGIN + SPACE.md, top + SPACE.md + 6, {
-      width: CONTENT_WIDTH - SPACE.md * 2,
-      align: 'right',
-    });
+    .text(
+      formatAmount(data.slip.net, data.slip.currency, data.locale),
+      MARGIN + SPACE.md,
+      top + SPACE.md + 6,
+      {
+        width: CONTENT_WIDTH - SPACE.md * 2,
+        align: 'right',
+      },
+    );
 }
 
 /**
@@ -361,7 +384,7 @@ export function buildPayslipPdf(data: PayslipData): Promise<Buffer> {
     subset: 'PDF/A-3b',
     pdfVersion: '1.7',
     displayTitle: true,
-    lang: 'en-IN',
+    lang: data.locale,
     info: { CreationDate: data.slip.issuedDate },
   });
   const chunks: Buffer[] = [];

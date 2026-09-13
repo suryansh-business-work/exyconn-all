@@ -98,6 +98,14 @@ export const adminTypeDefs = gql`
     enabledLocales: [String!]!
     "Machine-translate a string the first time a screen needs one and none exists."
     autoTranslate: Boolean!
+    "The company's own money: an ISO 4217 code. Empty for a platform administrator."
+    currency: String!
+    "ISO 3166-1 alpha-2 country the company operates in, or empty."
+    country: String!
+    "The month its financial year opens: 1 is January, 4 is April."
+    fiscalYearStartMonth: Int!
+    "Whose tax rules its invoices and payroll follow."
+    taxSystem: TaxSystem!
   }
 
   "Just enough of an active employee to put them in a picker — readable by any signed-in user."

@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 import { Grid, Typography } from '@/components/ui';
-import { RhfDatePicker, RhfSelect, RhfTextField } from '@/components/form/rhf';
+import { RhfDatePicker, RhfSelect, RhfTextField, RhfCurrencyField } from '@/components/form/rhf';
 import { enumOptions } from '@/utils/enumOptions';
 import { PayType } from '@/graphql/generated';
 import { rateLabel, usesSingleAmount, type CompensationValues } from './compensation';
@@ -73,7 +73,7 @@ export function CompensationFields() {
             sm: 6,
           }}
         >
-          <RhfTextField name="currency" label="Currency" />
+          <RhfCurrencyField />
         </Grid>
 
         {payType === PayType.Other && (

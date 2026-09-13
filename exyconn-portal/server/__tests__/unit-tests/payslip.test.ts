@@ -69,6 +69,7 @@ describe('payslip lines', () => {
 });
 
 const payslipData = {
+  locale: 'en-IN',
   company: {
     name: 'Exyconn',
     address: 'Indore',
@@ -133,7 +134,7 @@ describe('payslip pdf', () => {
 
   it('labels the period and the money the way the email does', () => {
     expect(periodLabel(8, 2026)).toBe('August 2026');
-    expect(formatAmount(75_000, 'INR')).toContain('75,000');
+    expect(formatAmount(75_000, 'INR', 'en-IN')).toContain('75,000');
   });
 });
 

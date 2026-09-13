@@ -12,6 +12,7 @@ fragment OrganizationFields on Organization {
   locale
   timezone
   fiscalYearStartMonth
+  taxSystem
   contactEmail
   createdAt
   updatedAt
