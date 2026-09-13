@@ -21,6 +21,7 @@ import { TopbarSearch } from './TopbarSearch';
 import { NotificationBell } from './NotificationBell';
 import { ApprovalsBell } from './ApprovalsBell';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
+import { useInstallPrompt } from '@/pwa';
 
 interface TopbarProps {
   drawerWidth: number;
@@ -34,12 +35,18 @@ interface TopbarProps {
 export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
   const { user, signOut } = useAuth();
   const { mode, toggle } = useColorMode();
+  const install = useInstallPrompt();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const go = (path: string) => () => {
     setAnchorEl(null);
     navigate(path);
+  };
+
+  const handleInstall = () => {
+    setAnchorEl(null);
+    install.install();
   };
 
   const handleSignOut = () => {
@@ -57,6 +64,11 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         width: { md: `calc(100% - ${drawerWidth}px)` },
         ml: { md: `${drawerWidth}px` },
         background: t.palette.background.default,
+        // Installed to a home screen, the app owns the whole screen — including whatever is
+        // behind the notch. These insets are zero in a browser tab.
+        pt: 'env(safe-area-inset-top)',
+        pl: { xs: 'env(safe-area-inset-left)', md: 0 },
+        pr: 'env(safe-area-inset-right)',
       })}
     >
       <Toolbar sx={{ minHeight: { xs: TOPBAR_HEIGHT }, px: PAGE_GUTTER }}>
@@ -113,6 +125,8 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
           <MenuItem disabled>{user?.email}</MenuItem>
           <MenuItem onClick={go('/profile')}>Profile</MenuItem>
           <MenuItem onClick={go('/settings')}>Settings</MenuItem>
+          {/* Only where the browser has told us it would take: see useInstallPrompt. */}
+          {install.available && <MenuItem onClick={handleInstall}>Install app</MenuItem>}
           <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
         </Menu>
       </Toolbar>

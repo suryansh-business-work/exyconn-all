@@ -5,6 +5,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   Typography,
@@ -38,49 +39,52 @@ export function SystemRequirements({ platform }: Readonly<{ platform: PlatformCo
         <Typography variant="subtitle1">System requirements</Typography>
         <Chip size="small" variant="outlined" label={platform.label} />
       </Stack>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>What</TableCell>
-            <TableCell>Minimum</TableCell>
-            <TableCell>Recommended</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => {
-            const Icon = row.icon;
-            return (
-              <TableRow key={row.key}>
-                <TableCell>
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    sx={{
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Icon sx={{ fontSize: iconSize.md, color: 'text.secondary' }} />
-                    <Typography variant="body2">{row.label}</Typography>
-                  </Stack>
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'text.secondary',
-                    }}
-                  >
-                    {row.minimum}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">{row.recommended}</Typography>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+      {/* Scrolls itself on a narrow screen rather than widening the page. */}
+      <TableContainer>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>What</TableCell>
+              <TableCell>Minimum</TableCell>
+              <TableCell>Recommended</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.map((row) => {
+              const Icon = row.icon;
+              return (
+                <TableRow key={row.key}>
+                  <TableCell>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      sx={{
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Icon sx={{ fontSize: iconSize.md, color: 'text.secondary' }} />
+                      <Typography variant="body2">{row.label}</Typography>
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      {row.minimum}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">{row.recommended}</Typography>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
   );
 }

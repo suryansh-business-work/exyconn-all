@@ -12,3 +12,19 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+/**
+ * The service-worker registration the PWA plugin generates for a BUILT app. It does not
+ * exist in dev or under the test runner, which is why `usePwaUpdate` imports it dynamically
+ * and shrugs off the failure.
+ */
+declare module 'virtual:pwa-register' {
+  export interface RegisterSWOptions {
+    immediate?: boolean;
+    onNeedRefresh?: () => void;
+    onOfflineReady?: () => void;
+    onRegisteredSW?: (url: string, registration: ServiceWorkerRegistration | undefined) => void;
+    onRegisterError?: (error: unknown) => void;
+  }
+  export function registerSW(options?: RegisterSWOptions): (reload?: boolean) => Promise<void>;
+}

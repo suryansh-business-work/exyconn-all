@@ -9,6 +9,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   Text,
@@ -125,59 +126,62 @@ export function WebhooksPanel() {
         ))}
       </Flex>
 
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Endpoint</TableCell>
-            <TableCell>Events</TableCell>
-            <TableCell>Last delivered</TableCell>
-            <TableCell>Active</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {(data?.listWebhooks ?? []).map((hook) => (
-            <TableRow key={hook.id}>
-              <TableCell>{hook.name}</TableCell>
-              <TableCell sx={{ maxWidth: 260, wordBreak: 'break-all' }}>{hook.url}</TableCell>
-              <TableCell>{hook.events.join(', ')}</TableCell>
-              <TableCell>
-                {hook.lastDeliveredAt ? formatDateTime(hook.lastDeliveredAt) : 'Never'}
-                {hook.failureCount > 0 ? ` · ${hook.failureCount} failing` : ''}
-              </TableCell>
-              <TableCell>
-                <Switch
-                  checked={hook.active}
-                  onChange={(event) =>
-                    run(
-                      setActive({ variables: { id: hook.id, active: event.target.checked } }),
-                      'Could not change the endpoint',
-                    )
-                  }
-                  slotProps={{
-                    input: { 'aria-label': `Enable ${hook.name}` },
-                  }}
-                />
-              </TableCell>
-              <TableCell align="right">
-                <Button
-                  size="small"
-                  color="error"
-                  onClick={() =>
-                    run(
-                      deleteWebhook({ variables: { id: hook.id } }),
-                      'Could not delete the endpoint',
-                    )
-                  }
-                >
-                  Delete
-                </Button>
-              </TableCell>
+      {/* Scrolls itself on a narrow screen rather than widening the page. */}
+      <TableContainer>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Endpoint</TableCell>
+              <TableCell>Events</TableCell>
+              <TableCell>Last delivered</TableCell>
+              <TableCell>Active</TableCell>
+              <TableCell align="right">Actions</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {(data?.listWebhooks ?? []).map((hook) => (
+              <TableRow key={hook.id}>
+                <TableCell>{hook.name}</TableCell>
+                <TableCell sx={{ maxWidth: 260, wordBreak: 'break-all' }}>{hook.url}</TableCell>
+                <TableCell>{hook.events.join(', ')}</TableCell>
+                <TableCell>
+                  {hook.lastDeliveredAt ? formatDateTime(hook.lastDeliveredAt) : 'Never'}
+                  {hook.failureCount > 0 ? ` · ${hook.failureCount} failing` : ''}
+                </TableCell>
+                <TableCell>
+                  <Switch
+                    checked={hook.active}
+                    onChange={(event) =>
+                      run(
+                        setActive({ variables: { id: hook.id, active: event.target.checked } }),
+                        'Could not change the endpoint',
+                      )
+                    }
+                    slotProps={{
+                      input: { 'aria-label': `Enable ${hook.name}` },
+                    }}
+                  />
+                </TableCell>
+                <TableCell align="right">
+                  <Button
+                    size="small"
+                    color="error"
+                    onClick={() =>
+                      run(
+                        deleteWebhook({ variables: { id: hook.id } }),
+                        'Could not delete the endpoint',
+                      )
+                    }
+                  >
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
   );
 }

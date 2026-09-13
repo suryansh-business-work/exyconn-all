@@ -1,6 +1,7 @@
 import { createRequire } from "node:module";
 import { fileURLToPath, URL } from "node:url";
 import react from "@vitejs/plugin-react";
+import { VitePWA } from "vite-plugin-pwa";
 
 const require = createRequire(import.meta.url);
 
@@ -19,6 +20,11 @@ const tabberSrc = packageUrl("../tabber/src");
 
 const FONT_HREF =
   "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap";
+
+/** The brand indigo, as the installed app's own chrome wears it (tokens: indigo[600]). */
+const THEME_COLOR = "#4f46e5";
+/** What a cold start paints before the first frame — the light page background. */
+const BACKGROUND_COLOR = "#f7f8fa";
 
 /**
  * Injects the `<head>` every portal app shares — favicon, description, the Inter
@@ -66,11 +72,119 @@ function portalHtml(app) {
             attrs: { rel: "stylesheet", href: FONT_HREF },
             injectTo: "head",
           },
+          {
+            tag: "meta",
+            attrs: { name: "theme-color", content: THEME_COLOR },
+            injectTo: "head",
+          },
+          {
+            tag: "link",
+            attrs: { rel: "apple-touch-icon", href: "/pwa/icon-any-192.png" },
+            injectTo: "head",
+          },
+          {
+            tag: "meta",
+            attrs: { name: "apple-mobile-web-app-capable", content: "yes" },
+            injectTo: "head",
+          },
+          {
+            tag: "meta",
+            attrs: {
+              name: "apple-mobile-web-app-status-bar-style",
+              content: "default",
+            },
+            injectTo: "head",
+          },
+          {
+            tag: "meta",
+            attrs: {
+              name: "apple-mobile-web-app-title",
+              content: shortName(app),
+            },
+            injectTo: "head",
+          },
           { tag: "title", children: title, injectTo: "head" },
         ],
       }),
     },
   };
+}
+
+/** "Compliance · Exyconn Track" -> "Compliance": what fits under a home-screen icon. */
+function shortName(app) {
+  const { title } = PORTAL_APPS[app];
+  return title.split("·")[0].trim();
+}
+
+/**
+ * Makes every portal installable, and openable when the network is not.
+ *
+ * One service worker per app because each is its own origin (its own subdomain), so an
+ * install is per portal — somebody who lives in HR puts HR on their home screen, not a
+ * launcher for sixteen things they cannot open.
+ *
+ * Only the built shell is precached. Every API call is left alone: a cached answer from
+ * GraphQL is a stale salary, a stale invoice or a stale ticket, and the portal would rather
+ * say it is offline than quietly show yesterday's numbers.
+ */
+function portalPwa(app) {
+  const { title, description } = PORTAL_APPS[app];
+  return VitePWA({
+    registerType: "prompt",
+    // The shell registers the worker itself (packages/shell/src/pwa), through the browser's
+    // own API — so no app has to carry a runtime dependency to be installable.
+    injectRegister: null,
+    includeAssets: ["exyconn-icon.svg", "pwa/*.png"],
+    manifest: {
+      name: title,
+      short_name: shortName(app),
+      description,
+      start_url: "/",
+      scope: "/",
+      display: "standalone",
+      theme_color: THEME_COLOR,
+      background_color: BACKGROUND_COLOR,
+      icons: [
+        { src: "/pwa/icon-any-192.png", sizes: "192x192", type: "image/png" },
+        { src: "/pwa/icon-any-512.png", sizes: "512x512", type: "image/png" },
+        {
+          src: "/pwa/icon-maskable-192.png",
+          sizes: "192x192",
+          type: "image/png",
+          purpose: "maskable",
+        },
+        {
+          src: "/pwa/icon-maskable-512.png",
+          sizes: "512x512",
+          type: "image/png",
+          purpose: "maskable",
+        },
+      ],
+    },
+    workbox: {
+      // The router is client-side, so every in-app URL falls back to the shell.
+      navigateFallback: "/index.html",
+      // Never the API, and never the login round trip.
+      navigateFallbackDenylist: [/^\/graphql/, /^\/api/],
+      globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
+      // The bundles are large and hashed; an outdated one is dead weight in the cache.
+      maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
+      cleanupOutdatedCaches: true,
+      runtimeCaching: [
+        {
+          // The webfont only: it never changes under a URL, and it is what makes an
+          // offline page look like the portal rather than like Times New Roman.
+          urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\//,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "exyconn-fonts",
+            expiration: { maxEntries: 16, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            cacheableResponse: { statuses: [0, 200] },
+          },
+        },
+      ],
+    },
+  });
 }
 
 /**
@@ -88,7 +202,7 @@ export function portalViteConfig(app) {
     );
   }
   return {
-    plugins: [react(), portalHtml(app)],
+    plugins: [react(), portalHtml(app), portalPwa(app)],
     publicDir: shellPublic,
     resolve: {
       alias: [

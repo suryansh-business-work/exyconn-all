@@ -74,10 +74,23 @@ export function PortalLayout() {
         </Drawer>
       </Box>
 
-      <Box component="main" sx={{ flexGrow: 1, width: { md: `calc(100% - ${width}px)` } }}>
+      {/* `minWidth: 0` is what keeps a wide table inside the page: without it this flex
+          child grows to its content and scrolls the whole document sideways, out from under
+          the fixed topbar. Anything genuinely wider scrolls inside its own container. */}
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, minWidth: 0, width: { md: `calc(100% - ${width}px)` } }}
+      >
         {/* Spacer the height of the fixed topbar. */}
         <Toolbar sx={{ minHeight: { xs: TOPBAR_HEIGHT } }} />
-        <Box sx={{ px: PAGE_GUTTER, pb: PAGE_GUTTER, pt: 0.5 }}>
+        <Box
+          sx={{
+            px: PAGE_GUTTER,
+            pt: 0.5,
+            // Clear of the home indicator on an installed app; zero in a browser tab.
+            pb: { xs: 'calc(env(safe-area-inset-bottom) + 12px)', md: 2 },
+          }}
+        >
           {/* Keyed by path: a crashed page leaves the sidebar working, and navigating clears it. */}
           <PageErrorBoundary key={pathname}>
             <Outlet />

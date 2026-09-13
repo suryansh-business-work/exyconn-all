@@ -9,7 +9,7 @@ import {
   type IGetRowsParams,
   type RowClickedEvent,
 } from 'ag-grid-community';
-import { Box } from '@/components/ui';
+import { Box, useMediaQuery, useTheme } from '@/components/ui';
 import type { TableQueryInput } from '@/graphql/generated';
 import { errorMessage } from '@/utils/errorMessage';
 import {
@@ -20,6 +20,12 @@ import {
   type GridQuery,
 } from './serverGridQuery';
 import { skeletonWhileLoading } from './GridSkeletonCell';
+
+/**
+ * What a grid gets on a phone: most of the viewport, minus the chrome above it, so the page
+ * scrolls once rather than nesting a second scroll inside a third.
+ */
+const PHONE_GRID_HEIGHT = 'calc(100dvh - 240px)';
 import { ServerGridToolbar } from './ServerGridToolbar';
 import { useGridTheme } from './useGridTheme';
 import { useLoadingLock } from './useLoadingLock';
@@ -54,6 +60,11 @@ function ServerDataGridImpl({
   onQuery,
 }: Readonly<ServerDataGridProps<unknown>>) {
   const gridTheme = useGridTheme();
+  const theme = useTheme();
+  // A phone shows about three of these columns at a time, so the grid stops pretending to be
+  // a spreadsheet: no filter row under the headers, and a height that leaves the page's own
+  // scroll usable instead of burying the paginator below the fold.
+  const onPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const gridRef = useRef<AgGridReact<unknown>>(null);
   // The trimmed search the grid last loaded with; the box's live text debounces into it.
   const searchRef = useRef('');
@@ -66,13 +77,13 @@ function ServerDataGridImpl({
       sortable: true,
       filter: 'agTextColumnFilter',
       filterParams: TEXT_FILTER_PARAMS,
-      floatingFilter: true,
+      floatingFilter: !onPhone,
       resizable: true,
       flex: 1,
       minWidth: 120,
       cellRendererSelector: skeletonWhileLoading,
     }),
-    [],
+    [onPhone],
   );
 
   const { begin, end } = lock;
@@ -156,7 +167,7 @@ function ServerDataGridImpl({
         loading={lock.loading}
         loadError={loadError}
       />
-      <Box sx={{ height, width: '100%' }}>
+      <Box sx={{ height: onPhone ? PHONE_GRID_HEIGHT : height, width: '100%' }}>
         <AgGridReact<unknown>
           ref={gridRef}
           theme={gridTheme}
