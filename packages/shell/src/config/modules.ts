@@ -98,6 +98,11 @@ export interface ModuleChild {
   path: string;
   icon: SvgIconComponent;
   /**
+   * A role this page needs beyond the module's own — the platform's screens inside the Admin
+   * portal, which a company's own ADMIN must not see. Absent means the module's role is enough.
+   */
+  role?: Role;
+  /**
    * Section this page belongs to in the sidebar.
    *
    * Optional, and deliberately so: a module with a handful of pages reads better as a plain
@@ -782,6 +787,14 @@ export const MODULES: ModuleDefinition[] = [
     accent: color.blue[600],
     children: [
       { key: 'admin-overview', label: 'Overview', path: '/admin', icon: DashboardIcon },
+      {
+        key: 'admin-organizations',
+        label: 'Organizations',
+        path: '/admin/organizations',
+        icon: BusinessIcon,
+        role: ROLES.SUPER_ADMIN,
+        group: 'Administration',
+      },
       { key: 'admin-users', label: 'Users', path: '/admin/users', icon: ManageAccountsIcon },
       { key: 'admin-clients', label: 'Clients', path: '/clients', icon: GroupsIcon },
       {

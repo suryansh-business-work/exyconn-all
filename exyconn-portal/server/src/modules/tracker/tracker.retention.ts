@@ -1,4 +1,5 @@
 import { imageUploader } from '../../utils/imagekit';
+import { forEachOrganization } from '../organizations';
 import { logger } from '../../utils/logger';
 import { recordJobRun } from '../../utils/jobHeartbeat';
 import { TrackerScreenshotModel } from './models';
@@ -89,7 +90,7 @@ async function runIfConfigured(): Promise<void> {
 /** Starts the hourly check that deletes screenshots past the workspace's retention window. */
 export function startTrackerRetention(): void {
   const tick = () => {
-    runIfConfigured().catch((error: unknown) =>
+    forEachOrganization(runIfConfigured, 'Tracker screenshot retention').catch((error: unknown) =>
       logger.error(error, 'Tracker screenshot retention pass failed'),
     );
   };

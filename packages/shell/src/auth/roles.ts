@@ -3,6 +3,11 @@
  * covered by PROJECTS, Clients by ADMIN; SUPPORT owns the support-ticket console.
  */
 export const ROLES = {
+  /**
+   * The platform above the companies: creates organizations and appoints their first
+   * administrator. Not a company role — see the server's constants/roles.ts.
+   */
+  SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',
   EMPLOYEE: 'EMPLOYEE',
   FINANCE: 'FINANCE',
@@ -22,7 +27,11 @@ export const ROLES = {
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];
 
-/** ADMIN sees everything; otherwise the user must hold the module's role. */
+/** ADMIN sees everything in their own company; otherwise the user must hold the module's role. */
 export function canAccess(roles: Role[], moduleRole: Role): boolean {
+  if (moduleRole === ROLES.SUPER_ADMIN) {
+    // The platform's own screens: ADMIN is the top of ONE company and never passes here.
+    return roles.includes(ROLES.SUPER_ADMIN);
+  }
   return roles.includes(ROLES.ADMIN) || roles.includes(moduleRole);
 }

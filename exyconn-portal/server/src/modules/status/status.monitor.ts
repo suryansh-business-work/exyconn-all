@@ -1,4 +1,5 @@
 import { env } from '../../config/env';
+import { runAsPlatform } from '../../lib/tenant';
 import { logger } from '../../utils/logger';
 import { recordJobRun } from '../../utils/jobHeartbeat';
 import { StatusMonitorModel } from './status-monitor.model';
@@ -177,7 +178,8 @@ export function startStatusMonitor(): void {
     return;
   }
   const round = () => {
-    runStatusChecks()
+    // The public status page is the platform's own, not any company's.
+    runAsPlatform(runStatusChecks)
       .then((count) => logger.debug(`Status monitor checked ${count} services`))
       .catch((error: unknown) => logger.error(error, 'Status monitor round failed'));
   };

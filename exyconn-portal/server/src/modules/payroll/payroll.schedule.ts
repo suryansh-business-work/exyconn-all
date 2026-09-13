@@ -1,4 +1,5 @@
 import { AppSettingsModel } from '../admin/settings.model';
+import { forEachOrganization } from '../organizations';
 import { PayrollScheduleModel, type PayrollScheduleDocument } from './payroll-schedule.model';
 import { dispatchSalarySlips } from './payroll.dispatch';
 import { logger } from '../../utils/logger';
@@ -121,7 +122,9 @@ async function runIfDue(): Promise<void> {
 /** Starts the once-a-minute check that emails payslips on HR's schedule. */
 export function startPayrollDispatch(): void {
   const tick = () => {
-    runIfDue().catch((error: unknown) => logger.error(error, 'Payslip dispatch check failed'));
+    forEachOrganization(runIfDue, 'Payslip dispatch').catch((error: unknown) =>
+      logger.error(error, 'Payslip dispatch check failed'),
+    );
   };
   tick();
   globalThis.setInterval(tick, TICK_MS).unref();

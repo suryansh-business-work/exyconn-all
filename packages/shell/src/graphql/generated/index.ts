@@ -3206,6 +3206,8 @@ export type Mutation = {
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
   archivePolicy: Policy;
+  /** Creates or promotes the company's administrator, who then administers it (SUPER_ADMIN). */
+  assignOrganizationAdmin: User;
   /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
   assignSupportTicket: SupportTicket;
   changePassword: Scalars['Boolean']['output'];
@@ -3298,6 +3300,8 @@ export type Mutation = {
   createNavLink: NavLink;
   createOnboardingTemplate: OnboardingTemplate;
   createOpenAiConfig: OpenAiConfig;
+  /** Creates a company and provisions its defaults (SUPER_ADMIN). */
+  createOrganization: Organization;
   createPerformanceReview: PerformanceReview;
   createPexelsConfig: PexelsConfig;
   createPolicy: Policy;
@@ -3595,6 +3599,8 @@ export type Mutation = {
    * items their own onboarding asks THEM to do.
    */
   setOnboardingItem: OnboardingChecklist;
+  /** Suspending keeps every record and stops every sign-in in that company. */
+  setOrganizationStatus: Organization;
   /**
    * Sets exactly what a role may do in a module. An empty list blocks the role
    * from the module entirely; deleting the row (clearRolePermission) restores
@@ -3757,6 +3763,7 @@ export type Mutation = {
   updateNavLink: NavLink;
   updateOnboardingTemplate: OnboardingTemplate;
   updateOpenAiConfig: OpenAiConfig;
+  updateOrganization: Organization;
   /** Saves when payslip emails go out. Turning it off stops the scheduled run. */
   updatePayrollSchedule: PayrollSchedule;
   /**
@@ -3855,6 +3862,12 @@ export type MutationApplyLeaveArgs = {
 
 export type MutationArchivePolicyArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationAssignOrganizationAdminArgs = {
+  input: OrganizationAdminInput;
+  organizationId: Scalars['ID']['input'];
 };
 
 
@@ -4207,6 +4220,11 @@ export type MutationCreateOnboardingTemplateArgs = {
 
 export type MutationCreateOpenAiConfigArgs = {
   input: OpenAiConfigInput;
+};
+
+
+export type MutationCreateOrganizationArgs = {
+  input: OrganizationInput;
 };
 
 
@@ -5173,6 +5191,12 @@ export type MutationSetOnboardingItemArgs = {
 };
 
 
+export type MutationSetOrganizationStatusArgs = {
+  id: Scalars['ID']['input'];
+  status: OrganizationStatus;
+};
+
+
 export type MutationSetRolePermissionArgs = {
   actions: Array<PermissionAction>;
   module: Scalars['String']['input'];
@@ -5725,6 +5749,12 @@ export type MutationUpdateOpenAiConfigArgs = {
 };
 
 
+export type MutationUpdateOrganizationArgs = {
+  id: Scalars['ID']['input'];
+  input: OrganizationUpdateInput;
+};
+
+
 export type MutationUpdatePayrollScheduleArgs = {
   input: PayrollScheduleInput;
 };
@@ -6123,6 +6153,64 @@ export type OrgNode = {
   id: Scalars['ID']['output'];
   managerId?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
+};
+
+/** One company using the portal. Every other record belongs to exactly one of these. */
+export type Organization = {
+  __typename?: 'Organization';
+  contactEmail: Scalars['String']['output'];
+  /** ISO 3166-1 alpha-2 country code, or empty when not stated. */
+  country: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** ISO 4217 currency code — the money this company keeps its books in. */
+  currency: Scalars['String']['output'];
+  /** The month its financial year opens: 1 is January, 4 is April. */
+  fiscalYearStartMonth: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  legalName: Scalars['String']['output'];
+  /** BCP 47 language tag the company reads by default. */
+  locale: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  /** URL-safe handle, unique across the platform. */
+  slug: Scalars['String']['output'];
+  status: OrganizationStatus;
+  /** IANA timezone the company works by. */
+  timezone: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** The person a company is handed over to — its first administrator. */
+export type OrganizationAdminInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type OrganizationInput = {
+  contactEmail?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  currency: Scalars['String']['input'];
+  fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
+  legalName?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  slug?: InputMaybe<Scalars['String']['input']>;
+  timezone?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum OrganizationStatus {
+  Active = 'ACTIVE',
+  Suspended = 'SUSPENDED'
+}
+
+export type OrganizationUpdateInput = {
+  contactEmail?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
+  fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
+  legalName?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** How an employee is paid. Decides which amounts on the salary structure mean anything. */
@@ -7390,6 +7478,8 @@ export type Query = {
   myNotifications: Array<Notification>;
   /** Self-service: the signed-in employee's own checklist. Null when they have none. */
   myOnboarding?: Maybe<OnboardingChecklist>;
+  /** The signed-in person's own company, or null for a platform administrator. */
+  myOrganization?: Maybe<Organization>;
   /** Self-service: the signed-in employee's salary structure (null if unset). */
   myPayroll?: Maybe<SalaryStructure>;
   /** The badge count for the same queue. */
@@ -7426,6 +7516,10 @@ export type Query = {
   openAppLogsFixPrompt: Scalars['String']['output'];
   /** HR/ADMIN: every active user with their managerId, for the org chart. */
   orgChart: Array<OrgNode>;
+  /** One organization (SUPER_ADMIN). */
+  organization: Organization;
+  /** Every organization on the platform (SUPER_ADMIN). */
+  organizations: Array<Organization>;
   /** The payslip email schedule. Created with its defaults on first read. */
   payrollSchedule: PayrollSchedule;
   /** The statutory deduction policy. Created with its defaults on first read. */
@@ -8490,6 +8584,11 @@ export type QueryMyTrackerMessagesArgs = {
 
 export type QueryOpenAppLogsFixPromptArgs = {
   source?: InputMaybe<AppLogSource>;
+};
+
+
+export type QueryOrganizationArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -10804,6 +10903,8 @@ export type User = {
   /** Resolved from managerId for display; null when nobody is set. */
   managerName?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
+  /** The company this person belongs to; null for a platform administrator. */
+  organizationId?: Maybe<Scalars['ID']['output']>;
   /** The day this employee comes off probation. Null when they are not on one. */
   probationEndDate?: Maybe<Scalars['DateTime']['output']>;
   roles: Array<Role>;
@@ -11340,7 +11441,7 @@ export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'Au
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, timezone?: string | null, locale?: string | null } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, timezone?: string | null, locale?: string | null, organizationId?: string | null } };
 
 export type AppSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13565,6 +13666,49 @@ export type DeleteOnboardingChecklistMutationVariables = Exact<{
 
 
 export type DeleteOnboardingChecklistMutation = { __typename?: 'Mutation', deleteOnboardingChecklist: boolean };
+
+export type OrganizationFieldsFragment = { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, contactEmail: string, createdAt: string, updatedAt: string };
+
+export type OrganizationsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type OrganizationsQuery = { __typename?: 'Query', organizations: Array<{ __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, contactEmail: string, createdAt: string, updatedAt: string }> };
+
+export type MyOrganizationQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyOrganizationQuery = { __typename?: 'Query', myOrganization?: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, contactEmail: string, createdAt: string, updatedAt: string } | null };
+
+export type CreateOrganizationMutationVariables = Exact<{
+  input: OrganizationInput;
+}>;
+
+
+export type CreateOrganizationMutation = { __typename?: 'Mutation', createOrganization: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, contactEmail: string, createdAt: string, updatedAt: string } };
+
+export type UpdateOrganizationMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: OrganizationUpdateInput;
+}>;
+
+
+export type UpdateOrganizationMutation = { __typename?: 'Mutation', updateOrganization: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, contactEmail: string, createdAt: string, updatedAt: string } };
+
+export type SetOrganizationStatusMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  status: OrganizationStatus;
+}>;
+
+
+export type SetOrganizationStatusMutation = { __typename?: 'Mutation', setOrganizationStatus: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, contactEmail: string, createdAt: string, updatedAt: string } };
+
+export type AssignOrganizationAdminMutationVariables = Exact<{
+  organizationId: Scalars['ID']['input'];
+  input: OrganizationAdminInput;
+}>;
+
+
+export type AssignOrganizationAdminMutation = { __typename?: 'Mutation', assignOrganizationAdmin: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role> } };
 
 export type ListLocationsPagedQueryVariables = Exact<{
   input: TableQueryInput;
@@ -16553,6 +16697,23 @@ export const OnboardingChecklistFieldsFragmentDoc = gql`
     doneByName
     notes
   }
+}
+    `;
+export const OrganizationFieldsFragmentDoc = gql`
+    fragment OrganizationFields on Organization {
+  id
+  name
+  slug
+  legalName
+  status
+  country
+  currency
+  locale
+  timezone
+  fiscalYearStartMonth
+  contactEmail
+  createdAt
+  updatedAt
 }
     `;
 export const SalaryStructureFieldsFragmentDoc = gql`
@@ -19864,6 +20025,7 @@ export const MeDocument = gql`
     avatarUrl
     timezone
     locale
+    organizationId
   }
 }
     `;
@@ -32682,6 +32844,218 @@ export function useDeleteOnboardingChecklistMutation(baseOptions?: ApolloReactHo
         return ApolloReactHooks.useMutation<DeleteOnboardingChecklistMutation, DeleteOnboardingChecklistMutationVariables>(DeleteOnboardingChecklistDocument, options);
       }
 export type DeleteOnboardingChecklistMutationHookResult = ReturnType<typeof useDeleteOnboardingChecklistMutation>;
+export const OrganizationsDocument = gql`
+    query Organizations {
+  organizations {
+    ...OrganizationFields
+  }
+}
+    ${OrganizationFieldsFragmentDoc}`;
+
+/**
+ * __useOrganizationsQuery__
+ *
+ * To run a query within a React component, call `useOrganizationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useOrganizationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOrganizationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useOrganizationsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<OrganizationsQuery, OrganizationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<OrganizationsQuery, OrganizationsQueryVariables>(OrganizationsDocument, options);
+      }
+export function useOrganizationsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<OrganizationsQuery, OrganizationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<OrganizationsQuery, OrganizationsQueryVariables>(OrganizationsDocument, options);
+        }
+// @ts-ignore
+export function useOrganizationsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<OrganizationsQuery, OrganizationsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<OrganizationsQuery, OrganizationsQueryVariables>;
+// @ts-ignore
+export function useOrganizationsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<OrganizationsQuery, OrganizationsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<OrganizationsQuery | undefined, OrganizationsQueryVariables>;
+export function useOrganizationsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<OrganizationsQuery, OrganizationsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<OrganizationsQuery, OrganizationsQueryVariables>(OrganizationsDocument, options);
+        }
+export type OrganizationsQueryHookResult = ReturnType<typeof useOrganizationsQuery>;
+export type OrganizationsLazyQueryHookResult = ReturnType<typeof useOrganizationsLazyQuery>;
+export type OrganizationsSuspenseQueryHookResult = ReturnType<typeof useOrganizationsSuspenseQuery>;
+export const MyOrganizationDocument = gql`
+    query MyOrganization {
+  myOrganization {
+    ...OrganizationFields
+  }
+}
+    ${OrganizationFieldsFragmentDoc}`;
+
+/**
+ * __useMyOrganizationQuery__
+ *
+ * To run a query within a React component, call `useMyOrganizationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyOrganizationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyOrganizationQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyOrganizationQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MyOrganizationQuery, MyOrganizationQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MyOrganizationQuery, MyOrganizationQueryVariables>(MyOrganizationDocument, options);
+      }
+export function useMyOrganizationLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MyOrganizationQuery, MyOrganizationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MyOrganizationQuery, MyOrganizationQueryVariables>(MyOrganizationDocument, options);
+        }
+// @ts-ignore
+export function useMyOrganizationSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MyOrganizationQuery, MyOrganizationQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyOrganizationQuery, MyOrganizationQueryVariables>;
+// @ts-ignore
+export function useMyOrganizationSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyOrganizationQuery, MyOrganizationQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyOrganizationQuery | undefined, MyOrganizationQueryVariables>;
+export function useMyOrganizationSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyOrganizationQuery, MyOrganizationQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MyOrganizationQuery, MyOrganizationQueryVariables>(MyOrganizationDocument, options);
+        }
+export type MyOrganizationQueryHookResult = ReturnType<typeof useMyOrganizationQuery>;
+export type MyOrganizationLazyQueryHookResult = ReturnType<typeof useMyOrganizationLazyQuery>;
+export type MyOrganizationSuspenseQueryHookResult = ReturnType<typeof useMyOrganizationSuspenseQuery>;
+export const CreateOrganizationDocument = gql`
+    mutation CreateOrganization($input: OrganizationInput!) {
+  createOrganization(input: $input) {
+    ...OrganizationFields
+  }
+}
+    ${OrganizationFieldsFragmentDoc}`;
+
+/**
+ * __useCreateOrganizationMutation__
+ *
+ * To run a mutation, you first call `useCreateOrganizationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateOrganizationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createOrganizationMutation, { data, loading, error }] = useCreateOrganizationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateOrganizationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateOrganizationMutation, CreateOrganizationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateOrganizationMutation, CreateOrganizationMutationVariables>(CreateOrganizationDocument, options);
+      }
+export type CreateOrganizationMutationHookResult = ReturnType<typeof useCreateOrganizationMutation>;
+export const UpdateOrganizationDocument = gql`
+    mutation UpdateOrganization($id: ID!, $input: OrganizationUpdateInput!) {
+  updateOrganization(id: $id, input: $input) {
+    ...OrganizationFields
+  }
+}
+    ${OrganizationFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateOrganizationMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationMutation, { data, loading, error }] = useUpdateOrganizationMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateOrganizationMutation, UpdateOrganizationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateOrganizationMutation, UpdateOrganizationMutationVariables>(UpdateOrganizationDocument, options);
+      }
+export type UpdateOrganizationMutationHookResult = ReturnType<typeof useUpdateOrganizationMutation>;
+export const SetOrganizationStatusDocument = gql`
+    mutation SetOrganizationStatus($id: ID!, $status: OrganizationStatus!) {
+  setOrganizationStatus(id: $id, status: $status) {
+    ...OrganizationFields
+  }
+}
+    ${OrganizationFieldsFragmentDoc}`;
+
+/**
+ * __useSetOrganizationStatusMutation__
+ *
+ * To run a mutation, you first call `useSetOrganizationStatusMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetOrganizationStatusMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setOrganizationStatusMutation, { data, loading, error }] = useSetOrganizationStatusMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useSetOrganizationStatusMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetOrganizationStatusMutation, SetOrganizationStatusMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetOrganizationStatusMutation, SetOrganizationStatusMutationVariables>(SetOrganizationStatusDocument, options);
+      }
+export type SetOrganizationStatusMutationHookResult = ReturnType<typeof useSetOrganizationStatusMutation>;
+export const AssignOrganizationAdminDocument = gql`
+    mutation AssignOrganizationAdmin($organizationId: ID!, $input: OrganizationAdminInput!) {
+  assignOrganizationAdmin(organizationId: $organizationId, input: $input) {
+    id
+    name
+    email
+    roles
+  }
+}
+    `;
+
+/**
+ * __useAssignOrganizationAdminMutation__
+ *
+ * To run a mutation, you first call `useAssignOrganizationAdminMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAssignOrganizationAdminMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [assignOrganizationAdminMutation, { data, loading, error }] = useAssignOrganizationAdminMutation({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAssignOrganizationAdminMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<AssignOrganizationAdminMutation, AssignOrganizationAdminMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<AssignOrganizationAdminMutation, AssignOrganizationAdminMutationVariables>(AssignOrganizationAdminDocument, options);
+      }
+export type AssignOrganizationAdminMutationHookResult = ReturnType<typeof useAssignOrganizationAdminMutation>;
 export const ListLocationsPagedDocument = gql`
     query ListLocationsPaged($input: TableQueryInput!) {
   listLocationsPaged(input: $input) {

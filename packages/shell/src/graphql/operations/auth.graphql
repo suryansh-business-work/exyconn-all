@@ -20,6 +20,7 @@ query Me {
     avatarUrl
     timezone
     locale
+    organizationId
   }
 }
 

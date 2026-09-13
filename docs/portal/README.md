@@ -81,6 +81,8 @@ pnpm codegen                              # regenerate GraphQL hooks after a .gr
 
 ## Further reading
 
+- [multi-tenancy.md](./multi-tenancy.md) — one portal, many companies: how a record is tied
+  to its organization, what is platform-wide instead, and how to migrate an existing install.
 - [packages.md](./packages.md) — what lives in each package and what it exports.
 - [crud-kit.md](./crud-kit.md) — the CRUD kit, with a full worked module.
 - [app-logs.md](./app-logs.md) — Tech › Logs: where every error and debug log comes from,

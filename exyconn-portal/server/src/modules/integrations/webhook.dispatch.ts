@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { forEachOrganization } from '../organizations';
 import { WebhookDeliveryModel, WebhookModel, type WebhookDeliveryDoc } from './webhook.model';
 import {
   MAX_ATTEMPTS,
@@ -157,7 +158,7 @@ export async function deliverDueWebhooks(now: Date = new Date()): Promise<number
 /** Starts the once-a-minute delivery loop. */
 export function startWebhookDelivery(): void {
   const tick = () => {
-    deliverDueWebhooks().catch((error: unknown) =>
+    forEachOrganization(deliverDueWebhooks, 'Webhook delivery').catch((error: unknown) =>
       logger.error(error, 'Webhook delivery tick failed'),
     );
   };

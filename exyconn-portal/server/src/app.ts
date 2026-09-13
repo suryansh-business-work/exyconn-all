@@ -5,6 +5,7 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { typeDefs, resolvers } from './graphql';
 import { serverErrorLogPlugin } from './modules/logs';
 import { buildContext, type GraphQLContext } from './middleware/auth';
+import { tenantScope } from './middleware/tenant';
 import { env } from './config/env';
 import { TRACKER_UPDATES_PATH, trackerUpdatesRouter } from './modules/tracker/tracker.updates';
 import {
@@ -25,6 +26,8 @@ export async function createApp(): Promise<Express> {
   await apollo.start();
 
   const app = express();
+  // Every request runs inside an organization scope; the context below decides which one.
+  app.use(tenantScope());
   // One proxy hop (the host nginx), so `req.ip` is the real caller rather than 127.0.0.1 —
   // the public status-page mutation rate-limits on it.
   app.set('trust proxy', 1);

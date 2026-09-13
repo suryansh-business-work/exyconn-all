@@ -1,4 +1,5 @@
 import { CampaignModel } from './marketing.model';
+import { forEachOrganization } from '../organizations';
 import { runCampaignSend, type CampaignDoc } from './marketing.send';
 import { portalOrigin } from '../../utils/portalOrigin';
 import { logger } from '../../utils/logger';
@@ -88,7 +89,7 @@ export async function dispatchScheduledCampaigns(): Promise<number> {
 /** Starts the once-a-minute check that sends campaigns on the schedule marketing set. */
 export function startCampaignSchedule(): void {
   const tick = () => {
-    dispatchScheduledCampaigns().catch((error: unknown) =>
+    forEachOrganization(dispatchScheduledCampaigns, 'Scheduled campaigns').catch((error: unknown) =>
       logger.error(error, 'Scheduled campaign check failed'),
     );
   };

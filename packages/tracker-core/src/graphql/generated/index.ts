@@ -1184,6 +1184,39 @@ export type OpenAiConfigInput = {
   label: Scalars['String']['input'];
 };
 
+/** The person a company is handed over to — its first administrator. */
+export type OrganizationAdminInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type OrganizationInput = {
+  contactEmail: InputMaybe<Scalars['String']['input']>;
+  country: InputMaybe<Scalars['String']['input']>;
+  currency: Scalars['String']['input'];
+  fiscalYearStartMonth: InputMaybe<Scalars['Int']['input']>;
+  legalName: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  slug: InputMaybe<Scalars['String']['input']>;
+  timezone: InputMaybe<Scalars['String']['input']>;
+};
+
+export type OrganizationStatus =
+  | 'ACTIVE'
+  | 'SUSPENDED';
+
+export type OrganizationUpdateInput = {
+  contactEmail: InputMaybe<Scalars['String']['input']>;
+  country: InputMaybe<Scalars['String']['input']>;
+  currency: InputMaybe<Scalars['String']['input']>;
+  fiscalYearStartMonth: InputMaybe<Scalars['Int']['input']>;
+  legalName: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
+  name: InputMaybe<Scalars['String']['input']>;
+  timezone: InputMaybe<Scalars['String']['input']>;
+};
+
 /** How an employee is paid. Decides which amounts on the salary structure mean anything. */
 export type PayType =
   | 'FIXED'

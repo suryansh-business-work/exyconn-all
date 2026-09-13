@@ -3205,6 +3205,8 @@ export type Mutation = {
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
   archivePolicy: Policy;
+  /** Creates or promotes the company's administrator, who then administers it (SUPER_ADMIN). */
+  assignOrganizationAdmin: User;
   /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
   assignSupportTicket: SupportTicket;
   changePassword: Scalars['Boolean']['output'];
@@ -3297,6 +3299,8 @@ export type Mutation = {
   createNavLink: NavLink;
   createOnboardingTemplate: OnboardingTemplate;
   createOpenAiConfig: OpenAiConfig;
+  /** Creates a company and provisions its defaults (SUPER_ADMIN). */
+  createOrganization: Organization;
   createPerformanceReview: PerformanceReview;
   createPexelsConfig: PexelsConfig;
   createPolicy: Policy;
@@ -3594,6 +3598,8 @@ export type Mutation = {
    * items their own onboarding asks THEM to do.
    */
   setOnboardingItem: OnboardingChecklist;
+  /** Suspending keeps every record and stops every sign-in in that company. */
+  setOrganizationStatus: Organization;
   /**
    * Sets exactly what a role may do in a module. An empty list blocks the role
    * from the module entirely; deleting the row (clearRolePermission) restores
@@ -3756,6 +3762,7 @@ export type Mutation = {
   updateNavLink: NavLink;
   updateOnboardingTemplate: OnboardingTemplate;
   updateOpenAiConfig: OpenAiConfig;
+  updateOrganization: Organization;
   /** Saves when payslip emails go out. Turning it off stops the scheduled run. */
   updatePayrollSchedule: PayrollSchedule;
   /**
@@ -3854,6 +3861,12 @@ export type MutationApplyLeaveArgs = {
 
 export type MutationArchivePolicyArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationAssignOrganizationAdminArgs = {
+  input: OrganizationAdminInput;
+  organizationId: Scalars['ID']['input'];
 };
 
 
@@ -4206,6 +4219,11 @@ export type MutationCreateOnboardingTemplateArgs = {
 
 export type MutationCreateOpenAiConfigArgs = {
   input: OpenAiConfigInput;
+};
+
+
+export type MutationCreateOrganizationArgs = {
+  input: OrganizationInput;
 };
 
 
@@ -5172,6 +5190,12 @@ export type MutationSetOnboardingItemArgs = {
 };
 
 
+export type MutationSetOrganizationStatusArgs = {
+  id: Scalars['ID']['input'];
+  status: OrganizationStatus;
+};
+
+
 export type MutationSetRolePermissionArgs = {
   actions: Array<PermissionAction>;
   module: Scalars['String']['input'];
@@ -5724,6 +5748,12 @@ export type MutationUpdateOpenAiConfigArgs = {
 };
 
 
+export type MutationUpdateOrganizationArgs = {
+  id: Scalars['ID']['input'];
+  input: OrganizationUpdateInput;
+};
+
+
 export type MutationUpdatePayrollScheduleArgs = {
   input: PayrollScheduleInput;
 };
@@ -6122,6 +6152,64 @@ export type OrgNode = {
   id: Scalars['ID']['output'];
   managerId?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
+};
+
+/** One company using the portal. Every other record belongs to exactly one of these. */
+export type Organization = {
+  __typename?: 'Organization';
+  contactEmail: Scalars['String']['output'];
+  /** ISO 3166-1 alpha-2 country code, or empty when not stated. */
+  country: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** ISO 4217 currency code — the money this company keeps its books in. */
+  currency: Scalars['String']['output'];
+  /** The month its financial year opens: 1 is January, 4 is April. */
+  fiscalYearStartMonth: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  legalName: Scalars['String']['output'];
+  /** BCP 47 language tag the company reads by default. */
+  locale: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  /** URL-safe handle, unique across the platform. */
+  slug: Scalars['String']['output'];
+  status: OrganizationStatus;
+  /** IANA timezone the company works by. */
+  timezone: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** The person a company is handed over to — its first administrator. */
+export type OrganizationAdminInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type OrganizationInput = {
+  contactEmail?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  currency: Scalars['String']['input'];
+  fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
+  legalName?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  slug?: InputMaybe<Scalars['String']['input']>;
+  timezone?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum OrganizationStatus {
+  Active = 'ACTIVE',
+  Suspended = 'SUSPENDED'
+}
+
+export type OrganizationUpdateInput = {
+  contactEmail?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
+  fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
+  legalName?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** How an employee is paid. Decides which amounts on the salary structure mean anything. */
@@ -7389,6 +7477,8 @@ export type Query = {
   myNotifications: Array<Notification>;
   /** Self-service: the signed-in employee's own checklist. Null when they have none. */
   myOnboarding?: Maybe<OnboardingChecklist>;
+  /** The signed-in person's own company, or null for a platform administrator. */
+  myOrganization?: Maybe<Organization>;
   /** Self-service: the signed-in employee's salary structure (null if unset). */
   myPayroll?: Maybe<SalaryStructure>;
   /** The badge count for the same queue. */
@@ -7425,6 +7515,10 @@ export type Query = {
   openAppLogsFixPrompt: Scalars['String']['output'];
   /** HR/ADMIN: every active user with their managerId, for the org chart. */
   orgChart: Array<OrgNode>;
+  /** One organization (SUPER_ADMIN). */
+  organization: Organization;
+  /** Every organization on the platform (SUPER_ADMIN). */
+  organizations: Array<Organization>;
   /** The payslip email schedule. Created with its defaults on first read. */
   payrollSchedule: PayrollSchedule;
   /** The statutory deduction policy. Created with its defaults on first read. */
@@ -8489,6 +8583,11 @@ export type QueryMyTrackerMessagesArgs = {
 
 export type QueryOpenAppLogsFixPromptArgs = {
   source?: InputMaybe<AppLogSource>;
+};
+
+
+export type QueryOrganizationArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -10803,6 +10902,8 @@ export type User = {
   /** Resolved from managerId for display; null when nobody is set. */
   managerName?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
+  /** The company this person belongs to; null for a platform administrator. */
+  organizationId?: Maybe<Scalars['ID']['output']>;
   /** The day this employee comes off probation. Null when they are not on one. */
   probationEndDate?: Maybe<Scalars['DateTime']['output']>;
   roles: Array<Role>;
@@ -11305,6 +11406,11 @@ export type ResolversTypes = ResolversObject<{
   OpenAiConfig: ResolverTypeWrapper<OpenAiConfig>;
   OpenAiConfigInput: OpenAiConfigInput;
   OrgNode: ResolverTypeWrapper<OrgNode>;
+  Organization: ResolverTypeWrapper<Organization>;
+  OrganizationAdminInput: OrganizationAdminInput;
+  OrganizationInput: OrganizationInput;
+  OrganizationStatus: OrganizationStatus;
+  OrganizationUpdateInput: OrganizationUpdateInput;
   PayType: PayType;
   Payment: ResolverTypeWrapper<Payment>;
   PaymentInput: PaymentInput;
@@ -11816,6 +11922,10 @@ export type ResolversParentTypes = ResolversObject<{
   OpenAiConfig: OpenAiConfig;
   OpenAiConfigInput: OpenAiConfigInput;
   OrgNode: OrgNode;
+  Organization: Organization;
+  OrganizationAdminInput: OrganizationAdminInput;
+  OrganizationInput: OrganizationInput;
+  OrganizationUpdateInput: OrganizationUpdateInput;
   Payment: Payment;
   PaymentInput: PaymentInput;
   PaymentPage: PaymentPage;
@@ -13832,6 +13942,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   aiSummarise?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAiSummariseArgs, 'style' | 'text'>>;
   applyLeave?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationApplyLeaveArgs, 'input'>>;
   archivePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationArchivePolicyArgs, 'id'>>;
+  assignOrganizationAdmin?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAssignOrganizationAdminArgs, 'input' | 'organizationId'>>;
   assignSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationAssignSupportTicketArgs, 'assigneeId' | 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
@@ -13900,6 +14011,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationCreateNavLinkArgs, 'input'>>;
   createOnboardingTemplate?: Resolver<ResolversTypes['OnboardingTemplate'], ParentType, ContextType, RequireFields<MutationCreateOnboardingTemplateArgs, 'input'>>;
   createOpenAiConfig?: Resolver<ResolversTypes['OpenAiConfig'], ParentType, ContextType, RequireFields<MutationCreateOpenAiConfigArgs, 'input'>>;
+  createOrganization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<MutationCreateOrganizationArgs, 'input'>>;
   createPerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationCreatePerformanceReviewArgs, 'input'>>;
   createPexelsConfig?: Resolver<ResolversTypes['PexelsConfig'], ParentType, ContextType, RequireFields<MutationCreatePexelsConfigArgs, 'input'>>;
   createPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationCreatePolicyArgs, 'input'>>;
@@ -14083,6 +14195,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
   setMyTrackerPresence?: Resolver<ResolversTypes['TrackerPresenceState'], ParentType, ContextType, RequireFields<MutationSetMyTrackerPresenceArgs, 'status'>>;
   setOnboardingItem?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationSetOnboardingItemArgs, 'checklistId' | 'done' | 'key'>>;
+  setOrganizationStatus?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<MutationSetOrganizationStatusArgs, 'id' | 'status'>>;
   setRolePermission?: Resolver<ResolversTypes['RolePermission'], ParentType, ContextType, RequireFields<MutationSetRolePermissionArgs, 'actions' | 'module' | 'role'>>;
   setSupportTicketStatus?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationSetSupportTicketStatusArgs, 'id' | 'status'>>;
   setSupportTicketTriage?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationSetSupportTicketTriageArgs, 'category' | 'id' | 'priority'>>;
@@ -14176,6 +14289,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationUpdateNavLinkArgs, 'id' | 'input'>>;
   updateOnboardingTemplate?: Resolver<ResolversTypes['OnboardingTemplate'], ParentType, ContextType, RequireFields<MutationUpdateOnboardingTemplateArgs, 'id' | 'input'>>;
   updateOpenAiConfig?: Resolver<ResolversTypes['OpenAiConfig'], ParentType, ContextType, RequireFields<MutationUpdateOpenAiConfigArgs, 'id' | 'input'>>;
+  updateOrganization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<MutationUpdateOrganizationArgs, 'id' | 'input'>>;
   updatePayrollSchedule?: Resolver<ResolversTypes['PayrollSchedule'], ParentType, ContextType, RequireFields<MutationUpdatePayrollScheduleArgs, 'input'>>;
   updatePayrollSettings?: Resolver<ResolversTypes['PayrollSettings'], ParentType, ContextType, RequireFields<MutationUpdatePayrollSettingsArgs, 'input'>>;
   updatePerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationUpdatePerformanceReviewArgs, 'id' | 'input'>>;
@@ -14326,6 +14440,23 @@ export type OrgNodeResolvers<ContextType = GraphQLContext, ParentType extends Re
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   managerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type OrganizationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Organization'] = ResolversParentTypes['Organization']> = ResolversObject<{
+  contactEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fiscalYearStartMonth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  legalName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['OrganizationStatus'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -15138,6 +15269,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myManager?: Resolver<Maybe<ResolversTypes['EmployeeOption']>, ParentType, ContextType>;
   myNotifications?: Resolver<Array<ResolversTypes['Notification']>, ParentType, ContextType>;
   myOnboarding?: Resolver<Maybe<ResolversTypes['OnboardingChecklist']>, ParentType, ContextType>;
+  myOrganization?: Resolver<Maybe<ResolversTypes['Organization']>, ParentType, ContextType>;
   myPayroll?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType>;
   myPendingApprovalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   myPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
@@ -15158,6 +15290,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myUnreadNotificationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   openAppLogsFixPrompt?: Resolver<ResolversTypes['String'], ParentType, ContextType, Partial<QueryOpenAppLogsFixPromptArgs>>;
   orgChart?: Resolver<Array<ResolversTypes['OrgNode']>, ParentType, ContextType>;
+  organization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<QueryOrganizationArgs, 'id'>>;
+  organizations?: Resolver<Array<ResolversTypes['Organization']>, ParentType, ContextType>;
   payrollSchedule?: Resolver<ResolversTypes['PayrollSchedule'], ParentType, ContextType>;
   payrollSettings?: Resolver<ResolversTypes['PayrollSettings'], ParentType, ContextType>;
   payrollSummary?: Resolver<ResolversTypes['PayrollSummary'], ParentType, ContextType, RequireFields<QueryPayrollSummaryArgs, 'month' | 'year'>>;
@@ -16357,6 +16491,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   managerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   managerName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  organizationId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   probationEndDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
   timezone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -16608,6 +16743,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   OnboardingTemplatePage?: OnboardingTemplatePageResolvers<ContextType>;
   OpenAiConfig?: OpenAiConfigResolvers<ContextType>;
   OrgNode?: OrgNodeResolvers<ContextType>;
+  Organization?: OrganizationResolvers<ContextType>;
   Payment?: PaymentResolvers<ContextType>;
   PaymentPage?: PaymentPageResolvers<ContextType>;
   PayrollDispatchResult?: PayrollDispatchResultResolvers<ContextType>;

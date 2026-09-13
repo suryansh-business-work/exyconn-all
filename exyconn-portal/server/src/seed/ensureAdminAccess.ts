@@ -5,9 +5,12 @@ import { env } from '../config/env';
 import { logger } from '../utils/logger';
 
 /**
- * Keeps the configured bootstrap account able to administer the portal. Runs on
- * every boot: creates it on a fresh database, and re-grants ADMIN (plus
- * un-blocks and re-activates it) whenever something has taken that away.
+ * Keeps the configured bootstrap account able to administer the portal AND the platform it
+ * runs on. Runs on every boot: creates it on a fresh database, and re-grants ADMIN and
+ * SUPER_ADMIN (plus un-blocks and re-activates it) whenever something has taken that away.
+ *
+ * SUPER_ADMIN is what creates the first company and appoints its administrator; ADMIN is what
+ * administers the company this account itself belongs to, once it has one.
  *
  * This one account is deliberately not demotable — an edit in Admin > Users that
  * strips its ADMIN role is exactly how the portal previously ended up with
@@ -23,7 +26,7 @@ export async function ensureAdminAccess(): Promise<void> {
       name: env.seedAdmin.name,
       email,
       passwordHash: await hashPassword(env.seedAdmin.password),
-      roles: [ROLES.ADMIN],
+      roles: [ROLES.ADMIN, ROLES.SUPER_ADMIN],
       isActive: true,
     });
     logger.warn(`Created the bootstrap ADMIN account ${email}`);
@@ -31,10 +34,15 @@ export async function ensureAdminAccess(): Promise<void> {
   }
 
   const canAdminister =
-    existing.roles.includes(ROLES.ADMIN) && existing.isActive && !existing.isBlocked;
+    existing.roles.includes(ROLES.ADMIN) &&
+    existing.roles.includes(ROLES.SUPER_ADMIN) &&
+    existing.isActive &&
+    !existing.isBlocked;
   if (canAdminister) return;
 
-  existing.roles = Array.from(new Set([...existing.roles, ROLES.ADMIN])) as Role[];
+  existing.roles = Array.from(
+    new Set([...existing.roles, ROLES.ADMIN, ROLES.SUPER_ADMIN]),
+  ) as Role[];
   existing.isActive = true;
   existing.isBlocked = false;
   await existing.save();

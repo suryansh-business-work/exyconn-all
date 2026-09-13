@@ -1,4 +1,5 @@
 import { SupportTicketModel } from '../employee/support.model';
+import { forEachOrganization } from '../organizations';
 import { InboundMailConfigModel } from '../tech/inbound-mail-config.model';
 import { UserModel } from '../admin/user.model';
 import { SupportReplyModel } from './support-reply.model';
@@ -192,12 +193,18 @@ function scheduleNext(seconds: number): void {
     .unref();
 }
 
+/**
+ * One round for every company: each reads its own mailbox into its own tickets. The next
+ * round is the soonest any of them asked for, so one company polling briskly is not held
+ * back by another that polls slowly.
+ */
 async function runRound(): Promise<void> {
-  const seconds = await pollOnce().catch((error: unknown) => {
-    logger.error(error, 'Inbound mail poll failed');
-    return DEFAULT_POLL_SECONDS;
-  });
-  scheduleNext(seconds);
+  let soonest = DEFAULT_POLL_SECONDS;
+  await forEachOrganization(async () => {
+    const seconds = await pollOnce();
+    soonest = Math.min(soonest, seconds);
+  }, 'Inbound support mail');
+  scheduleNext(soonest);
 }
 
 /**

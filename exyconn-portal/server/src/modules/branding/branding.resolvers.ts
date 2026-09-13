@@ -6,7 +6,12 @@ import { withId } from '../../utils/serialize';
 import { imageUploader } from '../../utils/imagekit';
 import { badRequest } from '../../utils/errors';
 import { isPexelsMediaUrl } from '../../utils/pexels';
-import { getBranding, updateBranding, type BrandingInput } from './branding.service';
+import {
+  getBranding,
+  getPublicBranding,
+  updateBranding,
+  type BrandingInput,
+} from './branding.service';
 
 /** Who owns the brand; the matrix restricts them under this module name. */
 const brandingRoles = [ROLES.ADMIN];
@@ -23,7 +28,7 @@ export const brandingResolvers = {
       return withId(await getBranding());
     },
     /** Unauthenticated — the website, tools and the tracker's login screen need it. */
-    publicBranding: async () => withId(await getBranding()),
+    publicBranding: async () => withId(await getPublicBranding()),
   },
 
   Mutation: {

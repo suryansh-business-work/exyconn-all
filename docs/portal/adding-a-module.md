@@ -2,6 +2,10 @@
 
 ## Add a CRUD screen to an existing app
 
+A new model belongs to one company by default: the tenancy plugin adds its `organizationId`,
+filters every query and stamps every write (see [multi-tenancy.md](./multi-tenancy.md)). Only
+add it to `PLATFORM_MODELS` if it is genuinely not a customer's data.
+
 The server side first — the shared grid only works against a `listXxxPaged` +
 `listXxxStats` pair.
 
