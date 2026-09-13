@@ -8,8 +8,9 @@ import {
   ListItemText,
   Text,
 } from '@exyconn/shell/components/ui';
-import { panel } from '@exyconn/shell/components/glass/glass';
+
 import type { DirectReport } from './team.types';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 const initialsOf = (name: string) =>
   name

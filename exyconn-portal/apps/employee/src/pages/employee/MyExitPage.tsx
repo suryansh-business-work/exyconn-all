@@ -12,10 +12,11 @@ import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { BoolChip } from '@exyconn/shell/components/data/BoolChip';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { readingPanel } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { useMyExitRecordQuery, type MyExitRecordQuery } from '@exyconn/shell/graphql/generated';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 type ExitRecord = NonNullable<MyExitRecordQuery['myExitRecord']>;
 

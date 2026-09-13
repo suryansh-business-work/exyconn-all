@@ -3,7 +3,7 @@ import { Box } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
 import { ROLES } from '@exyconn/shell/auth/roles';
@@ -11,6 +11,7 @@ import { useListUsersQuery } from '@exyconn/shell/graphql/generated';
 import { workHours } from '@exyconn/shell/components/work';
 import type { UserRow } from '@exyconn/shell/pages/user-forms/user';
 import { userStatus } from '@exyconn/shell/pages/UserDetails/user-details.types';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** HR Employee Records — workforce directory; row click opens the detail screen. */
 export function EmployeeRecordsPage() {

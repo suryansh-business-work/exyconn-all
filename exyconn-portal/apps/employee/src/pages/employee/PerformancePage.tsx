@@ -1,12 +1,13 @@
 import { Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { readingPanel } from '@exyconn/shell/components/glass/glass';
+
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
   useMyPerformanceReviewsQuery,
   useSubmitSelfAssessmentMutation,
 } from '@exyconn/shell/graphql/generated';
 import { SelfAssessmentCard, type ReviewRow } from './SelfAssessmentCard';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /** Employee self-service: appraisal cycles, newest first. */
 export function PerformancePage() {

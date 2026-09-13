@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { useBudgetVsActualQuery } from '@exyconn/shell/graphql/generated';
 import { financePeriods, periodFor } from '../finance/finance-period';
 import { FinancePeriodPicker } from '../finance/FinancePeriodPicker';
 import { VarianceBar } from './VarianceBar';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type Row = {
   costCenterId: string;

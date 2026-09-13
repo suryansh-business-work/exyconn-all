@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Alert, Box, Grid, radius, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { readingPanel } from '@exyconn/shell/components/glass/glass';
+
 import { useMyPoliciesQuery } from '@exyconn/shell/graphql/generated';
 import { PolicyCard, type Policy } from './PolicyCard';
 import { PolicyReaderDialog } from './PolicyReaderDialog';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /**
  * Employee self-service: the policies this person is meant to read, and which of them still

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Chip, Flex, MenuItem, TextField, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { useLanguageOptions } from '@exyconn/shell/components/localization';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
@@ -11,6 +11,7 @@ import {
   type TranslationsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { TranslationEditor } from './TranslationEditor';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type Row = TranslationsQuery['translations']['rows'][number];
 

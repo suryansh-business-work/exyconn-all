@@ -4,10 +4,11 @@ import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useMyRequestsQuery } from '@exyconn/shell/graphql/generated';
 import { RaiseRequestForm, type MyRequestRow } from './forms/raise-request';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** Employee self-service: every HR request this employee has raised, and its outcome. */
 export function RequestsPage() {

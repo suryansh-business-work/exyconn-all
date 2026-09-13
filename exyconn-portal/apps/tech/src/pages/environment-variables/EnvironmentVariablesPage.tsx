@@ -8,7 +8,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
-import { panel, readingPanel } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
 import { ImageConfigsPanel } from './ImageConfigsPanel';

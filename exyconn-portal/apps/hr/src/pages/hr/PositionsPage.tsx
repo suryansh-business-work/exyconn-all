@@ -2,10 +2,11 @@ import { Box } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { useCrudResource } from '@exyconn/crud';
 import { useListPositionsQuery, useDeletePositionMutation } from '@exyconn/shell/graphql/generated';
 import { PositionForm, type PositionRow } from './forms/position';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** HR Positions — manage the designations reused on employee records. */
 export function PositionsPage() {

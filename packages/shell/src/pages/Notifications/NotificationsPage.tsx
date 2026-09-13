@@ -2,7 +2,7 @@ import { Box, Button, Flex, Text } from '@/components/ui';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { StatusChip } from '@/components/data/StatusChip';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { densePanel } from '@/components/glass/glass';
+
 import { useSettings } from '@/hooks/useSettings';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import {
@@ -11,6 +11,7 @@ import {
   useMarkNotificationReadMutation,
   useMarkAllNotificationsReadMutation,
 } from '@/graphql/generated';
+import { densePanel } from '@/components/glass/glass';
 
 type Row = {
   id: string;

@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { readingPanel } from '@exyconn/shell/components/glass/glass';
+
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';
 import {
   useListSlackChannelsQuery,
   useTrackerBuildSettingsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { TrackerNotificationsForm } from './forms/tracker-notifications';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /**
  * Only a private channel the bot has not joined actually blocks a build: the

@@ -2,9 +2,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { panel } from '@exyconn/shell/components/glass/glass';
+
 import { useGetSupportTicketQuery } from '@exyconn/shell/graphql/generated';
 import { TicketDetailBody } from './TicketDetailBody';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 /**
  * One ticket on its own page, so it can be linked to — from a notification email, a

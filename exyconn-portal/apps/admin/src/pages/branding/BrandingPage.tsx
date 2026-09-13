@@ -1,8 +1,9 @@
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { readingPanel } from '@exyconn/shell/components/glass/glass';
+
 import { useBrandingQuery } from '@exyconn/shell/graphql/generated';
 import { BrandingForm } from './forms/branding';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /** Admin → Branding: the organisation's identity, images, palette and contacts. */
 export function BrandingPage() {

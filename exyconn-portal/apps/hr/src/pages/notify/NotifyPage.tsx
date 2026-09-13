@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Box, Grid, Heading, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { panel } from '@exyconn/shell/components/glass/glass';
+
 import { SendNotificationForm } from './forms/send-notification';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 /** HR notification management: broadcast to everyone, a department, or chosen people. */
 export function NotifyPage() {

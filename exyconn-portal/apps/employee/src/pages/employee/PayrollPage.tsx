@@ -1,9 +1,10 @@
 import { Box, Card, CardHeader, Divider, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { readingPanel } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { useMyPayrollQuery } from '@exyconn/shell/graphql/generated';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 type RowProps = {
   label: string;

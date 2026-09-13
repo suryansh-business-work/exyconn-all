@@ -1,9 +1,10 @@
 import { Avatar, Box, Divider, Flex, Heading, Paper, Text } from '@/components/ui';
 import { StatusChip } from '@/components/data/StatusChip';
-import { readingPanel } from '@/components/glass/glass';
+
 import { useSettings } from '@/hooks/useSettings';
 import { WorkArrangementFacts } from '@/components/work';
 import { userStatus, type UserDetail } from './user-details.types';
+import { readingPanel } from '@/components/glass/glass';
 
 /** Read-only summary card: identity, roles, status and audit timestamps. */
 export function UserProfileCard({ user }: { user: UserDetail }) {

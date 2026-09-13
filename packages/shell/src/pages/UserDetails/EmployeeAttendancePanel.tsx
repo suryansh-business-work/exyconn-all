@@ -1,9 +1,10 @@
 import { Box, Heading } from '@/components/ui';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { StatusChip } from '@/components/data/StatusChip';
-import { panel } from '@/components/glass/glass';
+
 import { useSettings } from '@/hooks/useSettings';
 import { useAttendanceByEmployeeQuery } from '@/graphql/generated';
+import { panel } from '@/components/glass/glass';
 
 type AttendanceRow = { id: string; date: string; status: string; note?: string | null };
 

@@ -2,10 +2,11 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { panel } from '@exyconn/shell/components/glass/glass';
+
 import { useOrgChartQuery } from '@exyconn/shell/graphql/generated';
 import { buildOrgTree, type OrgTreeNode } from './org-tree';
 import { OrgNodeCard } from './OrgNodeCard';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 interface OrgGroupProps {
   title: string;

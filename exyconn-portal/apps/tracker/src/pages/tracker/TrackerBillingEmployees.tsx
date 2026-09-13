@@ -2,12 +2,13 @@ import { useMemo } from 'react';
 import { ExportCsvButton } from '@exyconn/crud';
 import { Box, Flex, Grid, Text, color } from '@exyconn/shell/components/ui';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { useTrackerBillingQuery } from '@exyconn/shell/graphql/generated';
 import { TrackerBillingChart } from './TrackerBillingChart';
 import { TrackerBillingTable } from './TrackerBillingTable';
 import { EMPLOYEE_BILLING_CSV, moneyFormat } from './tracker.billing';
 import type { BillingRange } from './BillingRangePicker';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /**
  * Tracked time priced per employee.

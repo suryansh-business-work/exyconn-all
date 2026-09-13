@@ -2,13 +2,14 @@ import { Box } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { useCrudResource } from '@exyconn/crud';
 import {
   useListDepartmentsQuery,
   useDeleteDepartmentMutation,
 } from '@exyconn/shell/graphql/generated';
 import { DepartmentForm, type DepartmentRow } from './forms/department';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** HR Departments — manage the departments reused on employee records. */
 export function DepartmentsPage() {

@@ -1,7 +1,8 @@
 import { Box, Grid, Heading, Text } from '@/components/ui';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { readingPanel } from '@/components/glass/glass';
+
 import { ChangePasswordForm } from './forms/change-password';
+import { readingPanel } from '@/components/glass/glass';
 
 /** Account settings page — currently houses the change-password form. */
 export function SettingsPage() {

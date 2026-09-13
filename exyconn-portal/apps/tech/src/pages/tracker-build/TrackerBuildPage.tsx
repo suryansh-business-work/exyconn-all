@@ -4,13 +4,14 @@ import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { readingPanel } from '@exyconn/shell/components/glass/glass';
+
 import {
   useListTrackerBuildsQuery,
   useTrackerBuildSettingsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { StartBuildForm } from './forms/start-build';
 import { buildOutcome, type TrackerBuildRow } from './trackerBuild.status';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /** Which installers a run produced is decided inside the run, so the list reports the run itself. */
 const columns: Column<TrackerBuildRow>[] = [

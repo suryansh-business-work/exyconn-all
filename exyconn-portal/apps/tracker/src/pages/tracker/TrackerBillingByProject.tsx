@@ -14,13 +14,14 @@ import {
   TableRow,
   Text,
 } from '@exyconn/shell/components/ui';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { useTrackerBillingByProjectQuery } from '@exyconn/shell/graphql/generated';
 import { ProjectBillingRow } from './ProjectBillingRow';
 import { TrackerBillingChart } from './TrackerBillingChart';
 import { useInvoiceFromTimeLog } from './useInvoiceFromTimeLog';
 import { PROJECT_BILLING_CSV, moneyFormat, projectBillingLines } from './tracker.billing';
 import type { BillingRange } from './BillingRangePicker';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /**
  * The same billable time, filed under the project it was booked to and set beside what

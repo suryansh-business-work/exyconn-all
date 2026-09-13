@@ -1,6 +1,6 @@
 import { Box } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import type { AnyReport } from './reports.types';
 import { ReportPanel } from './ReportPanel';
@@ -13,6 +13,7 @@ import {
   requestsReport,
 } from './reports.people';
 import { goalsReport, performanceReport, trainingReport, exitsReport } from './reports.growth';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 const REPORTS: AnyReport[] = [
   employeesReport,

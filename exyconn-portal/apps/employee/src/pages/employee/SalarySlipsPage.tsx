@@ -7,11 +7,12 @@ import { DataTable, type Column, type RowAction } from '@exyconn/shell/component
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { useMySalarySlipsQuery } from '@exyconn/shell/graphql/generated';
 import { usePayslipDownload } from '@exyconn/shell/hooks/usePayslipDownload';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type SalarySlipRow = {
   id: string;

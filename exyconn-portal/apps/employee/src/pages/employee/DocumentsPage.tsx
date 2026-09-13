@@ -2,9 +2,10 @@ import { Box, Link, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useMyDocumentsQuery } from '@exyconn/shell/graphql/generated';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type Row = { id: string; kind: string; title: string; url: string; issuedOn: string };
 

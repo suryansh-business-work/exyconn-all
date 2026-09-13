@@ -1,12 +1,13 @@
 import { Box, Heading } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { RequestStatus, useTeamRequestsQuery } from '@exyconn/shell/graphql/generated';
 import { decisionActions } from './decision-actions';
 import { useRequestDecision } from './useRequestDecision';
 import type { TeamRequestRow, TeamSectionProps } from './team.types';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** WFH, regularisation and other requests the team has raised. */
 export function TeamRequestsSection({ nameOf }: Readonly<TeamSectionProps>) {

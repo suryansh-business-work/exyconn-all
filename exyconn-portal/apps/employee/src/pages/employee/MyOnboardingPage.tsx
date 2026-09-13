@@ -1,6 +1,6 @@
 import { Alert, Box, CircularProgress, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { readingPanel } from '@exyconn/shell/components/glass/glass';
+
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { OnboardingItemList, canTickOwn } from '@exyconn/shell/components/onboarding';
@@ -9,6 +9,7 @@ import {
   useMyOnboardingQuery,
   useSetOnboardingItemMutation,
 } from '@exyconn/shell/graphql/generated';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /**
  * My Workspace › My Onboarding — the joiner's own checklist.

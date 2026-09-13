@@ -3,12 +3,13 @@ import { Box, Button, Stack, Text } from '@/components/ui';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { StatusChip } from '@/components/data/StatusChip';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { densePanel } from '@/components/glass/glass';
+
 import { useSettings } from '@/hooks/useSettings';
 import { useApprovalDecision } from '@/hooks/useApprovalDecision';
 import { ApprovalDecision, useMyApprovalsQuery } from '@/graphql/generated';
 import { formatMoney } from '@/utils/money';
 import { ApprovalKindFilter } from './ApprovalKindFilter';
+import { densePanel } from '@/components/glass/glass';
 
 type Row = {
   id: string;

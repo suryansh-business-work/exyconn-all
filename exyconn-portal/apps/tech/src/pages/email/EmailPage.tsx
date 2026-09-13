@@ -5,7 +5,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import ExtensionIcon from '@mui/icons-material/Extension';
 import HistoryIcon from '@mui/icons-material/History';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { panel, readingPanel } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { EmailDashboardPanel } from './EmailDashboardPanel';
 import { EmailTemplatesPanel } from './EmailTemplatesPanel';

@@ -1,5 +1,5 @@
 import { Alert, Box, Chip, Flex, Stack, Text } from '@exyconn/shell/components/ui';
-import { panel } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useProjectHealthQuery } from '@exyconn/shell/graphql/generated';
 import { HealthStat } from './HealthStat';
@@ -10,6 +10,7 @@ import {
   TIMELINE_LABEL,
   percentLabel,
 } from './health-format';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 /** Over its agreed hours is the one bar that should go red rather than simply fill up. */
 function budgetColor(used: number | null | undefined): 'success' | 'warning' | 'error' {

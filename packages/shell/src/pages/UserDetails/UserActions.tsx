@@ -9,12 +9,13 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import ToggleOnIcon from '@mui/icons-material/ToggleOn';
 import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 import { CrudDialog } from '@/components/data/CrudDialog';
-import { readingPanel } from '@/components/glass/glass';
+
 import { UserForm } from '../user-forms/user';
 import { CustomMailForm } from '../user-forms/custom-mail';
 import { BlockUserForm } from '../user-forms/block-user';
 import { useUserActions } from './useUserActions';
 import type { UserDetail } from './user-details.types';
+import { readingPanel } from '@/components/glass/glass';
 
 type ActiveDialog = 'edit' | 'mail' | 'block' | null;
 

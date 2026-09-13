@@ -4,11 +4,12 @@ import { Box, Heading, LinearProgress, Text } from '@exyconn/shell/components/ui
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useTeamGoalsQuery } from '@exyconn/shell/graphql/generated';
 import { GoalCommentForm } from '../forms/goal-comment';
 import type { TeamGoalRow, TeamSectionProps } from './team.types';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** The team's goals, with the manager's comment on each. */
 export function TeamGoalsSection({ nameOf }: Readonly<TeamSectionProps>) {

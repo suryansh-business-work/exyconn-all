@@ -2,11 +2,12 @@ import { Box, LinearProgress, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useMyGoalsQuery, useUpdateMyGoalProgressMutation } from '@exyconn/shell/graphql/generated';
 import { GoalProgressControl } from './GoalProgressControl';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type Row = {
   id: string;

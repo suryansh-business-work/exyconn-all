@@ -3,7 +3,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Box, Heading } from '@/components/ui';
 import { DataTable, type Column, type RowAction } from '@/components/data/DataTable';
 import { StatusChip } from '@/components/data/StatusChip';
-import { panel } from '@/components/glass/glass';
+
 import { useConfirm } from '@/components/feedback/ConfirmProvider';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useSettings } from '@/hooks/useSettings';
@@ -12,6 +12,7 @@ import {
   useLeaveRequestsByEmployeeQuery,
   useSetLeaveStatusMutation,
 } from '@/graphql/generated';
+import { panel } from '@/components/glass/glass';
 
 type LeaveRow = {
   id: string;

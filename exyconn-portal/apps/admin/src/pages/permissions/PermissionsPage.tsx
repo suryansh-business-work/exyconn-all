@@ -1,10 +1,11 @@
 import { Box } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { Role } from '@exyconn/shell/graphql/generated';
 import { PermissionMatrix } from './PermissionMatrix';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** ADMIN can never be restricted, so it is not offered. */
 const RESTRICTABLE_ROLES = Object.values(Role).filter((r) => r !== ROLES.ADMIN);

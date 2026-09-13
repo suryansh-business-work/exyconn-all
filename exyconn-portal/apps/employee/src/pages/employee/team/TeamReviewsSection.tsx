@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Box, Button, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { panel } from '@exyconn/shell/components/glass/glass';
+
 import { ReviewStatus, useTeamPerformanceReviewsQuery } from '@exyconn/shell/graphql/generated';
 import { ManagerAssessmentForm } from '../forms/manager-assessment';
 import type { NameOf, TeamReviewRow, TeamSectionProps } from './team.types';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 interface ReviewRowProps {
   review: TeamReviewRow;

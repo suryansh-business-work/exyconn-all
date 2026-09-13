@@ -3,7 +3,7 @@ import DnsIcon from '@mui/icons-material/Dns';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import LayersIcon from '@mui/icons-material/Layers';
 import { Box } from '@exyconn/shell/components/ui';
-import { panel, readingPanel } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { HostPanel } from './HostPanel';
