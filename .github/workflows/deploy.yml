@@ -178,6 +178,14 @@ jobs:
               APP_DIR=exyconn-portal/apps/it
               PORT=4034
               VITE_PORTAL_APP=it
+          - service: portal-compliance
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-compliance
+              APP_DIR=exyconn-portal/apps/compliance
+              PORT=4037
+              VITE_PORTAL_APP=compliance
           - service: portal-social
             dockerfile: docker/portal-app.Dockerfile
             context: .
@@ -328,6 +336,7 @@ jobs:
             "https://legal.exyconn.com"
             "https://tech.exyconn.com"
             "https://it.exyconn.com"
+            "https://compliance.exyconn.com"
             "https://social.exyconn.com"
             "https://status.exyconn.com"
             "https://hr.exyconn.com"

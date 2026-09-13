@@ -25,6 +25,8 @@ export const ROLES = {
   TRACKER: 'TRACKER',
   TECH: 'TECH',
   IT: 'IT',
+  /** The management systems: ISO 9001, 27001, 45001 and 14001 in one register. */
+  COMPLIANCE: 'COMPLIANCE',
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];

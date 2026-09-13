@@ -83,6 +83,8 @@ pnpm codegen                              # regenerate GraphQL hooks after a .gr
 
 - [multi-tenancy.md](./multi-tenancy.md) — one portal, many companies: how a record is tied
   to its organization, what is platform-wide instead, and how to migrate an existing install.
+- [compliance.md](./compliance.md) — the ISO management system: one set of registers for
+  ISO 9001, 27001, 45001 and 14001, and the rules the API enforces about closing a finding.
 - [packages.md](./packages.md) — what lives in each package and what it exports.
 - [crud-kit.md](./crud-kit.md) — the CRUD kit, with a full worked module.
 - [app-logs.md](./app-logs.md) — Tech › Logs: where every error and debug log comes from,

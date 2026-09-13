@@ -95,6 +95,12 @@
     "title": "IT · Exyconn Track",
     "description": "Exyconn Track — IT module."
   },
+  "compliance": {
+    "subdomain": "compliance",
+    "port": 4037,
+    "title": "Compliance · Exyconn Track",
+    "description": "Exyconn Track — the ISO management system: risks, objectives, audits, findings and management review."
+  },
   "social": {
     "subdomain": "social",
     "port": 4036,

@@ -80,6 +80,12 @@ import { announcementsTypeDefs, announcementsResolvers } from '../modules/announ
 import { notificationsTypeDefs, notificationsResolvers } from '../modules/notifications';
 import { requestsTypeDefs, requestsResolvers } from '../modules/requests';
 import { goalsTypeDefs, goalsResolvers } from '../modules/goals';
+import {
+  complianceTypeDefs,
+  complianceAuditsTypeDefs,
+  complianceReviewsTypeDefs,
+  complianceResolvers,
+} from '../modules/compliance';
 import { performanceTypeDefs, performanceResolvers } from '../modules/performance';
 import { expensesTypeDefs, expensesResolvers } from '../modules/expenses';
 import { benefitsTypeDefs, benefitsResolvers } from '../modules/benefits';
@@ -165,6 +171,9 @@ export const typeDefs = [
   notificationsTypeDefs,
   requestsTypeDefs,
   goalsTypeDefs,
+  complianceTypeDefs,
+  complianceAuditsTypeDefs,
+  complianceReviewsTypeDefs,
   performanceTypeDefs,
   expensesTypeDefs,
   benefitsTypeDefs,
@@ -231,6 +240,7 @@ export const resolvers = mergeResolvers([
   notificationsResolvers,
   requestsResolvers,
   goalsResolvers,
+  complianceResolvers,
   performanceResolvers,
   expensesResolvers,
   benefitsResolvers,

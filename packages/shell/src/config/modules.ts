@@ -1097,6 +1097,49 @@ export const MODULES: ModuleDefinition[] = [
     ],
   },
   {
+    // One module for all four standards: ISO 9001, 27001, 45001 and 14001 ask for the same
+    // five registers, and a company certified to more than one keeps a single set of them.
+    key: 'compliance',
+    label: 'Compliance',
+    path: '/compliance',
+    role: ROLES.COMPLIANCE,
+    icon: VerifiedUserIcon,
+    description: 'ISO management system',
+    accent: color.teal[600],
+    children: [
+      {
+        key: 'compliance-risks',
+        label: 'Risk register',
+        path: '/compliance',
+        icon: ReportProblemIcon,
+      },
+      {
+        key: 'compliance-objectives',
+        label: 'Objectives',
+        path: '/compliance/objectives',
+        icon: TrackChangesIcon,
+      },
+      {
+        key: 'compliance-audits',
+        label: 'Audits',
+        path: '/compliance/audits',
+        icon: FactCheckIcon,
+      },
+      {
+        key: 'compliance-findings',
+        label: 'Findings & CAPA',
+        path: '/compliance/findings',
+        icon: ChecklistIcon,
+      },
+      {
+        key: 'compliance-reviews',
+        label: 'Management review',
+        path: '/compliance/reviews',
+        icon: EventNoteIcon,
+      },
+    ],
+  },
+  {
     // Everyone's, deliberately: this one is keyed to EMPLOYEE rather than a role of its
     // own, because a company feed half the company cannot open is a noticeboard.
     key: 'social',

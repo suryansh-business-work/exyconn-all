@@ -1,0 +1,299 @@
+fragment RiskFields on Risk {
+  id
+  reference
+  title
+  description
+  standards
+  category
+  subject
+  ownerId
+  ownerName
+  likelihood
+  impact
+  inherentScore
+  inherentLevel
+  treatment
+  controls
+  residualLikelihood
+  residualImpact
+  residualScore
+  residualLevel
+  status
+  identifiedOn
+  reviewDueOn
+  closedOn
+}
+
+fragment ObjectiveFields on Objective {
+  id
+  title
+  description
+  standards
+  category
+  scope
+  area
+  ownerId
+  ownerName
+  measure
+  unit
+  baseline
+  target
+  actual
+  achievementPercent
+  frequency
+  periodStart
+  periodEnd
+  status
+  plan
+}
+
+fragment InternalAuditFields on InternalAudit {
+  id
+  reference
+  title
+  kind
+  standards
+  scope
+  criteria
+  leadAuditorId
+  leadAuditorName
+  auditeeName
+  plannedOn
+  performedOn
+  status
+  summary
+  conclusion
+}
+
+fragment FindingFields on Finding {
+  id
+  reference
+  title
+  description
+  source
+  auditId
+  riskId
+  standards
+  category
+  clause
+  type
+  immediateAction
+  rootCause
+  correctiveAction
+  ownerId
+  ownerName
+  raisedOn
+  dueOn
+  status
+  verifiedOn
+  verifiedByName
+  effective
+  effectivenessNote
+  closedOn
+}
+
+fragment ManagementReviewFields on ManagementReview {
+  id
+  reference
+  title
+  standards
+  heldOn
+  chairName
+  attendees
+  inputs
+  decisions
+  actions {
+    description
+    ownerName
+    dueOn
+    done
+  }
+  openActionCount
+  status
+}
+
+fragment ComplianceStatsFields on TableStats {
+  total
+  counts {
+    field
+    buckets {
+      value
+      count
+    }
+  }
+  sums {
+    field
+    total
+  }
+}
+
+query ListRisksPaged($input: TableQueryInput!) {
+  listRisksPaged(input: $input) {
+    rows {
+      ...RiskFields
+    }
+    totalCount
+  }
+}
+
+query ListRisksStats {
+  listRisksStats {
+    ...ComplianceStatsFields
+  }
+}
+
+query ListRisks {
+  listRisks {
+    id
+    reference
+    title
+  }
+}
+
+mutation CreateRisk($input: RiskInput!) {
+  createRisk(input: $input) {
+    id
+  }
+}
+
+mutation UpdateRisk($id: ID!, $input: RiskInput!) {
+  updateRisk(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteRisk($id: ID!) {
+  deleteRisk(id: $id)
+}
+
+query ListObjectivesPaged($input: TableQueryInput!) {
+  listObjectivesPaged(input: $input) {
+    rows {
+      ...ObjectiveFields
+    }
+    totalCount
+  }
+}
+
+query ListObjectivesStats {
+  listObjectivesStats {
+    ...ComplianceStatsFields
+  }
+}
+
+mutation CreateObjective($input: ObjectiveInput!) {
+  createObjective(input: $input) {
+    id
+  }
+}
+
+mutation UpdateObjective($id: ID!, $input: ObjectiveInput!) {
+  updateObjective(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteObjective($id: ID!) {
+  deleteObjective(id: $id)
+}
+
+query ListInternalAuditsPaged($input: TableQueryInput!) {
+  listInternalAuditsPaged(input: $input) {
+    rows {
+      ...InternalAuditFields
+    }
+    totalCount
+  }
+}
+
+query ListInternalAuditsStats {
+  listInternalAuditsStats {
+    ...ComplianceStatsFields
+  }
+}
+
+query ListInternalAudits {
+  listInternalAudits {
+    id
+    reference
+    title
+  }
+}
+
+mutation CreateInternalAudit($input: InternalAuditInput!) {
+  createInternalAudit(input: $input) {
+    id
+  }
+}
+
+mutation UpdateInternalAudit($id: ID!, $input: InternalAuditInput!) {
+  updateInternalAudit(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteInternalAudit($id: ID!) {
+  deleteInternalAudit(id: $id)
+}
+
+query ListFindingsPaged($input: TableQueryInput!) {
+  listFindingsPaged(input: $input) {
+    rows {
+      ...FindingFields
+    }
+    totalCount
+  }
+}
+
+query ListFindingsStats {
+  listFindingsStats {
+    ...ComplianceStatsFields
+  }
+}
+
+mutation CreateFinding($input: FindingInput!) {
+  createFinding(input: $input) {
+    id
+  }
+}
+
+mutation UpdateFinding($id: ID!, $input: FindingInput!) {
+  updateFinding(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteFinding($id: ID!) {
+  deleteFinding(id: $id)
+}
+
+query ListManagementReviewsPaged($input: TableQueryInput!) {
+  listManagementReviewsPaged(input: $input) {
+    rows {
+      ...ManagementReviewFields
+    }
+    totalCount
+  }
+}
+
+query ListManagementReviewsStats {
+  listManagementReviewsStats {
+    ...ComplianceStatsFields
+  }
+}
+
+mutation CreateManagementReview($input: ManagementReviewInput!) {
+  createManagementReview(input: $input) {
+    id
+  }
+}
+
+mutation UpdateManagementReview($id: ID!, $input: ManagementReviewInput!) {
+  updateManagementReview(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteManagementReview($id: ID!) {
+  deleteManagementReview(id: $id)
+}
