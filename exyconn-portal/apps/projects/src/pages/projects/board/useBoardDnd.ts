@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import {
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -33,7 +34,12 @@ function applyTaskMove(tasks: TaskView[], taskId: string, toColumnId: string, to
 export function useBoardDnd(api: ProjectBoardApi) {
   const { columns, tasks, setColumns, setTasks, persistColumnOrder, persistTaskMove } = api;
   const [activeTask, setActiveTask] = useState<TaskView | null>(null);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    // A finger has to hold before it drags: the board scrolls sideways under it, and a
+    // pointer sensor alone reads the first flick of that scroll as picking a card up.
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+  );
 
   const onDragStart = useCallback(
     (e: DragStartEvent) => {

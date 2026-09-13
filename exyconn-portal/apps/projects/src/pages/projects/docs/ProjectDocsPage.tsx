@@ -1,6 +1,7 @@
 import {
   DndContext,
   PointerSensor,
+  TouchSensor,
   closestCenter,
   useSensor,
   useSensors,
@@ -26,7 +27,11 @@ interface ProjectDocsPageProps {
 export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
   const docs = useProjectDocs(projectId);
   // A few pixels of travel before a drag starts, so clicking a page still opens it.
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    // Hold to drag on a touch screen, so scrolling the list does not reorder it.
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+  );
 
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
