@@ -21,9 +21,7 @@ export function TopbarSearch({ roles }: TopbarSearchProps) {
       onChange={(_event, value) => value && navigateTo(value.key, value.path)}
       blurOnSelect
       clearOnEscape
-      // Hidden on a phone rather than squeezed: at 160px it shows ten characters, and the
-      // hamburger beside it opens the same list of modules with room to read them.
-      sx={{ display: { xs: 'none', sm: 'block' }, width: { sm: 240, md: 320 }, mr: 1 }}
+      sx={{ width: { sm: 240, md: 320 }, mr: 1 }}
       renderInput={(params) => (
         <TextField
           {...params}

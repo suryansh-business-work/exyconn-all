@@ -1,6 +1,6 @@
 import { useMemo, type ReactNode } from 'react';
 import type { ColDef } from 'ag-grid-community';
-import { Flex } from '@exyconn/shell/components/ui';
+import { Flex, useMediaQuery, useTheme } from '@exyconn/shell/components/ui';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
@@ -13,6 +13,7 @@ import { usePermissions, type PermissionActionKey } from '@exyconn/shell/hooks/u
 import type { CrudResource } from './useCrudResource';
 import { GridExportButton, useGridQuery } from './ExportCsvButton';
 import { contextWithoutActions, deniedActionKeys } from './permissions';
+import { RecordCardList } from '../list/RecordCardList';
 
 interface CrudDashboardProps<TRow, TPaged> {
   title: string;
@@ -86,6 +87,10 @@ export function CrudDashboard<TRow, TPaged>({
   children,
 }: Readonly<CrudDashboardProps<TRow, TPaged>>) {
   const gridQuery = useGridQuery();
+  const theme = useTheme();
+  // A thirteen-column table is five screens of sideways scrolling on a phone, so a phone
+  // gets the same records as cards instead — same columns, same actions, same query.
+  const onPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const { can } = usePermissions();
   // No module named means no restriction to apply, exactly as before this prop existed.
   const may = (action: PermissionActionKey) => !permissionModule || can(permissionModule, action);
@@ -128,15 +133,26 @@ export function CrudDashboard<TRow, TPaged>({
           />
         </Flex>
       )}
-      <ServerDataGrid<TPaged>
-        columnDefs={columnDefs}
-        fetchRows={fetchRows}
-        context={gridContext}
-        refreshSignal={crud?.refreshSignal ?? refreshSignal}
-        onRowClick={onRowClick}
-        searchPlaceholder={searchPlaceholder}
-        onQuery={gridQuery.onQuery}
-      />
+      {onPhone ? (
+        <RecordCardList<TPaged>
+          columnDefs={columnDefs}
+          fetchRows={fetchRows}
+          context={gridContext}
+          refreshSignal={crud?.refreshSignal ?? refreshSignal}
+          onRowClick={onRowClick}
+          searchPlaceholder={searchPlaceholder}
+        />
+      ) : (
+        <ServerDataGrid<TPaged>
+          columnDefs={columnDefs}
+          fetchRows={fetchRows}
+          context={gridContext}
+          refreshSignal={crud?.refreshSignal ?? refreshSignal}
+          onRowClick={onRowClick}
+          searchPlaceholder={searchPlaceholder}
+          onQuery={gridQuery.onQuery}
+        />
+      )}
       {children}
     </ModuleDashboard>
   );

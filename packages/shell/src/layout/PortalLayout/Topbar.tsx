@@ -11,6 +11,8 @@ import {
   roundButton,
   Toolbar,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@/components/ui';
 import MenuIcon from '@mui/icons-material/Menu';
 import LightModeIcon from '@mui/icons-material/LightMode';
@@ -36,6 +38,8 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
   const { user, signOut } = useAuth();
   const { mode, toggle } = useColorMode();
   const install = useInstallPrompt();
+  const theme = useTheme();
+  const onPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -78,7 +82,9 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         <Typography variant="subtitle2" sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }}>
           Exyconn Track
         </Typography>
-        {user && <TopbarSearch roles={user.roles} />}
+        {/* Left out on a phone rather than squeezed: at 160px it shows ten characters, and
+            the hamburger beside it opens the same list of modules with room to read them. */}
+        {user && !onPhone && <TopbarSearch roles={user.roles} />}
         <Box sx={{ textAlign: 'right', mx: 1.5, display: { xs: 'none', sm: 'block' } }}>
           <Typography
             variant="caption"

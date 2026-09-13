@@ -73,9 +73,21 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
       fontWeightRegular: fontWeight.regular,
       fontWeightMedium: fontWeight.medium,
       fontWeightBold: fontWeight.bold,
-      // The page title: big and tight, as the trackers draw theirs.
-      h4: { fontSize: '2rem', fontWeight: fontWeight.bold, letterSpacing: letterSpacing.tighter },
-      h5: { fontWeight: fontWeight.bold, letterSpacing: letterSpacing.tight },
+      /**
+       * The page title: big and tight, as the trackers draw theirs — but sized against the
+       * screen rather than fixed, so "Purchase orders" is one line on a phone instead of
+       * three. `clamp` keeps it between 1.5rem and the 2rem a desk gets.
+       */
+      h4: {
+        fontSize: 'clamp(1.5rem, 1.1rem + 2vw, 2rem)',
+        fontWeight: fontWeight.bold,
+        letterSpacing: letterSpacing.tighter,
+      },
+      h5: {
+        fontSize: 'clamp(1.25rem, 1rem + 1.2vw, 1.5rem)',
+        fontWeight: fontWeight.bold,
+        letterSpacing: letterSpacing.tight,
+      },
       h6: { fontWeight: fontWeight.semibold, letterSpacing: letterSpacing.snug },
       subtitle2: { fontWeight: fontWeight.semibold },
       button: { textTransform: 'none', fontWeight: fontWeight.semibold },
