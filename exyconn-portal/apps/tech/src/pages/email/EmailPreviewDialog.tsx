@@ -96,13 +96,18 @@ export function EmailPreviewDialog({ template, onClose }: Readonly<Props>) {
                 label={name}
                 value={values[name] ?? ''}
                 onChange={(event) => setValues((prev) => ({ ...prev, [name]: event.target.value }))}
-                sx={{ minWidth: 200, mb: 1 }}
+                sx={{ minWidth: { sm: 200 }, width: { xs: '100%', sm: 'auto' }, mb: 1 }}
               />
             ))}
           </Flex>
         )}
 
-        <Flex direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+        <Flex
+          direction="row"
+          spacing={1}
+          alignItems={{ xs: 'stretch', sm: 'center' }}
+          sx={{ mb: 2, flexWrap: 'wrap' }}
+        >
           <Button variant="contained" onClick={render} disabled={loading}>
             {loading ? 'Rendering…' : 'Preview'}
           </Button>
@@ -111,7 +116,7 @@ export function EmailPreviewDialog({ template, onClose }: Readonly<Props>) {
             label="Send a test to"
             value={to}
             onChange={(event) => setTo(event.target.value)}
-            sx={{ minWidth: 240 }}
+            sx={{ minWidth: { sm: 240 }, width: { xs: '100%', sm: 'auto' } }}
           />
           <Button
             variant="outlined"

@@ -92,7 +92,7 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
               label="Type your full name to sign"
               value={signedName}
               onChange={(event) => setSignedName(event.target.value)}
-              sx={{ minWidth: 260 }}
+              sx={{ minWidth: { sm: 260 }, width: { xs: '100%', sm: 'auto' } }}
             />
             <Button
               variant="contained"

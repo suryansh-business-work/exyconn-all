@@ -96,7 +96,7 @@ export function WebhooksPanel() {
           label="HTTPS endpoint"
           value={url}
           onChange={(event) => setUrl(event.target.value)}
-          sx={{ flex: 1, minWidth: 260 }}
+          sx={{ flex: 1, minWidth: { sm: 260 }, width: { xs: '100%', sm: 'auto' } }}
         />
         <Button
           variant="contained"

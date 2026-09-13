@@ -60,7 +60,7 @@ export function ProjectTicketsPage({ projectId }: Readonly<ProjectTicketsPagePro
           placeholder="Summary or key…"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          sx={{ minWidth: 220 }}
+          sx={{ minWidth: { sm: 220 }, width: { xs: '100%', sm: 'auto' } }}
         />
         <TextField
           select

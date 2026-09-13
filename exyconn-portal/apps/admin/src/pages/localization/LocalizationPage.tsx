@@ -89,7 +89,7 @@ export function LocalizationPage() {
           label="Language"
           value={chosen}
           onChange={(event) => setLocale(event.target.value)}
-          sx={{ minWidth: 220 }}
+          sx={{ minWidth: { sm: 220 }, width: { xs: '100%', sm: 'auto' } }}
         >
           {languages.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -103,7 +103,7 @@ export function LocalizationPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="English text or its translation"
-          sx={{ minWidth: 260 }}
+          sx={{ minWidth: { sm: 260 }, width: { xs: '100%', sm: 'auto' } }}
         />
         <Flex direction="row" alignItems="center">
           <Text size="sm" color="text.secondary">

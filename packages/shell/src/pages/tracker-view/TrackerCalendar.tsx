@@ -23,8 +23,10 @@ function DayCell({ cell, selected, onSelect }: Readonly<DayCellProps>) {
     >
       <Box
         sx={{
-          minHeight: 76,
-          p: 1,
+          minHeight: { xs: 56, sm: 76 },
+          // About 40px of cell on a phone: the date has to fit before anything else does.
+          p: { xs: 0.5, sm: 1 },
+          minWidth: 0,
           borderRadius: 1.5,
           border: 1,
           borderColor,
@@ -38,10 +40,17 @@ function DayCell({ cell, selected, onSelect }: Readonly<DayCellProps>) {
         </Text>
         {bucket && (
           <>
-            <Text size="caption" weight="medium">
+            <Text size="caption" weight="medium" noWrap>
               {formatDuration(bucket.activeMs)}
             </Text>
-            <Text size="caption" color="text.secondary">
+            {/* The percentage is the first thing to go when there is no room for it; the day
+                panel below says it in full for whichever day is open. */}
+            <Text
+              size="caption"
+              color="text.secondary"
+              noWrap
+              sx={{ display: { xs: 'none', sm: 'block' } }}
+            >
               {activityPercent(bucket.activeMs, bucket.idleMs)}% active
             </Text>
           </>
@@ -64,7 +73,7 @@ export function TrackerCalendar({
   onSelectDay,
 }: Readonly<TrackerCalendarProps>) {
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0.5 }}>
+    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: 0.5 }}>
       {WEEKDAYS.map((label) => (
         <Text key={label} size="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
           {label}

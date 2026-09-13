@@ -97,7 +97,7 @@ export function ApiKeysPanel() {
           label="Name"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          sx={{ minWidth: 200 }}
+          sx={{ minWidth: { sm: 200 }, width: { xs: '100%', sm: 'auto' } }}
         />
         <Flex direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', flex: 1 }}>
           {GRANTABLE_ROLES.map((role) => (
