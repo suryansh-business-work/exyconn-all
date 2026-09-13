@@ -13,7 +13,7 @@ export function ProfilePage() {
   return (
     <Box>
       <PageHeader title="My Profile" subtitle="Manage your photo and personal details" />
-      <Grid container spacing={2.5}>
+      <Grid container spacing={2}>
         <Grid
           size={{
             xs: 12,

@@ -39,7 +39,7 @@ function ExitSummary({ exit, formatDate }: Readonly<ExitSummaryProps>) {
         subheader={`Resigned ${formatDate(exit.resignationDate)}`}
       />
       <CardContent>
-        <Flex direction="column" spacing={1.25}>
+        <Flex direction="column" spacing={1.5}>
           <DetailRow label="Stage">
             <StatusChip value={exit.stage} />
           </DetailRow>

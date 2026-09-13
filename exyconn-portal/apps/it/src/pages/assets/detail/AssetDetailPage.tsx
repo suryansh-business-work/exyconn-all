@@ -74,7 +74,7 @@ export function AssetDetailPage() {
   ];
 
   return (
-    <Stack spacing={2.5}>
+    <Stack spacing={2}>
       <Flex direction="row" alignItems="center" spacing={1.5}>
         <Button startIcon={<ArrowBackIcon />} size="small" onClick={() => navigate('/it/assets')}>
           Assets
@@ -112,7 +112,7 @@ export function AssetDetailPage() {
         formatDate={formatDate}
       />
 
-      <Card variant="outlined" sx={{ p: { xs: 2, md: 2.5 } }}>
+      <Card variant="outlined" sx={{ p: { xs: 2, md: 2 } }}>
         <Typography
           variant="h6"
           sx={{

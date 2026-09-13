@@ -22,7 +22,7 @@ export function LeaveDecisionCell({ row, onDecide }: Readonly<LeaveDecisionCellP
     onDecide(row, status).catch(() => undefined);
   };
   return (
-    <Flex direction="row" spacing={0.25}>
+    <Flex direction="row" spacing={0.5}>
       <Tooltip title="Approve">
         <IconButton
           size="small"

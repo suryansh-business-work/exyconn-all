@@ -27,7 +27,7 @@ export function IncidentUpdates({ updates }: Readonly<IncidentUpdatesProps>) {
   return (
     <Box sx={{ mt: 1.5, pl: 1.5, borderLeft: 2, borderColor: 'divider' }}>
       {updates.map((update) => (
-        <Box key={update.id} sx={{ mb: 1.25 }}>
+        <Box key={update.id} sx={{ mb: 1.5 }}>
           <Flex alignItems="center" spacing={1} flexWrap="wrap">
             <Chip
               size="small"

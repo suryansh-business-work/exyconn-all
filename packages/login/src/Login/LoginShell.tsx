@@ -65,7 +65,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
 
       <Flex
         direction={{ xs: 'column', md: 'row' }}
-        spacing={2.5}
+        spacing={2}
         alignItems="stretch"
         sx={{ position: 'relative', zIndex: zIndex.raised }}
       >
@@ -80,7 +80,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
                 target="_blank"
                 rel="noopener"
                 size="small"
-                sx={{ borderRadius: `${radius.pill}px`, bgcolor: 'action.hover', px: 1.75 }}
+                sx={{ borderRadius: `${radius.pill}px`, bgcolor: 'action.hover', px: 2 }}
               >
                 Support
               </Button>

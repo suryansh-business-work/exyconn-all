@@ -52,13 +52,13 @@ export function CalendarPage() {
       </Box>
 
       <Flex direction="row" spacing={2} alignItems="center" sx={{ mt: 1 }}>
-        <Flex direction="row" spacing={0.75} alignItems="center">
+        <Flex direction="row" spacing={1} alignItems="center">
           <Box sx={{ width: 12, height: 12, borderRadius: 0.5, bgcolor: 'secondary.main' }} />
           <Text size="caption" color="text.secondary">
             Holiday
           </Text>
         </Flex>
-        <Flex direction="row" spacing={0.75} alignItems="center">
+        <Flex direction="row" spacing={1} alignItems="center">
           <Chip size="small" label="Leave" color="info" />
           <Text size="caption" color="text.secondary">
             Your leave

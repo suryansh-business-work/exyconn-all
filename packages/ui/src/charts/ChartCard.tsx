@@ -59,7 +59,7 @@ export function ChartCard({
           mb: 1.5,
         }}
       >
-        <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+        <Stack spacing={0.5} sx={{ minWidth: 0 }}>
           <Typography id={headingId} variant="subtitle2" sx={{ fontWeight: 700 }}>
             {title}
           </Typography>
@@ -86,10 +86,10 @@ export function ChartCard({
               }
             }}
           >
-            <ToggleButton value="chart" aria-label="Show as a chart" sx={{ px: 1.25 }}>
+            <ToggleButton value="chart" aria-label="Show as a chart" sx={{ px: 1.5 }}>
               Chart
             </ToggleButton>
-            <ToggleButton value="table" aria-label="Show the numbers as a table" sx={{ px: 1.25 }}>
+            <ToggleButton value="table" aria-label="Show the numbers as a table" sx={{ px: 1.5 }}>
               Table
             </ToggleButton>
           </ToggleButtonGroup>

@@ -24,13 +24,13 @@ function DayCell({ cell, selected, onSelect }: Readonly<DayCellProps>) {
       <Box
         sx={{
           minHeight: 76,
-          p: 0.75,
+          p: 1,
           borderRadius: 1.5,
           border: 1,
           borderColor,
           display: 'flex',
           flexDirection: 'column',
-          gap: 0.25,
+          gap: 0.5,
         }}
       >
         <Text size="sm" weight={cell.isToday ? 'bold' : 'regular'}>

@@ -20,7 +20,7 @@ export function HrUpcomingHolidays({ holidays, formatDate }: Readonly<HrUpcoming
         </Text>
       )}
       {holidays.map((holiday) => (
-        <Flex key={holiday.id} direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.25 }}>
+        <Flex key={holiday.id} direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.5 }}>
           <CelebrationIcon fontSize="small" color="warning" />
           <Box>
             <Text weight="medium">{holiday.name}</Text>

@@ -15,7 +15,7 @@ type RowProps = {
 /** A single label/value line in the salary breakdown. */
 function Row({ label, value, strong, tone }: RowProps) {
   return (
-    <Flex direction="row" justifyContent="space-between" alignItems="center" sx={{ py: 0.75 }}>
+    <Flex direction="row" justifyContent="space-between" alignItems="center" sx={{ py: 1 }}>
       <Text color="text.secondary">{label}</Text>
       <Text weight={strong ? 'bold' : 'medium'} color={tone}>
         {value}

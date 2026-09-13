@@ -36,7 +36,7 @@ export function StatCard({ label, value, delta, accent = color.orange[500], seri
         {delta !== undefined && (
           <Stack
             direction="row"
-            spacing={0.3}
+            spacing={0.5}
             sx={{
               alignItems: 'center',
               color: up ? 'success.main' : 'error.main',
@@ -62,7 +62,7 @@ export function StatCard({ label, value, delta, accent = color.orange[500], seri
         variant="h6"
         sx={{
           fontWeight: 700,
-          mt: 0.25,
+          mt: 0.5,
         }}
       >
         {value}

@@ -25,7 +25,7 @@ export function HrBirthdays({ birthdays, formatDate }: Readonly<HrBirthdaysProps
         </Text>
       )}
       {birthdays.map((b) => (
-        <Flex key={b.user.id} direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.25 }}>
+        <Flex key={b.user.id} direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.5 }}>
           <CelebrationIcon fontSize="small" color="error" />
           <Box>
             <Text weight="medium">{b.user.name}</Text>

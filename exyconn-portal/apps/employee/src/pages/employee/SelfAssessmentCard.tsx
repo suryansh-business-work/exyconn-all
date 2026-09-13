@@ -36,7 +36,7 @@ export function SelfAssessmentCard({ review, onSubmit }: Readonly<SelfAssessment
   };
 
   return (
-    <Box sx={[glass, { p: 2.5 }]}>
+    <Box sx={[glass, { p: 2 }]}>
       <Flex direction="row" alignItems="center" spacing={1}>
         <Heading level={6}>{review.cycle}</Heading>
         <StatusChip value={review.status} />

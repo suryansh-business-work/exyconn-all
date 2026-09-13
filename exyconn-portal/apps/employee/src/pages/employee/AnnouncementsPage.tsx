@@ -26,7 +26,7 @@ export function AnnouncementsPage() {
 
       <Flex direction="column" spacing={2}>
         {rows.map((row) => (
-          <Box key={row.id} sx={[glass, { p: 2.5 }]}>
+          <Box key={row.id} sx={[glass, { p: 2 }]}>
             <Flex direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
               {row.pinned && <PushPinIcon fontSize="small" color="warning" />}
               <Heading level={6}>{row.title}</Heading>

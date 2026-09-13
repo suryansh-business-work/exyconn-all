@@ -19,7 +19,7 @@ export function HrNewJoiners({ users, formatDate }: Readonly<HrNewJoinersProps>)
         </Text>
       )}
       {users.map((user) => (
-        <Flex key={user.id} direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.25 }}>
+        <Flex key={user.id} direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.5 }}>
           <PersonAddIcon fontSize="small" color="success" />
           <Box>
             <Text weight="medium">{user.name}</Text>

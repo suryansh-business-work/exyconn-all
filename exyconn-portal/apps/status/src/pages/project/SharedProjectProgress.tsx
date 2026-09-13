@@ -45,7 +45,7 @@ export function SharedProjectProgress({
             No milestones have been set for this project.
           </Typography>
         ) : (
-          <Flex direction="column" spacing={1.25}>
+          <Flex direction="column" spacing={1.5}>
             {milestones.map((milestone) => (
               <Flex key={milestone.name} alignItems="center" spacing={1.5}>
                 <Chip

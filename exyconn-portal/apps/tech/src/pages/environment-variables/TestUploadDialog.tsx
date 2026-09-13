@@ -53,7 +53,7 @@ export function TestUploadDialog({ configId, configLabel, open, onClose }: TestU
 
   return (
     <CrudDialog open={open} title="Test file upload" onClose={handleClose}>
-      <Flex direction="column" spacing={2.5}>
+      <Flex direction="column" spacing={2}>
         <Text size="sm" color="text.secondary">
           Upload a file using the &ldquo;{configLabel}&rdquo; provider configuration.
         </Text>

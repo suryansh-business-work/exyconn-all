@@ -31,7 +31,7 @@ export function LatestAnnouncements({
       )}
       {announcements.map((announcement) => (
         <Box key={announcement.id} sx={{ mt: 1.5 }}>
-          <Flex direction="row" alignItems="center" spacing={0.75}>
+          <Flex direction="row" alignItems="center" spacing={1}>
             {announcement.pinned && <PushPinIcon fontSize="small" color="warning" />}
             <Text weight="medium">{announcement.title}</Text>
             <StatusChip value={announcement.category} />

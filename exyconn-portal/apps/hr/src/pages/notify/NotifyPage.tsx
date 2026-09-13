@@ -21,7 +21,7 @@ export function NotifyPage() {
             md: 7,
           }}
         >
-          <Box sx={[glass, { p: 2.5 }]}>
+          <Box sx={[glass, { p: 2 }]}>
             <SendNotificationForm onSent={setLastSent} />
           </Box>
         </Grid>
@@ -31,7 +31,7 @@ export function NotifyPage() {
             md: 5,
           }}
         >
-          <Box sx={[glass, { p: 2.5 }]}>
+          <Box sx={[glass, { p: 2 }]}>
             <Heading level={6}>How it lands</Heading>
             <Text size="sm" color="text.secondary" sx={{ mt: 1 }}>
               Recipients see it in their notification centre and the bell count on every portal.

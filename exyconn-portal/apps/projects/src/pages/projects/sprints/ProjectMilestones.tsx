@@ -116,7 +116,7 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
             direction="row"
             alignItems="center"
             spacing={1.5}
-            sx={{ p: 1.25, borderRadius: `${CARD_RADIUS}px`, border: 1, borderColor: 'divider' }}
+            sx={{ p: 1.5, borderRadius: `${CARD_RADIUS}px`, border: 1, borderColor: 'divider' }}
           >
             <Chip
               size="small"

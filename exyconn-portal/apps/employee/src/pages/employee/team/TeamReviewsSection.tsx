@@ -17,7 +17,7 @@ interface ReviewRowProps {
 function ReviewRow({ review, nameOf, onWrite }: Readonly<ReviewRowProps>) {
   const awaitingManager = review.status === ReviewStatus.SelfSubmitted;
   return (
-    <Flex direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.25 }}>
+    <Flex direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.5 }}>
       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
         <Text weight="medium">
           {nameOf(review.employeeId)} · {review.cycle}

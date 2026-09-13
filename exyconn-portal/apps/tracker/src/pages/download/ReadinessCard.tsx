@@ -62,7 +62,7 @@ export function ReadinessCard({ hasAccess, consented, loading }: Readonly<Readin
       </Stack>
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
         {items.map((item) => (
-          <Stack key={item.key} direction="row" spacing={1.25} sx={{ flex: 1 }}>
+          <Stack key={item.key} direction="row" spacing={1.5} sx={{ flex: 1 }}>
             {item.done ? (
               <CheckCircleIcon sx={{ fontSize: iconSize.xl, color: 'success.main' }} />
             ) : (

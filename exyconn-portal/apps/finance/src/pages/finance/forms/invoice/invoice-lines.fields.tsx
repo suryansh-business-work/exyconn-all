@@ -63,7 +63,7 @@ function LineRow({ index, amount, onRemove }: Readonly<LineRowProps>) {
         size="small"
         sx={{ maxWidth: 80 }}
       />
-      <Text size="sm" sx={{ minWidth: 90, textAlign: 'right', pt: 1.25 }}>
+      <Text size="sm" sx={{ minWidth: 90, textAlign: 'right', pt: 1.5 }}>
         {amount}
       </Text>
       <IconButton aria-label="remove line" size="small" onClick={onRemove}>

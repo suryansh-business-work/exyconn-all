@@ -50,14 +50,14 @@ export function StatBreakdown({
           {emptyMessage}
         </Typography>
       )}
-      <Stack spacing={1.25}>
+      <Stack spacing={1.5}>
         {ordered.map((bucket) => (
           <Box key={bucket.value}>
             <Stack
               direction="row"
               sx={{
                 justifyContent: 'space-between',
-                mb: 0.25,
+                mb: 0.5,
               }}
             >
               <Typography

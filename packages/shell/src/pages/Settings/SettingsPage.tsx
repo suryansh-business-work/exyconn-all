@@ -8,7 +8,7 @@ export function SettingsPage() {
   return (
     <Box>
       <PageHeader title="Settings" subtitle="Manage your account security" />
-      <Grid container spacing={2.5}>
+      <Grid container spacing={2}>
         <Grid
           size={{
             xs: 12,

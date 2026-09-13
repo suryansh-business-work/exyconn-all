@@ -25,7 +25,7 @@ export function HrAnniversaries({ anniversaries, formatDate }: Readonly<HrAnnive
         </Text>
       )}
       {anniversaries.map((a) => (
-        <Flex key={a.user.id} direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.25 }}>
+        <Flex key={a.user.id} direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.5 }}>
           <CakeIcon fontSize="small" color="secondary" />
           <Box>
             <Text weight="medium">

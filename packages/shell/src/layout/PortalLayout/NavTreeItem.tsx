@@ -13,7 +13,7 @@ interface Props {
   onSelect: (node: NavNode) => void;
 }
 
-const rowSx = (depth: number) => ({ borderRadius: 1, mb: 0.25, py: 0.6, pl: 1.25 + depth * 1.5 });
+const rowSx = (depth: number) => ({ borderRadius: 1, mb: 0.5, py: 0.5, pl: 1.5 + depth * 1.5 });
 
 /**
  * One page in the sidebar.

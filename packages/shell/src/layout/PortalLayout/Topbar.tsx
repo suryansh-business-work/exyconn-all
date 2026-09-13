@@ -20,7 +20,7 @@ import { useColorMode } from '@/theme/ColorModeContext';
 import { TopbarSearch } from './TopbarSearch';
 import { NotificationBell } from './NotificationBell';
 import { ApprovalsBell } from './ApprovalsBell';
-import { TOPBAR_HEIGHT } from './metrics';
+import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
 
 interface TopbarProps {
   drawerWidth: number;
@@ -59,7 +59,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         background: t.palette.background.default,
       })}
     >
-      <Toolbar sx={{ minHeight: { xs: TOPBAR_HEIGHT }, px: { xs: 1.5, md: 2.5 } }}>
+      <Toolbar sx={{ minHeight: { xs: TOPBAR_HEIGHT }, px: PAGE_GUTTER }}>
         <IconButton edge="start" onClick={onMenuClick} sx={{ mr: 1, display: { md: 'none' } }}>
           <MenuIcon />
         </IconButton>

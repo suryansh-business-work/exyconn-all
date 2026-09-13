@@ -10,14 +10,14 @@ function DayCell({ day }: { day: DayMarker }) {
     <Box
       sx={{
         minHeight: 72,
-        p: 0.75,
+        p: 1,
         borderRadius: 1.5,
         border: 1,
         borderColor: day.isToday ? 'primary.main' : 'divider',
         opacity: day.inMonth ? 1 : 0.4,
         display: 'flex',
         flexDirection: 'column',
-        gap: 0.25,
+        gap: 0.5,
       }}
     >
       <Text size="sm" weight={day.isToday ? 'bold' : 'regular'}>

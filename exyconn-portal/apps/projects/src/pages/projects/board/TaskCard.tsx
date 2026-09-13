@@ -35,7 +35,7 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
     <Box
       ref={setNodeRef}
       sx={{
-        p: 1.25,
+        p: 1.5,
         borderRadius: 1.5,
         bgcolor: 'background.paper',
         border: 1,
@@ -73,7 +73,7 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
             {task.title}
           </Text>
 
-          <Flex direction="row" alignItems="center" spacing={0.75} sx={{ mt: 0.75 }}>
+          <Flex direction="row" alignItems="center" spacing={1} sx={{ mt: 1 }}>
             <TicketFacetIcon facet={TICKET_TYPES[task.type]} kind="Type" />
             <TicketFacetIcon facet={TICKET_PRIORITIES[task.priority]} kind="Priority" />
             <Text size="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
@@ -97,7 +97,7 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
           </Flex>
 
           {task.labels.length > 0 ? (
-            <Flex direction="row" spacing={0.5} sx={{ mt: 0.75, flexWrap: 'wrap' }}>
+            <Flex direction="row" spacing={0.5} sx={{ mt: 1, flexWrap: 'wrap' }}>
               {task.labels.map((label) => (
                 <Chip
                   key={label}

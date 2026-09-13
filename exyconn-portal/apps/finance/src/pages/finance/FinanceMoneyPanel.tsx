@@ -35,7 +35,7 @@ export function FinanceMoneyPanel({ title, basis, lines }: Readonly<Props>) {
         {basis}
       </Text>
 
-      <Stack spacing={0.75}>
+      <Stack spacing={1}>
         {lines.map((line) => (
           <Stack
             key={line.id}

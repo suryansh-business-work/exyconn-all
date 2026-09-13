@@ -62,7 +62,7 @@ export function ProjectHealthPage({ projectId }: Readonly<{ projectId: string }>
 
       {health.riskReasons.length > 0 ? (
         <Alert severity={health.risk === 'HIGH' ? 'error' : 'warning'}>
-          <Stack spacing={0.25}>
+          <Stack spacing={0.5}>
             {health.riskReasons.map((reason) => (
               <Text key={reason}>{reason}</Text>
             ))}

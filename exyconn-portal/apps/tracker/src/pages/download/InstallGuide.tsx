@@ -47,7 +47,7 @@ function InstallStep({ index, text, accent }: Readonly<StepProps>) {
       >
         {index}
       </Box>
-      <Typography variant="body2" sx={{ pt: 0.25 }}>
+      <Typography variant="body2" sx={{ pt: 0.5 }}>
         {text}
       </Typography>
     </Stack>
@@ -87,7 +87,7 @@ export function InstallGuide({ platform }: Readonly<{ platform: PlatformConfig }
         <LockIcon sx={{ fontSize: iconSize.lg, color: 'text.secondary' }} />
         <Typography variant="subtitle2">Permissions it will ask for</Typography>
       </Stack>
-      <Stack component="ul" spacing={0.5} sx={{ m: 0, pl: 2.5 }}>
+      <Stack component="ul" spacing={0.5} sx={{ m: 0, pl: 2 }}>
         {platform.permissions.map((permission) => (
           <Typography
             key={permission}

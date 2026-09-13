@@ -31,7 +31,7 @@ export function HrProbations({ rows, formatDate }: Readonly<HrProbationsProps>) 
         </Text>
       )}
       {rows.map((row) => (
-        <Flex key={row.id} direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.25 }}>
+        <Flex key={row.id} direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.5 }}>
           <HourglassBottomIcon fontSize="small" color="warning" />
           <Box sx={{ minWidth: 0 }}>
             <Text weight="medium">{row.name}</Text>

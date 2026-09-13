@@ -31,7 +31,7 @@ export function TicketDetailPage() {
           Back to queue
         </Button>
       </PageHeader>
-      <Box sx={[glass, { p: { xs: 1.5, md: 2.5 } }]}>
+      <Box sx={[glass, { p: { xs: 1.5, md: 2 } }]}>
         {ticket ? (
           <TicketDetailBody
             ticket={ticket}

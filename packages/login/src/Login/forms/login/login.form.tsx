@@ -123,7 +123,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
             Log in
           </Button>
 
-          <Flex direction="column" alignItems="flex-start" spacing={0.25}>
+          <Flex direction="column" alignItems="flex-start" spacing={0.5}>
             <Link
               component="button"
               type="button"

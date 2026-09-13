@@ -23,7 +23,7 @@ export function DealCard({ deal, accent, onOpen }: Readonly<DealCardProps>) {
         width: '100%',
         textAlign: 'left',
         cursor: 'pointer',
-        p: 1.25,
+        p: 1.5,
         mb: 1,
         border: `${borderWidth.hairline}px solid`,
         borderColor: 'divider',

@@ -12,7 +12,7 @@ export function TrackerSettingsPage() {
   return (
     <Box>
       <PageHeader title="Tracker Settings" subtitle="Capture cadence & privacy controls" />
-      <Grid container spacing={2.5}>
+      <Grid container spacing={2}>
         <Grid
           size={{
             xs: 12,

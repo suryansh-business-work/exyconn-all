@@ -4,7 +4,7 @@ import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 /** Identity tab — the names and copy that describe the business. */
 export function BrandingIdentityFields() {
   return (
-    <Flex direction="column" spacing={2.5}>
+    <Flex direction="column" spacing={2}>
       <RhfTextField
         name="businessName"
         label="Business name"

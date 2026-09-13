@@ -42,7 +42,7 @@ export function TrackerDayProjects({
   }
 
   return (
-    <Flex direction="column" spacing={0.75}>
+    <Flex direction="column" spacing={1}>
       {totals.map((project) => (
         <Flex key={project.name} direction="row" alignItems="center" spacing={1}>
           <Chip label={project.name} size="small" />

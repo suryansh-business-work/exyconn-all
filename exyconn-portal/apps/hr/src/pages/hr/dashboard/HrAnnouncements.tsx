@@ -27,8 +27,8 @@ export function HrAnnouncements({ rows, formatDate }: Readonly<HrAnnouncementsPr
         </Text>
       )}
       {rows.map((row) => (
-        <Box key={row.id} sx={{ mt: 1.25 }}>
-          <Flex direction="row" alignItems="center" spacing={0.75}>
+        <Box key={row.id} sx={{ mt: 1.5 }}>
+          <Flex direction="row" alignItems="center" spacing={1}>
             {row.pinned && <PushPinIcon fontSize="small" color="warning" />}
             <Text weight="medium">{row.title}</Text>
             <StatusChip value={row.category} />

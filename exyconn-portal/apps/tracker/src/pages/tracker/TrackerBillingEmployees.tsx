@@ -28,7 +28,7 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
 
   return (
     <Box sx={{ pt: 2 }}>
-      <Grid container spacing={2} sx={{ mb: 2.5 }}>
+      <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid
           size={{
             xs: 6,

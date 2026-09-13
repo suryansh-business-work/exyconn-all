@@ -17,7 +17,7 @@ export function MyWorkArrangementCard() {
   const arrangement = data?.me;
 
   return (
-    <Paper sx={[glass, { p: 3, mb: 2.5 }]}>
+    <Paper sx={[glass, { p: 3, mb: 2 }]}>
       <Text size="overline" color="text.secondary">
         My working arrangement
       </Text>

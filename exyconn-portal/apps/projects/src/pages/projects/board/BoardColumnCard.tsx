@@ -61,7 +61,7 @@ export function BoardColumnCard({
       sx={{
         width: 280,
         flexShrink: 0,
-        p: 1.25,
+        p: 1.5,
         borderRadius: `${CARD_RADIUS}px`,
         bgcolor: 'action.hover',
         opacity: isDragging ? 0.5 : 1,

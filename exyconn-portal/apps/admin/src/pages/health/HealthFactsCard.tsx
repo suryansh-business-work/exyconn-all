@@ -26,7 +26,7 @@ export function HealthFactsCard({ title, facts }: Readonly<HealthFactsCardProps>
           sx={{
             justifyContent: 'space-between',
             alignItems: 'baseline',
-            py: 0.75,
+            py: 1,
             borderTop: `${borderWidth.hairline}px solid`,
             borderColor: 'divider',
           }}

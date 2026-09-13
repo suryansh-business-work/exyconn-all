@@ -58,7 +58,7 @@ export function OrgNodeCard({ node, depth, onOpen }: Readonly<OrgNodeCardProps>)
         )}
         <ListItemButton
           onClick={() => onOpen(node.id)}
-          sx={{ borderRadius: 1.5, py: 0.75, flexGrow: 1 }}
+          sx={{ borderRadius: 1.5, py: 1, flexGrow: 1 }}
         >
           <Avatar src={node.avatarUrl ?? undefined} sx={{ width: 36, height: 36, mr: 1.5 }}>
             {initialsOf(node.name)}
@@ -76,7 +76,7 @@ export function OrgNodeCard({ node, depth, onOpen }: Readonly<OrgNodeCardProps>)
       </Flex>
       {hasReports && (
         <Collapse in={open} unmountOnExit>
-          <Box sx={{ ml: 2.25, pl: 2, borderLeft: 1, borderColor: 'divider' }}>
+          <Box sx={{ ml: 2, pl: 2, borderLeft: 1, borderColor: 'divider' }}>
             {node.reports.map((report) => (
               <OrgNodeCard key={report.id} node={report} depth={depth + 1} onOpen={onOpen} />
             ))}

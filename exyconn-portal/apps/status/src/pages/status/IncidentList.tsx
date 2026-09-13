@@ -49,7 +49,7 @@ export function IncidentList({ incidents }: Readonly<IncidentListProps>) {
       {incidents.map((incident, index) => (
         <Box key={incident.id}>
           {index > 0 && <Divider />}
-          <Box sx={{ py: 1.75 }}>
+          <Box sx={{ py: 2 }}>
             <Flex
               direction={{ xs: 'column', sm: 'row' }}
               justifyContent="space-between"

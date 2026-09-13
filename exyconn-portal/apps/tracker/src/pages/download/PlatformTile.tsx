@@ -49,7 +49,7 @@ export function PlatformTile({
     >
       <Stack
         direction="row"
-        spacing={1.25}
+        spacing={1.5}
         sx={{
           alignItems: 'center',
         }}

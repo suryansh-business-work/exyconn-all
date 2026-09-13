@@ -24,7 +24,7 @@ export function HrPendingLeave({ rows, formatDate }: Readonly<HrPendingLeaveProp
           direction="row"
           justifyContent="space-between"
           alignItems="center"
-          sx={{ mt: 1.25 }}
+          sx={{ mt: 1.5 }}
         >
           <Box>
             <Text weight="medium">{row.employeeName}</Text>

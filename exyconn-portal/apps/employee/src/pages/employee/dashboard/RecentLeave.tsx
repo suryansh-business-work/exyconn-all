@@ -25,7 +25,7 @@ export function RecentLeave({ requests, formatDate }: Readonly<RecentLeaveProps>
         </Text>
       )}
       {requests.map((request) => (
-        <Flex key={request.id} direction="row" justifyContent="space-between" sx={{ mt: 1.25 }}>
+        <Flex key={request.id} direction="row" justifyContent="space-between" sx={{ mt: 1.5 }}>
           <Text size="sm">
             {request.type} · {formatDate(request.fromDate)} → {formatDate(request.toDate)}
           </Text>

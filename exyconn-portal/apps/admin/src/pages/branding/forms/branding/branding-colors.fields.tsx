@@ -36,7 +36,7 @@ function ColorField({ name, label }: Readonly<{ name: string; label: string }>) 
 /** Colors tab — the palette applied across the portal, website and apps. */
 export function BrandingColorsFields() {
   return (
-    <Grid container spacing={2.5}>
+    <Grid container spacing={2}>
       {COLOR_FIELDS.map((field) => (
         <Grid
           key={field.name}

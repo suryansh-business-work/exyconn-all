@@ -22,7 +22,7 @@ interface InfraDetailCardProps {
  */
 export function InfraDetailCard({ title, icon, facts }: Readonly<InfraDetailCardProps>) {
   return (
-    <Box sx={[glass, { p: { xs: 2, md: 2.5 }, height: '100%' }]}>
+    <Box sx={[glass, { p: { xs: 2, md: 2 }, height: '100%' }]}>
       <Flex direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
         {icon}
         <Text weight="medium">{title}</Text>
