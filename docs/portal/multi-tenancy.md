@@ -59,16 +59,20 @@ failure is logged and the rest still run. The status monitor stays platform-wide
 
 ## Migrating an existing install
 
+**Nothing to do: the server migrates itself at boot**, before it serves a request. On the first
+start after this ships, it creates the first organization from what the portal already says
+about itself (branding and localisation settings), stamps every existing record with it, grants
+the bootstrap account `SUPER_ADMIN` alongside its `ADMIN`, and rebuilds the indexes so the old
+platform-wide unique ones become per-company ones.
+
+It does nothing once any organization exists, and nothing at all on a fresh install — there,
+the first company is created in Admin › Organizations.
+
+To run it against a database outside a deploy (a restore, say):
+
 ```bash
 pnpm --filter exyconn-portal-server exec tsx src/scripts/migrate-to-organizations.ts
 ```
-
-It creates the first organization from what the portal already says about itself (branding and
-localisation settings), stamps every existing record with it, grants the bootstrap account
-`SUPER_ADMIN` alongside its `ADMIN`, and rebuilds the indexes so the old platform-wide unique
-ones are replaced by per-company ones. Safe to run twice. **Run it once, immediately after
-deploying the code that introduces the tenancy** — until it runs, existing records carry no
-organization and are invisible to their own company.
 
 ## International by default
 

@@ -1,6 +1,9 @@
 // FIRST: every model must be defined with its organization scope already installed.
 import { assertTenantCoverage, runAsPlatform } from './lib/tenant';
-import { forEachOrganization } from './modules/organizations';
+import {
+  forEachOrganization,
+  migrateLegacyDataIntoFirstOrganization,
+} from './modules/organizations';
 import { createApp } from './app';
 import { database } from './config/database';
 import { ensureAdminAccess } from './seed/ensureAdminAccess';
@@ -23,6 +26,9 @@ async function bootstrap(): Promise<void> {
   // Every model is either one company's data or deliberately the platform's — refuse to
   // serve at all if one was defined before the scope was installed (see lib/tenant/install).
   assertTenantCoverage();
+  // An install that predates the tenancy is moved into its first organization before anything
+  // serves a request — its records would otherwise be invisible to the company they belong to.
+  await migrateLegacyDataIntoFirstOrganization();
   // A portal nobody can administer is unusable, so make that state unreachable
   // on a fresh install and self-healing on an existing one.
   await runAsPlatform(ensureAdminAccess);

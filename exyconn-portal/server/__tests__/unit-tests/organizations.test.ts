@@ -1,11 +1,16 @@
-import { organizationService } from '../../src/modules/organizations';
+import {
+  OrganizationModel,
+  migrateLegacyDataIntoFirstOrganization,
+  organizationService,
+} from '../../src/modules/organizations';
+import { ClientModel } from '../../src/modules/clients/clients.model';
 import { EmailTemplateModel } from '../../src/modules/email/email-template.model';
 import { OnboardingTemplateModel } from '../../src/modules/onboarding/onboarding.model';
 import { BrandingModel } from '../../src/modules/branding/branding.model';
 import { UserModel } from '../../src/modules/admin/user.model';
 import { authService } from '../../src/modules/auth/auth.service';
 import { ROLES } from '../../src/constants/roles';
-import { organizationOf, runForOrganization } from '../../src/lib/tenant';
+import { organizationOf, runAsPlatform, runForOrganization } from '../../src/lib/tenant';
 import { hashPassword } from '../../src/utils/password';
 
 const ACME = {
@@ -106,5 +111,41 @@ describe('suspending a company', () => {
     await organizationService.setStatus(id, 'ACTIVE');
     const session = await authService.login('sam@acme.example', password);
     expect(session.token).toBeTruthy();
+  });
+});
+
+describe('an install that predates the tenancy', () => {
+  it('moves every existing record into its first organization, once', async () => {
+    // A database as it was before companies existed: records with no organization at all.
+    await BrandingModel.collection.insertOne({ key: 'global', businessName: 'Old Co' });
+    await UserModel.collection.insertOne({
+      name: 'Existing',
+      email: 'existing@old.example',
+      passwordHash: 'x',
+      roles: [ROLES.ADMIN],
+      isActive: true,
+    });
+    await ClientModel.collection.insertOne({ name: 'Their client', email: 'c@old.example' });
+
+    await migrateLegacyDataIntoFirstOrganization();
+
+    const [organization] = await runAsPlatform(() => OrganizationModel.find().lean());
+    expect(organization.name).toBe('Old Co');
+    const id = String(organization._id);
+    // The company can now see what was always its own.
+    const clients = await runForOrganization(id, () => ClientModel.find().lean());
+    expect(clients).toHaveLength(1);
+    const people = await runForOrganization(id, () => UserModel.countDocuments());
+    expect(people).toBe(1);
+
+    // Running again changes nothing: one company, not two.
+    await migrateLegacyDataIntoFirstOrganization();
+    const all = await runAsPlatform(() => OrganizationModel.countDocuments());
+    expect(all).toBe(1);
+  });
+
+  it('leaves a fresh install alone, so the first company is created in Admin', async () => {
+    await migrateLegacyDataIntoFirstOrganization();
+    expect(await runAsPlatform(() => OrganizationModel.countDocuments())).toBe(0);
   });
 });
