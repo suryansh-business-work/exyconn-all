@@ -4,7 +4,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { usePayslipDownload } from '@exyconn/shell/hooks/usePayslipDownload';
 import {
@@ -111,7 +111,7 @@ export function PayrollSlipsTable({ month, year, refreshKey }: Readonly<PayrollS
   ];
 
   return (
-    <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+    <Box sx={densePanel}>
       <DataTable
         columns={columns}
         rows={rows}

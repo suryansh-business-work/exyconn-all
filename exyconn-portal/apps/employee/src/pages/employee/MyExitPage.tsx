@@ -12,7 +12,7 @@ import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { BoolChip } from '@exyconn/shell/components/data/BoolChip';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { useMyExitRecordQuery, type MyExitRecordQuery } from '@exyconn/shell/graphql/generated';
@@ -75,7 +75,7 @@ export function MyExitPage() {
   const exit = data?.myExitRecord;
 
   let content = (
-    <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>
+    <Box sx={readingPanel}>
       <Text color="text.secondary">No exit in progress.</Text>
     </Box>
   );
@@ -83,7 +83,7 @@ export function MyExitPage() {
     content = <ExitSummary exit={exit} formatDate={formatDate} />;
   } else if (loading) {
     content = (
-      <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>
+      <Box sx={readingPanel}>
         <Text>Loading…</Text>
       </Box>
     );

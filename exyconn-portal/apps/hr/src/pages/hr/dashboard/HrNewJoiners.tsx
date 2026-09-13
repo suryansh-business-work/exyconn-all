@@ -1,5 +1,5 @@
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import type { UserRow } from './hrDashboard.selectors';
 
@@ -11,7 +11,7 @@ interface HrNewJoinersProps {
 /** Who joined this month. */
 export function HrNewJoiners({ users, formatDate }: Readonly<HrNewJoinersProps>) {
   return (
-    <Box sx={[glass, { p: 2, height: '100%' }]}>
+    <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>New joiners this month</Heading>
       {users.length === 0 && (
         <Text size="sm" color="text.secondary">

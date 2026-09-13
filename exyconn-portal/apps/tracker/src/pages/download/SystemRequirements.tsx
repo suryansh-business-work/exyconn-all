@@ -11,7 +11,7 @@ import {
   Typography,
   iconSize,
 } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import ComputerIcon from '@mui/icons-material/Computer';
 import type { PlatformConfig, RequirementRow } from './download.config';
 
@@ -27,7 +27,7 @@ export function SystemRequirements({ platform }: Readonly<{ platform: PlatformCo
   const rows = [osRow, ...platform.hardware];
 
   return (
-    <Box sx={[glass, { p: 2, height: '100%' }]}>
+    <Box sx={[panel, { height: '100%' }]}>
       <Stack
         direction="row"
         sx={{

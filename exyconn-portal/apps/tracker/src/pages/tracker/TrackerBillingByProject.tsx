@@ -14,7 +14,7 @@ import {
   TableRow,
   Text,
 } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 import { useTrackerBillingByProjectQuery } from '@exyconn/shell/graphql/generated';
 import { ProjectBillingRow } from './ProjectBillingRow';
 import { TrackerBillingChart } from './TrackerBillingChart';
@@ -76,7 +76,7 @@ export function TrackerBillingByProject({ range }: Readonly<{ range: BillingRang
         />
       </Flex>
 
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         {rows.length === 0 ? (
           <Box sx={{ p: 4, textAlign: 'center' }}>
             <Text color="text.secondary">No tracked time in this range.</Text>

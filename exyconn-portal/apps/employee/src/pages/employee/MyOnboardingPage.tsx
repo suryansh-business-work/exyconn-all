@@ -1,6 +1,6 @@
 import { Alert, Box, CircularProgress, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { OnboardingItemList, canTickOwn } from '@exyconn/shell/components/onboarding';
@@ -42,7 +42,7 @@ export function MyOnboardingPage() {
       {error && <Alert severity="error">{error.message}</Alert>}
       {loading && !data && <CircularProgress size={24} />}
       {data && !checklist && (
-        <Box sx={[glass, { p: 3 }]}>
+        <Box sx={readingPanel}>
           <Text weight="medium" sx={{ display: 'block', mb: 0.5 }}>
             Nothing to do here yet
           </Text>
@@ -53,7 +53,7 @@ export function MyOnboardingPage() {
         </Box>
       )}
       {checklist && (
-        <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>
+        <Box sx={readingPanel}>
           <Text size="sm" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
             {`${checklist.templateName} · from ${formatDate(checklist.joinDate)}`}
           </Text>

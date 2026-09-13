@@ -8,7 +8,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel, readingPanel } from '@exyconn/shell/components/glass/glass';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
 import { ImageConfigsPanel } from './ImageConfigsPanel';
@@ -24,7 +24,7 @@ export const ENVIRONMENT_VARIABLES_PATH = '/tech/environment-variables';
 
 /** The card every tab's panel sits in, so the tab strip stays above the card. */
 function GlassPanel({ children }: Readonly<{ children: ReactNode }>) {
-  return <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>{children}</Box>;
+  return <Box sx={readingPanel}>{children}</Box>;
 }
 
 /** One tab per integration, in the order they appear on the Environment Variables screen. */

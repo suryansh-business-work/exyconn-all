@@ -9,7 +9,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import ToggleOnIcon from '@mui/icons-material/ToggleOn';
 import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 import { CrudDialog } from '@/components/data/CrudDialog';
-import { glass } from '@/components/glass/glass';
+import { readingPanel } from '@/components/glass/glass';
 import { UserForm } from '../user-forms/user';
 import { CustomMailForm } from '../user-forms/custom-mail';
 import { BlockUserForm } from '../user-forms/block-user';
@@ -47,7 +47,7 @@ export function UserActions({ user, onChanged, editPath }: Readonly<UserActionsP
   };
 
   return (
-    <Paper sx={[glass, { p: 3 }]}>
+    <Paper sx={readingPanel}>
       <Text size="overline" color="text.secondary">
         Actions
       </Text>

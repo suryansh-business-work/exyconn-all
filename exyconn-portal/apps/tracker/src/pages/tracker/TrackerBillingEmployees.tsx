@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { ExportCsvButton } from '@exyconn/crud';
 import { Box, Flex, Grid, Text, color } from '@exyconn/shell/components/ui';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 import { useTrackerBillingQuery } from '@exyconn/shell/graphql/generated';
 import { TrackerBillingChart } from './TrackerBillingChart';
 import { TrackerBillingTable } from './TrackerBillingTable';
@@ -78,7 +78,7 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
         />
       </Flex>
 
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <TrackerBillingTable rows={rows} money={money} loading={loading} onRefresh={refetch} />
       </Box>
     </Box>

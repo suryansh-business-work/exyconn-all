@@ -18,7 +18,7 @@ import { LoginPromo } from './LoginPromo';
 import { OtherPortalsLink } from './OtherPortalsLink';
 import { useLoginPage, type LoginPageView } from './useLoginPage';
 import { env } from '@exyconn/shell/config/env';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { useColorMode } from '@exyconn/shell/theme/ColorModeContext';
 
 interface LoginShellProps {
@@ -73,7 +73,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
         sx={{ position: 'relative', zIndex: zIndex.raised, width: '100%', maxWidth: 1100 }}
       >
         <Flex direction="column" spacing={2} sx={{ width: '100%', maxWidth: 380, minWidth: 0 }}>
-          <Box sx={[glass, { width: '100%', p: 3, borderRadius: `${CARD_RADIUS}px` }]}>
+          <Box sx={[readingPanel, { width: '100%', borderRadius: `${CARD_RADIUS}px` }]}>
             <Flex direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
               <Box component="img" src={page.logoUrl} alt={page.businessName} sx={{ height: 26 }} />
               <Button

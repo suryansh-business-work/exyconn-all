@@ -1,7 +1,7 @@
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Box, Flex, Grid, Heading, IconButton, Text, CircularProgress } from '@/components/ui';
-import { glass } from '@/components/glass/glass';
+import { panel, readingPanel } from '@/components/glass/glass';
 import { TrackerCalendar } from './TrackerCalendar';
 import { TrackerMonthChart } from './TrackerMonthChart';
 import { TrackerDayPanel } from './TrackerDayPanel';
@@ -48,7 +48,7 @@ export function TrackerView({
 }: Readonly<TrackerViewProps>) {
   if (empty) {
     return (
-      <Box sx={[glass, { p: 4, textAlign: 'center' }]}>
+      <Box sx={[readingPanel, { textAlign: 'center' }]}>
         <Text color="text.secondary">Select an employee to view their tracker.</Text>
       </Box>
     );
@@ -76,10 +76,10 @@ export function TrackerView({
             md: 7,
           }}
         >
-          <Box sx={[glass, { p: 1.5 }]}>
+          <Box sx={panel}>
             <TrackerCalendar days={days} selectedDate={selectedDate} onSelectDay={onSelectDay} />
           </Box>
-          <Box sx={[glass, { p: 2, mt: 1.5 }]}>
+          <Box sx={[panel, { mt: 1.5 }]}>
             <TrackerMonthChart buckets={buckets} monthLabel={monthLabel} />
           </Box>
         </Grid>
@@ -89,7 +89,7 @@ export function TrackerView({
             md: 5,
           }}
         >
-          <Box sx={[glass, { p: 2 }]}>
+          <Box sx={panel}>
             <TrackerDayPanel
               day={day}
               loading={dayLoading}

@@ -4,7 +4,7 @@ import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useMyAttendanceQuery } from '@exyconn/shell/graphql/generated';
 import { MyWorkArrangementCard } from '@exyconn/shell/components/work';
@@ -53,7 +53,7 @@ export function MyAttendancePage() {
         onAction={() => setOpen(true)}
       />
       <MyWorkArrangementCard />
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

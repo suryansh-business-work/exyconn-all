@@ -2,7 +2,7 @@ import { Box } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 import { useCrudResource } from '@exyconn/crud';
 import { useListPositionsQuery, useDeletePositionMutation } from '@exyconn/shell/graphql/generated';
 import { PositionForm, type PositionRow } from './forms/position';
@@ -46,7 +46,7 @@ export function PositionsPage() {
         actionLabel="New position"
         onAction={crud.openCreate}
       />
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

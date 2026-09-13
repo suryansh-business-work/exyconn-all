@@ -3,7 +3,7 @@ import { Box, Chip, Grid, Stack, Typography } from '@/components/ui';
 import { PageHeader } from '../layout/PageHeader';
 import { StatCard, type StatItem } from './StatCard';
 import { Sparkline } from '../data/Sparkline';
-import { glass } from '../glass/glass';
+import { densePanel, panel } from '../glass/glass';
 import { color } from '@exyconn/ui';
 
 interface ModuleDashboardProps {
@@ -20,7 +20,7 @@ interface ModuleDashboardProps {
   dialog?: ReactNode;
 }
 
-/** Shared glass dashboard scaffold: header → stat tiles → optional chart → table. */
+/** Shared dashboard scaffold: header → stat tiles → optional chart → table. */
 export function ModuleDashboard({
   title,
   subtitle,
@@ -53,7 +53,7 @@ export function ModuleDashboard({
       </Grid>
 
       {chartSeries && (
-        <Box sx={[glass, { p: 2, mb: 1.5 }]}>
+        <Box sx={[panel, { mb: 1.5 }]}>
           <Stack
             direction="row"
             sx={{
@@ -69,7 +69,7 @@ export function ModuleDashboard({
         </Box>
       )}
 
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>{children}</Box>
+      <Box sx={densePanel}>{children}</Box>
       {dialog}
     </>
   );

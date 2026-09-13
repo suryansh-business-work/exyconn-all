@@ -3,7 +3,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Box, Heading } from '@/components/ui';
 import { DataTable, type Column, type RowAction } from '@/components/data/DataTable';
 import { StatusChip } from '@/components/data/StatusChip';
-import { glass } from '@/components/glass/glass';
+import { panel } from '@/components/glass/glass';
 import { useConfirm } from '@/components/feedback/ConfirmProvider';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useSettings } from '@/hooks/useSettings';
@@ -72,7 +72,7 @@ export function EmployeeLeavePanel({ employeeId }: { employeeId: string }) {
   ];
 
   return (
-    <Box sx={[glass, { p: { xs: 1.5, md: 2 } }]}>
+    <Box sx={panel}>
       <Heading level={6} sx={{ mb: 1 }}>
         Leave requests
       </Heading>

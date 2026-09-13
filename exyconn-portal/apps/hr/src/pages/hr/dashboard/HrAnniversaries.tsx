@@ -1,5 +1,5 @@
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import CakeIcon from '@mui/icons-material/Cake';
 import type { Anniversary } from './hrDashboard.selectors';
 
@@ -17,7 +17,7 @@ function when(daysAway: number): string {
 /** Work anniversaries in the next month — the cheapest recognition there is. */
 export function HrAnniversaries({ anniversaries, formatDate }: Readonly<HrAnniversariesProps>) {
   return (
-    <Box sx={[glass, { p: 2, height: '100%' }]}>
+    <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>Work anniversaries</Heading>
       {anniversaries.length === 0 && (
         <Text size="sm" color="text.secondary">

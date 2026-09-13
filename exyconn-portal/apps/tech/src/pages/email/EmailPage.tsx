@@ -5,7 +5,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import ExtensionIcon from '@mui/icons-material/Extension';
 import HistoryIcon from '@mui/icons-material/History';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel, readingPanel } from '@exyconn/shell/components/glass/glass';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { EmailDashboardPanel } from './EmailDashboardPanel';
 import { EmailTemplatesPanel } from './EmailTemplatesPanel';
@@ -18,7 +18,7 @@ export const EMAIL_PATH = '/tech/email';
 
 /** The card every tab's panel sits in, so the tab strip stays above the card. */
 function GlassPanel({ children }: Readonly<{ children: ReactNode }>) {
-  return <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>{children}</Box>;
+  return <Box sx={readingPanel}>{children}</Box>;
 }
 
 /**

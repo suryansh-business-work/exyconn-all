@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Stack, Typography } from '@/components/ui';
-import { glass } from '../glass/glass';
+import { readingPanel } from '../glass/glass';
 
 interface CrudFormPageProps {
   title: string;
@@ -49,7 +49,7 @@ export function CrudFormPage({
           {subtitle}
         </Typography>
       )}
-      <Box sx={[glass, { p: { xs: 2, md: 3 }, mt: 2, maxWidth: 880 }]}>{children}</Box>
+      <Box sx={[readingPanel, { mt: 2, maxWidth: 880 }]}>{children}</Box>
     </Box>
   );
 }

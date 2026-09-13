@@ -1,5 +1,5 @@
 import { Alert, Box, Chip, Flex, Stack, Text } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useProjectHealthQuery } from '@exyconn/shell/graphql/generated';
 import { HealthStat } from './HealthStat';
@@ -70,7 +70,7 @@ export function ProjectHealthPage({ projectId }: Readonly<{ projectId: string }>
         </Alert>
       ) : null}
 
-      <Box sx={[glass, { p: 2 }]}>
+      <Box sx={panel}>
         <Flex direction="row" sx={{ flexWrap: 'wrap', gap: 3 }}>
           <HealthStat
             label="Progress"

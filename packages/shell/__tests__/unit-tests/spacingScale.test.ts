@@ -82,3 +82,17 @@ describe('spacing scale', () => {
     expect(files.flatMap(offScale)).toEqual([]);
   });
 });
+
+describe('panel padding', () => {
+  it('is decided by the named surfaces, not at the call site', () => {
+    // This file describes the pattern it forbids, so it would otherwise report itself.
+    const sources = ROOTS.flatMap(sourceFiles).filter((path) => !path.includes('__tests__'));
+    // `glass` is the bare surface; a panel with padding of its own is `panel`, `densePanel`
+    // or `readingPanel`. Two call sites deliberately compose the bare one with other styles.
+    const adHoc = sources.filter((path) =>
+      /\[glass,\s*\{[^}]*\bp:/.test(readFileSync(path, 'utf8')),
+    );
+
+    expect(adHoc.map((path) => path.slice(REPO_ROOT.length + 1))).toEqual([]);
+  });
+});

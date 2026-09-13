@@ -12,7 +12,7 @@ import {
   CircularProgress,
 } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import { useListHolidaysQuery, useMyLeaveRequestsQuery } from '@exyconn/shell/graphql/generated';
 import { buildMonthDays } from './buildMonth';
 import { MonthGrid } from './MonthGrid';
@@ -47,7 +47,7 @@ export function CalendarPage() {
         {loading && <CircularProgress size={18} aria-label="Loading calendar" />}
       </Flex>
 
-      <Box sx={[glass, { p: 2, mt: 2 }]}>
+      <Box sx={[panel, { mt: 2 }]}>
         <MonthGrid days={days} />
       </Box>
 

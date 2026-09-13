@@ -1,6 +1,6 @@
 import { Box, Card, CardHeader, Divider, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { useMyPayrollQuery } from '@exyconn/shell/graphql/generated';
@@ -36,7 +36,7 @@ export function PayrollPage() {
       <PageHeader title="Payroll" subtitle="Your current monthly salary structure" />
 
       {!p ? (
-        <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>
+        <Box sx={readingPanel}>
           {loading ? (
             <Text>Loading…</Text>
           ) : (

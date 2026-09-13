@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 /** One label/value pair inside a facts card. `value` is text unless a node is given. */
 export interface InfraFact {
@@ -22,7 +22,7 @@ interface InfraDetailCardProps {
  */
 export function InfraDetailCard({ title, icon, facts }: Readonly<InfraDetailCardProps>) {
   return (
-    <Box sx={[glass, { p: { xs: 2, md: 2 }, height: '100%' }]}>
+    <Box sx={[panel, { height: '100%' }]}>
       <Flex direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
         {icon}
         <Text weight="medium">{title}</Text>

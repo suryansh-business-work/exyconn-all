@@ -1,5 +1,5 @@
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 
 /** Just enough of an employee to say whose probation is ending, and when. */
@@ -23,7 +23,7 @@ interface HrProbationsProps {
  */
 export function HrProbations({ rows, formatDate }: Readonly<HrProbationsProps>) {
   return (
-    <Box sx={[glass, { p: 2, height: '100%' }]}>
+    <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>Coming off probation</Heading>
       {rows.length === 0 && (
         <Text size="sm" color="text.secondary">

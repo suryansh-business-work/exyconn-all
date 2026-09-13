@@ -1,6 +1,6 @@
 import { Box, Grid, Heading, Text, CircularProgress } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { useTrackerSettingsQuery } from '@exyconn/shell/graphql/generated';
 import { TrackerSettingsForm } from './forms/tracker-settings';
 
@@ -20,7 +20,7 @@ export function TrackerSettingsPage() {
             lg: 7,
           }}
         >
-          <Box sx={[glass, { p: 3 }]}>
+          <Box sx={readingPanel}>
             <Heading level={6} sx={{ mb: 0.5 }}>
               Capture settings
             </Heading>

@@ -1,5 +1,5 @@
 import { Box, Stack, Text } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import { formatMoney } from '@exyconn/shell/utils/money';
 
 export interface MoneyLine {
@@ -27,7 +27,7 @@ interface Props {
  */
 export function FinanceMoneyPanel({ title, basis, lines }: Readonly<Props>) {
   return (
-    <Box sx={[glass, { p: 2, height: '100%' }]}>
+    <Box sx={[panel, { height: '100%' }]}>
       <Text size="label" component="div">
         {title}
       </Text>

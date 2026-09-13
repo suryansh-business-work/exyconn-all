@@ -1,7 +1,7 @@
 import { Box, Stack, Typography, iconSize } from '@/components/ui';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import { glass } from '../glass/glass';
+import { panel } from '../glass/glass';
 import { Sparkline } from '../data/Sparkline';
 import { color } from '@exyconn/ui';
 
@@ -17,7 +17,7 @@ export interface StatItem {
 export function StatCard({ label, value, delta, accent = color.orange[500], series }: StatItem) {
   const up = (delta ?? 0) >= 0;
   return (
-    <Box sx={[glass, { p: 1.5, height: '100%' }]}>
+    <Box sx={[panel, { height: '100%' }]}>
       <Stack
         direction="row"
         sx={{

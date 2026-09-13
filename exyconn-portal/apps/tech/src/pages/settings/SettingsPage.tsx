@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';
 import {
   useListSlackChannelsQuery,
@@ -48,7 +48,7 @@ export function SettingsPage() {
   return (
     <Box>
       <PageHeader title="Settings" subtitle="Where tracker builds and status alerts go" />
-      <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>
+      <Box sx={readingPanel}>
         {channels.error && (
           <Text size="sm" color="error.main" sx={{ mb: 2 }}>
             {channels.error.message}

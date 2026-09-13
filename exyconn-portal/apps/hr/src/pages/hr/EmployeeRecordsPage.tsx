@@ -3,7 +3,7 @@ import { Box } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
 import { ROLES } from '@exyconn/shell/auth/roles';
@@ -59,7 +59,7 @@ export function EmployeeRecordsPage() {
         actionLabel={canCreate ? 'New employee' : undefined}
         onAction={canCreate ? () => navigate('/hr/employees/new') : undefined}
       />
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

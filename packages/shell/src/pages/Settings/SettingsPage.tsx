@@ -1,6 +1,6 @@
 import { Box, Grid, Heading, Text } from '@/components/ui';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { glass } from '@/components/glass/glass';
+import { readingPanel } from '@/components/glass/glass';
 import { ChangePasswordForm } from './forms/change-password';
 
 /** Account settings page — currently houses the change-password form. */
@@ -15,7 +15,7 @@ export function SettingsPage() {
             md: 6,
           }}
         >
-          <Box sx={[glass, { p: 3 }]}>
+          <Box sx={readingPanel}>
             <Heading level={6} sx={{ mb: 0.5 }}>
               Change password
             </Heading>

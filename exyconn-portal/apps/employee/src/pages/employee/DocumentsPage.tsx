@@ -2,7 +2,7 @@ import { Box, Link, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useMyDocumentsQuery } from '@exyconn/shell/graphql/generated';
 
@@ -32,7 +32,7 @@ export function DocumentsPage() {
   return (
     <Box>
       <PageHeader title="My Documents" subtitle="Letters, tax and policy documents from HR" />
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

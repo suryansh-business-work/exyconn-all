@@ -2,7 +2,7 @@ import { Box, LinearProgress, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useMyGoalsQuery, useUpdateMyGoalProgressMutation } from '@exyconn/shell/graphql/generated';
@@ -73,7 +73,7 @@ export function GoalsPage() {
   return (
     <Box>
       <PageHeader title="Goals" subtitle="What you are measured on this cycle" />
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

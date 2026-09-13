@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Chip, Flex, MenuItem, TextField, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 import { useLanguageOptions } from '@exyconn/shell/components/localization';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
@@ -111,7 +111,7 @@ export function LocalizationPage() {
           </Text>
         </Flex>
       </Flex>
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

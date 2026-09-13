@@ -1,7 +1,7 @@
 import { Box, Heading } from '@/components/ui';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { StatusChip } from '@/components/data/StatusChip';
-import { glass } from '@/components/glass/glass';
+import { panel } from '@/components/glass/glass';
 import { useSettings } from '@/hooks/useSettings';
 import { useAttendanceByEmployeeQuery } from '@/graphql/generated';
 
@@ -24,7 +24,7 @@ export function EmployeeAttendancePanel({ employeeId }: { employeeId: string }) 
   ];
 
   return (
-    <Box sx={[glass, { p: { xs: 1.5, md: 2 } }]}>
+    <Box sx={panel}>
       <Heading level={6} sx={{ mb: 1 }}>
         Attendance
       </Heading>

@@ -1,6 +1,6 @@
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import PushPinIcon from '@mui/icons-material/PushPin';
 
 interface AnnouncementRow {
@@ -19,7 +19,7 @@ interface HrAnnouncementsProps {
 /** What is currently published to every employee. */
 export function HrAnnouncements({ rows, formatDate }: Readonly<HrAnnouncementsProps>) {
   return (
-    <Box sx={[glass, { p: 2, height: '100%' }]}>
+    <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>Live announcements</Heading>
       {rows.length === 0 && (
         <Text size="sm" color="text.secondary">

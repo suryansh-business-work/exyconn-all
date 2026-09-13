@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 // Through the shell's barrel, like every other portal UI import: the app declares
 // @exyconn/shell, not @exyconn/ui, and the deploy image installs only what is declared.
 import { BarChart, Box, ChartCard, type ChartData } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 /** One priced thing — an employee or a project — as the chart reads it. */
 export interface BillingBar {
@@ -52,7 +52,7 @@ export function TrackerBillingChart({
   const height = Math.max(160, data.labels.length * 28 + 60);
 
   return (
-    <Box sx={[glass, { p: 2, mb: 2 }]}>
+    <Box sx={[panel, { mb: 2 }]}>
       <ChartCard
         title={title}
         subtitle={subtitle}

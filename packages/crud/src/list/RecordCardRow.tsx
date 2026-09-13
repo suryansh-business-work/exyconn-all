@@ -2,7 +2,7 @@ import type { MouseEvent } from 'react';
 import type { ColDef } from 'ag-grid-community';
 import { Box, Flex, IconButton, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import { toRecordCard } from './recordCard';
 import type { CrudGridContext, RowActionSpec } from '../grid/types';
 
@@ -32,7 +32,7 @@ export function RecordCardRow<Row>({
 
   return (
     <Box
-      sx={[glass, { p: 1.5, cursor: onClick ? 'pointer' : 'default' }]}
+      sx={[panel, { cursor: onClick ? 'pointer' : 'default' }]}
       onClick={onClick ? () => onClick(row) : undefined}
     >
       <Flex direction="row" alignItems="flex-start" justifyContent="space-between" spacing={1}>

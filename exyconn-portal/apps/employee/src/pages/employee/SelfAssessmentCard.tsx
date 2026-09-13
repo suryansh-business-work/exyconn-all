@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Flex, Heading, Text, TextField } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 export interface ReviewRow {
   id: string;
@@ -36,7 +36,7 @@ export function SelfAssessmentCard({ review, onSubmit }: Readonly<SelfAssessment
   };
 
   return (
-    <Box sx={[glass, { p: 2 }]}>
+    <Box sx={panel}>
       <Flex direction="row" alignItems="center" spacing={1}>
         <Heading level={6}>{review.cycle}</Heading>
         <StatusChip value={review.status} />

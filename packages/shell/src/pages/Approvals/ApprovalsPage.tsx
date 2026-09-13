@@ -3,7 +3,7 @@ import { Box, Button, Stack, Text } from '@/components/ui';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { StatusChip } from '@/components/data/StatusChip';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { glass } from '@/components/glass/glass';
+import { densePanel } from '@/components/glass/glass';
 import { useSettings } from '@/hooks/useSettings';
 import { useApprovalDecision } from '@/hooks/useApprovalDecision';
 import { ApprovalDecision, useMyApprovalsQuery } from '@/graphql/generated';
@@ -98,7 +98,7 @@ export function ApprovalsPage() {
     <Box>
       <PageHeader title="My Approvals" subtitle={subtitle} />
       <ApprovalKindFilter groups={groups} total={total} active={kind} onChange={setKind} />
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

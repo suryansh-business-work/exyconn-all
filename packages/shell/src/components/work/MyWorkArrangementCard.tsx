@@ -1,5 +1,5 @@
 import { Paper, Skeleton, Text } from '@/components/ui';
-import { glass } from '@/components/glass/glass';
+import { readingPanel } from '@/components/glass/glass';
 import { useMyWorkProfileQuery } from '@/graphql/generated';
 import { WorkArrangementFacts } from './WorkArrangementFacts';
 import { workHours } from './work-arrangement';
@@ -17,7 +17,7 @@ export function MyWorkArrangementCard() {
   const arrangement = data?.me;
 
   return (
-    <Paper sx={[glass, { p: 3, mb: 2 }]}>
+    <Paper sx={[readingPanel, { mb: 2 }]}>
       <Text size="overline" color="text.secondary">
         My working arrangement
       </Text>

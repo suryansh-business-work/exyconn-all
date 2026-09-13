@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import type { HolidayLike } from '@exyconn/shell/utils/upcomingHolidays';
 
@@ -12,7 +12,7 @@ interface HrUpcomingHolidaysProps {
 /** Next company holidays, soonest first. */
 export function HrUpcomingHolidays({ holidays, formatDate }: Readonly<HrUpcomingHolidaysProps>) {
   return (
-    <Box sx={[glass, { p: 2, height: '100%' }]}>
+    <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>Upcoming holidays</Heading>
       {holidays.length === 0 && (
         <Text size="sm" color="text.secondary">

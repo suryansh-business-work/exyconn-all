@@ -1,6 +1,6 @@
 import { Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
   useMyPerformanceReviewsQuery,
@@ -27,7 +27,7 @@ export function PerformancePage() {
     <Box>
       <PageHeader title="Performance" subtitle="Appraisal cycles and your assessments" />
       {reviews.length === 0 && (
-        <Box sx={[glass, { p: 3 }]}>
+        <Box sx={readingPanel}>
           <Text color="text.secondary">
             {loading ? 'Loading…' : 'No appraisal cycle has been opened for you yet.'}
           </Text>

@@ -4,7 +4,7 @@ import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import {
   useListTrackerBuildsQuery,
   useTrackerBuildSettingsQuery,
@@ -70,7 +70,7 @@ export function TrackerBuildPage() {
         actionLabel="Create build"
         onAction={() => setStarting(true)}
       />
-      <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>
+      <Box sx={readingPanel}>
         <Text size="sm" color="text.secondary" sx={{ mb: 2 }}>
           {builds.error
             ? builds.error.message

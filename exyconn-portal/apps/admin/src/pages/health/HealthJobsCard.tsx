@@ -1,5 +1,5 @@
 import { borderWidth, Box, Chip, Stack, Typography } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import type { SystemHealthQuery } from '@exyconn/shell/graphql/generated';
 
 type HealthJob = SystemHealthQuery['systemHealth']['jobs'][number];
@@ -73,7 +73,7 @@ interface HealthJobsCardProps {
  */
 export function HealthJobsCard({ jobs, formatDateTime }: Readonly<HealthJobsCardProps>) {
   return (
-    <Box sx={[glass, { p: 2, height: '100%' }]}>
+    <Box sx={[panel, { height: '100%' }]}>
       <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
         Background jobs
       </Typography>
