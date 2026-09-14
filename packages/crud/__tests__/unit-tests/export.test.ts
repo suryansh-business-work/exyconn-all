@@ -25,7 +25,12 @@ const row: Row = {
   owner: { email: 'a@b.c' },
 };
 
-const context = { actions: {}, formatDate: (value: string) => `formatted:${value}` };
+const context = {
+  actions: {},
+  // Every grid, card list and export carries the viewer's translator (gridContextWith).
+  t: (source: string) => source,
+  formatDate: (value: string) => `formatted:${value}`,
+};
 
 describe('csvColumnsFromDefs', () => {
   it('keeps the visible columns, headed as the grid heads them, and drops the actions', () => {

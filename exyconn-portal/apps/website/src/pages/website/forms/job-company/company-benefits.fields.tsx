@@ -1,4 +1,5 @@
 import { useFieldArray, useFormContext } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, IconButton, Stack, Typography } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import AddIcon from '@mui/icons-material/Add';
@@ -12,6 +13,7 @@ const EMPTY_BENEFIT = { icon: '', title: '', description: '' };
  * context, so it must render inside the JobCompanyForm.
  */
 export function CompanyBenefitsFields() {
+  const t = useT();
   const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name: 'benefits' });
 
@@ -24,14 +26,14 @@ export function CompanyBenefitsFields() {
           justifyContent: 'space-between',
         }}
       >
-        <Typography variant="subtitle2">Benefits</Typography>
+        <Typography variant="subtitle2">{t('Benefits')}</Typography>
         <Button
           type="button"
           size="small"
           startIcon={<AddIcon />}
           onClick={() => append({ ...EMPTY_BENEFIT })}
         >
-          Add benefit
+          {t('Add benefit')}
         </Button>
       </Stack>
 
@@ -42,7 +44,7 @@ export function CompanyBenefitsFields() {
             color: 'text.secondary',
           }}
         >
-          No benefits added yet.
+          {t('No benefits added yet.')}
         </Typography>
       )}
 
@@ -62,12 +64,12 @@ export function CompanyBenefitsFields() {
                   color: 'text.secondary',
                 }}
               >
-                Benefit {index + 1}
+                {t('Benefit {number}', { number: index + 1 })}
               </Typography>
               <IconButton
                 size="small"
                 color="error"
-                aria-label={`Remove benefit ${index + 1}`}
+                aria-label={t('Remove benefit {number}', { number: index + 1 })}
                 onClick={() => remove(index)}
               >
                 <DeleteIcon fontSize="small" />

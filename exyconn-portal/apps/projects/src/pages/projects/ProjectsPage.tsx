@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -17,6 +18,7 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Projects module — project management dashboard with a server-side projects grid. */
 export function ProjectsPage() {
+  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListProjectsStatsQuery();
   const [deleteProject] = useDeleteProjectMutation();
@@ -25,7 +27,7 @@ export function ProjectsPage() {
   const crud = useCrudResource<ProjectRow, PagedProjectRow>({
     label: 'Project',
     onDelete: (row) => deleteProject({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete project "${row.name}"?`,
+    confirmMessage: (row) => t('Delete project "{name}"?', { name: row.name }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

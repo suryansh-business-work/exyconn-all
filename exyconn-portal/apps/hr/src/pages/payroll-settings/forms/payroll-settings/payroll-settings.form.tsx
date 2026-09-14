@@ -1,6 +1,7 @@
 import { useForm, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -105,6 +106,7 @@ export function PayrollSettingsForm({
   onDone,
   onCancel,
 }: Readonly<PayrollSettingsFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [saveSettings] = useUpdatePayrollSettingsMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -149,8 +151,9 @@ export function PayrollSettingsForm({
       submitLabel="Save deductions"
     >
       <Text size="sm" color="text.secondary">
-        These apply to every employee unless their own salary structure says otherwise. A payslip
-        that has already been generated keeps the figures it was generated with.
+        {t(
+          'These apply to every employee unless their own salary structure says otherwise. A payslip that has already been generated keeps the figures it was generated with.',
+        )}
       </Text>
       <RhfSwitch name="pfEnabled" label="Withhold provident fund (PF)" />
       <RhfTextField name="pfEmployeePercent" label="PF rate (% of basic)" type="number" />

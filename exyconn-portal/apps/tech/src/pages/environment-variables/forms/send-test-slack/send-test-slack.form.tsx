@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -28,6 +29,7 @@ export function SendTestSlackForm({
   onDone,
   onCancel,
 }: Readonly<SendTestSlackFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [sendTest] = useSendTestSlackMessageMutation();
   const methods = useForm<Values>({
@@ -38,7 +40,7 @@ export function SendTestSlackForm({
   const onSubmit = async ({ channel }: Values) => {
     try {
       await sendTest({ variables: { id: configId, channel } });
-      notify(`Test message posted to ${channel}`);
+      notify(t('Test message posted to {channel}', { channel }));
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Send failed', 'error');
@@ -54,8 +56,10 @@ export function SendTestSlackForm({
       submitLabel="Send test"
     >
       <Text size="sm" color="text.secondary">
-        Verify the &ldquo;{configLabel}&rdquo; bot token by posting a message. The bot must already
-        be a member of the channel.
+        {t(
+          'Verify the “{label}” bot token by posting a message. The bot must already be a member of the channel.',
+          { label: configLabel },
+        )}
       </Text>
       <RhfTextField name="channel" label="Channel" />
     </EntityForm>

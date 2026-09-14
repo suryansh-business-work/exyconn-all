@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Chip, Stack } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
@@ -14,6 +15,20 @@ import RestoreIcon from '@mui/icons-material/Restore';
 import { OrganizationForm, type OrganizationRow } from './forms/organization';
 import { OrganizationAdminForm } from './forms/organization-admin';
 
+/** Whether the company may sign in at all — a column cell, so it can translate its own word. */
+function OrganizationStatusChip({ status }: Readonly<{ status: OrganizationStatus }>) {
+  const t = useT();
+  const active = status === OrganizationStatus.Active;
+  return (
+    <Chip
+      size="small"
+      label={active ? t('Active') : t('Suspended')}
+      color={active ? 'success' : 'warning'}
+      variant="outlined"
+    />
+  );
+}
+
 /** What each company is filed under, and the standards its portal runs in. */
 const COLUMNS: Column<OrganizationRow>[] = [
   { key: 'name', label: 'Company' },
@@ -25,14 +40,7 @@ const COLUMNS: Column<OrganizationRow>[] = [
   {
     key: 'status',
     label: 'Status',
-    render: (row) => (
-      <Chip
-        size="small"
-        label={row.status === OrganizationStatus.Active ? 'Active' : 'Suspended'}
-        color={row.status === OrganizationStatus.Active ? 'success' : 'warning'}
-        variant="outlined"
-      />
-    ),
+    render: (row) => <OrganizationStatusChip status={row.status} />,
   },
 ];
 
@@ -44,6 +52,7 @@ const COLUMNS: Column<OrganizationRow>[] = [
  * appointed here.
  */
 export function OrganizationsPage() {
+  const t = useT();
   const { data, loading, refetch } = useOrganizationsQuery();
   const [setStatus] = useSetOrganizationStatusMutation();
   const [editing, setEditing] = useState<OrganizationRow | null>(null);
@@ -103,6 +112,11 @@ export function OrganizationsPage() {
     },
   ];
 
+  const formTitle = editing ? t('Edit {name}', { name: editing.name }) : t('New organization');
+  const adminTitle = appointing
+    ? t('Administrator for {name}', { name: appointing.name })
+    : t('Administrator');
+
   return (
     <Stack spacing={2}>
       <PageHeader
@@ -123,18 +137,10 @@ export function OrganizationsPage() {
         emptyMessage="No companies yet. Create the first one to hand it over to its administrator."
         onRefresh={refetch}
       />
-      <CrudDialog
-        open={formOpen}
-        title={editing ? `Edit ${editing.name}` : 'New organization'}
-        onClose={close}
-      >
+      <CrudDialog open={formOpen} title={formTitle} onClose={close}>
         <OrganizationForm initial={editing} onDone={close} onCancel={close} />
       </CrudDialog>
-      <CrudDialog
-        open={appointing !== null}
-        title={appointing ? `Administrator for ${appointing.name}` : 'Administrator'}
-        onClose={close}
-      >
+      <CrudDialog open={appointing !== null} title={adminTitle} onClose={close}>
         {appointing ? (
           <OrganizationAdminForm
             organizationId={appointing.id}

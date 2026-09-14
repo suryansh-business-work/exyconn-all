@@ -43,7 +43,7 @@ export function TrackerBillingPage() {
       <Grid container spacing={2} sx={{ mb: 1 }}>
         <BillingRangePicker range={range} onChange={setRange} />
       </Grid>
-      <Tabber basePath="/tracker/billing" items={tabs} ariaLabel={t('Billing views')} />
+      <Tabber basePath="/tracker/billing" items={tabs} ariaLabel="Billing views" />
     </Box>
   );
 }

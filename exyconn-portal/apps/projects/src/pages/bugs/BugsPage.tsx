@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
@@ -18,6 +19,7 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Bugs module — issue tracking dashboard with a server-side bugs grid. */
 export function BugsPage() {
+  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListBugsStatsQuery();
   const [deleteBug] = useDeleteBugMutation();
@@ -28,7 +30,7 @@ export function BugsPage() {
   const crud = useCrudResource<BugRow, PagedBugRow>({
     label: 'Bug',
     onDelete: (row) => deleteBug({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete bug "${row.title}"?`,
+    confirmMessage: (row) => t('Delete bug "{title}"?', { title: row.title }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -40,7 +42,10 @@ export function BugsPage() {
   const promote = async (row: PagedBugRow) => {
     const ok = await confirm({
       title: 'Promote to ticket',
-      message: `Create a BUG ticket for "${row.title}" on the ${row.projectName || 'project'} board?`,
+      message: t('Create a BUG ticket for "{title}" on the {project} board?', {
+        title: row.title,
+        project: row.projectName || t('project'),
+      }),
       confirmText: 'Promote',
     });
     if (!ok) {
@@ -48,7 +53,7 @@ export function BugsPage() {
     }
     try {
       const { data } = await promoteBug({ variables: { id: row.id } });
-      notify(`Ticket ${data?.promoteBugToTask.key ?? ''} created.`, 'success');
+      notify(t('Ticket {key} created.', { key: data?.promoteBugToTask.key ?? '' }), 'success');
       crud.reload();
     } catch (error) {
       notify(errorMessage(error, 'The bug could not be promoted.'), 'error');

@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
@@ -14,6 +15,7 @@ import { panel } from '@exyconn/shell/components/glass/glass';
  */
 export function TicketDetailPage() {
   const { id = '' } = useParams();
+  const t = useT();
   const navigate = useNavigate();
   const { data, loading, refetch } = useGetSupportTicketQuery({
     variables: { id },
@@ -23,13 +25,13 @@ export function TicketDetailPage() {
 
   const ticket = data?.getSupportTicket;
   const backToQueue = () => navigate('/support/tickets');
-  const emptyMessage = loading ? 'Loading…' : 'This ticket no longer exists.';
+  const emptyMessage = loading ? t('Loading…') : t('This ticket no longer exists.');
 
   return (
     <Box>
       <PageHeader title={ticket?.subject ?? 'Ticket'} subtitle={ticket?.reference ?? ''}>
         <Button color="inherit" startIcon={<ArrowBackIcon />} onClick={backToQueue}>
-          Back to queue
+          {t('Back to queue')}
         </Button>
       </PageHeader>
       <Box sx={panel}>

@@ -10,6 +10,7 @@ import {
   Typography,
 } from '@exyconn/shell/components/ui';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useT } from '@exyconn/i18n';
 import { useSocialPostQuery } from '@exyconn/shell/graphql/generated';
 import { PostCard } from '../../components/PostCard';
 import { useSocialActions } from '../../hooks/useSocialActions';
@@ -25,6 +26,7 @@ const PAGE_WIDTH = 720;
  * this page holding the actions rather than reusing the list's copy of them.
  */
 export function PostPage() {
+  const t = useT();
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const { like, share, remove } = useSocialActions();
@@ -39,7 +41,7 @@ export function PostPage() {
   return (
     <Box sx={{ maxWidth: PAGE_WIDTH, mx: 'auto' }}>
       <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/social')} sx={{ mb: 2 }}>
-        Back to the feed
+        {t('Back to the feed')}
       </Button>
 
       {error && <Alert severity="error">{error.message}</Alert>}
@@ -51,7 +53,7 @@ export function PostPage() {
           <Card variant="outlined">
             <CardContent>
               <Typography variant="subtitle2" sx={{ mb: 2 }}>
-                Comments
+                {t('Comments')}
               </Typography>
               <Stack spacing={3}>
                 <CommentThread postId={post.id} />

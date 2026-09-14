@@ -8,6 +8,7 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useT } from '@exyconn/i18n';
 import { Button, Flex, Grid, Text } from '@exyconn/shell/components/ui';
 import AddIcon from '@mui/icons-material/Add';
 import { useProjectDocs } from './useProjectDocs';
@@ -25,6 +26,7 @@ interface ProjectDocsPageProps {
  * than a folder of notes.
  */
 export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
+  const t = useT();
   const docs = useProjectDocs(projectId);
   // A few pixels of travel before a drag starts, so clicking a page still opens it.
   const sensors = useSensors(
@@ -49,16 +51,16 @@ export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
       <Grid size={{ xs: 12, md: 4, lg: 3 }}>
         <Flex direction="row" alignItems="center" sx={{ mb: 1 }}>
           <Text size="label" sx={{ flex: 1 }}>
-            Pages
+            {t('Pages')}
           </Text>
           <Button size="small" startIcon={<AddIcon />} onClick={() => docs.addPage(null)}>
-            New page
+            {t('New page')}
           </Button>
         </Flex>
 
         {docs.pages.length === 0 ? (
           <Text size="sm" color="text.secondary">
-            No pages yet. Start the space with one.
+            {t('No pages yet. Start the space with one.')}
           </Text>
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
@@ -82,7 +84,7 @@ export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
       <Grid size={{ xs: 12, md: 8, lg: 9 }}>
         {docs.selectedId === null ? (
           <Text size="sm" color="text.secondary">
-            Pick a page to read or edit it.
+            {t('Pick a page to read or edit it.')}
           </Text>
         ) : (
           <DocPageEditor

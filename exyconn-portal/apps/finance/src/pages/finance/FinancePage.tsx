@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
@@ -18,6 +19,7 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Finance module — invoice dashboard with a server-side invoices grid. */
 export function FinancePage() {
+  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListInvoicesStatsQuery();
   const [deleteInvoice] = useDeleteInvoiceMutation();
@@ -27,7 +29,7 @@ export function FinancePage() {
   const crud = useCrudResource<InvoiceRow, PagedInvoiceRow>({
     label: 'Invoice',
     onDelete: (row) => deleteInvoice({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete invoice ${row.number}?`,
+    confirmMessage: (row) => t('Delete invoice {number}?', { number: row.number }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -80,7 +82,7 @@ export function FinancePage() {
       context={gridContext}
       searchPlaceholder="Search invoices…"
       extraDialogs={
-        <CrudDialog open={Boolean(sendTarget)} title="Send invoice" onClose={closeSend}>
+        <CrudDialog open={Boolean(sendTarget)} title={t('Send invoice')} onClose={closeSend}>
           {sendTarget && (
             <SendInvoiceForm
               invoice={sendTarget}

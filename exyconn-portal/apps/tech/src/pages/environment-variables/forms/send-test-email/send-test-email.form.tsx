@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -29,6 +30,7 @@ export function SendTestEmailForm({
   onDone,
   onCancel,
 }: SendTestEmailFormProps) {
+  const t = useT();
   const notify = useNotify();
   const [sendTest] = useSendTestEmailMutation();
   const methods = useForm<Values>({
@@ -39,7 +41,7 @@ export function SendTestEmailForm({
   const onSubmit = async ({ to }: Values) => {
     try {
       await sendTest({ variables: { id: configId, to } });
-      notify(`Test email sent to ${to}`);
+      notify(t('Test email sent to {to}', { to }));
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Send failed', 'error');
@@ -55,7 +57,9 @@ export function SendTestEmailForm({
       submitLabel="Send test"
     >
       <Text size="sm" color="text.secondary">
-        Send a verification email using the &ldquo;{configLabel}&rdquo; SMTP configuration.
+        {t('Send a verification email using the “{label}” SMTP configuration.', {
+          label: configLabel,
+        })}
       </Text>
       <RhfTextField name="to" label="Recipient email" type="email" />
     </EntityForm>

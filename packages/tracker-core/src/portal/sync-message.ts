@@ -1,6 +1,8 @@
 import type { FailureKind } from '../outbox';
 import { TrackerAuthError, TrackerRejectedError, httpStatusOf } from './portal-error';
 
+const UNKNOWN = 'The sync failed for an unknown reason. Your work is saved and will be retried.';
+
 /**
  * Turns whatever the sync path threw into one sentence the employee can act on.
  * Never surfaces a stack, an error code, or the word "GraphQL" — if a sync did not happen,
@@ -21,10 +23,14 @@ export function describeSyncFailure(error: unknown): string {
 
   if (error instanceof Error) {
     const status = httpStatusOf(error);
-    return status === null ? error.message : describeHttpStatus(status);
+    // An Error with no status is a runtime fault — a dropped socket, a parse failure. Its
+    // message is a log line, not a sentence: it would put "ECONNRESET" in front of somebody
+    // who can only act on plain English, and it is the one string here nobody wrote, so a
+    // translation catalogue could never carry it either. The engine logs the original.
+    return status === null ? UNKNOWN : describeHttpStatus(status);
   }
 
-  return 'The sync failed for an unknown reason. Your work is saved and will be retried.';
+  return UNKNOWN;
 }
 
 function describeHttpStatus(status: number): string {

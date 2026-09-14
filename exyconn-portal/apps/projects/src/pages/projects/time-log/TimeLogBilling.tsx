@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Chip, Stack, Typography } from '@exyconn/shell/components/ui';
 import { useTrackerBillingByProjectQuery } from '@exyconn/shell/graphql/generated';
-import { activeFormatSettings } from '@exyconn/i18n';
+import { activeFormatSettings, useT } from '@exyconn/i18n';
 
 interface TimeLogBillingProps {
   projectId: string;
@@ -21,6 +21,7 @@ export function TimeLogBilling({
   to,
   budgetAmount,
 }: Readonly<TimeLogBillingProps>) {
+  const t = useT();
   const { data } = useTrackerBillingByProjectQuery({
     variables: { projectId, from, to },
     fetchPolicy: 'cache-and-network',
@@ -40,7 +41,17 @@ export function TimeLogBilling({
   }
   const unrated = row.employees.filter((employee) => employee.rate <= 0).length;
   const over = budgetAmount !== null && row.amount > budgetAmount;
-  const budgetLabel = budgetAmount === null ? '' : ` of ${money.format(budgetAmount)} budget`;
+  let billingLine = t('Billing: {hours} h · {amount}', {
+    hours: row.hours,
+    amount: money.format(row.amount),
+  });
+  if (budgetAmount !== null) {
+    billingLine = t('Billing: {hours} h · {amount} of {budget} budget', {
+      hours: row.hours,
+      amount: money.format(row.amount),
+      budget: money.format(budgetAmount),
+    });
+  }
 
   return (
     <Stack
@@ -51,17 +62,14 @@ export function TimeLogBilling({
         flexWrap: 'wrap',
       }}
     >
-      <Typography variant="body2">
-        Billing: {row.hours} h · {money.format(row.amount)}
-        {budgetLabel}
-      </Typography>
-      {over ? <Chip size="small" color="error" label="Over budget" /> : null}
+      <Typography variant="body2">{billingLine}</Typography>
+      {over ? <Chip size="small" color="error" label={t('Over budget')} /> : null}
       {unrated > 0 ? (
         <Chip
           size="small"
           variant="outlined"
           color="warning"
-          label={`${unrated} without a billing rate`}
+          label={t('{count} without a billing rate', { count: unrated })}
         />
       ) : null}
     </Stack>

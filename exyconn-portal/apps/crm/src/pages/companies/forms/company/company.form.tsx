@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DOMAIN, PHONE } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -15,10 +16,6 @@ import { COMPANY_SIZES } from '../../crm.constants';
 import type { CompanyRow } from './company.types';
 
 const STATUS_OPTIONS = enumOptions(Object.values(CompanyStatus));
-const SIZE_OPTIONS: SelectOption[] = COMPANY_SIZES.map((size) => ({
-  value: size,
-  label: `${size} people`,
-}));
 
 const schema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
@@ -58,12 +55,18 @@ interface CompanyFormProps {
 
 /** React Hook Form + Zod form to create or update an account. */
 export function CompanyForm({ initial, onDone, onCancel }: Readonly<CompanyFormProps>) {
+  const t = useT();
   const [createCompany] = useCreateCompanyMutation();
   const [updateCompany] = useUpdateCompanyMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
+
+  const sizeOptions: SelectOption[] = COMPANY_SIZES.map((size) => ({
+    value: size,
+    label: t('{size} people', { size }),
+  }));
 
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Company',
@@ -78,7 +81,7 @@ export function CompanyForm({ initial, onDone, onCancel }: Readonly<CompanyFormP
       <RhfTextField name="name" label="Company name" />
       <RhfTextField name="domain" label="Domain" helperText="e.g. exyconn.com" />
       <RhfTextField name="industry" label="Industry" />
-      <RhfSelect name="size" label="Size" options={SIZE_OPTIONS} />
+      <RhfSelect name="size" label="Size" options={sizeOptions} />
       <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
       <RhfTextField name="owner" label="Owner" />
       <RhfTextField name="phone" label="Phone" />

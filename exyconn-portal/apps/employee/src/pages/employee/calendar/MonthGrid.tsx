@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { useT } from '@exyconn/i18n';
 import { Box, Text, Chip } from '@exyconn/shell/components/ui';
 import type { DayMarker } from './buildMonth';
 
@@ -6,6 +7,7 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 
 /** A single day cell — dims out-of-month days and overlays holiday / leave markers. */
 function DayCell({ day }: { day: DayMarker }) {
+  const t = useT();
   return (
     <Box
       sx={{
@@ -54,12 +56,12 @@ function DayCell({ day }: { day: DayMarker }) {
         <>
           <Chip
             size="small"
-            label="Leave"
+            label={t('Leave')}
             color="info"
             sx={{ display: { xs: 'none', sm: 'flex' } }}
           />
           <Box
-            aria-label="On leave"
+            aria-label={t('On leave')}
             sx={{
               display: { xs: 'block', sm: 'none' },
               width: 6,
@@ -76,6 +78,7 @@ function DayCell({ day }: { day: DayMarker }) {
 
 /** Renders a 7-column month grid: a weekday header row followed by day cells. */
 export function MonthGrid({ days }: { days: DayMarker[] }) {
+  const t = useT();
   return (
     <Box
       sx={{
@@ -86,7 +89,7 @@ export function MonthGrid({ days }: { days: DayMarker[] }) {
     >
       {WEEKDAYS.map((label) => (
         <Text key={label} size="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
-          {label}
+          {t(label)}
         </Text>
       ))}
       {days.map((day) => (

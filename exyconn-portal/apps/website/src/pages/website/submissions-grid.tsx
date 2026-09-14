@@ -11,6 +11,7 @@ import {
   type DatedCrudGridContext,
   type RowActionSpec,
 } from '@exyconn/crud';
+import type { GridTranslate } from '@exyconn/shell/components/data/gridContext';
 import type { ListWebsiteSubmissionsPagedQuery } from '@exyconn/shell/graphql/generated';
 
 export type PagedSubmissionRow =
@@ -26,11 +27,11 @@ export const CONVERT_ACTION: RowActionSpec = {
 };
 
 /** Where the enquiry went: to sales as a lead, to HR as an applicant, or nowhere yet. */
-function filedAs(row: PagedSubmissionRow): string {
+function filedAs(row: PagedSubmissionRow, t: GridTranslate): string {
   if (row.leadId) {
-    return 'Lead';
+    return t('Lead');
   }
-  return row.applicantId ? 'Applicant' : '—';
+  return row.applicantId ? t('Applicant') : '—';
 }
 
 /**

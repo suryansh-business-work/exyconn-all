@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApolloClient } from '@apollo/client/react';
+import { useT } from '@exyconn/i18n';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { copyToClipboard } from '@exyconn/shell/utils/clipboard';
@@ -12,18 +13,25 @@ import {
   type AppLogFixPromptQuery,
   type AppLogFixPromptQueryVariables,
   type AppLogSource,
-  type AppLogStatus,
+  AppLogStatus,
   type OpenAppLogsFixPromptQuery,
   type OpenAppLogsFixPromptQueryVariables,
 } from '@exyconn/shell/graphql/generated';
-import { enumLabel } from './logs.constants';
 import type { AppLogRow } from './logs-grid';
+
+/** What the notifier says after a status change — one whole sentence per status, so each translates. */
+const STATUS_NOTICE: Record<AppLogStatus, string> = {
+  [AppLogStatus.Ignored]: 'Marked ignored',
+  [AppLogStatus.Open]: 'Marked open',
+  [AppLogStatus.Resolved]: 'Marked resolved',
+};
 
 /**
  * What Tech does with a log: hand it to Claude, change its status, or delete it. Every outcome
  * is reported through the shared notifier; `onChanged` re-reads the grid and the tiles.
  */
 export function useLogActions(onChanged: () => void) {
+  const t = useT();
   const client = useApolloClient();
   const notify = useNotify();
   const confirm = useConfirm();
@@ -75,7 +83,7 @@ export function useLogActions(onChanged: () => void) {
   const changeStatus = async (row: AppLogRow, status: AppLogStatus): Promise<boolean> => {
     try {
       await setStatus({ variables: { id: row.id, status } });
-      notify(`Marked ${enumLabel(status).toLowerCase()}`);
+      notify(t(STATUS_NOTICE[status]));
       onChanged();
       return true;
     } catch (err) {
@@ -86,9 +94,16 @@ export function useLogActions(onChanged: () => void) {
 
   /** Resolves to whether the log was deleted (false when cancelled or refused). */
   const remove = async (row: AppLogRow): Promise<boolean> => {
+    const message =
+      row.count === 1
+        ? t('Delete "{message}" and its only occurrence?', { message: row.message })
+        : t('Delete "{message}" and all {count} occurrences of it?', {
+            message: row.message,
+            count: row.count,
+          });
     const ok = await confirm({
       title: 'Delete log',
-      message: `Delete "${row.message}" and all ${row.count} occurrences of it?`,
+      message,
       confirmText: 'Delete',
     });
     if (!ok) {

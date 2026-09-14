@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, Divider, Flex, Grid, radius, Text } from '@exyconn/shell/components/ui';
 import { BarChart, ChartCard, type ChartData } from '@exyconn/shell/components/ui';
 import { useCampaignMetricsQuery } from '@exyconn/shell/graphql/generated';
@@ -40,6 +41,7 @@ function shortUrl(url: string): string {
  * can be wrong by half in one direction only. Clicks carry no such caveat.
  */
 export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementProps>) {
+  const t = useT();
   const { data, loading } = useCampaignMetricsQuery({ variables: { campaignId } });
   const metrics = data?.campaignMetrics;
   const links = data?.campaignTopLinks ?? [];
@@ -47,7 +49,7 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
   if (loading && !metrics) {
     return (
       <Text size="sm" color="text.secondary">
-        Loading engagement…
+        {t('Loading engagement…')}
       </Text>
     );
   }
@@ -55,15 +57,28 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
   if (!metrics || metrics.sent === 0) {
     return (
       <Text size="sm" color="text.secondary">
-        Nothing to report yet — this campaign has not been sent.
+        {t('Nothing to report yet — this campaign has not been sent.')}
       </Text>
     );
   }
 
   const linkChart: ChartData = {
     labels: links.map((link) => shortUrl(link.url)),
-    series: [{ id: 'clicks', label: 'Clicks', values: links.map((link) => link.clicks) }],
+    series: [{ id: 'clicks', label: t('Clicks'), values: links.map((link) => link.clicks) }],
   };
+
+  // One whole sentence per plural form: a language that agrees differently cannot be served
+  // from an interpolated "person"/"people" fragment.
+  let opensCaveat = t(
+    'Opens are a floor, not a count: many mail clients block or cache the tracking image, so this campaign was opened by at least {count} people. Clicks are exact.',
+    { count: metrics.opened },
+  );
+  if (metrics.opened === 1) {
+    opensCaveat = t(
+      'Opens are a floor, not a count: many mail clients block or cache the tracking image, so this campaign was opened by at least {count} person. Clicks are exact.',
+      { count: metrics.opened },
+    );
+  }
 
   return (
     <Box>
@@ -74,7 +89,7 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
             md: 3,
           }}
         >
-          <Metric label="Sent" value={String(metrics.sent)} />
+          <Metric label={t('Sent')} value={String(metrics.sent)} />
         </Grid>
         <Grid
           size={{
@@ -83,9 +98,12 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
           }}
         >
           <Metric
-            label="Opened"
+            label={t('Opened')}
             value={`${metrics.openRate}%`}
-            hint={`${metrics.opened} people · ${metrics.totalOpens} opens`}
+            hint={t('{people} people · {opens} opens', {
+              people: metrics.opened,
+              opens: metrics.totalOpens,
+            })}
           />
         </Grid>
         <Grid
@@ -95,9 +113,12 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
           }}
         >
           <Metric
-            label="Clicked"
+            label={t('Clicked')}
             value={`${metrics.clickRate}%`}
-            hint={`${metrics.clicked} people · ${metrics.totalClicks} clicks`}
+            hint={t('{people} people · {clicks} clicks', {
+              people: metrics.clicked,
+              clicks: metrics.totalClicks,
+            })}
           />
         </Grid>
         <Grid
@@ -107,29 +128,27 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
           }}
         >
           <Metric
-            label="Click-through"
+            label={t('Click-through')}
             value={`${metrics.clickThroughRate}%`}
-            hint="of those who opened"
+            hint={t('of those who opened')}
           />
         </Grid>
       </Grid>
 
       <Alert severity="info" variant="outlined" sx={{ mt: 2, borderRadius: `${radius.sm}px` }}>
-        Opens are a floor, not a count: many mail clients block or cache the tracking image, so this
-        campaign was opened by <strong>at least</strong> {metrics.opened}{' '}
-        {metrics.opened === 1 ? 'person' : 'people'}. Clicks are exact.
+        {opensCaveat}
       </Alert>
 
       {links.length > 0 ? (
         <>
           <Divider sx={{ my: 2 }} />
           <ChartCard
-            title="Most clicked links"
-            subtitle="Where the campaign actually sent people"
+            title={t('Most clicked links')}
+            subtitle={t('Where the campaign actually sent people')}
             data={linkChart}
             formatValue={(clicks) => String(clicks)}
-            labelHeading="Link"
-            emptyText="No links were clicked."
+            labelHeading={t('Link')}
+            emptyText={t('No links were clicked.')}
           >
             <BarChart
               data={linkChart}
@@ -142,7 +161,7 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
       ) : (
         <Flex sx={{ mt: 2 }}>
           <Text size="sm" color="text.secondary">
-            No links have been clicked yet.
+            {t('No links have been clicked yet.')}
           </Text>
         </Flex>
       )}

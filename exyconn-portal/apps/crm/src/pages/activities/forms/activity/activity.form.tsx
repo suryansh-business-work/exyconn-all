@@ -1,4 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -59,6 +60,7 @@ interface ActivityFormProps {
 
 /** React Hook Form + Zod form to log an interaction or schedule a follow-up. */
 export function ActivityForm({ initial, onDone, onCancel }: Readonly<ActivityFormProps>) {
+  const t = useT();
   const [createActivity] = useCreateActivityMutation();
   const [updateActivity] = useUpdateActivityMutation();
   const { data: dealsData } = useListDealsQuery();
@@ -110,7 +112,11 @@ export function ActivityForm({ initial, onDone, onCancel }: Readonly<ActivityFor
       <RhfSelect name="relatedType" label="About" options={SUBJECT_OPTIONS} />
       <RhfSelect name="relatedId" label="Related to" options={options} />
       <RhfDatePicker name="dueDate" label="Due" />
-      <RhfSelect name="done" label="Status" options={DONE_OPTIONS} />
+      <RhfSelect
+        name="done"
+        label="Status"
+        options={DONE_OPTIONS.map((option) => ({ ...option, label: t(option.label) }))}
+      />
       <RhfTextField name="owner" label="Owner" />
       <RhfTextField name="notes" label="Notes" multiline rows={3} />
     </EntityForm>

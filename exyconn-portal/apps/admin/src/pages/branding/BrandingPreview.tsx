@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { borderWidth, Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { glass } from '@exyconn/shell/components/glass/glass';
 
@@ -15,6 +16,7 @@ export function BrandingPreview({
   slogan,
   primaryColor,
 }: Readonly<BrandingPreviewProps>) {
+  const t = useT();
   return (
     <Box
       sx={[
@@ -45,12 +47,12 @@ export function BrandingPreview({
             <Box
               component="img"
               src={logoUrl}
-              alt={`${businessName} logo`}
+              alt={t('{businessName} logo', { businessName })}
               sx={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
             />
           ) : (
             <Text size="sm" color="text.secondary">
-              No logo
+              {t('No logo')}
             </Text>
           )}
         </Box>

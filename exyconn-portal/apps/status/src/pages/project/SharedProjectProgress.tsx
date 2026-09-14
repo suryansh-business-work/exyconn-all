@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Card, Chip, Flex, LinearProgress, Typography } from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { DATE_FORMAT } from '../../status.constants';
@@ -21,7 +22,14 @@ export function SharedProjectProgress({
   milestones,
   ticketCounts,
 }: Readonly<SharedProjectProgressProps>) {
+  const t = useT();
   const totalTickets = ticketCounts.reduce((total, entry) => total + entry.count, 0);
+  // Two whole sentences rather than a pluralised fragment, so a language that counts
+  // differently can be served from its own entry.
+  let workHeading = t('Where the work is ({count} tickets)', { count: totalTickets });
+  if (totalTickets === 1) {
+    workHeading = t('Where the work is (1 ticket)');
+  }
 
   return (
     <Flex direction="column" spacing={2}>
@@ -33,7 +41,7 @@ export function SharedProjectProgress({
             mb: 1.5,
           }}
         >
-          Milestones
+          {t('Milestones')}
         </Typography>
         {milestones.length === 0 ? (
           <Typography
@@ -42,7 +50,7 @@ export function SharedProjectProgress({
               color: 'text.secondary',
             }}
           >
-            No milestones have been set for this project.
+            {t('No milestones have been set for this project.')}
           </Typography>
         ) : (
           <Flex direction="column" spacing={1.5}>
@@ -62,7 +70,7 @@ export function SharedProjectProgress({
                     color: 'text.secondary',
                   }}
                 >
-                  {milestone.dueOn ? formatWith(milestone.dueOn, DATE_FORMAT) : 'No date'}
+                  {milestone.dueOn ? formatWith(milestone.dueOn, DATE_FORMAT) : t('No date')}
                 </Typography>
               </Flex>
             ))}
@@ -78,7 +86,7 @@ export function SharedProjectProgress({
             mb: 1.5,
           }}
         >
-          Where the work is ({totalTickets} {totalTickets === 1 ? 'ticket' : 'tickets'})
+          {workHeading}
         </Typography>
         {totalTickets === 0 ? (
           <Typography
@@ -87,7 +95,7 @@ export function SharedProjectProgress({
               color: 'text.secondary',
             }}
           >
-            No tickets have been raised on this project yet.
+            {t('No tickets have been raised on this project yet.')}
           </Typography>
         ) : (
           <Flex direction="column" spacing={1.5}>
@@ -99,7 +107,7 @@ export function SharedProjectProgress({
                 <LinearProgress
                   variant="determinate"
                   value={(entry.count / totalTickets) * 100}
-                  aria-label={`${entry.status} share of tickets`}
+                  aria-label={t('{status} share of tickets', { status: entry.status })}
                   sx={{ flex: 1, height: 8, borderRadius: 1 }}
                 />
                 <Typography

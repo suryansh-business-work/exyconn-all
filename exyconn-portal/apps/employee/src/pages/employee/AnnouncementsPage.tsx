@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -9,6 +10,7 @@ import { panel, readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /** Employee self-service: the live company announcement feed, pinned first. */
 export function AnnouncementsPage() {
+  const t = useT();
   const { data, loading } = useActiveAnnouncementsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const rows = data?.activeAnnouncements ?? [];
@@ -20,7 +22,7 @@ export function AnnouncementsPage() {
       {rows.length === 0 && (
         <Box sx={readingPanel}>
           <Text color="text.secondary">
-            {loading ? 'Loading…' : 'Nothing announced right now.'}
+            {loading ? t('Loading…') : t('Nothing announced right now.')}
           </Text>
         </Box>
       )}

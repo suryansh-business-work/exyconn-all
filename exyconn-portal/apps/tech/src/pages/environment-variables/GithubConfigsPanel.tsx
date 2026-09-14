@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -18,6 +19,7 @@ const maskToken = (token: string) => `${token.slice(0, 8)}…`;
 
 /** Environment Variables sub-panel: the repository tracker builds are started in. */
 export function GithubConfigsPanel() {
+  const t = useT();
   const notify = useNotify();
   const { data, loading, refetch } = useListGithubConfigsQuery();
   const [deleteConfig] = useDeleteGithubConfigMutation();
@@ -25,7 +27,7 @@ export function GithubConfigsPanel() {
   const crud = useCrudResource<GithubConfigRow>({
     label: 'GitHub config',
     onDelete: (row) => deleteConfig({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete GitHub config "${row.label}"?`,
+    confirmMessage: (row) => t('Delete GitHub config "{label}"?', { label: row.label }),
     refetch,
   });
 
@@ -34,7 +36,8 @@ export function GithubConfigsPanel() {
   const test = async (row: GithubConfigRow) => {
     try {
       await testConnection({ variables: { id: row.id } });
-      notify(`Reached ${row.owner}/${row.repo} and found the tracker workflow`);
+      const repo = `${row.owner}/${row.repo}`;
+      notify(t('Reached {repo} and found the tracker workflow', { repo }));
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Connection failed', 'error');
     }
@@ -62,12 +65,9 @@ export function GithubConfigsPanel() {
   ];
 
   if (crud.open) {
+    const formTitle = crud.editing ? t('Edit GitHub config') : t('New GitHub config');
     return (
-      <CrudFormPage
-        title={crud.editing ? 'Edit GitHub config' : 'New GitHub config'}
-        onBack={crud.close}
-        backLabel="Back to GitHub repository"
-      >
+      <CrudFormPage title={formTitle} onBack={crud.close} backLabel="Back to GitHub repository">
         <GithubConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
       </CrudFormPage>
     );

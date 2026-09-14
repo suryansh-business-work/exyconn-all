@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CARD_RADIUS, Box, Button, Chip, Flex, Text } from '@exyconn/shell/components/ui';
 import BlockIcon from '@mui/icons-material/Block';
 import type { ProjectShareFieldsFragment } from '@exyconn/shell/graphql/generated';
@@ -19,15 +20,23 @@ function stateOf(share: ProjectShareFieldsFragment): { label: string; live: bool
 
 /** One issued link: what it is for, whether it still works, and the way to stop it. */
 export function ShareRow({ share, expiry, onRevoke }: Readonly<ShareRowProps>) {
+  const t = useT();
   const state = stateOf(share);
+  let expiryLine = t('Expires {date}', { date: expiry });
+  if (share.createdByName) {
+    expiryLine = t('Expires {date} · created by {name}', {
+      date: expiry,
+      name: share.createdByName,
+    });
+  }
 
   return (
     <Box sx={{ p: 1.5, borderRadius: `${CARD_RADIUS}px`, border: 1, borderColor: 'divider' }}>
       <Flex direction="row" alignItems="center" spacing={1}>
         <Text size="sm" weight="medium" sx={{ flex: 1, minWidth: 0 }}>
-          {share.label || 'Untitled link'}
+          {share.label || t('Untitled link')}
         </Text>
-        <Chip size="small" color={state.live ? 'success' : 'default'} label={state.label} />
+        <Chip size="small" color={state.live ? 'success' : 'default'} label={t(state.label)} />
         {state.live ? (
           <Button
             size="small"
@@ -35,13 +44,12 @@ export function ShareRow({ share, expiry, onRevoke }: Readonly<ShareRowProps>) {
             startIcon={<BlockIcon />}
             onClick={() => onRevoke(share)}
           >
-            Revoke
+            {t('Revoke')}
           </Button>
         ) : null}
       </Flex>
       <Text size="caption" color="text.secondary">
-        Expires {expiry}
-        {share.createdByName ? ` · created by ${share.createdByName}` : ''}
+        {expiryLine}
       </Text>
     </Box>
   );

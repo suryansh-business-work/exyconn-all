@@ -54,7 +54,7 @@ export function TrackerMessagesPage() {
         title="Messages"
         subtitle="Reply to employees, or announce something to every tracker"
       />
-      <Tabber basePath="/tracker/messages" items={tabs} ariaLabel={t('Message views')} />
+      <Tabber basePath="/tracker/messages" items={tabs} ariaLabel="Message views" />
     </Box>
   );
 }

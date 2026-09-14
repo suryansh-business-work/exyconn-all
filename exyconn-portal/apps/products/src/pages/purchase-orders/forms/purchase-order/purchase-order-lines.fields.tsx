@@ -1,6 +1,7 @@
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, Grid, IconButton, Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { lineCost, linesTotal, type PurchaseOrderLineValues } from './purchase-order.types';
@@ -14,6 +15,7 @@ interface LineRowProps {
 
 /** One ordered line. Hoisted to module scope — never defined inside its parent. */
 function LineRow({ index, cost, products, onRemove }: Readonly<LineRowProps>) {
+  const t = useT();
   return (
     <Grid
       container
@@ -69,7 +71,7 @@ function LineRow({ index, cost, products, onRemove }: Readonly<LineRowProps>) {
           sm: 1,
         }}
       >
-        <IconButton aria-label="Remove line" onClick={onRemove} size="small">
+        <IconButton aria-label={t('Remove line')} onClick={onRemove} size="small">
           <DeleteOutlineIcon fontSize="small" />
         </IconButton>
       </Grid>
@@ -91,6 +93,7 @@ const EMPTY_LINE: PurchaseOrderLineValues = {
  * without it inventory can only be priced at what we hope to sell for.
  */
 export function PurchaseOrderLinesFields({ products }: Readonly<{ products: SelectOption[] }>) {
+  const t = useT();
   const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name: 'lines' });
   const drafts = (useWatch({ control, name: 'lines' }) ?? []) as PurchaseOrderLineValues[];
@@ -105,7 +108,7 @@ export function PurchaseOrderLinesFields({ products }: Readonly<{ products: Sele
   return (
     <Box>
       <Text size="sm" weight="bold" sx={{ display: 'block', mb: 1 }}>
-        Lines
+        {t('Lines')}
       </Text>
       {fields.map((field, index) => (
         <LineRow
@@ -118,10 +121,10 @@ export function PurchaseOrderLinesFields({ products }: Readonly<{ products: Sele
       ))}
       <Flex direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 1 }}>
         <Button size="small" startIcon={<AddIcon />} onClick={() => append({ ...EMPTY_LINE })}>
-          Add line
+          {t('Add line')}
         </Button>
         <Text size="sm" weight="bold">
-          Total {linesTotal(normalised).toLocaleString()}
+          {t('Total {total}', { total: linesTotal(normalised).toLocaleString() })}
         </Text>
       </Flex>
     </Box>

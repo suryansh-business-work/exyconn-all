@@ -1,4 +1,5 @@
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -17,13 +18,15 @@ import { RISK_COLUMNS, type PagedRiskRow, type RisksGridContext } from './risks-
  * and the first thing an auditor opens.
  */
 export function RisksPage() {
+  const t = useT();
   const { data: statsData, refetch } = useListRisksStatsQuery();
   const [deleteRisk] = useDeleteRiskMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<RiskRow, PagedRiskRow>({
     label: 'Risk',
     onDelete: (row) => deleteRisk({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete risk "${row.reference} — ${row.title}"?`,
+    confirmMessage: (row) =>
+      t('Delete risk "{reference} — {title}"?', { reference: row.reference, title: row.title }),
     refetch,
   });
   const fetchRows = usePagedFetcher(

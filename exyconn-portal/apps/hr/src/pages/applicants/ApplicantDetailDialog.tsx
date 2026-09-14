@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Divider, Link, Stack, Text, Typography } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -11,8 +12,9 @@ interface ApplicantDetailDialogProps {
 
 /** A resume reference is a link when the form gave us one, and plain text when it is a file name. */
 function ResumeLine({ resumeUrl }: Readonly<{ resumeUrl: string }>) {
+  const t = useT();
   if (!resumeUrl) {
-    return <Text size="sm">No resume attached</Text>;
+    return <Text size="sm">{t('No resume attached')}</Text>;
   }
   if (resumeUrl.startsWith('http')) {
     return (
@@ -29,6 +31,7 @@ export function ApplicantDetailDialog({
   applicant,
   onClose,
 }: Readonly<ApplicantDetailDialogProps>) {
+  const t = useT();
   const { formatDate } = useSettings();
 
   if (!applicant) {
@@ -51,12 +54,13 @@ export function ApplicantDetailDialog({
           <StatusChip value={applicant.stage} />
           <StatusChip value={applicant.source} />
           <Text size="sm" color="text.secondary">
-            {ratingStars(applicant.rating)} · applied {formatDate(applicant.createdAt)}
+            {ratingStars(applicant.rating)} ·{' '}
+            {t('applied {date}', { date: formatDate(applicant.createdAt) })}
           </Text>
         </Stack>
 
         <Box>
-          <Typography variant="subtitle2">{applicant.jobTitle || 'No job title'}</Typography>
+          <Typography variant="subtitle2">{applicant.jobTitle || t('No job title')}</Typography>
           <Text size="sm" color="text.secondary">
             {[applicant.jobCode, applicant.companySlug].filter(Boolean).join(' · ')}
           </Text>
@@ -64,23 +68,23 @@ export function ApplicantDetailDialog({
         </Box>
 
         <Box>
-          <Typography variant="subtitle2">Resume</Typography>
+          <Typography variant="subtitle2">{t('Resume')}</Typography>
           <ResumeLine resumeUrl={applicant.resumeUrl} />
         </Box>
 
         <Box>
-          <Typography variant="subtitle2">Cover letter</Typography>
+          <Typography variant="subtitle2">{t('Cover letter')}</Typography>
           <Text size="sm" sx={{ whiteSpace: 'pre-wrap' }}>
-            {applicant.coverLetter || 'No cover letter'}
+            {applicant.coverLetter || t('No cover letter')}
           </Text>
         </Box>
 
         <Divider />
 
         <Box>
-          <Typography variant="subtitle2">Notes &amp; history</Typography>
+          <Typography variant="subtitle2">{t('Notes & history')}</Typography>
           <Text size="sm" sx={{ whiteSpace: 'pre-wrap' }}>
-            {applicant.notes || 'Nothing recorded yet'}
+            {applicant.notes || t('Nothing recorded yet')}
           </Text>
         </Box>
       </Stack>

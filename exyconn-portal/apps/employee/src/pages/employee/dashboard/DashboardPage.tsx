@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Grid, color } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
@@ -37,6 +38,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 /** Employee self-service landing: everything due today, at a glance. */
 export function DashboardPage() {
+  const t = useT();
   const { user } = useAuth();
   const { formatDate } = useSettings();
   const policy = { fetchPolicy: 'cache-and-network' } as const;
@@ -73,29 +75,37 @@ export function DashboardPage() {
       (t) => t.status !== 'CLOSED',
     ).length;
 
+    const latestSlipLabel = latest
+      ? t('{month} {year}', { month: t(MONTHS[latest.month - 1]), year: latest.year })
+      : '—';
+
     return [
       {
         label: 'Today',
-        value: today?.status.replace('_', ' ') ?? 'Not marked',
+        value: today?.status.replace('_', ' ') ?? t('Not marked'),
         accent: color.blue[600],
       },
       { label: 'Present this month', value: String(month.PRESENT), accent: color.green[600] },
       { label: 'Work from home', value: String(month.WFH), accent: color.sky[500] },
       {
         label: 'Leave balance',
-        value: available === null ? 'Not set' : `${available} d`,
+        value: available === null ? t('Not set') : t('{days} d', { days: available }),
         accent: color.teal[500],
       },
       { label: 'Leave pending', value: String(leaves.pending), accent: color.orange[600] },
-      { label: 'Leave available', value: `${availableLeave} d`, accent: color.purple[400] },
+      {
+        label: 'Leave available',
+        value: t('{days} d', { days: availableLeave }),
+        accent: color.purple[400],
+      },
       {
         label: `Leave taken ${now.getFullYear()}`,
-        value: `${leaves.approvedDays} d`,
+        value: t('{days} d', { days: leaves.approvedDays }),
         accent: color.purple[300],
       },
       {
         label: 'Latest slip',
-        value: latest ? `${MONTHS[latest.month - 1]} ${latest.year}` : '—',
+        value: latestSlipLabel,
         accent: color.cyan[600],
       },
       {
@@ -105,7 +115,7 @@ export function DashboardPage() {
       },
       { label: 'Open tickets', value: String(openTickets), accent: color.red[500] },
     ];
-  }, [attendance.data, leave.data, slips.data, payroll.data, tickets.data, balances.data]);
+  }, [attendance.data, leave.data, slips.data, payroll.data, tickets.data, balances.data, t]);
 
   const nextHolidays = useMemo(
     () => upcomingHolidays((holidays.data?.listHolidays ?? []) as HolidayRecord[], new Date()),

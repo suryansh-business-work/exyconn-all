@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -49,6 +50,7 @@ interface AiModelPriceFormProps {
  * both adds a model OpenAI has just published and corrects one whose price moved.
  */
 export function AiModelPriceForm({ initial, onDone, onCancel }: Readonly<AiModelPriceFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [savePrice] = useSaveAiModelPriceMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -68,7 +70,7 @@ export function AiModelPriceForm({ initial, onDone, onCancel }: Readonly<AiModel
           },
         },
       });
-      notify(`Price for ${values.model} saved`);
+      notify(t('Price for {model} saved', { model: values.model }));
       onDone();
     } catch (error) {
       notify(errorMessage(error, 'Could not save the price'), 'error');
@@ -84,8 +86,9 @@ export function AiModelPriceForm({ initial, onDone, onCancel }: Readonly<AiModel
       submitLabel="Save price"
     >
       <Text size="sm" color="text.secondary">
-        Prices are US dollars per 1,000 tokens, exactly as OpenAI publishes them. A model with no
-        active price here costs a run nothing — we never guess a rate.
+        {t(
+          'Prices are US dollars per 1,000 tokens, exactly as OpenAI publishes them. A model with no active price here costs a run nothing — we never guess a rate.',
+        )}
       </Text>
       <RhfTextField
         name="model"

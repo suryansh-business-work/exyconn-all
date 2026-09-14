@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, CircularProgress, Flex, Typography } from '@exyconn/shell/components/ui';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 
@@ -24,6 +25,9 @@ export function SubscriptionResultPage({
   successMessage,
   missingTokenMessage,
 }: Readonly<SubscriptionResultPageProps>) {
+  // Titles and outcomes arrive as English props from the two pages that use this frame,
+  // so they are translated here rather than at each call site.
+  const t = useT();
   const [params] = useSearchParams();
   const token = params.get('token') ?? '';
   const [error, setError] = useState('');
@@ -31,13 +35,13 @@ export function SubscriptionResultPage({
 
   useEffect(() => {
     if (!token) {
-      setError(missingTokenMessage);
+      setError(t(missingTokenMessage));
       return;
     }
     action(token)
       .then(() => setDone(true))
-      .catch((cause: unknown) => setError(errorMessage(cause, 'That link could not be used.')));
-  }, [token, action, missingTokenMessage]);
+      .catch((cause: unknown) => setError(errorMessage(cause, t('That link could not be used.'))));
+  }, [token, action, missingTokenMessage, t]);
 
   return (
     <Flex direction="column" spacing={2}>
@@ -48,16 +52,16 @@ export function SubscriptionResultPage({
             fontWeight: 800,
           }}
         >
-          {title}
+          {t(title)}
         </Typography>
       </Box>
       {!done && !error && (
         <Flex direction="row" spacing={1} alignItems="center">
           <CircularProgress size={18} />
-          <Typography variant="body2">Just a moment…</Typography>
+          <Typography variant="body2">{t('Just a moment…')}</Typography>
         </Flex>
       )}
-      {done && <Alert severity="success">{successMessage}</Alert>}
+      {done && <Alert severity="success">{t(successMessage)}</Alert>}
       {error && <Alert severity="error">{error}</Alert>}
     </Flex>
   );

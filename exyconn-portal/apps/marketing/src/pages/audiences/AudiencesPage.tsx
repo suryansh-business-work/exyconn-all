@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import {
@@ -21,6 +22,7 @@ import {
 
 /** Marketing → Audiences: the saved lists and segment rules a campaign is sent to. */
 export function AudiencesPage() {
+  const t = useT();
   // Audiences are few and their sizes come from arrays, which no aggregation can sum —
   // so the tiles read the full list rather than a stats query.
   const { data, refetch } = useListAudienceListsQuery();
@@ -30,7 +32,7 @@ export function AudiencesPage() {
   const crud = useCrudResource<AudienceRow, PagedAudienceRow>({
     label: 'Audience',
     onDelete: (row) => deleteAudienceList({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete audience "${row.name}"?`,
+    confirmMessage: (row) => t('Delete audience "{name}"?', { name: row.name }),
     refetch,
   });
   const fetchRows = usePagedFetcher(
@@ -61,7 +63,9 @@ export function AudiencesPage() {
   return (
     <CrudDashboard
       title="Audiences"
-      subtitle={`Who a campaign goes to — ${String(clientCount)} client(s) available`}
+      subtitle={t('Who a campaign goes to — {count} client(s) available', {
+        count: clientCount,
+      })}
       entityLabel="audience"
       stats={statItems}
       crud={crud}
@@ -73,7 +77,7 @@ export function AudiencesPage() {
       context={gridContext}
       searchPlaceholder="Search audiences…"
       extraDialogs={
-        <CrudDialog open={Boolean(membersTarget)} title="Members" onClose={closeMembers}>
+        <CrudDialog open={Boolean(membersTarget)} title={t('Members')} onClose={closeMembers}>
           {membersTarget && (
             <AudienceMembers audienceId={membersTarget.id} audienceName={membersTarget.name} />
           )}

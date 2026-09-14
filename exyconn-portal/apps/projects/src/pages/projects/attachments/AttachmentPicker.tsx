@@ -1,6 +1,7 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Text } from '@exyconn/shell/components/ui';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { ATTACHMENT_ACCEPT, ATTACHMENT_HELP } from './attachment.constants';
+import { ATTACHMENT_ACCEPT, MAX_ATTACHMENT_MB } from './attachment.constants';
 import { useAttachmentUpload, type PickedAttachment } from './useAttachmentUpload';
 
 interface AttachmentPickerProps {
@@ -16,6 +17,7 @@ export function AttachmentPicker({
   showHelp = true,
   onPicked,
 }: Readonly<AttachmentPickerProps>) {
+  const t = useT();
   const upload = useAttachmentUpload(onPicked);
 
   return (
@@ -34,11 +36,11 @@ export function AttachmentPicker({
         onClick={upload.open}
         disabled={upload.uploading}
       >
-        {upload.uploading ? 'Uploading…' : label}
+        {upload.uploading ? t('Uploading…') : t(label)}
       </Button>
       {showHelp ? (
         <Text size="caption" color="text.secondary" sx={{ display: 'block' }}>
-          {ATTACHMENT_HELP}
+          {t('Images or PDF · up to {mb} MB each', { mb: MAX_ATTACHMENT_MB })}
         </Text>
       ) : null}
     </Box>

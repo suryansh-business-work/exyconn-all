@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { ServerDataGrid } from '@exyconn/shell/components/data/ServerDataGrid';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
@@ -15,13 +16,15 @@ import { TEMPLATE_COLUMNS, type PagedTemplateRow, type EmailGridContext } from '
 
 /** Tech → Email → Templates: the transactional emails, authored here rather than deployed. */
 export function EmailTemplatesPanel() {
+  const t = useT();
   const [deleteTemplate] = useDeleteEmailTemplateMutation();
   const [previewing, setPreviewing] = useState<PagedTemplateRow | null>(null);
 
   const crud = useCrudResource<EmailTemplateRow, PagedTemplateRow>({
     label: 'Template',
     onDelete: (row) => deleteTemplate({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete the "${row.name}" template? Anything sending it will fail.`,
+    confirmMessage: (row) =>
+      t('Delete the "{name}" template? Anything sending it will fail.', { name: row.name }),
   });
   const fetchRows = usePagedFetcher(
     ListEmailTemplatesPagedDocument,
@@ -34,12 +37,9 @@ export function EmailTemplatesPanel() {
   };
 
   if (crud.open) {
+    const formTitle = crud.editing ? t('Edit template') : t('New template');
     return (
-      <CrudFormPage
-        title={`${crud.editing ? 'Edit' : 'New'} template`}
-        onBack={crud.close}
-        backLabel="Back to Templates"
-      >
+      <CrudFormPage title={formTitle} onBack={crud.close} backLabel="Back to Templates">
         <EmailTemplateForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
       </CrudFormPage>
     );

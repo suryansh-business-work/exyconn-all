@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Stack } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useSocialFeedQuery, type SocialFeedQuery } from '@exyconn/shell/graphql/generated';
@@ -14,6 +15,7 @@ const FEED_WIDTH = 720;
  * so "load older posts" never re-fetches what is already on screen.
  */
 export function FeedPage() {
+  const t = useT();
   const { data, loading, error, fetchMore, networkStatus } = useSocialFeedQuery({
     notifyOnNetworkStatusChange: true,
   });
@@ -50,7 +52,7 @@ export function FeedPage() {
           error={error}
           loadingMore={networkStatus === 3}
           onLoadMore={cursor ? loadMore : undefined}
-          emptyMessage="Nothing here yet. Be the first to post something."
+          emptyMessage={t('Nothing here yet. Be the first to post something.')}
         />
       </Stack>
     </Box>

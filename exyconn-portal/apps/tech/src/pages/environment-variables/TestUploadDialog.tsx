@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, CircularProgress, Link, Flex, Text } from '@exyconn/shell/components/ui';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
@@ -15,6 +16,7 @@ interface TestUploadDialogProps {
 
 /** Uploads a chosen file through a specific image config to validate it. */
 export function TestUploadDialog({ configId, configLabel, open, onClose }: TestUploadDialogProps) {
+  const t = useT();
   const notify = useNotify();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -52,10 +54,12 @@ export function TestUploadDialog({ configId, configLabel, open, onClose }: TestU
   };
 
   return (
-    <CrudDialog open={open} title="Test file upload" onClose={handleClose}>
+    <CrudDialog open={open} title={t('Test file upload')} onClose={handleClose}>
       <Flex direction="column" spacing={2}>
         <Text size="sm" color="text.secondary">
-          Upload a file using the &ldquo;{configLabel}&rdquo; provider configuration.
+          {t('Upload a file using the “{label}” provider configuration.', {
+            label: configLabel,
+          })}
         </Text>
         <input
           ref={inputRef}
@@ -71,14 +75,14 @@ export function TestUploadDialog({ configId, configLabel, open, onClose }: TestU
           disabled={uploading}
           onClick={() => inputRef.current?.click()}
         >
-          {uploading ? 'Uploading…' : 'Choose file & upload'}
+          {uploading ? t('Uploading…') : t('Choose file & upload')}
         </Button>
         {resultUrl && (
           <Box>
             <Box
               component="img"
               src={resultUrl}
-              alt="Uploaded preview"
+              alt={t('Uploaded preview')}
               sx={{ width: '100%', borderRadius: 1, mb: 1 }}
             />
             <Link href={resultUrl} target="_blank" rel="noopener" variant="body2">
@@ -88,7 +92,7 @@ export function TestUploadDialog({ configId, configLabel, open, onClose }: TestU
         )}
         <Flex direction="row" justifyContent="flex-end">
           <Button color="inherit" onClick={handleClose}>
-            Close
+            {t('Close')}
           </Button>
         </Flex>
       </Flex>

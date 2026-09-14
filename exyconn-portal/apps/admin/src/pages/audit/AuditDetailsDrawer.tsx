@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import {
   Box,
   Stack,
@@ -20,10 +21,11 @@ interface FactProps {
 
 /** One labelled line of the entry — who, when, where. */
 function Fact({ label, value }: Readonly<FactProps>) {
+  const t = useT();
   return (
     <Box>
       <Text size="caption" color="text.secondary">
-        {label}
+        {t(label)}
       </Text>
       <Text size="sm" sx={{ wordBreak: 'break-word' }}>
         {value || '—'}
@@ -34,17 +36,18 @@ function Fact({ label, value }: Readonly<FactProps>) {
 
 /** The from/to table for an update; nothing for any other action. */
 function ChangesTable({ rows }: Readonly<{ rows: AuditChangeRow[] }>) {
+  const t = useT();
   if (rows.length === 0) {
     return null;
   }
   return (
     <Box sx={{ overflowX: 'auto' }}>
-      <Table size="small" aria-label="changed fields">
+      <Table size="small" aria-label={t('changed fields')}>
         <TableHead>
           <TableRow>
-            <TableCell>Field</TableCell>
-            <TableCell>From</TableCell>
-            <TableCell>To</TableCell>
+            <TableCell>{t('Field')}</TableCell>
+            <TableCell>{t('From')}</TableCell>
+            <TableCell>{t('To')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -75,6 +78,7 @@ export function AuditDetailsDrawer({
   onClose,
   formatDateTime,
 }: Readonly<AuditDetailsDrawerProps>) {
+  const t = useT();
   if (!row) {
     return null;
   }
@@ -82,7 +86,7 @@ export function AuditDetailsDrawer({
   const entity = row.entityLabel ? `${row.entityLabel} · ${row.entityId}` : row.entityId;
 
   return (
-    <CrudDialog open title="Audit details" onClose={onClose}>
+    <CrudDialog open title={t('Audit details')} onClose={onClose}>
       <Stack spacing={2}>
         <Stack
           direction="row"

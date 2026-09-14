@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import {
@@ -12,13 +13,14 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Website module — job postings published on the public careers site (server-side grid). */
 export function JobsPage() {
+  const t = useT();
   // Stat cards still summarise all jobs; the grid itself is server-paged.
   const { data } = useListJobsQuery();
   const [deleteJob] = useDeleteJobMutation();
   const crud = useCrudResource<JobRow, PagedJobRow>({
     label: 'Job',
     onDelete: (row) => deleteJob({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete job ${row.title}?`,
+    confirmMessage: (row) => t('Delete job {title}?', { title: row.title }),
   });
   const fetchRows = usePagedFetcher(
     ListJobsPagedDocument,

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -16,6 +17,7 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Finance → Budgets: what each cost centre may spend, one month at a time. */
 export function BudgetsPage() {
+  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListBudgetsStatsQuery();
   const { data: centresData } = useListCostCentersQuery();
   const [deleteBudget] = useDeleteBudgetMutation();
@@ -38,7 +40,11 @@ export function BudgetsPage() {
   const crud = useCrudResource<BudgetRow, PagedBudgetRow>({
     label: 'Budget',
     onDelete: (row) => deleteBudget({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete the ${row.month} budget for ${nameOf(row.costCenterId)}?`,
+    confirmMessage: (row) =>
+      t('Delete the {month} budget for {centre}?', {
+        month: row.month,
+        centre: nameOf(row.costCenterId),
+      }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

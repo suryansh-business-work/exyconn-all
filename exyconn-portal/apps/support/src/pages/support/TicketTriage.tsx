@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { MenuItem, Stack, TextField } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
@@ -33,6 +34,7 @@ export function TicketTriage({
   onChanged,
 }: Readonly<TicketTriageProps>) {
   const notify = useNotify();
+  const t = useT();
   const [setTriage, { loading }] = useSetSupportTicketTriageMutation();
   const [{ category, priority }, setTriageValue] = useState<Triage>({
     category: initialCategory,
@@ -61,7 +63,7 @@ export function TicketTriage({
       <TextField
         select
         fullWidth
-        label="Category"
+        label={t('Category')}
         value={category}
         disabled={loading}
         onChange={(event) => save({ category: event.target.value, priority })}
@@ -75,7 +77,7 @@ export function TicketTriage({
       <TextField
         select
         fullWidth
-        label="Priority"
+        label={t('Priority')}
         value={priority}
         disabled={loading}
         onChange={(event) => save({ category, priority: event.target.value })}

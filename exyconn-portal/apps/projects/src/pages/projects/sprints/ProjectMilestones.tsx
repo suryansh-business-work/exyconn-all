@@ -11,6 +11,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EditIcon from '@mui/icons-material/Edit';
+import { useT } from '@exyconn/i18n';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -44,6 +45,7 @@ interface ProjectMilestonesProps {
  * project's plan a shared client link shows.
  */
 export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps>) {
+  const t = useT();
   const { formatDate } = useSettings();
   const confirm = useConfirm();
   const notify = useNotify();
@@ -65,7 +67,7 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
 
   const remove = async (milestone: MilestoneFieldsFragment) => {
     const ok = await confirm({
-      message: `Delete milestone "${milestone.name}"?`,
+      message: t('Delete milestone "{name}"?', { name: milestone.name }),
       confirmText: 'Delete',
     });
     if (!ok) {
@@ -102,10 +104,10 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
   return (
     <Box>
       <Flex direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-        <Text size="label">Milestones ({milestones.length})</Text>
+        <Text size="label">{t('Milestones ({count})', { count: milestones.length })}</Text>
         <Box sx={{ flex: 1 }} />
         <Button size="small" startIcon={<AddIcon />} onClick={() => openForm(null)}>
-          New milestone
+          {t('New milestone')}
         </Button>
       </Flex>
 
@@ -127,18 +129,18 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
               {milestone.name}
             </Text>
             <Text size="caption" color="text.secondary">
-              {milestone.dueOn ? formatDate(milestone.dueOn) : 'No date'}
+              {milestone.dueOn ? formatDate(milestone.dueOn) : t('No date')}
             </Text>
             <IconButton
               size="small"
-              aria-label={`Edit ${milestone.name}`}
+              aria-label={t('Edit {name}', { name: milestone.name })}
               onClick={() => openForm(milestone)}
             >
               <EditIcon fontSize="small" />
             </IconButton>
             <IconButton
               size="small"
-              aria-label={`Delete ${milestone.name}`}
+              aria-label={t('Delete {name}', { name: milestone.name })}
               onClick={() => remove(milestone)}
             >
               <DeleteOutlineIcon fontSize="small" />
@@ -147,7 +149,7 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
         ))}
         {milestones.length === 0 ? (
           <Text size="sm" color="text.secondary">
-            No milestones yet. Anything set here is what a shared client link shows.
+            {t('No milestones yet. Anything set here is what a shared client link shows.')}
           </Text>
         ) : null}
       </Flex>

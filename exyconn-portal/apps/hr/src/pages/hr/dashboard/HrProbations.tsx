@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
@@ -22,12 +23,13 @@ interface HrProbationsProps {
  * is put in front of HR before it passes rather than after.
  */
 export function HrProbations({ rows, formatDate }: Readonly<HrProbationsProps>) {
+  const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
-      <Heading level={6}>Coming off probation</Heading>
+      <Heading level={6}>{t('Coming off probation')}</Heading>
       {rows.length === 0 && (
         <Text size="sm" color="text.secondary">
-          Nobody’s probation ends in the next 30 days.
+          {t('Nobody’s probation ends in the next 30 days.')}
         </Text>
       )}
       {rows.map((row) => (

@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { EMAIL } from '@exyconn/regex';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -59,13 +60,14 @@ interface ClientTicketFormProps {
  */
 export function ClientTicketForm({ onCancel, onDone }: Readonly<ClientTicketFormProps>) {
   const notify = useNotify();
+  const t = useT();
   const [createTicket] = useCreateClientSupportTicketMutation();
   const methods = useForm<Values>({ resolver: zodResolver(schema), defaultValues: INITIAL });
 
   const onSubmit = async (values: Values) => {
     try {
       const { data } = await createTicket({ variables: { input: values } });
-      notify(`Ticket ${data?.createClientSupportTicket ?? ''} raised`);
+      notify(t('Ticket {reference} raised', { reference: data?.createClientSupportTicket ?? '' }));
       methods.reset(INITIAL);
       onDone();
     } catch (err) {

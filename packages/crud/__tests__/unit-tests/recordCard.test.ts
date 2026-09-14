@@ -45,7 +45,12 @@ const columns = [
 ];
 
 /** The page puts the viewer's date format on the grid context; the card reads the same one. */
-const context = { actions: {}, formatDate: (iso: string) => `on ${iso}` };
+const context = {
+  actions: {},
+  // Every grid, card list and export carries the viewer's translator (gridContextWith).
+  t: (source: string) => source,
+  formatDate: (iso: string) => `on ${iso}`,
+};
 
 describe('a record as a card', () => {
   it('leads with the first column and reads the rest the way the table does', () => {

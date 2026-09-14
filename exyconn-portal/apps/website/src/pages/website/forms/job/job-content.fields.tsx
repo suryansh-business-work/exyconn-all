@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Divider, Flex, Typography } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfChipsInput, RhfRichText } from '@exyconn/shell/components/form/rhf';
 import { MEDIA_FOLDERS } from '../../live-edit/live-edit.config';
@@ -9,6 +10,7 @@ const PAGE_HINT = 'Shown on the job page of the public website';
  * FormProvider context, so it must render inside the JobForm.
  */
 export function JobContentFields() {
+  const t = useT();
   return (
     <Flex direction="column" spacing={2}>
       <RhfChipsInput name="skillSet" label="Skill set" />
@@ -32,7 +34,7 @@ export function JobContentFields() {
       />
 
       <Divider />
-      <Typography variant="subtitle2">Candidate profile</Typography>
+      <Typography variant="subtitle2">{t('Candidate profile')}</Typography>
       <RhfChipsInput name="requirements" label="Requirements" />
       <RhfChipsInput name="niceToHave" label="Nice to have" />
       <RhfChipsInput name="benefits" label="Benefits" />

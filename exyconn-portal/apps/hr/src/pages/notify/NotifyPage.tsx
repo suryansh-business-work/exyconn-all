@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Grid, Heading, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
@@ -7,6 +8,7 @@ import { panel } from '@exyconn/shell/components/glass/glass';
 
 /** HR notification management: broadcast to everyone, a department, or chosen people. */
 export function NotifyPage() {
+  const t = useT();
   const [lastSent, setLastSent] = useState<number | null>(null);
 
   return (
@@ -33,17 +35,17 @@ export function NotifyPage() {
           }}
         >
           <Box sx={panel}>
-            <Heading level={6}>How it lands</Heading>
+            <Heading level={6}>{t('How it lands')}</Heading>
             <Text size="sm" color="text.secondary" sx={{ mt: 1 }}>
-              Recipients see it in their notification centre and the bell count on every portal.
-              Deactivated accounts are never included. Announcements published from the
-              Announcements page already notify everyone automatically — use this for anything else:
-              reminders, deadlines, events, HR notices.
+              {t(
+                'Recipients see it in their notification centre and the bell count on every portal. Deactivated accounts are never included. Announcements published from the Announcements page already notify everyone automatically — use this for anything else: reminders, deadlines, events, HR notices.',
+              )}
             </Text>
             {lastSent !== null && (
               <Text size="sm" sx={{ mt: 2 }}>
-                Last send reached <strong>{lastSent}</strong> {lastSent === 1 ? 'person' : 'people'}
-                .
+                {lastSent === 1
+                  ? t('Last send reached 1 person.')
+                  : t('Last send reached {count} people.', { count: lastSent })}
               </Text>
             )}
           </Box>

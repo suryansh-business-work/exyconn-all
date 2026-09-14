@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -22,6 +23,7 @@ const maskKey = (key: string) => `${key.slice(0, 8)}…`;
  * model it names fails here rather than on the first real request.
  */
 export function OpenAiConfigsPanel() {
+  const t = useT();
   const notify = useNotify();
   const { data, loading, refetch } = useListOpenAiConfigsQuery();
   const [deleteConfig] = useDeleteOpenAiConfigMutation();
@@ -29,7 +31,7 @@ export function OpenAiConfigsPanel() {
   const crud = useCrudResource<OpenAiConfigRow>({
     label: 'OpenAI config',
     onDelete: (row) => deleteConfig({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete OpenAI config "${row.label}"?`,
+    confirmMessage: (row) => t('Delete OpenAI config "{label}"?', { label: row.label }),
     refetch,
   });
 
@@ -38,7 +40,12 @@ export function OpenAiConfigsPanel() {
   const test = async (row: OpenAiConfigRow) => {
     try {
       await testConnection({ variables: { id: row.id } });
-      notify(`OpenAI accepted the key on "${row.label}" for ${row.defaultModel}`);
+      notify(
+        t('OpenAI accepted the key on "{label}" for {model}', {
+          label: row.label,
+          model: row.defaultModel,
+        }),
+      );
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Connection failed', 'error');
     }
@@ -66,12 +73,9 @@ export function OpenAiConfigsPanel() {
   ];
 
   if (crud.open) {
+    const formTitle = crud.editing ? t('Edit OpenAI config') : t('New OpenAI config');
     return (
-      <CrudFormPage
-        title={crud.editing ? 'Edit OpenAI config' : 'New OpenAI config'}
-        onBack={crud.close}
-        backLabel="Back to OpenAI"
-      >
+      <CrudFormPage title={formTitle} onBack={crud.close} backLabel="Back to OpenAI">
         <OpenAiConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
       </CrudFormPage>
     );

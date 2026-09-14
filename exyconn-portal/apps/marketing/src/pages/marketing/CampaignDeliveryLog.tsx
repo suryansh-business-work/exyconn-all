@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { Flex, Text } from '@exyconn/shell/components/ui';
@@ -16,6 +17,7 @@ type SendRow = ListCampaignSendsQuery['listCampaignSends'][number];
  * skipped row says which consent rule kept the email from going out at all.
  */
 export function CampaignDeliveryLog({ campaignId }: Readonly<{ campaignId: string }>) {
+  const t = useT();
   const { formatDateTime } = useSettings();
   const { data, loading, refetch } = useListCampaignSendsQuery({ variables: { campaignId } });
   const { data: summaryData } = useCampaignSendSummaryQuery({ variables: { campaignId } });
@@ -31,10 +33,14 @@ export function CampaignDeliveryLog({ campaignId }: Readonly<{ campaignId: strin
 
   return (
     <Flex direction="column" spacing={1}>
-      <Text size="label">Delivery</Text>
+      <Text size="label">{t('Delivery')}</Text>
       {summary && (
         <Text size="caption" color="text.secondary">
-          {summary.sent} sent · {summary.failed} failed · {summary.skipped} skipped
+          {t('{sent} sent · {failed} failed · {skipped} skipped', {
+            sent: summary.sent,
+            failed: summary.failed,
+            skipped: summary.skipped,
+          })}
         </Text>
       )}
       <DataTable

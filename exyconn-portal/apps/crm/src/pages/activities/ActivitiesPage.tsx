@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -17,12 +18,13 @@ import {
 
 /** CRM → Activities: what was said, and what still has to be done about it. */
 export function ActivitiesPage() {
+  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListActivitiesStatsQuery();
   const [deleteActivity] = useDeleteActivityMutation();
   const crud = useCrudResource<ActivityRow, PagedActivityRow>({
     label: 'Activity',
     onDelete: (row) => deleteActivity({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete activity "${row.subject}"?`,
+    confirmMessage: (row) => t('Delete activity "{subject}"?', { subject: row.subject }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

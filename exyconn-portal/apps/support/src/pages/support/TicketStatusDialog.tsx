@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Button, Flex, Text, TextField, MenuItem } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
@@ -22,6 +23,7 @@ interface TicketStatusDialogProps {
 /** Small drawer to move a support ticket to a new lifecycle status. */
 export function TicketStatusDialog({ ticket, onClose, onSaved }: TicketStatusDialogProps) {
   const notify = useNotify();
+  const t = useT();
   const [setStatus, { loading }] = useSetSupportTicketStatusMutation();
   const [status, setStatusValue] = useState('');
 
@@ -41,7 +43,7 @@ export function TicketStatusDialog({ ticket, onClose, onSaved }: TicketStatusDia
   };
 
   return (
-    <CrudDialog open={Boolean(ticket)} title="Update status" onClose={onClose}>
+    <CrudDialog open={Boolean(ticket)} title={t('Update status')} onClose={onClose}>
       <Flex direction="column" spacing={2}>
         <Text size="sm" color="text.secondary">
           {ticket?.subject}
@@ -49,7 +51,7 @@ export function TicketStatusDialog({ ticket, onClose, onSaved }: TicketStatusDia
         <TextField
           select
           fullWidth
-          label="Status"
+          label={t('Status')}
           value={status}
           onChange={(e) => setStatusValue(e.target.value)}
         >
@@ -61,10 +63,10 @@ export function TicketStatusDialog({ ticket, onClose, onSaved }: TicketStatusDia
         </TextField>
         <Flex direction="row" spacing={1.5} justifyContent="flex-end" sx={{ pt: 1 }}>
           <Button type="button" color="inherit" onClick={onClose}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button variant="contained" onClick={save} disabled={loading}>
-            {loading ? 'Saving…' : 'Save'}
+            {loading ? t('Saving…') : t('Save')}
           </Button>
         </Flex>
       </Flex>

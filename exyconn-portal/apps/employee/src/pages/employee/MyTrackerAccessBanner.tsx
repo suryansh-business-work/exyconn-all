@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Alert } from '@exyconn/shell/components/ui';
 import type { MyTrackerAccessData } from '@exyconn/shell/pages/tracker-view/tracker.types';
 
@@ -11,16 +12,17 @@ export function MyTrackerAccessBanner({
   access,
   formatDate,
 }: Readonly<MyTrackerAccessBannerProps>) {
+  const t = useT();
   if (!access?.isActive) {
     return (
       <Alert severity="info" sx={{ mb: 2 }}>
-        No tracker access — desktop tracking is not enabled for your account.
+        {t('No tracker access — desktop tracking is not enabled for your account.')}
       </Alert>
     );
   }
   return (
     <Alert severity="success" sx={{ mb: 2 }}>
-      Tracking enabled since {formatDate(access.grantedAt)}.
+      {t('Tracking enabled since {date}.', { date: formatDate(access.grantedAt) })}
     </Alert>
   );
 }

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Chip, Tooltip } from '@exyconn/shell/components/ui';
 
 /** MUI colour for each state a claim can be in. */
@@ -23,7 +24,8 @@ interface ManualEntryStatusChipProps {
 
 /** Where one off-computer claim stands, with the reviewer's reason behind it. */
 export function ManualEntryStatusChip({ status, note }: Readonly<ManualEntryStatusChipProps>) {
-  const chip = <Chip size="small" color={TONE[status]} label={LABEL[status]} />;
+  const t = useT();
+  const chip = <Chip size="small" color={TONE[status]} label={t(LABEL[status])} />;
   if (!note) {
     return chip;
   }

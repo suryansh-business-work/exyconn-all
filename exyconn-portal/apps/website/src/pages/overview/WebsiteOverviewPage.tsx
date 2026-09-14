@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import {
@@ -25,16 +26,20 @@ const UNTRIAGED = 'new';
 type SubmissionRow =
   ListWebsiteSubmissionsPagedQuery['listWebsiteSubmissionsPaged']['rows'][number];
 
+/** The translator, so the module-scope describer can be given the page's own `t`. */
+type Translate = ReturnType<typeof useT>;
+
 /** Where the enquiry went: to sales as a lead, to HR as an applicant, or nowhere yet. */
-function filedAs(row: SubmissionRow): string {
+function filedAs(t: Translate, row: SubmissionRow): string {
   if (row.leadId) {
-    return 'Lead';
+    return t('Lead');
   }
-  return row.applicantId ? 'Applicant' : '—';
+  return row.applicantId ? t('Applicant') : '—';
 }
 
 /** Website → Overview: what exyconn.com is publishing, and who it brought in. */
 export function WebsiteOverviewPage() {
+  const t = useT();
   const { data: submissionStatsData } = useListWebsiteSubmissionsStatsQuery();
   const { data: blogStatsData } = useListBlogPostsStatsQuery();
   const { data: jobStatsData } = useListJobsStatsQuery();
@@ -86,7 +91,7 @@ export function WebsiteOverviewPage() {
     { key: 'formType', label: 'Form' },
     { key: 'source', label: 'Source' },
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
-    { key: 'filedAs', label: 'Filed as', render: filedAs },
+    { key: 'filedAs', label: 'Filed as', render: (r) => filedAs(t, r) },
     { key: 'createdAt', label: 'Received', render: (r) => formatDateTime(r.createdAt) },
   ];
 

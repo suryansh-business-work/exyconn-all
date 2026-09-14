@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, CircularProgress, Flex, Text } from '@exyconn/shell/components/ui';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
@@ -19,28 +20,29 @@ function LastRun({
     lastSkipped: number;
   };
 }>) {
+  const t = useT();
   if (!schedule.lastRunAt) {
     return (
       <Text size="sm" color="text.secondary">
-        No scheduled run has happened yet.
+        {t('No scheduled run has happened yet.')}
       </Text>
     );
   }
   return (
     <Flex direction="column" spacing={1}>
-      <DetailRow label="Last run">
+      <DetailRow label={t('Last run')}>
         <Text size="sm">{format(new Date(schedule.lastRunAt), 'PPpp')}</Text>
       </DetailRow>
-      <DetailRow label="Sent for">
+      <DetailRow label={t('Sent for')}>
         <Text size="sm">{schedule.lastRunPeriod}</Text>
       </DetailRow>
-      <DetailRow label="Emailed">
+      <DetailRow label={t('Emailed')}>
         <Text size="sm">{schedule.lastSent}</Text>
       </DetailRow>
-      <DetailRow label="Failed">
+      <DetailRow label={t('Failed')}>
         <Text size="sm">{schedule.lastFailed}</Text>
       </DetailRow>
-      <DetailRow label="No email address">
+      <DetailRow label={t('No email address')}>
         <Text size="sm">{schedule.lastSkipped}</Text>
       </DetailRow>
     </Flex>
@@ -52,6 +54,7 @@ function LastRun({
  * the last run did. HR can still send a month by hand from Payroll at any time.
  */
 export function PayslipSchedulePage() {
+  const t = useT();
   const { data, loading, error, refetch } = usePayrollScheduleQuery({
     fetchPolicy: 'cache-and-network',
   });
@@ -62,7 +65,7 @@ export function PayslipSchedulePage() {
     <Box>
       <PageHeader
         title="Payslip Schedule"
-        subtitle={`When payslips are emailed, in ${settings.timezone}`}
+        subtitle={t('When payslips are emailed, in {timezone}', { timezone: settings.timezone })}
       />
       {error && <Alert severity="error">{error.message}</Alert>}
       {loading && !schedule && <CircularProgress size={24} />}
@@ -81,7 +84,7 @@ export function PayslipSchedulePage() {
           </Box>
           <Box sx={[readingPanel, { flex: 1, width: '100%' }]}>
             <Text weight="medium" sx={{ display: 'block', mb: 1.5 }}>
-              Last scheduled run
+              {t('Last scheduled run')}
             </Text>
             <LastRun schedule={schedule} />
           </Box>

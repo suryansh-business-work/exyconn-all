@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
@@ -11,6 +12,7 @@ import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /** Employee self-service: appraisal cycles, newest first. */
 export function PerformancePage() {
+  const t = useT();
   const { data, loading, refetch } = useMyPerformanceReviewsQuery({
     fetchPolicy: 'cache-and-network',
   });
@@ -30,7 +32,7 @@ export function PerformancePage() {
       {reviews.length === 0 && (
         <Box sx={readingPanel}>
           <Text color="text.secondary">
-            {loading ? 'Loading…' : 'No appraisal cycle has been opened for you yet.'}
+            {loading ? t('Loading…') : t('No appraisal cycle has been opened for you yet.')}
           </Text>
         </Box>
       )}

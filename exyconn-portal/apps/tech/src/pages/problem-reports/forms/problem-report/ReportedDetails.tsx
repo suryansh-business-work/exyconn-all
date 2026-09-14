@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Card, Divider, Typography } from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import type { ProblemReportRow } from './problem-report.types';
@@ -8,7 +9,8 @@ interface ReportedDetailsProps {
 
 /** Read-only recap of what the reporter sent, shown above the triage fields. */
 export function ReportedDetails({ report }: Readonly<ReportedDetailsProps>) {
-  const service = report.serviceName || 'Whole platform';
+  const t = useT();
+  const service = report.serviceName || t('Whole platform');
   const received = formatWith(report.createdAt, 'd MMM yyyy, HH:mm');
 
   return (
@@ -41,7 +43,7 @@ export function ReportedDetails({ report }: Readonly<ReportedDetailsProps>) {
               color: 'text.secondary',
             }}
           >
-            Reported from {report.pageUrl}
+            {t('Reported from {url}', { url: report.pageUrl })}
           </Typography>
         </Box>
       )}

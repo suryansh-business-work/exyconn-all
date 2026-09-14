@@ -24,8 +24,8 @@ export const TAX_SLAB_COLUMNS: ColDef<PagedTaxSlabRow>[] = [
   textColumn('financialYear', 'Financial year'),
   valueColumn('order', 'Position', (row) => String(row.order)),
   valueColumn('fromAmount', 'From', (row) => money(row.fromAmount)),
-  valueColumn('toAmount', 'To', (row) =>
-    row.toAmount === null || row.toAmount === undefined ? NO_UPPER_BOUND : money(row.toAmount),
+  valueColumn('toAmount', 'To', (row, t) =>
+    row.toAmount === null || row.toAmount === undefined ? t(NO_UPPER_BOUND) : money(row.toAmount),
   ),
   valueColumn('ratePercent', 'Rate', (row) => `${row.ratePercent}%`),
   boolColumn('active', 'Active'),

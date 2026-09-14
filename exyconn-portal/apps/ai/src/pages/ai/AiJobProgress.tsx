@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CircularProgress, Flex, Text } from '@exyconn/shell/components/ui';
 import { AiJobStatus } from '@exyconn/shell/graphql/generated';
 
@@ -14,11 +15,12 @@ interface AiJobProgressProps {
  * — and only `queuedAt` separates them, so a draft never claims to be running.
  */
 export function AiJobProgress({ status, queuedAt }: Readonly<AiJobProgressProps>) {
+  const t = useT();
   if (status === AiJobStatus.Running) {
-    return <ProgressLine text="Running… the model is answering." />;
+    return <ProgressLine text={t('Running… the model is answering.')} />;
   }
   if (status === AiJobStatus.Queued && queuedAt) {
-    return <ProgressLine text="Queued… waiting for the AI worker to pick this up." />;
+    return <ProgressLine text={t('Queued… waiting for the AI worker to pick this up.')} />;
   }
   return null;
 }

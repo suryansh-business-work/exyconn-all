@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Card, Flex, Typography } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { useLicenceSeatsForQuery } from '@exyconn/shell/graphql/generated';
@@ -20,6 +21,7 @@ export function AssetLicenceSeats({
   employeeName,
   formatDate,
 }: Readonly<AssetLicenceSeatsProps>) {
+  const t = useT();
   const { data } = useLicenceSeatsForQuery({
     variables: { employeeId },
     skip: employeeId === '',
@@ -30,6 +32,9 @@ export function AssetLicenceSeats({
   }
 
   const seats = data?.licenceSeatsFor ?? [];
+  const heading = employeeName
+    ? t('Licences held by {name} ({count})', { name: employeeName, count: seats.length })
+    : t('Licences held ({count})', { count: seats.length });
 
   return (
     <Card variant="outlined" sx={{ p: { xs: 2, md: 2 } }}>
@@ -40,7 +45,7 @@ export function AssetLicenceSeats({
           mb: 1.5,
         }}
       >
-        Licences {employeeName ? `held by ${employeeName}` : 'held'} ({seats.length})
+        {heading}
       </Typography>
       {seats.length === 0 ? (
         <Typography
@@ -49,7 +54,7 @@ export function AssetLicenceSeats({
             color: 'text.secondary',
           }}
         >
-          No licence seats are assigned to this person.
+          {t('No licence seats are assigned to this person.')}
         </Typography>
       ) : (
         <Flex direction="column" spacing={1}>
@@ -64,7 +69,7 @@ export function AssetLicenceSeats({
                   color: 'text.secondary',
                 }}
               >
-                Renews {formatDate(seat.renewalDate)}
+                {t('Renews {date}', { date: formatDate(seat.renewalDate) })}
               </Typography>
               <StatusChip value={seat.status} />
             </Flex>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
@@ -26,6 +27,7 @@ import {
 
 /** Expense Claims — server-paged admin grid over the claim records, with finance's decisions. */
 export function ExpensesPage() {
+  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListExpenseClaimsStatsQuery();
   const [deleteExpenseClaim] = useDeleteExpenseClaimMutation();
   const [setStatus] = useSetExpenseClaimStatusMutation();
@@ -81,12 +83,22 @@ export function ExpensesPage() {
     actions: {
       approve: setApproveTarget,
       reject: (row) =>
-        decide(row, ExpenseStatus.Rejected, `Reject the ${row.category} claim for ${row.amount}?`),
+        decide(
+          row,
+          ExpenseStatus.Rejected,
+          t('Reject the {category} claim for {amount}?', {
+            category: row.category,
+            amount: row.amount,
+          }),
+        ),
       pay: (row) =>
         decide(
           row,
           ExpenseStatus.Paid,
-          `Record the ${row.category} claim as reimbursed today for ${row.approvedAmount ?? row.amount}?`,
+          t('Record the {category} claim as reimbursed today for {amount}?', {
+            category: row.category,
+            amount: row.approvedAmount ?? row.amount,
+          }),
         ),
       edit: crud.openEdit,
       delete: crud.remove,
@@ -112,7 +124,7 @@ export function ExpensesPage() {
       context={gridContext}
       searchPlaceholder="Search claims…"
       extraDialogs={
-        <CrudDialog open={Boolean(approveTarget)} title="Approve claim" onClose={closeApprove}>
+        <CrudDialog open={Boolean(approveTarget)} title={t('Approve claim')} onClose={closeApprove}>
           {approveTarget && (
             <ApproveClaimForm
               claim={approveTarget}

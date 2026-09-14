@@ -1,4 +1,5 @@
 import type { MouseEvent } from 'react';
+import { useT } from '@exyconn/i18n';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import { Flex, IconButton, Tooltip } from '@exyconn/shell/components/ui';
@@ -15,6 +16,7 @@ interface LeaveDecisionCellProps {
 
 /** Approve / reject buttons; only a pending request has anything to decide. */
 export function LeaveDecisionCell({ row, onDecide }: Readonly<LeaveDecisionCellProps>) {
+  const t = useT();
   if (row.status !== LeaveStatus.Pending) return null;
   // The row itself navigates to the employee, which a decision click must not do.
   const decide = (status: LeaveDecision) => (event: MouseEvent) => {
@@ -23,21 +25,21 @@ export function LeaveDecisionCell({ row, onDecide }: Readonly<LeaveDecisionCellP
   };
   return (
     <Flex direction="row" spacing={0.5}>
-      <Tooltip title="Approve">
+      <Tooltip title={t('Approve')}>
         <IconButton
           size="small"
           color="success"
-          aria-label="approve leave"
+          aria-label={t('approve leave')}
           onClick={decide(LeaveStatus.Approved)}
         >
           <CheckIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title="Reject">
+      <Tooltip title={t('Reject')}>
         <IconButton
           size="small"
           color="error"
-          aria-label="reject leave"
+          aria-label={t('reject leave')}
           onClick={decide(LeaveStatus.Rejected)}
         >
           <CloseIcon fontSize="small" />

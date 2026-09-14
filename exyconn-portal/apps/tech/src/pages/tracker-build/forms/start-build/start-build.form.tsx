@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfMultiSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -33,6 +34,7 @@ interface StartBuildFormProps {
 
 /** React Hook Form + Zod form to start a tracker build for the chosen installers. */
 export function StartBuildForm({ channelCount, onDone, onCancel }: Readonly<StartBuildFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [startBuild] = useStartTrackerBuildMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -40,10 +42,25 @@ export function StartBuildForm({ channelCount, onDone, onCancel }: Readonly<Star
     defaultValues: { platforms: [], ref: DEFAULT_BUILD_REF },
   });
 
+  const intro =
+    channelCount === 1
+      ? t(
+          'Pick the installers to build. Each one is built on its own runner, published on a GitHub release, and posted to the {count} Slack channel chosen in Settings.',
+          { count: channelCount },
+        )
+      : t(
+          'Pick the installers to build. Each one is built on its own runner, published on a GitHub release, and posted to the {count} Slack channels chosen in Settings.',
+          { count: channelCount },
+        );
+
   const onSubmit = async ({ platforms, ref }: Values) => {
     try {
       await startBuild({ variables: { platforms, ref } });
-      notify(`Build started for ${platforms.length} installer(s) on ${ref}`);
+      const started =
+        platforms.length === 1
+          ? t('Build started for {count} installer on {ref}', { count: platforms.length, ref })
+          : t('Build started for {count} installers on {ref}', { count: platforms.length, ref });
+      notify(started);
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not start the build', 'error');
@@ -59,8 +76,7 @@ export function StartBuildForm({ channelCount, onDone, onCancel }: Readonly<Star
       submitLabel="Start build"
     >
       <Text size="sm" color="text.secondary">
-        Pick the installers to build. Each one is built on its own runner, published on a GitHub
-        release, and posted to the {channelCount} Slack channel(s) chosen in Settings.
+        {intro}
       </Text>
       <RhfMultiSelect
         name="platforms"

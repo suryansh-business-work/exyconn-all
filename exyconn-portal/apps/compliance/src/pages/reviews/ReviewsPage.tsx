@@ -1,4 +1,5 @@
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -17,13 +18,15 @@ import { REVIEW_COLUMNS, type PagedReviewRow, type ReviewsGridContext } from './
  * decide whether the management system is working, and what to change.
  */
 export function ReviewsPage() {
+  const t = useT();
   const { data: statsData, refetch } = useListManagementReviewsStatsQuery();
   const [deleteReview] = useDeleteManagementReviewMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<ReviewRow, PagedReviewRow>({
     label: 'Management review',
     onDelete: (row) => deleteReview({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete review "${row.reference} — ${row.title}"?`,
+    confirmMessage: (row) =>
+      t('Delete review "{reference} — {title}"?', { reference: row.reference, title: row.title }),
     refetch,
   });
   const fetchRows = usePagedFetcher(

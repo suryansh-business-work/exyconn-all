@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Divider, Stack, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { AttachmentList, type AttachmentItem } from '@exyconn/shell/components/upload';
@@ -27,12 +28,12 @@ export interface DetailTicket {
 }
 
 /** Who to say the ticket came from, in the words the agent would use on the phone. */
-function requesterLabel(ticket: DetailTicket): string {
+function requesterLabel(ticket: DetailTicket, t: (source: string) => string): string {
   if (ticket.requesterType === 'CLIENT') {
-    const who = ticket.clientName || ticket.requesterName || 'a customer';
+    const who = ticket.clientName || ticket.requesterName || t('a customer');
     return ticket.requesterEmail ? `${who} (${ticket.requesterEmail})` : who;
   }
-  return ticket.employeeName ?? 'an employee';
+  return ticket.employeeName ?? t('an employee');
 }
 
 interface TicketDetailBodyProps {
@@ -50,6 +51,7 @@ interface TicketDetailBodyProps {
  * to, so the two can never drift into showing different things about the same ticket.
  */
 export function TicketDetailBody({ ticket, onChanged, onCancel }: Readonly<TicketDetailBodyProps>) {
+  const t = useT();
   // Bumped after a reply so the thread refetches without remounting the whole view.
   const [threadKey, setThreadKey] = useState(0);
 
@@ -68,7 +70,10 @@ export function TicketDetailBody({ ticket, onChanged, onCancel }: Readonly<Ticke
         <StatusChip value={ticket.priority} />
         <StatusChip value={ticket.slaState} />
         <Text size="sm" color="text.secondary">
-          {ticket.reference} · Raised by {requesterLabel(ticket)}
+          {t('{reference} · Raised by {requester}', {
+            reference: ticket.reference,
+            requester: requesterLabel(ticket, t),
+          })}
         </Text>
       </Stack>
 

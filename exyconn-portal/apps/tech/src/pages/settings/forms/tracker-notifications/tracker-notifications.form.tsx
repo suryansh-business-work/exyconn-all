@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfMultiSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -33,6 +34,7 @@ export function TrackerNotificationsForm({
   onDone,
   onCancel,
 }: Readonly<TrackerNotificationsFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [saveSettings] = useSaveTrackerBuildSettingsMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -59,8 +61,9 @@ export function TrackerNotificationsForm({
       submitLabel="Save channels"
     >
       <Text size="sm" color="text.secondary">
-        Every channel the Slack bot can see is listed. It joins a public channel on its own; a
-        private one marked &ldquo;needs /invite&rdquo; has to be joined by hand first.
+        {t(
+          'Every channel the Slack bot can see is listed. It joins a public channel on its own; a private one marked “needs /invite” has to be joined by hand first.',
+        )}
       </Text>
       <RhfMultiSelect name="slackChannels" label="Channels for tracker builds" options={options} />
       <RhfMultiSelect name="statusAlertChannels" label="Status alerts" options={options} />

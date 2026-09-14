@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Stack } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
@@ -19,6 +20,7 @@ import { PIPELINE_STAGES, STAGE_ACCENTS, stageLabel } from './deals.constants';
  * information, rather than removed, which is not.
  */
 export function DealsPage() {
+  const t = useT();
   const notify = useNotify();
   const { data, loading, refetch } = useListDealsQuery({ fetchPolicy: 'cache-and-network' });
   const [setStage] = useSetDealStageMutation();
@@ -41,7 +43,12 @@ export function DealsPage() {
     }
     try {
       await setStage({ variables: { id: dealId, stage } });
-      notify(`"${deal.title}" moved to ${stageLabel(stage)}`);
+      notify(
+        t('"{title}" moved to {stage}', {
+          title: deal.title,
+          stage: t(stageLabel(stage)),
+        }),
+      );
       await refetch();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not move the deal', 'error');
@@ -69,12 +76,17 @@ export function DealsPage() {
     );
   }
 
+  // PageHeader translates a plain subtitle for us; a counted one can only be built here.
+  const subtitle = loading
+    ? 'Loading pipeline…'
+    : t('{count} open and closed opportunities', { count: deals.length });
+
   return (
     <Box>
       <DealsViewToggle />
       <PageHeader
         title="Deals"
-        subtitle={loading ? 'Loading pipeline…' : `${deals.length} open and closed opportunities`}
+        subtitle={subtitle}
         actionLabel="New deal"
         onAction={() => setCreating(true)}
       />

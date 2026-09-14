@@ -1,4 +1,5 @@
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -17,13 +18,15 @@ import { FINDING_COLUMNS, type PagedFindingRow, type FindingsGridContext } from 
  * finding came from an audit, a customer, an incident or somebody noticing.
  */
 export function FindingsPage() {
+  const t = useT();
   const { data: statsData, refetch } = useListFindingsStatsQuery();
   const [deleteFinding] = useDeleteFindingMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<FindingRow, PagedFindingRow>({
     label: 'Finding',
     onDelete: (row) => deleteFinding({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete finding "${row.reference} — ${row.title}"?`,
+    confirmMessage: (row) =>
+      t('Delete finding "{reference} — {title}"?', { reference: row.reference, title: row.title }),
     refetch,
   });
   const fetchRows = usePagedFetcher(

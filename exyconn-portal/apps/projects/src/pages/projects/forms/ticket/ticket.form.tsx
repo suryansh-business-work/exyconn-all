@@ -9,6 +9,7 @@ import {
   RhfSelect,
   RhfTextField,
 } from '@exyconn/shell/components/form/rhf';
+import { useT } from '@exyconn/i18n';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { Grid } from '@exyconn/shell/components/ui';
 import { TaskPriority, TaskType, type TaskInput } from '@exyconn/shell/graphql/generated';
@@ -75,12 +76,15 @@ interface TicketFormProps {
  * description on the left, and the fields a board is filtered and sorted by on the right.
  */
 export function TicketForm({ initial, assignees, onSubmit, onCancel }: Readonly<TicketFormProps>) {
+  const t = useT();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
 
-  const assigneeOptions = [{ value: '', label: 'Unassigned' }, ...assignees];
+  const assigneeOptions = [{ value: '', label: t('Unassigned') }, ...assignees];
+  const typeOptions = TICKET_TYPE_OPTIONS.map((o) => ({ ...o, label: t(o.label) }));
+  const priorityOptions = TICKET_PRIORITY_OPTIONS.map((o) => ({ ...o, label: t(o.label) }));
 
   return (
     <EntityForm
@@ -95,10 +99,10 @@ export function TicketForm({ initial, assignees, onSubmit, onCancel }: Readonly<
 
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <RhfSelect name="type" label="Type" options={TICKET_TYPE_OPTIONS} />
+          <RhfSelect name="type" label="Type" options={typeOptions} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <RhfSelect name="priority" label="Priority" options={TICKET_PRIORITY_OPTIONS} />
+          <RhfSelect name="priority" label="Priority" options={priorityOptions} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
           <RhfAutocomplete name="assigneeId" label="Assignee" options={assigneeOptions} />

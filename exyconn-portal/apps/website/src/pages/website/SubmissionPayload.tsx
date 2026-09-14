@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Typography, fontSize } from '@exyconn/shell/components/ui';
 
 const PRE_SX = {
@@ -19,15 +20,16 @@ interface SubmissionPayloadProps {
 
 /** Read-only, pretty-printed view of a submission's payload. */
 export function SubmissionPayload({ data }: Readonly<SubmissionPayloadProps>) {
+  const t = useT();
   const isObject = typeof data === 'object' && data !== null;
   const body = isObject
     ? JSON.stringify(data, null, 2)
-    : 'No payload captured for this submission.';
+    : t('No payload captured for this submission.');
 
   return (
     <Box sx={{ mb: 3 }}>
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
-        Submitted payload
+        {t('Submitted payload')}
       </Typography>
       <Box component="pre" sx={PRE_SX}>
         {body}

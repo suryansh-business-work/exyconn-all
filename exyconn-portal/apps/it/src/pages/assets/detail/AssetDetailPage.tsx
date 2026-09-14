@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { Button, Card, Chip, Flex, Stack, Typography } from '@exyconn/shell/components/ui';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -17,6 +18,7 @@ import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
  */
 export function AssetDetailPage() {
   const { id = '' } = useParams();
+  const t = useT();
   const navigate = useNavigate();
   const { formatDate } = useSettings();
   const { data, loading, refetch } = useGetAssetQuery({ variables: { id }, skip: id === '' });
@@ -44,28 +46,28 @@ export function AssetDetailPage() {
           color: 'text.secondary',
         }}
       >
-        That asset no longer exists.
+        {t('That asset no longer exists.')}
       </Typography>
     );
   }
 
   const dateOrDash = (value?: string | null) => (value ? formatDate(value) : '—');
   const facts: AssetFact[] = [
-    { label: 'Manufacturer', value: asset.manufacturer || '—' },
-    { label: 'Model', value: asset.modelName || '—' },
-    { label: 'Serial number', value: asset.serialNumber || '—' },
-    { label: 'Location', value: asset.location || '—' },
-    { label: 'Purchased', value: dateOrDash(asset.purchaseDate) },
-    { label: 'Warranty ends', value: dateOrDash(asset.warrantyExpiry) },
-    { label: 'Purchase cost', value: asset.purchaseCost.toLocaleString() },
-    { label: 'Currently held by', value: asset.assignedToName || 'Nobody' },
+    { label: t('Manufacturer'), value: asset.manufacturer || '—' },
+    { label: t('Model'), value: asset.modelName || '—' },
+    { label: t('Serial number'), value: asset.serialNumber || '—' },
+    { label: t('Location'), value: asset.location || '—' },
+    { label: t('Purchased'), value: dateOrDash(asset.purchaseDate) },
+    { label: t('Warranty ends'), value: dateOrDash(asset.warrantyExpiry) },
+    { label: t('Purchase cost'), value: asset.purchaseCost.toLocaleString() },
+    { label: t('Currently held by'), value: asset.assignedToName || t('Nobody') },
   ];
 
   return (
     <Stack spacing={2}>
       <Flex direction="row" alignItems="center" spacing={1.5}>
         <Button startIcon={<ArrowBackIcon />} size="small" onClick={() => navigate('/it/assets')}>
-          Assets
+          {t('Assets')}
         </Button>
       </Flex>
 
@@ -108,7 +110,7 @@ export function AssetDetailPage() {
             mb: 1.5,
           }}
         >
-          Notes
+          {t('Notes')}
         </Typography>
         <AssetNotesForm
           asset={asset}

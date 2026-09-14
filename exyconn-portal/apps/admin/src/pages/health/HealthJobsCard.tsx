@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { borderWidth, Box, Chip, Stack, Typography } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import type { SystemHealthQuery } from '@exyconn/shell/graphql/generated';
@@ -11,8 +12,9 @@ interface JobRowProps {
 
 /** One background loop: what it is, whether it has work, and when it last ticked. */
 function JobRow({ job, formatDateTime }: Readonly<JobRowProps>) {
-  const stateLabel = job.enabled ? 'Enabled' : 'Off';
-  const lastRun = job.lastRunAt ? formatDateTime(job.lastRunAt) : 'Not since restart';
+  const t = useT();
+  const stateLabel = job.enabled ? t('Enabled') : t('Off');
+  const lastRun = job.lastRunAt ? formatDateTime(job.lastRunAt) : t('Not since restart');
   return (
     <Box sx={{ py: 1, borderTop: `${borderWidth.hairline}px solid`, borderColor: 'divider' }}>
       <Stack
@@ -45,7 +47,7 @@ function JobRow({ job, formatDateTime }: Readonly<JobRowProps>) {
           color: 'text.secondary',
         }}
       >
-        Last run: {lastRun}
+        {t('Last run: {lastRun}', { lastRun })}
       </Typography>
       {job.lastRunSummary && (
         <Typography
@@ -72,10 +74,11 @@ interface HealthJobsCardProps {
  * schedule nobody has switched on has nothing to run.
  */
 export function HealthJobsCard({ jobs, formatDateTime }: Readonly<HealthJobsCardProps>) {
+  const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-        Background jobs
+        {t('Background jobs')}
       </Typography>
       {jobs.map((job) => (
         <JobRow key={job.key} job={job} formatDateTime={formatDateTime} />

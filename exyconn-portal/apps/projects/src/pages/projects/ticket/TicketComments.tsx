@@ -11,6 +11,7 @@ import {
   fontSize,
 } from '@exyconn/shell/components/ui';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { useT } from '@exyconn/i18n';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
   useTaskCommentsQuery,
@@ -27,6 +28,7 @@ interface TicketCommentsProps {
 
 /** The conversation on a ticket: who said what, when, oldest first. */
 export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
+  const t = useT();
   const notify = useNotify();
   const { formatDateTime } = useSettings();
   const { data, refetch } = useTaskCommentsQuery({ variables: { taskId } });
@@ -68,7 +70,7 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
   return (
     <Box>
       <Text size="label" sx={{ mb: 1 }}>
-        Comments ({comments.length})
+        {t('Comments ({count})', { count: comments.length })}
       </Text>
       <Divider sx={{ mb: 1.5 }} />
 
@@ -98,7 +100,7 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
             </Box>
             <IconButton
               size="small"
-              aria-label={`Delete comment by ${comment.authorName}`}
+              aria-label={t('Delete comment by {name}', { name: comment.authorName })}
               onClick={() => remove(comment.id)}
             >
               <DeleteOutlineIcon fontSize="small" />
@@ -108,7 +110,7 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
 
         {comments.length === 0 ? (
           <Text size="sm" color="text.secondary">
-            No comments yet.
+            {t('No comments yet.')}
           </Text>
         ) : null}
       </Flex>
@@ -118,7 +120,7 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
         multiline
         minRows={2}
         size="small"
-        placeholder="Add a comment…"
+        placeholder={t('Add a comment…')}
         value={body}
         onChange={(event) => setBody(event.target.value)}
         sx={{ mt: 2 }}
@@ -136,7 +138,7 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
           disabled={adding || body.trim() === ''}
           onClick={submit}
         >
-          Comment
+          {t('Comment')}
         </Button>
         <AttachmentPicker label="Attach" showHelp={false} onPicked={setFile} />
       </Flex>

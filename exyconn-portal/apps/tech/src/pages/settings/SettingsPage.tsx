@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
@@ -10,16 +11,19 @@ import {
 import { TrackerNotificationsForm } from './forms/tracker-notifications';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
+/** The translator `useT` hands back, so the label helper can stay at module scope. */
+type Translate = ReturnType<typeof useT>;
+
 /**
  * Only a private channel the bot has not joined actually blocks a build: the
  * workflow adds the bot to a public channel itself, but Slack does not allow that
  * for a private one, so those need an /invite before they will accept a post.
  */
-function channelLabel(name: string, isPrivate: boolean, isMember: boolean): string {
+function channelLabel(name: string, isPrivate: boolean, isMember: boolean, t: Translate): string {
   if (isPrivate && !isMember) {
-    return `#${name} (private, needs /invite)`;
+    return t('#{name} (private, needs /invite)', { name });
   }
-  return isPrivate ? `#${name} (private)` : `#${name}`;
+  return isPrivate ? t('#{name} (private)', { name }) : `#${name}`;
 }
 
 /**
@@ -28,6 +32,7 @@ function channelLabel(name: string, isPrivate: boolean, isMember: boolean): stri
  * under Environment Variables, so every channel the bot can see is offered.
  */
 export function SettingsPage() {
+  const t = useT();
   const channels = useListSlackChannelsQuery({ fetchPolicy: 'cache-and-network' });
   const settings = useTrackerBuildSettingsQuery({ fetchPolicy: 'cache-and-network' });
 
@@ -35,9 +40,9 @@ export function SettingsPage() {
     () =>
       (channels.data?.listSlackChannels ?? []).map((c) => ({
         value: c.id,
-        label: channelLabel(c.name, c.isPrivate, c.isMember),
+        label: channelLabel(c.name, c.isPrivate, c.isMember, t),
       })),
-    [channels.data],
+    [channels.data, t],
   );
 
   const saved = {
@@ -55,7 +60,7 @@ export function SettingsPage() {
             {channels.error.message}
           </Text>
         )}
-        {!ready && <Text size="sm">Loading channels…</Text>}
+        {!ready && <Text size="sm">{t('Loading channels…')}</Text>}
         {ready && (
           <TrackerNotificationsForm
             options={options}

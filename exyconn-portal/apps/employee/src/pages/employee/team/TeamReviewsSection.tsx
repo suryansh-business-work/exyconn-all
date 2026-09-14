@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
@@ -16,6 +17,7 @@ interface ReviewRowProps {
 
 /** One appraisal: whose, which cycle, where it stands, and the manager's half if written. */
 function ReviewRow({ review, nameOf, onWrite }: Readonly<ReviewRowProps>) {
+  const t = useT();
   const awaitingManager = review.status === ReviewStatus.SelfSubmitted;
   return (
     <Flex direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.5 }}>
@@ -24,7 +26,7 @@ function ReviewRow({ review, nameOf, onWrite }: Readonly<ReviewRowProps>) {
           {nameOf(review.employeeId)} · {review.cycle}
         </Text>
         <Text size="sm" color="text.secondary" noWrap>
-          {review.managerAssessment || 'No manager assessment yet.'}
+          {review.managerAssessment || t('No manager assessment yet.')}
         </Text>
       </Box>
       {review.score !== null && review.score !== undefined && (
@@ -35,7 +37,7 @@ function ReviewRow({ review, nameOf, onWrite }: Readonly<ReviewRowProps>) {
       <StatusChip value={review.status} />
       {awaitingManager && (
         <Button size="small" onClick={() => onWrite(review)}>
-          Write assessment
+          {t('Write assessment')}
         </Button>
       )}
     </Flex>
@@ -44,6 +46,7 @@ function ReviewRow({ review, nameOf, onWrite }: Readonly<ReviewRowProps>) {
 
 /** Appraisals of the team; the manager writes their half once the employee has submitted. */
 export function TeamReviewsSection({ nameOf }: Readonly<TeamSectionProps>) {
+  const t = useT();
   const { data, loading, refetch } = useTeamPerformanceReviewsQuery({
     fetchPolicy: 'cache-and-network',
   });
@@ -52,10 +55,10 @@ export function TeamReviewsSection({ nameOf }: Readonly<TeamSectionProps>) {
 
   return (
     <Box sx={panel}>
-      <Heading level={6}>Performance reviews</Heading>
+      <Heading level={6}>{t('Performance reviews')}</Heading>
       {rows.length === 0 && (
         <Text size="sm" color="text.secondary">
-          {loading ? 'Loading…' : 'No appraisal cycles are open for your team.'}
+          {loading ? t('Loading…') : t('No appraisal cycles are open for your team.')}
         </Text>
       )}
       {rows.map((review) => (
@@ -63,7 +66,14 @@ export function TeamReviewsSection({ nameOf }: Readonly<TeamSectionProps>) {
       ))}
       <CrudDialog
         open={writing !== null}
-        title={writing ? `Assess ${nameOf(writing.employeeId)} · ${writing.cycle}` : ''}
+        title={
+          writing
+            ? t('Assess {name} · {cycle}', {
+                name: nameOf(writing.employeeId),
+                cycle: writing.cycle,
+              })
+            : ''
+        }
         onClose={() => setWriting(null)}
       >
         {writing && (

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Grid, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { panel } from '@exyconn/shell/components/glass/glass';
@@ -45,6 +46,7 @@ export function AiSpendPanel({
   onRefresh,
   periodLabel,
 }: Readonly<AiSpendPanelProps>) {
+  const t = useT();
   const empty = 'Nothing spent in this period.';
   const userRows: UserSpend[] = (summary?.byUser ?? []).map((row) => ({
     ...row,
@@ -55,12 +57,23 @@ export function AiSpendPanel({
     id: row.model || 'unknown',
   }));
 
+  // Two whole sentences rather than "model(s)", so a language that counts differently reads.
+  const total = usd(summary?.totalUsd ?? 0);
+  const spendLine =
+    modelRows.length === 1
+      ? t('{total} across 1 model. Prices come from Tech › Environment Variables › AI Pricing.', {
+          total,
+        })
+      : t(
+          '{total} across {count} models. Prices come from Tech › Environment Variables › AI Pricing.',
+          { total, count: modelRows.length },
+        );
+
   return (
     <Box sx={[panel, { mb: 1.5 }]}>
-      <Text size="label">Spend {periodLabel}</Text>
+      <Text size="label">{t('Spend {period}', { period: t(periodLabel) })}</Text>
       <Text size="sm" color="text.secondary" sx={{ mb: 1.5 }}>
-        {usd(summary?.totalUsd ?? 0)} across {(summary?.byModel ?? []).length} model(s). Prices come
-        from Tech &rsaquo; Environment Variables &rsaquo; AI Pricing.
+        {spendLine}
       </Text>
       <Grid container spacing={1.5}>
         <Grid

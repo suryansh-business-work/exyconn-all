@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import {
@@ -32,10 +33,14 @@ const initialsOf = (name: string) =>
 
 /** One person and, nested underneath, everyone who reports to them. */
 export function OrgNodeCard({ node, depth, onOpen }: Readonly<OrgNodeCardProps>) {
+  const t = useT();
   const [open, setOpen] = useState(depth <= OPEN_BY_DEFAULT_DEPTH);
   const hasReports = node.reports.length > 0;
   const subtitle = [node.designation, node.department].filter(Boolean).join(' · ');
   const size = teamSize(node);
+  const toggleLabel = open
+    ? t('collapse {name}', { name: node.name })
+    : t('expand {name}', { name: node.name });
   const toggleIcon = open ? (
     <ExpandMoreIcon fontSize="small" />
   ) : (
@@ -48,7 +53,7 @@ export function OrgNodeCard({ node, depth, onOpen }: Readonly<OrgNodeCardProps>)
         {hasReports ? (
           <IconButton
             size="small"
-            aria-label={open ? `collapse ${node.name}` : `expand ${node.name}`}
+            aria-label={toggleLabel}
             onClick={() => setOpen((value) => !value)}
           >
             {toggleIcon}
@@ -71,7 +76,9 @@ export function OrgNodeCard({ node, depth, onOpen }: Readonly<OrgNodeCardProps>)
               {subtitle || '—'}
             </Text>
           </Box>
-          {hasReports && <Chip size="small" label={`${size} in team`} sx={{ ml: 1 }} />}
+          {hasReports && (
+            <Chip size="small" label={t('{count} in team', { count: size })} sx={{ ml: 1 }} />
+          )}
         </ListItemButton>
       </Flex>
       {hasReports && (

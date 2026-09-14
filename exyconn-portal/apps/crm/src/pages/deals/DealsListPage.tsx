@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -20,6 +21,7 @@ import { color } from '@exyconn/shell/components/ui';
  * register. The board is for moving a deal; this is for finding one.
  */
 export function DealsListPage() {
+  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListDealsStatsQuery();
   const [deleteDeal] = useDeleteDealMutation();
   const { formatDate } = useSettings();
@@ -27,7 +29,7 @@ export function DealsListPage() {
   const crud = useCrudResource<DealRow, PagedDealRow>({
     label: 'Deal',
     onDelete: (row) => deleteDeal({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete deal "${row.title}"?`,
+    confirmMessage: (row) => t('Delete deal "{title}"?', { title: row.title }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

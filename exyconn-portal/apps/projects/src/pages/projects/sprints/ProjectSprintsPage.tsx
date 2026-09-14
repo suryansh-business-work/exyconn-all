@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Divider, Flex, Stack, Text } from '@exyconn/shell/components/ui';
 import AddIcon from '@mui/icons-material/Add';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
@@ -19,6 +20,7 @@ interface ProjectSprintsPageProps {
  * tickets in the same columns the board draws — so the bar and the board can never disagree.
  */
 export function ProjectSprintsPage({ projectId }: Readonly<ProjectSprintsPageProps>) {
+  const t = useT();
   const { formatDate } = useSettings();
   const [creating, setCreating] = useState(false);
   const { data, refetch } = useProjectBoardQuery({
@@ -36,7 +38,7 @@ export function ProjectSprintsPage({ projectId }: Readonly<ProjectSprintsPagePro
 
   const windowOf = (startsOn?: string | null, endsOn?: string | null) => {
     if (!startsOn && !endsOn) {
-      return 'No dates set';
+      return t('No dates set');
     }
     const from = startsOn ? formatDate(startsOn) : '—';
     const to = endsOn ? formatDate(endsOn) : '—';
@@ -62,7 +64,7 @@ export function ProjectSprintsPage({ projectId }: Readonly<ProjectSprintsPagePro
   return (
     <Stack spacing={2} sx={{ pt: 1 }}>
       <Flex direction="row" alignItems="center" spacing={1}>
-        <Text size="label">Sprints ({sprintsApi.sprints.length})</Text>
+        <Text size="label">{t('Sprints ({count})', { count: sprintsApi.sprints.length })}</Text>
         <Box sx={{ flex: 1 }} />
         <Button
           size="small"
@@ -70,7 +72,7 @@ export function ProjectSprintsPage({ projectId }: Readonly<ProjectSprintsPagePro
           startIcon={<AddIcon />}
           onClick={() => setCreating(true)}
         >
-          New sprint
+          {t('New sprint')}
         </Button>
       </Flex>
 
@@ -88,7 +90,7 @@ export function ProjectSprintsPage({ projectId }: Readonly<ProjectSprintsPagePro
 
       {sprintsApi.sprints.length === 0 && !sprintsApi.loading ? (
         <Text size="sm" color="text.secondary">
-          No sprints yet. Plan one and tickets can be committed to it from the board.
+          {t('No sprints yet. Plan one and tickets can be committed to it from the board.')}
         </Text>
       ) : null}
 

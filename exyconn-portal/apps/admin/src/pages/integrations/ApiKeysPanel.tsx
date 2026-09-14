@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import {
   Alert,
   Box,
@@ -43,6 +44,7 @@ const GRANTABLE_ROLES = [
  * so nobody — including an administrator — can recover it.
  */
 export function ApiKeysPanel() {
+  const t = useT();
   const notify = useNotify();
   const { formatDateTime } = useSettings();
   const { data, refetch } = useListApiKeysQuery();
@@ -84,7 +86,7 @@ export function ApiKeysPanel() {
       {issued ? (
         <Alert severity="warning" sx={{ mb: 2 }} onClose={() => setIssued(null)}>
           <Text size="sm" weight="bold" sx={{ display: 'block' }}>
-            Copy this key now — it is never shown again.
+            {t('Copy this key now — it is never shown again.')}
           </Text>
           <Text size="sm" sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
             {issued}
@@ -94,7 +96,7 @@ export function ApiKeysPanel() {
 
       <Flex direction="row" spacing={1} alignItems="flex-start" sx={{ mb: 2, flexWrap: 'wrap' }}>
         <TextField
-          label="Name"
+          label={t('Name')}
           value={name}
           onChange={(event) => setName(event.target.value)}
           sx={{ minWidth: { sm: 200 }, width: { xs: '100%', sm: 'auto' } }}
@@ -121,7 +123,7 @@ export function ApiKeysPanel() {
             create().catch((error: unknown) => console.error('Create key failed', error));
           }}
         >
-          Create key
+          {t('Create key')}
         </Button>
       </Flex>
 
@@ -130,11 +132,11 @@ export function ApiKeysPanel() {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Prefix</TableCell>
-              <TableCell>Roles</TableCell>
-              <TableCell>Last used</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell>{t('Name')}</TableCell>
+              <TableCell>{t('Prefix')}</TableCell>
+              <TableCell>{t('Roles')}</TableCell>
+              <TableCell>{t('Last used')}</TableCell>
+              <TableCell align="right">{t('Actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -143,10 +145,12 @@ export function ApiKeysPanel() {
                 <TableCell>{key.name}</TableCell>
                 <TableCell sx={{ fontFamily: 'monospace' }}>{key.prefix}</TableCell>
                 <TableCell>{key.roles.join(', ')}</TableCell>
-                <TableCell>{key.lastUsedAt ? formatDateTime(key.lastUsedAt) : 'Never'}</TableCell>
+                <TableCell>
+                  {key.lastUsedAt ? formatDateTime(key.lastUsedAt) : t('Never')}
+                </TableCell>
                 <TableCell align="right">
                   {key.revokedAt ? (
-                    <Chip label="Revoked" size="small" />
+                    <Chip label={t('Revoked')} size="small" />
                   ) : (
                     <Button
                       size="small"
@@ -155,7 +159,7 @@ export function ApiKeysPanel() {
                         revoke(key.id).catch((error: unknown) => console.error('Revoke', error));
                       }}
                     >
-                      Revoke
+                      {t('Revoke')}
                     </Button>
                   )}
                 </TableCell>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, Grid, Text, TextField } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useReceivePurchaseOrderMutation } from '@exyconn/shell/graphql/generated';
@@ -23,6 +24,7 @@ function outstandingOf(line: PurchaseOrderRow['lines'][number]): number {
  * part delivery today and the rest next week add up rather than replacing each other.
  */
 export function ReceiveOrderForm({ order, onDone, onCancel }: Readonly<ReceiveOrderFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [receive, { loading }] = useReceivePurchaseOrderMutation();
   const [quantities, setQuantities] = useState<Record<string, number>>(() =>
@@ -41,7 +43,7 @@ export function ReceiveOrderForm({ order, onDone, onCancel }: Readonly<ReceiveOr
 
     try {
       await receive({ variables: { id: order.id, lines } });
-      notify(`Stock booked in against ${order.number}.`);
+      notify(t('Stock booked in against {number}.', { number: order.number }));
       onDone();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not book the stock in', 'error');
@@ -51,8 +53,10 @@ export function ReceiveOrderForm({ order, onDone, onCancel }: Readonly<ReceiveOr
   return (
     <Box>
       <Text size="sm" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
-        What arrived against {order.number}? The unit cost on each line is what the stock will be
-        valued at.
+        {t(
+          'What arrived against {number}? The unit cost on each line is what the stock will be valued at.',
+          { number: order.number },
+        )}
       </Text>
 
       {order.lines.map((line) => (
@@ -80,7 +84,10 @@ export function ReceiveOrderForm({ order, onDone, onCancel }: Readonly<ReceiveOr
             }}
           >
             <Text size="caption" color="text.secondary">
-              {line.receivedQuantity} of {line.quantity} received
+              {t('{received} of {ordered} received', {
+                received: line.receivedQuantity,
+                ordered: line.quantity,
+              })}
             </Text>
           </Grid>
           <Grid
@@ -90,7 +97,7 @@ export function ReceiveOrderForm({ order, onDone, onCancel }: Readonly<ReceiveOr
             }}
           >
             <TextField
-              label="Arriving now"
+              label={t('Arriving now')}
               type="number"
               fullWidth
               value={quantities[line.productId] ?? 0}
@@ -107,7 +114,7 @@ export function ReceiveOrderForm({ order, onDone, onCancel }: Readonly<ReceiveOr
 
       <Flex direction="row" justifyContent="flex-end" spacing={1} sx={{ mt: 2 }}>
         <Button onClick={onCancel} color="inherit">
-          Cancel
+          {t('Cancel')}
         </Button>
         <Button
           variant="contained"
@@ -116,7 +123,7 @@ export function ReceiveOrderForm({ order, onDone, onCancel }: Readonly<ReceiveOr
             submit().catch((error: unknown) => console.error('Receive failed', error));
           }}
         >
-          Book in
+          {t('Book in')}
         </Button>
       </Flex>
     </Box>

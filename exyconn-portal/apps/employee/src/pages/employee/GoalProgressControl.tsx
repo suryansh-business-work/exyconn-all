@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { MenuItem, TextField } from '@exyconn/shell/components/ui';
 
 const STEPS = [0, 25, 50, 75, 100];
@@ -14,6 +15,7 @@ export function GoalProgressControl({
   disabled,
   onChange,
 }: Readonly<GoalProgressControlProps>) {
+  const t = useT();
   return (
     <TextField
       select
@@ -23,7 +25,7 @@ export function GoalProgressControl({
       onChange={(event) => onChange(Number(event.target.value))}
       sx={{ minWidth: 96 }}
       slotProps={{
-        htmlInput: { 'aria-label': 'Goal progress' },
+        htmlInput: { 'aria-label': t('Goal progress') },
       }}
     >
       {STEPS.map((step) => (

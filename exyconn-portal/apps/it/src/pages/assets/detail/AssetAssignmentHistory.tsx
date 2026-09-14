@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Card, Chip, Typography } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import type { AssetAssignmentsQuery } from '@exyconn/shell/graphql/generated';
@@ -18,10 +19,11 @@ function ReturnedCell({
   row,
   formatDate,
 }: Readonly<{ row: AssignmentRow; formatDate: (v: string) => string }>) {
+  const t = useT();
   if (row.returnedAt) {
     return <>{formatDate(row.returnedAt)}</>;
   }
-  return <Chip size="small" color="success" label="Still held" />;
+  return <Chip size="small" color="success" label={t('Still held')} />;
 }
 
 /**
@@ -37,6 +39,7 @@ export function AssetAssignmentHistory({
   onRefresh,
   formatDate,
 }: Readonly<AssetAssignmentHistoryProps>) {
+  const t = useT();
   const columns: Column<AssignmentRow>[] = [
     { key: 'employeeName', label: 'Held by', render: (row) => row.employeeName || row.employeeId },
     { key: 'assignedAt', label: 'From', render: (row) => formatDate(row.assignedAt) },
@@ -58,7 +61,7 @@ export function AssetAssignmentHistory({
           mb: 1.5,
         }}
       >
-        Assignment history ({rows.length})
+        {t('Assignment history ({count})', { count: rows.length })}
       </Typography>
       <DataTable
         columns={columns}

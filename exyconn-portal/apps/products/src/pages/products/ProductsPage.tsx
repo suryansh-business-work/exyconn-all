@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
 import {
@@ -15,6 +16,7 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Products module — catalog dashboard with a server-side products grid. */
 export function ProductsPage() {
+  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListProductsStatsQuery();
   const [deleteProduct] = useDeleteProductMutation();
@@ -22,7 +24,7 @@ export function ProductsPage() {
   const crud = useCrudResource<ProductRow, PagedProductRow>({
     label: 'Product',
     onDelete: (row) => deleteProduct({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete product "${row.name}"?`,
+    confirmMessage: (row) => t('Delete product "{name}"?', { name: row.name }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

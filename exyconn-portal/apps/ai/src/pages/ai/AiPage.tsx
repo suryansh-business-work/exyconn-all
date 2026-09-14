@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { Alert, color } from '@exyconn/shell/components/ui';
@@ -24,6 +25,7 @@ const USD_DIGITS = 2;
 
 /** AI module — the jobs register, where a prompt is actually sent to OpenAI. */
 export function AiPage() {
+  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListAiJobsStatsQuery();
   const [deleteAiJob] = useDeleteAiJobMutation();
@@ -34,7 +36,7 @@ export function AiPage() {
   const crud = useCrudResource<AiJobRow, PagedAiJobRow>({
     label: 'AI job',
     onDelete: (row) => deleteAiJob({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete AI job "${row.name}"?`,
+    confirmMessage: (row) => t('Delete AI job "{name}"?', { name: row.name }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -72,7 +74,7 @@ export function AiPage() {
   const run = async (row: PagedAiJobRow) => {
     try {
       await runAiJob({ variables: { id: row.id } });
-      notify(`"${row.name}" queued`);
+      notify(t('"{name}" queued', { name: row.name }));
       await Promise.all([crud.reload(), queue.refresh()]);
     } catch (error) {
       notify(errorMessage(error, 'The run could not be started'), 'error');
@@ -89,11 +91,20 @@ export function AiPage() {
     formatDate,
   };
 
+  // Two whole sentences rather than an "s" glued on: a language that counts differently
+  // cannot be served from a fragment.
+  const queueMessage =
+    queue.inFlight === 1
+      ? t('1 job is waiting on the AI worker. This list refreshes itself until it finishes.')
+      : t(
+          '{count} jobs are waiting on the AI worker. This list refreshes itself until they finish.',
+          { count: queue.inFlight },
+        );
+
   const queueNotice =
     queue.inFlight > 0 ? (
       <Alert severity="info" sx={{ mb: 1.5 }}>
-        {queue.inFlight} job{queue.inFlight === 1 ? '' : 's'} waiting on the AI worker. This list
-        refreshes itself until they finish.
+        {queueMessage}
       </Alert>
     ) : undefined;
 
@@ -113,7 +124,11 @@ export function AiPage() {
       searchPlaceholder="Search AI jobs…"
       toolbar={queueNotice}
       extraDialogs={
-        <CrudDialog open={Boolean(resultId)} title="Run result" onClose={() => setResultId(null)}>
+        <CrudDialog
+          open={Boolean(resultId)}
+          title={t('Run result')}
+          onClose={() => setResultId(null)}
+        >
           {resultId && <AiJobResult id={resultId} />}
         </CrudDialog>
       }

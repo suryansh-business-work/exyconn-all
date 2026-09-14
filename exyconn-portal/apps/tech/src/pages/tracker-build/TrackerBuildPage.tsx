@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -13,29 +14,32 @@ import { StartBuildForm } from './forms/start-build';
 import { buildOutcome, type TrackerBuildRow } from './trackerBuild.status';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
-/** Which installers a run produced is decided inside the run, so the list reports the run itself. */
-const columns: Column<TrackerBuildRow>[] = [
-  { key: 'branch', label: 'Branch' },
-  { key: 'status', label: 'Outcome', render: (r) => <StatusChip value={buildOutcome(r)} /> },
-  { key: 'startedAt', label: 'Started', render: (r) => new Date(r.startedAt).toLocaleString() },
-  {
-    key: 'url',
-    label: 'Run',
-    render: (r) => (
-      <a href={r.url} target="_blank" rel="noreferrer">
-        Open on GitHub
-      </a>
-    ),
-  },
-];
-
 /**
  * Tracker Build — start a build of the desktop and phone trackers for the installers you
  * want, and watch the recent runs. The installers land on a GitHub release and
  * are posted to the Slack channels chosen in Settings.
  */
 export function TrackerBuildPage() {
+  const t = useT();
   const [starting, setStarting] = useState(false);
+  /** Which installers a run produced is decided inside the run, so the list reports the run itself. */
+  const columns = useMemo<Column<TrackerBuildRow>[]>(
+    () => [
+      { key: 'branch', label: 'Branch' },
+      { key: 'status', label: 'Outcome', render: (r) => <StatusChip value={buildOutcome(r)} /> },
+      { key: 'startedAt', label: 'Started', render: (r) => new Date(r.startedAt).toLocaleString() },
+      {
+        key: 'url',
+        label: 'Run',
+        render: (r) => (
+          <a href={r.url} target="_blank" rel="noreferrer">
+            {t('Open on GitHub')}
+          </a>
+        ),
+      },
+    ],
+    [t],
+  );
   const builds = useListTrackerBuildsQuery({ fetchPolicy: 'cache-and-network' });
   const settings = useTrackerBuildSettingsQuery({ fetchPolicy: 'cache-and-network' });
 
@@ -52,7 +56,7 @@ export function TrackerBuildPage() {
       <CrudFormPage
         title="Create tracker build"
         onBack={() => setStarting(false)}
-        backLabel="Back to Tracker Build"
+        backLabel={t('Back to Tracker Build')}
       >
         <StartBuildForm
           channelCount={channelCount}
@@ -75,7 +79,7 @@ export function TrackerBuildPage() {
         <Text size="sm" color="text.secondary" sx={{ mb: 2 }}>
           {builds.error
             ? builds.error.message
-            : 'The most recent runs of the tracker build workflow.'}
+            : t('The most recent runs of the tracker build workflow.')}
         </Text>
         <DataTable
           columns={columns}

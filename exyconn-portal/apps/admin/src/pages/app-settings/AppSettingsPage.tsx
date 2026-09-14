@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
@@ -6,9 +7,10 @@ import { AppSettingsForm } from './forms/app-settings';
 
 /** Admin → App Settings: the date format, time format and timezone every portal renders with. */
 export function AppSettingsPage() {
+  const t = useT();
   const { data, loading } = useAppSettingsQuery();
   const settings = data?.appSettings;
-  const emptyMessage = loading ? 'Loading…' : 'App settings are unavailable.';
+  const emptyMessage = loading ? t('Loading…') : t('App settings are unavailable.');
 
   return (
     <Box>

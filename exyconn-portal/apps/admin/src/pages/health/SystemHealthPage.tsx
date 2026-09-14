@@ -1,4 +1,5 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, Button, Grid, LinearProgress } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -11,16 +12,19 @@ import { formatUptime } from './uptime';
 
 type Health = SystemHealthQuery['systemHealth'];
 
+/** Translates one source string; the page's `useT` is handed to the module-scope builders. */
+type Translate = (source: string, values?: Record<string, string | number>) => string;
+
 /** The process and the database it is talking to, as one card's worth of facts. */
-function runtimeFacts(health: Health): HealthFact[] {
+function runtimeFacts(health: Health, t: Translate): HealthFact[] {
   return [
-    { label: 'Server version', value: health.serverVersion },
-    { label: 'Node', value: health.nodeVersion },
-    { label: 'Uptime', value: formatUptime(health.uptimeSeconds) },
-    { label: 'MongoDB', value: health.mongo.ok ? 'Connected' : 'Not connected' },
-    { label: 'Database', value: health.mongo.dbName || '—' },
-    { label: 'Collections', value: String(health.mongo.collections) },
-    { label: 'Data size', value: `${health.mongo.dataSizeMb} MB` },
+    { label: t('Server version'), value: health.serverVersion },
+    { label: t('Node'), value: health.nodeVersion },
+    { label: t('Uptime'), value: formatUptime(health.uptimeSeconds) },
+    { label: t('MongoDB'), value: health.mongo.ok ? t('Connected') : t('Not connected') },
+    { label: t('Database'), value: health.mongo.dbName || '—' },
+    { label: t('Collections'), value: String(health.mongo.collections) },
+    { label: t('Data size'), value: t('{size} MB', { size: health.mongo.dataSizeMb }) },
   ];
 }
 
@@ -30,6 +34,7 @@ function runtimeFacts(health: Health): HealthFact[] {
  * of workload counts — so "Refresh" is the only control it needs.
  */
 export function SystemHealthPage() {
+  const t = useT();
   const { formatDateTime } = useSettings();
   const notify = useNotify();
   const { data, loading, error, refetch } = useSystemHealthQuery({ fetchPolicy: 'network-only' });
@@ -43,14 +48,14 @@ export function SystemHealthPage() {
     <Box>
       <PageHeader title="System Health" subtitle="This deployment's vital signs">
         <Button variant="outlined" startIcon={<RefreshIcon />} onClick={refresh} disabled={loading}>
-          Refresh
+          {t('Refresh')}
         </Button>
       </PageHeader>
 
       {loading && <LinearProgress sx={{ mb: 1.5 }} />}
       {error && (
         <Alert severity="error" sx={{ mb: 1.5 }}>
-          {errorMessage(error, 'System health could not be read.')}
+          {errorMessage(error, t('System health could not be read.'))}
         </Alert>
       )}
 
@@ -62,7 +67,7 @@ export function SystemHealthPage() {
               md: 4,
             }}
           >
-            <HealthFactsCard title="Runtime" facts={runtimeFacts(health)} />
+            <HealthFactsCard title={t('Runtime')} facts={runtimeFacts(health, t)} />
           </Grid>
           <Grid
             size={{
@@ -79,7 +84,7 @@ export function SystemHealthPage() {
             }}
           >
             <HealthFactsCard
-              title="Workload"
+              title={t('Workload')}
               facts={health.counts.map((count) => ({
                 label: count.label,
                 value: String(count.value),

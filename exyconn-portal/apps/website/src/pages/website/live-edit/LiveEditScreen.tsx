@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LiveEditor, type LiveDesign, type LiveEditorHandle } from '@exyconn/live-editor';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Text, useMediaQuery, useTheme } from '@exyconn/shell/components/ui';
 import { CenteredState } from '@exyconn/shell/components/feedback/CenteredState';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
@@ -46,6 +47,7 @@ export function LiveEditScreen({
   initial,
   onSave,
 }: Readonly<LiveEditScreenProps>) {
+  const t = useT();
   const editor = useRef<LiveEditorHandle>(null);
   const navigate = useNavigate();
   const confirm = useConfirm();
@@ -93,12 +95,12 @@ export function LiveEditScreen({
   if (small) {
     return (
       <CenteredState>
-        <Text weight="bold">Live editing needs a bigger screen</Text>
+        <Text weight="bold">{t('Live editing needs a bigger screen')}</Text>
         <Text size="sm" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
-          Open this page on a laptop to edit its design. You can still edit its content here.
+          {t('Open this page on a laptop to edit its design. You can still edit its content here.')}
         </Text>
         <Button onClick={() => navigate(backPath)} sx={{ mt: 2 }}>
-          Back
+          {t('Back')}
         </Button>
       </CenteredState>
     );

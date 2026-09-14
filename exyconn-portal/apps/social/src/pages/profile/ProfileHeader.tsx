@@ -8,6 +8,7 @@ import {
   Typography,
   fontSize,
 } from '@exyconn/shell/components/ui';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import type { SocialProfileQuery } from '@exyconn/shell/graphql/generated';
 
@@ -17,11 +18,25 @@ interface ProfileHeaderProps {
   profile: Profile;
 }
 
-/** A stat is only worth a chip once it has happened. */
-function stats(profile: Profile): Array<{ key: string; label: string }> {
+/** The translator, as this module's helper receives it. */
+type Translate = (source: string, values?: Interpolations) => string;
+
+/**
+ * A stat is only worth a chip once it has happened. Each count has two whole sentences
+ * rather than a pluralised fragment, so a language that counts differently has its own.
+ */
+function stats(profile: Profile, t: Translate): Array<{ key: string; label: string }> {
+  let posts = t('{count} posts', { count: profile.postCount });
+  if (profile.postCount === 1) {
+    posts = t('1 post');
+  }
+  let likes = t('{count} likes received', { count: profile.likesReceived });
+  if (profile.likesReceived === 1) {
+    likes = t('1 like received');
+  }
   return [
-    { key: 'posts', label: `${profile.postCount} posts` },
-    { key: 'likes', label: `${profile.likesReceived} likes received` },
+    { key: 'posts', label: posts },
+    { key: 'likes', label: likes },
   ];
 }
 
@@ -31,6 +46,7 @@ function stats(profile: Profile): Array<{ key: string; label: string }> {
  * somebody up is exactly when you want both.
  */
 export function ProfileHeader({ profile }: Readonly<ProfileHeaderProps>) {
+  const t = useT();
   const { formatDate } = useSettings();
   const { user } = profile;
   const role = [user.designation, user.department].filter(Boolean).join(' · ');
@@ -81,7 +97,7 @@ export function ProfileHeader({ profile }: Readonly<ProfileHeaderProps>) {
                   mt: 0.5,
                 }}
               >
-                Joined {formatDate(profile.joinDate)}
+                {t('Joined {date}', { date: formatDate(profile.joinDate) })}
               </Typography>
             )}
             <Stack
@@ -89,7 +105,7 @@ export function ProfileHeader({ profile }: Readonly<ProfileHeaderProps>) {
               spacing={1}
               sx={{ mt: 1.5, justifyContent: { xs: 'center', sm: 'flex-start' } }}
             >
-              {stats(profile).map((stat) => (
+              {stats(profile, t).map((stat) => (
                 <Chip key={stat.key} size="small" label={stat.label} />
               ))}
             </Stack>

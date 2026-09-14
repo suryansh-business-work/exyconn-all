@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfSwitch, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -58,6 +59,7 @@ export function PayslipScheduleForm({
   onDone,
   onCancel,
 }: Readonly<PayslipScheduleFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [saveSchedule] = useUpdatePayrollScheduleMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -90,8 +92,9 @@ export function PayslipScheduleForm({
       submitLabel="Save schedule"
     >
       <Text size="sm" color="text.secondary">
-        Every employee with a payslip for the chosen month is emailed their own PDF. A month already
-        sent is never sent again, so a restart cannot email anybody twice.
+        {t(
+          'Every employee with a payslip for the chosen month is emailed their own PDF. A month already sent is never sent again, so a restart cannot email anybody twice.',
+        )}
       </Text>
       <RhfSwitch name="enabled" label="Email payslips automatically" />
       <RhfSelect name="dayOfMonth" label="Day of the month" options={DAY_OPTIONS} />

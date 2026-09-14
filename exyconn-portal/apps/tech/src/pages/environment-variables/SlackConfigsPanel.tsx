@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import SendIcon from '@mui/icons-material/Send';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -19,13 +20,14 @@ const maskToken = (token: string) => `${token.slice(0, 9)}…`;
 
 /** Environment Variables sub-panel: manage Slack workspace credentials (DB-backed). */
 export function SlackConfigsPanel() {
+  const t = useT();
   const { data, loading, refetch } = useListSlackConfigsQuery();
   const [deleteConfig] = useDeleteSlackConfigMutation();
   const [testTarget, setTestTarget] = useState<SlackConfigRow | null>(null);
   const crud = useCrudResource<SlackConfigRow>({
     label: 'Slack config',
     onDelete: (row) => deleteConfig({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete Slack config "${row.label}"?`,
+    confirmMessage: (row) => t('Delete Slack config "{label}"?', { label: row.label }),
     refetch,
   });
 
@@ -53,12 +55,9 @@ export function SlackConfigsPanel() {
   ];
 
   if (crud.open) {
+    const formTitle = crud.editing ? t('Edit Slack config') : t('New Slack config');
     return (
-      <CrudFormPage
-        title={crud.editing ? 'Edit Slack config' : 'New Slack config'}
-        onBack={crud.close}
-        backLabel="Back to Slack configurations"
-      >
+      <CrudFormPage title={formTitle} onBack={crud.close} backLabel="Back to Slack configurations">
         <SlackConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
       </CrudFormPage>
     );
@@ -84,7 +83,7 @@ export function SlackConfigsPanel() {
       />
       <CrudDialog
         open={Boolean(testTarget)}
-        title="Send test message"
+        title={t('Send test message')}
         onClose={() => setTestTarget(null)}
       >
         {testTarget && (

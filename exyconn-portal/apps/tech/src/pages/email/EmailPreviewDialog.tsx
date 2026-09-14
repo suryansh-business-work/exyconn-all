@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import {
   Alert,
   borderWidth,
@@ -39,6 +40,7 @@ function sampleFor(name: string): string {
  * for a placeholder the template stopped using.
  */
 export function EmailPreviewDialog({ template, onClose }: Readonly<Props>) {
+  const t = useT();
   const notify = useNotify();
   const [values, setValues] = useState<Record<string, string>>({});
   const [to, setTo] = useState('');
@@ -58,6 +60,10 @@ export function EmailPreviewDialog({ template, onClose }: Readonly<Props>) {
   }
 
   const variables = Object.entries(values).map(([name, value]) => ({ name, value }));
+  const usesFragments =
+    template.fragments.length > 0
+      ? t(' · uses {fragments}', { fragments: template.fragments.join(', ') })
+      : '';
 
   const render = () => {
     preview({ variables: { key: template.key, variables } }).catch(() => undefined);
@@ -66,26 +72,26 @@ export function EmailPreviewDialog({ template, onClose }: Readonly<Props>) {
   const send = async () => {
     try {
       await sendTest({ variables: { key: template.key, to, variables } });
-      notify(`Test sent to ${to}`);
+      notify(t('Test sent to {to}', { to }));
     } catch (err) {
       notify(err instanceof Error ? err.message : 'The test email could not be sent', 'error');
     }
   };
 
   return (
-    <Dialog open onClose={onClose} maxWidth="md" fullWidth aria-label="Preview email template">
+    <Dialog open onClose={onClose} maxWidth="md" fullWidth aria-label={t('Preview email template')}>
       <DialogContent>
         <Text size="lg" weight="bold" component="div">
           {template.name}
         </Text>
         <Text size="caption" color="text.secondary" component="div" sx={{ mb: 2 }}>
           {template.key}
-          {template.fragments.length > 0 ? ` · uses ${template.fragments.join(', ')}` : ''}
+          {usesFragments}
         </Text>
 
         {template.variables.length === 0 ? (
           <Text size="sm" color="text.secondary">
-            This template has no placeholders.
+            {t('This template has no placeholders.')}
           </Text>
         ) : (
           <Flex direction="row" spacing={1} sx={{ flexWrap: 'wrap', mb: 1.5 }}>
@@ -109,11 +115,11 @@ export function EmailPreviewDialog({ template, onClose }: Readonly<Props>) {
           sx={{ mb: 2, flexWrap: 'wrap' }}
         >
           <Button variant="contained" onClick={render} disabled={loading}>
-            {loading ? 'Rendering…' : 'Preview'}
+            {loading ? t('Rendering…') : t('Preview')}
           </Button>
           <TextField
             size="small"
-            label="Send a test to"
+            label={t('Send a test to')}
             value={to}
             onChange={(event) => setTo(event.target.value)}
             sx={{ minWidth: { sm: 240 }, width: { xs: '100%', sm: 'auto' } }}
@@ -124,7 +130,7 @@ export function EmailPreviewDialog({ template, onClose }: Readonly<Props>) {
             disabled={sending || to.trim() === ''}
             onClick={() => void send()}
           >
-            Send test
+            {t('Send test')}
           </Button>
         </Flex>
 
@@ -143,7 +149,7 @@ export function EmailPreviewDialog({ template, onClose }: Readonly<Props>) {
                 and the portal's must not flatter the email into looking better than it is. */}
             <Box
               component="iframe"
-              title="Email preview"
+              title={t('Email preview')}
               srcDoc={data.previewEmailTemplate.html}
               sx={(theme) => ({
                 width: '100%',

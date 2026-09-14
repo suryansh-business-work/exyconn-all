@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -30,6 +31,7 @@ interface SendInvoiceFormProps {
  * accounts payable is often a different inbox from the contact who signed the work.
  */
 export function SendInvoiceForm({ invoice, onDone, onCancel }: Readonly<SendInvoiceFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [sendInvoice] = useSendInvoiceMutation();
   const { data: clientData } = useGetClientQuery({ variables: { id: invoice.clientId } });
@@ -50,12 +52,21 @@ export function SendInvoiceForm({ invoice, onDone, onCancel }: Readonly<SendInvo
       await sendInvoice({
         variables: { id: invoice.id, email: values.email, message: values.message || null },
       });
-      notify(`Invoice ${invoice.number} sent to ${values.email}`);
+      notify(
+        t('Invoice {number} sent to {email}', { number: invoice.number, email: values.email }),
+      );
       onDone();
     } catch (error) {
       notify(errorMessage(error, 'Send failed'), 'error');
     }
   };
+
+  const summary = invoice.clientName
+    ? t('Sending invoice {number} to {client} as a PDF.', {
+        number: invoice.number,
+        client: invoice.clientName,
+      })
+    : t('Sending invoice {number} to the client as a PDF.', { number: invoice.number });
 
   return (
     <EntityForm
@@ -66,7 +77,7 @@ export function SendInvoiceForm({ invoice, onDone, onCancel }: Readonly<SendInvo
       submitLabel="Send"
     >
       <Text size="sm" color="text.secondary">
-        Sending invoice {invoice.number} to {invoice.clientName || 'the client'} as a PDF.
+        {summary}
       </Text>
       <RhfTextField name="email" label="Recipient email" />
       <RhfTextField name="message" label="Message (optional)" multiline minRows={3} />

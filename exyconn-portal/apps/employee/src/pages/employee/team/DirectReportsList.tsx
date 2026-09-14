@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import {
   Avatar,
   Box,
@@ -22,11 +23,16 @@ const initialsOf = (name: string) =>
 
 /** Who reports to the signed-in user. */
 export function DirectReportsList({ reports }: Readonly<{ reports: DirectReport[] }>) {
+  const t = useT();
+  let summary = t('{count} people report to you.', { count: reports.length });
+  if (reports.length === 1) {
+    summary = t('{count} person reports to you.', { count: reports.length });
+  }
   return (
     <Box sx={panel}>
-      <Heading level={6}>Direct reports</Heading>
+      <Heading level={6}>{t('Direct reports')}</Heading>
       <Text size="sm" color="text.secondary">
-        {reports.length} {reports.length === 1 ? 'person reports' : 'people report'} to you.
+        {summary}
       </Text>
       <List dense disablePadding sx={{ mt: 1 }}>
         {reports.map((person) => (

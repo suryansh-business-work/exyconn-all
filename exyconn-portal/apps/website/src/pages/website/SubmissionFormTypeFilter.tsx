@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Chip, Flex } from '@exyconn/shell/components/ui';
 import { useWebsiteFormTypesQuery } from '@exyconn/shell/graphql/generated';
 
@@ -18,13 +19,14 @@ export function SubmissionFormTypeFilter({
   value,
   onChange,
 }: Readonly<SubmissionFormTypeFilterProps>) {
+  const t = useT();
   const { data } = useWebsiteFormTypesQuery();
   const formTypes = data?.websiteFormTypes ?? [];
 
   return (
     <Flex direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
       <Chip
-        label="All forms"
+        label={t('All forms')}
         color={value === '' ? 'primary' : 'default'}
         variant={value === '' ? 'filled' : 'outlined'}
         onClick={() => onChange('')}

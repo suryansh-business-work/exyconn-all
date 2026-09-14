@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import CommentIcon from '@mui/icons-material/Comment';
+import { useT } from '@exyconn/i18n';
 import { Box, Heading, LinearProgress, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -13,6 +14,7 @@ import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** The team's goals, with the manager's comment on each. */
 export function TeamGoalsSection({ nameOf }: Readonly<TeamSectionProps>) {
+  const t = useT();
   const { data, loading, refetch } = useTeamGoalsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const [commenting, setCommenting] = useState<TeamGoalRow | null>(null);
@@ -50,7 +52,7 @@ export function TeamGoalsSection({ nameOf }: Readonly<TeamSectionProps>) {
   return (
     <Box sx={densePanel}>
       <Heading level={6} sx={{ px: 1, pt: 0.5 }}>
-        Goals
+        {t('Goals')}
       </Heading>
       <DataTable
         columns={columns}
@@ -62,7 +64,7 @@ export function TeamGoalsSection({ nameOf }: Readonly<TeamSectionProps>) {
       />
       <CrudDialog
         open={commenting !== null}
-        title={commenting ? `Comment on “${commenting.title}”` : ''}
+        title={commenting ? t('Comment on “{goal}”', { goal: commenting.title }) : ''}
         onClose={() => setCommenting(null)}
       >
         {commenting && (

@@ -1,18 +1,34 @@
 import type { ReactNode } from 'react';
-import { useT } from '@exyconn/i18n';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { Box, Button, Stack, Typography } from '@/components/ui';
 import AddIcon from '@mui/icons-material/Add';
 
 interface PageHeaderProps {
   title: string;
+  /**
+   * Values for a title written with `{placeholders}`.
+   *
+   * A title built by hand — `` `Hello, ${firstName}` `` — would be a NEW catalogue key for
+   * every person who opened the page, and each would be sent off for translation.
+   */
+  titleValues?: Interpolations;
   subtitle?: string;
+  subtitleValues?: Interpolations;
   actionLabel?: string;
   onAction?: () => void;
   children?: ReactNode;
 }
 
 /** Consistent page title row with an optional primary action. */
-export function PageHeader({ title, subtitle, actionLabel, onAction, children }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  titleValues,
+  subtitle,
+  subtitleValues,
+  actionLabel,
+  onAction,
+  children,
+}: PageHeaderProps) {
   // Titles arrive as English props from ~sixty screens. Translating them here means no page
   // has to remember to, and none of them can be the one that forgot.
   const t = useT();
@@ -27,7 +43,7 @@ export function PageHeader({ title, subtitle, actionLabel, onAction, children }:
       }}
     >
       <Box>
-        <Typography variant="h4">{t(title)}</Typography>
+        <Typography variant="h4">{t(title, titleValues)}</Typography>
         {subtitle && (
           <Typography
             variant="body2"
@@ -35,7 +51,7 @@ export function PageHeader({ title, subtitle, actionLabel, onAction, children }:
               color: 'text.secondary',
             }}
           >
-            {t(subtitle)}
+            {t(subtitle, subtitleValues)}
           </Typography>
         )}
       </Box>

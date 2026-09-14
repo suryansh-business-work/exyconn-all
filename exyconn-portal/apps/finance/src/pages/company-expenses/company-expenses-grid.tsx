@@ -10,6 +10,7 @@ import {
   type DatedCrudGridContext,
 } from '@exyconn/crud';
 import PaidOutlinedIcon from '@mui/icons-material/PaidOutlined';
+import type { GridTranslate } from '@exyconn/shell/components/data/gridContext';
 import type { ListCompanyExpensesPagedQuery } from '@exyconn/shell/graphql/generated';
 
 export type PagedCompanyExpenseRow =
@@ -37,12 +38,12 @@ function daysLate(dueDate: string): number {
  * A settled bill's due date is history and reads plainly; an unpaid one that is late is the
  * only thing on this grid that needs anybody to do something today.
  */
-function dueLabel(row: PagedCompanyExpenseRow, formatted: string): string {
+function dueLabel(row: PagedCompanyExpenseRow, formatted: string, t: GridTranslate): string {
   if (row.status === 'PAID') {
     return formatted;
   }
   const late = daysLate(row.dueDate);
-  return late > 0 ? `${formatted} · ${late}d late` : formatted;
+  return late > 0 ? t('{amount} · {days}d late', { amount: formatted, days: late }) : formatted;
 }
 
 /** Column model for the company expenses register. */
@@ -54,7 +55,7 @@ export function companyExpenseColumns(
     statusColumn('category', 'Category'),
     valueColumn('amount', 'Amount', (row) => `${row.currency} ${row.amount.toLocaleString()}`),
     dateColumn('incurredOn', 'Incurred'),
-    valueColumn('dueDate', 'Due', (row) => dueLabel(row, formatDate(row.dueDate))),
+    valueColumn('dueDate', 'Due', (row, t) => dueLabel(row, formatDate(row.dueDate), t)),
     statusColumn('status', 'Status'),
     actionsColumn([SETTLE_ACTION, EDIT_ACTION, DELETE_ACTION]),
   ];

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import {
   CARD_RADIUS,
   Box,
@@ -44,8 +45,15 @@ export function SprintCard({
   onComplete,
   onDelete,
 }: Readonly<SprintCardProps>) {
+  const t = useT();
   const isPlanned = sprint.state === SprintState.Planned;
   const isActive = sprint.state === SprintState.Active;
+  const counts = t('{donePoints}/{points} pts · {doneTickets}/{tickets} tickets', {
+    donePoints: progress.completedPoints,
+    points: progress.committedPoints,
+    doneTickets: progress.completedTickets,
+    tickets: progress.ticketCount,
+  });
 
   return (
     <Box sx={{ p: 2, borderRadius: `${CARD_RADIUS}px`, border: 1, borderColor: 'divider' }}>
@@ -55,17 +63,17 @@ export function SprintCard({
         <Box sx={{ flex: 1 }} />
         {isPlanned ? (
           <Button size="small" startIcon={<PlayArrowIcon />} onClick={() => onStart(sprint)}>
-            Start
+            {t('Start')}
           </Button>
         ) : null}
         {isActive ? (
           <Button size="small" startIcon={<DoneAllIcon />} onClick={() => onComplete(sprint)}>
-            Complete
+            {t('Complete')}
           </Button>
         ) : null}
         <IconButton
           size="small"
-          aria-label={`Delete sprint ${sprint.name}`}
+          aria-label={t('Delete sprint {name}', { name: sprint.name })}
           onClick={() => onDelete(sprint)}
         >
           <DeleteOutlineIcon fontSize="small" />
@@ -81,12 +89,11 @@ export function SprintCard({
         <LinearProgress
           variant="determinate"
           value={progress.percentComplete}
-          aria-label={`${sprint.name} progress`}
+          aria-label={t('{name} progress', { name: sprint.name })}
           sx={{ flex: 1, height: 8, borderRadius: 1 }}
         />
         <Text size="caption" color="text.secondary" sx={{ minWidth: 150, textAlign: 'right' }}>
-          {progress.completedPoints}/{progress.committedPoints} pts · {progress.completedTickets}/
-          {progress.ticketCount} tickets
+          {counts}
         </Text>
       </Flex>
     </Box>

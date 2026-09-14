@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useT } from '@exyconn/i18n';
 import {
   Box,
   Collapse,
@@ -65,10 +66,13 @@ interface DocTreeRowProps {
 
 /** One row of the tree: its grip, its disclosure, its title, and its "add child" button. */
 function DocTreeRow({ node, depth, selectedId, onSelect, onAddChild }: Readonly<DocTreeRowProps>) {
+  const t = useT();
   const [open, setOpen] = useState(true);
   const hasChildren = node.children.length > 0;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } =
     useSortable({ id: node.page.id, data: { type: 'doc-page' } });
+  const title = node.page.title;
+  const toggleLabel = open ? t('Collapse {title}', { title }) : t('Expand {title}', { title });
 
   return (
     <Box
@@ -85,7 +89,7 @@ function DocTreeRow({ node, depth, selectedId, onSelect, onAddChild }: Readonly<
       <Flex direction="row" alignItems="center">
         <IconButton
           size="small"
-          aria-label={`Move ${node.page.title}`}
+          aria-label={t('Move {title}', { title })}
           sx={{ cursor: 'grab', ml: depth * 1.5 }}
           {...attributes}
           {...listeners}
@@ -95,7 +99,7 @@ function DocTreeRow({ node, depth, selectedId, onSelect, onAddChild }: Readonly<
 
         <IconButton
           size="small"
-          aria-label={open ? `Collapse ${node.page.title}` : `Expand ${node.page.title}`}
+          aria-label={toggleLabel}
           disabled={!hasChildren}
           onClick={() => setOpen((was) => !was)}
           sx={{ visibility: hasChildren ? 'visible' : 'hidden' }}
@@ -116,7 +120,7 @@ function DocTreeRow({ node, depth, selectedId, onSelect, onAddChild }: Readonly<
 
         <IconButton
           size="small"
-          aria-label={`Add a page under ${node.page.title}`}
+          aria-label={t('Add a page under {title}', { title })}
           onClick={() => onAddChild(node.page.id)}
         >
           <AddIcon fontSize="small" />

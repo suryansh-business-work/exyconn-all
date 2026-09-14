@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import {
   Alert,
   Box,
@@ -33,6 +34,7 @@ import {
  * can prove both who sent it and that it is not a replay of one they saw last week.
  */
 export function WebhooksPanel() {
+  const t = useT();
   const notify = useNotify();
   const { formatDateTime } = useSettings();
   const { data, refetch } = useListWebhooksQuery();
@@ -73,27 +75,28 @@ export function WebhooksPanel() {
       {secret ? (
         <Alert severity="warning" sx={{ mb: 2 }} onClose={() => setSecret(null)}>
           <Text size="sm" weight="bold" sx={{ display: 'block' }}>
-            Copy this signing secret now — it is never shown again.
+            {t('Copy this signing secret now — it is never shown again.')}
           </Text>
           <Text size="sm" sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
             {secret}
           </Text>
           <Text size="caption" sx={{ display: 'block', mt: 0.5 }}>
-            Verify each delivery as sha256 HMAC over `&lt;timestamp&gt;.&lt;body&gt;`, from the
-            x-exyconn-timestamp and x-exyconn-signature headers.
+            {t(
+              'Verify each delivery as sha256 HMAC over `<timestamp>.<body>`, from the x-exyconn-timestamp and x-exyconn-signature headers.',
+            )}
           </Text>
         </Alert>
       ) : null}
 
       <Flex direction="row" spacing={1} sx={{ mb: 1, flexWrap: 'wrap' }}>
         <TextField
-          label="Name"
+          label={t('Name')}
           value={name}
           onChange={(event) => setName(event.target.value)}
           sx={{ minWidth: 180 }}
         />
         <TextField
-          label="HTTPS endpoint"
+          label={t('HTTPS endpoint')}
           value={url}
           onChange={(event) => setUrl(event.target.value)}
           sx={{ flex: 1, minWidth: { sm: 260 }, width: { xs: '100%', sm: 'auto' } }}
@@ -104,7 +107,7 @@ export function WebhooksPanel() {
             create().catch((error: unknown) => console.error('Create webhook failed', error));
           }}
         >
-          Add endpoint
+          {t('Add endpoint')}
         </Button>
       </Flex>
 
@@ -131,12 +134,12 @@ export function WebhooksPanel() {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Endpoint</TableCell>
-              <TableCell>Events</TableCell>
-              <TableCell>Last delivered</TableCell>
-              <TableCell>Active</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell>{t('Name')}</TableCell>
+              <TableCell>{t('Endpoint')}</TableCell>
+              <TableCell>{t('Events')}</TableCell>
+              <TableCell>{t('Last delivered')}</TableCell>
+              <TableCell>{t('Active')}</TableCell>
+              <TableCell align="right">{t('Actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -146,8 +149,10 @@ export function WebhooksPanel() {
                 <TableCell sx={{ maxWidth: 260, wordBreak: 'break-all' }}>{hook.url}</TableCell>
                 <TableCell>{hook.events.join(', ')}</TableCell>
                 <TableCell>
-                  {hook.lastDeliveredAt ? formatDateTime(hook.lastDeliveredAt) : 'Never'}
-                  {hook.failureCount > 0 ? ` · ${hook.failureCount} failing` : ''}
+                  {hook.lastDeliveredAt ? formatDateTime(hook.lastDeliveredAt) : t('Never')}
+                  {hook.failureCount > 0
+                    ? t(' · {count} failing', { count: hook.failureCount })
+                    : ''}
                 </TableCell>
                 <TableCell>
                   <Switch
@@ -159,7 +164,7 @@ export function WebhooksPanel() {
                       )
                     }
                     slotProps={{
-                      input: { 'aria-label': `Enable ${hook.name}` },
+                      input: { 'aria-label': t('Enable {name}', { name: hook.name }) },
                     }}
                   />
                 </TableCell>
@@ -174,7 +179,7 @@ export function WebhooksPanel() {
                       )
                     }
                   >
-                    Delete
+                    {t('Delete')}
                   </Button>
                 </TableCell>
               </TableRow>

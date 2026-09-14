@@ -3,6 +3,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import { useT } from '@exyconn/i18n';
 import {
   Box,
   Button,
@@ -29,13 +30,16 @@ function BrandMark({ logoUrl, name }: Readonly<{ logoUrl: string; name: string }
 
 /** Brand bar of the public status site: identity, colour mode and the report action. */
 export function StatusHeader() {
+  const t = useT();
   const { mode, toggle } = useColorMode();
   const navigate = useNavigate();
   const onReportPage = useLocation().pathname === '/report';
   const isDark = mode === 'dark';
   const { data } = usePublicBrandingQuery();
   const branding = data?.publicBranding;
-  const title = branding ? `${branding.businessName} Status` : LOADING_TITLE;
+  const title = branding
+    ? t('{business} Status', { business: branding.businessName })
+    : t(LOADING_TITLE);
   const logoUrl = (isDark ? branding?.logoDarkUrl : branding?.logoUrl) ?? '';
 
   return (
@@ -70,13 +74,13 @@ export function StatusHeader() {
                   color: 'text.secondary',
                 }}
               >
-                Live availability of every service
+                {t('Live availability of every service')}
               </Typography>
             </Box>
           </Flex>
           <Flex alignItems="center" spacing={1}>
-            <Tooltip title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
-              <IconButton onClick={toggle} aria-label="Toggle colour mode">
+            <Tooltip title={isDark ? t('Switch to light mode') : t('Switch to dark mode')}>
+              <IconButton onClick={toggle} aria-label={t('Toggle colour mode')}>
                 {isDark ? <LightModeIcon /> : <DarkModeIcon />}
               </IconButton>
             </Tooltip>
@@ -85,7 +89,7 @@ export function StatusHeader() {
               startIcon={onReportPage ? undefined : <ReportProblemIcon />}
               onClick={() => navigate(onReportPage ? '/' : '/report')}
             >
-              {onReportPage ? 'Back to status' : 'Report a problem'}
+              {onReportPage ? t('Back to status') : t('Report a problem')}
             </Button>
           </Flex>
         </Flex>

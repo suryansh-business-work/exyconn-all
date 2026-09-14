@@ -2,6 +2,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SITE_PATH } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import { Button, Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect, RhfMultiSelect } from '@exyconn/shell/components/form/rhf';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
@@ -55,6 +56,7 @@ interface SendNotificationFormProps {
 
 /** React Hook Form + Zod form for HR to broadcast an in-app notification. */
 export function SendNotificationForm({ onSent }: Readonly<SendNotificationFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [send, { loading }] = useSendNotificationMutation();
   const { data } = useListUsersQuery();
@@ -87,7 +89,8 @@ export function SendNotificationForm({ onSent }: Readonly<SendNotificationFormPr
         },
       });
       const count = result?.sendNotification.recipients ?? 0;
-      notify(`Sent to ${count} ${count === 1 ? 'person' : 'people'}.`, 'success');
+      const sent = count === 1 ? t('Sent to 1 person.') : t('Sent to {count} people.', { count });
+      notify(sent, 'success');
       methods.reset(INITIAL);
       onSent(count);
     } catch (error) {
@@ -120,7 +123,7 @@ export function SendNotificationForm({ onSent }: Readonly<SendNotificationFormPr
           )}
           <Flex direction="row" justifyContent="flex-end">
             <Button type="submit" disabled={loading}>
-              {loading ? 'Sending…' : 'Send notification'}
+              {loading ? t('Sending…') : t('Send notification')}
             </Button>
           </Flex>
         </Flex>

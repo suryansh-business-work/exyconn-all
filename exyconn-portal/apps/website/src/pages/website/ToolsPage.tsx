@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import {
@@ -12,13 +13,14 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Website CMS — the tools listed in the public tools directory (server-side grid). */
 export function ToolsPage() {
+  const t = useT();
   // Stat cards still summarise all tools; the grid itself is server-paged.
   const { data } = useListToolsQuery();
   const [deleteTool] = useDeleteToolMutation();
   const crud = useCrudResource<ToolRow, PagedToolRow>({
     label: 'Tool',
     onDelete: (row) => deleteTool({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete tool ${row.name}?`,
+    confirmMessage: (row) => t('Delete tool {name}?', { name: row.name }),
   });
   const fetchRows = usePagedFetcher(
     ListToolsPagedDocument,

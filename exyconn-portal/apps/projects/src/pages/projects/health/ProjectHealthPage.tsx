@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, Chip, Flex, Stack, Text } from '@exyconn/shell/components/ui';
 
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -28,6 +29,7 @@ function budgetColor(used: number | null | undefined): 'success' | 'warning' | '
  * reason a health page is still true a month after it was built.
  */
 export function ProjectHealthPage({ projectId }: Readonly<{ projectId: string }>) {
+  const t = useT();
   const { data, loading } = useProjectHealthQuery({
     variables: { id: projectId },
     skip: projectId === '',
@@ -37,23 +39,31 @@ export function ProjectHealthPage({ projectId }: Readonly<{ projectId: string }>
   const health = data?.projectHealth;
 
   if (!health) {
-    return <Text color="text.secondary">{loading ? 'Loading…' : 'No health to report yet.'}</Text>;
+    const empty = loading ? t('Loading…') : t('No health to report yet.');
+    return <Text color="text.secondary">{empty}</Text>;
   }
 
   const budgetUsed = health.budgetUsedPercent ?? null;
-  const endLabel = health.endDate ? formatDate(health.endDate) : 'No end date set';
+  const endLabel = health.endDate ? formatDate(health.endDate) : t('No end date set');
+  let hoursHint = t('{logged} logged', { logged: health.loggedHours });
+  if (health.budgetHours) {
+    hoursHint = t('{logged} logged of {budget}', {
+      logged: health.loggedHours,
+      budget: health.budgetHours,
+    });
+  }
 
   return (
     <Stack spacing={2}>
       <Flex direction="row" alignItems="center" spacing={1}>
         <Chip
-          label={RISK_LABEL[health.risk]}
+          label={t(RISK_LABEL[health.risk])}
           color={RISK_COLOR[health.risk]}
           sx={{ fontWeight: 600 }}
         />
         <Chip
           variant="outlined"
-          label={TIMELINE_LABEL[health.timeline]}
+          label={t(TIMELINE_LABEL[health.timeline])}
           color={TIMELINE_COLOR[health.timeline]}
         />
         <Text size="caption" color="text.secondary">
@@ -74,25 +84,25 @@ export function ProjectHealthPage({ projectId }: Readonly<{ projectId: string }>
       <Box sx={panel}>
         <Flex direction="row" sx={{ flexWrap: 'wrap', gap: 3 }}>
           <HealthStat
-            label="Progress"
-            value={percentLabel(health.progressPercent, 'Not tracked')}
+            label={t('Progress')}
+            value={percentLabel(health.progressPercent, t('Not tracked'))}
             percent={health.progressPercent}
             hint={
               health.progressPercent === null
-                ? 'Mark a board column as done to track this'
+                ? t('Mark a board column as done to track this')
                 : undefined
             }
           />
           <HealthStat
-            label="Hours"
-            value={percentLabel(budgetUsed, 'No budget set')}
+            label={t('Hours')}
+            value={percentLabel(budgetUsed, t('No budget set'))}
             percent={budgetUsed}
             color={budgetColor(budgetUsed)}
-            hint={`${health.loggedHours} logged${health.budgetHours ? ` of ${health.budgetHours}` : ''}`}
+            hint={hoursHint}
           />
-          <HealthStat label="Tickets" value={`${health.doneTaskCount}/${health.taskCount}`} />
-          <HealthStat label="Open bugs" value={String(health.openBugCount)} />
-          <HealthStat label="Team" value={String(health.teamSize)} />
+          <HealthStat label={t('Tickets')} value={`${health.doneTaskCount}/${health.taskCount}`} />
+          <HealthStat label={t('Open bugs')} value={String(health.openBugCount)} />
+          <HealthStat label={t('Team')} value={String(health.teamSize)} />
         </Flex>
       </Box>
     </Stack>

@@ -6,6 +6,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
+import { useT } from '@exyconn/i18n';
 import { Tooltip } from '@exyconn/shell/components/ui';
 import { TaskCard } from './TaskCard';
 import { AddItemInput } from './AddItemInput';
@@ -32,6 +33,7 @@ export function BoardColumnCard({
   onOpenTask,
   onToggleDone,
 }: Readonly<BoardColumnCardProps>) {
+  const t = useT();
   const confirm = useConfirm();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(column.name);
@@ -49,11 +51,16 @@ export function BoardColumnCard({
 
   const remove = async () => {
     const ok = await confirm({
-      message: `Delete column "${column.name}" and its tickets?`,
+      message: t('Delete column "{name}" and its tickets?', { name: column.name }),
       confirmText: 'Delete',
     });
     if (ok) onDelete(column.id);
   };
+
+  const doneHint = column.isDone
+    ? t('Tickets here count as finished')
+    : t('Mark as the end of the line, so progress can be measured');
+  const doneLabel = column.isDone ? t('Stop counting as done') : t('Count as done');
 
   return (
     <Box
@@ -97,18 +104,12 @@ export function BoardColumnCard({
             </Text>
           </Text>
         )}
-        <Tooltip
-          title={
-            column.isDone
-              ? 'Tickets here count as finished'
-              : 'Mark as the end of the line, so progress can be measured'
-          }
-        >
+        <Tooltip title={doneHint}>
           <IconButton
             size="small"
             color={column.isDone ? 'success' : 'default'}
             onClick={() => onToggleDone(column.id, !column.isDone)}
-            aria-label={column.isDone ? 'Stop counting as done' : 'Count as done'}
+            aria-label={doneLabel}
           >
             {column.isDone ? (
               <CheckCircleIcon fontSize="small" />
@@ -117,7 +118,7 @@ export function BoardColumnCard({
             )}
           </IconButton>
         </Tooltip>
-        <IconButton size="small" onClick={remove} aria-label="Delete column">
+        <IconButton size="small" onClick={remove} aria-label={t('Delete column')}>
           <DeleteOutlineIcon fontSize="small" />
         </IconButton>
       </Flex>

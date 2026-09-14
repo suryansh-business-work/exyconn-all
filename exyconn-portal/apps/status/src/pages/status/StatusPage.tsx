@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, CircularProgress, Flex, Typography } from '@exyconn/shell/components/ui';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { useStatusOverviewQuery, type StatusCategory } from '@exyconn/shell/graphql/generated';
@@ -33,6 +34,7 @@ function liveMaintenanceKeys(maintenance: StatusMaintenance[]): ReadonlySet<stri
  * monitored service and the recent incidents. Polls so a page left open stays current.
  */
 export function StatusPage() {
+  const t = useT();
   const { data, loading, error } = useStatusOverviewQuery({
     variables: { days: HISTORY_DAYS },
     pollInterval: REFRESH_MS,
@@ -47,7 +49,9 @@ export function StatusPage() {
   }
 
   if (error || !data) {
-    return <Alert severity="error">{errorMessage(error, 'Could not load the status page')}</Alert>;
+    return (
+      <Alert severity="error">{errorMessage(error, t('Could not load the status page'))}</Alert>
+    );
   }
 
   const overview = data.statusOverview;
@@ -68,12 +72,12 @@ export function StatusPage() {
             mb: 2,
           }}
         >
-          Services · last {HISTORY_DAYS} days
+          {t('Services · last {days} days', { days: HISTORY_DAYS })}
         </Typography>
         {groupByCategory(overview.services).map((group) => (
           <ServiceGroup
             key={group.category}
-            title={CATEGORY_LABELS[group.category]}
+            title={t(CATEGORY_LABELS[group.category])}
             services={group.services}
             maintenanceKeys={maintenanceKeys}
           />
@@ -88,7 +92,7 @@ export function StatusPage() {
             mb: 2,
           }}
         >
-          Recent incidents
+          {t('Recent incidents')}
         </Typography>
         <IncidentList incidents={overview.incidents} />
       </Box>

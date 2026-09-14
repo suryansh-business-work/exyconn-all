@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -37,6 +38,7 @@ import {
  * still the shared one — it just opens from a row action rather than from a header button.
  */
 export function WebsiteSubmissionsPage() {
+  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListWebsiteSubmissionsStatsQuery();
   const [deleteSubmission] = useDeleteWebsiteSubmissionMutation();
   const [convertToLead] = useConvertWebsiteSubmissionToLeadMutation();
@@ -48,7 +50,7 @@ export function WebsiteSubmissionsPage() {
   const crud = useCrudResource<WebsiteSubmissionRow, PagedSubmissionRow>({
     label: 'Submission',
     onDelete: (row) => deleteSubmission({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete this ${row.formType} submission?`,
+    confirmMessage: (row) => t('Delete this {form} submission?', { form: row.formType }),
     refetch: refetchStats,
   });
   const extraFilters: TableFilterInput[] = formType
@@ -70,7 +72,7 @@ export function WebsiteSubmissionsPage() {
   const convert = async (row: PagedSubmissionRow) => {
     const ok = await confirm({
       title: 'Convert to lead',
-      message: `File this ${row.formType} submission as a CRM lead?`,
+      message: t('File this {form} submission as a CRM lead?', { form: row.formType }),
       confirmText: 'Convert',
     });
     if (!ok) {
@@ -78,7 +80,11 @@ export function WebsiteSubmissionsPage() {
     }
     try {
       const res = await convertToLead({ variables: { id: row.id } });
-      notify(`Lead "${res.data?.convertWebsiteSubmissionToLead.name ?? ''}" created in the CRM`);
+      notify(
+        t('Lead "{name}" created in the CRM', {
+          name: res.data?.convertWebsiteSubmissionToLead.name ?? '',
+        }),
+      );
       crud.reload();
     } catch (err) {
       notify(errorMessage(err, 'Conversion failed'), 'error');
@@ -120,7 +126,7 @@ export function WebsiteSubmissionsPage() {
       searchPlaceholder="Search by form, source, status or notes…"
       toolbar={<SubmissionFormTypeFilter value={formType} onChange={setFormType} />}
       extraDialogs={
-        <CrudDialog open={crud.open} title="Triage submission" onClose={crud.close}>
+        <CrudDialog open={crud.open} title={t('Triage submission')} onClose={crud.close}>
           {crud.editing && (
             <>
               <SubmissionPayload data={crud.editing.submissionData} />

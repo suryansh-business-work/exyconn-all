@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Divider, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { BoolChip } from '@exyconn/shell/components/data/BoolChip';
@@ -26,13 +27,14 @@ const usdPer1k = (value: number) => `$${value.toFixed(PRICE_DIGITS)}`;
  * every AI cost in the portal.
  */
 export function AiPricingPanel() {
+  const t = useT();
   const { data, loading, refetch } = useListAiModelPricesQuery();
   const limit = useAiSpendLimitQuery();
   const [deletePrice] = useDeleteAiModelPriceMutation();
   const crud = useCrudResource<AiModelPriceRow>({
     label: 'AI model price',
     onDelete: (row) => deletePrice({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete the price for "${row.model}"?`,
+    confirmMessage: (row) => t('Delete the price for "{model}"?', { model: row.model }),
     refetch,
   });
 
@@ -46,12 +48,9 @@ export function AiPricingPanel() {
   const budget = limit.data?.aiSpendLimit;
 
   if (crud.open) {
+    const formTitle = crud.editing ? t('Edit model price') : t('New model price');
     return (
-      <CrudFormPage
-        title={crud.editing ? 'Edit model price' : 'New model price'}
-        onBack={crud.close}
-        backLabel="Back to AI pricing"
-      >
+      <CrudFormPage title={formTitle} onBack={crud.close} backLabel="Back to AI pricing">
         <AiModelPriceForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
       </CrudFormPage>
     );
@@ -66,9 +65,9 @@ export function AiPricingPanel() {
         onAction={crud.openCreate}
       />
       <Text size="sm" color="text.secondary" sx={{ mb: 2 }}>
-        Seeded with OpenAI&rsquo;s published prices on first boot and never overwritten again, so a
-        correction made here survives every restart. A model with no active price costs a run
-        nothing rather than an invented amount.
+        {t(
+          'Seeded with OpenAI’s published prices on first boot and never overwritten again, so a correction made here survives every restart. A model with no active price costs a run nothing rather than an invented amount.',
+        )}
       </Text>
       <DataTable
         columns={columns}
@@ -89,7 +88,7 @@ export function AiPricingPanel() {
           onDone={() => limit.refetch()}
         />
       ) : (
-        <Text size="sm">Loading the budget…</Text>
+        <Text size="sm">{t('Loading the budget…')}</Text>
       )}
     </Box>
   );

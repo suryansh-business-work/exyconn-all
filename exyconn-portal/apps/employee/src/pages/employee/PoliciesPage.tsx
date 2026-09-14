@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, Grid, radius, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
@@ -15,6 +16,7 @@ import { readingPanel } from '@exyconn/shell/components/glass/glass';
  * nine you do not is a list nobody acts on.
  */
 export function PoliciesPage() {
+  const t = useT();
   const { data, loading, refetch } = useMyPoliciesQuery({ fetchPolicy: 'cache-and-network' });
   const [reading, setReading] = useState<Policy | null>(null);
 
@@ -23,21 +25,27 @@ export function PoliciesPage() {
   const rest = policies.filter((p) => !outstanding.includes(p));
   const ordered = [...outstanding, ...rest];
 
+  let outstandingNotice = t('{count} policies need your signature.', {
+    count: outstanding.length,
+  });
+  if (outstanding.length === 1) {
+    outstandingNotice = t('One policy needs your signature.');
+  }
+  const emptyNotice = loading ? t('Loading…') : t('No policies published yet.');
+
   return (
     <Box>
       <PageHeader title="Policies" subtitle="Company policies & guidelines" />
 
       {outstanding.length > 0 ? (
         <Alert severity="warning" variant="outlined" sx={{ mb: 2, borderRadius: `${radius.sm}px` }}>
-          {outstanding.length === 1
-            ? 'One policy needs your signature.'
-            : `${outstanding.length} policies need your signature.`}
+          {outstandingNotice}
         </Alert>
       ) : null}
 
       {ordered.length === 0 ? (
         <Box sx={readingPanel}>
-          <Text color="text.secondary">{loading ? 'Loading…' : 'No policies published yet.'}</Text>
+          <Text color="text.secondary">{emptyNotice}</Text>
         </Box>
       ) : (
         <Grid container spacing={2}>

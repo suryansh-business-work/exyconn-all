@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Heading } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -11,6 +12,7 @@ import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** WFH, regularisation and other requests the team has raised. */
 export function TeamRequestsSection({ nameOf }: Readonly<TeamSectionProps>) {
+  const t = useT();
   const { data, loading, refetch } = useTeamRequestsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const decide = useRequestDecision(refetch);
@@ -28,7 +30,7 @@ export function TeamRequestsSection({ nameOf }: Readonly<TeamSectionProps>) {
   return (
     <Box sx={densePanel}>
       <Heading level={6} sx={{ px: 1, pt: 0.5 }}>
-        Requests
+        {t('Requests')}
       </Heading>
       <DataTable
         columns={columns}

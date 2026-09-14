@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Divider, Flex, Text } from '@exyconn/shell/components/ui';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -9,60 +10,63 @@ import type { CampaignRow } from './forms/campaign';
 
 /** Read-only summary of a campaign: its email content, and who each send reached. */
 export function CampaignDetails({ campaign }: Readonly<{ campaign: CampaignRow }>) {
+  const t = useT();
   const { formatDate } = useSettings();
+  const lastSent = campaign.lastSentAt
+    ? t('{date} · {count} recipient(s)', {
+        date: formatDate(campaign.lastSentAt),
+        count: campaign.recipientsCount ?? 0,
+      })
+    : t('Not sent yet');
   return (
     <Flex direction="column" spacing={1.5}>
-      <DetailRow label="Name">
+      <DetailRow label={t('Name')}>
         <Text size="sm" weight="medium">
           {campaign.name}
         </Text>
       </DetailRow>
-      <DetailRow label="Channel">
+      <DetailRow label={t('Channel')}>
         <StatusChip value={campaign.channel} />
       </DetailRow>
-      <DetailRow label="Status">
+      <DetailRow label={t('Status')}>
         <StatusChip value={campaign.status} />
       </DetailRow>
-      <DetailRow label="Budget">
+      <DetailRow label={t('Budget')}>
         <Text size="sm">₹{campaign.budget.toLocaleString()}</Text>
       </DetailRow>
-      <DetailRow label="Schedule">
+      <DetailRow label={t('Schedule')}>
         <Text size="sm">
           {formatDate(campaign.startDate)} → {formatDate(campaign.endDate)}
         </Text>
       </DetailRow>
-      <DetailRow label="Last sent">
-        <Text size="sm">
-          {campaign.lastSentAt
-            ? `${formatDate(campaign.lastSentAt)} · ${campaign.recipientsCount ?? 0} recipient(s)`
-            : 'Not sent yet'}
-        </Text>
+      <DetailRow label={t('Last sent')}>
+        <Text size="sm">{lastSent}</Text>
       </DetailRow>
 
-      <DetailRow label="Scheduled">
+      <DetailRow label={t('Scheduled')}>
         <Text size="sm">
-          {campaign.scheduledAt ? formatDate(campaign.scheduledAt) : 'Not scheduled'}
+          {campaign.scheduledAt ? formatDate(campaign.scheduledAt) : t('Not scheduled')}
         </Text>
       </DetailRow>
       <CampaignAttribution campaignId={campaign.id} />
 
       <Divider />
-      <Text size="label">Email content</Text>
+      <Text size="label">{t('Email content')}</Text>
       <Text size="caption" color="text.secondary">
-        Subject
+        {t('Subject')}
       </Text>
-      <Text size="sm">{campaign.subject || '— none —'}</Text>
+      <Text size="sm">{campaign.subject || t('— none —')}</Text>
       <Text size="caption" color="text.secondary">
-        Body
+        {t('Body')}
       </Text>
       <Text size="sm" sx={{ whiteSpace: 'pre-wrap' }}>
-        {campaign.body || '— none —'}
+        {campaign.body || t('— none —')}
       </Text>
 
       <Divider />
       <Divider sx={{ my: 1.5 }} />
       <Text size="sm" weight="bold">
-        Engagement
+        {t('Engagement')}
       </Text>
       <CampaignEngagement campaignId={campaign.id} />
 

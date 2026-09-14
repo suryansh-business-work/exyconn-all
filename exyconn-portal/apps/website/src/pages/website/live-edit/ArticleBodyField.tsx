@@ -1,4 +1,5 @@
 import { useFormContext, useWatch } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import { RhfRichText } from '@exyconn/shell/components/form/rhf';
 import { LiveDesignNotice } from './LiveDesignNotice';
 
@@ -14,6 +15,7 @@ interface ArticleBodyFieldProps {
  * choice instead.
  */
 export function ArticleBodyField({ folder }: Readonly<ArticleBodyFieldProps>) {
+  const t = useT();
   const { control } = useFormContext();
   const contentCss: string = useWatch({ control, name: 'contentCss' }) ?? '';
 
@@ -25,7 +27,7 @@ export function ArticleBodyField({ folder }: Readonly<ArticleBodyFieldProps>) {
       name="content"
       label="Content"
       folder={folder}
-      placeholder="Write the article…"
+      placeholder={t('Write the article…')}
       minHeight={320}
       helperText="Shown on the public page. For layouts and styling, use Live edit from the list."
     />

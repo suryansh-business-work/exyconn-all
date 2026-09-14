@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { addMonths, subMonths, startOfMonth, format } from 'date-fns';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { useT } from '@exyconn/i18n';
 import {
   Box,
   Flex,
@@ -19,6 +20,7 @@ import { MonthGrid } from './MonthGrid';
 
 /** Employee self-service: a monthly calendar overlaying holidays and own leave. */
 export function CalendarPage() {
+  const t = useT();
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
 
   const holidaysQuery = useListHolidaysQuery({ fetchPolicy: 'cache-and-network' });
@@ -35,16 +37,19 @@ export function CalendarPage() {
       <PageHeader title="Calendar" subtitle="Holidays and your leave at a glance" />
 
       <Flex direction="row" alignItems="center" spacing={1}>
-        <IconButton aria-label="Previous month" onClick={() => setMonth((m) => subMonths(m, 1))}>
+        <IconButton
+          aria-label={t('Previous month')}
+          onClick={() => setMonth((m) => subMonths(m, 1))}
+        >
           <ChevronLeftIcon />
         </IconButton>
         <Heading level={5} sx={{ minWidth: 160, textAlign: 'center' }}>
           {format(month, 'MMMM yyyy')}
         </Heading>
-        <IconButton aria-label="Next month" onClick={() => setMonth((m) => addMonths(m, 1))}>
+        <IconButton aria-label={t('Next month')} onClick={() => setMonth((m) => addMonths(m, 1))}>
           <ChevronRightIcon />
         </IconButton>
-        {loading && <CircularProgress size={18} aria-label="Loading calendar" />}
+        {loading && <CircularProgress size={18} aria-label={t('Loading calendar')} />}
       </Flex>
 
       <Box sx={[panel, { mt: 2 }]}>
@@ -55,13 +60,13 @@ export function CalendarPage() {
         <Flex direction="row" spacing={1} alignItems="center">
           <Box sx={{ width: 12, height: 12, borderRadius: 0.5, bgcolor: 'secondary.main' }} />
           <Text size="caption" color="text.secondary">
-            Holiday
+            {t('Holiday')}
           </Text>
         </Flex>
         <Flex direction="row" spacing={1} alignItems="center">
-          <Chip size="small" label="Leave" color="info" />
+          <Chip size="small" label={t('Leave')} color="info" />
           <Text size="caption" color="text.secondary">
-            Your leave
+            {t('Your leave')}
           </Text>
         </Flex>
       </Flex>

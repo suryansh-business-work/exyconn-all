@@ -1,4 +1,6 @@
+import { useMemo } from 'react';
 import { format } from 'date-fns';
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, Grid, Text, color } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
@@ -13,27 +15,39 @@ type ImageRow = {
   containers: number;
 };
 
-const COLUMNS: Column<ImageRow>[] = [
-  {
-    key: 'repoTags',
-    label: 'Image',
-    render: (row) => (
-      <Text size="sm" sx={{ wordBreak: 'break-all' }}>
-        {row.repoTags.join(', ') || '<untagged>'}
-      </Text>
-    ),
-  },
-  { key: 'sizeBytes', label: 'Size', render: (row) => formatBytes(row.sizeBytes) },
-  { key: 'createdAt', label: 'Built', render: (row) => format(new Date(row.createdAt), 'PP') },
-  {
-    key: 'containers',
-    label: 'In use by',
-    render: (row) => (row.containers > 0 ? `${row.containers} container(s)` : 'unused'),
-  },
-];
+type Translate = ReturnType<typeof useT>;
+
+/** How many containers run an image, or that none do. */
+function usedByLabel(containers: number, t: Translate): string {
+  if (containers === 0) {
+    return t('unused');
+  }
+  if (containers === 1) {
+    return t('{count} container', { count: containers });
+  }
+  return t('{count} containers', { count: containers });
+}
 
 /** The Storage tab: what the engine's disk is spent on, and every image on the host. */
 export function StoragePanel() {
+  const t = useT();
+  const columns = useMemo<Column<ImageRow>[]>(
+    () => [
+      {
+        key: 'repoTags',
+        label: 'Image',
+        render: (row) => (
+          <Text size="sm" sx={{ wordBreak: 'break-all' }}>
+            {row.repoTags.join(', ') || t('<untagged>')}
+          </Text>
+        ),
+      },
+      { key: 'sizeBytes', label: 'Size', render: (row) => formatBytes(row.sizeBytes) },
+      { key: 'createdAt', label: 'Built', render: (row) => format(new Date(row.createdAt), 'PP') },
+      { key: 'containers', label: 'In use by', render: (row) => usedByLabel(row.containers, t) },
+    ],
+    [t],
+  );
   const { data, loading, error, refetch } = useDockerStorageQuery({
     fetchPolicy: 'cache-and-network',
   });
@@ -75,7 +89,7 @@ export function StoragePanel() {
         ))}
       </Grid>
       <DataTable
-        columns={COLUMNS}
+        columns={columns}
         rows={rows}
         emptyMessage="No images on this host."
         loading={loading}

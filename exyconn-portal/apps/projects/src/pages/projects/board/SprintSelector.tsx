@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { FormControl, InputLabel, MenuItem, Select } from '@exyconn/shell/components/ui';
 import { SprintState, type SprintFieldsFragment } from '@exyconn/shell/graphql/generated';
 import { BACKLOG } from '../sprints/sprint-progress';
@@ -16,23 +17,27 @@ interface SprintSelectorProps {
  * that impossible from the board.
  */
 export function SprintSelector({ sprints, value, onChange }: Readonly<SprintSelectorProps>) {
+  const t = useT();
   return (
     <FormControl size="small" sx={{ minWidth: 190 }}>
-      <InputLabel id="board-sprint-label">Sprint</InputLabel>
+      <InputLabel id="board-sprint-label">{t('Sprint')}</InputLabel>
       <Select
         labelId="board-sprint-label"
-        label="Sprint"
+        label={t('Sprint')}
         value={value}
         onChange={(event) => onChange(String(event.target.value))}
       >
-        <MenuItem value="">All tickets</MenuItem>
-        <MenuItem value={BACKLOG}>Backlog</MenuItem>
-        {sprints.map((sprint) => (
-          <MenuItem key={sprint.id} value={sprint.id}>
-            {sprint.name}
-            {sprint.state === SprintState.Active ? ' · running' : ''}
-          </MenuItem>
-        ))}
+        <MenuItem value="">{t('All tickets')}</MenuItem>
+        <MenuItem value={BACKLOG}>{t('Backlog')}</MenuItem>
+        {sprints.map((sprint) => {
+          const running = sprint.state === SprintState.Active;
+          const name = running ? t('{name} · running', { name: sprint.name }) : sprint.name;
+          return (
+            <MenuItem key={sprint.id} value={sprint.id}>
+              {name}
+            </MenuItem>
+          );
+        })}
       </Select>
     </FormControl>
   );

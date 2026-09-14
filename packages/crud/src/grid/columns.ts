@@ -2,13 +2,21 @@ import type { ColDef, ValueGetterParams, ValueFormatterParams } from 'ag-grid-co
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { BoolCell, RowActionsCell, StatusCell, formatDateValue } from './cells';
+import { gridTranslator, type GridTranslate } from '@exyconn/shell/components/data/gridContext';
 import type { RowActionSpec } from './types';
 
 /** A field name ag-grid accepts for the row type. */
 type Field<TRow> = NonNullable<ColDef<TRow>['field']>;
 
-/** Renders a value derived from the whole row, or '' while the row is still loading. */
-type RowFormat<TRow> = (row: TRow) => string;
+/**
+ * Renders a value derived from the whole row, or '' while the row is still loading.
+ *
+ * A column model is module scope, so it cannot call `useT`; a cell that writes a word takes
+ * the viewer's translator as the second argument instead — `(row, t) => t('Lead')`. Existing
+ * formatters that ignore it are unaffected. The grid, the phone card list and the export all
+ * put the same translator on the context, so the three can never disagree about a cell.
+ */
+type RowFormat<TRow> = (row: TRow, t: GridTranslate) => string;
 
 /**
  * Only text columns are wired to the server's `TableQueryInput.filters`, so every other
@@ -34,12 +42,12 @@ const ACTIONS_PADDING = 60;
 const rowFormatter =
   <TRow>(format: RowFormat<TRow>) =>
   (params: ValueFormatterParams<TRow>): string =>
-    params.data ? format(params.data) : '';
+    params.data ? format(params.data, gridTranslator(params.context)) : '';
 
 const rowGetter =
   <TRow>(derive: RowFormat<TRow>) =>
   (params: ValueGetterParams<TRow>): string | null =>
-    params.data ? derive(params.data) : null;
+    params.data ? derive(params.data, gridTranslator(params.context)) : null;
 
 /** A sortable, server-filterable text column; `format` shapes what the cell shows. */
 export function textColumn<TRow>(

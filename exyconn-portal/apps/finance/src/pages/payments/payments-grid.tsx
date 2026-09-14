@@ -1,13 +1,14 @@
 import type { ColDef } from 'ag-grid-community';
 import { dateColumn, statusColumn, textColumn, valueColumn } from '@exyconn/crud';
+import type { GridTranslate } from '@exyconn/shell/components/data/gridContext';
 import type { ListPaymentsPagedQuery } from '@exyconn/shell/graphql/generated';
 
 export type PagedPaymentRow = ListPaymentsPagedQuery['listPaymentsPaged']['rows'][number];
 
 /** A refund is a negative receipt, and reads as one rather than as a smaller payment. */
-function amountLabel(row: PagedPaymentRow): string {
+function amountLabel(row: PagedPaymentRow, t: GridTranslate): string {
   const money = `${row.currency} ${Math.abs(row.amount).toLocaleString()}`;
-  return row.amount < 0 ? `− ${money} (refund)` : money;
+  return row.amount < 0 ? t('− {amount} (refund)', { amount: money }) : money;
 }
 
 /**

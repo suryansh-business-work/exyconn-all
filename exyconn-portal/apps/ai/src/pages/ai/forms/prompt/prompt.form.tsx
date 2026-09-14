@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Flex } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -61,6 +62,7 @@ interface PromptFormProps {
  * hands over and the callback it takes back. Any module can adopt it the same way.
  */
 export function PromptForm({ initial, onDone, onCancel }: Readonly<PromptFormProps>) {
+  const t = useT();
   const [createPrompt] = useCreatePromptMutation();
   const [updatePrompt] = useUpdatePromptMutation();
 
@@ -96,7 +98,7 @@ export function PromptForm({ initial, onDone, onCancel }: Readonly<PromptFormPro
       <RhfTextField name="description" label="Description (optional)" />
       <Flex direction="row">
         <AiAssistButton
-          label="Describe this prompt"
+          label={t('Describe this prompt')}
           task={{ action: 'SUMMARISE', style: SummaryStyle.Brief }}
           text={watch('content')}
           onResult={(result) => setValue('description', result, { shouldDirty: true })}

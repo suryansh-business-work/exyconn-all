@@ -1,4 +1,5 @@
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -21,13 +22,14 @@ import {
  * appraisal goals, which belong to HR.
  */
 export function ObjectivesPage() {
+  const t = useT();
   const { data: statsData, refetch } = useListObjectivesStatsQuery();
   const [deleteObjective] = useDeleteObjectiveMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<ObjectiveRow, PagedObjectiveRow>({
     label: 'Objective',
     onDelete: (row) => deleteObjective({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete objective "${row.title}"?`,
+    confirmMessage: (row) => t('Delete objective "{title}"?', { title: row.title }),
     refetch,
   });
   const fetchRows = usePagedFetcher(

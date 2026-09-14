@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, CircularProgress, Flex, Paper, Text } from '@exyconn/shell/components/ui';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
@@ -18,6 +19,7 @@ const RECORDS_PATH = '/hr/employees';
  * real loss of work. Serves both `/hr/employees/new` and `/hr/employees/:id/edit`.
  */
 export function EmployeeFormPage() {
+  const t = useT();
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
@@ -38,7 +40,7 @@ export function EmployeeFormPage() {
         onClick={() => navigate(RECORDS_PATH)}
         sx={{ mb: 2 }}
       >
-        Back to employee records
+        {t('Back to employee records')}
       </Button>
 
       <PageHeader
@@ -56,7 +58,7 @@ export function EmployeeFormPage() {
             <CircularProgress />
           </Flex>
         )}
-        {error && <Text color="error">{error.message || 'Failed to load the employee.'}</Text>}
+        {error && <Text color="error">{error.message || t('Failed to load the employee.')}</Text>}
         {(!isEdit || initial) && (
           <UserForm initial={initial} onDone={done} onCancel={() => navigate(RECORDS_PATH)} />
         )}

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Stack, Typography } from '@exyconn/shell/components/ui';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { panel } from '@exyconn/shell/components/glass/glass';
@@ -26,6 +27,7 @@ export function DealColumn({
   onOpen,
   onDropDeal,
 }: Readonly<DealColumnProps>) {
+  const t = useT();
   const total = deals.reduce((sum, deal) => sum + deal.value, 0);
 
   return (
@@ -49,7 +51,7 @@ export function DealColumn({
         }}
       >
         <Typography variant="subtitle2" sx={{ color: accent }}>
-          {stageLabel(stage)}
+          {t(stageLabel(stage))}
         </Typography>
         <Typography
           variant="caption"
@@ -78,7 +80,7 @@ export function DealColumn({
             color: 'text.secondary',
           }}
         >
-          Nothing here.
+          {t('Nothing here.')}
         </Typography>
       )}
     </Box>

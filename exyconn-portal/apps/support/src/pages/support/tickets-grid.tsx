@@ -64,7 +64,7 @@ export const TICKET_COLUMNS: ColDef<PagedTicketRow>[] = [
   statusColumn('priority', 'Priority'),
   statusColumn('status', 'Status'),
   derivedStatusColumn('slaState', 'SLA', (row) => row.slaState),
-  valueColumn('assigneeName', 'Assigned to', (row) => row.assigneeName || 'Unassigned'),
+  valueColumn('assigneeName', 'Assigned to', (row, t) => row.assigneeName || t('Unassigned')),
   dateColumn('createdAt', 'Raised'),
   actionsColumn([OPEN_ACTION, PAGE_ACTION, STATUS_ACTION]),
 ];

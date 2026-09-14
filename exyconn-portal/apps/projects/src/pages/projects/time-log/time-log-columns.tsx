@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Chip, Stack, Typography } from '@exyconn/shell/components/ui';
 import type { Column } from '@exyconn/shell/components/data/DataTable';
 import { formatDuration } from '@exyconn/shell/pages/tracker-view/tracker.format';
@@ -13,6 +14,7 @@ export type TimeLogRow = ProjectTimeLogRowFieldsFragment;
  * nobody carded.
  */
 function TicketCell({ row }: Readonly<{ row: TimeLogRow }>) {
+  const t = useT();
   if (!row.taskKey) {
     return (
       <Typography
@@ -21,7 +23,7 @@ function TicketCell({ row }: Readonly<{ row: TimeLogRow }>) {
           color: 'text.secondary',
         }}
       >
-        No ticket
+        {t('No ticket')}
       </Typography>
     );
   }
@@ -49,6 +51,7 @@ function TicketCell({ row }: Readonly<{ row: TimeLogRow }>) {
  * summed them would be the one place that hides it.
  */
 function TimeCell({ row }: Readonly<{ row: TimeLogRow }>) {
+  const t = useT();
   if (row.manualMs === 0) {
     return <Typography variant="body2">{formatDuration(row.activeMs)}</Typography>;
   }
@@ -61,7 +64,7 @@ function TimeCell({ row }: Readonly<{ row: TimeLogRow }>) {
           color: 'text.secondary',
         }}
       >
-        + {formatDuration(row.manualMs)} off-computer
+        {t('+ {duration} off-computer', { duration: formatDuration(row.manualMs) })}
       </Typography>
     </Stack>
   );

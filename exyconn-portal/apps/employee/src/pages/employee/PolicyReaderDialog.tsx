@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import {
   Alert,
   borderWidth,
@@ -31,6 +32,7 @@ interface Props {
  * says they never agreed to it.
  */
 export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props>) {
+  const t = useT();
   const [signedName, setSignedName] = useState('');
   const [acknowledge, { loading }] = useAcknowledgePolicyMutation();
   const notify = useNotify();
@@ -41,6 +43,12 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
   }
 
   const needsSigning = policy.requiresAcknowledgement && !policy.acknowledged;
+  const signedNotice = policy.acknowledgedAt
+    ? t('You signed version {version} on {date}.', {
+        version: policy.version,
+        date: formatDate(policy.acknowledgedAt),
+      })
+    : t('You signed version {version}.', { version: policy.version });
 
   const sign = async () => {
     try {
@@ -60,7 +68,10 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
           {policy.title}
         </Text>
         <Text size="caption" color="text.secondary" component="div" sx={{ mb: 2 }}>
-          Version {policy.version} · effective {formatDate(policy.effectiveDate)}
+          {t('Version {version} · effective {date}', {
+            version: policy.version,
+            date: formatDate(policy.effectiveDate),
+          })}
         </Text>
 
         {/* First-party content, authored by Legal in the portal — not user input. */}
@@ -80,8 +91,7 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
 
         {policy.acknowledged ? (
           <Alert severity="success" variant="outlined" sx={{ borderRadius: `${radius.sm}px` }}>
-            You signed version {policy.version}
-            {policy.acknowledgedAt ? ` on ${formatDate(policy.acknowledgedAt)}` : ''}.
+            {signedNotice}
           </Alert>
         ) : null}
 
@@ -89,7 +99,7 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
           <Flex direction="row" spacing={1} alignItems="center">
             <TextField
               size="small"
-              label="Type your full name to sign"
+              label={t('Type your full name to sign')}
               value={signedName}
               onChange={(event) => setSignedName(event.target.value)}
               sx={{ minWidth: { sm: 260 }, width: { xs: '100%', sm: 'auto' } }}
@@ -100,7 +110,7 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
               disabled={loading || signedName.trim() === ''}
               onClick={() => void sign()}
             >
-              Sign
+              {t('Sign')}
             </Button>
           </Flex>
         ) : null}

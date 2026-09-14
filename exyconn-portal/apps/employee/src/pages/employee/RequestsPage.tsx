@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -12,6 +13,7 @@ import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** Employee self-service: every HR request this employee has raised, and its outcome. */
 export function RequestsPage() {
+  const t = useT();
   const { data, loading, refetch } = useMyRequestsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const [open, setOpen] = useState(false);
@@ -48,7 +50,7 @@ export function RequestsPage() {
     <Box>
       <Flex direction="row" justifyContent="space-between" alignItems="center">
         <PageHeader title="My Requests" subtitle="WFH, regularisation, documents and more" />
-        <Button onClick={() => setOpen(true)}>Raise request</Button>
+        <Button onClick={() => setOpen(true)}>{t('Raise request')}</Button>
       </Flex>
 
       <Box sx={densePanel}>

@@ -1,6 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SaveIcon from '@mui/icons-material/Save';
+import { useT } from '@exyconn/i18n';
 import {
   Button,
   Chip,
@@ -30,20 +31,25 @@ export function LiveEditToolbar({
   onBack,
   onSave,
 }: Readonly<LiveEditToolbarProps>) {
+  const t = useT();
+  const backLabel = t('Back to the list');
+  const saveState = dirty ? t('Unsaved changes') : t('All changes saved');
+  const saveLabel = saving ? t('Saving…') : t('Save');
+
   return (
     <Flex
       alignItems="center"
       gap={1.5}
       sx={{ px: 2, py: 1, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}
     >
-      <Tooltip title="Back to the list">
-        <IconButton aria-label="Back to the list" onClick={onBack}>
+      <Tooltip title={backLabel}>
+        <IconButton aria-label={backLabel} onClick={onBack}>
           <ArrowBackIcon />
         </IconButton>
       </Tooltip>
       <Flex direction="column" sx={{ minWidth: 0, flexGrow: 1 }}>
         <Text size="caption" color="text.secondary">
-          Live edit
+          {t('Live edit')}
         </Text>
         <Text weight="semibold" noWrap>
           {title}
@@ -51,7 +57,7 @@ export function LiveEditToolbar({
       </Flex>
       <Chip
         size="small"
-        label={dirty ? 'Unsaved changes' : 'All changes saved'}
+        label={saveState}
         color={dirty ? 'warning' : 'success'}
         variant="outlined"
       />
@@ -62,7 +68,7 @@ export function LiveEditToolbar({
         rel="noopener noreferrer"
         endIcon={<OpenInNewIcon />}
       >
-        View on site
+        {t('View on site')}
       </Button>
       <Button
         variant="contained"
@@ -70,7 +76,7 @@ export function LiveEditToolbar({
         onClick={onSave}
         startIcon={saving ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
       >
-        {saving ? 'Saving…' : 'Save'}
+        {saveLabel}
       </Button>
     </Flex>
   );

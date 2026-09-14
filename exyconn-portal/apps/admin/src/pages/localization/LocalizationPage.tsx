@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Chip, Flex, MenuItem, TextField, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
@@ -26,6 +27,7 @@ const PAGE_SIZE = 50;
  * machine-written again.
  */
 export function LocalizationPage() {
+  const t = useT();
   const languages = useLanguageOptions(false);
   const { settings } = useSettings();
   const [locale, setLocale] = useState('');
@@ -67,7 +69,7 @@ export function LocalizationPage() {
       render: (row) => (
         <Chip
           size="small"
-          label={row.kind === 'HUMAN' ? 'Person' : row.model || 'Machine'}
+          label={row.kind === 'HUMAN' ? t('Person') : row.model || t('Machine')}
           color={row.kind === 'HUMAN' ? 'success' : 'default'}
         />
       ),
@@ -87,7 +89,7 @@ export function LocalizationPage() {
         <TextField
           select
           size="small"
-          label="Language"
+          label={t('Language')}
           value={chosen}
           onChange={(event) => setLocale(event.target.value)}
           sx={{ minWidth: { sm: 220 }, width: { xs: '100%', sm: 'auto' } }}
@@ -100,15 +102,15 @@ export function LocalizationPage() {
         </TextField>
         <TextField
           size="small"
-          label="Search"
+          label={t('Search')}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="English text or its translation"
+          placeholder={t('English text or its translation')}
           sx={{ minWidth: { sm: 260 }, width: { xs: '100%', sm: 'auto' } }}
         />
         <Flex direction="row" alignItems="center">
           <Text size="sm" color="text.secondary">
-            {total} translated
+            {t('{total} translated', { total })}
           </Text>
         </Flex>
       </Flex>

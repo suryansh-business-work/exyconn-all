@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { Flex, Text } from '@exyconn/shell/components/ui';
@@ -29,13 +30,17 @@ interface AudienceMembersProps {
  * the same question the send asks, so the count on screen is the count that will be mailed.
  */
 export function AudienceMembers({ audienceId, audienceName }: Readonly<AudienceMembersProps>) {
+  const t = useT();
   const { data, loading, refetch } = useAudienceMembersQuery({ variables: { id: audienceId } });
   const members = data?.audienceMembers ?? [];
 
   return (
     <Flex direction="column" spacing={1}>
       <Text size="sm" color="text.secondary">
-        “{audienceName}” reaches {members.length} recipient(s), de-duplicated by address.
+        {t('“{name}” reaches {count} recipient(s), de-duplicated by address.', {
+          name: audienceName,
+          count: members.length,
+        })}
       </Text>
       <DataTable
         columns={COLUMNS}

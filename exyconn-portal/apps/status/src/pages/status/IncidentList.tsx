@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Card, Chip, Divider, Flex, Typography } from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { IncidentImpact } from '@exyconn/shell/graphql/generated';
@@ -29,6 +30,7 @@ function duration(minutes: number): string {
 
 /** What went wrong recently, newest first — empty is the good case, so say so. */
 export function IncidentList({ incidents }: Readonly<IncidentListProps>) {
+  const t = useT();
   if (incidents.length === 0) {
     return (
       <Card variant="outlined" sx={{ p: 3 }}>
@@ -38,7 +40,7 @@ export function IncidentList({ incidents }: Readonly<IncidentListProps>) {
             color: 'text.secondary',
           }}
         >
-          No incidents recorded. Every service has answered every check.
+          {t('No incidents recorded. Every service has answered every check.')}
         </Typography>
       </Card>
     );
@@ -80,13 +82,13 @@ export function IncidentList({ incidents }: Readonly<IncidentListProps>) {
                   size="small"
                   color={IMPACT_TONES[incident.impact]}
                   variant="outlined"
-                  label={`${incident.impact.toLowerCase()} impact`}
+                  label={t('{impact} impact', { impact: incident.impact.toLowerCase() })}
                 />
                 <Chip
                   size="small"
                   color={incident.resolvedAt ? 'success' : 'error'}
                   variant="outlined"
-                  label={incident.resolvedAt ? 'Resolved' : 'Ongoing'}
+                  label={incident.resolvedAt ? t('Resolved') : t('Ongoing')}
                 />
               </Flex>
             </Flex>

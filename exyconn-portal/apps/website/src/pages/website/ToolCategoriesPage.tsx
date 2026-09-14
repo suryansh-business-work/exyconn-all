@@ -3,6 +3,7 @@ import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
+import { useT } from '@exyconn/i18n';
 import { useCrudResource } from '@exyconn/crud';
 import {
   useListToolCategoriesQuery,
@@ -13,12 +14,13 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Website CMS — the categories the public tools directory is grouped by. */
 export function ToolCategoriesPage() {
+  const t = useT();
   const { data, loading, refetch } = useListToolCategoriesQuery();
   const [deleteToolCategory] = useDeleteToolCategoryMutation();
   const crud = useCrudResource<ToolCategoryRow>({
     label: 'Tool category',
     onDelete: (row) => deleteToolCategory({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete tool category ${row.category}?`,
+    confirmMessage: (row) => t('Delete tool category {category}?', { category: row.category }),
     refetch,
   });
 

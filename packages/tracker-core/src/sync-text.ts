@@ -41,8 +41,9 @@ function uploadedText(t: Translate, count: number, discarded: number): string {
  * Every sync attempt gets a sentence. Pressing "Sync now" and being told nothing is what made
  * the button feel broken — most of the time there was simply nothing queued to upload.
  *
- * `reason` is passed through as it arrives: it is written in the main process, which has no
- * translator, and can carry a portal's own wording rather than one of ours.
+ * `reason` is translated like the rest. It is written in the main process, which has no
+ * translator of its own — but every sentence it can produce is one somebody wrote
+ * (`describeSyncFailure`), never a runtime fault's own message, so each is a catalogue key.
  */
 export function syncMessage(t: Translate, outcome: SyncOutcome | null): SyncMessage | null {
   if (outcome === null) {
@@ -59,7 +60,7 @@ export function syncMessage(t: Translate, outcome: SyncOutcome | null): SyncMess
     };
   }
   if (outcome.kind === 'unavailable') {
-    return { severity: 'info', text: outcome.reason };
+    return { severity: 'info', text: t(outcome.reason) };
   }
-  return { severity: 'warning', text: outcome.reason };
+  return { severity: 'warning', text: t(outcome.reason) };
 }

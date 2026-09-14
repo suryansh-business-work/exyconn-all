@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Alert, Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -30,6 +31,7 @@ export function ApplicantStageForm({
   onDone,
   onCancel,
 }: Readonly<ApplicantStageFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [setStage] = useSetApplicantStageMutation();
   const methods = useForm<z.input<typeof applicantStageSchema>, unknown, Values>({
@@ -41,7 +43,8 @@ export function ApplicantStageForm({
   const onSubmit = async (values: Values) => {
     try {
       await setStage({ variables: { id: applicant.id, stage: values.stage, note: values.note } });
-      notify(`${applicant.name} moved to ${values.stage.toLowerCase()}`);
+      const moved = { name: applicant.name, stage: values.stage.toLowerCase() };
+      notify(t('{name} moved to {stage}', moved));
       onDone();
     } catch (error) {
       notify(errorMessage(error, 'Could not move the applicant'), 'error');
@@ -57,7 +60,7 @@ export function ApplicantStageForm({
       submitLabel="Move"
     >
       <Text size="sm" color="text.secondary">
-        {applicant.name} · currently {applicant.stage.toLowerCase()}
+        {applicant.name} · {t('currently {stage}', { stage: applicant.stage.toLowerCase() })}
       </Text>
       <RhfSelect name="stage" label="Stage" options={STAGE_OPTIONS} />
       <RhfTextField
@@ -68,7 +71,7 @@ export function ApplicantStageForm({
         helperText="Kept in the applicant's history; the applicant does not see it"
       />
       {NOTIFIED_STAGES.has(chosen) && (
-        <Alert severity="info">The applicant will be emailed about this stage.</Alert>
+        <Alert severity="info">{t('The applicant will be emailed about this stage.')}</Alert>
       )}
     </EntityForm>
   );

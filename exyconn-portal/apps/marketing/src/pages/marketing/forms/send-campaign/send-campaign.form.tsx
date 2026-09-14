@@ -3,6 +3,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import { Alert, Button, Stack, Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -37,6 +38,7 @@ interface SendCampaignFormProps {
  * the server and reported separately from a failure.
  */
 export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCampaignFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const { data } = useListAudienceListsQuery();
   const [sendCampaign] = useSendCampaignMutation();
@@ -53,6 +55,28 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
     label: audience.name,
   }));
   const ready = Boolean(campaign.subject && campaign.body);
+  // Each outcome is one whole sentence rather than a stem with fragments appended, so the
+  // catalogue can hold what a translator has to reorder.
+  const sendOutcome = (sent: number, failed: number, skipped: number): string => {
+    if (failed && skipped) {
+      return t('Campaign sent to {sent} recipient(s) · {failed} failed · {skipped} skipped', {
+        sent,
+        failed,
+        skipped,
+      });
+    }
+    if (failed) {
+      return t('Campaign sent to {sent} recipient(s) · {failed} failed', { sent, failed });
+    }
+    if (skipped) {
+      return t('Campaign sent to {sent} recipient(s) · {skipped} skipped', { sent, skipped });
+    }
+    return t('Campaign sent to {sent} recipient(s)', { sent });
+  };
+
+  const sendingLine = campaign.subject
+    ? t('Sending “{name}” — “{subject}”.', { name: campaign.name, subject: campaign.subject })
+    : t('Sending “{name}”.', { name: campaign.name });
 
   const onSubmit = async (values: Values) => {
     try {
@@ -60,9 +84,7 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
         variables: { id: campaign.id, audienceListId: values.audienceListId },
       });
       const result = res.data?.sendCampaign;
-      const failed = result?.failed ? ` · ${result.failed} failed` : '';
-      const skipped = result?.skipped ? ` · ${result.skipped} skipped` : '';
-      notify(`Campaign sent to ${result?.sent ?? 0} recipient(s)${failed}${skipped}`);
+      notify(sendOutcome(result?.sent ?? 0, result?.failed ?? 0, result?.skipped ?? 0));
       onDone();
     } catch (err) {
       notify(errorMessage(err, 'Send failed'), 'error');
@@ -82,7 +104,7 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
     setTesting(true);
     try {
       await sendCampaign({ variables: { id: campaign.id, testEmail } });
-      notify(`Test email sent to ${testEmail}`);
+      notify(t('Test email sent to {email}', { email: testEmail }));
     } catch (err) {
       notify(errorMessage(err, 'Test send failed'), 'error');
     } finally {
@@ -99,11 +121,11 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
       submitLabel="Send"
     >
       <Text size="sm" color="text.secondary">
-        Sending “{campaign.name}”{campaign.subject ? ` — “${campaign.subject}”` : ''}.
+        {sendingLine}
       </Text>
       {!ready && (
         <Alert severity="warning">
-          Add an email subject and body to this campaign before sending.
+          {t('Add an email subject and body to this campaign before sending.')}
         </Alert>
       )}
       <Stack
@@ -120,7 +142,7 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
           helperText="Preview the email in one inbox before it goes to the audience."
         />
         <Button variant="outlined" onClick={sendTest} disabled={!ready || testing} sx={{ mt: 1 }}>
-          Send test
+          {t('Send test')}
         </Button>
       </Stack>
       <RhfSelect

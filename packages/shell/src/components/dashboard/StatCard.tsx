@@ -1,4 +1,4 @@
-import { useT } from '@exyconn/i18n';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { Box, Stack, Typography, iconSize } from '@/components/ui';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
@@ -8,6 +8,14 @@ import { color } from '@exyconn/ui';
 
 export interface StatItem {
   label: string;
+  /**
+   * Values for a label written with `{placeholders}`.
+   *
+   * A label built by hand — `` `Leave taken ${year}` `` — would be a different catalogue key
+   * every year, and every one of them would be sent for translation. "Leave taken {year}"
+   * with a value is one key, for good.
+   */
+  labelValues?: Interpolations;
   value: string;
   delta?: number;
   accent?: string;
@@ -15,7 +23,14 @@ export interface StatItem {
 }
 
 /** A frosted stat tile: label, big value, trend delta and a mini sparkline. */
-export function StatCard({ label, value, delta, accent = color.orange[500], series }: StatItem) {
+export function StatCard({
+  label,
+  labelValues,
+  value,
+  delta,
+  accent = color.orange[500],
+  series,
+}: StatItem) {
   const t = useT();
   const up = (delta ?? 0) >= 0;
   return (
@@ -33,7 +48,7 @@ export function StatCard({ label, value, delta, accent = color.orange[500], seri
             color: 'text.secondary',
           }}
         >
-          {t(label)}
+          {t(label, labelValues)}
         </Typography>
         {delta !== undefined && (
           <Stack

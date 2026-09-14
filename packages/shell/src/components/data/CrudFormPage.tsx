@@ -37,10 +37,10 @@ export function CrudFormPage({
         }}
       >
         <Button onClick={onBack} startIcon={<ArrowBackIcon />} color="inherit" size="small">
-          {backLabel ?? t('Back')}
+          {t(backLabel ?? 'Back')}
         </Button>
       </Stack>
-      <Typography variant="h4">{title}</Typography>
+      <Typography variant="h4">{t(title)}</Typography>
       {subtitle && (
         <Typography
           variant="body2"
@@ -48,7 +48,7 @@ export function CrudFormPage({
             color: 'text.secondary',
           }}
         >
-          {subtitle}
+          {t(subtitle)}
         </Typography>
       )}
       <Box sx={[readingPanel, { mt: 2, maxWidth: 880 }]}>{children}</Box>
