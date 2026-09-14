@@ -1,4 +1,5 @@
 import { defineConfig } from 'cypress';
+import { registerA11yTasks } from '@exyconn/config/cypress';
 
 export default defineConfig({
   component: {
@@ -13,5 +14,6 @@ export default defineConfig({
     baseUrl: 'http://localhost:4003',
     specPattern: '__tests__/e2e/**/*.cy.{ts,tsx}',
     supportFile: 'cypress/support/e2e.ts',
+    setupNodeEvents: registerA11yTasks,
   },
 });

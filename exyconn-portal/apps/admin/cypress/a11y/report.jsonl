@@ -1,1 +1,15 @@
-{"spec":"src/pages/branding/forms/branding/branding.form.cy.tsx","test":"BrandingForm › accepts an empty optional URL","violations":[{"id":"scrollable-region-focusable","impact":"serious","help":"Scrollable region must have keyboard access","nodes":[{"target":[".MuiAlert-message"],"html":"<div class=\"MuiAlert-message css-zioonp-MuiAlert-message\">","summary":"Fix any of the following:\n  Element should have focusable content\n  Element should be focusable"}]}]}
+{"spec":"src/pages/app-settings/forms/app-settings/app-settings.form.cy.tsx","test":"AppSettingsForm › re-renders the preview when the time format changes","violations":[]}
+{"spec":"src/pages/clients/forms/client/client.form.cy.tsx","test":"ClientForm › validates required fields and email format","violations":[]}
+{"spec":"src/pages/clients/forms/client/client.form.cy.tsx","test":"ClientForm › calls onCancel","violations":[]}
+{"spec":"src/pages/branding/forms/branding/branding.form.cy.tsx","test":"BrandingForm › previews the live business name and slogan","violations":[]}
+{"spec":"src/pages/branding/forms/branding/branding.form.cy.tsx","test":"BrandingForm › requires the business name","violations":[]}
+{"spec":"src/pages/branding/forms/branding/branding.form.cy.tsx","test":"BrandingForm › rejects a colour that is not a 6-digit hex","violations":[]}
+{"spec":"src/pages/branding/forms/branding/branding.form.cy.tsx","test":"BrandingForm › rejects an invalid support email and website URL","violations":[]}
+{"spec":"src/pages/branding/forms/branding/branding.form.cy.tsx","test":"BrandingForm › edits the per-portal login page and rejects a blank portal name","violations":[]}
+{"spec":"src/pages/branding/forms/branding/branding.form.cy.tsx","test":"BrandingForm › rejects a login background that is not a URL","violations":[]}
+{"spec":"src/pages/branding/forms/branding/branding.form.cy.tsx","test":"BrandingForm › accepts an empty optional URL","violations":[]}
+{"spec":"src/pages/organizations/forms/organization/organization.form.cy.tsx","test":"OrganizationForm › asks for the company name and the standards its portal runs in","violations":[]}
+{"spec":"src/pages/organizations/forms/organization/organization.form.cy.tsx","test":"OrganizationForm › refuses a handle that is not URL-safe","violations":[]}
+{"spec":"src/pages/organizations/forms/organization/organization.form.cy.tsx","test":"OrganizationForm › calls onCancel","violations":[]}
+{"spec":"src/pages/organizations/forms/organization-admin/organization-admin.form.cy.tsx","test":"OrganizationAdminForm › asks for a name and a valid email","violations":[]}
+{"spec":"src/pages/organizations/forms/organization-admin/organization-admin.form.cy.tsx","test":"OrganizationAdminForm › calls onCancel","violations":[]}

@@ -39,4 +39,7 @@ Thumbs.db
 
 # electron-builder output (the installer is a release artifact, not source)
 exyconn-tracker-app/dist/
-cypress/a11y/
+**/cypress/a11y/
+
+# CI quality reports (.github/scripts/pr-reports)
+/reports/

@@ -15,6 +15,7 @@
   "devDependencies": {
     "@exyconn/config": "workspace:*",
     "@testing-library/jest-dom": "^7.0.1",
+    "@vitest/coverage-v8": "^5.0.0",
     "eslint": "^10.9.1",
     "prettier": "^3.4.2",
     "typescript": "^6.0.3",
