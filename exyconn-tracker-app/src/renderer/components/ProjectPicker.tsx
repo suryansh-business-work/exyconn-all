@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { MenuItem, TextField } from '@exyconn/ui';
 import type { TrackerProject } from '@shared/types';
+import { useT } from '@exyconn/i18n';
 import { run } from '../run';
 
 interface Props {
@@ -22,15 +23,18 @@ export default function ProjectPicker({
   selectedProjectId,
   disabled,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   return (
     <TextField
       select
       size="small"
       fullWidth
-      label="Project"
+      label={t('Project')}
       value={selectedProjectId}
       disabled={disabled || projects.length === 0}
-      helperText={disabled ? 'Locked while tracking — stop to book to another project.' : undefined}
+      helperText={
+        disabled ? t('Locked while tracking — stop to book to another project.') : undefined
+      }
       onChange={(event) => run(() => window.tracker.setProject(event.target.value))}
     >
       {projects.map((project) => (

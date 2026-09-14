@@ -1,5 +1,6 @@
 import { Pressable } from 'react-native';
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { formatDayLabel } from '@exyconn/tracker-core';
 import type { CalendarCell } from '../../lib/report/calendar';
 import { useBrand } from '../../theme/BrandProvider';
@@ -12,17 +13,6 @@ interface Props {
 }
 
 const DOT = 5;
-
-function spokenLabel(cell: CalendarCell): string {
-  const parts = [formatDayLabel(cell.date)];
-  if (cell.today) {
-    parts.push('today');
-  }
-  if (cell.level !== null) {
-    parts.push(`has tracked time, ${cell.level} activity`);
-  }
-  return parts.join(', ');
-}
 
 function textColorOf(cell: CalendarCell, selectedInk: string): string {
   if (cell.selected) {
@@ -37,6 +27,7 @@ function textColorOf(cell: CalendarCell, selectedInk: string): string {
  * the month.
  */
 export function CalendarDay({ cell, onSelect }: Readonly<Props>) {
+  const t = useT();
   const brand = useBrand();
   const pill = trackerSelected[brand.scheme];
   const dot = cell.level === null ? 'transparent' : trackerActivity[brand.scheme][cell.level];
@@ -45,13 +36,21 @@ export function CalendarDay({ cell, onSelect }: Readonly<Props>) {
     return <YStack flex={1} aspectRatio={1} />;
   }
 
+  const spoken = [formatDayLabel(cell.date)];
+  if (cell.today) {
+    spoken.push(t('today'));
+  }
+  if (cell.level !== null) {
+    spoken.push(t('has tracked time, {level} activity', { level: cell.level }));
+  }
+
   return (
     <Pressable
       style={{ flex: 1 }}
       disabled={cell.disabled}
       onPress={() => onSelect(cell.date)}
       accessibilityRole="button"
-      accessibilityLabel={spokenLabel(cell)}
+      accessibilityLabel={spoken.join(', ')}
       accessibilityState={{ selected: cell.selected, disabled: cell.disabled }}
     >
       <YStack

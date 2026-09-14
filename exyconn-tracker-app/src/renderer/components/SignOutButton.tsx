@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { useState } from 'react';
 import { Button, CircularProgress } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import LogoutRounded from '@mui/icons-material/LogoutRounded';
 import { run } from '../run';
 
@@ -9,6 +10,7 @@ import { run } from '../run';
  * so the wait is a real upload — show it as one instead of a frozen button.
  */
 export default function SignOutButton(): ReactElement {
+  const t = useT();
   const [busy, setBusy] = useState(false);
 
   async function signOut(): Promise<void> {
@@ -31,7 +33,7 @@ export default function SignOutButton(): ReactElement {
       startIcon={busy ? <CircularProgress size={16} color="inherit" /> : <LogoutRounded />}
       onClick={() => run(signOut)}
     >
-      {busy ? 'Syncing your work…' : 'Sign out'}
+      {busy ? t('Syncing your work…') : t('Sign out')}
     </Button>
   );
 }

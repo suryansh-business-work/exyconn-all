@@ -11,6 +11,7 @@ import {
 } from '@exyconn/ui';
 import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
 import { formatCount } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 
 /**
  * Shown when the employee closes the app while an upload is still going up.
@@ -21,6 +22,7 @@ import { formatCount } from '@exyconn/tracker-core';
  * it and quits on its own, and this says so rather than appearing to have ignored the click.
  */
 export default function ClosingDialog(): ReactElement | null {
+  const t = useT();
   const [pending, setPending] = useState<number | null>(null);
 
   useEffect(() => window.tracker.onCloseBlocked((count) => setPending(count)), []);
@@ -30,10 +32,13 @@ export default function ClosingDialog(): ReactElement | null {
     return null;
   }
 
-  const what = pending > 0 ? `${formatCount(pending)} still to upload` : 'Finishing the upload';
+  const what =
+    pending > 0
+      ? t('{count} still to upload', { count: formatCount(pending) })
+      : t('Finishing the upload');
 
   return (
-    <Dialog open maxWidth="xs" fullWidth aria-label="Upload in progress">
+    <Dialog open maxWidth="xs" fullWidth aria-label={t('Upload in progress')}>
       <DialogContent>
         <Stack spacing={1.5}>
           <Stack
@@ -45,7 +50,7 @@ export default function ClosingDialog(): ReactElement | null {
           >
             <CloudUploadOutlined fontSize="small" sx={{ color: 'warning.main' }} />
             <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-              Upload in progress
+              {t('Upload in progress')}
             </Typography>
           </Stack>
 
@@ -55,14 +60,18 @@ export default function ClosingDialog(): ReactElement | null {
               color: 'text.secondary',
             }}
           >
-            {what}. Closing now would make this work upload all over again — the tracker will close
-            by itself the moment it lands.
+            {t(
+              '{what}. Closing now would make this work upload all over again — the tracker will close by itself the moment it lands.',
+              { what },
+            )}
           </Typography>
 
           <LinearProgress />
 
           <Alert severity="info" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
-            Nothing is lost either way: your work is saved on this machine until it is uploaded.
+            {t(
+              'Nothing is lost either way: your work is saved on this machine until it is uploaded.',
+            )}
           </Alert>
         </Stack>
       </DialogContent>

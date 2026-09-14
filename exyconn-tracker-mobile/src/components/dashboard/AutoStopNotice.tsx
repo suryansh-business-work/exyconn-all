@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { autoStopNotice } from '@exyconn/tracker-core';
 import type { TrackerSettings, TrackerStatus } from '@exyconn/tracker-core';
 import { Notice } from '../ui/Notice';
@@ -22,6 +23,7 @@ const TICK_MS = 30_000;
  * workspace runs no schedule.
  */
 export function AutoStopNotice({ settings, timezone, status }: Readonly<Props>) {
+  const t = useT();
   // Recomputed on a timer, not just on state changes: the whole point is a countdown.
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -29,7 +31,7 @@ export function AutoStopNotice({ settings, timezone, status }: Readonly<Props>) 
     return () => clearInterval(timer);
   }, []);
 
-  const notice = autoStopNotice(settings, timezone, status, now);
+  const notice = autoStopNotice(t, settings, timezone, status, now);
   if (notice === null) {
     return null;
   }

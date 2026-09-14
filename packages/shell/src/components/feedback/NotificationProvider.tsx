@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import type { ReactNode } from 'react';
 import { Alert, Snackbar, type AlertColor } from '@/components/ui';
 
@@ -16,6 +17,10 @@ const NotificationContext = createContext<NotificationContextValue | undefined>(
 
 /** App-wide MUI snackbar feedback — replaces any native alert() usage (rule 12). */
 export function NotificationProvider({ children }: { children: ReactNode }) {
+  // Every "Saved", "Could not delete that" and error message in the portal arrives here as an
+  // English string from whichever module raised it, which makes this the one place to
+  // translate them all.
+  const t = useT();
   const [state, setState] = useState<NotifyState>({ open: false, message: '', severity: 'info' });
 
   const notify = useCallback((message: string, severity: AlertColor = 'success') => {
@@ -40,7 +45,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           variant="filled"
           sx={{ width: '100%' }}
         >
-          {state.message}
+          {t(state.message)}
         </Alert>
       </Snackbar>
     </NotificationContext.Provider>

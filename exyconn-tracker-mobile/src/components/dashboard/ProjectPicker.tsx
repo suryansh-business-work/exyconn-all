@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import type { TrackerProject } from '@exyconn/tracker-core';
 import { tracker } from '../../tracker/instance';
 import { PickerField } from '../form/PickerField';
@@ -21,6 +22,7 @@ interface Props {
  * somewhere. Locked while tracking, because the project was fixed when the session opened.
  */
 export function ProjectPicker({ projects, selectedProjectId, disabled }: Readonly<Props>) {
+  const t = useT();
   const options = useMemo(
     () => projects.map((project) => ({ value: project.id, label: project.name })),
     [projects],
@@ -30,11 +32,11 @@ export function ProjectPicker({ projects, selectedProjectId, disabled }: Readonl
   return (
     <PickerField
       id="project"
-      label="Project"
+      label={t('Project')}
       options={options}
       selected={selectedProjectId}
-      placeholder={empty ? 'No projects yet' : 'Choose a project'}
-      hint={disabled ? 'Locked while tracking — stop to book to another project.' : undefined}
+      placeholder={empty ? t('No projects yet') : t('Choose a project')}
+      hint={disabled ? t('Locked while tracking — stop to book to another project.') : undefined}
       disabled={disabled || empty}
       searchable={options.length > SEARCH_FROM}
       onSelect={(projectId) => tracker.setProject(projectId)}

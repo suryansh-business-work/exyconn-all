@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Alert, Box, Skeleton, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import useTotals from '../hooks/useTotals';
 import { totalTiles } from '../tiles';
 import StatGrid from './StatGrid';
@@ -37,19 +38,20 @@ function LoadingTiles(): ReactElement {
  * you have ever logged is gone". Two headings, two meanings, no ambiguity.
  */
 export default function TotalsPanel({ lastSyncAt }: Readonly<Props>): ReactElement {
+  const t = useT();
   const { totals, loading, error } = useTotals(lastSyncAt);
 
   return (
     <Stack spacing={1}>
       <Stack spacing={0.25}>
-        <Typography variant="subtitle2">All time</Typography>
+        <Typography variant="subtitle2">{t('All time')}</Typography>
         <Typography
           variant="caption"
           sx={{
             color: 'text.secondary',
           }}
         >
-          Everything you have tracked, across every session — it never resets.
+          {t('Everything you have tracked, across every session — it never resets.')}
         </Typography>
       </Stack>
 

@@ -1,4 +1,5 @@
 import { Controller, useFormContext } from 'react-hook-form';
+import { useFieldCopy } from './useFieldCopy';
 import { MenuItem, TextField } from '@/components/ui';
 import type { SelectOption } from './types';
 
@@ -12,6 +13,7 @@ interface RhfSelectProps {
 /** React Hook Form-bound MUI select with inline validation feedback. */
 export function RhfSelect({ name, label, options, helperText }: RhfSelectProps) {
   const { control } = useFormContext();
+  const copy = useFieldCopy();
   return (
     <Controller
       name={name}
@@ -22,9 +24,9 @@ export function RhfSelect({ name, label, options, helperText }: RhfSelectProps) 
           value={field.value ?? ''}
           select
           fullWidth
-          label={label}
+          label={copy(label)}
           error={Boolean(fieldState.error)}
-          helperText={fieldState.error?.message ?? helperText}
+          helperText={copy(fieldState.error?.message ?? helperText)}
         >
           {options.map((option) => (
             <MenuItem key={option.value} value={option.value}>

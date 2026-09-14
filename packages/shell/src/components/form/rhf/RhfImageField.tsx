@@ -22,6 +22,11 @@ interface RhfImageFieldProps {
    * elsewhere (a stock photo, a CDN asset) can be pasted in without an upload.
    */
   editableUrl?: boolean;
+  /**
+   * What the picker offers. `all` adds the Pexels video tab — for a hero banner, where the
+   * thing being chosen is a clip rather than a still.
+   */
+  media?: 'image' | 'all';
 }
 
 /**
@@ -34,6 +39,7 @@ export function RhfImageField({
   folder,
   helperText,
   editableUrl = false,
+  media = 'image',
 }: Readonly<RhfImageFieldProps>) {
   const { control } = useFormContext();
   const [open, setOpen] = useState(false);
@@ -91,7 +97,7 @@ export function RhfImageField({
               title={label}
               folder={folder}
               currentUrl={url || null}
-              media="image"
+              media={media}
               onClose={() => setOpen(false)}
               onUploaded={(uploaded) => field.onChange(uploaded)}
             />

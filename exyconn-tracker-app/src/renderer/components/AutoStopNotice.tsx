@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
 import { Alert, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { TrackerSettings, TrackerStatus } from '@shared/types';
 import { autoStopNotice } from '@exyconn/tracker-core';
 
@@ -27,6 +28,7 @@ export default function AutoStopNotice({
   timezone,
   status,
 }: Readonly<Props>): ReactElement | null {
+  const t = useT();
   // Recomputed on a timer, not just on state changes: the whole point is a countdown, and
   // nothing else in this app changes once the employee is simply working.
   const [now, setNow] = useState(() => new Date());
@@ -35,7 +37,7 @@ export default function AutoStopNotice({
     return () => clearInterval(timer);
   }, []);
 
-  const notice = autoStopNotice(settings, timezone, status, now);
+  const notice = autoStopNotice(t, settings, timezone, status, now);
   if (notice === null) {
     return null;
   }

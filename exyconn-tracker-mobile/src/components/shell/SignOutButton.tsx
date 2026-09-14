@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { YStack } from 'tamagui';
 import type { TrackerStatus } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 import { signOutMessage } from '../../lib/session/sign-out';
 import { tracker } from '../../tracker/instance';
 import { messageOf } from '../../tracker/run';
@@ -22,6 +23,7 @@ const SIGN_OUT_FAILED = 'Sign out did not finish. Try again.';
  * outbox BEFORE dropping the token, so the wait is a real upload — shown as one.
  */
 export function SignOutButton({ status, pendingSync }: Readonly<Props>) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +36,7 @@ export function SignOutButton({ status, pendingSync }: Readonly<Props>) {
       // On success the state turns `signed-out` and the root layout leaves this screen.
     } catch (cause: unknown) {
       console.error('Sign out failed', cause);
-      setError(messageOf(cause, SIGN_OUT_FAILED));
+      setError(messageOf(cause, t(SIGN_OUT_FAILED)));
       setBusy(false);
       setOpen(false);
     }
@@ -43,7 +45,7 @@ export function SignOutButton({ status, pendingSync }: Readonly<Props>) {
   return (
     <YStack gap="$2">
       <AppButton
-        label="Sign out"
+        label={t('Sign out')}
         tone="outlined"
         icon="logout"
         danger
@@ -53,9 +55,9 @@ export function SignOutButton({ status, pendingSync }: Readonly<Props>) {
       {error === null ? null : <Notice severity="error">{error}</Notice>}
       <ConfirmDialog
         open={open}
-        title="Sign out?"
-        message={signOutMessage(status, pendingSync)}
-        confirmLabel={busy ? 'Syncing your work…' : 'Sign out'}
+        title={t('Sign out?')}
+        message={signOutMessage(t, status, pendingSync)}
+        confirmLabel={busy ? t('Syncing your work…') : t('Sign out')}
         danger
         busy={busy}
         onConfirm={() => {

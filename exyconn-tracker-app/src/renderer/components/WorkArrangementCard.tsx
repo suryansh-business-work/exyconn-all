@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { WorkProfile } from '@shared/types';
 import Surface from './Surface';
 import SettingsList from './SettingsList';
@@ -17,6 +18,7 @@ interface Props {
  * and to notice when they are wrong. Only HR can change them.
  */
 export default function WorkArrangementCard({ workProfile }: Readonly<Props>): ReactElement | null {
+  const t = useT();
   if (workProfile === null) {
     return null;
   }
@@ -39,13 +41,16 @@ export default function WorkArrangementCard({ workProfile }: Readonly<Props>): R
     {
       id: 'workHoursPerDay',
       label: 'Hours per day',
-      value: `${workProfile.workHoursPerDay}h (default ${DEFAULT_WORK_HOURS}h)`,
+      value: t('{hours}h (default {fallback}h)', {
+        hours: workProfile.workHoursPerDay,
+        fallback: DEFAULT_WORK_HOURS,
+      }),
     },
   ];
 
   return (
     <Surface sx={{ p: 2.5 }}>
-      <Typography variant="h6">Your working day</Typography>
+      <Typography variant="h6">{t('Your working day')}</Typography>
       <Typography
         variant="body2"
         sx={{
@@ -54,8 +59,9 @@ export default function WorkArrangementCard({ workProfile }: Readonly<Props>): R
           mb: 1,
         }}
       >
-        Set by HR on your employee record. Today&apos;s progress bar fills against these hours. Ask
-        HR if it does not match your contract.
+        {t(
+          "Set by HR on your employee record. Today's progress bar fills against these hours. Ask HR if it does not match your contract.",
+        )}
       </Typography>
       <SettingsList rows={rows} />
     </Surface>

@@ -8,7 +8,10 @@ import {
   isAwayPresence,
   PRESENCE_OPTIONS,
 } from '@exyconn/tracker-core';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { run } from '../run';
+
+type Translate = (source: string, values?: Interpolations) => string;
 
 interface Props {
   presence: PresenceState;
@@ -17,16 +20,19 @@ interface Props {
 }
 
 /** "On lunch since 12:30 PM (24m)" — what they said, and how long ago they said it. */
-function sinceLabel(presence: PresenceState, timezone: string): string {
+function sinceLabel(t: Translate, presence: PresenceState, timezone: string): string {
   if (presence.since === null) {
-    return 'Tracking runs as normal.';
+    return t('Tracking runs as normal.');
   }
   const at = new Date(presence.since);
   if (Number.isNaN(at.getTime())) {
     return '';
   }
   const elapsed = formatElapsed(Date.now() - at.getTime());
-  return `Since ${formatTimeOfDay(presence.since, timezone)} · ${elapsed}`;
+  return t('Since {time} · {elapsed}', {
+    time: formatTimeOfDay(presence.since, timezone),
+    elapsed,
+  });
 }
 
 /**
@@ -40,6 +46,7 @@ function sinceLabel(presence: PresenceState, timezone: string): string {
  * is looking for them ("back at 2"), not something to be re-sent on every keystroke.
  */
 export default function PresencePicker({ presence, timezone }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [note, setNote] = useState(presence.note);
 
   // The portal is the source of truth: a note set from another device, or rejected here,
@@ -50,19 +57,24 @@ export default function PresencePicker({ presence, timezone }: Readonly<Props>):
     run(() => window.tracker.setPresence(status, withNote));
   };
 
+  const since = sinceLabel(t, presence, timezone);
+  const caption = isAwayPresence(presence.status)
+    ? t('{since} — tracking stays paused until you are back on Working.', { since })
+    : since;
+
   return (
     <Stack spacing={1.25}>
       <TextField
         select
         size="small"
         fullWidth
-        label="My status"
+        label={t('My status')}
         value={presence.status}
         onChange={(event) => apply(event.target.value as PresenceStatus, note)}
       >
         {PRESENCE_OPTIONS.map((option) => (
           <MenuItem key={option.status} value={option.status}>
-            {option.label}
+            {t(option.label)}
           </MenuItem>
         ))}
       </TextField>
@@ -70,8 +82,8 @@ export default function PresencePicker({ presence, timezone }: Readonly<Props>):
       <TextField
         size="small"
         fullWidth
-        label="Note (optional)"
-        placeholder="Back at 2"
+        label={t('Note (optional)')}
+        placeholder={t('Back at 2')}
         value={note}
         onChange={(event) => setNote(event.target.value)}
         onBlur={() => {
@@ -90,9 +102,7 @@ export default function PresencePicker({ presence, timezone }: Readonly<Props>):
           color: 'text.secondary',
         }}
       >
-        {isAwayPresence(presence.status)
-          ? `${sinceLabel(presence, timezone)} — tracking stays paused until you are back on Working.`
-          : sinceLabel(presence, timezone)}
+        {caption}
       </Typography>
     </Stack>
   );

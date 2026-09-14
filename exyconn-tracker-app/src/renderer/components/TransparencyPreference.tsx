@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
 import { Slider, Stack, Switch, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { AppPreferences } from '@shared/types';
 import { GROUND_OPACITY } from '@shared/transparency';
 import { run } from '../run';
@@ -24,6 +25,7 @@ function save(update: Partial<AppPreferences>): void {
 export default function TransparencyPreference({
   preferences,
 }: Readonly<Props>): ReactElement | null {
+  const t = useT();
   // The slider moves freely; the preference is written once, when it is let go.
   const [opacity, setOpacity] = useState(Math.round(preferences.backgroundOpacity * 100));
   useEffect(() => {
@@ -40,22 +42,24 @@ export default function TransparencyPreference({
       <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-start' }}>
         <Stack spacing={0.25} sx={{ flex: 1, minWidth: 0 }}>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            Transparent background
+            {t('Transparent background')}
           </Typography>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {on ? 'Your desktop shows through behind the cards.' : 'The window is painted solid.'}
+            {on
+              ? t('Your desktop shows through behind the cards.')
+              : t('The window is painted solid.')}
           </Typography>
         </Stack>
         <Switch
           checked={on}
           onChange={(event) => save({ transparentBackground: event.target.checked })}
-          slotProps={{ input: { 'aria-label': 'Transparent background' } }}
+          slotProps={{ input: { 'aria-label': t('Transparent background') } }}
         />
       </Stack>
       {on ? (
         <Stack direction="row" spacing={2} sx={{ alignItems: 'center', px: 0.5 }}>
           <Typography variant="caption" sx={{ color: 'text.secondary', minWidth: 56 }}>
-            Opacity
+            {t('Opacity')}
           </Typography>
           <Slider
             size="small"
@@ -67,7 +71,7 @@ export default function TransparencyPreference({
             valueLabelFormat={(value) => `${value}%`}
             onChange={(_event, value) => setOpacity(value)}
             onChangeCommitted={(_event, value) => save({ backgroundOpacity: value / 100 })}
-            aria-label="Background opacity"
+            aria-label={t('Background opacity')}
           />
         </Stack>
       ) : null}

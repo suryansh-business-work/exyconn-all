@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { TextField } from '../../components/form/TextField';
 import { AppButton } from '../../components/ui/AppButton';
 import { Notice } from '../../components/ui/Notice';
@@ -26,6 +27,7 @@ interface Props {
  * signs out — there is nothing else to do without consent, and nothing has been recorded.
  */
 export function ConsentForm({ mustSign, canAgree }: Readonly<Props>) {
+  const t = useT();
   const [error, setError] = useState<string | null>(null);
   const [leaving, setLeaving] = useState(false);
   const schema = useMemo(() => consentSchema(mustSign), [mustSign]);
@@ -41,7 +43,7 @@ export function ConsentForm({ mustSign, canAgree }: Readonly<Props>) {
       await tracker.acceptConsent(values.signedName);
     } catch (cause: unknown) {
       console.error('Failed to record consent', cause);
-      setError(messageOf(cause, RECORD_FAILED));
+      setError(messageOf(cause, t(RECORD_FAILED)));
     }
   });
 
@@ -53,7 +55,7 @@ export function ConsentForm({ mustSign, canAgree }: Readonly<Props>) {
       // On success the tracker publishes `signed-out` and this screen unmounts.
     } catch (cause: unknown) {
       console.error('Failed to sign out', cause);
-      setError(messageOf(cause, SIGN_OUT_FAILED));
+      setError(messageOf(cause, t(SIGN_OUT_FAILED)));
       setLeaving(false);
     }
   }
@@ -64,8 +66,8 @@ export function ConsentForm({ mustSign, canAgree }: Readonly<Props>) {
         <TextField
           control={control}
           name="signedName"
-          label="Type your full name to sign"
-          hint="Recorded against this version of the policy, and visible to Legal and HR."
+          label={t('Type your full name to sign')}
+          hint={t('Recorded against this version of the policy, and visible to Legal and HR.')}
           autoComplete="name"
           autoCapitalize="words"
           disabled={busy}
@@ -73,7 +75,7 @@ export function ConsentForm({ mustSign, canAgree }: Readonly<Props>) {
       ) : null}
       {error === null ? null : <Notice severity="error">{error}</Notice>}
       <AppButton
-        label={mustSign ? 'Sign and agree' : 'I understand and agree'}
+        label={mustSign ? t('Sign and agree') : t('I understand and agree')}
         icon="check-circle-outline"
         full
         busy={formState.isSubmitting}
@@ -83,12 +85,12 @@ export function ConsentForm({ mustSign, canAgree }: Readonly<Props>) {
         }}
       />
       <AppButton
-        label="Not now"
+        label={t('Not now')}
         tone="text"
         full
         busy={leaving}
         disabled={busy}
-        accessibilityLabel="Not now — sign out"
+        accessibilityLabel={t('Not now — sign out')}
         onPress={() => {
           decline().catch((cause: unknown) => console.error('Declining failed', cause));
         }}

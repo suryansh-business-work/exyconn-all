@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { alpha, borderWidth, Box, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import type { TrackerMessage } from '@shared/types';
 import { formatDateTime } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 
 interface Props {
   message: TrackerMessage;
@@ -16,7 +17,9 @@ interface Props {
  * so the side does the work and nothing has to be labelled "You".
  */
 export default function MessageBubble({ message, timezone }: Readonly<Props>): ReactElement {
+  const t = useT();
   const mine = message.direction === 'TO_ADMIN';
+  const author = message.authorName || t('Your workspace');
 
   return (
     <Stack sx={{ alignItems: mine ? 'flex-end' : 'flex-start' }}>
@@ -50,7 +53,7 @@ export default function MessageBubble({ message, timezone }: Readonly<Props>): R
       >
         {/* Who wrote it only when it was not the person reading it — "You, 10:42" is a line
             of noise on every message somebody sends. */}
-        {mine ? '' : `${message.authorName || 'Your workspace'} · `}
+        {mine ? '' : `${author} · `}
         {formatDateTime(message.createdAt, timezone)}
       </Typography>
     </Stack>

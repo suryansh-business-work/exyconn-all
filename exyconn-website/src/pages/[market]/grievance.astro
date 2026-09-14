@@ -1,0 +1,95 @@
+---
+import GrievanceFormReact from "../../components/forms/GrievanceFormReact.tsx";
+import Page from "../../layouts/Page.astro";
+---
+
+<Page
+  metaTitle="Raise a Grievance | Report Concerns | Exyconn"
+  metaDescription="Submit your grievance or concern to Exyconn. We are committed to transparency, fairness, and prompt resolution for all stakeholders."
+>
+  <main class="bg-surface min-h-screen">
+    <!-- Hero Section - Light Background -->
+    <section
+      class="relative py-20 px-6 bg-gradient-to-br from-blue-subtle via-surface to-purple-subtle overflow-hidden"
+    >
+      <div
+        class="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-muted/40 to-purple-muted/40 rounded-full blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-cyan-muted/30 to-blue-muted/30 rounded-full blur-3xl"
+      >
+      </div>
+
+      <div class="relative z-10 max-w-4xl mx-auto text-center">
+        <span
+          class="inline-flex items-center gap-2 px-4 py-2 bg-surface border border-line rounded-full text-sm font-medium text-fg-muted mb-6 shadow-sm"
+        >
+          <i class="fa-solid fa-shield-halved text-blue-fg"></i>
+          We're Here to Listen
+        </span>
+
+        <h1 class="text-4xl md:text-5xl font-bold text-fg mb-6 tracking-tight">
+          Raise a <span
+            class="bg-gradient-to-r from-blue-strong to-purple bg-clip-text text-transparent"
+            >Grievance</span
+          >
+        </h1>
+
+        <p class="text-xl text-fg-muted max-w-2xl mx-auto leading-relaxed mb-4">
+          At Exyconn, we uphold the highest standards of integrity, transparency, and
+          accountability. If you have a concern or grievance, we encourage you to share it with us.
+        </p>
+
+        <p class="text-fg-subtle max-w-xl mx-auto">
+          All submissions are handled confidentially and reviewed by our compliance team. We strive
+          for prompt and just resolution.
+        </p>
+      </div>
+    </section>
+
+    <!-- Our Commitment -->
+    <section class="py-12 px-6 bg-surface">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="flex items-start gap-4 p-6 bg-surface-subtle rounded-2xl">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-blue to-cyan rounded-xl flex items-center justify-center shrink-0"
+            >
+              <i class="fa-solid fa-lock text-on-solid"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-fg mb-1">Confidential</h3>
+              <p class="text-sm text-fg-muted">Your identity is protected throughout the process</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4 p-6 bg-surface-subtle rounded-2xl">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-purple to-pink rounded-xl flex items-center justify-center shrink-0"
+            >
+              <i class="fa-solid fa-scale-balanced text-on-solid"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-fg mb-1">Fair Review</h3>
+              <p class="text-sm text-fg-muted">Every concern is reviewed impartially by our team</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4 p-6 bg-surface-subtle rounded-2xl">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-emerald to-teal rounded-xl flex items-center justify-center shrink-0"
+            >
+              <i class="fa-solid fa-clock text-on-solid"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-fg mb-1">Prompt Response</h3>
+              <p class="text-sm text-fg-muted">We aim to respond within 5 business days</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Grievance Form -->
+    <GrievanceFormReact client:load />
+  </main>
+</Page>

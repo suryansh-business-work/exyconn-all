@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Chip, Stack, Text } from '@exyconn/shell/components/ui';
 import { isDeviceOnline } from '@exyconn/shell/pages/tracker-view/tracker.format';
 import type { DateTimeFormatter } from '@exyconn/shell/pages/tracker-view/tracker.types';
@@ -19,6 +20,7 @@ export function TrackerDeviceLastSeen({
   isActive,
   formatDateTime,
 }: Readonly<TrackerDeviceLastSeenProps>) {
+  const t = useT();
   const online = isActive && isDeviceOnline(lastSeenAt);
   return (
     <Stack
@@ -28,7 +30,7 @@ export function TrackerDeviceLastSeen({
         alignItems: 'center',
       }}
     >
-      {online && <Chip label="Online" size="small" color="success" />}
+      {online && <Chip label={t('Online')} size="small" color="success" />}
       <Text size="sm" color={online ? 'text.primary' : 'text.secondary'}>
         {formatDateTime(lastSeenAt)}
       </Text>

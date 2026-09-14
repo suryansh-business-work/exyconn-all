@@ -4,6 +4,7 @@ import { Button, Snackbar, Stack, Typography } from '@exyconn/ui';
 import DownloadRounded from '@mui/icons-material/DownloadRounded';
 import type { ReportDay } from '@shared/types';
 import { buildReportCsv } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 
 interface Props {
   days: readonly ReportDay[];
@@ -27,6 +28,7 @@ export default function ReportDownloadButton({
   monthKey,
   monthLabel,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [notice, setNotice] = useState('');
 
   const save = (): void => {
@@ -34,12 +36,12 @@ export default function ReportDownloadButton({
       .saveReport(buildReportCsv(days, monthKey))
       .then((result) => {
         if (result.path !== null) {
-          setNotice(`Saved to ${result.path}`);
+          setNotice(t('Saved to {path}', { path: result.path }));
         }
       })
       .catch((cause: unknown) => {
         console.error('Saving the report failed', cause);
-        setNotice('Could not save the report. Check the folder and try again.');
+        setNotice(t('Could not save the report. Check the folder and try again.'));
       });
   };
 
@@ -53,7 +55,7 @@ export default function ReportDownloadButton({
         disabled={days.length === 0}
         onClick={save}
       >
-        Download {monthLabel} as CSV
+        {t('Download {month} as CSV', { month: monthLabel })}
       </Button>
       <Typography
         variant="caption"
@@ -61,7 +63,7 @@ export default function ReportDownloadButton({
           color: 'text.secondary',
         }}
       >
-        Your own tracked days, as a spreadsheet — one row per day, with the month’s totals.
+        {t('Your own tracked days, as a spreadsheet — one row per day, with the month’s totals.')}
       </Typography>
       <Snackbar
         open={notice !== ''}

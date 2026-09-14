@@ -16,6 +16,7 @@ import {
 import { downloadCsv, toCsv, type CsvColumn } from '@exyconn/shell/utils/csv';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { csvColumnsFromDefs, fetchAllRows } from './export';
+import { useT } from '@exyconn/i18n';
 import { assertExportAllowed } from './permissions';
 import { queryData } from '@exyconn/shell/utils/queryData';
 
@@ -33,6 +34,7 @@ export function ExportCsvButton<Row>({
   columns,
   loadRows,
 }: Readonly<ExportCsvButtonProps<Row>>) {
+  const t = useT();
   const notify = useNotify();
   const [busy, setBusy] = useState(false);
 
@@ -42,9 +44,9 @@ export function ExportCsvButton<Row>({
       const rows = await loadRows();
       const stamp = new Date().toISOString().slice(0, 10);
       downloadCsv(`${fileName}-${stamp}`, toCsv(rows, columns));
-      notify(`Exported ${rows.length} rows.`, 'success');
+      notify(t('Exported {count} rows.', { count: rows.length }), 'success');
     } catch (error) {
-      notify(errorMessage(error, 'The export failed.'), 'error');
+      notify(errorMessage(error, t('The export failed.')), 'error');
     } finally {
       setBusy(false);
     }
@@ -52,7 +54,7 @@ export function ExportCsvButton<Row>({
 
   return (
     <Button size="small" startIcon={<DownloadIcon />} onClick={exportCsv} disabled={busy}>
-      Export CSV
+      {t('Export CSV')}
     </Button>
   );
 }

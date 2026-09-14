@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Alert, Grid } from '@exyconn/shell/components/ui';
 import { RhfMultiSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -39,6 +40,7 @@ interface TrackerNoticeFormProps {
  * read as "nobody".
  */
 export function TrackerNoticeForm({ employees }: Readonly<TrackerNoticeFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const confirm = useConfirm();
   const [sendNotice] = useSendTrackerNoticeMutation();
@@ -49,19 +51,24 @@ export function TrackerNoticeForm({ employees }: Readonly<TrackerNoticeFormProps
 
   const chosen = methods.watch('userIds') ?? [];
   const audience =
-    chosen.length === 0 ? 'every employee with tracker access' : `${chosen.length} employee(s)`;
+    chosen.length === 0
+      ? t('every employee with tracker access')
+      : t('{count} employee(s)', { count: chosen.length });
 
   const onSubmit = async (values: Values) => {
     const ok = await confirm({
       title: 'Send this notice?',
-      message: `It appears immediately as a desktop notification for ${audience}. It cannot be recalled.`,
+      message: t(
+        'It appears immediately as a desktop notification for {audience}. It cannot be recalled.',
+        { audience },
+      ),
       confirmText: 'Send',
     });
     if (!ok) return;
     try {
       const result = await sendNotice({ variables: { input: values } });
       const reached = result.data?.sendTrackerNotice ?? 0;
-      notify(`Notice sent to ${reached} employee(s)`);
+      notify(t('Notice sent to {count} employee(s)', { count: reached }));
       methods.reset({ title: '', body: '', userIds: [] });
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not send the notice', 'error');
@@ -77,8 +84,10 @@ export function TrackerNoticeForm({ employees }: Readonly<TrackerNoticeFormProps
       onCancel={() => methods.reset({ title: '', body: '', userIds: [] })}
     >
       <Alert severity="info">
-        This appears as a desktop notification on the tracker, and stays under Announcements in the
-        app. Leave the recipients empty to reach {audience}.
+        {t(
+          'This appears as a desktop notification on the tracker, and stays under Announcements in the app. Leave the recipients empty to reach {audience}.',
+          { audience },
+        )}
       </Alert>
       <Grid container spacing={2}>
         <Grid size={12}>

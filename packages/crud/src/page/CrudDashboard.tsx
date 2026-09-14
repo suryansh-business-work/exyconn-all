@@ -103,12 +103,12 @@ export function CrudDashboard<TRow, TPaged>({
   const gridContext = useMemo(() => contextWithoutActions(context, denied), [context, denied]);
   // Built from placeholders rather than by joining words: "New {entity}" is one string a
   // translator can put in their own order, where 'New ' + entityLabel is two they cannot.
-  const formTitle = crud?.editing
-    ? t('Edit {entity}', { entity: entityLabel })
-    : t('New {entity}', { entity: entityLabel });
+  // The noun is translated too — "risk", "invoice" — before it is put into the pattern.
+  const entity = t(entityLabel);
+  const formTitle = crud?.editing ? t('Edit {entity}', { entity }) : t('New {entity}', { entity });
   const createAction =
     crud && may('create')
-      ? { label: actionLabel ?? t('New {entity}', { entity: entityLabel }), open: crud.openCreate }
+      ? { label: actionLabel ?? t('New {entity}', { entity }), open: crud.openCreate }
       : null;
   if (crud?.open && renderForm) {
     return (

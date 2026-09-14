@@ -1,4 +1,5 @@
 import { useFormContext } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import { Box, FormHelperText, Grid } from '@exyconn/shell/components/ui';
 import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 
@@ -10,6 +11,7 @@ import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
  * drift out of date the first time somebody changed job.
  */
 export function DigestScheduleFields() {
+  const t = useT();
   const { watch } = useFormContext<{
     dailyDigestEnabled: boolean;
     weeklyDigestEnabled: boolean;
@@ -21,8 +23,9 @@ export function DigestScheduleFields() {
       <RhfSwitch name="dailyDigestEnabled" label="Email a daily summary" />
       <RhfSwitch name="weeklyDigestEnabled" label="Email a weekly summary (Mondays)" />
       <FormHelperText>
-        Sent to everyone with the Tracker role: hours per employee for the period, tracked and
-        off-computer shown separately.
+        {t(
+          'Sent to everyone with the Tracker role: hours per employee for the period, tracked and off-computer shown separately.',
+        )}
       </FormHelperText>
       {anyDigestOn ? (
         <Grid container spacing={2} sx={{ mt: 0.5 }}>

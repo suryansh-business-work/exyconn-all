@@ -3,6 +3,7 @@ import { Box, CircularProgress, ThemeProvider } from '@exyconn/ui';
 import type { TrackerState } from '@shared/types';
 import { groundOpacity } from '@shared/transparency';
 import { deviceTimezone } from '@exyconn/tracker-core';
+import TrackerI18nProvider from './i18n/TrackerI18nProvider';
 import AppFrame from './components/AppFrame';
 import ClosingDialog from './components/ClosingDialog';
 import AppShell from './AppShell';
@@ -76,20 +77,25 @@ export default function App(): ReactElement {
   useCaptureNotification(state?.timezone ?? deviceTimezone());
 
   return (
-    <ThemeProvider theme={theme}>
-      <AppFrame
-        groundOpacity={
-          state === null
-            ? 1
-            : groundOpacity(window.tracker.transparencySupported, state.preferences)
-        }
-      >
-        {/* Above the router: a new version matters on the login screen too. */}
-        <UpdateBanner update={update} />
-        {state === null ? <Loading /> : <ScreenRouter state={state} />}
-      </AppFrame>
-      {/* At the root: a quit can be asked for from any page, and from the tray. */}
-      <ClosingDialog />
-    </ThemeProvider>
+    <TrackerI18nProvider
+      locale={state?.locale ?? null}
+      timezone={state?.timezone ?? deviceTimezone()}
+    >
+      <ThemeProvider theme={theme}>
+        <AppFrame
+          groundOpacity={
+            state === null
+              ? 1
+              : groundOpacity(window.tracker.transparencySupported, state.preferences)
+          }
+        >
+          {/* Above the router: a new version matters on the login screen too. */}
+          <UpdateBanner update={update} />
+          {state === null ? <Loading /> : <ScreenRouter state={state} />}
+        </AppFrame>
+        {/* At the root: a quit can be asked for from any page, and from the tray. */}
+        <ClosingDialog />
+      </ThemeProvider>
+    </TrackerI18nProvider>
   );
 }

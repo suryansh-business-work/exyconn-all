@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import ForumIcon from '@mui/icons-material/Forum';
 import CampaignIcon from '@mui/icons-material/Campaign';
+import { useT } from '@exyconn/i18n';
 import { Box, Card } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
@@ -17,6 +18,7 @@ import { TrackerNoticeForm } from './forms/tracker-notice';
  * by accident as the first.
  */
 export function TrackerMessagesPage() {
+  const t = useT();
   const usersQuery = useListEmployeeOptionsQuery();
   const employees = useMemo(
     () =>
@@ -30,13 +32,13 @@ export function TrackerMessagesPage() {
   const tabs: TabberItem[] = [
     {
       slug: 'inbox',
-      label: 'Inbox',
+      label: t('Inbox'),
       icon: <ForumIcon />,
       content: <TrackerMessageInbox />,
     },
     {
       slug: 'notice',
-      label: 'Send a notice',
+      label: t('Send a notice'),
       icon: <CampaignIcon />,
       content: (
         <Card variant="outlined" sx={{ p: 2 }}>
@@ -52,7 +54,7 @@ export function TrackerMessagesPage() {
         title="Messages"
         subtitle="Reply to employees, or announce something to every tracker"
       />
-      <Tabber basePath="/tracker/messages" items={tabs} ariaLabel="Message views" />
+      <Tabber basePath="/tracker/messages" items={tabs} ariaLabel={t('Message views')} />
     </Box>
   );
 }

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { zonedToday } from '@exyconn/tracker-core';
 import { useMyDay } from '../../hooks/useMyDay';
 import { DayActivityChart } from '../charts/DayActivityChart';
@@ -10,10 +11,11 @@ interface Props {
 
 /** Today's synced intervals on the dashboard, in the employee's own zone. */
 export function TodayActivity({ timezone, lastSyncAt }: Readonly<Props>) {
+  const t = useT();
   const { detail, loading } = useMyDay(zonedToday(timezone), timezone, lastSyncAt);
   return (
     <DayActivityChart
-      title="Today’s activity"
+      title={t('Today’s activity')}
       detail={detail}
       loading={loading}
       timezone={timezone}

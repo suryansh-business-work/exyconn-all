@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NetworkStatus } from '@apollo/client';
 import BlockIcon from '@mui/icons-material/Block';
+import { useT } from '@exyconn/i18n';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
@@ -27,6 +28,7 @@ const REFRESH_MS = 60_000;
 
 /** Tracker devices console — the kill-switch for a lost or retired laptop. */
 export function TrackerDevicesPage() {
+  const t = useT();
   const { data, loading, refetch, networkStatus } = useTrackerDevicesQuery({
     fetchPolicy: 'cache-and-network',
     pollInterval: REFRESH_MS,
@@ -87,7 +89,9 @@ export function TrackerDevicesPage() {
 
   const handleRevoke = async (row: TrackerDeviceRow) => {
     const ok = await confirm({
-      message: `Revoke access for "${row.hostname}"? The device will be signed out.`,
+      message: t('Revoke access for "{hostname}"? The device will be signed out.', {
+        hostname: row.hostname,
+      }),
       confirmText: 'Revoke',
     });
     if (!ok) return;
@@ -113,8 +117,8 @@ export function TrackerDevicesPage() {
         actions={[
           {
             icon: <BlockIcon fontSize="small" />,
-            tooltip: 'Revoke device',
-            ariaLabel: 'revoke device',
+            tooltip: t('Revoke device'),
+            ariaLabel: t('revoke device'),
             color: 'error',
             onClick: handleRevoke,
           },

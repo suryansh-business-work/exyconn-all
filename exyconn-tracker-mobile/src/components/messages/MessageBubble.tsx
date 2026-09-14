@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { formatDateTime, type TrackerMessage } from '@exyconn/tracker-core';
 import { useBrand } from '../../theme/BrandProvider';
 import { TRACKER_RADIUS, borderWidth } from '../../theme/tokens';
@@ -13,11 +14,6 @@ interface Props {
   timezone: string;
 }
 
-/** The workspace's author, named as they were at the time — or the workspace, for a departed one. */
-function authorOf(message: TrackerMessage): string {
-  return message.authorName || 'Your workspace';
-}
-
 /**
  * One line of the conversation.
  *
@@ -27,13 +23,21 @@ function authorOf(message: TrackerMessage): string {
  * the side, so it is the one place the author is spoken for the employee's own lines too.
  */
 function MessageBubbleView({ message, timezone }: Readonly<Props>) {
+  const t = useT();
   const brand = useBrand();
   const mine = message.direction === 'TO_ADMIN';
   const when = formatDateTime(message.createdAt, timezone);
+  // The workspace's author, named as they were at the time — or the workspace, for a departed one.
+  const author = message.authorName || t('Your workspace');
   // Who wrote it only when it was not the person reading it — "You, 10:42" is a line of noise
   // on every message somebody sends.
-  const meta = mine ? when : `${authorOf(message)} · ${when}`;
-  const spoken = `${mine ? 'You' : authorOf(message)}, ${when}. ${message.title} ${message.body}`;
+  const meta = mine ? when : t('{author} · {when}', { author, when });
+  const spoken = t('{author}, {when}. {title} {body}', {
+    author: mine ? t('You') : author,
+    when,
+    title: message.title,
+    body: message.body,
+  });
 
   return (
     <YStack

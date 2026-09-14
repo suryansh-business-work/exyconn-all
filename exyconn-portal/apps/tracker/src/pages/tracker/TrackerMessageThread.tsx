@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import SendIcon from '@mui/icons-material/Send';
+import { useT } from '@exyconn/i18n';
 import {
   Box,
   IconButton,
@@ -30,7 +31,9 @@ interface BubbleProps {
 
 /** One line of the conversation: the employee's on the left, the desk's own on the right. */
 function Bubble({ message, formatDateTime }: Readonly<BubbleProps>) {
+  const t = useT();
   const fromDesk = message.direction === 'TO_EMPLOYEE';
+  const author = message.authorName || t('Tracker desk');
 
   return (
     <Stack sx={{ alignItems: fromDesk ? 'flex-end' : 'flex-start' }}>
@@ -55,7 +58,7 @@ function Bubble({ message, formatDateTime }: Readonly<BubbleProps>) {
           color: 'text.secondary',
         }}
       >
-        {fromDesk ? `${message.authorName || 'Tracker desk'} · ` : ''}
+        {fromDesk ? `${author} · ` : ''}
         {formatDateTime(message.createdAt)}
       </Typography>
     </Stack>
@@ -74,6 +77,7 @@ interface TrackerMessageThreadProps {
  * message is the act of reading it, not a separate button somebody has to remember.
  */
 export function TrackerMessageThread({ userId, userName }: Readonly<TrackerMessageThreadProps>) {
+  const t = useT();
   const { formatDateTime } = useSettings();
   const notify = useNotify();
   const [body, setBody] = useState('');
@@ -132,7 +136,7 @@ export function TrackerMessageThread({ userId, userName }: Readonly<TrackerMessa
               color: 'text.secondary',
             }}
           >
-            Nothing has been said yet. Anything you write appears on their tracker.
+            {t('Nothing has been said yet. Anything you write appears on their tracker.')}
           </Typography>
         ) : null}
       </Stack>
@@ -149,7 +153,7 @@ export function TrackerMessageThread({ userId, userName }: Readonly<TrackerMessa
           multiline
           maxRows={4}
           size="small"
-          placeholder={`Reply to ${userName}…`}
+          placeholder={t('Reply to {name}…', { name: userName })}
           value={body}
           disabled={sending}
           onChange={(event) => setBody(event.target.value)}
@@ -160,12 +164,12 @@ export function TrackerMessageThread({ userId, userName }: Readonly<TrackerMessa
             }
           }}
           slotProps={{
-            htmlInput: { maxLength: MAX_CHARS, 'aria-label': 'Reply' },
+            htmlInput: { maxLength: MAX_CHARS, 'aria-label': t('Reply') },
           }}
         />
         <IconButton
           color="primary"
-          aria-label="Send reply"
+          aria-label={t('Send reply')}
           disabled={body.trim() === '' || sending}
           onClick={() => void submit()}
         >

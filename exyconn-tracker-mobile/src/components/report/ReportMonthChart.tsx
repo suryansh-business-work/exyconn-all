@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import type { ReportDay } from '@exyconn/tracker-core';
 import { formatHours, monthChart } from '../../lib/report/charts';
 import { useBrand } from '../../theme/BrandProvider';
@@ -21,6 +22,7 @@ interface Props {
  * the reader has to do.
  */
 export function ReportMonthChart({ days, monthLabel }: Readonly<Props>) {
+  const t = useT();
   const { primary } = useBrand();
   const muted = useThemeColor('muted');
   const data = useMemo(() => {
@@ -29,24 +31,31 @@ export function ReportMonthChart({ days, monthLabel }: Readonly<Props>) {
     const colors: Readonly<Record<string, string>> = { active: primary, idle: muted };
     return {
       ...shaped,
-      series: shaped.series.map((series) => ({ ...series, color: colors[series.id] })),
+      series: shaped.series.map((series) => ({
+        ...series,
+        color: colors[series.id],
+        label: t(series.label),
+      })),
     };
-  }, [days, primary, muted]);
+  }, [days, primary, muted, t]);
 
   return (
     <ChartCard
-      title="Hours this month"
-      subtitle={`${monthLabel} · each column is one day`}
+      title={t('Hours this month')}
+      subtitle={t('{month} · each column is one day', { month: monthLabel })}
       data={data}
       formatValue={formatHours}
-      labelHeading="Day"
-      emptyText="No time tracked this month."
+      labelHeading={t('Day')}
+      emptyText={t('No time tracked this month.')}
     >
       <StackedBarChart
         data={data}
         formatValue={formatHours}
         height={200}
-        accessibilityLabel={`Hours this month, ${monthLabel}: worked stacked under idle for each day. Switch to Table to hear every value.`}
+        accessibilityLabel={t(
+          'Hours this month, {month}: worked stacked under idle for each day. Switch to Table to hear every value.',
+          { month: monthLabel },
+        )}
       />
     </ChartCard>
   );

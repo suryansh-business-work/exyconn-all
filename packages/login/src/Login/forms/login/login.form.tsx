@@ -4,6 +4,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import {
   Alert,
   Box,
@@ -37,6 +38,7 @@ interface LoginFormProps {
 
 /** React Hook Form + Zod login form. Compact: two fields and one full-width action. */
 export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
+  const t = useT();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { signIn } = useAuth();
@@ -59,7 +61,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
         navigate(safeNext(params.get('next')), { replace: true });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : t('Login failed'));
     }
   };
 
@@ -67,10 +69,10 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
         <Flex direction="column" spacing={1.5}>
-          {error && <Alert severity="error">{error}</Alert>}
+          {error && <Alert severity="error">{t(error)}</Alert>}
           <RhfTextField
             name="email"
-            placeholder="e-mail address"
+            placeholder={t('e-mail address')}
             autoComplete="email"
             slotProps={{
               input: {
@@ -84,7 +86,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
           />
           <RhfTextField
             name="password"
-            placeholder="password"
+            placeholder={t('password')}
             type={show ? 'text' : 'password'}
             autoComplete="current-password"
             slotProps={{
@@ -99,7 +101,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
                     <IconButton
                       size="small"
                       edge="end"
-                      aria-label="toggle password"
+                      aria-label={t('toggle password')}
                       onClick={() => setShow((s) => !s)}
                     >
                       {show ? (
@@ -120,7 +122,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
             disabled={methods.formState.isSubmitting}
             sx={{ bgcolor: accentColor, py: 1, '&:hover': { bgcolor: accentColor, opacity: 0.9 } }}
           >
-            Log in
+            {t('Log in')}
           </Button>
 
           <Flex direction="column" alignItems="flex-start" spacing={0.5}>
@@ -131,7 +133,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
               sx={{ color: 'text.secondary' }}
               onClick={() => setForgotOpen(true)}
             >
-              Forgot password?
+              {t('Forgot password?')}
             </Link>
             <AdminRecovery />
           </Flex>

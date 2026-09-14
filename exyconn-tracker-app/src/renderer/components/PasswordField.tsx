@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { IconButton, InputAdornment, TextField } from '@exyconn/ui';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { useT } from '@exyconn/i18n';
 
 interface Props {
   value: string;
@@ -21,12 +22,13 @@ export default function PasswordField({
   helperText,
   onChange,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [visible, setVisible] = useState(false);
-  const label = visible ? 'Hide password' : 'Show password';
+  const label = visible ? t('Hide password') : t('Show password');
 
   return (
     <TextField
-      label="Password"
+      label={t('Password')}
       type={visible ? 'text' : 'password'}
       autoComplete="current-password"
       fullWidth

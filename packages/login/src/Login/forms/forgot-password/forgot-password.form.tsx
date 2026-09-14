@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
 import { Text } from '@exyconn/shell/components/ui';
+import { useT } from '@exyconn/i18n';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -24,6 +25,7 @@ interface ForgotPasswordFormProps {
 
 /** Asks for the address to mail a one-hour reset link to. */
 export function ForgotPasswordForm({ onCancel, onDone }: Readonly<ForgotPasswordFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [requestReset] = useRequestPasswordResetMutation();
   const methods = useForm<ForgotPasswordValues>({
@@ -50,8 +52,9 @@ export function ForgotPasswordForm({ onCancel, onDone }: Readonly<ForgotPassword
       submitLabel="Send reset link"
     >
       <Text size="sm" color="text.secondary">
-        Enter the email you sign in with. If it has an account, a link to choose a new password will
-        be sent to it. The link works once and expires in an hour.
+        {t(
+          'Enter the email you sign in with. If it has an account, a link to choose a new password will be sent to it. The link works once and expires in an hour.',
+        )}
       </Text>
       <RhfTextField name="email" label="Email" autoComplete="email" autoFocus />
     </EntityForm>

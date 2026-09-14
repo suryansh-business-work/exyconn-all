@@ -1,4 +1,5 @@
 import { Controller, useFormContext } from 'react-hook-form';
+import { useFieldCopy } from './useFieldCopy';
 import { FormControlLabel, Switch } from '@/components/ui';
 
 interface RhfSwitchProps {
@@ -9,6 +10,7 @@ interface RhfSwitchProps {
 /** React Hook Form-bound MUI switch for a boolean field. */
 export function RhfSwitch({ name, label }: Readonly<RhfSwitchProps>) {
   const { control } = useFormContext();
+  const copy = useFieldCopy();
 
   return (
     <Controller
@@ -16,7 +18,7 @@ export function RhfSwitch({ name, label }: Readonly<RhfSwitchProps>) {
       control={control}
       render={({ field }) => (
         <FormControlLabel
-          label={label}
+          label={copy(label)}
           control={
             <Switch
               checked={Boolean(field.value)}

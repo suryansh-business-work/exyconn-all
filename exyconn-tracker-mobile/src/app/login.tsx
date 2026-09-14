@@ -1,4 +1,5 @@
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { LoginForm } from '../forms/login';
 import { AppFooter } from '../components/shell/AppFooter';
 import { ThemeToggle } from '../components/shell/ThemeToggle';
@@ -11,6 +12,7 @@ import { useTrackerState } from '../hooks/useTrackerState';
 
 /** Sign-in. Uses portal credentials; the shared controller validates them with the portal. */
 export default function LoginScreen() {
+  const t = useT();
   const state = useTrackerState();
   if (state === null) {
     return null;
@@ -25,12 +27,12 @@ export default function LoginScreen() {
       </YStack>
       <Surface>
         <YStack gap="$1">
-          <Title>Sign in</Title>
-          <Caption>Use your Exyconn portal email and password.</Caption>
+          <Title>{t('Sign in')}</Title>
+          <Caption>{t('Use your Exyconn portal email and password.')}</Caption>
         </YStack>
         {/* The app signed them out itself — revoked access — and they are owed the reason. */}
         {state.signedOutReason === null ? null : (
-          <Notice severity="warning">{state.signedOutReason}</Notice>
+          <Notice severity="warning">{t(state.signedOutReason)}</Notice>
         )}
         <LoginForm rememberMe={state.rememberMe} />
       </Surface>

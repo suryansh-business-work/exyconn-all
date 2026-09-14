@@ -60,6 +60,12 @@ const api = {
   getTotals: (): Promise<TrackerTotals> => ipcRenderer.invoke(IPC.getTotals),
   /** Persists the employee's chosen zone; resolves to the zone now in force. */
   setTimezone: (timezone: string): Promise<string> => ipcRenderer.invoke(IPC.setTimezone, timezone),
+  /** The app's words in one language, keyed by the English they were written in. */
+  getTranslations: (locale: string): Promise<Record<string, string>> =>
+    ipcRenderer.invoke(IPC.getTranslations, locale),
+  /** Asks the portal to translate strings this language has never seen. */
+  translateMissing: (locale: string, sources: string[]): Promise<Record<string, string>> =>
+    ipcRenderer.invoke(IPC.translateMissing, locale, sources),
   /** Opens the screenshot gallery in a separate window (or focuses the open one). */
   openScreenshots: (range: ScreenshotsRange): Promise<void> =>
     ipcRenderer.invoke(IPC.openScreenshots, range),

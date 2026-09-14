@@ -8,6 +8,7 @@ import {
   transition,
 } from '@exyconn/shell/components/ui';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useT } from '@exyconn/i18n';
 import type { PlatformConfig } from './download.config';
 
 interface PlatformTileProps {
@@ -26,7 +27,9 @@ export function PlatformTile({
   available,
   onSelect,
 }: Readonly<PlatformTileProps>) {
+  const t = useT();
   const Icon = platform.icon;
+  const fileLine = available ? t(platform.fileLabel) : t('Not in this release');
   return (
     <Box
       component="button"
@@ -76,7 +79,7 @@ export function PlatformTile({
               display: 'block',
             }}
           >
-            {available ? platform.fileLabel : 'Not in this release'}
+            {fileLine}
           </Typography>
         </Box>
       </Stack>

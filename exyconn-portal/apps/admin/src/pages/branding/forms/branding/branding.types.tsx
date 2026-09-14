@@ -34,6 +34,8 @@ export const brandingSchema = z.object({
   appIconUrl: url,
   emailLogoUrl: url,
   ogImageUrl: url,
+  heroVideoUrl: url,
+  heroPosterUrl: url,
 
   primaryColor: color,
   secondaryColor: color,
@@ -86,6 +88,8 @@ export const toBrandingValues = (row: BrandingRow): BrandingFormValues => ({
   appIconUrl: row.appIconUrl,
   emailLogoUrl: row.emailLogoUrl,
   ogImageUrl: row.ogImageUrl,
+  heroVideoUrl: row.heroVideoUrl,
+  heroPosterUrl: row.heroPosterUrl,
 
   primaryColor: row.primaryColor,
   secondaryColor: row.secondaryColor,

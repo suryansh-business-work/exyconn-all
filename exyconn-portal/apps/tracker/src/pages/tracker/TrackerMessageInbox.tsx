@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { Card, Grid, Typography } from '@exyconn/shell/components/ui';
 import { withParam } from '@exyconn/shell/utils/searchParams';
 import { useTrackerMessageThreadsQuery } from '@exyconn/shell/graphql/generated';
@@ -17,6 +18,7 @@ const EMPLOYEE_PARAM = 'employee';
  * straight to the conversation rather than told whose name to click.
  */
 export function TrackerMessageInbox() {
+  const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedUserId = searchParams.get(EMPLOYEE_PARAM);
   const { data } = useTrackerMessageThreadsQuery({
@@ -66,7 +68,7 @@ export function TrackerMessageInbox() {
                 color: 'text.secondary',
               }}
             >
-              Pick a conversation to read and reply to it.
+              {t('Pick a conversation to read and reply to it.')}
             </Typography>
           )}
         </Card>

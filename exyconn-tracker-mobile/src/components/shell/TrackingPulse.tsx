@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
 import { YStack } from 'tamagui';
 import type { TrackerStatus } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 import { useThemeColor, type ThemeColor } from '../../theme/useThemeColor';
 
 /** What the dot means, per status. Only `tracking` animates. */
@@ -27,6 +28,7 @@ interface Props {
  * `tracking` moves.
  */
 export function TrackingPulse({ status }: Readonly<Props>) {
+  const t = useT();
   const look = LOOK[status];
   const color = useThemeColor(look.tone);
   const ring = useRef(new Animated.Value(0)).current;
@@ -55,7 +57,7 @@ export function TrackingPulse({ status }: Readonly<Props>) {
       alignItems="center"
       justifyContent="center"
       accessibilityRole="image"
-      accessibilityLabel={look.label}
+      accessibilityLabel={t(look.label)}
     >
       {look.live ? (
         <Animated.View

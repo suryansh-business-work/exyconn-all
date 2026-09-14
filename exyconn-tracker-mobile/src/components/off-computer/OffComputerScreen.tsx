@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Spinner, XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { ManualEntry, TrackerProject } from '@exyconn/tracker-core';
 import { ManualEntryForm } from '../../forms/manual-entry';
 import { useManualEntries } from '../../hooks/useManualEntries';
@@ -24,9 +25,10 @@ interface ClaimProps extends Props {
 
 /** The claim form, in place of the list while it is being filled in. */
 function ClaimView({ projects, timezone, onCancel, onDone }: Readonly<ClaimProps>) {
+  const t = useT();
   return (
     <ScreenLayout>
-      <Title>Claim off-computer time</Title>
+      <Title>{t('Claim off-computer time')}</Title>
       <Surface>
         <ManualEntryForm
           projects={projects}
@@ -47,6 +49,7 @@ function ClaimView({ projects, timezone, onCancel, onDone }: Readonly<ClaimProps
  * decision still belongs to a manager, in the portal's review queue.
  */
 export function OffComputerScreen({ projects, timezone }: Readonly<Props>) {
+  const t = useT();
   const { entries, loading, error, reload } = useManualEntries();
   const [claiming, setClaiming] = useState(false);
   const [withdrawing, setWithdrawing] = useState<ManualEntry | null>(null);
@@ -71,9 +74,11 @@ export function OffComputerScreen({ projects, timezone }: Readonly<Props>) {
   return (
     <ScreenLayout onRefresh={reload} refreshing={loading && entries.length > 0}>
       <XStack justifyContent="space-between" alignItems="center" gap="$3">
-        <Caption flex={1}>Hours the tracker could not measure, and where each one stands.</Caption>
+        <Caption flex={1}>
+          {t('Hours the tracker could not measure, and where each one stands.')}
+        </Caption>
         <AppButton
-          label="Claim time"
+          label={t('Claim time')}
           icon="plus"
           onPress={() => {
             setWithdrawError(null);
@@ -87,7 +92,7 @@ export function OffComputerScreen({ projects, timezone }: Readonly<Props>) {
 
       {showSpinner ? (
         <YStack alignItems="center" paddingVertical="$4">
-          <Spinner accessibilityLabel="Loading your claims" />
+          <Spinner accessibilityLabel={t('Loading your claims')} />
         </YStack>
       ) : (
         <ManualEntryList

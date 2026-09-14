@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import {
   Button,
   Dialog,
@@ -25,6 +26,7 @@ function toFacts(
   device: TrackerDeviceRow,
   formatDateTime: DateTimeFormatter,
   timezone: TimezoneResolution,
+  t: (source: string) => string,
 ): DeviceFact[] {
   const memoryGb = (device.totalMemoryMb / 1024).toFixed(1);
   return [
@@ -37,7 +39,7 @@ function toFacts(
     { label: 'Memory', value: `${memoryGb} GB` },
     { label: 'Locale', value: device.locale },
     { label: 'Device timezone', value: device.timezone },
-    { label: 'Effective timezone', value: timezoneSummary(timezone) },
+    { label: 'Effective timezone', value: timezoneSummary(timezone, t) },
     { label: 'Screens', value: String(device.screenCount) },
     { label: 'Screen resolution', value: device.screenResolution },
     { label: 'App version', value: device.appVersion },
@@ -60,6 +62,7 @@ export function TrackerDeviceDetails({
   formatDateTime,
   timezone,
 }: Readonly<TrackerDeviceDetailsProps>) {
+  const t = useT();
   if (!device) return null;
 
   return (
@@ -70,7 +73,7 @@ export function TrackerDeviceDetails({
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={1.5}>
-          {toFacts(device, formatDateTime, timezone).map((fact) => (
+          {toFacts(device, formatDateTime, timezone, t).map((fact) => (
             <Grid
               key={fact.label}
               size={{
@@ -79,7 +82,7 @@ export function TrackerDeviceDetails({
               }}
             >
               <Text size="caption" color="text.secondary" component="div">
-                {fact.label}
+                {t(fact.label)}
               </Text>
               <Text size="sm" weight="medium" component="div" sx={{ wordBreak: 'break-word' }}>
                 {fact.value}
@@ -89,7 +92,7 @@ export function TrackerDeviceDetails({
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose}>{t('Close')}</Button>
       </DialogActions>
     </Dialog>
   );

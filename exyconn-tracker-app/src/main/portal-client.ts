@@ -48,6 +48,8 @@ export const {
   setTimezone,
   fetchMyTotals,
   fetchTimezones,
+  fetchTranslations,
+  translateMissing,
   acceptConsent,
   markAttendance,
   startSession,

@@ -4,6 +4,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Alert, Button, Flex } from '@exyconn/shell/components/ui';
+import { useT } from '@exyconn/i18n';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -37,6 +38,7 @@ interface ResetPasswordFormProps {
 
 /** Sets a new password from an emailed link, then sends the person to sign in with it. */
 export function ResetPasswordForm({ token, accentColor }: Readonly<ResetPasswordFormProps>) {
+  const t = useT();
   const navigate = useNavigate();
   const notify = useNotify();
   const [resetPassword] = useResetPasswordMutation();
@@ -61,18 +63,18 @@ export function ResetPasswordForm({ token, accentColor }: Readonly<ResetPassword
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
         <Flex direction="column" spacing={1.5}>
-          {error && <Alert severity="error">{error}</Alert>}
+          {error && <Alert severity="error">{t(error)}</Alert>}
           <RhfTextField
             name="newPassword"
             type="password"
-            placeholder="new password"
+            placeholder={t('new password')}
             autoComplete="new-password"
             autoFocus
           />
           <RhfTextField
             name="confirmPassword"
             type="password"
-            placeholder="confirm new password"
+            placeholder={t('confirm new password')}
             autoComplete="new-password"
           />
           <Button
@@ -82,7 +84,7 @@ export function ResetPasswordForm({ token, accentColor }: Readonly<ResetPassword
             disabled={methods.formState.isSubmitting}
             sx={{ bgcolor: accentColor, py: 1, '&:hover': { bgcolor: accentColor, opacity: 0.9 } }}
           >
-            Set new password
+            {t('Set new password')}
           </Button>
         </Flex>
       </form>

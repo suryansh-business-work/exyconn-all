@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { ButtonBase, Box, Stack, Tooltip, Typography } from '@exyconn/ui';
 import type { AuthUser, Branding, ThemeMode, TrackerStatus } from '@shared/types';
 import { initials } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 import { roundButton } from '../round-button';
 import BrandMark from './BrandMark';
 import ThemeToggleButton from './ThemeToggleButton';
@@ -33,7 +34,8 @@ export default function AppHeader({
   themeMode,
   onOpenAccount,
 }: Readonly<Props>): ReactElement {
-  const name = user?.name ?? 'Signed in';
+  const t = useT();
+  const name = user?.name ?? t('Signed in');
   return (
     <Box sx={{ px: 2.5, pt: 1, pb: 1.5, flexShrink: 0, ...DRAG }}>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', minHeight: 32 }}>
@@ -48,9 +50,9 @@ export default function AppHeader({
           {title}
         </Typography>
         <ThemeToggleButton mode={themeMode} round />
-        <Tooltip title={`${name} — account and settings`}>
+        <Tooltip title={t('{name} — account and settings', { name })}>
           <ButtonBase
-            aria-label={`${name}, open settings`}
+            aria-label={t('{name}, open settings', { name })}
             onClick={onOpenAccount}
             sx={(theme) => ({
               ...roundButton(theme),

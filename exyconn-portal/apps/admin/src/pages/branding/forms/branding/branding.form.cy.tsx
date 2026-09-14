@@ -19,6 +19,8 @@ const INITIAL: BrandingRow = {
   appIconUrl: '',
   emailLogoUrl: '',
   ogImageUrl: '',
+  heroVideoUrl: '',
+  heroPosterUrl: '',
   primaryColor: color.blue[600],
   secondaryColor: color.cyan[400],
   accentColor: color.orange[600],

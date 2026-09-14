@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { TrackerStatus } from '@exyconn/tracker-core';
 import { resumeTracking, tracker } from '../../tracker/instance';
 import { messageOf } from '../../tracker/run';
@@ -33,6 +34,7 @@ interface Props {
  * not marked, the portal unreachable) is shown in the controller's own sentence.
  */
 export function TrackingControls({ status, attendanceMarked }: Readonly<Props>) {
+  const t = useT();
   const [pending, setPending] = useState<ControlAction | null>(null);
   const [error, setError] = useState<string | null>(null);
   const isIdle = status === 'idle';
@@ -47,7 +49,7 @@ export function TrackingControls({ status, attendanceMarked }: Readonly<Props>) 
       await ACTIONS[action].run();
     } catch (cause: unknown) {
       console.error(`Tracking ${action} failed`, cause);
-      setError(messageOf(cause, ACTIONS[action].failed));
+      setError(messageOf(cause, t(ACTIONS[action].failed)));
     } finally {
       setPending(null);
     }
@@ -61,14 +63,14 @@ export function TrackingControls({ status, attendanceMarked }: Readonly<Props>) 
     <YStack gap="$3">
       <XStack gap="$2.5" flexWrap="wrap">
         <AppButton
-          label="Start"
+          label={t('Start')}
           icon="play"
           disabled={!isIdle || !attendanceMarked || locked}
           busy={pending === 'start'}
           onPress={press('start')}
         />
         <AppButton
-          label="Pause"
+          label={t('Pause')}
           tone="outlined"
           icon="pause"
           disabled={!isTracking || locked}
@@ -76,7 +78,7 @@ export function TrackingControls({ status, attendanceMarked }: Readonly<Props>) 
           onPress={press('pause')}
         />
         <AppButton
-          label="Resume"
+          label={t('Resume')}
           tone="outlined"
           icon="replay"
           disabled={!isPaused || locked}
@@ -84,7 +86,7 @@ export function TrackingControls({ status, attendanceMarked }: Readonly<Props>) 
           onPress={press('resume')}
         />
         <AppButton
-          label="Stop"
+          label={t('Stop')}
           tone="outlined"
           icon="stop"
           danger

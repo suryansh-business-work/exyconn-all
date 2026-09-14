@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { dayBounds, formatCount, formatDayLabel, type DayDetail } from '@exyconn/tracker-core';
 import { dayTotals, inputSummary } from '../../lib/report/totals';
 import { DayActivityChart } from '../charts/DayActivityChart';
@@ -23,8 +24,9 @@ interface Props {
 const SKELETON_TILES = ['t1', 't2', 't3', 't4'] as const;
 
 function DaySkeleton() {
+  const t = useT();
   return (
-    <YStack gap="$2" accessible accessibilityLabel="Loading this day">
+    <YStack gap="$2" accessible accessibilityLabel={t('Loading this day')}>
       <SkeletonBlock height={72} />
       <Surface flexDirection="row" flexWrap="wrap" justifyContent="space-between" rowGap="$3">
         {SKELETON_TILES.map((id) => (
@@ -37,6 +39,7 @@ function DaySkeleton() {
 
 /** The selected day: its totals, then that day's screenshots — which open in the gallery. */
 export function DayDetailPanel({ date, detail, loading, error, timezone }: Readonly<Props>) {
+  const t = useT();
   const router = useRouter();
   const heading = <Heading>{formatDayLabel(date)}</Heading>;
 
@@ -69,13 +72,15 @@ export function DayDetailPanel({ date, detail, loading, error, timezone }: Reado
       {heading}
       <ReportTotals totals={dayTotals(detail)} />
       <Caption>{inputSummary(detail)}</Caption>
-      <DayActivityChart title="Activity" detail={detail} loading={false} timezone={timezone} />
+      <DayActivityChart title={t('Activity')} detail={detail} loading={false} timezone={timezone} />
       <Surface>
         <XStack alignItems="center" justifyContent="space-between" gap="$2">
-          <Heading size="$4">Screenshots ({formatCount(detail.screenshots.length)})</Heading>
+          <Heading size="$4">
+            {t('Screenshots ({count})', { count: formatCount(detail.screenshots.length) })}
+          </Heading>
           {detail.screenshots.length > 0 ? (
             <AppButton
-              label="Open gallery"
+              label={t('Open gallery')}
               tone="text"
               icon="image-multiple"
               onPress={openGallery}

@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { CheckboxField } from '../../components/form/CheckboxField';
 import { TextField } from '../../components/form/TextField';
 import { AppButton } from '../../components/ui/AppButton';
@@ -24,6 +25,7 @@ interface Props {
  * sentence, never a status code.
  */
 export function LoginForm({ rememberMe }: Readonly<Props>) {
+  const t = useT();
   const [error, setError] = useState<string | null>(null);
   const { control, handleSubmit, formState } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -36,11 +38,11 @@ export function LoginForm({ rememberMe }: Readonly<Props>) {
     try {
       const result = await tracker.login(values.email.trim(), values.password, values.rememberMe);
       if (!result.ok) {
-        setError(result.error ?? GENERIC_ERROR);
+        setError(result.error ? t(result.error) : t(GENERIC_ERROR));
       }
     } catch (cause: unknown) {
       console.error('Login request failed', cause);
-      setError(messageOf(cause, GENERIC_ERROR));
+      setError(messageOf(cause, t(GENERIC_ERROR)));
     }
   });
 
@@ -49,7 +51,7 @@ export function LoginForm({ rememberMe }: Readonly<Props>) {
       <TextField
         control={control}
         name="email"
-        label="Email"
+        label={t('Email')}
         keyboardType="email-address"
         autoComplete="email"
         autoCapitalize="none"
@@ -58,7 +60,7 @@ export function LoginForm({ rememberMe }: Readonly<Props>) {
       <TextField
         control={control}
         name="password"
-        label="Password"
+        label={t('Password')}
         secret
         autoComplete="password"
         disabled={busy}
@@ -69,12 +71,12 @@ export function LoginForm({ rememberMe }: Readonly<Props>) {
       <CheckboxField
         control={control}
         name="rememberMe"
-        label="Remember me on this phone"
+        label={t('Remember me on this phone')}
         disabled={busy}
       />
       {error === null ? null : <Notice severity="error">{error}</Notice>}
       <AppButton
-        label={busy ? 'Signing in…' : 'Sign in'}
+        label={busy ? t('Signing in…') : t('Sign in')}
         icon="login"
         busy={busy}
         full

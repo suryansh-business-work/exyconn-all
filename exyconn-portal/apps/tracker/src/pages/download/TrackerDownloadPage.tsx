@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { Alert, Grid, Skeleton, Stack } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -25,6 +26,7 @@ const PLATFORM_PARAM = 'platform';
  * in the URL (`/tracker/download?platform=macos`) and defaults to the visitor's own.
  */
 export function TrackerDownloadPage() {
+  const t = useT();
   const { formatDate } = useSettings();
   const [searchParams, setSearchParams] = useSearchParams();
   const releaseQuery = useTrackerLatestReleaseQuery({ fetchPolicy: 'cache-and-network' });
@@ -70,7 +72,7 @@ export function TrackerDownloadPage() {
         {header}
         <Alert severity="warning">
           {releaseQuery.error?.message ??
-            'No published tracker build yet. Ask Tech to run a build from Tech › Tracker Build.'}
+            t('No published tracker build yet. Ask Tech to run a build from Tech › Tracker Build.')}
         </Alert>
       </>
     );

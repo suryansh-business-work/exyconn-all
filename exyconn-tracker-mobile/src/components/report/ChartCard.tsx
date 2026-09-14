@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { isChartEmpty, type ChartData, type ValueFormatter } from '../../lib/report/charts';
 import { Surface } from '../ui/Surface';
 import { Body, Caption, Heading } from '../ui/Typography';
@@ -40,8 +41,14 @@ export function ChartCard({
   emptyText,
   children,
 }: Readonly<Props>) {
+  const t = useT();
   const [view, setView] = useState<ChartView>('chart');
   const empty = isChartEmpty(data);
+  const views = VIEWS.map((option) => ({
+    ...option,
+    label: t(option.label),
+    accessibilityLabel: t(option.accessibilityLabel ?? option.label),
+  }));
 
   let body: ReactNode = children;
   if (empty) {
@@ -63,10 +70,10 @@ export function ChartCard({
         </YStack>
         {empty ? null : (
           <SegmentedControl
-            options={VIEWS}
+            options={views}
             value={view}
             onChange={setView}
-            label={`${title} — chart or table`}
+            label={t('{title} — chart or table', { title })}
           />
         )}
       </XStack>

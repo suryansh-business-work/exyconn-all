@@ -1,6 +1,7 @@
 import { Link } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSendAdminCredentialsMutation } from '@exyconn/shell/graphql/generated';
+import { useT } from '@exyconn/i18n';
 
 /**
  * Escape hatch for a portal nobody can sign in to: asks the server to re-issue
@@ -9,6 +10,7 @@ import { useSendAdminCredentialsMutation } from '@exyconn/shell/graphql/generate
  * safe to expose on the public login screen.
  */
 export function AdminRecovery() {
+  const t = useT();
   const notify = useNotify();
   const [send, { loading }] = useSendAdminCredentialsMutation();
 
@@ -30,7 +32,7 @@ export function AdminRecovery() {
       sx={{ alignSelf: 'flex-start', color: 'text.secondary' }}
       onClick={handleClick}
     >
-      {loading ? 'Sending…' : 'No admin account? Email admin credentials'}
+      {loading ? t('Sending…') : t('No admin account? Email admin credentials')}
     </Link>
   );
 }

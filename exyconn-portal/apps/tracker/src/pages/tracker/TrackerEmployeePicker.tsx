@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Autocomplete, TextField } from '@exyconn/shell/components/ui';
 
 /** One selectable employee for the tracker picker. */
@@ -18,6 +19,7 @@ export function TrackerEmployeePicker({
   value,
   onChange,
 }: Readonly<TrackerEmployeePickerProps>) {
+  const t = useT();
   const selected = options.find((option) => option.id === value) ?? null;
   return (
     <Autocomplete
@@ -27,7 +29,7 @@ export function TrackerEmployeePicker({
       value={selected}
       onChange={(_event, option) => onChange(option ? option.id : null)}
       sx={{ minWidth: { xs: '100%', sm: 300 } }}
-      renderInput={(params) => <TextField {...params} label="Employee" />}
+      renderInput={(params) => <TextField {...params} label={t('Employee')} />}
     />
   );
 }

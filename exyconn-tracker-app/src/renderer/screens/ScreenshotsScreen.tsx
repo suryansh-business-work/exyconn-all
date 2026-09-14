@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { useState } from 'react';
 import { Alert, Box, Skeleton, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import { useDayDetail } from '../hooks/useMyDay';
 import { formatCount, formatDayInZone, offsetLabel } from '@exyconn/tracker-core';
 import ScreenshotCard from '../components/ScreenshotCard';
@@ -31,6 +32,7 @@ export default function ScreenshotsScreen({
   endISO,
   timezone,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const { detail, loading, error } = useDayDetail(startISO, endISO);
   const shots = detail?.screenshots ?? [];
   /** Index of the shot open full screen, or null. Held here so paging can walk the day. */
@@ -39,15 +41,18 @@ export default function ScreenshotsScreen({
   return (
     <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', p: 3 }}>
       <Stack spacing={0.25} sx={{ mb: 2.5 }}>
-        <Typography variant="h6">My screenshots</Typography>
+        <Typography variant="h6">{t('My screenshots')}</Typography>
         <Typography
           variant="caption"
           sx={{
             color: 'text.secondary',
           }}
         >
-          {formatDayInZone(startISO, timezone)} · times shown in {timezone} ({offsetLabel(timezone)}
-          )
+          {t('{day} · times shown in {timezone} ({offset})', {
+            day: formatDayInZone(startISO, timezone),
+            timezone,
+            offset: offsetLabel(timezone),
+          })}
         </Typography>
       </Stack>
 
@@ -74,7 +79,7 @@ export default function ScreenshotsScreen({
             py: 6,
           }}
         >
-          No screenshots were captured on this day.
+          {t('No screenshots were captured on this day.')}
         </Typography>
       ) : null}
 
@@ -88,7 +93,7 @@ export default function ScreenshotsScreen({
               mb: 1.5,
             }}
           >
-            {formatCount(shots.length)} captured
+            {t('{count} captured', { count: formatCount(shots.length) })}
           </Typography>
           <Box sx={GRID}>
             {shots.map((shot, index) => (

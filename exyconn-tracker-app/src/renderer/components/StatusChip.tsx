@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { alpha, borderWidth, Box, Chip, color } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { TrackerStatus } from '@shared/types';
 
 type StatusTone = 'idle' | 'live' | 'paused';
@@ -56,13 +57,14 @@ interface Props {
 
 /** Status pill with a pulsing dot. */
 export default function StatusChip({ status }: Readonly<Props>): ReactElement {
+  const t = useT();
   const meta = STATUS_META[status];
   const color = TONE_COLOR[meta.tone];
 
   return (
     <Chip
       icon={<StatusDot color={color} pulsing={meta.tone === 'live'} />}
-      label={meta.label}
+      label={t(meta.label)}
       sx={(theme) => ({
         pl: 1,
         height: 30,

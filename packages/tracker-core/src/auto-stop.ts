@@ -1,5 +1,6 @@
 import { formatInTimeZone } from 'date-fns-tz';
 import type { TrackerSettings, TrackerStatus } from './types';
+import type { Translate } from './translate';
 import { formatHourLabel, isWithinWindow } from './schedule';
 
 /**
@@ -28,13 +29,24 @@ function minutesUntilHour(hour: number, timezone: string, now: Date): number {
   return delta > 0 ? delta : delta + 24 * 60;
 }
 
-/** "1h 20m", or "8 minutes" once it is close enough to count in minutes. */
-function untilLabel(minutes: number): string {
-  if (minutes < 60) {
-    return `${minutes} minute${minutes === 1 ? '' : 's'}`;
+/**
+ * "1h 20m", or "8 minutes" once it is close enough to count in minutes.
+ *
+ * The singular and the plural are two whole templates rather than one with an "s" glued on:
+ * a language that inflects the number differently cannot be served by a suffix.
+ */
+function untilLabel(t: Translate, minutes: number): string {
+  if (minutes >= 60) {
+    const hours = Math.floor(minutes / 60);
+    return t('{hours}h {minutes}m', {
+      hours,
+      minutes: String(minutes % 60).padStart(2, '0'),
+    });
   }
-  const hours = Math.floor(minutes / 60);
-  return `${hours}h ${String(minutes % 60).padStart(2, '0')}m`;
+  if (minutes === 1) {
+    return t('{count} minute', { count: minutes });
+  }
+  return t('{count} minutes', { count: minutes });
 }
 
 /**
@@ -50,6 +62,7 @@ function untilLabel(minutes: number): string {
  * "you are in control" banner is noise.
  */
 export function autoStopNotice(
+  t: Translate,
   settings: TrackerSettings | null,
   timezone: string,
   status: TrackerStatus,
@@ -66,9 +79,13 @@ export function autoStopNotice(
   if (!isWithinWindow(settings.autoStartHour, settings.autoStopHour, hour)) {
     return {
       severity: 'warning',
-      title: `Outside your tracking hours (${startLabel} to ${stopLabel})`,
-      detail:
+      title: t('Outside your tracking hours ({start} to {stop})', {
+        start: startLabel,
+        stop: stopLabel,
+      }),
+      detail: t(
         'Tracking stops itself within a minute of being started now, so time worked outside these hours has to be claimed as off-computer time.',
+      ),
     };
   }
 
@@ -78,14 +95,20 @@ export function autoStopNotice(
   if (running && minutesLeft <= WARN_MINUTES) {
     return {
       severity: 'warning',
-      title: `Tracking stops in ${untilLabel(minutesLeft)}`,
-      detail: `Your workspace ends tracking at ${stopLabel}. Anything you work on after that is not logged — claim it as off-computer time instead.`,
+      title: t('Tracking stops in {duration}', { duration: untilLabel(t, minutesLeft) }),
+      detail: t(
+        'Your workspace ends tracking at {stop}. Anything you work on after that is not logged — claim it as off-computer time instead.',
+        { stop: stopLabel },
+      ),
     };
   }
 
   return {
     severity: 'info',
-    title: `Tracking hours: ${startLabel} to ${stopLabel}`,
-    detail: `Tracking stops on its own at ${stopLabel} — ${untilLabel(minutesLeft)} from now. Time after that is not logged.`,
+    title: t('Tracking hours: {start} to {stop}', { start: startLabel, stop: stopLabel }),
+    detail: t(
+      'Tracking stops on its own at {stop} — {duration} from now. Time after that is not logged.',
+      { stop: stopLabel, duration: untilLabel(t, minutesLeft) },
+    ),
   };
 }

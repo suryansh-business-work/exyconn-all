@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Button, Chip, color } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
@@ -24,8 +25,9 @@ interface AccessUserRow {
 
 /** Consent state chip for an employee's tracker access. */
 function ConsentCell({ consentedAt }: Readonly<{ consentedAt: string | null }>) {
-  if (consentedAt) return <Chip label="Consented" size="small" color="success" />;
-  return <Chip label="Pending" size="small" color="warning" />;
+  const t = useT();
+  if (consentedAt) return <Chip label={t('Consented')} size="small" color="success" />;
+  return <Chip label={t('Pending')} size="small" color="warning" />;
 }
 
 interface AccessActionProps {
@@ -36,22 +38,24 @@ interface AccessActionProps {
 
 /** Grant / Revoke toggle rendered per employee row. */
 function AccessActionCell({ active, onGrant, onRevoke }: Readonly<AccessActionProps>) {
+  const t = useT();
   if (active) {
     return (
       <Button size="small" color="error" variant="outlined" onClick={onRevoke}>
-        Revoke
+        {t('Revoke')}
       </Button>
     );
   }
   return (
     <Button size="small" variant="contained" onClick={onGrant}>
-      Grant
+      {t('Grant')}
     </Button>
   );
 }
 
 /** Tracker access console — grant or revoke desktop tracking per employee. */
 export function TrackerAccessPage() {
+  const t = useT();
   const usersQuery = useListEmployeeOptionsQuery();
   const accessQuery = useTrackerAccessListQuery({ fetchPolicy: 'cache-and-network' });
   const [grantAccess] = useGrantTrackerAccessMutation();
@@ -84,7 +88,7 @@ export function TrackerAccessPage() {
     try {
       await grantAccess({ variables: { userId: row.id } });
       await accessQuery.refetch();
-      notify(`Access granted — ${row.name} will receive an email`);
+      notify(t('Access granted — {name} will receive an email', { name: row.name }));
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Grant failed', 'error');
     }
@@ -92,7 +96,7 @@ export function TrackerAccessPage() {
 
   const handleRevoke = async (row: AccessUserRow) => {
     const ok = await confirm({
-      message: `Revoke tracker access for "${row.name}"?`,
+      message: t('Revoke tracker access for "{name}"?', { name: row.name }),
       confirmText: 'Revoke',
     });
     if (!ok) return;

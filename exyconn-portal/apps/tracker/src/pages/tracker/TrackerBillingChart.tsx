@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 // Through the shell's barrel, like every other portal UI import: the app declares
 // @exyconn/shell, not @exyconn/ui, and the deploy image installs only what is declared.
 import { BarChart, Box, ChartCard, type ChartData } from '@exyconn/shell/components/ui';
@@ -35,6 +36,7 @@ export function TrackerBillingChart({
   subtitle,
   labelHeading,
 }: Readonly<TrackerBillingChartProps>) {
+  const t = useT();
   const data = useMemo<ChartData>(() => {
     const ranked = [...rows].filter((row) => row.hours > 0).sort((a, b) => b.hours - a.hours);
     const top = ranked.slice(0, LIMIT);
@@ -43,23 +45,23 @@ export function TrackerBillingChart({
     const labels = top.map((row) => row.name);
     const values = top.map((row) => Math.round(row.hours * 10) / 10);
     if (restHours > 0) {
-      labels.push('Other');
+      labels.push(t('Other'));
       values.push(Math.round(restHours * 10) / 10);
     }
-    return { labels, series: [{ id: 'hours', label: 'Hours', values }] };
-  }, [rows]);
+    return { labels, series: [{ id: 'hours', label: t('Hours'), values }] };
+  }, [rows, t]);
 
   const height = Math.max(160, data.labels.length * 28 + 60);
 
   return (
     <Box sx={[panel, { mb: 2 }]}>
       <ChartCard
-        title={title}
-        subtitle={subtitle}
+        title={t(title)}
+        subtitle={t(subtitle)}
         data={data}
         formatValue={(hours) => `${hours}h`}
-        labelHeading={labelHeading}
-        emptyText="No billable hours in this period."
+        labelHeading={t(labelHeading)}
+        emptyText={t('No billable hours in this period.')}
       >
         <BarChart data={data} formatValue={(hours) => `${hours}h`} horizontal height={height} />
       </ChartCard>

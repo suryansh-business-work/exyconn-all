@@ -1,4 +1,5 @@
 import { useFormContext } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import { Box, FormHelperText } from '@exyconn/shell/components/ui';
 import { RhfSwitch } from '@exyconn/shell/components/form/rhf';
 
@@ -12,17 +13,19 @@ import { RhfSwitch } from '@exyconn/shell/components/form/rhf';
  * Employees can also mute it on their own machine without an admin muting it for everybody.
  */
 export function CaptureSoundFields() {
+  const t = useT();
   const { watch } = useFormContext<{ captureSoundEnabled: boolean }>();
   const enabled = watch('captureSoundEnabled');
+  const hint = enabled
+    ? t('The desktop app plays a camera shutter and its capture notification makes a sound.')
+    : t(
+        'Captures are silent on every device. The notification still appears, so nobody is screenshotted without being told.',
+      );
 
   return (
     <Box>
       <RhfSwitch name="captureSoundEnabled" label="Play a sound with each screenshot" />
-      <FormHelperText>
-        {enabled
-          ? 'The desktop app plays a camera shutter and its capture notification makes a sound.'
-          : 'Captures are silent on every device. The notification still appears, so nobody is screenshotted without being told.'}
-      </FormHelperText>
+      <FormHelperText>{hint}</FormHelperText>
     </Box>
   );
 }

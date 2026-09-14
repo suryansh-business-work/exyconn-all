@@ -1,0 +1,20 @@
+---
+import { chooseMarket, marketUrl } from "../lib/i18n/markets";
+
+/**
+ * Every URL that arrives without a market.
+ *
+ * An old link, a search result from before the site was published per market, or somebody
+ * typing exyconn.com/about-us — all of them land here and are sent on to the market their
+ * browser and their country suggest, keeping the page they asked for.
+ *
+ * It is a route rather than middleware because Astro only runs middleware for a URL that
+ * matches something; an unmatched path is a 404 before any of our code sees it.
+ */
+const market = chooseMarket(
+  Astro.request.headers.get("accept-language"),
+  Astro.request.headers.get("cf-ipcountry") ?? Astro.request.headers.get("x-country")
+);
+const path = `/${Astro.params.path ?? ""}`.replace(/\/+$/, "") || "/";
+return Astro.redirect(`${marketUrl(market, path)}${Astro.url.search}`, 302);
+---

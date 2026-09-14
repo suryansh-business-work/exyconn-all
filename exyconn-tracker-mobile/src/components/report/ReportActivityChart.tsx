@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import type { ReportDay } from '@exyconn/tracker-core';
 import { activityTrend, formatPercent } from '../../lib/report/charts';
 import { useBrand } from '../../theme/BrandProvider';
@@ -22,23 +23,28 @@ const PERCENT_MAX = 100;
  * answers is about the shape of a run of days, not the size of any one of them.
  */
 export function ReportActivityChart({ days, monthLabel }: Readonly<Props>) {
+  const t = useT();
   const { secondary } = useBrand();
   const data = useMemo(() => {
     const shaped = activityTrend(days);
     return {
       ...shaped,
-      series: shaped.series.map((series) => ({ ...series, color: secondary })),
+      series: shaped.series.map((series) => ({
+        ...series,
+        color: secondary,
+        label: t(series.label),
+      })),
     };
-  }, [days, secondary]);
+  }, [days, secondary, t]);
 
   return (
     <ChartCard
-      title="Activity this month"
-      subtitle={`${monthLabel} · share of tracked time that was active`}
+      title={t('Activity this month')}
+      subtitle={t('{month} · share of tracked time that was active', { month: monthLabel })}
       data={data}
       formatValue={formatPercent}
-      labelHeading="Day"
-      emptyText="No time tracked this month."
+      labelHeading={t('Day')}
+      emptyText={t('No time tracked this month.')}
     >
       <TrendLineChart
         labels={data.labels}
@@ -46,7 +52,10 @@ export function ReportActivityChart({ days, monthLabel }: Readonly<Props>) {
         max={PERCENT_MAX}
         formatValue={formatPercent}
         height={180}
-        accessibilityLabel={`Activity this month, ${monthLabel}: the share of each day's tracked time that was active. Switch to Table to hear every value.`}
+        accessibilityLabel={t(
+          "Activity this month, {month}: the share of each day's tracked time that was active. Switch to Table to hear every value.",
+          { month: monthLabel },
+        )}
       />
     </ChartCard>
   );

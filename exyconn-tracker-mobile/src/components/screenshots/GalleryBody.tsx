@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FlatList, RefreshControl, useWindowDimensions } from 'react-native';
+import { useT } from '@exyconn/i18n';
 import { useDayDetail } from '../../hooks/useMyDay';
 import { galleryColumns, type DayRange } from '../../lib/screenshots/gallery-day';
 import { useThemeColor } from '../../theme/useThemeColor';
@@ -21,6 +22,7 @@ const GAP = 12;
  * the interval it was judging them on actually was.
  */
 export function GalleryBody({ range, timezone }: Readonly<Props>) {
+  const t = useT();
   const { detail, loading, error, reload } = useDayDetail(range.startISO, range.endISO);
   const shots = detail?.screenshots ?? [];
   /** Index of the shot open full screen, or null. Held here so paging can walk the day. */
@@ -44,7 +46,11 @@ export function GalleryBody({ range, timezone }: Readonly<Props>) {
         columnWrapperStyle={columns > 1 ? { gap: GAP } : undefined}
         ListHeaderComponent={shots.length > 0 ? <GalleryIntro count={shots.length} /> : null}
         ListEmptyComponent={
-          <GalleryEmpty loading={loading} error={error} loadingLabel="Loading your screenshots" />
+          <GalleryEmpty
+            loading={loading}
+            error={error}
+            loadingLabel={t('Loading your screenshots')}
+          />
         }
         refreshControl={
           <RefreshControl

@@ -1,4 +1,5 @@
 import { Linking } from 'react-native';
+import { useT } from '@exyconn/i18n';
 import type { MobileTrackerState } from '../../tracker/types';
 import { ScreenLayout } from '../ui/ScreenLayout';
 import { AboutCard } from './AboutCard';
@@ -23,12 +24,13 @@ interface Props {
  * out, and who makes the app.
  */
 export function SettingsScreen({ state }: Readonly<Props>) {
+  const t = useT();
   return (
     <ScreenLayout>
       {/* The one setting here that is the EMPLOYEE'S and follows them to every device. */}
       <SettingsCard
-        title="Your timezone"
-        description="Your workspace sets a default. Pick your own if you work somewhere else."
+        title={t('Your timezone')}
+        description={t('Your workspace sets a default. Pick your own if you work somewhere else.')}
       >
         <TimezonePicker timezone={state.timezone} />
       </SettingsCard>
@@ -37,11 +39,13 @@ export function SettingsScreen({ state }: Readonly<Props>) {
       <WorkspaceSettingsCard settings={state.settings} />
       <CapabilityCard settings={state.settings} />
       <SettingsCard
-        title="Your data"
-        description="Everything this app has recorded about you is visible to you in the portal."
+        title={t('Your data')}
+        description={t(
+          'Everything this app has recorded about you is visible to you in the portal.',
+        )}
       >
         <AppButton
-          label="View my data in the portal"
+          label={t('View my data in the portal')}
           icon="open-in-new"
           full
           onPress={() => run(() => Linking.openURL(MY_DATA_URL))}

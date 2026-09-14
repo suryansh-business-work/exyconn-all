@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
 import { Spinner, XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { formatTimeOfDay, offsetLabel } from '@exyconn/tracker-core';
 import { useTimezoneList } from '../../hooks/useTimezoneList';
 import { timezoneOptions } from '../../lib/settings/timezone-options';
@@ -30,6 +31,7 @@ const LIST_FAILED = 'The list of timezones could not be loaded. Tap the field to
  * portal and to their next device.
  */
 export function TimezonePicker({ timezone }: Readonly<Props>) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -68,16 +70,18 @@ export function TimezonePicker({ timezone }: Readonly<Props>) {
     }
   }
 
-  const hint = `Every date and time in this app is shown in this zone (${offsetLabel(timezone)}).`;
+  const hint = t('Every date and time in this app is shown in this zone ({offset}).', {
+    offset: offsetLabel(timezone),
+  });
   return (
     <YStack gap="$2">
-      <FieldFrame id="timezone" label="Timezone" hint={hint}>
+      <FieldFrame id="timezone" label={t('Timezone')} hint={hint}>
         <Pressable
           onPress={openSheet}
           disabled={busy}
           accessibilityRole="button"
-          accessibilityLabel={`Timezone: ${timezone}`}
-          accessibilityHint="Opens the list of timezones"
+          accessibilityLabel={t('Timezone: {zone}', { zone: timezone })}
+          accessibilityHint={t('Opens the list of timezones')}
           accessibilityState={{ disabled: busy, busy }}
         >
           <XStack
@@ -98,13 +102,15 @@ export function TimezonePicker({ timezone }: Readonly<Props>) {
         </Pressable>
       </FieldFrame>
       <Caption>
-        It is {formatTimeOfDay(new Date().toISOString(), timezone)} there right now.
+        {t('It is {time} there right now.', {
+          time: formatTimeOfDay(new Date().toISOString(), timezone),
+        })}
       </Caption>
-      {failed ? <Notice severity="error">{SAVE_FAILED}</Notice> : null}
-      {list.failed ? <Notice severity="error">{LIST_FAILED}</Notice> : null}
+      {failed ? <Notice severity="error">{t(SAVE_FAILED)}</Notice> : null}
+      {list.failed ? <Notice severity="error">{t(LIST_FAILED)}</Notice> : null}
       <OptionSheet
         open={open}
-        title="Timezone"
+        title={t('Timezone')}
         options={options}
         selected={timezone}
         searchable

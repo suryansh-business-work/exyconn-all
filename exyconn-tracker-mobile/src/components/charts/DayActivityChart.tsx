@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import { dayStripes, formatTimeOfDay, type DayDetail } from '@exyconn/tracker-core';
 import { SkeletonBlock } from '../report/SkeletonBlock';
 import { Caption } from '../ui/Typography';
@@ -17,6 +18,7 @@ interface Props {
  * ran, so a break shows as a gap. Only what reached the portal is drawn.
  */
 export function DayActivityChart({ title, detail, loading, timezone }: Readonly<Props>) {
+  const t = useT();
   const shaped = useMemo(() => dayStripes(detail?.intervals ?? []), [detail]);
   const { span } = shaped;
 
@@ -26,7 +28,7 @@ export function DayActivityChart({ title, detail, loading, timezone }: Readonly<
         {loading ? (
           <SkeletonBlock height={140} />
         ) : (
-          <Caption>Nothing has synced for this day yet.</Caption>
+          <Caption>{t('Nothing has synced for this day yet.')}</Caption>
         )}
       </ActivityCard>
     );
@@ -42,7 +44,12 @@ export function DayActivityChart({ title, detail, loading, timezone }: Readonly<
       <StripesChart
         bars={shaped.stripes}
         labels={labels}
-        summary={`${shaped.stripes.length} intervals from ${labels.start} to ${labels.end}, ${shaped.averagePercent}% active overall.`}
+        summary={t('{count} intervals from {start} to {end}, {percent}% active overall.', {
+          count: shaped.stripes.length,
+          start: labels.start,
+          end: labels.end,
+          percent: shaped.averagePercent,
+        })}
       />
     </ActivityCard>
   );

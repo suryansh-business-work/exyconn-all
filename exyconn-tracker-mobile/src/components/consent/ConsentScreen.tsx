@@ -1,5 +1,6 @@
 import { YStack } from 'tamagui';
 import type { ConsentPolicy, TrackerSettings } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 import { ConsentForm } from '../../forms/consent';
 import {
   PHONE_WEBCAM_DISCLOSURE,
@@ -22,13 +23,25 @@ interface Props {
   capabilities: Capabilities;
 }
 
+type Translate = ReturnType<typeof useT>;
+
 /** The line under the title: which version is being agreed to, and that nothing runs yet. */
-function introOf(policy: ConsentPolicy | null): string {
+function introOf(t: Translate, policy: ConsentPolicy | null): string {
   if (policy === null) {
-    return 'Read what this app records while tracking is on. Nothing is captured until you agree and tap Start.';
+    return t(
+      'Read what this app records while tracking is on. Nothing is captured until you agree and tap Start.',
+    );
   }
-  const act = policy.requiresAcknowledgement ? 'sign' : 'agree';
-  return `Version ${policy.version} of your workspace's policy. Nothing is captured until you ${act} and tap Start.`;
+  if (policy.requiresAcknowledgement) {
+    return t(
+      "Version {version} of your workspace's policy. Nothing is captured until you sign and tap Start.",
+      { version: policy.version },
+    );
+  }
+  return t(
+    "Version {version} of your workspace's policy. Nothing is captured until you agree and tap Start.",
+    { version: policy.version },
+  );
 }
 
 /**
@@ -48,6 +61,7 @@ function introOf(policy: ConsentPolicy | null): string {
  * written for laptops describes keystroke counts and window titles a phone never sees.
  */
 export function ConsentScreen({ settings, policy, capabilities }: Readonly<Props>) {
+  const t = useT();
   const body = policy?.body ?? settings?.consentText ?? '';
   const hasDisclosure = body.trim() !== '';
   const mustSign = policy?.requiresAcknowledgement === true;
@@ -60,27 +74,27 @@ export function ConsentScreen({ settings, policy, capabilities }: Readonly<Props
 
       <Surface padding="$5" gap="$4">
         <YStack gap="$1">
-          <Title>{policy?.title ?? 'Before you start'}</Title>
-          <Caption>{introOf(policy)}</Caption>
+          <Title>{policy?.title ?? t('Before you start')}</Title>
+          <Caption>{introOf(t, policy)}</Caption>
         </YStack>
 
         {hasDisclosure ? (
           <ConsentBody html={body} />
         ) : (
           <Notice severity="warning">
-            Your workspace has not published a monitoring disclosure yet. You cannot agree to
-            something that has not been disclosed — ask your administrator to publish it in the
-            portal.
+            {t(
+              'Your workspace has not published a monitoring disclosure yet. You cannot agree to something that has not been disclosed — ask your administrator to publish it in the portal.',
+            )}
           </Notice>
         )}
 
         {showsWebcamDisclosure(capabilities, settings) ? (
           <Notice severity="warning" icon="camera-outline">
-            {PHONE_WEBCAM_DISCLOSURE}
+            {t(PHONE_WEBCAM_DISCLOSURE)}
           </Notice>
         ) : null}
 
-        <Heading>What this phone records</Heading>
+        <Heading>{t('What this phone records')}</Heading>
         <PhoneRecordsList settings={settings} />
 
         <ConsentForm mustSign={mustSign} canAgree={hasDisclosure} />

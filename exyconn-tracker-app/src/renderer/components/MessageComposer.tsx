@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { useState } from 'react';
 import { IconButton, Stack, TextField } from '@exyconn/ui';
 import SendRounded from '@mui/icons-material/SendRounded';
+import { useT } from '@exyconn/i18n';
 
 /** The portal refuses anything longer, so the field stops before the round trip does. */
 const MAX_CHARS = 2000;
@@ -19,6 +20,7 @@ interface Props {
  * lose what somebody typed the first time their wifi dropped.
  */
 export default function MessageComposer({ sending, onSend }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [body, setBody] = useState('');
   const canSend = body.trim() !== '' && !sending;
 
@@ -44,7 +46,7 @@ export default function MessageComposer({ sending, onSend }: Readonly<Props>): R
         multiline
         maxRows={4}
         size="small"
-        placeholder="Write to your workspace…"
+        placeholder={t('Write to your workspace…')}
         value={body}
         disabled={sending}
         onChange={(event) => setBody(event.target.value)}
@@ -55,10 +57,15 @@ export default function MessageComposer({ sending, onSend }: Readonly<Props>): R
           }
         }}
         slotProps={{
-          htmlInput: { maxLength: MAX_CHARS, 'aria-label': 'Message' },
+          htmlInput: { maxLength: MAX_CHARS, 'aria-label': t('Message') },
         }}
       />
-      <IconButton color="primary" aria-label="Send message" disabled={!canSend} onClick={submit}>
+      <IconButton
+        color="primary"
+        aria-label={t('Send message')}
+        disabled={!canSend}
+        onClick={submit}
+      >
         <SendRounded />
       </IconButton>
     </Stack>

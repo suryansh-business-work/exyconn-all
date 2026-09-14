@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Theme, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { formatDateTime, type DayScreenshot } from '@exyconn/tracker-core';
 import { stepIndex } from '../../lib/screenshots/gallery-day';
 import { LightboxNav, LightboxTopBar } from './LightboxBars';
@@ -30,6 +31,7 @@ export function ScreenshotLightbox({
   onClose,
   onNavigate,
 }: Readonly<Props>) {
+  const t = useT();
   const insets = useSafeAreaInsets();
   const shot = index === null ? undefined : shots[index];
 
@@ -55,7 +57,7 @@ export function ScreenshotLightbox({
           paddingTop={insets.top}
           paddingBottom={insets.bottom}
           accessibilityViewIsModal
-          accessibilityLabel="Screenshot, full screen"
+          accessibilityLabel={t('Screenshot, full screen')}
         >
           <LightboxTopBar
             capturedAt={capturedAt}
@@ -68,7 +70,9 @@ export function ScreenshotLightbox({
               source={{ uri: shot.imageUrl }}
               contentFit="contain"
               recyclingKey={shot.id}
-              accessibilityLabel={`Screenshot captured at ${capturedAt}, full screen`}
+              accessibilityLabel={t('Screenshot captured at {time}, full screen', {
+                time: capturedAt,
+              })}
               style={{ flex: 1 }}
             />
           </YStack>

@@ -87,8 +87,8 @@ export function RecordCardList<Row>({
       <TextField
         value={typed}
         onChange={(event) => setTyped(event.target.value)}
-        placeholder={searchPlaceholder}
-        slotProps={{ htmlInput: { 'aria-label': searchPlaceholder } }}
+        placeholder={t(searchPlaceholder)}
+        slotProps={{ htmlInput: { 'aria-label': t(searchPlaceholder) } }}
         fullWidth
       />
 

@@ -27,8 +27,13 @@ interface Props {
   messages: Messages;
   /** Reported for every string with no translation, so the caller can go and fetch them. */
   onMissing?: (source: string) => void;
-  /** Zone, patterns and currency. Locale is taken from `locale`, never from here. */
-  settings?: Omit<FormatSettings, 'locale'>;
+  /**
+   * Zone, patterns and currency. Locale is taken from `locale`, never from here.
+   *
+   * Each is optional and falls back below, because not every client knows all of them: the
+   * tracker resolves a zone but has no company currency to render.
+   */
+  settings?: Partial<Omit<FormatSettings, 'locale'>>;
   children: ReactNode;
 }
 

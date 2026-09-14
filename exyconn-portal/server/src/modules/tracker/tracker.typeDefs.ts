@@ -600,6 +600,11 @@ export const trackerTypeDefs = gql`
     device reported at sign-in, else UTC. Never empty.
     """
     timezone: String!
+    """
+    The EFFECTIVE language: the employee's own pick, else the workspace default, else the
+    locale this machine reported at sign-in, else English. Never empty.
+    """
+    locale: String!
     workProfile: TrackerWorkProfile!
     workday: TrackerWorkday!
     "Projects this employee may book time against, the house-wide one first."

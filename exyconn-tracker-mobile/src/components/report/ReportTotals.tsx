@@ -1,4 +1,5 @@
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { summaries, type ReportTotals as Totals } from '../../lib/report/totals';
 import { borderWidth } from '../../theme/tokens';
 import { Surface } from '../ui/Surface';
@@ -10,6 +11,7 @@ interface Props {
 
 /** The span's headline numbers — the month above its day-by-day table, or one tapped day. */
 export function ReportTotals({ totals }: Readonly<Props>) {
+  const t = useT();
   return (
     <Surface padding="$3">
       <XStack>
@@ -21,9 +23,9 @@ export function ReportTotals({ totals }: Readonly<Props>) {
             borderLeftWidth={position === 0 ? 0 : borderWidth.hairline}
             borderLeftColor="$hairline"
             accessible
-            accessibilityLabel={`${item.label}: ${item.value}`}
+            accessibilityLabel={t('{label}: {value}', { label: t(item.label), value: item.value })}
           >
-            <Caption numberOfLines={1}>{item.label}</Caption>
+            <Caption numberOfLines={1}>{t(item.label)}</Caption>
             <Heading accessibilityRole="text" numberOfLines={1} adjustsFontSizeToFit>
               {item.value}
             </Heading>

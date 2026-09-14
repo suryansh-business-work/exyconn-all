@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { Text } from '@exyconn/shell/components/ui';
@@ -14,11 +15,12 @@ interface Props {
 
 /** Per-employee hours and amount. Says plainly when a row has no rate behind it. */
 export function TrackerBillingTable({ rows, money, loading, onRefresh }: Readonly<Props>) {
+  const t = useT();
   const columns: Column<BillingRow>[] = [
     { key: 'name', label: 'Employee' },
     { key: 'email', label: 'Email' },
     { key: 'payType', label: 'Pay type', render: (r) => <StatusChip value={r.payType} /> },
-    { key: 'hours', label: 'Hours', render: (r) => `${r.hours} h` },
+    { key: 'hours', label: 'Hours', render: (r) => t('{hours} h', { hours: r.hours }) },
     {
       key: 'billingRate',
       label: 'Rate / hour',
@@ -27,7 +29,7 @@ export function TrackerBillingTable({ rows, money, loading, onRefresh }: Readonl
           money.format(r.billingRate)
         ) : (
           <Text size="sm" color="text.secondary">
-            Not set
+            {t('Not set')}
           </Text>
         ),
     },

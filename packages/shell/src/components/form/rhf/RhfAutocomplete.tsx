@@ -1,4 +1,5 @@
 import { Controller, useFormContext } from 'react-hook-form';
+import { useFieldCopy } from './useFieldCopy';
 import { Autocomplete, TextField } from '@/components/ui';
 import type { SelectOption } from './types';
 
@@ -12,6 +13,7 @@ interface RhfAutocompleteProps {
 /** React Hook Form-bound MUI Autocomplete — a searchable single-select. */
 export function RhfAutocomplete({ name, label, options, helperText }: RhfAutocompleteProps) {
   const { control } = useFormContext();
+  const copy = useFieldCopy();
   return (
     <Controller
       name={name}
@@ -32,9 +34,9 @@ export function RhfAutocomplete({ name, label, options, helperText }: RhfAutocom
                 // Matches RhfTextField/RhfSelect, so a field is addressable as
                 // input[name="…"] rather than by its rendered value.
                 name={name}
-                label={label}
+                label={copy(label)}
                 error={Boolean(fieldState.error)}
-                helperText={fieldState.error?.message ?? helperText}
+                helperText={copy(fieldState.error?.message ?? helperText)}
               />
             )}
           />

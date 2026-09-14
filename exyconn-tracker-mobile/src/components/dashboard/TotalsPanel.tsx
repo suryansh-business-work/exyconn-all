@@ -1,4 +1,5 @@
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { useTotals } from '../../hooks/useTotals';
 import { totalTiles } from '../../lib/dashboard/total-tiles';
 import { capabilities } from '../../tracker/platform';
@@ -16,13 +17,14 @@ const PLACEHOLDERS = ['a', 'b', 'c', 'd'] as const;
 
 /** Placeholder tiles at the real grid's shape, so the panel does not jump when they land. */
 function LoadingTiles() {
+  const t = useT();
   return (
     <XStack
       flexWrap="wrap"
       gap="$3"
       accessible
       accessibilityRole="progressbar"
-      accessibilityLabel="Loading your all-time totals"
+      accessibilityLabel={t('Loading your all-time totals')}
     >
       {PLACEHOLDERS.map((id) => (
         <Surface key={id} height={76} flexGrow={1} flexBasis="40%" opacity={0.5} />
@@ -40,13 +42,14 @@ function LoadingTiles() {
  * two meanings, no ambiguity.
  */
 export function TotalsPanel({ lastSyncAt }: Readonly<Props>) {
+  const t = useT();
   const { totals, loading, error } = useTotals(lastSyncAt);
 
   return (
     <YStack gap="$3">
       <SectionHeading
-        title="All time"
-        caption="Everything you have tracked, across every session — it never resets."
+        title={t('All time')}
+        caption={t('Everything you have tracked, across every session — it never resets.')}
       />
       {error === null ? null : <Notice severity="warning">{error}</Notice>}
       {loading && error === null ? <LoadingTiles /> : null}

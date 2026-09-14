@@ -1,4 +1,5 @@
 import { Switch, XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { TrackerSettings } from '@exyconn/tracker-core';
 import { captureSoundCaption, captureSoundLocked } from '../../lib/settings/capture-sound';
 import { useBrand } from '../../theme/BrandProvider';
@@ -21,6 +22,7 @@ interface Props {
  * so muting can never become a way of being screenshotted without knowing.
  */
 export function CaptureSoundPreference({ muted, settings }: Readonly<Props>) {
+  const t = useT();
   const brand = useBrand();
   const input = {
     canCapture: capabilities.screenshots,
@@ -32,7 +34,7 @@ export function CaptureSoundPreference({ muted, settings }: Readonly<Props>) {
   return (
     <XStack gap="$3" alignItems="flex-start">
       <YStack flex={1} gap="$1">
-        <Body fontWeight="600">Mute the screenshot sound</Body>
+        <Body fontWeight="600">{t('Mute the screenshot sound')}</Body>
         <Caption>{captureSoundCaption(input)}</Caption>
       </YStack>
       <Switch
@@ -43,7 +45,7 @@ export function CaptureSoundPreference({ muted, settings }: Readonly<Props>) {
         nativeProps={{
           disabled: locked,
           trackColor: { true: brand.primary },
-          accessibilityLabel: 'Mute the screenshot sound on this phone',
+          accessibilityLabel: t('Mute the screenshot sound on this phone'),
           accessibilityState: { checked: muted, disabled: locked },
         }}
       />

@@ -256,6 +256,10 @@ function registerIpc(ctrl: TrackerController): void {
   ipcMain.handle(IPC.getDay, (_e, start: string, end: string) => ctrl.getDay(start, end));
   ipcMain.handle(IPC.getTotals, () => ctrl.getTotals());
   ipcMain.handle(IPC.setTimezone, (_e, timezone: string) => ctrl.setTimezone(timezone));
+  ipcMain.handle(IPC.getTranslations, (_e, locale: string) => ctrl.getTranslations(locale));
+  ipcMain.handle(IPC.translateMissing, (_e, locale: string, sources: string[]) =>
+    ctrl.translateMissing(locale, sources),
+  );
   ipcMain.handle(IPC.openScreenshots, (_e, range: ScreenshotsRange) => {
     if (window !== null) {
       openScreenshotsWindow(window, range);

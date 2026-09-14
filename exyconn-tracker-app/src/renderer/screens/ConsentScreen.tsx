@@ -1,5 +1,6 @@
 import { useState, type ReactElement } from 'react';
 import { Alert, Button, Stack, TextField, TRACKER_RADIUS, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import CheckCircleOutline from '@mui/icons-material/CheckCircleOutlineOutlined';
 import PhotoCameraOutlined from '@mui/icons-material/PhotoCameraOutlined';
 import type { Branding, ConsentPolicy, TrackerSettings } from '@shared/types';
@@ -37,6 +38,7 @@ export default function ConsentScreen({
   settings,
   policy,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [busy, setBusy] = useState(false);
   const [signedName, setSignedName] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +56,7 @@ export default function ConsentScreen({
       await window.tracker.acceptConsent(signedName.trim());
     } catch (cause: unknown) {
       console.error('Failed to record consent', cause);
-      setError(cause instanceof Error ? cause.message : 'Could not record your agreement.');
+      setError(cause instanceof Error ? cause.message : t('Could not record your agreement.'));
       setBusy(false);
     }
   }
@@ -81,7 +83,7 @@ export default function ConsentScreen({
       </Stack>
 
       <Surface sx={{ p: 3 }}>
-        <Typography variant="h5">{policy?.title ?? 'Before you start'}</Typography>
+        <Typography variant="h5">{policy?.title ?? t('Before you start')}</Typography>
         <Typography
           variant="body2"
           sx={{
@@ -91,17 +93,22 @@ export default function ConsentScreen({
           }}
         >
           {policy
-            ? `Version ${policy.version} of your workspace's policy. Nothing is captured until you sign and press Start.`
-            : 'Read what this app records while tracking is on. Nothing is captured until you agree and press Start.'}
+            ? t(
+                "Version {version} of your workspace's policy. Nothing is captured until you sign and press Start.",
+                { version: policy.version },
+              )
+            : t(
+                'Read what this app records while tracking is on. Nothing is captured until you agree and press Start.',
+              )}
         </Typography>
 
         {hasDisclosure ? (
           <ConsentBody html={body} />
         ) : (
           <Alert severity="warning" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
-            Your workspace has not published a monitoring disclosure yet. You cannot agree to
-            something that has not been disclosed — ask your administrator to publish it in the
-            portal.
+            {t(
+              'Your workspace has not published a monitoring disclosure yet. You cannot agree to something that has not been disclosed — ask your administrator to publish it in the portal.',
+            )}
           </Alert>
         )}
 
@@ -112,7 +119,7 @@ export default function ConsentScreen({
             icon={<PhotoCameraOutlined fontSize="small" />}
             sx={{ borderRadius: `${TRACKER_RADIUS}px`, mt: 2 }}
           >
-            {WEBCAM_DISCLOSURE}
+            {t(WEBCAM_DISCLOSURE)}
           </Alert>
         ) : null}
 
@@ -120,10 +127,12 @@ export default function ConsentScreen({
           <TextField
             fullWidth
             size="small"
-            label="Type your full name to sign"
+            label={t('Type your full name to sign')}
             value={signedName}
             onChange={(event) => setSignedName(event.target.value)}
-            helperText="Recorded against this version of the policy, and visible to Legal and HR."
+            helperText={t(
+              'Recorded against this version of the policy, and visible to Legal and HR.',
+            )}
             sx={{ mt: 2 }}
           />
         )}
@@ -147,7 +156,7 @@ export default function ConsentScreen({
             disabled={busy || !canAgree}
             onClick={() => run(accept)}
           >
-            {mustSign ? 'Sign and agree' : 'I understand and agree'}
+            {mustSign ? t('Sign and agree') : t('I understand and agree')}
           </Button>
           <Button
             variant="text"
@@ -156,7 +165,7 @@ export default function ConsentScreen({
             disabled={busy}
             onClick={() => run(decline)}
           >
-            Not now
+            {t('Not now')}
           </Button>
         </Stack>
       </Surface>

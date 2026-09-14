@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Chip, Stack, Typography, iconSize } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -46,6 +47,7 @@ function buildItems(hasAccess: boolean, consented: boolean): ReadinessItem[] {
 
 /** Where the signed-in employee stands before installing — read from their own access row. */
 export function ReadinessCard({ hasAccess, consented, loading }: Readonly<ReadinessCardProps>) {
+  const t = useT();
   const items = buildItems(hasAccess, consented);
   return (
     <Box sx={[panel, { mb: 1.5 }]}>
@@ -57,8 +59,8 @@ export function ReadinessCard({ hasAccess, consented, loading }: Readonly<Readin
           mb: 1.5,
         }}
       >
-        <Typography variant="subtitle1">Before you start</Typography>
-        {loading && <Chip size="small" variant="outlined" label="Checking…" />}
+        <Typography variant="subtitle1">{t('Before you start')}</Typography>
+        {loading && <Chip size="small" variant="outlined" label={t('Checking…')} />}
       </Stack>
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
         {items.map((item) => (
@@ -69,14 +71,14 @@ export function ReadinessCard({ hasAccess, consented, loading }: Readonly<Readin
               <PendingIcon sx={{ fontSize: iconSize.xl, color: 'text.disabled' }} />
             )}
             <Box>
-              <Typography variant="subtitle2">{item.label}</Typography>
+              <Typography variant="subtitle2">{t(item.label)}</Typography>
               <Typography
                 variant="caption"
                 sx={{
                   color: 'text.secondary',
                 }}
               >
-                {item.hint}
+                {t(item.hint)}
               </Typography>
             </Box>
           </Stack>

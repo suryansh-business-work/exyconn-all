@@ -3,6 +3,7 @@ import { Platform, Pressable } from 'react-native';
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { useController, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
 import { XStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { formatDateTime } from '@exyconn/tracker-core';
 import { TRACKER_RADIUS } from '../../theme/tokens';
 import { Icon } from '../ui/Icon';
@@ -34,10 +35,12 @@ export function DateTimeField<T extends FieldValues>({
   maximumDate,
   minimumDate,
 }: Readonly<Props<T>>) {
+  const t = useT();
   const { field, fieldState } = useController({ control, name });
   const [iosOpen, setIosOpen] = useState(false);
   const iso = String(field.value ?? '');
   const value = iso === '' ? new Date() : new Date(iso);
+  const chosen = iso === '' ? t('not set') : formatDateTime(iso, timezone);
 
   function commit(next: Date | undefined): void {
     if (next !== undefined) {
@@ -74,7 +77,7 @@ export function DateTimeField<T extends FieldValues>({
       <Pressable
         onPress={openPicker}
         accessibilityRole="button"
-        accessibilityLabel={`${label}: ${iso === '' ? 'not set' : formatDateTime(iso, timezone)}`}
+        accessibilityLabel={t('{label}: {value}', { label, value: chosen })}
       >
         <XStack
           borderWidth={1}
@@ -85,7 +88,7 @@ export function DateTimeField<T extends FieldValues>({
           alignItems="center"
         >
           <Body flex={1} color={iso === '' ? '$muted' : '$ink'}>
-            {iso === '' ? 'Choose a date and time' : formatDateTime(iso, timezone)}
+            {iso === '' ? t('Choose a date and time') : formatDateTime(iso, timezone)}
           </Body>
           <Icon name="calendar-clock" />
         </XStack>

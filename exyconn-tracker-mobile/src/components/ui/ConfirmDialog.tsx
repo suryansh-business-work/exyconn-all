@@ -1,6 +1,7 @@
 import { SCRIM } from '../../theme/palette';
 import { Modal } from 'react-native';
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { AppButton } from './AppButton';
 import { Surface } from './Surface';
 import { Body, Heading } from './Typography';
@@ -31,6 +32,7 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: Readonly<Props>) {
+  const t = useT();
   return (
     <Modal visible={open} transparent animationType="fade" onRequestClose={onCancel}>
       <YStack flex={1} justifyContent="center" padding="$5" backgroundColor={SCRIM}>
@@ -38,7 +40,7 @@ export function ConfirmDialog({
           <Heading>{title}</Heading>
           <Body color="$muted">{message}</Body>
           <XStack gap="$3" justifyContent="flex-end">
-            <AppButton label="Cancel" tone="text" onPress={onCancel} disabled={busy} />
+            <AppButton label={t('Cancel')} tone="text" onPress={onCancel} disabled={busy} />
             <AppButton label={confirmLabel} onPress={onConfirm} danger={danger} busy={busy} />
           </XStack>
         </Surface>

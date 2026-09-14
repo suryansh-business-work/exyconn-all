@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useController, useForm } from 'react-hook-form';
 import { Input, XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { AppButton } from '../../components/ui/AppButton';
 import { Notice } from '../../components/ui/Notice';
 import { TRACKER_RADIUS } from '../../theme/tokens';
@@ -29,6 +30,7 @@ interface Props {
  * typed the first time their signal dropped.
  */
 export function MessageForm({ onSend }: Readonly<Props>) {
+  const t = useT();
   const [error, setError] = useState<string | null>(null);
   const { control, handleSubmit, reset, formState } = useForm<MessageInput, unknown, MessageValues>(
     {
@@ -48,7 +50,7 @@ export function MessageForm({ onSend }: Readonly<Props>) {
       reset({ body: '' });
     } catch (cause: unknown) {
       console.error('Sending the message failed', cause);
-      setError(messageOf(cause, SEND_FAILED));
+      setError(messageOf(cause, t(SEND_FAILED)));
     }
   });
 
@@ -64,22 +66,22 @@ export function MessageForm({ onSend }: Readonly<Props>) {
           onBlur={field.onBlur}
           maxLength={MESSAGE_MAX_CHARS}
           maxHeight={MAX_INPUT_HEIGHT}
-          placeholder="Write to your workspace…"
+          placeholder={t('Write to your workspace…')}
           disabled={busy}
           textAlignVertical="top"
           borderRadius={TRACKER_RADIUS}
           borderColor={fieldState.error === undefined ? '$hairline' : '$error'}
           backgroundColor="$paper"
           color="$ink"
-          accessibilityLabel="Message"
+          accessibilityLabel={t('Message')}
           aria-invalid={fieldState.error !== undefined}
         />
         <AppButton
-          label="Send"
+          label={t('Send')}
           icon="send"
           busy={busy}
           disabled={!canSend}
-          accessibilityLabel="Send message"
+          accessibilityLabel={t('Send message')}
           onPress={() => {
             submit().catch((cause: unknown) => console.error('Sending the message failed', cause));
           }}

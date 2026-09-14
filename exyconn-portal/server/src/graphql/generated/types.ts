@@ -856,6 +856,9 @@ export type Branding = {
   githubUrl: Scalars['String']['output'];
   /** Our GST registration, printed on every tax invoice. */
   gstin: Scalars['String']['output'];
+  heroPosterUrl: Scalars['String']['output'];
+  /** The clip behind the website's home hero, and the still shown until it plays. */
+  heroVideoUrl: Scalars['String']['output'];
   hrEmail: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   instagramUrl: Scalars['String']['output'];
@@ -896,6 +899,8 @@ export type BrandingInput = {
   faviconUrl?: InputMaybe<Scalars['String']['input']>;
   githubUrl?: InputMaybe<Scalars['String']['input']>;
   gstin?: InputMaybe<Scalars['String']['input']>;
+  heroPosterUrl?: InputMaybe<Scalars['String']['input']>;
+  heroVideoUrl?: InputMaybe<Scalars['String']['input']>;
   hrEmail?: InputMaybe<Scalars['String']['input']>;
   instagramUrl?: InputMaybe<Scalars['String']['input']>;
   invoicePrefix?: InputMaybe<Scalars['String']['input']>;
@@ -11035,6 +11040,11 @@ export type TrackerMe = {
   consentPolicy?: Maybe<TrackerConsentPolicy>;
   consentRequired: Scalars['Boolean']['output'];
   /**
+   * The EFFECTIVE language: the employee's own pick, else the workspace default, else the
+   * locale this machine reported at sign-in, else English. Never empty.
+   */
+  locale: Scalars['String']['output'];
+  /**
    * Announcements this employee has not seen yet. The desktop app raises each one as a
    * notification and then marks them read, so a notice arrives while the app is in the tray.
    */
@@ -13267,6 +13277,8 @@ export type BrandingResolvers<ContextType = GraphQLContext, ParentType extends R
   faviconUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   githubUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   gstin?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  heroPosterUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  heroVideoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hrEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   instagramUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -17140,6 +17152,7 @@ export type TrackerManualEntryResolvers<ContextType = GraphQLContext, ParentType
 export type TrackerMeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerMe'] = ResolversParentTypes['TrackerMe']> = ResolversObject<{
   consentPolicy?: Resolver<Maybe<ResolversTypes['TrackerConsentPolicy']>, ParentType, ContextType>;
   consentRequired?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notices?: Resolver<Array<ResolversTypes['TrackerMessage']>, ParentType, ContextType>;
   presence?: Resolver<ResolversTypes['TrackerPresenceState'], ParentType, ContextType>;
   projects?: Resolver<Array<ResolversTypes['TrackerProject']>, ParentType, ContextType>;

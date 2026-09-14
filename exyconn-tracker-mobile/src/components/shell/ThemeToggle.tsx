@@ -1,5 +1,6 @@
 import { Pressable } from 'react-native';
 import type { ThemeMode } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 import { tracker } from '../../tracker/instance';
 import { Icon, type IconName } from '../ui/Icon';
 import { RoundButton } from '../ui/RoundButton';
@@ -28,8 +29,12 @@ interface Props {
  * light → dark. It writes the same install preference Settings does.
  */
 export function ThemeToggle({ mode, round = false }: Readonly<Props>) {
+  const t = useT();
   const step = STEPS[mode];
-  const hint = `Theme: ${step.label}. Switch to ${STEPS[step.next].label.toLowerCase()}.`;
+  const hint = t('Theme: {current}. Switch to {next}.', {
+    current: t(step.label),
+    next: t(STEPS[step.next].label).toLowerCase(),
+  });
   const cycle = (): void => {
     tracker.setPreferences({ themeMode: step.next });
   };

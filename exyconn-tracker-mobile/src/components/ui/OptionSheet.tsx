@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, Modal, Pressable } from 'react-native';
 import { SCRIM } from '../../theme/palette';
 import { Input, XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { useBrand } from '../../theme/BrandProvider';
 import { TRACKER_RADIUS } from '../../theme/tokens';
 import { AppButton } from './AppButton';
@@ -75,6 +76,7 @@ export function OptionSheet({
   onClose,
   searchable = false,
 }: Readonly<Props>) {
+  const t = useT();
   const [query, setQuery] = useState('');
   const visible = useMemo(() => filterOptions(options, query), [options, query]);
 
@@ -97,14 +99,14 @@ export function OptionSheet({
         >
           <XStack justifyContent="space-between" alignItems="center">
             <Heading>{title}</Heading>
-            <AppButton label="Close" tone="text" onPress={onClose} />
+            <AppButton label={t('Close')} tone="text" onPress={onClose} />
           </XStack>
           {searchable ? (
             <Input
               value={query}
               onChangeText={setQuery}
-              placeholder="Search"
-              accessibilityLabel={`Search ${title}`}
+              placeholder={t('Search')}
+              accessibilityLabel={t('Search {title}', { title })}
               autoCorrect={false}
             />
           ) : null}
@@ -118,7 +120,7 @@ export function OptionSheet({
                 onPress={() => choose(item.value)}
               />
             )}
-            ListEmptyComponent={<Caption>Nothing matches.</Caption>}
+            ListEmptyComponent={<Caption>{t('Nothing matches.')}</Caption>}
           />
         </YStack>
       </YStack>

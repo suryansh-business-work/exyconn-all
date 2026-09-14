@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import {
   Box,
   Button,
@@ -30,16 +31,15 @@ function BudgetCell({
   budget,
   format,
 }: Readonly<{ used: number; budget: number | null | undefined; format: (n: number) => string }>) {
+  const t = useT();
   if (budget === null || budget === undefined) {
     return <Text color="text.secondary">—</Text>;
   }
   const over = used > budget;
   return (
     <Box>
-      <Text>
-        {format(used)} of {format(budget)}
-      </Text>
-      {over ? <Chip size="small" color="error" label="Over budget" sx={{ ml: 1 }} /> : null}
+      <Text>{t('{used} of {budget}', { used: format(used), budget: format(budget) })}</Text>
+      {over ? <Chip size="small" color="error" label={t('Over budget')} sx={{ ml: 1 }} /> : null}
     </Box>
   );
 }
@@ -51,10 +51,12 @@ export function ProjectBillingRow({
   onInvoice,
   invoicing,
 }: Readonly<ProjectBillingRowProps>) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const unrated = row.employees.some((employee) => employee.rate <= 0);
   const canInvoice = Boolean(row.clientId) && !unrated && row.projectId !== '';
-  const hoursLabel = (n: number) => `${n} h`;
+  const hoursLabel = (n: number) => t('{hours} h', { hours: n });
+  const toggleLabel = open ? t('collapse employees') : t('expand employees');
 
   return (
     <>
@@ -62,7 +64,7 @@ export function ProjectBillingRow({
         <TableCell padding="checkbox">
           <IconButton
             size="small"
-            aria-label={open ? 'collapse employees' : 'expand employees'}
+            aria-label={toggleLabel}
             onClick={() => setOpen((current) => !current)}
           >
             {open ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
@@ -71,7 +73,9 @@ export function ProjectBillingRow({
         <TableCell>
           <Text weight="medium">{row.projectName}</Text>
         </TableCell>
-        <TableCell>{row.clientName || <Text color="text.secondary">No client</Text>}</TableCell>
+        <TableCell>
+          {row.clientName || <Text color="text.secondary">{t('No client')}</Text>}
+        </TableCell>
         <TableCell>
           <BudgetCell used={row.hours} budget={row.budgetHours} format={hoursLabel} />
         </TableCell>
@@ -85,7 +89,7 @@ export function ProjectBillingRow({
             disabled={!canInvoice || invoicing}
             onClick={() => onInvoice(row)}
           >
-            Create invoice
+            {t('Create invoice')}
           </Button>
         </TableCell>
       </TableRow>
@@ -100,23 +104,23 @@ export function ProjectBillingRow({
             >
               <TableHead>
                 <TableRow>
-                  <TableCell>Employee</TableCell>
-                  <TableCell>Hours</TableCell>
-                  <TableCell>Rate / hour</TableCell>
-                  <TableCell>Amount</TableCell>
+                  <TableCell>{t('Employee')}</TableCell>
+                  <TableCell>{t('Hours')}</TableCell>
+                  <TableCell>{t('Rate / hour')}</TableCell>
+                  <TableCell>{t('Amount')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {row.employees.map((employee) => (
                   <TableRow key={employee.employeeId}>
                     <TableCell>{employee.employeeName}</TableCell>
-                    <TableCell>{employee.hours} h</TableCell>
+                    <TableCell>{hoursLabel(employee.hours)}</TableCell>
                     <TableCell>
                       {employee.rate > 0 ? (
                         money.format(employee.rate)
                       ) : (
                         <Text size="sm" color="text.secondary">
-                          Not set
+                          {t('Not set')}
                         </Text>
                       )}
                     </TableCell>

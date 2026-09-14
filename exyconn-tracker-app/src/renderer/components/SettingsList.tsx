@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Box, Stack, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { SettingRow } from '@exyconn/tracker-core';
 
 interface Props {
@@ -19,6 +20,7 @@ interface Props {
  * below the width of its own text.
  */
 export default function SettingsList({ rows }: Readonly<Props>): ReactElement {
+  const t = useT();
   return (
     <Stack divider={<Box sx={{ borderBottom: 1, borderColor: 'divider' }} />}>
       {rows.map((row) => (
@@ -43,7 +45,7 @@ export default function SettingsList({ rows }: Readonly<Props>): ReactElement {
               flexShrink: 0,
             }}
           >
-            {row.label}
+            {t(row.label)}
           </Typography>
           <Typography
             variant="subtitle2"

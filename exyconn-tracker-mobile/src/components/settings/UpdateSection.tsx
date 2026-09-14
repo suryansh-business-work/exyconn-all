@@ -1,6 +1,7 @@
 import * as Application from 'expo-application';
 import { Platform } from 'react-native';
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { useUpdateState } from '../../hooks/useUpdateState';
 import { installNote, updateStatus } from '../../lib/settings/update-status';
 import { run } from '../../tracker/run';
@@ -17,17 +18,18 @@ const IS_ANDROID = Platform.OS === 'android';
  * and an iPhone build comes from the administrator — so the new build is only ever offered.
  */
 export function UpdateSection() {
+  const t = useT();
   const update = useUpdateState();
   const version = Application.nativeApplicationVersion ?? '—';
   const checking = update.stage === 'checking';
-  const openLabel = IS_ANDROID ? 'Download' : 'Details';
+  const openLabel = IS_ANDROID ? t('Download') : t('Details');
 
   return (
     <YStack gap="$2">
-      <Body fontWeight="600">Updates</Body>
-      <Caption>This phone runs version {version}.</Caption>
+      <Body fontWeight="600">{t('Updates')}</Body>
+      <Caption>{t('This phone runs version {version}.', { version })}</Caption>
       <AppButton
-        label="Check for updates"
+        label={t('Check for updates')}
         tone="outlined"
         icon="refresh"
         full
@@ -40,7 +42,10 @@ export function UpdateSection() {
           label={openLabel}
           icon={IS_ANDROID ? 'download' : 'open-in-new'}
           full
-          accessibilityLabel={`${openLabel} version ${update.version}`}
+          accessibilityLabel={t('{action} version {version}', {
+            action: openLabel,
+            version: update.version,
+          })}
           onPress={() => run(openUpdate)}
         />
       ) : null}

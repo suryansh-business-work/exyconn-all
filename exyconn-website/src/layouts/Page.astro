@@ -6,6 +6,7 @@ import Header from "../components/header-and-footer/Header.astro";
 import SearchModal from "../components/SearchModal.astro";
 import { BRANDING_FALLBACK, getBrandingSafe } from "../lib/portal";
 import { DARK_MEDIA_QUERY, THEME_ATTRIBUTE, THEME_STORAGE_KEY, THEMES } from "../lib/theme";
+import { DEFAULT_MARKET, MARKETS, marketUrl, splitMarketPath } from "../lib/i18n/markets";
 
 const {
   title,
@@ -54,7 +55,26 @@ const finalKeywords =
 
 // Build canonical URL: strip query/hash and trailing slashes (root stays "/")
 const rawPath = Astro.url.pathname.replace(/\/+$/, "") || "/";
-const canonicalUrl = canonical || `${SITE_URL}${rawPath}`;
+
+// The middleware rewrote /en-in/about-us to /about-us before this page ran, so the market it
+// resolved is on `locals` and the page itself never has to know about markets.
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const { rest: pagePath } = splitMarketPath(rawPath);
+const marketPath = marketUrl(market, pagePath === "" ? "/" : pagePath);
+const canonicalUrl = canonical || `${SITE_URL}${marketPath}`;
+
+/**
+ * The same page in every other market.
+ *
+ * Search engines need this to tell eighty-six near-identical pages apart: without it they
+ * pick one, drop the rest as duplicates, and a Spanish reader gets the English page. Google
+ * follows `x-default` when it knows nothing about the reader, which is where anyone the site
+ * cannot place is sent anyway.
+ */
+const alternates = MARKETS.map((entry) => ({
+  hreflang: entry.locale,
+  href: `${SITE_URL}${marketUrl(entry, pagePath === "" ? "/" : pagePath)}`,
+}));
 
 // OG image: absolute URL, defaulting to the branding OG image (1200x630). Use a PNG/JPG of the
 // same dimensions for full compatibility with Facebook/LinkedIn/X (some platforms reject SVG).
@@ -113,7 +133,7 @@ const allLd = [...baselineLd, ...pageLd];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={market.locale}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -145,6 +165,16 @@ const allLd = [...baselineLd, ...pageLd];
 
     <!-- Canonical URL -->
     <link rel="canonical" href={canonicalUrl} />
+
+    <!-- This page in every market it is published for, and where to send everyone else. -->
+    {alternates.map((alternate) => (
+      <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />
+    ))}
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href={`${SITE_URL}${marketUrl(DEFAULT_MARKET, pagePath === "" ? "/" : pagePath)}`}
+    />
 
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     {

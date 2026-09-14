@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Grid, Heading, Text, CircularProgress } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
@@ -7,8 +8,10 @@ import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /** Hosts the tracker capture-settings form, prefilled from the current settings. */
 export function TrackerSettingsPage() {
+  const t = useT();
   const { data, loading } = useTrackerSettingsQuery({ fetchPolicy: 'cache-and-network' });
   const settings = data?.trackerSettings;
+  const spinnerLabel = loading ? t('Loading settings') : t('No settings');
 
   return (
     <Box>
@@ -23,18 +26,15 @@ export function TrackerSettingsPage() {
         >
           <Box sx={readingPanel}>
             <Heading level={6} sx={{ mb: 0.5 }}>
-              Capture settings
+              {t('Capture settings')}
             </Heading>
             <Text size="sm" color="text.secondary" sx={{ mb: 2 }}>
-              Applies to every enrolled desktop agent.
+              {t('Applies to every enrolled desktop agent.')}
             </Text>
             {settings ? (
               <TrackerSettingsForm initial={settings} />
             ) : (
-              <CircularProgress
-                size={22}
-                aria-label={loading ? 'Loading settings' : 'No settings'}
-              />
+              <CircularProgress size={22} aria-label={spinnerLabel} />
             )}
           </Box>
         </Grid>

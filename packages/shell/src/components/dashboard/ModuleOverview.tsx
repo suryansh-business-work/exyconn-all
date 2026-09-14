@@ -4,6 +4,7 @@ import { Box, Button, Grid, Stack, Typography } from '@/components/ui';
 import { PageHeader } from '../layout/PageHeader';
 import { StatCard, type StatItem } from './StatCard';
 import { StatBreakdown, type BreakdownBucket } from './StatBreakdown';
+import { useT } from '@exyconn/i18n';
 import { panel } from '@/components/glass/glass';
 
 export interface OverviewBreakdown {
@@ -44,6 +45,7 @@ export function ModuleOverview({
   recentTitle = 'Recent',
   children,
 }: Readonly<ModuleOverviewProps>) {
+  const t = useT();
   const navigate = useNavigate();
   const statCols = 12 / Math.min(Math.max(stats.length, 1), 4);
   const breakdownCols = 12 / Math.max(breakdowns.length, 1);
@@ -98,7 +100,7 @@ export function ModuleOverview({
         >
           {links.map((link) => (
             <Button key={link.to} variant="outlined" onClick={() => navigate(link.to)}>
-              {link.label}
+              {t(link.label)}
             </Button>
           ))}
         </Stack>
@@ -107,7 +109,7 @@ export function ModuleOverview({
       {children && (
         <Box sx={panel}>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            {recentTitle}
+            {t(recentTitle)}
           </Typography>
           {children}
         </Box>

@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
 import { Box } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import { LogErrorBoundary } from '@exyconn/logger/react';
 import type { TrackerState } from '@shared/types';
 import AppHeader from './components/AppHeader';
@@ -55,6 +56,7 @@ interface Props {
 
 /** The signed-in shell: the page header, a scrollable content pane, and the floating tab bar. */
 export default function AppShell({ state }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [section, setSection] = useState<Section>('dashboard');
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export default function AppShell({ state }: Readonly<Props>): ReactElement {
     >
       <AppHeader
         branding={state.branding}
-        title={titleOf(section)}
+        title={t(titleOf(section))}
         status={state.status}
         user={state.user}
         themeMode={state.preferences.themeMode}

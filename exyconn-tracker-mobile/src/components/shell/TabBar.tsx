@@ -2,6 +2,7 @@ import { useContext, useEffect } from 'react';
 import { Pressable, View } from 'react-native';
 import { BottomTabBarHeightCallbackContext, type BottomTabBarProps } from 'expo-router/tabs';
 import { XStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { useKeyboardOpen } from '../../hooks/useKeyboardOpen';
 import { NAV_ITEMS, type NavItem, type Section } from '../../navigation/sections';
 import { useBrand } from '../../theme/BrandProvider';
@@ -29,13 +30,15 @@ interface TabProps {
 
 /** One tab: an icon, or — selected — a light pill with the icon and its short name. */
 function Tab({ item, selected, count, onPress }: Readonly<TabProps>) {
-  const unread = count > 0 ? `, ${count} unread` : '';
+  const t = useT();
+  const section = t(item.label);
+  const label = count > 0 ? t('{section}, {count} unread', { section, count }) : section;
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="tab"
       accessibilityState={{ selected }}
-      accessibilityLabel={`${item.label}${unread}`}
+      accessibilityLabel={label}
     >
       <XStack
         height={44}
@@ -50,7 +53,7 @@ function Tab({ item, selected, count, onPress }: Readonly<TabProps>) {
         <Icon name={item.icon} size={22} color={selected ? PILL.ink : IDLE_ICON} />
         {selected ? (
           <Body size="$3" fontWeight="600" color={PILL.ink} numberOfLines={1}>
-            {item.short}
+            {t(item.short)}
           </Body>
         ) : null}
         {count > 0 && !selected ? (

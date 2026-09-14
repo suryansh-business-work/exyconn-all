@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { ErrorBoundaryProps } from 'expo-router';
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { logger } from '../../tracker/logger';
 import { AppButton } from '../ui/AppButton';
 import { Notice } from '../ui/Notice';
@@ -14,6 +15,7 @@ import { Caption, Title } from '../ui/Typography';
  * error goes to Tech > Logs with the screen it happened on.
  */
 export function ScreenErrorBoundary({ error, retry }: Readonly<ErrorBoundaryProps>) {
+  const t = useT();
   useEffect(() => {
     logger.capture(error, { context: { boundary: 'screen' } });
   }, [error]);
@@ -22,12 +24,12 @@ export function ScreenErrorBoundary({ error, retry }: Readonly<ErrorBoundaryProp
     <ScreenLayout maxWidth={440}>
       <Surface>
         <YStack gap="$1">
-          <Title>This screen hit a problem</Title>
-          <Caption>It has been reported to the Exyconn tech team.</Caption>
+          <Title>{t('This screen hit a problem')}</Title>
+          <Caption>{t('It has been reported to the Exyconn tech team.')}</Caption>
         </YStack>
         <Notice severity="error">{error.message}</Notice>
         <AppButton
-          label="Try again"
+          label={t('Try again')}
           icon="refresh"
           onPress={() => {
             retry().catch((cause: unknown) => logger.capture(cause));

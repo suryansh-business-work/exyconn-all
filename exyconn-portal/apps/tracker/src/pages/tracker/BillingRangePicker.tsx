@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Grid } from '@exyconn/shell/components/ui';
 import { DatePicker } from '@exyconn/ui/pickers';
 import { toDateOrNull } from './tracker.billing';
@@ -14,6 +15,7 @@ interface BillingRangePickerProps {
 
 /** The From/To pickers both billing tabs share, so switching tabs keeps the period. */
 export function BillingRangePicker({ range, onChange }: Readonly<BillingRangePickerProps>) {
+  const t = useT();
   const set = (key: keyof BillingRange) => (value: Date | null) => {
     const next = toDateOrNull(value);
     if (next) {
@@ -30,7 +32,7 @@ export function BillingRangePicker({ range, onChange }: Readonly<BillingRangePic
         }}
       >
         <DatePicker
-          label="From"
+          label={t('From')}
           value={new Date(range.from)}
           onChange={set('from')}
           slotProps={{ textField: { fullWidth: true, size: 'small' } }}
@@ -44,7 +46,7 @@ export function BillingRangePicker({ range, onChange }: Readonly<BillingRangePic
         }}
       >
         <DatePicker
-          label="To"
+          label={t('To')}
           value={new Date(range.to)}
           onChange={set('to')}
           slotProps={{ textField: { fullWidth: true, size: 'small' } }}

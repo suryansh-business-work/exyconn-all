@@ -1,4 +1,5 @@
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { activityColor } from '@exyconn/tracker-core';
 import { useThemeColor } from '../../theme/useThemeColor';
 
@@ -11,6 +12,7 @@ const HEIGHT = 4;
 
 /** The interval's activity as a length — the desktop's determinate LinearProgress. */
 export function ActivityBar({ percent }: Readonly<Props>) {
+  const t = useT();
   const tone = useThemeColor(activityColor(percent));
   const filled = Math.min(100, Math.max(0, percent));
   return (
@@ -20,7 +22,7 @@ export function ActivityBar({ percent }: Readonly<Props>) {
       backgroundColor="$hairline"
       overflow="hidden"
       accessibilityRole="progressbar"
-      accessibilityLabel="Activity in this screenshot's interval"
+      accessibilityLabel={t("Activity in this screenshot's interval")}
       accessibilityValue={{ min: 0, max: 100, now: filled }}
     >
       <YStack width={`${filled}%`} height="100%" backgroundColor={tone} />

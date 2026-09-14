@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { useCallback, useEffect } from 'react';
 import { Box, Chip, Dialog, IconButton, Stack, Typography, scrim } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import CloseRounded from '@mui/icons-material/CloseRounded';
 import ChevronLeftRounded from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded';
@@ -39,6 +40,7 @@ export default function ScreenshotLightbox({
   onClose,
   onNavigate,
 }: Readonly<Props>): ReactElement | null {
+  const t = useT();
   const shot = index === null ? null : shots[index];
 
   const step = useCallback(
@@ -74,7 +76,7 @@ export default function ScreenshotLightbox({
   return (
     // Dialog closes on Escape and on a backdrop click for free — both are what a full-screen
     // image viewer is expected to do.
-    <Dialog open fullScreen onClose={onClose} aria-label="Screenshot, full screen">
+    <Dialog open fullScreen onClose={onClose} aria-label={t('Screenshot, full screen')}>
       <Box
         sx={{
           position: 'relative',
@@ -110,9 +112,9 @@ export default function ScreenshotLightbox({
               size="small"
               variant="outlined"
               color={activityColor(shot.activityPercent)}
-              label={activityLabel(shot.activityPercent)}
+              label={activityLabel(t, shot.activityPercent)}
             />
-            {shot.blurred ? <Chip size="small" variant="outlined" label="Blurred" /> : null}
+            {shot.blurred ? <Chip size="small" variant="outlined" label={t('Blurred')} /> : null}
           </Stack>
           <Stack
             direction="row"
@@ -126,7 +128,7 @@ export default function ScreenshotLightbox({
                 {(index ?? 0) + 1} / {shots.length}
               </Typography>
             ) : null}
-            <IconButton aria-label="Close" onClick={onClose} sx={{ color: 'common.white' }}>
+            <IconButton aria-label={t('Close')} onClick={onClose} sx={{ color: 'common.white' }}>
               <CloseRounded />
             </IconButton>
           </Stack>
@@ -136,17 +138,25 @@ export default function ScreenshotLightbox({
           <Box
             component="img"
             src={shot.imageUrl}
-            alt={`Screenshot captured at ${capturedAt}, full screen`}
+            alt={t('Screenshot captured at {time}, full screen', { time: capturedAt })}
             sx={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
           />
         </Box>
 
         {many ? (
           <>
-            <IconButton aria-label="Previous" onClick={() => step(-1)} sx={{ ...NAV_SX, left: 12 }}>
+            <IconButton
+              aria-label={t('Previous')}
+              onClick={() => step(-1)}
+              sx={{ ...NAV_SX, left: 12 }}
+            >
               <ChevronLeftRounded />
             </IconButton>
-            <IconButton aria-label="Next" onClick={() => step(1)} sx={{ ...NAV_SX, right: 12 }}>
+            <IconButton
+              aria-label={t('Next')}
+              onClick={() => step(1)}
+              sx={{ ...NAV_SX, right: 12 }}
+            >
               <ChevronRightRounded />
             </IconButton>
           </>

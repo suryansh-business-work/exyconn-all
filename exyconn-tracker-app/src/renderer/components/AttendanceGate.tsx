@@ -3,6 +3,7 @@ import { Alert, Button, MenuItem, Stack, TextField, TRACKER_RADIUS, Typography }
 import HowToRegOutlined from '@mui/icons-material/HowToRegOutlined';
 import type { AttendanceStatus, Workday } from '@shared/types';
 import { ATTENDANCE_OPTIONS, humanize } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 
 interface Props {
   workday: Workday | null;
@@ -17,6 +18,7 @@ interface Props {
  * arrives here already done.
  */
 export default function AttendanceGate({ workday }: Readonly<Props>): ReactElement | null {
+  const t = useT();
   const [status, setStatus] = useState<AttendanceStatus>('PRESENT');
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
@@ -27,6 +29,8 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
   }
 
   if (workday.attendanceMarked) {
+    const marked = t(humanize(workday.attendanceStatus ?? 'PRESENT'));
+    const note = workday.attendanceNote;
     return (
       <Typography
         variant="caption"
@@ -34,8 +38,9 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
           color: 'text.secondary',
         }}
       >
-        Marked in today as {humanize(workday.attendanceStatus ?? 'PRESENT')}
-        {workday.attendanceNote ? ` — ${workday.attendanceNote}` : ''}.
+        {note
+          ? t('Marked in today as {status} — {note}.', { status: marked, note })
+          : t('Marked in today as {status}.', { status: marked })}
       </Typography>
     );
   }
@@ -46,7 +51,7 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
     try {
       await window.tracker.markAttendance(status, note.trim() || null);
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Could not mark your attendance.');
+      setError(cause instanceof Error ? cause.message : t('Could not mark your attendance.'));
     } finally {
       setBusy(false);
     }
@@ -55,24 +60,24 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
   return (
     <Stack spacing={1.25}>
       <Alert severity="info" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
-        Mark your attendance for today before you start tracking.
+        {t('Mark your attendance for today before you start tracking.')}
       </Alert>
       <TextField
         select
         size="small"
-        label="Attendance"
+        label={t('Attendance')}
         value={status}
         onChange={(event) => setStatus(event.target.value as AttendanceStatus)}
       >
         {ATTENDANCE_OPTIONS.map((option) => (
           <MenuItem key={option.value} value={option.value}>
-            {option.label}
+            {t(option.label)}
           </MenuItem>
         ))}
       </TextField>
       <TextField
         size="small"
-        label="Note (optional)"
+        label={t('Note (optional)')}
         value={note}
         onChange={(event) => setNote(event.target.value)}
       />
@@ -89,7 +94,7 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
           mark().catch((cause: unknown) => console.error('Mark attendance failed', cause));
         }}
       >
-        Mark attendance
+        {t('Mark attendance')}
       </Button>
     </Stack>
   );

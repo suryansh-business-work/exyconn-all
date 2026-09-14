@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Alert, Button, Divider, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import OpenInNewRounded from '@mui/icons-material/OpenInNewRounded';
 import type { AppPreferences, Branding, TrackerSettings, WorkProfile } from '@shared/types';
 import Surface from '../components/Surface';
@@ -31,6 +32,7 @@ export default function SettingsScreen({
   preferences,
   workProfile,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const appVersion = useAppVersion();
   const update = useUpdateState();
   const supportEmail = branding?.supportEmail ?? '';
@@ -40,7 +42,7 @@ export default function SettingsScreen({
     <Stack spacing={2}>
       {/* The one setting on this screen that is the EMPLOYEE'S, not the administrator's. */}
       <Surface sx={{ p: 2.5 }}>
-        <Typography variant="h6">Your timezone</Typography>
+        <Typography variant="h6">{t('Your timezone')}</Typography>
         <Typography
           variant="body2"
           sx={{
@@ -49,7 +51,7 @@ export default function SettingsScreen({
             mb: 2,
           }}
         >
-          Your workspace sets a default. Pick your own if you work somewhere else.
+          {t('Your workspace sets a default. Pick your own if you work somewhere else.')}
         </Typography>
         <TimezonePicker timezone={timezone} />
       </Surface>
@@ -60,7 +62,7 @@ export default function SettingsScreen({
       <WorkArrangementCard workProfile={workProfile} />
 
       <Surface sx={{ p: 2.5 }}>
-        <Typography variant="h6">Workspace settings</Typography>
+        <Typography variant="h6">{t('Workspace settings')}</Typography>
         <Typography
           variant="body2"
           sx={{
@@ -69,8 +71,9 @@ export default function SettingsScreen({
             mb: 1,
           }}
         >
-          Configured by your workspace administrator in the Exyconn portal. This app cannot change
-          them.
+          {t(
+            'Configured by your workspace administrator in the Exyconn portal. This app cannot change them.',
+          )}
         </Typography>
 
         {settings === null ? (
@@ -79,15 +82,15 @@ export default function SettingsScreen({
             variant="outlined"
             sx={{ borderRadius: `${TRACKER_RADIUS}px`, mt: 1 }}
           >
-            Settings are not available right now.
+            {t('Settings are not available right now.')}
           </Alert>
         ) : (
-          <SettingsList rows={buildSettingRows(settings)} />
+          <SettingsList rows={buildSettingRows(t, settings)} />
         )}
       </Surface>
 
       <Surface sx={{ p: 2.5 }}>
-        <Typography variant="h6">Your data</Typography>
+        <Typography variant="h6">{t('Your data')}</Typography>
         <Typography
           variant="body2"
           sx={{
@@ -96,7 +99,7 @@ export default function SettingsScreen({
             mb: 2,
           }}
         >
-          Everything this app has recorded about you is visible to you in the portal.
+          {t('Everything this app has recorded about you is visible to you in the portal.')}
         </Typography>
         <Stack spacing={1.25}>
           <Button
@@ -105,14 +108,14 @@ export default function SettingsScreen({
             startIcon={<OpenInNewRounded />}
             onClick={() => run(() => window.tracker.openPrivacy())}
           >
-            View my data in the portal
+            {t('View my data in the portal')}
           </Button>
           <SignOutButton />
         </Stack>
       </Surface>
 
       <Surface sx={{ p: 2.5 }}>
-        <Typography variant="h6">About</Typography>
+        <Typography variant="h6">{t('About')}</Typography>
         <Divider sx={{ my: 1.5 }} />
         <Stack spacing={0.5}>
           {appVersion !== '' ? (
@@ -122,7 +125,7 @@ export default function SettingsScreen({
                 color: 'text.secondary',
               }}
             >
-              Version {appVersion}
+              {t('Version {version}', { version: appVersion })}
             </Typography>
           ) : null}
           {legalName !== '' ? (
@@ -142,7 +145,7 @@ export default function SettingsScreen({
                 color: 'text.secondary',
               }}
             >
-              Support: {supportEmail}
+              {t('Support: {email}', { email: supportEmail })}
             </Typography>
           ) : null}
           <Typography
@@ -151,8 +154,9 @@ export default function SettingsScreen({
               color: 'text.secondary',
             }}
           >
-            Keystrokes and clicks are counted, never recorded. Nothing is captured while tracking is
-            stopped or paused.
+            {t(
+              'Keystrokes and clicks are counted, never recorded. Nothing is captured while tracking is stopped or paused.',
+            )}
           </Typography>
         </Stack>
       </Surface>

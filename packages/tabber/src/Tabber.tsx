@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Tab, Tabs, type SxProps, type Theme } from '@exyconn/shell/components/ui';
 import { useTabberSlug } from './useTabberSlug';
 import type { TabberItem, TabberVariant } from './tabber.types';
@@ -28,6 +29,7 @@ export function Tabber({
   ariaLabel,
   sx,
 }: Readonly<TabberProps>) {
+  const t = useT();
   const slugs = useMemo(() => items.map((item) => item.slug), [items]);
   const { slug, selectSlug } = useTabberSlug(basePath, slugs);
   const active = items.find((item) => item.slug === slug);
@@ -39,14 +41,14 @@ export function Tabber({
         onChange={(_event, next: string) => selectSlug(next)}
         variant={variant}
         scrollButtons="auto"
-        aria-label={ariaLabel}
+        aria-label={t(ariaLabel)}
         sx={sx}
       >
         {items.map((item) => (
           <Tab
             key={item.slug}
             value={item.slug}
-            label={item.label}
+            label={t(item.label)}
             icon={item.icon}
             iconPosition={item.icon ? 'start' : undefined}
           />

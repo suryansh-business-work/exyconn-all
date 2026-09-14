@@ -1,6 +1,7 @@
 import { Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { formatDayInZone, offsetLabel } from '@exyconn/tracker-core';
 import type { DayRange } from '../../lib/screenshots/gallery-day';
 import { borderWidth } from '../../theme/tokens';
@@ -55,9 +56,16 @@ export function GalleryHeader({
   onPrevious,
   onNext,
 }: Readonly<Props>) {
+  const t = useT();
   const insets = useSafeAreaInsets();
-  const zone = `times shown in ${timezone} (${offsetLabel(timezone)})`;
-  const subtitle = range === null ? zone : `${formatDayInZone(range.startISO, timezone)} · ${zone}`;
+  const zone = t('times shown in {timezone} ({offset})', {
+    timezone,
+    offset: offsetLabel(timezone),
+  });
+  const subtitle =
+    range === null
+      ? zone
+      : t('{day} · {zone}', { day: formatDayInZone(range.startISO, timezone), zone });
 
   return (
     <YStack
@@ -74,15 +82,15 @@ export function GalleryHeader({
           onPress={onClose}
           hitSlop={12}
           accessibilityRole="button"
-          accessibilityLabel="Close my screenshots"
+          accessibilityLabel={t('Close my screenshots')}
         >
           <Icon name="close" size={24} />
         </Pressable>
-        <Heading flex={1}>My screenshots</Heading>
+        <Heading flex={1}>{t('My screenshots')}</Heading>
       </XStack>
       <XStack alignItems="center" gap="$2">
         <DayStep
-          label="Previous day"
+          label={t('Previous day')}
           icon="chevron-left"
           disabled={range === null}
           onPress={onPrevious}
@@ -90,7 +98,7 @@ export function GalleryHeader({
         <Caption flex={1} textAlign="center" accessibilityLiveRegion="polite">
           {subtitle}
         </Caption>
-        <DayStep label="Next day" icon="chevron-right" disabled={!hasNext} onPress={onNext} />
+        <DayStep label={t('Next day')} icon="chevron-right" disabled={!hasNext} onPress={onNext} />
       </XStack>
     </YStack>
   );

@@ -48,16 +48,16 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
     <ConfirmContext.Provider value={value}>
       {children}
       <Dialog open={Boolean(options)} onClose={() => settle(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>{options?.title ?? t('Please confirm')}</DialogTitle>
+        <DialogTitle>{t(options?.title ?? 'Please confirm')}</DialogTitle>
         <DialogContent>
-          <DialogContentText>{options?.message}</DialogContentText>
+          <DialogContentText>{options?.message ? t(options.message) : null}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => settle(false)} color="inherit">
-            {options?.cancelText ?? t('Cancel')}
+            {t(options?.cancelText ?? 'Cancel')}
           </Button>
           <Button onClick={() => settle(true)} variant="contained" autoFocus>
-            {options?.confirmText ?? t('Confirm')}
+            {t(options?.confirmText ?? 'Confirm')}
           </Button>
         </DialogActions>
       </Dialog>

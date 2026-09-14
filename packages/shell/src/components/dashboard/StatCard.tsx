@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Stack, Typography, iconSize } from '@/components/ui';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
@@ -15,6 +16,7 @@ export interface StatItem {
 
 /** A frosted stat tile: label, big value, trend delta and a mini sparkline. */
 export function StatCard({ label, value, delta, accent = color.orange[500], series }: StatItem) {
+  const t = useT();
   const up = (delta ?? 0) >= 0;
   return (
     <Box sx={[panel, { height: '100%' }]}>
@@ -31,7 +33,7 @@ export function StatCard({ label, value, delta, accent = color.orange[500], seri
             color: 'text.secondary',
           }}
         >
-          {label}
+          {t(label)}
         </Typography>
         {delta !== undefined && (
           <Stack

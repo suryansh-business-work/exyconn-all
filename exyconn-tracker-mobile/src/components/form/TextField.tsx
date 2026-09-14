@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { TextInputProps } from 'react-native';
 import { useController, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
 import { Input, XStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { TRACKER_RADIUS } from '../../theme/tokens';
 import { AppButton } from '../ui/AppButton';
 import { FieldFrame } from './FieldFrame';
@@ -37,6 +38,7 @@ export function TextField<T extends FieldValues>({
   autoCapitalize = 'sentences',
   onSubmitEditing,
 }: Readonly<Props<T>>) {
+  const t = useT();
   const { field, fieldState } = useController({ control, name });
   const [revealed, setRevealed] = useState(false);
 
@@ -68,10 +70,10 @@ export function TextField<T extends FieldValues>({
         />
         {secret ? (
           <AppButton
-            label={revealed ? 'Hide' : 'Show'}
+            label={revealed ? t('Hide') : t('Show')}
             tone="text"
             onPress={() => setRevealed((shown) => !shown)}
-            accessibilityLabel={revealed ? 'Hide password' : 'Show password'}
+            accessibilityLabel={revealed ? t('Hide password') : t('Show password')}
           />
         ) : null}
       </XStack>

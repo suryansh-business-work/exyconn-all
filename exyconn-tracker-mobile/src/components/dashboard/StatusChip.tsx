@@ -1,4 +1,5 @@
 import { XStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { TrackerStatus } from '@exyconn/tracker-core';
 import { TRACKER_RADIUS } from '../../theme/tokens';
 import { useThemeColor, type ThemeColor } from '../../theme/useThemeColor';
@@ -24,8 +25,10 @@ interface Props {
 
 /** Status pill with the dot that breathes only while tracking is actually running. */
 export function StatusChip({ status }: Readonly<Props>) {
+  const t = useT();
   const meta = STATUS_META[status];
   const color = useThemeColor(meta.tone);
+  const label = t(meta.label);
 
   return (
     <XStack
@@ -38,11 +41,11 @@ export function StatusChip({ status }: Readonly<Props>) {
       flexShrink={0}
       accessible
       accessibilityRole="text"
-      accessibilityLabel={`Status: ${meta.label}`}
+      accessibilityLabel={t('Status: {status}', { status: label })}
     >
       <TrackingPulse status={status} />
       <Caption color="$ink" fontWeight="600">
-        {meta.label}
+        {label}
       </Caption>
     </XStack>
   );

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import AppsIcon from '@mui/icons-material/Apps';
 import { Button } from '@exyconn/shell/components/ui';
 import { PortalSwitcher } from '@exyconn/shell/layout/PortalSwitcher';
+import { useT } from '@exyconn/i18n';
 
 interface OtherPortalsLinkProps {
   /** Portal accent from branding, so the link belongs to the front door it sits on. */
@@ -16,6 +17,7 @@ interface OtherPortalsLinkProps {
  * on its login screen.
  */
 export function OtherPortalsLink({ accentColor }: Readonly<OtherPortalsLinkProps>) {
+  const t = useT();
   const [open, setOpen] = useState(false);
 
   return (
@@ -26,7 +28,7 @@ export function OtherPortalsLink({ accentColor }: Readonly<OtherPortalsLinkProps
         onClick={() => setOpen(true)}
         sx={{ color: accentColor, px: 0, minWidth: 0 }}
       >
-        Other Portals
+        {t('Other Portals')}
       </Button>
       <PortalSwitcher roles={null} open={open} onClose={() => setOpen(false)} />
     </>

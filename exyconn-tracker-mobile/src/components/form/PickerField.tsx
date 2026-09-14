@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable } from 'react-native';
 import { XStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { TRACKER_RADIUS } from '../../theme/tokens';
 import { FieldFrame } from './FieldFrame';
 import { Icon } from '../ui/Icon';
@@ -39,6 +40,7 @@ export function PickerField({
   searchable = false,
   onSelect,
 }: Readonly<Props>) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const current = options.find((option) => option.value === selected);
   const shown = current?.label ?? placeholder;
@@ -49,8 +51,8 @@ export function PickerField({
         onPress={() => setOpen(true)}
         disabled={disabled}
         accessibilityRole="button"
-        accessibilityLabel={`${label}: ${shown}`}
-        accessibilityHint="Opens the list of choices"
+        accessibilityLabel={t('{label}: {value}', { label, value: shown })}
+        accessibilityHint={t('Opens the list of choices')}
         accessibilityState={{ disabled }}
       >
         <XStack

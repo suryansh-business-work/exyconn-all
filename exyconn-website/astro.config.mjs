@@ -49,10 +49,9 @@ export default defineConfig({
     host: true, // allows 0.0.0.0 binding
     port: 4000  // exyconn.com website port
   },
-  i18n: {
-    locales: ["es", "en", "fr"],
-    defaultLocale: "en",
-  },
+  // Markets are routed by `src/pages/[market]` and validated in `src/middleware.ts`, not by
+  // Astro's own i18n: its router refuses any first segment that is not a configured locale,
+  // which would turn every old unprefixed link into a 404 instead of a redirect.
   vite: {
     plugins: [tailwindcss()],
     define: {

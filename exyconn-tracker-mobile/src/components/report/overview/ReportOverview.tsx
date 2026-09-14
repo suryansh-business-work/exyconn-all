@@ -1,5 +1,6 @@
 import { Pressable } from 'react-native';
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import {
   formatCount,
   formatDayLabel,
@@ -77,11 +78,12 @@ interface WorkedProps {
 
 /** The period's worked time, how active it was, and how it moved against the period before. */
 function WorkedCard({ current, previous, before }: Readonly<WorkedProps>) {
+  const t = useT();
   const change = relativeChange(current.activeMs, previous.activeMs);
   return (
     <Surface>
       <Body color="$muted" fontWeight="600">
-        Worked
+        {t('Worked')}
       </Body>
       <XStack alignItems="center" gap="$2">
         <Figure>{formatHoursMinutes(current.activeMs)}</Figure>
@@ -89,12 +91,17 @@ function WorkedCard({ current, previous, before }: Readonly<WorkedProps>) {
       </XStack>
       <GradientBar
         percent={current.activityPercent}
-        label="Active"
-        trailing={`${formatHoursMinutes(current.idleMs)} idle`}
-        accessibilityLabel={`${current.activityPercent}% of tracked time was active`}
+        label={t('Active')}
+        trailing={t('{time} idle', { time: formatHoursMinutes(current.idleMs) })}
+        accessibilityLabel={t('{percent}% of tracked time was active', {
+          percent: current.activityPercent,
+        })}
       />
       <Caption>
-        {formatHoursMinutes(previous.activeMs)} {before}.
+        {t('{time} {before}.', {
+          time: formatHoursMinutes(previous.activeMs),
+          before: t(before),
+        })}
       </Caption>
     </Surface>
   );
@@ -112,6 +119,7 @@ interface Props {
  * desktop's Overview; a period with nothing before it shows no change rather than an invented one.
  */
 export function ReportOverview({ length, onLengthChange, insights }: Readonly<Props>) {
+  const t = useT();
   const period = PERIODS.find((entry) => entry.length === length) ?? PERIODS[0];
   const { range, current, previous, columns, loading, error } = insights;
   const first = range.current[0];
@@ -120,11 +128,11 @@ export function ReportOverview({ length, onLengthChange, insights }: Readonly<Pr
 
   return (
     <YStack gap="$4">
-      <XStack gap="$2" accessibilityRole="radiogroup" accessibilityLabel="Period">
+      <XStack gap="$2" accessibilityRole="radiogroup" accessibilityLabel={t('Period')}>
         {PERIODS.map((entry) => (
           <PeriodChip
             key={entry.length}
-            label={entry.label}
+            label={t(entry.label)}
             selected={entry.length === length}
             onPress={() => onLengthChange(entry.length)}
           />
@@ -139,7 +147,7 @@ export function ReportOverview({ length, onLengthChange, insights }: Readonly<Pr
         <WorkedCard current={current} previous={previous} before={period.before} />
       )}
 
-      <ActivityCard title="Over time" percent={loading ? null : current.activityPercent}>
+      <ActivityCard title={t('Over time')} percent={loading ? null : current.activityPercent}>
         <StripesChart
           bars={columns}
           labels={{
@@ -147,10 +155,13 @@ export function ReportOverview({ length, onLengthChange, insights }: Readonly<Pr
             middle: formatDayLabel(middle),
             end: formatDayLabel(last),
           }}
-          summary={`Hours worked per day, ${period.label.toLowerCase()}; ${current.trackedDays} days tracked.`}
+          summary={t('Hours worked per day, {period}; {days} days tracked.', {
+            period: t(period.label).toLowerCase(),
+            days: current.trackedDays,
+          })}
         />
         <Caption>
-          Each stripe is a day: its height is the time worked, its colour how active it was.
+          {t('Each stripe is a day: its height is the time worked, its colour how active it was.')}
         </Caption>
       </ActivityCard>
 
@@ -158,11 +169,14 @@ export function ReportOverview({ length, onLengthChange, insights }: Readonly<Pr
         {METRICS.map((metric) => (
           <YStack key={metric.key} width="47%" flexGrow={1}>
             <MetricCard
-              label={metric.label}
+              label={t(metric.label)}
               icon={metric.icon}
               value={formatCount(current[metric.key])}
               change={relativeChange(current[metric.key], previous[metric.key])}
-              caption={`${formatCount(previous[metric.key])} ${period.before}`}
+              caption={t('{count} {before}', {
+                count: formatCount(previous[metric.key]),
+                before: t(period.before),
+              })}
             />
           </YStack>
         ))}

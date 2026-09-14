@@ -3,6 +3,7 @@ import { IconButton, Stack, Tooltip, Typography } from '@exyconn/ui';
 import ChevronLeftRounded from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded';
 import { formatMonthLabel } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 
 interface Props {
   month: Date;
@@ -20,6 +21,7 @@ export default function MonthSwitcher({
   canGoForward,
   onChange,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   return (
     <Stack
       direction="row"
@@ -28,11 +30,11 @@ export default function MonthSwitcher({
         alignItems: 'center',
       }}
     >
-      <Tooltip title="Previous month">
+      <Tooltip title={t('Previous month')}>
         <IconButton
           size="small"
           color="inherit"
-          aria-label="Previous month"
+          aria-label={t('Previous month')}
           onClick={() => onChange(shift(month, -1))}
         >
           <ChevronLeftRounded />
@@ -41,12 +43,12 @@ export default function MonthSwitcher({
       <Typography variant="subtitle1" sx={{ minWidth: 148, textAlign: 'center', fontWeight: 700 }}>
         {formatMonthLabel(month)}
       </Typography>
-      <Tooltip title="Next month">
+      <Tooltip title={t('Next month')}>
         <span>
           <IconButton
             size="small"
             color="inherit"
-            aria-label="Next month"
+            aria-label={t('Next month')}
             disabled={!canGoForward}
             onClick={() => onChange(shift(month, 1))}
           >

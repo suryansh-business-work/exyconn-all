@@ -8,6 +8,7 @@ import {
   TRACKER_RADIUS,
   Typography,
 } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { DayScreenshot } from '@shared/types';
 import { activityLabel, formatTimeOfDay } from '@exyconn/tracker-core';
 
@@ -21,6 +22,7 @@ interface Props {
 
 /** Thumbnails of one day's screenshots. Clicking one opens the separate gallery window. */
 export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Props>): ReactElement {
+  const t = useT();
   if (shots.length === 0) {
     return (
       <Typography
@@ -31,7 +33,7 @@ export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Pro
           py: 3,
         }}
       >
-        No screenshots on this day.
+        {t('No screenshots on this day.')}
       </Typography>
     );
   }
@@ -50,7 +52,9 @@ export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Pro
           <ButtonBase
             key={shot.id}
             onClick={onOpen}
-            aria-label={`Open my screenshots — this one was captured at ${capturedAt}`}
+            aria-label={t('Open my screenshots — this one was captured at {time}', {
+              time: capturedAt,
+            })}
             sx={{
               display: 'block',
               width: '100%',
@@ -63,7 +67,7 @@ export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Pro
             <Box
               component="img"
               src={shot.imageUrl}
-              alt={`Screenshot captured at ${capturedAt}`}
+              alt={t('Screenshot captured at {time}', { time: capturedAt })}
               loading="lazy"
               sx={(theme) => ({
                 width: '100%',
@@ -82,7 +86,7 @@ export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Pro
                 mt: 0.5,
               }}
             >
-              {capturedAt} · {activityLabel(shot.activityPercent)}
+              {capturedAt} · {activityLabel(t, shot.activityPercent)}
             </Typography>
           </ButtonBase>
         );

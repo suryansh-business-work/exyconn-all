@@ -1,5 +1,6 @@
 import { Pressable } from 'react-native';
 import { XStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { Tile } from '../../lib/dashboard/tile.types';
 import { useBrand } from '../../theme/BrandProvider';
 import { Icon } from '../ui/Icon';
@@ -14,19 +15,21 @@ interface Props {
 
 /** A single labelled stat in the dashboard grid. Tapping it explains the number. */
 export function StatTile({ tile, onOpen }: Readonly<Props>) {
+  const t = useT();
   const brand = useBrand();
+  const label = t(tile.label);
   return (
     <Pressable
       onPress={() => onOpen(tile.id)}
       accessibilityRole="button"
-      accessibilityLabel={`${tile.label}: ${tile.value}. Open details`}
+      accessibilityLabel={t('{label}: {value}. Open details', { label, value: tile.value })}
       style={({ pressed }) => ({ flexGrow: 1, flexBasis: '40%', opacity: pressed ? 0.8 : 1 })}
     >
       <Surface padding="$3" gap="$2" flexGrow={1}>
         <XStack gap="$2" alignItems="center">
           <Icon name={tile.icon} size={18} color={brand.primary} />
           <Caption numberOfLines={1} flex={1}>
-            {tile.label}
+            {label}
           </Caption>
         </XStack>
         <Heading accessibilityRole="none" numberOfLines={1}>

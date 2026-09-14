@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import type { ErrorBoundaryProps } from 'expo-router';
+import { useT } from '@exyconn/i18n';
 import { CHROME, FALLBACK_BRAND, ON_DARK } from '../../theme/palette';
 import { logger } from '../../tracker/logger';
 
@@ -11,6 +12,7 @@ import { logger } from '../../tracker/logger';
  * brand providers (either of which may be what failed).
  */
 export function RootErrorBoundary({ error, retry }: Readonly<ErrorBoundaryProps>) {
+  const t = useT();
   const chrome = CHROME[useColorScheme() === 'dark' ? 'dark' : 'light'];
 
   useEffect(() => {
@@ -20,10 +22,10 @@ export function RootErrorBoundary({ error, retry }: Readonly<ErrorBoundaryProps>
   return (
     <View style={[styles.page, { backgroundColor: chrome.app }]}>
       <Text accessibilityRole="header" style={[styles.title, { color: chrome.ink }]}>
-        The app hit a problem
+        {t('The app hit a problem')}
       </Text>
       <Text style={[styles.body, { color: chrome.muted }]}>
-        It has been reported to the Exyconn tech team.
+        {t('It has been reported to the Exyconn tech team.')}
       </Text>
       <Text style={[styles.body, { color: chrome.error }]}>{error.message}</Text>
       <Pressable
@@ -33,7 +35,7 @@ export function RootErrorBoundary({ error, retry }: Readonly<ErrorBoundaryProps>
         }}
         style={styles.button}
       >
-        <Text style={styles.buttonText}>Try again</Text>
+        <Text style={styles.buttonText}>{t('Try again')}</Text>
       </Pressable>
     </View>
   );

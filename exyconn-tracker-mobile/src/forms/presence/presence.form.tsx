@@ -1,8 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { YStack } from 'tamagui';
 import { PRESENCE_OPTIONS, type PresenceState } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 import { SelectField } from '../../components/form/SelectField';
 import { TextField } from '../../components/form/TextField';
 import { AppButton } from '../../components/ui/AppButton';
@@ -15,12 +16,6 @@ import { PRESENCE_NOTE_MAX, presenceSchema } from './presence.schema';
 import type { PresenceValues } from './presence.types';
 
 const FAILED = 'Could not update your status.';
-
-const STATUS_OPTIONS = PRESENCE_OPTIONS.map((option) => ({
-  value: option.status,
-  label: option.label,
-  caption: option.caption,
-}));
 
 interface Props {
   presence: PresenceState;
@@ -38,7 +33,17 @@ interface Props {
  * keyboard's return key or the Save note button that appears once it has changed.
  */
 export function PresenceForm({ presence, timezone }: Readonly<Props>) {
+  const t = useT();
   const [error, setError] = useState<string | null>(null);
+  const statusOptions = useMemo(
+    () =>
+      PRESENCE_OPTIONS.map((option) => ({
+        value: option.status,
+        label: t(option.label),
+        caption: t(option.caption),
+      })),
+    [t],
+  );
   const { control, handleSubmit, formState, reset } = useForm<PresenceValues>({
     resolver: zodResolver(presenceSchema),
     defaultValues: { status: presence.status, note: presence.note },
@@ -59,7 +64,7 @@ export function PresenceForm({ presence, timezone }: Readonly<Props>) {
       await tracker.setPresence(values.status, values.note);
     } catch (cause: unknown) {
       console.error('Setting presence failed', cause);
-      setError(messageOf(cause, FAILED));
+      setError(messageOf(cause, t(FAILED)));
       reset({ status: presence.status, note: presence.note });
     }
   });
@@ -73,23 +78,23 @@ export function PresenceForm({ presence, timezone }: Readonly<Props>) {
       <SelectField
         control={control}
         name="status"
-        label="My status"
-        options={STATUS_OPTIONS}
+        label={t('My status')}
+        options={statusOptions}
         disabled={busy}
         onChanged={apply}
       />
       <TextField
         control={control}
         name="note"
-        label="Note (optional)"
-        placeholder="Back at 2"
-        hint={`Up to ${PRESENCE_NOTE_MAX} characters.`}
+        label={t('Note (optional)')}
+        placeholder={t('Back at 2')}
+        hint={t('Up to {max} characters.', { max: PRESENCE_NOTE_MAX })}
         disabled={busy}
         onSubmitEditing={apply}
       />
       {noteChanged ? (
         <AppButton
-          label="Save note"
+          label={t('Save note')}
           tone="outlined"
           icon="content-save-outline"
           busy={busy}
@@ -97,7 +102,7 @@ export function PresenceForm({ presence, timezone }: Readonly<Props>) {
         />
       ) : null}
       {error === null ? null : <Notice severity="error">{error}</Notice>}
-      <Caption>{presenceCaption(presence, timezone, Date.now())}</Caption>
+      <Caption>{presenceCaption(t, presence, timezone, Date.now())}</Caption>
     </YStack>
   );
 }

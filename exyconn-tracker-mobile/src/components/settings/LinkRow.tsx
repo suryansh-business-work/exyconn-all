@@ -1,5 +1,6 @@
 import { Linking, Pressable } from 'react-native';
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { useBrand } from '../../theme/BrandProvider';
 import { run } from '../../tracker/run';
 import { Icon, type IconName } from '../ui/Icon';
@@ -16,12 +17,13 @@ interface Props {
 
 /** A labelled, tappable address that opens in the phone's own mail app or browser. */
 export function LinkRow({ label, value, url, icon }: Readonly<Props>) {
+  const t = useT();
   const brand = useBrand();
   return (
     <Pressable
       onPress={() => run(() => Linking.openURL(url))}
       accessibilityRole="link"
-      accessibilityLabel={`${label}: ${value}`}
+      accessibilityLabel={t('{label}: {value}', { label, value })}
     >
       <XStack gap="$3" alignItems="center" paddingVertical="$1.5">
         <Icon name={icon} color={brand.primary} />

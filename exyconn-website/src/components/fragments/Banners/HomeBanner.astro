@@ -2,9 +2,37 @@
 // Clean, Professional Home Banner
 import { aiServices } from "../../../lib/services/aiServices";
 import { TOOLS_SITE_URL } from "../../../lib/site";
+import { getBrandingSafe } from "../../../lib/portal";
+
+/**
+ * The clip behind the hero, chosen in Admin › Branding from Pexels.
+ *
+ * Empty until somebody picks one, and the banner is exactly what it was — a pattern on a
+ * flat surface. Muted, looping and inert: it is decoration behind a headline, and it is
+ * hidden outright from anyone whose system asks for less motion (see the style below).
+ */
+const branding = await getBrandingSafe();
+const heroVideo = branding.heroVideoUrl;
+const heroPoster = branding.heroPosterUrl;
 ---
 
 <section class="relative bg-surface overflow-hidden">
+  {
+    heroVideo && (
+      <video
+        class="hero-video absolute inset-0 h-full w-full object-cover"
+        src={heroVideo}
+        poster={heroPoster || undefined}
+        autoplay
+        muted
+        loop
+        playsinline
+        aria-hidden="true"
+        tabindex="-1"
+      />
+    )
+  }
+
   <!-- Simple Background Pattern -->
   <div class="absolute inset-0 bg-gradient-to-b from-surface-subtle to-surface"></div>
   <div
@@ -403,3 +431,17 @@ import { TOOLS_SITE_URL } from "../../../lib/site";
     initializeCardRotation();
   }
 </script>
+
+<style>
+  /* Behind the words, never competing with them. */
+  .hero-video {
+    opacity: 0.35;
+  }
+
+  /* Somebody who asked their system for less motion gets the still, not the clip. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-video {
+      display: none;
+    }
+  }
+</style>

@@ -1,4 +1,6 @@
 import { UserModel } from '../admin/user.model';
+import { adminService } from '../admin/admin.service';
+import { resolveEffectiveLocale } from '../i18n/locale.constants';
 import { verifyPassword } from '../../utils/password';
 import { signDeviceToken } from '../../utils/jwt';
 import { imageUploader } from '../../utils/imagekit';
@@ -202,8 +204,9 @@ class TrackerDeviceService {
       forbidden('Your tracker access has been revoked.');
     }
 
-    const [settings, device] = await Promise.all([
+    const [settings, appSettings, device] = await Promise.all([
       getTrackerSettings(),
+      adminService.getSettings(),
       TrackerDeviceModel.findOne({ deviceId, userId }).lean(),
     ]);
 
@@ -211,6 +214,17 @@ class TrackerDeviceService {
       employeeTimezone: access.timezone,
       defaultTimezone: settings.defaultTimezone,
       deviceTimezone: device?.timezone,
+    });
+
+    // The same chain the portal applies: this employee's own pick, else the workspace
+    // default. The device reports its locale at sign-in and the Devices console shows it,
+    // but it is deliberately NOT a candidate here — `defaultLocale` is required and defaults
+    // to English, so a workspace always has one, and the admin's choice outranks whatever
+    // language a particular machine happens to be set to. (The zone chain reads differently
+    // only because `defaultTimezone` defaults to empty.)
+    const locale = resolveEffectiveLocale({
+      userLocale: user.locale,
+      defaultLocale: appSettings.defaultLocale,
     });
 
     const [workday, projects, consentPolicy, notices, unreadMessages] = await Promise.all([
@@ -229,6 +243,7 @@ class TrackerDeviceService {
       consentRequired: this.consentRequired(access.consentedAt, consentPolicy),
       settings,
       timezone,
+      locale,
       workProfile: trackerWorkdayService.workProfileOf(user),
       workday,
       projects,

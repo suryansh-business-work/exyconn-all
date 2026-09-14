@@ -1,4 +1,5 @@
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { formatCount } from '@exyconn/tracker-core';
 import { Notice } from '../ui/Notice';
 import { Body, Caption } from '../ui/Typography';
@@ -22,6 +23,7 @@ interface EmptyProps {
 
 /** Loading, failed, or a day with nothing on it — whatever stands in for the shots. */
 export function GalleryEmpty({ loading, error, loadingLabel }: Readonly<EmptyProps>) {
+  const t = useT();
   if (error !== null) {
     return <Notice severity="error">{error}</Notice>;
   }
@@ -36,17 +38,18 @@ export function GalleryEmpty({ loading, error, loadingLabel }: Readonly<EmptyPro
   }
   return (
     <Body color="$muted" textAlign="center" paddingVertical="$8">
-      No screenshots were captured on this day.
+      {t('No screenshots were captured on this day.')}
     </Body>
   );
 }
 
 /** How many shots the day holds, and how to read their activity. */
 export function GalleryIntro({ count }: Readonly<{ count: number }>) {
+  const t = useT();
   return (
     <YStack gap="$1.5" paddingBottom="$1">
-      <Caption fontWeight="600">{formatCount(count)} captured</Caption>
-      <Caption>{PENDING_HINT}</Caption>
+      <Caption fontWeight="600">{t('{count} captured', { count: formatCount(count) })}</Caption>
+      <Caption>{t(PENDING_HINT)}</Caption>
     </YStack>
   );
 }

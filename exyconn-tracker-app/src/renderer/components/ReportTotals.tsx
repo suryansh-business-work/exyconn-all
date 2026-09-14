@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { alpha, borderWidth, Box, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import Surface from './Surface';
 import type { ReportTotals as Totals } from '../hooks/useMyReport';
 import { formatHoursMinutes } from '@exyconn/tracker-core';
@@ -24,6 +25,7 @@ function summaries(totals: Totals): Summary[] {
 
 /** The month's headline numbers, above the day-by-day table. */
 export default function ReportTotals({ totals }: Readonly<Props>): ReactElement {
+  const t = useT();
   return (
     <Surface
       sx={{
@@ -50,7 +52,7 @@ export default function ReportTotals({ totals }: Readonly<Props>): ReactElement 
               display: 'block',
             }}
           >
-            {item.label}
+            {t(item.label)}
           </Typography>
           <Typography variant="h6" noWrap>
             {item.value}

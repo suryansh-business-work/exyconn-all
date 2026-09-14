@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 
 import { aiServices } from "../lib/services/aiServices";
+import { DEFAULT_MARKET, MARKETS, marketUrl } from "../lib/i18n/markets";
 
 const SITE_URL = "https://exyconn.com";
 
@@ -53,21 +54,39 @@ const staticPages = [
   "/order-agents",
 ];
 
+/**
+ * One entry per page per market, each listing every other market as an alternate.
+ *
+ * That is what tells a search engine these are the same page in different languages rather
+ * than eighty-six near-duplicates — without it, it picks one and drops the rest.
+ */
+function urlEntry(page: string, lastmod: string): string {
+  const path = page === "" ? "/" : page;
+  const alternates = [
+    ...MARKETS.map(
+      (market) =>
+        `    <xhtml:link rel="alternate" hreflang="${market.locale}" href="${SITE_URL}${marketUrl(market, path)}" />`
+    ),
+    `    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}${marketUrl(DEFAULT_MARKET, path)}" />`,
+  ].join("\n");
+
+  return MARKETS.map(
+    (market) => `  <url>
+    <loc>${SITE_URL}${marketUrl(market, path)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${page === "" ? "daily" : "weekly"}</changefreq>
+    <priority>${page === "" ? "1.0" : page.split("/").length <= 2 ? "0.8" : "0.6"}</priority>
+${alternates}
+  </url>`
+  ).join("\n");
+}
+
 export const GET: APIRoute = async () => {
   const lastmod = new Date().toISOString().split("T")[0];
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${staticPages
-  .map(
-    (page) => `  <url>
-    <loc>${SITE_URL}${page}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>${page === "" ? "daily" : "weekly"}</changefreq>
-    <priority>${page === "" ? "1.0" : page.split("/").length <= 2 ? "0.8" : "0.6"}</priority>
-  </url>`
-  )
-  .join("\n")}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${staticPages.map((page) => urlEntry(page, lastmod)).join("\n")}
 </urlset>`;
 
   return new Response(sitemap, {

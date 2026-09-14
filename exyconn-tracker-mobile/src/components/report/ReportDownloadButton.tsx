@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { buildReportCsv, type ReportDay } from '@exyconn/tracker-core';
 import { AppButton } from '../ui/AppButton';
 import { Notice } from '../ui/Notice';
@@ -42,13 +43,14 @@ const FAILED: Problem = {
  * because a download the employee believes happened and did not is worse than an error.
  */
 export function ReportDownloadButton({ days, monthKey, monthLabel }: Readonly<Props>) {
+  const t = useT();
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<Problem | null>(null);
 
   const share = (): void => {
     setBusy(true);
     setProblem(null);
-    shareReport(buildReportCsv(days, monthKey), `Report for ${monthLabel}`)
+    shareReport(buildReportCsv(days, monthKey), t('Report for {month}', { month: monthLabel }))
       .then((outcome) => {
         if (outcome === 'unavailable') {
           setProblem(UNAVAILABLE);
@@ -64,7 +66,7 @@ export function ReportDownloadButton({ days, monthKey, monthLabel }: Readonly<Pr
   return (
     <YStack gap="$2">
       <AppButton
-        label={`Download ${monthLabel} as CSV`}
+        label={t('Download {month} as CSV', { month: monthLabel })}
         tone="outlined"
         icon="download"
         full
@@ -73,11 +75,11 @@ export function ReportDownloadButton({ days, monthKey, monthLabel }: Readonly<Pr
         onPress={share}
       />
       <Caption>
-        Your own tracked days, as a spreadsheet — one row per day, with the month’s totals.
+        {t('Your own tracked days, as a spreadsheet — one row per day, with the month’s totals.')}
       </Caption>
       {problem === null ? null : (
-        <Notice severity={problem.severity} detail={problem.detail}>
-          {problem.message}
+        <Notice severity={problem.severity} detail={t(problem.detail)}>
+          {t(problem.message)}
         </Notice>
       )}
     </YStack>

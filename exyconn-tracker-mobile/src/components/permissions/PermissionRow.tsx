@@ -1,4 +1,5 @@
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { PermissionInfo } from '../../lib/permissions/permission-rows';
 import { useBrand } from '../../theme/BrandProvider';
 import { TRACKER_RADIUS } from '../../theme/tokens';
@@ -19,7 +20,10 @@ interface Props {
 
 /** One missing grant: what it is, why it is needed, and how to give it. */
 export function PermissionRow({ permission, busy, onGrant }: Readonly<Props>) {
+  const t = useT();
   const brand = useBrand();
+  const title = t(permission.title);
+  const action = t(permission.actionLabel);
   return (
     <Surface gap="$3">
       <XStack gap="$3" alignItems="flex-start">
@@ -34,15 +38,15 @@ export function PermissionRow({ permission, busy, onGrant }: Readonly<Props>) {
           <Icon name={permission.icon} color={brand.primary} />
         </YStack>
         <YStack flex={1} gap="$1">
-          <Body fontWeight="600">{permission.title}</Body>
-          <Caption>{permission.reason}</Caption>
+          <Body fontWeight="600">{title}</Body>
+          <Caption>{t(permission.reason)}</Caption>
         </YStack>
       </XStack>
       <XStack justifyContent="flex-end">
         <AppButton
-          label={permission.actionLabel}
+          label={action}
           disabled={busy}
-          accessibilityLabel={`${permission.actionLabel}: ${permission.title}`}
+          accessibilityLabel={t('{action}: {permission}', { action, permission: title })}
           onPress={onGrant}
         />
       </XStack>

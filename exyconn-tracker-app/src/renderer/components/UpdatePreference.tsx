@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Button, Checkbox, FormControlLabel, Stack, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import RefreshRounded from '@mui/icons-material/RefreshRounded';
 import type { AppPreferences, UpdateState } from '@shared/types';
 import { formatElapsed } from '@exyconn/tracker-core';
@@ -17,26 +18,34 @@ interface Props {
  * timestamp "I looked and you are current" is indistinguishable from "I never looked" —
  * which is exactly what made a Check button feel broken.
  */
-function statusOf(update: UpdateState): string {
+function statusOf(update: UpdateState, t: ReturnType<typeof useT>): string {
   if (update.stage === 'checking') {
-    return 'Looking for a newer version…';
+    return t('Looking for a newer version…');
   }
   if (update.stage === 'downloading') {
-    return `Downloading version ${update.version} — ${update.percent}%.`;
+    return t('Downloading version {version} — {percent}%.', {
+      version: update.version,
+      percent: update.percent,
+    });
   }
   if (update.stage === 'ready') {
-    return `Version ${update.version} is ready, and installs the next time you quit.`;
+    return t('Version {version} is ready, and installs the next time you quit.', {
+      version: update.version,
+    });
   }
   if (update.stage === 'available') {
-    return `Version ${update.version} is available.`;
+    return t('Version {version} is available.', { version: update.version });
   }
   if (update.stage === 'failed') {
-    return 'The last check could not reach the update service.';
+    return t('The last check could not reach the update service.');
   }
   if (update.lastCheckedAt === null) {
-    return 'Not checked yet since this app started.';
+    return t('Not checked yet since this app started.');
   }
-  return `Up to date — checked ${formatElapsed(Date.now() - new Date(update.lastCheckedAt).getTime()).toLowerCase()}.`;
+  const elapsed = formatElapsed(
+    Date.now() - new Date(update.lastCheckedAt).getTime(),
+  ).toLowerCase();
+  return t('Up to date — checked {elapsed}.', { elapsed });
 }
 
 /**
@@ -47,6 +56,7 @@ function statusOf(update: UpdateState): string {
  * hours could not answer. Neither installs anything mid-session.
  */
 export default function UpdatePreference({ preferences, update }: Readonly<Props>): ReactElement {
+  const t = useT();
   const busy = update.stage === 'checking' || update.stage === 'downloading';
 
   return (
@@ -66,7 +76,7 @@ export default function UpdatePreference({ preferences, update }: Readonly<Props
           }
           label={
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              Update automatically
+              {t('Update automatically')}
             </Typography>
           }
         />
@@ -77,8 +87,10 @@ export default function UpdatePreference({ preferences, update }: Readonly<Props
           }}
         >
           {preferences.updateAutomatically
-            ? 'New versions download in the background and install with a quick restart whenever you are not tracking.'
-            : 'You are told when a new version exists, and nothing is fetched until you ask.'}
+            ? t(
+                'New versions download in the background and install with a quick restart whenever you are not tracking.',
+              )
+            : t('You are told when a new version exists, and nothing is fetched until you ask.')}
         </Typography>
       </Stack>
 
@@ -90,7 +102,7 @@ export default function UpdatePreference({ preferences, update }: Readonly<Props
         disabled={busy}
         onClick={() => run(() => window.tracker.checkForUpdate())}
       >
-        Check for updates
+        {t('Check for updates')}
       </Button>
       <Typography
         variant="caption"
@@ -98,7 +110,7 @@ export default function UpdatePreference({ preferences, update }: Readonly<Props
           color: 'text.secondary',
         }}
       >
-        {statusOf(update)}
+        {statusOf(update, t)}
       </Typography>
     </Stack>
   );

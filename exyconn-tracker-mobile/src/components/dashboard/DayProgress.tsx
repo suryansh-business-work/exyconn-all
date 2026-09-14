@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable } from 'react-native';
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { formatHoursMinutes } from '@exyconn/tracker-core';
 import type { ProgressStyle, WorkProfile, Workday } from '@exyconn/tracker-core';
 import {
@@ -35,13 +36,14 @@ interface ShapeProps {
 
 /** The big figure over a gradient bar that fills towards the day's target. */
 function DayProgressBar({ figures, activeMs }: Readonly<ShapeProps>) {
+  const t = useT();
   return (
     <YStack gap="$3">
       <Figure>{formatHoursMinutes(activeMs)}</Figure>
       <GradientBar
         percent={figures.percent}
-        label="Worked"
-        trailing={`of ${formatHoursMinutes(figures.targetMs)}`}
+        label={t('Worked')}
+        trailing={t('of {target}', { target: formatHoursMinutes(figures.targetMs) })}
         accessibilityLabel={dayProgressLabel(figures, activeMs)}
       />
       <Caption>{daySummary(figures)}</Caption>
@@ -78,6 +80,7 @@ function DayProgressRing({ figures, activeMs, color }: Readonly<ShapeProps>) {
  * employee's own setting.
  */
 export function DayProgress({ workday, workProfile, activeMs, style }: Readonly<Props>) {
+  const t = useT();
   const [explained, setExplained] = useState(false);
   const brand = useBrand();
   const success = useThemeColor('success');
@@ -91,13 +94,13 @@ export function DayProgress({ workday, workProfile, activeMs, style }: Readonly<
       <XStack justifyContent="space-between" alignItems="center" gap="$2">
         <XStack alignItems="center" gap="$1.5">
           <Body color="$muted" fontWeight="600">
-            Worked today
+            {t('Worked today')}
           </Body>
           <Pressable
             onPress={() => setExplained((open) => !open)}
             hitSlop={12}
             accessibilityRole="button"
-            accessibilityLabel="About your working day"
+            accessibilityLabel={t('About your working day')}
             accessibilityState={{ expanded: explained }}
           >
             <Icon name="information-outline" size={18} color={muted} />

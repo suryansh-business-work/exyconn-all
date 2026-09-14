@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
 import { Box, IconButton, iconSize, TRACKER_RADIUS } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import RemoveRounded from '@mui/icons-material/RemoveRounded';
 import CropSquareRounded from '@mui/icons-material/CropSquareRounded';
 import FilterNoneRounded from '@mui/icons-material/FilterNoneRounded';
@@ -25,6 +26,7 @@ const BUTTON_SX = {
  * share this bar, and main routes every command back to the sender.
  */
 export default function WindowControls(): ReactElement {
+  const t = useT();
   const [maximized, setMaximized] = useState(false);
 
   // Main is the authority: the window can also be maximised by a double-click on the title
@@ -35,7 +37,7 @@ export default function WindowControls(): ReactElement {
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, ...NO_DRAG }}>
       <IconButton
         size="small"
-        aria-label="Minimise"
+        aria-label={t('Minimise')}
         sx={BUTTON_SX}
         onClick={() => run(() => window.tracker.minimizeWindow())}
       >
@@ -43,7 +45,7 @@ export default function WindowControls(): ReactElement {
       </IconButton>
       <IconButton
         size="small"
-        aria-label={maximized ? 'Restore' : 'Maximise'}
+        aria-label={maximized ? t('Restore') : t('Maximise')}
         sx={BUTTON_SX}
         onClick={() => run(() => window.tracker.toggleMaximizeWindow())}
       >
@@ -55,7 +57,7 @@ export default function WindowControls(): ReactElement {
       </IconButton>
       <IconButton
         size="small"
-        aria-label="Close"
+        aria-label={t('Close')}
         sx={{
           ...BUTTON_SX,
           '&:hover': { backgroundColor: 'error.main', color: 'error.contrastText' },

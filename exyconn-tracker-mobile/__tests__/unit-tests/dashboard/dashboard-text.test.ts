@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { t } from '../translator';
 import type { TrackerTask, WorkProfile, Workday } from '@exyconn/tracker-core';
 import {
   dayFigures,
@@ -73,13 +74,14 @@ describe('presenceCaption', () => {
   const now = Date.parse('2026-09-11T07:24:00.000Z');
 
   it('says tracking runs as normal when no presence was ever set', () => {
-    expect(presenceCaption({ status: 'WORKING', note: '', since: null }, 'UTC', now)).toBe(
+    expect(presenceCaption(t, { status: 'WORKING', note: '', since: null }, 'UTC', now)).toBe(
       'Tracking runs as normal.',
     );
   });
 
   it('says since when, in the zone, and that an away status keeps tracking paused', () => {
     const caption = presenceCaption(
+      t,
       { status: 'LUNCH', note: 'Back at 2', since: '2026-09-11T07:00:00.000Z' },
       'Asia/Kolkata',
       now,

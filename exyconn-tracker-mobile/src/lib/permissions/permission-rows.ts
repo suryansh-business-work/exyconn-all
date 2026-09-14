@@ -11,16 +11,22 @@ export interface PermissionInfo {
   actionLabel: string;
 }
 
-/** What the tracker does on its own, and tells the employee about — on every phone. */
-const OWN_ACTIONS =
-  'anything the tracker does on its own — a pause, the end of your working day — and every message your workspace sends you';
+/**
+ * Why notifications are needed, on a phone that takes screenshots and on one that cannot.
+ *
+ * Two whole sentences rather than one built around a shared clause: the clause reads as the
+ * object of one and the subject of the other, and no translator can make that work from a
+ * fragment. Repeating it here is what lets each sentence be written properly in its own
+ * language.
+ */
+const WITH_SCREENSHOTS =
+  'Every screenshot is announced by a notification the moment it is taken — the tracker captures nothing it cannot tell you about — and so is anything the tracker does on its own — a pause, the end of your working day — and every message your workspace sends you.';
 
-/** Why notifications are needed, on a phone that takes screenshots and on one that cannot. */
+const WITHOUT_SCREENSHOTS =
+  'So you are told about anything the tracker does on its own — a pause, the end of your working day — and every message your workspace sends you.';
+
 function notificationsReason(capabilities: Capabilities): string {
-  if (capabilities.screenshots) {
-    return `Every screenshot is announced by a notification the moment it is taken — the tracker captures nothing it cannot tell you about — and so is ${OWN_ACTIONS}.`;
-  }
-  return `So you are told about ${OWN_ACTIONS}.`;
+  return capabilities.screenshots ? WITH_SCREENSHOTS : WITHOUT_SCREENSHOTS;
 }
 
 const OTHER_PERMISSIONS: readonly PermissionInfo[] = [

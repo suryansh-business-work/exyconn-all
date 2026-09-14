@@ -1,5 +1,6 @@
 import { Pressable } from 'react-native';
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { activityColor, activityLabel, formatCount } from '@exyconn/tracker-core';
 import { Chip } from '../ui/Chip';
 import { Icon, type IconName } from '../ui/Icon';
@@ -20,20 +21,21 @@ export function LightboxTopBar({
   blurred,
   onClose,
 }: Readonly<TopProps>) {
+  const t = useT();
   return (
     <XStack paddingHorizontal="$3" paddingVertical="$2" gap="$2" alignItems="center">
       <YStack flex={1} gap="$1.5">
         <Body numberOfLines={1}>{capturedAt}</Body>
         <XStack gap="$2">
-          <Chip label={activityLabel(activityPercent)} tone={activityColor(activityPercent)} />
-          {blurred ? <Chip label="Blurred" icon="blur" /> : null}
+          <Chip label={activityLabel(t, activityPercent)} tone={activityColor(activityPercent)} />
+          {blurred ? <Chip label={t('Blurred')} icon="blur" /> : null}
         </XStack>
       </YStack>
       <Pressable
         onPress={onClose}
         hitSlop={12}
         accessibilityRole="button"
-        accessibilityLabel="Close"
+        accessibilityLabel={t('Close')}
       >
         <Icon name="close" size={28} />
       </Pressable>
@@ -68,6 +70,7 @@ interface NavProps {
 
 /** Previous / next through the day, with where in it this shot sits. Wraps at both ends. */
 export function LightboxNav({ index, total, onStep }: Readonly<NavProps>) {
+  const t = useT();
   return (
     <XStack
       paddingHorizontal="$3"
@@ -75,11 +78,11 @@ export function LightboxNav({ index, total, onStep }: Readonly<NavProps>) {
       alignItems="center"
       justifyContent="space-between"
     >
-      <StepButton label="Previous" icon="chevron-left" onPress={() => onStep(-1)} />
+      <StepButton label={t('Previous')} icon="chevron-left" onPress={() => onStep(-1)} />
       <Caption accessibilityLiveRegion="polite">
         {formatCount(index + 1)} / {formatCount(total)}
       </Caption>
-      <StepButton label="Next" icon="chevron-right" onPress={() => onStep(1)} />
+      <StepButton label={t('Next')} icon="chevron-right" onPress={() => onStep(1)} />
     </XStack>
   );
 }

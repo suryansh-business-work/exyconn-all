@@ -5,6 +5,9 @@ import type { ProgressStyle, WorkProfile, Workday } from '@shared/types';
 import GradientBar from './GradientBar';
 import ProgressRing from './ProgressRing';
 import { DEFAULT_WORK_HOURS, formatHoursMinutes } from '@exyconn/tracker-core';
+import { useT, type Interpolations } from '@exyconn/i18n';
+
+type Translate = (source: string, values?: Interpolations) => string;
 
 interface Props {
   workday: Workday | null;
@@ -41,11 +44,15 @@ function figuresFor(
 }
 
 /** The sentence under either shape: how far in, or that the day is done. */
-function summaryOf(figures: DayFigures): string {
+function summaryOf(t: Translate, figures: DayFigures): string {
   if (figures.done) {
-    return `Full ${figures.hours}h day complete.`;
+    return t('Full {hours}h day complete.', { hours: figures.hours });
   }
-  return `${figures.percent}% — ${formatHoursMinutes(figures.remainingMs)} left of your ${figures.hours}h day.`;
+  return t('{percent}% — {remaining} left of your {hours}h day.', {
+    percent: figures.percent,
+    remaining: formatHoursMinutes(figures.remainingMs),
+    hours: figures.hours,
+  });
 }
 
 interface ShapeProps {
@@ -55,6 +62,7 @@ interface ShapeProps {
 
 /** The big figure over a gradient bar that fills towards the day's target. */
 function DayProgressBar({ figures, activeMs }: Readonly<ShapeProps>): ReactElement {
+  const t = useT();
   return (
     <Stack spacing={1.5}>
       <Typography
@@ -69,12 +77,15 @@ function DayProgressBar({ figures, activeMs }: Readonly<ShapeProps>): ReactEleme
       </Typography>
       <GradientBar
         percent={figures.percent}
-        label="Worked"
-        trailing={`of ${formatHoursMinutes(figures.targetMs)}`}
-        ariaLabel={`${formatHoursMinutes(activeMs)} of ${formatHoursMinutes(figures.targetMs)} worked today`}
+        label={t('Worked')}
+        trailing={t('of {target}', { target: formatHoursMinutes(figures.targetMs) })}
+        ariaLabel={t('{active} of {target} worked today', {
+          active: formatHoursMinutes(activeMs),
+          target: formatHoursMinutes(figures.targetMs),
+        })}
       />
       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-        {summaryOf(figures)}
+        {summaryOf(t, figures)}
       </Typography>
     </Stack>
   );
@@ -82,6 +93,7 @@ function DayProgressBar({ figures, activeMs }: Readonly<ShapeProps>): ReactEleme
 
 /** The ring: the percentage sits inside the shape that describes it. */
 function DayProgressRing({ figures, activeMs }: Readonly<ShapeProps>): ReactElement {
+  const t = useT();
   return (
     <Stack
       direction="row"
@@ -105,7 +117,7 @@ function DayProgressRing({ figures, activeMs }: Readonly<ShapeProps>): ReactElem
           minWidth: 0,
         }}
       >
-        {summaryOf(figures)}
+        {summaryOf(t, figures)}
       </Typography>
     </Stack>
   );
@@ -130,6 +142,7 @@ export default function DayProgress({
   activeMs,
   style,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const figures = figuresFor(workday, workProfile, activeMs);
 
   return (
@@ -141,10 +154,13 @@ export default function DayProgress({
       >
         <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
           <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-            Worked today
+            {t('Worked today')}
           </Typography>
           <Tooltip
-            title={`Your working day is ${figures.hours} hours, set by HR on your employee record. The default is ${DEFAULT_WORK_HOURS}. Only ACTIVE time counts — idle minutes do not fill this bar.`}
+            title={t(
+              'Your working day is {hours} hours, set by HR on your employee record. The default is {fallback}. Only ACTIVE time counts — idle minutes do not fill this bar.',
+              { hours: figures.hours, fallback: DEFAULT_WORK_HOURS },
+            )}
           >
             <InfoOutlined sx={{ fontSize: iconSize.md, color: 'text.secondary' }} />
           </Tooltip>

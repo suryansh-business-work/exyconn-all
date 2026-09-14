@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { useState } from 'react';
 import type { SvgIconComponent } from '@mui/icons-material';
 import { Button, Stack, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import AccessibilityNewOutlined from '@mui/icons-material/AccessibilityNewOutlined';
 import RefreshRounded from '@mui/icons-material/RefreshRounded';
 import ScreenshotMonitorOutlined from '@mui/icons-material/ScreenshotMonitorOutlined';
@@ -49,6 +50,7 @@ interface Props {
 
 /** macOS-only screen prompting for the TCC grants the tracker still needs. */
 export default function PermissionsScreen({ permissions }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [busy, setBusy] = useState(false);
   const missing = PERMISSIONS.filter((row) => !permissions[row.kind]);
 
@@ -77,7 +79,7 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
   return (
     <ScreenLayout maxWidth={520}>
       <Surface sx={{ p: 3 }}>
-        <Typography variant="h5">Grant permissions</Typography>
+        <Typography variant="h5">{t('Grant permissions')}</Typography>
         <Typography
           variant="body2"
           sx={{
@@ -86,16 +88,17 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
             mb: 2,
           }}
         >
-          macOS needs your permission before the tracker can work. Grant each item below, then
-          re-check.
+          {t(
+            'macOS needs your permission before the tracker can work. Grant each item below, then re-check.',
+          )}
         </Typography>
 
         <Stack spacing={1.5}>
           {missing.map((row) => (
             <PermissionRow
               key={row.kind}
-              title={row.title}
-              reason={row.reason}
+              title={t(row.title)}
+              reason={t(row.reason)}
               icon={row.icon}
               busy={busy}
               onGrant={() => run(() => grant(row.kind))}
@@ -112,7 +115,7 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
           sx={{ mt: 2.5 }}
           onClick={() => run(recheck)}
         >
-          Re-check
+          {t('Re-check')}
         </Button>
         <Typography
           variant="caption"
@@ -122,7 +125,7 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
             mt: 1.5,
           }}
         >
-          Some features will not work until these are granted.
+          {t('Some features will not work until these are granted.')}
         </Typography>
       </Surface>
     </ScreenLayout>
