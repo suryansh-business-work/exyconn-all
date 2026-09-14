@@ -336,6 +336,8 @@ export type BrandingInput = {
   faviconUrl: InputMaybe<Scalars['String']['input']>;
   githubUrl: InputMaybe<Scalars['String']['input']>;
   gstin: InputMaybe<Scalars['String']['input']>;
+  heroPosterUrl: InputMaybe<Scalars['String']['input']>;
+  heroVideoUrl: InputMaybe<Scalars['String']['input']>;
   hrEmail: InputMaybe<Scalars['String']['input']>;
   instagramUrl: InputMaybe<Scalars['String']['input']>;
   invoicePrefix: InputMaybe<Scalars['String']['input']>;
