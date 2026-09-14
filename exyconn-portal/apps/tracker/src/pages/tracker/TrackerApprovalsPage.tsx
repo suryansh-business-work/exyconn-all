@@ -1,5 +1,6 @@
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -23,6 +24,7 @@ import { formatDuration } from '@exyconn/shell/pages/tracker-view/tracker.format
  * is why a decision cannot be taken back from this screen.
  */
 export function TrackerApprovalsPage() {
+  const t = useT();
   const { formatDateTime } = useSettings();
   const notify = useNotify();
   const confirm = useConfirm();
@@ -38,11 +40,16 @@ export function TrackerApprovalsPage() {
     status: TrackerManualEntryStatus,
   ) => {
     const approving = status === TrackerManualEntryStatus.Approved;
+    const values = { length: formatDuration(entry.durationMs), name: entry.userName };
+    const message = approving
+      ? t(
+          '{length} for {name} will count towards their hours and any billing. This cannot be undone.',
+          values,
+        )
+      : t('{length} for {name} will not count. This cannot be undone.', values);
     const ok = await confirm({
       title: approving ? 'Approve this time?' : 'Reject this time?',
-      message: approving
-        ? `${formatDuration(entry.durationMs)} for ${entry.userName} will count towards their hours and any billing. This cannot be undone.`
-        : `${formatDuration(entry.durationMs)} for ${entry.userName} will not count. This cannot be undone.`,
+      message,
       confirmText: approving ? 'Approve' : 'Reject',
     });
     if (!ok) return;
@@ -66,15 +73,15 @@ export function TrackerApprovalsPage() {
   const actions: RowAction<TrackerManualEntryFieldsFragment>[] = [
     {
       icon: <CheckIcon fontSize="small" />,
-      tooltip: 'Approve this entry',
-      ariaLabel: 'Approve entry',
+      tooltip: t('Approve this entry'),
+      ariaLabel: t('Approve entry'),
       color: 'success',
       onClick: (row) => decide(row, TrackerManualEntryStatus.Approved),
     },
     {
       icon: <CloseIcon fontSize="small" />,
-      tooltip: 'Reject this entry',
-      ariaLabel: 'Reject entry',
+      tooltip: t('Reject this entry'),
+      ariaLabel: t('Reject entry'),
       color: 'error',
       onClick: (row) => decide(row, TrackerManualEntryStatus.Rejected),
     },

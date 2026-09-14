@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import {
   Button,
   Dialog,
@@ -60,6 +61,7 @@ export function TrackerDeviceDetails({
   formatDateTime,
   timezone,
 }: Readonly<TrackerDeviceDetailsProps>) {
+  const t = useT();
   if (!device) return null;
 
   return (
@@ -79,7 +81,7 @@ export function TrackerDeviceDetails({
               }}
             >
               <Text size="caption" color="text.secondary" component="div">
-                {fact.label}
+                {t(fact.label)}
               </Text>
               <Text size="sm" weight="medium" component="div" sx={{ wordBreak: 'break-word' }}>
                 {fact.value}
@@ -89,7 +91,7 @@ export function TrackerDeviceDetails({
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose}>{t('Close')}</Button>
       </DialogActions>
     </Dialog>
   );

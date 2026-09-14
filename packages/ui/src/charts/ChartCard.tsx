@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import { useId, useState } from 'react';
 import { Box, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { useT } from '@exyconn/i18n';
 import { ChartTable } from './ChartTable';
 import type { ChartData, ValueFormatter } from './chart.types';
 
@@ -41,9 +42,10 @@ export function ChartCard({
   data,
   formatValue,
   labelHeading,
-  emptyText = 'Nothing tracked in this period.',
+  emptyText,
   children,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const headingId = useId();
   const empty = isEmpty(data);
@@ -79,17 +81,21 @@ export function ChartCard({
             exclusive
             size="small"
             value={view}
-            aria-label={`${title} — chart or table`}
+            aria-label={t('{title} — chart or table', { title })}
             onChange={(_event, next: 'chart' | 'table' | null) => {
               if (next !== null) {
                 setView(next);
               }
             }}
           >
-            <ToggleButton value="chart" aria-label="Show as a chart" sx={{ px: 1.5 }}>
+            <ToggleButton value="chart" aria-label={t('Show as a chart')} sx={{ px: 1.5 }}>
               Chart
             </ToggleButton>
-            <ToggleButton value="table" aria-label="Show the numbers as a table" sx={{ px: 1.5 }}>
+            <ToggleButton
+              value="table"
+              aria-label={t('Show the numbers as a table')}
+              sx={{ px: 1.5 }}
+            >
               Table
             </ToggleButton>
           </ToggleButtonGroup>
@@ -105,7 +111,7 @@ export function ChartCard({
             textAlign: 'center',
           }}
         >
-          {emptyText}
+          {emptyText ?? t('Nothing tracked in this period.')}
         </Typography>
       ) : (
         <Box aria-labelledby={headingId}>

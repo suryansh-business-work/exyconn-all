@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import {
   Badge,
   Box,
@@ -26,12 +27,13 @@ export function TrackerMessageThreadList({
   selectedUserId,
   onSelect,
 }: Readonly<TrackerMessageThreadListProps>) {
+  const t = useT();
   const { formatDateTime } = useSettings();
 
   if (threads.length === 0) {
     return (
       <Box sx={{ p: 3, textAlign: 'center' }}>
-        <Typography variant="subtitle1">No conversations yet</Typography>
+        <Typography variant="subtitle1">{t('No conversations yet')}</Typography>
         <Typography
           variant="body2"
           sx={{
@@ -39,7 +41,7 @@ export function TrackerMessageThreadList({
             mt: 0.5,
           }}
         >
-          A thread appears here as soon as an employee writes from their tracker.
+          {t('A thread appears here as soon as an employee writes from their tracker.')}
         </Typography>
       </Box>
     );

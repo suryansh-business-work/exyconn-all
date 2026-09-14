@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import {
   Alert,
   Box,
@@ -56,21 +57,22 @@ function InstallStep({ index, text, accent }: Readonly<StepProps>) {
 
 /** Install instructions and OS permissions for the selected platform. */
 export function InstallGuide({ platform }: Readonly<{ platform: PlatformConfig }>) {
+  const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Typography variant="subtitle1" sx={{ mb: 1.5 }}>
-        Installing on {platform.label}
+        {t('Installing on {platform}', { platform: platform.label })}
       </Typography>
 
       {platform.caution && (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          {platform.caution}
+          {t(platform.caution)}
         </Alert>
       )}
 
       <Stack spacing={1.5}>
         {platform.steps.map((step, index) => (
-          <InstallStep key={step} index={index + 1} text={step} accent={platform.accent} />
+          <InstallStep key={step} index={index + 1} text={t(step)} accent={platform.accent} />
         ))}
       </Stack>
 
@@ -85,7 +87,7 @@ export function InstallGuide({ platform }: Readonly<{ platform: PlatformConfig }
         }}
       >
         <LockIcon sx={{ fontSize: iconSize.lg, color: 'text.secondary' }} />
-        <Typography variant="subtitle2">Permissions it will ask for</Typography>
+        <Typography variant="subtitle2">{t('Permissions it will ask for')}</Typography>
       </Stack>
       <Stack component="ul" spacing={0.5} sx={{ m: 0, pl: 2 }}>
         {platform.permissions.map((permission) => (
@@ -97,7 +99,7 @@ export function InstallGuide({ platform }: Readonly<{ platform: PlatformConfig }
               color: 'text.secondary',
             }}
           >
-            {permission}
+            {t(permission)}
           </Typography>
         ))}
       </Stack>

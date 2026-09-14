@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useT } from '@exyconn/i18n';
 import {
   Box,
   Chip,
@@ -35,10 +36,13 @@ export function DownloadHero({
   detected,
   picker,
 }: Readonly<DownloadHeroProps>) {
+  const t = useT();
   const Icon = platform.icon;
   const subtitle = detected
-    ? `We detected ${platform.label}, so this is the build for you.`
-    : `Showing the ${platform.label} build — switch platform on the right.`;
+    ? t('We detected {platform}, so this is the build for you.', { platform: platform.label })
+    : t('Showing the {platform} build — switch platform on the right.', {
+        platform: platform.label,
+      });
 
   return (
     <Box
@@ -65,8 +69,12 @@ export function DownloadHero({
           }}
         >
           <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-            <Chip size="small" label={`Version ${version}`} color="primary" />
-            <Chip size="small" variant="outlined" label={`Released ${releasedOn}`} />
+            <Chip size="small" label={t('Version {version}', { version })} color="primary" />
+            <Chip
+              size="small"
+              variant="outlined"
+              label={t('Released {date}', { date: releasedOn })}
+            />
           </Stack>
           <Stack
             direction="row"
@@ -77,7 +85,9 @@ export function DownloadHero({
             }}
           >
             <Icon sx={{ fontSize: iconSize['3xl'], color: platform.accent }} />
-            <Typography variant="h4">Exyconn Tracker for {platform.label}</Typography>
+            <Typography variant="h4">
+              {t('Exyconn Tracker for {platform}', { platform: platform.label })}
+            </Typography>
           </Stack>
           <Typography
             variant="body2"
@@ -98,7 +108,7 @@ export function DownloadHero({
             variant="caption"
             sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 1.5 }}
           >
-            Release notes on GitHub <OpenInNewIcon sx={{ fontSize: iconSize.xs }} />
+            {t('Release notes on GitHub')} <OpenInNewIcon sx={{ fontSize: iconSize.xs }} />
           </Link>
         </Grid>
 

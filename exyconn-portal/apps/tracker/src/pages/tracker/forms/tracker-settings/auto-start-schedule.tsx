@@ -1,4 +1,5 @@
 import { useFormContext } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import { Box, FormHelperText, Grid } from '@exyconn/shell/components/ui';
 import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 
@@ -10,6 +11,7 @@ import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
  * restart a session the employee ended until the window comes round again.
  */
 export function AutoStartScheduleFields() {
+  const t = useT();
   const { watch } = useFormContext<{
     autoStartEnabled: boolean;
     autoStartHour: number;
@@ -24,8 +26,9 @@ export function AutoStartScheduleFields() {
     <Box>
       <RhfSwitch name="autoStartEnabled" label="Start tracking automatically" />
       <FormHelperText>
-        The desktop app starts and stops itself inside this window instead of waiting for the
-        employee to press start. They can still stop early, and it will not restart them.
+        {t(
+          'The desktop app starts and stops itself inside this window instead of waiting for the employee to press start. They can still stop early, and it will not restart them.',
+        )}
       </FormHelperText>
       {enabled ? (
         <Grid container spacing={2} sx={{ mt: 0.5 }}>

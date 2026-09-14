@@ -1,4 +1,5 @@
 import { useFormContext } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import { Box, FormHelperText } from '@exyconn/shell/components/ui';
 import { RhfRichText, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { useMyPoliciesQuery } from '@exyconn/shell/graphql/generated';
@@ -16,15 +17,18 @@ const NO_POLICY = '';
  * written the policy up yet.
  */
 export function ConsentDisclosureFields() {
+  const t = useT();
   const { watch } = useFormContext<{ consentPolicySlug: string }>();
   const { data } = useMyPoliciesQuery();
   const usingPolicy = watch('consentPolicySlug') !== NO_POLICY;
 
   const options = [
-    { value: NO_POLICY, label: 'No policy — use the text below' },
+    { value: NO_POLICY, label: t('No policy — use the text below') },
     ...(data?.myPolicies ?? []).map((policy) => ({
       value: policy.slug,
-      label: policy.requiresAcknowledgement ? `${policy.title} (signed)` : policy.title,
+      label: policy.requiresAcknowledgement
+        ? t('{title} (signed)', { title: policy.title })
+        : policy.title,
     })),
   ];
 
@@ -37,8 +41,9 @@ export function ConsentDisclosureFields() {
           options={options}
         />
         <FormHelperText>
-          A policy that requires acknowledgement is signed in the desktop app, and the signature
-          appears in Legal alongside every other. Publish a new version to ask everybody again.
+          {t(
+            'A policy that requires acknowledgement is signed in the desktop app, and the signature appears in Legal alongside every other. Publish a new version to ask everybody again.',
+          )}
         </FormHelperText>
       </Box>
       {!usingPolicy && (

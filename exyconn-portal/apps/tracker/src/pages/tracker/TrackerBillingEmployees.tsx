@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import { ExportCsvButton } from '@exyconn/crud';
 import { Box, Flex, Grid, Text, color } from '@exyconn/shell/components/ui';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
@@ -17,6 +18,7 @@ import { densePanel } from '@exyconn/shell/components/glass/glass';
  * structure in HR, so this report and payroll can never disagree about what somebody costs.
  */
 export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRange }>) {
+  const t = useT();
   const { data, loading, refetch } = useTrackerBillingQuery({
     variables: { from: range.from, to: range.to },
     fetchPolicy: 'cache-and-network',
@@ -26,6 +28,16 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
   const rows = useMemo(() => billing?.rows ?? [], [billing]);
   const money = useMemo(() => moneyFormat(billing?.currency), [billing?.currency]);
   const unrated = rows.filter((row) => !row.rated).length;
+  const unratedNotice =
+    unrated === 1
+      ? t(
+          '{count} employee has tracked time but no billing rate. Set one on their employee record in HR — the amount below is zero because nobody priced the work, not because it was free.',
+          { count: unrated },
+        )
+      : t(
+          '{count} employees have tracked time but no billing rate. Set one on their employee record in HR — the amount below is zero because nobody priced the work, not because it was free.',
+          { count: unrated },
+        );
 
   return (
     <Box sx={{ pt: 2 }}>
@@ -58,9 +70,7 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
 
       {unrated > 0 && (
         <Text size="sm" color="warning.main" sx={{ display: 'block', mb: 1.5 }}>
-          {unrated} {unrated === 1 ? 'employee has' : 'employees have'} tracked time but no billing
-          rate. Set one on their employee record in HR — the amount below is zero because nobody
-          priced the work, not because it was free.
+          {unratedNotice}
         </Text>
       )}
 

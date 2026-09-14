@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import {
   Box,
   Chip,
@@ -17,6 +18,7 @@ import type { PlatformConfig, RequirementRow } from './download.config';
 
 /** Minimum vs recommended device for the tracker, with the OS row for this platform. */
 export function SystemRequirements({ platform }: Readonly<{ platform: PlatformConfig }>) {
+  const t = useT();
   const osRow: RequirementRow = {
     key: 'os',
     label: 'Operating system',
@@ -36,7 +38,7 @@ export function SystemRequirements({ platform }: Readonly<{ platform: PlatformCo
           mb: 1,
         }}
       >
-        <Typography variant="subtitle1">System requirements</Typography>
+        <Typography variant="subtitle1">{t('System requirements')}</Typography>
         <Chip size="small" variant="outlined" label={platform.label} />
       </Stack>
       {/* Scrolls itself on a narrow screen rather than widening the page. */}
@@ -44,9 +46,9 @@ export function SystemRequirements({ platform }: Readonly<{ platform: PlatformCo
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>What</TableCell>
-              <TableCell>Minimum</TableCell>
-              <TableCell>Recommended</TableCell>
+              <TableCell>{t('What')}</TableCell>
+              <TableCell>{t('Minimum')}</TableCell>
+              <TableCell>{t('Recommended')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -63,7 +65,7 @@ export function SystemRequirements({ platform }: Readonly<{ platform: PlatformCo
                       }}
                     >
                       <Icon sx={{ fontSize: iconSize.md, color: 'text.secondary' }} />
-                      <Typography variant="body2">{row.label}</Typography>
+                      <Typography variant="body2">{t(row.label)}</Typography>
                     </Stack>
                   </TableCell>
                   <TableCell>
@@ -73,11 +75,11 @@ export function SystemRequirements({ platform }: Readonly<{ platform: PlatformCo
                         color: 'text.secondary',
                       }}
                     >
-                      {row.minimum}
+                      {t(row.minimum)}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2">{row.recommended}</Typography>
+                    <Typography variant="body2">{t(row.recommended)}</Typography>
                   </TableCell>
                 </TableRow>
               );

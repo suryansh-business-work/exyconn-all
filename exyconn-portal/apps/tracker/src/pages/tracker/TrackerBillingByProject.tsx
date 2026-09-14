@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import { ExportCsvButton } from '@exyconn/crud';
 import {
   Alert,
@@ -29,6 +30,7 @@ import { densePanel } from '@exyconn/shell/components/glass/glass';
  * again from the same data, so the figure confirmed is the figure billed.
  */
 export function TrackerBillingByProject({ range }: Readonly<{ range: BillingRange }>) {
+  const t = useT();
   const { data, loading } = useTrackerBillingByProjectQuery({
     variables: { from: range.from, to: range.to },
     fetchPolicy: 'cache-and-network',
@@ -40,7 +42,7 @@ export function TrackerBillingByProject({ range }: Readonly<{ range: BillingRang
   if (loading && !data) {
     return (
       <Flex justifyContent="center" sx={{ py: 4 }}>
-        <CircularProgress size={22} aria-label="Loading billing by project" />
+        <CircularProgress size={22} aria-label={t('Loading billing by project')} />
       </Flex>
     );
   }
@@ -53,12 +55,12 @@ export function TrackerBillingByProject({ range }: Readonly<{ range: BillingRang
           onClose={invoice.dismiss}
           action={
             <Button color="inherit" size="small" href={invoice.raised.url}>
-              Open in Finance
+              {t('Open in Finance')}
             </Button>
           }
           sx={{ mb: 1.5 }}
         >
-          Invoice {invoice.raised.number} was created as a draft.
+          {t('Invoice {number} was created as a draft.', { number: invoice.raised.number })}
         </Alert>
       ) : null}
 
@@ -80,7 +82,7 @@ export function TrackerBillingByProject({ range }: Readonly<{ range: BillingRang
       <Box sx={densePanel}>
         {rows.length === 0 ? (
           <Box sx={{ p: 4, textAlign: 'center' }}>
-            <Text color="text.secondary">No tracked time in this range.</Text>
+            <Text color="text.secondary">{t('No tracked time in this range.')}</Text>
           </Box>
         ) : (
           <TableContainer>
@@ -88,10 +90,10 @@ export function TrackerBillingByProject({ range }: Readonly<{ range: BillingRang
               <TableHead>
                 <TableRow>
                   <TableCell padding="checkbox" />
-                  <TableCell>Project</TableCell>
-                  <TableCell>Client</TableCell>
-                  <TableCell>Hours vs budget</TableCell>
-                  <TableCell>Amount vs budget</TableCell>
+                  <TableCell>{t('Project')}</TableCell>
+                  <TableCell>{t('Client')}</TableCell>
+                  <TableCell>{t('Hours vs budget')}</TableCell>
+                  <TableCell>{t('Amount vs budget')}</TableCell>
                   <TableCell />
                 </TableRow>
               </TableHead>

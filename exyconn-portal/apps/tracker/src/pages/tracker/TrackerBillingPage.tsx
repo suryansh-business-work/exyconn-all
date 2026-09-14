@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Grid } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
@@ -15,18 +16,19 @@ import { monthRange } from './tracker.billing';
  * HR; which view is open lives in the URL so a link to it opens on it.
  */
 export function TrackerBillingPage() {
+  const t = useT();
   const [range, setRange] = useState(monthRange);
 
   const tabs: TabberItem[] = [
     {
       slug: 'employees',
-      label: 'By employee',
+      label: t('By employee'),
       icon: <PeopleIcon />,
       content: <TrackerBillingEmployees range={range} />,
     },
     {
       slug: 'projects',
-      label: 'By project',
+      label: t('By project'),
       icon: <AccountTreeIcon />,
       content: <TrackerBillingByProject range={range} />,
     },
@@ -41,7 +43,7 @@ export function TrackerBillingPage() {
       <Grid container spacing={2} sx={{ mb: 1 }}>
         <BillingRangePicker range={range} onChange={setRange} />
       </Grid>
-      <Tabber basePath="/tracker/billing" items={tabs} ariaLabel="Billing views" />
+      <Tabber basePath="/tracker/billing" items={tabs} ariaLabel={t('Billing views')} />
     </Box>
   );
 }

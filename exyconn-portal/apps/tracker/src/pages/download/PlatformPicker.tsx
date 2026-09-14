@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Stack, Typography } from '@exyconn/shell/components/ui';
 import { PLATFORMS, type PlatformKey } from './download.config';
 import { PlatformTile } from './PlatformTile';
@@ -17,6 +18,7 @@ export function PlatformPicker({
   available,
   onSelect,
 }: Readonly<PlatformPickerProps>) {
+  const t = useT();
   return (
     <Stack spacing={1}>
       <Typography
@@ -25,7 +27,7 @@ export function PlatformPicker({
           color: 'text.secondary',
         }}
       >
-        All platforms
+        {t('All platforms')}
       </Typography>
       {PLATFORMS.map((platform) => (
         <PlatformTile

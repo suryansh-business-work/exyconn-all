@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { IconButton, Stack, TableCell, Tooltip } from '@/components/ui';
+import { useT } from '@exyconn/i18n';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -28,6 +29,7 @@ export function DataTableRowActions<T>({
   onEdit,
   onDelete,
 }: Readonly<DataTableRowActionsProps<T>>) {
+  const t = useT();
   return (
     <TableCell align="right" onClick={(e) => e.stopPropagation()}>
       <Stack
@@ -40,31 +42,31 @@ export function DataTableRowActions<T>({
         {actions
           ?.filter((action) => !action.hidden?.(row))
           .map((action) => (
-            <Tooltip key={action.ariaLabel} title={action.tooltip}>
+            <Tooltip key={action.ariaLabel} title={t(action.tooltip)}>
               <IconButton
                 size="small"
                 color={action.color ?? 'default'}
                 onClick={() => action.onClick(row)}
-                aria-label={action.ariaLabel}
+                aria-label={t(action.ariaLabel)}
               >
                 {action.icon}
               </IconButton>
             </Tooltip>
           ))}
         {onEdit && (
-          <Tooltip title="Edit">
-            <IconButton size="small" onClick={() => onEdit(row)} aria-label="edit">
+          <Tooltip title={t('Edit')}>
+            <IconButton size="small" onClick={() => onEdit(row)} aria-label={t('edit')}>
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         )}
         {onDelete && (
-          <Tooltip title="Delete">
+          <Tooltip title={t('Delete')}>
             <IconButton
               size="small"
               color="error"
               onClick={() => onDelete(row)}
-              aria-label="delete"
+              aria-label={t('delete')}
             >
               <DeleteIcon fontSize="small" />
             </IconButton>

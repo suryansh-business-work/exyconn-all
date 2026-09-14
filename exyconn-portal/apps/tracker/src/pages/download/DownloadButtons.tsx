@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Button, Stack, Typography } from '@exyconn/shell/components/ui';
 import { formatBytes } from '@exyconn/shell/utils/file';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -17,8 +18,13 @@ interface DownloadButtonProps {
 }
 
 function DownloadButton({ asset, platformLabel }: Readonly<DownloadButtonProps>) {
+  const t = useT();
   const kind = assetKind(asset.name, platformLabel);
-  const details = `${asset.name} · ${formatBytes(asset.sizeBytes)} · ${asset.downloadCount} downloads`;
+  const details = t('{name} · {size} · {count} downloads', {
+    name: asset.name,
+    size: formatBytes(asset.sizeBytes),
+    count: asset.downloadCount,
+  });
   return (
     <Stack spacing={0.5} sx={{ alignItems: 'flex-start' }}>
       <Button
@@ -28,11 +34,11 @@ function DownloadButton({ asset, platformLabel }: Readonly<DownloadButtonProps>)
         href={asset.url}
         sx={{ px: 3 }}
       >
-        {kind.label}
+        {t(kind.label)}
       </Button>
       {kind.caption === '' ? null : (
         <Typography variant="caption" sx={{ color: 'text.primary' }}>
-          {kind.caption}
+          {t(kind.caption)}
         </Typography>
       )}
       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
@@ -52,10 +58,13 @@ interface Props {
  * APK to install, the AAB for Google Play), the IPA for an iPhone — each labelled for what it is.
  */
 export function DownloadButtons({ assets, platformLabel }: Readonly<Props>) {
+  const t = useT();
   if (assets.length === 0) {
     return (
       <Typography variant="body2" sx={{ color: 'warning.main' }}>
-        This release has no {platformLabel} installer. Ask Tech to run a build that includes it.
+        {t('This release has no {platform} installer. Ask Tech to run a build that includes it.', {
+          platform: platformLabel,
+        })}
       </Typography>
     );
   }
