@@ -6899,13 +6899,21 @@ export type Policy = {
   __typename?: 'Policy';
   /** How many people have signed the CURRENT version. */
   acknowledgedCount: Scalars['Int']['output'];
+  /** Who approved it for use, recorded when it was published. Not its author. */
+  approvedByName: Scalars['String']['output'];
+  approvedOn?: Maybe<Scalars['DateTime']['output']>;
   audience: PolicyAudience;
   body: Scalars['String']['output'];
+  classification: PolicyClassification;
   effectiveDate: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
+  /** When this has to be read again and confirmed as still right. */
+  nextReviewOn?: Maybe<Scalars['DateTime']['output']>;
   owner: Scalars['String']['output'];
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
   requiresAcknowledgement: Scalars['Boolean']['output'];
+  /** Whether that date has passed. Derived, so a list can be filtered on it. */
+  reviewOverdue: Scalars['Boolean']['output'];
   /** URL segment the website renders this at. */
   slug: Scalars['String']['output'];
   status: PolicyStatus;
@@ -6936,10 +6944,24 @@ export enum PolicyAudience {
   Public = 'PUBLIC'
 }
 
+/**
+ * How far a document may travel (ISO 27001 A.5.12).
+ *
+ * The document's own label, not a permission: who may open a policy is decided by its
+ * audience and the reader's role.
+ */
+export enum PolicyClassification {
+  Confidential = 'CONFIDENTIAL',
+  Internal = 'INTERNAL',
+  Public = 'PUBLIC'
+}
+
 export type PolicyInput = {
   audience: PolicyAudience;
   body: Scalars['String']['input'];
+  classification?: InputMaybe<PolicyClassification>;
   effectiveDate: Scalars['DateTime']['input'];
+  nextReviewOn?: InputMaybe<Scalars['DateTime']['input']>;
   owner?: InputMaybe<Scalars['String']['input']>;
   requiresAcknowledgement?: InputMaybe<Scalars['Boolean']['input']>;
   slug: Scalars['String']['input'];
@@ -14946,21 +14968,21 @@ export type CanExportQueryVariables = Exact<{
 
 export type CanExportQuery = { __typename?: 'Query', canExport: boolean };
 
-export type PolicyFieldsFragment = { __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, publishedAt?: string | null, updatedAt: string, acknowledgedCount: number };
+export type PolicyFieldsFragment = { __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, classification: PolicyClassification, nextReviewOn?: string | null, reviewOverdue: boolean, approvedByName: string, approvedOn?: string | null, publishedAt?: string | null, updatedAt: string, acknowledgedCount: number };
 
 export type MyPolicyFieldsFragment = { __typename?: 'MyPolicy', id: string, title: string, slug: string, summary: string, body: string, version: number, effectiveDate: string, requiresAcknowledgement: boolean, acknowledged: boolean, acknowledgedAt?: string | null };
 
 export type ListPoliciesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListPoliciesQuery = { __typename?: 'Query', listPolicies: Array<{ __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, publishedAt?: string | null, updatedAt: string, acknowledgedCount: number }> };
+export type ListPoliciesQuery = { __typename?: 'Query', listPolicies: Array<{ __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, classification: PolicyClassification, nextReviewOn?: string | null, reviewOverdue: boolean, approvedByName: string, approvedOn?: string | null, publishedAt?: string | null, updatedAt: string, acknowledgedCount: number }> };
 
 export type ListPoliciesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListPoliciesPagedQuery = { __typename?: 'Query', listPoliciesPaged: { __typename?: 'PolicyPage', totalCount: number, rows: Array<{ __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, publishedAt?: string | null, updatedAt: string, acknowledgedCount: number }> } };
+export type ListPoliciesPagedQuery = { __typename?: 'Query', listPoliciesPaged: { __typename?: 'PolicyPage', totalCount: number, rows: Array<{ __typename?: 'Policy', id: string, title: string, slug: string, summary: string, body: string, audience: PolicyAudience, status: PolicyStatus, version: number, effectiveDate: string, requiresAcknowledgement: boolean, owner: string, classification: PolicyClassification, nextReviewOn?: string | null, reviewOverdue: boolean, approvedByName: string, approvedOn?: string | null, publishedAt?: string | null, updatedAt: string, acknowledgedCount: number }> } };
 
 export type ListPoliciesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -17718,6 +17740,11 @@ export const PolicyFieldsFragmentDoc = gql`
   effectiveDate
   requiresAcknowledgement
   owner
+  classification
+  nextReviewOn
+  reviewOverdue
+  approvedByName
+  approvedOn
   publishedAt
   updatedAt
   acknowledgedCount

@@ -6898,13 +6898,21 @@ export type Policy = {
   __typename?: 'Policy';
   /** How many people have signed the CURRENT version. */
   acknowledgedCount: Scalars['Int']['output'];
+  /** Who approved it for use, recorded when it was published. Not its author. */
+  approvedByName: Scalars['String']['output'];
+  approvedOn?: Maybe<Scalars['DateTime']['output']>;
   audience: PolicyAudience;
   body: Scalars['String']['output'];
+  classification: PolicyClassification;
   effectiveDate: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
+  /** When this has to be read again and confirmed as still right. */
+  nextReviewOn?: Maybe<Scalars['DateTime']['output']>;
   owner: Scalars['String']['output'];
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
   requiresAcknowledgement: Scalars['Boolean']['output'];
+  /** Whether that date has passed. Derived, so a list can be filtered on it. */
+  reviewOverdue: Scalars['Boolean']['output'];
   /** URL segment the website renders this at. */
   slug: Scalars['String']['output'];
   status: PolicyStatus;
@@ -6935,10 +6943,24 @@ export enum PolicyAudience {
   Public = 'PUBLIC'
 }
 
+/**
+ * How far a document may travel (ISO 27001 A.5.12).
+ *
+ * The document's own label, not a permission: who may open a policy is decided by its
+ * audience and the reader's role.
+ */
+export enum PolicyClassification {
+  Confidential = 'CONFIDENTIAL',
+  Internal = 'INTERNAL',
+  Public = 'PUBLIC'
+}
+
 export type PolicyInput = {
   audience: PolicyAudience;
   body: Scalars['String']['input'];
+  classification?: InputMaybe<PolicyClassification>;
   effectiveDate: Scalars['DateTime']['input'];
+  nextReviewOn?: InputMaybe<Scalars['DateTime']['input']>;
   owner?: InputMaybe<Scalars['String']['input']>;
   requiresAcknowledgement?: InputMaybe<Scalars['Boolean']['input']>;
   slug: Scalars['String']['input'];
@@ -12062,6 +12084,7 @@ export type ResolversTypes = ResolversObject<{
   Policy: ResolverTypeWrapper<Policy>;
   PolicyAcknowledgement: ResolverTypeWrapper<PolicyAcknowledgement>;
   PolicyAudience: PolicyAudience;
+  PolicyClassification: PolicyClassification;
   PolicyInput: PolicyInput;
   PolicyPage: ResolverTypeWrapper<PolicyPage>;
   PolicyStatus: PolicyStatus;
@@ -15388,13 +15411,18 @@ export type PexelsMediaResolvers<ContextType = GraphQLContext, ParentType extend
 
 export type PolicyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Policy'] = ResolversParentTypes['Policy']> = ResolversObject<{
   acknowledgedCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  approvedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  approvedOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   audience?: Resolver<ResolversTypes['PolicyAudience'], ParentType, ContextType>;
   body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  classification?: Resolver<ResolversTypes['PolicyClassification'], ParentType, ContextType>;
   effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  nextReviewOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   requiresAcknowledgement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  reviewOverdue?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['PolicyStatus'], ParentType, ContextType>;
   summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

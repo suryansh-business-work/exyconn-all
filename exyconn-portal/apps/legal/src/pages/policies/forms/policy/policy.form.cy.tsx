@@ -47,3 +47,26 @@ describe('PolicyForm', () => {
     cy.get('@cancel').should('have.been.called');
   });
 });
+
+describe('PolicyForm — document control', () => {
+  it('starts a new policy as internal, since most of them are', () => {
+    mount();
+    cy.get('input[name="classification"]').should('have.value', 'INTERNAL');
+  });
+
+  it('offers the three classifications a document can carry', () => {
+    mount();
+    cy.get('input[name="classification"]').parent().click();
+    cy.contains('li', 'Public').should('be.visible');
+    cy.contains('li', 'Internal').should('be.visible');
+    cy.contains('li', 'Confidential').should('be.visible');
+  });
+
+  it('asks when the policy is next due a read, without insisting on an answer', () => {
+    mount();
+    cy.contains('label', 'Next review').should('be.visible');
+    cy.contains('button', 'Create').click();
+    cy.contains('Title is required').should('be.visible');
+    cy.contains('Next review').should('be.visible');
+  });
+});

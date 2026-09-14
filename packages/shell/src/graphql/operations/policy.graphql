@@ -10,6 +10,11 @@ fragment PolicyFields on Policy {
   effectiveDate
   requiresAcknowledgement
   owner
+  classification
+  nextReviewOn
+  reviewOverdue
+  approvedByName
+  approvedOn
   publishedAt
   updatedAt
   acknowledgedCount

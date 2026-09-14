@@ -1475,10 +1475,23 @@ export type PolicyAudience =
   | 'HR_ONLY'
   | 'PUBLIC';
 
+/**
+ * How far a document may travel (ISO 27001 A.5.12).
+ *
+ * The document's own label, not a permission: who may open a policy is decided by its
+ * audience and the reader's role.
+ */
+export type PolicyClassification =
+  | 'CONFIDENTIAL'
+  | 'INTERNAL'
+  | 'PUBLIC';
+
 export type PolicyInput = {
   audience: PolicyAudience;
   body: Scalars['String']['input'];
+  classification: InputMaybe<PolicyClassification>;
   effectiveDate: Scalars['DateTime']['input'];
+  nextReviewOn: InputMaybe<Scalars['DateTime']['input']>;
   owner: InputMaybe<Scalars['String']['input']>;
   requiresAcknowledgement: InputMaybe<Scalars['Boolean']['input']>;
   slug: Scalars['String']['input'];

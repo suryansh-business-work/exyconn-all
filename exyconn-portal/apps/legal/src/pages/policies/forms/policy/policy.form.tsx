@@ -14,6 +14,7 @@ import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
   PolicyAudience,
+  PolicyClassification,
   useCreatePolicyMutation,
   useUpdatePolicyMutation,
 } from '@exyconn/shell/graphql/generated';
@@ -33,6 +34,9 @@ const schema = z.object({
   effectiveDate: z.string().min(1, 'Effective date is required'),
   requiresAcknowledgement: z.boolean(),
   owner: z.string().trim(),
+  classification: z.nativeEnum(PolicyClassification),
+  /** Empty means nobody has promised to look at it again — allowed, and worth seeing. */
+  nextReviewOn: z.string(),
 });
 type Values = z.infer<typeof schema>;
 
@@ -45,6 +49,8 @@ const toInitial = (row: PolicyRow | null): Values => ({
   effectiveDate: row?.effectiveDate ?? '',
   requiresAcknowledgement: row?.requiresAcknowledgement ?? false,
   owner: row?.owner ?? '',
+  classification: row?.classification ?? PolicyClassification.Internal,
+  nextReviewOn: row?.nextReviewOn ?? '',
 });
 
 interface Props {
@@ -93,6 +99,14 @@ export function PolicyForm({ initial, onDone, onCancel }: Readonly<Props>) {
       <RhfRichText name="body" label="Policy" />
       <RhfDatePicker name="effectiveDate" label="Effective from" />
       <RhfTextField name="owner" label="Owner" />
+      <RhfSelect
+        name="classification"
+        label="Classification"
+        options={enumOptions(Object.values(PolicyClassification))}
+        helperText="How far this document may travel. Who may open it comes from the audience."
+      />
+      {/* When somebody has to read this again and confirm it is still right. */}
+      <RhfDatePicker name="nextReviewOn" label="Next review" />
       <RhfSwitch name="requiresAcknowledgement" label="Staff must read and sign this" />
     </EntityForm>
   );

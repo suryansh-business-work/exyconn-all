@@ -6,6 +6,7 @@ import {
   boolColumn,
   dateColumn,
   derivedColumn,
+  derivedStatusColumn,
   statusColumn,
   textColumn,
   DELETE_ACTION,
@@ -33,6 +34,19 @@ const SIGNERS_ACTION = {
   hidden: (row: PagedPolicyRow) => !row.requiresAcknowledgement,
 };
 
+/**
+ * Where a policy stands against its own review date — the whole reason for keeping one.
+ *
+ * The date itself is its own column, formatted through the viewer's settings; this says
+ * what to do about it, which is what somebody scanning the register is looking for.
+ */
+function reviewState(row: PagedPolicyRow): string {
+  if (row.reviewOverdue) {
+    return 'OVERDUE';
+  }
+  return row.nextReviewOn ? 'SCHEDULED' : 'NOT SET';
+}
+
 /** How far through the workforce a policy has got, at a glance. */
 function signedLabel(row: PagedPolicyRow): string {
   if (!row.requiresAcknowledgement) {
@@ -47,8 +61,11 @@ export const POLICY_COLUMNS: ColDef<PagedPolicyRow>[] = [
   statusColumn('audience', 'Audience'),
   statusColumn('status', 'Status'),
   derivedColumn('version', 'Version', (row) => `v${row.version}`),
+  statusColumn('classification', 'Classification'),
   boolColumn('requiresAcknowledgement', 'Sign'),
   derivedColumn('signed', 'Signatures', signedLabel),
   dateColumn('effectiveDate', 'Effective'),
+  dateColumn('nextReviewOn', 'Next review', '—'),
+  derivedStatusColumn<PagedPolicyRow>('reviewState', 'Review', reviewState),
   actionsColumn<PagedPolicyRow>([PUBLISH_ACTION, SIGNERS_ACTION, EDIT_ACTION, DELETE_ACTION]),
 ];

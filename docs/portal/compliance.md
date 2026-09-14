@@ -49,10 +49,17 @@ training records are HR's; the asset register is IT's; the append-only change lo
 Admin › Audit Log is `modules/audit` — a different thing from an internal audit, despite
 the name.
 
+## Document control lives in Legal
+
+A policy (`legal/policies`) carries what a controlled document has to: a version that
+signatures are recorded against, an owner, a **classification** (ISO 27001 A.5.12 — how far it
+may travel, which is not the same question as who may open it), a **next review date**, and
+**who approved it**. Publishing IS the approval, so the approver and the date are recorded
+then rather than typed afterwards. Whether a review is overdue is derived on read, never
+stored — a stored flag is only true until the clock moves.
+
 ## Still to come
 
-- Document control fields on policies: reviewer distinct from author, next review date,
-  classification.
 - An information-asset register with owners and CIA classification, for 27001 specifically.
 - Access-review campaigns, and supplier evaluation with criteria and a re-evaluation cycle.
 - Findings raised straight from an audit's own screen, rather than filed and linked.

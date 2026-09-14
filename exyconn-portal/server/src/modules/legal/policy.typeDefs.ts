@@ -17,6 +17,18 @@ export const policyTypeDefs = gql`
     ARCHIVED
   }
 
+  """
+  How far a document may travel (ISO 27001 A.5.12).
+
+  The document's own label, not a permission: who may open a policy is decided by its
+  audience and the reader's role.
+  """
+  enum PolicyClassification {
+    PUBLIC
+    INTERNAL
+    CONFIDENTIAL
+  }
+
   type Policy {
     id: ID!
     title: String!
@@ -31,6 +43,14 @@ export const policyTypeDefs = gql`
     effectiveDate: DateTime!
     requiresAcknowledgement: Boolean!
     owner: String!
+    classification: PolicyClassification!
+    "When this has to be read again and confirmed as still right."
+    nextReviewOn: DateTime
+    "Whether that date has passed. Derived, so a list can be filtered on it."
+    reviewOverdue: Boolean!
+    "Who approved it for use, recorded when it was published. Not its author."
+    approvedByName: String!
+    approvedOn: DateTime
     publishedAt: DateTime
     updatedAt: DateTime!
     "How many people have signed the CURRENT version."
@@ -46,6 +66,8 @@ export const policyTypeDefs = gql`
     effectiveDate: DateTime!
     requiresAcknowledgement: Boolean
     owner: String
+    classification: PolicyClassification
+    nextReviewOn: DateTime
   }
 
   type PolicyPage {
