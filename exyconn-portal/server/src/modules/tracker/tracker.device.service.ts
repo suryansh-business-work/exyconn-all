@@ -216,12 +216,15 @@ class TrackerDeviceService {
       deviceTimezone: device?.timezone,
     });
 
-    // The same chain as the portal's, with the machine standing in for the browser: the
-    // tracker runs on the employee's own computer, so its locale is what they read in.
+    // The same chain the portal applies: this employee's own pick, else the workspace
+    // default. The device reports its locale at sign-in and the Devices console shows it,
+    // but it is deliberately NOT a candidate here — `defaultLocale` is required and defaults
+    // to English, so a workspace always has one, and the admin's choice outranks whatever
+    // language a particular machine happens to be set to. (The zone chain reads differently
+    // only because `defaultTimezone` defaults to empty.)
     const locale = resolveEffectiveLocale({
       userLocale: user.locale,
       defaultLocale: appSettings.defaultLocale,
-      requestLocale: device?.locale,
     });
 
     const [workday, projects, consentPolicy, notices, unreadMessages] = await Promise.all([

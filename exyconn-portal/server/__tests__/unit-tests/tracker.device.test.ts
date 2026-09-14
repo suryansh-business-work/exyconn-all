@@ -9,6 +9,7 @@ import {
 import { TRACKER_LIMITS } from '../../src/modules/tracker/tracker.constants';
 import { assertTrackerDevice } from '../../src/modules/tracker/tracker.auth';
 import { trackerAdminService } from '../../src/modules/tracker/tracker.admin.service';
+import { adminService } from '../../src/modules/admin/admin.service';
 import {
   TrackerAccessModel,
   TrackerDeviceModel,
@@ -220,6 +221,58 @@ describe('trackerMe (remember-me rehydrate)', () => {
     expect(me.user.email).toBe('emp@exyconn.com');
     expect(me.consentRequired).toBe(true);
     expect(me.settings.consentText.length).toBeGreaterThan(0);
+  });
+
+  it('answers with the workspace language, not the one the machine is set to', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    // The machine says what it reads in when it enrols. It is recorded for the Devices
+    // console, but the workspace's own default outranks it: an employee who has chosen
+    // nothing reads what their workspace reads, on whatever computer they sign in from.
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, { ...DEVICE, locale: 'fr-CA' });
+
+    const me = await trackerDeviceService.me(user.id, 'device-1');
+
+    expect(me.locale).toBe('en');
+  });
+
+  it('answers with the workspace default once an administrator changes it', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
+
+    await adminService.updateSettings({ defaultLocale: 'de' });
+
+    const me = await trackerDeviceService.me(user.id, 'device-1');
+
+    expect(me.locale).toBe('de');
+  });
+
+  it('prefers the language on the account over the one the machine reported', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, { ...DEVICE, locale: 'fr-CA' });
+
+    // Somebody who has set their own language keeps it on every machine they sign in from.
+    await UserModel.updateOne({ _id: user.id }, { locale: 'hi' });
+
+    const me = await trackerDeviceService.me(user.id, 'device-1');
+
+    expect(me.locale).toBe('hi');
+  });
+
+  it('falls back to English rather than trusting a locale the account made up', async () => {
+    const user = await makeEmployee();
+    await trackerAdminService.grantAccess(user.id, 'admin');
+    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
+
+    // Never validated on the way in, and a tag Intl cannot resolve would throw in every
+    // formatter the app renders with.
+    await UserModel.updateOne({ _id: user.id }, { locale: 'not a language' });
+
+    const me = await trackerDeviceService.me(user.id, 'device-1');
+
+    expect(me.locale).toBe('en');
   });
 
   it('refuses to rehydrate once access is revoked', async () => {
