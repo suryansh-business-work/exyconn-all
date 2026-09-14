@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useT } from '@exyconn/i18n';
 import {
   Box,
   Table,
@@ -47,6 +48,7 @@ export function DataTable<T extends { id: string }>({
   loading = false,
   onRefresh,
 }: Readonly<DataTableProps<T>>) {
+  const t = useT();
   const hasActions = Boolean(onEdit || onDelete || actions?.length);
 
   const toolbar = onRefresh && (
@@ -72,7 +74,7 @@ export function DataTable<T extends { id: string }>({
               color: 'text.secondary',
             }}
           >
-            {emptyMessage}
+            {t(emptyMessage)}
           </Typography>
         </Box>
       </>
@@ -91,12 +93,12 @@ export function DataTable<T extends { id: string }>({
             <TableRow>
               {columns.map((col) => (
                 <TableCell key={col.key} sx={headSx}>
-                  {col.label}
+                  {t(col.label)}
                 </TableCell>
               ))}
               {hasActions && (
                 <TableCell align="right" sx={headSx}>
-                  Actions
+                  {t('Actions')}
                 </TableCell>
               )}
             </TableRow>

@@ -7,6 +7,8 @@ import { CrudFormPage } from '@/components/data/CrudFormPage';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { StatusChip } from '@/components/data/StatusChip';
+import { DataTable } from '@/components/data/DataTable';
+import { ServerGridToolbar } from '@/components/data/ServerGridToolbar';
 import { RhfTextField } from '@/components/form/rhf';
 
 /**
@@ -118,6 +120,77 @@ describe('a module screen in another language', () => {
     screenInGerman(<StatusChip value="ARCHIVED" />);
 
     expect(screen.getByText('ARCHIVED')).toBeDefined();
+  });
+});
+
+describe('a table in another language', () => {
+  const GERMAN_TABLE = {
+    Name: 'Name',
+    Actions: 'Aktionen',
+    'No records yet.': 'Noch keine Einträge.',
+    Refresh: 'Aktualisieren',
+    'Refresh table': 'Tabelle aktualisieren',
+    'Search assets': 'Anlagen suchen',
+    'Could not load the rows ({reason}). Use Refresh to try again.':
+      'Die Zeilen konnten nicht geladen werden ({reason}). Bitte aktualisieren.',
+  };
+
+  const tableInGerman = (ui: React.ReactNode) =>
+    render(
+      <I18nProvider locale="de-DE" messages={GERMAN_TABLE}>
+        {ui}
+      </I18nProvider>,
+    );
+
+  const columns = [{ key: 'name', label: 'Name' }];
+
+  it('translates the column headings and the actions column', () => {
+    tableInGerman(
+      <DataTable columns={columns} rows={[{ id: '1', name: 'Laptop' }]} onEdit={() => {}} />,
+    );
+
+    expect(screen.getByText('Aktionen')).toBeDefined();
+  });
+
+  it('translates what an empty table says, and its refresh control', () => {
+    tableInGerman(<DataTable columns={columns} rows={[]} onRefresh={() => Promise.resolve()} />);
+
+    expect(screen.getByText('Noch keine Einträge.')).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Tabelle aktualisieren' })).toBeDefined();
+  });
+
+  it('translates the search box above a server-paged grid', () => {
+    tableInGerman(
+      <ServerGridToolbar
+        search=""
+        onSearchChange={() => {}}
+        searchPlaceholder="Search assets"
+        onRefresh={() => {}}
+        loading={false}
+        loadError={null}
+      />,
+    );
+
+    expect(screen.getByLabelText('Anlagen suchen')).toBeDefined();
+  });
+
+  it('translates a load failure and keeps the reason the server gave', () => {
+    tableInGerman(
+      <ServerGridToolbar
+        search=""
+        onSearchChange={() => {}}
+        searchPlaceholder="Search assets"
+        onRefresh={() => {}}
+        loading={false}
+        loadError="Network error"
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        'Die Zeilen konnten nicht geladen werden (Network error). Bitte aktualisieren.',
+      ),
+    ).toBeDefined();
   });
 });
 
