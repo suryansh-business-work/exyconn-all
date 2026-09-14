@@ -1,4 +1,5 @@
 import { useFormContext } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import { Alert, Button, Text } from '@exyconn/shell/components/ui';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -10,6 +11,7 @@ import { errorMessage } from '@exyconn/shell/utils/errorMessage';
  * layout markup), so it asks first; the change only sticks when the form is saved.
  */
 export function LiveDesignNotice() {
+  const t = useT();
   const { setValue } = useFormContext();
   const confirm = useConfirm();
   const notify = useNotify();
@@ -39,15 +41,16 @@ export function LiveDesignNotice() {
             );
           }}
         >
-          Edit as rich text
+          {t('Edit as rich text')}
         </Button>
       }
     >
       <Text weight="semibold" component="div">
-        Designed in the live editor
+        {t('Designed in the live editor')}
       </Text>
-      This body has a custom layout. Change it with the Live edit action in the list, so the design
-      is kept.
+      {t(
+        'This body has a custom layout. Change it with the Live edit action in the list, so the design is kept.',
+      )}
     </Alert>
   );
 }

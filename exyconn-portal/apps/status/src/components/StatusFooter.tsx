@@ -1,8 +1,10 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Container, Flex, Link, Typography } from '@exyconn/shell/components/ui';
 import { env } from '@exyconn/shell';
 
 /** Standing footer: who runs the page and where to go for help. */
 export function StatusFooter() {
+  const t = useT();
   return (
     <Box component="footer" sx={{ borderTop: 1, borderColor: 'divider', mt: 6, py: 3 }}>
       <Container>
@@ -18,8 +20,10 @@ export function StatusFooter() {
               color: 'text.secondary',
             }}
           >
-            © {new Date().getFullYear()} Exyconn. Availability is measured from our own monitoring,
-            not from a third party.
+            {t(
+              '© {year} Exyconn. Availability is measured from our own monitoring, not from a third party.',
+              { year: new Date().getFullYear() },
+            )}
           </Typography>
           <Flex spacing={2}>
             <Link href={env.brandUrl} variant="body2" underline="hover">
@@ -30,7 +34,7 @@ export function StatusFooter() {
               variant="body2"
               underline="hover"
             >
-              Contact support
+              {t('Contact support')}
             </Link>
           </Flex>
         </Flex>

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { ToggleButton, ToggleButtonGroup } from '@exyconn/shell/components/ui';
 import {
   FilterOp,
@@ -26,6 +27,7 @@ interface ApplicantQuickFilterProps {
 
 /** One-click views of the pipeline, above the grid. */
 export function ApplicantQuickFilter({ value, onChange }: Readonly<ApplicantQuickFilterProps>) {
+  const t = useT();
   return (
     <ToggleButtonGroup
       exclusive
@@ -36,12 +38,12 @@ export function ApplicantQuickFilter({ value, onChange }: Readonly<ApplicantQuic
           onChange(next);
         }
       }}
-      aria-label="Stage filter"
+      aria-label={t('Stage filter')}
       sx={{ mb: 1.5, flexWrap: 'wrap' }}
     >
       {OPTIONS.map((option) => (
         <ToggleButton key={option.value} value={option.value}>
-          {option.label}
+          {t(option.label)}
         </ToggleButton>
       ))}
     </ToggleButtonGroup>

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { REPORT_REFERENCE } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, Typography } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -31,6 +32,7 @@ interface CheckReportFormProps {
 
 /** The answer, once one has come back. */
 function ReportStatusLine({ status }: Readonly<{ status: ReportStatus }>) {
+  const t = useT();
   return (
     <Box sx={{ mt: 1 }}>
       <Flex alignItems="center" spacing={1} flexWrap="wrap">
@@ -50,8 +52,10 @@ function ReportStatusLine({ status }: Readonly<{ status: ReportStatus }>) {
           color: 'text.secondary',
         }}
       >
-        {status.serviceName || 'Whole platform'} · last updated{' '}
-        {formatWith(status.updatedAt, TIME_FORMAT)}
+        {t('{service} · last updated {updated}', {
+          service: status.serviceName || t('Whole platform'),
+          updated: formatWith(status.updatedAt, TIME_FORMAT),
+        })}
       </Typography>
     </Box>
   );

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Chip, color } from '@exyconn/shell/components/ui';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
@@ -14,6 +15,7 @@ import type { ContractRow } from './forms/contract';
 
 /** Legal → Sign Board: sign contracts and track who signed them. */
 export function SignBoardPage() {
+  const t = useT();
   const { data, loading, refetch } = useListContractsQuery();
   const [signTarget, setSignTarget] = useState<ContractRow | null>(null);
   const notify = useNotify();
@@ -42,7 +44,7 @@ export function SignBoardPage() {
             label={`${r.signedBy} · ${r.signedAt ? formatDate(r.signedAt) : ''}`}
           />
         ) : (
-          <Chip size="small" variant="outlined" label="Unsigned" />
+          <Chip size="small" variant="outlined" label={t('Unsigned')} />
         ),
     },
   ];
@@ -67,7 +69,7 @@ export function SignBoardPage() {
       />
       <CrudDialog
         open={Boolean(signTarget)}
-        title="Sign contract"
+        title={t('Sign contract')}
         onClose={() => setSignTarget(null)}
       >
         {signTarget && (

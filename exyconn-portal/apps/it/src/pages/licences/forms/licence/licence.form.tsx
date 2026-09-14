@@ -1,5 +1,6 @@
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   RhfTextField,
@@ -32,6 +33,7 @@ interface LicenceFormProps {
 
 /** React Hook Form + Zod form to add or edit one software licence and its seats. */
 export function LicenceForm({ initial, onDone, onCancel }: Readonly<LicenceFormProps>) {
+  const t = useT();
   const [createLicence] = useCreateLicenceMutation();
   const [updateLicence] = useUpdateLicenceMutation();
   const { data } = useListAssetAssigneesQuery();
@@ -46,6 +48,11 @@ export function LicenceForm({ initial, onDone, onCancel }: Readonly<LicenceFormP
   }));
   const seatsTotal = useWatch({ control: methods.control, name: 'seatsTotal' });
   const held = useWatch({ control: methods.control, name: 'assigneeIds' })?.length ?? 0;
+  const total = Number(seatsTotal) || 0;
+  const seatsHelper =
+    held === 1
+      ? t('{held} of {total} seat in use', { held, total })
+      : t('{held} of {total} seats in use', { held, total });
 
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Licence',
@@ -65,7 +72,7 @@ export function LicenceForm({ initial, onDone, onCancel }: Readonly<LicenceFormP
         name="assigneeIds"
         label="Seats assigned"
         options={assignees}
-        helperText={`${held} of ${seatsTotal || 0} seat(s) in use`}
+        helperText={seatsHelper}
       />
       <RhfTextField name="cost" label="Cost per cycle" type="number" />
       <RhfSelect name="billingCycle" label="Billing cycle" options={CYCLE_OPTIONS} />

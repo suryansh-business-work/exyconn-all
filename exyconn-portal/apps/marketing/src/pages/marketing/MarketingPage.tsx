@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -22,6 +23,7 @@ import {
 
 /** Marketing module — campaign dashboard with a server-side campaigns grid and email send. */
 export function MarketingPage() {
+  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListCampaignsStatsQuery();
   const [deleteCampaign] = useDeleteCampaignMutation();
@@ -31,7 +33,7 @@ export function MarketingPage() {
   const crud = useCrudResource<CampaignRow, PagedCampaignRow>({
     label: 'Campaign',
     onDelete: (row) => deleteCampaign({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete campaign "${row.name}"?`,
+    confirmMessage: (row) => t('Delete campaign "{name}"?', { name: row.name }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -86,11 +88,15 @@ export function MarketingPage() {
       searchPlaceholder="Search campaigns…"
       extraDialogs={
         <>
-          <CrudDialog open={Boolean(detailsTarget)} title="Campaign details" onClose={closeDetails}>
+          <CrudDialog
+            open={Boolean(detailsTarget)}
+            title={t('Campaign details')}
+            onClose={closeDetails}
+          >
             {detailsTarget && <CampaignDetails campaign={detailsTarget} />}
           </CrudDialog>
 
-          <CrudDialog open={Boolean(sendTarget)} title="Send campaign" onClose={closeSend}>
+          <CrudDialog open={Boolean(sendTarget)} title={t('Send campaign')} onClose={closeSend}>
             {sendTarget && (
               <SendCampaignForm
                 campaign={sendTarget}

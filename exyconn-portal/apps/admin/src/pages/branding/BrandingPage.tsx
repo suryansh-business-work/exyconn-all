@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
@@ -7,9 +8,10 @@ import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /** Admin → Branding: the organisation's identity, images, palette and contacts. */
 export function BrandingPage() {
+  const t = useT();
   const { data, loading } = useBrandingQuery();
   const branding = data?.branding;
-  const emptyMessage = loading ? 'Loading…' : 'Branding is unavailable.';
+  const emptyMessage = loading ? t('Loading…') : t('Branding is unavailable.');
 
   return (
     <Box>

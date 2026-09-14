@@ -11,6 +11,7 @@ import {
   Text,
 } from '@exyconn/shell/components/ui';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { useT } from '@exyconn/i18n';
 import { copyToClipboard } from '@exyconn/shell/utils/clipboard';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 
@@ -22,15 +23,21 @@ export interface Credentials {
 
 /** A copyable credential field: label, monospace value, and a copy button. */
 function Field({ label, value, onCopy }: { label: string; value: string; onCopy: () => void }) {
+  const t = useT();
+  const fieldName = t(label);
   return (
     <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 1, px: 1.5, py: 1 }}>
       <Text size="caption" color="text.secondary">
-        {label}
+        {fieldName}
       </Text>
       <Flex direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
         <Text sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>{value}</Text>
-        <Tooltip title={`Copy ${label.toLowerCase()}`}>
-          <IconButton size="small" aria-label={`copy ${label}`} onClick={onCopy}>
+        <Tooltip title={t('Copy {label}', { label: fieldName.toLowerCase() })}>
+          <IconButton
+            size="small"
+            aria-label={t('copy {label}', { label: fieldName })}
+            onClick={onCopy}
+          >
             <ContentCopyIcon fontSize="small" />
           </IconButton>
         </Tooltip>
@@ -51,21 +58,25 @@ interface CredentialsDialogProps {
  */
 export function CredentialsDialog({ credentials, onClose }: CredentialsDialogProps) {
   const notify = useNotify();
+  const t = useT();
   if (!credentials) return null;
 
   const { name, email, password } = credentials;
   const copy = async (label: string, value: string) => {
-    notify((await copyToClipboard(value)) ? `${label} copied` : 'Copy failed', 'info');
+    const copied = await copyToClipboard(value);
+    notify(copied ? t('{label} copied', { label: t(label) }) : 'Copy failed', 'info');
   };
-  const copyBoth = () => copy('Credentials', `Email: ${email}\nPassword: ${password}`);
+  const copyBoth = () =>
+    copy('Credentials', t('Email: {email}\nPassword: {password}', { email, password }));
 
   return (
     <Dialog open onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>Credentials for {name}</DialogTitle>
+      <DialogTitle>{t('Credentials for {name}', { name })}</DialogTitle>
       <DialogContent>
         <Text size="sm" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
-          Share these with the user (also emailed when SMTP is configured). The password is shown
-          only once — copy it now.
+          {t(
+            'Share these with the user (also emailed when SMTP is configured). The password is shown only once — copy it now.',
+          )}
         </Text>
         <Flex direction="column" spacing={1.5}>
           <Field label="Email" value={email} onCopy={() => copy('Email', email)} />
@@ -74,10 +85,10 @@ export function CredentialsDialog({ credentials, onClose }: CredentialsDialogPro
       </DialogContent>
       <DialogActions>
         <Button onClick={copyBoth} startIcon={<ContentCopyIcon />}>
-          Copy both
+          {t('Copy both')}
         </Button>
         <Button variant="contained" onClick={onClose}>
-          Done
+          {t('Done')}
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { useLeadsByCampaignQuery } from '@exyconn/shell/graphql/generated';
@@ -9,10 +10,11 @@ import { useLeadsByCampaignQuery } from '@exyconn/shell/graphql/generated';
  * line on the drawer that says whether it worked.
  */
 export function CampaignAttribution({ campaignId }: Readonly<{ campaignId: string }>) {
+  const t = useT();
   const { data, loading } = useLeadsByCampaignQuery({ variables: { campaignId } });
 
   return (
-    <DetailRow label="Leads generated">
+    <DetailRow label={t('Leads generated')}>
       <Text size="sm">{loading ? '…' : (data?.leadsByCampaign ?? 0)}</Text>
     </DetailRow>
   );

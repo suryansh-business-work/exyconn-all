@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -21,6 +22,7 @@ interface SignContractFormProps {
 
 /** Records a signer for a contract and marks it active. */
 export function SignContractForm({ contract, onDone, onCancel }: SignContractFormProps) {
+  const t = useT();
   const notify = useNotify();
   const [signContract] = useSignContractMutation();
   const methods = useForm<Values>({
@@ -31,7 +33,7 @@ export function SignContractForm({ contract, onDone, onCancel }: SignContractFor
   const onSubmit = async (values: Values) => {
     try {
       await signContract({ variables: { id: contract.id, signedBy: values.signedBy } });
-      notify(`“${contract.title}” signed by ${values.signedBy}`);
+      notify(t('“{title}” signed by {name}', { title: contract.title, name: values.signedBy }));
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Sign failed', 'error');
@@ -47,7 +49,10 @@ export function SignContractForm({ contract, onDone, onCancel }: SignContractFor
       submitLabel="Sign"
     >
       <Text size="sm" color="text.secondary">
-        Signing “{contract.title}” with {contract.party}.
+        {t('Signing “{title}” with {party}.', {
+          title: contract.title,
+          party: contract.party,
+        })}
       </Text>
       <RhfTextField name="signedBy" label="Signed by (full name)" />
     </EntityForm>

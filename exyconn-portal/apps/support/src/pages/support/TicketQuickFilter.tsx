@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { ToggleButton, ToggleButtonGroup } from '@exyconn/shell/components/ui';
 import {
   FilterOp,
@@ -54,6 +55,7 @@ interface TicketQuickFilterProps {
 
 /** One-click views of the queue, above the grid. */
 export function TicketQuickFilter({ value, onChange }: Readonly<TicketQuickFilterProps>) {
+  const t = useT();
   return (
     <ToggleButtonGroup
       exclusive
@@ -64,12 +66,12 @@ export function TicketQuickFilter({ value, onChange }: Readonly<TicketQuickFilte
           onChange(next);
         }
       }}
-      aria-label="Quick filter"
+      aria-label={t('Quick filter')}
       sx={{ mb: 1.5, flexWrap: 'wrap' }}
     >
       {OPTIONS.map((option) => (
         <ToggleButton key={option.value} value={option.value}>
-          {option.label}
+          {t(option.label)}
         </ToggleButton>
       ))}
     </ToggleButtonGroup>

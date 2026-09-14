@@ -1,6 +1,7 @@
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -36,13 +37,20 @@ interface StockMovementFormProps {
   onCancel: () => void;
 }
 
+type Translate = ReturnType<typeof useT>;
+
 /** Explains what the chosen reason will do to the level, before it is recorded. */
-function effectOf(reason: string, quantity: number, current: number | undefined): string {
+function effectOf(
+  t: Translate,
+  reason: string,
+  quantity: number,
+  current: number | undefined,
+): string {
   if (current === undefined) {
-    return 'Choose a product to see the effect.';
+    return t('Choose a product to see the effect.');
   }
   if (reason === MovementReason.Count) {
-    return `Stocktake: the level becomes ${quantity}.`;
+    return t('Stocktake: the level becomes {quantity}.', { quantity });
   }
   const after = OUTGOING.has(reason) ? current - quantity : current + quantity;
   return `${current} → ${after}`;
@@ -50,6 +58,7 @@ function effectOf(reason: string, quantity: number, current: number | undefined)
 
 /** React Hook Form + Zod form to record a stock movement. */
 export function StockMovementForm({ onDone, onCancel }: Readonly<StockMovementFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const { data: productsData } = useListProductsQuery();
   const { data: suppliersData } = useListSuppliersQuery();
@@ -85,7 +94,11 @@ export function StockMovementForm({ onDone, onCancel }: Readonly<StockMovementFo
   const onSubmit = async (values: Values) => {
     try {
       const result = await record({ variables: { input: values } });
-      notify(`Recorded. Stock is now ${result.data?.recordStockMovement.stockAfter ?? '—'}.`);
+      notify(
+        t('Recorded. Stock is now {stock}.', {
+          stock: result.data?.recordStockMovement.stockAfter ?? '—',
+        }),
+      );
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not record the movement', 'error');
@@ -104,7 +117,7 @@ export function StockMovementForm({ onDone, onCancel }: Readonly<StockMovementFo
       <RhfSelect name="reason" label="Reason" options={REASON_OPTIONS} />
       <RhfTextField name="quantity" label="Quantity" type="number" />
       <Text size="sm" color="text.secondary">
-        {effectOf(String(reason), Number(quantity) || 0, current)}
+        {effectOf(t, String(reason), Number(quantity) || 0, current)}
       </Text>
       <RhfSelect name="supplierId" label="Supplier" options={supplierOptions} />
       <RhfTextField name="reference" label="Reference" helperText="PO number, invoice, ticket…" />

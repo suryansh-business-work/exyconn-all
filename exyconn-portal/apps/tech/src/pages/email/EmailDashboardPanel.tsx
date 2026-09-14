@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, color, Flex, Grid, radius, Text } from '@exyconn/shell/components/ui';
 import { StatCard, type StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { StatBreakdown } from '@exyconn/shell/components/dashboard/StatBreakdown';
@@ -24,6 +25,7 @@ function shortDate(iso: string): string {
 
 /** Tech → Email → Dashboard: is email working, and what has it been doing. */
 export function EmailDashboardPanel() {
+  const t = useT();
   const { data, loading, refetch } = useEmailDashboardQuery({
     variables: { days: TREND_DAYS },
     fetchPolicy: 'cache-and-network',
@@ -34,8 +36,16 @@ export function EmailDashboardPanel() {
   const stats: StatItem[] = [
     { label: 'Templates', value: String(board?.templates ?? 0), accent: color.blue[400] },
     { label: 'Active', value: String(board?.activeTemplates ?? 0), accent: color.green[500] },
-    { label: `Sent · ${TREND_DAYS}d`, value: String(board?.sent ?? 0), accent: color.violet[400] },
-    { label: `Failed · ${TREND_DAYS}d`, value: String(board?.failed ?? 0), accent: color.red[200] },
+    {
+      label: t('Sent · {days}d', { days: TREND_DAYS }),
+      value: String(board?.sent ?? 0),
+      accent: color.violet[400],
+    },
+    {
+      label: t('Failed · {days}d', { days: TREND_DAYS }),
+      value: String(board?.failed ?? 0),
+      accent: color.red[200],
+    },
   ];
 
   const failureColumns: Column<EmailLogFieldsFragment>[] = [
@@ -55,7 +65,7 @@ export function EmailDashboardPanel() {
       {/* First, because every other number here can look healthy while nothing has left. */}
       {board && !board.configured ? (
         <Alert severity="error" variant="outlined" sx={{ mb: 2, borderRadius: `${radius.sm}px` }}>
-          No active SMTP configuration, so nothing can be sent. Add one under Settings.
+          {t('No active SMTP configuration, so nothing can be sent. Add one under Settings.')}
         </Alert>
       ) : null}
 
@@ -81,7 +91,7 @@ export function EmailDashboardPanel() {
           }}
         >
           <Text size="label" component="div" sx={{ mb: 1 }}>
-            Sent per day
+            {t('Sent per day')}
           </Text>
           <LineChart
             labels={(board?.days ?? []).map((day) => shortDate(day.date))}
@@ -104,7 +114,7 @@ export function EmailDashboardPanel() {
       </Grid>
 
       <Flex direction="row" alignItems="center" spacing={1} sx={{ mt: 2, mb: 1 }}>
-        <Text size="label">Recent failures</Text>
+        <Text size="label">{t('Recent failures')}</Text>
         <StatusChip value={board?.failed ? 'FAILED' : 'RESOLVED'} />
       </Flex>
       <DataTable

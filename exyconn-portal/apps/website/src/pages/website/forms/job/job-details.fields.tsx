@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Divider, Flex, Typography } from '@exyconn/shell/components/ui';
 import {
   RhfTextField,
@@ -20,6 +21,7 @@ import {
  * surrounding FormProvider context, so it must render inside the JobForm.
  */
 export function JobDetailsFields() {
+  const t = useT();
   const { data } = useListJobCompaniesQuery();
   const companyOptions = (data?.listJobCompanies ?? []).map((company) => ({
     label: company.name,
@@ -39,7 +41,7 @@ export function JobDetailsFields() {
       <RhfSelect name="category" label="Category" options={toOptions(JOB_CATEGORIES)} />
 
       <Divider />
-      <Typography variant="subtitle2">Placement</Typography>
+      <Typography variant="subtitle2">{t('Placement')}</Typography>
       <RhfTextField name="location" label="Location" />
       <RhfSelect name="jobType" label="Job type" options={toOptions(JOB_TYPES)} />
       <RhfSelect
@@ -53,7 +55,7 @@ export function JobDetailsFields() {
       <RhfDatePicker name="applicationDeadline" label="Application deadline" />
 
       <Divider />
-      <Typography variant="subtitle2">Visibility</Typography>
+      <Typography variant="subtitle2">{t('Visibility')}</Typography>
       <RhfSwitch name="isActive" label="Active" />
       <RhfSwitch name="isFeatured" label="Featured" />
     </Flex>

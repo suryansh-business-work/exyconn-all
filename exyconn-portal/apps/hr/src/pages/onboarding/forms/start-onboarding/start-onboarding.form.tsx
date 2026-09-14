@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfAutocomplete, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -29,6 +30,7 @@ interface StartOnboardingFormProps {
  * not to use again, and starting somebody on it would be a checklist nobody meant to give.
  */
 export function StartOnboardingForm({ onDone, onCancel }: Readonly<StartOnboardingFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [startOnboarding] = useStartOnboardingMutation();
   const { data: peopleData } = useListEmployeeOptionsQuery();
@@ -68,8 +70,9 @@ export function StartOnboardingForm({ onDone, onCancel }: Readonly<StartOnboardi
       submitLabel="Start onboarding"
     >
       <Text size="sm" color="text.secondary">
-        The template&apos;s tasks are copied onto the joiner and dated from their join date. An
-        employee can only have one unfinished checklist at a time.
+        {t(
+          "The template's tasks are copied onto the joiner and dated from their join date. An employee can only have one unfinished checklist at a time.",
+        )}
       </Text>
       <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
       <RhfSelect

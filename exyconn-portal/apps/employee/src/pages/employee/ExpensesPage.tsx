@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, Link, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -13,6 +14,7 @@ import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** Employee self-service: expense claims and where each one stands. */
 export function ExpensesPage() {
+  const t = useT();
   const { data, loading, refetch } = useMyExpenseClaimsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const [open, setOpen] = useState(false);
@@ -42,7 +44,7 @@ export function ExpensesPage() {
       render: (c) =>
         c.receiptUrl ? (
           <Link href={c.receiptUrl} target="_blank" rel="noopener noreferrer">
-            Open
+            {t('Open')}
           </Link>
         ) : (
           '—'
@@ -72,7 +74,7 @@ export function ExpensesPage() {
     <Box>
       <Flex direction="row" justifyContent="space-between" alignItems="center">
         <PageHeader title="Expenses" subtitle="Claims and reimbursements" />
-        <Button onClick={() => setOpen(true)}>New claim</Button>
+        <Button onClick={() => setOpen(true)}>{t('New claim')}</Button>
       </Flex>
 
       <Box sx={densePanel}>

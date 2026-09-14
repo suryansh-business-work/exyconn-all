@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { ServerDataGrid } from '@exyconn/shell/components/data/ServerDataGrid';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
@@ -19,13 +20,17 @@ import { FRAGMENT_COLUMNS, type PagedFragmentRow, type FragmentGridContext } fro
  * rendering, and stops sending.
  */
 export function EmailFragmentsPanel() {
+  const t = useT();
   const [deleteFragment] = useDeleteEmailFragmentMutation();
 
   const crud = useCrudResource<EmailFragmentRow, PagedFragmentRow>({
     label: 'Fragment',
     onDelete: (row) => deleteFragment({ variables: { id: row.id } }),
     confirmMessage: (row) =>
-      `Delete "${row.name}"? Every template that includes {{> ${row.key} }} will stop sending.`,
+      t('Delete "{name}"? Every template that includes {include} will stop sending.', {
+        name: row.name,
+        include: `{{> ${row.key} }}`,
+      }),
   });
   const fetchRows = usePagedFetcher(
     ListEmailFragmentsPagedDocument,
@@ -38,12 +43,9 @@ export function EmailFragmentsPanel() {
   };
 
   if (crud.open) {
+    const formTitle = crud.editing ? t('Edit fragment') : t('New fragment');
     return (
-      <CrudFormPage
-        title={`${crud.editing ? 'Edit' : 'New'} fragment`}
-        onBack={crud.close}
-        backLabel="Back to Fragments"
-      >
+      <CrudFormPage title={formTitle} onBack={crud.close} backLabel="Back to Fragments">
         <EmailFragmentForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
       </CrudFormPage>
     );

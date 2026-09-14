@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, MenuItem, TextField } from '@exyconn/shell/components/ui';
 import { DataTable } from '@exyconn/shell/components/data/DataTable';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -19,6 +20,7 @@ interface ProjectTicketsPageProps {
  * the same ticket dialog the board opens, so there is one ticket screen, not two.
  */
 export function ProjectTicketsPage({ projectId }: Readonly<ProjectTicketsPageProps>) {
+  const t = useT();
   const { formatDate } = useSettings();
   const { data, loading, refetch } = useProjectTasksQuery({
     variables: { projectId },
@@ -56,8 +58,8 @@ export function ProjectTicketsPage({ projectId }: Readonly<ProjectTicketsPagePro
       <Flex direction="row" spacing={1.5} sx={{ mb: 2, flexWrap: 'wrap' }}>
         <TextField
           size="small"
-          label="Search"
-          placeholder="Summary or key…"
+          label={t('Search')}
+          placeholder={t('Summary or key…')}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           sx={{ minWidth: { sm: 220 }, width: { xs: '100%', sm: 'auto' } }}
@@ -65,27 +67,27 @@ export function ProjectTicketsPage({ projectId }: Readonly<ProjectTicketsPagePro
         <TextField
           select
           size="small"
-          label="Type"
+          label={t('Type')}
           value={type}
           onChange={(event) => setType(event.target.value)}
           sx={{ minWidth: 150 }}
         >
-          <MenuItem value={ANY}>All types</MenuItem>
+          <MenuItem value={ANY}>{t('All types')}</MenuItem>
           {Object.entries(TICKET_TYPES).map(([value, facet]) => (
             <MenuItem key={value} value={value}>
-              {facet.label}
+              {t(facet.label)}
             </MenuItem>
           ))}
         </TextField>
         <TextField
           select
           size="small"
-          label="Assignee"
+          label={t('Assignee')}
           value={assignee}
           onChange={(event) => setAssignee(event.target.value)}
           sx={{ minWidth: 180 }}
         >
-          <MenuItem value={ANY}>Anyone</MenuItem>
+          <MenuItem value={ANY}>{t('Anyone')}</MenuItem>
           {assignees.map((name) => (
             <MenuItem key={name} value={name}>
               {name}
@@ -95,7 +97,7 @@ export function ProjectTicketsPage({ projectId }: Readonly<ProjectTicketsPagePro
       </Flex>
 
       <DataTable
-        columns={ticketColumns(formatDate)}
+        columns={ticketColumns(formatDate, t)}
         rows={filtered}
         onRowClick={(row) => setOpenId(row.id)}
         emptyMessage="No tickets match."

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import UndoIcon from '@mui/icons-material/Undo';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Card, CardHeader, Typography } from '@exyconn/shell/components/ui';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
@@ -28,6 +29,7 @@ interface MyOffComputerTimeProps {
  * count, so the status chip is the most important column here.
  */
 export function MyOffComputerTime({ from, to, projects }: Readonly<MyOffComputerTimeProps>) {
+  const t = useT();
   const { formatDateTime } = useSettings();
   const notify = useNotify();
   const confirm = useConfirm();
@@ -44,7 +46,7 @@ export function MyOffComputerTime({ from, to, projects }: Readonly<MyOffComputer
     }
     const ok = await confirm({
       title: 'Withdraw this entry?',
-      message: `"${entry.note}" will be removed and never reviewed.`,
+      message: t('"{note}" will be removed and never reviewed.', { note: entry.note }),
       confirmText: 'Withdraw',
     });
     if (!ok) return;
@@ -84,7 +86,7 @@ export function MyOffComputerTime({ from, to, projects }: Readonly<MyOffComputer
   return (
     <Card sx={{ mt: 2 }}>
       <CardHeader
-        title="Off-computer time"
+        title={t('Off-computer time')}
         action={
           <Button
             size="small"
@@ -92,7 +94,7 @@ export function MyOffComputerTime({ from, to, projects }: Readonly<MyOffComputer
             startIcon={adding ? undefined : <AddIcon />}
             onClick={() => setAdding((open) => !open)}
           >
-            {adding ? 'Close' : 'Add time'}
+            {adding ? t('Close') : t('Add time')}
           </Button>
         }
       />
@@ -104,8 +106,9 @@ export function MyOffComputerTime({ from, to, projects }: Readonly<MyOffComputer
             mb: 2,
           }}
         >
-          Meetings, client visits and calls the tracker could not see. Every entry is reviewed
-          before it counts towards your hours.
+          {t(
+            'Meetings, client visits and calls the tracker could not see. Every entry is reviewed before it counts towards your hours.',
+          )}
         </Typography>
         {adding && (
           <Box sx={{ mb: 3 }}>

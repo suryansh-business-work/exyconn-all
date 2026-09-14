@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, IconButton, Link, Text } from '@exyconn/shell/components/ui';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
@@ -52,10 +53,11 @@ function AttachmentThumb({ file }: Readonly<{ file: AttachmentView }>) {
 
 /** The files on a ticket or a comment, as a link list with a thumbnail apiece. */
 export function AttachmentList({ files, onRemove, emptyText }: Readonly<AttachmentListProps>) {
+  const t = useT();
   if (files.length === 0) {
     return emptyText ? (
       <Text size="sm" color="text.secondary">
-        {emptyText}
+        {t(emptyText)}
       </Text>
     ) : null;
   }
@@ -73,14 +75,14 @@ export function AttachmentList({ files, onRemove, emptyText }: Readonly<Attachme
             </Link>
             {file.uploadedByName ? (
               <Text size="caption" color="text.secondary">
-                Added by {file.uploadedByName}
+                {t('Added by {name}', { name: file.uploadedByName })}
               </Text>
             ) : null}
           </Box>
           {onRemove ? (
             <IconButton
               size="small"
-              aria-label={`Remove ${file.name}`}
+              aria-label={t('Remove {name}', { name: file.name })}
               onClick={() => onRemove(file)}
             >
               <DeleteOutlineIcon fontSize="small" />

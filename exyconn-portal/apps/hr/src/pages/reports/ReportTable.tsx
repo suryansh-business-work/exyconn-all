@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import type { CsvColumn } from '@exyconn/shell/utils/csv';
@@ -20,6 +21,7 @@ export function ReportTable({
   onRefresh,
   previewLimit,
 }: Readonly<ReportTableProps>) {
+  const t = useT();
   const tableColumns: Column<{ id: string; row: unknown }>[] = columns.map((c) => ({
     key: c.header,
     label: c.header,
@@ -42,7 +44,10 @@ export function ReportTable({
       />
       {rows.length > previewLimit && (
         <Text size="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-          Showing the first {previewLimit} of {rows.length} rows — the export contains all of them.
+          {t('Showing the first {limit} of {total} rows — the export contains all of them.', {
+            limit: previewLimit,
+            total: rows.length,
+          })}
         </Text>
       )}
     </Box>

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Chip, Grid, Stack, Typography } from '@/components/ui';
 import { PageHeader } from '../layout/PageHeader';
 import { StatCard, type StatItem } from './StatCard';
@@ -33,6 +34,7 @@ export function ModuleDashboard({
   children,
   dialog,
 }: ModuleDashboardProps) {
+  const t = useT();
   const statCols = 12 / Math.min(Math.max(stats.length, 1), 4);
   return (
     <>
@@ -62,8 +64,10 @@ export function ModuleDashboard({
               mb: 0.5,
             }}
           >
-            <Typography variant="subtitle2">{chartTitle}</Typography>
-            <Chip label="Last 16 periods" size="small" variant="outlined" />
+            <Typography variant="subtitle2">
+              {chartTitle === undefined ? null : t(chartTitle)}
+            </Typography>
+            <Chip label={t('Last 16 periods')} size="small" variant="outlined" />
           </Stack>
           <Sparkline data={chartSeries} color={chartColor} height={96} />
         </Box>

@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { useT } from '@exyconn/i18n';
 import { Box, Text, Heading, Flex } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import CelebrationIcon from '@mui/icons-material/Celebration';
@@ -11,12 +12,13 @@ interface UpcomingHolidaysProps {
 
 /** Next few company holidays, soonest first. */
 export function UpcomingHolidays({ holidays, formatDate }: Readonly<UpcomingHolidaysProps>) {
+  const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
-      <Heading level={6}>Upcoming holidays</Heading>
+      <Heading level={6}>{t('Upcoming holidays')}</Heading>
       {holidays.length === 0 && (
         <Text size="sm" color="text.secondary">
-          No holidays scheduled ahead.
+          {t('No holidays scheduled ahead.')}
         </Text>
       )}
       {holidays.map((holiday) => (

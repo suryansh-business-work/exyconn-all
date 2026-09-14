@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
@@ -22,10 +23,14 @@ type Row = {
 
 /** Money left reads plainly; an overspend is the one thing on this page that needs acting on. */
 function VarianceCell({ variance }: Readonly<{ variance: number }>) {
+  const t = useT();
   const over = variance < 0;
+  const label = over
+    ? t('{amount} over', { amount: formatMoney(Math.abs(variance)) })
+    : formatMoney(variance);
   return (
     <Text weight="medium" color={over ? 'error.main' : 'text.primary'}>
-      {over ? `${formatMoney(Math.abs(variance))} over` : formatMoney(variance)}
+      {label}
     </Text>
   );
 }

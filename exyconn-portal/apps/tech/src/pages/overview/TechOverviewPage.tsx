@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import {
@@ -32,6 +33,7 @@ const healthAccent = (down: number, degraded: number): string => {
  * the one question the individual pages cannot: is any of it broken right now.
  */
 export function TechOverviewPage() {
+  const t = useT();
   const {
     data: statusData,
     loading,
@@ -65,7 +67,7 @@ export function TechOverviewPage() {
       series: (status?.daily ?? []).map((day) => day.uptimePercent),
     },
     {
-      label: `Email sent, ${OVERVIEW_DAYS}d`,
+      label: t('Email sent, {days}d', { days: OVERVIEW_DAYS }),
       value: String(email?.sent ?? 0),
       accent: email?.failed ? color.amber[500] : color.violet[400],
       series: (email?.days ?? []).map((day) => day.sent),
@@ -84,7 +86,7 @@ export function TechOverviewPage() {
       accent: color.red[200],
     },
     {
-      title: `Email by template, ${OVERVIEW_DAYS}d`,
+      title: t('Email by template, {days}d', { days: OVERVIEW_DAYS }),
       buckets: (email?.byTemplate ?? []).map((t) => ({ value: t.name, count: t.sent })),
       accent: color.violet[400],
     },

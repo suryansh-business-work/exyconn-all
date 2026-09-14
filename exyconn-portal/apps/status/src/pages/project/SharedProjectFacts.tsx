@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Card, Grid, Typography } from '@exyconn/shell/components/ui';
 
 interface Fact {
@@ -11,6 +12,8 @@ interface SharedProjectFactsProps {
 
 /** The project's headline facts, four to a row — dates, status, budget against tracked. */
 export function SharedProjectFacts({ facts }: Readonly<SharedProjectFactsProps>) {
+  // The labels arrive as English props from the page that builds the list.
+  const t = useT();
   return (
     <Grid container spacing={1.5}>
       {facts.map((fact) => (
@@ -28,7 +31,7 @@ export function SharedProjectFacts({ facts }: Readonly<SharedProjectFactsProps>)
                 color: 'text.secondary',
               }}
             >
-              {fact.label}
+              {t(fact.label)}
             </Typography>
             <Box>
               <Typography

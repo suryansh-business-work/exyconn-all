@@ -8,6 +8,7 @@ import {
   Typography,
 } from '@exyconn/shell/components/ui';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { useT } from '@exyconn/i18n';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
@@ -29,6 +30,7 @@ interface CommentThreadProps {
  * above has to fall at the same moment, or the page shows three comments and says four.
  */
 export function CommentThread({ postId }: Readonly<CommentThreadProps>) {
+  const t = useT();
   const notify = useNotify();
   const { data, loading, error } = useSocialCommentsQuery({ variables: { postId } });
   const [deleteComment] = useDeleteSocialCommentMutation({
@@ -58,7 +60,7 @@ export function CommentThread({ postId }: Readonly<CommentThreadProps>) {
           color: 'text.secondary',
         }}
       >
-        No comments yet.
+        {t('No comments yet.')}
       </Typography>
     );
   }
@@ -76,10 +78,10 @@ export function CommentThread({ postId }: Readonly<CommentThreadProps>) {
           >
             <AuthorLine author={comment.author} at={comment.createdAt} dense />
             {comment.canDelete && (
-              <Tooltip title="Delete comment">
+              <Tooltip title={t('Delete comment')}>
                 <IconButton
                   size="small"
-                  aria-label="Delete comment"
+                  aria-label={t('Delete comment')}
                   onClick={() => remove(comment.id)}
                 >
                   <DeleteOutlineIcon fontSize="small" />

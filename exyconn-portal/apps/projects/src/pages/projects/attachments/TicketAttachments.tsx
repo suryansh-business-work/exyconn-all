@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Divider, Text } from '@exyconn/shell/components/ui';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -39,6 +40,7 @@ export function TicketAttachments({
   files,
   onChanged,
 }: Readonly<TicketAttachmentsProps>) {
+  const t = useT();
   const confirm = useConfirm();
   const notify = useNotify();
   const [updateTask] = useUpdateTaskMutation();
@@ -58,7 +60,7 @@ export function TicketAttachments({
 
   const remove = async (file: AttachmentView) => {
     const ok = await confirm({
-      message: `Remove "${file.name}" from this ticket?`,
+      message: t('Remove "{name}" from this ticket?', { name: file.name }),
       confirmText: 'Remove',
     });
     if (ok) {
@@ -69,7 +71,7 @@ export function TicketAttachments({
   return (
     <Box>
       <Text size="label" sx={{ mb: 1 }}>
-        Attachments ({files.length})
+        {t('Attachments ({count})', { count: files.length })}
       </Text>
       <Divider sx={{ mb: 1.5 }} />
       <AttachmentList files={files} onRemove={remove} emptyText="Nothing attached yet." />

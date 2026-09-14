@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DownloadIcon from '@mui/icons-material/Download';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -42,6 +43,7 @@ function DetailRow({ label, value, strong }: { label: string; value: string; str
 
 /** Employee self-service: browse and inspect your monthly salary slips. */
 export function SalarySlipsPage() {
+  const t = useT();
   const { data, loading, refetch } = useMySalarySlipsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const { download, downloading } = usePayslipDownload();
@@ -107,12 +109,16 @@ export function SalarySlipsPage() {
       >
         {selected && (
           <Flex direction="column" spacing={1.5}>
-            <DetailRow label="Gross" value={formatMoney(selected.gross, selected.currency)} />
+            <DetailRow label={t('Gross')} value={formatMoney(selected.gross, selected.currency)} />
             <DetailRow
-              label="Deductions"
+              label={t('Deductions')}
               value={formatMoney(selected.deductions, selected.currency)}
             />
-            <DetailRow label="Net" value={formatMoney(selected.net, selected.currency)} strong />
+            <DetailRow
+              label={t('Net')}
+              value={formatMoney(selected.net, selected.currency)}
+              strong
+            />
             <Button
               startIcon={<DownloadIcon />}
               disabled={downloading}
@@ -120,7 +126,7 @@ export function SalarySlipsPage() {
                 download(selected.id).catch(() => undefined);
               }}
             >
-              {downloading ? 'Preparing…' : 'Download PDF'}
+              {downloading ? t('Preparing…') : t('Download PDF')}
             </Button>
           </Flex>
         )}

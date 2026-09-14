@@ -1,5 +1,6 @@
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
 import { actionsColumn, statusColumn, textColumn, type CrudGridContext } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import { Link } from '@exyconn/shell/components/ui';
 import type { ListLegalDocumentsPagedQuery } from '@exyconn/shell/graphql/generated';
 
@@ -10,6 +11,7 @@ export type PagedLegalDocumentRow =
 export type DocumentsGridContext = CrudGridContext<PagedLegalDocumentRow>;
 
 function FileLinkCell(params: Readonly<ICellRendererParams<PagedLegalDocumentRow>>) {
+  const t = useT();
   const row = params.data;
   if (!row) {
     return null;
@@ -19,7 +21,7 @@ function FileLinkCell(params: Readonly<ICellRendererParams<PagedLegalDocumentRow
   }
   return (
     <Link href={row.fileUrl} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()}>
-      Open
+      {t('Open')}
     </Link>
   );
 }

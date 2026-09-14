@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { panel } from '@exyconn/shell/components/glass/glass';
@@ -18,12 +19,13 @@ interface HrAnnouncementsProps {
 
 /** What is currently published to every employee. */
 export function HrAnnouncements({ rows, formatDate }: Readonly<HrAnnouncementsProps>) {
+  const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
-      <Heading level={6}>Live announcements</Heading>
+      <Heading level={6}>{t('Live announcements')}</Heading>
       {rows.length === 0 && (
         <Text size="sm" color="text.secondary">
-          Nothing published right now.
+          {t('Nothing published right now.')}
         </Text>
       )}
       {rows.map((row) => (

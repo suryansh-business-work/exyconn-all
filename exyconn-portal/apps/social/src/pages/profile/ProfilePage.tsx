@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, Skeleton, Stack, Typography } from '@exyconn/shell/components/ui';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
 import {
@@ -19,6 +20,7 @@ const PAGE_WIDTH = 720;
  * identical either way.
  */
 export function ProfilePage() {
+  const t = useT();
   const { userId } = useParams();
   const { user } = useAuth();
   const id = userId ?? user?.id ?? '';
@@ -55,7 +57,7 @@ export function ProfilePage() {
         {profile.data && <ProfileHeader profile={profile.data.socialProfile} />}
 
         <Typography variant="subtitle2" sx={{ pt: 1 }}>
-          Posts
+          {t('Posts')}
         </Typography>
         <PostList
           posts={page?.posts ?? []}
@@ -63,7 +65,7 @@ export function ProfilePage() {
           error={posts.error}
           loadingMore={posts.networkStatus === 3}
           onLoadMore={cursor ? loadMore : undefined}
-          emptyMessage={isMe ? 'You have not posted anything yet.' : 'Nothing posted yet.'}
+          emptyMessage={isMe ? t('You have not posted anything yet.') : t('Nothing posted yet.')}
         />
       </Stack>
     </Box>

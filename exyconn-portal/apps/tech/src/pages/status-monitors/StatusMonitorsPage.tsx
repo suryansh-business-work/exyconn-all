@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -18,12 +19,13 @@ import {
 
 /** Tech module — the catalogue of endpoints the public status page reports on. */
 export function StatusMonitorsPage() {
+  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListStatusMonitorsStatsQuery();
   const [deleteMonitor] = useDeleteStatusMonitorMutation();
   const crud = useCrudResource<StatusMonitorRow, PagedStatusMonitorRow>({
     label: 'Status monitor',
     onDelete: (row) => deleteMonitor({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Stop monitoring "${row.name}"?`,
+    confirmMessage: (row) => t('Stop monitoring "{name}"?', { name: row.name }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

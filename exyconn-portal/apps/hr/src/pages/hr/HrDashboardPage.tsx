@@ -1,9 +1,7 @@
 import { useMemo } from 'react';
-import { Box, Chip, Grid, Flex, Text, Paragraph, color } from '@exyconn/shell/components/ui';
+import { Box, Grid } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
-import { LineChart } from '@exyconn/shell/components/dashboard/LineChart';
-import { panel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { upcomingHolidays } from '@exyconn/shell/utils/upcomingHolidays';
 import {
@@ -37,6 +35,7 @@ import { HrAnnouncements } from './dashboard/HrAnnouncements';
 import { HrAnniversaries } from './dashboard/HrAnniversaries';
 import { HrBirthdays } from './dashboard/HrBirthdays';
 import { HrProbations } from './dashboard/HrProbations';
+import { HrHeadcountChart } from './dashboard/HrHeadcountChart';
 
 const policy = { fetchPolicy: 'cache-and-network' } as const;
 
@@ -153,23 +152,7 @@ export function HrDashboardPage() {
             md: 7,
           }}
         >
-          <Box sx={[panel, { height: '100%' }]}>
-            <Flex direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-              <Text size="label">Employee count over time</Text>
-              <Chip label={`${headcount.length} months`} size="small" variant="outlined" />
-            </Flex>
-            {headcount.length > 1 ? (
-              <LineChart
-                labels={headcount.map((p) => p.label)}
-                data={headcount.map((p) => p.count)}
-                color={color.blue[600]}
-              />
-            ) : (
-              <Paragraph color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
-                {loading ? 'Loading…' : 'Not enough history to chart yet.'}
-              </Paragraph>
-            )}
-          </Box>
+          <HrHeadcountChart points={headcount} loading={loading} />
         </Grid>
         <Grid
           size={{

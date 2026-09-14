@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -23,6 +24,7 @@ interface SendContractFormProps {
 
 /** Emails a contract to a counterparty via the active SMTP config. */
 export function SendContractForm({ contract, onDone, onCancel }: SendContractFormProps) {
+  const t = useT();
   const notify = useNotify();
   const [sendContract] = useSendContractMutation();
   const methods = useForm<Values>({
@@ -35,7 +37,7 @@ export function SendContractForm({ contract, onDone, onCancel }: SendContractFor
       await sendContract({
         variables: { id: contract.id, email: values.email, message: values.message || null },
       });
-      notify(`Contract sent to ${values.email}`);
+      notify(t('Contract sent to {email}', { email: values.email }));
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Send failed', 'error');
@@ -51,7 +53,7 @@ export function SendContractForm({ contract, onDone, onCancel }: SendContractFor
       submitLabel="Send"
     >
       <Text size="sm" color="text.secondary">
-        Sending “{contract.title}” to {contract.party}.
+        {t('Sending “{title}” to {party}.', { title: contract.title, party: contract.party })}
       </Text>
       <RhfTextField name="email" label="Recipient email" />
       <RhfTextField name="message" label="Message (optional)" multiline minRows={3} />

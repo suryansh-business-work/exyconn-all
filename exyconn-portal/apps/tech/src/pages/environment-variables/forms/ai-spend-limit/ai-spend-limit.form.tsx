@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -37,6 +38,7 @@ interface AiSpendLimitFormProps {
  * monthly total without policing anybody's day, or the other way round.
  */
 export function AiSpendLimitForm({ initial, onDone, onCancel }: Readonly<AiSpendLimitFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [saveLimit] = useSaveAiSpendLimitMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -67,8 +69,9 @@ export function AiSpendLimitForm({ initial, onDone, onCancel }: Readonly<AiSpend
       submitLabel="Save budget"
     >
       <Text size="sm" color="text.secondary">
-        A run is refused before it is sent once a cap is reached, and the person who asked for it is
-        told which cap and what has already gone on it. Leave a cap at 0 to switch it off.
+        {t(
+          'A run is refused before it is sent once a cap is reached, and the person who asked for it is told which cap and what has already gone on it. Leave a cap at 0 to switch it off.',
+        )}
       </Text>
       <RhfSwitch name="enabled" label="Enforce the AI budget" />
       <RhfTextField

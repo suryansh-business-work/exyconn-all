@@ -1,4 +1,5 @@
 import SmartToyIcon from '@mui/icons-material/SmartToy';
+import { useT } from '@exyconn/i18n';
 import { Button, Flex, MenuItem, TextField } from '@exyconn/shell/components/ui';
 import { LOG_FILTERS, enumLabel, type LogFilterSpec, type LogFilterValues } from './logs.constants';
 
@@ -16,19 +17,20 @@ interface FilterSelectProps {
 }
 
 function FilterSelect({ spec, value, onChange }: Readonly<FilterSelectProps>) {
+  const t = useT();
   return (
     <TextField
       select
       size="small"
-      label={spec.label}
+      label={t(spec.label)}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       sx={{ minWidth: 150 }}
     >
-      <MenuItem value="">All</MenuItem>
+      <MenuItem value="">{t('All')}</MenuItem>
       {spec.values.map((option) => (
         <MenuItem key={option} value={option}>
-          {enumLabel(option)}
+          {t(enumLabel(option))}
         </MenuItem>
       ))}
     </TextField>
@@ -37,6 +39,7 @@ function FilterSelect({ spec, value, onChange }: Readonly<FilterSelectProps>) {
 
 /** Source, level and status scopes, and the one-click hand-off of every open error to Claude. */
 export function LogsToolbar({ filters, onChange, onCopyOpenErrors, copying }: Readonly<Props>) {
+  const t = useT();
   return (
     <Flex direction="row" spacing={1.5} sx={{ flexWrap: 'wrap', alignItems: 'center' }}>
       {LOG_FILTERS.map((spec) => (
@@ -53,7 +56,7 @@ export function LogsToolbar({ filters, onChange, onCopyOpenErrors, copying }: Re
         onClick={onCopyOpenErrors}
         disabled={copying}
       >
-        Copy open errors for Claude
+        {t('Copy open errors for Claude')}
       </Button>
     </Flex>
   );

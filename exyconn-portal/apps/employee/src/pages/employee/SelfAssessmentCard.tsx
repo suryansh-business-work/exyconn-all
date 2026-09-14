@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, Heading, Text, TextField } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { panel } from '@exyconn/shell/components/glass/glass';
@@ -22,6 +23,7 @@ interface SelfAssessmentCardProps {
 
 /** One appraisal cycle: what the employee wrote, what the manager wrote, the outcome. */
 export function SelfAssessmentCard({ review, onSubmit }: Readonly<SelfAssessmentCardProps>) {
+  const t = useT();
   const [text, setText] = useState(review.selfAssessment);
   const [saving, setSaving] = useState(false);
   const open = review.status === 'OPEN';
@@ -45,12 +47,12 @@ export function SelfAssessmentCard({ review, onSubmit }: Readonly<SelfAssessment
 
       {review.score !== null && review.score !== undefined && (
         <Text size="sm" color="text.secondary" sx={{ mt: 0.5 }}>
-          Score: {review.score}/10
+          {t('Score: {score}/10', { score: review.score })}
         </Text>
       )}
 
       <Text weight="medium" sx={{ mt: 2 }}>
-        Your self-assessment
+        {t('Your self-assessment')}
       </Text>
       {open ? (
         <>
@@ -60,11 +62,11 @@ export function SelfAssessmentCard({ review, onSubmit }: Readonly<SelfAssessment
             minRows={4}
             value={text}
             onChange={(event) => setText(event.target.value)}
-            placeholder="What did you deliver this cycle?"
+            placeholder={t('What did you deliver this cycle?')}
             sx={{ mt: 1 }}
           />
           <Button sx={{ mt: 1 }} disabled={saving || text.trim().length === 0} onClick={submit}>
-            {saving ? 'Submitting…' : 'Submit self-assessment'}
+            {saving ? t('Submitting…') : t('Submit self-assessment')}
           </Button>
         </>
       ) : (
@@ -74,16 +76,16 @@ export function SelfAssessmentCard({ review, onSubmit }: Readonly<SelfAssessment
       )}
 
       <Text weight="medium" sx={{ mt: 2 }}>
-        Manager assessment
+        {t('Manager assessment')}
       </Text>
       <Text size="sm" sx={{ whiteSpace: 'pre-line' }}>
-        {review.managerAssessment || 'Not shared yet.'}
+        {review.managerAssessment || t('Not shared yet.')}
       </Text>
 
       {review.actionPlan && (
         <>
           <Text weight="medium" sx={{ mt: 2 }}>
-            Action plan
+            {t('Action plan')}
           </Text>
           <Text size="sm" sx={{ whiteSpace: 'pre-line' }}>
             {review.actionPlan}

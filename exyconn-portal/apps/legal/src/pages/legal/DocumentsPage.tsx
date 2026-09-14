@@ -1,4 +1,5 @@
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import {
@@ -17,13 +18,14 @@ import {
 
 /** Legal → Documents: repository of legal documents with CRUD. */
 export function DocumentsPage() {
+  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListLegalDocumentsStatsQuery();
   const [deleteDocument] = useDeleteLegalDocumentMutation();
   const crud = useCrudResource<LegalDocumentRow, PagedLegalDocumentRow>({
     label: 'Document',
     onDelete: (row) => deleteDocument({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete document "${row.title}"?`,
+    confirmMessage: (row) => t('Delete document "{title}"?', { title: row.title }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

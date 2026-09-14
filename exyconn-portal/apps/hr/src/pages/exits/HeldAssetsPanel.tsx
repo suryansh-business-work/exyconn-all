@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { useExitRecordHeldAssetsQuery } from '@exyconn/shell/graphql/generated';
@@ -14,6 +15,7 @@ interface HeldAssetsPanelProps {
  * truth, and HR ticks the box once the register agrees.
  */
 export function HeldAssetsPanel({ exitId, assetsReturned }: Readonly<HeldAssetsPanelProps>) {
+  const t = useT();
   const { data, loading } = useExitRecordHeldAssetsQuery({
     variables: { id: exitId },
     fetchPolicy: 'cache-and-network',
@@ -21,20 +23,24 @@ export function HeldAssetsPanel({ exitId, assetsReturned }: Readonly<HeldAssetsP
   const assets = data?.getExitRecord.heldAssets ?? [];
 
   if (loading && !data) {
-    return <Text color="text.secondary">Checking the asset register…</Text>;
+    return <Text color="text.secondary">{t('Checking the asset register…')}</Text>;
   }
 
   let verdict = (
     <Alert severity="info">
-      {assets.length} asset(s) still assigned — collect them before clearance.
+      {t('{count} asset(s) still assigned — collect them before clearance.', {
+        count: assets.length,
+      })}
     </Alert>
   );
   if (assets.length === 0) {
-    verdict = <Alert severity="success">Nothing outstanding in the asset register.</Alert>;
+    verdict = <Alert severity="success">{t('Nothing outstanding in the asset register.')}</Alert>;
   } else if (assetsReturned) {
     verdict = (
       <Alert severity="warning">
-        Marked as returned, but {assets.length} asset(s) are still assigned in the register.
+        {t('Marked as returned, but {count} asset(s) are still assigned in the register.', {
+          count: assets.length,
+        })}
       </Alert>
     );
   }
@@ -42,7 +48,7 @@ export function HeldAssetsPanel({ exitId, assetsReturned }: Readonly<HeldAssetsP
   return (
     <Box sx={{ mb: 2 }}>
       <Heading level={6} sx={{ mb: 1 }}>
-        Assets held
+        {t('Assets held')}
       </Heading>
       {verdict}
       {assets.map((asset) => (

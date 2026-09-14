@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
@@ -41,6 +42,7 @@ interface TaxRegimePanelProps {
  * wrong quietly.
  */
 export function TaxRegimePanel({ regimes, loading, refetch }: Readonly<TaxRegimePanelProps>) {
+  const t = useT();
   const [deleteRegime] = useDeleteTaxRegimeMutation();
   const crud = useCrudResource<TaxRegimeRow>({
     label: 'Tax regime',
@@ -53,14 +55,15 @@ export function TaxRegimePanel({ regimes, loading, refetch }: Readonly<TaxRegime
   return (
     <Box sx={[panel, { mb: 1.5 }]}>
       <Flex direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
-        <Text weight="medium">Regimes</Text>
+        <Text weight="medium">{t('Regimes')}</Text>
         <Button size="small" onClick={crud.openCreate}>
-          New regime
+          {t('New regime')}
         </Button>
       </Flex>
       <Text size="sm" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-        The standard deduction and the rebate that go with each table. Payroll Settings names which
-        regime the next run applies.
+        {t(
+          'The standard deduction and the rebate that go with each table. Payroll Settings names which regime the next run applies.',
+        )}
       </Text>
       <DataTable
         columns={REGIME_COLUMNS}
@@ -73,7 +76,7 @@ export function TaxRegimePanel({ regimes, loading, refetch }: Readonly<TaxRegime
       />
       <CrudDialog
         open={crud.open}
-        title={crud.editing ? 'Edit tax regime' : 'New tax regime'}
+        title={crud.editing ? t('Edit tax regime') : t('New tax regime')}
         onClose={crud.close}
       >
         <TaxRegimeForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />

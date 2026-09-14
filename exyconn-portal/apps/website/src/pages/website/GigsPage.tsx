@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -13,6 +14,7 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Website CMS — freelance gigs published on the public site (server-side grid). */
 export function GigsPage() {
+  const t = useT();
   // Stat cards still summarise all gigs; the grid itself is server-paged.
   const { data } = useListGigsQuery();
   const [deleteGig] = useDeleteGigMutation();
@@ -20,7 +22,7 @@ export function GigsPage() {
   const crud = useCrudResource<GigRow, PagedGigRow>({
     label: 'Gig',
     onDelete: (row) => deleteGig({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete gig ${row.title}?`,
+    confirmMessage: (row) => t('Delete gig {title}?', { title: row.title }),
   });
   const fetchRows = usePagedFetcher(
     ListGigsPagedDocument,

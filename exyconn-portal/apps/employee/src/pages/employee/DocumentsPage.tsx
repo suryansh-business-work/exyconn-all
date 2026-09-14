@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Link, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -11,6 +12,7 @@ type Row = { id: string; kind: string; title: string; url: string; issuedOn: str
 
 /** Employee self-service: the documents HR has issued to this employee. */
 export function DocumentsPage() {
+  const t = useT();
   const { data, loading, refetch } = useMyDocumentsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const rows = (data?.myDocuments ?? []) as Row[];
@@ -24,7 +26,7 @@ export function DocumentsPage() {
       label: 'File',
       render: (d) => (
         <Link href={d.url} target="_blank" rel="noopener noreferrer">
-          Open
+          {t('Open')}
         </Link>
       ),
     },

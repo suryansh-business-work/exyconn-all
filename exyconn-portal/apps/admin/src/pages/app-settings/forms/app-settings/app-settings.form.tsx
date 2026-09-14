@@ -5,7 +5,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useMemo } from 'react';
-import { endonymOf, isValidLocale, timezoneOptions } from '@exyconn/i18n';
+import { endonymOf, isValidLocale, timezoneOptions, useT } from '@exyconn/i18n';
 import {
   RhfAutocomplete,
   RhfChipsInput,
@@ -64,6 +64,7 @@ function DefaultLanguageField() {
 
 /** "Now" through the values currently in the form, so an edit is visible before it is saved. */
 function AppSettingsPreview() {
+  const t = useT();
   const { control } = useFormContext<AppSettingsFormValues>();
   const [dateFormat, timeFormat, timezone] = useWatch({
     control,
@@ -72,19 +73,19 @@ function AppSettingsPreview() {
   const complete = Boolean(dateFormat && timeFormat) && isTimezone(timezone);
   const sample = complete
     ? formatInTimeZone(new Date(), timezone, `${dateFormat} ${timeFormat}`)
-    : 'Pick a date format, a time format and a timezone';
+    : t('Pick a date format, a time format and a timezone');
 
   return (
     <Box
-      sx={(t) => ({
+      sx={(theme) => ({
         p: 2,
         borderRadius: 1,
-        border: `1px dashed ${t.palette.divider}`,
-        background: t.palette.action.hover,
+        border: `1px dashed ${theme.palette.divider}`,
+        background: theme.palette.action.hover,
       })}
     >
       <Text size="caption" color="text.secondary" sx={{ display: 'block' }}>
-        Right now, as every portal will show it
+        {t('Right now, as every portal will show it')}
       </Text>
       <Text weight="medium" data-testid="app-settings-preview">
         {sample}

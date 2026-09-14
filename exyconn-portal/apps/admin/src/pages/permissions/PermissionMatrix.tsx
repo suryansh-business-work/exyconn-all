@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Divider, Text } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
@@ -13,6 +14,7 @@ import { PermissionRow } from './PermissionRow';
 
 /** What one role may do in every module, one row per module. */
 export function PermissionMatrix({ role }: Readonly<{ role: Role }>) {
+  const t = useT();
   const notify = useNotify();
   const modules = useListPermissionModulesQuery({ fetchPolicy: 'cache-and-network' });
   const rows = useListRolePermissionsQuery({ fetchPolicy: 'cache-and-network' });
@@ -30,10 +32,8 @@ export function PermissionMatrix({ role }: Readonly<{ role: Role }>) {
   const save = async (module: string, actions: PermissionAction[]) => {
     try {
       await setPermission({ variables: { role, module, actions } });
-      notify(
-        `${role} on ${module}: ${actions.length ? actions.join(', ') : 'no access'}`,
-        'success',
-      );
+      const summary = actions.length > 0 ? actions.join(', ') : t('no access');
+      notify(t('{role} on {module}: {summary}', { role, module, summary }), 'success');
       await rows.refetch();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not save', 'error');
@@ -43,7 +43,7 @@ export function PermissionMatrix({ role }: Readonly<{ role: Role }>) {
   const reset = async (module: string) => {
     try {
       await clearPermission({ variables: { role, module } });
-      notify(`${role} on ${module}: back to default`, 'success');
+      notify(t('{role} on {module}: back to default', { role, module }), 'success');
       await rows.refetch();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not reset', 'error');
@@ -55,14 +55,14 @@ export function PermissionMatrix({ role }: Readonly<{ role: Role }>) {
   return (
     <Box>
       <Text size="sm" color="text.secondary" sx={{ mb: 1 }}>
-        A module only appears for roles that can already open it; ADMIN always has everything.
-        &ldquo;Default&rdquo; means the role can do everything in that module — save a row to
-        restrict it, reset to go back.
+        {t(
+          'A module only appears for roles that can already open it; ADMIN always has everything. “Default” means the role can do everything in that module — save a row to restrict it, reset to go back.',
+        )}
       </Text>
       <Divider />
       {moduleNames.length === 0 && (
         <Text size="sm" color="text.secondary" sx={{ py: 2 }}>
-          {modules.loading ? 'Loading…' : 'No modules registered.'}
+          {modules.loading ? t('Loading…') : t('No modules registered.')}
         </Text>
       )}
       {moduleNames.map((module) => (

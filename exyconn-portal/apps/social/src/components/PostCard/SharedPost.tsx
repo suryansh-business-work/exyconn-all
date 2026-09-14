@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CARD_RADIUS, Box, Typography } from '@exyconn/shell/components/ui';
 import type { SocialPostFieldsFragment } from '@exyconn/shell/graphql/generated';
 import { AuthorLine } from '../AuthorLine';
@@ -16,6 +17,7 @@ interface SharedPostProps {
  * is one tap away on its author's byline.
  */
 export function SharedPost({ original }: Readonly<SharedPostProps>) {
+  const t = useT();
   return (
     <Box
       sx={{
@@ -36,7 +38,7 @@ export function SharedPost({ original }: Readonly<SharedPostProps>) {
           mt: 1,
         }}
       >
-        Originally posted
+        {t('Originally posted')}
       </Typography>
       <PostBody body={original.body} imageUrl={original.imageUrl} />
     </Box>

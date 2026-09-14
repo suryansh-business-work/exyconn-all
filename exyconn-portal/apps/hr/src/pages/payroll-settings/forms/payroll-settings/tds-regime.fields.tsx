@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';
@@ -11,6 +12,7 @@ import { useListTaxRegimesQuery } from '@exyconn/shell/graphql/generated';
  * offered here without a release.
  */
 export function TdsRegimeFields() {
+  const t = useT();
   const { data, loading } = useListTaxRegimesQuery({ fetchPolicy: 'cache-and-network' });
   const regimes = data?.listTaxRegimes ?? [];
   const options: SelectOption[] = regimes.map((regime) => ({
@@ -28,7 +30,7 @@ export function TdsRegimeFields() {
       />
       {!loading && regimes.length === 0 && (
         <Text size="sm" color="warning.main">
-          No regimes on file yet — add one in HR › Tax Slabs, or nothing will be withheld.
+          {t('No regimes on file yet — add one in HR › Tax Slabs, or nothing will be withheld.')}
         </Text>
       )}
       <RhfTextField

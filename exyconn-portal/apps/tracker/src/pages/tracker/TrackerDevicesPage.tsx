@@ -117,8 +117,8 @@ export function TrackerDevicesPage() {
         actions={[
           {
             icon: <BlockIcon fontSize="small" />,
-            tooltip: t('Revoke device'),
-            ariaLabel: t('revoke device'),
+            tooltip: 'Revoke device',
+            ariaLabel: 'revoke device',
             color: 'error',
             onClick: handleRevoke,
           },

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Chip, Flex, Heading } from '@exyconn/shell/components/ui';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
@@ -28,6 +29,7 @@ import { ProjectHealthPage } from './health';
  * somebody else can open.
  */
 export function ProjectWorkspacePage() {
+  const t = useT();
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const { data } = useGetProjectQuery({ variables: { id }, skip: id === '' });
@@ -103,9 +105,9 @@ export function ProjectWorkspacePage() {
           onClick={() => navigate('/projects/list')}
           size="small"
         >
-          Projects
+          {t('Projects')}
         </Button>
-        <Heading level={5}>{project?.name ?? 'Project'}</Heading>
+        <Heading level={5}>{project?.name ?? t('Project')}</Heading>
         {project?.key ? <Chip size="small" label={project.key} /> : null}
         {project?.status ? <Chip size="small" label={project.status} /> : null}
         {project?.clientName ? (

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -26,6 +27,7 @@ import {
  * inventory be valued at what it cost rather than at what we hope to sell it for.
  */
 export function PurchaseOrdersPage() {
+  const t = useT();
   const { formatDate } = useSettings();
   const [receiving, setReceiving] = useState<PurchaseOrderRow | null>(null);
   const { data: statsData, refetch: refetchStats } = useListPurchaseOrdersStatsQuery();
@@ -34,7 +36,8 @@ export function PurchaseOrdersPage() {
   const crud = useCrudResource<PurchaseOrderRow, PurchaseOrderRow>({
     label: 'Purchase order',
     onDelete: (row) => deleteOrder({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete ${row.number}? Stock already received stays where it is.`,
+    confirmMessage: (row) =>
+      t('Delete {number}? Stock already received stays where it is.', { number: row.number }),
     refetch: refetchStats,
   });
 
@@ -91,7 +94,7 @@ export function PurchaseOrdersPage() {
       context={gridContext}
       searchPlaceholder="Search purchase orders…"
       extraDialogs={
-        <CrudDialog open={Boolean(receiving)} title="Book stock in" onClose={closeReceive}>
+        <CrudDialog open={Boolean(receiving)} title={t('Book stock in')} onClose={closeReceive}>
           {receiving && (
             <ReceiveOrderForm
               order={receiving}

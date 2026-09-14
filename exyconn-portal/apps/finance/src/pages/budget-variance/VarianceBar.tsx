@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, LinearProgress, Text } from '@exyconn/shell/components/ui';
 
 /** Above this share of the budget, a centre is worth looking at before the month ends. */
@@ -17,10 +18,11 @@ function colourFor(utilisation: number): 'success' | 'warning' | 'error' {
 
 /** How much of a centre's budget is gone, as a bar plus the number it is drawn from. */
 export function VarianceBar({ utilisation }: Readonly<Props>) {
+  const t = useT();
   if (utilisation === null) {
     return (
       <Text size="caption" color="text.secondary">
-        No budget set
+        {t('No budget set')}
       </Text>
     );
   }
@@ -35,7 +37,7 @@ export function VarianceBar({ utilisation }: Readonly<Props>) {
         sx={{ height: 6, borderRadius: 3 }}
       />
       <Text size="caption" color="text.secondary">
-        {utilisation.toFixed(0)}% used
+        {t('{percent}% used', { percent: utilisation.toFixed(0) })}
       </Text>
     </Box>
   );

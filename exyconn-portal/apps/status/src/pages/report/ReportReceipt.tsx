@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useT } from '@exyconn/i18n';
 import {
   CARD_RADIUS,
   Box,
@@ -18,6 +19,7 @@ interface ReportReceiptProps {
 
 /** Confirmation after a report is filed: the reference, and what happens next. */
 export function ReportReceipt({ reference, onAnother }: Readonly<ReportReceiptProps>) {
+  const t = useT();
   const navigate = useNavigate();
 
   return (
@@ -30,7 +32,7 @@ export function ReportReceipt({ reference, onAnother }: Readonly<ReportReceiptPr
           mt: 1,
         }}
       >
-        Thank you — your report is with our tech team
+        {t('Thank you — your report is with our tech team')}
       </Typography>
       <Typography
         variant="body1"
@@ -39,7 +41,7 @@ export function ReportReceipt({ reference, onAnother }: Readonly<ReportReceiptPr
           mt: 1,
         }}
       >
-        Quote this reference if you need to follow it up.
+        {t('Quote this reference if you need to follow it up.')}
       </Typography>
       <Box
         sx={{
@@ -58,10 +60,10 @@ export function ReportReceipt({ reference, onAnother }: Readonly<ReportReceiptPr
       </Box>
       <Flex justifyContent="center" spacing={1.5}>
         <Button variant="contained" onClick={() => navigate('/')}>
-          Back to status
+          {t('Back to status')}
         </Button>
         <Button variant="outlined" onClick={onAnother}>
-          Report another problem
+          {t('Report another problem')}
         </Button>
       </Flex>
     </Card>

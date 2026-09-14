@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
@@ -17,6 +18,7 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** CRM module — leads & pipeline dashboard with a server-side leads grid. */
 export function CrmPage() {
+  const t = useT();
   const navigate = useNavigate();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListLeadsStatsQuery();
@@ -25,7 +27,7 @@ export function CrmPage() {
   const crud = useCrudResource<LeadRow, PagedLeadRow>({
     label: 'Lead',
     onDelete: (row) => deleteLead({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete lead "${row.name}"?`,
+    confirmMessage: (row) => t('Delete lead "{name}"?', { name: row.name }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -72,7 +74,7 @@ export function CrmPage() {
       context={gridContext}
       searchPlaceholder="Search leads…"
       extraDialogs={
-        <CrudDialog open={Boolean(converting)} title="Convert lead" onClose={closeConvert}>
+        <CrudDialog open={Boolean(converting)} title={t('Convert lead')} onClose={closeConvert}>
           {converting && (
             <ConvertLeadForm lead={converting} onCancel={closeConvert} onDone={onConverted} />
           )}

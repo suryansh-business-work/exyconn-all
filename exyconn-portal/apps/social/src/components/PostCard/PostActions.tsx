@@ -1,4 +1,5 @@
 import { Link as RouterLink } from 'react-router-dom';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { Button, Stack } from '@exyconn/shell/components/ui';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -15,9 +16,15 @@ interface PostActionsProps {
   onShare: () => void;
 }
 
+/** The translator, as this module's helper receives it. */
+type Translate = (source: string, values?: Interpolations) => string;
+
 /** A count is only worth printing once there is one. */
-function label(text: string, count: number): string {
-  return count > 0 ? `${text} · ${count}` : text;
+function label(text: string, count: number, t: Translate): string {
+  if (count === 0) {
+    return t(text);
+  }
+  return t('{action} · {count}', { action: t(text), count });
 }
 
 /**
@@ -35,6 +42,7 @@ export function PostActions({
   onLike,
   onShare,
 }: Readonly<PostActionsProps>) {
+  const t = useT();
   return (
     <Stack direction="row" spacing={1} sx={{ mt: 1.5 }}>
       <Button
@@ -44,7 +52,7 @@ export function PostActions({
         onClick={onLike}
         aria-pressed={likedByMe}
       >
-        {label('Like', likeCount)}
+        {label('Like', likeCount, t)}
       </Button>
       <Button
         size="small"
@@ -53,10 +61,10 @@ export function PostActions({
         component={RouterLink}
         to={`/social/posts/${postId}`}
       >
-        {label('Comment', commentCount)}
+        {label('Comment', commentCount, t)}
       </Button>
       <Button size="small" color="inherit" startIcon={<ShareIcon />} onClick={onShare}>
-        {label('Share', shareCount)}
+        {label('Share', shareCount, t)}
       </Button>
     </Stack>
   );

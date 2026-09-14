@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import {
@@ -27,6 +28,7 @@ const USD_DIGITS = 2;
 
 /** AI → Overview: what has been run, what it cost, what is still running and what failed. */
 export function AiOverviewPage() {
+  const t = useT();
   const { data: jobStatsData } = useListAiJobsStatsQuery();
   const { data: promptStatsData } = useListPromptsStatsQuery();
   const { data: jobsData, loading, refetch } = useListAiJobsQuery();
@@ -48,8 +50,8 @@ export function AiOverviewPage() {
 
   const capLabel =
     limit?.enabled && limit.monthlyUsdCap > 0
-      ? `of $${limit.monthlyUsdCap.toFixed(USD_DIGITS)} cap`
-      : 'no cap set';
+      ? t('of {cap} cap', { cap: `$${limit.monthlyUsdCap.toFixed(USD_DIGITS)}` })
+      : t('no cap set');
 
   const statItems: StatItem[] = [
     { label: 'Jobs', value: String(statTotal(jobStats)), accent: color.blue[400] },
@@ -64,7 +66,7 @@ export function AiOverviewPage() {
       accent: color.amber[500],
     },
     {
-      label: `This month · ${capLabel}`,
+      label: t('This month · {cap}', { cap: capLabel }),
       value: `$${spentThisMonth.toFixed(USD_DIGITS)}`,
       accent: color.green[500],
     },

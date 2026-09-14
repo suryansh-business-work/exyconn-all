@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -35,6 +36,7 @@ const columns: Column<TrackerBuildRow>[] = [
  * are posted to the Slack channels chosen in Settings.
  */
 export function TrackerBuildPage() {
+  const t = useT();
   const [starting, setStarting] = useState(false);
   const builds = useListTrackerBuildsQuery({ fetchPolicy: 'cache-and-network' });
   const settings = useTrackerBuildSettingsQuery({ fetchPolicy: 'cache-and-network' });
@@ -52,7 +54,7 @@ export function TrackerBuildPage() {
       <CrudFormPage
         title="Create tracker build"
         onBack={() => setStarting(false)}
-        backLabel="Back to Tracker Build"
+        backLabel={t('Back to Tracker Build')}
       >
         <StartBuildForm
           channelCount={channelCount}
@@ -75,7 +77,7 @@ export function TrackerBuildPage() {
         <Text size="sm" color="text.secondary" sx={{ mb: 2 }}>
           {builds.error
             ? builds.error.message
-            : 'The most recent runs of the tracker build workflow.'}
+            : t('The most recent runs of the tracker build workflow.')}
         </Text>
         <DataTable
           columns={columns}

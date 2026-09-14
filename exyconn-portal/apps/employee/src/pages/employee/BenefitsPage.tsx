@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Link, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -20,6 +21,7 @@ type Row = {
 
 /** Employee self-service: insurance, PF, gratuity and other company benefits. */
 export function BenefitsPage() {
+  const t = useT();
   const { data, loading, refetch } = useMyBenefitsQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const rows = (data?.myBenefits ?? []) as Row[];
@@ -41,7 +43,7 @@ export function BenefitsPage() {
       render: (b) =>
         b.documentUrl ? (
           <Link href={b.documentUrl} target="_blank" rel="noopener noreferrer">
-            Open
+            {t('Open')}
           </Link>
         ) : (
           '—'

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Card, Grid, Typography, color } from '@exyconn/shell/components/ui';
 import { LineChart } from '@exyconn/shell/components/dashboard/LineChart';
 import { formatWith } from '@exyconn/shell/utils/date';
@@ -44,6 +45,7 @@ function ChartPanel({ title, caption, labels, data, color }: Readonly<ChartPanel
 
 /** Daily uptime and latency across every monitored service. */
 export function StatusCharts({ daily }: Readonly<StatusChartsProps>) {
+  const t = useT();
   const measured = daily.filter((day) => day.checks > 0);
 
   if (measured.length === 0) {
@@ -55,7 +57,7 @@ export function StatusCharts({ daily }: Readonly<StatusChartsProps>) {
             color: 'text.secondary',
           }}
         >
-          Daily charts appear once the monitor has collected a full day of checks.
+          {t('Daily charts appear once the monitor has collected a full day of checks.')}
         </Typography>
       </Card>
     );
@@ -72,8 +74,8 @@ export function StatusCharts({ daily }: Readonly<StatusChartsProps>) {
         }}
       >
         <ChartPanel
-          title="Daily uptime"
-          caption="Share of checks that succeeded, per day"
+          title={t('Daily uptime')}
+          caption={t('Share of checks that succeeded, per day')}
           labels={labels}
           data={measured.map((day) => day.uptimePercent)}
           color={color.green[500]}
@@ -86,8 +88,8 @@ export function StatusCharts({ daily }: Readonly<StatusChartsProps>) {
         }}
       >
         <ChartPanel
-          title="Average response time"
-          caption="Mean round trip across all services, in milliseconds"
+          title={t('Average response time')}
+          caption={t('Mean round trip across all services, in milliseconds')}
           labels={labels}
           data={measured.map((day) => day.avgResponseMs)}
           color={color.blue[600]}

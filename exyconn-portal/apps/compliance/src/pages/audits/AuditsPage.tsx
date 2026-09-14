@@ -1,4 +1,5 @@
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -14,13 +15,15 @@ import { AUDIT_COLUMNS, type PagedAuditRow, type AuditsGridContext } from './aud
 
 /** The audit programme (clause 9.2): what will be audited, what was, and what it found. */
 export function AuditsPage() {
+  const t = useT();
   const { data: statsData, refetch } = useListInternalAuditsStatsQuery();
   const [deleteAudit] = useDeleteInternalAuditMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<AuditRow, PagedAuditRow>({
     label: 'Audit',
     onDelete: (row) => deleteAudit({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete audit "${row.reference} — ${row.title}"?`,
+    confirmMessage: (row) =>
+      t('Delete audit "{reference} — {title}"?', { reference: row.reference, title: row.title }),
     refetch,
   });
   const fetchRows = usePagedFetcher(

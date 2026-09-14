@@ -7,6 +7,7 @@ import {
   useTheme,
   type Theme,
 } from '@exyconn/shell/components/ui';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { DATE_FORMAT } from '../../status.constants';
 import type { StatusDay } from './status.types';
@@ -23,12 +24,24 @@ function barColor(day: StatusDay, theme: Theme): string {
 }
 
 /** Tooltip wording for one bar — kept out of the JSX so it stays a plain string. */
-function barLabel(day: StatusDay): string {
+function barLabel(day: StatusDay, t: (source: string, values?: Interpolations) => string): string {
   const date = formatWith(day.date, DATE_FORMAT);
   if (day.checks === 0) {
-    return `${date} — no data`;
+    return t('{date} — no data', { date });
   }
-  return `${date} — ${day.uptimePercent}% uptime, ${day.failures} of ${day.checks} checks failed`;
+  if (day.checks === 1) {
+    return t('{date} — {percent}% uptime, {failures} of 1 check failed', {
+      date,
+      percent: day.uptimePercent,
+      failures: day.failures,
+    });
+  }
+  return t('{date} — {percent}% uptime, {failures} of {checks} checks failed', {
+    date,
+    percent: day.uptimePercent,
+    failures: day.failures,
+    checks: day.checks,
+  });
 }
 
 interface UptimeBarsProps {
@@ -37,6 +50,7 @@ interface UptimeBarsProps {
 
 /** One bar per day, oldest on the left — the shape every status page uses. */
 export function UptimeBars({ days }: Readonly<UptimeBarsProps>) {
+  const t = useT();
   const theme = useTheme();
   const first = days[0];
   const last = days[days.length - 1];
@@ -45,7 +59,7 @@ export function UptimeBars({ days }: Readonly<UptimeBarsProps>) {
     <Box>
       <Flex spacing={0.5} sx={{ height: 32, alignItems: 'stretch' }}>
         {days.map((day) => (
-          <Tooltip key={day.date} title={barLabel(day)} arrow enterTouchDelay={0}>
+          <Tooltip key={day.date} title={barLabel(day, t)} arrow enterTouchDelay={0}>
             <Box
               sx={{
                 flex: 1,

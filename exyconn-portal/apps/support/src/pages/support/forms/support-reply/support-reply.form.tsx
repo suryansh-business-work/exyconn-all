@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -12,11 +13,6 @@ import {
 } from '@exyconn/shell/components/upload';
 import { useAddSupportReplyMutation } from '@exyconn/shell/graphql/generated';
 import { CannedReplyPicker } from './CannedReplyPicker';
-
-const VISIBILITY_OPTIONS: SelectOption[] = [
-  { value: 'false', label: 'Reply to the requester' },
-  { value: 'true', label: 'Internal note (team only)' },
-];
 
 const schema = z.object({
   body: z.string().trim().min(1, 'Write something before sending'),
@@ -37,6 +33,11 @@ interface SupportReplyFormProps {
  */
 export function SupportReplyForm({ ticketId, onDone, onCancel }: Readonly<SupportReplyFormProps>) {
   const notify = useNotify();
+  const t = useT();
+  const visibilityOptions: SelectOption[] = [
+    { value: 'false', label: t('Reply to the requester') },
+    { value: 'true', label: t('Internal note (team only)') },
+  ];
   const [addReply] = useAddSupportReplyMutation();
   // Files upload as they are picked, so they live beside the form rather than in it.
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
@@ -77,7 +78,7 @@ export function SupportReplyForm({ ticketId, onDone, onCancel }: Readonly<Suppor
       onCancel={onCancel}
       submitLabel="Send"
     >
-      <RhfSelect name="internal" label="Visibility" options={VISIBILITY_OPTIONS} />
+      <RhfSelect name="internal" label="Visibility" options={visibilityOptions} />
       <CannedReplyPicker onPick={insertSnippet} />
       <RhfTextField name="body" label="Message" multiline rows={4} />
       <AttachmentPicker

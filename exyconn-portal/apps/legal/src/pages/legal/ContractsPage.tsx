@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -21,6 +22,7 @@ import {
 
 /** Legal → Contracts: contract CRUD plus emailing a contract to a counterparty. */
 export function ContractsPage() {
+  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListContractsStatsQuery();
   const [deleteContract] = useDeleteContractMutation();
@@ -29,7 +31,7 @@ export function ContractsPage() {
   const crud = useCrudResource<ContractRow, PagedContractRow>({
     label: 'Contract',
     onDelete: (row) => deleteContract({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete contract "${row.title}"?`,
+    confirmMessage: (row) => t('Delete contract "{title}"?', { title: row.title }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -78,7 +80,7 @@ export function ContractsPage() {
       context={gridContext}
       searchPlaceholder="Search contracts…"
       extraDialogs={
-        <CrudDialog open={Boolean(sendTarget)} title="Send contract" onClose={closeSend}>
+        <CrudDialog open={Boolean(sendTarget)} title={t('Send contract')} onClose={closeSend}>
           {sendTarget && (
             <SendContractForm
               contract={sendTarget}

@@ -1,10 +1,17 @@
+import { useT } from '@exyconn/i18n';
 import { Avatar, Chip, Flex, Text, Tooltip, fontSize } from '@exyconn/shell/components/ui';
 import type { Column } from '@exyconn/shell/components/data/DataTable';
 import { TICKET_PRIORITIES, TICKET_TYPES, TicketFacetIcon, initialsOf } from '../ticket';
 import type { TicketRow } from '../forms/ticket';
 
+/** The translator, so the module-scope column model can be given the page's own `t`. */
+type Translate = ReturnType<typeof useT>;
+
 /** The ticket list's columns. Built as a function so the date format follows the settings. */
-export function ticketColumns(formatDate: (value: string) => string): Column<TicketRow>[] {
+export function ticketColumns(
+  formatDate: (value: string) => string,
+  t: Translate,
+): Column<TicketRow>[] {
   return [
     {
       key: 'key',
@@ -21,7 +28,7 @@ export function ticketColumns(formatDate: (value: string) => string): Column<Tic
       render: (row) => (
         <Flex direction="row" alignItems="center" spacing={1}>
           <TicketFacetIcon facet={TICKET_TYPES[row.type]} kind="Type" />
-          <Text size="sm">{TICKET_TYPES[row.type].label}</Text>
+          <Text size="sm">{t(TICKET_TYPES[row.type].label)}</Text>
         </Flex>
       ),
     },
@@ -32,7 +39,7 @@ export function ticketColumns(formatDate: (value: string) => string): Column<Tic
       render: (row) => (
         <Flex direction="row" alignItems="center" spacing={1}>
           <TicketFacetIcon facet={TICKET_PRIORITIES[row.priority]} kind="Priority" />
-          <Text size="sm">{TICKET_PRIORITIES[row.priority].label}</Text>
+          <Text size="sm">{t(TICKET_PRIORITIES[row.priority].label)}</Text>
         </Flex>
       ),
     },
@@ -42,7 +49,7 @@ export function ticketColumns(formatDate: (value: string) => string): Column<Tic
       render: (row) =>
         row.assigneeName === '' ? (
           <Text size="sm" color="text.secondary">
-            Unassigned
+            {t('Unassigned')}
           </Text>
         ) : (
           <Flex direction="row" alignItems="center" spacing={1}>

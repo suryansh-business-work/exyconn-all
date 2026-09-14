@@ -1,6 +1,7 @@
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { useT } from '@exyconn/i18n';
 import { Button, Flex, IconButton, Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { formatMoney } from '@exyconn/shell/utils/money';
@@ -33,6 +34,7 @@ interface LineRowProps {
 
 /** One editable line: what, how many, at what rate, at what tax — and what that comes to. */
 function LineRow({ index, amount, onRemove }: Readonly<LineRowProps>) {
+  const t = useT();
   return (
     <Flex direction="row" spacing={1} alignItems="flex-start">
       <RhfTextField name={`lines.${index}.description`} label="Description" size="small" />
@@ -66,7 +68,7 @@ function LineRow({ index, amount, onRemove }: Readonly<LineRowProps>) {
       <Text size="sm" sx={{ minWidth: 90, textAlign: 'right', pt: 1.5 }}>
         {amount}
       </Text>
-      <IconButton aria-label="remove line" size="small" onClick={onRemove}>
+      <IconButton aria-label={t('remove line')} size="small" onClick={onRemove}>
         <DeleteOutlineIcon fontSize="small" />
       </IconButton>
     </Flex>
@@ -81,6 +83,7 @@ function LineRow({ index, amount, onRemove }: Readonly<LineRowProps>) {
  * falls back to the single typed amount, for the invoices written before lines existed.
  */
 export function InvoiceLinesFields({ currency }: Readonly<{ currency: string }>) {
+  const t = useT();
   const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name: 'lines' });
   const drafts = (useWatch({ control, name: 'lines' }) ?? []) as DraftLine[];
@@ -91,10 +94,10 @@ export function InvoiceLinesFields({ currency }: Readonly<{ currency: string }>)
     <Flex direction="column" spacing={1.5}>
       <Flex direction="row" alignItems="center" spacing={1}>
         <Text size="sm" sx={{ fontWeight: 600, flex: 1 }}>
-          Lines
+          {t('Lines')}
         </Text>
         <Button size="small" startIcon={<AddIcon />} onClick={() => append(EMPTY_LINE)}>
-          Add line
+          {t('Add line')}
         </Button>
       </Flex>
       {fields.map((field, index) => (
@@ -107,7 +110,7 @@ export function InvoiceLinesFields({ currency }: Readonly<{ currency: string }>)
       ))}
       {fields.length > 0 ? (
         <Text size="sm" sx={{ textAlign: 'right', fontWeight: 600 }}>
-          Total {formatMoney(total, currency)}
+          {t('Total {amount}', { amount: formatMoney(total, currency) })}
         </Text>
       ) : (
         <RhfTextField

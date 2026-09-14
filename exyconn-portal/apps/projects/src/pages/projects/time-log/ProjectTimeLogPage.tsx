@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, Button, Chip, Flex, Stack, Typography } from '@exyconn/shell/components/ui';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -31,6 +32,7 @@ export function ProjectTimeLogPage({
   budgetHours,
   budgetAmount,
 }: Readonly<ProjectTimeLogPageProps>) {
+  const t = useT();
   const month = useTrackerMonth();
   const [openRow, setOpenRow] = useState<TimeLogRow | null>(null);
   const { data, loading, refetch } = useProjectTimeLogQuery({
@@ -46,23 +48,28 @@ export function ProjectTimeLogPage({
     <Stack spacing={2} sx={{ pt: 1 }}>
       <Flex direction="row" alignItems="center" spacing={1}>
         <Button size="small" startIcon={<ChevronLeftIcon />} onClick={month.prev}>
-          Prev
+          {t('Prev')}
         </Button>
         <Typography variant="subtitle1" sx={{ minWidth: 160, textAlign: 'center' }}>
           {month.monthLabel}
         </Typography>
         <Button size="small" endIcon={<ChevronRightIcon />} onClick={month.next}>
-          Next
+          {t('Next')}
         </Button>
         <Box sx={{ flex: 1 }} />
         {log ? (
           <Stack direction="row" spacing={1}>
-            <Chip size="small" label={`Tracked ${formatDuration(log.totalActiveMs)}`} />
+            <Chip
+              size="small"
+              label={t('Tracked {duration}', { duration: formatDuration(log.totalActiveMs) })}
+            />
             {log.totalManualMs > 0 ? (
               <Chip
                 size="small"
                 variant="outlined"
-                label={`Off-computer ${formatDuration(log.totalManualMs)}`}
+                label={t('Off-computer {duration}', {
+                  duration: formatDuration(log.totalManualMs),
+                })}
               />
             ) : null}
           </Stack>
@@ -84,8 +91,9 @@ export function ProjectTimeLogPage({
 
       {log && !log.canViewScreenshots ? (
         <Alert severity="info">
-          You can see who worked on what and for how long. Screenshots stay with the Tracker role —
-          they are a picture of somebody&apos;s screen, not a project metric.
+          {t(
+            "You can see who worked on what and for how long. Screenshots stay with the Tracker role — they are a picture of somebody's screen, not a project metric.",
+          )}
         </Alert>
       ) : null}
 
@@ -101,7 +109,7 @@ export function ProjectTimeLogPage({
       {openRow ? (
         <Box>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            {openRow.userName} · {openRow.taskKey || 'No ticket'}
+            {openRow.userName} · {openRow.taskKey || t('No ticket')}
           </Typography>
           <TimeLogSessions
             projectId={projectId}

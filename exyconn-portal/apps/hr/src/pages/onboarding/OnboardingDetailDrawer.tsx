@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -25,6 +26,7 @@ export function OnboardingDetailDrawer({
   onClose,
   onChanged,
 }: Readonly<OnboardingDetailDrawerProps>) {
+  const t = useT();
   const notify = useNotify();
   const { formatDate } = useSettings();
   const [setItem, { loading }] = useSetOnboardingItemMutation();
@@ -46,13 +48,16 @@ export function OnboardingDetailDrawer({
   return (
     <CrudDialog
       open={Boolean(checklist)}
-      title={checklist ? `${checklist.employeeName} — onboarding` : 'Onboarding'}
+      title={
+        checklist ? t('{name} — onboarding', { name: checklist.employeeName }) : t('Onboarding')
+      }
       onClose={onClose}
     >
       {checklist && (
         <Box>
           <Text size="sm" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
-            {`${checklist.templateName} · joined ${formatDate(checklist.joinDate)}`}
+            {checklist.templateName} ·{' '}
+            {t('joined {date}', { date: formatDate(checklist.joinDate) })}
           </Text>
           <OnboardingItemList
             items={checklist.items}

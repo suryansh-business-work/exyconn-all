@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
@@ -38,6 +39,7 @@ const TILE_STAGES = [
  * a server filter to every page request.
  */
 export function ApplicantsPage() {
+  const t = useT();
   const { formatDate } = useSettings();
   const { data: statsData, refetch: refetchStats } = useListApplicantsStatsQuery();
   const [deleteApplicant] = useDeleteApplicantMutation();
@@ -102,7 +104,7 @@ export function ApplicantsPage() {
           <ApplicantDetailDialog applicant={viewing} onClose={() => setViewing(null)} />
           <CrudDialog
             open={Boolean(advancing)}
-            title="Advance stage"
+            title={t('Advance stage')}
             onClose={() => setAdvancing(null)}
           >
             {advancing && (

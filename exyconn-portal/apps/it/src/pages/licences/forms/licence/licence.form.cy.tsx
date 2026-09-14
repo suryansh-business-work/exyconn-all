@@ -35,7 +35,7 @@ describe('LicenceForm', () => {
 
   it('shows how many of the bought seats are in use', () => {
     mount();
-    cy.contains('0 of 1 seat(s) in use').should('be.visible');
+    cy.contains('0 of 1 seats in use').should('be.visible');
   });
 
   it('calls onCancel', () => {

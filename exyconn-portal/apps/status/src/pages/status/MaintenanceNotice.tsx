@@ -1,4 +1,5 @@
 import EngineeringIcon from '@mui/icons-material/Engineering';
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, Chip, Flex, Typography } from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { TIME_FORMAT } from '../../status.constants';
@@ -20,6 +21,7 @@ function affectedNames(window: StatusMaintenance, services: StatusService[]): st
 
 /** Planned downtime, announced before it happens and flagged while it is under way. */
 export function MaintenanceNotice({ maintenance, services }: Readonly<MaintenanceNoticeProps>) {
+  const t = useT();
   if (maintenance.length === 0) {
     return null;
   }
@@ -33,7 +35,7 @@ export function MaintenanceNotice({ maintenance, services }: Readonly<Maintenanc
           mb: 2,
         }}
       >
-        Scheduled maintenance
+        {t('Scheduled maintenance')}
       </Typography>
       <Flex direction="column" spacing={1.5}>
         {maintenance.map((window) => (
@@ -55,13 +57,13 @@ export function MaintenanceNotice({ maintenance, services }: Readonly<Maintenanc
                 size="small"
                 color={window.inProgress ? 'warning' : 'info'}
                 variant="outlined"
-                label={window.inProgress ? 'In progress' : 'Upcoming'}
+                label={window.inProgress ? t('In progress') : t('Upcoming')}
               />
             </Flex>
             <Typography variant="body2" sx={{ mt: 0.5 }}>
               {formatWith(window.startsAt, TIME_FORMAT)} → {formatWith(window.endsAt, TIME_FORMAT)}
               {' · '}
-              {affectedNames(window, services) || 'All services'}
+              {affectedNames(window, services) || t('All services')}
             </Typography>
             {window.body && (
               <Typography

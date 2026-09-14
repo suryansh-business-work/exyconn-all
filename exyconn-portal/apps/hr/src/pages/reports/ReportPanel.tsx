@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useApolloClient } from '@apollo/client/react';
+import { useT } from '@exyconn/i18n';
 import { Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { toCsv, downloadCsv } from '@exyconn/shell/utils/csv';
@@ -11,6 +12,7 @@ const PREVIEW_ROWS = 50;
 
 /** One report: loads on mount, shows a preview and exports every row as CSV. */
 export function ReportPanel({ report }: Readonly<{ report: AnyReport }>) {
+  const t = useT();
   const client = useApolloClient();
   const notify = useNotify();
   const [rows, setRows] = useState<unknown[]>([]);
@@ -35,22 +37,24 @@ export function ReportPanel({ report }: Readonly<{ report: AnyReport }>) {
   const exportCsv = () => {
     const stamp = new Date().toISOString().slice(0, 10);
     downloadCsv(`${report.key}-${stamp}`, toCsv(rows, report.columns));
-    notify(`Exported ${rows.length} rows.`, 'success');
+    notify(t('Exported {count} rows.', { count: rows.length }), 'success');
   };
+
+  const rowCount = loading ? '' : ` · ${t('{count} rows', { count: rows.length })}`;
 
   return (
     <>
       <Flex direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
         <Text size="sm" color="text.secondary">
-          {report.description}
-          {!loading && ` · ${rows.length} rows`}
+          {t(report.description)}
+          {rowCount}
         </Text>
         <Button
           startIcon={<DownloadIcon />}
           onClick={exportCsv}
           disabled={loading || rows.length === 0}
         >
-          Export CSV
+          {t('Export CSV')}
         </Button>
       </Flex>
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -18,6 +19,7 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** AI → Prompt Library: reusable prompts, each runnable against OpenAI without leaving the page. */
 export function PromptLibraryPage() {
+  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListPromptsStatsQuery();
   const [deletePrompt] = useDeletePromptMutation();
@@ -27,7 +29,7 @@ export function PromptLibraryPage() {
   const crud = useCrudResource<PromptRow, PagedPromptRow>({
     label: 'Prompt',
     onDelete: (row) => deletePrompt({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete prompt "${row.title}"?`,
+    confirmMessage: (row) => t('Delete prompt "{title}"?', { title: row.title }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -93,7 +95,7 @@ export function PromptLibraryPage() {
         <>
           <CrudDialog
             open={Boolean(runTarget)}
-            title="Run prompt"
+            title={t('Run prompt')}
             onClose={() => setRunTarget(null)}
           >
             {runTarget && (
@@ -105,7 +107,11 @@ export function PromptLibraryPage() {
             )}
           </CrudDialog>
 
-          <CrudDialog open={Boolean(resultId)} title="Run result" onClose={() => setResultId(null)}>
+          <CrudDialog
+            open={Boolean(resultId)}
+            title={t('Run result')}
+            onClose={() => setResultId(null)}
+          >
             {resultId && <AiJobResult id={resultId} />}
           </CrudDialog>
         </>

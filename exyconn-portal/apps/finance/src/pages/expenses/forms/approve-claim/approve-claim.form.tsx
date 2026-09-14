@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -29,6 +30,7 @@ interface ApproveClaimFormProps {
 
 /** Approves a claim for an amount — the claim in full by default. */
 export function ApproveClaimForm({ claim, onDone, onCancel }: Readonly<ApproveClaimFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [setStatus] = useSetExpenseClaimStatusMutation();
   const methods = useForm<z.input<Schema>, unknown, Values>({
@@ -45,7 +47,11 @@ export function ApproveClaimForm({ claim, onDone, onCancel }: Readonly<ApproveCl
           approvedAmount: values.approvedAmount,
         },
       });
-      notify(`Claim approved for ${formatMoney(values.approvedAmount, claim.currency)}`);
+      notify(
+        t('Claim approved for {amount}', {
+          amount: formatMoney(values.approvedAmount, claim.currency),
+        }),
+      );
       onDone();
     } catch (error) {
       notify(errorMessage(error, 'Could not approve the claim'), 'error');
@@ -61,7 +67,10 @@ export function ApproveClaimForm({ claim, onDone, onCancel }: Readonly<ApproveCl
       submitLabel="Approve"
     >
       <Text size="sm" color="text.secondary">
-        {claim.description} — {formatMoney(claim.amount, claim.currency)} claimed.
+        {t('{description} — {amount} claimed.', {
+          description: claim.description,
+          amount: formatMoney(claim.amount, claim.currency),
+        })}
       </Text>
       <RhfTextField
         name="approvedAmount"

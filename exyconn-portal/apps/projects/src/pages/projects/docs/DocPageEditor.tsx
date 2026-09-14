@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Divider, Flex, Text } from '@exyconn/shell/components/ui';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
@@ -23,6 +24,7 @@ export function DocPageEditor({
   onDelete,
   onCancel,
 }: Readonly<DocPageEditorProps>) {
+  const t = useT();
   const confirm = useConfirm();
   const { formatDateTime } = useSettings();
   const { data, loading } = useDocPageQuery({
@@ -36,12 +38,12 @@ export function DocPageEditor({
     return <LoadingState />;
   }
   if (!page) {
-    return <Text color="text.secondary">This page has been deleted.</Text>;
+    return <Text color="text.secondary">{t('This page has been deleted.')}</Text>;
   }
 
   const remove = async () => {
     const ok = await confirm({
-      message: `Delete "${page.title}" and every page under it?`,
+      message: t('Delete "{title}" and every page under it?', { title: page.title }),
       confirmText: 'Delete',
     });
     if (ok) {
@@ -49,7 +51,7 @@ export function DocPageEditor({
     }
   };
 
-  const lastEditor = page.updatedByName === '' ? 'nobody yet' : page.updatedByName;
+  const lastEditor = page.updatedByName === '' ? t('nobody yet') : page.updatedByName;
 
   return (
     <Box>
@@ -59,11 +61,14 @@ export function DocPageEditor({
         </Text>
         <Box sx={{ flex: 1 }} />
         <Button size="small" color="error" startIcon={<DeleteOutlineIcon />} onClick={remove}>
-          Delete page
+          {t('Delete page')}
         </Button>
       </Flex>
       <Text size="caption" color="text.secondary">
-        Last saved by {lastEditor} · {formatDateTime(page.updatedAt)}
+        {t('Last saved by {who} · {when}', {
+          who: lastEditor,
+          when: formatDateTime(page.updatedAt),
+        })}
       </Text>
       <Divider sx={{ my: 2 }} />
 

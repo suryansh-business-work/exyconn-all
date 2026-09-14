@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FINANCIAL_YEAR, UPPER_SNAKE } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -59,6 +60,7 @@ interface TaxRegimeFormProps {
  * figures are a starting point to be checked against the year's finance act.
  */
 export function TaxRegimeForm({ initial, onDone, onCancel }: Readonly<TaxRegimeFormProps>) {
+  const t = useT();
   const [createRegime] = useCreateTaxRegimeMutation();
   const [updateRegime] = useUpdateTaxRegimeMutation();
 
@@ -78,8 +80,9 @@ export function TaxRegimeForm({ initial, onDone, onCancel }: Readonly<TaxRegimeF
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <Text size="sm" color="text.secondary">
-        Check every figure against this year’s finance act. They apply from the next payroll run; a
-        payslip already generated keeps what was withheld on it.
+        {t(
+          'Check every figure against this year’s finance act. They apply from the next payroll run; a payslip already generated keeps what was withheld on it.',
+        )}
       </Text>
       <RhfTextField
         name="regimeKey"

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
@@ -27,6 +28,7 @@ import {
  * told through its updates, never rewritten.
  */
 export function IncidentsPanel() {
+  const t = useT();
   const { formatDate } = useSettings();
   const { data: statsData, refetch: refetchStats } = useListStatusIncidentsStatsQuery();
   const [deleteIncident] = useDeleteStatusIncidentMutation();
@@ -35,7 +37,8 @@ export function IncidentsPanel() {
   const crud = useCrudResource<IncidentRow, PagedIncidentRow>({
     label: 'Incident',
     onDelete: (row) => deleteIncident({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete incident "${row.title}" from the public history?`,
+    confirmMessage: (row) =>
+      t('Delete incident "{title}" from the public history?', { title: row.title }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -83,7 +86,7 @@ export function IncidentsPanel() {
       extraDialogs={
         <CrudDialog
           open={Boolean(updating)}
-          title="Post an update"
+          title={t('Post an update')}
           onClose={() => setUpdating(null)}
         >
           {updating && (

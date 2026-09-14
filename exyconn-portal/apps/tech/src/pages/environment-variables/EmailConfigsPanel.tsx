@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import SendIcon from '@mui/icons-material/Send';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -16,13 +17,14 @@ import { SendTestEmailForm } from './forms/send-test-email';
 
 /** Environment Variables sub-panel: manage SMTP/email configurations (DB-backed). */
 export function EmailConfigsPanel() {
+  const t = useT();
   const { data, loading, refetch } = useListEmailConfigsQuery();
   const [deleteConfig] = useDeleteEmailConfigMutation();
   const [testTarget, setTestTarget] = useState<EmailConfigRow | null>(null);
   const crud = useCrudResource<EmailConfigRow>({
     label: 'Email config',
     onDelete: (row) => deleteConfig({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete email config "${row.label}"?`,
+    confirmMessage: (row) => t('Delete email config "{label}"?', { label: row.label }),
     refetch,
   });
 
@@ -50,12 +52,9 @@ export function EmailConfigsPanel() {
   ];
 
   if (crud.open) {
+    const formTitle = crud.editing ? t('Edit email config') : t('New email config');
     return (
-      <CrudFormPage
-        title={crud.editing ? 'Edit email config' : 'New email config'}
-        onBack={crud.close}
-        backLabel="Back to Email configurations"
-      >
+      <CrudFormPage title={formTitle} onBack={crud.close} backLabel="Back to Email configurations">
         <EmailConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />
       </CrudFormPage>
     );
@@ -81,7 +80,7 @@ export function EmailConfigsPanel() {
       />
       <CrudDialog
         open={Boolean(testTarget)}
-        title="Send test email"
+        title={t('Send test email')}
         onClose={() => setTestTarget(null)}
       >
         {testTarget && (

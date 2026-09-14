@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FINANCIAL_YEAR } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';
@@ -84,6 +85,7 @@ export function TaxSlabForm({
   onDone,
   onCancel,
 }: Readonly<TaxSlabFormProps>) {
+  const t = useT();
   const [createSlab] = useCreateTaxSlabMutation();
   const [updateSlab] = useUpdateTaxSlabMutation();
 
@@ -103,8 +105,9 @@ export function TaxSlabForm({
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <Text size="sm" color="text.secondary">
-        Each band’s rate applies only to the part of the year’s income inside it. Bands take effect
-        on the next payroll run.
+        {t(
+          'Each band’s rate applies only to the part of the year’s income inside it. Bands take effect on the next payroll run.',
+        )}
       </Text>
       <RhfSelect name="regimeKey" label="Regime" options={regimeOptions} />
       <RhfTextField name="financialYear" label="Financial year" helperText="As 2026-27." />

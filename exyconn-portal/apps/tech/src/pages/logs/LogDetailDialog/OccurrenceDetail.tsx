@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -16,32 +17,33 @@ function breadcrumbText(
 
 /** Everything one occurrence carried: its stack, what led up to it, and where it ran. */
 export function OccurrenceDetail({ event }: Readonly<{ event: AppLogEventFieldsFragment }>) {
+  const t = useT();
   const { formatDateTime } = useSettings();
   return (
     <Flex direction="column" spacing={2}>
       <Text size="sm">{event.message}</Text>
-      <CodeBlock title="Stack" text={event.stack} />
-      <CodeBlock title="React component stack" text={event.componentStack} />
+      <CodeBlock title={t('Stack')} text={event.stack} />
+      <CodeBlock title={t('React component stack')} text={event.componentStack} />
       <CodeBlock
-        title="What happened just before (oldest first)"
+        title={t('What happened just before (oldest first)')}
         text={breadcrumbText(event, formatDateTime)}
       />
-      <CodeBlock title="Context" text={event.context} />
+      <CodeBlock title={t('Context')} text={event.context} />
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 1 }}>
-        <DetailRow label="Received">
+        <DetailRow label={t('Received')}>
           <Text size="sm">{formatDateTime(event.createdAt)}</Text>
         </DetailRow>
-        <DetailRow label="Email">
+        <DetailRow label={t('Email')}>
           <Text size="sm">{event.userEmail || '—'}</Text>
         </DetailRow>
-        <DetailRow label="Device ID">
+        <DetailRow label={t('Device ID')}>
           <Text size="sm">{event.deviceId || '—'}</Text>
         </DetailRow>
-        <DetailRow label="Session">
+        <DetailRow label={t('Session')}>
           <Text size="sm">{event.sessionId || '—'}</Text>
         </DetailRow>
       </Box>
-      <DetailRow label="User agent">
+      <DetailRow label={t('User agent')}>
         <Text size="sm" sx={{ wordBreak: 'break-word' }}>
           {event.userAgent || '—'}
         </Text>

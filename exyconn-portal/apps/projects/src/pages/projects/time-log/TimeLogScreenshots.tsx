@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Alert, borderWidth, Box, Grid, Stack, Typography } from '@exyconn/shell/components/ui';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useProjectTimeLogScreenshotsQuery } from '@exyconn/shell/graphql/generated';
@@ -21,6 +22,7 @@ export function TimeLogScreenshots({
   sessionId,
   allowed,
 }: Readonly<TimeLogScreenshotsProps>) {
+  const t = useT();
   const { formatDateTime } = useSettings();
   const { data } = useProjectTimeLogScreenshotsQuery({
     variables: { projectId, sessionId },
@@ -30,8 +32,9 @@ export function TimeLogScreenshots({
   if (!allowed) {
     return (
       <Alert severity="info" sx={{ mt: 1 }}>
-        Screenshots are part of the tracker, not the project board. Ask someone with the Tracker
-        role to review them.
+        {t(
+          'Screenshots are part of the tracker, not the project board. Ask someone with the Tracker role to review them.',
+        )}
       </Alert>
     );
   }
@@ -46,49 +49,52 @@ export function TimeLogScreenshots({
           mt: 1,
         }}
       >
-        No screenshots were captured during this session.
+        {t('No screenshots were captured during this session.')}
       </Typography>
     );
   }
 
   return (
     <Grid container spacing={1} sx={{ mt: 1 }}>
-      {shots.map((shot) => (
-        <Grid key={shot.id} size={{ xs: 6, sm: 4, md: 3 }}>
-          <Stack spacing={0.5}>
-            <Box
-              component="a"
-              href={shot.imageUrl}
-              target="_blank"
-              rel="noreferrer"
-              sx={{
-                display: 'block',
-                borderRadius: 1,
-                overflow: 'hidden',
-                border: `${borderWidth.hairline}px solid`,
-                borderColor: 'divider',
-              }}
-            >
+      {shots.map((shot) => {
+        const when = formatDateTime(shot.capturedAt);
+        const caption = shot.blurred ? t('{time} · blurred', { time: when }) : when;
+        return (
+          <Grid key={shot.id} size={{ xs: 6, sm: 4, md: 3 }}>
+            <Stack spacing={0.5}>
               <Box
-                component="img"
-                src={shot.imageUrl}
-                alt={`Screen at ${formatDateTime(shot.capturedAt)}`}
-                loading="lazy"
-                sx={{ width: '100%', height: 110, objectFit: 'cover', display: 'block' }}
-              />
-            </Box>
-            <Typography
-              variant="caption"
-              sx={{
-                color: 'text.secondary',
-              }}
-            >
-              {formatDateTime(shot.capturedAt)}
-              {shot.blurred ? ' · blurred' : ''}
-            </Typography>
-          </Stack>
-        </Grid>
-      ))}
+                component="a"
+                href={shot.imageUrl}
+                target="_blank"
+                rel="noreferrer"
+                sx={{
+                  display: 'block',
+                  borderRadius: 1,
+                  overflow: 'hidden',
+                  border: `${borderWidth.hairline}px solid`,
+                  borderColor: 'divider',
+                }}
+              >
+                <Box
+                  component="img"
+                  src={shot.imageUrl}
+                  alt={t('Screen at {time}', { time: when })}
+                  loading="lazy"
+                  sx={{ width: '100%', height: 110, objectFit: 'cover', display: 'block' }}
+                />
+              </Box>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
+                {caption}
+              </Typography>
+            </Stack>
+          </Grid>
+        );
+      })}
     </Grid>
   );
 }

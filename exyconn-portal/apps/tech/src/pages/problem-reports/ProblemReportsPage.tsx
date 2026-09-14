@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -19,12 +20,13 @@ import {
 
 /** Tech module — everything reported from the public status page, waiting for triage. */
 export function ProblemReportsPage() {
+  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListProblemReportsStatsQuery();
   const [deleteReport] = useDeleteProblemReportMutation();
   const crud = useCrudResource<ProblemReportRow, PagedProblemReportRow>({
     label: 'Problem report',
     onDelete: (row) => deleteReport({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete report ${row.reference}?`,
+    confirmMessage: (row) => t('Delete report {reference}?', { reference: row.reference }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, Card, Flex, Typography } from '@exyconn/shell/components/ui';
 import { SubscribeForm } from './forms/subscribe';
 
@@ -9,6 +10,7 @@ import { SubscribeForm } from './forms/subscribe';
  * address is now on the list. Saying more would leak whether an address is already there.
  */
 export function SubscribeCard() {
+  const t = useT();
   const [sentTo, setSentTo] = useState('');
 
   return (
@@ -21,7 +23,7 @@ export function SubscribeCard() {
               fontWeight: 700,
             }}
           >
-            Subscribe to updates
+            {t('Subscribe to updates')}
           </Typography>
           <Typography
             variant="body2"
@@ -29,13 +31,16 @@ export function SubscribeCard() {
               color: 'text.secondary',
             }}
           >
-            Get an email when a service goes down, when it comes back, and when maintenance is
-            planned. No account needed, and one click to stop.
+            {t(
+              'Get an email when a service goes down, when it comes back, and when maintenance is planned. No account needed, and one click to stop.',
+            )}
           </Typography>
         </Box>
         {sentTo ? (
           <Alert severity="success">
-            Check {sentTo} for a confirmation link. Nothing else is sent until you follow it.
+            {t('Check {email} for a confirmation link. Nothing else is sent until you follow it.', {
+              email: sentTo,
+            })}
           </Alert>
         ) : (
           <SubscribeForm onSubmitted={setSentTo} />

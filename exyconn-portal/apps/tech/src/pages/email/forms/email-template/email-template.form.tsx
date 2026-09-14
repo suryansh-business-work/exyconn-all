@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SLUG } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import { Alert, radius } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -44,6 +45,7 @@ interface Props {
 
 /** React Hook Form + Zod form for a transactional email template. */
 export function EmailTemplateForm({ initial, onDone, onCancel }: Readonly<Props>) {
+  const t = useT();
   const [createTemplate] = useCreateEmailTemplateMutation();
   const [updateTemplate] = useUpdateEmailTemplateMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -63,7 +65,7 @@ export function EmailTemplateForm({ initial, onDone, onCancel }: Readonly<Props>
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       {isEdit ? (
         <Alert severity="warning" variant="outlined" sx={{ borderRadius: `${radius.sm}px` }}>
-          Code sends this template by its key. Renaming the key stops whatever sends it.
+          {t('Code sends this template by its key. Renaming the key stops whatever sends it.')}
         </Alert>
       ) : null}
       <RhfTextField name="key" label="Key" />

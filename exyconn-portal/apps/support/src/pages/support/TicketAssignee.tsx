@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { MenuItem, TextField } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
@@ -22,6 +23,7 @@ export function TicketAssignee({
   onAssigned,
 }: Readonly<TicketAssigneeProps>) {
   const notify = useNotify();
+  const t = useT();
   const { data } = useListSupportAgentsQuery();
   const [assign, { loading }] = useAssignSupportTicketMutation();
 
@@ -31,7 +33,7 @@ export function TicketAssignee({
     try {
       await assign({ variables: { id: ticketId, assigneeId: nextId } });
       const name = agents.find((a) => a.id === nextId)?.name;
-      notify(name ? `Assigned to ${name}` : 'Back in the unassigned queue');
+      notify(name ? t('Assigned to {name}', { name }) : 'Back in the unassigned queue');
       onAssigned();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not assign', 'error');
@@ -42,12 +44,12 @@ export function TicketAssignee({
     <TextField
       select
       fullWidth
-      label="Assigned to"
+      label={t('Assigned to')}
       value={assigneeId}
       disabled={loading}
       onChange={(event) => change(event.target.value)}
     >
-      <MenuItem value="">Unassigned</MenuItem>
+      <MenuItem value="">{t('Unassigned')}</MenuItem>
       {agents.map((agent) => (
         <MenuItem key={agent.id} value={agent.id}>
           {agent.name}

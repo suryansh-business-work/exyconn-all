@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -39,6 +40,7 @@ export function ManagerAssessmentForm({
   onCancel,
   onDone,
 }: Readonly<ManagerAssessmentFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [submit] = useSubmitManagerAssessmentMutation();
   const methods = useForm<z.input<typeof schema>, unknown, ManagerAssessmentFormValues>({
@@ -72,7 +74,7 @@ export function ManagerAssessmentForm({
     >
       <Box>
         <Text size="overline" color="text.secondary">
-          Their self-assessment
+          {t('Their self-assessment')}
         </Text>
         <Text size="sm" sx={{ whiteSpace: 'pre-line' }}>
           {review.selfAssessment || '—'}

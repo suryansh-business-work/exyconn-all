@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, CircularProgress, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
@@ -19,6 +20,7 @@ import { readingPanel } from '@exyconn/shell/components/glass/glass';
  * tasks the checklist asks THEM to do can be ticked, which is what the server allows too.
  */
 export function MyOnboardingPage() {
+  const t = useT();
   const notify = useNotify();
   const { formatDate } = useSettings();
   const { data, loading, error, refetch } = useMyOnboardingQuery({
@@ -45,18 +47,22 @@ export function MyOnboardingPage() {
       {data && !checklist && (
         <Box sx={readingPanel}>
           <Text weight="medium" sx={{ display: 'block', mb: 0.5 }}>
-            Nothing to do here yet
+            {t('Nothing to do here yet')}
           </Text>
           <Text size="sm" color="text.secondary">
-            HR has not started an onboarding checklist for you. When they do, everything you need
-            for your first days will appear here.
+            {t(
+              'HR has not started an onboarding checklist for you. When they do, everything you need for your first days will appear here.',
+            )}
           </Text>
         </Box>
       )}
       {checklist && (
         <Box sx={readingPanel}>
           <Text size="sm" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
-            {`${checklist.templateName} · from ${formatDate(checklist.joinDate)}`}
+            {t('{template} · from {date}', {
+              template: checklist.templateName,
+              date: formatDate(checklist.joinDate),
+            })}
           </Text>
           <OnboardingItemList
             items={checklist.items}

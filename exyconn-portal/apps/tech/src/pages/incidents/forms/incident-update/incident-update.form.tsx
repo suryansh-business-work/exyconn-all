@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { Alert, Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -30,6 +31,7 @@ export function IncidentUpdateForm({
   onDone,
   onCancel,
 }: Readonly<IncidentUpdateFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [addUpdate] = useAddStatusIncidentUpdateMutation();
   const methods = useForm<z.input<typeof incidentUpdateSchema>, unknown, Values>({
@@ -51,7 +53,7 @@ export function IncidentUpdateForm({
   };
 
   if (incident.resolvedAt) {
-    return <Alert severity="info">This incident is resolved; its timeline is closed.</Alert>;
+    return <Alert severity="info">{t('This incident is resolved; its timeline is closed.')}</Alert>;
   }
 
   return (
@@ -75,7 +77,7 @@ export function IncidentUpdateForm({
       />
       {chosen === IncidentUpdateStatus.Resolved && (
         <Alert severity="warning">
-          Resolving closes the incident and alerts Slack and the Tech team.
+          {t('Resolving closes the incident and alerts Slack and the Tech team.')}
         </Alert>
       )}
     </EntityForm>

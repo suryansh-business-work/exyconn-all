@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { useT } from '@exyconn/i18n';
 import DnsIcon from '@mui/icons-material/Dns';
 import MemoryIcon from '@mui/icons-material/Memory';
 import StorageIcon from '@mui/icons-material/Storage';
@@ -17,6 +18,7 @@ const POLL_MS = 30_000;
  * MongoDB it is connected to — every value measured when the query runs.
  */
 export function HostPanel() {
+  const t = useT();
   const { data, loading, error } = useInfrastructureOverviewQuery({
     fetchPolicy: 'cache-and-network',
     pollInterval: POLL_MS,
@@ -32,17 +34,17 @@ export function HostPanel() {
   const { docker, runtime, database } = data.infrastructureOverview;
   const stats = [
     {
-      label: 'Containers running',
+      label: t('Containers running'),
       value: String(docker.containersRunning),
       accent: color.green[300],
     },
     {
-      label: 'Containers stopped',
+      label: t('Containers stopped'),
       value: String(docker.containersStopped),
       accent: color.red[200],
     },
-    { label: 'Images on host', value: String(docker.imagesCount), accent: color.blue[400] },
-    { label: 'Host CPUs', value: String(docker.cpus), accent: color.orange[500] },
+    { label: t('Images on host'), value: String(docker.imagesCount), accent: color.blue[400] },
+    { label: t('Host CPUs'), value: String(docker.cpus), accent: color.orange[500] },
   ];
 
   return (
@@ -73,22 +75,22 @@ export function HostPanel() {
           }}
         >
           <InfraDetailCard
-            title="Docker host"
+            title={t('Docker host')}
             icon={<DnsIcon fontSize="small" />}
             facts={[
-              { label: 'Host name', value: docker.name || '—' },
-              { label: 'Engine', value: docker.serverVersion || '—' },
-              { label: 'API version', value: docker.apiVersion || '—' },
-              { label: 'Operating system', value: docker.operatingSystem || '—' },
-              { label: 'Kernel', value: docker.kernelVersion || '—' },
-              { label: 'Architecture', value: `${docker.osType}/${docker.architecture}` },
-              { label: 'CPUs', value: String(docker.cpus) },
-              { label: 'Memory', value: formatBytes(docker.memoryBytes) },
-              { label: 'Storage driver', value: docker.storageDriver || '—' },
-              { label: 'Logging driver', value: docker.loggingDriver || '—' },
-              { label: 'Docker root', value: docker.dockerRootDir || '—' },
+              { label: t('Host name'), value: docker.name || '—' },
+              { label: t('Engine'), value: docker.serverVersion || '—' },
+              { label: t('API version'), value: docker.apiVersion || '—' },
+              { label: t('Operating system'), value: docker.operatingSystem || '—' },
+              { label: t('Kernel'), value: docker.kernelVersion || '—' },
+              { label: t('Architecture'), value: `${docker.osType}/${docker.architecture}` },
+              { label: t('CPUs'), value: String(docker.cpus) },
+              { label: t('Memory'), value: formatBytes(docker.memoryBytes) },
+              { label: t('Storage driver'), value: docker.storageDriver || '—' },
+              { label: t('Logging driver'), value: docker.loggingDriver || '—' },
+              { label: t('Docker root'), value: docker.dockerRootDir || '—' },
               {
-                label: 'Host clock',
+                label: t('Host clock'),
                 value: docker.serverTime ? format(new Date(docker.serverTime), 'PPpp') : '—',
               },
             ]}
@@ -101,22 +103,22 @@ export function HostPanel() {
           }}
         >
           <InfraDetailCard
-            title="This API process"
+            title={t('This API process')}
             icon={<MemoryIcon fontSize="small" />}
             facts={[
-              { label: 'Container host', value: runtime.hostname },
-              { label: 'Environment', value: runtime.environment },
-              { label: 'Node', value: runtime.nodeVersion },
-              { label: 'Platform', value: `${runtime.platform}/${runtime.arch}` },
-              { label: 'Uptime', value: formatDuration(runtime.processUptimeSeconds) },
-              { label: 'Started', value: format(new Date(runtime.startedAt), 'PPpp') },
-              { label: 'Resident memory', value: formatBytes(runtime.rssBytes) },
+              { label: t('Container host'), value: runtime.hostname },
+              { label: t('Environment'), value: runtime.environment },
+              { label: t('Node'), value: runtime.nodeVersion },
+              { label: t('Platform'), value: `${runtime.platform}/${runtime.arch}` },
+              { label: t('Uptime'), value: formatDuration(runtime.processUptimeSeconds) },
+              { label: t('Started'), value: format(new Date(runtime.startedAt), 'PPpp') },
+              { label: t('Resident memory'), value: formatBytes(runtime.rssBytes) },
               {
-                label: 'Heap',
+                label: t('Heap'),
                 value: `${formatBytes(runtime.heapUsedBytes)} / ${formatBytes(runtime.heapTotalBytes)}`,
               },
               {
-                label: 'Load average',
+                label: t('Load average'),
                 value: [runtime.load1, runtime.load5, runtime.load15]
                   .map((value) => value.toFixed(2))
                   .join('  '),
@@ -134,19 +136,22 @@ export function HostPanel() {
             title="MongoDB"
             icon={<StorageIcon fontSize="small" />}
             facts={[
-              { label: 'Database', value: database.name },
-              { label: 'Server', value: database.host || '—' },
-              { label: 'Version', value: database.version || '—' },
-              { label: 'Uptime', value: formatDuration(database.uptimeSeconds) },
+              { label: t('Database'), value: database.name },
+              { label: t('Server'), value: database.host || '—' },
+              { label: t('Version'), value: database.version || '—' },
+              { label: t('Uptime'), value: formatDuration(database.uptimeSeconds) },
               {
-                label: 'Connections',
-                value: `${database.connectionsCurrent} in use / ${database.connectionsAvailable} free`,
+                label: t('Connections'),
+                value: t('{used} in use / {free} free', {
+                  used: database.connectionsCurrent,
+                  free: database.connectionsAvailable,
+                }),
               },
-              { label: 'Collections', value: String(database.collections) },
-              { label: 'Documents', value: database.objects.toLocaleString() },
-              { label: 'Data size', value: formatBytes(database.dataSizeBytes) },
-              { label: 'Storage size', value: formatBytes(database.storageSizeBytes) },
-              { label: 'Index size', value: formatBytes(database.indexSizeBytes) },
+              { label: t('Collections'), value: String(database.collections) },
+              { label: t('Documents'), value: database.objects.toLocaleString() },
+              { label: t('Data size'), value: formatBytes(database.dataSizeBytes) },
+              { label: t('Storage size'), value: formatBytes(database.storageSizeBytes) },
+              { label: t('Index size'), value: formatBytes(database.indexSizeBytes) },
             ]}
           />
         </Grid>

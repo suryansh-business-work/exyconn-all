@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -27,6 +28,7 @@ import {
  * company cost and the dashboard counts them separately, so it can always say which is which.
  */
 export function CompanyExpensesPage() {
+  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListCompanyExpensesStatsQuery();
   const [deleteExpense] = useDeleteCompanyExpenseMutation();
   const [markPaid] = useMarkExpensePaidMutation();
@@ -37,7 +39,7 @@ export function CompanyExpensesPage() {
   const crud = useCrudResource<CompanyExpenseRow, PagedCompanyExpenseRow>({
     label: 'Expense',
     onDelete: (row) => deleteExpense({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete the ${row.vendor} bill?`,
+    confirmMessage: (row) => t('Delete the {vendor} bill?', { vendor: row.vendor }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -60,7 +62,7 @@ export function CompanyExpensesPage() {
   /** Settles a bill today. The server writes `paidOn`, which is what cash flow is built on. */
   const settle = async (row: PagedCompanyExpenseRow) => {
     const ok = await confirm({
-      message: `Record the ${row.vendor} bill as paid today?`,
+      message: t('Record the {vendor} bill as paid today?', { vendor: row.vendor }),
       confirmText: 'Mark paid',
     });
     if (!ok) return;

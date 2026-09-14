@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Card, CardContent, IconButton, Stack, Tooltip } from '@exyconn/shell/components/ui';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import type { SocialPostFieldsFragment } from '@exyconn/shell/graphql/generated';
@@ -21,6 +22,7 @@ interface PostCardProps {
  * callback — so the same card serves the feed, a profile and a post's own page.
  */
 export function PostCard({ post, onLike, onShare, onDelete }: Readonly<PostCardProps>) {
+  const t = useT();
   return (
     <Card variant="outlined">
       <CardContent>
@@ -34,8 +36,12 @@ export function PostCard({ post, onLike, onShare, onDelete }: Readonly<PostCardP
         >
           <AuthorLine author={post.author} at={post.createdAt} />
           {post.canDelete && (
-            <Tooltip title="Delete post">
-              <IconButton size="small" aria-label="Delete post" onClick={() => onDelete(post.id)}>
+            <Tooltip title={t('Delete post')}>
+              <IconButton
+                size="small"
+                aria-label={t('Delete post')}
+                onClick={() => onDelete(post.id)}
+              >
                 <DeleteOutlineIcon fontSize="small" />
               </IconButton>
             </Tooltip>

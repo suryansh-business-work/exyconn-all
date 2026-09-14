@@ -8,6 +8,7 @@ import {
   TableHead,
   TableRow,
 } from '@exyconn/shell/components/ui';
+import { useT } from '@exyconn/i18n';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import type { AppLogEventFieldsFragment } from '@exyconn/shell/graphql/generated';
 
@@ -23,19 +24,20 @@ function deviceOf(event: AppLogEventFieldsFragment): string {
 
 /** The most recent occurrences, newest first. Picking one shows its stack and breadcrumbs. */
 export function OccurrencesTable({ events, selectedId, onSelect }: Readonly<Props>) {
+  const t = useT();
   const { formatDateTime } = useSettings();
   return (
     <TableContainer sx={{ maxHeight: 280 }}>
-      <Table size="small" stickyHeader aria-label="Recent occurrences">
+      <Table size="small" stickyHeader aria-label={t('Recent occurrences')}>
         <TableHead>
           <TableRow>
-            <TableCell>When</TableCell>
-            <TableCell>Who</TableCell>
-            <TableCell>Device</TableCell>
-            <TableCell>Version</TableCell>
-            <TableCell>Screen / page</TableCell>
-            <TableCell align="right">Times</TableCell>
-            <TableCell>IP</TableCell>
+            <TableCell>{t('When')}</TableCell>
+            <TableCell>{t('Who')}</TableCell>
+            <TableCell>{t('Device')}</TableCell>
+            <TableCell>{t('Version')}</TableCell>
+            <TableCell>{t('Screen / page')}</TableCell>
+            <TableCell align="right">{t('Times')}</TableCell>
+            <TableCell>{t('IP')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -47,9 +49,9 @@ export function OccurrencesTable({ events, selectedId, onSelect }: Readonly<Prop
                 </Button>
               </TableCell>
               <TableCell>
-                {event.userName || event.userEmail || 'Anonymous'}
+                {event.userName || event.userEmail || t('Anonymous')}
                 {event.userId && !event.userVerified && (
-                  <Chip size="small" label="unverified" sx={{ ml: 1 }} />
+                  <Chip size="small" label={t('unverified')} sx={{ ml: 1 }} />
                 )}
               </TableCell>
               <TableCell>{deviceOf(event)}</TableCell>

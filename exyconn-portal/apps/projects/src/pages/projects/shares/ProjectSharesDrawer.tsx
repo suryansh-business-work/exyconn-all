@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, Divider, Flex, Stack, Text, fontSize } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -20,6 +21,7 @@ interface ProjectSharesDrawerProps {
  * somebody closing the drawer and expecting to find it later.
  */
 export function ProjectSharesDrawer({ project, onClose }: Readonly<ProjectSharesDrawerProps>) {
+  const t = useT();
   const { formatDate } = useSettings();
   const shares = useProjectShares(project?.id ?? '');
 
@@ -29,18 +31,22 @@ export function ProjectSharesDrawer({ project, onClose }: Readonly<ProjectShares
   };
 
   return (
-    <CrudDialog open={project !== null} title={`Share "${project?.name ?? ''}"`} onClose={close}>
+    <CrudDialog
+      open={project !== null}
+      title={t('Share "{name}"', { name: project?.name ?? '' })}
+      onClose={close}
+    >
       <Stack spacing={2}>
         <Text size="sm" color="text.secondary">
-          A share link opens a read-only page showing the project&apos;s status, dates, budget
-          against tracked hours, milestones and ticket counts. It shows no comments, no screenshots
-          and nobody&apos;s individual time.
+          {t(
+            "A share link opens a read-only page showing the project's status, dates, budget against tracked hours, milestones and ticket counts. It shows no comments, no screenshots and nobody's individual time.",
+          )}
         </Text>
 
         {shares.newUrl ? (
           <Alert severity="success" onClose={shares.forget}>
             <Text size="sm" sx={{ mb: 1 }}>
-              Copy this link now — it is not stored and cannot be shown again.
+              {t('Copy this link now — it is not stored and cannot be shown again.')}
             </Text>
             <Box
               sx={{
@@ -67,7 +73,7 @@ export function ProjectSharesDrawer({ project, onClose }: Readonly<ProjectShares
                   p: 0,
                 }}
               >
-                Copy link
+                {t('Copy link')}
               </Text>
             </Flex>
           </Alert>
@@ -79,7 +85,7 @@ export function ProjectSharesDrawer({ project, onClose }: Readonly<ProjectShares
 
         <Divider />
 
-        <Text size="label">Links ({shares.shares.length})</Text>
+        <Text size="label">{t('Links ({count})', { count: shares.shares.length })}</Text>
         {shares.shares.map((share) => (
           <ShareRow
             key={share.id}
@@ -90,7 +96,7 @@ export function ProjectSharesDrawer({ project, onClose }: Readonly<ProjectShares
         ))}
         {shares.shares.length === 0 ? (
           <Text size="sm" color="text.secondary">
-            No links have been issued for this project.
+            {t('No links have been issued for this project.')}
           </Text>
         ) : null}
       </Stack>

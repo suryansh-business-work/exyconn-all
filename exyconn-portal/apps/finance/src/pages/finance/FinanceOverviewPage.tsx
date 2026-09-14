@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Grid, color } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
@@ -24,6 +25,7 @@ const round = (amount: number): number => Math.round(amount);
  * "revenue" is how a company convinces itself it is fine while running out of money.
  */
 export function FinanceOverviewPage() {
+  const t = useT();
   const [periodKey, setPeriodKey] = useState('last-3');
   const periods = useMemo(() => financePeriods(), []);
   const period = useMemo(() => periodFor(periodKey), [periodKey]);
@@ -46,23 +48,23 @@ export function FinanceOverviewPage() {
   ];
 
   const earned: MoneyLine[] = [
-    { id: 'invoiced', label: 'Invoiced', amount: finance?.invoiced ?? 0 },
-    { id: 'expenses', label: 'Company expenses', amount: -(finance?.expenses ?? 0) },
-    { id: 'payroll', label: 'Payroll', amount: -(finance?.payroll ?? 0) },
-    { id: 'claims', label: 'Reimbursed claims', amount: -(finance?.reimbursements ?? 0) },
-    { id: 'profit', label: 'Profit', amount: finance?.profit ?? 0, total: true },
+    { id: 'invoiced', label: t('Invoiced'), amount: finance?.invoiced ?? 0 },
+    { id: 'expenses', label: t('Company expenses'), amount: -(finance?.expenses ?? 0) },
+    { id: 'payroll', label: t('Payroll'), amount: -(finance?.payroll ?? 0) },
+    { id: 'claims', label: t('Reimbursed claims'), amount: -(finance?.reimbursements ?? 0) },
+    { id: 'profit', label: t('Profit'), amount: finance?.profit ?? 0, total: true },
   ];
 
   const moved: MoneyLine[] = [
-    { id: 'collected', label: 'Collected from customers', amount: finance?.collected ?? 0 },
-    { id: 'paid', label: 'Bills settled', amount: -(finance?.paidOut ?? 0) },
-    { id: 'net', label: 'Net cash movement', amount: finance?.netCash ?? 0, total: true },
+    { id: 'collected', label: t('Collected from customers'), amount: finance?.collected ?? 0 },
+    { id: 'paid', label: t('Bills settled'), amount: -(finance?.paidOut ?? 0) },
+    { id: 'net', label: t('Net cash movement'), amount: finance?.netCash ?? 0, total: true },
   ];
 
   const owed: MoneyLine[] = [
-    { id: 'receivable', label: 'Owed to us', amount: finance?.outstandingReceivable ?? 0 },
-    { id: 'payable', label: 'Owed by us', amount: -(finance?.outstandingPayable ?? 0) },
-    { id: 'overdue', label: 'Of which already late', amount: -(finance?.overduePayable ?? 0) },
+    { id: 'receivable', label: t('Owed to us'), amount: finance?.outstandingReceivable ?? 0 },
+    { id: 'payable', label: t('Owed by us'), amount: -(finance?.outstandingPayable ?? 0) },
+    { id: 'overdue', label: t('Of which already late'), amount: -(finance?.overduePayable ?? 0) },
   ];
 
   const months = finance?.months ?? [];
@@ -90,8 +92,10 @@ export function FinanceOverviewPage() {
             }}
           >
             <FinanceMoneyPanel
-              title="Earned and spent"
-              basis="Accrual — dated when it was invoiced or incurred, whenever the money moves."
+              title={t('Earned and spent')}
+              basis={t(
+                'Accrual — dated when it was invoiced or incurred, whenever the money moves.',
+              )}
               lines={earned}
             />
           </Grid>
@@ -102,8 +106,8 @@ export function FinanceOverviewPage() {
             }}
           >
             <FinanceMoneyPanel
-              title="Cash movement"
-              basis="Cash — dated when the money actually arrived or left."
+              title={t('Cash movement')}
+              basis={t('Cash — dated when the money actually arrived or left.')}
               lines={moved}
             />
           </Grid>
@@ -114,8 +118,8 @@ export function FinanceOverviewPage() {
             }}
           >
             <FinanceMoneyPanel
-              title="Position today"
-              basis="As of now, not the period — an old unpaid invoice is still owed today."
+              title={t('Position today')}
+              basis={t('As of now, not the period — an old unpaid invoice is still owed today.')}
               lines={owed}
             />
           </Grid>

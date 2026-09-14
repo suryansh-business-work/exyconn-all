@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Divider, Flex, Text } from '@exyconn/shell/components/ui';
 import { AttachmentList, type AttachmentItem } from '@exyconn/shell/components/upload';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -42,6 +43,7 @@ export function SupportThread({
   attachments,
   onClose,
 }: Readonly<SupportThreadProps>) {
+  const t = useT();
   const { data, loading, refetch } = useMySupportRepliesQuery({
     variables: { ticketId },
     fetchPolicy: 'cache-and-network',
@@ -49,7 +51,9 @@ export function SupportThread({
   const { formatDateTime } = useSettings();
   const replies = data?.mySupportReplies ?? [];
 
-  let thread = <Text color="text.secondary">No replies yet — support will answer you here.</Text>;
+  let thread = (
+    <Text color="text.secondary">{t('No replies yet — support will answer you here.')}</Text>
+  );
   if (replies.length > 0) {
     thread = (
       <Flex direction="column" spacing={1}>
@@ -59,7 +63,7 @@ export function SupportThread({
       </Flex>
     );
   } else if (loading) {
-    thread = <Text color="text.secondary">Loading…</Text>;
+    thread = <Text color="text.secondary">{t('Loading…')}</Text>;
   }
 
   return (

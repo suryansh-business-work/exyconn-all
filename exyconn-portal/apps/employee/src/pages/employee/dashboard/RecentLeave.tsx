@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 
@@ -16,12 +17,13 @@ interface RecentLeaveProps {
 
 /** The employee's most recent leave requests and where each one stands. */
 export function RecentLeave({ requests, formatDate }: Readonly<RecentLeaveProps>) {
+  const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
-      <Heading level={6}>Recent leave</Heading>
+      <Heading level={6}>{t('Recent leave')}</Heading>
       {requests.length === 0 && (
         <Text size="sm" color="text.secondary">
-          No leave requests yet.
+          {t('No leave requests yet.')}
         </Text>
       )}
       {requests.map((request) => (

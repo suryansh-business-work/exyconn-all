@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, IconButton, Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -55,6 +56,7 @@ interface TaskRowProps {
 
 /** One task row: what it is, who does it, and when it is due. */
 function TaskRow({ index, onRemove }: Readonly<TaskRowProps>) {
+  const t = useT();
   return (
     <Flex direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="flex-start">
       <Box sx={{ flex: 2, width: '100%' }}>
@@ -73,7 +75,11 @@ function TaskRow({ index, onRemove }: Readonly<TaskRowProps>) {
           }}
         />
       </Box>
-      <IconButton aria-label={`remove task ${index + 1}`} onClick={onRemove} color="error">
+      <IconButton
+        aria-label={t('remove task {number}', { number: index + 1 })}
+        onClick={onRemove}
+        color="error"
+      >
         <DeleteIcon fontSize="small" />
       </IconButton>
     </Flex>
@@ -108,6 +114,7 @@ export function OnboardingTemplateForm({
   onDone,
   onCancel,
 }: Readonly<OnboardingTemplateFormProps>) {
+  const t = useT();
   const [createTemplate] = useCreateOnboardingTemplateMutation();
   const [updateTemplate] = useUpdateOnboardingTemplateMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -135,8 +142,9 @@ export function OnboardingTemplateForm({
       <RhfTextField name="name" label="Template name" />
       <RhfSwitch name="active" label="Offer this template when starting an onboarding" />
       <Text size="sm" color="text.secondary">
-        Each task is copied onto the joiner when their onboarding starts, dated from their join
-        date. Editing a template never changes a checklist that has already been started.
+        {t(
+          'Each task is copied onto the joiner when their onboarding starts, dated from their join date. Editing a template never changes a checklist that has already been started.',
+        )}
       </Text>
       {fields.map((field, index) => (
         <TaskRow key={field.id} index={index} onRemove={() => remove(index)} />
@@ -147,7 +155,7 @@ export function OnboardingTemplateForm({
         onClick={() => append({ ...EMPTY_TASK })}
         sx={{ alignSelf: 'flex-start' }}
       >
-        Add task
+        {t('Add task')}
       </Button>
     </EntityForm>
   );

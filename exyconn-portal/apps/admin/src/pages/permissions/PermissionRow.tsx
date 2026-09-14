@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import {
   Box,
   Button,
@@ -22,6 +23,7 @@ interface PermissionRowProps {
 
 /** One module for the selected role: six switches, save, or reset to the default. */
 export function PermissionRow({ module, saved, onSave, onReset }: Readonly<PermissionRowProps>) {
+  const t = useT();
   const [draft, setDraft] = useState<PermissionAction[]>(saved ?? ACTIONS);
   const [busy, setBusy] = useState(false);
   const restricted = saved !== undefined;
@@ -55,7 +57,7 @@ export function PermissionRow({ module, saved, onSave, onReset }: Readonly<Permi
         <Text weight="medium">{module}</Text>
         <Chip
           size="small"
-          label={restricted ? 'Restricted' : 'Default (all)'}
+          label={restricted ? t('Restricted') : t('Default (all)')}
           color={restricted ? 'warning' : 'default'}
           variant="outlined"
           sx={{ mt: 0.5 }}
@@ -78,7 +80,7 @@ export function PermissionRow({ module, saved, onSave, onReset }: Readonly<Permi
       </Flex>
       <Flex direction="row" spacing={1} justifyContent={{ xs: 'flex-end', md: 'flex-start' }}>
         <Button size="small" disabled={busy || !dirty} onClick={() => run(() => onSave(draft))}>
-          Save
+          {t('Save')}
         </Button>
         <Button
           size="small"
@@ -86,7 +88,7 @@ export function PermissionRow({ module, saved, onSave, onReset }: Readonly<Permi
           disabled={busy || !restricted}
           onClick={() => run(onReset).then(() => setDraft(ACTIONS))}
         >
-          Reset to default
+          {t('Reset to default')}
         </Button>
       </Flex>
     </Flex>

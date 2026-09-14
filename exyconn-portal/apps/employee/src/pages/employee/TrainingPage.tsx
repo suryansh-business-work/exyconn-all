@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Link, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -26,6 +27,7 @@ type Row = {
 
 /** Employee self-service: assigned training, and moving it along. */
 export function TrainingPage() {
+  const t = useT();
   const { data, loading, refetch } = useMyTrainingsQuery({ fetchPolicy: 'cache-and-network' });
   const [updateStatus] = useUpdateMyTrainingStatusMutation();
   const { formatDate } = useSettings();
@@ -39,18 +41,18 @@ export function TrainingPage() {
   };
 
   const columns: Column<Row>[] = [
-    { key: 'title', label: 'Course', render: (t) => <Text weight="medium">{t.title}</Text> },
-    { key: 'category', label: 'Category', render: (t) => t.category || '—' },
-    { key: 'provider', label: 'Provider', render: (t) => t.provider || '—' },
-    { key: 'dueOn', label: 'Due', render: (t) => (t.dueOn ? formatDate(t.dueOn) : '—') },
-    { key: 'status', label: 'Status', render: (t) => <StatusChip value={t.status} /> },
+    { key: 'title', label: 'Course', render: (row) => <Text weight="medium">{row.title}</Text> },
+    { key: 'category', label: 'Category', render: (row) => row.category || '—' },
+    { key: 'provider', label: 'Provider', render: (row) => row.provider || '—' },
+    { key: 'dueOn', label: 'Due', render: (row) => (row.dueOn ? formatDate(row.dueOn) : '—') },
+    { key: 'status', label: 'Status', render: (row) => <StatusChip value={row.status} /> },
     {
       key: 'certificateUrl',
       label: 'Certificate',
-      render: (t) =>
-        t.certificateUrl ? (
-          <Link href={t.certificateUrl} target="_blank" rel="noopener noreferrer">
-            Open
+      render: (row) =>
+        row.certificateUrl ? (
+          <Link href={row.certificateUrl} target="_blank" rel="noopener noreferrer">
+            {t('Open')}
           </Link>
         ) : (
           '—'
@@ -59,7 +61,9 @@ export function TrainingPage() {
     {
       key: 'action',
       label: '',
-      render: (t) => <TrainingStatusAction status={t.status} onAdvance={(s) => advance(t.id, s)} />,
+      render: (row) => (
+        <TrainingStatusAction status={row.status} onAdvance={(s) => advance(row.id, s)} />
+      ),
     },
   ];
 

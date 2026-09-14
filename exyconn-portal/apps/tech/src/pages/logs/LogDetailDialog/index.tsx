@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
+import { useT } from '@exyconn/i18n';
 import {
   Alert,
   Button,
@@ -32,14 +33,15 @@ interface StatusButtonsProps {
 
 /** Open problems can be resolved or ignored; anything else can only be re-opened. */
 function StatusButtons({ row, onStatus }: Readonly<StatusButtonsProps>) {
+  const t = useT();
   if (row.status !== AppLogStatus.Open) {
-    return <Button onClick={() => onStatus(AppLogStatus.Open)}>Re-open</Button>;
+    return <Button onClick={() => onStatus(AppLogStatus.Open)}>{t('Re-open')}</Button>;
   }
   return (
     <>
-      <Button onClick={() => onStatus(AppLogStatus.Ignored)}>Ignore</Button>
+      <Button onClick={() => onStatus(AppLogStatus.Ignored)}>{t('Ignore')}</Button>
       <Button color="success" onClick={() => onStatus(AppLogStatus.Resolved)}>
-        Mark resolved
+        {t('Mark resolved')}
       </Button>
     </>
   );
@@ -50,6 +52,7 @@ function StatusButtons({ row, onStatus }: Readonly<StatusButtonsProps>) {
  * and, for the picked occurrence, the stack and the breadcrumbs that led to it.
  */
 export function LogDetailDialog({ row, actions, onClose }: Readonly<Props>) {
+  const t = useT();
   const { data, loading, error } = useListAppLogEventsQuery({
     variables: { groupId: row?.id ?? '' },
     skip: !row,
@@ -88,12 +91,12 @@ export function LogDetailDialog({ row, actions, onClose }: Readonly<Props>) {
             {error && <Alert severity="error">{error.message}</Alert>}
             {loading && events.length === 0 && <CircularProgress size={24} />}
             {!loading && events.length === 0 && (
-              <CodeBlock title="Stack (latest)" text={row.stack} />
+              <CodeBlock title={t('Stack (latest)')} text={row.stack} />
             )}
             {events.length > 0 && (
               <>
                 <Text size="sm" weight="semibold">
-                  Recent occurrences
+                  {t('Recent occurrences')}
                 </Text>
                 <OccurrencesTable
                   events={events}
@@ -109,7 +112,7 @@ export function LogDetailDialog({ row, actions, onClose }: Readonly<Props>) {
       {row && (
         <DialogActions sx={{ flexWrap: 'wrap', gap: 1 }}>
           <Button color="error" onClick={() => closeAfter(actions.remove(row))}>
-            Delete
+            {t('Delete')}
           </Button>
           <StatusButtons
             row={row}
@@ -123,9 +126,9 @@ export function LogDetailDialog({ row, actions, onClose }: Readonly<Props>) {
               actions.copyFixPrompt(row).catch((err: unknown) => console.error(err));
             }}
           >
-            Copy fix prompt for Claude
+            {t('Copy fix prompt for Claude')}
           </Button>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose}>{t('Close')}</Button>
         </DialogActions>
       )}
     </Dialog>

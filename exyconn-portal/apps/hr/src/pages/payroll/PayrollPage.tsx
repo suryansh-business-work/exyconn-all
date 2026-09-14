@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, Grid, MenuItem, TextField, color } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { StatCard, type StatItem } from '@exyconn/shell/components/dashboard/StatCard';
@@ -37,6 +38,7 @@ const MONTHS = [
  * active employee's slip, then mark the month paid. Paid slips are never touched.
  */
 export function PayrollPage() {
+  const t = useT();
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
@@ -51,6 +53,7 @@ export function PayrollPage() {
   const [markPaid, { loading: paying }] = useMarkPayrollPaidMutation();
   const [sendSlips, { loading: sending }] = useSendSalarySlipsMutation();
   const s = summary.data?.payrollSummary;
+  const monthName = t(MONTHS[month - 1]);
 
   const tiles = useMemo<StatItem[]>(
     () => [
@@ -69,7 +72,7 @@ export function PayrollPage() {
 
   const run = async () => {
     const ok = await confirm({
-      title: `Run payroll for ${MONTHS[month - 1]} ${year}?`,
+      title: t('Run payroll for {month} {year}?', { month: monthName, year }),
       message:
         'Every active employee with a salary structure gets a slip. Existing GENERATED slips are recomputed; PAID slips are left alone.',
     });
@@ -77,10 +80,12 @@ export function PayrollPage() {
     try {
       const { data } = await runPayroll({ variables: { month, year } });
       const r = data?.runPayroll;
-      notify(
-        `Generated ${r?.generated ?? 0}, recomputed ${r?.updated ?? 0}, skipped ${r?.skipped ?? 0}.`,
-        'success',
-      );
+      const done = {
+        generated: r?.generated ?? 0,
+        updated: r?.updated ?? 0,
+        skipped: r?.skipped ?? 0,
+      };
+      notify(t('Generated {generated}, recomputed {updated}, skipped {skipped}.', done), 'success');
       await summary.refetch();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Payroll run failed', 'error');
@@ -89,14 +94,14 @@ export function PayrollPage() {
 
   const pay = async () => {
     const ok = await confirm({
-      title: `Mark ${MONTHS[month - 1]} ${year} as paid?`,
+      title: t('Mark {month} {year} as paid?', { month: monthName, year }),
       message:
         'All GENERATED slips for the month become PAID. This cannot be recomputed afterwards.',
     });
     if (!ok) return;
     try {
       const { data } = await markPaid({ variables: { month, year } });
-      notify(`Marked ${data?.markPayrollPaid ?? 0} slips paid.`, 'success');
+      notify(t('Marked {count} slips paid.', { count: data?.markPayrollPaid ?? 0 }), 'success');
       await summary.refetch();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not mark paid', 'error');
@@ -105,7 +110,7 @@ export function PayrollPage() {
 
   const email = async () => {
     const ok = await confirm({
-      title: `Email payslips for ${MONTHS[month - 1]} ${year}?`,
+      title: t('Email payslips for {month} {year}?', { month: monthName, year }),
       message:
         'Every employee with a slip for this month is emailed their own payslip as a PDF. This does not wait for the schedule.',
     });
@@ -113,8 +118,9 @@ export function PayrollPage() {
     try {
       const { data } = await sendSlips({ variables: { month, year } });
       const r = data?.sendSalarySlips;
+      const out = { sent: r?.sent ?? 0, failed: r?.failed ?? 0, skipped: r?.skipped ?? 0 };
       notify(
-        `Emailed ${r?.sent ?? 0} payslips — ${r?.failed ?? 0} failed, ${r?.skipped ?? 0} without an address.`,
+        t('Emailed {sent} payslips — {failed} failed, {skipped} without an address.', out),
         'success',
       );
     } catch (error) {
@@ -131,20 +137,20 @@ export function PayrollPage() {
           <TextField
             select
             size="small"
-            label="Month"
+            label={t('Month')}
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
             sx={{ minWidth: 160 }}
           >
             {MONTHS.map((name, index) => (
               <MenuItem key={name} value={index + 1}>
-                {name}
+                {t(name)}
               </MenuItem>
             ))}
           </TextField>
           <TextField
             size="small"
-            label="Year"
+            label={t('Year')}
             type="number"
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
@@ -152,21 +158,21 @@ export function PayrollPage() {
           />
           <Box sx={{ flexGrow: 1 }} />
           <Button startIcon={<PlayArrowIcon />} onClick={run} disabled={running}>
-            {running ? 'Running…' : 'Run payroll'}
+            {running ? t('Running…') : t('Run payroll')}
           </Button>
           <Button
             startIcon={<PaidIcon />}
             onClick={pay}
             disabled={paying || (s?.slips ?? 0) === 0 || (s?.paid ?? 0) === (s?.slips ?? 0)}
           >
-            Mark paid
+            {t('Mark paid')}
           </Button>
           <Button
             startIcon={<ForwardToInboxIcon />}
             onClick={email}
             disabled={sending || (s?.slips ?? 0) === 0}
           >
-            {sending ? 'Emailing…' : 'Email payslips'}
+            {sending ? t('Emailing…') : t('Email payslips')}
           </Button>
         </Flex>
       </Box>

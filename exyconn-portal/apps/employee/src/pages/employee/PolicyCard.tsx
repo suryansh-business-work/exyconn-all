@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import {
   Box,
   Button,
@@ -29,21 +30,28 @@ interface Props {
  * able to say "you signed v1, v2 is now in force".
  */
 export function PolicyCard({ policy, onOpen }: Readonly<Props>) {
+  const t = useT();
   const { formatDate } = useSettings();
   const needsSigning = policy.requiresAcknowledgement && !policy.acknowledged;
+
+  let versionLabel = t('v{version}', { version: policy.version });
+  if (needsSigning) {
+    versionLabel = t('v{version} · needs your signature', { version: policy.version });
+  }
+
+  let dateLabel = t('Effective {date}', { date: formatDate(policy.effectiveDate) });
+  if (policy.acknowledged) {
+    dateLabel = policy.acknowledgedAt
+      ? t('Signed {date}', { date: formatDate(policy.acknowledgedAt) })
+      : t('Signed');
+  }
 
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardHeader
         title={<Heading level={6}>{policy.title}</Heading>}
         subheader={
-          <Chip
-            size="small"
-            color={needsSigning ? 'warning' : 'default'}
-            label={
-              needsSigning ? `v${policy.version} · needs your signature` : `v${policy.version}`
-            }
-          />
+          <Chip size="small" color={needsSigning ? 'warning' : 'default'} label={versionLabel} />
         }
       />
       <Box sx={{ px: 2, flex: 1 }}>
@@ -51,9 +59,7 @@ export function PolicyCard({ policy, onOpen }: Readonly<Props>) {
       </Box>
       <CardFooter sx={{ justifyContent: 'space-between' }}>
         <Text size="caption" color="text.secondary">
-          {policy.acknowledged
-            ? `Signed ${policy.acknowledgedAt ? formatDate(policy.acknowledgedAt) : ''}`
-            : `Effective ${formatDate(policy.effectiveDate)}`}
+          {dateLabel}
         </Text>
         <Button
           size="small"
@@ -67,7 +73,7 @@ export function PolicyCard({ policy, onOpen }: Readonly<Props>) {
           }
           onClick={() => onOpen(policy)}
         >
-          {needsSigning ? 'Read and sign' : 'Read'}
+          {needsSigning ? t('Read and sign') : t('Read')}
         </Button>
       </CardFooter>
     </Card>

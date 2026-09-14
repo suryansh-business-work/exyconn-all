@@ -1,5 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useT } from '@exyconn/i18n';
 import {
   Avatar,
   Box,
@@ -26,6 +27,7 @@ interface TaskCardProps {
  * The card body opens the ticket; only the grip drags it, so a click never starts a drag.
  */
 export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
+  const t = useT();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
     data: { type: 'task', columnId: task.columnId },
@@ -49,7 +51,7 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
       <Flex direction="row" alignItems="flex-start" spacing={0.5}>
         <IconButton
           size="small"
-          aria-label={`Drag ${task.key}`}
+          aria-label={t('Drag {key}', { key: task.key })}
           sx={{ cursor: 'grab', mt: -0.5 }}
           {...attributes}
           {...listeners}
@@ -88,7 +90,7 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
             ) : null}
             <Box sx={{ flex: 1 }} />
             {task.assigneeName === '' ? null : (
-              <Tooltip title={`Assigned to ${task.assigneeName}`}>
+              <Tooltip title={t('Assigned to {name}', { name: task.assigneeName })}>
                 <Avatar sx={{ width: 22, height: 22, fontSize: fontSize['3xs'] }}>
                   {initialsOf(task.assigneeName)}
                 </Avatar>

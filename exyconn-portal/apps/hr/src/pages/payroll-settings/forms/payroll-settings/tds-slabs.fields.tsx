@@ -1,6 +1,7 @@
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import { useT } from '@exyconn/i18n';
 import { Button, Flex, IconButton, Text } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 
@@ -16,18 +17,19 @@ import { RhfTextField } from '@exyconn/shell/components/form/rhf';
  * configured must not invent a rate to tax somebody at.
  */
 export function TdsSlabFields() {
+  const t = useT();
   const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name: 'tdsSlabs' });
 
   return (
     <Flex direction="column" spacing={1}>
       <Text size="sm" weight="bold">
-        Tax bands
+        {t('Tax bands')}
       </Text>
       <Text size="caption" color="text.secondary">
-        Each band&apos;s rate applies only to the part of annual taxable pay that falls inside it.
-        Leave the last band&apos;s upper limit empty — that is the open-ended top band. With no
-        bands, nothing is withheld.
+        {t(
+          "Each band's rate applies only to the part of annual taxable pay that falls inside it. Leave the last band's upper limit empty — that is the open-ended top band. With no bands, nothing is withheld.",
+        )}
       </Text>
 
       {fields.map((field, index) => (
@@ -40,7 +42,7 @@ export function TdsSlabFields() {
           />
           <RhfTextField name={`tdsSlabs.${index}.percent`} label="Rate (%)" type="number" />
           <IconButton
-            aria-label={`Remove band ${index + 1}`}
+            aria-label={t('Remove band {number}', { number: index + 1 })}
             onClick={() => remove(index)}
             sx={{ mt: 1 }}
           >
@@ -55,7 +57,7 @@ export function TdsSlabFields() {
         onClick={() => append({ upTo: null, percent: 0 })}
         sx={{ alignSelf: 'flex-start' }}
       >
-        Add band
+        {t('Add band')}
       </Button>
     </Flex>
   );

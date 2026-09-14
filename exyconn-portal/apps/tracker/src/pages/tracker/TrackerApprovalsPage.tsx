@@ -73,15 +73,15 @@ export function TrackerApprovalsPage() {
   const actions: RowAction<TrackerManualEntryFieldsFragment>[] = [
     {
       icon: <CheckIcon fontSize="small" />,
-      tooltip: t('Approve this entry'),
-      ariaLabel: t('Approve entry'),
+      tooltip: 'Approve this entry',
+      ariaLabel: 'Approve entry',
       color: 'success',
       onClick: (row) => decide(row, TrackerManualEntryStatus.Approved),
     },
     {
       icon: <CloseIcon fontSize="small" />,
-      tooltip: t('Reject this entry'),
-      ariaLabel: t('Reject entry'),
+      tooltip: 'Reject this entry',
+      ariaLabel: 'Reject entry',
       color: 'error',
       onClick: (row) => decide(row, TrackerManualEntryStatus.Rejected),
     },

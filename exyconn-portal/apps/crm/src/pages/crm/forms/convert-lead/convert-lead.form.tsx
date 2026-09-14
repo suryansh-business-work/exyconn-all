@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfDatePicker } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -46,6 +47,7 @@ interface ConvertLeadFormProps {
  * converting a second lead from the same account does not duplicate it.
  */
 export function ConvertLeadForm({ lead, onDone, onCancel }: Readonly<ConvertLeadFormProps>) {
+  const t = useT();
   const notify = useNotify();
   const [convertLead] = useConvertLeadMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -64,7 +66,11 @@ export function ConvertLeadForm({ lead, onDone, onCancel }: Readonly<ConvertLead
           },
         },
       });
-      notify(`Deal "${res.data?.convertLead.title ?? values.dealTitle}" created`);
+      notify(
+        t('Deal "{title}" created', {
+          title: res.data?.convertLead.title ?? values.dealTitle,
+        }),
+      );
       onDone();
     } catch (err) {
       notify(errorMessage(err, 'Conversion failed'), 'error');
@@ -80,7 +86,9 @@ export function ConvertLeadForm({ lead, onDone, onCancel }: Readonly<ConvertLead
       submitLabel="Convert"
     >
       <Text size="sm" color="text.secondary">
-        Converting “{lead.name}” marks the lead won and opens a deal at the top of the pipeline.
+        {t('Converting “{name}” marks the lead won and opens a deal at the top of the pipeline.', {
+          name: lead.name,
+        })}
       </Text>
       <RhfTextField
         name="companyName"

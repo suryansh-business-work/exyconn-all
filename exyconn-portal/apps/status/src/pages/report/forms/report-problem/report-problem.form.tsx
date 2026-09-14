@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import { RhfSelect, RhfTextField, type SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -16,7 +17,6 @@ import type { ReportProblemFormProps } from './report-problem.types';
 
 const CATEGORY_OPTIONS = enumOptions(Object.values(ProblemCategory));
 const SEVERITY_OPTIONS = enumOptions(Object.values(ProblemSeverity));
-const WHOLE_PLATFORM: SelectOption = { value: '', label: 'Not sure / the whole platform' };
 
 type Values = z.infer<typeof reportProblemSchema>;
 
@@ -32,6 +32,8 @@ export function ReportProblemForm({
 }: Readonly<ReportProblemFormProps>) {
   const [submitReport] = useSubmitProblemReportMutation();
   const notify = useNotify();
+  const t = useT();
+  const wholePlatform: SelectOption = { value: '', label: t('Not sure / the whole platform') };
   const methods = useForm<z.input<typeof reportProblemSchema>, unknown, Values>({
     resolver: zodResolver(reportProblemSchema),
     defaultValues: REPORT_DEFAULTS,
@@ -59,7 +61,7 @@ export function ReportProblemForm({
       <RhfSelect
         name="serviceKey"
         label="Which service?"
-        options={[WHOLE_PLATFORM, ...services]}
+        options={[wholePlatform, ...services]}
         helperText="Pick the service you were using when it went wrong"
       />
       <RhfSelect name="category" label="What kind of problem?" options={CATEGORY_OPTIONS} />

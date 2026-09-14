@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, TextField } from '@exyconn/shell/components/ui';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -10,6 +11,7 @@ interface AddItemInputProps {
 
 /** Inline "+ Add" control that expands into a text field on click. */
 export function AddItemInput({ label, placeholder, onAdd }: AddItemInputProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
 
@@ -29,7 +31,7 @@ export function AddItemInput({ label, placeholder, onAdd }: AddItemInputProps) {
         onClick={() => setOpen(true)}
         sx={{ justifyContent: 'flex-start' }}
       >
-        {label}
+        {t(label)}
       </Button>
     );
   }
@@ -40,7 +42,7 @@ export function AddItemInput({ label, placeholder, onAdd }: AddItemInputProps) {
         autoFocus
         fullWidth
         size="small"
-        placeholder={placeholder}
+        placeholder={t(placeholder)}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={(e) => {
@@ -50,10 +52,10 @@ export function AddItemInput({ label, placeholder, onAdd }: AddItemInputProps) {
       />
       <Flex direction="row" spacing={1} sx={{ mt: 1 }}>
         <Button size="small" variant="contained" onClick={submit}>
-          Add
+          {t('Add')}
         </Button>
         <Button size="small" onClick={() => setOpen(false)}>
-          Cancel
+          {t('Cancel')}
         </Button>
       </Flex>
     </Box>

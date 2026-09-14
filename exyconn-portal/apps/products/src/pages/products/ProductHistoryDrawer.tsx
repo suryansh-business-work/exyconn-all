@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { ServerDataGrid } from '@exyconn/shell/components/data/ServerDataGrid';
 import { usePagedFetcher } from '@exyconn/crud';
@@ -35,12 +36,10 @@ function ProductHistory({ product }: Readonly<{ product: PagedProductRow }>) {
  * product so opening another one mounts a fresh grid with its own filter.
  */
 export function ProductHistoryDrawer({ product, onClose }: Readonly<ProductHistoryDrawerProps>) {
+  const t = useT();
+  const title = product ? t('{name} — stock history', { name: product.name }) : t('Stock history');
   return (
-    <CrudDialog
-      open={Boolean(product)}
-      title={product ? `${product.name} — stock history` : 'Stock history'}
-      onClose={onClose}
-    >
+    <CrudDialog open={Boolean(product)} title={title} onClose={onClose}>
       {product && <ProductHistory key={product.id} product={product} />}
     </CrudDialog>
   );

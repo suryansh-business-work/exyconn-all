@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Alert, Button, Skeleton, Stack, Typography } from '@exyconn/shell/components/ui';
 import type { SocialPostFieldsFragment } from '@exyconn/shell/graphql/generated';
 import { PostCard } from './PostCard';
@@ -28,6 +29,7 @@ export function PostList({
   loadingMore = false,
   emptyMessage,
 }: Readonly<PostListProps>) {
+  const t = useT();
   const { like, share, remove } = useSocialActions();
 
   if (error) {
@@ -66,7 +68,7 @@ export function PostList({
       ))}
       {onLoadMore && (
         <Button onClick={onLoadMore} disabled={loadingMore} sx={{ alignSelf: 'center' }}>
-          {loadingMore ? 'Loading…' : 'Load older posts'}
+          {loadingMore ? t('Loading…') : t('Load older posts')}
         </Button>
       )}
     </Stack>

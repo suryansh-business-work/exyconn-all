@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -10,12 +11,13 @@ interface HrNewJoinersProps {
 
 /** Who joined this month. */
 export function HrNewJoiners({ users, formatDate }: Readonly<HrNewJoinersProps>) {
+  const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
-      <Heading level={6}>New joiners this month</Heading>
+      <Heading level={6}>{t('New joiners this month')}</Heading>
       {users.length === 0 && (
         <Text size="sm" color="text.secondary">
-          No one joined this month.
+          {t('No one joined this month.')}
         </Text>
       )}
       {users.map((user) => (

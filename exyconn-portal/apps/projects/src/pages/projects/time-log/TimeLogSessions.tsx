@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/components/ui';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import { useT } from '@exyconn/i18n';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { formatDuration } from '@exyconn/shell/pages/tracker-view/tracker.format';
 import { useProjectTimeLogSessionsQuery } from '@exyconn/shell/graphql/generated';
@@ -40,6 +41,7 @@ export function TimeLogSessions({
   taskId,
   canViewScreenshots,
 }: Readonly<TimeLogSessionsProps>) {
+  const t = useT();
   const { formatDateTime } = useSettings();
   const [openId, setOpenId] = useState<string | null>(null);
   const { data, loading } = useProjectTimeLogSessionsQuery({
@@ -56,7 +58,7 @@ export function TimeLogSessions({
           color: 'text.secondary',
         }}
       >
-        Loading runs…
+        {t('Loading runs…')}
       </Typography>
     );
   }
@@ -68,7 +70,7 @@ export function TimeLogSessions({
           color: 'text.secondary',
         }}
       >
-        This time was claimed off-computer — there are no tracked runs behind it.
+        {t('This time was claimed off-computer — there are no tracked runs behind it.')}
       </Typography>
     );
   }
@@ -103,11 +105,11 @@ export function TimeLogSessions({
                     color: 'text.secondary',
                   }}
                 >
-                  {formatDuration(session.idleMs)} idle
+                  {t('{duration} idle', { duration: formatDuration(session.idleMs) })}
                 </Typography>
               ) : null}
               {session.endedAt === null ? (
-                <Chip size="small" color="success" label="Running" />
+                <Chip size="small" color="success" label={t('Running')} />
               ) : null}
               {session.screenshotCount > 0 ? (
                 <Stack

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Avatar, Box, Divider, Flex, Text, fontSize } from '@exyconn/shell/components/ui';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useTaskActivityQuery } from '@exyconn/shell/graphql/generated';
@@ -7,21 +8,27 @@ interface TicketActivityProps {
   taskId: string;
 }
 
+/** The translator, so the module-scope sentence builder can be given the page's own `t`. */
+type Translate = ReturnType<typeof useT>;
+
 /** "priority from High to Highest" — or the shorter sentence when one side is empty. */
-function describe(field: string, fromValue: string, toValue: string): string {
+function describe(t: Translate, field: string, fromValue: string, toValue: string): string {
   if (field === 'created') {
-    return `created ${toValue}`;
+    return t('created {value}', { value: toValue });
   }
   if (field === 'attachment') {
-    return toValue === '' ? `removed attachment ${fromValue}` : `attached ${toValue}`;
+    if (toValue === '') {
+      return t('removed attachment {name}', { name: fromValue });
+    }
+    return t('attached {name}', { name: toValue });
   }
   if (fromValue === '') {
-    return `set ${field} to ${toValue}`;
+    return t('set {field} to {value}', { field, value: toValue });
   }
   if (toValue === '') {
-    return `cleared ${field}`;
+    return t('cleared {field}', { field });
   }
-  return `changed ${field} from ${fromValue} to ${toValue}`;
+  return t('changed {field} from {from} to {to}', { field, from: fromValue, to: toValue });
 }
 
 /**
@@ -29,6 +36,7 @@ function describe(field: string, fromValue: string, toValue: string): string {
  * It is a record, not a form: nothing here is editable, and nothing is inferred at read time.
  */
 export function TicketActivity({ taskId }: Readonly<TicketActivityProps>) {
+  const t = useT();
   const { formatDateTime } = useSettings();
   const { data } = useTaskActivityQuery({
     variables: { taskId },
@@ -40,7 +48,7 @@ export function TicketActivity({ taskId }: Readonly<TicketActivityProps>) {
   return (
     <Box>
       <Text size="label" sx={{ mb: 1 }}>
-        History ({entries.length})
+        {t('History ({count})', { count: entries.length })}
       </Text>
       <Divider sx={{ mb: 1.5 }} />
 
@@ -55,7 +63,7 @@ export function TicketActivity({ taskId }: Readonly<TicketActivityProps>) {
                 <Text component="span" size="sm" weight="medium">
                   {entry.actorName}
                 </Text>{' '}
-                {describe(entry.field, entry.fromValue, entry.toValue)}
+                {describe(t, entry.field, entry.fromValue, entry.toValue)}
               </Text>
               <Text size="caption" color="text.secondary">
                 {formatDateTime(entry.createdAt)}
@@ -66,7 +74,7 @@ export function TicketActivity({ taskId }: Readonly<TicketActivityProps>) {
 
         {entries.length === 0 ? (
           <Text size="sm" color="text.secondary">
-            Nothing has changed on this ticket yet.
+            {t('Nothing has changed on this ticket yet.')}
           </Text>
         ) : null}
       </Flex>

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Alert, Box, CircularProgress, Flex, Text } from '@exyconn/shell/components/ui';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
@@ -17,28 +18,37 @@ const TDS_SUMMARY: Record<string, string> = {
 
 /** What each head currently costs an employee, in the words a payslip uses. */
 function PolicySummary({ settings }: Readonly<{ settings: PayrollSettingsRow }>) {
+  const t = useT();
   const pf = settings.pfEnabled
-    ? `${settings.pfEmployeePercent}% of basic, capped at ${settings.pfWageCeiling}`
-    : OFF;
+    ? t('{percent}% of basic, capped at {ceiling}', {
+        percent: settings.pfEmployeePercent,
+        ceiling: settings.pfWageCeiling,
+      })
+    : t(OFF);
   const esi = settings.esiEnabled
-    ? `${settings.esiEmployeePercent}% of gross, up to ${settings.esiWageLimit}`
-    : OFF;
-  const tds = TDS_SUMMARY[settings.tdsMode] ?? OFF;
+    ? t('{percent}% of gross, up to {limit}', {
+        percent: settings.esiEmployeePercent,
+        limit: settings.esiWageLimit,
+      })
+    : t(OFF);
+  const professionalTax =
+    settings.professionalTaxMonthly > 0
+      ? t('{amount} a month', { amount: settings.professionalTaxMonthly })
+      : t(OFF);
+  const tds = t(TDS_SUMMARY[settings.tdsMode] ?? OFF);
 
   return (
     <Flex direction="column" spacing={1}>
-      <DetailRow label="Provident fund">
+      <DetailRow label={t('Provident fund')}>
         <Text size="sm">{pf}</Text>
       </DetailRow>
-      <DetailRow label="Employee state insurance">
+      <DetailRow label={t('Employee state insurance')}>
         <Text size="sm">{esi}</Text>
       </DetailRow>
-      <DetailRow label="Professional tax">
-        <Text size="sm">
-          {settings.professionalTaxMonthly > 0 ? `${settings.professionalTaxMonthly} a month` : OFF}
-        </Text>
+      <DetailRow label={t('Professional tax')}>
+        <Text size="sm">{professionalTax}</Text>
       </DetailRow>
-      <DetailRow label="Income tax">
+      <DetailRow label={t('Income tax')}>
         <Text size="sm">{tds}</Text>
       </DetailRow>
     </Flex>
@@ -52,6 +62,7 @@ function PolicySummary({ settings }: Readonly<{ settings: PayrollSettingsRow }>)
  * own TDS rate) live on their salary structure and beat what is set here.
  */
 export function PayrollSettingsPage() {
+  const t = useT();
   const { data, loading, error, refetch } = usePayrollSettingsQuery({
     fetchPolicy: 'cache-and-network',
   });
@@ -75,7 +86,7 @@ export function PayrollSettingsPage() {
           </Box>
           <Box sx={[readingPanel, { flex: 1, width: '100%' }]}>
             <Text weight="medium" sx={{ display: 'block', mb: 1.5 }}>
-              What the next run will withhold
+              {t('What the next run will withhold')}
             </Text>
             <PolicySummary settings={settings} />
           </Box>

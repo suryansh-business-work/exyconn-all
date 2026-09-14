@@ -1,4 +1,5 @@
 import EngineeringIcon from '@mui/icons-material/Engineering';
+import { useT } from '@exyconn/i18n';
 import { Box, Chip, Divider, Flex, Link, Typography } from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { TIME_FORMAT } from '../../status.constants';
@@ -16,6 +17,7 @@ interface ServiceCardProps {
 
 /** A service inside a live maintenance window is "in maintenance", whatever the probe says. */
 function StateBadge({ service, underMaintenance }: Readonly<Omit<ServiceCardProps, 'divided'>>) {
+  const t = useT();
   if (underMaintenance) {
     return (
       <Chip
@@ -23,7 +25,7 @@ function StateBadge({ service, underMaintenance }: Readonly<Omit<ServiceCardProp
         color="info"
         variant="outlined"
         icon={<EngineeringIcon />}
-        label="Maintenance"
+        label={t('Maintenance')}
       />
     );
   }
@@ -32,8 +34,11 @@ function StateBadge({ service, underMaintenance }: Readonly<Omit<ServiceCardProp
 
 /** One monitored service: what it is, how it is doing now, and its day-by-day history. */
 export function ServiceCard({ service, divided, underMaintenance }: Readonly<ServiceCardProps>) {
+  const t = useT();
   const checkedAt = formatWith(service.lastCheckedAt, TIME_FORMAT);
-  const uptimeLine = checkedAt ? `Last checked ${checkedAt}` : 'Not checked yet';
+  const uptimeLine = checkedAt
+    ? t('Last checked {checkedAt}', { checkedAt })
+    : t('Not checked yet');
   // Before the first probe every number would read as a hard zero, which looks like an
   // outage rather than "no data", so the figures wait for a measurement.
   const figures = checkedAt ? `${service.uptime30d.toFixed(1)}% · ${service.responseMs} ms` : '';

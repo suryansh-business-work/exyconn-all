@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Dialog, DialogContent, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -26,6 +27,7 @@ type SignerRow = {
  * we have since rewritten".
  */
 export function PolicySignersDialog({ policy, onClose }: Readonly<Props>) {
+  const t = useT();
   const { formatDateTime } = useSettings();
   const { data, loading, refetch } = usePolicyAcknowledgementsQuery({
     variables: { policyId: policy?.id ?? '' },
@@ -47,13 +49,16 @@ export function PolicySignersDialog({ policy, onClose }: Readonly<Props>) {
   const rows = (data?.policyAcknowledgements ?? []) as SignerRow[];
 
   return (
-    <Dialog open onClose={onClose} maxWidth="sm" fullWidth aria-label="Who has signed">
+    <Dialog open onClose={onClose} maxWidth="sm" fullWidth aria-label={t('Who has signed')}>
       <DialogContent>
         <Text size="lg" weight="bold" component="div">
           {policy.title}
         </Text>
         <Text size="caption" color="text.secondary" component="div" sx={{ mb: 2 }}>
-          Currently v{policy.version} · {policy.acknowledgedCount} have signed this version
+          {t('Currently v{version} · {count} have signed this version', {
+            version: policy.version,
+            count: policy.acknowledgedCount,
+          })}
         </Text>
         <DataTable
           columns={columns}

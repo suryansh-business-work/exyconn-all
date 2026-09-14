@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -29,6 +30,7 @@ import { TICKET_COLUMNS, type PagedTicketRow, type TicketsGridContext } from './
  */
 export function SupportConsolePage() {
   const { user } = useAuth();
+  const t = useT();
   const navigate = useNavigate();
   const { formatDate } = useSettings();
   const { data: statsData, refetch: refetchStats } = useListSupportTicketsStatsQuery();
@@ -127,7 +129,7 @@ export function SupportConsolePage() {
             startIcon={<AddIcon />}
             onClick={() => setRaising(true)}
           >
-            New customer ticket
+            {t('New customer ticket')}
           </Button>
         </Flex>
       }

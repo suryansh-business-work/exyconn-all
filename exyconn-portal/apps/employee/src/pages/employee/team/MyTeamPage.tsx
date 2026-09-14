@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
@@ -16,6 +17,7 @@ import { readingPanel } from '@exyconn/shell/components/glass/glass';
  * leave, requests, appraisals and goal feedback. Empty for anyone with no reports.
  */
 export function MyTeamPage() {
+  const t = useT();
   const { data, loading } = useMyDirectReportsQuery({ fetchPolicy: 'cache-and-network' });
   const reports = useMemo(() => data?.myDirectReports ?? [], [data]);
   const nameById = useMemo(() => new Map(reports.map((r) => [r.id, r.name])), [reports]);
@@ -28,8 +30,8 @@ export function MyTeamPage() {
         <Box sx={readingPanel}>
           <Text color="text.secondary">
             {loading
-              ? 'Loading…'
-              : 'Nobody reports to you yet. HR sets reporting lines on the employee record.'}
+              ? t('Loading…')
+              : t('Nobody reports to you yet. HR sets reporting lines on the employee record.')}
           </Text>
         </Box>
       )}

@@ -1,4 +1,5 @@
 import type { MouseEvent } from 'react';
+import { useT } from '@exyconn/i18n';
 import type { ICellRendererParams, ValueFormatterParams } from 'ag-grid-community';
 import { Flex, IconButton } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -40,6 +41,10 @@ type ActionCellParams = ICellRendererParams & { actionSpecs: readonly RowActionS
 
 /** Renders the row's action buttons, resolving each spec's handler from the grid context. */
 export function RowActionsCell(params: Readonly<ActionCellParams>) {
+  // Action names are written in the column model ("revoke device", "send contract"), which is
+  // module scope and so cannot translate them itself. They are always copy, never a row's own
+  // data, so translating them here is safe.
+  const t = useT();
   const row: unknown = params.data;
   const { actions } = params.context as CrudGridContext<unknown>;
   if (!row) {
@@ -62,7 +67,7 @@ export function RowActionsCell(params: Readonly<ActionCellParams>) {
           <IconButton
             key={spec.key}
             size="small"
-            aria-label={spec.label}
+            aria-label={t(spec.label)}
             color={spec.color}
             onClick={run(handler)}
           >

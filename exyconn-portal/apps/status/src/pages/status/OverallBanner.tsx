@@ -7,6 +7,7 @@ import {
   useTheme,
   iconSize,
 } from '@exyconn/shell/components/ui';
+import { useT } from '@exyconn/i18n';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { STATE_META, TIME_FORMAT } from '../../status.constants';
 import type { StatusOverview } from './status.types';
@@ -17,10 +18,14 @@ interface OverallBannerProps {
 
 /** The headline: one sentence anyone can read in a second, in the state's colour. */
 export function OverallBanner({ overview }: Readonly<OverallBannerProps>) {
+  const t = useT();
   const theme = useTheme();
   const { headline, tone, icon: Icon } = STATE_META[overview.state];
   const color = theme.palette[tone].main;
-  const checkedLine = `Checked every ${overview.checkIntervalMinutes} min · last updated ${formatWith(overview.generatedAt, TIME_FORMAT)}`;
+  const checkedLine = t('Checked every {minutes} min · last updated {updated}', {
+    minutes: overview.checkIntervalMinutes,
+    updated: formatWith(overview.generatedAt, TIME_FORMAT),
+  });
 
   return (
     <Box
@@ -41,7 +46,7 @@ export function OverallBanner({ overview }: Readonly<OverallBannerProps>) {
               fontWeight: 800,
             }}
           >
-            {headline}
+            {t(headline)}
           </Typography>
           <Typography
             variant="body2"
@@ -49,7 +54,11 @@ export function OverallBanner({ overview }: Readonly<OverallBannerProps>) {
               color: 'text.secondary',
             }}
           >
-            {overview.operational} of {overview.total} services operational · {checkedLine}
+            {t('{operational} of {total} services operational · {checked}', {
+              operational: overview.operational,
+              total: overview.total,
+              checked: checkedLine,
+            })}
           </Typography>
         </Box>
       </Flex>

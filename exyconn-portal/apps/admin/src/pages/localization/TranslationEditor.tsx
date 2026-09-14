@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Button, Flex, TextField } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -19,6 +20,7 @@ interface Props {
  */
 export function TranslationEditor({ locale, source, text, onSaved }: Readonly<Props>) {
   const notify = useNotify();
+  const t = useT();
   const [value, setValue] = useState(text);
   const [saving, setSaving] = useState(false);
   const [setTranslation] = useSetTranslationMutation();
@@ -44,7 +46,7 @@ export function TranslationEditor({ locale, source, text, onSaved }: Readonly<Pr
         value={value}
         onChange={(event) => setValue(event.target.value)}
         slotProps={{
-          htmlInput: { 'aria-label': `Translation of "${source}"` },
+          htmlInput: { 'aria-label': t('Translation of "{source}"', { source }) },
         }}
       />
       <Button
@@ -53,7 +55,7 @@ export function TranslationEditor({ locale, source, text, onSaved }: Readonly<Pr
         disabled={saving || value.trim() === '' || value === text}
         onClick={() => void save()}
       >
-        Save
+        {t('Save')}
       </Button>
     </Flex>
   );

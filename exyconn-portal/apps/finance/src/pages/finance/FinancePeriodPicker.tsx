@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { MenuItem, TextField } from '@exyconn/shell/components/ui';
 import type { FinancePeriod } from './finance-period';
 
@@ -9,18 +10,19 @@ interface Props {
 
 /** Which window the dashboard is reporting on. Every figure below it follows this. */
 export function FinancePeriodPicker({ periods, value, onChange }: Readonly<Props>) {
+  const t = useT();
   return (
     <TextField
       select
       size="small"
-      label="Period"
+      label={t('Period')}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       sx={{ minWidth: 180 }}
     >
       {periods.map((period) => (
         <MenuItem key={period.key} value={period.key}>
-          {period.label}
+          {t(period.label)}
         </MenuItem>
       ))}
     </TextField>

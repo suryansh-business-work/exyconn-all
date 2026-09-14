@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -22,6 +23,7 @@ import {
  * no row for, and closing a department must not orphan years of spend booked to it.
  */
 export function CostCentersPage() {
+  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListCostCentersStatsQuery();
   const [deleteCostCenter] = useDeleteCostCenterMutation();
 
@@ -29,7 +31,10 @@ export function CostCentersPage() {
     label: 'Cost centre',
     onDelete: (row) => deleteCostCenter({ variables: { id: row.id } }),
     confirmMessage: (row) =>
-      `Delete ${row.code}? Spend and budgets already booked to it will no longer have a centre. Retiring it instead keeps the history readable.`,
+      t(
+        'Delete {code}? Spend and budgets already booked to it will no longer have a centre. Retiring it instead keeps the history readable.',
+        { code: row.code },
+      ),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

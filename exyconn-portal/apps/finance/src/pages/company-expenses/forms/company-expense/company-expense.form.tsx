@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useT } from '@exyconn/i18n';
 import {
   RhfTextField,
   RhfSelect,
@@ -70,12 +71,13 @@ export function CompanyExpenseForm({
   onDone,
   onCancel,
 }: Readonly<CompanyExpenseFormProps>) {
+  const t = useT();
   const [createExpense] = useCreateCompanyExpenseMutation();
   const [updateExpense] = useUpdateCompanyExpenseMutation();
   const companyCurrency = useCompanyCurrency();
   const { data: centresData } = useListCostCentersQuery();
   const centreOptions = [
-    { value: '', label: 'Unallocated' },
+    { value: '', label: t('Unallocated') },
     ...(centresData?.listCostCenters ?? [])
       .filter((centre) => centre.isActive)
       .map((centre) => ({ value: centre.id, label: `${centre.code} — ${centre.name}` })),

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { panel } from '@exyconn/shell/components/glass/glass';
@@ -21,12 +22,13 @@ export function LatestAnnouncements({
   announcements,
   formatDate,
 }: Readonly<LatestAnnouncementsProps>) {
+  const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
-      <Heading level={6}>Announcements</Heading>
+      <Heading level={6}>{t('Announcements')}</Heading>
       {announcements.length === 0 && (
         <Text size="sm" color="text.secondary">
-          Nothing announced right now.
+          {t('Nothing announced right now.')}
         </Text>
       )}
       {announcements.map((announcement) => (

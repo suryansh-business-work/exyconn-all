@@ -1,4 +1,5 @@
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import { borderWidth, Box, Chip, Flex, Grid, Text } from '@exyconn/shell/components/ui';
 import { RhfImageField, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import type { BrandingFormValues } from './branding.types';
@@ -85,14 +86,16 @@ function LoginPageCard({ index, app }: Readonly<LoginPageCardProps>) {
  * from the app registry, so a newly added portal shows up here without a migration.
  */
 export function BrandingLoginPagesFields() {
+  const t = useT();
   const { control } = useFormContext<BrandingFormValues>();
   const { fields } = useFieldArray({ control, name: 'loginPages' });
 
   return (
     <Flex direction="column" spacing={1.5}>
       <Text size="sm" color="text.secondary">
-        Every portal shares one sign-in, on its own subdomain. These settings give each one its own
-        front door.
+        {t(
+          'Every portal shares one sign-in, on its own subdomain. These settings give each one its own front door.',
+        )}
       </Text>
       {fields.map((field, index) => (
         <LoginPageCard key={field.id} index={index} app={field.app} />

@@ -3,6 +3,7 @@ import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useCrudDialog } from '@exyconn/shell/hooks/useCrudDialog';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
+import { useT } from '@exyconn/i18n';
 
 export interface UseCrudResourceOptions<TTarget> {
   /** Sentence-case entity name used in the toast, e.g. "Lead" → "Lead deleted". */
@@ -46,6 +47,7 @@ export function useCrudResource<TRow, TTarget = TRow>({
   const { close } = dialog;
   const confirm = useConfirm();
   const notify = useNotify();
+  const t = useT();
   const [refreshSignal, setRefreshSignal] = useState(0);
 
   const reload = useCallback(() => {
@@ -59,6 +61,8 @@ export function useCrudResource<TRow, TTarget = TRow>({
   }, [reload, close]);
 
   const remove = async (row: TTarget) => {
+    // Built here rather than left to the notifier: "Lead deleted" glued together would be a
+    // different catalogue key for every entity in the portal, and none of them a sentence.
     const ok = await confirm({ message: confirmMessage(row), confirmText: 'Delete' });
     if (!ok) {
       return;
@@ -66,7 +70,7 @@ export function useCrudResource<TRow, TTarget = TRow>({
     try {
       await onDelete(row);
       reload();
-      notify(`${label} deleted`);
+      notify(t('{entity} deleted', { entity: label }));
     } catch (error) {
       notify(errorMessage(error, 'Delete failed'), 'error');
     }

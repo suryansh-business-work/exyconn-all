@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { HEX_COLOR, HTTP_URL, LINK, SLUG } from '@exyconn/regex';
+import { useT } from '@exyconn/i18n';
 import { Divider, Typography } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSwitch, RhfRichText } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -121,6 +122,7 @@ interface JobCompanyFormProps {
 
 /** React Hook Form + Zod form to create or update a job company. */
 export function JobCompanyForm({ initial, onDone, onCancel }: Readonly<JobCompanyFormProps>) {
+  const t = useT();
   const [createJobCompany] = useCreateJobCompanyMutation();
   const [updateJobCompany] = useUpdateJobCompanyMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -157,7 +159,7 @@ export function JobCompanyForm({ initial, onDone, onCancel }: Readonly<JobCompan
       />
 
       <Divider />
-      <Typography variant="subtitle2">Company profile</Typography>
+      <Typography variant="subtitle2">{t('Company profile')}</Typography>
       <RhfTextField name="website" label="Website" />
       <RhfTextField name="founded" label="Founded" />
       <RhfTextField name="employees" label="Employees" />
@@ -168,14 +170,14 @@ export function JobCompanyForm({ initial, onDone, onCancel }: Readonly<JobCompan
       <CompanyBenefitsFields />
 
       <Divider />
-      <Typography variant="subtitle2">Social links</Typography>
+      <Typography variant="subtitle2">{t('Social links')}</Typography>
       <RhfTextField name="socialLinks.linkedin" label="LinkedIn" />
       <RhfTextField name="socialLinks.twitter" label="Twitter" />
       <RhfTextField name="socialLinks.facebook" label="Facebook" />
       <RhfTextField name="socialLinks.instagram" label="Instagram" />
 
       <Divider />
-      <Typography variant="subtitle2">Branding & visibility</Typography>
+      <Typography variant="subtitle2">{t('Branding & visibility')}</Typography>
       <RhfTextField name="brandColor" label="Brand color" helperText="Hex value, e.g. #f9851f" />
       <RhfTextField name="secondaryColor" label="Secondary color" />
       <RhfTextField name="order" label="Order" type="number" />

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Box, Heading } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -11,6 +12,7 @@ import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** Leave the team has asked for. Approval runs the balance-aware `setLeaveStatus`. */
 export function TeamLeaveSection({ nameOf }: Readonly<TeamSectionProps>) {
+  const t = useT();
   const { data, loading, refetch } = useTeamLeaveRequestsQuery({
     fetchPolicy: 'cache-and-network',
   });
@@ -30,7 +32,7 @@ export function TeamLeaveSection({ nameOf }: Readonly<TeamSectionProps>) {
   return (
     <Box sx={densePanel}>
       <Heading level={6} sx={{ px: 1, pt: 0.5 }}>
-        Leave requests
+        {t('Leave requests')}
       </Heading>
       <DataTable
         columns={columns}
