@@ -38,7 +38,7 @@ export function LoginForm({ rememberMe }: Readonly<Props>) {
     try {
       const result = await tracker.login(values.email.trim(), values.password, values.rememberMe);
       if (!result.ok) {
-        setError(result.error ?? t(GENERIC_ERROR));
+        setError(result.error ? t(result.error) : t(GENERIC_ERROR));
       }
     } catch (cause: unknown) {
       console.error('Login request failed', cause);

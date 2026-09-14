@@ -32,7 +32,7 @@ export default function LoginScreen() {
         </YStack>
         {/* The app signed them out itself — revoked access — and they are owed the reason. */}
         {state.signedOutReason === null ? null : (
-          <Notice severity="warning">{state.signedOutReason}</Notice>
+          <Notice severity="warning">{t(state.signedOutReason)}</Notice>
         )}
         <LoginForm rememberMe={state.rememberMe} />
       </Surface>

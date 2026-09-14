@@ -61,7 +61,11 @@ export default function LoginScreen({
     try {
       const result = await window.tracker.login(email.trim(), password, remember);
       if (!result.ok) {
-        setError(result.error ?? t('Sign in failed. Please check your details and try again.'));
+        setError(
+          result.error
+            ? t(result.error)
+            : t('Sign in failed. Please check your details and try again.'),
+        );
         setLoading(false);
       }
       // On success the main process pushes a new state and this screen unmounts.
@@ -108,7 +112,7 @@ export default function LoginScreen({
               variant="outlined"
               sx={{ mb: 2, borderRadius: `${TRACKER_RADIUS}px` }}
             >
-              {signedOutReason}
+              {t(signedOutReason)}
             </Alert>
           ) : null}
 
