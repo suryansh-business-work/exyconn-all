@@ -3,6 +3,7 @@ import { defineConfig } from "eslint/config";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import reactNativeA11y from "eslint-plugin-react-native-a11y";
 import reactHooks from "eslint-plugin-react-hooks";
+import { exyconnWebA11y } from "./eslint-a11y-web.js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
@@ -56,7 +57,7 @@ export const baseRules = {
  */
 export const webA11y = {
   files: ["**/*.tsx"],
-  plugins: { "jsx-a11y": jsxA11y },
+  plugins: { "jsx-a11y": jsxA11y, "exyconn-a11y": exyconnWebA11y },
   settings: {
     "jsx-a11y": {
       polymorphicPropName: "component",
@@ -68,6 +69,16 @@ export const webA11y = {
         Link: "a",
         Avatar: "img",
         CardMedia: "img",
+        // Layout primitives render a div (or a <p>) unless `component` says otherwise, so a
+        // click handler on one is a click handler on a non-interactive element: it needs a
+        // role and keyboard support like any other (SC 2.1.1, 4.1.2).
+        Box: "div",
+        Stack: "div",
+        Flex: "div",
+        Paper: "div",
+        Card: "div",
+        Typography: "p",
+        Text: "span",
       },
     },
   },
@@ -79,8 +90,19 @@ export const webA11y = {
     // those are design-system components (`<TextField autoFocus>`). A raw DOM element grabbing
     // focus on a page is still an error.
     "jsx-a11y/no-autofocus": ["error", { ignoreNonDOM: true }],
+    // A scrollable region must be focusable so a keyboard can scroll it (SC 2.1.1).
+    "jsx-a11y/no-noninteractive-tabindex": [
+      "error",
+      { tags: [], roles: ["tabpanel", "region"], allowExpressionValues: true },
+    ],
     // `<Link component={RouterLink} to="…">` renders a real href; the rule only knows `href`.
-    "jsx-a11y/anchor-is-valid": ["error", { components: ["Link"], specialLink: ["to"] }],
+    "jsx-a11y/anchor-is-valid": [
+      "error",
+      { components: ["Link"], specialLink: ["to"] },
+    ],
+    "exyconn-a11y/icon-button-has-name": "error",
+    "exyconn-a11y/tooltip-child-focusable": "error",
+    "exyconn-a11y/text-field-has-label": "error",
   },
 };
 

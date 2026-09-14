@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import {
+  KeyboardSensor,
   PointerSensor,
   TouchSensor,
   useSensor,
@@ -7,7 +8,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
+import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import type { ProjectBoardApi } from './useProjectBoard';
 import type { TaskView } from './types';
 
@@ -39,6 +40,38 @@ export function useBoardDnd(api: ProjectBoardApi) {
     // A finger has to hold before it drags: the board scrolls sideways under it, and a
     // pointer sensor alone reads the first flick of that scroll as picking a card up.
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+    // Space or Enter on a grip picks it up, the arrow keys carry it, Space or Enter drops it.
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  /** Moves a column to a position — the drag's commit, and the header's left/right buttons. */
+  const moveColumn = useCallback(
+    (columnId: string, toIndex: number) => {
+      const oldIndex = columns.findIndex((c) => c.id === columnId);
+      if (oldIndex < 0 || toIndex < 0 || toIndex >= columns.length || oldIndex === toIndex) return;
+      const next = arrayMove(columns, oldIndex, toIndex);
+      setColumns(next);
+      persistColumnOrder(next.map((c) => c.id));
+    },
+    [columns, setColumns, persistColumnOrder],
+  );
+
+  /** Puts a task into a column at an index — the drag's commit. */
+  const moveTask = useCallback(
+    (taskId: string, toColumnId: string, toIndex: number) => {
+      setTasks((prev) => applyTaskMove(prev, taskId, toColumnId, toIndex));
+      persistTaskMove(taskId, toColumnId, toIndex < 0 ? 0 : toIndex);
+    },
+    [setTasks, persistTaskMove],
+  );
+
+  /** Sends a task to the end of a column — the ticket dialog's Column select. */
+  const moveTaskToColumn = useCallback(
+    (taskId: string, toColumnId: string) => {
+      const toIndex = tasks.filter((t) => t.columnId === toColumnId && t.id !== taskId).length;
+      moveTask(taskId, toColumnId, toIndex);
+    },
+    [tasks, moveTask],
   );
 
   const onDragStart = useCallback(
@@ -61,12 +94,10 @@ export function useBoardDnd(api: ProjectBoardApi) {
         const overColumnId =
           overType === 'column' ? String(over.id) : columnIdOf(tasks, String(over.id));
         if (!overColumnId || overColumnId === active.id) return;
-        const oldIndex = columns.findIndex((c) => c.id === active.id);
-        const newIndex = columns.findIndex((c) => c.id === overColumnId);
-        if (oldIndex < 0 || newIndex < 0) return;
-        const next = arrayMove(columns, oldIndex, newIndex);
-        setColumns(next);
-        persistColumnOrder(next.map((c) => c.id));
+        moveColumn(
+          String(active.id),
+          columns.findIndex((c) => c.id === overColumnId),
+        );
         return;
       }
 
@@ -83,11 +114,20 @@ export function useBoardDnd(api: ProjectBoardApi) {
         toIndex = tasks.filter((t) => t.columnId === toColumnId).length;
       }
       if (!toColumnId) return;
-      setTasks((prev) => applyTaskMove(prev, taskId, toColumnId as string, toIndex));
-      persistTaskMove(taskId, toColumnId, toIndex < 0 ? 0 : toIndex);
+      moveTask(taskId, toColumnId, toIndex);
     },
-    [columns, tasks, setColumns, setTasks, persistColumnOrder, persistTaskMove],
+    [columns, tasks, moveColumn, moveTask],
   );
 
-  return { sensors, activeTask, onDragStart, onDragEnd };
+  const onDragCancel = useCallback(() => setActiveTask(null), []);
+
+  return {
+    sensors,
+    activeTask,
+    onDragStart,
+    onDragEnd,
+    onDragCancel,
+    moveColumn,
+    moveTaskToColumn,
+  };
 }

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Pressable } from 'react-native';
+import { useRef, useState } from 'react';
+import { Pressable, type View } from 'react-native';
 import { XStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { TRACKER_RADIUS } from '../../theme/tokens';
@@ -42,12 +42,14 @@ export function PickerField({
 }: Readonly<Props>) {
   const t = useT();
   const [open, setOpen] = useState(false);
+  const opener = useRef<View>(null);
   const current = options.find((option) => option.value === selected);
   const shown = current?.label ?? placeholder;
 
   return (
     <FieldFrame id={id} label={label} hint={hint} error={error}>
       <Pressable
+        ref={opener}
         onPress={() => setOpen(true)}
         disabled={disabled}
         accessibilityRole="button"
@@ -77,6 +79,7 @@ export function PickerField({
         selected={selected}
         searchable={searchable}
         onClose={() => setOpen(false)}
+        returnFocusTo={opener}
         onSelect={onSelect}
       />
     </FieldFrame>

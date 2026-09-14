@@ -2,6 +2,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { useT } from '@exyconn/i18n';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Spinner, YStack } from 'tamagui';
@@ -26,9 +27,10 @@ const CLEAR_SCREEN = { backgroundColor: 'transparent' } as const;
 
 /** Full-bleed spinner until the first state snapshot (and the app's font) lands. */
 function Loading() {
+  const t = useT();
   return (
     <YStack flex={1} alignItems="center" justifyContent="center">
-      <Spinner size="large" accessibilityLabel="Loading" />
+      <Spinner size="large" accessibilityLabel={t('Loading')} />
     </YStack>
   );
 }

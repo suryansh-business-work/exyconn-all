@@ -1,8 +1,10 @@
 import { SCRIM } from '../../theme/palette';
-import { Modal } from 'react-native';
+import type { RefObject } from 'react';
+import { Modal, type HostInstance } from 'react-native';
 import { XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { useReduceMotion } from '../../hooks/useReduceMotion';
+import { useReturnFocus } from '../../hooks/useReturnFocus';
 import { AppButton } from './AppButton';
 import { Surface } from './Surface';
 import { Body, Heading } from './Typography';
@@ -17,6 +19,8 @@ interface Props {
   busy?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  /** The control that asked; the screen reader goes back to it when the dialog closes. */
+  returnFocusTo: RefObject<HostInstance | null>;
 }
 
 /**
@@ -32,19 +36,22 @@ export function ConfirmDialog({
   busy = false,
   onConfirm,
   onCancel,
+  returnFocusTo,
 }: Readonly<Props>) {
   const t = useT();
   const reduceMotion = useReduceMotion();
+  const { titleRef, modalProps } = useReturnFocus(open, returnFocusTo);
   return (
     <Modal
       visible={open}
       transparent
       animationType={reduceMotion ? 'none' : 'fade'}
       onRequestClose={onCancel}
+      {...modalProps}
     >
       <YStack flex={1} justifyContent="center" padding="$5" backgroundColor={SCRIM}>
         <Surface padding="$5" gap="$4" accessibilityViewIsModal>
-          <Heading>{title}</Heading>
+          <Heading ref={titleRef}>{title}</Heading>
           <Body color="$muted">{message}</Body>
           <XStack gap="$3" justifyContent="flex-end">
             <AppButton label={t('Cancel')} tone="text" onPress={onCancel} disabled={busy} />

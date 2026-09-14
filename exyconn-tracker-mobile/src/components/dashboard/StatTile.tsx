@@ -1,4 +1,5 @@
-import { Pressable } from 'react-native';
+import { useRef } from 'react';
+import { Pressable, type HostInstance, type View } from 'react-native';
 import { XStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import type { Tile } from '../../lib/dashboard/tile.types';
@@ -10,17 +11,19 @@ import { Caption, Heading } from '../ui/Typography';
 interface Props {
   tile: Tile;
   /** Opens this tile's detail — every number on the dashboard can explain itself. */
-  onOpen: (id: string) => void;
+  onOpen: (id: string, opener: HostInstance | null) => void;
 }
 
 /** A single labelled stat in the dashboard grid. Tapping it explains the number. */
 export function StatTile({ tile, onOpen }: Readonly<Props>) {
   const t = useT();
   const brand = useBrand();
+  const self = useRef<View>(null);
   const label = t(tile.label);
   return (
     <Pressable
-      onPress={() => onOpen(tile.id)}
+      ref={self}
+      onPress={() => onOpen(tile.id, self.current)}
       accessibilityRole="button"
       accessibilityLabel={t('{label}: {value}. Open details', { label, value: tile.value })}
       style={({ pressed }) => ({ flexGrow: 1, flexBasis: '40%', opacity: pressed ? 0.8 : 1 })}

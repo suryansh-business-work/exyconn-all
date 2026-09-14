@@ -11,6 +11,7 @@ import { useT, type Interpolations } from '@exyconn/i18n';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { DATE_FORMAT } from '../../status.constants';
 import type { StatusDay } from './status.types';
+import { useRovingFocus } from './useRovingFocus';
 
 /** Green only for a flawless day; grey means the day was never measured. */
 function barColor(day: StatusDay, theme: Theme): string {
@@ -54,20 +55,33 @@ export function UptimeBars({ days }: Readonly<UptimeBarsProps>) {
   const theme = useTheme();
   const first = days[0];
   const last = days[days.length - 1];
+  const roving = useRovingFocus(days.length);
 
   return (
     <Box>
-      <Flex spacing={0.5} sx={{ height: 32, alignItems: 'stretch' }}>
-        {days.map((day) => (
+      {/* One tab stop; the arrow keys move along the days (SC 2.1.1), and each bar says in
+          words what its colour shows (SC 1.1.1, 1.4.1). */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- roving focus: the group only forwards arrow keys between its focusable bars */}
+      <Flex
+        role="group"
+        aria-label={t('Daily uptime')}
+        onKeyDown={roving.onKeyDown}
+        spacing={0.5}
+        sx={{ height: 32, alignItems: 'stretch' }}
+      >
+        {days.map((day, index) => (
           <Tooltip key={day.date} title={barLabel(day, t)} arrow enterTouchDelay={0}>
             <Box
+              role="img"
+              aria-label={barLabel(day, t)}
+              {...roving.itemProps(index)}
               sx={{
                 flex: 1,
                 minWidth: 2,
                 borderRadius: 0.5,
                 bgcolor: barColor(day, theme),
                 transition: `transform ${duration.fast}ms`,
-                '&:hover': { transform: 'scaleY(1.12)' },
+                '&:hover, &:focus-visible': { transform: 'scaleY(1.12)' },
               }}
             />
           </Tooltip>

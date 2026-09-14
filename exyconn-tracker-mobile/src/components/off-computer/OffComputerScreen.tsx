@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import type { HostInstance } from 'react-native';
 import { Spinner, XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import type { ManualEntry, TrackerProject } from '@exyconn/tracker-core';
@@ -54,6 +55,7 @@ export function OffComputerScreen({ projects, timezone }: Readonly<Props>) {
   const [claiming, setClaiming] = useState(false);
   const [withdrawing, setWithdrawing] = useState<ManualEntry | null>(null);
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
+  const withdrawOpener = useRef<HostInstance>(null);
 
   if (claiming) {
     return (
@@ -98,7 +100,8 @@ export function OffComputerScreen({ projects, timezone }: Readonly<Props>) {
         <ManualEntryList
           entries={entries}
           timezone={timezone}
-          onWithdraw={(entry) => {
+          onWithdraw={(entry, opener) => {
+            withdrawOpener.current = opener;
             setWithdrawError(null);
             setWithdrawing(entry);
           }}
@@ -111,6 +114,7 @@ export function OffComputerScreen({ projects, timezone }: Readonly<Props>) {
         onClose={() => setWithdrawing(null)}
         onWithdrawn={reload}
         onFailed={setWithdrawError}
+        returnFocusTo={withdrawOpener}
       />
     </ScreenLayout>
   );

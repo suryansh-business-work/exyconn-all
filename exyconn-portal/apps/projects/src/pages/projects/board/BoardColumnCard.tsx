@@ -10,12 +10,17 @@ import { useT } from '@exyconn/i18n';
 import { Tooltip } from '@exyconn/shell/components/ui';
 import { TaskCard } from './TaskCard';
 import { AddItemInput } from './AddItemInput';
+import { ColumnMoveButtons } from './ColumnMoveButtons';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import type { ColumnView, TaskView } from './types';
 
 interface BoardColumnCardProps {
   column: ColumnView;
+  /** The column's position on the board, for the move left/right buttons. */
+  index: number;
+  columnCount: number;
   tasks: TaskView[];
+  onMoveColumn: (id: string, toIndex: number) => void;
   onRename: (id: string, name: string) => void;
   onDelete: (id: string) => void;
   onAddTask: (columnId: string, title: string) => void;
@@ -26,7 +31,10 @@ interface BoardColumnCardProps {
 /** A draggable kanban column hosting a vertical sortable list of tickets. */
 export function BoardColumnCard({
   column,
+  index,
+  columnCount,
   tasks,
+  onMoveColumn,
   onRename,
   onDelete,
   onAddTask,
@@ -81,7 +89,13 @@ export function BoardColumnCard({
       }}
     >
       <Flex direction="row" alignItems="center" spacing={0.5} sx={{ mb: 1 }}>
-        <IconButton size="small" sx={{ cursor: 'grab' }} {...attributes} {...listeners}>
+        <IconButton
+          size="small"
+          sx={{ cursor: 'grab' }}
+          {...attributes}
+          {...listeners}
+          aria-label={t('Drag to reorder column')}
+        >
           <DragIndicatorIcon fontSize="small" />
         </IconButton>
         {editing ? (
@@ -96,9 +110,23 @@ export function BoardColumnCard({
               if (e.key === 'Enter') commitName();
               if (e.key === 'Escape') setEditing(false);
             }}
+            slotProps={{ htmlInput: { 'aria-label': t('Column name') } }}
           />
         ) : (
-          <Text size="label" sx={{ flex: 1, cursor: 'text' }} onClick={() => setEditing(true)}>
+          <Text
+            size="label"
+            role="button"
+            tabIndex={0}
+            aria-label={t('Rename column {name}', { name: column.name })}
+            sx={{ flex: 1, cursor: 'text' }}
+            onClick={() => setEditing(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setEditing(true);
+              }
+            }}
+          >
             {column.name}{' '}
             <Text component="span" size="caption" color="text.secondary">
               ({tasks.length})
@@ -119,6 +147,11 @@ export function BoardColumnCard({
             )}
           </IconButton>
         </Tooltip>
+        <ColumnMoveButtons
+          index={index}
+          columnCount={columnCount}
+          onMove={(toIndex) => onMoveColumn(column.id, toIndex)}
+        />
         <IconButton size="small" onClick={remove} aria-label={t('Delete column')}>
           <DeleteOutlineIcon fontSize="small" />
         </IconButton>

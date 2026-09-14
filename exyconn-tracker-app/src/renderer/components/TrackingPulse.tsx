@@ -46,6 +46,10 @@ export default function TrackingPulse({ status }: Readonly<Props>): ReactElement
       <Box
         role="img"
         aria-label={label}
+        // Focusable, so the status in the tooltip opens from the keyboard too (SC 1.4.13): the
+        // dot has no visible text of its own, and it is not a control, so no button role.
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+        tabIndex={0}
         sx={{ position: 'relative', display: 'grid', placeItems: 'center', width: 14, height: 14 }}
       >
         {look.live ? (

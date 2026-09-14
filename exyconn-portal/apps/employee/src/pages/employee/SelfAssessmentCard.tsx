@@ -63,6 +63,8 @@ export function SelfAssessmentCard({ review, onSubmit }: Readonly<SelfAssessment
             value={text}
             onChange={(event) => setText(event.target.value)}
             placeholder={t('What did you deliver this cycle?')}
+            // Named by the heading above it (SC 1.3.1): a placeholder vanishes as you type.
+            slotProps={{ htmlInput: { 'aria-label': t('Your self-assessment') } }}
             sx={{ mt: 1 }}
           />
           <Button sx={{ mt: 1 }} disabled={saving || text.trim().length === 0} onClick={submit}>

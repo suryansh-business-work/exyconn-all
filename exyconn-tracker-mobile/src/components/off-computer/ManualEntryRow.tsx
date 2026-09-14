@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import type { HostInstance, View } from 'react-native';
 import { XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { formatDateTime, formatHoursMinutes, type ManualEntry } from '@exyconn/tracker-core';
@@ -9,7 +11,8 @@ import { Body, Caption, Heading } from '../ui/Typography';
 interface Props {
   entry: ManualEntry;
   timezone: string;
-  onWithdraw: (entry: ManualEntry) => void;
+  /** `opener` is the Withdraw button, which the screen reader returns to if the dialog is cancelled. */
+  onWithdraw: (entry: ManualEntry, opener: HostInstance | null) => void;
 }
 
 /**
@@ -18,6 +21,7 @@ interface Props {
  */
 export function ManualEntryRow({ entry, timezone, onWithdraw }: Readonly<Props>) {
   const t = useT();
+  const button = useRef<View>(null);
   const status = ENTRY_STATUS[entry.status];
   const span = t('{start} — {end}', {
     start: formatDateTime(entry.startedAt, timezone),
@@ -39,13 +43,14 @@ export function ManualEntryRow({ entry, timezone, onWithdraw }: Readonly<Props>)
       {entry.status === 'PENDING' ? (
         <XStack justifyContent="flex-end">
           <AppButton
+            ref={button}
             label={t('Withdraw')}
             tone="text"
             danger
             accessibilityLabel={t('Withdraw the claim for {duration}', {
               duration: formatHoursMinutes(entry.durationMs),
             })}
-            onPress={() => onWithdraw(entry)}
+            onPress={() => onWithdraw(entry, button.current)}
           />
         </XStack>
       ) : null}

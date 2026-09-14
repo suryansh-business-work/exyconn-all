@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Pressable } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import { Pressable, type View } from 'react-native';
 import { Spinner, XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { formatTimeOfDay, offsetLabel } from '@exyconn/tracker-core';
@@ -33,6 +33,7 @@ const LIST_FAILED = 'The list of timezones could not be loaded. Tap the field to
 export function TimezonePicker({ timezone }: Readonly<Props>) {
   const t = useT();
   const [open, setOpen] = useState(false);
+  const opener = useRef<View>(null);
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
   const list = useTimezoneList();
@@ -77,6 +78,7 @@ export function TimezonePicker({ timezone }: Readonly<Props>) {
     <YStack gap="$2">
       <FieldFrame id="timezone" label={t('Timezone')} hint={hint}>
         <Pressable
+          ref={opener}
           onPress={openSheet}
           disabled={busy}
           accessibilityRole="button"
@@ -115,6 +117,7 @@ export function TimezonePicker({ timezone }: Readonly<Props>) {
         selected={timezone}
         searchable
         onClose={() => setOpen(false)}
+        returnFocusTo={opener}
         onSelect={(zone) => {
           choose(zone).catch((cause: unknown) => console.error('Timezone change failed', cause));
         }}

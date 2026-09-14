@@ -43,6 +43,7 @@ export function AddItemInput({ label, placeholder, onAdd }: AddItemInputProps) {
         fullWidth
         size="small"
         placeholder={t(placeholder)}
+        slotProps={{ htmlInput: { 'aria-label': t(placeholder) } }}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={(e) => {

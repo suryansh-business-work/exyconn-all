@@ -74,8 +74,13 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
           })}
         </Text>
 
-        {/* First-party content, authored by Legal in the portal — not user input. */}
+        {/* First-party content, authored by Legal in the portal — not user input.
+            It scrolls, so it is focusable and named (SC 2.1.1): a keyboard can read a long
+            policy before signing it. */}
         <Box
+          role="region"
+          aria-label={t('Policy text')}
+          tabIndex={0}
           sx={(theme) => ({
             maxHeight: '52vh',
             overflow: 'auto',
@@ -85,6 +90,8 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
             borderRadius: `${radius.sm}px`,
             '& p': { my: 1 },
             '& ul, & ol': { pl: 3 },
+            // A link in a paragraph is marked by more than colour (SC 1.4.1).
+            '& a': { color: theme.palette.primary.main, textDecoration: 'underline' },
           })}
           dangerouslySetInnerHTML={{ __html: policy.body }}
         />

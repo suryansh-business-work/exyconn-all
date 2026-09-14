@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
-import { FlatList, Modal, Pressable } from 'react-native';
+import { useMemo, useState, type RefObject } from 'react';
+import { FlatList, Modal, Pressable, type HostInstance } from 'react-native';
 import { SCRIM } from '../../theme/palette';
 import { Input, XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { useReduceMotion } from '../../hooks/useReduceMotion';
+import { useReturnFocus } from '../../hooks/useReturnFocus';
 import { useBrand } from '../../theme/BrandProvider';
 import { TRACKER_RADIUS } from '../../theme/tokens';
 import { AppButton } from './AppButton';
@@ -23,6 +24,8 @@ interface Props {
   selected: string;
   onSelect: (value: string) => void;
   onClose: () => void;
+  /** The control that opened the sheet; the screen reader goes back to it on close. */
+  returnFocusTo: RefObject<HostInstance | null>;
   /** Long lists (zones, tickets) get a filter box. */
   searchable?: boolean;
 }
@@ -75,11 +78,13 @@ export function OptionSheet({
   selected,
   onSelect,
   onClose,
+  returnFocusTo,
   searchable = false,
 }: Readonly<Props>) {
   const t = useT();
   const [query, setQuery] = useState('');
   const reduceMotion = useReduceMotion();
+  const { titleRef, modalProps } = useReturnFocus(open, returnFocusTo);
   const visible = useMemo(() => filterOptions(options, query), [options, query]);
 
   function choose(value: string): void {
@@ -94,6 +99,7 @@ export function OptionSheet({
       transparent
       animationType={reduceMotion ? 'none' : 'slide'}
       onRequestClose={onClose}
+      {...modalProps}
     >
       <YStack flex={1} justifyContent="flex-end" backgroundColor={SCRIM}>
         <YStack
@@ -106,7 +112,7 @@ export function OptionSheet({
           accessibilityViewIsModal
         >
           <XStack justifyContent="space-between" alignItems="center">
-            <Heading>{title}</Heading>
+            <Heading ref={titleRef}>{title}</Heading>
             <AppButton label={t('Close')} tone="text" onPress={onClose} />
           </XStack>
           {searchable ? (

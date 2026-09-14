@@ -24,18 +24,19 @@ describe('Login flow', () => {
     }).as('loginRequest');
   });
 
-  it('renders the animated 3D login screen with the brand logo', () => {
+  it('renders the sign-in screen with the brand logo', () => {
     cy.visit('/login');
     cy.get('img[alt="Exyconn"]').should('be.visible');
-    cy.contains('Log in').should('be.visible');
-    cy.get('video').should('exist');
+    cy.contains('button', 'Log in').should('be.visible');
   });
 
   it('logs in as admin and lands on the module launcher', () => {
     cy.visit('/login');
     cy.get('input[name="email"]').type('admin@exyconn.com');
-    cy.get('input[name="password"]').type('Admin@1234');
-    cy.get('button[aria-label="Log in"]').click();
+    // The login request is intercepted above, so the password is never checked — and no real
+    // credential belongs in a spec.
+    cy.get('input[name="password"]').type(`e2e-${Date.now()}`);
+    cy.contains('button', 'Log in').click();
     cy.wait('@loginRequest');
     cy.contains('You have access to').should('be.visible');
   });

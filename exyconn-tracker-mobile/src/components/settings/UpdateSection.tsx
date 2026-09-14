@@ -24,7 +24,7 @@ export function UpdateSection() {
   const version = Application.nativeApplicationVersion ?? '—';
   const checking = update.stage === 'checking';
   const openLabel = IS_ANDROID ? t('Download') : t('Details');
-  const status = updateStatus(update, Date.now());
+  const status = updateStatus(t, update, Date.now());
   const live = useStatusMessage(status);
 
   return (
@@ -52,7 +52,7 @@ export function UpdateSection() {
           onPress={() => run(openUpdate)}
         />
       ) : null}
-      <Caption>{installNote(IS_ANDROID)}</Caption>
+      <Caption>{installNote(t, IS_ANDROID)}</Caption>
     </YStack>
   );
 }

@@ -78,7 +78,12 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
       })}
     >
       <Toolbar sx={{ minHeight: { xs: TOPBAR_HEIGHT }, px: PAGE_GUTTER }}>
-        <IconButton edge="start" onClick={onMenuClick} sx={{ mr: 1, display: { md: 'none' } }}>
+        <IconButton
+          edge="start"
+          onClick={onMenuClick}
+          aria-label={t('Open navigation')}
+          sx={{ mr: 1, display: { md: 'none' } }}
+        >
           <MenuIcon />
         </IconButton>
         <Typography variant="subtitle2" sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }}>

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import type { HostInstance } from 'react-native';
 import { XStack } from 'tamagui';
 import type { Tile } from '../../lib/dashboard/tile.types';
 import { StatTile } from './StatTile';
@@ -17,14 +18,30 @@ interface Props {
  */
 export function StatGrid({ tiles }: Readonly<Props>) {
   const [openId, setOpenId] = useState<string | null>(null);
-  const open = tiles.find((tile) => tile.id === openId) ?? null;
+  // Closing keeps the last tile, so the detail is still there while the dialog fades out.
+  const [open, setOpen] = useState(false);
+  const opener = useRef<HostInstance>(null);
+  const detail = tiles.find((tile) => tile.id === openId) ?? null;
 
   return (
     <XStack flexWrap="wrap" gap="$3">
       {tiles.map((tile) => (
-        <StatTile key={tile.id} tile={tile} onOpen={setOpenId} />
+        <StatTile
+          key={tile.id}
+          tile={tile}
+          onOpen={(id, node) => {
+            opener.current = node;
+            setOpenId(id);
+            setOpen(true);
+          }}
+        />
       ))}
-      <TileDetailDialog tile={open} onClose={() => setOpenId(null)} />
+      <TileDetailDialog
+        tile={detail}
+        open={open}
+        onClose={() => setOpen(false)}
+        returnFocusTo={opener}
+      />
     </XStack>
   );
 }

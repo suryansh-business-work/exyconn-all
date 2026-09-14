@@ -85,6 +85,8 @@ export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Prop
             <Tooltip title={t("Blurred by your workspace's settings")}>
               <BlurOnRounded
                 fontSize="small"
+                // Focusable, so the tooltip opens from the keyboard too (SC 1.4.13).
+                tabIndex={0}
                 titleAccess={t("Blurred by your workspace's settings")}
                 sx={{ color: 'text.secondary' }}
               />
@@ -93,6 +95,8 @@ export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Prop
           <Tooltip title={t(PENDING_HINT)}>
             <Chip
               size="small"
+              // Focusable, so the explanation opens from the keyboard too (SC 1.4.13).
+              tabIndex={0}
               variant="outlined"
               color={activityColor(shot.activityPercent)}
               label={activityLabel(t, shot.activityPercent)}

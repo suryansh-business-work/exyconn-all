@@ -1,13 +1,11 @@
 // @vitest-environment jsdom
-import type { ReactElement } from 'react';
 import { act } from 'react';
-import { createRoot, type Root } from 'react-dom/client';
 import axe from 'axe-core';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
-import type { TrackerState } from '@shared/types';
 import App from '../App';
 import ScreenshotsApp from '../ScreenshotsApp';
-import { installTracker, trackerState } from './tracker-fixture';
+import { trackerState } from './tracker-fixture';
+import { cleanup, click, installDomShims, mount, settle, unmount } from './render-harness';
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
@@ -18,60 +16,13 @@ const AXE_OPTIONS: axe.RunOptions = {
   rules: { 'color-contrast': { enabled: false } },
 };
 
-let root: Root | null = null;
+beforeAll(installDomShims);
 
-beforeAll(() => {
-  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
-  // jsdom implements none of these; the screens only need them to exist.
-  Element.prototype.scrollIntoView = () => undefined;
-  Object.defineProperty(globalThis, 'matchMedia', {
-    configurable: true,
-    value: (query: string) => ({
-      matches: false,
-      media: query,
-      addEventListener: () => undefined,
-      removeEventListener: () => undefined,
-    }),
-  });
-});
+afterEach(cleanup);
 
-afterEach(() => {
-  act(() => root?.unmount());
-  root = null;
-  document.body.innerHTML = '';
-});
-
-/** Lets every mocked IPC promise, and the render it triggers, settle. */
-async function settle(): Promise<void> {
-  for (let pass = 0; pass < 5; pass += 1) {
-    await act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
-  }
-}
-
-async function mount(element: ReactElement, state: TrackerState): Promise<void> {
-  installTracker(state);
-  const container = document.createElement('div');
-  container.id = 'root';
-  document.body.append(container);
-  root = createRoot(container);
-  await act(async () => root?.render(element));
-  await settle();
-}
-
-async function click(selector: string): Promise<void> {
-  const target = document.querySelector<HTMLElement>(selector);
-  expect(target, selector).not.toBeNull();
-  await act(async () => target?.click());
-  await settle();
-}
-
-/**
- * Every WCAG A/AA violation axe finds in the whole document, portals included. `exclude` is for
- * a known gap owned by a shared package, never for this app's own markup.
- */
-async function violations(exclude: string[] = []): Promise<string[]> {
-  const context = { include: [document.body], exclude: exclude.map((selector) => [selector]) };
-  const result = await axe.run(context, AXE_OPTIONS);
+/** Every WCAG A/AA violation axe finds in the whole document, portals included. */
+async function violations(): Promise<string[]> {
+  const result = await axe.run(document.body, AXE_OPTIONS);
   return result.violations.map(
     (violation) =>
       `${violation.id}: ${violation.help} — ${violation.nodes.map((node) => node.target.join(' ')).join(', ')}`,
@@ -117,9 +68,7 @@ describe('renderer meets WCAG 2.2 A/AA (axe)', () => {
     await act(async () => tab?.click());
     await settle();
     expect(document.querySelector('[role="tabpanel"] [role="tabpanel"]')).not.toBeNull();
-    // @exyconn/ui's BarChart/TrendChart canvases carry role="img" with no name, and take no
-    // prop to give them one; ChartCard's table view is the text alternative until that lands.
-    expect(await violations(['canvas'])).toEqual([]);
+    expect(await violations()).toEqual([]);
   });
 
   it('off-computer claim form', async () => {
@@ -133,7 +82,7 @@ describe('renderer meets WCAG 2.2 A/AA (axe)', () => {
   it('consent and permissions gates', async () => {
     await mount(<App />, trackerState('consent-required'));
     expect(await violations()).toEqual([]);
-    act(() => root?.unmount());
+    unmount();
     const state = trackerState('idle');
     const permissions = { ...state.permissions, accessibility: false, allGranted: false };
     await mount(<App />, { ...state, permissions });

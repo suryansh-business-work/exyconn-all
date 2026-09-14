@@ -1,20 +1,35 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useT } from '@exyconn/i18n';
-import {
-  Avatar,
-  Box,
-  Chip,
-  Flex,
-  IconButton,
-  Text,
-  Tooltip,
-  fontSize,
-} from '@exyconn/shell/components/ui';
+import { Avatar, Box, Chip, Flex, IconButton, Text, fontSize } from '@exyconn/shell/components/ui';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { TICKET_PRIORITIES, TICKET_TYPES, initialsOf } from '../ticket/ticket-meta';
 import { TicketFacetIcon } from '../ticket/TicketFacetIcon';
 import type { TaskView } from './types';
+
+type Translate = ReturnType<typeof useT>;
+
+/**
+ * What the card says to a screen reader. The glyphs and the avatar inside it are hidden, so
+ * everything they show — type, priority, points, assignee, labels — is spelled out here.
+ */
+function cardLabel(task: TaskView, t: Translate) {
+  const parts = [
+    t('{key}: {title}', { key: task.key, title: task.title }),
+    t('{kind}: {facet}', { kind: t('Type'), facet: t(TICKET_TYPES[task.type].label) }),
+    t('{kind}: {facet}', { kind: t('Priority'), facet: t(TICKET_PRIORITIES[task.priority].label) }),
+  ];
+  if (task.storyPoints !== null && task.storyPoints !== undefined) {
+    parts.push(t('{points} points', { points: task.storyPoints }));
+  }
+  if (task.assigneeName !== '') {
+    parts.push(t('Assigned to {name}', { name: task.assigneeName }));
+  }
+  if (task.labels.length > 0) {
+    parts.push(t('Labels: {labels}', { labels: task.labels.join(', ') }));
+  }
+  return parts.join(', ');
+}
 
 interface TaskCardProps {
   task: TaskView;
@@ -62,6 +77,7 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
         <Box
           role="button"
           tabIndex={0}
+          aria-label={cardLabel(task, t)}
           onClick={() => onOpen(task.id)}
           onKeyDown={(event) => {
             if (event.key === 'Enter' || event.key === ' ') {
@@ -76,8 +92,8 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
           </Text>
 
           <Flex direction="row" alignItems="center" spacing={1} sx={{ mt: 1 }}>
-            <TicketFacetIcon facet={TICKET_TYPES[task.type]} kind="Type" />
-            <TicketFacetIcon facet={TICKET_PRIORITIES[task.priority]} kind="Priority" />
+            <TicketFacetIcon facet={TICKET_TYPES[task.type]} kind="Type" decorative />
+            <TicketFacetIcon facet={TICKET_PRIORITIES[task.priority]} kind="Priority" decorative />
             <Text size="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
               {task.key}
             </Text>
@@ -90,14 +106,9 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
             ) : null}
             <Box sx={{ flex: 1 }} />
             {task.assigneeName === '' ? null : (
-              <Tooltip title={t('Assigned to {name}', { name: task.assigneeName })}>
-                <Avatar
-                  alt={task.assigneeName}
-                  sx={{ width: 22, height: 22, fontSize: fontSize['3xs'] }}
-                >
-                  {initialsOf(task.assigneeName)}
-                </Avatar>
-              </Tooltip>
+              <Avatar alt="" aria-hidden sx={{ width: 22, height: 22, fontSize: fontSize['3xs'] }}>
+                {initialsOf(task.assigneeName)}
+              </Avatar>
             )}
           </Flex>
 

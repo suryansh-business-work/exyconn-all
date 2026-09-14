@@ -110,7 +110,9 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
       },
       MuiMenuItem: { styleOverrides: { root: { [TOUCH]: { minHeight: TOUCH_TARGET } } } },
       MuiTextField: { defaultProps: { size: 'small' } },
-      MuiLink: { defaultProps: { underline: 'none' } },
+      // Underlined by default (SC 1.4.1): the link colour against body text is about 2.5:1, so
+      // colour alone does not mark a link. Links styled as buttons or nav set their own.
+      MuiLink: { defaultProps: { underline: 'always' } },
       MuiToolbar: { styleOverrides: { dense: { minHeight: DENSE_TOOLBAR_HEIGHT } } },
       MuiTable: { defaultProps: { size: 'small' } },
       MuiChip: {
