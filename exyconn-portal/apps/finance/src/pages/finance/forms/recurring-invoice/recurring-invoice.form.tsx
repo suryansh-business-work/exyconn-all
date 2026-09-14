@@ -8,6 +8,8 @@ import {
   RhfSelect,
   RhfSwitch,
   RhfTextField,
+  RhfCurrencyField,
+  useCompanyCurrency,
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -58,7 +60,7 @@ const schema = z
   });
 type Values = z.infer<typeof schema>;
 
-const toInitial = (row: RecurringInvoiceRow | null): Values => ({
+const toInitial = (row: RecurringInvoiceRow | null, currency: string): Values => ({
   name: row?.name ?? '',
   clientId: row?.clientId ?? '',
   lines: (row?.lines ?? []).map(({ description, quantity, rate, taxPercent, hsnSac }) => ({
@@ -68,7 +70,7 @@ const toInitial = (row: RecurringInvoiceRow | null): Values => ({
     taxPercent,
     hsnSac,
   })),
-  currency: row?.currency ?? 'INR',
+  currency: row?.currency ?? currency,
   placeOfSupplyStateCode: row?.placeOfSupplyStateCode ?? '',
   frequency: row?.frequency ?? RecurrenceFrequency.Monthly,
   startDate: row?.startDate ?? '',
@@ -96,12 +98,13 @@ export function RecurringInvoiceForm({
   onDone,
   onCancel,
 }: Readonly<RecurringInvoiceFormProps>) {
+  const companyCurrency = useCompanyCurrency();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    defaultValues: toInitial(initial, companyCurrency),
   });
   // The lines editor prints each line's total, so it needs the currency being edited.
-  const currency = useWatch({ control: methods.control, name: 'currency' }) ?? 'INR';
+  const currency = useWatch({ control: methods.control, name: 'currency' }) ?? companyCurrency;
   const { data: clientsData } = useListClientsQuery();
   const gstStateOptions = useGstStateOptions();
   const [createRecurring] = useCreateRecurringInvoiceMutation();
@@ -151,7 +154,7 @@ export function RecurringInvoiceForm({
             sm: 6,
           }}
         >
-          <RhfTextField name="currency" label="Currency" />
+          <RhfCurrencyField />
         </Grid>
         <Grid
           size={{

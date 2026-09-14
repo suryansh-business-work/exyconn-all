@@ -387,12 +387,20 @@ export type AppSettings = {
   __typename?: 'AppSettings';
   /** Machine-translate a string the first time a screen needs one and none exists. */
   autoTranslate: Scalars['Boolean']['output'];
+  /** ISO 3166-1 alpha-2 country the company operates in, or empty. */
+  country: Scalars['String']['output'];
+  /** The company's own money: an ISO 4217 code. Empty for a platform administrator. */
+  currency: Scalars['String']['output'];
   dateFormat: Scalars['String']['output'];
   /** The language the portal is shown in when a person has not chosen one. BCP-47. */
   defaultLocale: Scalars['String']['output'];
   /** The languages this workspace offers in its pickers. */
   enabledLocales: Array<Scalars['String']['output']>;
+  /** The month its financial year opens: 1 is January, 4 is April. */
+  fiscalYearStartMonth: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  /** Whose tax rules its invoices and payroll follow. */
+  taxSystem: TaxSystem;
   timeFormat: Scalars['String']['output'];
   timezone: Scalars['String']['output'];
 };
@@ -677,6 +685,13 @@ export enum AuditAction {
   Update = 'UPDATE'
 }
 
+/** Who is auditing whom. */
+export enum AuditKind {
+  External = 'EXTERNAL',
+  Internal = 'INTERNAL',
+  Supplier = 'SUPPLIER'
+}
+
 /** One thing somebody changed. Append-only; read from Admin > Audit Log. */
 export type AuditLog = {
   __typename?: 'AuditLog';
@@ -700,6 +715,13 @@ export type AuditLogPage = {
   rows: Array<AuditLog>;
   totalCount: Scalars['Int']['output'];
 };
+
+export enum AuditStatus {
+  Closed = 'CLOSED',
+  InProgress = 'IN_PROGRESS',
+  Planned = 'PLANNED',
+  Reported = 'REPORTED'
+}
 
 export type AuthPayload = {
   __typename?: 'AuthPayload';
@@ -1438,6 +1460,19 @@ export enum CompanyStatus {
   Customer = 'CUSTOMER',
   Partner = 'PARTNER',
   Prospect = 'PROSPECT'
+}
+
+/** What a compliance record is about — one list across all four standards. */
+export enum ComplianceCategory {
+  Environment = 'ENVIRONMENT',
+  Financial = 'FINANCIAL',
+  HealthSafety = 'HEALTH_SAFETY',
+  InformationSecurity = 'INFORMATION_SECURITY',
+  Legal = 'LEGAL',
+  Operational = 'OPERATIONAL',
+  People = 'PEOPLE',
+  Quality = 'QUALITY',
+  Supplier = 'SUPPLIER'
 }
 
 export type Contact = {
@@ -2262,6 +2297,103 @@ export type FinanceMonth = {
   revenue: Scalars['Float']['output'];
 };
 
+/**
+ * A nonconformity and the corrective action taken about it (clause 10.2).
+ *
+ * One record rather than two: a finding is not closed when something was done about it, but
+ * when somebody checked that what was done worked. The API refuses to close one that has not
+ * been verified.
+ */
+export type Finding = {
+  __typename?: 'Finding';
+  auditId: Scalars['String']['output'];
+  category: ComplianceCategory;
+  clause: Scalars['String']['output'];
+  closedOn?: Maybe<Scalars['DateTime']['output']>;
+  correctiveAction: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  dueOn?: Maybe<Scalars['DateTime']['output']>;
+  /** Whether the correction actually worked. Null until it has been verified. */
+  effective?: Maybe<Scalars['Boolean']['output']>;
+  effectivenessNote: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  immediateAction: Scalars['String']['output'];
+  ownerId: Scalars['String']['output'];
+  ownerName: Scalars['String']['output'];
+  raisedOn: Scalars['DateTime']['output'];
+  reference: Scalars['String']['output'];
+  riskId: Scalars['String']['output'];
+  rootCause: Scalars['String']['output'];
+  source: FindingSource;
+  standards: Array<ManagementStandard>;
+  status: FindingStatus;
+  title: Scalars['String']['output'];
+  type: FindingType;
+  updatedAt: Scalars['DateTime']['output'];
+  verifiedByName: Scalars['String']['output'];
+  verifiedOn?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type FindingInput = {
+  auditId: Scalars['String']['input'];
+  category: ComplianceCategory;
+  clause: Scalars['String']['input'];
+  closedOn?: InputMaybe<Scalars['DateTime']['input']>;
+  correctiveAction: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  dueOn?: InputMaybe<Scalars['DateTime']['input']>;
+  effective?: InputMaybe<Scalars['Boolean']['input']>;
+  effectivenessNote?: InputMaybe<Scalars['String']['input']>;
+  immediateAction: Scalars['String']['input'];
+  ownerId: Scalars['String']['input'];
+  ownerName: Scalars['String']['input'];
+  raisedOn: Scalars['DateTime']['input'];
+  riskId: Scalars['String']['input'];
+  rootCause: Scalars['String']['input'];
+  source: FindingSource;
+  standards: Array<ManagementStandard>;
+  status: FindingStatus;
+  title: Scalars['String']['input'];
+  type: FindingType;
+  verifiedByName?: InputMaybe<Scalars['String']['input']>;
+  verifiedOn?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type FindingPage = {
+  __typename?: 'FindingPage';
+  rows: Array<Finding>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** Where a finding came from. One register whatever raised it. */
+export enum FindingSource {
+  CustomerComplaint = 'CUSTOMER_COMPLAINT',
+  EmployeeReport = 'EMPLOYEE_REPORT',
+  ExternalAudit = 'EXTERNAL_AUDIT',
+  Incident = 'INCIDENT',
+  InternalAudit = 'INTERNAL_AUDIT',
+  ManagementReview = 'MANAGEMENT_REVIEW',
+  Other = 'OTHER',
+  Supplier = 'SUPPLIER'
+}
+
+export enum FindingStatus {
+  ActionAgreed = 'ACTION_AGREED',
+  Closed = 'CLOSED',
+  Implemented = 'IMPLEMENTED',
+  Open = 'OPEN',
+  Verified = 'VERIFIED'
+}
+
+/** How serious it is — the four an auditor uses. */
+export enum FindingType {
+  MajorNonconformity = 'MAJOR_NONCONFORMITY',
+  MinorNonconformity = 'MINOR_NONCONFORMITY',
+  Observation = 'OBSERVATION',
+  Opportunity = 'OPPORTUNITY'
+}
+
 export type Gig = {
   __typename?: 'Gig';
   applicationContact: Scalars['String']['output'];
@@ -2566,6 +2698,57 @@ export type InfrastructureOverview = {
   database: DatabaseInfo;
   docker: DockerHost;
   runtime: ServerRuntime;
+};
+
+/**
+ * One audit in the company's programme (clause 9.2).
+ *
+ * A year's programme is the audits planned for it: scope says what was audited and criteria
+ * says what it was audited against, because a finding needs both to mean anything later.
+ */
+export type InternalAudit = {
+  __typename?: 'InternalAudit';
+  auditeeName: Scalars['String']['output'];
+  conclusion: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  criteria: Scalars['String']['output'];
+  /** What this audit raised, so the report and its findings are read together. */
+  findings: Array<Finding>;
+  id: Scalars['ID']['output'];
+  kind: AuditKind;
+  leadAuditorId: Scalars['String']['output'];
+  leadAuditorName: Scalars['String']['output'];
+  performedOn?: Maybe<Scalars['DateTime']['output']>;
+  plannedOn: Scalars['DateTime']['output'];
+  reference: Scalars['String']['output'];
+  scope: Scalars['String']['output'];
+  standards: Array<ManagementStandard>;
+  status: AuditStatus;
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type InternalAuditInput = {
+  auditeeName: Scalars['String']['input'];
+  conclusion: Scalars['String']['input'];
+  criteria: Scalars['String']['input'];
+  kind: AuditKind;
+  leadAuditorId: Scalars['String']['input'];
+  leadAuditorName: Scalars['String']['input'];
+  performedOn?: InputMaybe<Scalars['DateTime']['input']>;
+  plannedOn: Scalars['DateTime']['input'];
+  scope: Scalars['String']['input'];
+  standards: Array<ManagementStandard>;
+  status: AuditStatus;
+  summary: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
+export type InternalAuditPage = {
+  __typename?: 'InternalAuditPage';
+  rows: Array<InternalAudit>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type Invoice = {
@@ -3105,6 +3288,80 @@ export type LoginPageInput = {
   tagline: Scalars['String']['input'];
 };
 
+/**
+ * A management review (clause 9.3) — the meeting at which the people who run the company look
+ * at whether the management system is working and decide what to change.
+ *
+ * Its inputs are written text, not a live query: the standard asks what leadership CONSIDERED,
+ * and a minute that re-rendered from today's data would say something different every time.
+ */
+export type ManagementReview = {
+  __typename?: 'ManagementReview';
+  actions: Array<ManagementReviewAction>;
+  attendees: Scalars['String']['output'];
+  chairName: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  decisions: Scalars['String']['output'];
+  heldOn: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  inputs: Scalars['String']['output'];
+  /** How much of what the meeting decided is still outstanding. */
+  openActionCount: Scalars['Int']['output'];
+  reference: Scalars['String']['output'];
+  standards: Array<ManagementStandard>;
+  status: ManagementReviewStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** One action leadership agreed in the meeting, and whether it has since been done. */
+export type ManagementReviewAction = {
+  __typename?: 'ManagementReviewAction';
+  description: Scalars['String']['output'];
+  done: Scalars['Boolean']['output'];
+  dueOn?: Maybe<Scalars['DateTime']['output']>;
+  ownerName: Scalars['String']['output'];
+};
+
+export type ManagementReviewActionInput = {
+  description: Scalars['String']['input'];
+  done: Scalars['Boolean']['input'];
+  dueOn?: InputMaybe<Scalars['DateTime']['input']>;
+  ownerName: Scalars['String']['input'];
+};
+
+export type ManagementReviewInput = {
+  actions: Array<ManagementReviewActionInput>;
+  attendees: Scalars['String']['input'];
+  chairName: Scalars['String']['input'];
+  decisions: Scalars['String']['input'];
+  heldOn: Scalars['DateTime']['input'];
+  inputs: Scalars['String']['input'];
+  standards: Array<ManagementStandard>;
+  status: ManagementReviewStatus;
+  title: Scalars['String']['input'];
+};
+
+export type ManagementReviewPage = {
+  __typename?: 'ManagementReviewPage';
+  rows: Array<ManagementReview>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ManagementReviewStatus {
+  Held = 'HELD',
+  Minuted = 'MINUTED',
+  Planned = 'PLANNED'
+}
+
+/** A management system standard the company runs to. A record may answer to several. */
+export enum ManagementStandard {
+  Iso_9001 = 'ISO_9001',
+  Iso_14001 = 'ISO_14001',
+  Iso_27001 = 'ISO_27001',
+  Iso_45001 = 'ISO_45001'
+}
+
 /** Employee-facing attendance entry — the server sets employeeId. */
 export type MarkAttendanceInput = {
   date: Scalars['DateTime']['input'];
@@ -3205,6 +3462,8 @@ export type Mutation = {
   /** Self-service: apply for leave (status forced to PENDING). */
   applyLeave: LeaveRequest;
   archivePolicy: Policy;
+  /** Creates or promotes the company's administrator, who then administers it (SUPER_ADMIN). */
+  assignOrganizationAdmin: User;
   /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
   assignSupportTicket: SupportTicket;
   changePassword: Scalars['Boolean']['output'];
@@ -3256,6 +3515,7 @@ export type Mutation = {
   createEmploymentType: EmploymentType;
   createExitRecord: ExitRecord;
   createExpenseClaim: ExpenseClaim;
+  createFinding: Finding;
   createGig: Gig;
   createGithubConfig: GithubConfig;
   createGoal: Goal;
@@ -3263,6 +3523,7 @@ export type Mutation = {
   createHoliday: Holiday;
   createImageConfig: ImageConfig;
   createInboundMailConfig: InboundMailConfig;
+  createInternalAudit: InternalAudit;
   createInvoice: Invoice;
   /** A draft invoice billing a won deal's value to its client. Refused if one already exists. */
   createInvoiceFromDeal: Invoice;
@@ -3282,6 +3543,7 @@ export type Mutation = {
   createLegalDocument: LegalDocument;
   createLicence: Licence;
   createLocation: Location;
+  createManagementReview: ManagementReview;
   createMarketingSuppression: MarketingSuppression;
   createMilestone: Milestone;
   /**
@@ -3295,8 +3557,11 @@ export type Mutation = {
    */
   createMyRequest: EmployeeRequest;
   createNavLink: NavLink;
+  createObjective: Objective;
   createOnboardingTemplate: OnboardingTemplate;
   createOpenAiConfig: OpenAiConfig;
+  /** Creates a company and provisions its defaults (SUPER_ADMIN). */
+  createOrganization: Organization;
   createPerformanceReview: PerformanceReview;
   createPexelsConfig: PexelsConfig;
   createPolicy: Policy;
@@ -3308,6 +3573,7 @@ export type Mutation = {
   createPrompt: Prompt;
   createPurchaseOrder: PurchaseOrder;
   createRecurringInvoice: RecurringInvoice;
+  createRisk: Risk;
   createSalaryStructure: SalaryStructure;
   createShift: Shift;
   createSlackConfig: SlackConfig;
@@ -3377,6 +3643,7 @@ export type Mutation = {
   deleteEmploymentType: Scalars['Boolean']['output'];
   deleteExitRecord: Scalars['Boolean']['output'];
   deleteExpenseClaim: Scalars['Boolean']['output'];
+  deleteFinding: Scalars['Boolean']['output'];
   deleteGig: Scalars['Boolean']['output'];
   deleteGithubConfig: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
@@ -3384,6 +3651,7 @@ export type Mutation = {
   deleteHoliday: Scalars['Boolean']['output'];
   deleteImageConfig: Scalars['Boolean']['output'];
   deleteInboundMailConfig: Scalars['Boolean']['output'];
+  deleteInternalAudit: Scalars['Boolean']['output'];
   deleteInvoice: Scalars['Boolean']['output'];
   deleteJob: Scalars['Boolean']['output'];
   deleteJobCompany: Scalars['Boolean']['output'];
@@ -3395,10 +3663,12 @@ export type Mutation = {
   deleteLegalDocument: Scalars['Boolean']['output'];
   deleteLicence: Scalars['Boolean']['output'];
   deleteLocation: Scalars['Boolean']['output'];
+  deleteManagementReview: Scalars['Boolean']['output'];
   /** Deleting the row is how somebody is re-subscribed; there is no other way back. */
   deleteMarketingSuppression: Scalars['Boolean']['output'];
   deleteMilestone: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
+  deleteObjective: Scalars['Boolean']['output'];
   /** HR: removes a checklist entirely — for one started against the wrong person. */
   deleteOnboardingChecklist: Scalars['Boolean']['output'];
   deleteOnboardingTemplate: Scalars['Boolean']['output'];
@@ -3413,6 +3683,7 @@ export type Mutation = {
   deletePrompt: Scalars['Boolean']['output'];
   deletePurchaseOrder: Scalars['Boolean']['output'];
   deleteRecurringInvoice: Scalars['Boolean']['output'];
+  deleteRisk: Scalars['Boolean']['output'];
   deleteSalaryStructure: Scalars['Boolean']['output'];
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
@@ -3594,6 +3865,8 @@ export type Mutation = {
    * items their own onboarding asks THEM to do.
    */
   setOnboardingItem: OnboardingChecklist;
+  /** Suspending keeps every record and stops every sign-in in that company. */
+  setOrganizationStatus: Organization;
   /**
    * Sets exactly what a role may do in a module. An empty list blocks the role
    * from the module entirely; deleting the row (clearRolePermission) restores
@@ -3726,6 +3999,7 @@ export type Mutation = {
   updateEmploymentType: EmploymentType;
   updateExitRecord: ExitRecord;
   updateExpenseClaim: ExpenseClaim;
+  updateFinding: Finding;
   updateGig: Gig;
   updateGithubConfig: GithubConfig;
   updateGoal: Goal;
@@ -3733,6 +4007,7 @@ export type Mutation = {
   updateHoliday: Holiday;
   updateImageConfig: ImageConfig;
   updateInboundMailConfig: InboundMailConfig;
+  updateInternalAudit: InternalAudit;
   updateInvoice: Invoice;
   updateJob: Job;
   updateJobCompany: JobCompany;
@@ -3744,6 +4019,7 @@ export type Mutation = {
   updateLegalDocument: LegalDocument;
   updateLicence: Licence;
   updateLocation: Location;
+  updateManagementReview: ManagementReview;
   updateMarketingSuppression: MarketingSuppression;
   updateMilestone: Milestone;
   /**
@@ -3754,8 +4030,10 @@ export type Mutation = {
   /** The employee marking their own progress. Completing it stamps completedOn. */
   updateMyTrainingStatus: Training;
   updateNavLink: NavLink;
+  updateObjective: Objective;
   updateOnboardingTemplate: OnboardingTemplate;
   updateOpenAiConfig: OpenAiConfig;
+  updateOrganization: Organization;
   /** Saves when payslip emails go out. Turning it off stops the scheduled run. */
   updatePayrollSchedule: PayrollSchedule;
   /**
@@ -3775,6 +4053,7 @@ export type Mutation = {
   updatePrompt: Prompt;
   updatePurchaseOrder: PurchaseOrder;
   updateRecurringInvoice: RecurringInvoice;
+  updateRisk: Risk;
   updateSalaryStructure: SalaryStructure;
   updateSettings: AppSettings;
   updateShift: Shift;
@@ -3854,6 +4133,12 @@ export type MutationApplyLeaveArgs = {
 
 export type MutationArchivePolicyArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationAssignOrganizationAdminArgs = {
+  input: OrganizationAdminInput;
+  organizationId: Scalars['ID']['input'];
 };
 
 
@@ -4071,6 +4356,11 @@ export type MutationCreateExpenseClaimArgs = {
 };
 
 
+export type MutationCreateFindingArgs = {
+  input: FindingInput;
+};
+
+
 export type MutationCreateGigArgs = {
   input: GigInput;
 };
@@ -4103,6 +4393,11 @@ export type MutationCreateImageConfigArgs = {
 
 export type MutationCreateInboundMailConfigArgs = {
   input: InboundMailConfigInput;
+};
+
+
+export type MutationCreateInternalAuditArgs = {
+  input: InternalAuditInput;
 };
 
 
@@ -4173,6 +4468,11 @@ export type MutationCreateLocationArgs = {
 };
 
 
+export type MutationCreateManagementReviewArgs = {
+  input: ManagementReviewInput;
+};
+
+
 export type MutationCreateMarketingSuppressionArgs = {
   input: MarketingSuppressionInput;
 };
@@ -4199,6 +4499,11 @@ export type MutationCreateNavLinkArgs = {
 };
 
 
+export type MutationCreateObjectiveArgs = {
+  input: ObjectiveInput;
+};
+
+
 export type MutationCreateOnboardingTemplateArgs = {
   input: OnboardingTemplateInput;
 };
@@ -4206,6 +4511,11 @@ export type MutationCreateOnboardingTemplateArgs = {
 
 export type MutationCreateOpenAiConfigArgs = {
   input: OpenAiConfigInput;
+};
+
+
+export type MutationCreateOrganizationArgs = {
+  input: OrganizationInput;
 };
 
 
@@ -4263,6 +4573,11 @@ export type MutationCreatePurchaseOrderArgs = {
 
 export type MutationCreateRecurringInvoiceArgs = {
   input: RecurringInvoiceInput;
+};
+
+
+export type MutationCreateRiskArgs = {
+  input: RiskInput;
 };
 
 
@@ -4566,6 +4881,11 @@ export type MutationDeleteExpenseClaimArgs = {
 };
 
 
+export type MutationDeleteFindingArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteGigArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4597,6 +4917,11 @@ export type MutationDeleteImageConfigArgs = {
 
 
 export type MutationDeleteInboundMailConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteInternalAuditArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4656,6 +4981,11 @@ export type MutationDeleteLocationArgs = {
 };
 
 
+export type MutationDeleteManagementReviewArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteMarketingSuppressionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -4667,6 +4997,11 @@ export type MutationDeleteMilestoneArgs = {
 
 
 export type MutationDeleteNavLinkArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteObjectiveArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4732,6 +5067,11 @@ export type MutationDeletePurchaseOrderArgs = {
 
 
 export type MutationDeleteRecurringInvoiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteRiskArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -5172,6 +5512,12 @@ export type MutationSetOnboardingItemArgs = {
 };
 
 
+export type MutationSetOrganizationStatusArgs = {
+  id: Scalars['ID']['input'];
+  status: OrganizationStatus;
+};
+
+
 export type MutationSetRolePermissionArgs = {
   actions: Array<PermissionAction>;
   module: Scalars['String']['input'];
@@ -5574,6 +5920,12 @@ export type MutationUpdateExpenseClaimArgs = {
 };
 
 
+export type MutationUpdateFindingArgs = {
+  id: Scalars['ID']['input'];
+  input: FindingInput;
+};
+
+
 export type MutationUpdateGigArgs = {
   id: Scalars['ID']['input'];
   input: GigInput;
@@ -5613,6 +5965,12 @@ export type MutationUpdateImageConfigArgs = {
 export type MutationUpdateInboundMailConfigArgs = {
   id: Scalars['ID']['input'];
   input: InboundMailConfigInput;
+};
+
+
+export type MutationUpdateInternalAuditArgs = {
+  id: Scalars['ID']['input'];
+  input: InternalAuditInput;
 };
 
 
@@ -5682,6 +6040,12 @@ export type MutationUpdateLocationArgs = {
 };
 
 
+export type MutationUpdateManagementReviewArgs = {
+  id: Scalars['ID']['input'];
+  input: ManagementReviewInput;
+};
+
+
 export type MutationUpdateMarketingSuppressionArgs = {
   id: Scalars['ID']['input'];
   input: MarketingSuppressionInput;
@@ -5712,6 +6076,12 @@ export type MutationUpdateNavLinkArgs = {
 };
 
 
+export type MutationUpdateObjectiveArgs = {
+  id: Scalars['ID']['input'];
+  input: ObjectiveInput;
+};
+
+
 export type MutationUpdateOnboardingTemplateArgs = {
   id: Scalars['ID']['input'];
   input: OnboardingTemplateInput;
@@ -5721,6 +6091,12 @@ export type MutationUpdateOnboardingTemplateArgs = {
 export type MutationUpdateOpenAiConfigArgs = {
   id: Scalars['ID']['input'];
   input: OpenAiConfigInput;
+};
+
+
+export type MutationUpdateOrganizationArgs = {
+  id: Scalars['ID']['input'];
+  input: OrganizationUpdateInput;
 };
 
 
@@ -5796,6 +6172,12 @@ export type MutationUpdatePurchaseOrderArgs = {
 export type MutationUpdateRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
   input: RecurringInvoiceInput;
+};
+
+
+export type MutationUpdateRiskArgs = {
+  id: Scalars['ID']['input'];
+  input: RiskInput;
 };
 
 
@@ -6011,6 +6393,86 @@ export enum NotificationKind {
   Training = 'TRAINING'
 }
 
+/**
+ * An objective the company set itself and measures (clause 6.2 of every one of the standards).
+ *
+ * The organisation's own, not an employee's appraisal goal — those live in HR.
+ */
+export type Objective = {
+  __typename?: 'Objective';
+  /** How far it has come from its baseline towards its target, 0-100. */
+  achievementPercent: Scalars['Int']['output'];
+  actual: Scalars['Float']['output'];
+  area: Scalars['String']['output'];
+  baseline: Scalars['Float']['output'];
+  category: ComplianceCategory;
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  frequency: ObjectiveFrequency;
+  id: Scalars['ID']['output'];
+  measure: Scalars['String']['output'];
+  ownerId: Scalars['String']['output'];
+  ownerName: Scalars['String']['output'];
+  periodEnd: Scalars['DateTime']['output'];
+  periodStart: Scalars['DateTime']['output'];
+  plan: Scalars['String']['output'];
+  scope: ObjectiveScope;
+  standards: Array<ManagementStandard>;
+  status: ObjectiveStatus;
+  target: Scalars['Float']['output'];
+  title: Scalars['String']['output'];
+  unit: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export enum ObjectiveFrequency {
+  HalfYearly = 'HALF_YEARLY',
+  Monthly = 'MONTHLY',
+  Quarterly = 'QUARTERLY',
+  Yearly = 'YEARLY'
+}
+
+export type ObjectiveInput = {
+  actual: Scalars['Float']['input'];
+  area: Scalars['String']['input'];
+  baseline: Scalars['Float']['input'];
+  category: ComplianceCategory;
+  description: Scalars['String']['input'];
+  frequency: ObjectiveFrequency;
+  measure: Scalars['String']['input'];
+  ownerId: Scalars['String']['input'];
+  ownerName: Scalars['String']['input'];
+  periodEnd: Scalars['DateTime']['input'];
+  periodStart: Scalars['DateTime']['input'];
+  plan: Scalars['String']['input'];
+  scope: ObjectiveScope;
+  standards: Array<ManagementStandard>;
+  status: ObjectiveStatus;
+  target: Scalars['Float']['input'];
+  title: Scalars['String']['input'];
+  unit: Scalars['String']['input'];
+};
+
+export type ObjectivePage = {
+  __typename?: 'ObjectivePage';
+  rows: Array<Objective>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ObjectiveScope {
+  Company = 'COMPANY',
+  Department = 'DEPARTMENT',
+  Process = 'PROCESS'
+}
+
+export enum ObjectiveStatus {
+  AtRisk = 'AT_RISK',
+  Met = 'MET',
+  Missed = 'MISSED',
+  OnTrack = 'ON_TRACK',
+  Planned = 'PLANNED'
+}
+
 export type OnboardingChecklist = {
   __typename?: 'OnboardingChecklist';
   /** True once every item is done. */
@@ -6122,6 +6584,67 @@ export type OrgNode = {
   id: Scalars['ID']['output'];
   managerId?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
+};
+
+/** One company using the portal. Every other record belongs to exactly one of these. */
+export type Organization = {
+  __typename?: 'Organization';
+  contactEmail: Scalars['String']['output'];
+  /** ISO 3166-1 alpha-2 country code, or empty when not stated. */
+  country: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** ISO 4217 currency code — the money this company keeps its books in. */
+  currency: Scalars['String']['output'];
+  /** The month its financial year opens: 1 is January, 4 is April. */
+  fiscalYearStartMonth: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  legalName: Scalars['String']['output'];
+  /** BCP 47 language tag the company reads by default. */
+  locale: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  /** URL-safe handle, unique across the platform. */
+  slug: Scalars['String']['output'];
+  status: OrganizationStatus;
+  taxSystem: TaxSystem;
+  /** IANA timezone the company works by. */
+  timezone: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** The person a company is handed over to — its first administrator. */
+export type OrganizationAdminInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type OrganizationInput = {
+  contactEmail?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  currency: Scalars['String']['input'];
+  fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
+  legalName?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  slug?: InputMaybe<Scalars['String']['input']>;
+  taxSystem?: InputMaybe<TaxSystem>;
+  timezone?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum OrganizationStatus {
+  Active = 'ACTIVE',
+  Suspended = 'SUSPENDED'
+}
+
+export type OrganizationUpdateInput = {
+  contactEmail?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
+  fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
+  legalName?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  taxSystem?: InputMaybe<TaxSystem>;
+  timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** How an employee is paid. Decides which amounts on the salary structure mean anything. */
@@ -6375,13 +6898,21 @@ export type Policy = {
   __typename?: 'Policy';
   /** How many people have signed the CURRENT version. */
   acknowledgedCount: Scalars['Int']['output'];
+  /** Who approved it for use, recorded when it was published. Not its author. */
+  approvedByName: Scalars['String']['output'];
+  approvedOn?: Maybe<Scalars['DateTime']['output']>;
   audience: PolicyAudience;
   body: Scalars['String']['output'];
+  classification: PolicyClassification;
   effectiveDate: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
+  /** When this has to be read again and confirmed as still right. */
+  nextReviewOn?: Maybe<Scalars['DateTime']['output']>;
   owner: Scalars['String']['output'];
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
   requiresAcknowledgement: Scalars['Boolean']['output'];
+  /** Whether that date has passed. Derived, so a list can be filtered on it. */
+  reviewOverdue: Scalars['Boolean']['output'];
   /** URL segment the website renders this at. */
   slug: Scalars['String']['output'];
   status: PolicyStatus;
@@ -6412,10 +6943,24 @@ export enum PolicyAudience {
   Public = 'PUBLIC'
 }
 
+/**
+ * How far a document may travel (ISO 27001 A.5.12).
+ *
+ * The document's own label, not a permission: who may open a policy is decided by its
+ * audience and the reader's role.
+ */
+export enum PolicyClassification {
+  Confidential = 'CONFIDENTIAL',
+  Internal = 'INTERNAL',
+  Public = 'PUBLIC'
+}
+
 export type PolicyInput = {
   audience: PolicyAudience;
   body: Scalars['String']['input'];
+  classification?: InputMaybe<PolicyClassification>;
   effectiveDate: Scalars['DateTime']['input'];
+  nextReviewOn?: InputMaybe<Scalars['DateTime']['input']>;
   owner?: InputMaybe<Scalars['String']['input']>;
   requiresAcknowledgement?: InputMaybe<Scalars['Boolean']['input']>;
   slug: Scalars['String']['input'];
@@ -7035,10 +7580,12 @@ export type Query = {
   getEmploymentType: EmploymentType;
   getExitRecord: ExitRecord;
   getExpenseClaim: ExpenseClaim;
+  getFinding: Finding;
   getGig: Gig;
   getGoal: Goal;
   getGrade: Grade;
   getHoliday: Holiday;
+  getInternalAudit: InternalAudit;
   getInvoice: Invoice;
   getJob: Job;
   getJobCompany: JobCompany;
@@ -7050,8 +7597,10 @@ export type Query = {
   getLegalDocument: LegalDocument;
   getLicence: Licence;
   getLocation: Location;
+  getManagementReview: ManagementReview;
   getMarketingSuppression: MarketingSuppression;
   getNavLink: NavLink;
+  getObjective: Objective;
   getOnboardingTemplate: OnboardingTemplate;
   getPerformanceReview: PerformanceReview;
   getPolicy: Policy;
@@ -7062,6 +7611,7 @@ export type Query = {
   getPrompt: Prompt;
   getPurchaseOrder: PurchaseOrder;
   getRecurringInvoice?: Maybe<RecurringInvoice>;
+  getRisk: Risk;
   getSalaryStructure: SalaryStructure;
   getShift: Shift;
   getStatusIncident: StatusIncident;
@@ -7200,6 +7750,9 @@ export type Query = {
   listExpenseClaims: Array<ExpenseClaim>;
   listExpenseClaimsPaged: ExpenseClaimPage;
   listExpenseClaimsStats: TableStats;
+  listFindings: Array<Finding>;
+  listFindingsPaged: FindingPage;
+  listFindingsStats: TableStats;
   listGigs: Array<Gig>;
   listGigsPaged: GigPage;
   listGigsStats: TableStats;
@@ -7216,6 +7769,9 @@ export type Query = {
   listHolidaysStats: TableStats;
   listImageConfigs: Array<ImageConfig>;
   listInboundMailConfigs: Array<InboundMailConfig>;
+  listInternalAudits: Array<InternalAudit>;
+  listInternalAuditsPaged: InternalAuditPage;
+  listInternalAuditsStats: TableStats;
   listInvoices: Array<Invoice>;
   listInvoicesPaged: InvoicePage;
   listInvoicesStats: TableStats;
@@ -7247,10 +7803,16 @@ export type Query = {
   listLocations: Array<Location>;
   listLocationsPaged: LocationPage;
   listLocationsStats: TableStats;
+  listManagementReviews: Array<ManagementReview>;
+  listManagementReviewsPaged: ManagementReviewPage;
+  listManagementReviewsStats: TableStats;
   listMarketingSuppressions: Array<MarketingSuppression>;
   listMarketingSuppressionsPaged: MarketingSuppressionPage;
   listMarketingSuppressionsStats: TableStats;
   listNavLinks: Array<NavLink>;
+  listObjectives: Array<Objective>;
+  listObjectivesPaged: ObjectivePage;
+  listObjectivesStats: TableStats;
   /** HR: every joiner's checklist. */
   listOnboardingChecklistsPaged: OnboardingChecklistPage;
   listOnboardingChecklistsStats: TableStats;
@@ -7291,6 +7853,9 @@ export type Query = {
   listPurchaseOrdersStats: TableStats;
   listRecurringInvoices: Array<RecurringInvoice>;
   listRecurringInvoicesPaged: RecurringInvoicePage;
+  listRisks: Array<Risk>;
+  listRisksPaged: RiskPage;
+  listRisksStats: TableStats;
   /** Only restrictions that exist; a missing (role, module) pair means everything is allowed. */
   listRolePermissions: Array<RolePermission>;
   listSalarySlipsPaged: SalarySlipPage;
@@ -7389,6 +7954,8 @@ export type Query = {
   myNotifications: Array<Notification>;
   /** Self-service: the signed-in employee's own checklist. Null when they have none. */
   myOnboarding?: Maybe<OnboardingChecklist>;
+  /** The signed-in person's own company, or null for a platform administrator. */
+  myOrganization?: Maybe<Organization>;
   /** Self-service: the signed-in employee's salary structure (null if unset). */
   myPayroll?: Maybe<SalaryStructure>;
   /** The badge count for the same queue. */
@@ -7425,6 +7992,10 @@ export type Query = {
   openAppLogsFixPrompt: Scalars['String']['output'];
   /** HR/ADMIN: every active user with their managerId, for the org chart. */
   orgChart: Array<OrgNode>;
+  /** One organization (SUPER_ADMIN). */
+  organization: Organization;
+  /** Every organization on the platform (SUPER_ADMIN). */
+  organizations: Array<Organization>;
   /** The payslip email schedule. Created with its defaults on first read. */
   payrollSchedule: PayrollSchedule;
   /** The statutory deduction policy. Created with its defaults on first read. */
@@ -7823,6 +8394,11 @@ export type QueryGetExpenseClaimArgs = {
 };
 
 
+export type QueryGetFindingArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetGigArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7839,6 +8415,11 @@ export type QueryGetGradeArgs = {
 
 
 export type QueryGetHolidayArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetInternalAuditArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7898,12 +8479,22 @@ export type QueryGetLocationArgs = {
 };
 
 
+export type QueryGetManagementReviewArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetMarketingSuppressionArgs = {
   id: Scalars['ID']['input'];
 };
 
 
 export type QueryGetNavLinkArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetObjectiveArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7954,6 +8545,11 @@ export type QueryGetPurchaseOrderArgs = {
 
 
 export type QueryGetRecurringInvoiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetRiskArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -8223,6 +8819,11 @@ export type QueryListExpenseClaimsPagedArgs = {
 };
 
 
+export type QueryListFindingsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListGigsPagedArgs = {
   input: TableQueryInput;
 };
@@ -8239,6 +8840,11 @@ export type QueryListGradesPagedArgs = {
 
 
 export type QueryListHolidaysPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListInternalAuditsPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -8293,7 +8899,17 @@ export type QueryListLocationsPagedArgs = {
 };
 
 
+export type QueryListManagementReviewsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListMarketingSuppressionsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListObjectivesPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -8349,6 +8965,11 @@ export type QueryListPurchaseOrdersPagedArgs = {
 
 
 export type QueryListRecurringInvoicesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListRisksPagedArgs = {
   input: TableQueryInput;
 };
 
@@ -8489,6 +9110,11 @@ export type QueryMyTrackerMessagesArgs = {
 
 export type QueryOpenAppLogsFixPromptArgs = {
   source?: InputMaybe<AppLogSource>;
+};
+
+
+export type QueryOrganizationArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -8873,9 +9499,97 @@ export enum ReviewStatus {
   SelfSubmitted = 'SELF_SUBMITTED'
 }
 
+/**
+ * One risk in the company's register.
+ *
+ * Both ratings are kept: inherent is the risk with nothing done about it, residual is what is
+ * left after the controls named on it. The scores and levels are derived from the two axes.
+ */
+export type Risk = {
+  __typename?: 'Risk';
+  category: ComplianceCategory;
+  closedOn?: Maybe<Scalars['DateTime']['output']>;
+  controls: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  identifiedOn: Scalars['DateTime']['output'];
+  impact: Scalars['Int']['output'];
+  inherentLevel: RiskLevel;
+  /** likelihood x impact, before the controls. */
+  inherentScore: Scalars['Int']['output'];
+  likelihood: Scalars['Int']['output'];
+  ownerId: Scalars['String']['output'];
+  ownerName: Scalars['String']['output'];
+  reference: Scalars['String']['output'];
+  residualImpact: Scalars['Int']['output'];
+  residualLevel: RiskLevel;
+  residualLikelihood: Scalars['Int']['output'];
+  /** What is left once the controls are working. */
+  residualScore: Scalars['Int']['output'];
+  reviewDueOn?: Maybe<Scalars['DateTime']['output']>;
+  standards: Array<ManagementStandard>;
+  status: RiskStatus;
+  subject: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  treatment: RiskTreatment;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** The reference is drawn from the company's own series on create; never sent by a client. */
+export type RiskInput = {
+  category: ComplianceCategory;
+  closedOn?: InputMaybe<Scalars['DateTime']['input']>;
+  controls: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  identifiedOn: Scalars['DateTime']['input'];
+  impact: Scalars['Int']['input'];
+  likelihood: Scalars['Int']['input'];
+  ownerId: Scalars['String']['input'];
+  ownerName: Scalars['String']['input'];
+  residualImpact: Scalars['Int']['input'];
+  residualLikelihood: Scalars['Int']['input'];
+  reviewDueOn?: InputMaybe<Scalars['DateTime']['input']>;
+  standards: Array<ManagementStandard>;
+  status: RiskStatus;
+  subject: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  treatment: RiskTreatment;
+};
+
+/** Where a 1-25 rating lands. Derived from the rating, never stored. */
+export enum RiskLevel {
+  Critical = 'CRITICAL',
+  High = 'HIGH',
+  Low = 'LOW',
+  Medium = 'MEDIUM'
+}
+
+export type RiskPage = {
+  __typename?: 'RiskPage';
+  rows: Array<Risk>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum RiskStatus {
+  Closed = 'CLOSED',
+  Identified = 'IDENTIFIED',
+  Monitoring = 'MONITORING',
+  Treating = 'TREATING'
+}
+
+/** How a risk is being dealt with (ISO 31000). */
+export enum RiskTreatment {
+  Accept = 'ACCEPT',
+  Avoid = 'AVOID',
+  Reduce = 'REDUCE',
+  Transfer = 'TRANSFER'
+}
+
 export enum Role {
   Admin = 'ADMIN',
   Ai = 'AI',
+  Compliance = 'COMPLIANCE',
   Crm = 'CRM',
   Employee = 'EMPLOYEE',
   Finance = 'FINANCE',
@@ -9897,6 +10611,16 @@ export type TaxSlabPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** Whose tax rules a company's invoices and payroll follow. */
+export enum TaxSystem {
+  /** India: GSTIN and place of supply, CGST/SGST/IGST, PF/ESI/professional tax, income-tax slabs. */
+  IndiaGst = 'INDIA_GST',
+  /** No tax lines at all. */
+  None = 'NONE',
+  /** One tax line at the company's own rate. */
+  Vat = 'VAT'
+}
+
 /**
  * How TDS is worked out. NONE withholds nothing; FLAT_PERCENT takes a percentage of taxable
  * pay; SLAB applies the band table below to the annualised pay. An employee with their own
@@ -10803,6 +11527,8 @@ export type User = {
   /** Resolved from managerId for display; null when nobody is set. */
   managerName?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
+  /** The company this person belongs to; null for a platform administrator. */
+  organizationId?: Maybe<Scalars['ID']['output']>;
   /** The day this employee comes off probation. Null when they are not on one. */
   probationEndDate?: Maybe<Scalars['DateTime']['output']>;
   roles: Array<Role>;
@@ -11053,8 +11779,10 @@ export type ResolversTypes = ResolversObject<{
   AudienceMemberKind: AudienceMemberKind;
   AudienceSegment: AudienceSegment;
   AuditAction: AuditAction;
+  AuditKind: AuditKind;
   AuditLog: ResolverTypeWrapper<AuditLog>;
   AuditLogPage: ResolverTypeWrapper<AuditLogPage>;
+  AuditStatus: AuditStatus;
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
   Benefit: ResolverTypeWrapper<Benefit>;
   BenefitInput: BenefitInput;
@@ -11116,6 +11844,7 @@ export type ResolversTypes = ResolversObject<{
   CompanySocialLinks: ResolverTypeWrapper<CompanySocialLinks>;
   CompanySocialLinksInput: CompanySocialLinksInput;
   CompanyStatus: CompanyStatus;
+  ComplianceCategory: ComplianceCategory;
   Contact: ResolverTypeWrapper<Contact>;
   ContactInput: ContactInput;
   ContactPage: ResolverTypeWrapper<ContactPage>;
@@ -11194,6 +11923,12 @@ export type ResolversTypes = ResolversObject<{
   FilterOp: FilterOp;
   FinanceBucket: ResolverTypeWrapper<FinanceBucket>;
   FinanceMonth: ResolverTypeWrapper<FinanceMonth>;
+  Finding: ResolverTypeWrapper<Finding>;
+  FindingInput: FindingInput;
+  FindingPage: ResolverTypeWrapper<FindingPage>;
+  FindingSource: FindingSource;
+  FindingStatus: FindingStatus;
+  FindingType: FindingType;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Gig: ResolverTypeWrapper<Gig>;
   GigInput: GigInput;
@@ -11228,6 +11963,9 @@ export type ResolversTypes = ResolversObject<{
   IncidentUpdateStatus: IncidentUpdateStatus;
   InfrastructureOverview: ResolverTypeWrapper<InfrastructureOverview>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  InternalAudit: ResolverTypeWrapper<InternalAudit>;
+  InternalAuditInput: InternalAuditInput;
+  InternalAuditPage: ResolverTypeWrapper<InternalAuditPage>;
   Invoice: ResolverTypeWrapper<Invoice>;
   InvoiceInput: InvoiceInput;
   InvoiceLine: ResolverTypeWrapper<InvoiceLine>;
@@ -11275,6 +12013,13 @@ export type ResolversTypes = ResolversObject<{
   LocationPage: ResolverTypeWrapper<LocationPage>;
   LoginPage: ResolverTypeWrapper<LoginPage>;
   LoginPageInput: LoginPageInput;
+  ManagementReview: ResolverTypeWrapper<ManagementReview>;
+  ManagementReviewAction: ResolverTypeWrapper<ManagementReviewAction>;
+  ManagementReviewActionInput: ManagementReviewActionInput;
+  ManagementReviewInput: ManagementReviewInput;
+  ManagementReviewPage: ResolverTypeWrapper<ManagementReviewPage>;
+  ManagementReviewStatus: ManagementReviewStatus;
+  ManagementStandard: ManagementStandard;
   MarkAttendanceInput: MarkAttendanceInput;
   MarketingSuppression: ResolverTypeWrapper<MarketingSuppression>;
   MarketingSuppressionInput: MarketingSuppressionInput;
@@ -11293,6 +12038,12 @@ export type ResolversTypes = ResolversObject<{
   Notification: ResolverTypeWrapper<Notification>;
   NotificationAudience: NotificationAudience;
   NotificationKind: NotificationKind;
+  Objective: ResolverTypeWrapper<Objective>;
+  ObjectiveFrequency: ObjectiveFrequency;
+  ObjectiveInput: ObjectiveInput;
+  ObjectivePage: ResolverTypeWrapper<ObjectivePage>;
+  ObjectiveScope: ObjectiveScope;
+  ObjectiveStatus: ObjectiveStatus;
   OnboardingChecklist: ResolverTypeWrapper<OnboardingChecklist>;
   OnboardingChecklistPage: ResolverTypeWrapper<OnboardingChecklistPage>;
   OnboardingItem: ResolverTypeWrapper<OnboardingItem>;
@@ -11305,6 +12056,11 @@ export type ResolversTypes = ResolversObject<{
   OpenAiConfig: ResolverTypeWrapper<OpenAiConfig>;
   OpenAiConfigInput: OpenAiConfigInput;
   OrgNode: ResolverTypeWrapper<OrgNode>;
+  Organization: ResolverTypeWrapper<Organization>;
+  OrganizationAdminInput: OrganizationAdminInput;
+  OrganizationInput: OrganizationInput;
+  OrganizationStatus: OrganizationStatus;
+  OrganizationUpdateInput: OrganizationUpdateInput;
   PayType: PayType;
   Payment: ResolverTypeWrapper<Payment>;
   PaymentInput: PaymentInput;
@@ -11328,6 +12084,7 @@ export type ResolversTypes = ResolversObject<{
   Policy: ResolverTypeWrapper<Policy>;
   PolicyAcknowledgement: ResolverTypeWrapper<PolicyAcknowledgement>;
   PolicyAudience: PolicyAudience;
+  PolicyClassification: PolicyClassification;
   PolicyInput: PolicyInput;
   PolicyPage: ResolverTypeWrapper<PolicyPage>;
   PolicyStatus: PolicyStatus;
@@ -11385,6 +12142,12 @@ export type ResolversTypes = ResolversObject<{
   RequestStatus: RequestStatus;
   RequestType: RequestType;
   ReviewStatus: ReviewStatus;
+  Risk: ResolverTypeWrapper<Risk>;
+  RiskInput: RiskInput;
+  RiskLevel: RiskLevel;
+  RiskPage: ResolverTypeWrapper<RiskPage>;
+  RiskStatus: RiskStatus;
+  RiskTreatment: RiskTreatment;
   Role: Role;
   RolePermission: ResolverTypeWrapper<RolePermission>;
   SalarySlip: ResolverTypeWrapper<SalarySlip>;
@@ -11479,6 +12242,7 @@ export type ResolversTypes = ResolversObject<{
   TaxSlab: ResolverTypeWrapper<TaxSlab>;
   TaxSlabInput: TaxSlabInput;
   TaxSlabPage: ResolverTypeWrapper<TaxSlabPage>;
+  TaxSystem: TaxSystem;
   TdsMode: TdsMode;
   TdsSlab: ResolverTypeWrapper<TdsSlab>;
   TdsSlabInput: TdsSlabInput;
@@ -11722,6 +12486,9 @@ export type ResolversParentTypes = ResolversObject<{
   ExpenseClaimPage: ExpenseClaimPage;
   FinanceBucket: FinanceBucket;
   FinanceMonth: FinanceMonth;
+  Finding: Finding;
+  FindingInput: FindingInput;
+  FindingPage: FindingPage;
   Float: Scalars['Float']['output'];
   Gig: Gig;
   GigInput: GigInput;
@@ -11751,6 +12518,9 @@ export type ResolversParentTypes = ResolversObject<{
   InboundMailConfigInput: InboundMailConfigInput;
   InfrastructureOverview: InfrastructureOverview;
   Int: Scalars['Int']['output'];
+  InternalAudit: InternalAudit;
+  InternalAuditInput: InternalAuditInput;
+  InternalAuditPage: InternalAuditPage;
   Invoice: Invoice;
   InvoiceInput: InvoiceInput;
   InvoiceLine: InvoiceLine;
@@ -11791,6 +12561,11 @@ export type ResolversParentTypes = ResolversObject<{
   LocationPage: LocationPage;
   LoginPage: LoginPage;
   LoginPageInput: LoginPageInput;
+  ManagementReview: ManagementReview;
+  ManagementReviewAction: ManagementReviewAction;
+  ManagementReviewActionInput: ManagementReviewActionInput;
+  ManagementReviewInput: ManagementReviewInput;
+  ManagementReviewPage: ManagementReviewPage;
   MarkAttendanceInput: MarkAttendanceInput;
   MarketingSuppression: MarketingSuppression;
   MarketingSuppressionInput: MarketingSuppressionInput;
@@ -11805,6 +12580,9 @@ export type ResolversParentTypes = ResolversObject<{
   NavLink: NavLink;
   NavLinkInput: NavLinkInput;
   Notification: Notification;
+  Objective: Objective;
+  ObjectiveInput: ObjectiveInput;
+  ObjectivePage: ObjectivePage;
   OnboardingChecklist: OnboardingChecklist;
   OnboardingChecklistPage: OnboardingChecklistPage;
   OnboardingItem: OnboardingItem;
@@ -11816,6 +12594,10 @@ export type ResolversParentTypes = ResolversObject<{
   OpenAiConfig: OpenAiConfig;
   OpenAiConfigInput: OpenAiConfigInput;
   OrgNode: OrgNode;
+  Organization: Organization;
+  OrganizationAdminInput: OrganizationAdminInput;
+  OrganizationInput: OrganizationInput;
+  OrganizationUpdateInput: OrganizationUpdateInput;
   Payment: Payment;
   PaymentInput: PaymentInput;
   PaymentPage: PaymentPage;
@@ -11878,6 +12660,9 @@ export type ResolversParentTypes = ResolversObject<{
   RecurringInvoice: RecurringInvoice;
   RecurringInvoiceInput: RecurringInvoiceInput;
   RecurringInvoicePage: RecurringInvoicePage;
+  Risk: Risk;
+  RiskInput: RiskInput;
+  RiskPage: RiskPage;
   RolePermission: RolePermission;
   SalarySlip: SalarySlip;
   SalarySlipDownload: SalarySlipDownload;
@@ -12219,10 +13004,14 @@ export type AppLogGroupPageResolvers<ContextType = GraphQLContext, ParentType ex
 
 export type AppSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AppSettings'] = ResolversParentTypes['AppSettings']> = ResolversObject<{
   autoTranslate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   dateFormat?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   defaultLocale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   enabledLocales?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  fiscalYearStartMonth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  taxSystem?: Resolver<ResolversTypes['TaxSystem'], ParentType, ContextType>;
   timeFormat?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -13294,6 +14083,42 @@ export type FinanceMonthResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type FindingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Finding'] = ResolversParentTypes['Finding']> = ResolversObject<{
+  auditId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['ComplianceCategory'], ParentType, ContextType>;
+  clause?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  closedOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  correctiveAction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dueOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  effective?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  effectivenessNote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  immediateAction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ownerId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ownerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  raisedOn?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  reference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  riskId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  rootCause?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['FindingSource'], ParentType, ContextType>;
+  standards?: Resolver<Array<ResolversTypes['ManagementStandard']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['FindingStatus'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['FindingType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  verifiedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  verifiedOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FindingPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['FindingPage'] = ResolversParentTypes['FindingPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Finding']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type GigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Gig'] = ResolversParentTypes['Gig']> = ResolversObject<{
   applicationContact?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   applicationType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -13476,6 +14301,34 @@ export type InfrastructureOverviewResolvers<ContextType = GraphQLContext, Parent
   database?: Resolver<ResolversTypes['DatabaseInfo'], ParentType, ContextType>;
   docker?: Resolver<ResolversTypes['DockerHost'], ParentType, ContextType>;
   runtime?: Resolver<ResolversTypes['ServerRuntime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type InternalAuditResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InternalAudit'] = ResolversParentTypes['InternalAudit']> = ResolversObject<{
+  auditeeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  conclusion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  criteria?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  findings?: Resolver<Array<ResolversTypes['Finding']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['AuditKind'], ParentType, ContextType>;
+  leadAuditorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  leadAuditorName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  performedOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  plannedOn?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  reference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scope?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  standards?: Resolver<Array<ResolversTypes['ManagementStandard']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['AuditStatus'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type InternalAuditPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InternalAuditPage'] = ResolversParentTypes['InternalAuditPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['InternalAudit']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -13782,6 +14635,38 @@ export type LoginPageResolvers<ContextType = GraphQLContext, ParentType extends 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ManagementReviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ManagementReview'] = ResolversParentTypes['ManagementReview']> = ResolversObject<{
+  actions?: Resolver<Array<ResolversTypes['ManagementReviewAction']>, ParentType, ContextType>;
+  attendees?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  chairName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  decisions?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  heldOn?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  inputs?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  openActionCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  reference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  standards?: Resolver<Array<ResolversTypes['ManagementStandard']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ManagementReviewStatus'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ManagementReviewActionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ManagementReviewAction'] = ResolversParentTypes['ManagementReviewAction']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  done?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  dueOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  ownerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ManagementReviewPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ManagementReviewPage'] = ResolversParentTypes['ManagementReviewPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ManagementReview']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MarketingSuppressionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MarketingSuppression'] = ResolversParentTypes['MarketingSuppression']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -13832,6 +14717,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   aiSummarise?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAiSummariseArgs, 'style' | 'text'>>;
   applyLeave?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationApplyLeaveArgs, 'input'>>;
   archivePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationArchivePolicyArgs, 'id'>>;
+  assignOrganizationAdmin?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAssignOrganizationAdminArgs, 'input' | 'organizationId'>>;
   assignSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationAssignSupportTicketArgs, 'assigneeId' | 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
@@ -13873,6 +14759,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createEmploymentType?: Resolver<ResolversTypes['EmploymentType'], ParentType, ContextType, RequireFields<MutationCreateEmploymentTypeArgs, 'input'>>;
   createExitRecord?: Resolver<ResolversTypes['ExitRecord'], ParentType, ContextType, RequireFields<MutationCreateExitRecordArgs, 'input'>>;
   createExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationCreateExpenseClaimArgs, 'input'>>;
+  createFinding?: Resolver<ResolversTypes['Finding'], ParentType, ContextType, RequireFields<MutationCreateFindingArgs, 'input'>>;
   createGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<MutationCreateGigArgs, 'input'>>;
   createGithubConfig?: Resolver<ResolversTypes['GithubConfig'], ParentType, ContextType, RequireFields<MutationCreateGithubConfigArgs, 'input'>>;
   createGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCreateGoalArgs, 'input'>>;
@@ -13880,6 +14767,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<MutationCreateHolidayArgs, 'input'>>;
   createImageConfig?: Resolver<ResolversTypes['ImageConfig'], ParentType, ContextType, RequireFields<MutationCreateImageConfigArgs, 'input'>>;
   createInboundMailConfig?: Resolver<ResolversTypes['InboundMailConfig'], ParentType, ContextType, RequireFields<MutationCreateInboundMailConfigArgs, 'input'>>;
+  createInternalAudit?: Resolver<ResolversTypes['InternalAudit'], ParentType, ContextType, RequireFields<MutationCreateInternalAuditArgs, 'input'>>;
   createInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationCreateInvoiceArgs, 'input'>>;
   createInvoiceFromDeal?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationCreateInvoiceFromDealArgs, 'dealId'>>;
   createInvoiceFromTimeLog?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationCreateInvoiceFromTimeLogArgs, 'from' | 'projectId' | 'to'>>;
@@ -13893,13 +14781,16 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createLegalDocument?: Resolver<ResolversTypes['LegalDocument'], ParentType, ContextType, RequireFields<MutationCreateLegalDocumentArgs, 'input'>>;
   createLicence?: Resolver<ResolversTypes['Licence'], ParentType, ContextType, RequireFields<MutationCreateLicenceArgs, 'input'>>;
   createLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationCreateLocationArgs, 'input'>>;
+  createManagementReview?: Resolver<ResolversTypes['ManagementReview'], ParentType, ContextType, RequireFields<MutationCreateManagementReviewArgs, 'input'>>;
   createMarketingSuppression?: Resolver<ResolversTypes['MarketingSuppression'], ParentType, ContextType, RequireFields<MutationCreateMarketingSuppressionArgs, 'input'>>;
   createMilestone?: Resolver<ResolversTypes['Milestone'], ParentType, ContextType, RequireFields<MutationCreateMilestoneArgs, 'input' | 'projectId'>>;
   createMyExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationCreateMyExpenseClaimArgs, 'input'>>;
   createMyRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationCreateMyRequestArgs, 'input'>>;
   createNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationCreateNavLinkArgs, 'input'>>;
+  createObjective?: Resolver<ResolversTypes['Objective'], ParentType, ContextType, RequireFields<MutationCreateObjectiveArgs, 'input'>>;
   createOnboardingTemplate?: Resolver<ResolversTypes['OnboardingTemplate'], ParentType, ContextType, RequireFields<MutationCreateOnboardingTemplateArgs, 'input'>>;
   createOpenAiConfig?: Resolver<ResolversTypes['OpenAiConfig'], ParentType, ContextType, RequireFields<MutationCreateOpenAiConfigArgs, 'input'>>;
+  createOrganization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<MutationCreateOrganizationArgs, 'input'>>;
   createPerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationCreatePerformanceReviewArgs, 'input'>>;
   createPexelsConfig?: Resolver<ResolversTypes['PexelsConfig'], ParentType, ContextType, RequireFields<MutationCreatePexelsConfigArgs, 'input'>>;
   createPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationCreatePolicyArgs, 'input'>>;
@@ -13911,6 +14802,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationCreatePromptArgs, 'input'>>;
   createPurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationCreatePurchaseOrderArgs, 'input'>>;
   createRecurringInvoice?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationCreateRecurringInvoiceArgs, 'input'>>;
+  createRisk?: Resolver<ResolversTypes['Risk'], ParentType, ContextType, RequireFields<MutationCreateRiskArgs, 'input'>>;
   createSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationCreateSalaryStructureArgs, 'input'>>;
   createShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationCreateShiftArgs, 'input'>>;
   createSlackConfig?: Resolver<ResolversTypes['SlackConfig'], ParentType, ContextType, RequireFields<MutationCreateSlackConfigArgs, 'input'>>;
@@ -13969,6 +14861,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteEmploymentType?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmploymentTypeArgs, 'id'>>;
   deleteExitRecord?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteExitRecordArgs, 'id'>>;
   deleteExpenseClaim?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteExpenseClaimArgs, 'id'>>;
+  deleteFinding?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteFindingArgs, 'id'>>;
   deleteGig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGigArgs, 'id'>>;
   deleteGithubConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGithubConfigArgs, 'id'>>;
   deleteGoal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGoalArgs, 'id'>>;
@@ -13976,6 +14869,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteHoliday?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteHolidayArgs, 'id'>>;
   deleteImageConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteImageConfigArgs, 'id'>>;
   deleteInboundMailConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteInboundMailConfigArgs, 'id'>>;
+  deleteInternalAudit?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteInternalAuditArgs, 'id'>>;
   deleteInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteInvoiceArgs, 'id'>>;
   deleteJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteJobArgs, 'id'>>;
   deleteJobCompany?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteJobCompanyArgs, 'id'>>;
@@ -13987,9 +14881,11 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteLegalDocument?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLegalDocumentArgs, 'id'>>;
   deleteLicence?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLicenceArgs, 'id'>>;
   deleteLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLocationArgs, 'id'>>;
+  deleteManagementReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteManagementReviewArgs, 'id'>>;
   deleteMarketingSuppression?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMarketingSuppressionArgs, 'id'>>;
   deleteMilestone?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMilestoneArgs, 'id'>>;
   deleteNavLink?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNavLinkArgs, 'id'>>;
+  deleteObjective?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteObjectiveArgs, 'id'>>;
   deleteOnboardingChecklist?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteOnboardingChecklistArgs, 'id'>>;
   deleteOnboardingTemplate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteOnboardingTemplateArgs, 'id'>>;
   deleteOpenAiConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteOpenAiConfigArgs, 'id'>>;
@@ -14003,6 +14899,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deletePrompt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePromptArgs, 'id'>>;
   deletePurchaseOrder?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePurchaseOrderArgs, 'id'>>;
   deleteRecurringInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRecurringInvoiceArgs, 'id'>>;
+  deleteRisk?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRiskArgs, 'id'>>;
   deleteSalaryStructure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSalaryStructureArgs, 'id'>>;
   deleteShift?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteShiftArgs, 'id'>>;
   deleteSlackConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSlackConfigArgs, 'id'>>;
@@ -14083,6 +14980,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
   setMyTrackerPresence?: Resolver<ResolversTypes['TrackerPresenceState'], ParentType, ContextType, RequireFields<MutationSetMyTrackerPresenceArgs, 'status'>>;
   setOnboardingItem?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationSetOnboardingItemArgs, 'checklistId' | 'done' | 'key'>>;
+  setOrganizationStatus?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<MutationSetOrganizationStatusArgs, 'id' | 'status'>>;
   setRolePermission?: Resolver<ResolversTypes['RolePermission'], ParentType, ContextType, RequireFields<MutationSetRolePermissionArgs, 'actions' | 'module' | 'role'>>;
   setSupportTicketStatus?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationSetSupportTicketStatusArgs, 'id' | 'status'>>;
   setSupportTicketTriage?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationSetSupportTicketTriageArgs, 'category' | 'id' | 'priority'>>;
@@ -14151,6 +15049,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateEmploymentType?: Resolver<ResolversTypes['EmploymentType'], ParentType, ContextType, RequireFields<MutationUpdateEmploymentTypeArgs, 'id' | 'input'>>;
   updateExitRecord?: Resolver<ResolversTypes['ExitRecord'], ParentType, ContextType, RequireFields<MutationUpdateExitRecordArgs, 'id' | 'input'>>;
   updateExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationUpdateExpenseClaimArgs, 'id' | 'input'>>;
+  updateFinding?: Resolver<ResolversTypes['Finding'], ParentType, ContextType, RequireFields<MutationUpdateFindingArgs, 'id' | 'input'>>;
   updateGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<MutationUpdateGigArgs, 'id' | 'input'>>;
   updateGithubConfig?: Resolver<ResolversTypes['GithubConfig'], ParentType, ContextType, RequireFields<MutationUpdateGithubConfigArgs, 'id' | 'input'>>;
   updateGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateGoalArgs, 'id' | 'input'>>;
@@ -14158,6 +15057,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<MutationUpdateHolidayArgs, 'id' | 'input'>>;
   updateImageConfig?: Resolver<ResolversTypes['ImageConfig'], ParentType, ContextType, RequireFields<MutationUpdateImageConfigArgs, 'id' | 'input'>>;
   updateInboundMailConfig?: Resolver<ResolversTypes['InboundMailConfig'], ParentType, ContextType, RequireFields<MutationUpdateInboundMailConfigArgs, 'id' | 'input'>>;
+  updateInternalAudit?: Resolver<ResolversTypes['InternalAudit'], ParentType, ContextType, RequireFields<MutationUpdateInternalAuditArgs, 'id' | 'input'>>;
   updateInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationUpdateInvoiceArgs, 'id' | 'input'>>;
   updateJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<MutationUpdateJobArgs, 'id' | 'input'>>;
   updateJobCompany?: Resolver<ResolversTypes['JobCompany'], ParentType, ContextType, RequireFields<MutationUpdateJobCompanyArgs, 'id' | 'input'>>;
@@ -14169,13 +15069,16 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateLegalDocument?: Resolver<ResolversTypes['LegalDocument'], ParentType, ContextType, RequireFields<MutationUpdateLegalDocumentArgs, 'id' | 'input'>>;
   updateLicence?: Resolver<ResolversTypes['Licence'], ParentType, ContextType, RequireFields<MutationUpdateLicenceArgs, 'id' | 'input'>>;
   updateLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<MutationUpdateLocationArgs, 'id' | 'input'>>;
+  updateManagementReview?: Resolver<ResolversTypes['ManagementReview'], ParentType, ContextType, RequireFields<MutationUpdateManagementReviewArgs, 'id' | 'input'>>;
   updateMarketingSuppression?: Resolver<ResolversTypes['MarketingSuppression'], ParentType, ContextType, RequireFields<MutationUpdateMarketingSuppressionArgs, 'id' | 'input'>>;
   updateMilestone?: Resolver<ResolversTypes['Milestone'], ParentType, ContextType, RequireFields<MutationUpdateMilestoneArgs, 'id' | 'input'>>;
   updateMyGoalProgress?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateMyGoalProgressArgs, 'id' | 'progress'>>;
   updateMyTrainingStatus?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationUpdateMyTrainingStatusArgs, 'id' | 'status'>>;
   updateNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationUpdateNavLinkArgs, 'id' | 'input'>>;
+  updateObjective?: Resolver<ResolversTypes['Objective'], ParentType, ContextType, RequireFields<MutationUpdateObjectiveArgs, 'id' | 'input'>>;
   updateOnboardingTemplate?: Resolver<ResolversTypes['OnboardingTemplate'], ParentType, ContextType, RequireFields<MutationUpdateOnboardingTemplateArgs, 'id' | 'input'>>;
   updateOpenAiConfig?: Resolver<ResolversTypes['OpenAiConfig'], ParentType, ContextType, RequireFields<MutationUpdateOpenAiConfigArgs, 'id' | 'input'>>;
+  updateOrganization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<MutationUpdateOrganizationArgs, 'id' | 'input'>>;
   updatePayrollSchedule?: Resolver<ResolversTypes['PayrollSchedule'], ParentType, ContextType, RequireFields<MutationUpdatePayrollScheduleArgs, 'input'>>;
   updatePayrollSettings?: Resolver<ResolversTypes['PayrollSettings'], ParentType, ContextType, RequireFields<MutationUpdatePayrollSettingsArgs, 'input'>>;
   updatePerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationUpdatePerformanceReviewArgs, 'id' | 'input'>>;
@@ -14189,6 +15092,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updatePrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationUpdatePromptArgs, 'id' | 'input'>>;
   updatePurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationUpdatePurchaseOrderArgs, 'id' | 'input'>>;
   updateRecurringInvoice?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationUpdateRecurringInvoiceArgs, 'id' | 'input'>>;
+  updateRisk?: Resolver<ResolversTypes['Risk'], ParentType, ContextType, RequireFields<MutationUpdateRiskArgs, 'id' | 'input'>>;
   updateSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationUpdateSalaryStructureArgs, 'id' | 'input'>>;
   updateSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType, RequireFields<MutationUpdateSettingsArgs, 'input'>>;
   updateShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationUpdateShiftArgs, 'id' | 'input'>>;
@@ -14248,6 +15152,38 @@ export type NotificationResolvers<ContextType = GraphQLContext, ParentType exten
   link?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   read?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ObjectiveResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Objective'] = ResolversParentTypes['Objective']> = ResolversObject<{
+  achievementPercent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  actual?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  area?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  baseline?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['ComplianceCategory'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  frequency?: Resolver<ResolversTypes['ObjectiveFrequency'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  measure?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ownerId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ownerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  periodEnd?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  periodStart?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  plan?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scope?: Resolver<ResolversTypes['ObjectiveScope'], ParentType, ContextType>;
+  standards?: Resolver<Array<ResolversTypes['ManagementStandard']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ObjectiveStatus'], ParentType, ContextType>;
+  target?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  unit?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ObjectivePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ObjectivePage'] = ResolversParentTypes['ObjectivePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Objective']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -14326,6 +15262,24 @@ export type OrgNodeResolvers<ContextType = GraphQLContext, ParentType extends Re
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   managerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type OrganizationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Organization'] = ResolversParentTypes['Organization']> = ResolversObject<{
+  contactEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fiscalYearStartMonth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  legalName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['OrganizationStatus'], ParentType, ContextType>;
+  taxSystem?: Resolver<ResolversTypes['TaxSystem'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -14457,13 +15411,18 @@ export type PexelsMediaResolvers<ContextType = GraphQLContext, ParentType extend
 
 export type PolicyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Policy'] = ResolversParentTypes['Policy']> = ResolversObject<{
   acknowledgedCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  approvedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  approvedOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   audience?: Resolver<ResolversTypes['PolicyAudience'], ParentType, ContextType>;
   body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  classification?: Resolver<ResolversTypes['PolicyClassification'], ParentType, ContextType>;
   effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  nextReviewOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   requiresAcknowledgement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  reviewOverdue?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['PolicyStatus'], ParentType, ContextType>;
   summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -14831,10 +15790,12 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getEmploymentType?: Resolver<ResolversTypes['EmploymentType'], ParentType, ContextType, RequireFields<QueryGetEmploymentTypeArgs, 'id'>>;
   getExitRecord?: Resolver<ResolversTypes['ExitRecord'], ParentType, ContextType, RequireFields<QueryGetExitRecordArgs, 'id'>>;
   getExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<QueryGetExpenseClaimArgs, 'id'>>;
+  getFinding?: Resolver<ResolversTypes['Finding'], ParentType, ContextType, RequireFields<QueryGetFindingArgs, 'id'>>;
   getGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<QueryGetGigArgs, 'id'>>;
   getGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<QueryGetGoalArgs, 'id'>>;
   getGrade?: Resolver<ResolversTypes['Grade'], ParentType, ContextType, RequireFields<QueryGetGradeArgs, 'id'>>;
   getHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<QueryGetHolidayArgs, 'id'>>;
+  getInternalAudit?: Resolver<ResolversTypes['InternalAudit'], ParentType, ContextType, RequireFields<QueryGetInternalAuditArgs, 'id'>>;
   getInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<QueryGetInvoiceArgs, 'id'>>;
   getJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<QueryGetJobArgs, 'id'>>;
   getJobCompany?: Resolver<ResolversTypes['JobCompany'], ParentType, ContextType, RequireFields<QueryGetJobCompanyArgs, 'id'>>;
@@ -14846,8 +15807,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getLegalDocument?: Resolver<ResolversTypes['LegalDocument'], ParentType, ContextType, RequireFields<QueryGetLegalDocumentArgs, 'id'>>;
   getLicence?: Resolver<ResolversTypes['Licence'], ParentType, ContextType, RequireFields<QueryGetLicenceArgs, 'id'>>;
   getLocation?: Resolver<ResolversTypes['Location'], ParentType, ContextType, RequireFields<QueryGetLocationArgs, 'id'>>;
+  getManagementReview?: Resolver<ResolversTypes['ManagementReview'], ParentType, ContextType, RequireFields<QueryGetManagementReviewArgs, 'id'>>;
   getMarketingSuppression?: Resolver<ResolversTypes['MarketingSuppression'], ParentType, ContextType, RequireFields<QueryGetMarketingSuppressionArgs, 'id'>>;
   getNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<QueryGetNavLinkArgs, 'id'>>;
+  getObjective?: Resolver<ResolversTypes['Objective'], ParentType, ContextType, RequireFields<QueryGetObjectiveArgs, 'id'>>;
   getOnboardingTemplate?: Resolver<ResolversTypes['OnboardingTemplate'], ParentType, ContextType, RequireFields<QueryGetOnboardingTemplateArgs, 'id'>>;
   getPerformanceReview?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<QueryGetPerformanceReviewArgs, 'id'>>;
   getPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<QueryGetPolicyArgs, 'id'>>;
@@ -14858,6 +15821,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<QueryGetPromptArgs, 'id'>>;
   getPurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<QueryGetPurchaseOrderArgs, 'id'>>;
   getRecurringInvoice?: Resolver<Maybe<ResolversTypes['RecurringInvoice']>, ParentType, ContextType, RequireFields<QueryGetRecurringInvoiceArgs, 'id'>>;
+  getRisk?: Resolver<ResolversTypes['Risk'], ParentType, ContextType, RequireFields<QueryGetRiskArgs, 'id'>>;
   getSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<QueryGetSalaryStructureArgs, 'id'>>;
   getShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<QueryGetShiftArgs, 'id'>>;
   getStatusIncident?: Resolver<ResolversTypes['StatusIncident'], ParentType, ContextType, RequireFields<QueryGetStatusIncidentArgs, 'id'>>;
@@ -14979,6 +15943,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listExpenseClaims?: Resolver<Array<ResolversTypes['ExpenseClaim']>, ParentType, ContextType>;
   listExpenseClaimsPaged?: Resolver<ResolversTypes['ExpenseClaimPage'], ParentType, ContextType, RequireFields<QueryListExpenseClaimsPagedArgs, 'input'>>;
   listExpenseClaimsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listFindings?: Resolver<Array<ResolversTypes['Finding']>, ParentType, ContextType>;
+  listFindingsPaged?: Resolver<ResolversTypes['FindingPage'], ParentType, ContextType, RequireFields<QueryListFindingsPagedArgs, 'input'>>;
+  listFindingsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listGigs?: Resolver<Array<ResolversTypes['Gig']>, ParentType, ContextType>;
   listGigsPaged?: Resolver<ResolversTypes['GigPage'], ParentType, ContextType, RequireFields<QueryListGigsPagedArgs, 'input'>>;
   listGigsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -14994,6 +15961,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listHolidaysStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listImageConfigs?: Resolver<Array<ResolversTypes['ImageConfig']>, ParentType, ContextType>;
   listInboundMailConfigs?: Resolver<Array<ResolversTypes['InboundMailConfig']>, ParentType, ContextType>;
+  listInternalAudits?: Resolver<Array<ResolversTypes['InternalAudit']>, ParentType, ContextType>;
+  listInternalAuditsPaged?: Resolver<ResolversTypes['InternalAuditPage'], ParentType, ContextType, RequireFields<QueryListInternalAuditsPagedArgs, 'input'>>;
+  listInternalAuditsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listInvoices?: Resolver<Array<ResolversTypes['Invoice']>, ParentType, ContextType>;
   listInvoicesPaged?: Resolver<ResolversTypes['InvoicePage'], ParentType, ContextType, RequireFields<QueryListInvoicesPagedArgs, 'input'>>;
   listInvoicesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -15025,10 +15995,16 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listLocations?: Resolver<Array<ResolversTypes['Location']>, ParentType, ContextType>;
   listLocationsPaged?: Resolver<ResolversTypes['LocationPage'], ParentType, ContextType, RequireFields<QueryListLocationsPagedArgs, 'input'>>;
   listLocationsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listManagementReviews?: Resolver<Array<ResolversTypes['ManagementReview']>, ParentType, ContextType>;
+  listManagementReviewsPaged?: Resolver<ResolversTypes['ManagementReviewPage'], ParentType, ContextType, RequireFields<QueryListManagementReviewsPagedArgs, 'input'>>;
+  listManagementReviewsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listMarketingSuppressions?: Resolver<Array<ResolversTypes['MarketingSuppression']>, ParentType, ContextType>;
   listMarketingSuppressionsPaged?: Resolver<ResolversTypes['MarketingSuppressionPage'], ParentType, ContextType, RequireFields<QueryListMarketingSuppressionsPagedArgs, 'input'>>;
   listMarketingSuppressionsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listNavLinks?: Resolver<Array<ResolversTypes['NavLink']>, ParentType, ContextType>;
+  listObjectives?: Resolver<Array<ResolversTypes['Objective']>, ParentType, ContextType>;
+  listObjectivesPaged?: Resolver<ResolversTypes['ObjectivePage'], ParentType, ContextType, RequireFields<QueryListObjectivesPagedArgs, 'input'>>;
+  listObjectivesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listOnboardingChecklistsPaged?: Resolver<ResolversTypes['OnboardingChecklistPage'], ParentType, ContextType, RequireFields<QueryListOnboardingChecklistsPagedArgs, 'input'>>;
   listOnboardingChecklistsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listOnboardingTemplates?: Resolver<Array<ResolversTypes['OnboardingTemplate']>, ParentType, ContextType>;
@@ -15065,6 +16041,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPurchaseOrdersStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listRecurringInvoices?: Resolver<Array<ResolversTypes['RecurringInvoice']>, ParentType, ContextType>;
   listRecurringInvoicesPaged?: Resolver<ResolversTypes['RecurringInvoicePage'], ParentType, ContextType, RequireFields<QueryListRecurringInvoicesPagedArgs, 'input'>>;
+  listRisks?: Resolver<Array<ResolversTypes['Risk']>, ParentType, ContextType>;
+  listRisksPaged?: Resolver<ResolversTypes['RiskPage'], ParentType, ContextType, RequireFields<QueryListRisksPagedArgs, 'input'>>;
+  listRisksStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listRolePermissions?: Resolver<Array<ResolversTypes['RolePermission']>, ParentType, ContextType>;
   listSalarySlipsPaged?: Resolver<ResolversTypes['SalarySlipPage'], ParentType, ContextType, RequireFields<QueryListSalarySlipsPagedArgs, 'input'>>;
   listSalarySlipsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -15138,6 +16117,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myManager?: Resolver<Maybe<ResolversTypes['EmployeeOption']>, ParentType, ContextType>;
   myNotifications?: Resolver<Array<ResolversTypes['Notification']>, ParentType, ContextType>;
   myOnboarding?: Resolver<Maybe<ResolversTypes['OnboardingChecklist']>, ParentType, ContextType>;
+  myOrganization?: Resolver<Maybe<ResolversTypes['Organization']>, ParentType, ContextType>;
   myPayroll?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType>;
   myPendingApprovalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   myPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
@@ -15158,6 +16138,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myUnreadNotificationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   openAppLogsFixPrompt?: Resolver<ResolversTypes['String'], ParentType, ContextType, Partial<QueryOpenAppLogsFixPromptArgs>>;
   orgChart?: Resolver<Array<ResolversTypes['OrgNode']>, ParentType, ContextType>;
+  organization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<QueryOrganizationArgs, 'id'>>;
+  organizations?: Resolver<Array<ResolversTypes['Organization']>, ParentType, ContextType>;
   payrollSchedule?: Resolver<ResolversTypes['PayrollSchedule'], ParentType, ContextType>;
   payrollSettings?: Resolver<ResolversTypes['PayrollSettings'], ParentType, ContextType>;
   payrollSummary?: Resolver<ResolversTypes['PayrollSummary'], ParentType, ContextType, RequireFields<QueryPayrollSummaryArgs, 'month' | 'year'>>;
@@ -15277,6 +16259,41 @@ export type RecurringInvoiceResolvers<ContextType = GraphQLContext, ParentType e
 
 export type RecurringInvoicePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['RecurringInvoicePage'] = ResolversParentTypes['RecurringInvoicePage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['RecurringInvoice']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type RiskResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Risk'] = ResolversParentTypes['Risk']> = ResolversObject<{
+  category?: Resolver<ResolversTypes['ComplianceCategory'], ParentType, ContextType>;
+  closedOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  controls?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  identifiedOn?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  impact?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  inherentLevel?: Resolver<ResolversTypes['RiskLevel'], ParentType, ContextType>;
+  inherentScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  likelihood?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  ownerId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ownerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  residualImpact?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  residualLevel?: Resolver<ResolversTypes['RiskLevel'], ParentType, ContextType>;
+  residualLikelihood?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  residualScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  reviewDueOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  standards?: Resolver<Array<ResolversTypes['ManagementStandard']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['RiskStatus'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  treatment?: Resolver<ResolversTypes['RiskTreatment'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type RiskPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['RiskPage'] = ResolversParentTypes['RiskPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['Risk']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -16357,6 +17374,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   managerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   managerName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  organizationId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   probationEndDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
   timezone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -16546,6 +17564,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ExpenseClaimPage?: ExpenseClaimPageResolvers<ContextType>;
   FinanceBucket?: FinanceBucketResolvers<ContextType>;
   FinanceMonth?: FinanceMonthResolvers<ContextType>;
+  Finding?: FindingResolvers<ContextType>;
+  FindingPage?: FindingPageResolvers<ContextType>;
   Gig?: GigResolvers<ContextType>;
   GigPage?: GigPageResolvers<ContextType>;
   GithubConfig?: GithubConfigResolvers<ContextType>;
@@ -16565,6 +17585,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ImageConfig?: ImageConfigResolvers<ContextType>;
   InboundMailConfig?: InboundMailConfigResolvers<ContextType>;
   InfrastructureOverview?: InfrastructureOverviewResolvers<ContextType>;
+  InternalAudit?: InternalAuditResolvers<ContextType>;
+  InternalAuditPage?: InternalAuditPageResolvers<ContextType>;
   Invoice?: InvoiceResolvers<ContextType>;
   InvoiceLine?: InvoiceLineResolvers<ContextType>;
   InvoicePage?: InvoicePageResolvers<ContextType>;
@@ -16592,6 +17614,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Location?: LocationResolvers<ContextType>;
   LocationPage?: LocationPageResolvers<ContextType>;
   LoginPage?: LoginPageResolvers<ContextType>;
+  ManagementReview?: ManagementReviewResolvers<ContextType>;
+  ManagementReviewAction?: ManagementReviewActionResolvers<ContextType>;
+  ManagementReviewPage?: ManagementReviewPageResolvers<ContextType>;
   MarketingSuppression?: MarketingSuppressionResolvers<ContextType>;
   MarketingSuppressionPage?: MarketingSuppressionPageResolvers<ContextType>;
   Milestone?: MilestoneResolvers<ContextType>;
@@ -16600,6 +17625,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   MyPolicy?: MyPolicyResolvers<ContextType>;
   NavLink?: NavLinkResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;
+  Objective?: ObjectiveResolvers<ContextType>;
+  ObjectivePage?: ObjectivePageResolvers<ContextType>;
   OnboardingChecklist?: OnboardingChecklistResolvers<ContextType>;
   OnboardingChecklistPage?: OnboardingChecklistPageResolvers<ContextType>;
   OnboardingItem?: OnboardingItemResolvers<ContextType>;
@@ -16608,6 +17635,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   OnboardingTemplatePage?: OnboardingTemplatePageResolvers<ContextType>;
   OpenAiConfig?: OpenAiConfigResolvers<ContextType>;
   OrgNode?: OrgNodeResolvers<ContextType>;
+  Organization?: OrganizationResolvers<ContextType>;
   Payment?: PaymentResolvers<ContextType>;
   PaymentPage?: PaymentPageResolvers<ContextType>;
   PayrollDispatchResult?: PayrollDispatchResultResolvers<ContextType>;
@@ -16653,6 +17681,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ReceivablesBucket?: ReceivablesBucketResolvers<ContextType>;
   RecurringInvoice?: RecurringInvoiceResolvers<ContextType>;
   RecurringInvoicePage?: RecurringInvoicePageResolvers<ContextType>;
+  Risk?: RiskResolvers<ContextType>;
+  RiskPage?: RiskPageResolvers<ContextType>;
   RolePermission?: RolePermissionResolvers<ContextType>;
   SalarySlip?: SalarySlipResolvers<ContextType>;
   SalarySlipDownload?: SalarySlipDownloadResolvers<ContextType>;

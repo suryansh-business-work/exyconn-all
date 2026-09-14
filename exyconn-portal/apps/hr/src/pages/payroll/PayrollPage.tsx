@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Box, Button, Flex, Grid, MenuItem, TextField, color } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { StatCard, type StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { formatMoney } from '@exyconn/shell/utils/money';
@@ -126,7 +126,7 @@ export function PayrollPage() {
     <Box>
       <PageHeader title="Payroll" subtitle="Generate, review and pay the month" />
 
-      <Box sx={[glass, { p: 2, mb: 2 }]}>
+      <Box sx={[panel, { mb: 2 }]}>
         <Flex direction="row" alignItems="center" spacing={1.5} sx={{ flexWrap: 'wrap' }}>
           <TextField
             select

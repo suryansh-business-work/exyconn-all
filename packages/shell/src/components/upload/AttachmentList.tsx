@@ -28,7 +28,7 @@ function AttachmentTile({ item }: Readonly<AttachmentTileProps>) {
         display: 'flex',
         alignItems: 'center',
         gap: 1,
-        p: 0.75,
+        p: 1,
         borderRadius: 1,
         border: `${borderWidth.hairline}px solid`,
         borderColor: 'divider',

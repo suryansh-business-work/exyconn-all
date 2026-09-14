@@ -1,7 +1,7 @@
 import { Box, Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import { useCrudResource } from '@exyconn/crud';
 import { useDeleteTaxRegimeMutation } from '@exyconn/shell/graphql/generated';
 import { TaxRegimeForm, type TaxRegimeRow } from './forms/tax-regime';
@@ -51,7 +51,7 @@ export function TaxRegimePanel({ regimes, loading, refetch }: Readonly<TaxRegime
   });
 
   return (
-    <Box sx={[glass, { p: { xs: 1.5, md: 2 }, mb: 1.5 }]}>
+    <Box sx={[panel, { mb: 1.5 }]}>
       <Flex direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
         <Text weight="medium">Regimes</Text>
         <Button size="small" onClick={crud.openCreate}>

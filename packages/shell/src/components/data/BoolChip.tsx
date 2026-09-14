@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Chip } from '@/components/ui';
 
 /**
@@ -7,9 +8,10 @@ import { Chip } from '@/components/ui';
  * belong in {@link StatusChip}, which colour-codes them against the shared status map.
  */
 export function BoolChip({ value }: Readonly<{ value: boolean }>) {
+  const t = useT();
   return (
     <Chip
-      label={value ? 'Yes' : 'No'}
+      label={value ? t('Yes') : t('No')}
       size="small"
       color={value ? 'success' : 'default'}
       variant="outlined"

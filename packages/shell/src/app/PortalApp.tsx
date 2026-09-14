@@ -17,6 +17,7 @@ import { SettingsPage } from '@/pages/Settings';
 import { NotificationsPage } from '@/pages/Notifications';
 import { ApprovalsPage } from '@/pages/Approvals';
 import { RouteLogger } from '@/logging/RouteLogger';
+import { OfflineBanner, PwaUpdateBanner } from '@/pwa';
 
 /**
  * Where a password reset email sends people. Public, like /login, and served by the same
@@ -63,6 +64,8 @@ export function PortalApp({
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <NotificationProvider>
               <ConfirmProvider>
+                <OfflineBanner />
+                <PwaUpdateBanner />
                 <BrowserRouter>
                   <RouteLogger />
                   <AuthProvider>

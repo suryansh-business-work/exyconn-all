@@ -10,6 +10,3 @@ export type PayType = (typeof PAY_TYPES)[number];
 
 /** What a salary structure looks like when nobody has set one up yet. */
 export const DEFAULT_PAY_TYPE: PayType = 'FIXED';
-
-/** Currency a salary structure is denominated in when none is chosen. */
-export const DEFAULT_CURRENCY = 'INR';

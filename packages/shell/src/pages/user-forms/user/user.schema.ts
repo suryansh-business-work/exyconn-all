@@ -77,10 +77,12 @@ export type UserValues = z.infer<typeof userSchema>;
 /** Form defaults for a new employee, or the stored values of an existing one. */
 export function toFormValues(
   row: UserRow | null,
-  salary: EmployeeSalary | null = null,
+  salary: EmployeeSalary | null,
+  /** The company's own currency, for an employee with no salary structure yet. */
+  currency: string,
 ): UserValues {
   return {
-    ...toCompensationValues(salary, row?.joinDate),
+    ...toCompensationValues(salary, currency, row?.joinDate),
     name: row?.name ?? '',
     email: row?.email ?? '',
     password: '',

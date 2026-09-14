@@ -218,3 +218,45 @@ describe('publishing and versions', () => {
     await expect(policyResolvers.Query.myPolicies(null, {}, ctx)).resolves.toEqual([]);
   });
 });
+
+describe('document control', () => {
+  const DAY = 86_400_000;
+  const overdue = policyResolvers.Policy.reviewOverdue;
+
+  it('records who approved a policy when it is put in force', async () => {
+    const policy = await seedPolicy({ status: 'DRAFT' });
+
+    const published = (await publish(policy.id)) as {
+      approvedByName: string;
+      approvedOn: Date | null;
+      status: string;
+    };
+
+    // Publishing IS the approval; the person who did it is who a standard asks about.
+    expect(published).toMatchObject({ status: 'PUBLISHED', approvedByName: 'legal@exyconn.com' });
+    expect(published.approvedOn).toBeInstanceOf(Date);
+  });
+
+  it('labels a policy INTERNAL unless it says otherwise', async () => {
+    const policy = await seedPolicy();
+
+    expect(policy.classification).toBe('INTERNAL');
+  });
+
+  it('says a published policy is overdue once its review date has passed', () => {
+    const past = new Date(Date.now() - DAY);
+    const future = new Date(Date.now() + DAY);
+
+    expect(overdue({ nextReviewOn: past, status: 'PUBLISHED' })).toBe(true);
+    expect(overdue({ nextReviewOn: future, status: 'PUBLISHED' })).toBe(false);
+  });
+
+  it('never calls a draft or an unreviewed policy overdue', () => {
+    const past = new Date(Date.now() - DAY);
+
+    // A draft is not in force, so nothing about it is out of date.
+    expect(overdue({ nextReviewOn: past, status: 'DRAFT' })).toBe(false);
+    // No review date means nobody promised one.
+    expect(overdue({ nextReviewOn: null, status: 'PUBLISHED' })).toBe(false);
+  });
+});

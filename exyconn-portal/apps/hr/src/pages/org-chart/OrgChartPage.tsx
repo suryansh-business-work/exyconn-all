@@ -2,10 +2,11 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useOrgChartQuery } from '@exyconn/shell/graphql/generated';
 import { buildOrgTree, type OrgTreeNode } from './org-tree';
 import { OrgNodeCard } from './OrgNodeCard';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 interface OrgGroupProps {
   title: string;
@@ -18,7 +19,7 @@ interface OrgGroupProps {
 /** A titled group of trees — the reporting lines, or the people not yet placed. */
 function OrgGroup({ title, hint, nodes, emptyMessage, onOpen }: Readonly<OrgGroupProps>) {
   return (
-    <Box sx={[glass, { p: 2 }]}>
+    <Box sx={panel}>
       <Heading level={6}>{title}</Heading>
       <Text size="sm" color="text.secondary" sx={{ mb: 1 }}>
         {hint}

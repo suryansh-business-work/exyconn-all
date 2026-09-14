@@ -53,7 +53,7 @@ export function DownloadHero({
     >
       <Grid
         container
-        spacing={2.5}
+        spacing={2}
         sx={{
           alignItems: 'center',
         }}

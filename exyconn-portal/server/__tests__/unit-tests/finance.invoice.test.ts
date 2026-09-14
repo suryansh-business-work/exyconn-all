@@ -12,6 +12,14 @@ import { ClientModel } from '../../src/modules/clients/clients.model';
 import { emailer } from '../../src/modules/email';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { useTestOrganization } from '../helpers';
+
+useTestOrganization({
+  currency: 'INR',
+  locale: 'en-IN',
+  taxSystem: 'INDIA_GST',
+  fiscalYearStartMonth: 4,
+});
 
 // The send goes through the template engine; there is no SMTP here.
 jest.mock('../../src/modules/email', () => ({
@@ -86,6 +94,8 @@ describe('invoice pdf', () => {
 
   it('renders a real PDF document with a line table', async () => {
     const pdf = await buildInvoicePdf({
+      locale: 'en-IN',
+      indianTaxRules: true,
       company: {
         name: 'Exyconn',
         address: 'Indore',

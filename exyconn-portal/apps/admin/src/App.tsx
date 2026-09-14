@@ -8,6 +8,8 @@ import { BrandingPage } from './pages/branding';
 import { AppSettingsPage } from './pages/app-settings';
 import { LocalizationPage } from './pages/localization';
 import { ClientsPage } from './pages/clients';
+import { OrganizationsPage } from './pages/organizations';
+import { ProtectedRoute } from '@exyconn/shell/routes/ProtectedRoute';
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
 import { PermissionsPage } from './pages/permissions';
 import { AuditLogPage } from './pages/audit';
@@ -20,6 +22,15 @@ export function App() {
     <PortalApp loginElement={<Login />} moduleRole={ROLES.ADMIN} homePath="/admin">
       <Route path="/admin" element={<AdminOverviewPage />} />
       <Route path="/admin/users" element={<AdminPage />} />
+      {/* The platform's own console, inside the Admin portal: SUPER_ADMIN, never a company's ADMIN. */}
+      <Route
+        path="/admin/organizations"
+        element={
+          <ProtectedRoute requiredRole={ROLES.SUPER_ADMIN}>
+            <OrganizationsPage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/admin/branding/:tab?" element={<BrandingPage />} />
       <Route path="/admin/settings" element={<AppSettingsPage />} />
       <Route path="/admin/localization" element={<LocalizationPage />} />

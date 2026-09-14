@@ -47,7 +47,7 @@ export function RhfImageField({
         const error = fieldState.error?.message;
         return (
           <Box>
-            <Typography variant="subtitle2" sx={{ mb: 0.75 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
               {label}
             </Typography>
             <Stack spacing={1}>

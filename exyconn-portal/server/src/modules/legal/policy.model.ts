@@ -6,6 +6,15 @@ export const POLICY_AUDIENCES = ['ALL_STAFF', 'HR_ONLY', 'PUBLIC'] as const;
 export const POLICY_STATUSES = ['DRAFT', 'PUBLISHED', 'ARCHIVED'] as const;
 
 /**
+ * How far a document may travel (ISO 27001 A.5.12).
+ *
+ * It is the document's own label, not a permission: who can open a policy is decided by its
+ * audience and the reader's role. This is what tells somebody holding a printed copy whether
+ * it may leave the building.
+ */
+export const POLICY_CLASSIFICATIONS = ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL'] as const;
+
+/**
  * A company policy — a handbook section, a code of conduct, a privacy policy.
  *
  * `version` is the point of the model. A policy people have signed is a record of what they
@@ -31,6 +40,20 @@ const policySchema = new Schema(
     /** Staff must read and sign this one; an informational policy need not be signed. */
     requiresAcknowledgement: { type: Boolean, required: true, default: false },
     owner: { type: String, default: '', trim: true },
+    classification: {
+      type: String,
+      enum: POLICY_CLASSIFICATIONS,
+      required: true,
+      default: 'INTERNAL',
+    },
+    /**
+     * When this has to be read again and confirmed as still right — the date every
+     * management standard asks for, and the one a documented policy quietly rots without.
+     */
+    nextReviewOn: { type: Date, default: null },
+    /** Who approved it for use, recorded when it was published. Not its author. */
+    approvedByName: { type: String, default: '', trim: true },
+    approvedOn: { type: Date, default: null },
     publishedAt: { type: Date, default: null },
     updatedBy: { type: String, default: '', trim: true },
   },
@@ -39,5 +62,6 @@ const policySchema = new Schema(
 
 export type PolicyDocument = InferSchemaType<typeof policySchema>;
 export type PolicyAudience = (typeof POLICY_AUDIENCES)[number];
+export type PolicyClassification = (typeof POLICY_CLASSIFICATIONS)[number];
 
 export const PolicyModel: Model<PolicyDocument> = model<PolicyDocument>('Policy', policySchema);

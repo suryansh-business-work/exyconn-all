@@ -42,7 +42,7 @@ export function TicketStatusDialog({ ticket, onClose, onSaved }: TicketStatusDia
 
   return (
     <CrudDialog open={Boolean(ticket)} title="Update status" onClose={onClose}>
-      <Flex direction="column" spacing={2.5}>
+      <Flex direction="column" spacing={2}>
         <Text size="sm" color="text.secondary">
           {ticket?.subject}
         </Text>

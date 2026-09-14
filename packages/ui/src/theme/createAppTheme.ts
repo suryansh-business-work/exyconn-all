@@ -22,6 +22,21 @@ const FLOATING_CORNER = `${BASE_RADIUS + 2}px`;
 const PILL = `${radius.pill}px`;
 /** A tab inside its pill track. */
 const TAB_HEIGHT = spacing(4.5);
+
+/**
+ * Touch, asked properly.
+ *
+ * A thumb needs about 44px; a mouse pointer does not, and this is dense, data-heavy chrome
+ * that a desk user wants to see a lot of at once. So the density stays where there is a
+ * pointer and every target grows where there is a finger — which is what `pointer: coarse`
+ * asks, rather than guessing from the width of the window.
+ */
+const TOUCH = '@media (pointer: coarse)';
+const TOUCH_TARGET = spacing(5.5);
+
+/** A phone: where a dialog stops being a dialog and becomes the screen. */
+const PHONE = '@media (max-width: 599.95px)';
+const PHONE_DIALOG_INSET = spacing(1);
 const TAB_TRACK_PADDING = spacing(0.5);
 
 /**
@@ -58,16 +73,39 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
       fontWeightRegular: fontWeight.regular,
       fontWeightMedium: fontWeight.medium,
       fontWeightBold: fontWeight.bold,
-      // The page title: big and tight, as the trackers draw theirs.
-      h4: { fontSize: '2rem', fontWeight: fontWeight.bold, letterSpacing: letterSpacing.tighter },
-      h5: { fontWeight: fontWeight.bold, letterSpacing: letterSpacing.tight },
+      /**
+       * The page title: big and tight, as the trackers draw theirs — but sized against the
+       * screen rather than fixed, so "Purchase orders" is one line on a phone instead of
+       * three. `clamp` keeps it between 1.5rem and the 2rem a desk gets.
+       */
+      h4: {
+        fontSize: 'clamp(1.5rem, 1.1rem + 2vw, 2rem)',
+        fontWeight: fontWeight.bold,
+        letterSpacing: letterSpacing.tighter,
+      },
+      h5: {
+        fontSize: 'clamp(1.25rem, 1rem + 1.2vw, 1.5rem)',
+        fontWeight: fontWeight.bold,
+        letterSpacing: letterSpacing.tight,
+      },
       h6: { fontWeight: fontWeight.semibold, letterSpacing: letterSpacing.snug },
       subtitle2: { fontWeight: fontWeight.semibold },
       button: { textTransform: 'none', fontWeight: fontWeight.semibold },
       overline: { fontWeight: fontWeight.semibold, letterSpacing: letterSpacing.wide },
     },
     components: {
-      MuiButton: { defaultProps: { disableElevation: true, size: 'small' } },
+      MuiButton: {
+        defaultProps: { disableElevation: true, size: 'small' },
+        styleOverrides: {
+          root: { [TOUCH]: { minHeight: TOUCH_TARGET, paddingInline: spacing(2) } },
+        },
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: { [TOUCH]: { minWidth: TOUCH_TARGET, minHeight: TOUCH_TARGET } },
+        },
+      },
+      MuiMenuItem: { styleOverrides: { root: { [TOUCH]: { minHeight: TOUCH_TARGET } } } },
       MuiTextField: { defaultProps: { size: 'small' } },
       MuiLink: { defaultProps: { underline: 'none' } },
       MuiToolbar: { styleOverrides: { dense: { minHeight: DENSE_TOOLBAR_HEIGHT } } },
@@ -81,6 +119,7 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
         styleOverrides: {
           root: {
             minHeight: TAB_HEIGHT + TAB_TRACK_PADDING * 2,
+            [TOUCH]: { minHeight: TOUCH_TARGET + TAB_TRACK_PADDING * 2 },
             padding: TAB_TRACK_PADDING,
             borderRadius: PILL,
             backgroundColor: t.background.panel,
@@ -94,6 +133,7 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
         styleOverrides: {
           root: {
             minHeight: TAB_HEIGHT,
+            [TOUCH]: { minHeight: TOUCH_TARGET },
             paddingBlock: spacing(0.75),
             borderRadius: PILL,
             textTransform: 'none',
@@ -108,6 +148,12 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
           root: {
             paddingTop: DENSE_LIST_PADDING,
             paddingBottom: DENSE_LIST_PADDING,
+            // The sidebar is the whole navigation on a phone; a 32px row is half a thumb.
+            [TOUCH]: {
+              minHeight: TOUCH_TARGET,
+              paddingTop: spacing(1),
+              paddingBottom: spacing(1),
+            },
             '&.Mui-selected, &.Mui-selected:hover, &.Mui-selected.Mui-focusVisible': selected,
             '&.Mui-selected .MuiListItemIcon-root': { color: 'inherit' },
           },
@@ -126,6 +172,20 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
           root: {
             padding: DENSE_CARD_PADDING,
             '&:last-child': { paddingBottom: DENSE_CARD_PADDING },
+          },
+        },
+      },
+      // On a phone a dialog is the screen: the 32px margins MUI keeps are a third of the
+      // width, and what is inside them is usually a form or a table that needs every pixel.
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            [PHONE]: {
+              margin: PHONE_DIALOG_INSET,
+              width: `calc(100% - ${PHONE_DIALOG_INSET * 2}px)`,
+              maxWidth: `calc(100% - ${PHONE_DIALOG_INSET * 2}px)`,
+              maxHeight: `calc(100% - ${PHONE_DIALOG_INSET * 2}px)`,
+            },
           },
         },
       },

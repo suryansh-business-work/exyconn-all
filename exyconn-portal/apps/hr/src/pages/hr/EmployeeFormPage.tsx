@@ -2,9 +2,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Button, CircularProgress, Flex, Paper, Text } from '@exyconn/shell/components/ui';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useGetUserQuery } from '@exyconn/shell/graphql/generated';
 import { UserForm, type UserRow } from '@exyconn/shell/pages/user-forms/user';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 const RECORDS_PATH = '/hr/employees';
 
@@ -49,7 +50,7 @@ export function EmployeeFormPage() {
         }
       />
 
-      <Paper sx={[glass, { p: { xs: 2, md: 3 } }]}>
+      <Paper sx={readingPanel}>
         {loading && !initial && (
           <Flex direction="column" alignItems="center" sx={{ py: 6 }}>
             <CircularProgress />

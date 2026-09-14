@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from '@/components/ui';
-import { glass } from '../glass/glass';
+import { panel } from '../glass/glass';
 import { color } from '@exyconn/ui';
 
 export interface BreakdownBucket {
@@ -36,7 +36,7 @@ export function StatBreakdown({
   const largest = ordered[0]?.count ?? 0;
 
   return (
-    <Box sx={[glass, { p: 2, height: '100%' }]}>
+    <Box sx={[panel, { height: '100%' }]}>
       <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
         {title}
       </Typography>
@@ -50,14 +50,14 @@ export function StatBreakdown({
           {emptyMessage}
         </Typography>
       )}
-      <Stack spacing={1.25}>
+      <Stack spacing={1.5}>
         {ordered.map((bucket) => (
           <Box key={bucket.value}>
             <Stack
               direction="row"
               sx={{
                 justifyContent: 'space-between',
-                mb: 0.25,
+                mb: 0.5,
               }}
             >
               <Typography

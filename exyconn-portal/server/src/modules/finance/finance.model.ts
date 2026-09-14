@@ -34,7 +34,7 @@ const invoiceSchema = new Schema(
     lines: { type: [invoiceLineSchema], default: [] },
     /** The sum of the lines when there are any; typed by hand for a single-figure invoice. */
     amount: { type: Number, required: true, min: 0 },
-    currency: { type: String, required: true, default: 'INR', trim: true },
+    currency: { type: String, required: true, trim: true },
     status: { type: String, enum: INVOICE_STATUSES, required: true, default: 'DRAFT' },
     /**
      * Sum of the payments recorded against this invoice. Written only by `recordPayment`,

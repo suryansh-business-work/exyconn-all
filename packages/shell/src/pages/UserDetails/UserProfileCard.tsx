@@ -1,9 +1,10 @@
 import { Avatar, Box, Divider, Flex, Heading, Paper, Text } from '@/components/ui';
 import { StatusChip } from '@/components/data/StatusChip';
-import { glass } from '@/components/glass/glass';
+
 import { useSettings } from '@/hooks/useSettings';
 import { WorkArrangementFacts } from '@/components/work';
 import { userStatus, type UserDetail } from './user-details.types';
+import { readingPanel } from '@/components/glass/glass';
 
 /** Read-only summary card: identity, roles, status and audit timestamps. */
 export function UserProfileCard({ user }: { user: UserDetail }) {
@@ -16,7 +17,7 @@ export function UserProfileCard({ user }: { user: UserDetail }) {
     .toUpperCase();
 
   return (
-    <Paper sx={[glass, { p: 3 }]}>
+    <Paper sx={readingPanel}>
       <Flex direction="row" spacing={2} alignItems="center">
         <Avatar src={user.avatarUrl ?? undefined} sx={{ width: 64, height: 64 }}>
           {initials}

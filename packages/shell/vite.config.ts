@@ -18,5 +18,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['@testing-library/jest-dom/vitest'],
     include: ['__tests__/unit-tests/**/*.{test,spec}.{ts,tsx}'],
+    // These drive real components through userEvent — a typed search, an opened section —
+    // and an MUI Autocomplete takes seconds of that on a loaded machine. Five was enough
+    // when the suite ran alone and not when CI runs three packages at once.
+    testTimeout: 20_000,
   },
 });

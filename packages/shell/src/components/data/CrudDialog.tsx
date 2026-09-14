@@ -25,7 +25,7 @@ export function CrudDialog({ open, title, onClose, children }: CrudDialogProps) 
         sx={{
           alignItems: 'center',
           justifyContent: 'space-between',
-          px: 2.5,
+          px: 2,
           py: 2,
           borderBottom: 1,
           borderColor: 'divider',
@@ -36,7 +36,7 @@ export function CrudDialog({ open, title, onClose, children }: CrudDialogProps) 
           <CloseIcon />
         </IconButton>
       </Stack>
-      <Box sx={{ p: 2.5, overflowY: 'auto', flex: 1 }}>{children}</Box>
+      <Box sx={{ p: 2, overflowY: 'auto', flex: 1 }}>{children}</Box>
     </Drawer>
   );
 }

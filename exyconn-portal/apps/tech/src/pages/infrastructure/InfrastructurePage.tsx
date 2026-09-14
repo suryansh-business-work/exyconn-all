@@ -3,7 +3,7 @@ import DnsIcon from '@mui/icons-material/Dns';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import LayersIcon from '@mui/icons-material/Layers';
 import { Box } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { HostPanel } from './HostPanel';
@@ -15,7 +15,7 @@ export const INFRASTRUCTURE_PATH = '/tech/infrastructure';
 
 /** The card every tab's panel sits in, so the tab strip stays above the card. */
 function GlassPanel({ children }: Readonly<{ children: ReactNode }>) {
-  return <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>{children}</Box>;
+  return <Box sx={readingPanel}>{children}</Box>;
 }
 
 const TABS: TabberItem[] = [

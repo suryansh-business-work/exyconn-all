@@ -98,6 +98,11 @@ export interface ModuleChild {
   path: string;
   icon: SvgIconComponent;
   /**
+   * A role this page needs beyond the module's own — the platform's screens inside the Admin
+   * portal, which a company's own ADMIN must not see. Absent means the module's role is enough.
+   */
+  role?: Role;
+  /**
    * Section this page belongs to in the sidebar.
    *
    * Optional, and deliberately so: a module with a handful of pages reads better as a plain
@@ -782,6 +787,14 @@ export const MODULES: ModuleDefinition[] = [
     accent: color.blue[600],
     children: [
       { key: 'admin-overview', label: 'Overview', path: '/admin', icon: DashboardIcon },
+      {
+        key: 'admin-organizations',
+        label: 'Organizations',
+        path: '/admin/organizations',
+        icon: BusinessIcon,
+        role: ROLES.SUPER_ADMIN,
+        group: 'Administration',
+      },
       { key: 'admin-users', label: 'Users', path: '/admin/users', icon: ManageAccountsIcon },
       { key: 'admin-clients', label: 'Clients', path: '/clients', icon: GroupsIcon },
       {
@@ -1081,6 +1094,49 @@ export const MODULES: ModuleDefinition[] = [
       { key: 'it-overview', label: 'Overview', path: '/it', icon: DashboardIcon },
       { key: 'it-assets', label: 'Assets', path: '/it/assets', icon: InventoryIcon },
       { key: 'it-licences', label: 'Licences', path: '/it/licences', icon: VpnKeyIcon },
+    ],
+  },
+  {
+    // One module for all four standards: ISO 9001, 27001, 45001 and 14001 ask for the same
+    // five registers, and a company certified to more than one keeps a single set of them.
+    key: 'compliance',
+    label: 'Compliance',
+    path: '/compliance',
+    role: ROLES.COMPLIANCE,
+    icon: VerifiedUserIcon,
+    description: 'ISO management system',
+    accent: color.teal[600],
+    children: [
+      {
+        key: 'compliance-risks',
+        label: 'Risk register',
+        path: '/compliance',
+        icon: ReportProblemIcon,
+      },
+      {
+        key: 'compliance-objectives',
+        label: 'Objectives',
+        path: '/compliance/objectives',
+        icon: TrackChangesIcon,
+      },
+      {
+        key: 'compliance-audits',
+        label: 'Audits',
+        path: '/compliance/audits',
+        icon: FactCheckIcon,
+      },
+      {
+        key: 'compliance-findings',
+        label: 'Findings & CAPA',
+        path: '/compliance/findings',
+        icon: ChecklistIcon,
+      },
+      {
+        key: 'compliance-reviews',
+        label: 'Management review',
+        path: '/compliance/reviews',
+        icon: EventNoteIcon,
+      },
     ],
   },
   {

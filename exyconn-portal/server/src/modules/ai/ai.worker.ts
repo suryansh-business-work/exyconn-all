@@ -1,4 +1,5 @@
 import { AiJobModel } from './ai.model';
+import { forEachOrganization } from '../organizations';
 import { executeAiJob } from './ai.service';
 import { logger } from '../../utils/logger';
 
@@ -35,7 +36,9 @@ export async function runNextAiJob(): Promise<boolean> {
  */
 export function startAiWorker(): void {
   const tick = () => {
-    runNextAiJob().catch((error: unknown) => logger.error(error, 'AI queue tick failed'));
+    forEachOrganization(runNextAiJob, 'AI queue').catch((error: unknown) =>
+      logger.error(error, 'AI queue tick failed'),
+    );
   };
   tick();
   globalThis.setInterval(tick, TICK_MS).unref();

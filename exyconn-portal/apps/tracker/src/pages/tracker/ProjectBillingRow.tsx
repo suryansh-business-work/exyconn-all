@@ -92,7 +92,12 @@ export function ProjectBillingRow({
       <TableRow>
         <TableCell colSpan={6} sx={{ p: 0, borderBottom: open ? undefined : 0 }}>
           <Collapse in={open} unmountOnExit>
-            <Table size="small" sx={{ ml: 6, width: 'auto', minWidth: 480, my: 1 }}>
+            <Table
+              size="small"
+              // Indented on a desk; on a phone the indent alone is a tenth of the screen,
+              // and the table scrolls inside its own container rather than widening the row.
+              sx={{ ml: { xs: 0, sm: 6 }, width: 'auto', minWidth: { sm: 480 }, my: 1 }}
+            >
               <TableHead>
                 <TableRow>
                   <TableCell>Employee</TableCell>

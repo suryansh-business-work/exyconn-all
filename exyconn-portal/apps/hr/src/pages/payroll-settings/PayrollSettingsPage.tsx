@@ -1,7 +1,7 @@
 import { Alert, Box, CircularProgress, Flex, Text } from '@exyconn/shell/components/ui';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { usePayrollSettingsQuery } from '@exyconn/shell/graphql/generated';
 import { PayrollSettingsForm } from './forms/payroll-settings';
 import type { PayrollSettingsRow } from './forms/payroll-settings';
@@ -70,10 +70,10 @@ export function PayrollSettingsPage() {
       {loading && !settings && <CircularProgress size={24} />}
       {settings && (
         <Flex direction={{ xs: 'column', md: 'row' }} spacing={1.5} alignItems="flex-start">
-          <Box sx={[glass, { p: { xs: 2, md: 3 }, flex: 2, width: '100%' }]}>
+          <Box sx={[readingPanel, { flex: 2, width: '100%' }]}>
             <PayrollSettingsForm initial={settings} onCancel={reload} onDone={reload} />
           </Box>
-          <Box sx={[glass, { p: { xs: 2, md: 3 }, flex: 1, width: '100%' }]}>
+          <Box sx={[readingPanel, { flex: 1, width: '100%' }]}>
             <Text weight="medium" sx={{ display: 'block', mb: 1.5 }}>
               What the next run will withhold
             </Text>

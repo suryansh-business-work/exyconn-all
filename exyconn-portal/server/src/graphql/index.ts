@@ -2,6 +2,7 @@ import { DateTimeResolver } from 'graphql-scalars';
 import { baseTypeDefs } from './base.typeDefs';
 import { authTypeDefs } from '../modules/auth/auth.typeDefs';
 import { authResolvers } from '../modules/auth/auth.resolvers';
+import { organizationsTypeDefs, organizationsResolvers } from '../modules/organizations';
 import { adminTypeDefs } from '../modules/admin/admin.typeDefs';
 import { adminResolvers } from '../modules/admin/admin.resolvers';
 import { reportingResolvers } from '../modules/admin/reporting';
@@ -79,6 +80,12 @@ import { announcementsTypeDefs, announcementsResolvers } from '../modules/announ
 import { notificationsTypeDefs, notificationsResolvers } from '../modules/notifications';
 import { requestsTypeDefs, requestsResolvers } from '../modules/requests';
 import { goalsTypeDefs, goalsResolvers } from '../modules/goals';
+import {
+  complianceTypeDefs,
+  complianceAuditsTypeDefs,
+  complianceReviewsTypeDefs,
+  complianceResolvers,
+} from '../modules/compliance';
 import { performanceTypeDefs, performanceResolvers } from '../modules/performance';
 import { expensesTypeDefs, expensesResolvers } from '../modules/expenses';
 import { benefitsTypeDefs, benefitsResolvers } from '../modules/benefits';
@@ -122,6 +129,7 @@ function mergeResolvers(groups: ResolverGroup[]) {
 export const typeDefs = [
   baseTypeDefs,
   authTypeDefs,
+  organizationsTypeDefs,
   adminTypeDefs,
   financeTypeDefs,
   financeBillingTypeDefs,
@@ -163,6 +171,9 @@ export const typeDefs = [
   notificationsTypeDefs,
   requestsTypeDefs,
   goalsTypeDefs,
+  complianceTypeDefs,
+  complianceAuditsTypeDefs,
+  complianceReviewsTypeDefs,
   performanceTypeDefs,
   expensesTypeDefs,
   benefitsTypeDefs,
@@ -186,6 +197,7 @@ export const typeDefs = [
 
 export const resolvers = mergeResolvers([
   authResolvers,
+  organizationsResolvers,
   adminResolvers,
   reportingResolvers,
   financeResolvers,
@@ -228,6 +240,7 @@ export const resolvers = mergeResolvers([
   notificationsResolvers,
   requestsResolvers,
   goalsResolvers,
+  complianceResolvers,
   performanceResolvers,
   expensesResolvers,
   benefitsResolvers,

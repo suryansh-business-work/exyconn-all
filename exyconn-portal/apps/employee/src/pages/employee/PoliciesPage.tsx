@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Alert, Box, Grid, radius, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useMyPoliciesQuery } from '@exyconn/shell/graphql/generated';
 import { PolicyCard, type Policy } from './PolicyCard';
 import { PolicyReaderDialog } from './PolicyReaderDialog';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /**
  * Employee self-service: the policies this person is meant to read, and which of them still
@@ -35,7 +36,7 @@ export function PoliciesPage() {
       ) : null}
 
       {ordered.length === 0 ? (
-        <Box sx={[glass, { p: { xs: 2, md: 3 } }]}>
+        <Box sx={readingPanel}>
           <Text color="text.secondary">{loading ? 'Loading…' : 'No policies published yet.'}</Text>
         </Box>
       ) : (

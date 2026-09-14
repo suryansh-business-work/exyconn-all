@@ -1,3 +1,9 @@
+// FIRST: every model must be defined with its organization scope already installed.
+import { assertTenantCoverage, runAsPlatform } from './lib/tenant';
+import {
+  forEachOrganization,
+  migrateLegacyDataIntoFirstOrganization,
+} from './modules/organizations';
 import { createApp } from './app';
 import { database } from './config/database';
 import { ensureAdminAccess } from './seed/ensureAdminAccess';
@@ -17,27 +23,33 @@ import { logger } from './utils/logger';
 /** Process entrypoint: connect to MongoDB, then start the HTTP/GraphQL server. */
 async function bootstrap(): Promise<void> {
   await database.connect();
+  // Every model is either one company's data or deliberately the platform's — refuse to
+  // serve at all if one was defined before the scope was installed (see lib/tenant/install).
+  assertTenantCoverage();
+  // An install that predates the tenancy is moved into its first organization before anything
+  // serves a request — its records would otherwise be invisible to the company they belong to.
+  await migrateLegacyDataIntoFirstOrganization();
   // A portal nobody can administer is unusable, so make that state unreachable
   // on a fresh install and self-healing on an existing one.
-  await ensureAdminAccess();
+  await runAsPlatform(ensureAdminAccess);
   // The public status page is only as good as its catalogue, so make sure every
   // surface has a monitor row before the first probe round runs.
-  await ensureStatusMonitors();
+  await runAsPlatform(ensureStatusMonitors);
   // A template referenced from code must exist, or the first thing that tries to send it
   // fails on a fresh install. Seeded only when absent, so portal edits survive a restart.
-  await ensureEmailDefaults();
+  await forEachOrganization(ensureEmailDefaults, 'ensureEmailDefaults');
   // A company that has just installed the portal has to be able to onboard somebody on day
   // one, so the standard checklist exists before anybody has written one. Insert-only, so
   // an HR lead's edits survive every restart.
-  await ensureOnboardingDefaults();
+  await forEachOrganization(ensureOnboardingDefaults, 'ensureOnboardingDefaults');
   // A ticket with no policy behind it carries no deadline, so the desk starts with the
   // default promises in place. Insert-only: a policy the team retuned is left alone.
-  await ensureSupportSlaPolicies();
+  await forEachOrganization(ensureSupportSlaPolicies, 'ensureSupportSlaPolicies');
   // SLAB mode has to compute something on a fresh install, so one year's income-tax table
   // exists before the first payroll run. Insert-only, and every figure in it is editable in
   // HR > Tax Slabs — it is a starting point to check against the finance act, not a rate
   // this repository is asserting.
-  await ensureTaxSlabs();
+  await forEachOrganization(ensureTaxSlabs, 'ensureTaxSlabs');
   startStatusMonitor();
   // Payslips go out on the schedule HR sets in the portal, so the loop has to be running
   // even in a month nobody signs in.
@@ -58,7 +70,7 @@ async function bootstrap(): Promise<void> {
   startInboundMail();
   // A run with no price on file costs zero, so the prices have to exist before the first
   // job does. Insert-only, so a price corrected in Tech survives every restart.
-  await ensureAiModelPrices();
+  await runAsPlatform(ensureAiModelPrices);
   // AI jobs are queued rather than run inside the request that asked for them, so
   // something has to drain the queue whether or not anyone has the AI module open.
   startAiWorker();

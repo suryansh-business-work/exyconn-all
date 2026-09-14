@@ -39,6 +39,7 @@ COPY exyconn-portal/server/package.json exyconn-portal/server/
 COPY exyconn-portal/ui/package.json exyconn-portal/ui/
 COPY exyconn-portal/apps/admin/package.json exyconn-portal/apps/admin/
 COPY exyconn-portal/apps/ai/package.json exyconn-portal/apps/ai/
+COPY exyconn-portal/apps/compliance/package.json exyconn-portal/apps/compliance/
 COPY exyconn-portal/apps/crm/package.json exyconn-portal/apps/crm/
 COPY exyconn-portal/apps/employee/package.json exyconn-portal/apps/employee/
 COPY exyconn-portal/apps/finance/package.json exyconn-portal/apps/finance/

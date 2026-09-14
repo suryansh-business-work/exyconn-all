@@ -4,7 +4,7 @@ import { createApp } from '../../src/app';
 import { ROLES } from '../../src/constants/roles';
 import { UserModel } from '../../src/modules/admin/user.model';
 import { ClientModel } from '../../src/modules/clients/clients.model';
-import { seedUser } from '../helpers';
+import { seedOrganization, seedUser } from '../helpers';
 
 let app: Express;
 
@@ -18,9 +18,14 @@ beforeAll(async () => {
   app = await createApp();
 });
 
-/** An invoice must bill a real client, so the CRUD tests create one to bill. */
+/**
+ * An invoice must bill a real client, so the CRUD tests create one to bill — inside the
+ * company the signed-in administrator belongs to, since a request sees nothing else.
+ */
 async function seedClient(): Promise<string> {
+  const organization = await seedOrganization();
   const client = await ClientModel.create({
+    organizationId: organization._id,
     name: 'Acme Ltd',
     email: 'billing@acme.example',
     phone: '+91 98765 43210',

@@ -1,6 +1,7 @@
 import { useMemo, type ReactNode } from 'react';
 import type { ColDef } from 'ag-grid-community';
-import { Flex } from '@exyconn/shell/components/ui';
+import { useT } from '@exyconn/i18n';
+import { Flex, useMediaQuery, useTheme } from '@exyconn/shell/components/ui';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
@@ -13,6 +14,7 @@ import { usePermissions, type PermissionActionKey } from '@exyconn/shell/hooks/u
 import type { CrudResource } from './useCrudResource';
 import { GridExportButton, useGridQuery } from './ExportCsvButton';
 import { contextWithoutActions, deniedActionKeys } from './permissions';
+import { RecordCardList } from '../list/RecordCardList';
 
 interface CrudDashboardProps<TRow, TPaged> {
   title: string;
@@ -86,6 +88,11 @@ export function CrudDashboard<TRow, TPaged>({
   children,
 }: Readonly<CrudDashboardProps<TRow, TPaged>>) {
   const gridQuery = useGridQuery();
+  const t = useT();
+  const theme = useTheme();
+  // A thirteen-column table is five screens of sideways scrolling on a phone, so a phone
+  // gets the same records as cards instead — same columns, same actions, same query.
+  const onPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const { can } = usePermissions();
   // No module named means no restriction to apply, exactly as before this prop existed.
   const may = (action: PermissionActionKey) => !permissionModule || can(permissionModule, action);
@@ -94,14 +101,22 @@ export function CrudDashboard<TRow, TPaged>({
     [permissionModule, can],
   );
   const gridContext = useMemo(() => contextWithoutActions(context, denied), [context, denied]);
-  const formTitle = `${crud?.editing ? 'Edit' : 'New'} ${entityLabel}`;
+  // Built from placeholders rather than by joining words: "New {entity}" is one string a
+  // translator can put in their own order, where 'New ' + entityLabel is two they cannot.
+  const formTitle = crud?.editing
+    ? t('Edit {entity}', { entity: entityLabel })
+    : t('New {entity}', { entity: entityLabel });
   const createAction =
     crud && may('create')
-      ? { label: actionLabel ?? `New ${entityLabel}`, open: crud.openCreate }
+      ? { label: actionLabel ?? t('New {entity}', { entity: entityLabel }), open: crud.openCreate }
       : null;
   if (crud?.open && renderForm) {
     return (
-      <CrudFormPage title={formTitle} onBack={crud.close} backLabel={`Back to ${title}`}>
+      <CrudFormPage
+        title={formTitle}
+        onBack={crud.close}
+        backLabel={t('Back to {list}', { list: title })}
+      >
         {renderForm(crud.editing)}
       </CrudFormPage>
     );
@@ -128,15 +143,26 @@ export function CrudDashboard<TRow, TPaged>({
           />
         </Flex>
       )}
-      <ServerDataGrid<TPaged>
-        columnDefs={columnDefs}
-        fetchRows={fetchRows}
-        context={gridContext}
-        refreshSignal={crud?.refreshSignal ?? refreshSignal}
-        onRowClick={onRowClick}
-        searchPlaceholder={searchPlaceholder}
-        onQuery={gridQuery.onQuery}
-      />
+      {onPhone ? (
+        <RecordCardList<TPaged>
+          columnDefs={columnDefs}
+          fetchRows={fetchRows}
+          context={gridContext}
+          refreshSignal={crud?.refreshSignal ?? refreshSignal}
+          onRowClick={onRowClick}
+          searchPlaceholder={searchPlaceholder}
+        />
+      ) : (
+        <ServerDataGrid<TPaged>
+          columnDefs={columnDefs}
+          fetchRows={fetchRows}
+          context={gridContext}
+          refreshSignal={crud?.refreshSignal ?? refreshSignal}
+          onRowClick={onRowClick}
+          searchPlaceholder={searchPlaceholder}
+          onQuery={gridQuery.onQuery}
+        />
+      )}
       {children}
     </ModuleDashboard>
   );

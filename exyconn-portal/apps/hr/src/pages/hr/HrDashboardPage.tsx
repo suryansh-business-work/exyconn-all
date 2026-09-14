@@ -3,7 +3,7 @@ import { Box, Chip, Grid, Flex, Text, Paragraph, color } from '@exyconn/shell/co
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
 import { LineChart } from '@exyconn/shell/components/dashboard/LineChart';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { upcomingHolidays } from '@exyconn/shell/utils/upcomingHolidays';
 import {
@@ -153,7 +153,7 @@ export function HrDashboardPage() {
             md: 7,
           }}
         >
-          <Box sx={[glass, { p: 2, height: '100%' }]}>
+          <Box sx={[panel, { height: '100%' }]}>
             <Flex direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
               <Text size="label">Employee count over time</Text>
               <Chip label={`${headcount.length} months`} size="small" variant="outlined" />

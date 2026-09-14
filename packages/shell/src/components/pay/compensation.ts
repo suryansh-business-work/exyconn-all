@@ -4,9 +4,6 @@ import { PayType, type EmployeeSalaryQuery, type EmployeeSalaryInput } from '@/g
 /** The salary structure as it comes back for one employee, or null before HR sets one up. */
 export type EmployeeSalary = NonNullable<EmployeeSalaryQuery['employeeSalary']>;
 
-/** Currency a new structure starts in. HR can change it per employee. */
-export const DEFAULT_CURRENCY = 'INR';
-
 /** Pay types whose money is a single figure rather than the monthly components. */
 const SINGLE_AMOUNT = new Set<PayType>([PayType.Hourly, PayType.Stipend, PayType.Other]);
 
@@ -64,12 +61,14 @@ const amount = (value: number | null | undefined): string => String(value ?? 0);
 /** Form defaults for an employee with no structure yet, or their stored one. */
 export function toCompensationValues(
   salary: EmployeeSalary | null,
+  /** The company's own currency, for an employee who has no structure yet. */
+  currency: string,
   joinDate?: string | null,
 ): CompensationValues {
   return {
     payType: salary?.payType ?? PayType.Fixed,
     payTypeNote: salary?.payTypeNote ?? '',
-    currency: salary?.currency ?? DEFAULT_CURRENCY,
+    currency: salary?.currency ?? currency,
     basic: amount(salary?.basic),
     hra: amount(salary?.hra),
     allowances: amount(salary?.allowances),

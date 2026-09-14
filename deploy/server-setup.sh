@@ -48,6 +48,7 @@ DOMAINS=(
   "tracker.exyconn.com"
   "tech.exyconn.com"
   "it.exyconn.com"
+  "compliance.exyconn.com"
   "social.exyconn.com"
   "status.exyconn.com"
 )

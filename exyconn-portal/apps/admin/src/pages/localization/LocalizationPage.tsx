@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Chip, Flex, MenuItem, TextField, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useLanguageOptions } from '@exyconn/shell/components/localization';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
@@ -11,6 +11,7 @@ import {
   type TranslationsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { TranslationEditor } from './TranslationEditor';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type Row = TranslationsQuery['translations']['rows'][number];
 
@@ -89,7 +90,7 @@ export function LocalizationPage() {
           label="Language"
           value={chosen}
           onChange={(event) => setLocale(event.target.value)}
-          sx={{ minWidth: 220 }}
+          sx={{ minWidth: { sm: 220 }, width: { xs: '100%', sm: 'auto' } }}
         >
           {languages.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -103,7 +104,7 @@ export function LocalizationPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="English text or its translation"
-          sx={{ minWidth: 260 }}
+          sx={{ minWidth: { sm: 260 }, width: { xs: '100%', sm: 'auto' } }}
         />
         <Flex direction="row" alignItems="center">
           <Text size="sm" color="text.secondary">
@@ -111,7 +112,7 @@ export function LocalizationPage() {
           </Text>
         </Flex>
       </Flex>
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

@@ -27,7 +27,7 @@ export function JobDetailsFields() {
   }));
 
   return (
-    <Flex direction="column" spacing={2.5}>
+    <Flex direction="column" spacing={2}>
       <RhfTextField name="jobCode" label="Job code" />
       <RhfSelect
         name="companySlug"

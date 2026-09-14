@@ -82,9 +82,9 @@ export function TrackerScreenshotLightbox({
           alignItems="center"
           justifyContent="space-between"
           spacing={1}
-          sx={{ px: 2, py: 1.25, color: 'common.white' }}
+          sx={{ px: 2, py: 1.5, color: 'common.white' }}
         >
-          <Flex direction="row" alignItems="center" spacing={1.25} sx={{ minWidth: 0 }}>
+          <Flex direction="row" alignItems="center" spacing={1.5} sx={{ minWidth: 0 }}>
             <Text size="sm" noWrap>
               {capturedAt}
             </Text>

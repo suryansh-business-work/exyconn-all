@@ -19,7 +19,7 @@ export function ticketColumns(formatDate: (value: string) => string): Column<Tic
       key: 'type',
       label: 'Type',
       render: (row) => (
-        <Flex direction="row" alignItems="center" spacing={0.75}>
+        <Flex direction="row" alignItems="center" spacing={1}>
           <TicketFacetIcon facet={TICKET_TYPES[row.type]} kind="Type" />
           <Text size="sm">{TICKET_TYPES[row.type].label}</Text>
         </Flex>
@@ -30,7 +30,7 @@ export function ticketColumns(formatDate: (value: string) => string): Column<Tic
       key: 'priority',
       label: 'Priority',
       render: (row) => (
-        <Flex direction="row" alignItems="center" spacing={0.75}>
+        <Flex direction="row" alignItems="center" spacing={1}>
           <TicketFacetIcon facet={TICKET_PRIORITIES[row.priority]} kind="Priority" />
           <Text size="sm">{TICKET_PRIORITIES[row.priority].label}</Text>
         </Flex>
@@ -45,7 +45,7 @@ export function ticketColumns(formatDate: (value: string) => string): Column<Tic
             Unassigned
           </Text>
         ) : (
-          <Flex direction="row" alignItems="center" spacing={0.75}>
+          <Flex direction="row" alignItems="center" spacing={1}>
             <Tooltip title={row.assigneeName}>
               <Avatar sx={{ width: 22, height: 22, fontSize: fontSize['3xs'] }}>
                 {initialsOf(row.assigneeName)}

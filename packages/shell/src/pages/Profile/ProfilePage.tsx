@@ -1,6 +1,6 @@
 import { Box, Chip, Divider, Grid, Flex, Heading, Text } from '@/components/ui';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { glass } from '@/components/glass/glass';
+import { readingPanel } from '@/components/glass/glass';
 import { useAuth } from '@/auth/AuthContext';
 import { AvatarUploader } from './AvatarUploader';
 import { ProfileForm } from './forms/profile';
@@ -13,14 +13,14 @@ export function ProfilePage() {
   return (
     <Box>
       <PageHeader title="My Profile" subtitle="Manage your photo and personal details" />
-      <Grid container spacing={2.5}>
+      <Grid container spacing={2}>
         <Grid
           size={{
             xs: 12,
             md: 4,
           }}
         >
-          <Box sx={[glass, { p: 3, textAlign: 'center' }]}>
+          <Box sx={[readingPanel, { textAlign: 'center' }]}>
             <AvatarUploader />
             <Heading level={6} sx={{ mt: 2 }}>
               {user.name}
@@ -52,7 +52,7 @@ export function ProfilePage() {
             md: 8,
           }}
         >
-          <Box sx={[glass, { p: 3 }]}>
+          <Box sx={readingPanel}>
             <Heading level={6} sx={{ mb: 2 }}>
               Personal details
             </Heading>

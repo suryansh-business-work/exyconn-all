@@ -16,7 +16,7 @@ const IMAGE_FIELDS = [
 /** Images tab — every branding image uploads through the shared dialog. */
 export function BrandingImagesFields() {
   return (
-    <Grid container spacing={2.5}>
+    <Grid container spacing={2}>
       {IMAGE_FIELDS.map((field) => (
         <Grid
           key={field.name}

@@ -2,7 +2,7 @@ import { Box, Link, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
@@ -11,6 +11,7 @@ import {
   useUpdateMyTrainingStatusMutation,
 } from '@exyconn/shell/graphql/generated';
 import { TrainingStatusAction } from './TrainingStatusAction';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type Row = {
   id: string;
@@ -65,7 +66,7 @@ export function TrainingPage() {
   return (
     <Box>
       <PageHeader title="Learning & Training" subtitle="Courses assigned to you" />
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

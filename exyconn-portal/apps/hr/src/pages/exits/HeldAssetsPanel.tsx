@@ -51,7 +51,7 @@ export function HeldAssetsPanel({ exitId, assetsReturned }: Readonly<HeldAssetsP
           direction="row"
           justifyContent="space-between"
           alignItems="center"
-          sx={{ py: 0.75 }}
+          sx={{ py: 1 }}
         >
           <Text>
             <Text weight="medium">{asset.assetTag}</Text> · {asset.name}

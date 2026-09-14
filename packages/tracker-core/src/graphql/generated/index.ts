@@ -267,6 +267,18 @@ export type AuditAction =
   | 'SETTINGS'
   | 'UPDATE';
 
+/** Who is auditing whom. */
+export type AuditKind =
+  | 'EXTERNAL'
+  | 'INTERNAL'
+  | 'SUPPLIER';
+
+export type AuditStatus =
+  | 'CLOSED'
+  | 'IN_PROGRESS'
+  | 'PLANNED'
+  | 'REPORTED';
+
 export type BenefitInput = {
   coverage: Scalars['String']['input'];
   documentUrl: InputMaybe<Scalars['String']['input']>;
@@ -497,6 +509,18 @@ export type CompanyStatus =
   | 'CUSTOMER'
   | 'PARTNER'
   | 'PROSPECT';
+
+/** What a compliance record is about — one list across all four standards. */
+export type ComplianceCategory =
+  | 'ENVIRONMENT'
+  | 'FINANCIAL'
+  | 'HEALTH_SAFETY'
+  | 'INFORMATION_SECURITY'
+  | 'LEGAL'
+  | 'OPERATIONAL'
+  | 'PEOPLE'
+  | 'QUALITY'
+  | 'SUPPLIER';
 
 export type ContactInput = {
   companyId: InputMaybe<Scalars['String']['input']>;
@@ -780,6 +804,56 @@ export type FilterOp =
   | 'LT'
   | 'STARTS_WITH';
 
+export type FindingInput = {
+  auditId: Scalars['String']['input'];
+  category: ComplianceCategory;
+  clause: Scalars['String']['input'];
+  closedOn: InputMaybe<Scalars['DateTime']['input']>;
+  correctiveAction: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  dueOn: InputMaybe<Scalars['DateTime']['input']>;
+  effective: InputMaybe<Scalars['Boolean']['input']>;
+  effectivenessNote: InputMaybe<Scalars['String']['input']>;
+  immediateAction: Scalars['String']['input'];
+  ownerId: Scalars['String']['input'];
+  ownerName: Scalars['String']['input'];
+  raisedOn: Scalars['DateTime']['input'];
+  riskId: Scalars['String']['input'];
+  rootCause: Scalars['String']['input'];
+  source: FindingSource;
+  standards: Array<ManagementStandard>;
+  status: FindingStatus;
+  title: Scalars['String']['input'];
+  type: FindingType;
+  verifiedByName: InputMaybe<Scalars['String']['input']>;
+  verifiedOn: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+/** Where a finding came from. One register whatever raised it. */
+export type FindingSource =
+  | 'CUSTOMER_COMPLAINT'
+  | 'EMPLOYEE_REPORT'
+  | 'EXTERNAL_AUDIT'
+  | 'INCIDENT'
+  | 'INTERNAL_AUDIT'
+  | 'MANAGEMENT_REVIEW'
+  | 'OTHER'
+  | 'SUPPLIER';
+
+export type FindingStatus =
+  | 'ACTION_AGREED'
+  | 'CLOSED'
+  | 'IMPLEMENTED'
+  | 'OPEN'
+  | 'VERIFIED';
+
+/** How serious it is — the four an auditor uses. */
+export type FindingType =
+  | 'MAJOR_NONCONFORMITY'
+  | 'MINOR_NONCONFORMITY'
+  | 'OBSERVATION'
+  | 'OPPORTUNITY';
+
 export type GigInput = {
   applicationContact: Scalars['String']['input'];
   applicationType: Scalars['String']['input'];
@@ -884,6 +958,22 @@ export type IncidentUpdateStatus =
   | 'INVESTIGATING'
   | 'MONITORING'
   | 'RESOLVED';
+
+export type InternalAuditInput = {
+  auditeeName: Scalars['String']['input'];
+  conclusion: Scalars['String']['input'];
+  criteria: Scalars['String']['input'];
+  kind: AuditKind;
+  leadAuditorId: Scalars['String']['input'];
+  leadAuditorName: Scalars['String']['input'];
+  performedOn: InputMaybe<Scalars['DateTime']['input']>;
+  plannedOn: Scalars['DateTime']['input'];
+  scope: Scalars['String']['input'];
+  standards: Array<ManagementStandard>;
+  status: AuditStatus;
+  summary: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
 
 export type InvoiceInput = {
   /** Required when there are no lines; ignored (recomputed) when there are. */
@@ -1079,6 +1169,37 @@ export type LoginPageInput = {
   tagline: Scalars['String']['input'];
 };
 
+export type ManagementReviewActionInput = {
+  description: Scalars['String']['input'];
+  done: Scalars['Boolean']['input'];
+  dueOn: InputMaybe<Scalars['DateTime']['input']>;
+  ownerName: Scalars['String']['input'];
+};
+
+export type ManagementReviewInput = {
+  actions: Array<ManagementReviewActionInput>;
+  attendees: Scalars['String']['input'];
+  chairName: Scalars['String']['input'];
+  decisions: Scalars['String']['input'];
+  heldOn: Scalars['DateTime']['input'];
+  inputs: Scalars['String']['input'];
+  standards: Array<ManagementStandard>;
+  status: ManagementReviewStatus;
+  title: Scalars['String']['input'];
+};
+
+export type ManagementReviewStatus =
+  | 'HELD'
+  | 'MINUTED'
+  | 'PLANNED';
+
+/** A management system standard the company runs to. A record may answer to several. */
+export type ManagementStandard =
+  | 'ISO_9001'
+  | 'ISO_14001'
+  | 'ISO_27001'
+  | 'ISO_45001';
+
 /** Employee-facing attendance entry — the server sets employeeId. */
 export type MarkAttendanceInput = {
   date: Scalars['DateTime']['input'];
@@ -1157,6 +1278,45 @@ export type NotificationKind =
   | 'SOCIAL_SHARE'
   | 'TRAINING';
 
+export type ObjectiveFrequency =
+  | 'HALF_YEARLY'
+  | 'MONTHLY'
+  | 'QUARTERLY'
+  | 'YEARLY';
+
+export type ObjectiveInput = {
+  actual: Scalars['Float']['input'];
+  area: Scalars['String']['input'];
+  baseline: Scalars['Float']['input'];
+  category: ComplianceCategory;
+  description: Scalars['String']['input'];
+  frequency: ObjectiveFrequency;
+  measure: Scalars['String']['input'];
+  ownerId: Scalars['String']['input'];
+  ownerName: Scalars['String']['input'];
+  periodEnd: Scalars['DateTime']['input'];
+  periodStart: Scalars['DateTime']['input'];
+  plan: Scalars['String']['input'];
+  scope: ObjectiveScope;
+  standards: Array<ManagementStandard>;
+  status: ObjectiveStatus;
+  target: Scalars['Float']['input'];
+  title: Scalars['String']['input'];
+  unit: Scalars['String']['input'];
+};
+
+export type ObjectiveScope =
+  | 'COMPANY'
+  | 'DEPARTMENT'
+  | 'PROCESS';
+
+export type ObjectiveStatus =
+  | 'AT_RISK'
+  | 'MET'
+  | 'MISSED'
+  | 'ON_TRACK'
+  | 'PLANNED';
+
 /** Who is expected to do an onboarding task — and, therefore, who may tick it off. */
 export type OnboardingOwner =
   | 'EMPLOYEE'
@@ -1182,6 +1342,41 @@ export type OpenAiConfigInput = {
   defaultModel: Scalars['String']['input'];
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+};
+
+/** The person a company is handed over to — its first administrator. */
+export type OrganizationAdminInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type OrganizationInput = {
+  contactEmail: InputMaybe<Scalars['String']['input']>;
+  country: InputMaybe<Scalars['String']['input']>;
+  currency: Scalars['String']['input'];
+  fiscalYearStartMonth: InputMaybe<Scalars['Int']['input']>;
+  legalName: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  slug: InputMaybe<Scalars['String']['input']>;
+  taxSystem: InputMaybe<TaxSystem>;
+  timezone: InputMaybe<Scalars['String']['input']>;
+};
+
+export type OrganizationStatus =
+  | 'ACTIVE'
+  | 'SUSPENDED';
+
+export type OrganizationUpdateInput = {
+  contactEmail: InputMaybe<Scalars['String']['input']>;
+  country: InputMaybe<Scalars['String']['input']>;
+  currency: InputMaybe<Scalars['String']['input']>;
+  fiscalYearStartMonth: InputMaybe<Scalars['Int']['input']>;
+  legalName: InputMaybe<Scalars['String']['input']>;
+  locale: InputMaybe<Scalars['String']['input']>;
+  name: InputMaybe<Scalars['String']['input']>;
+  taxSystem: InputMaybe<TaxSystem>;
+  timezone: InputMaybe<Scalars['String']['input']>;
 };
 
 /** How an employee is paid. Decides which amounts on the salary structure mean anything. */
@@ -1280,10 +1475,23 @@ export type PolicyAudience =
   | 'HR_ONLY'
   | 'PUBLIC';
 
+/**
+ * How far a document may travel (ISO 27001 A.5.12).
+ *
+ * The document's own label, not a permission: who may open a policy is decided by its
+ * audience and the reader's role.
+ */
+export type PolicyClassification =
+  | 'CONFIDENTIAL'
+  | 'INTERNAL'
+  | 'PUBLIC';
+
 export type PolicyInput = {
   audience: PolicyAudience;
   body: Scalars['String']['input'];
+  classification: InputMaybe<PolicyClassification>;
   effectiveDate: Scalars['DateTime']['input'];
+  nextReviewOn: InputMaybe<Scalars['DateTime']['input']>;
   owner: InputMaybe<Scalars['String']['input']>;
   requiresAcknowledgement: InputMaybe<Scalars['Boolean']['input']>;
   slug: Scalars['String']['input'];
@@ -1485,9 +1693,51 @@ export type ReviewStatus =
   | 'OPEN'
   | 'SELF_SUBMITTED';
 
+/** The reference is drawn from the company's own series on create; never sent by a client. */
+export type RiskInput = {
+  category: ComplianceCategory;
+  closedOn: InputMaybe<Scalars['DateTime']['input']>;
+  controls: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  identifiedOn: Scalars['DateTime']['input'];
+  impact: Scalars['Int']['input'];
+  likelihood: Scalars['Int']['input'];
+  ownerId: Scalars['String']['input'];
+  ownerName: Scalars['String']['input'];
+  residualImpact: Scalars['Int']['input'];
+  residualLikelihood: Scalars['Int']['input'];
+  reviewDueOn: InputMaybe<Scalars['DateTime']['input']>;
+  standards: Array<ManagementStandard>;
+  status: RiskStatus;
+  subject: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  treatment: RiskTreatment;
+};
+
+/** Where a 1-25 rating lands. Derived from the rating, never stored. */
+export type RiskLevel =
+  | 'CRITICAL'
+  | 'HIGH'
+  | 'LOW'
+  | 'MEDIUM';
+
+export type RiskStatus =
+  | 'CLOSED'
+  | 'IDENTIFIED'
+  | 'MONITORING'
+  | 'TREATING';
+
+/** How a risk is being dealt with (ISO 31000). */
+export type RiskTreatment =
+  | 'ACCEPT'
+  | 'AVOID'
+  | 'REDUCE'
+  | 'TRANSFER';
+
 export type Role =
   | 'ADMIN'
   | 'AI'
+  | 'COMPLIANCE'
   | 'CRM'
   | 'EMPLOYEE'
   | 'FINANCE'
@@ -1796,6 +2046,15 @@ export type TaxSlabInput = {
   regimeKey: Scalars['String']['input'];
   toAmount: InputMaybe<Scalars['Float']['input']>;
 };
+
+/** Whose tax rules a company's invoices and payroll follow. */
+export type TaxSystem =
+  /** India: GSTIN and place of supply, CGST/SGST/IGST, PF/ESI/professional tax, income-tax slabs. */
+  | 'INDIA_GST'
+  /** No tax lines at all. */
+  | 'NONE'
+  /** One tax line at the company's own rate. */
+  | 'VAT';
 
 /**
  * How TDS is worked out. NONE withholds nothing; FLAT_PERCENT takes a percentage of taxable

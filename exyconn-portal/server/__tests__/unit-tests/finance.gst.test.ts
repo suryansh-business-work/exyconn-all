@@ -8,6 +8,8 @@ const LINES = [
 ];
 
 const data = (overrides: Partial<InvoicePdfData['invoice']> = {}): InvoicePdfData => ({
+  locale: 'en-IN',
+  indianTaxRules: true,
   company: {
     name: 'Exyconn',
     address: '12 MG Road, Indore',
@@ -152,6 +154,18 @@ describe('invoiceDocument', () => {
 
     expect(labels(document.totals)).toContain('Tax');
     expect(labels(document.parties)).not.toContain('Place of supply');
+  });
+
+  it('is a plain invoice for a company that does not bill under India GST', () => {
+    const document = invoiceDocument({ ...data(), indianTaxRules: false });
+
+    expect(document.title).toBe('Invoice');
+    expect(document.supplier).not.toContain('GSTIN: 23AAACE1234F1Z5');
+    expect(labels(document.parties)).not.toContain('Client GSTIN');
+    expect(labels(document.parties)).not.toContain('Place of supply');
+    expect(labels(document.totals)).toContain('Tax');
+    expect(labels(document.totals)).not.toContain('IGST');
+    expect(document.lines.map((line) => line.hsnSac)).toEqual(['', '']);
   });
 
   it('leaves out what is not known rather than printing an empty label', () => {

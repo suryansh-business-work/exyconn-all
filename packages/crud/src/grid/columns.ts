@@ -127,6 +127,10 @@ export function dateColumn<TRow>(
  * The trailing actions column. Handlers come from the grid context keyed by
  * `RowActionSpec.key`, so the column model stays a module-level constant; the width
  * follows the number of buttons unless it is overridden.
+ *
+ * Pinned to the right so it stays put: a register is eight to thirteen columns wide, and on a
+ * phone that is five screens of sideways scrolling between seeing a row and being able to do
+ * anything about it.
  */
 export function actionsColumn<TRow>(
   actions: readonly RowActionSpec[] = DEFAULT_ACTIONS,
@@ -138,6 +142,8 @@ export function actionsColumn<TRow>(
     cellRenderer: RowActionsCell,
     cellRendererParams: { actionSpecs: actions },
     ...DERIVED_ONLY,
+    pinned: 'right',
+    lockPinned: true,
     flex: 0,
     width,
     minWidth: width,

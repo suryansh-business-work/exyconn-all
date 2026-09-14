@@ -1,0 +1,58 @@
+# The platform console over the tenancy: every company, and who administers it.
+# SUPER_ADMIN only, except `myOrganization`, which is how a portal names the company it shows.
+
+fragment OrganizationFields on Organization {
+  id
+  name
+  slug
+  legalName
+  status
+  country
+  currency
+  locale
+  timezone
+  fiscalYearStartMonth
+  taxSystem
+  contactEmail
+  createdAt
+  updatedAt
+}
+
+query Organizations {
+  organizations {
+    ...OrganizationFields
+  }
+}
+
+query MyOrganization {
+  myOrganization {
+    ...OrganizationFields
+  }
+}
+
+mutation CreateOrganization($input: OrganizationInput!) {
+  createOrganization(input: $input) {
+    ...OrganizationFields
+  }
+}
+
+mutation UpdateOrganization($id: ID!, $input: OrganizationUpdateInput!) {
+  updateOrganization(id: $id, input: $input) {
+    ...OrganizationFields
+  }
+}
+
+mutation SetOrganizationStatus($id: ID!, $status: OrganizationStatus!) {
+  setOrganizationStatus(id: $id, status: $status) {
+    ...OrganizationFields
+  }
+}
+
+mutation AssignOrganizationAdmin($organizationId: ID!, $input: OrganizationAdminInput!) {
+  assignOrganizationAdmin(organizationId: $organizationId, input: $input) {
+    id
+    name
+    email
+    roles
+  }
+}

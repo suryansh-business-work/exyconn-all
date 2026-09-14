@@ -2,12 +2,13 @@ import { useMemo } from 'react';
 import { ExportCsvButton } from '@exyconn/crud';
 import { Box, Flex, Grid, Text, color } from '@exyconn/shell/components/ui';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useTrackerBillingQuery } from '@exyconn/shell/graphql/generated';
 import { TrackerBillingChart } from './TrackerBillingChart';
 import { TrackerBillingTable } from './TrackerBillingTable';
 import { EMPLOYEE_BILLING_CSV, moneyFormat } from './tracker.billing';
 import type { BillingRange } from './BillingRangePicker';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /**
  * Tracked time priced per employee.
@@ -28,7 +29,7 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
 
   return (
     <Box sx={{ pt: 2 }}>
-      <Grid container spacing={2} sx={{ mb: 2.5 }}>
+      <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid
           size={{
             xs: 6,
@@ -78,7 +79,7 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
         />
       </Flex>
 
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <TrackerBillingTable rows={rows} money={money} loading={loading} onRefresh={refetch} />
       </Box>
     </Box>

@@ -3,9 +3,10 @@ import { Box, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useListHolidaysQuery } from '@exyconn/shell/graphql/generated';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type HolidayRow = {
   id: string;
@@ -33,7 +34,7 @@ export function HolidaysPage() {
   return (
     <Box>
       <PageHeader title="Holidays" subtitle="Company holiday calendar" />
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

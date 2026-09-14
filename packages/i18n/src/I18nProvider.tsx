@@ -1,4 +1,5 @@
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
+import { setActiveFormatSettings } from './active-settings';
 import { DEFAULT_FORMAT_SETTINGS, type FormatSettings } from './format';
 import { FALLBACK_LOCALE, directionOf, type TextDirection } from './locale';
 import { FALLBACK_TIMEZONE } from './timezone';
@@ -54,6 +55,11 @@ export function I18nProvider({ locale, messages, onMissing, settings, children }
     }),
     [locale, messages, onMissing, settings],
   );
+
+  // Published for code a context cannot reach — a grid's column model, say (active-settings.ts).
+  useEffect(() => {
+    setActiveFormatSettings(value.settings);
+  }, [value.settings]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

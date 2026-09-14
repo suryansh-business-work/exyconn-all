@@ -19,7 +19,8 @@ export const DEFAULT_FORMAT_SETTINGS: FormatSettings = {
   timezone: FALLBACK_TIMEZONE,
   dateFormat: 'dd MMM yyyy',
   timeFormat: 'hh:mm a',
-  currency: 'INR',
+  // Not known until the company's settings arrive; an amount is a plain number until then.
+  currency: '',
 };
 
 /** What the caller handed us, as a Date — or null when it is not a usable instant. */
@@ -90,12 +91,21 @@ export function formatNumber(
   return new Intl.NumberFormat(settings.locale, options).format(value);
 }
 
-/** Money, in the workspace's currency and the person's notation. */
+/**
+ * Money, in the company's currency and the person's notation.
+ *
+ * With no currency known — before the workspace's settings have loaded, or for a platform
+ * administrator, who belongs to no company — the amount is written as a plain number. Naming
+ * a currency nobody chose would be worse than naming none.
+ */
 export function formatCurrency(
   value: number | null | undefined,
   settings: FormatSettings,
   options: Intl.NumberFormatOptions = {},
 ): string {
+  if (settings.currency === '') {
+    return formatNumber(value, settings, options);
+  }
   return formatNumber(value, settings, {
     style: 'currency',
     currency: settings.currency,

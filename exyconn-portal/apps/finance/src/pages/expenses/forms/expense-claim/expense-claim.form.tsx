@@ -7,6 +7,8 @@ import {
   RhfSelect,
   RhfDatePicker,
   RhfAutocomplete,
+  RhfCurrencyField,
+  useCompanyCurrency,
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
@@ -36,12 +38,12 @@ const schema = z.object({
 });
 type Values = z.infer<typeof schema>;
 
-const toInitial = (row: ExpenseClaimRow | null) => ({
+const toInitial = (row: ExpenseClaimRow | null, currency: string) => ({
   employeeId: row?.employeeId ?? '',
   category: row?.category ?? '',
   description: row?.description ?? '',
   amount: row?.amount ?? 0,
-  currency: row?.currency ?? '',
+  currency: row?.currency ?? currency,
   incurredOn: row?.incurredOn ?? '',
   receiptUrl: row?.receiptUrl ?? '',
   status: row?.status ?? Object.values(ExpenseStatus)[0],
@@ -66,6 +68,7 @@ export function ExpenseClaimForm({ initial, onDone, onCancel }: Readonly<Expense
   const [createExpenseClaim] = useCreateExpenseClaimMutation();
   const [updateExpenseClaim] = useUpdateExpenseClaimMutation();
   const { data } = useListEmployeeOptionsQuery();
+  const companyCurrency = useCompanyCurrency();
 
   const employeeOptions = (data?.listEmployeeOptions ?? []).map((user) => ({
     value: user.id,
@@ -74,7 +77,7 @@ export function ExpenseClaimForm({ initial, onDone, onCancel }: Readonly<Expense
 
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    defaultValues: toInitial(initial, companyCurrency),
   });
 
   const { isEdit, onSubmit } = useEntitySave({
@@ -92,7 +95,7 @@ export function ExpenseClaimForm({ initial, onDone, onCancel }: Readonly<Expense
       <RhfTextField name="category" label="Category" />
       <RhfTextField name="description" label="Description" multiline minRows={3} />
       <RhfTextField name="amount" label="Amount" type="number" />
-      <RhfTextField name="currency" label="Currency" />
+      <RhfCurrencyField />
       <RhfDatePicker name="incurredOn" label="Incurred on" />
       <RhfTextField name="receiptUrl" label="Receipt link" />
       <RhfSelect name="status" label="Status" options={enumOptions(Object.values(ExpenseStatus))} />

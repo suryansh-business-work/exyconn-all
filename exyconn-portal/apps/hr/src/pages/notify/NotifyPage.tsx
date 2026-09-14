@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Box, Grid, Heading, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { SendNotificationForm } from './forms/send-notification';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 /** HR notification management: broadcast to everyone, a department, or chosen people. */
 export function NotifyPage() {
@@ -21,7 +22,7 @@ export function NotifyPage() {
             md: 7,
           }}
         >
-          <Box sx={[glass, { p: 2.5 }]}>
+          <Box sx={panel}>
             <SendNotificationForm onSent={setLastSent} />
           </Box>
         </Grid>
@@ -31,7 +32,7 @@ export function NotifyPage() {
             md: 5,
           }}
         >
-          <Box sx={[glass, { p: 2.5 }]}>
+          <Box sx={panel}>
             <Heading level={6}>How it lands</Heading>
             <Text size="sm" color="text.secondary" sx={{ mt: 1 }}>
               Recipients see it in their notification centre and the bell count on every portal.

@@ -7,6 +7,14 @@ import { ClientModel } from '../../src/modules/clients/clients.model';
 import { updateBranding } from '../../src/modules/branding/branding.service';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { useTestOrganization } from '../helpers';
+
+useTestOrganization({
+  currency: 'INR',
+  locale: 'en-IN',
+  taxSystem: 'INDIA_GST',
+  fiscalYearStartMonth: 4,
+});
 
 const asSales: GraphQLContext = {
   user: { id: 'user-1', roles: [ROLES.CRM], email: 'sales@exyconn.com' },

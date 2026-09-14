@@ -20,7 +20,7 @@ export function BrandingPreview({
       sx={[
         glass,
         {
-          p: 2.5,
+          p: 2,
           borderLeft: '4px solid',
           borderLeftColor: primaryColor,
         },
@@ -55,7 +55,7 @@ export function BrandingPreview({
           )}
         </Box>
         <Box>
-          <Heading level={5} sx={{ color: primaryColor, mb: 0.25 }}>
+          <Heading level={5} sx={{ color: primaryColor, mb: 0.5 }}>
             {businessName}
           </Heading>
           <Text size="sm" color="text.secondary">

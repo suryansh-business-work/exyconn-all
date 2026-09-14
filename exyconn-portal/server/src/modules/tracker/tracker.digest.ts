@@ -1,4 +1,5 @@
 import { AppSettingsModel } from '../admin/settings.model';
+import { forEachOrganization } from '../organizations';
 import { recordJobRun } from '../../utils/jobHeartbeat';
 import { UserModel } from '../admin/user.model';
 import { emailer } from '../email';
@@ -234,7 +235,9 @@ async function runDueDigests(): Promise<void> {
 /** Starts the once-a-minute check that emails tracker digests on the workspace's schedule. */
 export function startTrackerDigest(): void {
   const tick = () => {
-    runDueDigests().catch((error: unknown) => logger.error(error, 'Tracker digest check failed'));
+    forEachOrganization(runDueDigests, 'Tracker digest').catch((error: unknown) =>
+      logger.error(error, 'Tracker digest check failed'),
+    );
   };
   tick();
   globalThis.setInterval(tick, TICK_MS).unref();

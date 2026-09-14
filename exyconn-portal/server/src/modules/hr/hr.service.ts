@@ -5,6 +5,7 @@ import { notFound } from '../../utils/errors';
 import { creditLeaveBalance, debitLeaveBalance } from './leave-balance.service';
 import { notifyBestEffort } from '../notifications/notifications.service';
 import { pendingOrRecent } from '../admin/reporting';
+import { companyProfile } from '../../lib/company';
 
 export interface ApplyLeaveInput {
   type: string;
@@ -32,7 +33,7 @@ function dayKey(date: Date): Date {
 const dayLabel = (date: Date) => new Date(date).toISOString().slice(0, 10);
 
 /** Builds a cumulative monthly headcount series from each user's start date. */
-function headcountSeries(starts: Date[]): Array<{ label: string; count: number }> {
+function headcountSeries(starts: Date[], locale: string): Array<{ label: string; count: number }> {
   if (starts.length === 0) return [];
   const months = starts.map((d) => new Date(d.getFullYear(), d.getMonth(), 1).getTime());
   const start = new Date(Math.min(...months));
@@ -42,7 +43,7 @@ function headcountSeries(starts: Date[]): Array<{ label: string; count: number }
   while (cursor <= end) {
     const cutoff = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1).getTime();
     const count = starts.filter((d) => d.getTime() < cutoff).length;
-    const label = cursor.toLocaleString('en-US', { month: 'short', year: '2-digit' });
+    const label = cursor.toLocaleString(locale, { month: 'short', year: '2-digit' });
     points.push({ label, count });
     cursor.setMonth(cursor.getMonth() + 1);
   }
@@ -148,11 +149,12 @@ class HrService {
       .select({ joinDate: 1, createdAt: 1, employmentStatus: 1 })
       .lean();
     const starts = users.map((u) => new Date(u.joinDate ?? u.createdAt));
+    const { locale } = await companyProfile();
     return {
       totalEmployees: users.length,
       activeEmployees: users.filter((u) => u.employmentStatus === 'ACTIVE').length,
       onLeave: users.filter((u) => u.employmentStatus === 'ON_LEAVE').length,
-      headcount: headcountSeries(starts),
+      headcount: headcountSeries(starts, locale),
     };
   }
 }

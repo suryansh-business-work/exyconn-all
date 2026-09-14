@@ -11,7 +11,7 @@ interface TrackerScreenshotActivityProps {
  */
 export function TrackerScreenshotActivity({ percent }: Readonly<TrackerScreenshotActivityProps>) {
   return (
-    <Flex direction="row" alignItems="center" spacing={0.75} sx={{ mt: 0.5, width: '100%' }}>
+    <Flex direction="row" alignItems="center" spacing={1} sx={{ mt: 0.5, width: '100%' }}>
       <LinearProgress
         variant="determinate"
         value={percent}

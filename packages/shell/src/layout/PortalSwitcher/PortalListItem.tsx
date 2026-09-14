@@ -37,9 +37,9 @@ export function PortalListItem({ entry, onSelect }: Readonly<PortalListItemProps
       selected={entry.isCurrent}
       aria-current={entry.isCurrent ? 'page' : undefined}
       onClick={() => onSelect(entry)}
-      sx={{ borderRadius: `${CARD_RADIUS}px`, mb: 0.5, alignItems: 'flex-start', py: 1.25 }}
+      sx={{ borderRadius: `${CARD_RADIUS}px`, mb: 0.5, alignItems: 'flex-start', py: 1.5 }}
     >
-      <ListItemIcon sx={{ minWidth: 44, mt: 0.25 }}>
+      <ListItemIcon sx={{ minWidth: 44, mt: 0.5 }}>
         <Box
           sx={{
             width: 34,
@@ -67,7 +67,7 @@ export function PortalListItem({ entry, onSelect }: Readonly<PortalListItemProps
         }}
       />
       {entry.isCurrent && (
-        <Chip size="small" label="Current" icon={<CheckIcon />} sx={{ ml: 1, mt: 0.25 }} />
+        <Chip size="small" label="Current" icon={<CheckIcon />} sx={{ ml: 1, mt: 0.5 }} />
       )}
     </ListItemButton>
   );

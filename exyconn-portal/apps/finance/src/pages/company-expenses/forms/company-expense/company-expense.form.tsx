@@ -1,7 +1,13 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { RhfTextField, RhfSelect, RhfDatePicker } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfTextField,
+  RhfSelect,
+  RhfDatePicker,
+  RhfCurrencyField,
+  useCompanyCurrency,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
@@ -34,12 +40,12 @@ const schema = z
   });
 type Values = z.infer<typeof schema>;
 
-const toInitial = (row: CompanyExpenseRow | null): Values => ({
+const toInitial = (row: CompanyExpenseRow | null, currency: string): Values => ({
   vendor: row?.vendor ?? '',
   category: row?.category ?? ExpenseCategory.Other,
   description: row?.description ?? '',
   amount: row?.amount ?? 0,
-  currency: row?.currency ?? 'INR',
+  currency: row?.currency ?? currency,
   costCenterId: row?.costCenterId ?? '',
   incurredOn: row?.incurredOn ?? '',
   dueDate: row?.dueDate ?? '',
@@ -66,6 +72,7 @@ export function CompanyExpenseForm({
 }: Readonly<CompanyExpenseFormProps>) {
   const [createExpense] = useCreateCompanyExpenseMutation();
   const [updateExpense] = useUpdateCompanyExpenseMutation();
+  const companyCurrency = useCompanyCurrency();
   const { data: centresData } = useListCostCentersQuery();
   const centreOptions = [
     { value: '', label: 'Unallocated' },
@@ -75,7 +82,7 @@ export function CompanyExpenseForm({
   ];
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    defaultValues: toInitial(initial, companyCurrency),
   });
 
   const { isEdit, onSubmit } = useEntitySave({
@@ -95,7 +102,7 @@ export function CompanyExpenseForm({
         options={enumOptions(Object.values(ExpenseCategory))}
       />
       <RhfTextField name="amount" label="Amount" type="number" />
-      <RhfTextField name="currency" label="Currency" />
+      <RhfCurrencyField />
       <RhfSelect name="costCenterId" label="Cost centre" options={centreOptions} />
       {/* Profit is measured on this date; the money leaving is a separate one (Mark paid). */}
       <RhfDatePicker name="incurredOn" label="Incurred on" />

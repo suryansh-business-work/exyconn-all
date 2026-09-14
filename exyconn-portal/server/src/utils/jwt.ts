@@ -6,6 +6,11 @@ export interface TokenPayload {
   id: string;
   roles: Role[];
   email: string;
+  /**
+   * The company this session belongs to; null for a platform administrator, who stands
+   * above the companies. Every query the session makes is confined to it (see lib/tenant).
+   */
+  organizationId?: string | null;
   /** Set only on desktop tracker tokens — identifies the registered device. */
   deviceId?: string;
 }

@@ -29,7 +29,7 @@ export function TrackerScreenshotHour({
 
   return (
     <Box>
-      <Flex direction="row" alignItems="baseline" spacing={1} sx={{ mb: 0.75 }}>
+      <Flex direction="row" alignItems="baseline" spacing={1} sx={{ mb: 1 }}>
         <Text size="sm" weight="bold">
           {formatTime(hour.startsAt)}
         </Text>

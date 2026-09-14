@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Stack, Typography } from '@/components/ui';
-import { glass } from '../glass/glass';
+import { readingPanel } from '../glass/glass';
 
 interface CrudFormPageProps {
   title: string;
@@ -22,9 +23,10 @@ export function CrudFormPage({
   title,
   subtitle,
   onBack,
-  backLabel = 'Back',
+  backLabel,
   children,
 }: Readonly<CrudFormPageProps>) {
+  const t = useT();
   return (
     <Box>
       <Stack
@@ -35,7 +37,7 @@ export function CrudFormPage({
         }}
       >
         <Button onClick={onBack} startIcon={<ArrowBackIcon />} color="inherit" size="small">
-          {backLabel}
+          {backLabel ?? t('Back')}
         </Button>
       </Stack>
       <Typography variant="h4">{title}</Typography>
@@ -49,7 +51,7 @@ export function CrudFormPage({
           {subtitle}
         </Typography>
       )}
-      <Box sx={[glass, { p: { xs: 2, md: 3 }, mt: 2, maxWidth: 880 }]}>{children}</Box>
+      <Box sx={[readingPanel, { mt: 2, maxWidth: 880 }]}>{children}</Box>
     </Box>
   );
 }

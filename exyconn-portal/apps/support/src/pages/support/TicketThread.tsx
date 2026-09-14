@@ -38,12 +38,12 @@ export function TicketThread({ ticketId }: Readonly<TicketThreadProps>) {
   }
 
   return (
-    <Stack spacing={1.25}>
+    <Stack spacing={1.5}>
       {replies.map((reply) => (
         <Box
           key={reply.id}
           sx={{
-            p: 1.25,
+            p: 1.5,
             borderRadius: 1.5,
             border: `${borderWidth.hairline}px solid`,
             borderColor: reply.internal ? 'warning.light' : 'divider',

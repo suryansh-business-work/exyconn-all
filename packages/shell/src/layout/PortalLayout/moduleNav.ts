@@ -1,7 +1,7 @@
 import type { SvgIconComponent } from '@mui/icons-material';
 import { accessibleModules, type ModuleChild, type ModuleDefinition } from '@/config/modules';
 import { NAV_GROUP_ICONS, type NavGroup } from '@/config/navGroups';
-import type { Role } from '@/auth/roles';
+import { canAccess, type Role } from '@/auth/roles';
 import type { PortalAppKey } from '@/config/apps';
 
 /** How deep the sidebar nests, counting its top level as the first. */
@@ -33,9 +33,23 @@ export interface NavNode {
  * switcher is for. An app the roles cannot open yields nothing.
  */
 export function navModules(roles: Role[], currentApp: PortalAppKey): ModuleDefinition[] {
-  const all = accessibleModules(roles);
+  const all = accessibleModules(roles).map((module) => ({
+    ...module,
+    children: visiblePages(module.children, roles),
+  }));
   if (currentApp === 'hub') return all;
   return all.filter((module) => module.key === currentApp);
+}
+
+/**
+ * Drops the pages these roles may not open. A page may name a role of its own beyond its
+ * module's — the platform's own screens sit inside the Admin portal, and a company's
+ * administrator must not be shown them.
+ */
+function visiblePages(children: ModuleChild[] | undefined, roles: Role[]): ModuleChild[] {
+  return (children ?? [])
+    .filter((child) => child.role === undefined || canAccess(roles, child.role))
+    .map((child) => ({ ...child, children: visiblePages(child.children, roles) }));
 }
 
 function pageNode(child: ModuleChild, module: ModuleDefinition): NavNode {

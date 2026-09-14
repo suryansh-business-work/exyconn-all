@@ -4,10 +4,11 @@ import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useMyLeaveRequestsQuery } from '@exyconn/shell/graphql/generated';
 import { ApplyLeaveForm } from './forms/apply-leave';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type LeaveRow = {
   id: string;
@@ -60,7 +61,7 @@ export function MyLeavePage() {
         actionLabel="Apply for leave"
         onAction={() => setOpen(true)}
       />
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

@@ -1,6 +1,6 @@
 import { Box } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import type { AnyReport } from './reports.types';
 import { ReportPanel } from './ReportPanel';
@@ -13,6 +13,7 @@ import {
   requestsReport,
 } from './reports.people';
 import { goalsReport, performanceReport, trainingReport, exitsReport } from './reports.growth';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 const REPORTS: AnyReport[] = [
   employeesReport,
@@ -47,7 +48,7 @@ export function ReportsPage() {
     <Box>
       <PageHeader title="Reports" subtitle="Every HR dataset, on screen and as CSV" />
 
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <Tabber
           basePath={REPORTS_PATH}
           items={TABS}

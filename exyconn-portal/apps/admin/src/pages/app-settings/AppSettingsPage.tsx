@@ -1,6 +1,6 @@
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { useAppSettingsQuery } from '@exyconn/shell/graphql/generated';
 import { AppSettingsForm } from './forms/app-settings';
 
@@ -16,7 +16,7 @@ export function AppSettingsPage() {
         title="App Settings"
         subtitle="Date, time and timezone formatting used across every app"
       />
-      <Box sx={[glass, { p: { xs: 2, md: 3 }, maxWidth: 640 }]}>
+      <Box sx={[readingPanel, { maxWidth: 640 }]}>
         {settings ? (
           <AppSettingsForm initial={settings} />
         ) : (

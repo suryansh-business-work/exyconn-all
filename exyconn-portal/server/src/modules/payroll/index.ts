@@ -17,7 +17,8 @@ import {
   type TaxRegimeFigures,
   type TaxSlabRow,
 } from './payroll.compute';
-import { DEFAULT_CURRENCY, DEFAULT_PAY_TYPE, type PayType } from '../../constants/pay';
+import { DEFAULT_PAY_TYPE, type PayType } from '../../constants/pay';
+import { companyProfile } from '../../lib/company';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertPermission } from '../../lib/permissions';
@@ -586,7 +587,8 @@ export const payrollResolvers = {
     payType: (s: PaySource) => s.payType ?? DEFAULT_PAY_TYPE,
     rate: (s: PaySource) => s.rate ?? 0,
     billingRate: (s: { billingRate?: number | null }) => s.billingRate ?? 0,
-    currency: (s: { currency?: string | null }) => s.currency ?? DEFAULT_CURRENCY,
+    currency: async (s: { currency?: string | null }) =>
+      s.currency ?? (await companyProfile()).currency,
     gross: (s: PaySource) => grossOf(monthlyEarnings(s)),
     net: (s: PaySource) => {
       const parts = monthlyEarnings(s);

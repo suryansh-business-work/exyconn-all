@@ -8,6 +8,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   Text,
@@ -96,7 +97,7 @@ export function ApiKeysPanel() {
           label="Name"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          sx={{ minWidth: 200 }}
+          sx={{ minWidth: { sm: 200 }, width: { xs: '100%', sm: 'auto' } }}
         />
         <Flex direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', flex: 1 }}>
           {GRANTABLE_ROLES.map((role) => (
@@ -124,42 +125,45 @@ export function ApiKeysPanel() {
         </Button>
       </Flex>
 
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Prefix</TableCell>
-            <TableCell>Roles</TableCell>
-            <TableCell>Last used</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {(data?.listApiKeys ?? []).map((key) => (
-            <TableRow key={key.id}>
-              <TableCell>{key.name}</TableCell>
-              <TableCell sx={{ fontFamily: 'monospace' }}>{key.prefix}</TableCell>
-              <TableCell>{key.roles.join(', ')}</TableCell>
-              <TableCell>{key.lastUsedAt ? formatDateTime(key.lastUsedAt) : 'Never'}</TableCell>
-              <TableCell align="right">
-                {key.revokedAt ? (
-                  <Chip label="Revoked" size="small" />
-                ) : (
-                  <Button
-                    size="small"
-                    color="error"
-                    onClick={() => {
-                      revoke(key.id).catch((error: unknown) => console.error('Revoke', error));
-                    }}
-                  >
-                    Revoke
-                  </Button>
-                )}
-              </TableCell>
+      {/* Scrolls itself on a narrow screen rather than widening the page. */}
+      <TableContainer>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Prefix</TableCell>
+              <TableCell>Roles</TableCell>
+              <TableCell>Last used</TableCell>
+              <TableCell align="right">Actions</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {(data?.listApiKeys ?? []).map((key) => (
+              <TableRow key={key.id}>
+                <TableCell>{key.name}</TableCell>
+                <TableCell sx={{ fontFamily: 'monospace' }}>{key.prefix}</TableCell>
+                <TableCell>{key.roles.join(', ')}</TableCell>
+                <TableCell>{key.lastUsedAt ? formatDateTime(key.lastUsedAt) : 'Never'}</TableCell>
+                <TableCell align="right">
+                  {key.revokedAt ? (
+                    <Chip label="Revoked" size="small" />
+                  ) : (
+                    <Button
+                      size="small"
+                      color="error"
+                      onClick={() => {
+                        revoke(key.id).catch((error: unknown) => console.error('Revoke', error));
+                      }}
+                    >
+                      Revoke
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
   );
 }

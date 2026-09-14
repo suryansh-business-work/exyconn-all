@@ -20,6 +20,21 @@ export function assertRole(ctx: GraphQLContext, allowed: Role[]): TokenPayload {
   forbidden();
 }
 
+/**
+ * Asserts the caller administers the PLATFORM, not a company: creating organizations,
+ * appointing their administrators, suspending them. A company's own ADMIN never passes —
+ * that role is the top of one company, and this is the console above all of them.
+ */
+export function assertPlatformAdmin(ctx: GraphQLContext): TokenPayload {
+  if (!ctx.user) {
+    unauthenticated();
+  }
+  if (!(ctx.user.roles ?? []).includes(ROLES.SUPER_ADMIN)) {
+    forbidden();
+  }
+  return ctx.user;
+}
+
 /** Asserts the request is authenticated (any role). Returns the user. */
 export function assertAuthenticated(ctx: GraphQLContext): TokenPayload {
   if (!ctx.user) {

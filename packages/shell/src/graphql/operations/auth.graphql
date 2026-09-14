@@ -20,6 +20,7 @@ query Me {
     avatarUrl
     timezone
     locale
+    organizationId
   }
 }
 
@@ -32,6 +33,10 @@ query AppSettings {
     defaultLocale
     enabledLocales
     autoTranslate
+    currency
+    country
+    fiscalYearStartMonth
+    taxSystem
   }
 }
 

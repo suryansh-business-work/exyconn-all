@@ -164,6 +164,14 @@ services:
     ports:
       - '127.0.0.1:4034:4034'
 
+  # The ISO management system: risks, objectives, audits, findings, management review.
+  portal-compliance:
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-compliance:${TAG:-latest}
+    container_name: exyconn-portal-compliance
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4037:4037'
+
   portal-social:
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-social:${TAG:-latest}
     container_name: exyconn-portal-social
@@ -192,7 +200,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: 7d
       # Every portal micro-frontend calls this API from its own origin.
-      CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com,https://tech.exyconn.com,https://it.exyconn.com,https://social.exyconn.com,https://status.exyconn.com
+      CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com,https://tech.exyconn.com,https://it.exyconn.com,https://compliance.exyconn.com,https://social.exyconn.com,https://status.exyconn.com
       APP_URL: https://portal.exyconn.com
       TRACKER_DOWNLOAD_URL: https://employee.exyconn.com/me/tracker
       # Where the payslip email sends an employee for the rest of their payslips.

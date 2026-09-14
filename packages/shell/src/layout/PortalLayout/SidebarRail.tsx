@@ -17,7 +17,7 @@ interface SidebarRailProps {
  */
 export function SidebarRail({ nodes, trail, onSelect }: Readonly<SidebarRailProps>) {
   return (
-    <List sx={{ px: 0.75, py: 0.5, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+    <List sx={{ px: 1, py: 0.5, display: 'flex', flexDirection: 'column', gap: 1 }}>
       {nodes.map((node) => {
         const current = trail.has(node.key);
         const isPage = node.children.length === 0;

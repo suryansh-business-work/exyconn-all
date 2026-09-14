@@ -18,7 +18,7 @@ import { LoginPromo } from './LoginPromo';
 import { OtherPortalsLink } from './OtherPortalsLink';
 import { useLoginPage, type LoginPageView } from './useLoginPage';
 import { env } from '@exyconn/shell/config/env';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { useColorMode } from '@exyconn/shell/theme/ColorModeContext';
 
 interface LoginShellProps {
@@ -65,14 +65,15 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
 
       <Flex
         direction={{ xs: 'column', md: 'row' }}
-        spacing={2.5}
+        spacing={2}
         alignItems="stretch"
-        sx={{ position: 'relative', zIndex: zIndex.raised }}
+        justifyContent="center"
+        // Bounded by the screen, not by its contents: without this the card sizes itself to
+        // its longest line and a phone shows the left two-thirds of a sign-in form.
+        sx={{ position: 'relative', zIndex: zIndex.raised, width: '100%', maxWidth: 1100 }}
       >
-        <Flex direction="column" spacing={2}>
-          <Box
-            sx={[glass, { width: { xs: '100%', sm: 380 }, p: 3, borderRadius: `${CARD_RADIUS}px` }]}
-          >
+        <Flex direction="column" spacing={2} sx={{ width: '100%', maxWidth: 380, minWidth: 0 }}>
+          <Box sx={[readingPanel, { width: '100%', borderRadius: `${CARD_RADIUS}px` }]}>
             <Flex direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
               <Box component="img" src={page.logoUrl} alt={page.businessName} sx={{ height: 26 }} />
               <Button
@@ -80,7 +81,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
                 target="_blank"
                 rel="noopener"
                 size="small"
-                sx={{ borderRadius: `${radius.pill}px`, bgcolor: 'action.hover', px: 1.75 }}
+                sx={{ borderRadius: `${radius.pill}px`, bgcolor: 'action.hover', px: 2 }}
               >
                 Support
               </Button>
@@ -92,18 +93,25 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
             <OtherPortalsLink accentColor={page.accentColor} />
           </Box>
 
-          <Box
-            sx={{
-              bgcolor: page.accentColor,
-              color: color.white,
-              borderRadius: `${CARD_RADIUS}px`,
-              px: 3,
-              py: 2,
-              textAlign: 'center',
-            }}
-          >
-            <Text weight="bold">{page.tagline}</Text>
-          </Box>
+          {page.tagline && (
+            <Box
+              sx={{
+                bgcolor: page.accentColor,
+                color: color.white,
+                borderRadius: `${CARD_RADIUS}px`,
+                // Padding counts inside the width, and the strip takes the column's width
+                // rather than its own text's — either one alone lets it run off a phone.
+                boxSizing: 'border-box',
+                width: '100%',
+                minWidth: 0,
+                px: 3,
+                py: 2,
+                textAlign: 'center',
+              }}
+            >
+              <Text weight="bold">{page.tagline}</Text>
+            </Box>
+          )}
         </Flex>
 
         <Box sx={{ display: { xs: 'none', md: 'block' } }}>

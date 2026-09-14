@@ -1,4 +1,5 @@
 import { RecurringInvoiceModel, type RecurringInvoiceDocument } from './recurring-invoice.model';
+import { forEachOrganization } from '../organizations';
 import { InvoiceModel } from './finance.model';
 import { nextInvoiceNumber } from './invoice.number';
 import { invoiceAmount, type InvoiceLineInput } from './invoice.lines';
@@ -228,7 +229,7 @@ function withIdOf(row: unknown): unknown {
 /** Starts the hourly check that raises invoices on the schedules finance set. */
 export function startRecurringInvoiceSchedule(): void {
   const tick = () => {
-    generateDueInvoices().catch((error: unknown) =>
+    forEachOrganization(generateDueInvoices, 'Recurring invoices').catch((error: unknown) =>
       logger.error(error, 'Recurring invoice check failed'),
     );
   };

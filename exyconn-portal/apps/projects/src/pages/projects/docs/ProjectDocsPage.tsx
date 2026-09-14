@@ -1,17 +1,19 @@
 import {
   DndContext,
   PointerSensor,
+  TouchSensor,
   closestCenter,
   useSensor,
   useSensors,
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Box, Button, CircularProgress, Flex, Grid, Text } from '@exyconn/shell/components/ui';
+import { Button, Flex, Grid, Text } from '@exyconn/shell/components/ui';
 import AddIcon from '@mui/icons-material/Add';
 import { useProjectDocs } from './useProjectDocs';
 import { DocTree } from './DocTree';
 import { DocPageEditor } from './DocPageEditor';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 
 interface ProjectDocsPageProps {
   projectId: string;
@@ -25,7 +27,11 @@ interface ProjectDocsPageProps {
 export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
   const docs = useProjectDocs(projectId);
   // A few pixels of travel before a drag starts, so clicking a page still opens it.
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    // Hold to drag on a touch screen, so scrolling the list does not reorder it.
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+  );
 
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -35,11 +41,7 @@ export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
   };
 
   if (docs.loading && docs.pages.length === 0) {
-    return (
-      <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <LoadingState />;
   }
 
   return (

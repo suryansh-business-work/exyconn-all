@@ -35,7 +35,7 @@ export function LoginPromo({ name, slogan, accentColor }: Readonly<LoginPromoPro
         position: 'relative',
         width: 300,
         minHeight: 520,
-        p: 3.5,
+        p: 3,
         borderRadius: `${CARD_RADIUS}px`,
         background: t.palette.background.paper,
         border: `${borderWidth.hairline}px solid ${t.palette.divider}`,

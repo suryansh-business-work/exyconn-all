@@ -8,8 +8,9 @@ import {
   ListItemText,
   Text,
 } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import type { DirectReport } from './team.types';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 const initialsOf = (name: string) =>
   name
@@ -22,7 +23,7 @@ const initialsOf = (name: string) =>
 /** Who reports to the signed-in user. */
 export function DirectReportsList({ reports }: Readonly<{ reports: DirectReport[] }>) {
   return (
-    <Box sx={[glass, { p: 2 }]}>
+    <Box sx={panel}>
       <Heading level={6}>Direct reports</Heading>
       <Text size="sm" color="text.secondary">
         {reports.length} {reports.length === 1 ? 'person reports' : 'people report'} to you.

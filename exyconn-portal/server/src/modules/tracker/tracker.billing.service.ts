@@ -1,5 +1,5 @@
 import { isValidObjectId } from 'mongoose';
-import { DEFAULT_CURRENCY } from '../../constants/pay';
+import { companyProfile } from '../../lib/company';
 import { ProjectModel } from '../projects/projects.model';
 import { TrackerIntervalModel, TrackerManualEntryModel, TrackerSessionModel } from './models';
 import { employeeRates, priceTime, round } from './tracker.billing.pricing';
@@ -82,10 +82,12 @@ class TrackerBillingService {
       .sort((a, b) => b.activeMs - a.activeMs);
 
     if (worked.length === 0) {
-      return { from, to, rows: [], totalHours: 0, totalAmount: 0, currency: DEFAULT_CURRENCY };
+      const { currency } = await companyProfile();
+      return { from, to, rows: [], totalHours: 0, totalAmount: 0, currency };
     }
 
     const rates = await employeeRates(worked.map((row) => row._id));
+    const { currency: houseCurrency } = await companyProfile();
 
     const rows = worked.map((entry) => {
       const employee = rates.get(entry._id);
@@ -95,7 +97,7 @@ class TrackerBillingService {
         name: employee?.name ?? '',
         email: employee?.email ?? '',
         payType: employee?.payType ?? '',
-        currency: employee?.currency ?? DEFAULT_CURRENCY,
+        currency: employee?.currency ?? houseCurrency,
         billingRate,
         // `activeMs` here is billable time: measured active time plus approved off-computer
         // time. `manualMs` says how much of it was claimed rather than measured.
@@ -113,7 +115,7 @@ class TrackerBillingService {
       totalAmount: round(rows.reduce((sum, row) => sum + row.amount, 0)),
       // The house currency, taken from the rows rather than assumed. Mixed currencies are a
       // workspace's own problem; the total is only meaningful when they agree.
-      currency: rows[0]?.currency ?? DEFAULT_CURRENCY,
+      currency: rows[0]?.currency ?? houseCurrency,
     };
   }
 
@@ -182,6 +184,7 @@ class TrackerBillingService {
         .lean(),
     ]);
     const projectOf = new Map(projects.map((project) => [String(project._id), project]));
+    const { currency: houseCurrency } = await companyProfile();
 
     return [...groups.values()]
       .map((group) => {
@@ -207,7 +210,7 @@ class TrackerBillingService {
           projectName: project?.name ?? (group.projectName || NO_PROJECT),
           clientId: project?.clientId ?? null,
           clientName: project?.clientName ?? '',
-          currency: rates.get(employees[0]?.employeeId ?? '')?.currency ?? DEFAULT_CURRENCY,
+          currency: rates.get(employees[0]?.employeeId ?? '')?.currency ?? houseCurrency,
           employees,
           hours: round(employees.reduce((sum, row) => sum + row.hours, 0)),
           amount: round(employees.reduce((sum, row) => sum + row.amount, 0)),

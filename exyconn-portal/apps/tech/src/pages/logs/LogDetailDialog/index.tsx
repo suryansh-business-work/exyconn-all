@@ -83,7 +83,7 @@ export function LogDetailDialog({ row, actions, onClose }: Readonly<Props>) {
       <DialogTitle sx={{ wordBreak: 'break-word' }}>{title}</DialogTitle>
       <DialogContent dividers>
         {row && (
-          <Flex direction="column" spacing={2.5}>
+          <Flex direction="column" spacing={2}>
             <LogSummary row={row} />
             {error && <Alert severity="error">{error.message}</Alert>}
             {loading && events.length === 0 && <CircularProgress size={24} />}

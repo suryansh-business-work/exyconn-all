@@ -21,7 +21,7 @@ export function TopbarSearch({ roles }: TopbarSearchProps) {
       onChange={(_event, value) => value && navigateTo(value.key, value.path)}
       blurOnSelect
       clearOnEscape
-      sx={{ width: { xs: 160, sm: 240, md: 320 }, mr: 1 }}
+      sx={{ width: { sm: 240, md: 320 }, mr: 1 }}
       renderInput={(params) => (
         <TextField
           {...params}

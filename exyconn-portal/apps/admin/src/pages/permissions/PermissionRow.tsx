@@ -42,8 +42,16 @@ export function PermissionRow({ module, saved, onSave, onReset }: Readonly<Permi
   };
 
   return (
-    <Flex direction="row" alignItems="center" spacing={2} sx={{ py: 1, flexWrap: 'wrap' }}>
-      <Box sx={{ minWidth: 180 }}>
+    <Flex
+      // A row is a module, six switches and two buttons. Side by side on a desk; on a phone
+      // that wrapped into a tower nobody could read as a row at all, so it becomes a stack
+      // with the module's name over its own switches.
+      direction={{ xs: 'column', md: 'row' }}
+      alignItems={{ xs: 'stretch', md: 'center' }}
+      spacing={2}
+      sx={{ py: 1, flexWrap: 'wrap' }}
+    >
+      <Box sx={{ minWidth: { md: 180 } }}>
         <Text weight="medium">{module}</Text>
         <Chip
           size="small"
@@ -68,7 +76,7 @@ export function PermissionRow({ module, saved, onSave, onReset }: Readonly<Permi
           />
         ))}
       </Flex>
-      <Flex direction="row" spacing={1}>
+      <Flex direction="row" spacing={1} justifyContent={{ xs: 'flex-end', md: 'flex-start' }}>
         <Button size="small" disabled={busy || !dirty} onClick={() => run(() => onSave(draft))}>
           Save
         </Button>

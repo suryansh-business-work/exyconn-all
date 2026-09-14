@@ -1,12 +1,13 @@
 import { Box, Heading } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useLeaveDecision } from '@exyconn/shell/hooks/useLeaveDecision';
 import { LeaveStatus, useTeamLeaveRequestsQuery } from '@exyconn/shell/graphql/generated';
 import { decisionActions } from './decision-actions';
 import type { TeamLeaveRow, TeamSectionProps } from './team.types';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /** Leave the team has asked for. Approval runs the balance-aware `setLeaveStatus`. */
 export function TeamLeaveSection({ nameOf }: Readonly<TeamSectionProps>) {
@@ -27,7 +28,7 @@ export function TeamLeaveSection({ nameOf }: Readonly<TeamSectionProps>) {
   ];
 
   return (
-    <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+    <Box sx={densePanel}>
       <Heading level={6} sx={{ px: 1, pt: 0.5 }}>
         Leave requests
       </Heading>

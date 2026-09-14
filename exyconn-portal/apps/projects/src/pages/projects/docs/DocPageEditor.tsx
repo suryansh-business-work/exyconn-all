@@ -1,9 +1,10 @@
-import { Box, Button, CircularProgress, Divider, Flex, Text } from '@exyconn/shell/components/ui';
+import { Box, Button, Divider, Flex, Text } from '@exyconn/shell/components/ui';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useDocPageQuery, type DocPageFieldsFragment } from '@exyconn/shell/graphql/generated';
 import { DocPageForm } from '../forms/doc-page';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 
 interface DocPageEditorProps {
   pageId: string;
@@ -32,11 +33,7 @@ export function DocPageEditor({
   const page = data?.docPage;
 
   if (loading && !page) {
-    return (
-      <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <LoadingState />;
   }
   if (!page) {
     return <Text color="text.secondary">This page has been deleted.</Text>;

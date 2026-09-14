@@ -21,7 +21,7 @@ const SOCIAL_FIELDS = [
 /** Contact & social tab — public contact details, social profiles and copyright. */
 export function BrandingContactFields() {
   return (
-    <Grid container spacing={2.5}>
+    <Grid container spacing={2}>
       {CONTACT_FIELDS.map((field) => (
         <Grid
           key={field.name}

@@ -21,7 +21,7 @@ export function AssetFacts({ facts }: Readonly<AssetFactsProps>) {
             md: 4,
           }}
         >
-          <Card variant="outlined" sx={{ p: 1.75, height: '100%' }}>
+          <Card variant="outlined" sx={{ p: 2, height: '100%' }}>
             <Typography
               variant="caption"
               sx={{

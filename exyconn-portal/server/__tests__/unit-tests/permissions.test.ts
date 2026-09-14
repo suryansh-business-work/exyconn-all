@@ -34,6 +34,11 @@ const goalInput = {
   status: 'ACTIVE',
 };
 
+// Importing the whole schema means this suite's first test pays for every model's index
+// build — around a hundred of them — before it asserts anything. That is genuinely slow on a
+// loaded CI runner, so it gets more room than the 60s the rest of the suites are given.
+jest.setTimeout(150_000);
+
 beforeEach(() => invalidatePermissionCache());
 
 describe('permissions', () => {

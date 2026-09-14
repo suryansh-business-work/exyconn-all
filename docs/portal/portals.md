@@ -30,6 +30,7 @@ running identical code.
 | Time Tracker | `tracker` | https://tracker.exyconn.com | https://tracker.exyconn.com/login | 4032 | `TRACKER` |
 | Tech | `tech` | https://tech.exyconn.com | https://tech.exyconn.com/login | 4033 | `TECH` |
 | IT | `it` | https://it.exyconn.com | https://it.exyconn.com/login | 4034 | `IT` |
+| Compliance | `compliance` | https://compliance.exyconn.com | https://compliance.exyconn.com/login | 4037 | `COMPLIANCE` |
 | Social | `social` | https://social.exyconn.com | https://social.exyconn.com/login | 4036 | `EMPLOYEE` |
 
 Not portal apps, but part of the same deployment:

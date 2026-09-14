@@ -32,7 +32,7 @@ export function AssetLicenceSeats({
   const seats = data?.licenceSeatsFor ?? [];
 
   return (
-    <Card variant="outlined" sx={{ p: { xs: 2, md: 2.5 } }}>
+    <Card variant="outlined" sx={{ p: { xs: 2, md: 2 } }}>
       <Typography
         variant="h6"
         sx={{

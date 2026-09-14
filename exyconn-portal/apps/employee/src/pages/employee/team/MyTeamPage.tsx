@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useMyDirectReportsQuery } from '@exyconn/shell/graphql/generated';
 import { DirectReportsList } from './DirectReportsList';
 import { TeamLeaveSection } from './TeamLeaveSection';
@@ -9,6 +9,7 @@ import { TeamRequestsSection } from './TeamRequestsSection';
 import { TeamReviewsSection } from './TeamReviewsSection';
 import { TeamGoalsSection } from './TeamGoalsSection';
 import type { NameOf } from './team.types';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /**
  * The manager's view: who reports to them, and everything those people are waiting on —
@@ -24,7 +25,7 @@ export function MyTeamPage() {
     <Box>
       <PageHeader title="My Team" subtitle="Your direct reports and what they need from you" />
       {reports.length === 0 && (
-        <Box sx={[glass, { p: 3 }]}>
+        <Box sx={readingPanel}>
           <Text color="text.secondary">
             {loading
               ? 'Loading…'

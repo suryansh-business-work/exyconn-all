@@ -51,7 +51,7 @@ export function RowActionsCell(params: Readonly<ActionCellParams>) {
     handler(row);
   };
   return (
-    <Flex direction="row" spacing={0.25}>
+    <Flex direction="row" spacing={0.5}>
       {params.actionSpecs.map((spec) => {
         const handler = actions[spec.key];
         const Icon = spec.icon;

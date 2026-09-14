@@ -18,7 +18,7 @@ const paymentSchema = new Schema(
     clientId: { type: String, required: true, trim: true },
     /** Negative for a refund. The invoice's balance follows the sign. */
     amount: { type: Number, required: true },
-    currency: { type: String, required: true, default: 'INR', trim: true },
+    currency: { type: String, required: true, trim: true },
     method: { type: String, enum: PAYMENT_METHODS, required: true, default: 'BANK_TRANSFER' },
     reference: { type: String, default: '', trim: true },
     notes: { type: String, default: '', trim: true },

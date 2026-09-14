@@ -68,7 +68,9 @@ export function LineChart({
   );
 
   return (
-    <Box sx={{ height }}>
+    // A third of a phone's screen is too much for a chart nobody asked to open; the desk
+    // keeps the height the page chose.
+    <Box sx={{ height: { xs: Math.round(height * 0.7), sm: height } }}>
       <Line data={chartData} options={options} />
     </Box>
   );

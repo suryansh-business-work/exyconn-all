@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { RhfAutocomplete } from '@exyconn/shell/components/form/rhf';
+import { RhfAutocomplete, useCompanyCurrency } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
@@ -41,6 +41,7 @@ export function SalaryStructureForm({
   const notify = useNotify();
   const [saveSalary] = useSaveEmployeeSalaryMutation();
   const { data } = useListUsersQuery();
+  const companyCurrency = useCompanyCurrency();
 
   const employeeOptions = (data?.listUsers ?? []).map((user) => ({
     value: user.id,
@@ -49,7 +50,10 @@ export function SalaryStructureForm({
 
   const methods = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: { employeeId: initial?.employeeId ?? '', ...toCompensationValues(initial) },
+    defaultValues: {
+      employeeId: initial?.employeeId ?? '',
+      ...toCompensationValues(initial, companyCurrency),
+    },
   });
 
   const isEdit = Boolean(initial);

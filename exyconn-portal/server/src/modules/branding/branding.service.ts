@@ -1,6 +1,10 @@
+import { runAsPlatform } from '../../lib/tenant';
 import { BrandingModel, type BrandingDocument } from './branding.model';
 import { BRANDING_DEFAULTS } from './branding.constants';
 import { LOGIN_PAGE_DEFAULTS, type LoginPageConfig } from './login-pages.constants';
+
+/** MongoDB's duplicate-key error. */
+const DUPLICATE_KEY = 11_000;
 
 export interface BrandingInput {
   businessName?: string;
@@ -71,12 +75,21 @@ function withDefaults(doc: BrandingLean): BrandingLean {
  * invoice number and the invoice it numbers are drawn side by side — cannot both insert.
  */
 export async function getBranding(): Promise<BrandingLean> {
-  const doc = await BrandingModel.findOneAndUpdate(
-    { key: 'global' },
-    { $setOnInsert: { key: 'global' } },
-    { new: true, upsert: true, setDefaultsOnInsert: true },
-  ).lean();
-  return withDefaults(doc as BrandingLean);
+  try {
+    const doc = await BrandingModel.findOneAndUpdate(
+      { key: 'global' },
+      { $setOnInsert: { key: 'global' } },
+      { new: true, upsert: true, setDefaultsOnInsert: true },
+    ).lean();
+    return withDefaults(doc as BrandingLean);
+  } catch (error) {
+    // Two first readers raced and the other won: the row it inserted is the answer to both.
+    if ((error as { code?: number }).code !== DUPLICATE_KEY) {
+      throw error;
+    }
+    const doc = await BrandingModel.findOne({ key: 'global' }).lean();
+    return withDefaults(doc as BrandingLean);
+  }
 }
 
 /** Updates the global branding (ADMIN only). */
@@ -87,4 +100,18 @@ export async function updateBranding(input: BrandingInput): Promise<BrandingLean
     setDefaultsOnInsert: true,
   }).lean();
   return withDefaults(updated as BrandingLean);
+}
+
+/**
+ * The branding a sign-in page shows, before anyone has said which company they are in.
+ *
+ * Read across the platform because there is no company in scope yet: the first organization's
+ * branding is what a visitor sees. Phase 2 resolves it from the address the page was opened
+ * on, which is what lets two companies show their own logo on their own sign-in screen.
+ */
+export async function getPublicBranding(): Promise<BrandingLean> {
+  const doc = await runAsPlatform(() =>
+    BrandingModel.findOne({ key: 'global' }).sort({ createdAt: 1 }).lean(),
+  );
+  return withDefaults((doc ?? {}) as BrandingLean);
 }

@@ -3,6 +3,7 @@ import type {
   TrackerBillingQuery,
 } from '@exyconn/shell/graphql/generated';
 import type { CsvColumn } from '@exyconn/shell/utils/csv';
+import { activeFormatSettings } from '@exyconn/i18n';
 
 /** The date range the billing report opens on: the current calendar month. */
 export function monthRange(): { from: string; to: string } {
@@ -25,11 +26,12 @@ export function toDateOrNull(value: Date | null): Date | null {
   return value;
 }
 
-/** A money formatter for the currency the report came back in. */
+/** A money formatter for the currency the report came back in, else the company's own. */
 export function moneyFormat(currency: string | undefined): Intl.NumberFormat {
-  return new Intl.NumberFormat(undefined, {
+  const settings = activeFormatSettings();
+  return new Intl.NumberFormat(settings.locale, {
     style: 'currency',
-    currency: currency || 'INR',
+    currency: currency || settings.currency,
     maximumFractionDigits: 2,
   });
 }

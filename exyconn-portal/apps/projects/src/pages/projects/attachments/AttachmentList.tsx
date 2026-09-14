@@ -63,7 +63,7 @@ export function AttachmentList({ files, onRemove, emptyText }: Readonly<Attachme
   return (
     <Flex direction="column" spacing={1}>
       {files.map((file) => (
-        <Flex key={file.url} direction="row" alignItems="center" spacing={1.25}>
+        <Flex key={file.url} direction="row" alignItems="center" spacing={1.5}>
           <AttachmentThumb file={file} />
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Link href={file.url} target="_blank" rel="noreferrer" underline="hover">

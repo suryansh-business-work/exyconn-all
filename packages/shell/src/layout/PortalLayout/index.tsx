@@ -4,7 +4,7 @@ import type { Theme } from '@/components/ui';
 import { borderWidth, Box, Drawer, Toolbar } from '@/components/ui';
 import { Topbar } from './Topbar';
 import { Sidebar } from './Sidebar';
-import { TOPBAR_HEIGHT } from './metrics';
+import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
 import { useAuth } from '@/auth/AuthContext';
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
 import { PageErrorBoundary } from '@/logging/PageErrorBoundary';
@@ -74,10 +74,23 @@ export function PortalLayout() {
         </Drawer>
       </Box>
 
-      <Box component="main" sx={{ flexGrow: 1, width: { md: `calc(100% - ${width}px)` } }}>
+      {/* `minWidth: 0` is what keeps a wide table inside the page: without it this flex
+          child grows to its content and scrolls the whole document sideways, out from under
+          the fixed topbar. Anything genuinely wider scrolls inside its own container. */}
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, minWidth: 0, width: { md: `calc(100% - ${width}px)` } }}
+      >
         {/* Spacer the height of the fixed topbar. */}
         <Toolbar sx={{ minHeight: { xs: TOPBAR_HEIGHT } }} />
-        <Box sx={{ px: { xs: 1.5, md: 2.5 }, pb: { xs: 1.5, md: 2.5 }, pt: 0.5 }}>
+        <Box
+          sx={{
+            px: PAGE_GUTTER,
+            pt: 0.5,
+            // Clear of the home indicator on an installed app; zero in a browser tab.
+            pb: { xs: 'calc(env(safe-area-inset-bottom) + 12px)', md: 2 },
+          }}
+        >
           {/* Keyed by path: a crashed page leaves the sidebar working, and navigating clears it. */}
           <PageErrorBoundary key={pathname}>
             <Outlet />

@@ -4,6 +4,7 @@ import { PaymentModel } from './payment.model';
 import { CompanyExpenseModel, EXPENSE_CATEGORIES } from './company-expense.model';
 import { SalarySlipModel } from '../employee/salarySlip.model';
 import { ExpenseClaimModel } from '../expenses/expense.model';
+import { companyProfile } from '../../lib/company';
 
 /** Money to two places — see the note on round2 in finance.billing.ts. */
 function round2(value: number): number {
@@ -149,11 +150,11 @@ export function monthKey(date: Date): string {
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
-/** `Sep 2026` for a `2026-09` key. */
-export function monthLabel(key: string): string {
+/** `Sep 2026` for a `2026-09` key, in the company's own language. */
+export function monthLabel(key: string, locale: string): string {
   const [year, month] = key.split('-');
   const date = new Date(Date.UTC(Number(year), Number(month) - 1, 1));
-  return date.toLocaleString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+  return date.toLocaleString(locale, { month: 'short', year: 'numeric', timeZone: 'UTC' });
 }
 
 /** Every month the period touches, in order, so a quiet month shows as a gap at zero. */
@@ -195,6 +196,7 @@ async function months(period: Period) {
       .lean(),
   ]);
 
+  const { locale } = await companyProfile();
   const revenue = intoMonths(invoices.map((r) => ({ date: r.issuedDate, amount: r.amount })));
   const cost = intoMonths([
     ...expenses.map((r) => ({ date: r.incurredOn, amount: r.amount })),
@@ -207,7 +209,7 @@ async function months(period: Period) {
     const spent = round2(cost.get(key) ?? 0);
     return {
       month: key,
-      label: monthLabel(key),
+      label: monthLabel(key, locale),
       revenue: earned,
       cost: spent,
       profit: round2(earned - spent),

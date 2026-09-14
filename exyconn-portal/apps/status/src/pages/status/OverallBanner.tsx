@@ -25,7 +25,7 @@ export function OverallBanner({ overview }: Readonly<OverallBannerProps>) {
   return (
     <Box
       sx={{
-        p: { xs: 2.5, md: 3.5 },
+        p: { xs: 2, md: 3 },
         borderRadius: `${CARD_RADIUS}px`,
         border: 1,
         borderColor: alpha(color, 0.4),

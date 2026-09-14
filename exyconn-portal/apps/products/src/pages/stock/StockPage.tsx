@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Flex } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { ServerDataGrid } from '@exyconn/shell/components/data/ServerDataGrid';
 import { GridExportButton, useGridQuery, usePagedFetcher } from '@exyconn/crud';
 import {
@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { StockMovementForm } from './forms/stock-movement';
 import { MOVEMENT_COLUMNS } from './stock-grid';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 /**
  * Products → Stock: every change to a stock level, and the only way to make one.
@@ -51,7 +52,7 @@ export function StockPage() {
         actionLabel="Record movement"
         onAction={() => setRecording(true)}
       />
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <Flex direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
           <GridExportButton
             fileName="stock-movements"

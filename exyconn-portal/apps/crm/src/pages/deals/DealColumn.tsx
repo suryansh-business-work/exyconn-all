@@ -1,6 +1,6 @@
 import { Box, Stack, Typography } from '@exyconn/shell/components/ui';
 import { formatMoney } from '@exyconn/shell/utils/money';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import type { DealStage } from '@exyconn/shell/graphql/generated';
 import { DealCard } from './DealCard';
 import { stageLabel } from './deals.constants';
@@ -30,7 +30,7 @@ export function DealColumn({
 
   return (
     <Box
-      sx={[glass, { p: 1.5, minWidth: 240, flex: '1 0 240px' }]}
+      sx={[panel, { minWidth: 240, flex: '1 0 240px' }]}
       onDragOver={(event) => event.preventDefault()}
       onDrop={(event) => {
         event.preventDefault();

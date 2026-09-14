@@ -43,7 +43,7 @@ export function UptimeBars({ days }: Readonly<UptimeBarsProps>) {
 
   return (
     <Box>
-      <Flex spacing={0.25} sx={{ height: 32, alignItems: 'stretch' }}>
+      <Flex spacing={0.5} sx={{ height: 32, alignItems: 'stretch' }}>
         {days.map((day) => (
           <Tooltip key={day.date} title={barLabel(day)} arrow enterTouchDelay={0}>
             <Box

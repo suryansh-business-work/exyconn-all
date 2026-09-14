@@ -10,7 +10,7 @@ const PAGE_HINT = 'Shown on the job page of the public website';
  */
 export function JobContentFields() {
   return (
-    <Flex direction="column" spacing={2.5}>
+    <Flex direction="column" spacing={2}>
       <RhfChipsInput name="skillSet" label="Skill set" />
       <RhfTextField
         name="shortJobDescription"

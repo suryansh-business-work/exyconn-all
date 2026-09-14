@@ -1,6 +1,6 @@
 import { Box, Grid, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import type { AiSpendSummaryQuery } from '@exyconn/shell/graphql/generated';
 
 type Summary = AiSpendSummaryQuery['aiSpendSummary'];
@@ -56,7 +56,7 @@ export function AiSpendPanel({
   }));
 
   return (
-    <Box sx={[glass, { p: 2, mb: 1.5 }]}>
+    <Box sx={[panel, { mb: 1.5 }]}>
       <Text size="label">Spend {periodLabel}</Text>
       <Text size="sm" color="text.secondary" sx={{ mb: 1.5 }}>
         {usd(summary?.totalUsd ?? 0)} across {(summary?.byModel ?? []).length} model(s). Prices come

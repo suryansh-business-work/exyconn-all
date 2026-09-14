@@ -1,5 +1,5 @@
 import { Box, Chip, Stack, Typography, iconSize } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PendingIcon from '@mui/icons-material/Pending';
 
@@ -48,7 +48,7 @@ function buildItems(hasAccess: boolean, consented: boolean): ReadinessItem[] {
 export function ReadinessCard({ hasAccess, consented, loading }: Readonly<ReadinessCardProps>) {
   const items = buildItems(hasAccess, consented);
   return (
-    <Box sx={[glass, { p: 2, mb: 1.5 }]}>
+    <Box sx={[panel, { mb: 1.5 }]}>
       <Stack
         direction="row"
         sx={{
@@ -62,7 +62,7 @@ export function ReadinessCard({ hasAccess, consented, loading }: Readonly<Readin
       </Stack>
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
         {items.map((item) => (
-          <Stack key={item.key} direction="row" spacing={1.25} sx={{ flex: 1 }}>
+          <Stack key={item.key} direction="row" spacing={1.5} sx={{ flex: 1 }}>
             {item.done ? (
               <CheckCircleIcon sx={{ fontSize: iconSize.xl, color: 'success.main' }} />
             ) : (

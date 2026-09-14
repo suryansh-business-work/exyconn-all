@@ -17,8 +17,15 @@ import { SalaryStructureModel } from '../../src/modules/employee/salary.model';
 import { SalarySlipModel } from '../../src/modules/employee/salarySlip.model';
 import { UserModel } from '../../src/modules/admin/user.model';
 import { ROLES } from '../../src/constants/roles';
-import { seedUser } from '../helpers';
+import { seedUser, useTestOrganization } from '../helpers';
 import type { GraphQLContext } from '../../src/middleware/auth';
+
+useTestOrganization({
+  currency: 'INR',
+  locale: 'en-IN',
+  taxSystem: 'INDIA_GST',
+  fiscalYearStartMonth: 4,
+});
 
 /**
  * Deliberately NOT the seeded Indian figures. A test written against the seed would fail
@@ -319,6 +326,7 @@ async function employeeOn(email: string, joinDate: Date): Promise<string> {
   await UserModel.updateOne({ _id: user._id }, { joinDate });
   await SalaryStructureModel.create({
     employeeId: String(user._id),
+    currency: 'INR',
     basic: 50_000,
     hra: 20_000,
     allowances: 10_000,

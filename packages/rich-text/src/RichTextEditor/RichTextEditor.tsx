@@ -49,7 +49,7 @@ export function RichTextEditor({
   const message = error ?? helperText;
 
   return (
-    <Flex direction="column" spacing={0.75}>
+    <Flex direction="column" spacing={1}>
       <Text size="sm" weight="medium" color={hasError ? 'error.main' : 'text.primary'}>
         {label}
       </Text>

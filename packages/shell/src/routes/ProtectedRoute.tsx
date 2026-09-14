@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { Box, CircularProgress } from '@/components/ui';
 import { useAuth } from '@/auth/AuthContext';
 import type { Role } from '@/auth/roles';
 import { canAccess } from '@/auth/roles';
 import { HUB_URL } from '@/config/apps';
 import { ExternalRedirect } from './ExternalRedirect';
+import { LoadingState } from '@/components/feedback/CenteredState';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -19,11 +19,7 @@ export function ProtectedRoute({ children, requiredRole }: Readonly<ProtectedRou
   const location = useLocation();
 
   if (loading) {
-    return (
-      <Box sx={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <LoadingState />;
   }
 
   if (!user) {

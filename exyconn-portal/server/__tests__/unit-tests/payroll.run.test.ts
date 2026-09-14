@@ -7,8 +7,15 @@ import { EmployeeDocumentModel } from '../../src/modules/documents';
 import { PayrollSettingsModel } from '../../src/modules/payroll';
 import { payrollResolvers } from '../../src/modules/payroll';
 import { ROLES } from '../../src/constants/roles';
-import { seedUser } from '../helpers';
+import { seedUser, useTestOrganization } from '../helpers';
 import type { GraphQLContext } from '../../src/middleware/auth';
+
+useTestOrganization({
+  currency: 'INR',
+  locale: 'en-IN',
+  taxSystem: 'INDIA_GST',
+  fiscalYearStartMonth: 4,
+});
 
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const M = payrollResolvers.Mutation as unknown as Record<string, Resolver>;
@@ -67,6 +74,7 @@ describe('runPayroll', () => {
     await employee('b@exyconn.com'); // no salary structure
     await SalaryStructureModel.create({
       employeeId: a,
+      currency: 'INR',
       basic: 30000,
       hra: 12000,
       allowances: 8000,
@@ -86,6 +94,7 @@ describe('runPayroll', () => {
     const a = await employee('a@exyconn.com');
     await SalaryStructureModel.create({
       employeeId: a,
+      currency: 'INR',
       basic: 30000,
       hra: 0,
       allowances: 0,
@@ -106,6 +115,7 @@ describe('runPayroll', () => {
     const a = await employee('a@exyconn.com');
     await SalaryStructureModel.create({
       employeeId: a,
+      currency: 'INR',
       basic: 31000,
       hra: 0,
       allowances: 0,
@@ -129,6 +139,7 @@ describe('runPayroll', () => {
     const a = await employee('a@exyconn.com');
     await SalaryStructureModel.create({
       employeeId: a,
+      currency: 'INR',
       basic: 10000,
       hra: 0,
       allowances: 0,
@@ -148,6 +159,7 @@ describe('runPayroll', () => {
     const a = await employee('a@exyconn.com');
     await SalaryStructureModel.create({
       employeeId: a,
+      currency: 'INR',
       basic: 10000,
       hra: 0,
       allowances: 0,
@@ -176,6 +188,7 @@ describe('runPayroll — statutory deductions', () => {
     const a = await employee('a@exyconn.com');
     await SalaryStructureModel.create({
       employeeId: a,
+      currency: 'INR',
       basic: 10_000,
       hra: 4_000,
       allowances: 2_000,
@@ -195,6 +208,7 @@ describe('runPayroll — statutory deductions', () => {
     const a = await employee('a@exyconn.com');
     await SalaryStructureModel.create({
       employeeId: a,
+      currency: 'INR',
       basic: 10_000,
       hra: 4_000,
       allowances: 2_000,
@@ -220,6 +234,7 @@ describe('runPayroll — statutory deductions', () => {
     const a = await employee('a@exyconn.com');
     await SalaryStructureModel.create({
       employeeId: a,
+      currency: 'INR',
       basic: 10_000,
       hra: 0,
       allowances: 0,
@@ -242,6 +257,7 @@ describe('runPayroll — statutory deductions', () => {
     const a = await employee('a@exyconn.com');
     await SalaryStructureModel.create({
       employeeId: a,
+      currency: 'INR',
       basic: 10_000,
       hra: 0,
       allowances: 0,

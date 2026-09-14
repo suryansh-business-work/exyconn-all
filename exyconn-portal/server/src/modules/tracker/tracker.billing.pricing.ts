@@ -1,6 +1,7 @@
 import { UserModel } from '../admin/user.model';
 import { SalaryStructureModel } from '../employee/salary.model';
-import { DEFAULT_CURRENCY, DEFAULT_PAY_TYPE } from '../../constants/pay';
+import { DEFAULT_PAY_TYPE } from '../../constants/pay';
+import { companyProfile } from '../../lib/company';
 
 const MS_PER_HOUR = 3_600_000;
 
@@ -58,6 +59,7 @@ export async function employeeRates(userIds: string[]): Promise<Map<string, Empl
       .lean(),
     SalaryStructureModel.find({ employeeId: { $in: userIds } }).lean(),
   ]);
+  const { currency } = await companyProfile();
   const byUser = new Map(users.map((user) => [String(user._id), user]));
   const byEmployee = new Map(structures.map((structure) => [structure.employeeId, structure]));
 
@@ -72,7 +74,7 @@ export async function employeeRates(userIds: string[]): Promise<Map<string, Empl
           name: user?.name ?? 'Deleted employee',
           email: user?.email ?? '',
           payType: structure?.payType ?? DEFAULT_PAY_TYPE,
-          currency: structure?.currency ?? DEFAULT_CURRENCY,
+          currency: structure?.currency ?? currency,
           billingRate: structure?.billingRate ?? 0,
         },
       ];

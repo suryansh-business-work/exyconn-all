@@ -12,6 +12,8 @@ export interface AuthUser {
   email: string;
   roles: Role[];
   avatarUrl?: string | null;
+  /** The company this person belongs to; null for a platform administrator. */
+  organizationId?: string | null;
 }
 
 interface AuthContextValue {

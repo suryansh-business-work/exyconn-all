@@ -7,6 +7,7 @@ import {
   RhfSelect,
   RhfTextField,
   type SelectOption,
+  useCompanyCurrency,
 } from '@/components/form/rhf';
 import { EntityForm } from '@/components/form/EntityForm';
 import { enumOptions } from '@/utils/enumOptions';
@@ -57,9 +58,10 @@ function UserFormFields({ initial, salary, onDone, onCancel, onCreated }: Readon
   const { data: posData } = useListPositionsQuery();
   const { data: peopleData } = useListEmployeeOptionsQuery();
   const isEdit = Boolean(initial);
+  const companyCurrency = useCompanyCurrency();
   const methods = useForm<UserValues>({
     resolver: zodResolver(userSchema),
-    defaultValues: toFormValues(initial, salary),
+    defaultValues: toFormValues(initial, salary, companyCurrency),
   });
 
   const departmentOptions = nameOptions(

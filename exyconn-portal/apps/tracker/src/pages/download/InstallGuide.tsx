@@ -11,7 +11,7 @@ import {
   spacing,
   tint,
 } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import LockIcon from '@mui/icons-material/Lock';
 import type { PlatformConfig } from './download.config';
 
@@ -47,7 +47,7 @@ function InstallStep({ index, text, accent }: Readonly<StepProps>) {
       >
         {index}
       </Box>
-      <Typography variant="body2" sx={{ pt: 0.25 }}>
+      <Typography variant="body2" sx={{ pt: 0.5 }}>
         {text}
       </Typography>
     </Stack>
@@ -57,7 +57,7 @@ function InstallStep({ index, text, accent }: Readonly<StepProps>) {
 /** Install instructions and OS permissions for the selected platform. */
 export function InstallGuide({ platform }: Readonly<{ platform: PlatformConfig }>) {
   return (
-    <Box sx={[glass, { p: 2, height: '100%' }]}>
+    <Box sx={[panel, { height: '100%' }]}>
       <Typography variant="subtitle1" sx={{ mb: 1.5 }}>
         Installing on {platform.label}
       </Typography>
@@ -87,7 +87,7 @@ export function InstallGuide({ platform }: Readonly<{ platform: PlatformConfig }
         <LockIcon sx={{ fontSize: iconSize.lg, color: 'text.secondary' }} />
         <Typography variant="subtitle2">Permissions it will ask for</Typography>
       </Stack>
-      <Stack component="ul" spacing={0.5} sx={{ m: 0, pl: 2.5 }}>
+      <Stack component="ul" spacing={0.5} sx={{ m: 0, pl: 2 }}>
         {platform.permissions.map((permission) => (
           <Typography
             key={permission}

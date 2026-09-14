@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LiveEditor, type LiveDesign, type LiveEditorHandle } from '@exyconn/live-editor';
-import { Box } from '@exyconn/shell/components/ui';
+import { Box, Button, Text, useMediaQuery, useTheme } from '@exyconn/shell/components/ui';
+import { CenteredState } from '@exyconn/shell/components/feedback/CenteredState';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useImageKitUpload } from '@exyconn/shell/hooks/useImageKitUpload';
@@ -70,6 +71,9 @@ export function LiveEditScreen({
     }
   };
 
+  const theme = useTheme();
+  const small = useMediaQuery(theme.breakpoints.down('md'));
+
   const back = async () => {
     const leave =
       !dirty ||
@@ -82,6 +86,23 @@ export function LiveEditScreen({
       navigate(backPath);
     }
   };
+
+  // GrapesJS is a canvas with two rails of controls either side of it. There is no version of
+  // that which works on a phone, and a half-usable editor over somebody's live page is worse
+  // than being told where to open it.
+  if (small) {
+    return (
+      <CenteredState>
+        <Text weight="bold">Live editing needs a bigger screen</Text>
+        <Text size="sm" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
+          Open this page on a laptop to edit its design. You can still edit its content here.
+        </Text>
+        <Button onClick={() => navigate(backPath)} sx={{ mt: 2 }}>
+          Back
+        </Button>
+      </CenteredState>
+    );
+  }
 
   return (
     <Box

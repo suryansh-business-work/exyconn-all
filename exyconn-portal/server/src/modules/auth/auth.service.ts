@@ -9,6 +9,8 @@ import { mailer } from '../../utils/mailer';
 import { logger } from '../../utils/logger';
 import { isValidTimezone } from '../../utils/timezone';
 import { canonicalLocale } from '../i18n/locale.constants';
+import { organizationOf, runAsPlatform } from '../../lib/tenant';
+import { OrganizationModel } from '../organizations/organization.model';
 
 export interface UpdateProfileInput {
   name?: string;
@@ -26,18 +28,34 @@ function maskEmail(email: string): string {
 
 /** Authentication logic (singleton). */
 class AuthService {
+  /**
+   * Signing in happens BEFORE an organization is known, so the lookup runs as the platform:
+   * an email address alone identifies a person, and their record says which company they are
+   * in. A company that has been suspended cannot be signed into at all.
+   */
   async login(email: string, password: string) {
-    const user = await UserModel.findOne({ email: email.toLowerCase() });
+    const user = await runAsPlatform(() => UserModel.findOne({ email: email.toLowerCase() }));
     if (!user || !user.isActive) unauthenticated('Invalid email or password');
     if (user.isBlocked)
       unauthenticated('Your account is temporarily blocked. Contact an administrator.');
     const ok = await verifyPassword(password, user.passwordHash);
     if (!ok) unauthenticated('Invalid email or password');
 
+    const organizationId = organizationOf(user);
+    if (organizationId !== null) {
+      const organization = await runAsPlatform(() =>
+        OrganizationModel.findById(organizationId).select('status').lean(),
+      );
+      if (!organization || organization.status !== 'ACTIVE') {
+        unauthenticated('This workspace is suspended. Contact your administrator.');
+      }
+    }
+
     const token = signToken({
       id: user.id,
       email: user.email,
       roles: user.roles as Role[],
+      organizationId,
     });
     return { token, user: user.toObject() };
   }

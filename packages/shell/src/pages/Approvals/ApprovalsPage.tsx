@@ -3,12 +3,13 @@ import { Box, Button, Stack, Text } from '@/components/ui';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { StatusChip } from '@/components/data/StatusChip';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { glass } from '@/components/glass/glass';
+
 import { useSettings } from '@/hooks/useSettings';
 import { useApprovalDecision } from '@/hooks/useApprovalDecision';
 import { ApprovalDecision, useMyApprovalsQuery } from '@/graphql/generated';
 import { formatMoney } from '@/utils/money';
 import { ApprovalKindFilter } from './ApprovalKindFilter';
+import { densePanel } from '@/components/glass/glass';
 
 type Row = {
   id: string;
@@ -47,7 +48,7 @@ function DecisionButtons({
 /** What is at stake, when the decision is about money. */
 function amountOf(row: Row): string {
   if (row.amount === null || row.amount === undefined) return '—';
-  return formatMoney(row.amount, row.currency ?? 'INR');
+  return formatMoney(row.amount, row.currency);
 }
 
 /**
@@ -98,7 +99,7 @@ export function ApprovalsPage() {
     <Box>
       <PageHeader title="My Approvals" subtitle={subtitle} />
       <ApprovalKindFilter groups={groups} total={total} active={kind} onChange={setKind} />
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

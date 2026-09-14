@@ -1,5 +1,5 @@
 import { Alert, Box, Chip, Flex, Stack, Text } from '@exyconn/shell/components/ui';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useProjectHealthQuery } from '@exyconn/shell/graphql/generated';
 import { HealthStat } from './HealthStat';
@@ -10,6 +10,7 @@ import {
   TIMELINE_LABEL,
   percentLabel,
 } from './health-format';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 /** Over its agreed hours is the one bar that should go red rather than simply fill up. */
 function budgetColor(used: number | null | undefined): 'success' | 'warning' | 'error' {
@@ -62,7 +63,7 @@ export function ProjectHealthPage({ projectId }: Readonly<{ projectId: string }>
 
       {health.riskReasons.length > 0 ? (
         <Alert severity={health.risk === 'HIGH' ? 'error' : 'warning'}>
-          <Stack spacing={0.25}>
+          <Stack spacing={0.5}>
             {health.riskReasons.map((reason) => (
               <Text key={reason}>{reason}</Text>
             ))}
@@ -70,7 +71,7 @@ export function ProjectHealthPage({ projectId }: Readonly<{ projectId: string }>
         </Alert>
       ) : null}
 
-      <Box sx={[glass, { p: 2 }]}>
+      <Box sx={panel}>
         <Flex direction="row" sx={{ flexWrap: 'wrap', gap: 3 }}>
           <HealthStat
             label="Progress"

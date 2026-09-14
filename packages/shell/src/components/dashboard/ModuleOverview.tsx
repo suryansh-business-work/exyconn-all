@@ -4,7 +4,7 @@ import { Box, Button, Grid, Stack, Typography } from '@/components/ui';
 import { PageHeader } from '../layout/PageHeader';
 import { StatCard, type StatItem } from './StatCard';
 import { StatBreakdown, type BreakdownBucket } from './StatBreakdown';
-import { glass } from '../glass/glass';
+import { panel } from '@/components/glass/glass';
 
 export interface OverviewBreakdown {
   title: string;
@@ -105,7 +105,7 @@ export function ModuleOverview({
       )}
 
       {children && (
-        <Box sx={[glass, { p: 2 }]}>
+        <Box sx={panel}>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>
             {recentTitle}
           </Typography>

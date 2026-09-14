@@ -74,6 +74,10 @@ async function publishPolicy(
     policy.version += 1;
   }
   policy.status = 'PUBLISHED';
+  // Publishing IS the approval: the person who put it in force is the one a standard asks
+  // about, and recording it here means nobody has to remember to type it afterwards.
+  policy.approvedByName = ctx.user?.email ?? actor.id;
+  policy.approvedOn = new Date();
   policy.publishedAt = new Date();
   policy.updatedBy = ctx.user?.email ?? actor.id;
   await policy.save();
@@ -118,6 +122,18 @@ async function acknowledgePolicy(
 
 export const policyResolvers = {
   Policy: {
+    /**
+     * Whether its review date has passed.
+     *
+     * Derived rather than stored: a stored flag is only true until the clock moves, and the
+     * whole point of a review date is that it comes due while nobody is looking at it.
+     */
+    reviewOverdue: (policy: { nextReviewOn?: Date | string | null; status: string }) => {
+      if (!policy.nextReviewOn || policy.status !== 'PUBLISHED') {
+        return false;
+      }
+      return new Date(policy.nextReviewOn).getTime() < Date.now();
+    },
     /** Signatures on the CURRENT version — an older version's count would flatter the number. */
     acknowledgedCount: (policy: { id?: string; _id?: unknown; version: number }) =>
       PolicyAcknowledgementModel.countDocuments({

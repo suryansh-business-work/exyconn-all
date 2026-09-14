@@ -1,8 +1,9 @@
 import { Box, Grid, Heading, Text, CircularProgress } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useTrackerSettingsQuery } from '@exyconn/shell/graphql/generated';
 import { TrackerSettingsForm } from './forms/tracker-settings';
+import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /** Hosts the tracker capture-settings form, prefilled from the current settings. */
 export function TrackerSettingsPage() {
@@ -12,7 +13,7 @@ export function TrackerSettingsPage() {
   return (
     <Box>
       <PageHeader title="Tracker Settings" subtitle="Capture cadence & privacy controls" />
-      <Grid container spacing={2.5}>
+      <Grid container spacing={2}>
         <Grid
           size={{
             xs: 12,
@@ -20,7 +21,7 @@ export function TrackerSettingsPage() {
             lg: 7,
           }}
         >
-          <Box sx={[glass, { p: 3 }]}>
+          <Box sx={readingPanel}>
             <Heading level={6} sx={{ mb: 0.5 }}>
               Capture settings
             </Heading>

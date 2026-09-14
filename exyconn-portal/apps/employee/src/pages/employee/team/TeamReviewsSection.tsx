@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Box, Button, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { ReviewStatus, useTeamPerformanceReviewsQuery } from '@exyconn/shell/graphql/generated';
 import { ManagerAssessmentForm } from '../forms/manager-assessment';
 import type { NameOf, TeamReviewRow, TeamSectionProps } from './team.types';
+import { panel } from '@exyconn/shell/components/glass/glass';
 
 interface ReviewRowProps {
   review: TeamReviewRow;
@@ -17,7 +18,7 @@ interface ReviewRowProps {
 function ReviewRow({ review, nameOf, onWrite }: Readonly<ReviewRowProps>) {
   const awaitingManager = review.status === ReviewStatus.SelfSubmitted;
   return (
-    <Flex direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.25 }}>
+    <Flex direction="row" alignItems="center" spacing={1.5} sx={{ mt: 1.5 }}>
       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
         <Text weight="medium">
           {nameOf(review.employeeId)} · {review.cycle}
@@ -50,7 +51,7 @@ export function TeamReviewsSection({ nameOf }: Readonly<TeamSectionProps>) {
   const rows = data?.teamPerformanceReviews ?? [];
 
   return (
-    <Box sx={[glass, { p: 2 }]}>
+    <Box sx={panel}>
       <Heading level={6}>Performance reviews</Heading>
       {rows.length === 0 && (
         <Text size="sm" color="text.secondary">

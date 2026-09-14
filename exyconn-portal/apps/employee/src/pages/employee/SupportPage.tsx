@@ -6,7 +6,7 @@ import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
   useMySupportTicketsQuery,
@@ -14,6 +14,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { SupportTicketForm } from './forms/support-ticket';
 import { SupportThread } from './SupportThread';
+import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type TicketRow = MySupportTicketsQuery['mySupportTickets'][number];
 
@@ -82,7 +83,7 @@ export function SupportPage() {
         actionLabel="Raise ticket"
         onAction={() => setOpen(true)}
       />
-      <Box sx={[glass, { p: { xs: 1, md: 1.5 } }]}>
+      <Box sx={densePanel}>
         <DataTable
           columns={columns}
           rows={rows}

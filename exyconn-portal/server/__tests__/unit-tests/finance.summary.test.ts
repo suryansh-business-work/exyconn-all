@@ -7,6 +7,9 @@ import { ExpenseClaimModel } from '../../src/modules/expenses/expense.model';
 import { financeBillingResolvers } from '../../src/modules/finance';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { useTestOrganization } from '../helpers';
+
+useTestOrganization();
 
 const asFinance: GraphQLContext = {
   user: { id: 'user-1', roles: [ROLES.FINANCE], email: 'cfo@exyconn.com' },
@@ -76,8 +79,9 @@ describe('month bucketing', () => {
     expect(monthKey(day('2026-01-31'))).toBe('2026-01');
   });
 
-  it('labels a key the way a person reads it', () => {
-    expect(monthLabel('2026-09')).toBe('Sep 2026');
+  it('labels a key the way a person reads it, in the company language', () => {
+    expect(monthLabel('2026-09', 'en-US')).toBe('Sep 2026');
+    expect(monthLabel('2026-09', 'de-DE')).toBe('Sept. 2026');
   });
 
   it('lists every month a period touches, so a quiet month shows as a gap at zero', () => {

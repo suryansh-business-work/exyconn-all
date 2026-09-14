@@ -6,7 +6,7 @@ import { useGstStateOptions } from '@exyconn/shell/hooks/useGstStateOptions';
 export function BrandingInvoicingFields() {
   const stateOptions = useGstStateOptions();
   return (
-    <Grid container spacing={2.5}>
+    <Grid container spacing={2}>
       <Grid
         size={{
           xs: 12,

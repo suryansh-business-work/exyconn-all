@@ -1,10 +1,11 @@
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { glass } from '@exyconn/shell/components/glass/glass';
+
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import { useActiveAnnouncementsQuery } from '@exyconn/shell/graphql/generated';
+import { panel, readingPanel } from '@exyconn/shell/components/glass/glass';
 
 /** Employee self-service: the live company announcement feed, pinned first. */
 export function AnnouncementsPage() {
@@ -17,7 +18,7 @@ export function AnnouncementsPage() {
       <PageHeader title="Announcements" subtitle="Notices, policies and updates from HR" />
 
       {rows.length === 0 && (
-        <Box sx={[glass, { p: 3 }]}>
+        <Box sx={readingPanel}>
           <Text color="text.secondary">
             {loading ? 'Loading…' : 'Nothing announced right now.'}
           </Text>
@@ -26,7 +27,7 @@ export function AnnouncementsPage() {
 
       <Flex direction="column" spacing={2}>
         {rows.map((row) => (
-          <Box key={row.id} sx={[glass, { p: 2.5 }]}>
+          <Box key={row.id} sx={panel}>
             <Flex direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
               {row.pinned && <PushPinIcon fontSize="small" color="warning" />}
               <Heading level={6}>{row.title}</Heading>
