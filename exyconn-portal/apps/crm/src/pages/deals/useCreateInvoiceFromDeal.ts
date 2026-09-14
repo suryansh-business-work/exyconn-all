@@ -24,7 +24,7 @@ export function useCreateInvoiceFromDeal() {
       try {
         const { data } = await createInvoice({ variables: { dealId: deal.id } });
         const number = data?.createInvoiceFromDeal.number ?? '';
-        notify(`Invoice ${number} drafted for "${deal.title}"`);
+        notify('Invoice {number} drafted for "{title}"', 'success', { number, title: deal.title });
         navigate('finance', '/finance/invoices');
       } catch (error) {
         notify(errorMessage(error, 'Could not create the invoice'), 'error');

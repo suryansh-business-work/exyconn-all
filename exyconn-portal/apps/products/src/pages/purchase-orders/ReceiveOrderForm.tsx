@@ -43,7 +43,7 @@ export function ReceiveOrderForm({ order, onDone, onCancel }: Readonly<ReceiveOr
 
     try {
       await receive({ variables: { id: order.id, lines } });
-      notify(t('Stock booked in against {number}.', { number: order.number }));
+      notify('Stock booked in against {number}.', 'success', { number: order.number });
       onDone();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not book the stock in', 'error');

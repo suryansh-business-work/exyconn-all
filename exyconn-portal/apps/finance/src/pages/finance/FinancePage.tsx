@@ -29,7 +29,10 @@ export function FinancePage() {
   const crud = useCrudResource<InvoiceRow, PagedInvoiceRow>({
     label: 'Invoice',
     onDelete: (row) => deleteInvoice({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete invoice {number}?', { number: row.number }),
+    confirmMessage: (row) => ({
+      message: 'Delete invoice {number}?',
+      values: { number: row.number },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

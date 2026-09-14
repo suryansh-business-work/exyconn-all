@@ -13,6 +13,12 @@ import {
   useSetLeaveStatusMutation,
 } from '@/graphql/generated';
 import { panel } from '@/components/glass/glass';
+import {
+  LEAVE_DECISION_DONE,
+  LEAVE_DECISION_PROMPT,
+  LEAVE_DECISION_VERB,
+  type LeaveDecision,
+} from '@/hooks/useLeaveDecision';
 
 type LeaveRow = {
   id: string;
@@ -36,15 +42,15 @@ export function EmployeeLeavePanel({ employeeId }: { employeeId: string }) {
 
   const rows = (data?.leaveRequestsByEmployee ?? []) as LeaveRow[];
 
-  const decide = async (row: LeaveRow, status: LeaveStatus) => {
+  const decide = async (row: LeaveRow, decision: LeaveDecision) => {
     const ok = await confirm({
-      message: `${status === LeaveStatus.Approved ? 'Approve' : 'Reject'} this leave request?`,
-      confirmText: status === LeaveStatus.Approved ? 'Approve' : 'Reject',
+      message: LEAVE_DECISION_PROMPT[decision],
+      confirmText: LEAVE_DECISION_VERB[decision],
     });
     if (!ok) return;
-    await setStatus({ variables: { id: row.id, status } });
+    await setStatus({ variables: { id: row.id, status: decision } });
     await refetch();
-    notify(`Leave ${status.toLowerCase()}`);
+    notify(LEAVE_DECISION_DONE[decision]);
   };
 
   const actions: RowAction<LeaveRow>[] = [

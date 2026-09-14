@@ -94,11 +94,9 @@ export function StockMovementForm({ onDone, onCancel }: Readonly<StockMovementFo
   const onSubmit = async (values: Values) => {
     try {
       const result = await record({ variables: { input: values } });
-      notify(
-        t('Recorded. Stock is now {stock}.', {
-          stock: result.data?.recordStockMovement.stockAfter ?? '—',
-        }),
-      );
+      notify('Recorded. Stock is now {stock}.', 'success', {
+        stock: result.data?.recordStockMovement.stockAfter ?? '—',
+      });
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not record the movement', 'error');

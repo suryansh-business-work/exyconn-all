@@ -58,9 +58,9 @@ export function StartBuildForm({ channelCount, onDone, onCancel }: Readonly<Star
       await startBuild({ variables: { platforms, ref } });
       const started =
         platforms.length === 1
-          ? t('Build started for {count} installer on {ref}', { count: platforms.length, ref })
-          : t('Build started for {count} installers on {ref}', { count: platforms.length, ref });
-      notify(started);
+          ? 'Build started for {count} installer on {ref}'
+          : 'Build started for {count} installers on {ref}';
+      notify(started, 'success', { count: platforms.length, ref });
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not start the build', 'error');

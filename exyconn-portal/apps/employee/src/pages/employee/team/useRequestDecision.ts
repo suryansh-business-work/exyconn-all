@@ -9,6 +9,17 @@ const VERB: Record<RequestDecision, string> = {
   [RequestStatus.Rejected]: 'Reject',
 };
 
+/** Whole sentences per decision, so each reads naturally once translated. */
+const PROMPT: Record<RequestDecision, string> = {
+  [RequestStatus.Approved]: 'Approve “{subject}”?',
+  [RequestStatus.Rejected]: 'Reject “{subject}”?',
+};
+
+const DONE: Record<RequestDecision, string> = {
+  [RequestStatus.Approved]: 'Request approved',
+  [RequestStatus.Rejected]: 'Request rejected',
+};
+
 /** Confirms, then records the manager's decision through `decideEmployeeRequest`. */
 export function useRequestDecision(refetch: () => Promise<unknown>) {
   const [decide] = useDecideEmployeeRequestMutation();
@@ -17,12 +28,16 @@ export function useRequestDecision(refetch: () => Promise<unknown>) {
 
   return async (row: { id: string; subject: string }, status: RequestDecision) => {
     const verb = VERB[status];
-    const ok = await confirm({ message: `${verb} “${row.subject}”?`, confirmText: verb });
+    const ok = await confirm({
+      message: PROMPT[status],
+      messageValues: { subject: row.subject },
+      confirmText: verb,
+    });
     if (!ok) return;
     try {
       await decide({ variables: { id: row.id, status } });
       await refetch();
-      notify(`Request ${status.toLowerCase()}`);
+      notify(DONE[status]);
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not update the request', 'error');
     }

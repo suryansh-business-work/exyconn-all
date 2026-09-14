@@ -1,16 +1,20 @@
 import type { ReactNode } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useT } from '@exyconn/i18n';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { Box, Button, Stack, Typography } from '@/components/ui';
 import { readingPanel } from '../glass/glass';
 
 interface CrudFormPageProps {
   title: string;
+  /** Values for a {placeholder} in the prop above — see PageHeader's titleValues. */
+  titleValues?: Interpolations;
   subtitle?: string;
+  subtitleValues?: Interpolations;
   /** Returns to the list the form was opened from. */
   onBack: () => void;
-  /** Names the list in the back link, e.g. "Back to leads". */
+  /** Names the list in the back link, e.g. "Back to {list}". */
   backLabel?: string;
+  backLabelValues?: Interpolations;
   children: ReactNode;
 }
 
@@ -21,9 +25,12 @@ interface CrudFormPageProps {
  */
 export function CrudFormPage({
   title,
+  titleValues,
   subtitle,
+  subtitleValues,
   onBack,
   backLabel,
+  backLabelValues,
   children,
 }: Readonly<CrudFormPageProps>) {
   const t = useT();
@@ -37,10 +44,10 @@ export function CrudFormPage({
         }}
       >
         <Button onClick={onBack} startIcon={<ArrowBackIcon />} color="inherit" size="small">
-          {t(backLabel ?? 'Back')}
+          {t(backLabel ?? 'Back', backLabelValues)}
         </Button>
       </Stack>
-      <Typography variant="h4">{t(title)}</Typography>
+      <Typography variant="h4">{t(title, titleValues)}</Typography>
       {subtitle && (
         <Typography
           variant="body2"
@@ -48,7 +55,7 @@ export function CrudFormPage({
             color: 'text.secondary',
           }}
         >
-          {t(subtitle)}
+          {t(subtitle, subtitleValues)}
         </Typography>
       )}
       <Box sx={[readingPanel, { mt: 2, maxWidth: 880 }]}>{children}</Box>

@@ -58,17 +58,16 @@ export function TrackerNoticeForm({ employees }: Readonly<TrackerNoticeFormProps
   const onSubmit = async (values: Values) => {
     const ok = await confirm({
       title: 'Send this notice?',
-      message: t(
+      message:
         'It appears immediately as a desktop notification for {audience}. It cannot be recalled.',
-        { audience },
-      ),
+      messageValues: { audience },
       confirmText: 'Send',
     });
     if (!ok) return;
     try {
       const result = await sendNotice({ variables: { input: values } });
       const reached = result.data?.sendTrackerNotice ?? 0;
-      notify(t('Notice sent to {count} employee(s)', { count: reached }));
+      notify('Notice sent to {count} employee(s)', 'success', { count: reached });
       methods.reset({ title: '', body: '', userIds: [] });
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not send the notice', 'error');

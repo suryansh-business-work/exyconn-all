@@ -39,7 +39,11 @@ export interface LocalePreference {
   currency: string;
   /** Switches the language for this browser until the person saves it on their profile. */
   choose: (locale: string) => void;
-  /** True once both the account and the workspace settings have been read. */
+  /**
+   * True once the workspace settings have been ANSWERED — with the settings, or with a refusal.
+   * A sign-in screen has nobody signed in, so the settings query refuses; waiting for its data
+   * meant that screen never asked for a single translation.
+   */
   ready: boolean;
 }
 
@@ -51,7 +55,9 @@ export interface LocalePreference {
  * the login screen still needs a language, and it comes from the browser.
  */
 export function useLocalePreference(): LocalePreference {
-  const { data: settingsData } = useAppSettingsQuery({ fetchPolicy: 'cache-first' });
+  const { data: settingsData, loading: settingsLoading } = useAppSettingsQuery({
+    fetchPolicy: 'cache-first',
+  });
   const { data: meData } = useMeQuery({ fetchPolicy: 'cache-first', errorPolicy: 'ignore' });
   const [override, setOverride] = useState<string | null>(storedLocale);
 
@@ -96,6 +102,6 @@ export function useLocalePreference(): LocalePreference {
     // administrator, who belongs to no company.
     currency: settings?.currency || DEFAULT_FORMAT_SETTINGS.currency,
     choose,
-    ready: settingsData !== undefined,
+    ready: !settingsLoading,
   };
 }

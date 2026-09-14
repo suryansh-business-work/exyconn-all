@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -19,7 +18,6 @@ import {
 
 /** Planned windows: announced on the public page while upcoming or in progress. */
 export function MaintenancePanel() {
-  const t = useT();
   const { formatDate } = useSettings();
   const { data: statsData, refetch: refetchStats } = useListStatusMaintenanceWindowsStatsQuery();
   const [deleteWindow] = useDeleteStatusMaintenanceMutation();
@@ -27,7 +25,10 @@ export function MaintenancePanel() {
   const crud = useCrudResource<MaintenanceRow, PagedMaintenanceRow>({
     label: 'Maintenance window',
     onDelete: (row) => deleteWindow({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Cancel the maintenance window "{title}"?', { title: row.title }),
+    confirmMessage: (row) => ({
+      message: 'Cancel the maintenance window "{title}"?',
+      values: { title: row.title },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

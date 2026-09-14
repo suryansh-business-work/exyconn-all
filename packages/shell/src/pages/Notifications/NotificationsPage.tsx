@@ -37,7 +37,7 @@ export function NotificationsPage() {
 
   const readAll = async () => {
     const { data: result } = await markAllRead();
-    notify(`Marked ${result?.markAllNotificationsRead ?? 0} as read.`, 'success');
+    notify('Marked {count} as read.', 'success', { count: result?.markAllNotificationsRead ?? 0 });
     await refetch();
   };
 

@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import {
   useProjectSharesQuery,
   useRevokeProjectShareMutation,
@@ -15,6 +16,7 @@ import { errorMessage } from '@exyconn/shell/utils/errorMessage';
  * its hash, so once this state is cleared the link cannot be recovered from anywhere.
  */
 export function useProjectShares(projectId: string) {
+  const t = useT();
   const confirm = useConfirm();
   const notify = useNotify();
   const [newUrl, setNewUrl] = useState('');
@@ -47,7 +49,8 @@ export function useProjectShares(projectId: string) {
   const revoke = useCallback(
     async (share: ProjectShareFieldsFragment) => {
       const ok = await confirm({
-        message: `Revoke "${share.label || 'this link'}"? Anyone holding it loses access at once.`,
+        message: 'Revoke "{label}"? Anyone holding it loses access at once.',
+        messageValues: { label: share.label || t('this link') },
         confirmText: 'Revoke',
       });
       if (!ok) {
@@ -61,7 +64,7 @@ export function useProjectShares(projectId: string) {
         notify(errorMessage(error, 'Could not revoke the link'), 'error');
       }
     },
-    [confirm, revokeShare, notify, refetch],
+    [t, confirm, revokeShare, notify, refetch],
   );
 
   return {

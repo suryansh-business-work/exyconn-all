@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -18,14 +17,13 @@ import {
 
 /** Support → Canned Replies: the paragraphs the desk sends often, kept once. */
 export function CannedRepliesPage() {
-  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListCannedRepliesStatsQuery();
   const [deleteReply] = useDeleteCannedReplyMutation();
 
   const crud = useCrudResource<CannedReplyRow, PagedCannedReplyRow>({
     label: 'Canned reply',
     onDelete: (row) => deleteReply({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete "{title}"?', { title: row.title }),
+    confirmMessage: (row) => ({ message: 'Delete "{title}"?', values: { title: row.title } }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

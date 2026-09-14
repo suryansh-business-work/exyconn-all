@@ -3,7 +3,6 @@ import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { useT } from '@exyconn/i18n';
 import { useCrudResource } from '@exyconn/crud';
 import { useListNavLinksQuery, useDeleteNavLinkMutation } from '@exyconn/shell/graphql/generated';
 import { NavLinkForm, type NavLinkRow } from './forms/nav-link';
@@ -11,13 +10,15 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Website module — navigation links surfaced in the exyconn.com menu and search. */
 export function NavLinksPage() {
-  const t = useT();
   const { data, loading, refetch } = useListNavLinksQuery();
   const [deleteNavLink] = useDeleteNavLinkMutation();
   const crud = useCrudResource<NavLinkRow>({
     label: 'Nav link',
     onDelete: (row) => deleteNavLink({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete nav link "{label}"?', { label: row.label }),
+    confirmMessage: (row) => ({
+      message: 'Delete nav link "{label}"?',
+      values: { label: row.label },
+    }),
     refetch,
   });
 

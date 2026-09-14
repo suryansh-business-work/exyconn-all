@@ -33,7 +33,10 @@ export function OnboardingPage() {
   const crud = useCrudResource<PagedOnboardingChecklistRow>({
     label: 'Onboarding checklist',
     onDelete: (row) => deleteChecklist({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete ${row.employeeName}'s onboarding checklist?`,
+    confirmMessage: (row) => ({
+      message: "Delete {name}'s onboarding checklist?",
+      values: { name: row.employeeName },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

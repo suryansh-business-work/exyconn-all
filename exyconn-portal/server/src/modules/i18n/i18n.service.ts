@@ -1,8 +1,25 @@
 import { AppSettingsModel } from '../admin/settings.model';
+import { currentOrganizationId } from '../../lib/tenant/tenant-scope';
 import { logger } from '../../utils/logger';
 import { FALLBACK_LOCALE, canonicalLocale } from './locale.constants';
 import { TranslationModel, translationKey, type TranslationSource } from './translation.model';
 import { TRANSLATE_BATCH, machineTranslate } from './i18n.translate';
+
+/**
+ * The caller's workspace settings, or null for a request that belongs to no workspace.
+ *
+ * The translation catalogue is platform data, but the default language and whether a company
+ * lets the machine translate are that company's own. exyconn.com, a portal's sign-in screen
+ * and a signed-out tracker belong to no company at all — and reading the settings there threw
+ * "no organization in scope", which took every public translation request down with it: the
+ * website could neither load its words nor ask for new ones, and stayed in English.
+ */
+export async function workspaceSettings() {
+  if (currentOrganizationId() === null) {
+    return null;
+  }
+  return AppSettingsModel.findOne({ key: 'global' }).lean();
+}
 
 /** One string and what it reads as in a locale. */
 export interface TranslationEntry {
@@ -56,6 +73,8 @@ export async function upsertTranslation(
 export async function translateMissing(
   locale: string,
   sources: string[],
+  /** Asked only when there is something new to send the model; false means "not now". */
+  mayUseModel: () => boolean = () => true,
 ): Promise<TranslationEntry[]> {
   const canonical = canonicalLocale(locale);
   if (!canonical || canonical === FALLBACK_LOCALE || sources.length === 0) {
@@ -72,6 +91,10 @@ export async function translateMissing(
   if (missing.length === 0) {
     return [];
   }
+  if (!mayUseModel()) {
+    logger.warn({ locale, count: missing.length }, 'Translation rate-limited for this caller');
+    return [];
+  }
 
   const translated = await machineTranslate(canonical, missing.slice(0, TRANSLATE_BATCH));
   const stored: TranslationEntry[] = [];
@@ -86,7 +109,7 @@ export async function translateMissing(
 
 /** The locales a workspace offers, always including its own default and English. */
 export async function enabledLocales(): Promise<string[]> {
-  const settings = await AppSettingsModel.findOne({ key: 'global' }).lean();
+  const settings = await workspaceSettings();
   const locales = new Set<string>([FALLBACK_LOCALE]);
   for (const tag of settings?.enabledLocales ?? []) {
     const canonical = canonicalLocale(tag);

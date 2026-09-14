@@ -27,7 +27,10 @@ export function SlackConfigsPanel() {
   const crud = useCrudResource<SlackConfigRow>({
     label: 'Slack config',
     onDelete: (row) => deleteConfig({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete Slack config "{label}"?', { label: row.label }),
+    confirmMessage: (row) => ({
+      message: 'Delete Slack config "{label}"?',
+      values: { label: row.label },
+    }),
     refetch,
   });
 
@@ -55,7 +58,7 @@ export function SlackConfigsPanel() {
   ];
 
   if (crud.open) {
-    const formTitle = crud.editing ? t('Edit Slack config') : t('New Slack config');
+    const formTitle = crud.editing ? 'Edit Slack config' : 'New Slack config';
     return (
       <CrudFormPage title={formTitle} onBack={crud.close} backLabel="Back to Slack configurations">
         <SlackConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />

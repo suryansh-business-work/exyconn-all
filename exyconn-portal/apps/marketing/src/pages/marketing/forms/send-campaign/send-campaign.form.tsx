@@ -57,21 +57,17 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
   const ready = Boolean(campaign.subject && campaign.body);
   // Each outcome is one whole sentence rather than a stem with fragments appended, so the
   // catalogue can hold what a translator has to reorder.
-  const sendOutcome = (sent: number, failed: number, skipped: number): string => {
+  const sendOutcome = (failed: number, skipped: number): string => {
     if (failed && skipped) {
-      return t('Campaign sent to {sent} recipient(s) · {failed} failed · {skipped} skipped', {
-        sent,
-        failed,
-        skipped,
-      });
+      return 'Campaign sent to {sent} recipient(s) · {failed} failed · {skipped} skipped';
     }
     if (failed) {
-      return t('Campaign sent to {sent} recipient(s) · {failed} failed', { sent, failed });
+      return 'Campaign sent to {sent} recipient(s) · {failed} failed';
     }
     if (skipped) {
-      return t('Campaign sent to {sent} recipient(s) · {skipped} skipped', { sent, skipped });
+      return 'Campaign sent to {sent} recipient(s) · {skipped} skipped';
     }
-    return t('Campaign sent to {sent} recipient(s)', { sent });
+    return 'Campaign sent to {sent} recipient(s)';
   };
 
   const sendingLine = campaign.subject
@@ -84,7 +80,12 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
         variables: { id: campaign.id, audienceListId: values.audienceListId },
       });
       const result = res.data?.sendCampaign;
-      notify(sendOutcome(result?.sent ?? 0, result?.failed ?? 0, result?.skipped ?? 0));
+      const outcome = {
+        sent: result?.sent ?? 0,
+        failed: result?.failed ?? 0,
+        skipped: result?.skipped ?? 0,
+      };
+      notify(sendOutcome(outcome.failed, outcome.skipped), 'success', outcome);
       onDone();
     } catch (err) {
       notify(errorMessage(err, 'Send failed'), 'error');
@@ -104,7 +105,7 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
     setTesting(true);
     try {
       await sendCampaign({ variables: { id: campaign.id, testEmail } });
-      notify(t('Test email sent to {email}', { email: testEmail }));
+      notify('Test email sent to {email}', 'success', { email: testEmail });
     } catch (err) {
       notify(errorMessage(err, 'Test send failed'), 'error');
     } finally {

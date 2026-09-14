@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -15,7 +14,6 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** IT module — the asset register, with a server-side grid over every item. */
 export function AssetsPage() {
-  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListAssetsStatsQuery();
   const [deleteAsset] = useDeleteAssetMutation();
@@ -23,7 +21,7 @@ export function AssetsPage() {
   const crud = useCrudResource<AssetRow, PagedAssetRow>({
     label: 'Asset',
     onDelete: (row) => deleteAsset({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete asset "{tag}"?', { tag: row.assetTag }),
+    confirmMessage: (row) => ({ message: 'Delete asset "{tag}"?', values: { tag: row.assetTag } }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

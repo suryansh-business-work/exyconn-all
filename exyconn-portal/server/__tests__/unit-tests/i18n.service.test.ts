@@ -8,8 +8,11 @@ import {
   readBundle,
   translateMissing,
   upsertTranslation,
+  workspaceSettings,
 } from '../../src/modules/i18n/i18n.service';
 import * as translate from '../../src/modules/i18n/i18n.translate';
+import { Types } from 'mongoose';
+import { runAsPlatform, runForOrganization, setDefaultScope } from '../../src/lib/tenant';
 
 // The welcome email talks to SMTP; stub it so user creation works offline.
 jest.mock('../../src/utils/mailer', () => ({
@@ -108,16 +111,83 @@ describe('the locales a workspace offers', () => {
     await AppSettingsModel.deleteMany({});
   });
 
-  it('always includes English and the workspace default, however the list was saved', async () => {
-    await settings({ defaultLocale: 'hi', enabledLocales: ['fr'] });
+  // A workspace's languages are its own, so these run inside one — the way a signed-in
+  // request does.
+  const company = String(new Types.ObjectId());
 
-    await expect(enabledLocales()).resolves.toEqual(expect.arrayContaining(['en', 'fr', 'hi']));
+  it('always includes English and the workspace default, however the list was saved', async () => {
+    await runForOrganization(company, async () => {
+      await settings({ defaultLocale: 'hi', enabledLocales: ['fr'] });
+
+      await expect(enabledLocales()).resolves.toEqual(expect.arrayContaining(['en', 'fr', 'hi']));
+    });
   });
 
   it('drops a tag that does not resolve rather than offering it', async () => {
-    await settings({ defaultLocale: 'en', enabledLocales: ['fr', 'nonsense!'] });
+    await runForOrganization(company, async () => {
+      await settings({ defaultLocale: 'en', enabledLocales: ['fr', 'nonsense!'] });
 
-    await expect(enabledLocales()).resolves.toEqual(['en', 'fr']);
+      await expect(enabledLocales()).resolves.toEqual(['en', 'fr']);
+    });
+  });
+});
+
+describe('a request that belongs to no workspace', () => {
+  // exyconn.com, a portal's sign-in screen, a signed-out tracker. In production these reach
+  // the server with NO scope at all, and reading the workspace settings there threw — which
+  // took every public translation request down, so the website could neither load its words
+  // nor ask for new ones.
+  beforeEach(async () => {
+    await Promise.all([TranslationModel.deleteMany({}), AppSettingsModel.deleteMany({})]);
+    jest.restoreAllMocks();
+    setDefaultScope(null);
+  });
+
+  afterEach(() => {
+    setDefaultScope({ organizationId: null, platform: true });
+  });
+
+  it('reads no workspace settings rather than failing', async () => {
+    await expect(workspaceSettings()).resolves.toBeNull();
+  });
+
+  it('still hands out the shared catalogue', async () => {
+    await runAsPlatform(() => upsertTranslation('fr', 'Save', 'Enregistrer', 'AUTO'));
+
+    await expect(readBundle('fr')).resolves.toEqual([
+      expect.objectContaining({ source: 'Save', text: 'Enregistrer' }),
+    ]);
+  });
+
+  it('offers English, the language the platform itself is written in', async () => {
+    await expect(enabledLocales()).resolves.toEqual(['en']);
+  });
+
+  it('asks the model for strings nobody has translated yet', async () => {
+    const machine = jest
+      .spyOn(translate, 'machineTranslate')
+      .mockResolvedValue([{ source: 'Contact us', text: 'Contactez-nous', model: 'gpt-test' }]);
+
+    await expect(translateMissing('fr', ['Contact us'])).resolves.toEqual([
+      expect.objectContaining({ text: 'Contactez-nous' }),
+    ]);
+    expect(machine).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not reach the model when the caller is over its budget', async () => {
+    const machine = jest.spyOn(translate, 'machineTranslate');
+
+    await expect(translateMissing('fr', ['Contact us'], () => false)).resolves.toEqual([]);
+    expect(machine).not.toHaveBeenCalled();
+  });
+
+  it('spends no budget on strings the catalogue already knows', async () => {
+    await runAsPlatform(() => upsertTranslation('fr', 'Save', 'Enregistrer', 'AUTO'));
+    const budget = jest.fn(() => true);
+
+    await translateMissing('fr', ['Save'], budget);
+
+    expect(budget).not.toHaveBeenCalled();
   });
 });
 

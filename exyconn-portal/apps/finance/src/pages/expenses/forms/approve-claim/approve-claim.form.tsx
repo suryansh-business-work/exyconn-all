@@ -47,11 +47,9 @@ export function ApproveClaimForm({ claim, onDone, onCancel }: Readonly<ApproveCl
           approvedAmount: values.approvedAmount,
         },
       });
-      notify(
-        t('Claim approved for {amount}', {
-          amount: formatMoney(values.approvedAmount, claim.currency),
-        }),
-      );
+      notify('Claim approved for {amount}', 'success', {
+        amount: formatMoney(values.approvedAmount, claim.currency),
+      });
       onDone();
     } catch (error) {
       notify(errorMessage(error, 'Could not approve the claim'), 'error');

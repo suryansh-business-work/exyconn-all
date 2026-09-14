@@ -31,7 +31,10 @@ export function TaxSlabsPage() {
   const crud = useCrudResource<TaxSlabRow, PagedTaxSlabRow>({
     label: 'Tax slab',
     onDelete: (row) => deleteSlab({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete the ${row.ratePercent}% band of ${row.regimeKey}?`,
+    confirmMessage: (row) => ({
+      message: 'Delete the {rate}% band of {regime}?',
+      values: { rate: row.ratePercent, regime: row.regimeKey },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

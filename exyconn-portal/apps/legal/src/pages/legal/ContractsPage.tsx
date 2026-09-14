@@ -31,7 +31,10 @@ export function ContractsPage() {
   const crud = useCrudResource<ContractRow, PagedContractRow>({
     label: 'Contract',
     onDelete: (row) => deleteContract({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete contract "{title}"?', { title: row.title }),
+    confirmMessage: (row) => ({
+      message: 'Delete contract "{title}"?',
+      values: { title: row.title },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

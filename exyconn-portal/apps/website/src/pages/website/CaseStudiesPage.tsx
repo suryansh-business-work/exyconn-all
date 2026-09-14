@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -19,7 +18,6 @@ import {
 
 /** Website CMS — case studies with a server-side grid. */
 export function CaseStudiesPage() {
-  const t = useT();
   // Stat cards still summarise all case studies; the grid itself is server-paged.
   const { data } = useListCaseStudiesQuery();
   const [deleteCaseStudy] = useDeleteCaseStudyMutation();
@@ -28,7 +26,10 @@ export function CaseStudiesPage() {
   const crud = useCrudResource<CaseStudyRow, PagedCaseStudyRow>({
     label: 'Case study',
     onDelete: (row) => deleteCaseStudy({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete case study {title}?', { title: row.title }),
+    confirmMessage: (row) => ({
+      message: 'Delete case study {title}?',
+      values: { title: row.title },
+    }),
   });
   const fetchRows = usePagedFetcher(
     ListCaseStudiesPagedDocument,

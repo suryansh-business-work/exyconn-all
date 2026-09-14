@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import {
@@ -17,14 +16,13 @@ import {
 
 /** Website module — job companies powering the public careers pages (server-side grid). */
 export function JobCompaniesPage() {
-  const t = useT();
   // Stat cards still summarise all companies; the grid itself is server-paged.
   const { data } = useListJobCompaniesQuery();
   const [deleteJobCompany] = useDeleteJobCompanyMutation();
   const crud = useCrudResource<JobCompanyRow, PagedJobCompanyRow>({
     label: 'Company',
     onDelete: (row) => deleteJobCompany({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete company {name}?', { name: row.name }),
+    confirmMessage: (row) => ({ message: 'Delete company {name}?', values: { name: row.name } }),
   });
   const fetchRows = usePagedFetcher(
     ListJobCompaniesPagedDocument,

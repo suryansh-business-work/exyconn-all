@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useT } from '@exyconn/i18n';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { Box, Chip, Grid, Stack, Typography } from '@/components/ui';
 import { PageHeader } from '../layout/PageHeader';
 import { StatCard, type StatItem } from './StatCard';
@@ -10,7 +10,10 @@ import { color } from '@exyconn/ui';
 interface ModuleDashboardProps {
   title: string;
   subtitle: string;
+  /** Values for a {placeholder} in the subtitle — see PageHeader's subtitleValues. */
+  subtitleValues?: Interpolations;
   actionLabel?: string;
+  actionLabelValues?: Interpolations;
   onAction?: () => void;
   stats: StatItem[];
   /** Optional trend chart — omit for real, count-only dashboards. */
@@ -25,7 +28,9 @@ interface ModuleDashboardProps {
 export function ModuleDashboard({
   title,
   subtitle,
+  subtitleValues,
   actionLabel,
+  actionLabelValues,
   onAction,
   stats,
   chartTitle,
@@ -38,7 +43,14 @@ export function ModuleDashboard({
   const statCols = 12 / Math.min(Math.max(stats.length, 1), 4);
   return (
     <>
-      <PageHeader title={title} subtitle={subtitle} actionLabel={actionLabel} onAction={onAction} />
+      <PageHeader
+        title={title}
+        subtitle={subtitle}
+        subtitleValues={subtitleValues}
+        actionLabel={actionLabel}
+        actionLabelValues={actionLabelValues}
+        onAction={onAction}
+      />
 
       <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
         {stats.map((stat) => (

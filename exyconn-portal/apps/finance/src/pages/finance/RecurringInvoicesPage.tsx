@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -24,7 +23,6 @@ import {
  * for it cannot bill a client twice.
  */
 export function RecurringInvoicesPage() {
-  const t = useT();
   const notify = useNotify();
   const { formatDate } = useSettings();
   const [deleteRecurring] = useDeleteRecurringInvoiceMutation();
@@ -33,8 +31,10 @@ export function RecurringInvoicesPage() {
   const crud = useCrudResource<RecurringInvoiceRow, RecurringInvoiceRow>({
     label: 'Recurring invoice',
     onDelete: (row) => deleteRecurring({ variables: { id: row.id } }),
-    confirmMessage: (row) =>
-      t('Delete "{name}"? Invoices it has already raised are not affected.', { name: row.name }),
+    confirmMessage: (row) => ({
+      message: 'Delete "{name}"? Invoices it has already raised are not affected.',
+      values: { name: row.name },
+    }),
   });
 
   const fetchRows = usePagedFetcher(
@@ -45,7 +45,7 @@ export function RecurringInvoicesPage() {
   const raiseNow = async (row: RecurringInvoiceRow): Promise<void> => {
     try {
       await runNow({ variables: { id: row.id } });
-      notify(t('A draft invoice was raised for "{name}".', { name: row.name }));
+      notify('A draft invoice was raised for "{name}".', 'success', { name: row.name });
       crud.reload();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not raise the invoice', 'error');

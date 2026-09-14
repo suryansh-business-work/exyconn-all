@@ -25,7 +25,10 @@ export function AnnouncementsPage() {
   const crud = useCrudResource<AnnouncementRow, PagedAnnouncementRow>({
     label: 'Announcement',
     onDelete: (row) => deleteAnnouncement({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete announcement "${row.title}"?`,
+    confirmMessage: (row) => ({
+      message: 'Delete announcement "{title}"?',
+      values: { title: row.title },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

@@ -52,9 +52,10 @@ export function SendInvoiceForm({ invoice, onDone, onCancel }: Readonly<SendInvo
       await sendInvoice({
         variables: { id: invoice.id, email: values.email, message: values.message || null },
       });
-      notify(
-        t('Invoice {number} sent to {email}', { number: invoice.number, email: values.email }),
-      );
+      notify('Invoice {number} sent to {email}', 'success', {
+        number: invoice.number,
+        email: values.email,
+      });
       onDone();
     } catch (error) {
       notify(errorMessage(error, 'Send failed'), 'error');

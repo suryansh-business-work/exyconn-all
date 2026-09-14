@@ -29,7 +29,10 @@ export function PromptLibraryPage() {
   const crud = useCrudResource<PromptRow, PagedPromptRow>({
     label: 'Prompt',
     onDelete: (row) => deletePrompt({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete prompt "{title}"?', { title: row.title }),
+    confirmMessage: (row) => ({
+      message: 'Delete prompt "{title}"?',
+      values: { title: row.title },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

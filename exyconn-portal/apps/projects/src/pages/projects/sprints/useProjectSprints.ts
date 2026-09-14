@@ -15,6 +15,17 @@ import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvid
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { queryData } from '@exyconn/shell/utils/queryData';
 
+/** The confirmation for completing a sprint: one whole sentence per leftover count. */
+function completionMessage(unfinishedCount: number): string {
+  if (unfinishedCount === 0) {
+    return 'Everything in {name} is done. Complete it?';
+  }
+  if (unfinishedCount === 1) {
+    return '{count} unfinished ticket will move to {target}. Complete {name}?';
+  }
+  return '{count} unfinished tickets will move to {target}. Complete {name}?';
+}
+
 /**
  * A project's sprints, and the three lifecycle actions the list offers.
  *
@@ -52,7 +63,7 @@ export function useProjectSprints(projectId: string, onChanged: () => void) {
     async (sprint: SprintFieldsFragment) => {
       try {
         await startSprint({ variables: { id: sprint.id } });
-        notify(`${sprint.name} is running`);
+        notify('{name} is running', 'success', { name: sprint.name });
         await reload();
       } catch (error) {
         fail(error);
@@ -73,20 +84,22 @@ export function useProjectSprints(projectId: string, onChanged: () => void) {
           fetchPolicy: 'network-only',
         });
         const plan = queryData(planResult, 'The sprint completion plan').sprintCompletionPlan;
-        const ticketWord = plan.unfinishedCount === 1 ? 'ticket' : 'tickets';
         const ok = await confirm({
-          title: `Complete ${sprint.name}`,
-          message:
-            plan.unfinishedCount === 0
-              ? `Everything in ${sprint.name} is done. Complete it?`
-              : `${plan.unfinishedCount} unfinished ${ticketWord} will move to ${plan.targetSprintName}. Complete ${sprint.name}?`,
+          title: 'Complete {name}',
+          titleValues: { name: sprint.name },
+          message: completionMessage(plan.unfinishedCount),
+          messageValues: {
+            name: sprint.name,
+            count: plan.unfinishedCount,
+            target: plan.targetSprintName,
+          },
           confirmText: 'Complete',
         });
         if (!ok) {
           return;
         }
         await completeSprint({ variables: { id: sprint.id } });
-        notify(`${sprint.name} is complete`);
+        notify('{name} is complete', 'success', { name: sprint.name });
         await reload();
       } catch (error) {
         fail(error);
@@ -98,7 +111,8 @@ export function useProjectSprints(projectId: string, onChanged: () => void) {
   const remove = useCallback(
     async (sprint: SprintFieldsFragment) => {
       const ok = await confirm({
-        message: `Delete ${sprint.name}? Its tickets go back to the backlog.`,
+        message: 'Delete {name}? Its tickets go back to the backlog.',
+        messageValues: { name: sprint.name },
         confirmText: 'Delete',
       });
       if (!ok) {

@@ -32,7 +32,7 @@ export function AudiencesPage() {
   const crud = useCrudResource<AudienceRow, PagedAudienceRow>({
     label: 'Audience',
     onDelete: (row) => deleteAudienceList({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete audience "{name}"?', { name: row.name }),
+    confirmMessage: (row) => ({ message: 'Delete audience "{name}"?', values: { name: row.name } }),
     refetch,
   });
   const fetchRows = usePagedFetcher(
@@ -60,12 +60,17 @@ export function AudiencesPage() {
 
   const clientCount = clientsData?.listClients.length ?? 0;
 
+  // Two whole sentences, not "client(s)": a plural a translator can agree with.
+  const audienceSubtitle =
+    clientCount === 1
+      ? 'Who a campaign goes to — {count} client available'
+      : 'Who a campaign goes to — {count} clients available';
+
   return (
     <CrudDashboard
       title="Audiences"
-      subtitle={t('Who a campaign goes to — {count} client(s) available', {
-        count: clientCount,
-      })}
+      subtitle={audienceSubtitle}
+      subtitleValues={{ count: clientCount }}
       entityLabel="audience"
       stats={statItems}
       crud={crud}

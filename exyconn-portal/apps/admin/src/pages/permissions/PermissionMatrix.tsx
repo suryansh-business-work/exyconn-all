@@ -33,7 +33,7 @@ export function PermissionMatrix({ role }: Readonly<{ role: Role }>) {
     try {
       await setPermission({ variables: { role, module, actions } });
       const summary = actions.length > 0 ? actions.join(', ') : t('no access');
-      notify(t('{role} on {module}: {summary}', { role, module, summary }), 'success');
+      notify('{role} on {module}: {summary}', 'success', { role, module, summary });
       await rows.refetch();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not save', 'error');
@@ -43,7 +43,7 @@ export function PermissionMatrix({ role }: Readonly<{ role: Role }>) {
   const reset = async (module: string) => {
     try {
       await clearPermission({ variables: { role, module } });
-      notify(t('{role} on {module}: back to default', { role, module }), 'success');
+      notify('{role} on {module}: back to default', 'success', { role, module });
       await rows.refetch();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not reset', 'error');

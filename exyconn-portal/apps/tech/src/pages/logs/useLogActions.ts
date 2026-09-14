@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useApolloClient } from '@apollo/client/react';
-import { useT } from '@exyconn/i18n';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { copyToClipboard } from '@exyconn/shell/utils/clipboard';
@@ -31,7 +30,6 @@ const STATUS_NOTICE: Record<AppLogStatus, string> = {
  * is reported through the shared notifier; `onChanged` re-reads the grid and the tiles.
  */
 export function useLogActions(onChanged: () => void) {
-  const t = useT();
   const client = useApolloClient();
   const notify = useNotify();
   const confirm = useConfirm();
@@ -83,7 +81,7 @@ export function useLogActions(onChanged: () => void) {
   const changeStatus = async (row: AppLogRow, status: AppLogStatus): Promise<boolean> => {
     try {
       await setStatus({ variables: { id: row.id, status } });
-      notify(t(STATUS_NOTICE[status]));
+      notify(STATUS_NOTICE[status]);
       onChanged();
       return true;
     } catch (err) {
@@ -96,14 +94,12 @@ export function useLogActions(onChanged: () => void) {
   const remove = async (row: AppLogRow): Promise<boolean> => {
     const message =
       row.count === 1
-        ? t('Delete "{message}" and its only occurrence?', { message: row.message })
-        : t('Delete "{message}" and all {count} occurrences of it?', {
-            message: row.message,
-            count: row.count,
-          });
+        ? 'Delete "{message}" and its only occurrence?'
+        : 'Delete "{message}" and all {count} occurrences of it?';
     const ok = await confirm({
       title: 'Delete log',
       message,
+      messageValues: { message: row.message, count: row.count },
       confirmText: 'Delete',
     });
     if (!ok) {

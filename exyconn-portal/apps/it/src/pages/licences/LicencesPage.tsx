@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -18,7 +17,6 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** IT module — the software licences the company pays for, their seats and renewals. */
 export function LicencesPage() {
-  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListLicencesStatsQuery();
   // Seats used and renewals due are per-row questions no aggregation answers, so the
@@ -29,7 +27,7 @@ export function LicencesPage() {
   const crud = useCrudResource<LicenceRow, PagedLicenceRow>({
     label: 'Licence',
     onDelete: (row) => deleteLicence({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete licence "{name}"?', { name: row.name }),
+    confirmMessage: (row) => ({ message: 'Delete licence "{name}"?', values: { name: row.name } }),
     refetch: () => Promise.all([refetchStats(), refetchList()]),
   });
   const fetchRows = usePagedFetcher(
@@ -52,7 +50,8 @@ export function LicencesPage() {
       accent: color.blue[400],
     },
     {
-      label: t('Renews in {days}d', { days: RENEWAL_WINDOW_DAYS }),
+      label: 'Renews in {days}d',
+      labelValues: { days: RENEWAL_WINDOW_DAYS },
       value: String(renewalsDueWithin(licences, RENEWAL_WINDOW_DAYS).length),
       accent: color.orange[500],
     },

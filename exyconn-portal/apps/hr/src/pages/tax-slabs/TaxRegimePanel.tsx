@@ -54,8 +54,13 @@ export function TaxRegimePanel({ regimes, loading, refetch }: Readonly<TaxRegime
   const crud = useCrudResource<TaxRegimeRow>({
     label: 'Tax regime',
     onDelete: (row) => deleteRegime({ variables: { id: row.id } }),
-    confirmMessage: (row) =>
-      `Delete "${row.name}" for ${row.financialYear}? Its bands stay on file and stop being applied.`,
+    confirmMessage: (row) => ({
+      message: 'Delete "{name}" for {year}? Its bands stay on file and stop being applied.',
+      values: {
+        name: row.name,
+        year: row.financialYear,
+      },
+    }),
     refetch,
   });
 

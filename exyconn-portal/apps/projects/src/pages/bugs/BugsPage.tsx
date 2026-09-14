@@ -30,7 +30,7 @@ export function BugsPage() {
   const crud = useCrudResource<BugRow, PagedBugRow>({
     label: 'Bug',
     onDelete: (row) => deleteBug({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete bug "{title}"?', { title: row.title }),
+    confirmMessage: (row) => ({ message: 'Delete bug "{title}"?', values: { title: row.title } }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -42,10 +42,11 @@ export function BugsPage() {
   const promote = async (row: PagedBugRow) => {
     const ok = await confirm({
       title: 'Promote to ticket',
-      message: t('Create a BUG ticket for "{title}" on the {project} board?', {
+      message: 'Create a BUG ticket for "{title}" on the {project} board?',
+      messageValues: {
         title: row.title,
         project: row.projectName || t('project'),
-      }),
+      },
       confirmText: 'Promote',
     });
     if (!ok) {
@@ -53,7 +54,7 @@ export function BugsPage() {
     }
     try {
       const { data } = await promoteBug({ variables: { id: row.id } });
-      notify(t('Ticket {key} created.', { key: data?.promoteBugToTask.key ?? '' }), 'success');
+      notify('Ticket {key} created.', 'success', { key: data?.promoteBugToTask.key ?? '' });
       crud.reload();
     } catch (error) {
       notify(errorMessage(error, 'The bug could not be promoted.'), 'error');

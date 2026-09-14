@@ -67,7 +67,8 @@ export function TicketDialog({ ticket, onClose, onChanged }: Readonly<TicketDial
 
   const destroy = async () => {
     const ok = await confirm({
-      message: t('Delete {key} — "{title}"?', { key: ticket.key, title: ticket.title }),
+      message: 'Delete {key} — "{title}"?',
+      messageValues: { key: ticket.key, title: ticket.title },
       confirmText: 'Delete',
     });
     if (ok && (await remove(ticket.id))) {

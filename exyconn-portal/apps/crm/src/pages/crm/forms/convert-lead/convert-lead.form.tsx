@@ -66,11 +66,9 @@ export function ConvertLeadForm({ lead, onDone, onCancel }: Readonly<ConvertLead
           },
         },
       });
-      notify(
-        t('Deal "{title}" created', {
-          title: res.data?.convertLead.title ?? values.dealTitle,
-        }),
-      );
+      notify('Deal "{title}" created', 'success', {
+        title: res.data?.convertLead.title ?? values.dealTitle,
+      });
       onDone();
     } catch (err) {
       notify(errorMessage(err, 'Conversion failed'), 'error');

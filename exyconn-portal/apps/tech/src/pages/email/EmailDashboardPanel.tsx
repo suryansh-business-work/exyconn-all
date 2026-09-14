@@ -37,12 +37,14 @@ export function EmailDashboardPanel() {
     { label: 'Templates', value: String(board?.templates ?? 0), accent: color.blue[400] },
     { label: 'Active', value: String(board?.activeTemplates ?? 0), accent: color.green[500] },
     {
-      label: t('Sent · {days}d', { days: TREND_DAYS }),
+      label: 'Sent · {days}d',
+      labelValues: { days: TREND_DAYS },
       value: String(board?.sent ?? 0),
       accent: color.violet[400],
     },
     {
-      label: t('Failed · {days}d', { days: TREND_DAYS }),
+      label: 'Failed · {days}d',
+      labelValues: { days: TREND_DAYS },
       value: String(board?.failed ?? 0),
       accent: color.red[200],
     },

@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -14,14 +13,13 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Clients module — client directory dashboard with a server-side clients grid. */
 export function ClientsPage() {
-  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListClientsStatsQuery();
   const [deleteClient] = useDeleteClientMutation();
   const crud = useCrudResource<ClientRow, PagedClientRow>({
     label: 'Client',
     onDelete: (row) => deleteClient({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete client "{name}"?', { name: row.name }),
+    confirmMessage: (row) => ({ message: 'Delete client "{name}"?', values: { name: row.name } }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

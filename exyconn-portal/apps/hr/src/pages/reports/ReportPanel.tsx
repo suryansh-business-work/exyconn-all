@@ -37,7 +37,7 @@ export function ReportPanel({ report }: Readonly<{ report: AnyReport }>) {
   const exportCsv = () => {
     const stamp = new Date().toISOString().slice(0, 10);
     downloadCsv(`${report.key}-${stamp}`, toCsv(rows, report.columns));
-    notify(t('Exported {count} rows.', { count: rows.length }), 'success');
+    notify('Exported {count} rows.', 'success', { count: rows.length });
   };
 
   const rowCount = loading ? '' : ` · ${t('{count} rows', { count: rows.length })}`;

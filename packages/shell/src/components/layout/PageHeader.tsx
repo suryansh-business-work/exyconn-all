@@ -14,6 +14,7 @@ interface PageHeaderProps {
   titleValues?: Interpolations;
   subtitle?: string;
   subtitleValues?: Interpolations;
+  actionLabelValues?: Interpolations;
   actionLabel?: string;
   onAction?: () => void;
   children?: ReactNode;
@@ -26,6 +27,7 @@ export function PageHeader({
   subtitle,
   subtitleValues,
   actionLabel,
+  actionLabelValues,
   onAction,
   children,
 }: PageHeaderProps) {
@@ -58,7 +60,7 @@ export function PageHeader({
       {children}
       {actionLabel && onAction && (
         <Button variant="contained" startIcon={<AddIcon />} onClick={onAction}>
-          {t(actionLabel)}
+          {t(actionLabel, actionLabelValues)}
         </Button>
       )}
     </Stack>

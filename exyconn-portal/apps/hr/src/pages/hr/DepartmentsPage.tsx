@@ -18,7 +18,10 @@ export function DepartmentsPage() {
   const crud = useCrudResource<DepartmentRow>({
     label: 'Department',
     onDelete: (row) => deleteDepartment({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete department "${row.name}"?`,
+    confirmMessage: (row) => ({
+      message: 'Delete department "{name}"?',
+      values: { name: row.name },
+    }),
     refetch,
   });
 

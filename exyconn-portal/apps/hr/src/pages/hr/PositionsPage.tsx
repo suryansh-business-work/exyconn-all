@@ -15,7 +15,7 @@ export function PositionsPage() {
   const crud = useCrudResource<PositionRow>({
     label: 'Position',
     onDelete: (row) => deletePosition({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete position "${row.name}"?`,
+    confirmMessage: (row) => ({ message: 'Delete position "{name}"?', values: { name: row.name } }),
     refetch,
   });
 

@@ -1,9 +1,15 @@
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { errorMessage } from '@/utils/errorMessage';
 
 export interface UseEntitySaveOptions<TValues, TRow> {
   /** Sentence-case entity name used in the toast, e.g. "Lead" → "Lead created". */
   label: string;
+  /**
+   * Values for a label written with a {placeholder} — `'Administrator for {organization}'`.
+   * A label built with a template literal would be a new catalogue key for every record.
+   */
+  labelValues?: Interpolations;
   /** The row being edited, or null when creating. */
   initial: TRow | null;
   create: (values: TValues) => Promise<unknown>;
@@ -25,12 +31,14 @@ export interface EntitySave<TValues> {
  */
 export function useEntitySave<TValues, TRow>({
   label,
+  labelValues,
   initial,
   create,
   update,
   onDone,
 }: UseEntitySaveOptions<TValues, TRow>): EntitySave<TValues> {
   const notify = useNotify();
+  const t = useT();
   const isEdit = Boolean(initial);
 
   const onSubmit = async (values: TValues) => {
@@ -40,7 +48,11 @@ export function useEntitySave<TValues, TRow>({
       } else {
         await create(values);
       }
-      notify(`${label} ${isEdit ? 'updated' : 'created'}`);
+      // Two whole sentences: "{entity} updated" and "{entity} created" agree differently in
+      // other languages, so neither can be built from a shared noun and a verb.
+      notify(isEdit ? '{entity} updated' : '{entity} created', 'success', {
+        entity: t(label, labelValues),
+      });
       onDone();
     } catch (error) {
       notify(errorMessage(error, 'Save failed'), 'error');

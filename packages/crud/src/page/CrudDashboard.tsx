@@ -1,6 +1,6 @@
 import { useMemo, type ReactNode } from 'react';
 import type { ColDef } from 'ag-grid-community';
-import { useT } from '@exyconn/i18n';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { Flex, useMediaQuery, useTheme } from '@exyconn/shell/components/ui';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
@@ -19,6 +19,8 @@ import { RecordCardList } from '../list/RecordCardList';
 interface CrudDashboardProps<TRow, TPaged> {
   title: string;
   subtitle: string;
+  /** Values for a {placeholder} in the subtitle — see PageHeader's subtitleValues. */
+  subtitleValues?: Interpolations;
   /** Lower-case singular entity name; drives "New lead" and the form page's "Edit lead". */
   entityLabel: string;
   /** Overrides the "New {entityLabel}" header button label. */
@@ -70,6 +72,7 @@ interface CrudDashboardProps<TRow, TPaged> {
 export function CrudDashboard<TRow, TPaged>({
   title,
   subtitle,
+  subtitleValues,
   entityLabel,
   actionLabel,
   stats,
@@ -104,18 +107,26 @@ export function CrudDashboard<TRow, TPaged>({
   // Built from placeholders rather than by joining words: "New {entity}" is one string a
   // translator can put in their own order, where 'New ' + entityLabel is two they cannot.
   // The noun is translated too — "risk", "invoice" — before it is put into the pattern.
-  const entity = t(entityLabel);
-  const formTitle = crud?.editing ? t('Edit {entity}', { entity }) : t('New {entity}', { entity });
+  // Templates and their values go down to the components that translate them — a string
+  // translated here and again there would reach the catalogue as a new "English" source.
+  const entity = { entity: t(entityLabel) };
+  const formTitle = crud?.editing ? 'Edit {entity}' : 'New {entity}';
   const createAction =
     crud && may('create')
-      ? { label: actionLabel ?? t('New {entity}', { entity }), open: crud.openCreate }
+      ? {
+          label: actionLabel ?? 'New {entity}',
+          values: actionLabel ? undefined : entity,
+          open: crud.openCreate,
+        }
       : null;
   if (crud?.open && renderForm) {
     return (
       <CrudFormPage
         title={formTitle}
+        titleValues={entity}
         onBack={crud.close}
-        backLabel={t('Back to {list}', { list: title })}
+        backLabel="Back to {list}"
+        backLabelValues={{ list: t(title) }}
       >
         {renderForm(crud.editing)}
       </CrudFormPage>
@@ -125,7 +136,9 @@ export function CrudDashboard<TRow, TPaged>({
     <ModuleDashboard
       title={title}
       subtitle={subtitle}
+      subtitleValues={subtitleValues}
       actionLabel={createAction?.label}
+      actionLabelValues={createAction?.values}
       onAction={createAction?.open}
       stats={stats}
       dialog={extraDialogs}

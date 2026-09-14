@@ -37,8 +37,10 @@ export function IncidentsPanel() {
   const crud = useCrudResource<IncidentRow, PagedIncidentRow>({
     label: 'Incident',
     onDelete: (row) => deleteIncident({ variables: { id: row.id } }),
-    confirmMessage: (row) =>
-      t('Delete incident "{title}" from the public history?', { title: row.title }),
+    confirmMessage: (row) => ({
+      message: 'Delete incident "{title}" from the public history?',
+      values: { title: row.title },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

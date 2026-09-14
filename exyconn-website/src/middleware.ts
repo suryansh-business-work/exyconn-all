@@ -2,7 +2,8 @@ import { defineMiddleware } from "astro:middleware";
 import { chooseMarket, marketUrl, splitMarketPath, type Market } from "./lib/i18n/markets";
 import { collectStrings, translateHtml } from "./lib/i18n/html-translate";
 import { cachePage, cachedPage } from "./lib/i18n/page-cache";
-import { loadMessages, requestTranslations } from "./lib/i18n/translations";
+import { loadMessages, translateMissing, type Messages } from "./lib/i18n/translations";
+import { localiseLinks, marketCookie, rememberedMarket } from "./lib/i18n/market-links";
 
 const APEX_HOST = "exyconn.com";
 
@@ -24,29 +25,58 @@ const isPage = (pathname: string) =>
  * makes a market that nobody has translated by hand still readable.
  */
 async function localise(market: Market, path: string, response: Response): Promise<Response> {
-  if (market.language === "en") {
+  if (!(response.headers.get("content-type") ?? "").includes("text/html")) {
     return response;
   }
-  const messages = await loadMessages(market.language);
-  const cached = cachedPage(market.language, path, messages);
-  const html = cached ?? translatePage(market, path, await response.text(), messages);
-  return new Response(html, {
-    status: response.status,
-    headers: response.headers,
-  });
+  const html = await pageText(market, path, response);
+  const headers = new Headers(response.headers);
+  // The body is rewritten, so the length the renderer sent no longer describes it.
+  headers.delete("content-length");
+  // Remember the choice, so a link without a market — typed, from an email, built by the
+  // search box — comes back here rather than to whatever the browser's language suggests.
+  headers.append("Set-Cookie", marketCookie(market));
+  return new Response(localiseLinks(html, market), { status: response.status, headers });
 }
 
-function translatePage(
+/**
+ * The page's HTML in the market's language. English is the source, so it is served as it
+ * was rendered; links are localised afterwards either way, per request, because the cache is
+ * per LANGUAGE and two markets that share one (fr-fr, fr-ca) must not share their links.
+ */
+async function pageText(market: Market, path: string, response: Response): Promise<string> {
+  if (market.language === "en") {
+    return response.text();
+  }
+  const messages = await loadMessages(market.language);
+  const cached = cachedPage(market.path, path, messages);
+  return cached ?? (await translatePage(market, path, await response.text(), messages));
+}
+
+/**
+ * How long the first reader of a page in a new language waits for the model.
+ *
+ * Long enough for a few batches to come back, so they read the page in their language rather
+ * than in English; short enough that nobody waits on a slow model. Whatever is still being
+ * translated when it runs out is finished in the background for the next reader.
+ */
+const FIRST_READER_BUDGET_MS = 6000;
+
+async function translatePage(
   market: Market,
   path: string,
   html: string,
-  messages: Readonly<Record<string, string>>
-): string {
-  const translated = translateHtml(html, (source) => messages[source]);
-  cachePage(market.language, path, translated, messages);
-  // Everything the catalogue could not answer, so the next reader gets it in their language.
+  catalogue: Messages
+): Promise<string> {
+  let messages = catalogue;
   const missing = collectStrings(html).filter((source) => messages[source] === undefined);
-  requestTranslations(market.language, missing);
+  if (missing.length > 0) {
+    // Translate now, for this reader, instead of serving English and translating for the next.
+    messages = await translateMissing(market.language, missing, FIRST_READER_BUDGET_MS);
+  }
+  const translated = translateHtml(html, (source) => messages[source]);
+  // Cached against the catalogue it was translated with: when later batches land, that is a
+  // different object, and the next reader gets a fresh render with the new words.
+  cachePage(market.path, path, translated, messages);
   return translated;
 }
 
@@ -89,12 +119,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { market, rest } = splitMarketPath(url.pathname);
   if (isPage(url.pathname)) {
     if (!market) {
-      // An old link, or somebody typing exyconn.com/about-us: send them to the market their
-      // browser and their country suggest, keeping the page they asked for.
-      const chosen = chooseMarket(
-        context.request.headers.get("accept-language"),
-        context.request.headers.get("cf-ipcountry") ?? context.request.headers.get("x-country")
-      );
+      // An old link, or somebody typing exyconn.com/about-us: send them to the market they
+      // chose last, else the one their browser and their country suggest, keeping the page.
+      const chosen =
+        rememberedMarket(context.request.headers.get("cookie")) ??
+        chooseMarket(
+          context.request.headers.get("accept-language"),
+          context.request.headers.get("cf-ipcountry") ?? context.request.headers.get("x-country")
+        );
       return context.redirect(`${marketUrl(chosen, url.pathname)}${url.search}`, 302);
     }
     context.locals.market = market;

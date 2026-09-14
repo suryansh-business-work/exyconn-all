@@ -99,7 +99,8 @@ export function DashboardPage() {
         accent: color.purple[400],
       },
       {
-        label: `Leave taken ${now.getFullYear()}`,
+        label: 'Leave taken {year}',
+        labelValues: { year: now.getFullYear() },
         value: t('{days} d', { days: leaves.approvedDays }),
         accent: color.purple[300],
       },
@@ -122,11 +123,15 @@ export function DashboardPage() {
     [holidays.data],
   );
 
-  const firstName = user?.name.split(' ')[0] ?? 'there';
+  const firstName = user?.name.split(' ')[0] ?? t('there');
 
   return (
     <Box>
-      <PageHeader title={`Hello, ${firstName}`} subtitle="Your workspace at a glance" />
+      <PageHeader
+        title="Hello, {name}"
+        titleValues={{ name: firstName }}
+        subtitle="Your workspace at a glance"
+      />
       <DashboardTiles stats={stats} />
 
       <Grid container spacing={2}>

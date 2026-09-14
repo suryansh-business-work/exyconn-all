@@ -36,8 +36,10 @@ export function PurchaseOrdersPage() {
   const crud = useCrudResource<PurchaseOrderRow, PurchaseOrderRow>({
     label: 'Purchase order',
     onDelete: (row) => deleteOrder({ variables: { id: row.id } }),
-    confirmMessage: (row) =>
-      t('Delete {number}? Stock already received stays where it is.', { number: row.number }),
+    confirmMessage: (row) => ({
+      message: 'Delete {number}? Stock already received stays where it is.',
+      values: { number: row.number },
+    }),
     refetch: refetchStats,
   });
 

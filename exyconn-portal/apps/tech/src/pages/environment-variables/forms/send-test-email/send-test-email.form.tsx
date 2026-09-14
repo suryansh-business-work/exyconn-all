@@ -41,7 +41,7 @@ export function SendTestEmailForm({
   const onSubmit = async ({ to }: Values) => {
     try {
       await sendTest({ variables: { id: configId, to } });
-      notify(t('Test email sent to {to}', { to }));
+      notify('Test email sent to {to}', 'success', { to });
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Send failed', 'error');

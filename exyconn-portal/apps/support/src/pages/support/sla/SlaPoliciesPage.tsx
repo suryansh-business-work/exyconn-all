@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -24,7 +23,6 @@ import {
  * were given, which is the only way a promise made to somebody stays the one they were told.
  */
 export function SlaPoliciesPage() {
-  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListSupportSlaPoliciesStatsQuery();
   const { data: slaData } = useSupportSlaSummaryQuery({ fetchPolicy: 'cache-and-network' });
   const [deletePolicy] = useDeleteSupportSlaPolicyMutation();
@@ -32,10 +30,11 @@ export function SlaPoliciesPage() {
   const crud = useCrudResource<SlaPolicyRow, PagedSlaPolicyRow>({
     label: 'SLA policy',
     onDelete: (row) => deletePolicy({ variables: { id: row.id } }),
-    confirmMessage: (row) =>
-      t('Delete the {priority} policy? Tickets raised at that priority will carry no deadline.', {
-        priority: row.priority,
-      }),
+    confirmMessage: (row) => ({
+      message:
+        'Delete the {priority} policy? Tickets raised at that priority will carry no deadline.',
+      values: { priority: row.priority },
+    }),
     refetch: refetchStats,
   });
 

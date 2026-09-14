@@ -4,11 +4,13 @@ import { Box, Button, Grid, Stack, Typography } from '@/components/ui';
 import { PageHeader } from '../layout/PageHeader';
 import { StatCard, type StatItem } from './StatCard';
 import { StatBreakdown, type BreakdownBucket } from './StatBreakdown';
-import { useT } from '@exyconn/i18n';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { panel } from '@/components/glass/glass';
 
 export interface OverviewBreakdown {
   title: string;
+  /** Values for a {placeholder} in the title. */
+  titleValues?: Interpolations;
   buckets: BreakdownBucket[];
   accent?: string;
 }
@@ -80,6 +82,7 @@ export function ModuleOverview({
             >
               <StatBreakdown
                 title={breakdown.title}
+                titleValues={breakdown.titleValues}
                 buckets={breakdown.buckets}
                 accent={breakdown.accent}
               />

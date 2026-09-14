@@ -40,7 +40,8 @@ export function OrganizationAdminForm({
   });
 
   const { onSubmit } = useEntitySave({
-    label: `Administrator for ${organizationName}`,
+    label: 'Administrator for {organization}',
+    labelValues: { organization: organizationName },
     initial: null,
     create: (values: Values) => assignAdmin({ variables: { organizationId, input: values } }),
     update: () => Promise.resolve(),
