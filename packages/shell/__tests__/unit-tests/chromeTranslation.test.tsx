@@ -59,6 +59,21 @@ describe('the shared chrome in another language', () => {
     expect(screen.getByRole('button', { name: 'Send' })).toBeDefined();
   });
 
+  it('translates the label the page chose, rather than passing it through', () => {
+    render(
+      <I18nProvider locale="de-DE" messages={{ 'Send reset link': 'Link zum Zurücksetzen senden' }}>
+        <FormActions
+          submitting={false}
+          isEdit={false}
+          onCancel={() => {}}
+          submitLabel="Send reset link"
+        />
+      </I18nProvider>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Link zum Zurücksetzen senden' })).toBeDefined();
+  });
+
   it('translates the way back out of a form', () => {
     inGerman(
       <CrudFormPage title="Risiko" onBack={() => {}}>

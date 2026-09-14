@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { Button, Chip, Divider, Flex, Stack, Typography } from '@exyconn/ui';
 import type { ManualEntry, ManualEntryStatus } from '@shared/types';
 import { formatDateTime, formatHoursMinutes } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 import Surface from './Surface';
 
 /** The colour a decision is worth. Pending is deliberately neutral: it is not a promise. */
@@ -32,11 +33,16 @@ function bookedTo(entry: ManualEntry): string {
 }
 
 function EntryRow({ entry, timezone, onWithdraw }: Readonly<RowProps>): ReactElement {
+  const t = useT();
   return (
     <Stack spacing={0.75}>
       <Flex direction="row" justifyContent="space-between" alignItems="center" gap={1}>
         <Typography variant="subtitle2">{formatHoursMinutes(entry.durationMs)}</Typography>
-        <Chip size="small" color={STATUS_COLOR[entry.status]} label={STATUS_LABEL[entry.status]} />
+        <Chip
+          size="small"
+          color={STATUS_COLOR[entry.status]}
+          label={t(STATUS_LABEL[entry.status])}
+        />
       </Flex>
       <Typography
         variant="caption"
@@ -62,13 +68,13 @@ function EntryRow({ entry, timezone, onWithdraw }: Readonly<RowProps>): ReactEle
             color: 'text.secondary',
           }}
         >
-          Reviewer: {entry.reviewNote}
+          {t('Reviewer: {note}', { note: entry.reviewNote })}
         </Typography>
       )}
       {entry.status === 'PENDING' && (
         <Flex direction="row" justifyContent="flex-end">
           <Button size="small" color="inherit" onClick={() => onWithdraw(entry)}>
-            Withdraw
+            {t('Withdraw')}
           </Button>
         </Flex>
       )}
@@ -88,6 +94,7 @@ export default function ManualEntryList({
   timezone,
   onWithdraw,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   if (entries.length === 0) {
     return (
       <Surface>
@@ -97,7 +104,7 @@ export default function ManualEntryList({
             color: 'text.secondary',
           }}
         >
-          You have not claimed any off-computer time in the last 90 days.
+          {t('You have not claimed any off-computer time in the last 90 days.')}
         </Typography>
       </Surface>
     );

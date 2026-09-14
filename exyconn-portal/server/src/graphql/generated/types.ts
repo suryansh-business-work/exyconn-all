@@ -11040,6 +11040,11 @@ export type TrackerMe = {
   consentPolicy?: Maybe<TrackerConsentPolicy>;
   consentRequired: Scalars['Boolean']['output'];
   /**
+   * The EFFECTIVE language: the employee's own pick, else the workspace default, else the
+   * locale this machine reported at sign-in, else English. Never empty.
+   */
+  locale: Scalars['String']['output'];
+  /**
    * Announcements this employee has not seen yet. The desktop app raises each one as a
    * notification and then marks them read, so a notice arrives while the app is in the tray.
    */
@@ -17147,6 +17152,7 @@ export type TrackerManualEntryResolvers<ContextType = GraphQLContext, ParentType
 export type TrackerMeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerMe'] = ResolversParentTypes['TrackerMe']> = ResolversObject<{
   consentPolicy?: Resolver<Maybe<ResolversTypes['TrackerConsentPolicy']>, ParentType, ContextType>;
   consentRequired?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notices?: Resolver<Array<ResolversTypes['TrackerMessage']>, ParentType, ContextType>;
   presence?: Resolver<ResolversTypes['TrackerPresenceState'], ParentType, ContextType>;
   projects?: Resolver<Array<ResolversTypes['TrackerProject']>, ParentType, ContextType>;

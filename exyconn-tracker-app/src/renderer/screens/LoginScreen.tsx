@@ -11,6 +11,7 @@ import {
   TRACKER_RADIUS,
   Typography,
 } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { Branding, ThemeMode } from '@shared/types';
 import AppFooter from '../components/AppFooter';
 import BrandMark from '../components/BrandMark';
@@ -38,6 +39,7 @@ export default function LoginScreen({
   signedOutReason,
   themeMode,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(rememberMe);
@@ -59,13 +61,13 @@ export default function LoginScreen({
     try {
       const result = await window.tracker.login(email.trim(), password, remember);
       if (!result.ok) {
-        setError(result.error ?? 'Sign in failed. Please check your details and try again.');
+        setError(result.error ?? t('Sign in failed. Please check your details and try again.'));
         setLoading(false);
       }
       // On success the main process pushes a new state and this screen unmounts.
     } catch (cause: unknown) {
       console.error('Login request failed', cause);
-      setError(GENERIC_ERROR);
+      setError(t(GENERIC_ERROR));
       setLoading(false);
     }
   }
@@ -74,7 +76,7 @@ export default function LoginScreen({
     <>
       {/* The window is frameless and this screen has no header of its own, so without this
           bar the login window could not be moved, minimised or closed at all. */}
-      <TitleBar title="Sign in" actions={<ThemeToggleButton mode={themeMode} />} />
+      <TitleBar title={t('Sign in')} actions={<ThemeToggleButton mode={themeMode} />} />
 
       <ScreenLayout maxWidth={420}>
         <Stack
@@ -88,7 +90,7 @@ export default function LoginScreen({
 
         <Surface sx={{ p: 2.5 }}>
           <Typography variant="h5" sx={{ mb: 0.5 }}>
-            Sign in
+            {t('Sign in')}
           </Typography>
           <Typography
             variant="body2"
@@ -97,7 +99,7 @@ export default function LoginScreen({
               mb: 2,
             }}
           >
-            Use your Exyconn portal email and password.
+            {t('Use your Exyconn portal email and password.')}
           </Typography>
 
           {signedOutReason !== null ? (
@@ -112,7 +114,7 @@ export default function LoginScreen({
 
           <Stack component="form" noValidate onSubmit={handleSubmit} spacing={1.75}>
             <TextField
-              label="Email"
+              label={t('Email')}
               type="email"
               autoComplete="username"
               autoFocus
@@ -120,7 +122,7 @@ export default function LoginScreen({
               value={email}
               disabled={loading}
               error={emailMissing}
-              helperText={emailMissing ? 'Enter your email.' : undefined}
+              helperText={emailMissing ? t('Enter your email.') : undefined}
               onChange={(event) => setEmail(event.target.value)}
             />
 
@@ -128,7 +130,7 @@ export default function LoginScreen({
               value={password}
               disabled={loading}
               error={passwordMissing}
-              helperText={passwordMissing ? 'Enter your password.' : undefined}
+              helperText={passwordMissing ? t('Enter your password.') : undefined}
               onChange={setPassword}
             />
 
@@ -141,7 +143,7 @@ export default function LoginScreen({
                   onChange={(event) => setRemember(event.target.checked)}
                 />
               }
-              label={<Typography variant="body2">Remember me on this computer</Typography>}
+              label={<Typography variant="body2">{t('Remember me on this computer')}</Typography>}
             />
 
             {error !== null ? (
@@ -161,7 +163,7 @@ export default function LoginScreen({
               disabled={loading}
               startIcon={loading ? <CircularProgress size={18} color="inherit" /> : null}
             >
-              {loading ? 'Signing in…' : 'Sign in'}
+              {loading ? t('Signing in…') : t('Sign in')}
             </Button>
           </Stack>
         </Surface>

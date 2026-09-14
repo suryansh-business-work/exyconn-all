@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Button, Stack } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
 import PauseRounded from '@mui/icons-material/PauseRounded';
 import ReplayRounded from '@mui/icons-material/ReplayRounded';
@@ -22,6 +23,7 @@ export default function TrackingControls({
   status,
   attendanceMarked,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const isIdle = status === 'idle';
   const isTracking = status === 'tracking';
   const isPaused = status === 'paused';
@@ -41,7 +43,7 @@ export default function TrackingControls({
         disabled={!isIdle || !attendanceMarked}
         onClick={() => run(() => window.tracker.start())}
       >
-        Start
+        {t('Start')}
       </Button>
       <Button
         variant="outlined"
@@ -50,7 +52,7 @@ export default function TrackingControls({
         disabled={!isTracking}
         onClick={() => run(() => window.tracker.pause())}
       >
-        Pause
+        {t('Pause')}
       </Button>
       <Button
         variant="outlined"
@@ -59,7 +61,7 @@ export default function TrackingControls({
         disabled={!isPaused}
         onClick={() => run(() => window.tracker.resume())}
       >
-        Resume
+        {t('Resume')}
       </Button>
       <Button
         variant="outlined"
@@ -68,7 +70,7 @@ export default function TrackingControls({
         disabled={!isTracking && !isPaused}
         onClick={() => run(() => window.tracker.stop())}
       >
-        Stop
+        {t('Stop')}
       </Button>
     </Stack>
   );

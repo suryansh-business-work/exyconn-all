@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Alert, Heading, Text } from '@exyconn/shell/components/ui';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { useUnsubscribeFromMarketingMutation } from '@exyconn/shell/graphql/generated';
+import { useT } from '@exyconn/i18n';
 import { LoginShell } from '../Login/LoginShell';
 
 export const UNSUBSCRIBE_CONFIRMATION =
@@ -15,13 +16,14 @@ type Outcome = { state: 'pending' } | { state: 'done' } | { state: 'failed'; mes
 
 /** The one line the page ends on, whichever way the request went. */
 function Result({ outcome }: Readonly<{ outcome: Outcome }>) {
+  const t = useT();
   if (outcome.state === 'pending') {
-    return <Text size="sm">Updating your preferences…</Text>;
+    return <Text size="sm">{t('Updating your preferences…')}</Text>;
   }
   if (outcome.state === 'failed') {
-    return <Alert severity="error">{outcome.message}</Alert>;
+    return <Alert severity="error">{t(outcome.message)}</Alert>;
   }
-  return <Alert severity="success">{UNSUBSCRIBE_CONFIRMATION}</Alert>;
+  return <Alert severity="success">{t(UNSUBSCRIBE_CONFIRMATION)}</Alert>;
 }
 
 /**
@@ -32,6 +34,7 @@ function Result({ outcome }: Readonly<{ outcome: Outcome }>) {
  * makes opting out feel like something the sender is resisting.
  */
 export function UnsubscribePage() {
+  const t = useT();
   const [params] = useSearchParams();
   const token = params.get('t') ?? '';
   const [unsubscribe] = useUnsubscribeFromMarketingMutation();
@@ -57,9 +60,13 @@ export function UnsubscribePage() {
       {() => (
         <>
           <Heading level={4} sx={{ mb: 2 }}>
-            Unsubscribe
+            {t('Unsubscribe')}
           </Heading>
-          {token ? <Result outcome={outcome} /> : <Alert severity="warning">{MISSING_TOKEN}</Alert>}
+          {token ? (
+            <Result outcome={outcome} />
+          ) : (
+            <Alert severity="warning">{t(MISSING_TOKEN)}</Alert>
+          )}
         </>
       )}
     </LoginShell>

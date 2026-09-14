@@ -11,6 +11,7 @@ import {
   Typography,
 } from '@exyconn/ui';
 import type { CSSObject, Theme } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import KeyboardOutlined from '@mui/icons-material/KeyboardOutlined';
 import MouseOutlined from '@mui/icons-material/MouseOutlined';
 import TimerOutlined from '@mui/icons-material/TimerOutlined';
@@ -64,11 +65,12 @@ function WorkedCard({
   previous,
   before,
 }: Readonly<{ current: PeriodTotals; previous: PeriodTotals; before: string }>): ReactElement {
+  const t = useT();
   const change = relativeChange(current.activeMs, previous.activeMs);
   return (
     <Surface sx={{ p: 2.5 }}>
       <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-        Worked
+        {t('Worked')}
       </Typography>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', my: 1 }}>
         <Typography variant="h3" sx={{ fontWeight: 700, letterSpacing: letterSpacing.tighter }}>
@@ -78,12 +80,14 @@ function WorkedCard({
       </Stack>
       <GradientBar
         percent={current.activityPercent}
-        label="Active"
-        trailing={`${formatHoursMinutes(current.idleMs)} idle`}
-        ariaLabel={`${current.activityPercent}% of tracked time was active`}
+        label={t('Active')}
+        trailing={t('{time} idle', { time: formatHoursMinutes(current.idleMs) })}
+        ariaLabel={t('{percent}% of tracked time was active', {
+          percent: current.activityPercent,
+        })}
       />
       <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 1 }}>
-        {formatHoursMinutes(previous.activeMs)} {before}.
+        {t('{time} {before}.', { time: formatHoursMinutes(previous.activeMs), before: t(before) })}
       </Typography>
     </Surface>
   );
@@ -95,6 +99,7 @@ function WorkedCard({
  * is the portal's own; a period with nothing before it shows no change rather than an invented one.
  */
 export default function ReportOverview({ timezone }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [length, setLength] = useState<PeriodLength>(7);
   const period = PERIODS.find((entry) => entry.length === length) ?? PERIODS[0];
   const { range, current, previous, columns, loading, error } = usePeriodInsights(length, timezone);
@@ -104,11 +109,11 @@ export default function ReportOverview({ timezone }: Readonly<Props>): ReactElem
 
   return (
     <Stack spacing={2}>
-      <Stack direction="row" spacing={1} role="group" aria-label="Period">
+      <Stack direction="row" spacing={1} role="group" aria-label={t('Period')}>
         {PERIODS.map((entry) => (
           <Chip
             key={entry.length}
-            label={entry.label}
+            label={t(entry.label)}
             clickable
             aria-pressed={entry.length === length}
             onClick={() => setLength(entry.length)}
@@ -134,7 +139,7 @@ export default function ReportOverview({ timezone }: Readonly<Props>): ReactElem
         <WorkedCard current={current} previous={previous} before={period.before} />
       )}
 
-      <ActivityCard title="Over time" percent={loading ? null : current.activityPercent}>
+      <ActivityCard title={t('Over time')} percent={loading ? null : current.activityPercent}>
         <StripesChart
           bars={columns}
           labels={{
@@ -142,10 +147,13 @@ export default function ReportOverview({ timezone }: Readonly<Props>): ReactElem
             middle: formatDayLabel(middle),
             end: formatDayLabel(last),
           }}
-          summary={`Hours worked per day, ${period.label.toLowerCase()}; ${current.trackedDays} days tracked.`}
+          summary={t('Hours worked per day, {period}; {days} days tracked.', {
+            period: t(period.label).toLowerCase(),
+            days: current.trackedDays,
+          })}
         />
         <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 1 }}>
-          Each stripe is a day: its height is the time worked, its colour how active it was.
+          {t('Each stripe is a day: its height is the time worked, its colour how active it was.')}
         </Typography>
       </ActivityCard>
 
@@ -153,11 +161,14 @@ export default function ReportOverview({ timezone }: Readonly<Props>): ReactElem
         {METRICS.map((metric) => (
           <MetricCard
             key={metric.key}
-            label={metric.label}
+            label={t(metric.label)}
             icon={metric.icon}
             value={formatCount(current[metric.key])}
             change={relativeChange(current[metric.key], previous[metric.key])}
-            caption={`${formatCount(previous[metric.key])} ${period.before}`}
+            caption={t('{count} {before}', {
+              count: formatCount(previous[metric.key]),
+              before: t(period.before),
+            })}
           />
         ))}
       </Box>

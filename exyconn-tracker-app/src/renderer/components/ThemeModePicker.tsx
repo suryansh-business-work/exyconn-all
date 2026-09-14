@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { ToggleButton, ToggleButtonGroup, Stack, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import BrightnessAutoOutlined from '@mui/icons-material/BrightnessAutoOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
@@ -30,6 +31,7 @@ interface Props {
  * desk it is sitting on without being asked. The other two are for when it should not.
  */
 export default function ThemeModePicker({ mode }: Readonly<Props>): ReactElement {
+  const t = useT();
   return (
     <Stack spacing={1}>
       <ToggleButtonGroup
@@ -48,7 +50,7 @@ export default function ThemeModePicker({ mode }: Readonly<Props>): ReactElement
           return (
             <ToggleButton key={option.value} value={option.value} sx={{ gap: 0.75 }}>
               <Icon fontSize="small" />
-              {option.label}
+              {t(option.label)}
             </ToggleButton>
           );
         })}
@@ -60,8 +62,8 @@ export default function ThemeModePicker({ mode }: Readonly<Props>): ReactElement
         }}
       >
         {mode === 'system'
-          ? 'Following your operating system, and switching with it.'
-          : 'Fixed to your choice, whatever the operating system does.'}
+          ? t('Following your operating system, and switching with it.')
+          : t('Fixed to your choice, whatever the operating system does.')}
       </Typography>
     </Stack>
   );

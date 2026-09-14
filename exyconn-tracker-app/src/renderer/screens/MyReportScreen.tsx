@@ -10,6 +10,7 @@ import {
   TRACKER_RADIUS,
   Typography,
 } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import DayDetailPanel from '../components/DayDetailPanel';
 import MonthSwitcher from '../components/MonthSwitcher';
 import ReportCalendar from '../components/ReportCalendar';
@@ -45,6 +46,7 @@ function monthKeyOf(month: Date): string {
  * month-at-a-glance table. Nobody else's data is reachable here.
  */
 export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElement {
+  const t = useT();
   const today = useMemo(() => new Date(), []);
   const [tab, setTab] = useState<TabId>('overview');
   const [month, setMonth] = useState<Date>(() => startOfMonth(today));
@@ -64,18 +66,18 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Stack spacing={2}>
         <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          This is your own tracked time, as your workspace sees it.
+          {t('This is your own tracked time, as your workspace sees it.')}
         </Typography>
 
         <Tabs
           value={tab}
           onChange={(_event, next: TabId) => setTab(next)}
           variant="fullWidth"
-          aria-label="Report view"
+          aria-label={t('Report view')}
         >
-          <Tab value="overview" label="Overview" />
-          <Tab value="calendar" label="Calendar" />
-          <Tab value="days" label="Days" />
+          <Tab value="overview" label={t('Overview')} />
+          <Tab value="calendar" label={t('Calendar')} />
+          <Tab value="days" label={t('Days')} />
         </Tabs>
 
         {error !== null ? (

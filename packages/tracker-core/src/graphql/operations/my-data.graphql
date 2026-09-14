@@ -81,3 +81,24 @@ mutation SendMyTrackerMessage($body: String!) {
 mutation MarkMyTrackerMessagesRead($kind: TrackerMessageKind) {
   markMyTrackerMessagesRead(kind: $kind)
 }
+
+# Localization. Public, like the portal's: the tracker's sign-in screen is the first thing an
+# employee sees and has to be in their language too.
+query LocaleBundle($locale: String!) {
+  localeBundle(locale: $locale) {
+    locale
+    direction
+    translations {
+      source
+      text
+    }
+  }
+}
+
+# The strings this app rendered that its locale had no translation for.
+mutation TranslateMissing($locale: String!, $sources: [String!]!) {
+  translateMissing(locale: $locale, sources: $sources) {
+    source
+    text
+  }
+}

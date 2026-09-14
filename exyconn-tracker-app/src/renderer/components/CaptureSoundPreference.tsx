@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Stack, Switch, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { AppPreferences, TrackerSettings } from '@shared/types';
 import { run } from '../run';
 
@@ -24,8 +25,9 @@ export default function CaptureSoundPreference({
   preferences,
   settings,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const mutedByWorkspace = settings !== null && !settings.captureSoundEnabled;
-  const caption = describe(mutedByWorkspace, preferences.muteCaptureSound);
+  const caption = describe(t, mutedByWorkspace, preferences.muteCaptureSound);
 
   return (
     <Stack
@@ -42,7 +44,7 @@ export default function CaptureSoundPreference({
             fontWeight: 600,
           }}
         >
-          Mute the screenshot sound
+          {t('Mute the screenshot sound')}
         </Typography>
         <Typography
           variant="caption"
@@ -60,7 +62,7 @@ export default function CaptureSoundPreference({
           run(() => window.tracker.setPreferences({ muteCaptureSound: event.target.checked }))
         }
         slotProps={{
-          input: { 'aria-label': 'Mute the camera shutter on this computer' },
+          input: { 'aria-label': t('Mute the camera shutter on this computer') },
         }}
       />
     </Stack>
@@ -68,12 +70,22 @@ export default function CaptureSoundPreference({
 }
 
 /** What the switch is actually doing right now, in the employee's own terms. */
-function describe(mutedByWorkspace: boolean, muted: boolean): string {
+function describe(
+  t: (source: string) => string,
+  mutedByWorkspace: boolean,
+  muted: boolean,
+): string {
   if (mutedByWorkspace) {
-    return 'Your workspace has already turned the capture sound off for everyone. You still get a notification for every screenshot.';
+    return t(
+      'Your workspace has already turned the capture sound off for everyone. You still get a notification for every screenshot.',
+    );
   }
   if (muted) {
-    return 'Screenshots are taken silently on this computer. You still get a notification for every one.';
+    return t(
+      'Screenshots are taken silently on this computer. You still get a notification for every one.',
+    );
   }
-  return 'A camera shutter plays each time a screenshot is taken. Muting it changes nothing about what is captured.';
+  return t(
+    'A camera shutter plays each time a screenshot is taken. Muting it changes nothing about what is captured.',
+  );
 }

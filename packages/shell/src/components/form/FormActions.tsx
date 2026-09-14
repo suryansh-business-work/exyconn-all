@@ -12,7 +12,10 @@ interface FormActionsProps {
 /** Standard Cancel / Save footer shared by every module form. */
 export function FormActions({ submitting, isEdit, onCancel, submitLabel }: FormActionsProps) {
   const t = useT();
-  const label = submitLabel ?? (isEdit ? t('Update') : t('Create'));
+  // The page's own word for the action ("Send reset link", "Block") is a source string like
+  // any other — translated, not passed through, or every overridden button stays English.
+  const standard = isEdit ? t('Update') : t('Create');
+  const label = submitLabel ? t(submitLabel) : standard;
   return (
     <Stack
       // Side by side at the bottom right on a desk; stacked and full width on a phone, where

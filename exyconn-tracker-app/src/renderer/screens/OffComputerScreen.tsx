@@ -10,6 +10,7 @@ import {
   Stack,
   Typography,
 } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { ManualEntry, TrackerProject } from '@shared/types';
 import ManualEntryForm from '../components/ManualEntryForm';
 import ManualEntryList from '../components/ManualEntryList';
@@ -30,6 +31,7 @@ interface Props {
  * decision still belongs to a manager, in the portal's review queue.
  */
 export default function OffComputerScreen({ projects, timezone }: Readonly<Props>): ReactElement {
+  const t = useT();
   const { entries, loading, error, reload } = useManualEntries();
   const [claiming, setClaiming] = useState(false);
 
@@ -49,7 +51,7 @@ export default function OffComputerScreen({ projects, timezone }: Readonly<Props
     return (
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <Stack spacing={2}>
-          <Typography variant="h6">Claim off-computer time</Typography>
+          <Typography variant="h6">{t('Claim off-computer time')}</Typography>
           <Surface>
             <ManualEntryForm
               projects={projects}
@@ -66,18 +68,18 @@ export default function OffComputerScreen({ projects, timezone }: Readonly<Props
     <Stack spacing={2}>
       <Flex direction="row" justifyContent="space-between" alignItems="flex-start" gap={1}>
         <Stack spacing={0.25}>
-          <Typography variant="h6">Off-computer time</Typography>
+          <Typography variant="h6">{t('Off-computer time')}</Typography>
           <Typography
             variant="caption"
             sx={{
               color: 'text.secondary',
             }}
           >
-            Hours the tracker could not measure, and where each one stands.
+            {t('Hours the tracker could not measure, and where each one stands.')}
           </Typography>
         </Stack>
         <Button variant="contained" size="small" onClick={() => setClaiming(true)}>
-          Claim time
+          {t('Claim time')}
         </Button>
       </Flex>
 

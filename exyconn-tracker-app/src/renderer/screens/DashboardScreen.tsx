@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Box, Divider, Stack, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { TrackerState } from '@shared/types';
 import Surface from '../components/Surface';
 import AttendanceGate from '../components/AttendanceGate';
@@ -30,6 +31,7 @@ interface Props {
  * actually working towards; everything below it explains how that number is being made.
  */
 export default function DashboardScreen({ state }: Readonly<Props>): ReactElement {
+  const t = useT();
   const { stats, status, settings, user, timezone, workday, workProfile, preferences } = state;
   const tracking = status === 'tracking' || status === 'paused';
 
@@ -56,7 +58,7 @@ export default function DashboardScreen({ state }: Readonly<Props>): ReactElemen
         >
           <Box sx={{ minWidth: 0 }}>
             <Typography variant="subtitle1" noWrap sx={{ fontWeight: 700 }}>
-              {user?.name ?? 'Signed in'}
+              {user?.name ?? t('Signed in')}
             </Typography>
             <Typography
               variant="caption"
@@ -102,14 +104,14 @@ export default function DashboardScreen({ state }: Readonly<Props>): ReactElemen
 
       <Stack spacing={1}>
         <Stack spacing={0.25}>
-          <Typography variant="subtitle2">This session</Typography>
+          <Typography variant="subtitle2">{t('This session')}</Typography>
           <Typography
             variant="caption"
             sx={{
               color: 'text.secondary',
             }}
           >
-            Live counters for the run in progress — they reset to zero when you stop.
+            {t('Live counters for the run in progress — they reset to zero when you stop.')}
           </Typography>
         </Stack>
         <StatGrid tiles={sessionTiles(stats, settings)} />

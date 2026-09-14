@@ -9,6 +9,7 @@ import {
   TRACKER_RADIUS,
   Typography,
 } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import CloseRounded from '@mui/icons-material/CloseRounded';
 import type { Tile } from '../tiles';
 
@@ -26,14 +27,22 @@ interface Props {
  * taken on trust.
  */
 export default function TileDetailDialog({ tile, onClose }: Readonly<Props>): ReactElement | null {
+  const t = useT();
   if (tile === null) {
     return null;
   }
 
   const Icon = tile.icon;
+  const title = t(tile.label);
 
   return (
-    <Dialog open onClose={onClose} maxWidth="xs" fullWidth aria-label={`${tile.label} detail`}>
+    <Dialog
+      open
+      onClose={onClose}
+      maxWidth="xs"
+      fullWidth
+      aria-label={t('{label} detail', { label: title })}
+    >
       <DialogContent>
         <Stack
           direction="row"
@@ -45,9 +54,14 @@ export default function TileDetailDialog({ tile, onClose }: Readonly<Props>): Re
         >
           <Icon fontSize="small" sx={{ color: 'primary.main', mt: 0.4 }} />
           <Typography variant="subtitle1" sx={{ flex: 1, fontWeight: 700 }}>
-            {tile.label}
+            {title}
           </Typography>
-          <IconButton size="small" aria-label="Close" onClick={onClose} sx={{ mt: -0.5, mr: -1 }}>
+          <IconButton
+            size="small"
+            aria-label={t('Close')}
+            onClick={onClose}
+            sx={{ mt: -0.5, mr: -1 }}
+          >
             <CloseRounded fontSize="small" />
           </IconButton>
         </Stack>
@@ -74,7 +88,7 @@ export default function TileDetailDialog({ tile, onClose }: Readonly<Props>): Re
                   color: 'text.secondary',
                 }}
               >
-                {fact.label}
+                {t(fact.label)}
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 600, textAlign: 'right' }}>
                 {fact.value}
@@ -84,7 +98,7 @@ export default function TileDetailDialog({ tile, onClose }: Readonly<Props>): Re
         </Stack>
 
         <Alert severity="info" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
-          {tile.detail.note}
+          {t(tile.detail.note)}
         </Alert>
       </DialogContent>
     </Dialog>

@@ -6,6 +6,7 @@ import { describeSyncFailure } from './portal/sync-message';
 import { isAwayPresence } from './presence';
 import { decideAutoAction, formatHourLabel, hourIn, isWithinWindow } from './schedule';
 import { deviceTimezone, effectiveTimezone } from './timezone';
+import { deviceLocale, effectiveLocale } from './locale';
 import type {
   AttendanceStatus,
   AuthUser,
@@ -77,6 +78,11 @@ export interface TrackerState<Permissions, Preferences> {
    * admin's house default, else this device's zone. Never empty.
    */
   timezone: string;
+  /**
+   * The language every string in the app is shown in: the employee's own pick, else the
+   * admin's house default, else this machine's language. Never empty.
+   */
+  locale: string;
   /** What the employee last said they were doing — lunch, a break, a meeting. */
   presence: PresenceState;
   /** Messages from the tracker desk they have not read, for the drawer's badge. */
@@ -131,6 +137,8 @@ export interface ControllerDeps<Permissions, Preferences, PermissionKind> {
     | 'setTimezone'
     | 'fetchMyTotals'
     | 'fetchTimezones'
+    | 'fetchTranslations'
+    | 'translateMissing'
     | 'acceptConsent'
     | 'markAttendance'
     | 'fetchTasks'
@@ -204,6 +212,8 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
    * default). Held here so the report query and the UI agree on ONE zone.
    */
   private timezone: string = deviceTimezone();
+  /** The language the whole UI renders in, resolved the same way the zone is. */
+  private locale: string = deviceLocale();
   /** The keep-alive/settings poll; runs only while somebody is signed in. */
   private pollTimer: ReturnType<typeof setInterval> | null = null;
   /**
@@ -238,6 +248,7 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
       rememberMe: store.remembered,
       signedOutReason: this.signedOutReason,
       timezone: this.timezone,
+      locale: this.locale,
       presence: this.presence,
       unreadMessages: this.unreadMessages,
     };
@@ -351,6 +362,7 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
     this.consentPolicy = me.consentPolicy;
     this.adoptWorkday(me.workday);
     this.timezone = effectiveTimezone(me.timezone);
+    this.locale = effectiveLocale(me.locale);
     this.presence = me.presence;
     this.announceMessages(me.unreadMessages);
     this.announceNotices(me.notices);
@@ -368,6 +380,7 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
       this.user,
       this.settings,
       this.timezone,
+      this.locale,
       this.status,
       this.permissions,
       this.workProfile,
@@ -527,6 +540,20 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
   /** The employee's own all-time totals (device-token scoped — never anybody else's). */
   getTotals(): Promise<TrackerTotals> {
     return this.deps.portal.fetchMyTotals();
+  }
+
+  /**
+   * Every translation the app's language has, and a way to ask for the ones it lacks.
+   *
+   * Passed through rather than held: the UI is the only thing that renders words, so it owns
+   * the catalogue, and on the desktop that is a different process from this one.
+   */
+  getTranslations(locale: string): Promise<Record<string, string>> {
+    return this.deps.portal.fetchTranslations(locale);
+  }
+
+  translateMissing(locale: string, sources: string[]): Promise<Record<string, string>> {
+    return this.deps.portal.translateMissing(locale, sources);
   }
 
   /** The zones the portal can resolve, for a picker on a runtime without its own list. */

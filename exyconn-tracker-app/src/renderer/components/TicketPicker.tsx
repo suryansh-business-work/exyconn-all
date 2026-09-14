@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { ListSubheader, MenuItem, TextField } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { TrackerTask } from '@shared/types';
 import { run } from '../run';
 
@@ -26,6 +27,7 @@ export default function TicketPicker({
   selectedTaskId,
   disabled,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const mine = tasks.filter((task) => task.assignedToMe);
   const others = tasks.filter((task) => !task.assignedToMe);
 
@@ -40,18 +42,18 @@ export default function TicketPicker({
       select
       size="small"
       fullWidth
-      label="Ticket"
+      label={t('Ticket')}
       value={selectedTaskId}
       disabled={disabled}
       helperText={
-        disabled ? 'Locked while tracking — stop to book to another ticket.' : 'Optional.'
+        disabled ? t('Locked while tracking — stop to book to another ticket.') : t('Optional.')
       }
       onChange={(event) => run(() => window.tracker.setTask(event.target.value))}
     >
-      <MenuItem value="">No ticket</MenuItem>
-      {mine.length > 0 && <ListSubheader>Assigned to me</ListSubheader>}
+      <MenuItem value="">{t('No ticket')}</MenuItem>
+      {mine.length > 0 && <ListSubheader>{t('Assigned to me')}</ListSubheader>}
       {mine.map(option)}
-      {others.length > 0 && <ListSubheader>Everything else</ListSubheader>}
+      {others.length > 0 && <ListSubheader>{t('Everything else')}</ListSubheader>}
       {others.map(option)}
     </TextField>
   );

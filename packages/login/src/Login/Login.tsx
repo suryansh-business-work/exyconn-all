@@ -1,4 +1,5 @@
 import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { Heading, Text } from '@exyconn/shell/components/ui';
 import { RESET_PASSWORD_PATH, UNSUBSCRIBE_PATH } from '@exyconn/shell/app/PortalApp';
 import { LoginForm } from './forms/login';
@@ -14,6 +15,7 @@ import { safeNext } from '@exyconn/shell/utils/redirect';
  * portal gets them from the `loginElement` it already passes to the shell.
  */
 export function Login() {
+  const t = useT();
   const { user } = useAuth();
   const { pathname } = useLocation();
   const [params] = useSearchParams();
@@ -32,13 +34,13 @@ export function Login() {
       {(page) => (
         <>
           <Heading level={4} sx={{ mb: 2 }}>
-            Sign in to {page.name}
+            {t('Sign in to {portal}', { portal: page.name })}
           </Heading>
           <LoginForm accentColor={page.accentColor} />
 
           <Text size="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
-            Authorized personnel only.
-            {page.supportEmail ? ` Need access? ${page.supportEmail}` : ''}
+            {t('Authorized personnel only.')}
+            {page.supportEmail ? ` ${t('Need access? {email}', { email: page.supportEmail })}` : ''}
           </Text>
         </>
       )}

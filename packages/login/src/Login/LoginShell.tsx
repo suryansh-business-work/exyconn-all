@@ -20,6 +20,7 @@ import { useLoginPage, type LoginPageView } from './useLoginPage';
 import { env } from '@exyconn/shell/config/env';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { useColorMode } from '@exyconn/shell/theme/ColorModeContext';
+import { useT } from '@exyconn/i18n';
 
 interface LoginShellProps {
   /** The card body under the logo row: heading, form, footnotes. */
@@ -33,6 +34,7 @@ interface LoginShellProps {
  * subdomain is serving it, so no two portals share a front door.
  */
 export function LoginShell({ children }: Readonly<LoginShellProps>) {
+  const t = useT();
   const { mode, toggle } = useColorMode();
   const isDark = mode === 'dark';
   const page = useLoginPage(isDark);
@@ -57,7 +59,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
 
       <IconButton
         onClick={toggle}
-        aria-label="toggle color mode"
+        aria-label={t('toggle color mode')}
         sx={{ position: 'absolute', top: 16, right: 16, zIndex: zIndex.overlay }}
       >
         {isDark ? <LightModeIcon /> : <DarkModeIcon />}
@@ -83,7 +85,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
                 size="small"
                 sx={{ borderRadius: `${radius.pill}px`, bgcolor: 'action.hover', px: 2 }}
               >
-                Support
+                {t('Support')}
               </Button>
             </Flex>
 

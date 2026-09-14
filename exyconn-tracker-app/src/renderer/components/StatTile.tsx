@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import type { SvgIconComponent } from '@mui/icons-material';
 import { alpha, ButtonBase, color, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import Surface from './Surface';
 
 interface Props {
@@ -13,11 +14,13 @@ interface Props {
 
 /** A single labelled stat in the dashboard grid. Clicking it explains the number. */
 export default function StatTile({ label, value, icon, onOpen }: Readonly<Props>): ReactElement {
+  const t = useT();
   const Icon = icon;
+  const title = t(label);
   return (
     <ButtonBase
       onClick={onOpen}
-      aria-label={`${label}: ${value}. Open details`}
+      aria-label={t('{label}: {value}. Open details', { label: title, value })}
       sx={{
         display: 'block',
         width: '100%',
@@ -51,7 +54,7 @@ export default function StatTile({ label, value, icon, onOpen }: Readonly<Props>
               color: 'text.secondary',
             }}
           >
-            {label}
+            {title}
           </Typography>
         </Stack>
         <Typography variant="h6" noWrap title={value}>

@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { useState } from 'react';
 import { Alert, Stack, Tab, Tabs, TRACKER_RADIUS, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { TrackerMessageKind } from '@shared/types';
 import MessageComposer from '../components/MessageComposer';
 import MessageList from '../components/MessageList';
@@ -22,23 +23,24 @@ interface Props {
  * in the tray, and this is where they can be found again afterwards.
  */
 export default function MessagesScreen({ timezone }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [tab, setTab] = useState<TrackerMessageKind>('CHAT');
   const { messages, loading, error, sending, send } = useMessages(tab);
 
   return (
     <Stack spacing={2}>
       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-        Between you and whoever administers tracking in your workspace.
+        {t('Between you and whoever administers tracking in your workspace.')}
       </Typography>
 
       <Tabs
         value={tab}
         onChange={(_event, next: TrackerMessageKind) => setTab(next)}
         variant="fullWidth"
-        aria-label="Message view"
+        aria-label={t('Message view')}
       >
-        <Tab value="CHAT" label="Chat" />
-        <Tab value="NOTICE" label="Announcements" />
+        <Tab value="CHAT" label={t('Chat')} />
+        <Tab value="NOTICE" label={t('Announcements')} />
       </Tabs>
 
       {error !== null ? (
@@ -53,8 +55,10 @@ export default function MessagesScreen({ timezone }: Readonly<Props>): ReactElem
             messages={messages}
             loading={loading}
             timezone={timezone}
-            emptyTitle="No messages yet"
-            emptyBody="Write below to reach whoever administers tracking. They can reply from the portal."
+            emptyTitle={t('No messages yet')}
+            emptyBody={t(
+              'Write below to reach whoever administers tracking. They can reply from the portal.',
+            )}
           />
           <MessageComposer sending={sending} onSend={send} />
         </>
@@ -63,8 +67,10 @@ export default function MessagesScreen({ timezone }: Readonly<Props>): ReactElem
           messages={messages}
           loading={loading}
           timezone={timezone}
-          emptyTitle="No announcements"
-          emptyBody="Anything your workspace sends to every tracker appears here, and on your desktop."
+          emptyTitle={t('No announcements')}
+          emptyBody={t(
+            'Anything your workspace sends to every tracker appears here, and on your desktop.',
+          )}
         />
       )}
     </Stack>

@@ -1,5 +1,9 @@
 import type { ReactElement } from 'react';
 import { Box, CircularProgress, ThemeProvider } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
+import { deviceTimezone } from '@exyconn/tracker-core';
+import type { TrackerState } from '@shared/types';
+import TrackerI18nProvider from './i18n/TrackerI18nProvider';
 import AppFrame from './components/AppFrame';
 import TitleBar from './components/TitleBar';
 import ScreenshotsScreen from './screens/ScreenshotsScreen';
@@ -24,6 +28,23 @@ function Loading(): ReactElement {
   );
 }
 
+/** The window's own chrome and body, inside the language the gallery is read in. */
+function Gallery({ state }: Readonly<{ state: TrackerState | null }>): ReactElement {
+  const t = useT();
+
+  return (
+    <AppFrame>
+      {/* The window is frameless, so without this it could not be moved or closed. */}
+      <TitleBar title={t('My screenshots — Exyconn Tracker')} />
+      {state === null ? (
+        <Loading />
+      ) : (
+        <ScreenshotsScreen startISO={START} endISO={END} timezone={state.timezone} />
+      )}
+    </AppFrame>
+  );
+}
+
 /**
  * The screenshot gallery — a REAL second window, sharing the main window's preload, so it
  * reaches the portal the same way everything else does: through the main process, over IPC.
@@ -33,17 +54,17 @@ export default function ScreenshotsApp(): ReactElement {
   const state = useTrackerState();
   const theme = useBrandTheme(state?.branding ?? null, state?.preferences.themeMode);
 
+  // This is a SECOND window with its own React root, so it needs its own provider — the main
+  // window's does not reach it, and without one the gallery would be the one screen in the
+  // app still in English.
   return (
-    <ThemeProvider theme={theme}>
-      <AppFrame>
-        {/* The window is frameless, so without this it could not be moved or closed. */}
-        <TitleBar title="My screenshots — Exyconn Tracker" />
-        {state === null ? (
-          <Loading />
-        ) : (
-          <ScreenshotsScreen startISO={START} endISO={END} timezone={state.timezone} />
-        )}
-      </AppFrame>
-    </ThemeProvider>
+    <TrackerI18nProvider
+      locale={state?.locale ?? null}
+      timezone={state?.timezone ?? deviceTimezone()}
+    >
+      <ThemeProvider theme={theme}>
+        <Gallery state={state} />
+      </ThemeProvider>
+    </TrackerI18nProvider>
   );
 }

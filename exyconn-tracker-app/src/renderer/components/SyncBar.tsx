@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Alert, LinearProgress, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import CloudDoneOutlined from '@mui/icons-material/CloudDoneOutlined';
 import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
 import type { LiveStats, TrackerSettings } from '@shared/types';
@@ -13,23 +14,28 @@ interface Props {
   timezone: string;
 }
 
+type Translate = ReturnType<typeof useT>;
+
 /** The upload cadence the portal has configured, in plain language. */
-function policyText(settings: TrackerSettings | null): string {
+function policyText(settings: TrackerSettings | null, t: Translate): string {
   if (!settings) {
-    return 'Sync policy unavailable';
+    return t('Sync policy unavailable');
   }
   const mins = settings.syncIntervalMinutes;
-  return `Uploads automatically every ${mins} minute${mins === 1 ? '' : 's'}`;
+  if (mins === 1) {
+    return t('Uploads automatically every {count} minute', { count: mins });
+  }
+  return t('Uploads automatically every {count} minutes', { count: mins });
 }
 
-function pendingText(stats: LiveStats): string {
+function pendingText(stats: LiveStats, t: Translate): string {
   if (stats.syncing) {
-    return 'Uploading…';
+    return t('Uploading…');
   }
   if (stats.pendingSync === 0) {
-    return 'Everything uploaded';
+    return t('Everything uploaded');
   }
-  return `${formatCount(stats.pendingSync)} waiting to upload`;
+  return t('{count} waiting to upload', { count: formatCount(stats.pendingSync) });
 }
 
 /**
@@ -41,6 +47,7 @@ function pendingText(stats: LiveStats): string {
  * this says when it last did and what is still queued.
  */
 export default function SyncBar({ stats, settings, timezone }: Readonly<Props>): ReactElement {
+  const t = useT();
   const settled = stats.pendingSync === 0 && !stats.syncing;
   const StatusIcon = settled ? CloudDoneOutlined : CloudUploadOutlined;
   const message = syncMessage(stats.lastSyncOutcome);
@@ -56,7 +63,7 @@ export default function SyncBar({ stats, settings, timezone }: Readonly<Props>):
       >
         <StatusIcon fontSize="small" sx={{ color: settled ? 'success.main' : 'warning.main' }} />
         <Typography variant="subtitle2" noWrap sx={{ flex: 1, minWidth: 0 }}>
-          {pendingText(stats)}
+          {pendingText(stats, t)}
         </Typography>
       </Stack>
 
@@ -68,7 +75,8 @@ export default function SyncBar({ stats, settings, timezone }: Readonly<Props>):
           mt: 0.75,
         }}
       >
-        Last synced {formatLastSync(stats.lastSyncAt, timezone)} · {policyText(settings)}
+        {t('Last synced {time}', { time: formatLastSync(stats.lastSyncAt, timezone) })} ·{' '}
+        {policyText(settings, t)}
       </Typography>
 
       {stats.syncing ? <LinearProgress sx={{ mt: 1.5 }} /> : null}

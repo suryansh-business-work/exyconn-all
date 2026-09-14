@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { useState } from 'react';
 import { Alert, Button, LinearProgress, Stack, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { UpdateState } from '@shared/types';
 import { run } from '../run';
 
@@ -20,13 +21,14 @@ interface Props {
  * itself on the next quit, whether or not anybody presses Restart.
  */
 export default function UpdateBanner({ update }: Readonly<Props>): ReactElement | null {
+  const t = useT();
   const [restarting, setRestarting] = useState(false);
 
   if (update.stage === 'available') {
     return (
       <UpdateNotice
-        text={`Version ${update.version} is available.`}
-        actionLabel="Update"
+        text={t('Version {version} is available.', { version: update.version })}
+        actionLabel={t('Update')}
         onAction={() => run(() => window.tracker.downloadUpdate())}
       />
     );
@@ -41,7 +43,9 @@ export default function UpdateBanner({ update }: Readonly<Props>): ReactElement 
             color: 'text.secondary',
           }}
         >
-          Downloading version {update.version} in the background — carry on working.
+          {t('Downloading version {version} in the background — carry on working.', {
+            version: update.version,
+          })}
         </Typography>
         <LinearProgress variant="determinate" value={update.percent} />
       </Stack>
@@ -52,8 +56,8 @@ export default function UpdateBanner({ update }: Readonly<Props>): ReactElement 
     return (
       <UpdateNotice
         severity="warning"
-        text={`Version ${update.version} could not be downloaded.`}
-        actionLabel="Retry"
+        text={t('Version {version} could not be downloaded.', { version: update.version })}
+        actionLabel={t('Retry')}
         onAction={() => run(() => window.tracker.downloadUpdate())}
       />
     );
@@ -65,8 +69,10 @@ export default function UpdateBanner({ update }: Readonly<Props>): ReactElement 
 
   return (
     <UpdateNotice
-      text={`Version ${update.version} is ready. It installs the next time you quit.`}
-      actionLabel="Restart"
+      text={t('Version {version} is ready. It installs the next time you quit.', {
+        version: update.version,
+      })}
+      actionLabel={t('Restart')}
       disabled={restarting}
       onAction={() => {
         setRestarting(true);

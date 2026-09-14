@@ -96,6 +96,7 @@ fragment TrackerMeFields on TrackerMe {
   }
   consentRequired
   timezone
+  locale
   settings {
     ...TrackerSettingsFields
   }

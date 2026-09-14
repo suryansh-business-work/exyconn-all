@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { useMemo } from 'react';
 import { BarChart, ChartCard, formatHours, useChartPalette } from '@exyconn/ui';
 import type { ReportDay } from '@shared/types';
+import { useT } from '@exyconn/i18n';
 import Surface from './Surface';
 import { monthChart } from '../charts';
 
@@ -20,6 +21,7 @@ interface Props {
  * the reader has to do.
  */
 export default function ReportMonthChart({ days, monthLabel }: Readonly<Props>): ReactElement {
+  const t = useT();
   const palette = useChartPalette();
   const data = useMemo(() => {
     const shaped = monthChart(days);
@@ -27,19 +29,24 @@ export default function ReportMonthChart({ days, monthLabel }: Readonly<Props>):
     const colors = [palette.series[0], palette.series[3]];
     return {
       ...shaped,
-      series: shaped.series.map((series, index) => ({ ...series, color: colors[index] })),
+      // "Worked" and "Idle" are written in `charts.ts`, which has no React and so no `t`.
+      series: shaped.series.map((series, index) => ({
+        ...series,
+        label: t(series.label),
+        color: colors[index],
+      })),
     };
-  }, [days, palette]);
+  }, [days, palette, t]);
 
   return (
     <Surface sx={{ p: 2 }}>
       <ChartCard
-        title="Hours this month"
-        subtitle={`${monthLabel} · each column is one day`}
+        title={t('Hours this month')}
+        subtitle={t('{month} · each column is one day', { month: monthLabel })}
         data={data}
         formatValue={formatHours}
-        labelHeading="Day"
-        emptyText="No time tracked this month."
+        labelHeading={t('Day')}
+        emptyText={t('No time tracked this month.')}
       >
         <BarChart data={data} formatValue={formatHours} stacked height={200} />
       </ChartCard>

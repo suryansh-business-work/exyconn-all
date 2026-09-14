@@ -1,5 +1,6 @@
 import {
   CreateTrackerManualEntryDocument,
+  LocaleBundleDocument,
   MarkMyTrackerMessagesReadDocument,
   MyTrackerCalendarDocument,
   MyTrackerDayDocument,
@@ -15,6 +16,7 @@ import {
   TrackerLatestReleaseDocument,
   TrackerLoginDocument,
   TrackerTimezonesDocument,
+  TranslateMissingDocument,
   TrackerMarkAttendanceDocument,
   TrackerMeDocument,
   TrackerSetTimezoneDocument,
@@ -119,6 +121,8 @@ export interface TrackerMeResponse {
   settings: TrackerSettings;
   /** The EFFECTIVE zone the portal resolved: this employee's pick, else the admin default. */
   timezone: string;
+  /** The EFFECTIVE language, resolved the same way: their pick, the default, this machine's. */
+  locale: string;
   workProfile: WorkProfile;
   workday: Workday;
   projects: TrackerProject[];
@@ -240,6 +244,27 @@ export function createPortalClient(config: PortalClientConfig) {
     async reportClientLogs(input: AppLogBatchInput): Promise<boolean> {
       const data = await request(ReportClientLogsDocument, { input }, await config.getToken());
       return data.reportClientLogs;
+    },
+
+    /**
+     * Every translation this locale has, keyed by the English the app was written in.
+     *
+     * Unauthenticated, like the branding: the sign-in screen is the first thing an employee
+     * reads, and it has to be in their language too.
+     */
+    async fetchTranslations(locale: string): Promise<Record<string, string>> {
+      const data = await request(LocaleBundleDocument, { locale }, null);
+      return Object.fromEntries(data.localeBundle.translations.map((row) => [row.source, row.text]));
+    },
+
+    /**
+     * Asks the portal to machine-translate strings this locale has never seen, and answers
+     * with what it managed. Fire-and-forget from the app's point of view: the screen has
+     * already rendered in English, and this is what makes the NEXT one read in their own.
+     */
+    async translateMissing(locale: string, sources: string[]): Promise<Record<string, string>> {
+      const data = await request(TranslateMissingDocument, { locale, sources }, null);
+      return Object.fromEntries(data.translateMissing.map((row) => [row.source, row.text]));
     },
 
     /** Brand identity for the app's chrome. Unauthenticated — the login screen needs it. */

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Box, Tooltip, keyframes } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { TrackerStatus } from '@shared/types';
 
 /**
@@ -33,12 +34,14 @@ interface Props {
  * say the opposite of the truth, which is the one thing a monitoring app cannot afford.
  */
 export default function TrackingPulse({ status }: Readonly<Props>): ReactElement {
+  const t = useT();
   const look = LOOK[status];
+  const label = t(look.label);
 
   return (
-    <Tooltip title={look.label}>
+    <Tooltip title={label}>
       <Box
-        aria-label={look.label}
+        aria-label={label}
         sx={{ position: 'relative', display: 'grid', placeItems: 'center', width: 14, height: 14 }}
       >
         {look.live ? (

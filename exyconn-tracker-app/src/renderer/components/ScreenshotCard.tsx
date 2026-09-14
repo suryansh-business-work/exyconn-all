@@ -12,6 +12,7 @@ import {
   TRACKER_RADIUS,
   Typography,
 } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import BlurOnRounded from '@mui/icons-material/BlurOnRounded';
 import type { DayScreenshot } from '@shared/types';
 import { activityColor, activityLabel, formatDateTime } from '@exyconn/tracker-core';
@@ -29,13 +30,14 @@ const PENDING_HINT =
 
 /** One screenshot, with the activity level of its interval and the time it was captured. */
 export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Props>): ReactElement {
+  const t = useT();
   const capturedAt = formatDateTime(shot.capturedAt, timezone);
 
   return (
     <Surface sx={{ p: 1.5 }}>
       <ButtonBase
         onClick={onOpen}
-        aria-label={`Open the screenshot captured at ${capturedAt} full screen`}
+        aria-label={t('Open the screenshot captured at {time} full screen', { time: capturedAt })}
         sx={{
           display: 'block',
           width: '100%',
@@ -47,7 +49,7 @@ export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Prop
         <Box
           component="img"
           src={shot.imageUrl}
-          alt={`Screenshot captured at ${capturedAt}`}
+          alt={t('Screenshot captured at {time}', { time: capturedAt })}
           loading="lazy"
           sx={(theme) => ({
             width: '100%',
@@ -80,11 +82,11 @@ export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Prop
           }}
         >
           {shot.blurred ? (
-            <Tooltip title="Blurred by your workspace's settings">
+            <Tooltip title={t("Blurred by your workspace's settings")}>
               <BlurOnRounded fontSize="small" sx={{ color: 'text.secondary' }} />
             </Tooltip>
           ) : null}
-          <Tooltip title={PENDING_HINT}>
+          <Tooltip title={t(PENDING_HINT)}>
             <Chip
               size="small"
               variant="outlined"

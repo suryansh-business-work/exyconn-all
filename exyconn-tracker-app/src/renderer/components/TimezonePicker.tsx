@@ -10,6 +10,7 @@ import {
   TRACKER_RADIUS,
   Typography,
 } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import { formatTimeOfDay, offsetLabel, timezoneNames } from '@exyconn/tracker-core';
 
 interface Props {
@@ -32,6 +33,7 @@ const SAVE_FAILED = 'Your timezone could not be saved. Check your connection and
  * portal and to their next device.
  */
 export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -103,9 +105,11 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
         renderInput={(params) => (
           <TextField
             {...params}
-            label="Timezone"
+            label={t('Timezone')}
             fullWidth
-            helperText={`Every date and time in this app is shown in this zone (${offsetLabel(timezone)}).`}
+            helperText={t('Every date and time in this app is shown in this zone ({offset}).', {
+              offset: offsetLabel(timezone),
+            })}
             slotProps={{
               ...params.slotProps,
               input: {
@@ -128,12 +132,14 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
           color: 'text.secondary',
         }}
       >
-        It is {formatTimeOfDay(new Date().toISOString(), timezone)} there right now.
+        {t('It is {time} there right now.', {
+          time: formatTimeOfDay(new Date().toISOString(), timezone),
+        })}
       </Typography>
 
       {failed ? (
         <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
-          {SAVE_FAILED}
+          {t(SAVE_FAILED)}
         </Alert>
       ) : null}
     </Stack>

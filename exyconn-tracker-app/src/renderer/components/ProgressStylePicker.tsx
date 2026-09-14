@@ -4,6 +4,7 @@ import LinearScaleOutlined from '@mui/icons-material/LinearScaleOutlined';
 import DonutLargeOutlined from '@mui/icons-material/DonutLargeOutlined';
 import type { SvgIconComponent } from '@mui/icons-material';
 import type { ProgressStyle } from '@shared/types';
+import { useT } from '@exyconn/i18n';
 import { run } from '../run';
 
 interface Option {
@@ -28,6 +29,11 @@ interface Props {
  * a fact about the person looking at it, so it is theirs to set rather than ours to decide.
  */
 export default function ProgressStylePicker({ style }: Readonly<Props>): ReactElement {
+  const t = useT();
+  const caption =
+    style === 'ring'
+      ? t('Today’s progress is drawn as a ring, with the percentage inside it.')
+      : t('Today’s progress is drawn as a bar, with what is left as a length.');
   return (
     <Stack spacing={1}>
       <ToggleButtonGroup
@@ -46,7 +52,7 @@ export default function ProgressStylePicker({ style }: Readonly<Props>): ReactEl
           return (
             <ToggleButton key={option.value} value={option.value} sx={{ gap: 0.75 }}>
               <Icon fontSize="small" />
-              {option.label}
+              {t(option.label)}
             </ToggleButton>
           );
         })}
@@ -57,9 +63,7 @@ export default function ProgressStylePicker({ style }: Readonly<Props>): ReactEl
           color: 'text.secondary',
         }}
       >
-        {style === 'ring'
-          ? 'Today’s progress is drawn as a ring, with the percentage inside it.'
-          : 'Today’s progress is drawn as a bar, with what is left as a length.'}
+        {caption}
       </Typography>
     </Stack>
   );

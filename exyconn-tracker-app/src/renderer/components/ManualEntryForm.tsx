@@ -11,6 +11,7 @@ import {
   Typography,
 } from '@exyconn/ui';
 import type { ManualEntryDraft, TrackerProject, TrackerTask } from '@shared/types';
+import { useT } from '@exyconn/i18n';
 
 interface Props {
   projects: TrackerProject[];
@@ -33,6 +34,7 @@ export default function ManualEntryForm({
   onCancel,
   onDone,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const [projectId, setProjectId] = useState(projects[0]?.id ?? '');
   const [tasks, setTasks] = useState<TrackerTask[]>([]);
   const [taskId, setTaskId] = useState(NO_TICKET);
@@ -82,7 +84,7 @@ export default function ManualEntryForm({
   async function submit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     if (startedAt === null || endedAt === null || note.trim() === '') {
-      setError('Fill in when the work happened and what it was for.');
+      setError(t('Fill in when the work happened and what it was for.'));
       return;
     }
     setSaving(true);
@@ -91,7 +93,7 @@ export default function ManualEntryForm({
       await window.tracker.createManualEntry(draftFrom(startedAt, endedAt));
       onDone();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'The claim could not be filed.');
+      setError(cause instanceof Error ? cause.message : t('The claim could not be filed.'));
       setSaving(false);
     }
   }
@@ -104,8 +106,9 @@ export default function ManualEntryForm({
           color: 'text.secondary',
         }}
       >
-        Claimed hours are the one thing the tracker did not measure, so they wait for a manager.
-        Nothing here counts until somebody approves it.
+        {t(
+          'Claimed hours are the one thing the tracker did not measure, so they wait for a manager. Nothing here counts until somebody approves it.',
+        )}
       </Typography>
 
       {error !== null && <Alert severity="error">{error}</Alert>}
@@ -113,7 +116,7 @@ export default function ManualEntryForm({
       <TextField
         select
         size="small"
-        label="Project"
+        label={t('Project')}
         value={projectId}
         onChange={(event) => setProjectId(event.target.value)}
       >
@@ -127,11 +130,11 @@ export default function ManualEntryForm({
       <TextField
         select
         size="small"
-        label="Ticket"
+        label={t('Ticket')}
         value={taskId}
         onChange={(event) => setTaskId(event.target.value)}
       >
-        <MenuItem value={NO_TICKET}>No ticket</MenuItem>
+        <MenuItem value={NO_TICKET}>{t('No ticket')}</MenuItem>
         {tasks.map((task) => (
           <MenuItem key={task.id} value={task.id}>
             {task.key} · {task.title}
@@ -140,14 +143,14 @@ export default function ManualEntryForm({
       </TextField>
 
       <DateTimePicker
-        label="From"
+        label={t('From')}
         value={startedAt}
         onChange={setStartedAt}
         disableFuture
         slotProps={{ textField: { size: 'small' } }}
       />
       <DateTimePicker
-        label="To"
+        label={t('To')}
         value={endedAt}
         onChange={setEndedAt}
         disableFuture
@@ -156,7 +159,7 @@ export default function ManualEntryForm({
 
       <TextField
         size="small"
-        label="What was the time for?"
+        label={t('What was the time for?')}
         value={note}
         multiline
         minRows={2}
@@ -165,10 +168,10 @@ export default function ManualEntryForm({
 
       <Flex direction="row" justifyContent="flex-end" gap={1}>
         <Button color="inherit" onClick={onCancel} disabled={saving}>
-          Cancel
+          {t('Cancel')}
         </Button>
         <Button type="submit" variant="contained" disabled={saving}>
-          Submit claim
+          {t('Submit claim')}
         </Button>
       </Flex>
     </Stack>

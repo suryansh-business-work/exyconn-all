@@ -13,6 +13,7 @@ import {
 } from '@exyconn/shell/components/ui';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { env } from '@exyconn/shell/config/env';
+import { useT } from '@exyconn/i18n';
 
 interface LoginPromoProps {
   /** Portal name from branding, e.g. "Finance" — the headline of this card. */
@@ -29,6 +30,7 @@ interface LoginPromoProps {
  * `finance.exyconn.com` and `hr.exyconn.com` are told apart before signing in.
  */
 export function LoginPromo({ name, slogan, accentColor }: Readonly<LoginPromoProps>) {
+  const t = useT();
   return (
     <Box
       sx={(t) => ({
@@ -75,7 +77,7 @@ export function LoginPromo({ name, slogan, accentColor }: Readonly<LoginPromoPro
         sx={{ position: 'relative' }}
       >
         <Text size="caption" color="text.secondary">
-          By Exyconn
+          {t('By Exyconn')}
         </Text>
         <Button
           href={env.brandUrl}
@@ -90,7 +92,7 @@ export function LoginPromo({ name, slogan, accentColor }: Readonly<LoginPromoPro
             '&:hover': { bgcolor: accentColor, opacity: 0.9 },
           }}
         >
-          Explore
+          {t('Explore')}
         </Button>
       </Flex>
     </Box>

@@ -1,6 +1,6 @@
 {
   "name": "exyconn-tracker-mobile",
-  "version": "1.9.36",
+  "version": "1.9.37",
   "private": true,
   "description": "Exyconn Tracker for Android and iOS — the desktop tracker's rules (@exyconn/tracker-core) in an Expo + Tamagui shell. Built only on GitHub Actions (tracker-release.yml).",
   "main": "index.ts",
@@ -16,6 +16,7 @@
     "@expo-google-fonts/inter": "^0.4.2",
     "@expo/metro-runtime": "~57.0.15",
     "@expo/vector-icons": "^15.0.2",
+    "@exyconn/i18n": "workspace:^",
     "@exyconn/logger": "workspace:*",
     "@exyconn/regex": "workspace:*",
     "@exyconn/tracker-core": "workspace:*",

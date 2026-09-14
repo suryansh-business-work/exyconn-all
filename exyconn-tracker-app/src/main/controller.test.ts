@@ -161,6 +161,7 @@ function portalState(overrides: Partial<portal.TrackerMeResponse> = {}): portal.
     consentRequired: false,
     settings: SETTINGS,
     timezone: 'Asia/Kolkata',
+    locale: 'en-IN',
     workProfile: WORK_PROFILE,
     workday: WORKDAY,
     projects: PROJECTS,

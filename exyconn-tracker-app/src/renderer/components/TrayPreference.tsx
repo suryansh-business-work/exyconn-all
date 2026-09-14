@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Stack, Switch, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { AppPreferences } from '@shared/types';
 import { run } from '../run';
 
@@ -13,6 +14,7 @@ interface Props {
  * that it is still recording. Off: close means quit, and tracking stops with the app.
  */
 export default function TrayPreference({ preferences }: Readonly<Props>): ReactElement {
+  const t = useT();
   return (
     <Stack
       direction="row"
@@ -28,7 +30,7 @@ export default function TrayPreference({ preferences }: Readonly<Props>): ReactE
             fontWeight: 600,
           }}
         >
-          Keep running in the tray
+          {t('Keep running in the tray')}
         </Typography>
         <Typography
           variant="caption"
@@ -37,8 +39,10 @@ export default function TrayPreference({ preferences }: Readonly<Props>): ReactE
           }}
         >
           {preferences.closeToTray
-            ? 'Closing the window hides it. Tracking carries on, and the tray icon stays as the reminder.'
-            : 'Closing the window quits the tracker, and tracking stops with it.'}
+            ? t(
+                'Closing the window hides it. Tracking carries on, and the tray icon stays as the reminder.',
+              )
+            : t('Closing the window quits the tracker, and tracking stops with it.')}
         </Typography>
       </Stack>
       <Switch
@@ -47,7 +51,7 @@ export default function TrayPreference({ preferences }: Readonly<Props>): ReactE
           run(() => window.tracker.setPreferences({ closeToTray: event.target.checked }))
         }
         slotProps={{
-          input: { 'aria-label': 'Keep running in the tray when the window is closed' },
+          input: { 'aria-label': t('Keep running in the tray when the window is closed') },
         }}
       />
     </Stack>

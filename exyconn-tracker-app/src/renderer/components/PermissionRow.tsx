@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import type { SvgIconComponent } from '@mui/icons-material';
 import { alpha, Box, Button, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import Surface from './Surface';
 
 interface Props {
@@ -19,6 +20,7 @@ export default function PermissionRow({
   busy,
   onGrant,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const Icon = icon;
   return (
     <Surface sx={{ p: 2 }}>
@@ -55,7 +57,7 @@ export default function PermissionRow({
           </Typography>
         </Box>
         <Button variant="contained" size="small" disabled={busy} onClick={onGrant}>
-          Grant
+          {t('Grant')}
         </Button>
       </Stack>
     </Surface>

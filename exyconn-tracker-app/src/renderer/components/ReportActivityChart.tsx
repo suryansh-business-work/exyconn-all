@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { useMemo } from 'react';
 import { ChartCard, TrendChart, useChartPalette } from '@exyconn/ui';
 import type { ReportDay } from '@shared/types';
+import { useT } from '@exyconn/i18n';
 import Surface from './Surface';
 import { activityTrend } from '../charts';
 
@@ -22,24 +23,30 @@ interface Props {
  * answers is about the shape of a run of days, not the size of any one of them.
  */
 export default function ReportActivityChart({ days, monthLabel }: Readonly<Props>): ReactElement {
+  const t = useT();
   const palette = useChartPalette();
   const data = useMemo(() => {
     const shaped = activityTrend(days);
     return {
       ...shaped,
-      series: shaped.series.map((series) => ({ ...series, color: palette.series[2] })),
+      // "Activity" is written in `charts.ts`, which has no React and so no `t`.
+      series: shaped.series.map((series) => ({
+        ...series,
+        label: t(series.label),
+        color: palette.series[2],
+      })),
     };
-  }, [days, palette]);
+  }, [days, palette, t]);
 
   return (
     <Surface sx={{ p: 2 }}>
       <ChartCard
-        title="Activity this month"
-        subtitle={`${monthLabel} · share of tracked time that was active`}
+        title={t('Activity this month')}
+        subtitle={t('{month} · share of tracked time that was active', { month: monthLabel })}
         data={data}
         formatValue={formatPercent}
-        labelHeading="Day"
-        emptyText="No time tracked this month."
+        labelHeading={t('Day')}
+        emptyText={t('No time tracked this month.')}
       >
         <TrendChart data={data} formatValue={formatPercent} area height={180} />
       </ChartCard>

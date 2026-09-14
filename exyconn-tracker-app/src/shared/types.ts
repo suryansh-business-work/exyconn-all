@@ -145,6 +145,9 @@ export const IPC = {
   getDay: 'tracker:get-day',
   getTotals: 'tracker:get-totals',
   setTimezone: 'tracker:set-timezone',
+  /** The app's own words in the employee's language, and the ones it could not translate. */
+  getTranslations: 'tracker:get-translations',
+  translateMissing: 'tracker:translate-missing',
   openScreenshots: 'tracker:open-screenshots',
   setPreferences: 'tracker:set-preferences',
   getTasks: 'tracker:get-tasks',

@@ -3,6 +3,7 @@ import { Alert, Button, Skeleton, Stack, TRACKER_RADIUS, Typography } from '@exy
 import OpenInNewRounded from '@mui/icons-material/OpenInNewRounded';
 import type { DayDetail } from '@shared/types';
 import { activityPercent, dayBounds, formatCount, formatDayLabel } from '@exyconn/tracker-core';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { run } from '../run';
 import Surface from './Surface';
 import DayActivityChart from './DayActivityChart';
@@ -20,11 +21,14 @@ interface Props {
 const SKELETON_TILES = ['t1', 't2', 't3', 't4'] as const;
 
 /** Counts only — the tracker records how much you typed, never what you typed. */
-function inputSummary(detail: DayDetail): string {
+function inputSummary(
+  t: (source: string, values?: Interpolations) => string,
+  detail: DayDetail,
+): string {
   const keys = formatCount(detail.keyCount);
   const clicks = formatCount(detail.mouseCount);
   const sessions = formatCount(detail.sessions);
-  return `${keys} keys · ${clicks} clicks · ${sessions} sessions`;
+  return t('{keys} keys · {clicks} clicks · {sessions} sessions', { keys, clicks, sessions });
 }
 
 /** The selected day: its totals, then that day's screenshots — which open in their own window. */
@@ -35,6 +39,7 @@ export default function DayDetailPanel({
   error,
   timezone,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const heading = (
     <Typography
       variant="subtitle1"
@@ -95,10 +100,10 @@ export default function DayDetailPanel({
           color: 'text.secondary',
         }}
       >
-        {inputSummary(detail)}
+        {inputSummary(t, detail)}
       </Typography>
 
-      <DayActivityChart title="Activity" detail={detail} loading={false} timezone={timezone} />
+      <DayActivityChart title={t('Activity')} detail={detail} loading={false} timezone={timezone} />
 
       <Surface sx={{ p: 2 }}>
         <Stack
@@ -111,11 +116,11 @@ export default function DayDetailPanel({
           }}
         >
           <Typography variant="subtitle2">
-            Screenshots ({formatCount(detail.screenshots.length)})
+            {t('Screenshots ({count})', { count: formatCount(detail.screenshots.length) })}
           </Typography>
           {detail.screenshots.length > 0 ? (
             <Button size="small" startIcon={<OpenInNewRounded />} onClick={openGallery}>
-              Open gallery
+              {t('Open gallery')}
             </Button>
           ) : null}
         </Stack>

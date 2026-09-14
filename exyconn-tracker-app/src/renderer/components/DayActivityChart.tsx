@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { Skeleton, Typography } from '@exyconn/ui';
 import type { DayDetail } from '@shared/types';
 import { dayStripes, formatTimeOfDay } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 import ActivityCard from './ActivityCard';
 import StripesChart from './StripesChart';
 
@@ -23,6 +24,7 @@ export default function DayActivityChart({
   loading,
   timezone,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const shaped = useMemo(() => dayStripes(detail?.intervals ?? []), [detail]);
   const { span } = shaped;
 
@@ -33,7 +35,7 @@ export default function DayActivityChart({
           <Skeleton variant="rounded" height={140} />
         ) : (
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Nothing has synced for this day yet.
+            {t('Nothing has synced for this day yet.')}
           </Typography>
         )}
       </ActivityCard>
@@ -50,7 +52,12 @@ export default function DayActivityChart({
       <StripesChart
         bars={shaped.stripes}
         labels={labels}
-        summary={`${shaped.stripes.length} intervals from ${labels.start} to ${labels.end}, ${shaped.averagePercent}% active overall.`}
+        summary={t('{count} intervals from {start} to {end}, {percent}% active overall.', {
+          count: shaped.stripes.length,
+          start: labels.start,
+          end: labels.end,
+          percent: shaped.averagePercent,
+        })}
       />
     </ActivityCard>
   );

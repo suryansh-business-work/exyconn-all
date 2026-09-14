@@ -10,6 +10,7 @@ import {
   Typography,
 } from '@exyconn/ui';
 import type { Theme } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import { NAV_ITEMS, type NavItem, type Section } from '../sections';
 
 function barFill(theme: Theme): string {
@@ -26,14 +27,16 @@ interface TabProps {
 
 /** One tab: an icon, or — selected — a light pill with the icon and its short name. */
 function Tab({ item, selected, count, onSelect }: Readonly<TabProps>): ReactElement {
+  const t = useT();
   const Icon = item.icon;
-  const unread = count > 0 ? `, ${count} unread` : '';
+  const name = t(item.label);
+  const label = count > 0 ? t('{label}, {count} unread', { label: name, count }) : name;
   return (
-    <Tooltip title={item.caption}>
+    <Tooltip title={t(item.caption)}>
       <ButtonBase
         role="tab"
         aria-selected={selected}
-        aria-label={`${item.label}${unread}`}
+        aria-label={label}
         onClick={() => onSelect(item.id)}
         sx={{
           height: 44,
@@ -53,7 +56,7 @@ function Tab({ item, selected, count, onSelect }: Readonly<TabProps>): ReactElem
         </Badge>
         {selected ? (
           <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
-            {item.short}
+            {t(item.short)}
           </Typography>
         ) : null}
       </ButtonBase>
@@ -73,11 +76,12 @@ export default function TabBar({
   unreadMessages,
   onSelect,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   return (
     <Stack
       direction="row"
       role="tablist"
-      aria-label="Sections"
+      aria-label={t('Sections')}
       sx={(theme) => ({
         position: 'absolute',
         // Above the page's own stacked pieces — an outlined field's label sits at z-index 1.

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { IconButton, iconSize, Tooltip, TRACKER_RADIUS } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import BrightnessAutoOutlined from '@mui/icons-material/BrightnessAutoOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
@@ -43,9 +44,13 @@ const COMPACT_SX = {
  * choice made here is the choice the whole app (and the next launch) uses.
  */
 export default function ThemeToggleButton({ mode, round = false }: Readonly<Props>): ReactElement {
+  const t = useT();
   const step = STEPS[mode];
   const Icon = step.icon;
-  const hint = `Theme: ${step.label}. Switch to ${STEPS[step.next].label.toLowerCase()}.`;
+  const hint = t('Theme: {current}. Switch to {next}.', {
+    current: t(step.label),
+    next: t(STEPS[step.next].label).toLowerCase(),
+  });
 
   return (
     <Tooltip title={hint}>

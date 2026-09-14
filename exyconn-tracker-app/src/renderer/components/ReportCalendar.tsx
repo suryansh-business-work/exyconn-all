@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { Stack, Typography, DateCalendar, DatePicker } from '@exyconn/ui';
 import type { ReportDay } from '@shared/types';
 import { activityLevel, activityPercent } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 import Surface from './Surface';
 import TrackedDay, { TrackedDatesContext } from './TrackedDay';
 
@@ -24,6 +25,7 @@ export default function ReportCalendar({
   onSelect,
   onMonthChange,
 }: Readonly<Props>): ReactElement {
+  const t = useT();
   const trackedDates = useMemo(
     () =>
       new Map(
@@ -47,7 +49,7 @@ export default function ReportCalendar({
     <Surface sx={{ p: 2 }}>
       <Stack spacing={1}>
         <DatePicker
-          label="Jump to date"
+          label={t('Jump to date')}
           value={selected}
           maxDate={maxDate}
           onChange={handleChange}
@@ -72,8 +74,9 @@ export default function ReportCalendar({
             textAlign: 'center',
           }}
         >
-          Dotted days have tracked time, coloured by how active they were. Pick one to see its
-          screenshots.
+          {t(
+            'Dotted days have tracked time, coloured by how active they were. Pick one to see its screenshots.',
+          )}
         </Typography>
       </Stack>
     </Surface>

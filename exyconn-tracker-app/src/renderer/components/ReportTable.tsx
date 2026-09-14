@@ -11,6 +11,7 @@ import {
   TableRow,
   Typography,
 } from '@exyconn/ui';
+import { useT } from '@exyconn/i18n';
 import type { ReportDay } from '@shared/types';
 import {
   activityColor,
@@ -31,6 +32,7 @@ interface Props {
 
 /** Day-by-day table of the employee's own tracked time. */
 export default function ReportTable({ days, loading }: Readonly<Props>): ReactElement {
+  const t = useT();
   if (loading) {
     return (
       <Surface sx={{ p: 2 }}>
@@ -46,7 +48,7 @@ export default function ReportTable({ days, loading }: Readonly<Props>): ReactEl
   if (days.length === 0) {
     return (
       <Surface sx={{ p: 4, textAlign: 'center' }}>
-        <Typography variant="subtitle1">No tracked time this month</Typography>
+        <Typography variant="subtitle1">{t('No tracked time this month')}</Typography>
         <Typography
           variant="body2"
           sx={{
@@ -54,7 +56,7 @@ export default function ReportTable({ days, loading }: Readonly<Props>): ReactEl
             mt: 0.5,
           }}
         >
-          Days appear here once you start tracking and sync.
+          {t('Days appear here once you start tracking and sync.')}
         </Typography>
       </Surface>
     );
@@ -68,7 +70,7 @@ export default function ReportTable({ days, loading }: Readonly<Props>): ReactEl
             <TableRow>
               {COLUMNS.map((column) => (
                 <TableCell key={column} sx={{ fontWeight: 700, whiteSpace: 'nowrap' }}>
-                  {column}
+                  {t(column)}
                 </TableCell>
               ))}
             </TableRow>

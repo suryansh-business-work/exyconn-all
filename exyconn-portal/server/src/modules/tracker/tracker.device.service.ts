@@ -1,4 +1,6 @@
 import { UserModel } from '../admin/user.model';
+import { adminService } from '../admin/admin.service';
+import { resolveEffectiveLocale } from '../i18n/locale.constants';
 import { verifyPassword } from '../../utils/password';
 import { signDeviceToken } from '../../utils/jwt';
 import { imageUploader } from '../../utils/imagekit';
@@ -202,8 +204,9 @@ class TrackerDeviceService {
       forbidden('Your tracker access has been revoked.');
     }
 
-    const [settings, device] = await Promise.all([
+    const [settings, appSettings, device] = await Promise.all([
       getTrackerSettings(),
+      adminService.getSettings(),
       TrackerDeviceModel.findOne({ deviceId, userId }).lean(),
     ]);
 
@@ -211,6 +214,14 @@ class TrackerDeviceService {
       employeeTimezone: access.timezone,
       defaultTimezone: settings.defaultTimezone,
       deviceTimezone: device?.timezone,
+    });
+
+    // The same chain as the portal's, with the machine standing in for the browser: the
+    // tracker runs on the employee's own computer, so its locale is what they read in.
+    const locale = resolveEffectiveLocale({
+      userLocale: user.locale,
+      defaultLocale: appSettings.defaultLocale,
+      requestLocale: device?.locale,
     });
 
     const [workday, projects, consentPolicy, notices, unreadMessages] = await Promise.all([
@@ -229,6 +240,7 @@ class TrackerDeviceService {
       consentRequired: this.consentRequired(access.consentedAt, consentPolicy),
       settings,
       timezone,
+      locale,
       workProfile: trackerWorkdayService.workProfileOf(user),
       workday,
       projects,
