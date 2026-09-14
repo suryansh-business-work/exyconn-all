@@ -40,6 +40,16 @@ const brandingSchema = new Schema(
     appIconUrl: { type: String, default: '', trim: true },
     emailLogoUrl: { type: String, default: '', trim: true },
     ogImageUrl: { type: String, default: '', trim: true },
+    /**
+     * The clip behind the website's home page, and the still shown until it plays.
+     *
+     * A URL rather than an upload: these come from Pexels through the picker in Admin ›
+     * Branding, and re-hosting somebody else's stock footage would cost bandwidth to no end.
+     * Empty leaves the hero exactly as it was — a still image — which is what it should be
+     * for anyone who has not chosen one.
+     */
+    heroVideoUrl: { type: String, default: '', trim: true },
+    heroPosterUrl: { type: String, default: '', trim: true },
 
     // Palette
     primaryColor: { type: String, required: true, default: '#155dfc', trim: true },

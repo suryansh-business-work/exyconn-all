@@ -54,7 +54,7 @@ const NAV_LINK_FIELDS = `id label href description category keywords`;
 
 const BRANDING_FIELDS = `
   businessName legalName slogan description
-  logoUrl logoDarkUrl faviconUrl appIconUrl emailLogoUrl ogImageUrl
+  logoUrl logoDarkUrl faviconUrl appIconUrl emailLogoUrl ogImageUrl heroVideoUrl heroPosterUrl
   primaryColor secondaryColor accentColor backgroundColor textColor
   supportEmail contactPhone websiteUrl address
   linkedinUrl twitterUrl facebookUrl instagramUrl youtubeUrl githubUrl
@@ -238,6 +238,9 @@ export const BRANDING_FALLBACK: Branding = {
   appIconUrl: "",
   emailLogoUrl: "",
   ogImageUrl: "/og-image.svg",
+  // No clip until somebody chooses one in Admin › Branding; the hero is a still until then.
+  heroVideoUrl: "",
+  heroPosterUrl: "",
 
   primaryColor: brandFallback.primary,
   secondaryColor: brandFallback.secondary,

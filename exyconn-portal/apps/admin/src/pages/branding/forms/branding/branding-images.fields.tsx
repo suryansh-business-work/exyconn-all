@@ -13,11 +13,33 @@ const IMAGE_FIELDS = [
   { name: 'ogImageUrl', label: 'Social share image', helperText: '1200×630 for link previews.' },
 ] as const;
 
+/**
+ * The website's home hero.
+ *
+ * Kept apart from the images above because it is a clip, and because both fields are URLs
+ * from Pexels rather than uploads — re-hosting somebody else's stock footage would cost
+ * bandwidth to no end. Leave the video empty and the hero stays a still, as it was.
+ */
+const HERO_FIELDS = [
+  {
+    name: 'heroVideoUrl',
+    label: 'Home hero video',
+    helperText: 'A short, quiet clip. Pexels videos are in the picker.',
+    media: 'all' as const,
+  },
+  {
+    name: 'heroPosterUrl',
+    label: 'Home hero still',
+    helperText: 'Shown until the clip plays, and to anyone who asked for less motion.',
+    media: 'image' as const,
+  },
+];
+
 /** Images tab — every branding image uploads through the shared dialog. */
 export function BrandingImagesFields() {
   return (
     <Grid container spacing={2}>
-      {IMAGE_FIELDS.map((field) => (
+      {[...IMAGE_FIELDS, ...HERO_FIELDS].map((field) => (
         <Grid
           key={field.name}
           size={{
@@ -31,6 +53,7 @@ export function BrandingImagesFields() {
             label={field.label}
             helperText={field.helperText}
             folder={UPLOAD_FOLDER}
+            media={'media' in field ? field.media : 'image'}
           />
         </Grid>
       ))}

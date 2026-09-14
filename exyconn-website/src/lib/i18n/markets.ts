@@ -72,9 +72,7 @@ function acceptedLanguages(header: string | null): string[] {
     .split(",")
     .map((part) => {
       const [tag = "", ...params] = part.trim().split(";");
-      const quality = params
-        .map((param) => param.trim())
-        .find((param) => param.startsWith("q="));
+      const quality = params.map((param) => param.trim()).find((param) => param.startsWith("q="));
       return { tag: tag.trim().toLowerCase(), q: quality ? Number(quality.slice(2)) : 1 };
     })
     .filter((entry) => entry.tag !== "" && !Number.isNaN(entry.q))

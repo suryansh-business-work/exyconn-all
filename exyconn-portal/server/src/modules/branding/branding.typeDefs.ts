@@ -40,6 +40,9 @@ export const brandingTypeDefs = gql`
     appIconUrl: String!
     emailLogoUrl: String!
     ogImageUrl: String!
+    "The clip behind the website's home hero, and the still shown until it plays."
+    heroVideoUrl: String!
+    heroPosterUrl: String!
 
     primaryColor: String!
     secondaryColor: String!
@@ -90,6 +93,8 @@ export const brandingTypeDefs = gql`
     appIconUrl: String
     emailLogoUrl: String
     ogImageUrl: String
+    heroVideoUrl: String
+    heroPosterUrl: String
 
     primaryColor: String
     secondaryColor: String

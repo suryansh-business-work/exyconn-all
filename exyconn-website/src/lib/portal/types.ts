@@ -140,6 +140,9 @@ export interface Branding {
   appIconUrl: string;
   emailLogoUrl: string;
   ogImageUrl: string;
+  /** A short clip behind the home hero, and the still shown until it plays. Both may be "". */
+  heroVideoUrl: string;
+  heroPosterUrl: string;
 
   primaryColor: string;
   secondaryColor: string;

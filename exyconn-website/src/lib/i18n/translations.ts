@@ -109,7 +109,9 @@ export function requestTranslations(language: string, sources: string[]): void {
     .reduce(
       (queue, batch) =>
         queue.then(() =>
-          portalRequest(TRANSLATE_MISSING, { locale: language, sources: batch }).then(() => undefined)
+          portalRequest(TRANSLATE_MISSING, { locale: language, sources: batch }).then(
+            () => undefined
+          )
         ),
       Promise.resolve()
     )

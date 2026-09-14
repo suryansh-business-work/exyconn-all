@@ -106,10 +106,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // 4. Apply security headers to all HTML responses (don't mutate redirects/streams unnecessarily)
   const contentType = response.headers.get("content-type") || "";
-  response.headers.set(
-    "Strict-Transport-Security",
-    "max-age=63072000; includeSubDomains; preload"
-  );
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set(
@@ -127,10 +124,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 /** The same headers every response carries, applied to one that bypassed `next()`. */
 function withSecurityHeaders(response: Response): Response {
-  response.headers.set(
-    "Strict-Transport-Security",
-    "max-age=63072000; includeSubDomains; preload"
-  );
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set(

@@ -856,6 +856,9 @@ export type Branding = {
   githubUrl: Scalars['String']['output'];
   /** Our GST registration, printed on every tax invoice. */
   gstin: Scalars['String']['output'];
+  heroPosterUrl: Scalars['String']['output'];
+  /** The clip behind the website's home hero, and the still shown until it plays. */
+  heroVideoUrl: Scalars['String']['output'];
   hrEmail: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   instagramUrl: Scalars['String']['output'];
@@ -896,6 +899,8 @@ export type BrandingInput = {
   faviconUrl?: InputMaybe<Scalars['String']['input']>;
   githubUrl?: InputMaybe<Scalars['String']['input']>;
   gstin?: InputMaybe<Scalars['String']['input']>;
+  heroPosterUrl?: InputMaybe<Scalars['String']['input']>;
+  heroVideoUrl?: InputMaybe<Scalars['String']['input']>;
   hrEmail?: InputMaybe<Scalars['String']['input']>;
   instagramUrl?: InputMaybe<Scalars['String']['input']>;
   invoicePrefix?: InputMaybe<Scalars['String']['input']>;
@@ -13267,6 +13272,8 @@ export type BrandingResolvers<ContextType = GraphQLContext, ParentType extends R
   faviconUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   githubUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   gstin?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  heroPosterUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  heroVideoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hrEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   instagramUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
