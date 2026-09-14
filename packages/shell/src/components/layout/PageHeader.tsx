@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Button, Stack, Typography } from '@/components/ui';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -12,6 +13,9 @@ interface PageHeaderProps {
 
 /** Consistent page title row with an optional primary action. */
 export function PageHeader({ title, subtitle, actionLabel, onAction, children }: PageHeaderProps) {
+  // Titles arrive as English props from ~sixty screens. Translating them here means no page
+  // has to remember to, and none of them can be the one that forgot.
+  const t = useT();
   return (
     <Stack
       direction={{ xs: 'column', sm: 'row' }}
@@ -23,7 +27,7 @@ export function PageHeader({ title, subtitle, actionLabel, onAction, children }:
       }}
     >
       <Box>
-        <Typography variant="h4">{title}</Typography>
+        <Typography variant="h4">{t(title)}</Typography>
         {subtitle && (
           <Typography
             variant="body2"
@@ -31,14 +35,14 @@ export function PageHeader({ title, subtitle, actionLabel, onAction, children }:
               color: 'text.secondary',
             }}
           >
-            {subtitle}
+            {t(subtitle)}
           </Typography>
         )}
       </Box>
       {children}
       {actionLabel && onAction && (
         <Button variant="contained" startIcon={<AddIcon />} onClick={onAction}>
-          {actionLabel}
+          {t(actionLabel)}
         </Button>
       )}
     </Stack>

@@ -9,6 +9,7 @@ import {
   type IGetRowsParams,
   type RowClickedEvent,
 } from 'ag-grid-community';
+import { useT } from '@exyconn/i18n';
 import { Box, useMediaQuery, useTheme } from '@/components/ui';
 import type { TableQueryInput } from '@/graphql/generated';
 import { errorMessage } from '@/utils/errorMessage';
@@ -65,6 +66,16 @@ function ServerDataGridImpl({
   // a spreadsheet: no filter row under the headers, and a height that leaves the page's own
   // scroll usable instead of burying the paginator below the fold.
   const onPhone = useMediaQuery(theme.breakpoints.down('sm'));
+  const t = useT();
+  // Column headings are English strings in each module's column model; translating them here
+  // means a register reads in the person's language without sixty files knowing about it.
+  const headings = useMemo(
+    () =>
+      columnDefs.map((column) =>
+        column.headerName ? { ...column, headerName: t(column.headerName) } : column,
+      ),
+    [columnDefs, t],
+  );
   const gridRef = useRef<AgGridReact<unknown>>(null);
   // The trimmed search the grid last loaded with; the box's live text debounces into it.
   const searchRef = useRef('');
@@ -171,7 +182,7 @@ function ServerDataGridImpl({
         <AgGridReact<unknown>
           ref={gridRef}
           theme={gridTheme}
-          columnDefs={columnDefs}
+          columnDefs={headings}
           defaultColDef={defaultColDef}
           context={context}
           rowModelType="infinite"

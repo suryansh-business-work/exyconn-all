@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { I18nProvider } from '@exyconn/i18n';
 import { FormActions } from '@/components/form/FormActions';
 import { CrudFormPage } from '@/components/data/CrudFormPage';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { StatCard } from '@/components/dashboard/StatCard';
+import { StatusChip } from '@/components/data/StatusChip';
 
 /**
  * The chrome is what every screen of every portal shows, so it is the first thing that has to
@@ -70,5 +73,48 @@ describe('the shared chrome in another language', () => {
     );
 
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeDefined();
+  });
+});
+
+describe('a module screen in another language', () => {
+  const GERMAN_SCREEN = {
+    Risks: 'Risiken',
+    'What could go wrong': 'Was schiefgehen könnte',
+    Owner: 'Eigentümer',
+    // The chip shows the enum with its underscores opened out, so that is the key.
+    'IN PROGRESS': 'In Bearbeitung',
+    OPEN: 'Offen',
+  };
+
+  const screenInGerman = (ui: React.ReactNode) =>
+    render(
+      <I18nProvider locale="de-DE" messages={GERMAN_SCREEN}>
+        {ui}
+      </I18nProvider>,
+    );
+
+  it('translates the page title and its subtitle, which every screen passes as props', () => {
+    screenInGerman(<PageHeader title="Risks" subtitle="What could go wrong" />);
+
+    expect(screen.getByText('Risiken')).toBeDefined();
+    expect(screen.getByText('Was schiefgehen könnte')).toBeDefined();
+  });
+
+  it('translates a stat tile label', () => {
+    screenInGerman(<StatCard label="Owner" value="12" />);
+
+    expect(screen.getByText('Eigentümer')).toBeDefined();
+  });
+
+  it('translates a status chip, which is what a list is scanned for', () => {
+    screenInGerman(<StatusChip value="IN_PROGRESS" />);
+
+    expect(screen.getByText('In Bearbeitung')).toBeDefined();
+  });
+
+  it('leaves a status the catalogue has no word for as it reads in English', () => {
+    screenInGerman(<StatusChip value="ARCHIVED" />);
+
+    expect(screen.getByText('ARCHIVED')).toBeDefined();
   });
 });
