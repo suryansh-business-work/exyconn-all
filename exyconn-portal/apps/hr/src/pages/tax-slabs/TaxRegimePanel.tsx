@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
@@ -6,25 +7,6 @@ import { panel } from '@exyconn/shell/components/glass/glass';
 import { useCrudResource } from '@exyconn/crud';
 import { useDeleteTaxRegimeMutation } from '@exyconn/shell/graphql/generated';
 import { TaxRegimeForm, type TaxRegimeRow } from './forms/tax-regime';
-
-const REGIME_COLUMNS: Column<TaxRegimeRow>[] = [
-  { key: 'name', label: 'Regime' },
-  { key: 'regimeKey', label: 'Key' },
-  { key: 'financialYear', label: 'Financial year' },
-  {
-    key: 'standardDeduction',
-    label: 'Standard deduction',
-    render: (row) => row.standardDeduction.toLocaleString(),
-  },
-  {
-    key: 'rebateIncomeLimit',
-    label: 'Rebate up to',
-    render: (row) => row.rebateIncomeLimit.toLocaleString(),
-  },
-  { key: 'rebateMaxTax', label: 'Max rebate', render: (row) => row.rebateMaxTax.toLocaleString() },
-  { key: 'cessPercent', label: 'Cess', render: (row) => `${row.cessPercent}%` },
-  { key: 'active', label: 'Applied', render: (row) => (row.active ? 'Yes' : 'No') },
-];
 
 interface TaxRegimePanelProps {
   regimes: readonly TaxRegimeRow[];
@@ -43,6 +25,31 @@ interface TaxRegimePanelProps {
  */
 export function TaxRegimePanel({ regimes, loading, refetch }: Readonly<TaxRegimePanelProps>) {
   const t = useT();
+  const regimeColumns = useMemo<Column<TaxRegimeRow>[]>(
+    () => [
+      { key: 'name', label: 'Regime' },
+      { key: 'regimeKey', label: 'Key' },
+      { key: 'financialYear', label: 'Financial year' },
+      {
+        key: 'standardDeduction',
+        label: 'Standard deduction',
+        render: (row) => row.standardDeduction.toLocaleString(),
+      },
+      {
+        key: 'rebateIncomeLimit',
+        label: 'Rebate up to',
+        render: (row) => row.rebateIncomeLimit.toLocaleString(),
+      },
+      {
+        key: 'rebateMaxTax',
+        label: 'Max rebate',
+        render: (row) => row.rebateMaxTax.toLocaleString(),
+      },
+      { key: 'cessPercent', label: 'Cess', render: (row) => `${row.cessPercent}%` },
+      { key: 'active', label: 'Applied', render: (row) => (row.active ? t('Yes') : t('No')) },
+    ],
+    [t],
+  );
   const [deleteRegime] = useDeleteTaxRegimeMutation();
   const crud = useCrudResource<TaxRegimeRow>({
     label: 'Tax regime',
@@ -66,7 +73,7 @@ export function TaxRegimePanel({ regimes, loading, refetch }: Readonly<TaxRegime
         )}
       </Text>
       <DataTable
-        columns={REGIME_COLUMNS}
+        columns={regimeColumns}
         rows={[...regimes]}
         onEdit={crud.openEdit}
         onDelete={crud.remove}

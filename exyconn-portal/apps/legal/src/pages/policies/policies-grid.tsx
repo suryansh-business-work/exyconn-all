@@ -13,6 +13,7 @@ import {
   EDIT_ACTION,
   type DatedCrudGridContext,
 } from '@exyconn/crud';
+import type { GridTranslate } from '@exyconn/shell/components/data/gridContext';
 import type { ListPoliciesPagedQuery } from '@exyconn/shell/graphql/generated';
 
 export type PagedPolicyRow = ListPoliciesPagedQuery['listPoliciesPaged']['rows'][number];
@@ -48,11 +49,11 @@ function reviewState(row: PagedPolicyRow): string {
 }
 
 /** How far through the workforce a policy has got, at a glance. */
-function signedLabel(row: PagedPolicyRow): string {
+function signedLabel(row: PagedPolicyRow, t: GridTranslate): string {
   if (!row.requiresAcknowledgement) {
-    return 'Not required';
+    return t('Not required');
   }
-  return `${row.acknowledgedCount} signed`;
+  return t('{count} signed', { count: row.acknowledgedCount });
 }
 
 export const POLICY_COLUMNS: ColDef<PagedPolicyRow>[] = [

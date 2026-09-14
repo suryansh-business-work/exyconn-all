@@ -10,6 +10,7 @@ import {
   type DatedCrudGridContext,
   type RowActionSpec,
 } from '@exyconn/crud';
+import type { GridTranslate } from '@exyconn/shell/components/data/gridContext';
 import type { ListOnboardingChecklistsPagedQuery } from '@exyconn/shell/graphql/generated';
 
 export type PagedOnboardingChecklistRow =
@@ -25,9 +26,13 @@ export const DETAILS_ACTION: RowActionSpec = {
 };
 
 /** "3 of 6 done (50%)" reads faster in a grid than a bare percentage. */
-export function progressLabel(row: PagedOnboardingChecklistRow): string {
+export function progressLabel(row: PagedOnboardingChecklistRow, t: GridTranslate): string {
   const done = row.items.filter((item) => item.done).length;
-  return `${done} of ${row.items.length} done (${row.progressPercent}%)`;
+  return t('{done} of {total} done ({percent}%)', {
+    done,
+    total: row.items.length,
+    percent: row.progressPercent,
+  });
 }
 
 /** Finished or still going — the one thing HR scans this grid for. */

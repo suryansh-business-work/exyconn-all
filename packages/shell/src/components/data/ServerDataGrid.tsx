@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { Skeleton, Stack } from '@/components/ui';
+import { useT } from '@exyconn/i18n';
 import { useSettings } from '@/hooks/useSettings';
 import { gridContextWith } from './gridContext';
 import type { ServerDataGridProps } from './ServerDataGrid.impl';
@@ -13,11 +14,12 @@ const ServerDataGridImpl = lazy(() => import('./ServerDataGrid.impl'));
 /** Public, generic entry point that renders the lazily-loaded ag-grid implementation. */
 export function ServerDataGrid<T>(props: Readonly<ServerDataGridProps<T>>) {
   const { formatDate } = useSettings();
+  const t = useT();
   const height = props.height ?? 560;
   // Date columns format through the admin-configured settings, whatever the page passed.
   const context = useMemo(
-    () => gridContextWith(props.context, formatDate),
-    [props.context, formatDate],
+    () => gridContextWith(props.context, formatDate, t),
+    [props.context, formatDate, t],
   );
   return (
     <Suspense

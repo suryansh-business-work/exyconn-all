@@ -1,5 +1,6 @@
 import type { MouseEvent } from 'react';
 import { useT } from '@exyconn/i18n';
+import { gridTranslator } from '@exyconn/shell/components/data/gridContext';
 import type { ICellRendererParams, ValueFormatterParams } from 'ag-grid-community';
 import { Flex, IconButton } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -31,7 +32,8 @@ export function BoolCell(params: Readonly<ICellRendererParams>) {
 export function formatDateValue(params: ValueFormatterParams, emptyText: string): string {
   const value: unknown = params.value;
   if (typeof value !== 'string' || value === '') {
-    return emptyText;
+    // "Ongoing", "Never" — what an empty date says is a word a page chose, so it is copy.
+    return gridTranslator(params.context)(emptyText);
   }
   return (params.context as DatedCrudGridContext<unknown>).formatDate(value);
 }

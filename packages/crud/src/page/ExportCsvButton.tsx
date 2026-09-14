@@ -106,10 +106,12 @@ export function GridExportButton<Row>({
   permissionModule,
 }: Readonly<GridExportButtonProps<Row>>) {
   const { formatDate } = useSettings();
+  const t = useT();
   const client = useApolloClient();
+  // The export writes what the grid shows, so a translated cell exports translated too.
   const columns = useMemo(
-    () => csvColumnsFromDefs(columnDefs, gridContextWith(context, formatDate)),
-    [columnDefs, context, formatDate],
+    () => csvColumnsFromDefs(columnDefs, gridContextWith(context, formatDate, t)),
+    [columnDefs, context, formatDate, t],
   );
   const canExport = useCallback(
     async (module: string) => {

@@ -37,7 +37,10 @@ export const RECURRING_INVOICE_COLUMNS: ColDef<RecurringInvoiceRow>[] = [
   textColumn('name', 'Name'),
   textColumn('clientName', 'Client', (row) => row.clientName || row.clientId),
   valueColumn('amount', 'Each period', (row) => `${row.currency} ${row.amount.toLocaleString()}`),
-  valueColumn('frequency', 'Bills', (row) => FREQUENCY_LABEL[row.frequency] ?? row.frequency),
+  valueColumn('frequency', 'Bills', (row, t) => {
+    const label = FREQUENCY_LABEL[row.frequency];
+    return label ? t(label) : row.frequency;
+  }),
   dateColumn('nextRunAt', 'Next invoice'),
   // The answer to "is this thing actually working".
   valueColumn('generatedCount', 'Raised', (row) => String(row.generatedCount)),

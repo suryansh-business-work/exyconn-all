@@ -4,6 +4,8 @@ import { Alert, Box, Button, Flex, Skeleton, Text, TextField } from '@exyconn/sh
 import type { TablePageResult } from '@exyconn/shell/components/data/ServerDataGrid';
 import type { TableQueryInput } from '@exyconn/shell/graphql/generated';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
+import { gridContextWith } from '@exyconn/shell/components/data/gridContext';
+import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useT } from '@exyconn/i18n';
 import { RecordCardRow } from './RecordCardRow';
 import { cardActionSpecs } from './recordCard';
@@ -79,6 +81,13 @@ export function RecordCardList<Row>({
   }, [fetchRows, page, search, refreshSignal, t]);
 
   const specs = useMemo(() => cardActionSpecs(columnDefs), [columnDefs]);
+  const { formatDate } = useSettings();
+  // The same context the desktop grid builds. Without it a phone card called `formatDate` off a
+  // context that never had one, and threw on the first date column of any page that forgot it.
+  const cardContext = useMemo(
+    () => gridContextWith(context, formatDate, t),
+    [context, formatDate, t],
+  );
   const more = useCallback(() => setPage((current) => current + 1), []);
   const loaded = rows.length;
 
@@ -101,7 +110,7 @@ export function RecordCardList<Row>({
           key={(row as { id?: string }).id ?? `row-${index}`}
           row={row}
           columnDefs={columnDefs}
-          context={context}
+          context={cardContext}
           actionSpecs={specs}
           onClick={onRowClick}
         />

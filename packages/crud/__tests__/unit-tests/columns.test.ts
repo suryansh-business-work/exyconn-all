@@ -22,14 +22,22 @@ interface Row {
 
 const row: Row = { name: 'Acme', amount: 1500, isActive: true, dueDate: '2026-03-01' };
 
+/** The translator every grid puts on ag-grid's context (see gridContextWith). */
+const english = (source: string) => source;
+
 /** ag-grid hands formatters the row plus the page's grid context. */
-const formatterParams = (data: Row | undefined, context: unknown = {}) =>
-  ({ data, value: data?.dueDate, context }) as unknown as ValueFormatterParams<Row>;
+
+const formatterParams = (data: Row | undefined, context: object = {}) =>
+  ({
+    data,
+    value: data?.dueDate,
+    context: { t: english, ...context },
+  }) as unknown as ValueFormatterParams<Row>;
 
 const getterParams = (data: Row | undefined) =>
-  ({ data }) as unknown as ValueGetterParams<Row>;
+  ({ data, context: { t: english } }) as unknown as ValueGetterParams<Row>;
 
-const format = (column: { valueFormatter?: unknown }, data: Row | undefined, context?: unknown) =>
+const format = (column: { valueFormatter?: unknown }, data: Row | undefined, context?: object) =>
   (column.valueFormatter as (p: ValueFormatterParams<Row>) => string)(
     formatterParams(data, context),
   );
@@ -71,6 +79,16 @@ describe('column factories', () => {
     const getter = mapped.valueGetter as (p: ValueGetterParams<Row>) => string | null;
     expect(getter(getterParams(row))).toBe('ACTIVE');
     expect(getter(getterParams(undefined))).toBeNull();
+  });
+
+  it("hands a derived cell the viewer's translator, so a column model can write a word", () => {
+    // Column models are module scope and cannot call useT; the grid puts `t` on the context.
+    const column = derivedColumn<Row>('kind', 'Kind', (r, t) =>
+      r.isActive ? t('Lead') : t('Applicant'),
+    );
+    const german = (source: string) => ({ Lead: 'Interessent' })[source] ?? source;
+
+    expect(format(column, row, { t: german })).toBe('Interessent');
   });
 
   it('derives a status column with no backing field', () => {
