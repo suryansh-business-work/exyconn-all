@@ -1,4 +1,5 @@
 import { Controller, useFormContext } from 'react-hook-form';
+import { useFieldCopy } from './useFieldCopy';
 import { Autocomplete, Chip, TextField } from '@/components/ui';
 
 interface RhfChipsInputProps {
@@ -14,6 +15,7 @@ interface RhfChipsInputProps {
  */
 export function RhfChipsInput({ name, label, helperText }: Readonly<RhfChipsInputProps>) {
   const { control } = useFormContext();
+  const copy = useFieldCopy();
 
   return (
     <Controller
@@ -37,9 +39,11 @@ export function RhfChipsInput({ name, label, helperText }: Readonly<RhfChipsInpu
           renderInput={(params) => (
             <TextField
               {...params}
-              label={label}
+              label={copy(label)}
               error={Boolean(fieldState.error)}
-              helperText={fieldState.error?.message ?? helperText ?? 'Type a value and press Enter'}
+              helperText={copy(
+                fieldState.error?.message ?? helperText ?? 'Type a value and press Enter',
+              )}
             />
           )}
         />

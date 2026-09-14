@@ -1,4 +1,5 @@
 import { Controller, useFormContext } from 'react-hook-form';
+import { useFieldCopy } from './useFieldCopy';
 import { Box, Chip, MenuItem, TextField } from '@/components/ui';
 import type { SelectOption } from './types';
 
@@ -12,6 +13,7 @@ interface RhfMultiSelectProps {
 /** React Hook Form-bound MUI multi-select rendering selected values as chips. */
 export function RhfMultiSelect({ name, label, options, helperText }: RhfMultiSelectProps) {
   const { control } = useFormContext();
+  const copy = useFieldCopy();
   const labelFor = (value: string) => options.find((o) => o.value === value)?.label ?? value;
 
   return (
@@ -22,14 +24,14 @@ export function RhfMultiSelect({ name, label, options, helperText }: RhfMultiSel
         <TextField
           select
           fullWidth
-          label={label}
+          label={copy(label)}
           name={field.name}
           value={(field.value as string[]) ?? []}
           onChange={field.onChange}
           onBlur={field.onBlur}
           inputRef={field.ref}
           error={Boolean(fieldState.error)}
-          helperText={fieldState.error?.message ?? helperText}
+          helperText={copy(fieldState.error?.message ?? helperText)}
           slotProps={{
             select: {
               multiple: true,

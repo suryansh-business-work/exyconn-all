@@ -1,4 +1,5 @@
 import { Controller, useFormContext } from 'react-hook-form';
+import { useFieldCopy } from './useFieldCopy';
 import { DateTimePicker } from '@/components/ui';
 import { toDate } from '@/utils/date';
 
@@ -23,13 +24,14 @@ export function RhfDateTimePicker({
   helperText,
 }: Readonly<RhfDateTimePickerProps>) {
   const { control } = useFormContext();
+  const copy = useFieldCopy();
   return (
     <Controller
       name={name}
       control={control}
       render={({ field, fieldState }) => (
         <DateTimePicker
-          label={label}
+          label={copy(label)}
           value={toDate(field.value)}
           maxDateTime={maxDateTime}
           // MUIX fires onChange for every section typed, so a half-entered value arrives
@@ -45,7 +47,7 @@ export function RhfDateTimePicker({
               fullWidth: true,
               onBlur: field.onBlur,
               error: Boolean(fieldState.error),
-              helperText: fieldState.error?.message ?? helperText,
+              helperText: copy(fieldState.error?.message ?? helperText),
             },
           }}
         />

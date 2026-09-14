@@ -1,11 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { FormProvider, useForm } from 'react-hook-form';
 import { I18nProvider } from '@exyconn/i18n';
 import { FormActions } from '@/components/form/FormActions';
 import { CrudFormPage } from '@/components/data/CrudFormPage';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { StatusChip } from '@/components/data/StatusChip';
+import { RhfTextField } from '@/components/form/rhf';
 
 /**
  * The chrome is what every screen of every portal shows, so it is the first thing that has to
@@ -116,5 +118,41 @@ describe('a module screen in another language', () => {
     screenInGerman(<StatusChip value="ARCHIVED" />);
 
     expect(screen.getByText('ARCHIVED')).toBeDefined();
+  });
+});
+
+describe('a form field in another language', () => {
+  const GERMAN_FORM = {
+    Title: 'Titel',
+    'Title is required': 'Titel ist erforderlich',
+    'As it appears on the invoice': 'Wie es auf der Rechnung erscheint',
+  };
+
+  /** A field needs a form context; this is the smallest one that renders. */
+  function Field({ error }: Readonly<{ error?: string }>) {
+    const methods = useForm({ defaultValues: { title: '' } });
+    if (error) {
+      methods.setError('title', { message: error });
+    }
+    return (
+      <I18nProvider locale="de-DE" messages={GERMAN_FORM}>
+        <FormProvider {...methods}>
+          <RhfTextField name="title" label="Title" helperText="As it appears on the invoice" />
+        </FormProvider>
+      </I18nProvider>
+    );
+  }
+
+  it('translates the label and the hint under it', () => {
+    render(<Field />);
+
+    expect(screen.getByLabelText('Titel')).toBeDefined();
+    expect(screen.getByText('Wie es auf der Rechnung erscheint')).toBeDefined();
+  });
+
+  it('translates what the form says when the value is wrong', () => {
+    render(<Field error="Title is required" />);
+
+    expect(screen.getByText('Titel ist erforderlich')).toBeDefined();
   });
 });

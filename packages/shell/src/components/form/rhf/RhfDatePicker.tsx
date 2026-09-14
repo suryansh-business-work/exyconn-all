@@ -1,4 +1,5 @@
 import { Controller, useFormContext } from 'react-hook-form';
+import { useFieldCopy } from './useFieldCopy';
 import { DatePicker } from '@/components/ui';
 import { toDate } from '@/utils/date';
 
@@ -10,13 +11,14 @@ interface RhfDatePickerProps {
 /** React Hook Form-bound MUIX date picker. Stores the value as an ISO string. */
 export function RhfDatePicker({ name, label }: RhfDatePickerProps) {
   const { control } = useFormContext();
+  const copy = useFieldCopy();
   return (
     <Controller
       name={name}
       control={control}
       render={({ field, fieldState }) => (
         <DatePicker
-          label={label}
+          label={copy(label)}
           value={toDate(field.value)}
           // MUIX fires onChange for every section typed, so a half-entered date arrives
           // as an Invalid Date — toISOString() throws RangeError on one and took the
@@ -32,7 +34,7 @@ export function RhfDatePicker({ name, label }: RhfDatePickerProps) {
               fullWidth: true,
               onBlur: field.onBlur,
               error: Boolean(fieldState.error),
-              helperText: fieldState.error?.message,
+              helperText: copy(fieldState.error?.message),
             },
           }}
         />
