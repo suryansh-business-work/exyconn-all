@@ -7,6 +7,7 @@ import { TranslationModel } from './translation.model';
 import { TRANSLATE_BATCH } from './i18n.translate';
 import {
   enabledLocales,
+  fillLanguage,
   readBundle,
   translateMissing,
   upsertTranslation,
@@ -112,7 +113,9 @@ export const i18nResolvers = {
         return [];
       }
       const caller = ctx.user?.id ?? ctx.ip ?? 'unknown';
-      return translateMissing(locale, publicSources(sources), () => translationLimiter.allow(caller));
+      return translateMissing(locale, publicSources(sources), () =>
+        translationLimiter.allow(caller),
+      );
     },
 
     setTranslation: async (
@@ -122,6 +125,18 @@ export const i18nResolvers = {
     ) => {
       await assertPermission(ctx, TRANSLATIONS_MODULE, adminOnly, 'EDIT');
       return upsertTranslation(locale, source, text, 'HUMAN');
+    },
+
+    translateEverything: async (
+      _p: unknown,
+      { locale }: { locale: string },
+      ctx: GraphQLContext,
+    ) => {
+      await assertPermission(ctx, TRANSLATIONS_MODULE, adminOnly, 'EDIT');
+      // The work carries on after the answer; the screen shows rows as they land.
+      const { finished, ...started } = await fillLanguage(locale);
+      finished.catch(() => undefined);
+      return started;
     },
   },
 };

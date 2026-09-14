@@ -3958,6 +3958,12 @@ export type Mutation = {
   trackerSyncIntervals: Scalars['Int']['output'];
   trackerUploadScreenshot: TrackerScreenshot;
   /**
+   * Translates every string the catalogue has seen in any language into this one, in the
+   * background, and answers at once with how many are on their way. ADMIN only. Human
+   * corrections are never overwritten.
+   */
+  translateEverything: TranslationFill;
+  /**
    * Machine-translates strings this locale has never seen and returns what it managed.
    *
    * Called by any client that rendered a string with no translation, so it is safe to call
@@ -5714,6 +5720,11 @@ export type MutationTrackerSyncIntervalsArgs = {
 
 export type MutationTrackerUploadScreenshotArgs = {
   input: TrackerScreenshotInput;
+};
+
+
+export type MutationTranslateEverythingArgs = {
+  locale: Scalars['String']['input'];
 };
 
 
@@ -11446,6 +11457,16 @@ export type Translation = {
   text: Scalars['String']['output'];
 };
 
+/** A fill of one language, as it stands the moment it was started. */
+export type TranslationFill = {
+  __typename?: 'TranslationFill';
+  /** True when this language was already being filled; nothing new was started. */
+  alreadyRunning: Scalars['Boolean']['output'];
+  locale: Scalars['String']['output'];
+  /** Strings the catalogue knows in some language but not in this one, now being translated. */
+  queued: Scalars['Int']['output'];
+};
+
 /** One page of the admin's translation review screen. */
 export type TranslationPage = {
   __typename?: 'TranslationPage';
@@ -12313,6 +12334,7 @@ export type ResolversTypes = ResolversObject<{
   TrainingPage: ResolverTypeWrapper<TrainingPage>;
   TrainingStatus: TrainingStatus;
   Translation: ResolverTypeWrapper<Translation>;
+  TranslationFill: ResolverTypeWrapper<TranslationFill>;
   TranslationPage: ResolverTypeWrapper<TranslationPage>;
   TranslationRow: ResolverTypeWrapper<TranslationRow>;
   UpdateProfileInput: UpdateProfileInput;
@@ -12803,6 +12825,7 @@ export type ResolversParentTypes = ResolversObject<{
   TrainingInput: TrainingInput;
   TrainingPage: TrainingPage;
   Translation: Translation;
+  TranslationFill: TranslationFill;
   TranslationPage: TranslationPage;
   TranslationRow: TranslationRow;
   UpdateProfileInput: UpdateProfileInput;
@@ -15026,6 +15049,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   trackerStopSession?: Resolver<ResolversTypes['TrackerSession'], ParentType, ContextType, RequireFields<MutationTrackerStopSessionArgs, 'endedAt' | 'sessionId'>>;
   trackerSyncIntervals?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationTrackerSyncIntervalsArgs, 'intervals' | 'sessionId'>>;
   trackerUploadScreenshot?: Resolver<ResolversTypes['TrackerScreenshot'], ParentType, ContextType, RequireFields<MutationTrackerUploadScreenshotArgs, 'input'>>;
+  translateEverything?: Resolver<ResolversTypes['TranslationFill'], ParentType, ContextType, RequireFields<MutationTranslateEverythingArgs, 'locale'>>;
   translateMissing?: Resolver<Array<ResolversTypes['Translation']>, ParentType, ContextType, RequireFields<MutationTranslateMissingArgs, 'locale' | 'sources'>>;
   triageWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationTriageWebsiteSubmissionArgs, 'id' | 'input'>>;
   unsubscribeFromMarketing?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnsubscribeFromMarketingArgs, 'token'>>;
@@ -17350,6 +17374,13 @@ export type TranslationResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TranslationFillResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TranslationFill'] = ResolversParentTypes['TranslationFill']> = ResolversObject<{
+  alreadyRunning?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  queued?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TranslationPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TranslationPage'] = ResolversParentTypes['TranslationPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['TranslationRow']>, ParentType, ContextType>;
   total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -17789,6 +17820,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Training?: TrainingResolvers<ContextType>;
   TrainingPage?: TrainingPageResolvers<ContextType>;
   Translation?: TranslationResolvers<ContextType>;
+  TranslationFill?: TranslationFillResolvers<ContextType>;
   TranslationPage?: TranslationPageResolvers<ContextType>;
   TranslationRow?: TranslationRowResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

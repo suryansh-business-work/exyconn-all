@@ -12,6 +12,7 @@ import {
   type TranslationsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { TranslationEditor } from './TranslationEditor';
+import { TranslateEverythingButton } from './TranslateEverythingButton';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type Row = TranslationsQuery['translations']['rows'][number];
@@ -77,7 +78,7 @@ export function LocalizationPage() {
   ];
 
   const emptyMessage =
-    'Nothing translated into this language yet. It fills in as people browse the portal.';
+    'Nothing translated into this language yet. It fills in as people browse the portal, or use Translate everything with AI.';
 
   return (
     <Box>
@@ -113,6 +114,13 @@ export function LocalizationPage() {
             {t('{total} translated', { total })}
           </Text>
         </Flex>
+        <TranslateEverythingButton
+          locale={chosen}
+          languageLabel={languages.find((option) => option.value === chosen)?.label ?? chosen}
+          onStarted={() => {
+            refetch().catch(() => undefined);
+          }}
+        />
       </Flex>
       <Box sx={densePanel}>
         <DataTable

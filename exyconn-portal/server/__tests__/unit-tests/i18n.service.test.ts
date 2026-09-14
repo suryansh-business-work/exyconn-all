@@ -5,6 +5,7 @@ import { ROLES } from '../../src/constants/roles';
 import { TranslationModel } from '../../src/modules/i18n/translation.model';
 import {
   enabledLocales,
+  fillLanguage,
   readBundle,
   translateMissing,
   upsertTranslation,
@@ -241,5 +242,68 @@ describe('a person’s own zone and language', () => {
         locale: 'not a language',
       }),
     ).rejects.toThrow(/not a language tag/i);
+  });
+});
+
+describe('translating everything into one language at once', () => {
+  beforeEach(async () => {
+    await TranslationModel.deleteMany({});
+    jest.restoreAllMocks();
+  });
+
+  it('sends every string the catalogue knows in another language, and stores what comes back', async () => {
+    await upsertTranslation('de', 'Save', 'Speichern', 'AUTO');
+    await upsertTranslation('hi', 'Cancel', 'रद्द करें', 'AUTO');
+    const machine = jest
+      .spyOn(translate, 'machineTranslate')
+      .mockImplementation(async (_locale, sources) =>
+        sources.map((source) => ({ source, text: `fr:${source}`, model: 'gpt-test' })),
+      );
+
+    const fill = await fillLanguage('fr');
+
+    expect(fill).toMatchObject({ locale: 'fr', queued: 2, alreadyRunning: false });
+    await expect(fill.finished).resolves.toBe(2);
+    await expect(readBundle('fr')).resolves.toHaveLength(2);
+    expect(machine).toHaveBeenCalled();
+  });
+
+  it('never overwrites a correction a person made', async () => {
+    await upsertTranslation('de', 'Save', 'Speichern', 'AUTO');
+    await upsertTranslation('fr', 'Save', 'Sauvegarder', 'HUMAN');
+    const machine = jest.spyOn(translate, 'machineTranslate');
+
+    const fill = await fillLanguage('fr');
+    await fill.finished;
+
+    expect(fill.queued).toBe(0);
+    expect(machine).not.toHaveBeenCalled();
+    const [row] = await TranslationModel.find({ locale: 'fr' }).lean();
+    expect(row.text).toBe('Sauvegarder');
+  });
+
+  it('does not start a second fill of a language already being filled', async () => {
+    await upsertTranslation('de', 'Save', 'Speichern', 'AUTO');
+    // The model answers only when the test says so, so the first fill is still running.
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    jest.spyOn(translate, 'machineTranslate').mockImplementation(async (_locale, sources) => {
+      await gate;
+      return sources.map((source) => ({ source, text: `fr:${source}`, model: 'gpt-test' }));
+    });
+
+    const first = await fillLanguage('fr');
+    const second = await fillLanguage('fr');
+
+    expect(first).toMatchObject({ queued: 1, alreadyRunning: false });
+    expect(second).toMatchObject({ queued: 0, alreadyRunning: true });
+    release();
+    await expect(first.finished).resolves.toBe(1);
+  });
+
+  it('has nothing to do for English, which is the source', async () => {
+    await expect(fillLanguage('en')).resolves.toMatchObject({ queued: 0, alreadyRunning: false });
   });
 });
