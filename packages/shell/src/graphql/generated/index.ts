@@ -9616,6 +9616,7 @@ export enum Role {
   Marketing = 'MARKETING',
   Products = 'PRODUCTS',
   Projects = 'PROJECTS',
+  SuperAdmin = 'SUPER_ADMIN',
   Support = 'SUPPORT',
   Tech = 'TECH',
   Tracker = 'TRACKER',

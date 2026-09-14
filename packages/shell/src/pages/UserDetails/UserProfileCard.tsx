@@ -19,7 +19,7 @@ export function UserProfileCard({ user }: { user: UserDetail }) {
   return (
     <Paper sx={readingPanel}>
       <Flex direction="row" spacing={2} alignItems="center">
-        <Avatar src={user.avatarUrl ?? undefined} sx={{ width: 64, height: 64 }}>
+        <Avatar src={user.avatarUrl ?? undefined} alt="" aria-hidden sx={{ width: 64, height: 64 }}>
           {initials}
         </Avatar>
         <Box sx={{ minWidth: 0 }}>

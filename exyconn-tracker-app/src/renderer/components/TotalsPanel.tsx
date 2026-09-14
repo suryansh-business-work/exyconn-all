@@ -4,6 +4,7 @@ import { useT } from '@exyconn/i18n';
 import useTotals from '../hooks/useTotals';
 import { totalTiles } from '../tiles';
 import StatGrid from './StatGrid';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   /** Changes when a sync lands — the only moment the all-time totals can have moved. */
@@ -18,7 +19,7 @@ function LoadingTiles(): ReactElement {
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(min(150px, 100%), 1fr))',
         gap: 1.5,
       }}
     >
@@ -40,11 +41,14 @@ function LoadingTiles(): ReactElement {
 export default function TotalsPanel({ lastSyncAt }: Readonly<Props>): ReactElement {
   const t = useT();
   const { totals, loading, error } = useTotals(lastSyncAt);
+  useAnnounce(error);
 
   return (
     <Stack spacing={1}>
       <Stack spacing={0.25}>
-        <Typography variant="subtitle2">{t('All time')}</Typography>
+        <Typography variant="subtitle2" component="h2">
+          {t('All time')}
+        </Typography>
         <Typography
           variant="caption"
           sx={{

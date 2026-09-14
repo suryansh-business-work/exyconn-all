@@ -57,7 +57,7 @@ export function PickerField({
       >
         <XStack
           borderWidth={1}
-          borderColor={error === undefined ? '$hairline' : '$error'}
+          borderColor={error === undefined ? '$control' : '$error'}
           borderRadius={TRACKER_RADIUS}
           backgroundColor="$paper"
           padding="$3"

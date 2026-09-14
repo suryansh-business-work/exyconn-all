@@ -31,7 +31,9 @@ export function BrandMark({ height = 36 }: Readonly<Props>) {
           source={appIcon}
           style={{ height: height * ICON_SCALE, width: height * ICON_SCALE, margin: -height / 4 }}
           contentFit="contain"
+          accessible={false}
           accessibilityElementsHidden
+          importantForAccessibility="no"
         />
         <Title color="$ink" fontSize={Math.max(15, Math.round(height * 0.75))}>
           {name}

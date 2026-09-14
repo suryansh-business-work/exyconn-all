@@ -62,10 +62,11 @@ export function TextField<T extends FieldValues>({
           minHeight={multiline ? 96 : undefined}
           textAlignVertical={multiline ? 'top' : 'center'}
           borderRadius={TRACKER_RADIUS}
-          borderColor={fieldState.error === undefined ? '$hairline' : '$error'}
+          borderColor={fieldState.error === undefined ? '$control' : '$error'}
           backgroundColor="$paper"
           color="$ink"
           accessibilityLabel={label}
+          accessibilityHint={fieldState.error?.message ?? hint}
           aria-invalid={fieldState.error !== undefined}
         />
         {secret ? (

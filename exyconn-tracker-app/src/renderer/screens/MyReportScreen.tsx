@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import {
   AdapterDateFns,
   Alert,
@@ -23,6 +23,8 @@ import ReportTotals from '../components/ReportTotals';
 import { formatMonthLabel } from '@exyconn/tracker-core';
 import useMyDay from '../hooks/useMyDay';
 import useMyReport from '../hooks/useMyReport';
+import { panelProps, tabProps } from '../a11y/tabs';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 type TabId = 'overview' | 'calendar' | 'days';
 
@@ -48,11 +50,13 @@ function monthKeyOf(month: Date): string {
 export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElement {
   const t = useT();
   const today = useMemo(() => new Date(), []);
+  const tabs = useId();
   const [tab, setTab] = useState<TabId>('overview');
   const [month, setMonth] = useState<Date>(() => startOfMonth(today));
   const [selected, setSelected] = useState<Date>(today);
 
   const { days, totals, loading, error } = useMyReport(month, timezone);
+  useAnnounce(error, 'assertive');
   const monthLabel = formatMonthLabel(month);
   const day = useMyDay(selected, timezone);
   const canGoForward = month.getTime() < startOfMonth(today).getTime();
@@ -75,9 +79,9 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
           variant="fullWidth"
           aria-label={t('Report view')}
         >
-          <Tab value="overview" label={t('Overview')} />
-          <Tab value="calendar" label={t('Calendar')} />
-          <Tab value="days" label={t('Days')} />
+          <Tab value="overview" label={t('Overview')} {...tabProps(tabs, 'overview')} />
+          <Tab value="calendar" label={t('Calendar')} {...tabProps(tabs, 'calendar')} />
+          <Tab value="days" label={t('Days')} {...tabProps(tabs, 'days')} />
         </Tabs>
 
         {error !== null ? (
@@ -86,43 +90,45 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
           </Alert>
         ) : null}
 
-        {tab === 'overview' && <ReportOverview timezone={timezone} />}
+        <Stack spacing={2} {...panelProps(tabs, tab)}>
+          {tab === 'overview' && <ReportOverview timezone={timezone} />}
 
-        {tab === 'calendar' && (
-          <>
-            <ReportCalendar
-              days={days}
-              selected={selected}
-              maxDate={today}
-              onSelect={selectDate}
-              onMonthChange={setMonth}
-            />
-            <DayDetailPanel
-              date={selected}
-              detail={day.detail}
-              loading={day.loading}
-              error={day.error}
-              timezone={timezone}
-            />
-          </>
-        )}
+          {tab === 'calendar' && (
+            <>
+              <ReportCalendar
+                days={days}
+                selected={selected}
+                maxDate={today}
+                onSelect={selectDate}
+                onMonthChange={setMonth}
+              />
+              <DayDetailPanel
+                date={selected}
+                detail={day.detail}
+                loading={day.loading}
+                error={day.error}
+                timezone={timezone}
+              />
+            </>
+          )}
 
-        {tab === 'days' && (
-          <>
-            <MonthSwitcher month={month} canGoForward={canGoForward} onChange={setMonth} />
-            <ReportTotals totals={totals} />
-            <ReportMonthChart days={days} monthLabel={monthLabel} />
-            {/* Hours first, then how solid they were: the second chart only means something
+          {tab === 'days' && (
+            <>
+              <MonthSwitcher month={month} canGoForward={canGoForward} onChange={setMonth} />
+              <ReportTotals totals={totals} />
+              <ReportMonthChart days={days} monthLabel={monthLabel} />
+              {/* Hours first, then how solid they were: the second chart only means something
                 once the reader knows how long the days it describes actually were. */}
-            <ReportActivityChart days={days} monthLabel={monthLabel} />
-            <ReportTable days={days} loading={loading} />
-            <ReportDownloadButton
-              days={days}
-              monthKey={monthKeyOf(month)}
-              monthLabel={monthLabel}
-            />
-          </>
-        )}
+              <ReportActivityChart days={days} monthLabel={monthLabel} />
+              <ReportTable days={days} loading={loading} />
+              <ReportDownloadButton
+                days={days}
+                monthKey={monthKeyOf(month)}
+                monthLabel={monthLabel}
+              />
+            </>
+          )}
+        </Stack>
       </Stack>
     </LocalizationProvider>
   );

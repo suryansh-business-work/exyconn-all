@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import { alpha, Box, GlobalStyles } from '@exyconn/ui';
+import { a11yGlobalStyles } from '../a11y/global-styles';
 
 interface Props {
   children: ReactNode;
@@ -33,6 +34,7 @@ export default function AppFrame({ children, groundOpacity = 1 }: Readonly<Props
           : theme.palette.background.default,
       })}
     >
+      <GlobalStyles styles={a11yGlobalStyles} />
       {seeThrough ? <GlobalStyles styles={CLEAR_PAGE} /> : null}
       {children}
     </Box>

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Label, YStack } from 'tamagui';
+import { useStatusMessage } from '../../hooks/useStatusMessage';
 import { Caption } from '../ui/Typography';
 
 interface Props {
@@ -18,6 +19,7 @@ interface Props {
  */
 export function FieldFrame({ id, label, hint, error, children }: Readonly<Props>) {
   const help = error ?? hint;
+  const live = useStatusMessage(error);
   return (
     <YStack gap="$1.5">
       <Label htmlFor={id} size="$3" color="$ink" fontWeight="600">
@@ -25,7 +27,7 @@ export function FieldFrame({ id, label, hint, error, children }: Readonly<Props>
       </Label>
       {children}
       {help === undefined ? null : (
-        <Caption color={error === undefined ? '$muted' : '$error'} accessibilityLiveRegion="polite">
+        <Caption color={error === undefined ? '$muted' : '$error'} {...live}>
           {help}
         </Caption>
       )}

@@ -38,7 +38,9 @@ export function ActivityCard({ title, percent, children }: Readonly<Props>) {
         <XStack justifyContent="space-between" alignItems="baseline">
           <Heading>{title}</Heading>
           {percent === null ? null : (
-            <Heading color={hues[activityLevel(percent)]}>{percent}%</Heading>
+            <Heading accessibilityRole="none" color={hues[activityLevel(percent)]}>
+              {percent}%
+            </Heading>
           )}
         </XStack>
         <XStack gap="$3" justifyContent="flex-end">

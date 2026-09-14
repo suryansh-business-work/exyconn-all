@@ -17,6 +17,7 @@ import useCaptureBridge from './hooks/useCaptureBridge';
 import useTrackerState from './hooks/useTrackerState';
 import useUpdateState from './hooks/useUpdateState';
 import UpdateBanner from './components/UpdateBanner';
+import { LiveAnnouncer } from './a11y/LiveAnnouncer';
 
 interface RouterProps {
   state: TrackerState;
@@ -82,19 +83,21 @@ export default function App(): ReactElement {
       timezone={state?.timezone ?? deviceTimezone()}
     >
       <ThemeProvider theme={theme}>
-        <AppFrame
-          groundOpacity={
-            state === null
-              ? 1
-              : groundOpacity(window.tracker.transparencySupported, state.preferences)
-          }
-        >
-          {/* Above the router: a new version matters on the login screen too. */}
-          <UpdateBanner update={update} />
-          {state === null ? <Loading /> : <ScreenRouter state={state} />}
-        </AppFrame>
-        {/* At the root: a quit can be asked for from any page, and from the tray. */}
-        <ClosingDialog />
+        <LiveAnnouncer>
+          <AppFrame
+            groundOpacity={
+              state === null
+                ? 1
+                : groundOpacity(window.tracker.transparencySupported, state.preferences)
+            }
+          >
+            {/* Above the router: a new version matters on the login screen too. */}
+            <UpdateBanner update={update} />
+            {state === null ? <Loading /> : <ScreenRouter state={state} />}
+          </AppFrame>
+          {/* At the root: a quit can be asked for from any page, and from the tray. */}
+          <ClosingDialog />
+        </LiveAnnouncer>
       </ThemeProvider>
     </TrackerI18nProvider>
   );

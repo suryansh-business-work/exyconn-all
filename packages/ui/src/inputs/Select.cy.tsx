@@ -8,9 +8,9 @@ function ControlledSelect() {
     <Select
       value={value}
       onChange={(event) => setValue(event.target.value as string)}
-      slotProps={{
-        htmlInput: { 'aria-label': 'demo-select' },
-      }}
+      // The name belongs on the combobox a screen reader lands on, not the hidden input that
+      // only carries the value to a form (axe: aria-input-field-name).
+      SelectDisplayProps={{ 'aria-label': 'demo-select' }}
     >
       <MenuItem value="a">Alpha</MenuItem>
       <MenuItem value="b">Beta</MenuItem>

@@ -2,6 +2,7 @@ import { Pressable } from 'react-native';
 import { XStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { formatMonthLabel } from '@exyconn/tracker-core';
+import { useStatusMessage } from '../../hooks/useStatusMessage';
 import { shiftMonth } from '../../lib/report/month';
 import { useThemeColor } from '../../theme/useThemeColor';
 import { Icon, type IconName } from '../ui/Icon';
@@ -39,6 +40,8 @@ function StepButton({ label, icon, disabled = false, onPress }: Readonly<StepPro
 /** Prev / next month navigation with the month label between them. */
 export function MonthSwitcher({ month, canGoForward, onChange }: Readonly<Props>) {
   const t = useT();
+  const label = formatMonthLabel(month);
+  const live = useStatusMessage(label);
   return (
     <XStack alignItems="center" justifyContent="center" gap="$3">
       <StepButton
@@ -46,14 +49,8 @@ export function MonthSwitcher({ month, canGoForward, onChange }: Readonly<Props>
         icon="chevron-left"
         onPress={() => onChange(shiftMonth(month, -1))}
       />
-      <Body
-        fontWeight="700"
-        minWidth={148}
-        textAlign="center"
-        accessibilityRole="header"
-        accessibilityLiveRegion="polite"
-      >
-        {formatMonthLabel(month)}
+      <Body fontWeight="700" minWidth={148} textAlign="center" accessibilityRole="header" {...live}>
+        {label}
       </Body>
       <StepButton
         label={t('Next month')}

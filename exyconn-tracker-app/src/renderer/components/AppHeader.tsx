@@ -37,7 +37,7 @@ export default function AppHeader({
   const t = useT();
   const name = user?.name ?? t('Signed in');
   return (
-    <Box sx={{ px: 2.5, pt: 1, pb: 1.5, flexShrink: 0, ...DRAG }}>
+    <Box component="header" sx={{ px: 2.5, pt: 1, pb: 1.5, flexShrink: 0, ...DRAG }}>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', minHeight: 32 }}>
         <Box sx={{ display: 'flex', flex: '1 1 auto', minWidth: 0 }}>
           <BrandMark branding={branding} height={18} />
@@ -46,7 +46,12 @@ export default function AppHeader({
         <WindowControls />
       </Stack>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mt: 1.5 }}>
-        <Typography variant="h4" component="h1" noWrap sx={{ flex: '1 1 auto', minWidth: 0 }}>
+        {/* Wraps rather than truncating: at 200% zoom a clipped title loses the page name. */}
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{ flex: '1 1 auto', minWidth: 0, overflowWrap: 'anywhere' }}
+        >
           {title}
         </Typography>
         <ThemeToggleButton mode={themeMode} round />

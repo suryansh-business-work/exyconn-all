@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { XStack, YStack } from 'tamagui';
 import type { AlertSeverity } from '@exyconn/tracker-core';
+import { useStatusMessage } from '../../hooks/useStatusMessage';
 import { TRACKER_RADIUS } from '../../theme/tokens';
 import { useThemeColor, type ThemeColor } from '../../theme/useThemeColor';
 import { Icon, type IconName } from './Icon';
@@ -36,6 +37,8 @@ interface Props {
  */
 export function Notice({ severity, children, detail, icon }: Readonly<Props>) {
   const tone = useThemeColor(TONES[severity]);
+  const spoken = typeof children === 'string' ? children : null;
+  const live = useStatusMessage(spoken, true);
   return (
     <XStack
       borderWidth={1}
@@ -45,7 +48,7 @@ export function Notice({ severity, children, detail, icon }: Readonly<Props>) {
       gap="$3"
       alignItems="flex-start"
       accessibilityRole="alert"
-      accessibilityLiveRegion="polite"
+      {...live}
     >
       <Icon name={icon ?? ICONS[severity]} size={20} color={tone} />
       <YStack flex={1} gap="$1">

@@ -19,6 +19,7 @@ interface Props {
 export default function TitleBar({ title, actions }: Readonly<Props>): ReactElement {
   return (
     <Box
+      component="header"
       sx={(theme) => ({
         display: 'flex',
         alignItems: 'center',

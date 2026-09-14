@@ -9,6 +9,7 @@ import Surface from './Surface';
 import DayActivityChart from './DayActivityChart';
 import ReportTotals from './ReportTotals';
 import ScreenshotGrid from './ScreenshotGrid';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   date: Date;
@@ -40,9 +41,11 @@ export default function DayDetailPanel({
   timezone,
 }: Readonly<Props>): ReactElement {
   const t = useT();
+  useAnnounce(error, 'assertive');
   const heading = (
     <Typography
       variant="subtitle1"
+      component="h2"
       sx={{
         fontWeight: 700,
       }}
@@ -115,7 +118,7 @@ export default function DayDetailPanel({
             mb: 1.5,
           }}
         >
-          <Typography variant="subtitle2">
+          <Typography variant="subtitle2" component="h2">
             {t('Screenshots ({count})', { count: formatCount(detail.screenshots.length) })}
           </Typography>
           {detail.screenshots.length > 0 ? (

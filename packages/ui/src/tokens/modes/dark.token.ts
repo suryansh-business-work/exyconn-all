@@ -11,8 +11,8 @@ const DARK_DIVIDER_OPACITY = 0.1;
  * Dark mode: light ink on a near-black ground.
  *
  * Every status hue is a light shade of its family, and `onPrimary` is dark — see the note
- * on `SemanticTokens.onPrimary`. `secondary` is the one value shared with light mode: the
- * brand orange sits at 4.5:1 on both grounds, so it does not need a second version.
+ * on `SemanticTokens.onPrimary`. `secondary` is the brand orange itself: it clears 4.5:1 on
+ * the dark grounds, where on the light ones it does not (see light.token.ts).
  */
 export const darkTokens: SemanticTokens = {
   primary: indigo[200],

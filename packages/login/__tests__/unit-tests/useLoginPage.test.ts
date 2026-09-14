@@ -1,4 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { AA_TEXT, contrastRatio } from '@exyconn/ui';
 import { renderHook } from '@testing-library/react';
 
 const usePublicBrandingQuery = vi.fn();
@@ -51,9 +52,20 @@ describe('useLoginPage', () => {
     const { result } = renderHook(() => useLoginPage(false));
     expect(result.current.name).toBe('Finance');
     expect(result.current.tagline).toBe('Money, minded');
-    expect(result.current.accentColor).toBe('#ff0000');
+    // Pure red is 4:1 on the white sign-in panel — just under WCAG AA — so it is darkened
+    // just enough to read, and stays a red.
+    expect(result.current.accentColor).toBe('#e60000');
+    expect(contrastRatio(result.current.accentColor, '#ffffff')).toBeGreaterThanOrEqual(AA_TEXT);
     expect(result.current.backgroundImageUrl).toBe('/bg.jpg');
     expect(result.current.slogan).toBe('Build once, run everywhere');
+  });
+
+  it('keeps an accent that already reads exactly as the admin chose it', () => {
+    usePublicBrandingQuery.mockReturnValue(
+      brandingWith({ name: 'Finance', accentColor: '#1a237e' }),
+    );
+    const { result } = renderHook(() => useLoginPage(false));
+    expect(result.current.accentColor).toBe('#1a237e');
   });
 
   // Clearing a field in the admin panel should mean "use the default", not "show nothing".

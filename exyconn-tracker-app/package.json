@@ -1,6 +1,6 @@
 {
   "name": "exyconn-tracker-app",
-  "version": "1.9.49",
+  "version": "1.9.50",
   "private": true,
   "description": "Exyconn Tracker — cross-platform desktop time tracker (Windows + macOS).",
   "main": "out/main/index.js",
@@ -45,6 +45,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^4.3.4",
+    "axe-core": "^4.13.0",
     "chart.js": "^4.5.1",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",
@@ -53,6 +54,7 @@
     "electron-vite": "^2.3.0",
     "eslint": "^10.9.1",
     "globals": "^17.12.0",
+    "jsdom": "^30.0.1",
     "prettier": "^3.4.2",
     "react": "^19.2.8",
     "react-chartjs-2": "^5.3.1",

@@ -1,11 +1,13 @@
 import type { ReactElement } from 'react';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Alert, Stack, Tab, Tabs, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import type { TrackerMessageKind } from '@shared/types';
 import MessageComposer from '../components/MessageComposer';
 import MessageList from '../components/MessageList';
 import useMessages from '../hooks/useMessages';
+import { panelProps, tabProps } from '../a11y/tabs';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   /** Every timestamp on this screen is read in the employee's own zone, like everywhere else. */
@@ -24,8 +26,10 @@ interface Props {
  */
 export default function MessagesScreen({ timezone }: Readonly<Props>): ReactElement {
   const t = useT();
+  const tabs = useId();
   const [tab, setTab] = useState<TrackerMessageKind>('CHAT');
   const { messages, loading, error, sending, send } = useMessages(tab);
+  useAnnounce(error, 'assertive');
 
   return (
     <Stack spacing={2}>
@@ -39,8 +43,8 @@ export default function MessagesScreen({ timezone }: Readonly<Props>): ReactElem
         variant="fullWidth"
         aria-label={t('Message view')}
       >
-        <Tab value="CHAT" label={t('Chat')} />
-        <Tab value="NOTICE" label={t('Announcements')} />
+        <Tab value="CHAT" label={t('Chat')} {...tabProps(tabs, 'CHAT')} />
+        <Tab value="NOTICE" label={t('Announcements')} {...tabProps(tabs, 'NOTICE')} />
       </Tabs>
 
       {error !== null ? (
@@ -49,30 +53,32 @@ export default function MessagesScreen({ timezone }: Readonly<Props>): ReactElem
         </Alert>
       ) : null}
 
-      {tab === 'CHAT' ? (
-        <>
+      <Stack spacing={2} {...panelProps(tabs, tab)}>
+        {tab === 'CHAT' ? (
+          <>
+            <MessageList
+              messages={messages}
+              loading={loading}
+              timezone={timezone}
+              emptyTitle={t('No messages yet')}
+              emptyBody={t(
+                'Write below to reach whoever administers tracking. They can reply from the portal.',
+              )}
+            />
+            <MessageComposer sending={sending} onSend={send} />
+          </>
+        ) : (
           <MessageList
             messages={messages}
             loading={loading}
             timezone={timezone}
-            emptyTitle={t('No messages yet')}
+            emptyTitle={t('No announcements')}
             emptyBody={t(
-              'Write below to reach whoever administers tracking. They can reply from the portal.',
+              'Anything your workspace sends to every tracker appears here, and on your desktop.',
             )}
           />
-          <MessageComposer sending={sending} onSend={send} />
-        </>
-      ) : (
-        <MessageList
-          messages={messages}
-          loading={loading}
-          timezone={timezone}
-          emptyTitle={t('No announcements')}
-          emptyBody={t(
-            'Anything your workspace sends to every tracker appears here, and on your desktop.',
-          )}
-        />
-      )}
+        )}
+      </Stack>
     </Stack>
   );
 }

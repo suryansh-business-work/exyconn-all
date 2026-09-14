@@ -25,6 +25,9 @@ export function MediaReview({ selection, uploading, onCropChange }: Readonly<Med
           component="video"
           src={selection.stockUrl}
           poster={selection.previewUrl}
+          // A stock clip picked for a background, which the site only ever plays muted — no
+          // speech to caption (SC 1.2.2 applies to media with audio content).
+          muted
           controls
           preload="metadata"
           sx={{ width: '100%', maxHeight: 280, borderRadius: 1, bgcolor: 'common.black' }}

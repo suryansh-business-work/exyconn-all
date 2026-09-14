@@ -32,6 +32,7 @@ import GradientBar from './GradientBar';
 import MetricCard from './MetricCard';
 import StripesChart from './StripesChart';
 import Surface from './Surface';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 const PERIODS: ReadonlyArray<{ length: PeriodLength; label: string; before: string }> = [
   { length: 7, label: 'Last 7 days', before: 'the 7 days before' },
@@ -50,6 +51,9 @@ const METRICS: ReadonlyArray<{ key: CountKey; label: string; icon: typeof Keyboa
 interface Props {
   timezone: string;
 }
+
+/** Two figures a row, dropping to one when zoom leaves no room for two (WCAG 1.4.10). */
+const GRID_COLUMNS = 'repeat(auto-fit, minmax(min(150px, 100%), 1fr))';
 
 /** A period chip that is not showing: paper with a hairline, as the phone draws it. */
 function unselectedChip(theme: Theme): CSSObject {
@@ -73,7 +77,11 @@ function WorkedCard({
         {t('Worked')}
       </Typography>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', my: 1 }}>
-        <Typography variant="h3" sx={{ fontWeight: 700, letterSpacing: letterSpacing.tighter }}>
+        <Typography
+          variant="h3"
+          component="p"
+          sx={{ fontWeight: 700, letterSpacing: letterSpacing.tighter }}
+        >
           {formatHoursMinutes(current.activeMs)}
         </Typography>
         {change === null ? null : <ChangeBadge change={change} />}
@@ -103,6 +111,7 @@ export default function ReportOverview({ timezone }: Readonly<Props>): ReactElem
   const [length, setLength] = useState<PeriodLength>(7);
   const period = PERIODS.find((entry) => entry.length === length) ?? PERIODS[0];
   const { range, current, previous, columns, loading, error } = usePeriodInsights(length, timezone);
+  useAnnounce(error, 'assertive');
   const first = range.current[0];
   const last = range.current.at(-1) ?? first;
   const middle = range.current[Math.floor(range.current.length / 2)];
@@ -157,7 +166,7 @@ export default function ReportOverview({ timezone }: Readonly<Props>): ReactElem
         </Typography>
       </ActivityCard>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: GRID_COLUMNS, gap: 1.5 }}>
         {METRICS.map((metric) => (
           <MetricCard
             key={metric.key}

@@ -4,6 +4,7 @@ export const adminTypeDefs = gql`
   # Must stay in sync with src/constants/roles.ts — a role missing here fails enum
   # serialization on the me/login queries for anyone who holds it.
   enum Role {
+    SUPER_ADMIN
     ADMIN
     EMPLOYEE
     FINANCE

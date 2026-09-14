@@ -13,6 +13,7 @@ import {
   IconButton,
   InputAdornment,
   Link,
+  readableInk,
 } from '@exyconn/shell/components/ui';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -120,7 +121,13 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
             fullWidth
             variant="contained"
             disabled={methods.formState.isSubmitting}
-            sx={{ bgcolor: accentColor, py: 1, '&:hover': { bgcolor: accentColor, opacity: 0.9 } }}
+            sx={{
+              bgcolor: accentColor,
+              // The label's ink is picked by contrast with the accent, not assumed to be white.
+              color: readableInk(accentColor),
+              py: 1,
+              '&:hover': { bgcolor: accentColor, opacity: 0.9 },
+            }}
           >
             {t('Log in')}
           </Button>

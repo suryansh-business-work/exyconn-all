@@ -41,6 +41,7 @@ export default function ProgressStylePicker({ style }: Readonly<Props>): ReactEl
         fullWidth
         size="small"
         value={style}
+        aria-label={t('Today’s progress')}
         // `next` is null when the active button is pressed again; keeping the current style
         // means the group can never end up with nothing selected.
         onChange={(_event, next: ProgressStyle | null) =>

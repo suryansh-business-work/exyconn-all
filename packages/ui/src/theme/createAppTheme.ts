@@ -56,6 +56,9 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
     direction,
     palette: {
       mode,
+      // MUI picks the text colour on a filled button, chip or alert from its background, and by
+      // default settles for 3:1 — below WCAG AA's 4.5:1 for normal text (SC 1.4.3).
+      contrastThreshold: 4.5,
       primary: { main: t.primary, contrastText: t.onPrimary },
       secondary: { main: t.secondary },
       success: { main: t.success },
@@ -163,7 +166,23 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
         styleOverrides: { root: { borderRadius: PILL }, bar: { borderRadius: PILL } },
       },
       MuiOutlinedInput: {
-        styleOverrides: { root: { backgroundColor: t.background.panel } },
+        styleOverrides: {
+          root: {
+            backgroundColor: t.background.panel,
+            // SC 1.4.11: the outline is what shows where a field is, so it needs 3:1 against
+            // the panel. MUI's default (ink at 23%) measured about 1.7:1. The secondary ink
+            // clears 4.5:1 on both modes' panels (contrast.test.ts).
+            '& .MuiOutlinedInput-notchedOutline': { borderColor: t.text.secondary },
+          },
+        },
+      },
+      MuiAlert: {
+        styleOverrides: {
+          // MUI makes the message an `overflow: auto` box, which axe rightly reports as a
+          // scrollable region a keyboard cannot reach (SC 2.1.1). An alert's message is a
+          // sentence; it wraps instead of scrolling.
+          message: { overflow: 'visible' },
+        },
       },
       MuiTooltip: { styleOverrides: { tooltip: { borderRadius: `${radius.md}px` } } },
       MuiSelect: { defaultProps: { size: 'small' } },

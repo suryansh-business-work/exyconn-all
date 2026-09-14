@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { AA_TEXT, contrastRatio } from '@exyconn/ui';
 import { buildTheme } from './theme';
 import { color } from '@exyconn/ui';
 
@@ -26,4 +27,21 @@ describe('buildTheme light/dark', () => {
     // The Exyconn fallback background is dark, so this is the behaviour that already existed.
     expect(buildTheme(null).palette.mode).toBe('dark');
   });
+});
+
+describe('the brand, whatever the workspace picked (WCAG 2.2 AA)', () => {
+  const brands = ['#fff176', '#0b1026', color.indigo[500]];
+
+  for (const primaryColor of brands) {
+    for (const mode of ['light', 'dark'] as const) {
+      it(`${primaryColor} reads as text on the ${mode} panel, with readable ink on it`, () => {
+        // The fixture is typed `never` above; its fields are plain strings.
+        const brand = { ...(LIGHT_BRAND as Record<string, string>), primaryColor } as never;
+        const theme = buildTheme(brand, mode);
+        const { primary, background } = theme.palette;
+        expect(contrastRatio(primary.main, background.paper)).toBeGreaterThanOrEqual(AA_TEXT);
+        expect(contrastRatio(primary.contrastText, primary.main)).toBeGreaterThanOrEqual(AA_TEXT);
+      });
+    }
+  }
 });

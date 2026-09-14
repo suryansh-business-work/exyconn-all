@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useT, type Interpolations } from '@exyconn/i18n';
 import { Box, Button, Stack, Typography } from '@/components/ui';
 import AddIcon from '@mui/icons-material/Add';
+import { usePageTitle } from './usePageTitle';
 
 interface PageHeaderProps {
   title: string;
@@ -34,6 +35,10 @@ export function PageHeader({
   // Titles arrive as English props from ~sixty screens. Translating them here means no page
   // has to remember to, and none of them can be the one that forgot.
   const t = useT();
+  const heading = t(title, titleValues);
+
+  usePageTitle(heading);
+
   return (
     <Stack
       direction={{ xs: 'column', sm: 'row' }}
@@ -45,7 +50,10 @@ export function PageHeader({
       }}
     >
       <Box>
-        <Typography variant="h4">{t(title, titleValues)}</Typography>
+        {/* The page's one h1 (SC 1.3.1): styled as an h4, but the top of the outline. */}
+        <Typography variant="h4" component="h1">
+          {heading}
+        </Typography>
         {subtitle && (
           <Typography
             variant="body2"

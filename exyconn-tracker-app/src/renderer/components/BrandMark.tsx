@@ -35,6 +35,7 @@ function Wordmark({ name, height }: Readonly<WordmarkProps>): ReactElement {
       />
       <Typography
         variant="h6"
+        component="p"
         noWrap
         sx={{
           minWidth: 0,
@@ -88,6 +89,7 @@ export default function BrandMark({
       {showName ? (
         <Typography
           variant="subtitle2"
+          component="p"
           noWrap
           sx={{
             color: 'text.secondary',

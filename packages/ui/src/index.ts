@@ -149,3 +149,11 @@ export {
   CardFooter,
   type CardFooterProps,
 } from './cards';
+// WCAG contrast arithmetic, for colours nobody chose in advance (a workspace's brand accent).
+export {
+  AA_LARGE,
+  AA_TEXT,
+  contrastRatio,
+  ensureContrast,
+  readableInk,
+} from './a11y/contrast';

@@ -2,6 +2,7 @@ import * as Application from 'expo-application';
 import { Platform } from 'react-native';
 import { YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
+import { useStatusMessage } from '../../hooks/useStatusMessage';
 import { useUpdateState } from '../../hooks/useUpdateState';
 import { installNote, updateStatus } from '../../lib/settings/update-status';
 import { run } from '../../tracker/run';
@@ -23,6 +24,8 @@ export function UpdateSection() {
   const version = Application.nativeApplicationVersion ?? '—';
   const checking = update.stage === 'checking';
   const openLabel = IS_ANDROID ? t('Download') : t('Details');
+  const status = updateStatus(update, Date.now());
+  const live = useStatusMessage(status);
 
   return (
     <YStack gap="$2">
@@ -36,7 +39,7 @@ export function UpdateSection() {
         busy={checking}
         onPress={() => run(checkForUpdate)}
       />
-      <Caption accessibilityLiveRegion="polite">{updateStatus(update, Date.now())}</Caption>
+      <Caption {...live}>{status}</Caption>
       {update.stage === 'available' ? (
         <AppButton
           label={openLabel}

@@ -54,7 +54,10 @@ export function ticketColumns(
         ) : (
           <Flex direction="row" alignItems="center" spacing={1}>
             <Tooltip title={row.assigneeName}>
-              <Avatar sx={{ width: 22, height: 22, fontSize: fontSize['3xs'] }}>
+              <Avatar
+                alt={row.assigneeName}
+                sx={{ width: 22, height: 22, fontSize: fontSize['3xs'] }}
+              >
                 {initialsOf(row.assigneeName)}
               </Avatar>
             </Tooltip>

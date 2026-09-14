@@ -53,7 +53,7 @@ export default function TileDetailDialog({ tile, onClose }: Readonly<Props>): Re
           }}
         >
           <Icon fontSize="small" sx={{ color: 'primary.main', mt: 0.4 }} />
-          <Typography variant="subtitle1" sx={{ flex: 1, fontWeight: 700 }}>
+          <Typography variant="subtitle1" component="h2" sx={{ flex: 1, fontWeight: 700 }}>
             {title}
           </Typography>
           <IconButton
@@ -66,7 +66,7 @@ export default function TileDetailDialog({ tile, onClose }: Readonly<Props>): Re
           </IconButton>
         </Stack>
 
-        <Typography variant="h5" sx={{ mb: 1.5 }}>
+        <Typography variant="h5" component="p" sx={{ mb: 1.5 }}>
           {tile.detail.headline}
         </Typography>
 

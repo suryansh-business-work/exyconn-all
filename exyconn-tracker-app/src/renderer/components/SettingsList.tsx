@@ -49,6 +49,7 @@ export default function SettingsList({ rows }: Readonly<Props>): ReactElement {
           </Typography>
           <Typography
             variant="subtitle2"
+            component="p"
             sx={{ flex: '1 1 auto', textAlign: 'right', minWidth: 0 }}
           >
             {row.value}

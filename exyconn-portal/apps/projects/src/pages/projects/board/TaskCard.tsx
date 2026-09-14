@@ -91,7 +91,10 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
             <Box sx={{ flex: 1 }} />
             {task.assigneeName === '' ? null : (
               <Tooltip title={t('Assigned to {name}', { name: task.assigneeName })}>
-                <Avatar sx={{ width: 22, height: 22, fontSize: fontSize['3xs'] }}>
+                <Avatar
+                  alt={task.assigneeName}
+                  sx={{ width: 22, height: 22, fontSize: fontSize['3xs'] }}
+                >
                   {initialsOf(task.assigneeName)}
                 </Avatar>
               </Tooltip>

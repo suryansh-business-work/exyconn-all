@@ -5,7 +5,7 @@ import {
   Box,
   boxShadow,
   Button,
-  color,
+  readableInk,
   Flex,
   Heading,
   radius,
@@ -86,7 +86,7 @@ export function LoginPromo({ name, slogan, accentColor }: Readonly<LoginPromoPro
           endIcon={<ArrowForwardIcon />}
           sx={{
             bgcolor: accentColor,
-            color: color.white,
+            color: readableInk(accentColor),
             borderRadius: `${radius.pill}px`,
             px: 2,
             '&:hover': { bgcolor: accentColor, opacity: 0.9 },

@@ -81,7 +81,7 @@ export function DateTimeField<T extends FieldValues>({
       >
         <XStack
           borderWidth={1}
-          borderColor={fieldState.error === undefined ? '$hairline' : '$error'}
+          borderColor={fieldState.error === undefined ? '$control' : '$error'}
           borderRadius={TRACKER_RADIUS}
           backgroundColor="$paper"
           padding="$3"

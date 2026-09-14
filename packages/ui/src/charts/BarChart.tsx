@@ -7,6 +7,7 @@ import './chart-setup';
 import { useChartPalette } from './useChartPalette';
 import { axisChrome, sharedPlugins } from './chart-options';
 import type { ChartData, ValueFormatter } from './chart.types';
+import { useChartLabel } from './chart-label';
 
 interface Props {
   data: ChartData;
@@ -39,6 +40,7 @@ export function BarChart({
   height = 260,
 }: Readonly<Props>): ReactElement {
   const palette = useChartPalette();
+  const label = useChartLabel();
 
   const chartData = useMemo(() => {
     /**
@@ -95,7 +97,7 @@ export function BarChart({
 
   return (
     <Box sx={{ height }}>
-      <Bar data={chartData} options={options} />
+      <Bar data={chartData} options={options} {...label} />
     </Box>
   );
 }

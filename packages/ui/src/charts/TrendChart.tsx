@@ -8,6 +8,7 @@ import { useChartPalette } from './useChartPalette';
 import { wash } from './palette';
 import { axisChrome, sharedPlugins } from './chart-options';
 import type { ChartData, ValueFormatter } from './chart.types';
+import { useChartLabel } from './chart-label';
 
 interface Props {
   data: ChartData;
@@ -31,6 +32,7 @@ export function TrendChart({
   height = 260,
 }: Readonly<Props>): ReactElement {
   const palette = useChartPalette();
+  const label = useChartLabel();
   const single = data.series.length === 1;
 
   const chartData = useMemo(
@@ -73,7 +75,7 @@ export function TrendChart({
 
   return (
     <Box sx={{ height }}>
-      <Line data={chartData} options={options} />
+      <Line data={chartData} options={options} {...label} />
     </Box>
   );
 }

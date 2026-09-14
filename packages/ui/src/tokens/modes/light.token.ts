@@ -9,11 +9,14 @@ import type { SemanticTokens } from './semantic-tokens';
  * The status hues run DARK here (emerald 900, orange 800, red 900) because they are read
  * against white — the same green that is legible on the dark panel would be a 2:1 smear on
  * this one. That inversion is the whole reason the two modes are separate files.
+ *
+ * `secondary` is orange 800 for the same reason. The brand orange (500) measures 2.4:1 on
+ * white — it was believed to pass, and nothing checked; `contrast.test.ts` now does.
  */
 export const lightTokens: SemanticTokens = {
   primary: indigo[600],
   onPrimary: white,
-  secondary: orange[500],
+  secondary: orange[800],
   success: emerald[900],
   warning: orange[800],
   error: red[900],

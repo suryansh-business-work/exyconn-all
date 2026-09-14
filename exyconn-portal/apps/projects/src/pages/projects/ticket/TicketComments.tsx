@@ -77,7 +77,7 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
       <Flex direction="column" spacing={1.5}>
         {comments.map((comment) => (
           <Flex key={comment.id} direction="row" spacing={1.5} alignItems="flex-start">
-            <Avatar sx={{ width: 28, height: 28, fontSize: fontSize.xs }}>
+            <Avatar alt="" aria-hidden sx={{ width: 28, height: 28, fontSize: fontSize.xs }}>
               {initialsOf(comment.authorName)}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>

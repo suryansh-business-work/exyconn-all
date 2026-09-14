@@ -66,7 +66,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
           <Button onClick={() => settle(false)} color="inherit">
             {t(options?.cancelText ?? 'Cancel')}
           </Button>
-          <Button onClick={() => settle(true)} variant="contained" autoFocus>
+          <Button onClick={() => settle(true)} variant="contained">
             {t(options?.confirmText ?? 'Confirm')}
           </Button>
         </DialogActions>

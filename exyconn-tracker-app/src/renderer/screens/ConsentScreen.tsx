@@ -10,6 +10,7 @@ import ConsentBody from '../components/ConsentBody';
 import Surface from '../components/Surface';
 import ScreenLayout from '../components/ScreenLayout';
 import { run } from '../run';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   branding: Branding | null;
@@ -48,6 +49,7 @@ export default function ConsentScreen({
   const mustSign = policy?.requiresAcknowledgement === true;
   const canAgree = hasDisclosure && (!mustSign || signedName.trim() !== '');
   const webcamEnabled = settings?.webcamEnabled ?? false;
+  useAnnounce(error, 'assertive');
 
   async function accept(): Promise<void> {
     setBusy(true);
@@ -83,7 +85,9 @@ export default function ConsentScreen({
       </Stack>
 
       <Surface sx={{ p: 3 }}>
-        <Typography variant="h5">{policy?.title ?? t('Before you start')}</Typography>
+        <Typography variant="h5" component="h1">
+          {policy?.title ?? t('Before you start')}
+        </Typography>
         <Typography
           variant="body2"
           sx={{

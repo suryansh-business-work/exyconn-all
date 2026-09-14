@@ -37,7 +37,9 @@ function EntryRow({ entry, timezone, onWithdraw }: Readonly<RowProps>): ReactEle
   return (
     <Stack spacing={0.75}>
       <Flex direction="row" justifyContent="space-between" alignItems="center" gap={1}>
-        <Typography variant="subtitle2">{formatHoursMinutes(entry.durationMs)}</Typography>
+        <Typography variant="subtitle2" component="p">
+          {formatHoursMinutes(entry.durationMs)}
+        </Typography>
         <Chip
           size="small"
           color={STATUS_COLOR[entry.status]}

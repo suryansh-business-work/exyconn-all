@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { formatDayInZone, offsetLabel } from '@exyconn/tracker-core';
+import { useStatusMessage } from '../../hooks/useStatusMessage';
 import type { DayRange } from '../../lib/screenshots/gallery-day';
 import { borderWidth } from '../../theme/tokens';
 import { useThemeColor } from '../../theme/useThemeColor';
@@ -66,6 +67,7 @@ export function GalleryHeader({
     range === null
       ? zone
       : t('{day} · {zone}', { day: formatDayInZone(range.startISO, timezone), zone });
+  const live = useStatusMessage(subtitle);
 
   return (
     <YStack
@@ -95,7 +97,7 @@ export function GalleryHeader({
           disabled={range === null}
           onPress={onPrevious}
         />
-        <Caption flex={1} textAlign="center" accessibilityLiveRegion="polite">
+        <Caption flex={1} textAlign="center" {...live}>
           {subtitle}
         </Caption>
         <DayStep label={t('Next day')} icon="chevron-right" disabled={!hasNext} onPress={onNext} />

@@ -55,7 +55,7 @@ export function TicketActivity({ taskId }: Readonly<TicketActivityProps>) {
       <Flex direction="column" spacing={1.5}>
         {entries.map((entry) => (
           <Flex key={entry.id} direction="row" spacing={1.5} alignItems="flex-start">
-            <Avatar sx={{ width: 24, height: 24, fontSize: fontSize['3xs'] }}>
+            <Avatar alt="" aria-hidden sx={{ width: 24, height: 24, fontSize: fontSize['3xs'] }}>
               {initialsOf(entry.actorName)}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>

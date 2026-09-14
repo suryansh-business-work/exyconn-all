@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
-import { I18nProvider } from '@exyconn/i18n';
+import { useEffect } from 'react';
+import { I18nProvider, directionOf } from '@exyconn/i18n';
 import { deviceLocale } from '@exyconn/tracker-core';
 import useTrackerTranslations from './useTrackerTranslations';
 
@@ -24,6 +25,13 @@ export default function TrackerI18nProvider({
 }: Readonly<Props>): ReactElement {
   const language = locale ?? deviceLocale();
   const { messages, report } = useTrackerTranslations(language);
+
+  // The page's own language and direction (WCAG 3.1.1): a screen reader picks its voice from
+  // `lang`, and an RTL language needs `dir` for everything MUI does not mirror itself.
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = directionOf(language);
+  }, [language]);
 
   return (
     <I18nProvider locale={language} messages={messages} onMissing={report} settings={{ timezone }}>

@@ -8,6 +8,8 @@ import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
 import { useAuth } from '@/auth/AuthContext';
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
 import { PageErrorBoundary } from '@/logging/PageErrorBoundary';
+import { useT } from '@exyconn/i18n';
+import { MAIN_CONTENT_ID, SkipLink } from './SkipLink';
 
 /** Wide enough that a page like "Onboarding Templates" is read, not truncated. */
 const DRAWER_WIDTH = 288;
@@ -30,6 +32,7 @@ export function PortalLayout() {
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, toggleCollapsed] = useSidebarCollapsed();
+  const t = useT();
   if (!user) return null;
 
   const width = collapsed ? RAIL_WIDTH : DRAWER_WIDTH;
@@ -43,11 +46,12 @@ export function PortalLayout() {
         background: 'background.default',
       }}
     >
+      <SkipLink />
       <Topbar drawerWidth={width} onMenuClick={() => setMobileOpen((o) => !o)} />
 
       <Box
         component="nav"
-        aria-label="Portal pages"
+        aria-label={t('Portal pages')}
         sx={{ width: { md: width }, flexShrink: { md: 0 } }}
       >
         <Drawer
@@ -79,6 +83,9 @@ export function PortalLayout() {
           the fixed topbar. Anything genuinely wider scrolls inside its own container. */}
       <Box
         component="main"
+        id={MAIN_CONTENT_ID}
+        // Focusable from the skip link only — not a tab stop of its own.
+        tabIndex={-1}
         sx={{ flexGrow: 1, minWidth: 0, width: { md: `calc(100% - ${width}px)` } }}
       >
         {/* Spacer the height of the fixed topbar. */}

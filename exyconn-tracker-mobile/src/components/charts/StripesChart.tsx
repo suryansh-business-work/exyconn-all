@@ -64,7 +64,11 @@ export function StripesChart({ bars, labels, summary, height = 140 }: Readonly<P
           })}
         </Svg>
       </YStack>
-      <XStack justifyContent="space-between" accessibilityElementsHidden>
+      <XStack
+        justifyContent="space-between"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
         <Caption fontWeight="600">{labels.start}</Caption>
         <Caption fontWeight="600">{labels.middle}</Caption>
         <Caption fontWeight="600">{labels.end}</Caption>

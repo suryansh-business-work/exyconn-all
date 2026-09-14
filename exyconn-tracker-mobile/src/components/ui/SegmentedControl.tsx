@@ -5,6 +5,9 @@ import { borderWidth, radius, trackerSelected } from '../../theme/tokens';
 import { Icon, type IconName } from './Icon';
 import { Body } from './Typography';
 
+/** Segments sit side by side, so only the height is extended — to the 44pt platform target. */
+const SEGMENT_SLOP = { top: 4, bottom: 4 } as const;
+
 export interface SegmentOption<T extends string> {
   value: T;
   label: string;
@@ -53,6 +56,7 @@ function Segment<T extends string>({
     <Pressable
       onPress={onPress}
       style={full ? { flex: 1 } : undefined}
+      hitSlop={SEGMENT_SLOP}
       accessibilityRole={kind === 'tabs' ? 'tab' : 'radio'}
       accessibilityLabel={option.accessibilityLabel ?? option.label}
       accessibilityState={state}

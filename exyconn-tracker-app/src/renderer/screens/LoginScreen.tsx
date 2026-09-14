@@ -20,6 +20,7 @@ import PasswordField from '../components/PasswordField';
 import ScreenLayout from '../components/ScreenLayout';
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import TitleBar from '../components/TitleBar';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   branding: Branding | null;
@@ -49,6 +50,8 @@ export default function LoginScreen({
 
   const emailMissing = submitted && email.trim() === '';
   const passwordMissing = submitted && password === '';
+  useAnnounce(signedOutReason === null ? null : t(signedOutReason));
+  useAnnounce(error, 'assertive');
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -93,7 +96,7 @@ export default function LoginScreen({
         </Stack>
 
         <Surface sx={{ p: 2.5 }}>
-          <Typography variant="h5" sx={{ mb: 0.5 }}>
+          <Typography variant="h5" component="h1" sx={{ mb: 0.5 }}>
             {t('Sign in')}
           </Typography>
           <Typography
@@ -121,7 +124,6 @@ export default function LoginScreen({
               label={t('Email')}
               type="email"
               autoComplete="username"
-              autoFocus
               fullWidth
               value={email}
               disabled={loading}

@@ -12,6 +12,7 @@ import {
 } from '@exyconn/ui';
 import type { ManualEntryDraft, TrackerProject, TrackerTask } from '@shared/types';
 import { useT } from '@exyconn/i18n';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   projects: TrackerProject[];
@@ -43,6 +44,9 @@ export default function ManualEntryForm({
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  // Set by the first submit, so an empty box is marked invalid only once somebody tried.
+  const [submitted, setSubmitted] = useState(false);
+  useAnnounce(error, 'assertive');
 
   // The ticket list belongs to the project chosen here, not to the one the next session is
   // booked against — browsing in this form must not re-point that.
@@ -83,6 +87,7 @@ export default function ManualEntryForm({
 
   async function submit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
+    setSubmitted(true);
     if (startedAt === null || endedAt === null || note.trim() === '') {
       setError(t('Fill in when the work happened and what it was for.'));
       return;
@@ -147,20 +152,21 @@ export default function ManualEntryForm({
         value={startedAt}
         onChange={setStartedAt}
         disableFuture
-        slotProps={{ textField: { size: 'small' } }}
+        slotProps={{ textField: { size: 'small', error: submitted && startedAt === null } }}
       />
       <DateTimePicker
         label={t('To')}
         value={endedAt}
         onChange={setEndedAt}
         disableFuture
-        slotProps={{ textField: { size: 'small' } }}
+        slotProps={{ textField: { size: 'small', error: submitted && endedAt === null } }}
       />
 
       <TextField
         size="small"
         label={t('What was the time for?')}
         value={note}
+        error={submitted && note.trim() === ''}
         multiline
         minRows={2}
         onChange={(event) => setNote(event.target.value)}

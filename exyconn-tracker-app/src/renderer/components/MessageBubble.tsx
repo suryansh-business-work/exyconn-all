@@ -36,7 +36,7 @@ export default function MessageBubble({ message, timezone }: Readonly<Props>): R
         })}
       >
         {message.title !== '' ? (
-          <Typography variant="subtitle2" sx={{ mb: 0.25 }}>
+          <Typography variant="subtitle2" component="p" sx={{ mb: 0.25 }}>
             {message.title}
           </Typography>
         ) : null}

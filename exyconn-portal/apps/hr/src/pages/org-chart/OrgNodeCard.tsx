@@ -65,7 +65,11 @@ export function OrgNodeCard({ node, depth, onOpen }: Readonly<OrgNodeCardProps>)
           onClick={() => onOpen(node.id)}
           sx={{ borderRadius: 1.5, py: 1, flexGrow: 1 }}
         >
-          <Avatar src={node.avatarUrl ?? undefined} sx={{ width: 36, height: 36, mr: 1.5 }}>
+          <Avatar
+            src={node.avatarUrl ?? undefined}
+            alt="" aria-hidden
+            sx={{ width: 36, height: 36, mr: 1.5 }}
+          >
             {initialsOf(node.name)}
           </Avatar>
           <Box sx={{ minWidth: 0, flexGrow: 1 }}>

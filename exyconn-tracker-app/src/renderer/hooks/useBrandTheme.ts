@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Theme } from '@exyconn/ui';
+import { createTheme, type Theme } from '@exyconn/ui';
 import type { Branding, ThemeMode } from '@shared/types';
 import { buildTheme } from '../theme';
+import { QUIET_NOTICES } from '../a11y/LiveAnnouncer';
 
 const DARK_QUERY = '(prefers-color-scheme: dark)';
 
@@ -39,7 +40,8 @@ export default function useBrandTheme(
   const systemPrefersDark = useSystemPrefersDark();
 
   return useMemo(
-    () => buildTheme(branding, themeMode, systemPrefersDark),
+    // Notices draw; the live announcer speaks (see QUIET_NOTICES).
+    () => createTheme(buildTheme(branding, themeMode, systemPrefersDark), QUIET_NOTICES),
     [
       branding?.primaryColor,
       branding?.secondaryColor,

@@ -42,7 +42,7 @@ export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Pro
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(min(140px, 100%), 1fr))',
         gap: 1.5,
       }}
     >

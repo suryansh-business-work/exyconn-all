@@ -1,6 +1,7 @@
 import { Modal } from 'react-native';
 import { Separator, XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
+import { useReduceMotion } from '../../hooks/useReduceMotion';
 import type { Tile, TileFact } from '../../lib/dashboard/tile.types';
 import { useBrand } from '../../theme/BrandProvider';
 import { SCRIM } from '../../theme/palette';
@@ -41,13 +42,19 @@ function FactRow({ fact }: Readonly<{ fact: TileFact }>) {
 export function TileDetailDialog({ tile, onClose }: Readonly<Props>) {
   const t = useT();
   const brand = useBrand();
+  const reduceMotion = useReduceMotion();
   if (tile === null) {
     return null;
   }
   const label = t(tile.label);
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+    <Modal
+      visible
+      transparent
+      animationType={reduceMotion ? 'none' : 'fade'}
+      onRequestClose={onClose}
+    >
       <YStack flex={1} justifyContent="center" padding="$5" backgroundColor={SCRIM}>
         <Surface
           padding="$5"

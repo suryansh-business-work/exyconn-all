@@ -12,7 +12,8 @@ import MyReportScreen from './screens/MyReportScreen';
 import OffComputerScreen from './screens/OffComputerScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import TabBar from './components/TabBar';
-import { NAV_ITEMS, type Section } from './sections';
+import { NAV_ITEMS, SECTIONS_TABS, type Section } from './sections';
+import { panelProps } from './a11y/tabs';
 import { logger } from './logger';
 
 interface SectionProps {
@@ -75,15 +76,29 @@ export default function AppShell({ state }: Readonly<Props>): ReactElement {
         themeMode={state.preferences.themeMode}
         onOpenAccount={() => setSection('settings')}
       />
-      {/* Bottom padding clears the floating tab bar, so the last card can scroll above it. */}
-      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', px: 2.5, pt: 0.5, pb: 12 }}>
+      {/* Bottom padding clears the floating tab bar, so the last card can scroll above it; the
+          matching scroll padding keeps a keyboard-focused control from landing under it. */}
+      <Box
+        component="main"
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflow: 'auto',
+          px: 2.5,
+          pt: 0.5,
+          pb: 12,
+          scrollPaddingBottom: (theme) => theme.spacing(12),
+        }}
+      >
         {/* Keyed by section: a crashed pane leaves the tab bar working, and moving on clears it. */}
         <LogErrorBoundary
           key={section}
           logger={logger}
           fallback={(error, reset) => <CrashFallback error={error} onRetry={reset} />}
         >
-          <SectionView section={section} state={state} />
+          <Box {...panelProps(SECTIONS_TABS, section)}>
+            <SectionView section={section} state={state} />
+          </Box>
         </LogErrorBoundary>
       </Box>
       <TabBar section={section} unreadMessages={state.unreadMessages} onSelect={setSection} />

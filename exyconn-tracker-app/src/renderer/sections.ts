@@ -5,6 +5,9 @@ import TuneOutlined from '@mui/icons-material/TuneOutlined';
 import EventNoteOutlined from '@mui/icons-material/EventNoteOutlined';
 import ForumOutlined from '@mui/icons-material/ForumOutlined';
 
+/** The id base tying the tab bar's tabs to the shell's one content panel (see a11y/tabs). */
+export const SECTIONS_TABS = 'sections';
+
 /** The panes behind the AppShell's tab bar. */
 export type Section = 'dashboard' | 'report' | 'messages' | 'off-computer' | 'settings';
 

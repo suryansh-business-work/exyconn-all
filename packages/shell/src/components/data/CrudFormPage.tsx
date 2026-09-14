@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useT, type Interpolations } from '@exyconn/i18n';
 import { Box, Button, Stack, Typography } from '@/components/ui';
+import { usePageTitle } from '@/components/layout/usePageTitle';
 import { readingPanel } from '../glass/glass';
 
 interface CrudFormPageProps {
@@ -34,6 +35,8 @@ export function CrudFormPage({
   children,
 }: Readonly<CrudFormPageProps>) {
   const t = useT();
+  const heading = t(title, titleValues);
+  usePageTitle(heading);
   return (
     <Box>
       <Stack
@@ -47,7 +50,10 @@ export function CrudFormPage({
           {t(backLabel ?? 'Back', backLabelValues)}
         </Button>
       </Stack>
-      <Typography variant="h4">{t(title, titleValues)}</Typography>
+      {/* The form replaces the page, so its title is the page's one h1 (SC 1.3.1). */}
+      <Typography variant="h4" component="h1">
+        {heading}
+      </Typography>
       {subtitle && (
         <Typography
           variant="body2"

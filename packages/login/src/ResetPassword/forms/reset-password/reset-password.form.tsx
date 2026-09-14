@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Alert, Button, Flex } from '@exyconn/shell/components/ui';
+import { Alert, Button, Flex, readableInk } from '@exyconn/shell/components/ui';
 import { useT } from '@exyconn/i18n';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -82,7 +82,13 @@ export function ResetPasswordForm({ token, accentColor }: Readonly<ResetPassword
             fullWidth
             variant="contained"
             disabled={methods.formState.isSubmitting}
-            sx={{ bgcolor: accentColor, py: 1, '&:hover': { bgcolor: accentColor, opacity: 0.9 } }}
+            sx={{
+              bgcolor: accentColor,
+              // The label's ink is picked by contrast with the accent, not assumed to be white.
+              color: readableInk(accentColor),
+              py: 1,
+              '&:hover': { bgcolor: accentColor, opacity: 0.9 },
+            }}
           >
             {t('Set new password')}
           </Button>

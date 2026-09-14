@@ -62,7 +62,7 @@ export default function ProgressRing({
         sx={{ position: 'absolute', '& .MuiCircularProgress-circle': { strokeLinecap: 'round' } }}
       />
       <Box sx={{ textAlign: 'center', px: 1 }}>
-        <Typography variant="h6" sx={{ lineHeight: 1.2 }}>
+        <Typography variant="h6" component="p" sx={{ lineHeight: 1.2 }}>
           {label}
         </Typography>
         {caption !== undefined && caption !== '' ? (

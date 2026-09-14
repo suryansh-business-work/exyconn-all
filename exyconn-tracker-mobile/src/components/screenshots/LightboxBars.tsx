@@ -2,6 +2,7 @@ import { Pressable } from 'react-native';
 import { XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { activityColor, activityLabel, formatCount } from '@exyconn/tracker-core';
+import { useStatusMessage } from '../../hooks/useStatusMessage';
 import { Chip } from '../ui/Chip';
 import { Icon, type IconName } from '../ui/Icon';
 import { Body, Caption } from '../ui/Typography';
@@ -71,6 +72,8 @@ interface NavProps {
 /** Previous / next through the day, with where in it this shot sits. Wraps at both ends. */
 export function LightboxNav({ index, total, onStep }: Readonly<NavProps>) {
   const t = useT();
+  const position = `${formatCount(index + 1)} / ${formatCount(total)}`;
+  const live = useStatusMessage(position);
   return (
     <XStack
       paddingHorizontal="$3"
@@ -79,9 +82,7 @@ export function LightboxNav({ index, total, onStep }: Readonly<NavProps>) {
       justifyContent="space-between"
     >
       <StepButton label={t('Previous')} icon="chevron-left" onPress={() => onStep(-1)} />
-      <Caption accessibilityLiveRegion="polite">
-        {formatCount(index + 1)} / {formatCount(total)}
-      </Caption>
+      <Caption {...live}>{position}</Caption>
       <StepButton label={t('Next')} icon="chevron-right" onPress={() => onStep(1)} />
     </XStack>
   );
