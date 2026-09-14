@@ -46,7 +46,8 @@ export function MyOffComputerTime({ from, to, projects }: Readonly<MyOffComputer
     }
     const ok = await confirm({
       title: 'Withdraw this entry?',
-      message: t('"{note}" will be removed and never reviewed.', { note: entry.note }),
+      message: '"{note}" will be removed and never reviewed.',
+      messageValues: { note: entry.note },
       confirmText: 'Withdraw',
     });
     if (!ok) return;

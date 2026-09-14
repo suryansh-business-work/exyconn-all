@@ -43,6 +43,7 @@ function VarianceCell({ variance }: Readonly<{ variance: number }>) {
  * than being dropped, so what the table adds up to is what the company actually spent.
  */
 export function BudgetVariancePage() {
+  const t = useT();
   const periods = financePeriods();
   const [periodKey, setPeriodKey] = useState(periods[1].key);
   const period = periodFor(periodKey);
@@ -84,7 +85,12 @@ export function BudgetVariancePage() {
       <Flex direction="row" justifyContent="space-between" alignItems="center">
         <PageHeader
           title="Budget vs Actual"
-          subtitle={`${period.label} — ${formatMoney(actual)} spent of ${formatMoney(budgeted)} budgeted`}
+          subtitle="{period} — {actual} spent of {budgeted} budgeted"
+          subtitleValues={{
+            period: t(period.label),
+            actual: formatMoney(actual),
+            budgeted: formatMoney(budgeted),
+          }}
         />
         <FinancePeriodPicker periods={periods} value={periodKey} onChange={setPeriodKey} />
       </Flex>

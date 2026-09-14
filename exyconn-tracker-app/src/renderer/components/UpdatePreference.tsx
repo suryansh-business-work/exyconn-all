@@ -5,6 +5,7 @@ import RefreshRounded from '@mui/icons-material/RefreshRounded';
 import type { AppPreferences, UpdateState } from '@shared/types';
 import { formatElapsed } from '@exyconn/tracker-core';
 import { run } from '../run';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   preferences: AppPreferences;
@@ -58,6 +59,9 @@ function statusOf(update: UpdateState, t: ReturnType<typeof useT>): string {
 export default function UpdatePreference({ preferences, update }: Readonly<Props>): ReactElement {
   const t = useT();
   const busy = update.stage === 'checking' || update.stage === 'downloading';
+  const status = statusOf(update, t);
+  // The result of "Check for updates" appears below the button; say it where focus is.
+  useAnnounce(status);
 
   return (
     <Stack spacing={1.5}>
@@ -110,7 +114,7 @@ export default function UpdatePreference({ preferences, update }: Readonly<Props
           color: 'text.secondary',
         }}
       >
-        {statusOf(update, t)}
+        {status}
       </Typography>
     </Stack>
   );

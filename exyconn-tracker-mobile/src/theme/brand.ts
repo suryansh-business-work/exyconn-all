@@ -1,5 +1,6 @@
 import type { Branding, ThemeMode } from '@exyconn/tracker-core';
-import { FALLBACK_BRAND, ON_DARK, ON_LIGHT } from './palette';
+import { ensureContrast, readableInk } from '@exyconn/ui/src/a11y/contrast';
+import { CHROME, FALLBACK_BRAND, ON_DARK, ON_LIGHT } from './palette';
 
 const HEX = /^#?([\da-f]{3}|[\da-f]{6})$/i;
 
@@ -36,12 +37,23 @@ export interface BrandColors {
   background: string;
 }
 
-/** The portal branding's colours, normalised — the only part of `Branding` the UI depends on. */
-export function brandColors(branding: Branding | null): BrandColors {
-  const primary = toHex(branding?.primaryColor, FALLBACK_BRAND.primary);
+/**
+ * The portal branding's colours, normalised — the only part of `Branding` the UI depends on —
+ * and made readable (WCAG 2.2 AA) on the scheme they are painted in.
+ *
+ * The brand colour is a workspace's choice, and the app uses it as TEXT (links), as icons and
+ * as the edge of a checked box. A pale brand on the light chrome would be unreadable, so it is
+ * moved just far enough toward black or white to clear 4.5:1 on the panel; the ink laid on it
+ * is picked by the WCAG contrast formula rather than by a brightness guess.
+ */
+export function brandColors(branding: Branding | null, scheme: 'light' | 'dark'): BrandColors {
+  const primary = ensureContrast(
+    toHex(branding?.primaryColor, FALLBACK_BRAND.primary),
+    CHROME[scheme].paper,
+  );
   return {
     primary,
-    onPrimary: luminance(primary) > LIGHT_THRESHOLD ? ON_LIGHT : ON_DARK,
+    onPrimary: readableInk(primary, ON_LIGHT, ON_DARK),
     secondary: toHex(branding?.secondaryColor, FALLBACK_BRAND.secondary),
     background: toHex(branding?.backgroundColor, FALLBACK_BRAND.background),
   };

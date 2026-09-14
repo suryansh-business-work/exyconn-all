@@ -36,6 +36,7 @@ const TRANSLATE_MISSING = `
   mutation TranslateMissing($locale: String!, $sources: [String!]!) {
     translateMissing(locale: $locale, sources: $sources) {
       source
+      text
     }
   }
 `;
@@ -44,14 +45,18 @@ interface BundleReply {
   localeBundle: { locale: string; translations: { source: string; text: string }[] };
 }
 
+interface MissingReply {
+  translateMissing: { source: string; text: string }[];
+}
+
 interface CachedBundle {
   messages: Messages;
   at: number;
 }
 
 const cache = new Map<string, CachedBundle>();
-/** Strings already sent for translation this process, so a busy page asks once. */
-const reported = new Map<string, Set<string>>();
+/** Strings on their way to the portal right now, so two readers of one page ask once. */
+const pending = new Map<string, Set<string>>();
 
 /**
  * One language's catalogue, from the portal.
@@ -80,49 +85,84 @@ export async function loadMessages(language: string): Promise<Messages> {
   }
 }
 
+/** Batches sent to the portal at once: the same total work, finished sooner. */
+const CONCURRENCY = 4;
+
 /**
- * Asks the portal to machine-translate strings this language has never seen.
+ * Asks the portal to machine-translate strings this language has never seen, and answers with
+ * the whole catalogue as it stands once they are in — or once `budgetMs` runs out, whichever
+ * comes first.
  *
- * Fire and forget: the page being rendered has already fallen back to English, and the
- * answer is for whoever asks next. The portal skips anything already stored and never
- * overwrites a human correction, so calling this on every render is safe. It translates a
- * batch at a time, so a first visit to a long page fills the catalogue over a few requests
- * rather than in one very slow one.
+ * The first reader of a page in a new language is the one this is for: rather than serving
+ * them English and translating for whoever comes next, the page waits a few seconds for the
+ * model and comes back in their language. Batches still running when the budget ends carry on
+ * and land in the catalogue for the next reader.
+ *
+ * A string is only counted as asked once the portal has actually translated it. One that came
+ * back untranslated — the model failed, or this caller was over its budget — is asked again
+ * on a later render, instead of staying English until the site restarts.
  */
-export function requestTranslations(language: string, sources: string[]): void {
-  const seen = reported.get(language) ?? new Set<string>();
-  reported.set(language, seen);
-  const fresh = sources.filter((source) => !seen.has(source));
-  if (fresh.length === 0) {
-    return;
-  }
+export async function translateMissing(
+  language: string,
+  sources: string[],
+  budgetMs: number
+): Promise<Messages> {
+  const inFlight = pending.get(language) ?? new Set<string>();
+  pending.set(language, inFlight);
+  const fresh = [...new Set(sources)].filter((source) => !inFlight.has(source));
   for (const source of fresh) {
-    seen.add(source);
+    inFlight.add(source);
   }
+
   const batches: string[][] = [];
   for (let start = 0; start < fresh.length; start += BATCH) {
     batches.push(fresh.slice(start, start + BATCH));
   }
-  // One after another rather than all at once: this is somebody's OpenAI bill, and the page
-  // being rendered is not waiting for any of it.
-  batches
-    .reduce(
-      (queue, batch) =>
-        queue.then(() =>
-          portalRequest(TRANSLATE_MISSING, { locale: language, sources: batch }).then(
-            () => undefined
-          )
-        ),
-      Promise.resolve()
-    )
-    .then(() => {
-      // The catalogue has grown: drop both the catalogue and the pages rendered from it, so
-      // the next reader gets the new words rather than the English they were cached with.
-      // Enough on its own: a cached page remembers which catalogue it was translated with,
-      // so the next reader re-renders against the new one.
-      cache.delete(language);
-    })
-    .catch((error: unknown) => {
-      console.error(`Could not ask the portal to translate ${fresh.length} strings.`, error);
+
+  const all = runBatches(language, batches, inFlight);
+  const deadline = new Promise<void>((resolve) => setTimeout(resolve, budgetMs));
+  await Promise.race([all, deadline]);
+  return catalogue(language);
+}
+
+/** Every batch, CONCURRENCY at a time, each merged into the catalogue as it lands. */
+async function runBatches(language: string, batches: string[][], inFlight: Set<string>) {
+  let next = 0;
+  const worker = async () => {
+    while (next < batches.length) {
+      const batch = batches[next];
+      next += 1;
+      await sendBatch(language, batch, inFlight);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, batches.length) }, worker));
+}
+
+async function sendBatch(language: string, batch: string[], inFlight: Set<string>) {
+  try {
+    const data = await portalRequest<MissingReply>(TRANSLATE_MISSING, {
+      locale: language,
+      sources: batch,
     });
+    const arrived = data.translateMissing;
+    if (arrived.length > 0) {
+      // A NEW object, never a mutation: a cached page remembers the catalogue it was
+      // translated with, and a different object is how it knows to re-render.
+      const current = cache.get(language)?.messages ?? {};
+      const merged = { ...current, ...Object.fromEntries(arrived.map((e) => [e.source, e.text])) };
+      cache.set(language, { messages: merged, at: cache.get(language)?.at ?? Date.now() });
+    }
+  } catch (error) {
+    console.error(`Could not ask the portal to translate ${batch.length} strings.`, error);
+  } finally {
+    // Whatever did not come back is askable again next time.
+    for (const source of batch) {
+      inFlight.delete(source);
+    }
+  }
+}
+
+/** The catalogue as it stands right now, without asking the portal. */
+function catalogue(language: string): Messages {
+  return cache.get(language)?.messages ?? {};
 }

@@ -49,7 +49,7 @@ export default function ClosingDialog(): ReactElement | null {
             }}
           >
             <CloudUploadOutlined fontSize="small" sx={{ color: 'warning.main' }} />
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+            <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 700 }}>
               {t('Upload in progress')}
             </Typography>
           </Stack>
@@ -66,7 +66,7 @@ export default function ClosingDialog(): ReactElement | null {
             )}
           </Typography>
 
-          <LinearProgress />
+          <LinearProgress aria-label={what} />
 
           <Alert severity="info" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
             {t(

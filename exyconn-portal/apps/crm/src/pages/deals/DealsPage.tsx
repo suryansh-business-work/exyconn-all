@@ -43,12 +43,10 @@ export function DealsPage() {
     }
     try {
       await setStage({ variables: { id: dealId, stage } });
-      notify(
-        t('"{title}" moved to {stage}', {
-          title: deal.title,
-          stage: t(stageLabel(stage)),
-        }),
-      );
+      notify('"{title}" moved to {stage}', 'success', {
+        title: deal.title,
+        stage: t(stageLabel(stage)),
+      });
       await refetch();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not move the deal', 'error');
@@ -76,10 +74,8 @@ export function DealsPage() {
     );
   }
 
-  // PageHeader translates a plain subtitle for us; a counted one can only be built here.
-  const subtitle = loading
-    ? 'Loading pipeline…'
-    : t('{count} open and closed opportunities', { count: deals.length });
+  // PageHeader translates the subtitle and fills in the count.
+  const subtitle = loading ? 'Loading pipeline…' : '{count} open and closed opportunities';
 
   return (
     <Box>
@@ -87,6 +83,7 @@ export function DealsPage() {
       <PageHeader
         title="Deals"
         subtitle={subtitle}
+        subtitleValues={{ count: deals.length }}
         actionLabel="New deal"
         onAction={() => setCreating(true)}
       />

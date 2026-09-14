@@ -9,6 +9,7 @@ import TitleBar from './components/TitleBar';
 import ScreenshotsScreen from './screens/ScreenshotsScreen';
 import useBrandTheme from './hooks/useBrandTheme';
 import useTrackerState from './hooks/useTrackerState';
+import { LiveAnnouncer } from './a11y/LiveAnnouncer';
 
 /**
  * The day this window was opened for, read from its own URL. The main process puts the bounds
@@ -63,7 +64,9 @@ export default function ScreenshotsApp(): ReactElement {
       timezone={state?.timezone ?? deviceTimezone()}
     >
       <ThemeProvider theme={theme}>
-        <Gallery state={state} />
+        <LiveAnnouncer>
+          <Gallery state={state} />
+        </LiveAnnouncer>
       </ThemeProvider>
     </TrackerI18nProvider>
   );

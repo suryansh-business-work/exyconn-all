@@ -30,7 +30,8 @@ export function useUserActions(id: string, name: string, onChanged: () => void) 
 
   const handleResetPassword = async () => {
     const ok = await confirm({
-      message: `Reset ${name}'s password and email the new credentials?`,
+      message: "Reset {name}'s password and email the new credentials?",
+      messageValues: { name },
       confirmText: 'Reset & send',
     });
     if (!ok) return;
@@ -39,7 +40,8 @@ export function useUserActions(id: string, name: string, onChanged: () => void) 
 
   const handleToggleActive = async (isActive: boolean) => {
     const ok = await confirm({
-      message: `${isActive ? 'Activate' : 'Deactivate'} ${name}?`,
+      message: isActive ? 'Activate {name}?' : 'Deactivate {name}?',
+      messageValues: { name },
       confirmText: isActive ? 'Activate' : 'Deactivate',
     });
     if (!ok) return;
@@ -50,7 +52,11 @@ export function useUserActions(id: string, name: string, onChanged: () => void) 
   };
 
   const handleUnblock = async () => {
-    const ok = await confirm({ message: `Unblock ${name}?`, confirmText: 'Unblock' });
+    const ok = await confirm({
+      message: 'Unblock {name}?',
+      messageValues: { name },
+      confirmText: 'Unblock',
+    });
     if (!ok) return;
     await run(() => setBlocked({ variables: { id, isBlocked: false } }), 'User unblocked');
   };

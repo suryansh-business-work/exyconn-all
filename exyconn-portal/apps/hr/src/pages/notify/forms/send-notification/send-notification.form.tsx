@@ -89,8 +89,8 @@ export function SendNotificationForm({ onSent }: Readonly<SendNotificationFormPr
         },
       });
       const count = result?.sendNotification.recipients ?? 0;
-      const sent = count === 1 ? t('Sent to 1 person.') : t('Sent to {count} people.', { count });
-      notify(sent, 'success');
+      const sent = count === 1 ? 'Sent to 1 person.' : 'Sent to {count} people.';
+      notify(sent, 'success', { count });
       methods.reset(INITIAL);
       onSent(count);
     } catch (error) {

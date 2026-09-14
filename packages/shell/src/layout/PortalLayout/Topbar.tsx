@@ -112,18 +112,21 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         <NotificationBell />
         <IconButton
           onClick={toggle}
-          aria-label="toggle color mode"
+          aria-label={t('Toggle colour mode')}
           sx={(t) => ({ ...roundButton(t), mr: 1 })}
         >
           {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
         </IconButton>
         <IconButton
           onClick={(e) => setAnchorEl(e.currentTarget)}
-          aria-label="account menu"
+          aria-label={t('Account menu')}
           sx={{ p: 0 }}
         >
           <Avatar
             src={user?.avatarUrl ?? undefined}
+            // The button around it is already named "Account menu".
+            alt=""
+            aria-hidden
             sx={{ bgcolor: 'primary.main', width: 40, height: 40, fontSize: fontSize.md }}
           >
             {user?.name?.charAt(0).toUpperCase()}

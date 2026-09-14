@@ -41,7 +41,7 @@ function Tab({ item, selected, count, onPress }: Readonly<TabProps>) {
       accessibilityLabel={label}
     >
       <XStack
-        height={44}
+        minHeight={44}
         minWidth={44}
         paddingHorizontal={selected ? '$3.5' : '$2.5'}
         gap="$1.5"

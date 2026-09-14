@@ -4,6 +4,7 @@ import { Alert, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import type { TrackerSettings, TrackerStatus } from '@shared/types';
 import { autoStopNotice } from '@exyconn/tracker-core';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   settings: TrackerSettings | null;
@@ -38,6 +39,7 @@ export default function AutoStopNotice({
   }, []);
 
   const notice = autoStopNotice(t, settings, timezone, status, now);
+  useAnnounce(notice === null ? null : notice.title);
   if (notice === null) {
     return null;
   }

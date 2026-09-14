@@ -30,6 +30,7 @@ export function RootErrorBoundary({ error, retry }: Readonly<ErrorBoundaryProps>
       <Text style={[styles.body, { color: chrome.error }]}>{error.message}</Text>
       <Pressable
         accessibilityRole="button"
+        accessibilityLabel={t('Try again')}
         onPress={() => {
           retry().catch((cause: unknown) => logger.capture(cause));
         }}

@@ -43,8 +43,11 @@ export function ExportCsvButton<Row>({
     try {
       const rows = await loadRows();
       const stamp = new Date().toISOString().slice(0, 10);
-      downloadCsv(`${fileName}-${stamp}`, toCsv(rows, columns));
-      notify(t('Exported {count} rows.', { count: rows.length }), 'success');
+      // A column heading is copy the page wrote, never a row's data, so the file's header row
+      // reads in the same language as the grid it came from.
+      const headed = columns.map((column) => ({ ...column, header: t(column.header) }));
+      downloadCsv(`${fileName}-${stamp}`, toCsv(rows, headed));
+      notify('Exported {count} rows.', 'success', { count: rows.length });
     } catch (error) {
       notify(errorMessage(error, t('The export failed.')), 'error');
     } finally {

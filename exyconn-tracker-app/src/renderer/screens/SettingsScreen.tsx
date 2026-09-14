@@ -42,7 +42,9 @@ export default function SettingsScreen({
     <Stack spacing={2}>
       {/* The one setting on this screen that is the EMPLOYEE'S, not the administrator's. */}
       <Surface sx={{ p: 2.5 }}>
-        <Typography variant="h6">{t('Your timezone')}</Typography>
+        <Typography variant="h6" component="h2">
+          {t('Your timezone')}
+        </Typography>
         <Typography
           variant="body2"
           sx={{
@@ -62,7 +64,9 @@ export default function SettingsScreen({
       <WorkArrangementCard workProfile={workProfile} />
 
       <Surface sx={{ p: 2.5 }}>
-        <Typography variant="h6">{t('Workspace settings')}</Typography>
+        <Typography variant="h6" component="h2">
+          {t('Workspace settings')}
+        </Typography>
         <Typography
           variant="body2"
           sx={{
@@ -90,7 +94,9 @@ export default function SettingsScreen({
       </Surface>
 
       <Surface sx={{ p: 2.5 }}>
-        <Typography variant="h6">{t('Your data')}</Typography>
+        <Typography variant="h6" component="h2">
+          {t('Your data')}
+        </Typography>
         <Typography
           variant="body2"
           sx={{
@@ -115,7 +121,9 @@ export default function SettingsScreen({
       </Surface>
 
       <Surface sx={{ p: 2.5 }}>
-        <Typography variant="h6">{t('About')}</Typography>
+        <Typography variant="h6" component="h2">
+          {t('About')}
+        </Typography>
         <Divider sx={{ my: 1.5 }} />
         <Stack spacing={0.5}>
           {appVersion !== '' ? (

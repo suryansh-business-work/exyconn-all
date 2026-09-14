@@ -30,7 +30,10 @@ export function OnboardingTemplatesPage() {
   const crud = useCrudResource<PagedOnboardingTemplateRow>({
     label: 'Onboarding template',
     onDelete: (row) => deleteTemplate({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete the "${row.name}" template?`,
+    confirmMessage: (row) => ({
+      message: 'Delete the "{name}" template?',
+      values: { name: row.name },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -16,14 +15,16 @@ import { TestUploadDialog } from './TestUploadDialog';
 
 /** Environment Variables sub-panel: manage image-upload (ImageKit) configurations (DB-backed). */
 export function ImageConfigsPanel() {
-  const t = useT();
   const { data, loading, refetch } = useListImageConfigsQuery();
   const [deleteConfig] = useDeleteImageConfigMutation();
   const [testTarget, setTestTarget] = useState<ImageConfigRow | null>(null);
   const crud = useCrudResource<ImageConfigRow>({
     label: 'Image config',
     onDelete: (row) => deleteConfig({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete image config "{label}"?', { label: row.label }),
+    confirmMessage: (row) => ({
+      message: 'Delete image config "{label}"?',
+      values: { label: row.label },
+    }),
     refetch,
   });
 
@@ -51,7 +52,7 @@ export function ImageConfigsPanel() {
   ];
 
   if (crud.open) {
-    const formTitle = crud.editing ? t('Edit image config') : t('New image config');
+    const formTitle = crud.editing ? 'Edit image config' : 'New image config';
     return (
       <CrudFormPage
         title={formTitle}

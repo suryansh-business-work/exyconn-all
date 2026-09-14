@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { Alert, Box, Button, Stack, Typography } from '@exyconn/ui';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   error: Error;
@@ -11,10 +12,13 @@ interface Props {
  * Tech > Logs by the time this renders (see LogErrorBoundary).
  */
 export default function CrashFallback({ error, onRetry }: Readonly<Props>): ReactElement {
+  useAnnounce(error.message, 'assertive');
   return (
     <Box sx={{ flex: 1, display: 'grid', placeItems: 'center', p: 3 }}>
       <Stack spacing={2} sx={{ maxWidth: 440 }}>
-        <Typography variant="h6">This screen hit a problem</Typography>
+        <Typography variant="h6" component="h2">
+          This screen hit a problem
+        </Typography>
         <Typography variant="body2" color="text.secondary">
           It has been reported to the Exyconn tech team.
         </Typography>

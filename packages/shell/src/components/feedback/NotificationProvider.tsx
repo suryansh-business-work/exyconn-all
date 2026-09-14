@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { useT } from '@exyconn/i18n';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import type { ReactNode } from 'react';
 import { Alert, Snackbar, type AlertColor } from '@/components/ui';
 
@@ -7,10 +7,18 @@ interface NotifyState {
   open: boolean;
   message: string;
   severity: AlertColor;
+  values?: Interpolations;
 }
 
 interface NotificationContextValue {
-  notify: (message: string, severity?: AlertColor) => void;
+  /**
+   * `message` is the English source; it is translated here. A message with a value in it is
+   * written with `{placeholders}` and the values passed separately —
+   * `notify('Invoice {number} drafted', 'success', { number })` — never built with a template
+   * literal or with `t()` first. Either of those hands this a sentence unique to one record,
+   * which misses the catalogue and is sent off to be translated as a new string, every time.
+   */
+  notify: (message: string, severity?: AlertColor, values?: Interpolations) => void;
 }
 
 const NotificationContext = createContext<NotificationContextValue | undefined>(undefined);
@@ -23,9 +31,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const t = useT();
   const [state, setState] = useState<NotifyState>({ open: false, message: '', severity: 'info' });
 
-  const notify = useCallback((message: string, severity: AlertColor = 'success') => {
-    setState({ open: true, message, severity });
-  }, []);
+  const notify = useCallback(
+    (message: string, severity: AlertColor = 'success', values?: Interpolations) => {
+      setState({ open: true, message, severity, values });
+    },
+    [],
+  );
 
   const handleClose = useCallback(() => setState((s) => ({ ...s, open: false })), []);
   const value = useMemo(() => ({ notify }), [notify]);
@@ -45,7 +56,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           variant="filled"
           sx={{ width: '100%' }}
         >
-          {t(state.message)}
+          {t(state.message, state.values)}
         </Alert>
       </Snackbar>
     </NotificationContext.Provider>

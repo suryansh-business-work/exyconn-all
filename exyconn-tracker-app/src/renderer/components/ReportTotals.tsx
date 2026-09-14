@@ -46,7 +46,6 @@ export default function ReportTotals({ totals }: Readonly<Props>): ReactElement 
         >
           <Typography
             variant="caption"
-            noWrap
             sx={{
               color: 'text.secondary',
               display: 'block',
@@ -54,7 +53,7 @@ export default function ReportTotals({ totals }: Readonly<Props>): ReactElement 
           >
             {t(item.label)}
           </Typography>
-          <Typography variant="h6" noWrap>
+          <Typography variant="h6" component="p" sx={{ overflowWrap: 'anywhere' }}>
             {item.value}
           </Typography>
         </Box>

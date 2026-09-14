@@ -2,7 +2,9 @@ import { Tabs } from 'expo-router/tabs';
 import { useT } from '@exyconn/i18n';
 import { AppHeader } from '../../components/shell/AppHeader';
 import { TabBar } from '../../components/shell/TabBar';
+import { trackingStatusLabel } from '../../components/shell/TrackingPulse';
 import { useNotificationRouting } from '../../hooks/useNotificationRouting';
+import { useStatusMessage } from '../../hooks/useStatusMessage';
 import { useTrackerState } from '../../hooks/useTrackerState';
 import { NAV_ITEMS, titleOf, type Section } from '../../navigation/sections';
 
@@ -18,6 +20,8 @@ export default function AppLayout() {
   const state = useTrackerState();
   useNotificationRouting();
   const status = state?.status ?? 'idle';
+  // Once here, not in each tab's header: every mounted header would say it again.
+  useStatusMessage(t(trackingStatusLabel(status)));
 
   return (
     <Tabs

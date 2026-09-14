@@ -1,7 +1,7 @@
 import { usePublicBrandingQuery } from '@exyconn/shell/graphql/generated';
 import { PORTAL_APPS, type PortalAppKey } from '@exyconn/shell/config/apps';
 import { env } from '@exyconn/shell/config/env';
-import { color } from '@exyconn/ui';
+import { background, color, ensureContrast } from '@exyconn/ui';
 
 /** Everything the login screen needs to look like *this* portal. */
 export interface LoginPageView {
@@ -13,7 +13,11 @@ export interface LoginPageView {
   slogan: string;
   /** Full-bleed background; empty renders the flat brand surface instead. */
   backgroundImageUrl: string;
-  /** Tint for the overlay and the sign-in button. */
+  /**
+   * Tint for the overlay and the sign-in button — the portal's own accent, moved just far
+   * enough to read as text and as a control on the sign-in panel (WCAG 2.2 AA). An admin can
+   * pick any colour; a pale one used to leave "Other Portals" unreadable.
+   */
   accentColor: string;
   /** Wordmark for the current colour mode. */
   logoUrl: string;
@@ -45,7 +49,10 @@ export function useLoginPage(isDark: boolean): LoginPageView {
     tagline: page?.tagline ?? '',
     slogan: branding?.slogan ?? '',
     backgroundImageUrl: page?.backgroundImageUrl ?? '',
-    accentColor: page?.accentColor || FALLBACK_ACCENT,
+    accentColor: ensureContrast(
+      page?.accentColor || FALLBACK_ACCENT,
+      background[isDark ? 'dark' : 'light'].panel,
+    ),
     logoUrl: brandLogo || (isDark ? env.logoDarkUrl : env.logoUrl),
     businessName: branding?.businessName ?? '',
     supportEmail: branding?.supportEmail ?? '',

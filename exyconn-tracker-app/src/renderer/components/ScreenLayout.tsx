@@ -12,6 +12,7 @@ interface Props {
 export default function ScreenLayout({ children, maxWidth = 460 }: Readonly<Props>): ReactElement {
   return (
     <Box
+      component="main"
       sx={{
         flex: 1,
         minHeight: 0,

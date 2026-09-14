@@ -2,6 +2,7 @@ import { Platform, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { XStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
+import { useStatusMessage } from '../../hooks/useStatusMessage';
 import { useUpdateState } from '../../hooks/useUpdateState';
 import { useBrand } from '../../theme/BrandProvider';
 import { run } from '../../tracker/run';
@@ -18,8 +19,13 @@ export function UpdateBanner() {
   const update = useUpdateState();
   const brand = useBrand();
   const insets = useSafeAreaInsets();
+  const available = update.stage === 'available';
+  const message = available
+    ? t('Exyconn Tracker {version} is available.', { version: update.version })
+    : null;
+  const live = useStatusMessage(message, true);
 
-  if (update.stage !== 'available') {
+  if (!available) {
     return null;
   }
   const action = Platform.OS === 'android' ? t('Download') : t('Details');
@@ -32,12 +38,18 @@ export function UpdateBanner() {
       gap="$2"
       alignItems="center"
       accessibilityRole="alert"
+      {...live}
     >
       <Icon name="download-circle-outline" color={brand.onPrimary} />
       <Caption flex={1} color={brand.onPrimary} fontWeight="600">
-        {t('Exyconn Tracker {version} is available.', { version: update.version })}
+        {message}
       </Caption>
-      <Pressable onPress={() => run(openUpdate)} accessibilityRole="link" hitSlop={8}>
+      <Pressable
+        onPress={() => run(openUpdate)}
+        accessibilityRole="link"
+        accessibilityLabel={action}
+        hitSlop={8}
+      >
         <Caption color={brand.onPrimary} fontWeight="700" textDecorationLine="underline">
           {action}
         </Caption>

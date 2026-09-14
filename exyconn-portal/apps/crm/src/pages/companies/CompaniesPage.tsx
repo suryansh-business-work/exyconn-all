@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -17,7 +16,6 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** CRM → Companies: the accounts contacts and deals hang off. */
 export function CompaniesPage() {
-  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListCompaniesStatsQuery();
   const [deleteCompany] = useDeleteCompanyMutation();
   const [promoteCompany] = usePromoteCompanyToClientMutation();
@@ -25,7 +23,7 @@ export function CompaniesPage() {
   const crud = useCrudResource<CompanyRow, PagedCompanyRow>({
     label: 'Company',
     onDelete: (row) => deleteCompany({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete company "{name}"?', { name: row.name }),
+    confirmMessage: (row) => ({ message: 'Delete company "{name}"?', values: { name: row.name } }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -57,7 +55,7 @@ export function CompaniesPage() {
   const makeClient = async (row: PagedCompanyRow) => {
     try {
       await promoteCompany({ variables: { id: row.id } });
-      notify(t('"{name}" is now a client', { name: row.name }));
+      notify('"{name}" is now a client', 'success', { name: row.name });
       crud.reload();
     } catch (error) {
       notify(errorMessage(error, 'Could not make the company a client'), 'error');

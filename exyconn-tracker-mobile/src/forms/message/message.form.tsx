@@ -70,7 +70,7 @@ export function MessageForm({ onSend }: Readonly<Props>) {
           disabled={busy}
           textAlignVertical="top"
           borderRadius={TRACKER_RADIUS}
-          borderColor={fieldState.error === undefined ? '$hairline' : '$error'}
+          borderColor={fieldState.error === undefined ? '$control' : '$error'}
           backgroundColor="$paper"
           color="$ink"
           accessibilityLabel={t('Message')}

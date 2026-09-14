@@ -31,7 +31,7 @@ export function GradientBar({ percent, label, trailing, accessibilityLabel }: Re
   const [from, via, to] = trackerProgressGradient;
   return (
     <XStack
-      height={HEIGHT}
+      minHeight={HEIGHT}
       borderRadius={radius.pill}
       backgroundColor="$hairline"
       overflow="hidden"
@@ -43,7 +43,7 @@ export function GradientBar({ percent, label, trailing, accessibilityLabel }: Re
     >
       <YStack
         width={`${clamped}%`}
-        height="100%"
+        alignSelf="stretch"
         borderRadius={radius.pill}
         overflow="hidden"
         justifyContent="center"

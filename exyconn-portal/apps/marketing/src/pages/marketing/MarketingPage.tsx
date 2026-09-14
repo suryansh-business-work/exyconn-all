@@ -33,7 +33,7 @@ export function MarketingPage() {
   const crud = useCrudResource<CampaignRow, PagedCampaignRow>({
     label: 'Campaign',
     onDelete: (row) => deleteCampaign({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete campaign "{name}"?', { name: row.name }),
+    confirmMessage: (row) => ({ message: 'Delete campaign "{name}"?', values: { name: row.name } }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

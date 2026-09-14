@@ -50,7 +50,9 @@ export default function MessageList({
   if (messages.length === 0) {
     return (
       <Surface sx={{ p: 4, textAlign: 'center' }}>
-        <Typography variant="subtitle1">{emptyTitle}</Typography>
+        <Typography variant="subtitle1" component="p">
+          {emptyTitle}
+        </Typography>
         <Typography
           variant="body2"
           sx={{

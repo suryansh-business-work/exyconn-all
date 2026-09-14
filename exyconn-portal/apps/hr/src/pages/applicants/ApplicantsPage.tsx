@@ -50,7 +50,10 @@ export function ApplicantsPage() {
   const crud = useCrudResource<ApplicantRow, PagedApplicantRow>({
     label: 'Applicant',
     onDelete: (row) => deleteApplicant({ variables: { id: row.id } }),
-    confirmMessage: (row) => `Delete applicant "${row.name}"?`,
+    confirmMessage: (row) => ({
+      message: 'Delete applicant "{name}"?',
+      values: { name: row.name },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

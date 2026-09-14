@@ -3,6 +3,7 @@ import { useId, useState } from 'react';
 import { Box, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { useT } from '@exyconn/i18n';
 import { ChartTable } from './ChartTable';
+import { ChartLabelContext } from './chart-label';
 import type { ChartData, ValueFormatter } from './chart.types';
 
 interface Props {
@@ -62,7 +63,8 @@ export function ChartCard({
         }}
       >
         <Stack spacing={0.5} sx={{ minWidth: 0 }}>
-          <Typography id={headingId} variant="subtitle2" sx={{ fontWeight: 700 }}>
+          {/* A real heading (SC 1.3.1): styled small, but a section of the page. */}
+          <Typography id={headingId} variant="subtitle2" component="h2" sx={{ fontWeight: 700 }}>
             {title}
           </Typography>
           {subtitle ? (
@@ -114,9 +116,9 @@ export function ChartCard({
           {emptyText ?? t('Nothing tracked in this period.')}
         </Typography>
       ) : (
-        <Box aria-labelledby={headingId}>
+        <Box>
           {view === 'chart' ? (
-            children
+            <ChartLabelContext.Provider value={headingId}>{children}</ChartLabelContext.Provider>
           ) : (
             <ChartTable data={data} formatValue={formatValue} labelHeading={labelHeading} />
           )}

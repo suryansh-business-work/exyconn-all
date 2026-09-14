@@ -18,6 +18,7 @@ function withChrome(base: typeof defaultConfig.themes.light, chrome: Chrome) {
     ink: chrome.ink,
     muted: chrome.muted,
     hairline: chrome.hairline,
+    control: chrome.control,
     success: chrome.success,
     warning: chrome.warning,
     error: chrome.error,

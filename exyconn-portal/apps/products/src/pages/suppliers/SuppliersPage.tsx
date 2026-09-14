@@ -1,5 +1,4 @@
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
-import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import {
@@ -18,13 +17,12 @@ import {
 
 /** Products → Suppliers: who stock is bought from. */
 export function SuppliersPage() {
-  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListSuppliersStatsQuery();
   const [deleteSupplier] = useDeleteSupplierMutation();
   const crud = useCrudResource<SupplierRow, PagedSupplierRow>({
     label: 'Supplier',
     onDelete: (row) => deleteSupplier({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete supplier "{name}"?', { name: row.name }),
+    confirmMessage: (row) => ({ message: 'Delete supplier "{name}"?', values: { name: row.name } }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

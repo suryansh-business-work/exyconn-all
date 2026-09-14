@@ -11,6 +11,17 @@ export const LEAVE_DECISION_VERB: Record<LeaveDecision, string> = {
   [LeaveStatus.Rejected]: 'Reject',
 };
 
+/** Whole sentences per decision — a verb glued to a noun cannot be translated. */
+export const LEAVE_DECISION_PROMPT: Record<LeaveDecision, string> = {
+  [LeaveStatus.Approved]: 'Approve this leave request?',
+  [LeaveStatus.Rejected]: 'Reject this leave request?',
+};
+
+export const LEAVE_DECISION_DONE: Record<LeaveDecision, string> = {
+  [LeaveStatus.Approved]: 'Leave approved',
+  [LeaveStatus.Rejected]: 'Leave rejected',
+};
+
 /**
  * Confirms, then moves the request through `setLeaveStatus` — the one mutation every
  * screen decides from (HR's queue, the employee record, a manager's team page), so the
@@ -22,13 +33,15 @@ export function useLeaveDecision(refetch: () => Promise<unknown>): DecideLeave {
   const notify = useNotify();
 
   return async (row, status) => {
-    const verb = LEAVE_DECISION_VERB[status];
-    const ok = await confirm({ message: `${verb} this leave request?`, confirmText: verb });
+    const ok = await confirm({
+      message: LEAVE_DECISION_PROMPT[status],
+      confirmText: LEAVE_DECISION_VERB[status],
+    });
     if (!ok) return;
     try {
       await setStatus({ variables: { id: row.id, status } });
       await refetch();
-      notify(`Leave ${status.toLowerCase()}`);
+      notify(LEAVE_DECISION_DONE[status]);
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not update the leave request', 'error');
     }

@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from '@/components/ui';
-import { useT } from '@exyconn/i18n';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { panel } from '../glass/glass';
 import { color } from '@exyconn/ui';
 
@@ -10,6 +10,8 @@ export interface BreakdownBucket {
 
 interface StatBreakdownProps {
   title: string;
+  /** Values for a {placeholder} in the title, e.g. "Email by template, {days}d". */
+  titleValues?: Interpolations;
   buckets: BreakdownBucket[];
   /** Bar colour. Defaults to the dashboard accent. */
   accent?: string;
@@ -29,6 +31,7 @@ function humanise(value: string): string {
  */
 export function StatBreakdown({
   title,
+  titleValues,
   buckets,
   accent = color.blue[400],
   emptyMessage = 'Nothing to show yet.',
@@ -40,7 +43,7 @@ export function StatBreakdown({
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
-        {t(title)}
+        {t(title, titleValues)}
       </Typography>
       {ordered.length === 0 && (
         <Typography

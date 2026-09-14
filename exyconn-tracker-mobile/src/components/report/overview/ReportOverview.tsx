@@ -37,6 +37,9 @@ const METRICS: ReadonlyArray<{ key: CountKey; label: string; icon: IconName }> =
   { key: 'trackedDays', label: 'Days tracked', icon: 'calendar-check-outline' },
 ];
 
+/** The chips are at least 40 tall; the slop brings the touch target to the platform's 44. */
+const CHIP_SLOP = { top: 2, bottom: 2 } as const;
+
 interface ChipProps {
   label: string;
   selected: boolean;
@@ -50,11 +53,13 @@ function PeriodChip({ label, selected, onPress }: Readonly<ChipProps>) {
   return (
     <Pressable
       onPress={onPress}
+      hitSlop={CHIP_SLOP}
       accessibilityRole="radio"
+      accessibilityLabel={label}
       accessibilityState={{ checked: selected }}
     >
       <XStack
-        height={40}
+        minHeight={40}
         paddingHorizontal="$4"
         alignItems="center"
         borderRadius={radius.pill}

@@ -44,7 +44,7 @@ export function ApplicantStageForm({
     try {
       await setStage({ variables: { id: applicant.id, stage: values.stage, note: values.note } });
       const moved = { name: applicant.name, stage: values.stage.toLowerCase() };
-      notify(t('{name} moved to {stage}', moved));
+      notify('{name} moved to {stage}', 'success', moved);
       onDone();
     } catch (error) {
       notify(errorMessage(error, 'Could not move the applicant'), 'error');

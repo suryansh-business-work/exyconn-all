@@ -57,7 +57,7 @@ export default function DashboardScreen({ state }: Readonly<Props>): ReactElemen
           }}
         >
           <Box sx={{ minWidth: 0 }}>
-            <Typography variant="subtitle1" noWrap sx={{ fontWeight: 700 }}>
+            <Typography variant="subtitle1" component="p" noWrap sx={{ fontWeight: 700 }}>
               {user?.name ?? t('Signed in')}
             </Typography>
             <Typography
@@ -104,7 +104,9 @@ export default function DashboardScreen({ state }: Readonly<Props>): ReactElemen
 
       <Stack spacing={1}>
         <Stack spacing={0.25}>
-          <Typography variant="subtitle2">{t('This session')}</Typography>
+          <Typography variant="subtitle2" component="h2">
+            {t('This session')}
+          </Typography>
           <Typography
             variant="caption"
             sx={{

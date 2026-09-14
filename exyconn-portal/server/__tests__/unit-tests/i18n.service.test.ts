@@ -5,11 +5,15 @@ import { ROLES } from '../../src/constants/roles';
 import { TranslationModel } from '../../src/modules/i18n/translation.model';
 import {
   enabledLocales,
+  fillLanguage,
   readBundle,
   translateMissing,
   upsertTranslation,
+  workspaceSettings,
 } from '../../src/modules/i18n/i18n.service';
 import * as translate from '../../src/modules/i18n/i18n.translate';
+import { Types } from 'mongoose';
+import { runAsPlatform, runForOrganization, setDefaultScope } from '../../src/lib/tenant';
 
 // The welcome email talks to SMTP; stub it so user creation works offline.
 jest.mock('../../src/utils/mailer', () => ({
@@ -108,16 +112,83 @@ describe('the locales a workspace offers', () => {
     await AppSettingsModel.deleteMany({});
   });
 
-  it('always includes English and the workspace default, however the list was saved', async () => {
-    await settings({ defaultLocale: 'hi', enabledLocales: ['fr'] });
+  // A workspace's languages are its own, so these run inside one — the way a signed-in
+  // request does.
+  const company = String(new Types.ObjectId());
 
-    await expect(enabledLocales()).resolves.toEqual(expect.arrayContaining(['en', 'fr', 'hi']));
+  it('always includes English and the workspace default, however the list was saved', async () => {
+    await runForOrganization(company, async () => {
+      await settings({ defaultLocale: 'hi', enabledLocales: ['fr'] });
+
+      await expect(enabledLocales()).resolves.toEqual(expect.arrayContaining(['en', 'fr', 'hi']));
+    });
   });
 
   it('drops a tag that does not resolve rather than offering it', async () => {
-    await settings({ defaultLocale: 'en', enabledLocales: ['fr', 'nonsense!'] });
+    await runForOrganization(company, async () => {
+      await settings({ defaultLocale: 'en', enabledLocales: ['fr', 'nonsense!'] });
 
-    await expect(enabledLocales()).resolves.toEqual(['en', 'fr']);
+      await expect(enabledLocales()).resolves.toEqual(['en', 'fr']);
+    });
+  });
+});
+
+describe('a request that belongs to no workspace', () => {
+  // exyconn.com, a portal's sign-in screen, a signed-out tracker. In production these reach
+  // the server with NO scope at all, and reading the workspace settings there threw — which
+  // took every public translation request down, so the website could neither load its words
+  // nor ask for new ones.
+  beforeEach(async () => {
+    await Promise.all([TranslationModel.deleteMany({}), AppSettingsModel.deleteMany({})]);
+    jest.restoreAllMocks();
+    setDefaultScope(null);
+  });
+
+  afterEach(() => {
+    setDefaultScope({ organizationId: null, platform: true });
+  });
+
+  it('reads no workspace settings rather than failing', async () => {
+    await expect(workspaceSettings()).resolves.toBeNull();
+  });
+
+  it('still hands out the shared catalogue', async () => {
+    await runAsPlatform(() => upsertTranslation('fr', 'Save', 'Enregistrer', 'AUTO'));
+
+    await expect(readBundle('fr')).resolves.toEqual([
+      expect.objectContaining({ source: 'Save', text: 'Enregistrer' }),
+    ]);
+  });
+
+  it('offers English, the language the platform itself is written in', async () => {
+    await expect(enabledLocales()).resolves.toEqual(['en']);
+  });
+
+  it('asks the model for strings nobody has translated yet', async () => {
+    const machine = jest
+      .spyOn(translate, 'machineTranslate')
+      .mockResolvedValue([{ source: 'Contact us', text: 'Contactez-nous', model: 'gpt-test' }]);
+
+    await expect(translateMissing('fr', ['Contact us'])).resolves.toEqual([
+      expect.objectContaining({ text: 'Contactez-nous' }),
+    ]);
+    expect(machine).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not reach the model when the caller is over its budget', async () => {
+    const machine = jest.spyOn(translate, 'machineTranslate');
+
+    await expect(translateMissing('fr', ['Contact us'], () => false)).resolves.toEqual([]);
+    expect(machine).not.toHaveBeenCalled();
+  });
+
+  it('spends no budget on strings the catalogue already knows', async () => {
+    await runAsPlatform(() => upsertTranslation('fr', 'Save', 'Enregistrer', 'AUTO'));
+    const budget = jest.fn(() => true);
+
+    await translateMissing('fr', ['Save'], budget);
+
+    expect(budget).not.toHaveBeenCalled();
   });
 });
 
@@ -171,5 +242,68 @@ describe('a person’s own zone and language', () => {
         locale: 'not a language',
       }),
     ).rejects.toThrow(/not a language tag/i);
+  });
+});
+
+describe('translating everything into one language at once', () => {
+  beforeEach(async () => {
+    await TranslationModel.deleteMany({});
+    jest.restoreAllMocks();
+  });
+
+  it('sends every string the catalogue knows in another language, and stores what comes back', async () => {
+    await upsertTranslation('de', 'Save', 'Speichern', 'AUTO');
+    await upsertTranslation('hi', 'Cancel', 'रद्द करें', 'AUTO');
+    const machine = jest
+      .spyOn(translate, 'machineTranslate')
+      .mockImplementation(async (_locale, sources) =>
+        sources.map((source) => ({ source, text: `fr:${source}`, model: 'gpt-test' })),
+      );
+
+    const fill = await fillLanguage('fr');
+
+    expect(fill).toMatchObject({ locale: 'fr', queued: 2, alreadyRunning: false });
+    await expect(fill.finished).resolves.toBe(2);
+    await expect(readBundle('fr')).resolves.toHaveLength(2);
+    expect(machine).toHaveBeenCalled();
+  });
+
+  it('never overwrites a correction a person made', async () => {
+    await upsertTranslation('de', 'Save', 'Speichern', 'AUTO');
+    await upsertTranslation('fr', 'Save', 'Sauvegarder', 'HUMAN');
+    const machine = jest.spyOn(translate, 'machineTranslate');
+
+    const fill = await fillLanguage('fr');
+    await fill.finished;
+
+    expect(fill.queued).toBe(0);
+    expect(machine).not.toHaveBeenCalled();
+    const [row] = await TranslationModel.find({ locale: 'fr' }).lean();
+    expect(row.text).toBe('Sauvegarder');
+  });
+
+  it('does not start a second fill of a language already being filled', async () => {
+    await upsertTranslation('de', 'Save', 'Speichern', 'AUTO');
+    // The model answers only when the test says so, so the first fill is still running.
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    jest.spyOn(translate, 'machineTranslate').mockImplementation(async (_locale, sources) => {
+      await gate;
+      return sources.map((source) => ({ source, text: `fr:${source}`, model: 'gpt-test' }));
+    });
+
+    const first = await fillLanguage('fr');
+    const second = await fillLanguage('fr');
+
+    expect(first).toMatchObject({ queued: 1, alreadyRunning: false });
+    expect(second).toMatchObject({ queued: 0, alreadyRunning: true });
+    release();
+    await expect(first.finished).resolves.toBe(1);
+  });
+
+  it('has nothing to do for English, which is the source', async () => {
+    await expect(fillLanguage('en')).resolves.toMatchObject({ queued: 0, alreadyRunning: false });
   });
 });

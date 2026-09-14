@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { ThemeProvider } from '@exyconn/ui/styles';
 import { LocalizationProvider, AdapterDateFns, theme } from '@exyconn/ui';
 import './commands';
+import './a11y';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

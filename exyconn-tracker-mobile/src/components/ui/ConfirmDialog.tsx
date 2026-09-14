@@ -2,6 +2,7 @@ import { SCRIM } from '../../theme/palette';
 import { Modal } from 'react-native';
 import { XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
+import { useReduceMotion } from '../../hooks/useReduceMotion';
 import { AppButton } from './AppButton';
 import { Surface } from './Surface';
 import { Body, Heading } from './Typography';
@@ -33,8 +34,14 @@ export function ConfirmDialog({
   onCancel,
 }: Readonly<Props>) {
   const t = useT();
+  const reduceMotion = useReduceMotion();
   return (
-    <Modal visible={open} transparent animationType="fade" onRequestClose={onCancel}>
+    <Modal
+      visible={open}
+      transparent
+      animationType={reduceMotion ? 'none' : 'fade'}
+      onRequestClose={onCancel}
+    >
       <YStack flex={1} justifyContent="center" padding="$5" backgroundColor={SCRIM}>
         <Surface padding="$5" gap="$4" accessibilityViewIsModal>
           <Heading>{title}</Heading>

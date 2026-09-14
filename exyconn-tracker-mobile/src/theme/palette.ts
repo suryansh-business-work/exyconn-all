@@ -21,8 +21,14 @@ export interface Chrome {
   paper: string;
   ink: string;
   muted: string;
-  /** Hairline borders and dividers. */
+  /** Hairline borders and dividers — decorative, and too faint to identify a control. */
   hairline: string;
+  /**
+   * The edge that tells you where a text field, picker or checkbox is. WCAG 2.2 SC 1.4.11 asks
+   * 3:1 for it against the surface; the 10% hairline measured about 1.2:1, so a field was only
+   * findable by its label.
+   */
+  control: string;
   success: string;
   warning: string;
   error: string;
@@ -42,6 +48,7 @@ export const CHROME: Readonly<Record<'light' | 'dark', Chrome>> = {
     ink: slate[900],
     muted: neutral[500],
     hairline: `${slate[950]}${HAIRLINE_ALPHA}`,
+    control: neutral[500],
     success: emerald[900],
     warning: orange[800],
     error: red[900],
@@ -52,6 +59,7 @@ export const CHROME: Readonly<Record<'light' | 'dark', Chrome>> = {
     ink: neutral[100],
     muted: neutral[300],
     hairline: `${white}${HAIRLINE_ALPHA}`,
+    control: neutral[300],
     success: emerald[300],
     warning: amber[300],
     error: red[300],

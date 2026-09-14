@@ -27,7 +27,7 @@ export function CrmPage() {
   const crud = useCrudResource<LeadRow, PagedLeadRow>({
     label: 'Lead',
     onDelete: (row) => deleteLead({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete lead "{name}"?', { name: row.name }),
+    confirmMessage: (row) => ({ message: 'Delete lead "{name}"?', values: { name: row.name } }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

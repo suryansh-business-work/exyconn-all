@@ -83,7 +83,11 @@ export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Prop
         >
           {shot.blurred ? (
             <Tooltip title={t("Blurred by your workspace's settings")}>
-              <BlurOnRounded fontSize="small" sx={{ color: 'text.secondary' }} />
+              <BlurOnRounded
+                fontSize="small"
+                titleAccess={t("Blurred by your workspace's settings")}
+                sx={{ color: 'text.secondary' }}
+              />
             </Tooltip>
           ) : null}
           <Tooltip title={t(PENDING_HINT)}>
@@ -101,6 +105,7 @@ export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Prop
         variant="determinate"
         value={shot.activityPercent}
         color={activityColor(shot.activityPercent)}
+        aria-label={t('Activity')}
         sx={{ mt: 1 }}
       />
     </Surface>

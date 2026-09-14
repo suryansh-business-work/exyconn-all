@@ -6,6 +6,7 @@ import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
 import type { LiveStats, TrackerSettings } from '@shared/types';
 import { formatCount, formatLastSync, syncMessage } from '@exyconn/tracker-core';
 import Surface from './Surface';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   stats: LiveStats;
@@ -51,6 +52,8 @@ export default function SyncBar({ stats, settings, timezone }: Readonly<Props>):
   const settled = stats.pendingSync === 0 && !stats.syncing;
   const StatusIcon = settled ? CloudDoneOutlined : CloudUploadOutlined;
   const message = syncMessage(t, stats.lastSyncOutcome);
+  // What the last upload came to, spoken once each time it changes.
+  useAnnounce(message?.text, message?.severity === 'error' ? 'assertive' : 'polite');
 
   return (
     <Surface sx={{ p: 2 }}>
@@ -62,7 +65,7 @@ export default function SyncBar({ stats, settings, timezone }: Readonly<Props>):
         }}
       >
         <StatusIcon fontSize="small" sx={{ color: settled ? 'success.main' : 'warning.main' }} />
-        <Typography variant="subtitle2" noWrap sx={{ flex: 1, minWidth: 0 }}>
+        <Typography variant="subtitle2" component="p" noWrap sx={{ flex: 1, minWidth: 0 }}>
           {pendingText(stats, t)}
         </Typography>
       </Stack>
@@ -79,7 +82,7 @@ export default function SyncBar({ stats, settings, timezone }: Readonly<Props>):
         {policyText(settings, t)}
       </Typography>
 
-      {stats.syncing ? <LinearProgress sx={{ mt: 1.5 }} /> : null}
+      {stats.syncing ? <LinearProgress aria-label={t('Uploading…')} sx={{ mt: 1.5 }} /> : null}
 
       {message !== null && !stats.syncing ? (
         <Alert

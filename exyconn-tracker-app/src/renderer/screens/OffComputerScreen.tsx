@@ -16,6 +16,7 @@ import ManualEntryForm from '../components/ManualEntryForm';
 import ManualEntryList from '../components/ManualEntryList';
 import Surface from '../components/Surface';
 import useManualEntries from '../hooks/useManualEntries';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   projects: TrackerProject[];
@@ -34,6 +35,7 @@ export default function OffComputerScreen({ projects, timezone }: Readonly<Props
   const t = useT();
   const { entries, loading, error, reload } = useManualEntries();
   const [claiming, setClaiming] = useState(false);
+  useAnnounce(error, 'assertive');
 
   function withdraw(entry: ManualEntry): void {
     window.tracker
@@ -51,7 +53,9 @@ export default function OffComputerScreen({ projects, timezone }: Readonly<Props
     return (
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <Stack spacing={2}>
-          <Typography variant="h6">{t('Claim off-computer time')}</Typography>
+          <Typography variant="h6" component="h2">
+            {t('Claim off-computer time')}
+          </Typography>
           <Surface>
             <ManualEntryForm
               projects={projects}
@@ -68,7 +72,9 @@ export default function OffComputerScreen({ projects, timezone }: Readonly<Props
     <Stack spacing={2}>
       <Flex direction="row" justifyContent="space-between" alignItems="flex-start" gap={1}>
         <Stack spacing={0.25}>
-          <Typography variant="h6">{t('Off-computer time')}</Typography>
+          <Typography variant="h6" component="h2">
+            {t('Off-computer time')}
+          </Typography>
           <Typography
             variant="caption"
             sx={{

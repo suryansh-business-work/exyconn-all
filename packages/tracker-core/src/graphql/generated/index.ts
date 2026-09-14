@@ -1749,6 +1749,7 @@ export type Role =
   | 'MARKETING'
   | 'PRODUCTS'
   | 'PROJECTS'
+  | 'SUPER_ADMIN'
   | 'SUPPORT'
   | 'TECH'
   | 'TRACKER'

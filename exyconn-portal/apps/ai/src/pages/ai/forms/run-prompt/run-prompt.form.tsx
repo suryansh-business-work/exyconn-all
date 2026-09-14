@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfAutocomplete, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
@@ -28,7 +27,6 @@ type Values = z.infer<typeof schema>;
  * exactly what the preview shows.
  */
 export function RunPromptForm({ prompt, onDone, onCancel }: Readonly<RunPromptFormProps>) {
-  const t = useT();
   const notify = useNotify();
   const [runPrompt] = useRunPromptMutation();
   const { options, defaultModel, error } = useAiModels();
@@ -62,7 +60,7 @@ export function RunPromptForm({ prompt, onDone, onCancel }: Readonly<RunPromptFo
       if (!job) {
         return;
       }
-      notify(t('"{name}" queued', { name: job.name }));
+      notify('"{name}" queued', 'success', { name: job.name });
       onDone(job.id);
     } catch (err) {
       notify(errorMessage(err, 'The run could not be started'), 'error');

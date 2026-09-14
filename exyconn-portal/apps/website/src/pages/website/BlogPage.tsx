@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -15,7 +14,6 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Website CMS — blog posts with a server-side grid. */
 export function BlogPage() {
-  const t = useT();
   // Stat cards still summarise all posts; the grid itself is server-paged.
   const { data } = useListBlogPostsQuery();
   const [deleteBlogPost] = useDeleteBlogPostMutation();
@@ -24,7 +22,10 @@ export function BlogPage() {
   const crud = useCrudResource<BlogRow, PagedBlogRow>({
     label: 'Blog post',
     onDelete: (row) => deleteBlogPost({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete blog post {title}?', { title: row.title }),
+    confirmMessage: (row) => ({
+      message: 'Delete blog post {title}?',
+      values: { title: row.title },
+    }),
   });
   const fetchRows = usePagedFetcher(
     ListBlogPostsPagedDocument,

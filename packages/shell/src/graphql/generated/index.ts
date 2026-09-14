@@ -3959,6 +3959,12 @@ export type Mutation = {
   trackerSyncIntervals: Scalars['Int']['output'];
   trackerUploadScreenshot: TrackerScreenshot;
   /**
+   * Translates every string the catalogue has seen in any language into this one, in the
+   * background, and answers at once with how many are on their way. ADMIN only. Human
+   * corrections are never overwritten.
+   */
+  translateEverything: TranslationFill;
+  /**
    * Machine-translates strings this locale has never seen and returns what it managed.
    *
    * Called by any client that rendered a string with no translation, so it is safe to call
@@ -5715,6 +5721,11 @@ export type MutationTrackerSyncIntervalsArgs = {
 
 export type MutationTrackerUploadScreenshotArgs = {
   input: TrackerScreenshotInput;
+};
+
+
+export type MutationTranslateEverythingArgs = {
+  locale: Scalars['String']['input'];
 };
 
 
@@ -9605,6 +9616,7 @@ export enum Role {
   Marketing = 'MARKETING',
   Products = 'PRODUCTS',
   Projects = 'PROJECTS',
+  SuperAdmin = 'SUPER_ADMIN',
   Support = 'SUPPORT',
   Tech = 'TECH',
   Tracker = 'TRACKER',
@@ -11445,6 +11457,16 @@ export type Translation = {
   source: Scalars['String']['output'];
   /** What is shown in place of it. */
   text: Scalars['String']['output'];
+};
+
+/** A fill of one language, as it stands the moment it was started. */
+export type TranslationFill = {
+  __typename?: 'TranslationFill';
+  /** True when this language was already being filled; nothing new was started. */
+  alreadyRunning: Scalars['Boolean']['output'];
+  locale: Scalars['String']['output'];
+  /** Strings the catalogue knows in some language but not in this one, now being translated. */
+  queued: Scalars['Int']['output'];
 };
 
 /** One page of the admin's translation review screen. */
@@ -13949,6 +13971,13 @@ export type SetTranslationMutationVariables = Exact<{
 
 
 export type SetTranslationMutation = { __typename?: 'Mutation', setTranslation: { __typename?: 'Translation', key: string, source: string, text: string } };
+
+export type TranslateEverythingMutationVariables = Exact<{
+  locale: Scalars['String']['input'];
+}>;
+
+
+export type TranslateEverythingMutation = { __typename?: 'Mutation', translateEverything: { __typename?: 'TranslationFill', locale: string, queued: number, alreadyRunning: boolean } };
 
 export type InfrastructureOverviewQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -31601,6 +31630,38 @@ export function useSetTranslationMutation(baseOptions?: ApolloReactHooks.Mutatio
         return ApolloReactHooks.useMutation<SetTranslationMutation, SetTranslationMutationVariables>(SetTranslationDocument, options);
       }
 export type SetTranslationMutationHookResult = ReturnType<typeof useSetTranslationMutation>;
+export const TranslateEverythingDocument = gql`
+    mutation TranslateEverything($locale: String!) {
+  translateEverything(locale: $locale) {
+    locale
+    queued
+    alreadyRunning
+  }
+}
+    `;
+
+/**
+ * __useTranslateEverythingMutation__
+ *
+ * To run a mutation, you first call `useTranslateEverythingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTranslateEverythingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [translateEverythingMutation, { data, loading, error }] = useTranslateEverythingMutation({
+ *   variables: {
+ *      locale: // value for 'locale'
+ *   },
+ * });
+ */
+export function useTranslateEverythingMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TranslateEverythingMutation, TranslateEverythingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TranslateEverythingMutation, TranslateEverythingMutationVariables>(TranslateEverythingDocument, options);
+      }
+export type TranslateEverythingMutationHookResult = ReturnType<typeof useTranslateEverythingMutation>;
 export const InfrastructureOverviewDocument = gql`
     query InfrastructureOverview {
   infrastructureOverview {

@@ -66,7 +66,8 @@ export function AiOverviewPage() {
       accent: color.amber[500],
     },
     {
-      label: t('This month · {cap}', { cap: capLabel }),
+      label: 'This month · {cap}',
+      labelValues: { cap: capLabel },
       value: `$${spentThisMonth.toFixed(USD_DIGITS)}`,
       accent: color.green[500],
     },

@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import {
@@ -34,7 +33,6 @@ function warrantyEndingSoon(asset: { warrantyExpiry?: string | null }): boolean 
 
 /** IT → Overview: what the company owns, who holds it, and what needs attention. */
 export function ItOverviewPage() {
-  const t = useT();
   const { data: statsData } = useListAssetsStatsQuery();
   const { data: assetsData, loading, refetch } = useListAssetsQuery();
   const { data: licencesData } = useListLicencesQuery();
@@ -55,7 +53,8 @@ export function ItOverviewPage() {
     },
     { label: 'Licences', value: String(licences.length), accent: color.cyan[600] },
     {
-      label: t('Renews in {days}d', { days: RENEWAL_WINDOW_DAYS }),
+      label: 'Renews in {days}d',
+      labelValues: { days: RENEWAL_WINDOW_DAYS },
       value: String(renewing.length),
       accent: color.amber[500],
     },

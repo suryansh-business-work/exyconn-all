@@ -29,7 +29,14 @@ export function TicketDetailPage() {
 
   return (
     <Box>
-      <PageHeader title={ticket?.subject ?? 'Ticket'} subtitle={ticket?.reference ?? ''}>
+      {/* A subject and a reference are the customer's words, not ours: passed as VALUES of a
+          template, so they are shown as written and never become catalogue keys. */}
+      <PageHeader
+        title={ticket ? '{subject}' : 'Ticket'}
+        titleValues={ticket ? { subject: ticket.subject } : undefined}
+        subtitle={ticket ? '{reference}' : ''}
+        subtitleValues={ticket ? { reference: ticket.reference } : undefined}
+      >
         <Button color="inherit" startIcon={<ArrowBackIcon />} onClick={backToQueue}>
           {t('Back to queue')}
         </Button>

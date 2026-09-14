@@ -106,7 +106,9 @@ export function DayProgress({ workday, workProfile, activeMs, style }: Readonly<
             <Icon name="information-outline" size={18} color={muted} />
           </Pressable>
         </XStack>
-        <Heading color={color}>{figures.percent}%</Heading>
+        <Heading accessibilityRole="none" color={color}>
+          {figures.percent}%
+        </Heading>
       </XStack>
       {explained ? <Caption>{dayTargetSource(figures)}</Caption> : null}
       <Shape figures={figures} activeMs={activeMs} color={color} />

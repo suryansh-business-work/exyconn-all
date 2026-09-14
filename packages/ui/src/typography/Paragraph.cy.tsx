@@ -7,9 +7,10 @@ describe('Paragraph', () => {
   });
 
   it('applies a custom sx color alongside the default bottom margin', () => {
-    cy.mount(<Paragraph sx={{ color: 'red' }}>Colored copy</Paragraph>);
+    // A dark red, so the fixture itself passes the WCAG AA contrast check every spec runs.
+    cy.mount(<Paragraph sx={{ color: 'rgb(153, 0, 0)' }}>Colored copy</Paragraph>);
     cy.contains('p', 'Colored copy')
-      .should('have.css', 'color', 'rgb(255, 0, 0)')
+      .should('have.css', 'color', 'rgb(153, 0, 0)')
       .and('have.css', 'margin-bottom');
   });
 });

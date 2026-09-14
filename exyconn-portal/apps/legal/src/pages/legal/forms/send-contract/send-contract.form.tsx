@@ -37,7 +37,7 @@ export function SendContractForm({ contract, onDone, onCancel }: SendContractFor
       await sendContract({
         variables: { id: contract.id, email: values.email, message: values.message || null },
       });
-      notify(t('Contract sent to {email}', { email: values.email }));
+      notify('Contract sent to {email}', 'success', { email: values.email });
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Send failed', 'error');

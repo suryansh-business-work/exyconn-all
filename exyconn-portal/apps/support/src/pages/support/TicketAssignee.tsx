@@ -33,7 +33,11 @@ export function TicketAssignee({
     try {
       await assign({ variables: { id: ticketId, assigneeId: nextId } });
       const name = agents.find((a) => a.id === nextId)?.name;
-      notify(name ? t('Assigned to {name}', { name }) : 'Back in the unassigned queue');
+      if (name) {
+        notify('Assigned to {name}', 'success', { name });
+      } else {
+        notify('Back in the unassigned queue');
+      }
       onAssigned();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not assign', 'error');

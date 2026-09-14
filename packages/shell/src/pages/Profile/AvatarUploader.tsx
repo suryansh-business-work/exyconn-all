@@ -44,6 +44,7 @@ export function AvatarUploader() {
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
       <Avatar
         src={user?.avatarUrl ?? undefined}
+        alt={user?.name ?? ''}
         sx={{ width: 96, height: 96, bgcolor: 'primary.main', fontSize: fontSize['4xl'] }}
       >
         {user?.name?.charAt(0).toUpperCase()}

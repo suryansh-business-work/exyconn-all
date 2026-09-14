@@ -72,7 +72,7 @@ export function EmailPreviewDialog({ template, onClose }: Readonly<Props>) {
   const send = async () => {
     try {
       await sendTest({ variables: { key: template.key, to, variables } });
-      notify(t('Test sent to {to}', { to }));
+      notify('Test sent to {to}', 'success', { to });
     } catch (err) {
       notify(err instanceof Error ? err.message : 'The test email could not be sent', 'error');
     }

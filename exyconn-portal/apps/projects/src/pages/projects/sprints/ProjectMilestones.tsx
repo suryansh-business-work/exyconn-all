@@ -67,7 +67,8 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
 
   const remove = async (milestone: MilestoneFieldsFragment) => {
     const ok = await confirm({
-      message: t('Delete milestone "{name}"?', { name: milestone.name }),
+      message: 'Delete milestone "{name}"?',
+      messageValues: { name: milestone.name },
       confirmText: 'Delete',
     });
     if (!ok) {

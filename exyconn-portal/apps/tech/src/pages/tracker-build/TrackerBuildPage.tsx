@@ -56,7 +56,7 @@ export function TrackerBuildPage() {
       <CrudFormPage
         title="Create tracker build"
         onBack={() => setStarting(false)}
-        backLabel={t('Back to Tracker Build')}
+        backLabel="Back to Tracker Build"
       >
         <StartBuildForm
           channelCount={channelCount}

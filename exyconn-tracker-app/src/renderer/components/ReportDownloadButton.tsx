@@ -5,6 +5,7 @@ import DownloadRounded from '@mui/icons-material/DownloadRounded';
 import type { ReportDay } from '@shared/types';
 import { buildReportCsv } from '@exyconn/tracker-core';
 import { useT } from '@exyconn/i18n';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   days: readonly ReportDay[];
@@ -30,6 +31,7 @@ export default function ReportDownloadButton({
 }: Readonly<Props>): ReactElement {
   const t = useT();
   const [notice, setNotice] = useState('');
+  useAnnounce(notice);
 
   const save = (): void => {
     window.tracker

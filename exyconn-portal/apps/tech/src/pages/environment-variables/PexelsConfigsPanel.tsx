@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -22,7 +21,6 @@ const maskKey = (key: string) => `${key.slice(0, 8)}…`;
  * stock video tabs of the shared upload dialog.
  */
 export function PexelsConfigsPanel() {
-  const t = useT();
   const notify = useNotify();
   const { data, loading, refetch } = useListPexelsConfigsQuery();
   const [deleteConfig] = useDeletePexelsConfigMutation();
@@ -30,7 +28,10 @@ export function PexelsConfigsPanel() {
   const crud = useCrudResource<PexelsConfigRow>({
     label: 'Pexels config',
     onDelete: (row) => deleteConfig({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete Pexels config "{label}"?', { label: row.label }),
+    confirmMessage: (row) => ({
+      message: 'Delete Pexels config "{label}"?',
+      values: { label: row.label },
+    }),
     refetch,
   });
 
@@ -39,7 +40,7 @@ export function PexelsConfigsPanel() {
   const test = async (row: PexelsConfigRow) => {
     try {
       await testConnection({ variables: { id: row.id } });
-      notify(t('Pexels accepted the key on "{label}"', { label: row.label }));
+      notify('Pexels accepted the key on "{label}"', 'success', { label: row.label });
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Connection failed', 'error');
     }
@@ -66,7 +67,7 @@ export function PexelsConfigsPanel() {
   ];
 
   if (crud.open) {
-    const formTitle = crud.editing ? t('Edit Pexels config') : t('New Pexels config');
+    const formTitle = crud.editing ? 'Edit Pexels config' : 'New Pexels config';
     return (
       <CrudFormPage title={formTitle} onBack={crud.close} backLabel="Back to Pexels stock media">
         <PexelsConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />

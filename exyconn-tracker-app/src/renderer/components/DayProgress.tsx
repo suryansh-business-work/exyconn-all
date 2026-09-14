@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Box, Stack, Tooltip, Typography, iconSize, letterSpacing } from '@exyconn/ui';
+import { Box, IconButton, Stack, Tooltip, Typography, iconSize, letterSpacing } from '@exyconn/ui';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import type { ProgressStyle, WorkProfile, Workday } from '@shared/types';
 import GradientBar from './GradientBar';
@@ -67,6 +67,7 @@ function DayProgressBar({ figures, activeMs }: Readonly<ShapeProps>): ReactEleme
     <Stack spacing={1.5}>
       <Typography
         variant="h3"
+        component="p"
         sx={{
           fontWeight: 700,
           letterSpacing: letterSpacing.tighter,
@@ -157,16 +158,22 @@ export default function DayProgress({
             {t('Worked today')}
           </Typography>
           <Tooltip
+            describeChild
             title={t(
               'Your working day is {hours} hours, set by HR on your employee record. The default is {fallback}. Only ACTIVE time counts — idle minutes do not fill this bar.',
               { hours: figures.hours, fallback: DEFAULT_WORK_HOURS },
             )}
           >
-            <InfoOutlined sx={{ fontSize: iconSize.md, color: 'text.secondary' }} />
+            {/* A button, not a bare icon, so the explanation is reachable by keyboard and read
+                by a screen reader — a tooltip on an icon opens for a mouse and nobody else. */}
+            <IconButton size="small" aria-label={t('How your working day is set')} sx={{ p: 0.25 }}>
+              <InfoOutlined sx={{ fontSize: iconSize.md, color: 'text.secondary' }} />
+            </IconButton>
           </Tooltip>
         </Stack>
         <Typography
           variant="subtitle1"
+          component="p"
           sx={{ fontWeight: 700, color: figures.done ? 'success.main' : 'primary.main' }}
         >
           {figures.percent}%

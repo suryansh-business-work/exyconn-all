@@ -25,7 +25,9 @@ export default function AppPreferencesCard({
   const t = useT();
   return (
     <Surface sx={{ p: 2.5 }}>
-      <Typography variant="h6">{t('This app')}</Typography>
+      <Typography variant="h6" component="h2">
+        {t('This app')}
+      </Typography>
       <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, mb: 2 }}>
         {t('How the tracker behaves on this computer.')}
       </Typography>

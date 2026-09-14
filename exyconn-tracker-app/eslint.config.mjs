@@ -2,7 +2,7 @@ import js from '@eslint/js';
 import { defineConfig } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-import { muiGuard } from '@exyconn/config/eslint';
+import { muiGuard, webA11y } from '@exyconn/config/eslint';
 
 export default defineConfig([
   { ignores: ['out/**', 'dist/**', 'node_modules/**', '**/*.cjs'] },
@@ -24,4 +24,6 @@ export default defineConfig([
       'no-restricted-imports': ['error', muiGuard()],
     },
   },
+  // WCAG 2.2 AA for the renderer, the same rules the portals lint against.
+  webA11y,
 ]);

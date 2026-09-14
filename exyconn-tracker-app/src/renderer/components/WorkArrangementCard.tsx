@@ -50,7 +50,9 @@ export default function WorkArrangementCard({ workProfile }: Readonly<Props>): R
 
   return (
     <Surface sx={{ p: 2.5 }}>
-      <Typography variant="h6">{t('Your working day')}</Typography>
+      <Typography variant="h6" component="h2">
+        {t('Your working day')}
+      </Typography>
       <Typography
         variant="body2"
         sx={{

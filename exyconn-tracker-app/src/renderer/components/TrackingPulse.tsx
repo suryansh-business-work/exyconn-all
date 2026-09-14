@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { Box, Tooltip, keyframes } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import type { TrackerStatus } from '@shared/types';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 /**
  * A slow, calm heartbeat — not a blink. This sits in the header for the whole working day,
@@ -37,10 +38,13 @@ export default function TrackingPulse({ status }: Readonly<Props>): ReactElement
   const t = useT();
   const look = LOOK[status];
   const label = t(look.label);
+  // Starting, pausing and stopping are spoken as they happen, wherever focus is.
+  useAnnounce(label);
 
   return (
     <Tooltip title={label}>
       <Box
+        role="img"
         aria-label={label}
         sx={{ position: 'relative', display: 'grid', placeItems: 'center', width: 14, height: 14 }}
       >

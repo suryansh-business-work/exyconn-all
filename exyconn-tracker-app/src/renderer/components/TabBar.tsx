@@ -1,6 +1,7 @@
-import type { ReactElement } from 'react';
+import type { KeyboardEvent, ReactElement } from 'react';
 import {
   Badge,
+  Box,
   ButtonBase,
   color,
   radius,
@@ -10,8 +11,9 @@ import {
   Typography,
 } from '@exyconn/ui';
 import type { Theme } from '@exyconn/ui';
-import { useT } from '@exyconn/i18n';
-import { NAV_ITEMS, type NavItem, type Section } from '../sections';
+import { useI18n, useT } from '@exyconn/i18n';
+import { NAV_ITEMS, SECTIONS_TABS, type NavItem, type Section } from '../sections';
+import { nextTabIndex, tabId, tabProps } from '../a11y/tabs';
 
 function barFill(theme: Theme): string {
   return trackerTabBar[theme.palette.mode];
@@ -25,18 +27,26 @@ interface TabProps {
   onSelect: (section: Section) => void;
 }
 
-/** One tab: an icon, or — selected — a light pill with the icon and its short name. */
+/**
+ * One tab: an icon, or — selected — a light pill with the icon and its short name.
+ *
+ * Named by that short name, so what a voice-control user reads on the pill is what they can
+ * say (WCAG 2.5.3). Only the selected tab is in the Tab order; the arrow keys move between
+ * them (the tabs pattern), so the bar is one stop rather than five.
+ */
 function Tab({ item, selected, count, onSelect }: Readonly<TabProps>): ReactElement {
   const t = useT();
   const Icon = item.icon;
-  const name = t(item.label);
+  const name = t(item.short);
   const label = count > 0 ? t('{label}, {count} unread', { label: name, count }) : name;
   return (
     <Tooltip title={t(item.caption)}>
       <ButtonBase
         role="tab"
+        {...tabProps(SECTIONS_TABS, item.id)}
         aria-selected={selected}
         aria-label={label}
+        tabIndex={selected ? 0 : -1}
         onClick={() => onSelect(item.id)}
         sx={{
           height: 44,
@@ -77,35 +87,67 @@ export default function TabBar({
   onSelect,
 }: Readonly<Props>): ReactElement {
   const t = useT();
+  const { direction } = useI18n();
+
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
+    const current = NAV_ITEMS.findIndex((item) => item.id === section);
+    const next = nextTabIndex(event.key, current, NAV_ITEMS.length, direction === 'rtl');
+    if (next === null) {
+      return;
+    }
+    event.preventDefault();
+    const target = NAV_ITEMS[next].id;
+    onSelect(target);
+    document.getElementById(tabId(SECTIONS_TABS, target))?.focus();
+  };
+
   return (
-    <Stack
-      direction="row"
-      role="tablist"
+    <Box
+      component="nav"
       aria-label={t('Sections')}
       sx={(theme) => ({
         position: 'absolute',
         // Above the page's own stacked pieces — an outlined field's label sits at z-index 1.
         zIndex: theme.zIndex.appBar,
-        left: '50%',
+        left: theme.spacing(1),
+        right: theme.spacing(1),
         bottom: theme.spacing(2),
-        transform: 'translateX(-50%)',
-        alignItems: 'center',
-        gap: 0.5,
-        p: 0.75,
-        borderRadius: `${radius.pill}px`,
-        backgroundColor: barFill(theme),
-        boxShadow: theme.shadows[8],
+        display: 'flex',
+        justifyContent: 'center',
+        // The strip spans the window only to centre the pill and bound its width; the page
+        // under its empty sides must stay clickable.
+        pointerEvents: 'none',
       })}
     >
-      {NAV_ITEMS.map((item) => (
-        <Tab
-          key={item.id}
-          item={item}
-          selected={item.id === section}
-          count={item.id === 'messages' ? unreadMessages : 0}
-          onSelect={onSelect}
-        />
-      ))}
-    </Stack>
+      <Stack
+        direction="row"
+        role="tablist"
+        aria-label={t('Sections')}
+        onKeyDown={onKeyDown}
+        sx={(theme) => ({
+          alignItems: 'center',
+          gap: 0.5,
+          p: 0.75,
+          // Never wider than the window: at 200% zoom the pill scrolls sideways rather than
+          // pushing tabs off both edges where nothing can reach them (WCAG 1.4.10).
+          minWidth: 0,
+          overflowX: 'auto',
+          pointerEvents: 'auto',
+          borderRadius: `${radius.pill}px`,
+          backgroundColor: barFill(theme),
+          boxShadow: theme.shadows[8],
+        })}
+      >
+        {NAV_ITEMS.map((item) => (
+          <Tab
+            key={item.id}
+            item={item}
+            selected={item.id === section}
+            count={item.id === 'messages' ? unreadMessages : 0}
+            onSelect={onSelect}
+          />
+        ))}
+      </Stack>
+    </Box>
   );
 }

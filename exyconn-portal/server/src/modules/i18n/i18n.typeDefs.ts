@@ -34,6 +34,15 @@ export const i18nTypeDefs = gql`
     translations: [Translation!]!
   }
 
+  "A fill of one language, as it stands the moment it was started."
+  type TranslationFill {
+    locale: String!
+    "Strings the catalogue knows in some language but not in this one, now being translated."
+    queued: Int!
+    "True when this language was already being filled; nothing new was started."
+    alreadyRunning: Boolean!
+  }
+
   "One page of the admin's translation review screen."
   type TranslationPage {
     rows: [TranslationRow!]!
@@ -75,5 +84,11 @@ export const i18nTypeDefs = gql`
     translateMissing(locale: String!, sources: [String!]!): [Translation!]!
     "Corrects one translation by hand. ADMIN only, and marks the row HUMAN for good."
     setTranslation(locale: String!, source: String!, text: String!): Translation!
+    """
+    Translates every string the catalogue has seen in any language into this one, in the
+    background, and answers at once with how many are on their way. ADMIN only. Human
+    corrections are never overwritten.
+    """
+    translateEverything(locale: String!): TranslationFill!
   }
 `;

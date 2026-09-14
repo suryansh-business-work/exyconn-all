@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Theme, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { formatDateTime, type DayScreenshot } from '@exyconn/tracker-core';
+import { useReduceMotion } from '../../hooks/useReduceMotion';
 import { stepIndex } from '../../lib/screenshots/gallery-day';
 import { LightboxNav, LightboxTopBar } from './LightboxBars';
 
@@ -33,6 +34,7 @@ export function ScreenshotLightbox({
 }: Readonly<Props>) {
   const t = useT();
   const insets = useSafeAreaInsets();
+  const reduceMotion = useReduceMotion();
   const shot = index === null ? undefined : shots[index];
 
   if (index === null || shot === undefined) {
@@ -45,7 +47,7 @@ export function ScreenshotLightbox({
   return (
     <Modal
       visible
-      animationType="fade"
+      animationType={reduceMotion ? 'none' : 'fade'}
       onRequestClose={onClose}
       statusBarTranslucent
       supportedOrientations={['portrait', 'landscape']}

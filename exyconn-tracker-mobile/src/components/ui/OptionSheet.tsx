@@ -3,6 +3,7 @@ import { FlatList, Modal, Pressable } from 'react-native';
 import { SCRIM } from '../../theme/palette';
 import { Input, XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
+import { useReduceMotion } from '../../hooks/useReduceMotion';
 import { useBrand } from '../../theme/BrandProvider';
 import { TRACKER_RADIUS } from '../../theme/tokens';
 import { AppButton } from './AppButton';
@@ -38,7 +39,7 @@ function OptionRow({ option, selected, onPress }: Readonly<RowProps>) {
     <Pressable
       onPress={onPress}
       accessibilityRole="radio"
-      accessibilityState={{ selected }}
+      accessibilityState={{ checked: selected }}
       accessibilityLabel={option.label}
     >
       <XStack paddingVertical="$3" gap="$3" alignItems="center">
@@ -78,6 +79,7 @@ export function OptionSheet({
 }: Readonly<Props>) {
   const t = useT();
   const [query, setQuery] = useState('');
+  const reduceMotion = useReduceMotion();
   const visible = useMemo(() => filterOptions(options, query), [options, query]);
 
   function choose(value: string): void {
@@ -87,7 +89,12 @@ export function OptionSheet({
   }
 
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={open}
+      transparent
+      animationType={reduceMotion ? 'none' : 'slide'}
+      onRequestClose={onClose}
+    >
       <YStack flex={1} justifyContent="flex-end" backgroundColor={SCRIM}>
         <YStack
           backgroundColor="$paper"
@@ -96,6 +103,7 @@ export function OptionSheet({
           padding="$4"
           gap="$3"
           maxHeight="80%"
+          accessibilityViewIsModal
         >
           <XStack justifyContent="space-between" alignItems="center">
             <Heading>{title}</Heading>

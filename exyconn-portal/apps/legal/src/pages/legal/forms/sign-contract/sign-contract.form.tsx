@@ -33,7 +33,10 @@ export function SignContractForm({ contract, onDone, onCancel }: SignContractFor
   const onSubmit = async (values: Values) => {
     try {
       await signContract({ variables: { id: contract.id, signedBy: values.signedBy } });
-      notify(t('“{title}” signed by {name}', { title: contract.title, name: values.signedBy }));
+      notify('“{title}” signed by {name}', 'success', {
+        title: contract.title,
+        name: values.signedBy,
+      });
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Sign failed', 'error');

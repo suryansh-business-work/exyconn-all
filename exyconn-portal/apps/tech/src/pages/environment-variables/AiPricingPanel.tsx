@@ -34,7 +34,10 @@ export function AiPricingPanel() {
   const crud = useCrudResource<AiModelPriceRow>({
     label: 'AI model price',
     onDelete: (row) => deletePrice({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete the price for "{model}"?', { model: row.model }),
+    confirmMessage: (row) => ({
+      message: 'Delete the price for "{model}"?',
+      values: { model: row.model },
+    }),
     refetch,
   });
 
@@ -48,7 +51,7 @@ export function AiPricingPanel() {
   const budget = limit.data?.aiSpendLimit;
 
   if (crud.open) {
-    const formTitle = crud.editing ? t('Edit model price') : t('New model price');
+    const formTitle = crud.editing ? 'Edit model price' : 'New model price';
     return (
       <CrudFormPage title={formTitle} onBack={crud.close} backLabel="Back to AI pricing">
         <AiModelPriceForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />

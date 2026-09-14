@@ -4,6 +4,7 @@ import { Alert, Button, LinearProgress, Stack, Typography } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import type { UpdateState } from '@shared/types';
 import { run } from '../run';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   update: UpdateState;
@@ -23,11 +24,15 @@ interface Props {
 export default function UpdateBanner({ update }: Readonly<Props>): ReactElement | null {
   const t = useT();
   const [restarting, setRestarting] = useState(false);
+  // A new version, a failed download and a finished one are all spoken when they happen. The
+  // download's progress is not: a percentage read out every tick would drown everything else.
+  const message = announcementOf(update, t) ?? '';
+  useAnnounce(message);
 
   if (update.stage === 'available') {
     return (
       <UpdateNotice
-        text={t('Version {version} is available.', { version: update.version })}
+        text={message}
         actionLabel={t('Update')}
         onAction={() => run(() => window.tracker.downloadUpdate())}
       />
@@ -47,7 +52,11 @@ export default function UpdateBanner({ update }: Readonly<Props>): ReactElement 
             version: update.version,
           })}
         </Typography>
-        <LinearProgress variant="determinate" value={update.percent} />
+        <LinearProgress
+          variant="determinate"
+          value={update.percent}
+          aria-label={t('Downloading version {version}', { version: update.version })}
+        />
       </Stack>
     );
   }
@@ -56,7 +65,7 @@ export default function UpdateBanner({ update }: Readonly<Props>): ReactElement 
     return (
       <UpdateNotice
         severity="warning"
-        text={t('Version {version} could not be downloaded.', { version: update.version })}
+        text={message}
         actionLabel={t('Retry')}
         onAction={() => run(() => window.tracker.downloadUpdate())}
       />
@@ -69,9 +78,7 @@ export default function UpdateBanner({ update }: Readonly<Props>): ReactElement 
 
   return (
     <UpdateNotice
-      text={t('Version {version} is ready. It installs the next time you quit.', {
-        version: update.version,
-      })}
+      text={message}
       actionLabel={t('Restart')}
       disabled={restarting}
       onAction={() => {
@@ -83,6 +90,22 @@ export default function UpdateBanner({ update }: Readonly<Props>): ReactElement 
       }}
     />
   );
+}
+
+/** The sentence an update stage is shown and announced with; null while downloading or idle. */
+function announcementOf(update: UpdateState, t: ReturnType<typeof useT>): string | null {
+  if (update.stage === 'available') {
+    return t('Version {version} is available.', { version: update.version });
+  }
+  if (update.stage === 'failed' && update.version !== '') {
+    return t('Version {version} could not be downloaded.', { version: update.version });
+  }
+  if (update.stage === 'ready') {
+    return t('Version {version} is ready. It installs the next time you quit.', {
+      version: update.version,
+    });
+  }
+  return null;
 }
 
 interface NoticeProps {

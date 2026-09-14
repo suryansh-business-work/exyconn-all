@@ -40,7 +40,11 @@ export default function MonthSwitcher({
           <ChevronLeftRounded />
         </IconButton>
       </Tooltip>
-      <Typography variant="subtitle1" sx={{ minWidth: 148, textAlign: 'center', fontWeight: 700 }}>
+      <Typography
+        variant="subtitle1"
+        component="h2"
+        sx={{ minWidth: 148, textAlign: 'center', fontWeight: 700 }}
+      >
         {formatMonthLabel(month)}
       </Typography>
       <Tooltip title={t('Next month')}>

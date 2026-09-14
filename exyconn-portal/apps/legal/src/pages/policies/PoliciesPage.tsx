@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
-import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
@@ -25,7 +24,6 @@ import { color } from '@exyconn/shell/components/ui';
  * that decides whether everybody has to sign again.
  */
 export function PoliciesPage() {
-  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListPoliciesStatsQuery();
   const [deletePolicy] = useDeletePolicyMutation();
   const [publishPolicy] = usePublishPolicyMutation();
@@ -37,8 +35,10 @@ export function PoliciesPage() {
   const crud = useCrudResource<PolicyRow, PagedPolicyRow>({
     label: 'Policy',
     onDelete: (row) => deletePolicy({ variables: { id: row.id } }),
-    confirmMessage: (row) =>
-      t('Delete "{title}"? Signatures against it are deleted too.', { title: row.title }),
+    confirmMessage: (row) => ({
+      message: 'Delete "{title}"? Signatures against it are deleted too.',
+      values: { title: row.title },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -69,13 +69,11 @@ export function PoliciesPage() {
   const publish = async (row: PagedPolicyRow) => {
     const isRepublish = row.status === 'PUBLISHED';
     const message = isRepublish
-      ? t(
-          'Has the wording of "{title}" changed? Choosing yes makes it v{version} and asks everybody to sign again.',
-          { title: row.title, version: row.version + 1 },
-        )
-      : t('Publish "{title}"? Staff will be able to read it straight away.', { title: row.title });
+      ? 'Has the wording of "{title}" changed? Choosing yes makes it v{version} and asks everybody to sign again.'
+      : 'Publish "{title}"? Staff will be able to read it straight away.';
     const ok = await confirm({
       message,
+      messageValues: { title: row.title, version: row.version + 1 },
       confirmText: isRepublish ? 'Yes, new version' : 'Publish',
     });
     if (!ok) return;

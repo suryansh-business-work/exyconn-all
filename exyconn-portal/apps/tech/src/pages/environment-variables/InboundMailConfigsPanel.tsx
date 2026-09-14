@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -20,7 +19,6 @@ import { InboundMailConfigForm, type InboundMailConfigRow } from './forms/inboun
  * there becomes a ticket, or a reply on the ticket whose reference it quotes.
  */
 export function InboundMailConfigsPanel() {
-  const t = useT();
   const notify = useNotify();
   const { data, loading, refetch } = useListInboundMailConfigsQuery();
   const [deleteConfig] = useDeleteInboundMailConfigMutation();
@@ -28,7 +26,10 @@ export function InboundMailConfigsPanel() {
   const crud = useCrudResource<InboundMailConfigRow>({
     label: 'Inbound mail config',
     onDelete: (row) => deleteConfig({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete inbound mailbox "{label}"?', { label: row.label }),
+    confirmMessage: (row) => ({
+      message: 'Delete inbound mailbox "{label}"?',
+      values: { label: row.label },
+    }),
     refetch,
   });
 
@@ -37,9 +38,10 @@ export function InboundMailConfigsPanel() {
   const test = async (row: InboundMailConfigRow) => {
     try {
       await testConnection({ variables: { id: row.id } });
-      notify(
-        t('Signed in to {host} and opened {mailbox}', { host: row.host, mailbox: row.mailbox }),
-      );
+      notify('Signed in to {host} and opened {mailbox}', 'success', {
+        host: row.host,
+        mailbox: row.mailbox,
+      });
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Connection failed', 'error');
     }
@@ -74,7 +76,7 @@ export function InboundMailConfigsPanel() {
   ];
 
   if (crud.open) {
-    const formTitle = crud.editing ? t('Edit inbound mailbox') : t('New inbound mailbox');
+    const formTitle = crud.editing ? 'Edit inbound mailbox' : 'New inbound mailbox';
     return (
       <CrudFormPage title={formTitle} onBack={crud.close} backLabel="Back to Inbound mail">
         <InboundMailConfigForm initial={crud.editing} onCancel={crud.close} onDone={crud.onDone} />

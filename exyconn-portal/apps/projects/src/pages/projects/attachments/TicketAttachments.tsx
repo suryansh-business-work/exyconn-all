@@ -60,7 +60,8 @@ export function TicketAttachments({
 
   const remove = async (file: AttachmentView) => {
     const ok = await confirm({
-      message: t('Remove "{name}" from this ticket?', { name: file.name }),
+      message: 'Remove "{name}" from this ticket?',
+      messageValues: { name: file.name },
       confirmText: 'Remove',
     });
     if (ok) {

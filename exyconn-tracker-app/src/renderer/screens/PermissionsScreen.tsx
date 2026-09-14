@@ -79,7 +79,9 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
   return (
     <ScreenLayout maxWidth={520}>
       <Surface sx={{ p: 3 }}>
-        <Typography variant="h5">{t('Grant permissions')}</Typography>
+        <Typography variant="h5" component="h1">
+          {t('Grant permissions')}
+        </Typography>
         <Typography
           variant="body2"
           sx={{

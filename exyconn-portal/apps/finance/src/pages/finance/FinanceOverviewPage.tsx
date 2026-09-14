@@ -75,13 +75,18 @@ export function FinanceOverviewPage() {
 
   return (
     <Box>
-      <PageHeader title="Finance" subtitle={`Company finances · ${period.label}`}>
+      <PageHeader
+        title="Finance"
+        subtitle="Company finances · {period}"
+        subtitleValues={{ period: t(period.label) }}
+      >
         <FinancePeriodPicker periods={periods} value={periodKey} onChange={setPeriodKey} />
       </PageHeader>
 
       <ModuleDashboard
         title="Company finance"
-        subtitle={loading && !finance ? 'Loading…' : `${period.label}, ending today`}
+        subtitle={loading && !finance ? 'Loading…' : '{period}, ending today'}
+        subtitleValues={{ period: t(period.label) }}
         stats={stats}
       >
         <Grid container spacing={1.5}>

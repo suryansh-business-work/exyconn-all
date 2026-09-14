@@ -40,7 +40,7 @@ export function SendTestSlackForm({
   const onSubmit = async ({ channel }: Values) => {
     try {
       await sendTest({ variables: { id: configId, channel } });
-      notify(t('Test message posted to {channel}', { channel }));
+      notify('Test message posted to {channel}', 'success', { channel });
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Send failed', 'error');

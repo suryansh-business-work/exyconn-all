@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -14,13 +13,12 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** CRM → Contacts: the people at the accounts, and who owns each relationship. */
 export function ContactsPage() {
-  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListContactsStatsQuery();
   const [deleteContact] = useDeleteContactMutation();
   const crud = useCrudResource<ContactRow, PagedContactRow>({
     label: 'Contact',
     onDelete: (row) => deleteContact({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete contact "{name}"?', { name: row.name }),
+    confirmMessage: (row) => ({ message: 'Delete contact "{name}"?', values: { name: row.name } }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

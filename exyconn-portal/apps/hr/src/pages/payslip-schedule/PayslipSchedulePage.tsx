@@ -65,7 +65,8 @@ export function PayslipSchedulePage() {
     <Box>
       <PageHeader
         title="Payslip Schedule"
-        subtitle={t('When payslips are emailed, in {timezone}', { timezone: settings.timezone })}
+        subtitle="When payslips are emailed, in {timezone}"
+        subtitleValues={{ timezone: settings.timezone }}
       />
       {error && <Alert severity="error">{error.message}</Alert>}
       {loading && !schedule && <CircularProgress size={24} />}

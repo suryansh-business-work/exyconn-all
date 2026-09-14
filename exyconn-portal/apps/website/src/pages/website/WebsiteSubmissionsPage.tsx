@@ -50,7 +50,10 @@ export function WebsiteSubmissionsPage() {
   const crud = useCrudResource<WebsiteSubmissionRow, PagedSubmissionRow>({
     label: 'Submission',
     onDelete: (row) => deleteSubmission({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete this {form} submission?', { form: row.formType }),
+    confirmMessage: (row) => ({
+      message: 'Delete this {form} submission?',
+      values: { form: row.formType },
+    }),
     refetch: refetchStats,
   });
   const extraFilters: TableFilterInput[] = formType
@@ -72,7 +75,8 @@ export function WebsiteSubmissionsPage() {
   const convert = async (row: PagedSubmissionRow) => {
     const ok = await confirm({
       title: 'Convert to lead',
-      message: t('File this {form} submission as a CRM lead?', { form: row.formType }),
+      message: 'File this {form} submission as a CRM lead?',
+      messageValues: { form: row.formType },
       confirmText: 'Convert',
     });
     if (!ok) {
@@ -80,11 +84,9 @@ export function WebsiteSubmissionsPage() {
     }
     try {
       const res = await convertToLead({ variables: { id: row.id } });
-      notify(
-        t('Lead "{name}" created in the CRM', {
-          name: res.data?.convertWebsiteSubmissionToLead.name ?? '',
-        }),
-      );
+      notify('Lead "{name}" created in the CRM', 'success', {
+        name: res.data?.convertWebsiteSubmissionToLead.name ?? '',
+      });
       crud.reload();
     } catch (err) {
       notify(errorMessage(err, 'Conversion failed'), 'error');

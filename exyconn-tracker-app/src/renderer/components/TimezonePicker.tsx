@@ -12,6 +12,7 @@ import {
 } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import { formatTimeOfDay, offsetLabel, timezoneNames } from '@exyconn/tracker-core';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   /** The zone in force: this employee's pick, else the admin default, else this device's. */
@@ -36,6 +37,7 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
   const t = useT();
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
+  useAnnounce(failed ? t(SAVE_FAILED) : null, 'assertive');
 
   const zones = useMemo(
     () => timezoneNames(timezone, Intl.supportedValuesOf('timeZone')),

@@ -43,7 +43,8 @@ export function DocPageEditor({
 
   const remove = async () => {
     const ok = await confirm({
-      message: t('Delete "{title}" and every page under it?', { title: page.title }),
+      message: 'Delete "{title}" and every page under it?',
+      messageValues: { title: page.title },
       confirmText: 'Delete',
     });
     if (ok) {

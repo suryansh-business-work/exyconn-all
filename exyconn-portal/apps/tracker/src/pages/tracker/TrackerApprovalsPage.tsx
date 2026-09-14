@@ -1,6 +1,5 @@
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -24,7 +23,6 @@ import { formatDuration } from '@exyconn/shell/pages/tracker-view/tracker.format
  * is why a decision cannot be taken back from this screen.
  */
 export function TrackerApprovalsPage() {
-  const t = useT();
   const { formatDateTime } = useSettings();
   const notify = useNotify();
   const confirm = useConfirm();
@@ -42,14 +40,12 @@ export function TrackerApprovalsPage() {
     const approving = status === TrackerManualEntryStatus.Approved;
     const values = { length: formatDuration(entry.durationMs), name: entry.userName };
     const message = approving
-      ? t(
-          '{length} for {name} will count towards their hours and any billing. This cannot be undone.',
-          values,
-        )
-      : t('{length} for {name} will not count. This cannot be undone.', values);
+      ? '{length} for {name} will count towards their hours and any billing. This cannot be undone.'
+      : '{length} for {name} will not count. This cannot be undone.';
     const ok = await confirm({
       title: approving ? 'Approve this time?' : 'Reject this time?',
       message,
+      messageValues: values,
       confirmText: approving ? 'Approve' : 'Reject',
     });
     if (!ok) return;

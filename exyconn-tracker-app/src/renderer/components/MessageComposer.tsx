@@ -46,6 +46,7 @@ export default function MessageComposer({ sending, onSend }: Readonly<Props>): R
         multiline
         maxRows={4}
         size="small"
+        label={t('Message')}
         placeholder={t('Write to your workspace…')}
         value={body}
         disabled={sending}
@@ -57,7 +58,7 @@ export default function MessageComposer({ sending, onSend }: Readonly<Props>): R
           }
         }}
         slotProps={{
-          htmlInput: { maxLength: MAX_CHARS, 'aria-label': t('Message') },
+          htmlInput: { maxLength: MAX_CHARS },
         }}
       />
       <IconButton

@@ -54,3 +54,12 @@ mutation SetTranslation($locale: String!, $source: String!, $text: String!) {
     text
   }
 }
+
+# Translates everything the catalogue knows into one language, in the background.
+mutation TranslateEverything($locale: String!) {
+  translateEverything(locale: $locale) {
+    locale
+    queued
+    alreadyRunning
+  }
+}

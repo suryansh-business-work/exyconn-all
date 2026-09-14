@@ -24,7 +24,7 @@ export default function StatGrid({ tiles }: Readonly<Props>): ReactElement {
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(min(150px, 100%), 1fr))',
         gap: 1.5,
       }}
     >

@@ -4,6 +4,7 @@ import HowToRegOutlined from '@mui/icons-material/HowToRegOutlined';
 import type { AttendanceStatus, Workday } from '@shared/types';
 import { ATTENDANCE_OPTIONS, humanize } from '@exyconn/tracker-core';
 import { useT } from '@exyconn/i18n';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   workday: Workday | null;
@@ -23,6 +24,7 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  useAnnounce(error, 'assertive');
 
   if (workday === null) {
     return null;

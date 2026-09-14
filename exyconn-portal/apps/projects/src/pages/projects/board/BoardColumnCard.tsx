@@ -51,7 +51,8 @@ export function BoardColumnCard({
 
   const remove = async () => {
     const ok = await confirm({
-      message: t('Delete column "{name}" and its tickets?', { name: column.name }),
+      message: 'Delete column "{name}" and its tickets?',
+      messageValues: { name: column.name },
       confirmText: 'Delete',
     });
     if (ok) onDelete(column.id);

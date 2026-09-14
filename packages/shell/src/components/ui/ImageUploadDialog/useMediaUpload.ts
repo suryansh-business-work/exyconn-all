@@ -71,7 +71,7 @@ export function useMediaUpload(folder: string | undefined, onUploaded: (url: str
     event.target.value = '';
     if (!picked) return;
     if (picked.size > MAX_IMAGE_BYTES) {
-      notify(`Image must be ${MAX_MB} MB or smaller`, 'error');
+      notify('Image must be {mb} MB or smaller', 'error', { mb: MAX_MB });
       return;
     }
     try {

@@ -36,7 +36,7 @@ export function AiPage() {
   const crud = useCrudResource<AiJobRow, PagedAiJobRow>({
     label: 'AI job',
     onDelete: (row) => deleteAiJob({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete AI job "{name}"?', { name: row.name }),
+    confirmMessage: (row) => ({ message: 'Delete AI job "{name}"?', values: { name: row.name } }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -74,7 +74,7 @@ export function AiPage() {
   const run = async (row: PagedAiJobRow) => {
     try {
       await runAiJob({ variables: { id: row.id } });
-      notify(t('"{name}" queued', { name: row.name }));
+      notify('"{name}" queued', 'success', { name: row.name });
       await Promise.all([crud.reload(), queue.refresh()]);
     } catch (error) {
       notify(errorMessage(error, 'The run could not be started'), 'error');

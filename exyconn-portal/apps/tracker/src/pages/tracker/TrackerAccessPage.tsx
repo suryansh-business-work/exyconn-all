@@ -55,7 +55,6 @@ function AccessActionCell({ active, onGrant, onRevoke }: Readonly<AccessActionPr
 
 /** Tracker access console — grant or revoke desktop tracking per employee. */
 export function TrackerAccessPage() {
-  const t = useT();
   const usersQuery = useListEmployeeOptionsQuery();
   const accessQuery = useTrackerAccessListQuery({ fetchPolicy: 'cache-and-network' });
   const [grantAccess] = useGrantTrackerAccessMutation();
@@ -88,7 +87,7 @@ export function TrackerAccessPage() {
     try {
       await grantAccess({ variables: { userId: row.id } });
       await accessQuery.refetch();
-      notify(t('Access granted — {name} will receive an email', { name: row.name }));
+      notify('Access granted — {name} will receive an email', 'success', { name: row.name });
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Grant failed', 'error');
     }
@@ -96,7 +95,8 @@ export function TrackerAccessPage() {
 
   const handleRevoke = async (row: AccessUserRow) => {
     const ok = await confirm({
-      message: t('Revoke tracker access for "{name}"?', { name: row.name }),
+      message: 'Revoke tracker access for "{name}"?',
+      messageValues: { name: row.name },
       confirmText: 'Revoke',
     });
     if (!ok) return;

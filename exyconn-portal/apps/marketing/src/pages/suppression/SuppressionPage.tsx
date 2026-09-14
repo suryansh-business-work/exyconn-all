@@ -1,5 +1,4 @@
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
-import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -24,17 +23,17 @@ import {
  * way — there is no "re-subscribe" button that could be pressed by accident.
  */
 export function SuppressionPage() {
-  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListMarketingSuppressionsStatsQuery();
   const [deleteSuppression] = useDeleteMarketingSuppressionMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<SuppressionRow, PagedSuppressionRow>({
     label: 'Suppression',
     onDelete: (row) => deleteSuppression({ variables: { id: row.id } }),
-    confirmMessage: (row) =>
-      t('Remove {email} from the suppression list? Campaigns will be able to reach them again.', {
-        email: row.email,
-      }),
+    confirmMessage: (row) => ({
+      message:
+        'Remove {email} from the suppression list? Campaigns will be able to reach them again.',
+      values: { email: row.email },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

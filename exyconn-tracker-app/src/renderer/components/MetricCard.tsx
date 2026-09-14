@@ -26,7 +26,7 @@ export default function MetricCard({
   return (
     <Surface sx={{ p: 2 }}>
       <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-        <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
+        <Typography variant="body2" sx={{ fontWeight: 600, overflowWrap: 'anywhere' }}>
           {label}
         </Typography>
         <Box
@@ -47,6 +47,7 @@ export default function MetricCard({
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
         <Typography
           variant="h5"
+          component="p"
           sx={{ letterSpacing: letterSpacing.tight, fontVariantNumeric: 'tabular-nums' }}
         >
           {value}

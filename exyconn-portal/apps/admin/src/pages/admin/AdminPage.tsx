@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
@@ -22,7 +21,6 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Admin module — user management dashboard with a server-side Users grid. */
 export function AdminPage() {
-  const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
   const { data: statsData, refetch: refetchStats } = useListUsersStatsQuery();
   const [deleteUser] = useDeleteUserMutation();
@@ -34,7 +32,7 @@ export function AdminPage() {
   const crud = useCrudResource<UserRow, PagedUserRow>({
     label: 'User',
     onDelete: (row) => deleteUser({ variables: { id: row.id } }),
-    confirmMessage: (row) => t('Delete user "{name}"?', { name: row.name }),
+    confirmMessage: (row) => ({ message: 'Delete user "{name}"?', values: { name: row.name } }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -64,9 +62,8 @@ export function AdminPage() {
 
   const handleResetPassword = async (row: PagedUserRow) => {
     const ok = await confirm({
-      message: t('Reset password for "{name}"? A new temporary password will be emailed.', {
-        name: row.name,
-      }),
+      message: 'Reset password for "{name}"? A new temporary password will be emailed.',
+      messageValues: { name: row.name },
       confirmText: 'Reset',
     });
     if (!ok) {

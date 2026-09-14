@@ -6,6 +6,7 @@ import {
   boxShadow,
   color,
   createTheme,
+  ensureContrast,
   fontFamily,
   fontSize,
   fontWeight,
@@ -148,7 +149,12 @@ export function buildTheme(
   return createTheme({
     palette: {
       mode,
-      primary: { main: colors.primary },
+      // MUI picks the ink on a filled button or chip and by default settles for 3:1 — below
+      // AA's 4.5:1 for normal text.
+      contrastThreshold: 4.5,
+      // The brand is a workspace's choice and is used as text and as a control's edge, so it is
+      // moved just far enough to read on this window's surface (WCAG 2.2 SC 1.4.3 / 1.4.11).
+      primary: { main: ensureContrast(colors.primary, chrome.paper) },
       secondary: { main: colors.secondary },
       background: { default: chrome.app, paper: chrome.paper },
       text: { primary: chrome.text, secondary: chrome.muted },
@@ -184,7 +190,9 @@ export function buildTheme(
           root: {
             borderRadius: TRACKER_RADIUS,
             backgroundColor: chrome.paper,
-            '& .MuiOutlinedInput-notchedOutline': { borderColor: divider },
+            // The outline is what shows where a field is: 3:1 against the panel (SC 1.4.11). The
+            // 10% divider measured about 1.2:1. The muted ink clears 4.5:1 on both panels.
+            '& .MuiOutlinedInput-notchedOutline': { borderColor: chrome.muted },
           },
         },
       },

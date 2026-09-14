@@ -97,11 +97,11 @@ export function PaymentForm({ onDone, onCancel }: Readonly<PaymentFormProps>) {
     try {
       const result = await record({ variables: { input: values } });
       const invoiceNumber = result.data?.recordPayment.invoiceNumber;
-      notify(
-        invoiceNumber
-          ? t('Recorded against {number}.', { number: invoiceNumber })
-          : t('Recorded against the invoice.'),
-      );
+      if (invoiceNumber) {
+        notify('Recorded against {number}.', 'success', { number: invoiceNumber });
+      } else {
+        notify('Recorded against the invoice.');
+      }
       onDone();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not record the payment', 'error');

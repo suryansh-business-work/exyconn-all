@@ -1,5 +1,7 @@
 import js from "@eslint/js";
 import { defineConfig } from "eslint/config";
+import jsxA11y from "eslint-plugin-jsx-a11y";
+import reactNativeA11y from "eslint-plugin-react-native-a11y";
 import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -44,9 +46,63 @@ export const baseRules = {
   "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
 };
 
+/**
+ * WCAG 2.2 AA, as far as a linter can see it — for web UI (the portals, the design system,
+ * the desktop tracker's renderer).
+ *
+ * jsx-a11y knows only DOM elements, so the design system's components are mapped to the
+ * element each renders: an `IconButton` with no `aria-label` is then the same error as a
+ * `<button>` with no name, and `component="a"` is followed through.
+ */
+export const webA11y = {
+  files: ["**/*.tsx"],
+  plugins: { "jsx-a11y": jsxA11y },
+  settings: {
+    "jsx-a11y": {
+      polymorphicPropName: "component",
+      components: {
+        Button: "button",
+        IconButton: "button",
+        Fab: "button",
+        ToggleButton: "button",
+        Link: "a",
+        Avatar: "img",
+        CardMedia: "img",
+      },
+    },
+  },
+  rules: {
+    ...jsxA11y.flatConfigs.recommended.rules,
+    // MUI's own inputs carry their label through `label`, which this rule cannot see.
+    "jsx-a11y/control-has-associated-label": "off",
+    // Moving focus into a dialog's first field is what the WAI-ARIA dialog pattern asks for;
+    // those are design-system components (`<TextField autoFocus>`). A raw DOM element grabbing
+    // focus on a page is still an error.
+    "jsx-a11y/no-autofocus": ["error", { ignoreNonDOM: true }],
+    // `<Link component={RouterLink} to="…">` renders a real href; the rule only knows `href`.
+    "jsx-a11y/anchor-is-valid": ["error", { components: ["Link"], specialLink: ["to"] }],
+  },
+};
+
+/**
+ * The React Native equivalent, for the phone tracker. Validates the accessibility props a
+ * screen reader reads (role, state, value, actions) and refuses touchables nested inside
+ * touchables, which TalkBack and VoiceOver cannot reach separately. A hint is not a WCAG
+ * requirement — a name and a role are — so that rule is off.
+ */
+export const nativeA11y = {
+  files: ["**/*.tsx"],
+  plugins: { "react-native-a11y": reactNativeA11y },
+  rules: {
+    ...reactNativeA11y.configs.basic.rules,
+    "react-native-a11y/has-accessibility-hint": "off",
+  },
+};
+
 export function portalEslintConfig({
   uiImport = "@exyconn/ui",
   muiAllowed = [],
+  platform = "web",
 } = {}) {
   const exemptions = muiAllowed.length
     ? [{ files: muiAllowed, rules: { "no-restricted-imports": "off" } }]
@@ -72,6 +128,7 @@ export function portalEslintConfig({
       },
     },
     ...exemptions,
+    platform === "native" ? nativeA11y : webA11y,
   ]);
 }
 

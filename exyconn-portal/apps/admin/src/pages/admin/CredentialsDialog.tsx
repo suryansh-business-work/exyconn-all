@@ -64,7 +64,11 @@ export function CredentialsDialog({ credentials, onClose }: CredentialsDialogPro
   const { name, email, password } = credentials;
   const copy = async (label: string, value: string) => {
     const copied = await copyToClipboard(value);
-    notify(copied ? t('{label} copied', { label: t(label) }) : 'Copy failed', 'info');
+    if (copied) {
+      notify('{label} copied', 'info', { label: t(label) });
+    } else {
+      notify('Copy failed', 'info');
+    }
   };
   const copyBoth = () =>
     copy('Credentials', t('Email: {email}\nPassword: {password}', { email, password }));

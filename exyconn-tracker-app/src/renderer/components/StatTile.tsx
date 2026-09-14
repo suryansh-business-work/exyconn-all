@@ -57,7 +57,7 @@ export default function StatTile({ label, value, icon, onOpen }: Readonly<Props>
             {title}
           </Typography>
         </Stack>
-        <Typography variant="h6" noWrap title={value}>
+        <Typography variant="h6" component="p" noWrap title={value}>
           {value}
         </Typography>
       </Surface>

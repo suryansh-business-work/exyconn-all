@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useT } from '@exyconn/i18n';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
@@ -48,9 +48,15 @@ export function ExpensesPage() {
   );
 
   /** Reject or pay, after a confirmation. Approval has its own form for the amount. */
-  const decide = async (row: PagedExpenseClaimRow, status: ExpenseStatus, question: string) => {
+  const decide = async (
+    row: PagedExpenseClaimRow,
+    status: ExpenseStatus,
+    question: string,
+    questionValues: Interpolations,
+  ) => {
     const ok = await confirm({
       message: question,
+      messageValues: questionValues,
       confirmText: status === 'PAID' ? 'Mark paid' : 'Reject',
     });
     if (!ok) return;
@@ -83,22 +89,16 @@ export function ExpensesPage() {
     actions: {
       approve: setApproveTarget,
       reject: (row) =>
-        decide(
-          row,
-          ExpenseStatus.Rejected,
-          t('Reject the {category} claim for {amount}?', {
-            category: row.category,
-            amount: row.amount,
-          }),
-        ),
+        decide(row, ExpenseStatus.Rejected, 'Reject the {category} claim for {amount}?', {
+          category: row.category,
+          amount: row.amount,
+        }),
       pay: (row) =>
         decide(
           row,
           ExpenseStatus.Paid,
-          t('Record the {category} claim as reimbursed today for {amount}?', {
-            category: row.category,
-            amount: row.approvedAmount ?? row.amount,
-          }),
+          'Record the {category} claim as reimbursed today for {amount}?',
+          { category: row.category, amount: row.approvedAmount ?? row.amount },
         ),
       edit: crud.openEdit,
       delete: crud.remove,

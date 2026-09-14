@@ -17,21 +17,7 @@ import {
   useSendSalarySlipsMutation,
 } from '@exyconn/shell/graphql/generated';
 import { PayrollSlipsTable } from './PayrollSlipsTable';
-
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
+import { MONTHS } from './payroll.constants';
 
 /**
  * Payroll run for one month: review the totals, generate or recompute every
@@ -72,7 +58,8 @@ export function PayrollPage() {
 
   const run = async () => {
     const ok = await confirm({
-      title: t('Run payroll for {month} {year}?', { month: monthName, year }),
+      title: 'Run payroll for {month} {year}?',
+      titleValues: { month: monthName, year },
       message:
         'Every active employee with a salary structure gets a slip. Existing GENERATED slips are recomputed; PAID slips are left alone.',
     });
@@ -85,7 +72,7 @@ export function PayrollPage() {
         updated: r?.updated ?? 0,
         skipped: r?.skipped ?? 0,
       };
-      notify(t('Generated {generated}, recomputed {updated}, skipped {skipped}.', done), 'success');
+      notify('Generated {generated}, recomputed {updated}, skipped {skipped}.', 'success', done);
       await summary.refetch();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Payroll run failed', 'error');
@@ -94,14 +81,15 @@ export function PayrollPage() {
 
   const pay = async () => {
     const ok = await confirm({
-      title: t('Mark {month} {year} as paid?', { month: monthName, year }),
+      title: 'Mark {month} {year} as paid?',
+      titleValues: { month: monthName, year },
       message:
         'All GENERATED slips for the month become PAID. This cannot be recomputed afterwards.',
     });
     if (!ok) return;
     try {
       const { data } = await markPaid({ variables: { month, year } });
-      notify(t('Marked {count} slips paid.', { count: data?.markPayrollPaid ?? 0 }), 'success');
+      notify('Marked {count} slips paid.', 'success', { count: data?.markPayrollPaid ?? 0 });
       await summary.refetch();
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not mark paid', 'error');
@@ -110,7 +98,8 @@ export function PayrollPage() {
 
   const email = async () => {
     const ok = await confirm({
-      title: t('Email payslips for {month} {year}?', { month: monthName, year }),
+      title: 'Email payslips for {month} {year}?',
+      titleValues: { month: monthName, year },
       message:
         'Every employee with a slip for this month is emailed their own payslip as a PDF. This does not wait for the schedule.',
     });
@@ -120,8 +109,9 @@ export function PayrollPage() {
       const r = data?.sendSalarySlips;
       const out = { sent: r?.sent ?? 0, failed: r?.failed ?? 0, skipped: r?.skipped ?? 0 };
       notify(
-        t('Emailed {sent} payslips — {failed} failed, {skipped} without an address.', out),
+        'Emailed {sent} payslips — {failed} failed, {skipped} without an address.',
         'success',
+        out,
       );
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Could not email the payslips', 'error');

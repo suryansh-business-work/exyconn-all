@@ -6,6 +6,7 @@ import { useDayDetail } from '../hooks/useMyDay';
 import { formatCount, formatDayInZone, offsetLabel } from '@exyconn/tracker-core';
 import ScreenshotCard from '../components/ScreenshotCard';
 import ScreenshotLightbox from '../components/ScreenshotLightbox';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   startISO: string;
@@ -18,7 +19,7 @@ const SKELETONS = ['a', 'b', 'c', 'd', 'e', 'f'] as const;
 /** The gallery grid — wide enough that a screenshot is actually legible, unlike a 140px thumb. */
 const GRID = {
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+  gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))',
   gap: 2,
 } as const;
 
@@ -35,13 +36,16 @@ export default function ScreenshotsScreen({
   const t = useT();
   const { detail, loading, error } = useDayDetail(startISO, endISO);
   const shots = detail?.screenshots ?? [];
+  useAnnounce(error, 'assertive');
   /** Index of the shot open full screen, or null. Held here so paging can walk the day. */
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', p: 3 }}>
+    <Box component="main" sx={{ flex: 1, minHeight: 0, overflow: 'auto', p: 3 }}>
       <Stack spacing={0.25} sx={{ mb: 2.5 }}>
-        <Typography variant="h6">{t('My screenshots')}</Typography>
+        <Typography variant="h6" component="h1">
+          {t('My screenshots')}
+        </Typography>
         <Typography
           variant="caption"
           sx={{

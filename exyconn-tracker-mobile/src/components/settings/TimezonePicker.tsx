@@ -86,7 +86,7 @@ export function TimezonePicker({ timezone }: Readonly<Props>) {
         >
           <XStack
             borderWidth={1}
-            borderColor="$hairline"
+            borderColor="$control"
             borderRadius={TRACKER_RADIUS}
             backgroundColor="$paper"
             padding="$3"

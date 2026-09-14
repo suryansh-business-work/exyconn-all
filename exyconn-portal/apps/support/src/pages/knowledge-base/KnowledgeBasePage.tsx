@@ -1,4 +1,3 @@
-import { useT } from '@exyconn/i18n';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -24,7 +23,6 @@ import {
  * answer to paste and an employee hunting for it themselves are the same search.
  */
 export function KnowledgeBasePage() {
-  const t = useT();
   const { data: statsData, refetch: refetchStats } = useListKbArticlesStatsQuery();
   const [deleteArticle] = useDeleteKbArticleMutation();
   const { formatDate } = useSettings();
@@ -32,11 +30,10 @@ export function KnowledgeBasePage() {
   const crud = useCrudResource<KbArticleRow, PagedKbArticleRow>({
     label: 'Article',
     onDelete: (row) => deleteArticle({ variables: { id: row.id } }),
-    confirmMessage: (row) =>
-      t('Delete "{title}"? Any link to /{slug} will stop working.', {
-        title: row.title,
-        slug: row.slug,
-      }),
+    confirmMessage: (row) => ({
+      message: 'Delete "{title}"? Any link to /{slug} will stop working.',
+      values: { title: row.title, slug: row.slug },
+    }),
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(

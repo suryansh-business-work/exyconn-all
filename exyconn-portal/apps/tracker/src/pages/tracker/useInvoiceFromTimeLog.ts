@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { appUrl } from '@exyconn/shell/config/apps';
@@ -20,6 +21,7 @@ export interface RaisedInvoice {
  * what the invoice says.
  */
 export function useInvoiceFromTimeLog(range: BillingRange, money: Intl.NumberFormat) {
+  const t = useT();
   const confirm = useConfirm();
   const notify = useNotify();
   const [createInvoice, { loading }] = useCreateInvoiceFromTimeLogMutation();
@@ -28,7 +30,13 @@ export function useInvoiceFromTimeLog(range: BillingRange, money: Intl.NumberFor
   const raise = async (row: ProjectBillingRow) => {
     const ok = await confirm({
       title: 'Create invoice',
-      message: `Raise a draft invoice to ${row.clientName || 'the client'} for ${money.format(row.amount)} — ${row.hours} h on ${row.projectName}?`,
+      message: 'Raise a draft invoice to {client} for {amount} — {hours} h on {project}?',
+      messageValues: {
+        client: row.clientName || t('the client'),
+        amount: money.format(row.amount),
+        hours: row.hours,
+        project: row.projectName,
+      },
       confirmText: 'Create invoice',
     });
     if (!ok) {
@@ -41,7 +49,7 @@ export function useInvoiceFromTimeLog(range: BillingRange, money: Intl.NumberFor
       const invoice = data?.createInvoiceFromTimeLog;
       if (invoice) {
         setRaised({ number: invoice.number, url: appUrl('finance', '/finance/invoices') });
-        notify(`Invoice ${invoice.number} created as a draft.`, 'success');
+        notify('Invoice {number} created as a draft.', 'success', { number: invoice.number });
       }
     } catch (error) {
       notify(errorMessage(error, 'The invoice could not be created.'), 'error');

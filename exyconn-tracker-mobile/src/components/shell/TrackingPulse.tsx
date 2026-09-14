@@ -3,6 +3,8 @@ import { Animated, Easing } from 'react-native';
 import { YStack } from 'tamagui';
 import type { TrackerStatus } from '@exyconn/tracker-core';
 import { useT } from '@exyconn/i18n';
+import { useReduceMotion } from '../../hooks/useReduceMotion';
+import { LIVE_REGION } from '../../hooks/useStatusMessage';
 import { useThemeColor, type ThemeColor } from '../../theme/useThemeColor';
 
 /** What the dot means, per status. Only `tracking` animates. */
@@ -13,6 +15,11 @@ const LOOK: Readonly<Record<TrackerStatus, { tone: ThemeColor; label: string; li
   tracking: { tone: 'success', label: 'Tracking — recording your work', live: true },
   paused: { tone: 'warning', label: 'Paused — nothing is being recorded', live: false },
 };
+
+/** The English sentence for a status — what the dot says, and what is announced when it changes. */
+export function trackingStatusLabel(status: TrackerStatus): string {
+  return LOOK[status].label;
+}
 
 /** A slow, calm heartbeat — this sits in the header all day; anything faster reads as alarm. */
 const PULSE_MS = 2000;
@@ -25,16 +32,19 @@ interface Props {
 /**
  * The always-visible answer to "is it recording right now?". A dot that pulsed while paused
  * would say the opposite of the truth — the one thing a monitoring app cannot afford — so only
- * `tracking` moves.
+ * `tracking` moves — and nothing moves when the phone asks for reduced motion. Status changes are
+ * announced once, by the signed-in layout; this view is the Android live region for them.
  */
 export function TrackingPulse({ status }: Readonly<Props>) {
   const t = useT();
   const look = LOOK[status];
   const color = useThemeColor(look.tone);
   const ring = useRef(new Animated.Value(0)).current;
+  const reduceMotion = useReduceMotion();
+  const pulsing = look.live && !reduceMotion;
 
   useEffect(() => {
-    if (!look.live) {
+    if (!pulsing) {
       ring.setValue(0);
       return undefined;
     }
@@ -48,7 +58,7 @@ export function TrackingPulse({ status }: Readonly<Props>) {
     );
     loop.start();
     return () => loop.stop();
-  }, [look.live, ring]);
+  }, [pulsing, ring]);
 
   return (
     <YStack
@@ -58,8 +68,9 @@ export function TrackingPulse({ status }: Readonly<Props>) {
       justifyContent="center"
       accessibilityRole="image"
       accessibilityLabel={t(look.label)}
+      {...LIVE_REGION}
     >
-      {look.live ? (
+      {pulsing ? (
         <Animated.View
           style={{
             position: 'absolute',

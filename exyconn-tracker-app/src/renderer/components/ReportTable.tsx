@@ -48,7 +48,9 @@ export default function ReportTable({ days, loading }: Readonly<Props>): ReactEl
   if (days.length === 0) {
     return (
       <Surface sx={{ p: 4, textAlign: 'center' }}>
-        <Typography variant="subtitle1">{t('No tracked time this month')}</Typography>
+        <Typography variant="subtitle1" component="p">
+          {t('No tracked time this month')}
+        </Typography>
         <Typography
           variant="body2"
           sx={{

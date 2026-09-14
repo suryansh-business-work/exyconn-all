@@ -39,7 +39,7 @@ export function AttachmentPicker({ value, onChange, folder }: Readonly<Attachmen
       return;
     }
     if (file.size > MAX_IMAGE_BYTES) {
-      notify(`A file must be ${MAX_MB} MB or smaller`, 'error');
+      notify('A file must be {mb} MB or smaller', 'error', { mb: MAX_MB });
       return;
     }
     setUploading(true);

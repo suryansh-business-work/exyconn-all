@@ -32,10 +32,13 @@ export default function ActivityCard({ title, percent, children }: Readonly<Prop
   return (
     <Surface sx={{ p: 2.5 }}>
       <Stack direction="row" sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}>
-        <Typography variant="h6">{title}</Typography>
+        <Typography variant="h6" component="h2">
+          {title}
+        </Typography>
         {percent === null ? null : (
           <Typography
             variant="subtitle1"
+            component="p"
             sx={{ fontWeight: 700, color: hues[activityLevel(percent)] }}
           >
             {percent}%

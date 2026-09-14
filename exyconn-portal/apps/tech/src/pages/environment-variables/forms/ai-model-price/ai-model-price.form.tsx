@@ -70,7 +70,7 @@ export function AiModelPriceForm({ initial, onDone, onCancel }: Readonly<AiModel
           },
         },
       });
-      notify(t('Price for {model} saved', { model: values.model }));
+      notify('Price for {model} saved', 'success', { model: values.model });
       onDone();
     } catch (error) {
       notify(errorMessage(error, 'Could not save the price'), 'error');

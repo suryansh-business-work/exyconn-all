@@ -3,7 +3,7 @@ import {
   CARD_RADIUS,
   Box,
   Button,
-  color,
+  readableInk,
   Divider,
   Flex,
   IconButton,
@@ -99,7 +99,7 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
             <Box
               sx={{
                 bgcolor: page.accentColor,
-                color: color.white,
+                color: readableInk(page.accentColor),
                 borderRadius: `${CARD_RADIUS}px`,
                 // Padding counts inside the width, and the strip takes the column's width
                 // rather than its own text's — either one alone lets it run off a phone.

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { useT } from '@exyconn/i18n';
+import { useT, type Interpolations } from '@exyconn/i18n';
 import {
   Button,
   Dialog,
@@ -12,7 +12,15 @@ import {
 
 interface ConfirmOptions {
   title?: string;
+  /** Values for a title written with `{placeholders}`. */
+  titleValues?: Interpolations;
+  /**
+   * The English source, translated here. A message naming a record is written with
+   * `{placeholders}` and `messageValues` — `'Delete "{name}"?'` with `{ name }` — never a
+   * template literal or a `t()` result, which would reach the catalogue once per record.
+   */
   message: string;
+  messageValues?: Interpolations;
   confirmText?: string;
   cancelText?: string;
 }
@@ -48,15 +56,17 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
     <ConfirmContext.Provider value={value}>
       {children}
       <Dialog open={Boolean(options)} onClose={() => settle(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>{t(options?.title ?? 'Please confirm')}</DialogTitle>
+        <DialogTitle>{t(options?.title ?? 'Please confirm', options?.titleValues)}</DialogTitle>
         <DialogContent>
-          <DialogContentText>{options?.message ? t(options.message) : null}</DialogContentText>
+          <DialogContentText>
+            {options?.message ? t(options.message, options.messageValues) : null}
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => settle(false)} color="inherit">
             {t(options?.cancelText ?? 'Cancel')}
           </Button>
-          <Button onClick={() => settle(true)} variant="contained" autoFocus>
+          <Button onClick={() => settle(true)} variant="contained">
             {t(options?.confirmText ?? 'Confirm')}
           </Button>
         </DialogActions>
