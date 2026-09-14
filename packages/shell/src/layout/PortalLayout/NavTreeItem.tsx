@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { useId } from 'react';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -24,6 +25,7 @@ const rowSx = (depth: number) => ({ borderRadius: 1, mb: 0.5, py: 0.5, pl: 1.5 +
  * where you are — stops standing out at all.
  */
 function NavLeaf({ node, depth, nav, onSelect }: Readonly<Props>) {
+  const t = useT();
   const Icon = node.icon;
   const selected = node.path === nav.activePath;
   return (
@@ -38,7 +40,7 @@ function NavLeaf({ node, depth, nav, onSelect }: Readonly<Props>) {
         <Icon fontSize="small" />
       </ListItemIcon>
       <ListItemText
-        primary={node.label}
+        primary={t(node.label)}
         slotProps={{
           primary: { variant: 'body2', noWrap: true, sx: { fontWeight: selected ? 600 : 400 } },
         }}
@@ -53,6 +55,7 @@ function NavLeaf({ node, depth, nav, onSelect }: Readonly<Props>) {
  * the pages live behind.
  */
 function NavBranch({ node, depth, nav, onSelect }: Readonly<Props>) {
+  const t = useT();
   const listId = useId();
   const Icon = node.icon;
   const expanded = nav.isOpen(node.key);
@@ -69,7 +72,7 @@ function NavBranch({ node, depth, nav, onSelect }: Readonly<Props>) {
           <Icon fontSize="small" />
         </ListItemIcon>
         <ListItemText
-          primary={node.label}
+          primary={t(node.label)}
           slotProps={{ primary: { variant: 'body2', noWrap: true, sx: { fontWeight: 600 } } }}
         />
         {expanded ? (

@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { List, Typography } from '@/components/ui';
 import type { NavNode } from './moduleNav';
 import type { NavState } from './useNavState';
@@ -14,6 +15,7 @@ interface SidebarNavProps {
 
 /** The expanded sidebar: the whole navigation tree, as deep as the config nests it. */
 export function SidebarNav({ heading, emptyText, nav, onSelect }: Readonly<SidebarNavProps>) {
+  const t = useT();
   return (
     <>
       {heading && (
@@ -21,13 +23,13 @@ export function SidebarNav({ heading, emptyText, nav, onSelect }: Readonly<Sideb
           variant="overline"
           sx={{ color: 'text.secondary', px: 2, pt: 0.5, display: 'block', letterSpacing: 1 }}
         >
-          {heading}
+          {t(heading)}
         </Typography>
       )}
       <List component="div" sx={{ px: 1, py: 0.5 }}>
         {nav.searching && nav.visible.length === 0 && (
           <Typography variant="caption" sx={{ color: 'text.secondary', px: 1.5 }}>
-            {emptyText}
+            {t(emptyText)}
           </Typography>
         )}
         {nav.visible.map((node) => (

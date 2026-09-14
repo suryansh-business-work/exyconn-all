@@ -23,6 +23,7 @@ import { TopbarSearch } from './TopbarSearch';
 import { NotificationBell } from './NotificationBell';
 import { ApprovalsBell } from './ApprovalsBell';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
+import { useT } from '@exyconn/i18n';
 import { useInstallPrompt } from '@/pwa';
 
 interface TopbarProps {
@@ -38,6 +39,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
   const { user, signOut } = useAuth();
   const { mode, toggle } = useColorMode();
   const install = useInstallPrompt();
+  const t = useT();
   const theme = useTheme();
   const onPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -129,11 +131,11 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         </IconButton>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
           <MenuItem disabled>{user?.email}</MenuItem>
-          <MenuItem onClick={go('/profile')}>Profile</MenuItem>
-          <MenuItem onClick={go('/settings')}>Settings</MenuItem>
+          <MenuItem onClick={go('/profile')}>{t('Profile')}</MenuItem>
+          <MenuItem onClick={go('/settings')}>{t('Settings')}</MenuItem>
           {/* Only where the browser has told us it would take: see useInstallPrompt. */}
-          {install.available && <MenuItem onClick={handleInstall}>Install app</MenuItem>}
-          <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
+          {install.available && <MenuItem onClick={handleInstall}>{t('Install app')}</MenuItem>}
+          <MenuItem onClick={handleSignOut}>{t('Sign out')}</MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>

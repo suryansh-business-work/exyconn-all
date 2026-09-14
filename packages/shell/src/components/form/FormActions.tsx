@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Button, Stack } from '@/components/ui';
 
 interface FormActionsProps {
@@ -10,7 +11,8 @@ interface FormActionsProps {
 
 /** Standard Cancel / Save footer shared by every module form. */
 export function FormActions({ submitting, isEdit, onCancel, submitLabel }: FormActionsProps) {
-  const label = submitLabel ?? (isEdit ? 'Update' : 'Create');
+  const t = useT();
+  const label = submitLabel ?? (isEdit ? t('Update') : t('Create'));
   return (
     <Stack
       // Side by side at the bottom right on a desk; stacked and full width on a phone, where
@@ -29,7 +31,7 @@ export function FormActions({ submitting, isEdit, onCancel, submitLabel }: FormA
         onClick={onCancel}
         sx={{ width: { xs: '100%', sm: 'auto' } }}
       >
-        Cancel
+        {t('Cancel')}
       </Button>
       <Button
         type="submit"
@@ -37,7 +39,7 @@ export function FormActions({ submitting, isEdit, onCancel, submitLabel }: FormA
         disabled={submitting}
         sx={{ width: { xs: '100%', sm: 'auto' } }}
       >
-        {submitting ? 'Saving…' : label}
+        {submitting ? t('Saving…') : label}
       </Button>
     </Stack>
   );

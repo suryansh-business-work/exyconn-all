@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useT } from '@exyconn/i18n';
 import {
   Button,
   Dialog,
@@ -24,6 +25,7 @@ const ConfirmContext = createContext<((options: ConfirmOptions) => Promise<boole
 
 /** MUI confirmation dialog — replaces native confirm() (CLAUDE.md rule 12). */
 export function ConfirmProvider({ children }: { children: ReactNode }) {
+  const t = useT();
   const [options, setOptions] = useState<ConfirmOptions | null>(null);
   const resolver = useRef<Resolver | null>(null);
 
@@ -46,16 +48,16 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
     <ConfirmContext.Provider value={value}>
       {children}
       <Dialog open={Boolean(options)} onClose={() => settle(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>{options?.title ?? 'Please confirm'}</DialogTitle>
+        <DialogTitle>{options?.title ?? t('Please confirm')}</DialogTitle>
         <DialogContent>
           <DialogContentText>{options?.message}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => settle(false)} color="inherit">
-            {options?.cancelText ?? 'Cancel'}
+            {options?.cancelText ?? t('Cancel')}
           </Button>
           <Button onClick={() => settle(true)} variant="contained" autoFocus>
-            {options?.confirmText ?? 'Confirm'}
+            {options?.confirmText ?? t('Confirm')}
           </Button>
         </DialogActions>
       </Dialog>

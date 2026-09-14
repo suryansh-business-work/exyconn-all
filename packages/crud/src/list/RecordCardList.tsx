@@ -4,6 +4,7 @@ import { Alert, Box, Button, Flex, Skeleton, Text, TextField } from '@exyconn/sh
 import type { TablePageResult } from '@exyconn/shell/components/data/ServerDataGrid';
 import type { TableQueryInput } from '@exyconn/shell/graphql/generated';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
+import { useT } from '@exyconn/i18n';
 import { RecordCardRow } from './RecordCardRow';
 import { cardActionSpecs } from './recordCard';
 
@@ -44,6 +45,7 @@ export function RecordCardList<Row>({
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   useEffect(() => {
     const timer = setTimeout(() => setSearch(typed.trim()), SEARCH_DEBOUNCE_MS);
@@ -67,12 +69,14 @@ export function RecordCardList<Row>({
         setTotal(result.totalCount);
         setRows((loaded) => (page === 0 ? result.rows : [...loaded, ...result.rows]));
       })
-      .catch((cause: unknown) => live && setError(errorMessage(cause, 'Could not load this list')))
+      .catch(
+        (cause: unknown) => live && setError(errorMessage(cause, t('Could not load this list'))),
+      )
       .finally(() => live && setLoading(false));
     return () => {
       live = false;
     };
-  }, [fetchRows, page, search, refreshSignal]);
+  }, [fetchRows, page, search, refreshSignal, t]);
 
   const specs = useMemo(() => cardActionSpecs(columnDefs), [columnDefs]);
   const more = useCallback(() => setPage((current) => current + 1), []);
@@ -107,18 +111,18 @@ export function RecordCardList<Row>({
 
       {!loading && loaded === 0 && !error && (
         <Box sx={{ py: 4, textAlign: 'center' }}>
-          <Text color="text.secondary">Nothing to show yet.</Text>
+          <Text color="text.secondary">{t('Nothing to show yet.')}</Text>
         </Box>
       )}
 
       {loaded > 0 && (
         <Flex direction="column" spacing={1} alignItems="center">
           <Text size="caption" color="text.secondary">
-            {loaded} of {total}
+            {t('{loaded} of {total}', { loaded, total })}
           </Text>
           {loaded < total && (
             <Button onClick={more} disabled={loading} fullWidth>
-              Load more
+              {t('Load more')}
             </Button>
           )}
         </Flex>

@@ -1,5 +1,6 @@
 import { useMemo, type ReactNode } from 'react';
 import type { ColDef } from 'ag-grid-community';
+import { useT } from '@exyconn/i18n';
 import { Flex, useMediaQuery, useTheme } from '@exyconn/shell/components/ui';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
@@ -87,6 +88,7 @@ export function CrudDashboard<TRow, TPaged>({
   children,
 }: Readonly<CrudDashboardProps<TRow, TPaged>>) {
   const gridQuery = useGridQuery();
+  const t = useT();
   const theme = useTheme();
   // A thirteen-column table is five screens of sideways scrolling on a phone, so a phone
   // gets the same records as cards instead — same columns, same actions, same query.
@@ -99,14 +101,22 @@ export function CrudDashboard<TRow, TPaged>({
     [permissionModule, can],
   );
   const gridContext = useMemo(() => contextWithoutActions(context, denied), [context, denied]);
-  const formTitle = `${crud?.editing ? 'Edit' : 'New'} ${entityLabel}`;
+  // Built from placeholders rather than by joining words: "New {entity}" is one string a
+  // translator can put in their own order, where 'New ' + entityLabel is two they cannot.
+  const formTitle = crud?.editing
+    ? t('Edit {entity}', { entity: entityLabel })
+    : t('New {entity}', { entity: entityLabel });
   const createAction =
     crud && may('create')
-      ? { label: actionLabel ?? `New ${entityLabel}`, open: crud.openCreate }
+      ? { label: actionLabel ?? t('New {entity}', { entity: entityLabel }), open: crud.openCreate }
       : null;
   if (crud?.open && renderForm) {
     return (
-      <CrudFormPage title={formTitle} onBack={crud.close} backLabel={`Back to ${title}`}>
+      <CrudFormPage
+        title={formTitle}
+        onBack={crud.close}
+        backLabel={t('Back to {list}', { list: title })}
+      >
         {renderForm(crud.editing)}
       </CrudFormPage>
     );
