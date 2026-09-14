@@ -15,6 +15,7 @@ import {
   Toolbar,
   Tooltip,
 } from '@/components/ui';
+import { useT } from '@exyconn/i18n';
 import { env } from '@/config/env';
 import { TOPBAR_HEIGHT } from './metrics';
 
@@ -37,6 +38,7 @@ export function SidebarHeader({
   query,
   onQueryChange,
 }: Readonly<SidebarHeaderProps>) {
+  const t = useT();
   return (
     <>
       <Toolbar
@@ -49,8 +51,8 @@ export function SidebarHeader({
       >
         <Box component="img" src={env.iconUrl} alt="Exyconn" sx={{ height: 22 }} />
         {onToggleCollapse && !collapsed && (
-          <Tooltip title="Collapse sidebar">
-            <IconButton size="small" aria-label="Collapse sidebar" onClick={onToggleCollapse}>
+          <Tooltip title={t('Collapse sidebar')}>
+            <IconButton size="small" aria-label={t('Collapse sidebar')} onClick={onToggleCollapse}>
               <MenuOpenIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -59,8 +61,8 @@ export function SidebarHeader({
 
       {onToggleCollapse && collapsed && (
         <Box sx={{ display: 'grid', placeItems: 'center', pb: 0.5 }}>
-          <Tooltip title="Expand sidebar" placement="right">
-            <IconButton size="small" aria-label="Expand sidebar" onClick={onToggleCollapse}>
+          <Tooltip title={t('Expand sidebar')} placement="right">
+            <IconButton size="small" aria-label={t('Expand sidebar')} onClick={onToggleCollapse}>
               <MenuOpenIcon fontSize="small" sx={{ transform: 'rotate(180deg)' }} />
             </IconButton>
           </Tooltip>
@@ -69,7 +71,7 @@ export function SidebarHeader({
 
       {/* Each portal is its own site, so jumping between them needs an explicit switcher. */}
       <Box sx={{ px: collapsed ? 0.75 : 1, pb: 0.5 }}>
-        <Tooltip title={collapsed ? 'Other Portals' : ''} placement="right">
+        <Tooltip title={collapsed ? t('Other Portals') : ''} placement="right">
           <ListItemButton
             onClick={onOpenSwitcher}
             sx={{ borderRadius: 1, justifyContent: collapsed ? 'center' : 'flex-start' }}
@@ -105,7 +107,7 @@ export function SidebarHeader({
             fullWidth
             size="small"
             type="search"
-            placeholder={searchPlaceholder}
+            placeholder={t(searchPlaceholder)}
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             // Escape clears without reaching for the mouse — the fastest way back to the
@@ -114,7 +116,7 @@ export function SidebarHeader({
               if (e.key === 'Escape') onQueryChange('');
             }}
             slotProps={{
-              htmlInput: { 'aria-label': searchPlaceholder },
+              htmlInput: { 'aria-label': t(searchPlaceholder) },
 
               input: {
                 startAdornment: (
@@ -126,7 +128,7 @@ export function SidebarHeader({
                   <InputAdornment position="end">
                     <IconButton
                       size="small"
-                      aria-label="Clear search"
+                      aria-label={t('Clear search')}
                       onClick={() => onQueryChange('')}
                     >
                       <CloseIcon fontSize="small" />

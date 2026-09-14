@@ -1,4 +1,5 @@
 import { Box, Stack, Typography } from '@/components/ui';
+import { useT } from '@exyconn/i18n';
 import { panel } from '../glass/glass';
 import { color } from '@exyconn/ui';
 
@@ -32,13 +33,14 @@ export function StatBreakdown({
   accent = color.blue[400],
   emptyMessage = 'Nothing to show yet.',
 }: Readonly<StatBreakdownProps>) {
+  const t = useT();
   const ordered = [...buckets].sort((a, b) => b.count - a.count);
   const largest = ordered[0]?.count ?? 0;
 
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
-        {title}
+        {t(title)}
       </Typography>
       {ordered.length === 0 && (
         <Typography
@@ -47,7 +49,7 @@ export function StatBreakdown({
             color: 'text.secondary',
           }}
         >
-          {emptyMessage}
+          {t(emptyMessage)}
         </Typography>
       )}
       <Stack spacing={1.5}>
