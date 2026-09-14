@@ -490,6 +490,10 @@ export class TrackerEngine {
     }
 
     if (result.error !== null) {
+      // The only record of what actually went wrong: what the employee is shown is written
+      // for them, not for whoever has to diagnose it. `captureConsole` carries this to
+      // Tech > Logs on both trackers.
+      console.error('Sync failed', result.error);
       this.handleError(result.error);
       return this.settle({ kind: 'failed', reason: describeSyncFailure(result.error) });
     }

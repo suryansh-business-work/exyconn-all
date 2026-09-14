@@ -32,6 +32,14 @@ describe('describeSyncFailure', () => {
     expect(message).not.toMatch(/\d{3}/);
   });
 
+  it("never shows a runtime fault's own message to the employee", () => {
+    // A dropped socket or a parse failure says nothing somebody at a tracker can act on,
+    // and it is the one string here nobody wrote — so no catalogue could translate it.
+    const message = describeSyncFailure(new Error('ECONNRESET at socket.js:123'));
+    expect(message).not.toContain('ECONNRESET');
+    expect(message).toContain('unknown reason');
+  });
+
   it('falls back to a sentence when something that is not an Error is thrown', () => {
     expect(describeSyncFailure('boom')).toContain('unknown reason');
   });
