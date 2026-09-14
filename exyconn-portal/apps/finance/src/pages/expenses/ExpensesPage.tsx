@@ -124,7 +124,7 @@ export function ExpensesPage() {
       context={gridContext}
       searchPlaceholder="Search claims…"
       extraDialogs={
-        <CrudDialog open={Boolean(approveTarget)} title="Approve claim" onClose={closeApprove}>
+        <CrudDialog open={Boolean(approveTarget)} title={t('Approve claim')} onClose={closeApprove}>
           {approveTarget && (
             <ApproveClaimForm
               claim={approveTarget}

@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
@@ -54,6 +55,7 @@ interface FindingFormProps {
 
 /** A nonconformity and the corrective action taken about it, from raising to verification. */
 export function FindingForm({ initial, onDone, onCancel }: Readonly<FindingFormProps>) {
+  const t = useT();
   const [createFinding] = useCreateFindingMutation();
   const [updateFinding] = useUpdateFindingMutation();
   const { data: auditsData } = useListInternalAuditsQuery();
@@ -118,7 +120,11 @@ export function FindingForm({ initial, onDone, onCancel }: Readonly<FindingFormP
       <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
       <RhfDatePicker name="verifiedOn" label="Verified on" />
       <RhfTextField name="verifiedByName" label="Verified by" />
-      <RhfSelect name="effective" label="Was it effective?" options={EFFECTIVE_OPTIONS} />
+      <RhfSelect
+        name="effective"
+        label="Was it effective?"
+        options={EFFECTIVE_OPTIONS.map((o) => ({ ...o, label: t(o.label) }))}
+      />
       <RhfTextField name="effectivenessNote" label="Evidence" multiline rows={2} />
     </EntityForm>
   );

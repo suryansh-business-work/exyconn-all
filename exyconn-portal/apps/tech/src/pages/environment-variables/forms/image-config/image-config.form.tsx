@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { HTTP_URL } from '@exyconn/regex';
@@ -59,6 +60,7 @@ interface ImageConfigFormProps {
 
 /** React Hook Form + Zod form to create or update an image-upload (ImageKit) config. */
 export function ImageConfigForm({ initial, onDone, onCancel }: ImageConfigFormProps) {
+  const t = useT();
   const [createConfig] = useCreateImageConfigMutation();
   const [updateConfig] = useUpdateImageConfigMutation();
   const methods = useForm<Values>({
@@ -77,7 +79,11 @@ export function ImageConfigForm({ initial, onDone, onCancel }: ImageConfigFormPr
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="label" label="Label" />
-      <RhfSelect name="provider" label="Provider" options={PROVIDER_OPTIONS} />
+      <RhfSelect
+        name="provider"
+        label="Provider"
+        options={PROVIDER_OPTIONS.map((o) => ({ ...o, label: t(o.label) }))}
+      />
       <RhfTextField name="publicKey" label="Public key" />
       <RhfTextField name="privateKey" label="Private key" type="password" />
       <RhfTextField name="urlEndpoint" label="URL endpoint" />

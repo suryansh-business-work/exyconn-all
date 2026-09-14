@@ -82,7 +82,7 @@ export function FinancePage() {
       context={gridContext}
       searchPlaceholder="Search invoices…"
       extraDialogs={
-        <CrudDialog open={Boolean(sendTarget)} title="Send invoice" onClose={closeSend}>
+        <CrudDialog open={Boolean(sendTarget)} title={t('Send invoice')} onClose={closeSend}>
           {sendTarget && (
             <SendInvoiceForm
               invoice={sendTarget}

@@ -1,4 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -61,6 +62,7 @@ interface AudienceListFormProps {
 
 /** React Hook Form + Zod form for the people a campaign can be sent to. */
 export function AudienceListForm({ initial, onDone, onCancel }: Readonly<AudienceListFormProps>) {
+  const t = useT();
   const { data: clientsData } = useListClientsQuery();
   const { data: contactsData } = useListContactsQuery();
   const [createAudienceList] = useCreateAudienceListMutation();
@@ -111,7 +113,11 @@ export function AudienceListForm({ initial, onDone, onCancel }: Readonly<Audienc
         helperText="Re-resolved on every send, so the list never goes stale."
       />
       {segment === AudienceSegment.ContactsByCompanyStatus && (
-        <RhfSelect name="segmentValue" label="Account status" options={COMPANY_STATUS_OPTIONS} />
+        <RhfSelect
+          name="segmentValue"
+          label="Account status"
+          options={COMPANY_STATUS_OPTIONS.map((o) => ({ ...o, label: t(o.label) }))}
+        />
       )}
     </EntityForm>
   );
