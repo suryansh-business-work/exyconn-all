@@ -75,11 +75,14 @@ describe('timezone labels', () => {
     expect(timezoneOptionLabel('Europe/London', at)).toBe('Europe/London (UTC+00:00)');
   });
 
+  // These assert the English the app is written in, so the translator is the identity one.
+  const english = (source: string) => source;
+
   it('explains why a zone won', () => {
-    expect(timezoneMeta({ timezone: 'Asia/Kolkata', source: 'workspace' })).toBe(
+    expect(timezoneMeta({ timezone: 'Asia/Kolkata', source: 'workspace' }, english)).toBe(
       'UTC+05:30 · workspace default',
     );
-    expect(timezoneSummary({ timezone: 'Asia/Kolkata', source: 'chosen' })).toBe(
+    expect(timezoneSummary({ timezone: 'Asia/Kolkata', source: 'chosen' }, english)).toBe(
       'Asia/Kolkata (UTC+05:30 · chosen)',
     );
   });

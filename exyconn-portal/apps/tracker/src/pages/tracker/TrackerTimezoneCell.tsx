@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { timezoneMeta, type TimezoneResolution } from './tracker.timezone';
 
@@ -10,13 +11,14 @@ interface TrackerTimezoneCellProps {
  * picked it themselves, otherwise the fallback that won (workspace default / device / UTC).
  */
 export function TrackerTimezoneCell({ resolution }: Readonly<TrackerTimezoneCellProps>) {
+  const t = useT();
   return (
     <>
       <Text size="sm" weight="medium" component="div">
         {resolution.timezone}
       </Text>
       <Text size="caption" color="text.secondary" component="div">
-        {timezoneMeta(resolution)}
+        {timezoneMeta(resolution, t)}
       </Text>
     </>
   );

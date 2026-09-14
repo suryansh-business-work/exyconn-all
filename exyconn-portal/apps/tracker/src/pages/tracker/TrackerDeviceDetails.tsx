@@ -26,6 +26,7 @@ function toFacts(
   device: TrackerDeviceRow,
   formatDateTime: DateTimeFormatter,
   timezone: TimezoneResolution,
+  t: (source: string) => string,
 ): DeviceFact[] {
   const memoryGb = (device.totalMemoryMb / 1024).toFixed(1);
   return [
@@ -38,7 +39,7 @@ function toFacts(
     { label: 'Memory', value: `${memoryGb} GB` },
     { label: 'Locale', value: device.locale },
     { label: 'Device timezone', value: device.timezone },
-    { label: 'Effective timezone', value: timezoneSummary(timezone) },
+    { label: 'Effective timezone', value: timezoneSummary(timezone, t) },
     { label: 'Screens', value: String(device.screenCount) },
     { label: 'Screen resolution', value: device.screenResolution },
     { label: 'App version', value: device.appVersion },
@@ -72,7 +73,7 @@ export function TrackerDeviceDetails({
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={1.5}>
-          {toFacts(device, formatDateTime, timezone).map((fact) => (
+          {toFacts(device, formatDateTime, timezone, t).map((fact) => (
             <Grid
               key={fact.label}
               size={{

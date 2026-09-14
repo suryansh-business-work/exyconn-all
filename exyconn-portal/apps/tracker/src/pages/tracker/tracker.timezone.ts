@@ -68,12 +68,23 @@ export function timezoneOptionLabel(timezone: string, at?: Date): string {
   return `${timezone} (${timezoneOffsetLabel(timezone, at)})`;
 }
 
+/**
+ * How a caller turns the reason word into the reader's language.
+ *
+ * The offset is data and the zone id is a name, but "workspace default" is a sentence
+ * fragment somebody reads, so the words — and only the words — go through `t`.
+ *
+ * Required, with no default: a call site that forgets it is a typecheck error rather than a
+ * line of English that quietly survives into every other language.
+ */
+type TranslateReason = (source: string) => string;
+
 /** "UTC+05:30 · workspace default" — the offset and the reason this zone won. */
-export function timezoneMeta({ timezone, source }: TimezoneResolution): string {
-  return `${timezoneOffsetLabel(timezone)} · ${TIMEZONE_SOURCE_LABEL[source]}`;
+export function timezoneMeta({ timezone, source }: TimezoneResolution, t: TranslateReason): string {
+  return `${timezoneOffsetLabel(timezone)} · ${t(TIMEZONE_SOURCE_LABEL[source])}`;
 }
 
 /** "Asia/Kolkata (UTC+05:30 · workspace default)" — the one-line form for a fact sheet. */
-export function timezoneSummary(resolution: TimezoneResolution): string {
-  return `${resolution.timezone} (${timezoneMeta(resolution)})`;
+export function timezoneSummary(resolution: TimezoneResolution, t: TranslateReason): string {
+  return `${resolution.timezone} (${timezoneMeta(resolution, t)})`;
 }
