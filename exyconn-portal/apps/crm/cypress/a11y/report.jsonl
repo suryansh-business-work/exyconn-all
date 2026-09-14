@@ -1,1 +1,22 @@
-{"spec":"src/pages/companies/forms/company/company.form.cy.tsx","test":"CompanyForm › accepts a bare domain","violations":[{"id":"scrollable-region-focusable","impact":"serious","help":"Scrollable region must have keyboard access","nodes":[{"target":[".MuiAlert-message"],"html":"<div class=\"MuiAlert-message css-zioonp-MuiAlert-message\">","summary":"Fix any of the following:\n  Element should have focusable content\n  Element should be focusable"}]}]}
+{"spec":"src/pages/activities/forms/activity/activity.form.cy.tsx","test":"ActivityForm › requires a subject, an owner and something to be about","violations":[]}
+{"spec":"src/pages/activities/forms/activity/activity.form.cy.tsx","test":"ActivityForm › does not crash when a due date is typed by hand","violations":[]}
+{"spec":"src/pages/activities/forms/activity/activity.form.cy.tsx","test":"ActivityForm › clears the subject error once a subject is typed","violations":[]}
+{"spec":"src/pages/activities/forms/activity/activity.form.cy.tsx","test":"ActivityForm › invokes onCancel when Cancel is clicked","violations":[]}
+{"spec":"src/pages/companies/forms/company/company.form.cy.tsx","test":"CompanyForm › requires a name, a domain and an owner","violations":[]}
+{"spec":"src/pages/companies/forms/company/company.form.cy.tsx","test":"CompanyForm › rejects a domain pasted as a full URL","violations":[]}
+{"spec":"src/pages/companies/forms/company/company.form.cy.tsx","test":"CompanyForm › accepts a bare domain","violations":[]}
+{"spec":"src/pages/companies/forms/company/company.form.cy.tsx","test":"CompanyForm › invokes onCancel when Cancel is clicked","violations":[]}
+{"spec":"src/pages/contacts/forms/contact/contact.form.cy.tsx","test":"ContactForm › requires a name, an email and an owner","violations":[]}
+{"spec":"src/pages/contacts/forms/contact/contact.form.cy.tsx","test":"ContactForm › rejects a malformed email","violations":[]}
+{"spec":"src/pages/contacts/forms/contact/contact.form.cy.tsx","test":"ContactForm › clears the email error once a valid address is typed","violations":[]}
+{"spec":"src/pages/contacts/forms/contact/contact.form.cy.tsx","test":"ContactForm › invokes onCancel when Cancel is clicked","violations":[]}
+{"spec":"src/pages/crm/forms/lead/lead.form.cy.tsx","test":"LeadForm › validates required fields and email","violations":[]}
+{"spec":"src/pages/crm/forms/lead/lead.form.cy.tsx","test":"LeadForm › calls onCancel","violations":[]}
+{"spec":"src/pages/crm/forms/convert-lead/convert-lead.form.cy.tsx","test":"ConvertLeadForm › prefills the contact and value from the lead","violations":[]}
+{"spec":"src/pages/crm/forms/convert-lead/convert-lead.form.cy.tsx","test":"ConvertLeadForm › requires a company and validates the contact email","violations":[]}
+{"spec":"src/pages/crm/forms/convert-lead/convert-lead.form.cy.tsx","test":"ConvertLeadForm › calls onCancel","violations":[]}
+{"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › requires a title and an owner","violations":[]}
+{"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › refuses a negative deal value","violations":[]}
+{"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › keeps probability a percent","violations":[]}
+{"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › starts a new deal at zero value and 10% confidence","violations":[]}
+{"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › invokes onCancel when Cancel is clicked","violations":[]}

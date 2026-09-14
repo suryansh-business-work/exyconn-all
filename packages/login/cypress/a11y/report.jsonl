@@ -1,1 +1,12 @@
-{"spec":"src/Login/forms/forgot-password/forgot-password.form.cy.tsx","test":"ForgotPasswordForm › shows the same message whatever the address and closes","violations":[{"id":"color-contrast","impact":"serious","help":"Elements must meet minimum color contrast ratio thresholds","nodes":[{"target":[".MuiAlert-message"],"html":"<div class=\"MuiAlert-message css-zioonp-MuiAlert-message\">If that address exists, a reset link is on its way.</div>","summary":"Fix any of the following:\n  Element has insufficient color contrast of 1.04 (foreground color: #dcece5, background color: #d5e8e0, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"}]}]}
+{"spec":"src/Login/forms/forgot-password/forgot-password.form.cy.tsx","test":"ForgotPasswordForm › requires an email","violations":[]}
+{"spec":"src/Login/forms/forgot-password/forgot-password.form.cy.tsx","test":"ForgotPasswordForm › validates the email format","violations":[]}
+{"spec":"src/Login/forms/forgot-password/forgot-password.form.cy.tsx","test":"ForgotPasswordForm › shows the same message whatever the address and closes","violations":[]}
+{"spec":"src/Login/forms/forgot-password/forgot-password.form.cy.tsx","test":"ForgotPasswordForm › cancels without sending","violations":[]}
+{"spec":"src/Login/forms/login/login.form.cy.tsx","test":"LoginForm › shows validation errors when submitting empty","violations":[]}
+{"spec":"src/Login/forms/login/login.form.cy.tsx","test":"LoginForm › validates email format","violations":[]}
+{"spec":"src/Login/forms/login/login.form.cy.tsx","test":"LoginForm › toggles password visibility","violations":[]}
+{"spec":"src/Login/forms/login/login.form.cy.tsx","test":"LoginForm › does not expose a one-click admin login helper","violations":[]}
+{"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › requires both fields","violations":[]}
+{"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › enforces the minimum length and a matching confirmation","violations":[]}
+{"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › resets the password and confirms","violations":[]}
+{"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › shows the server message for a dead link","violations":[]}

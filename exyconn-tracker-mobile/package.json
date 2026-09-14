@@ -1,6 +1,6 @@
 {
   "name": "exyconn-tracker-mobile",
-  "version": "1.9.51",
+  "version": "1.9.52",
   "private": true,
   "description": "Exyconn Tracker for Android and iOS — the desktop tracker's rules (@exyconn/tracker-core) in an Expo + Tamagui shell. Built only on GitHub Actions (tracker-release.yml).",
   "main": "index.ts",
@@ -58,6 +58,7 @@
   "devDependencies": {
     "@exyconn/config": "workspace:*",
     "@types/react": "~19.2.18",
+    "@vitest/coverage-v8": "^5.0.0",
     "babel-preset-expo": "~57.0.11",
     "eslint": "^10.9.1",
     "prettier": "^3.4.2",

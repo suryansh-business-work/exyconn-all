@@ -1,0 +1,33 @@
+{
+  "path": [
+    "packages",
+    "exyconn-portal/apps",
+    "exyconn-portal/server/src",
+    "exyconn-portal/ui/src",
+    "exyconn-tracker-app/src",
+    "exyconn-tracker-mobile/src",
+    "exyconn-website/src",
+    "exyconn-tools/ui/src",
+    "exyconn-tools/server/src"
+  ],
+  "format": ["typescript", "tsx", "javascript", "jsx", "astro"],
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/out/**",
+    "**/coverage/**",
+    "**/generated/**",
+    "**/__tests__/**",
+    "**/*.cy.{ts,tsx}",
+    "**/*.test.{ts,tsx}",
+    "**/*.d.ts",
+    "**/locales/**"
+  ],
+  "minTokens": 70,
+  "reporters": ["json"],
+  "output": "reports/jscpd",
+  "absolute": false,
+  "gitignore": true,
+  "silent": true
+}

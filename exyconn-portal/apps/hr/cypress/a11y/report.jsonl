@@ -1,1 +1,32 @@
-{"spec":"src/pages/tax-slabs/forms/tax-slab/tax-slab.form.cy.tsx","test":"TaxSlabForm › accepts an empty upper bound as the open-ended top band","violations":[{"id":"scrollable-region-focusable","impact":"serious","help":"Scrollable region must have keyboard access","nodes":[{"target":[".MuiAlert-message"],"html":"<div class=\"MuiAlert-message css-zioonp-MuiAlert-message\">","summary":"Fix any of the following:\n  Element should have focusable content\n  Element should be focusable"}]}]}
+{"spec":"src/pages/announcements/forms/announcement/announcement.form.cy.tsx","test":"AnnouncementForm › validates the required fields","violations":[]}
+{"spec":"src/pages/announcements/forms/announcement/announcement.form.cy.tsx","test":"AnnouncementForm › rejects an expiry that lands before the publish date","violations":[]}
+{"spec":"src/pages/announcements/forms/announcement/announcement.form.cy.tsx","test":"AnnouncementForm › calls onCancel","violations":[]}
+{"spec":"src/pages/benefits/forms/benefit/benefit.form.cy.tsx","test":"BenefitForm › validates the required fields","violations":[]}
+{"spec":"src/pages/benefits/forms/benefit/benefit.form.cy.tsx","test":"BenefitForm › calls onCancel","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › shows who is being moved and where they are","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › warns that the applicant will be emailed for an offer","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › stays quiet about email for screening","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › moves the applicant and calls onDone","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › calls onCancel","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant/applicant.form.cy.tsx","test":"ApplicantForm › refuses an empty applicant and says what is missing","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant/applicant.form.cy.tsx","test":"ApplicantForm › rejects a malformed email address","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant/applicant.form.cy.tsx","test":"ApplicantForm › creates the applicant and calls onDone","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant/applicant.form.cy.tsx","test":"ApplicantForm › calls onCancel","violations":[]}
+{"spec":"src/pages/documents/forms/employee-document/employee-document.form.cy.tsx","test":"EmployeeDocumentForm › validates the required fields","violations":[]}
+{"spec":"src/pages/documents/forms/employee-document/employee-document.form.cy.tsx","test":"EmployeeDocumentForm › calls onCancel","violations":[]}
+{"spec":"src/pages/employment-types/forms/employment-type/employment-type.form.cy.tsx","test":"EmploymentTypeForm › validates the required fields","violations":[]}
+{"spec":"src/pages/employment-types/forms/employment-type/employment-type.form.cy.tsx","test":"EmploymentTypeForm › calls onCancel","violations":[]}
+{"spec":"src/pages/grades/forms/grade/grade.form.cy.tsx","test":"GradeForm › validates the required fields","violations":[]}
+{"spec":"src/pages/grades/forms/grade/grade.form.cy.tsx","test":"GradeForm › calls onCancel","violations":[]}
+{"spec":"src/pages/exits/forms/exit-record/exit-record.form.cy.tsx","test":"ExitRecordForm › validates the required fields","violations":[]}
+{"spec":"src/pages/exits/forms/exit-record/exit-record.form.cy.tsx","test":"ExitRecordForm › calls onCancel","violations":[]}
+{"spec":"src/pages/goals/forms/goal/goal.form.cy.tsx","test":"GoalForm › validates the required fields","violations":[]}
+{"spec":"src/pages/goals/forms/goal/goal.form.cy.tsx","test":"GoalForm › calls onCancel","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › validates the required fields","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › calls onCancel","violations":[]}
+{"spec":"src/pages/hr/forms/department/department.form.cy.tsx","test":"DepartmentForm › requires a name","violations":[]}
+{"spec":"src/pages/hr/forms/department/department.form.cy.tsx","test":"DepartmentForm › calls onCancel","violations":[]}
+{"spec":"src/pages/hr/forms/leave-request/leave-request.form.cy.tsx","test":"LeaveRequestForm › validates required fields","violations":[]}
+{"spec":"src/pages/hr/forms/leave-request/leave-request.form.cy.tsx","test":"LeaveRequestForm › calls onCancel","violations":[]}
+{"spec":"src/pages/hr/forms/position/position.form.cy.tsx","test":"PositionForm › requires a name","violations":[]}
+{"spec":"src/pages/hr/forms/position/position.form.cy.tsx","test":"PositionForm › calls onCancel","violations":[]}

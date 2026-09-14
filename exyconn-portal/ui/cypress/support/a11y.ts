@@ -10,11 +10,18 @@ import axe, { type Result } from 'axe-core';
  * page-level best practices ("content must be in a landmark", "one h1") would be noise here;
  * those are checked on the portal layout itself.
  *
- * `npx cypress run --component --expose A11Y=audit` records violations to
- * `cypress/a11y/report.jsonl` instead of failing, to measure every app in one pass; without it
- * a violation fails the test that left it behind.
+ * Every check is recorded to `cypress/a11y/report.jsonl` (the PR's accessibility report).
+ * A violation fails the test that left it behind, unless the run is an audit —
+ * `npx cypress run --component --expose A11Y=audit` — which only records, to measure every app
+ * in one pass.
  */
 const WCAG_AA = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
+
+type A11yEntry = { spec: string; test: string; violations: object[] };
+
+function record(entry: A11yEntry) {
+  cy.task('a11yRecord', entry, { log: false });
+}
 
 function describeViolations(violations: Result[]): string {
   return violations
@@ -52,31 +59,36 @@ afterEach(() => {
     // which cannot evaluate `axe.source` the way Vite's bundle can.
     cy.injectAxe();
   }
+  const test = Cypress.currentTest.titlePath.join(' › ');
+  let found: Result[] = [];
   cy.checkA11y(
     // A component spec checks what it mounted; an end-to-end spec checks the whole page.
     Cypress.testingType === 'component' ? '[data-cy-root]' : undefined,
     { runOnly: { type: 'tag', values: WCAG_AA } },
     (violations) => {
-      const test = Cypress.currentTest.titlePath.join(' › ');
-      if (audit) {
-        cy.task(
-          'a11yRecord',
-          {
-            spec: Cypress.spec.relative,
-            test,
-            violations: violations.map((v) => ({
-              id: v.id,
-              impact: v.impact,
-              help: v.help,
-              nodes: v.nodes.map((n) => ({ target: n.target, html: n.html, summary: n.failureSummary })),
-            })),
-          },
-          { log: false },
-        );
-      } else {
-        Cypress.log({ name: 'a11y', message: `${test}\n${describeViolations(violations)}` });
-      }
+      found = violations;
     },
-    audit,
+    // Never let cypress-axe fail the test itself: it throws before a queued command runs, and the
+    // violations would never reach the report. Recorded first, failed on below.
+    true,
   );
+  cy.then(() => {
+    record({
+      spec: Cypress.spec.relative,
+      test,
+      violations: found.map((v) => ({
+        id: v.id,
+        impact: v.impact,
+        help: v.help,
+        nodes: v.nodes.map((n) => ({ target: n.target, html: n.html, summary: n.failureSummary })),
+      })),
+    });
+  });
+  cy.then(() => {
+    if (!audit && found.length > 0) {
+      throw new Error(
+        `${found.length} accessibility violation(s) (WCAG 2.2 AA) in ${test}:\n${describeViolations(found)}`,
+      );
+    }
+  });
 });

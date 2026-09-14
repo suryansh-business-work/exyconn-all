@@ -61,7 +61,24 @@ jobs:
         run: node .github/scripts/check-tracker-versions.mjs
       - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --filter exyconn-tracker-mobile --workspace-concurrency=2 run typecheck
       - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --filter exyconn-tracker-mobile --workspace-concurrency=3 run lint
-      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --filter exyconn-tracker-mobile --workspace-concurrency=1 run test
+      # Coverage is measured on the same run, for the PR's quality report — reported, not gated.
+      - name: Unit tests (with coverage)
+        run: |
+          pnpm --filter '@exyconn/*' --filter exyconn-portal-ui --filter exyconn-tracker-app --filter exyconn-tracker-mobile --workspace-concurrency=1 run test \
+            --coverage.enabled --coverage.reporter=json-summary --coverage.reporter=text-summary \
+            '--coverage.include=src/**/*.{ts,tsx}' '--coverage.exclude=**/*.{test,cy}.{ts,tsx}' '--coverage.exclude=**/graphql/generated/**'
+          pnpm --filter exyconn-portal-server run test \
+            --coverage --coverageReporters=json-summary --coverageReporters=text-summary \
+            '--collectCoverageFrom=src/**/*.ts' '--collectCoverageFrom=!src/graphql/generated/**'
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-summaries
+          path: |
+            **/coverage/coverage-summary.json
+            !**/node_modules/**
+          if-no-files-found: ignore
+          retention-days: 7
 
   component-tests:
     name: Component Tests (Cypress)
@@ -111,6 +128,17 @@ jobs:
           pnpm --filter exyconn-portal-ui build
           pnpm --filter exyconn-portal-ui test:e2e
 
+      # Written by the shared Cypress support after every test, pass or fail.
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-results
+          path: |
+            **/cypress/a11y/report.jsonl
+            !**/node_modules/**
+          if-no-files-found: ignore
+          retention-days: 7
+
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
@@ -118,6 +146,54 @@ jobs:
           path: '**/cypress/screenshots/**'
           if-no-files-found: ignore
           retention-days: 7
+
+  # One comment on the pull request — accessibility, coverage and duplication — kept up to date on
+  # every push, and the same report in the run's summary. It runs even when a job above failed:
+  # that is when the report matters most.
+  quality-report:
+    name: Quality report (a11y · coverage · duplication)
+    needs: [workspace, component-tests]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: '{coverage-summaries,a11y-results}'
+          merge-multiple: true
+      - name: Accessibility section
+        run: node .github/scripts/pr-reports/a11y.mjs
+      - name: Coverage section
+        run: node .github/scripts/pr-reports/coverage.mjs
+      - name: Duplication section
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          npx --yes jscpd@4.0.5
+          # Files this PR (or push) changed; a new branch's first push has no "before" to diff.
+          if git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            git diff --name-only "$BASE_SHA" HEAD > reports/changed-files.txt
+          else
+            git diff --name-only HEAD~1 HEAD > reports/changed-files.txt
+          fi
+          CHANGED_FILES="$(cat reports/changed-files.txt)" node .github/scripts/pr-reports/duplication.mjs
+      - name: Post the report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node .github/scripts/pr-reports/post.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quality-report
+          path: reports/
+          retention-days: 14
 
   website:
     name: Website · Typecheck · Lint · Test
