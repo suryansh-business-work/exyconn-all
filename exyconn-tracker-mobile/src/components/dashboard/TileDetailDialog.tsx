@@ -1,5 +1,6 @@
 import { Modal } from 'react-native';
 import { Separator, XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { Tile, TileFact } from '../../lib/dashboard/tile.types';
 import { useBrand } from '../../theme/BrandProvider';
 import { SCRIM } from '../../theme/palette';
@@ -16,10 +17,11 @@ interface Props {
 
 /** One "label … value" line of the detail. */
 function FactRow({ fact }: Readonly<{ fact: TileFact }>) {
+  const t = useT();
   return (
     <XStack justifyContent="space-between" gap="$3">
       <Body color="$muted" flexShrink={1}>
-        {fact.label}
+        {t(fact.label)}
       </Body>
       <Body fontWeight="600" textAlign="right" flexShrink={1}>
         {fact.value}
@@ -37,10 +39,12 @@ function FactRow({ fact }: Readonly<{ fact: TileFact }>) {
  * taken on trust.
  */
 export function TileDetailDialog({ tile, onClose }: Readonly<Props>) {
+  const t = useT();
   const brand = useBrand();
   if (tile === null) {
     return null;
   }
+  const label = t(tile.label);
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
@@ -49,12 +53,12 @@ export function TileDetailDialog({ tile, onClose }: Readonly<Props>) {
           padding="$5"
           gap="$3"
           accessibilityViewIsModal
-          accessibilityLabel={`${tile.label} detail`}
+          accessibilityLabel={t('{label} detail', { label })}
         >
           <XStack gap="$2" alignItems="center">
             <Icon name={tile.icon} size={20} color={brand.primary} />
-            <Heading flex={1}>{tile.label}</Heading>
-            <AppButton label="Close" tone="text" onPress={onClose} />
+            <Heading flex={1}>{label}</Heading>
+            <AppButton label={t('Close')} tone="text" onPress={onClose} />
           </XStack>
           <Title>{tile.detail.headline}</Title>
           <Separator borderColor="$hairline" />

@@ -1,4 +1,5 @@
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { sessionTiles } from '../../lib/dashboard/session-tiles';
 import { capabilities } from '../../tracker/platform';
 import type { MobileTrackerState } from '../../tracker/types';
@@ -28,6 +29,7 @@ interface Props {
  * what the phone cannot record is said above even that.
  */
 export function DashboardScreen({ state }: Readonly<Props>) {
+  const t = useT();
   const { stats, settings, timezone, workday, workProfile, preferences } = state;
 
   return (
@@ -50,8 +52,8 @@ export function DashboardScreen({ state }: Readonly<Props>) {
 
       <YStack gap="$3">
         <SectionHeading
-          title="This session"
-          caption="Live counters for the run in progress — they reset to zero when you stop."
+          title={t('This session')}
+          caption={t('Live counters for the run in progress — they reset to zero when you stop.')}
         />
         <StatGrid tiles={sessionTiles(stats, settings, capabilities)} />
       </YStack>

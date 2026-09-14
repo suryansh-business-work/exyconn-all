@@ -1,6 +1,7 @@
 import { Platform, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { XStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { useUpdateState } from '../../hooks/useUpdateState';
 import { useBrand } from '../../theme/BrandProvider';
 import { run } from '../../tracker/run';
@@ -13,6 +14,7 @@ import { Caption } from '../ui/Typography';
  * the OS's job — and it says which version, so "update" is never a vague nag.
  */
 export function UpdateBanner() {
+  const t = useT();
   const update = useUpdateState();
   const brand = useBrand();
   const insets = useSafeAreaInsets();
@@ -20,7 +22,7 @@ export function UpdateBanner() {
   if (update.stage !== 'available') {
     return null;
   }
-  const action = Platform.OS === 'android' ? 'Download' : 'Details';
+  const action = Platform.OS === 'android' ? t('Download') : t('Details');
   return (
     <XStack
       backgroundColor={brand.primary}
@@ -33,7 +35,7 @@ export function UpdateBanner() {
     >
       <Icon name="download-circle-outline" color={brand.onPrimary} />
       <Caption flex={1} color={brand.onPrimary} fontWeight="600">
-        Exyconn Tracker {update.version} is available.
+        {t('Exyconn Tracker {version} is available.', { version: update.version })}
       </Caption>
       <Pressable onPress={() => run(openUpdate)} accessibilityRole="link" hitSlop={8}>
         <Caption color={brand.onPrimary} fontWeight="700" textDecorationLine="underline">

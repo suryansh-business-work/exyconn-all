@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { useCaptureSync } from '../../hooks/useCaptureSync';
 import {
   adjacentDay,
@@ -26,6 +27,7 @@ interface Props {
  * The day lives in the route's params, so day navigation and a deep link land identically.
  */
 export function ScreenshotsScreen({ params, timezone }: Readonly<Props>) {
+  const t = useT();
   const router = useRouter();
   const start = firstParam(params.start);
   const end = firstParam(params.end);
@@ -54,15 +56,15 @@ export function ScreenshotsScreen({ params, timezone }: Readonly<Props>) {
 
   let body = (
     <YStack padding="$4">
-      <Notice severity="error" detail="Open a day from My Report to see its screenshots.">
-        This link does not point at a day.
+      <Notice severity="error" detail={t('Open a day from My Report to see its screenshots.')}>
+        {t('This link does not point at a day.')}
       </Notice>
     </YStack>
   );
   if (syncing) {
     body = (
       <YStack padding="$4">
-        <GalleryEmpty loading error={null} loadingLabel="Uploading your latest screenshot" />
+        <GalleryEmpty loading error={null} loadingLabel={t('Uploading your latest screenshot')} />
       </YStack>
     );
   } else if (range !== null) {

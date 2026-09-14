@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { formatMonthLabel, type PeriodLength } from '@exyconn/tracker-core';
 import { useMyDay } from '../../hooks/useMyDay';
 import { useMyReport } from '../../hooks/useMyReport';
@@ -37,6 +38,7 @@ interface Props {
  * month-at-a-glance table. Nobody else's data is reachable here.
  */
 export function MyReportScreen({ timezone }: Readonly<Props>) {
+  const t = useT();
   const today = useMemo(() => new Date(), []);
   const [tab, setTab] = useState<TabId>('overview');
   const [length, setLength] = useState<PeriodLength>(7);
@@ -47,6 +49,7 @@ export function MyReportScreen({ timezone }: Readonly<Props>) {
   const day = useMyDay(selected, timezone);
   const insights = usePeriodInsights(length, timezone);
   const monthLabel = formatMonthLabel(month);
+  const tabs = TABS.map((option) => ({ ...option, label: t(option.label) }));
 
   const selectDate = (date: Date): void => {
     setSelected(date);
@@ -61,9 +64,15 @@ export function MyReportScreen({ timezone }: Readonly<Props>) {
 
   return (
     <ScreenLayout onRefresh={refresh} refreshing={report.loading}>
-      <Caption>This is your own tracked time, as your workspace sees it.</Caption>
+      <Caption>{t('This is your own tracked time, as your workspace sees it.')}</Caption>
 
-      <SegmentedControl options={TABS} value={tab} onChange={setTab} label="Report view" full />
+      <SegmentedControl
+        options={tabs}
+        value={tab}
+        onChange={setTab}
+        label={t('Report view')}
+        full
+      />
 
       {report.error === null ? null : <Notice severity="error">{report.error}</Notice>}
 

@@ -91,7 +91,7 @@ export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Prop
               size="small"
               variant="outlined"
               color={activityColor(shot.activityPercent)}
-              label={activityLabel(shot.activityPercent)}
+              label={activityLabel(t, shot.activityPercent)}
             />
           </Tooltip>
         </Stack>

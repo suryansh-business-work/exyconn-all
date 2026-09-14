@@ -1,4 +1,5 @@
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { ProgressStyle } from '@exyconn/tracker-core';
 import { tracker } from '../../tracker/instance';
 import { Caption } from '../ui/Typography';
@@ -20,17 +21,19 @@ interface Props {
  * a fact about the person looking at it, so it is theirs to set rather than ours to decide.
  */
 export function ProgressStylePicker({ progressStyle }: Readonly<Props>) {
+  const t = useT();
   const caption =
     progressStyle === 'ring'
-      ? 'Today’s progress is drawn as a ring, with the percentage inside it.'
-      : 'Today’s progress is drawn as a bar, with what is left as a length.';
+      ? t('Today’s progress is drawn as a ring, with the percentage inside it.')
+      : t('Today’s progress is drawn as a bar, with what is left as a length.');
+  const options = OPTIONS.map((option) => ({ ...option, label: t(option.label) }));
   return (
     <YStack gap="$2">
       <SegmentedControl
         kind="choice"
         full
-        label="Today’s progress"
-        options={OPTIONS}
+        label={t('Today’s progress')}
+        options={options}
         value={progressStyle}
         onChange={(next) => tracker.setPreferences({ progressStyle: next })}
       />

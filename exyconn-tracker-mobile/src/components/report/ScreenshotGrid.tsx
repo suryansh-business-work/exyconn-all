@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { Pressable } from 'react-native';
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { activityLabel, formatTimeOfDay, type DayScreenshot } from '@exyconn/tracker-core';
 import { TRACKER_RADIUS, borderWidth } from '../../theme/tokens';
 import { useThemeColor } from '../../theme/useThemeColor';
@@ -21,6 +22,7 @@ interface ThumbProps {
 }
 
 function Thumb({ shot, timezone, onOpen }: Readonly<ThumbProps>) {
+  const t = useT();
   const hairline = useThemeColor('hairline');
   const capturedAt = formatTimeOfDay(shot.capturedAt, timezone);
   return (
@@ -28,14 +30,16 @@ function Thumb({ shot, timezone, onOpen }: Readonly<ThumbProps>) {
       <Pressable
         onPress={onOpen}
         accessibilityRole="button"
-        accessibilityLabel={`Open my screenshots — this one was captured at ${capturedAt}`}
+        accessibilityLabel={t('Open my screenshots — this one was captured at {time}', {
+          time: capturedAt,
+        })}
       >
         <Image
           source={{ uri: shot.imageUrl }}
           contentFit="cover"
           recyclingKey={shot.id}
           transition={150}
-          accessibilityLabel={`Screenshot captured at ${capturedAt}`}
+          accessibilityLabel={t('Screenshot captured at {time}', { time: capturedAt })}
           style={{
             width: '100%',
             aspectRatio: 16 / 10,
@@ -46,7 +50,7 @@ function Thumb({ shot, timezone, onOpen }: Readonly<ThumbProps>) {
         />
       </Pressable>
       <Caption numberOfLines={1}>
-        {capturedAt} · {activityLabel(shot.activityPercent)}
+        {capturedAt} · {activityLabel(t, shot.activityPercent)}
       </Caption>
     </YStack>
   );
@@ -54,10 +58,11 @@ function Thumb({ shot, timezone, onOpen }: Readonly<ThumbProps>) {
 
 /** Thumbnails of one day's screenshots. Tapping one opens the full gallery for that day. */
 export function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Props>) {
+  const t = useT();
   if (shots.length === 0) {
     return (
       <Body color="$muted" textAlign="center" paddingVertical="$4">
-        No screenshots on this day.
+        {t('No screenshots on this day.')}
       </Body>
     );
   }

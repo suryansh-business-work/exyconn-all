@@ -14,14 +14,15 @@
   },
   "prettier": "@exyconn/config/prettier.json",
   "dependencies": {
-    "@exyconn/time": "workspace:*",
     "@exyconn/logger": "workspace:*",
+    "@exyconn/time": "workspace:*",
     "@graphql-typed-document-node/core": "^3.2.0",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0"
   },
   "devDependencies": {
     "@exyconn/config": "workspace:*",
+    "@exyconn/i18n": "workspace:^",
     "@graphql-codegen/cli": "^5.0.3",
     "@graphql-codegen/typed-document-node": "^5.1.2",
     "@graphql-codegen/typescript": "^4.1.2",

@@ -112,7 +112,7 @@ export default function ScreenshotLightbox({
               size="small"
               variant="outlined"
               color={activityColor(shot.activityPercent)}
-              label={activityLabel(shot.activityPercent)}
+              label={activityLabel(t, shot.activityPercent)}
             />
             {shot.blurred ? <Chip size="small" variant="outlined" label={t('Blurred')} /> : null}
           </Stack>

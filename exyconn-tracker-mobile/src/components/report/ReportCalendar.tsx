@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import type { ReportDay } from '@exyconn/tracker-core';
 import { trackedDateLevels } from '../../lib/report/calendar';
 import { canGoForward } from '../../lib/report/month';
@@ -29,6 +30,7 @@ export function ReportCalendar({
   onSelect,
   onMonthChange,
 }: Readonly<Props>) {
+  const t = useT();
   const tracked = useMemo(() => trackedDateLevels(days), [days]);
 
   return (
@@ -47,8 +49,9 @@ export function ReportCalendar({
         onSelect={onSelect}
       />
       <Caption textAlign="center">
-        Dotted days have tracked time, coloured by how active they were. Tap one to see its
-        screenshots.
+        {t(
+          'Dotted days have tracked time, coloured by how active they were. Tap one to see its screenshots.',
+        )}
       </Caption>
     </Surface>
   );

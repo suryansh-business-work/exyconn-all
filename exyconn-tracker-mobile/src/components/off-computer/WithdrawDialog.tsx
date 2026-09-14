@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@exyconn/i18n';
 import { formatDateTime, formatHoursMinutes, type ManualEntry } from '@exyconn/tracker-core';
 import { tracker } from '../../tracker/instance';
 import { messageOf } from '../../tracker/run';
@@ -27,11 +28,18 @@ export function WithdrawDialog({
   onWithdrawn,
   onFailed,
 }: Readonly<Props>) {
+  const t = useT();
   const [busy, setBusy] = useState(false);
   const message =
     entry === null
       ? ''
-      : `Your claim for ${formatHoursMinutes(entry.durationMs)} from ${formatDateTime(entry.startedAt, timezone)} will be removed before anybody reviews it. File it again if you change your mind.`;
+      : t(
+          'Your claim for {duration} from {start} will be removed before anybody reviews it. File it again if you change your mind.',
+          {
+            duration: formatHoursMinutes(entry.durationMs),
+            start: formatDateTime(entry.startedAt, timezone),
+          },
+        );
 
   async function withdraw(target: ManualEntry): Promise<void> {
     setBusy(true);
@@ -40,7 +48,7 @@ export function WithdrawDialog({
       onWithdrawn();
     } catch (cause: unknown) {
       console.error('Withdrawing the claim failed', cause);
-      onFailed(messageOf(cause, WITHDRAW_FAILED));
+      onFailed(messageOf(cause, t(WITHDRAW_FAILED)));
     } finally {
       setBusy(false);
       onClose();
@@ -50,9 +58,9 @@ export function WithdrawDialog({
   return (
     <ConfirmDialog
       open={entry !== null}
-      title="Withdraw this claim?"
+      title={t('Withdraw this claim?')}
       message={message}
-      confirmLabel="Withdraw"
+      confirmLabel={t('Withdraw')}
       danger
       busy={busy}
       onCancel={onClose}

@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { XStack, YStack } from 'tamagui';
 import type { TrackerProject } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 import { DateTimeField } from '../../components/form/DateTimeField';
 import { SelectField } from '../../components/form/SelectField';
 import { TextField } from '../../components/form/TextField';
@@ -35,6 +36,7 @@ interface Props {
  * second-guessed.
  */
 export function ManualEntryForm({ projects, timezone, onCancel, onDone }: Readonly<Props>) {
+  const t = useT();
   const [error, setError] = useState<string | null>(null);
   const { control, handleSubmit, setValue, formState } = useForm<
     ManualEntryInput,
@@ -62,10 +64,10 @@ export function ManualEntryForm({ projects, timezone, onCancel, onDone }: Readon
   );
   const ticketOptions = useMemo<Option[]>(
     () => [
-      { value: NO_TICKET, label: 'No ticket' },
+      { value: NO_TICKET, label: t('No ticket') },
       ...tasks.map((task) => ({ value: task.id, label: `${task.key} · ${task.title}` })),
     ],
-    [tasks],
+    [tasks, t],
   );
 
   const submit = handleSubmit(async (values) => {
@@ -75,21 +77,22 @@ export function ManualEntryForm({ projects, timezone, onCancel, onDone }: Readon
       onDone();
     } catch (cause: unknown) {
       console.error('Filing the claim failed', cause);
-      setError(messageOf(cause, FILE_FAILED));
+      setError(messageOf(cause, t(FILE_FAILED)));
     }
   });
 
   return (
     <YStack gap="$3">
       <Caption>
-        Claimed hours are the one thing the tracker did not measure, so they wait for a manager.
-        Nothing here counts until somebody approves it.
+        {t(
+          'Claimed hours are the one thing the tracker did not measure, so they wait for a manager. Nothing here counts until somebody approves it.',
+        )}
       </Caption>
       {error === null ? null : <Notice severity="error">{error}</Notice>}
       <SelectField
         control={control}
         name="projectId"
-        label="Project"
+        label={t('Project')}
         options={projectOptions}
         disabled={busy}
         searchable
@@ -99,7 +102,7 @@ export function ManualEntryForm({ projects, timezone, onCancel, onDone }: Readon
       <SelectField
         control={control}
         name="taskId"
-        label="Ticket"
+        label={t('Ticket')}
         options={ticketOptions}
         disabled={busy}
         searchable
@@ -107,7 +110,7 @@ export function ManualEntryForm({ projects, timezone, onCancel, onDone }: Readon
       <DateTimeField
         control={control}
         name="startedAt"
-        label="From"
+        label={t('From')}
         timezone={timezone}
         minimumDate={earliest}
         maximumDate={now}
@@ -115,24 +118,24 @@ export function ManualEntryForm({ projects, timezone, onCancel, onDone }: Readon
       <DateTimeField
         control={control}
         name="endedAt"
-        label="To"
+        label={t('To')}
         timezone={timezone}
-        hint="Time you have already worked, within the last 90 days."
+        hint={t('Time you have already worked, within the last 90 days.')}
         minimumDate={earliest}
         maximumDate={now}
       />
       <TextField
         control={control}
         name="note"
-        label="What was the time for?"
-        hint="Your reviewer sees this — a meeting, a site visit, a call."
+        label={t('What was the time for?')}
+        hint={t('Your reviewer sees this — a meeting, a site visit, a call.')}
         multiline
         disabled={busy}
       />
       <XStack gap="$3" justifyContent="flex-end">
-        <AppButton label="Cancel" tone="text" onPress={onCancel} disabled={busy} />
+        <AppButton label={t('Cancel')} tone="text" onPress={onCancel} disabled={busy} />
         <AppButton
-          label="Submit claim"
+          label={t('Submit claim')}
           icon="send-clock-outline"
           busy={busy}
           onPress={() => {

@@ -85,7 +85,7 @@ export default function SettingsScreen({
             {t('Settings are not available right now.')}
           </Alert>
         ) : (
-          <SettingsList rows={buildSettingRows(settings)} />
+          <SettingsList rows={buildSettingRows(t, settings)} />
         )}
       </Surface>
 

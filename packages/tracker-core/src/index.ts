@@ -27,6 +27,7 @@ export * from './sync-text';
 export * from './time';
 export * from './timezone';
 export * from './locale';
+export * from './translate';
 export * from './version';
 export * from './work-day';
 export * from './portal/client';

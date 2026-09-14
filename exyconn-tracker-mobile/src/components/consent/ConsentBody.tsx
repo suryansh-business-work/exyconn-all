@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Linking, PixelRatio, View } from 'react-native';
 import { WebView, type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview';
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import {
   HEIGHT_REPORTER,
   consentDocument,
@@ -36,6 +37,7 @@ interface Props {
  * tall as the text, so the screen scrolls as one page with the buttons always below it.
  */
 export function ConsentBody({ html }: Readonly<Props>) {
+  const t = useT();
   const brand = useBrand();
   const ink = useThemeColor('ink');
   const muted = useThemeColor('muted');
@@ -97,7 +99,7 @@ export function ConsentBody({ html }: Readonly<Props>) {
           scrollEnabled={false}
           showsVerticalScrollIndicator={false}
           style={{ height, backgroundColor: 'transparent' }}
-          accessibilityLabel="Monitoring disclosure"
+          accessibilityLabel={t('Monitoring disclosure')}
         />
       </View>
     </YStack>

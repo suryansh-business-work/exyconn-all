@@ -2,6 +2,7 @@ import { useContext, useState } from 'react';
 import { BottomTabBarHeightContext } from 'expo-router/tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { TrackerMessageKind } from '@exyconn/tracker-core';
 import { MessageForm } from '../../forms/message';
 import { useMessages } from '../../hooks/useMessages';
@@ -47,9 +48,11 @@ interface Props {
  * background, and this is where they can be found again afterwards.
  */
 export function MessagesScreen({ timezone }: Readonly<Props>) {
+  const t = useT();
   const [tab, setTab] = useState<TrackerMessageKind>('CHAT');
   const { messages, loading, error, send } = useMessages(tab);
   const empty = EMPTY[tab];
+  const tabs = TABS.map((option) => ({ ...option, label: t(option.label) }));
   const insets = useSafeAreaInsets();
   // The tab bar floats over the foot of the screen; the composer and the list sit above it.
   const tabBarHeight = useContext(BottomTabBarHeightContext) ?? 0;
@@ -59,12 +62,12 @@ export function MessagesScreen({ timezone }: Readonly<Props>) {
     <ChatKeyboardView>
       <YStack flex={1}>
         <YStack paddingHorizontal="$4" paddingTop="$3" gap="$2">
-          <Caption>Between you and whoever administers tracking in your workspace.</Caption>
+          <Caption>{t('Between you and whoever administers tracking in your workspace.')}</Caption>
           <SegmentedControl
-            options={TABS}
+            options={tabs}
             value={tab}
             onChange={setTab}
-            label="Message view"
+            label={t('Message view')}
             full
           />
           {error === null ? null : <Notice severity="error">{error}</Notice>}
@@ -74,8 +77,8 @@ export function MessagesScreen({ timezone }: Readonly<Props>) {
             messages={messages}
             loading={loading}
             timezone={timezone}
-            emptyTitle={empty.title}
-            emptyBody={empty.body}
+            emptyTitle={t(empty.title)}
+            emptyBody={t(empty.body)}
           />
         </YStack>
         {tab === 'CHAT' ? (

@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { FlatList } from 'react-native';
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { TrackerMessage } from '@exyconn/tracker-core';
 import { TRACKER_RADIUS } from '../../theme/tokens';
 import { Surface } from '../ui/Surface';
@@ -21,8 +22,9 @@ interface Props {
 
 /** Placeholder rows while the thread is read, so the screen does not jump when it lands. */
 function ThreadSkeleton() {
+  const t = useT();
   return (
-    <YStack padding="$4" gap="$3" accessibilityLabel="Loading messages" accessible>
+    <YStack padding="$4" gap="$3" accessibilityLabel={t('Loading messages')} accessible>
       {SKELETON_ROWS.map((id) => (
         <YStack
           key={id}

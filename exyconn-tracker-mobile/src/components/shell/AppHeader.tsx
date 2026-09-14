@@ -1,6 +1,7 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { XStack, YStack } from 'tamagui';
 import { initials, type AuthUser, type ThemeMode, type TrackerStatus } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 import { useBrand } from '../../theme/BrandProvider';
 import { BrandMark } from '../ui/BrandMark';
 import { RoundButton } from '../ui/RoundButton';
@@ -24,9 +25,10 @@ interface Props {
  * transparent background shows behind it too.
  */
 export function AppHeader({ title, status, user, themeMode, onOpenAccount }: Readonly<Props>) {
+  const t = useT();
   const insets = useSafeAreaInsets();
   const brand = useBrand();
-  const name = user?.name ?? 'Signed in';
+  const name = user?.name ?? t('Signed in');
   return (
     <YStack paddingTop={insets.top + 6} paddingHorizontal="$4" paddingBottom="$2" gap="$2">
       <XStack alignItems="center" gap="$3">
@@ -40,7 +42,11 @@ export function AppHeader({ title, status, user, themeMode, onOpenAccount }: Rea
           {title}
         </Display>
         <ThemeToggle mode={themeMode} round />
-        <RoundButton label={`${name}, open settings`} onPress={onOpenAccount} fill={brand.primary}>
+        <RoundButton
+          label={t('{name}, open settings', { name })}
+          onPress={onOpenAccount}
+          fill={brand.primary}
+        >
           <Body fontWeight="700" color={brand.onPrimary}>
             {initials(name)}
           </Body>

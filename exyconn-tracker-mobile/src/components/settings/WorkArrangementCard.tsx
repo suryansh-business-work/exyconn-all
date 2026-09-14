@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import type { WorkProfile } from '@exyconn/tracker-core';
 import { workArrangementRows } from '../../lib/settings/work-arrangement';
 import { SettingsCard } from './SettingsCard';
@@ -15,13 +16,16 @@ interface Props {
  * and to notice when they are wrong. Only HR can change them.
  */
 export function WorkArrangementCard({ workProfile }: Readonly<Props>) {
+  const t = useT();
   if (workProfile === null) {
     return null;
   }
   return (
     <SettingsCard
-      title="Your working day"
-      description="Set by HR on your employee record. Today’s progress fills against these hours. Ask HR if it does not match your contract."
+      title={t('Your working day')}
+      description={t(
+        'Set by HR on your employee record. Today’s progress fills against these hours. Ask HR if it does not match your contract.',
+      )}
     >
       <SettingsList rows={workArrangementRows(workProfile)} />
     </SettingsCard>

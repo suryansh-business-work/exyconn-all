@@ -86,7 +86,7 @@ export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Pro
                 mt: 0.5,
               }}
             >
-              {capturedAt} · {activityLabel(shot.activityPercent)}
+              {capturedAt} · {activityLabel(t, shot.activityPercent)}
             </Typography>
           </ButtonBase>
         );

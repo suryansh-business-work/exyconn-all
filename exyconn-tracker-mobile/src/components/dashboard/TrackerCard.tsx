@@ -1,4 +1,5 @@
 import { Separator, XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { PresenceForm } from '../../forms/presence';
 import type { MobileTrackerState } from '../../tracker/types';
 import { Surface } from '../ui/Surface';
@@ -20,6 +21,7 @@ interface Props {
  * the employee is doing, and finally the buttons.
  */
 export function TrackerCard({ state }: Readonly<Props>) {
+  const t = useT();
   const { status, settings, user, timezone, workday } = state;
   const tracking = status === 'tracking' || status === 'paused';
 
@@ -28,7 +30,7 @@ export function TrackerCard({ state }: Readonly<Props>) {
       <XStack gap="$3" alignItems="center" justifyContent="space-between">
         <YStack flex={1} minWidth={0}>
           <Body fontWeight="700" numberOfLines={1}>
-            {user?.name ?? 'Signed in'}
+            {user?.name ?? t('Signed in')}
           </Body>
           <Caption numberOfLines={1}>{user?.email ?? ''}</Caption>
         </YStack>

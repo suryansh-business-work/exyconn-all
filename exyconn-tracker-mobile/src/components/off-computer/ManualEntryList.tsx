@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import { Separator } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { ManualEntry } from '@exyconn/tracker-core';
 import { Surface } from '../ui/Surface';
 import { Body } from '../ui/Typography';
@@ -13,10 +14,13 @@ interface Props {
 
 /** The employee's own claims, newest first, each showing where it stands. */
 export function ManualEntryList({ entries, timezone, onWithdraw }: Readonly<Props>) {
+  const t = useT();
   if (entries.length === 0) {
     return (
       <Surface>
-        <Body color="$muted">You have not claimed any off-computer time in the last 90 days.</Body>
+        <Body color="$muted">
+          {t('You have not claimed any off-computer time in the last 90 days.')}
+        </Body>
       </Surface>
     );
   }

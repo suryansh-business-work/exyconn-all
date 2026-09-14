@@ -50,7 +50,7 @@ export default function SyncBar({ stats, settings, timezone }: Readonly<Props>):
   const t = useT();
   const settled = stats.pendingSync === 0 && !stats.syncing;
   const StatusIcon = settled ? CloudDoneOutlined : CloudUploadOutlined;
-  const message = syncMessage(stats.lastSyncOutcome);
+  const message = syncMessage(t, stats.lastSyncOutcome);
 
   return (
     <Surface sx={{ p: 2 }}>

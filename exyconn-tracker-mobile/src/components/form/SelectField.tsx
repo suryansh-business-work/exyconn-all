@@ -1,4 +1,5 @@
 import { useController, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
+import { useT } from '@exyconn/i18n';
 import type { Option } from '../ui/OptionSheet';
 import { PickerField } from './PickerField';
 
@@ -22,11 +23,12 @@ export function SelectField<T extends FieldValues>({
   label,
   options,
   hint,
-  placeholder = 'Choose…',
+  placeholder,
   disabled = false,
   searchable = false,
   onChanged,
 }: Readonly<Props<T>>) {
+  const t = useT();
   const { field, fieldState } = useController({ control, name });
   return (
     <PickerField
@@ -34,7 +36,7 @@ export function SelectField<T extends FieldValues>({
       label={label}
       options={options}
       selected={String(field.value ?? '')}
-      placeholder={placeholder}
+      placeholder={placeholder ?? t('Choose…')}
       hint={hint}
       error={fieldState.error?.message}
       disabled={disabled}

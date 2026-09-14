@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT } from '@exyconn/i18n';
 import type { TrackerTask } from '@exyconn/tracker-core';
 import { NO_TICKET, ticketOptions } from '../../lib/dashboard/ticket-options';
 import { tracker } from '../../tracker/instance';
@@ -24,16 +25,19 @@ interface Props {
  * time before the switch really was spent on the other one.
  */
 export function TicketPicker({ tasks, selectedTaskId, disabled }: Readonly<Props>) {
+  const t = useT();
   const options = useMemo(() => ticketOptions(tasks), [tasks]);
 
   return (
     <PickerField
       id="ticket"
-      label="Ticket"
+      label={t('Ticket')}
       options={options}
       selected={selectedTaskId}
-      placeholder={NO_TICKET.label}
-      hint={disabled ? 'Locked while tracking — stop to book to another ticket.' : 'Optional.'}
+      placeholder={t(NO_TICKET.label)}
+      hint={
+        disabled ? t('Locked while tracking — stop to book to another ticket.') : t('Optional.')
+      }
       disabled={disabled}
       searchable
       onSelect={(taskId) => tracker.setTask(taskId)}

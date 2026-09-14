@@ -1,4 +1,5 @@
 import { Spinner, XStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { formatLastSync, syncMessage } from '@exyconn/tracker-core';
 import type { LiveStats, TrackerSettings } from '@exyconn/tracker-core';
 import { syncPendingText, syncPolicyText } from '../../lib/dashboard/sync-text';
@@ -22,10 +23,11 @@ interface StatusIconProps {
 
 /** A spinner while an upload is in flight, else a cloud that is done or still has a queue. */
 function SyncStatusIcon({ syncing, settled }: Readonly<StatusIconProps>) {
+  const t = useT();
   const success = useThemeColor('success');
   const warning = useThemeColor('warning');
   if (syncing) {
-    return <Spinner size="small" color={warning} accessibilityLabel="Uploading" />;
+    return <Spinner size="small" color={warning} accessibilityLabel={t('Uploading')} />;
   }
   if (settled) {
     return <Icon name="cloud-check-outline" size={20} color={success} />;
@@ -42,8 +44,9 @@ function SyncStatusIcon({ syncing, settled }: Readonly<StatusIconProps>) {
  * this says when it last did and what is still queued.
  */
 export function SyncBar({ stats, settings, timezone }: Readonly<Props>) {
+  const t = useT();
   const settled = stats.pendingSync === 0 && !stats.syncing;
-  const message = syncMessage(stats.lastSyncOutcome);
+  const message = syncMessage(t, stats.lastSyncOutcome);
 
   return (
     <Surface gap="$2">
@@ -54,7 +57,8 @@ export function SyncBar({ stats, settings, timezone }: Readonly<Props>) {
         </Body>
       </XStack>
       <Caption>
-        Last synced {formatLastSync(stats.lastSyncAt, timezone)} · {syncPolicyText(settings)}
+        {t('Last synced {time}', { time: formatLastSync(stats.lastSyncAt, timezone) })} ·{' '}
+        {syncPolicyText(settings)}
       </Caption>
       {message !== null && !stats.syncing ? (
         <Notice severity={message.severity}>{message.text}</Notice>

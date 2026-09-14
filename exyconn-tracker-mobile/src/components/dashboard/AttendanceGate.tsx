@@ -1,3 +1,4 @@
+import { useT } from '@exyconn/i18n';
 import type { Workday } from '@exyconn/tracker-core';
 import { humanize } from '@exyconn/tracker-core';
 import { AttendanceForm } from '../../forms/attendance';
@@ -5,13 +6,6 @@ import { Caption } from '../ui/Typography';
 
 interface Props {
   workday: Workday | null;
-}
-
-/** "Marked in today as Working from home — dentist at 4." */
-function markedLine(workday: Workday): string {
-  const status = humanize(workday.attendanceStatus ?? 'PRESENT');
-  const note = workday.attendanceNote ? ` — ${workday.attendanceNote}` : '';
-  return `Marked in today as ${status}${note}.`;
 }
 
 /**
@@ -23,11 +17,19 @@ function markedLine(workday: Workday): string {
  * arrives here already done. Nothing at all until the portal has told us what today is.
  */
 export function AttendanceGate({ workday }: Readonly<Props>) {
+  const t = useT();
   if (workday === null) {
     return null;
   }
   if (workday.attendanceMarked) {
-    return <Caption>{markedLine(workday)}</Caption>;
+    // "Marked in today as Working from home — dentist at 4."
+    const status = t(humanize(workday.attendanceStatus ?? 'PRESENT'));
+    const note = workday.attendanceNote ?? '';
+    const line =
+      note === ''
+        ? t('Marked in today as {status}.', { status })
+        : t('Marked in today as {status} — {note}.', { status, note });
+    return <Caption>{line}</Caption>;
   }
   return <AttendanceForm />;
 }

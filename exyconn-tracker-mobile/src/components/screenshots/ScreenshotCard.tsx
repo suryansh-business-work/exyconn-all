@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { Pressable } from 'react-native';
 import { XStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import {
   activityColor,
   activityLabel,
@@ -26,6 +27,7 @@ interface Props {
 
 /** One screenshot, with the activity level of its interval and the time it was captured. */
 export function ScreenshotCard({ shot, timezone, width, onOpen }: Readonly<Props>) {
+  const t = useT();
   const hairline = useThemeColor('hairline');
   const muted = useThemeColor('muted');
   const capturedAt = formatDateTime(shot.capturedAt, timezone);
@@ -35,14 +37,16 @@ export function ScreenshotCard({ shot, timezone, width, onOpen }: Readonly<Props
       <Pressable
         onPress={onOpen}
         accessibilityRole="imagebutton"
-        accessibilityLabel={`Open the screenshot captured at ${capturedAt} full screen`}
+        accessibilityLabel={t('Open the screenshot captured at {time} full screen', {
+          time: capturedAt,
+        })}
       >
         <Image
           source={{ uri: shot.imageUrl }}
           contentFit="cover"
           recyclingKey={shot.id}
           transition={150}
-          accessibilityLabel={`Screenshot captured at ${capturedAt}`}
+          accessibilityLabel={t('Screenshot captured at {time}', { time: capturedAt })}
           style={{
             width: '100%',
             aspectRatio: 16 / 10,
@@ -63,11 +67,11 @@ export function ScreenshotCard({ shot, timezone, width, onOpen }: Readonly<Props
               name="blur"
               size={18}
               color={muted}
-              label="Blurred by your workspace's settings"
+              label={t("Blurred by your workspace's settings")}
             />
           ) : null}
           <Chip
-            label={activityLabel(shot.activityPercent)}
+            label={activityLabel(t, shot.activityPercent)}
             tone={activityColor(shot.activityPercent)}
           />
         </XStack>

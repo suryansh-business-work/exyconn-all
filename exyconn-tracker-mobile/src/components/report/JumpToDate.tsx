@@ -5,6 +5,7 @@ import DateTimePicker, {
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import { XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { formatDayLabel } from '@exyconn/tracker-core';
 import { TRACKER_RADIUS } from '../../theme/tokens';
 import { Icon } from '../ui/Icon';
@@ -23,6 +24,7 @@ interface Props {
  * is shown through the day formatter, never re-zoned.
  */
 export function JumpToDate({ selected, maxDate, onSelect }: Readonly<Props>) {
+  const t = useT();
   const [iosOpen, setIosOpen] = useState(false);
   const label = formatDayLabel(selected);
 
@@ -49,12 +51,12 @@ export function JumpToDate({ selected, maxDate, onSelect }: Readonly<Props>) {
   return (
     <YStack gap="$1.5">
       <Caption fontWeight="600" color="$ink">
-        Jump to date
+        {t('Jump to date')}
       </Caption>
       <Pressable
         onPress={open}
         accessibilityRole="button"
-        accessibilityLabel={`Jump to date: ${label}`}
+        accessibilityLabel={t('Jump to date: {date}', { date: label })}
         accessibilityState={{ expanded: iosOpen }}
       >
         <XStack

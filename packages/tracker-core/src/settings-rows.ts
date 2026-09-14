@@ -1,4 +1,5 @@
 import type { TrackerSettings, WebcamCorner } from './types';
+import type { Translate } from './translate';
 import { formatHourLabel } from './schedule';
 
 export interface SettingRow {
@@ -7,51 +8,83 @@ export interface SettingRow {
   value: string;
 }
 
-function plural(count: number, unit: string): string {
-  return `${count} ${unit}${count === 1 ? '' : 's'}`;
+/**
+ * A count and its unit, as one whole sentence per number rather than an "s" glued on: a
+ * language that inflects the noun with the number cannot be translated a suffix at a time.
+ */
+function minuteCount(t: Translate, count: number): string {
+  if (count === 1) {
+    return t('{count} minute', { count });
+  }
+  return t('{count} minutes', { count });
 }
 
-function yesNo(value: boolean): string {
-  return value ? 'On' : 'Off';
+function secondCount(t: Translate, count: number): string {
+  if (count === 1) {
+    return t('{count} second', { count });
+  }
+  return t('{count} seconds', { count });
+}
+
+function screenshotCount(t: Translate, count: number): string {
+  if (count === 1) {
+    return t('{count} screenshot', { count });
+  }
+  return t('{count} screenshots', { count });
+}
+
+function yesNo(t: Translate, value: boolean): string {
+  return value ? t('On') : t('Off');
 }
 
 /** The quality dial, said out loud — 100 is not "100 of something", it is lossless. */
-function qualityPolicy(settings: TrackerSettings): string {
+function qualityPolicy(t: Translate, settings: TrackerSettings): string {
   if (settings.screenshotQuality >= 100) {
-    return '100% — full resolution, lossless';
+    return t('100% — full resolution, lossless');
   }
-  return `${settings.screenshotQuality}% — up to ${settings.screenshotMaxWidth}px wide`;
+  return t('{quality}% — up to {width}px wide', {
+    quality: settings.screenshotQuality,
+    width: settings.screenshotMaxWidth,
+  });
 }
 
-/** Where the webcam photo lands, in the words the portal's own picker uses. */
-const CORNER_LABEL: Record<WebcamCorner, string> = {
-  'top-left': 'top left',
-  'top-right': 'top right',
-  'bottom-left': 'bottom left',
-  'bottom-right': 'bottom right',
+/**
+ * Where the webcam photo lands, in the words the portal's own picker uses — one whole
+ * sentence per corner, so a language that puts the place somewhere else in the clause still
+ * has a string it can rewrite.
+ */
+const CORNER_POLICY: Record<WebcamCorner, string> = {
+  'top-left': 'On — shown in the top left of each screenshot',
+  'top-right': 'On — shown in the top right of each screenshot',
+  'bottom-left': 'On — shown in the bottom left of each screenshot',
+  'bottom-right': 'On — shown in the bottom right of each screenshot',
 };
 
-function webcamPolicy(settings: TrackerSettings): string {
+function webcamPolicy(t: Translate, settings: TrackerSettings): string {
   if (!settings.webcamEnabled) {
-    return 'Off — no photo is taken';
+    return t('Off — no photo is taken');
   }
-  return `On — shown in the ${CORNER_LABEL[settings.webcamCorner]} of each screenshot`;
+  return t(CORNER_POLICY[settings.webcamCorner]);
 }
 
 /** When the app stops on its own, said the way the employee experiences it. */
-function autoPausePolicy(settings: TrackerSettings): string {
-  if (settings.idleAutoPauseMinutes <= 0) {
-    return 'Never — tracking runs until you stop it';
+function autoPausePolicy(t: Translate, settings: TrackerSettings): string {
+  const minutes = settings.idleAutoPauseMinutes;
+  if (minutes <= 0) {
+    return t('Never — tracking runs until you stop it');
   }
-  return `After ${plural(settings.idleAutoPauseMinutes, 'minute')} with no activity`;
+  if (minutes === 1) {
+    return t('After {count} minute with no activity', { count: minutes });
+  }
+  return t('After {count} minutes with no activity', { count: minutes });
 }
 
 /** Whether a capture is announced out loud, and by whose decision. */
-function captureSoundPolicy(settings: TrackerSettings): string {
+function captureSoundPolicy(t: Translate, settings: TrackerSettings): string {
   if (settings.captureSoundEnabled) {
-    return 'A shutter plays';
+    return t('A shutter plays');
   }
-  return 'Silent — you are still notified';
+  return t('Silent — you are still notified');
 }
 
 /**
@@ -60,55 +93,68 @@ function captureSoundPolicy(settings: TrackerSettings): string {
  * The stop hour is the one an employee most needs in front of them: after it, nothing they do
  * is logged, and finding that out from an empty timesheet is finding it out too late.
  */
-function schedulePolicy(settings: TrackerSettings): string {
+function schedulePolicy(t: Translate, settings: TrackerSettings): string {
   if (!settings.autoStartEnabled) {
-    return 'You start and stop it';
+    return t('You start and stop it');
   }
-  const start = formatHourLabel(settings.autoStartHour);
-  const stop = formatHourLabel(settings.autoStopHour);
   // Just the window. What it COSTS to be outside it is the dashboard notice's job, and saying
   // it twice made this row long enough to need two lines of its own.
-  return `${start} – ${stop}, then it stops`;
+  return t('{start} – {stop}, then it stops', {
+    start: formatHourLabel(settings.autoStartHour),
+    stop: formatHourLabel(settings.autoStopHour),
+  });
 }
 
 /** Uploading is automatic and always on; only the cadence is an administrator's choice. */
-function syncPolicy(settings: TrackerSettings): string {
-  return `Automatic, every ${plural(settings.syncIntervalMinutes, 'minute')}`;
+function syncPolicy(t: Translate, settings: TrackerSettings): string {
+  const minutes = settings.syncIntervalMinutes;
+  if (minutes === 1) {
+    return t('Automatic, every {count} minute', { count: minutes });
+  }
+  return t('Automatic, every {count} minutes', { count: minutes });
 }
 
 /**
  * What the workspace has configured, in plain language. Read-only on purpose:
  * these are set by an admin in the portal, never from this app.
  */
-export function buildSettingRows(settings: TrackerSettings): SettingRow[] {
+export function buildSettingRows(t: Translate, settings: TrackerSettings): SettingRow[] {
   return [
     {
       id: 'interval',
-      label: 'Tracking interval',
-      value: plural(settings.intervalMinutes, 'minute'),
+      label: t('Tracking interval'),
+      value: minuteCount(t, settings.intervalMinutes),
     },
     {
       id: 'screenshots',
-      label: 'Screenshots per interval',
-      value: plural(settings.screenshotsPerInterval, 'screenshot'),
+      label: t('Screenshots per interval'),
+      value: screenshotCount(t, settings.screenshotsPerInterval),
     },
     {
       id: 'randomize',
-      label: 'Randomised screenshot timing',
-      value: yesNo(settings.randomizeScreenshotTiming),
+      label: t('Randomised screenshot timing'),
+      value: yesNo(t, settings.randomizeScreenshotTiming),
     },
-    { id: 'quality', label: 'Screenshot quality', value: qualityPolicy(settings) },
-    { id: 'blur', label: 'Blur screenshots', value: yesNo(settings.blurScreenshots) },
-    { id: 'webcam', label: 'Webcam photo', value: webcamPolicy(settings) },
-    { id: 'titles', label: 'Record window titles', value: yesNo(settings.trackWindowTitles) },
+    { id: 'quality', label: t('Screenshot quality'), value: qualityPolicy(t, settings) },
+    { id: 'blur', label: t('Blur screenshots'), value: yesNo(t, settings.blurScreenshots) },
+    { id: 'webcam', label: t('Webcam photo'), value: webcamPolicy(t, settings) },
+    {
+      id: 'titles',
+      label: t('Record window titles'),
+      value: yesNo(t, settings.trackWindowTitles),
+    },
     {
       id: 'idle',
-      label: 'Idle after',
-      value: plural(settings.idleThresholdSeconds, 'second'),
+      label: t('Idle after'),
+      value: secondCount(t, settings.idleThresholdSeconds),
     },
-    { id: 'auto-pause', label: 'Pauses itself', value: autoPausePolicy(settings) },
-    { id: 'capture-sound', label: 'Screenshot sound', value: captureSoundPolicy(settings) },
-    { id: 'schedule', label: 'Tracking hours', value: schedulePolicy(settings) },
-    { id: 'sync', label: 'Upload', value: syncPolicy(settings) },
+    { id: 'auto-pause', label: t('Pauses itself'), value: autoPausePolicy(t, settings) },
+    {
+      id: 'capture-sound',
+      label: t('Screenshot sound'),
+      value: captureSoundPolicy(t, settings),
+    },
+    { id: 'schedule', label: t('Tracking hours'), value: schedulePolicy(t, settings) },
+    { id: 'sync', label: t('Upload'), value: syncPolicy(t, settings) },
   ];
 }

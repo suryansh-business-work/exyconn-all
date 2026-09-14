@@ -1,4 +1,5 @@
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { ThemeMode } from '@exyconn/tracker-core';
 import { tracker } from '../../tracker/instance';
 import { Caption } from '../ui/Typography';
@@ -21,17 +22,19 @@ interface Props {
  * phone it is on without being asked. The other two are for when it should not.
  */
 export function ThemeModePicker({ mode }: Readonly<Props>) {
+  const t = useT();
   const caption =
     mode === 'system'
-      ? 'Following your phone’s setting, and switching with it.'
-      : 'Fixed to your choice, whatever the phone does.';
+      ? t('Following your phone’s setting, and switching with it.')
+      : t('Fixed to your choice, whatever the phone does.');
+  const options = OPTIONS.map((option) => ({ ...option, label: t(option.label) }));
   return (
     <YStack gap="$2">
       <SegmentedControl
         kind="choice"
         full
-        label="Appearance"
-        options={OPTIONS}
+        label={t('Appearance')}
+        options={options}
         value={mode}
         onChange={(themeMode) => tracker.setPreferences({ themeMode })}
       />

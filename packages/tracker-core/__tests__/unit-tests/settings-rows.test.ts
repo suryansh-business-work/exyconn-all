@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { TrackerSettings } from '../../src/types';
 import { buildSettingRows } from '../../src/settings-rows';
+import { t } from './translator';
 
 const SETTINGS: TrackerSettings = {
   intervalMinutes: 10,
@@ -24,7 +25,7 @@ const SETTINGS: TrackerSettings = {
 
 /** The value the employee reads against one row label. */
 function valueOf(settings: TrackerSettings, id: string): string {
-  return buildSettingRows(settings).find((row) => row.id === id)?.value ?? '';
+  return buildSettingRows(t, settings).find((row) => row.id === id)?.value ?? '';
 }
 
 describe('buildSettingRows', () => {

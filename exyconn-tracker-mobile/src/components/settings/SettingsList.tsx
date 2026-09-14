@@ -1,4 +1,5 @@
 import { Separator, XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import type { PhoneSettingRow } from '../../lib/settings/phone-notes';
 import { Icon } from '../ui/Icon';
 import { Body, Caption } from '../ui/Typography';
@@ -8,6 +9,9 @@ interface Props {
 }
 
 function Row({ row }: Readonly<{ row: PhoneSettingRow }>) {
+  // The label and the value arrive translated from `buildSettingRows`; the phone's own note
+  // is written here, as a whole sentence with nothing interpolated, so it is a key as it is.
+  const t = useT();
   return (
     <YStack paddingVertical="$2.5" gap="$1.5">
       {/* Wraps instead of overlapping: a value that cannot fit beside its label drops to the
@@ -22,7 +26,7 @@ function Row({ row }: Readonly<{ row: PhoneSettingRow }>) {
       {row.note === undefined ? null : (
         <XStack gap="$1.5" alignItems="flex-start">
           <Icon name="cellphone-information" size={16} />
-          <Caption flex={1}>{row.note}</Caption>
+          <Caption flex={1}>{t(row.note)}</Caption>
         </XStack>
       )}
     </YStack>

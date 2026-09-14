@@ -1,4 +1,5 @@
 import { Switch, XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { useBrand } from '../../theme/BrandProvider';
 import { tracker } from '../../tracker/instance';
 import { SegmentedControl, type SegmentOption } from '../ui/SegmentedControl';
@@ -26,17 +27,17 @@ interface Props {
  * contrast; the opacity says how much of the plain ground is left over the gradient.
  */
 export function TransparencyPreference({ transparent, opacity }: Readonly<Props>) {
+  const t = useT();
   const brand = useBrand();
+  const caption = transparent
+    ? t('Your workspace’s colours show through behind the cards.')
+    : t('The background is painted solid.');
   return (
     <YStack gap="$2">
       <XStack gap="$3" alignItems="flex-start">
         <YStack flex={1} gap="$1">
-          <Body fontWeight="600">Transparent background</Body>
-          <Caption>
-            {transparent
-              ? 'Your workspace’s colours show through behind the cards.'
-              : 'The background is painted solid.'}
-          </Caption>
+          <Body fontWeight="600">{t('Transparent background')}</Body>
+          <Caption>{caption}</Caption>
         </YStack>
         <Switch
           native="mobile"
@@ -44,7 +45,7 @@ export function TransparencyPreference({ transparent, opacity }: Readonly<Props>
           onCheckedChange={(next) => tracker.setPreferences({ transparentBackground: next })}
           nativeProps={{
             trackColor: { true: brand.primary },
-            accessibilityLabel: 'Transparent background',
+            accessibilityLabel: t('Transparent background'),
             accessibilityState: { checked: transparent },
           }}
         />
@@ -53,7 +54,7 @@ export function TransparencyPreference({ transparent, opacity }: Readonly<Props>
         <SegmentedControl
           kind="choice"
           full
-          label="Background opacity"
+          label={t('Background opacity')}
           options={OPACITY}
           value={String(opacity)}
           onChange={(next) => tracker.setPreferences({ backgroundOpacity: Number(next) })}

@@ -7,10 +7,12 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Spinner, YStack } from 'tamagui';
 import { UpdateBanner } from '../components/shell/UpdateBanner';
 import { Ground } from '../components/ui/Ground';
+import { TrackerI18nProvider } from '../i18n/I18n';
 import { useLogContext } from '../hooks/useLogContext';
 import { useTrackerState } from '../hooks/useTrackerState';
 import { BrandProvider, useBrand } from '../theme/BrandProvider';
 import { INTER_FILES } from '../theme/fonts';
+import { deviceTimezone } from '@exyconn/tracker-core';
 import { bootTracker } from '../tracker/instance';
 import { run } from '../tracker/run';
 import { scheduleUpdateChecks } from '../tracker/updates';
@@ -99,17 +101,22 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <BrandProvider
-          branding={state?.branding ?? null}
-          themeMode={state?.preferences.themeMode ?? 'system'}
-          groundOpacity={groundOpacityOf(state)}
+        <TrackerI18nProvider
+          locale={state?.locale ?? null}
+          timezone={state?.timezone ?? deviceTimezone()}
         >
-          <Ground />
-          <ThemedStatusBar />
-          {/* Above the router: a new version matters on the sign-in screen too. */}
-          {fontsSettled ? <UpdateBanner /> : null}
-          {state === null || !fontsSettled ? <Loading /> : <RootStack state={state} />}
-        </BrandProvider>
+          <BrandProvider
+            branding={state?.branding ?? null}
+            themeMode={state?.preferences.themeMode ?? 'system'}
+            groundOpacity={groundOpacityOf(state)}
+          >
+            <Ground />
+            <ThemedStatusBar />
+            {/* Above the router: a new version matters on the sign-in screen too. */}
+            {fontsSettled ? <UpdateBanner /> : null}
+            {state === null || !fontsSettled ? <Loading /> : <RootStack state={state} />}
+          </BrandProvider>
+        </TrackerI18nProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

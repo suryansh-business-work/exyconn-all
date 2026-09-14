@@ -2,6 +2,7 @@ import type { TrackerStatus } from '@exyconn/tracker-core';
 import { useState } from 'react';
 import { Linking } from 'react-native';
 import { YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import { missingPermissions } from '../../lib/permissions/permission-rows';
 import { refreshPermissions, requestPermission } from '../../tracker/instance';
 import { messageOf } from '../../tracker/run';
@@ -37,6 +38,7 @@ export function PermissionsScreen({
   status,
   pendingSync,
 }: Readonly<Props>) {
+  const t = useT();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const missing = missingPermissions(permissions, capabilities);
@@ -48,7 +50,7 @@ export function PermissionsScreen({
       await action();
     } catch (cause: unknown) {
       console.error('Permission request failed', cause);
-      setError(messageOf(cause, REQUEST_FAILED));
+      setError(messageOf(cause, t(REQUEST_FAILED)));
     } finally {
       setBusy(false);
     }
@@ -65,10 +67,11 @@ export function PermissionsScreen({
       </YStack>
       <Surface padding="$5" gap="$4">
         <YStack gap="$1">
-          <Title>Grant permissions</Title>
+          <Title>{t('Grant permissions')}</Title>
           <Caption>
-            Your phone needs your permission before the tracker can work. Grant each item below —
-            the list updates by itself when you come back to the app.
+            {t(
+              'Your phone needs your permission before the tracker can work. Grant each item below — the list updates by itself when you come back to the app.',
+            )}
           </Caption>
         </YStack>
 
@@ -86,7 +89,7 @@ export function PermissionsScreen({
         </YStack>
 
         <AppButton
-          label="Re-check"
+          label={t('Re-check')}
           tone="outlined"
           icon="refresh"
           full
@@ -95,11 +98,12 @@ export function PermissionsScreen({
         />
         <YStack gap="$2">
           <Caption>
-            Some features will not work until these are granted. If tapping Allow shows nothing, the
-            phone has stopped asking — allow it in this app's Settings instead.
+            {t(
+              "Some features will not work until these are granted. If tapping Allow shows nothing, the phone has stopped asking — allow it in this app's Settings instead.",
+            )}
           </Caption>
           <AppButton
-            label="Open Settings"
+            label={t('Open Settings')}
             tone="text"
             icon="cog-outline"
             full

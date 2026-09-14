@@ -1,4 +1,5 @@
 import { ScrollView, XStack, YStack } from 'tamagui';
+import { useT } from '@exyconn/i18n';
 import {
   activityColor,
   activityPercent,
@@ -61,9 +62,10 @@ function DayRow({ day }: Readonly<{ day: ReportDay }>) {
 
 /** Day-by-day table of the employee's own tracked time. Scrolls sideways on a narrow phone. */
 export function ReportTable({ days, loading }: Readonly<Props>) {
+  const t = useT();
   if (loading) {
     return (
-      <Surface accessible accessibilityLabel="Loading your tracked days">
+      <Surface accessible accessibilityLabel={t('Loading your tracked days')}>
         {SKELETON_ROWS.map((id) => (
           <SkeletonBlock key={id} height={40} />
         ))}
@@ -74,9 +76,9 @@ export function ReportTable({ days, loading }: Readonly<Props>) {
   if (days.length === 0) {
     return (
       <Surface padding="$6" alignItems="center" gap="$1">
-        <Heading size="$4">No tracked time this month</Heading>
+        <Heading size="$4">{t('No tracked time this month')}</Heading>
         <Body color="$muted" textAlign="center">
-          Days appear here once you start tracking and sync.
+          {t('Days appear here once you start tracking and sync.')}
         </Body>
       </Surface>
     );
@@ -89,7 +91,7 @@ export function ReportTable({ days, loading }: Readonly<Props>) {
           <XStack paddingVertical="$2">
             {COLUMNS.map((column) => (
               <Caption key={column} width={CELL_WIDTH} fontWeight="700" color="$ink">
-                {column}
+                {t(column)}
               </Caption>
             ))}
           </XStack>

@@ -1,4 +1,5 @@
 import { Tabs } from 'expo-router/tabs';
+import { useT } from '@exyconn/i18n';
 import { AppHeader } from '../../components/shell/AppHeader';
 import { TabBar } from '../../components/shell/TabBar';
 import { useNotificationRouting } from '../../hooks/useNotificationRouting';
@@ -13,6 +14,7 @@ const CLEAR_SCENE = { backgroundColor: 'transparent' } as const;
  * desktop's five sections. Every screen reads the one live tracker state.
  */
 export default function AppLayout() {
+  const t = useT();
   const state = useTrackerState();
   useNotificationRouting();
   const status = state?.status ?? 'idle';
@@ -24,7 +26,7 @@ export default function AppLayout() {
         sceneStyle: CLEAR_SCENE,
         header: () => (
           <AppHeader
-            title={titleOf(route.name as Section)}
+            title={t(titleOf(route.name as Section))}
             status={status}
             user={state?.user ?? null}
             themeMode={state?.preferences.themeMode ?? 'system'}
@@ -34,7 +36,7 @@ export default function AppLayout() {
       })}
     >
       {NAV_ITEMS.map((item) => (
-        <Tabs.Screen key={item.id} name={item.id} options={{ title: item.label }} />
+        <Tabs.Screen key={item.id} name={item.id} options={{ title: t(item.label) }} />
       ))}
     </Tabs>
   );
