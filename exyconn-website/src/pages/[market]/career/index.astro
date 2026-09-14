@@ -1,0 +1,598 @@
+---
+import Page from "../../../layouts/Page.astro";
+import {
+  getCompanySummaries,
+  getDaysAgo,
+  getJobCompanies,
+  getJobsWithCompanies,
+  getOpenGigs,
+} from "../../../lib/portal";
+import { gigCategoryColors } from "../../../lib/gigCategoryColors";
+
+// The group company advertises cross-brand roles and gets its own card below,
+// so it is kept out of the individual-company grid.
+const GROUP_COMPANY_SLUG = "group";
+
+const [allJobs, jobCompanies, activeGigs] = await Promise.all([
+  getJobsWithCompanies(),
+  getJobCompanies(),
+  getOpenGigs(),
+]);
+
+const jobs = allJobs.map(({ job }) => job);
+const companies = getCompanySummaries(jobCompanies, jobs).filter(
+  (company) => company.slug !== GROUP_COMPANY_SLUG
+);
+const groupJobs = jobs.filter((job) => job.companySlug === GROUP_COMPANY_SLUG);
+const totalJobs = jobs.length;
+const totalGigs = activeGigs.length;
+
+// Category icon mapping for gigs
+const gigCategoryIcons: Record<string, string> = {
+  Development: "fa-code",
+  Design: "fa-palette",
+  Writing: "fa-pen-fancy",
+  Marketing: "fa-bullhorn",
+  Video: "fa-video",
+  Data: "fa-database",
+  "AI/ML": "fa-robot",
+  Other: "fa-briefcase",
+};
+---
+
+<Page
+  metaTitle="Careers & Freelance Gigs | Exyconn"
+  metaDescription="Explore career opportunities across Exyconn, Spentiva, Sibera, and Duncit. Full-time roles and freelance gigs in AI, FinTech, community apps, and more."
+  metaKeywords="careers, jobs, freelance, gigs, AI jobs, SaaS jobs, remote jobs, Exyconn careers"
+  metaImage="/career/og-image.png"
+>
+  <main class="bg-surface-subtle min-h-screen">
+    <!-- Hero Section - Light Mode -->
+    <section
+      class="relative py-24 px-6 overflow-hidden bg-gradient-to-br from-surface-subtle via-blue-subtle to-indigo-soft"
+    >
+      <!-- Grid Pattern Overlay -->
+      <div class="absolute inset-0 opacity-30 pattern-dots bg-indigo-strong/8"></div>
+
+      <!-- Floating Orbs -->
+      <div class="absolute top-20 left-10 w-72 h-72 bg-blue-muted/40 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-muted/30 rounded-full blur-3xl">
+      </div>
+      <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-soft/40 rounded-full blur-3xl"
+      >
+      </div>
+
+      <div class="relative z-10 max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+          <!-- Live Badge -->
+          <div
+            class="inline-flex items-center gap-3 px-5 py-2.5 bg-surface/70 backdrop-blur-md rounded-full border border-line shadow-sm mb-8"
+          >
+            <span class="relative flex h-3 w-3">
+              <span
+                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green opacity-75"
+              ></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-green"></span>
+            </span>
+            <span class="text-fg-secondary font-medium"
+              >{totalJobs} Jobs + {totalGigs} Gigs Available</span
+            >
+          </div>
+
+          <h1 class="text-5xl md:text-7xl font-black text-fg mb-6 leading-tight tracking-tight">
+            Build. Create.<br />
+            <span
+              class="bg-gradient-to-r from-blue-strong via-indigo-strong to-purple-strong bg-clip-text text-transparent"
+            >
+              Grow With Us.
+            </span>
+          </h1>
+
+          <p class="text-xl text-fg-muted max-w-2xl mx-auto mb-10">
+            Join our ecosystem of innovative companies. Full-time roles, group positions, or
+            freelance gigs — find your perfect opportunity.
+          </p>
+
+          <!-- Quick Links -->
+          <div class="flex flex-wrap justify-center gap-4">
+            <a
+              href="#companies"
+              class="px-6 py-3 bg-inverse text-on-solid font-bold rounded-full hover:bg-inverse-muted transition shadow-xl"
+            >
+              <i class="fa-solid fa-building mr-2"></i>View Companies
+            </a>
+            <a
+              href="#freelance"
+              class="px-6 py-3 bg-surface text-fg-secondary font-bold rounded-full border border-line hover:bg-surface-subtle transition shadow-sm"
+            >
+              <i class="fa-solid fa-laptop-code mr-2"></i>Freelance Gigs
+            </a>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          {
+            [
+              {
+                value: companies.length,
+                label: "Companies",
+                icon: "fa-building",
+                color: "from-blue to-cyan",
+              },
+              {
+                value: totalJobs,
+                label: "Open Roles",
+                icon: "fa-briefcase",
+                color: "from-violet to-purple",
+              },
+              {
+                value: totalGigs,
+                label: "Freelance Gigs",
+                icon: "fa-laptop-code",
+                color: "from-amber to-orange",
+              },
+              {
+                value: "100%",
+                label: "Remote Options",
+                icon: "fa-globe",
+                color: "from-emerald to-teal",
+              },
+            ].map((stat) => (
+              <div class="group bg-surface/80 backdrop-blur-sm rounded-2xl p-5 border border-line shadow-sm hover:shadow-lg transition-all duration-300">
+                <div
+                  class={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3`}
+                >
+                  <i class={`fa-solid ${stat.icon} text-on-solid`} />
+                </div>
+                <div class="text-3xl font-black text-fg mb-1">{stat.value}</div>
+                <div class="text-sm text-fg-subtle">{stat.label}</div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Companies Section -->
+    <section id="companies" class="py-20 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-14">
+          <span
+            class="inline-block px-4 py-1.5 bg-indigo-soft text-indigo-fg-strong rounded-full text-sm font-semibold mb-4"
+          >
+            OUR ECOSYSTEM
+          </span>
+          <h2 class="text-4xl font-black text-fg mb-4">Explore by Company</h2>
+          <p class="text-fg-muted max-w-xl mx-auto">
+            Each brand has unique culture, products, and opportunities. Find your perfect match.
+          </p>
+        </div>
+
+        <!-- Company Cards Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {
+            companies.map((company) => (
+              <a
+                href={`/career/company/${company.slug}`}
+                class="group relative bg-surface rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-line-subtle"
+              >
+                {/* Content */}
+                <div class="py-6 px-6">
+                  {/* Job Count Badge */}
+                  <div class="absolute top-4 right-4">
+                    <span
+                      class="px-3 py-1.5 backdrop-blur-sm rounded-full text-on-solid text-sm font-bold"
+                      style={`background: ${company.brandColor};`}
+                    >
+                      {company.activeJobCount} {company.activeJobCount === 1 ? "role" : "roles"}
+                    </span>
+                  </div>
+                  {/* Logo Badge */}
+                  <div class="flex items-center gap-4 mb-4">
+                    <div class="w-14 h-14 bg-surface rounded-xl shadow-md flex items-center justify-center p-2 border border-line-subtle group-hover:scale-105 transition-transform duration-300">
+                      <img
+                        src={company.logo}
+                        alt={company.name}
+                        class="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-bold text-fg group-hover:text-indigo-fg transition">
+                        {company.name}
+                      </h3>
+                      <p class="text-sm text-fg-subtle">{company.industry}</p>
+                    </div>
+                  </div>
+
+                  <p class="text-sm text-fg-muted line-clamp-2 mb-4">{company.tagline}</p>
+
+                  <div class="flex items-center text-sm font-medium text-fg-faint group-hover:text-indigo-fg transition">
+                    View openings
+                    <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform" />
+                  </div>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+
+        <!-- Group Roles Card -->
+        {
+          groupJobs.length > 0 && (
+            <a
+              href="/career/company/group"
+              class="group block bg-gradient-to-r from-indigo-strong via-purple-strong to-pink-strong rounded-2xl p-8 text-on-solid relative overflow-hidden"
+            >
+              <div class="absolute inset-0 opacity-20 pattern-rings bg-on-solid/30" />
+
+              <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div class="flex items-center gap-5">
+                  <div class="w-16 h-16 bg-on-solid/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                    <i class="fa-solid fa-layer-group text-3xl" />
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-3 mb-2">
+                      <h3 class="text-2xl font-bold">Group Roles</h3>
+                      <span class="px-2.5 py-1 bg-on-solid/20 rounded-full text-sm font-semibold">
+                        {groupJobs.length} positions
+                      </span>
+                    </div>
+                    <p class="text-on-solid/80">
+                      Work across all {companies.length} companies. One role, unlimited variety.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                  <div class="flex -space-x-3">
+                    {companies.slice(0, 4).map((c) => (
+                      <div class="w-10 h-10 bg-surface rounded-full flex items-center justify-center shadow-lg border-2 border-indigo-strong">
+                        <img src={c.logo} alt={c.name} class="w-6 h-6 object-contain" />
+                      </div>
+                    ))}
+                    <div class="w-10 h-10 bg-on-solid/20 rounded-full flex items-center justify-center text-xs font-bold">
+                      +{companies.length - 4}
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-arrow-right text-2xl group-hover:translate-x-2 transition-transform" />
+                </div>
+              </div>
+            </a>
+          )
+        }
+      </div>
+    </section>
+
+    <!-- All Jobs Section -->
+    <section id="jobs" class="py-20 px-6 bg-surface">
+      <div class="max-w-5xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+          <div>
+            <span
+              class="inline-block px-4 py-1.5 bg-blue-soft text-blue-fg-strong rounded-full text-sm font-semibold mb-4"
+            >
+              FULL-TIME POSITIONS
+            </span>
+            <h2 class="text-4xl font-black text-fg mb-2">All Open Roles</h2>
+            <p class="text-fg-muted">{totalJobs} opportunities across our portfolio</p>
+          </div>
+        </div>
+
+        <!-- Jobs List -->
+        <div class="space-y-4">
+          {
+            allJobs.map(({ job, company }) => (
+              <a
+                href={`/career/company/${company.slug}/job/${job.jobCode}`}
+                class="group flex flex-col lg:flex-row lg:items-center gap-5 bg-surface-subtle hover:bg-surface rounded-2xl p-6 border border-transparent hover:border-line hover:shadow-xl transition-all duration-300"
+              >
+                {/* Company Logo */}
+                <div
+                  class="w-14 h-14 rounded-xl flex items-center justify-center shrink-0"
+                  style={`background: ${company.brandColor}15;`}
+                >
+                  <img src={company.logo} alt={company.name} class="w-10 h-10 object-contain" />
+                </div>
+
+                {/* Job Info */}
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-3 flex-wrap mb-2">
+                    <h3 class="text-lg font-bold text-fg group-hover:text-indigo-fg transition">
+                      {job.title}
+                    </h3>
+                    <span class="px-2 py-0.5 bg-surface-strong text-fg-subtle rounded text-xs font-mono">
+                      #{job.jobCode}
+                    </span>
+                    {job.isFeatured && (
+                      <span class="px-2 py-0.5 bg-amber-soft text-amber-fg-strong rounded text-xs font-semibold">
+                        <i class="fa-solid fa-star text-[10px] mr-1" />
+                        Featured
+                      </span>
+                    )}
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-fg-subtle">
+                    <span class="font-medium" style={`color: ${company.brandColor};`}>
+                      {company.name}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i class="fa-solid fa-location-dot text-xs" />
+                      {job.location}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i class="fa-solid fa-clock text-xs" />
+                      {job.workMode}
+                    </span>
+                    {job.salaryRange && (
+                      <span class="flex items-center gap-1">
+                        <i class="fa-solid fa-indian-rupee-sign text-xs" />
+                        {job.salaryRange}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Meta & Arrow */}
+                <div class="flex items-center gap-4 shrink-0">
+                  <span class="text-xs text-fg-faint">{getDaysAgo(job.jobPostDate)}</span>
+                  <div class="w-10 h-10 rounded-full bg-surface-muted group-hover:bg-indigo-strong flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-arrow-right text-fg-faint group-hover:text-on-solid transition" />
+                  </div>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Freelance Gigs Section -->
+    <section
+      id="freelance"
+      class="py-20 px-6 bg-gradient-to-br from-amber-subtle via-orange-subtle to-yellow-subtle"
+    >
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-14">
+          <span
+            class="inline-block px-4 py-1.5 bg-amber-soft text-amber-fg-strong rounded-full text-sm font-semibold mb-4"
+          >
+            <i class="fa-solid fa-bolt mr-1"></i>FREELANCE OPPORTUNITIES
+          </span>
+          <h2 class="text-4xl font-black text-fg mb-4">Short-Term Gigs & Projects</h2>
+          <p class="text-fg-muted max-w-xl mx-auto mb-6">
+            Contract-based work for skilled freelancers. Quick projects, fair pay, flexible timing.
+          </p>
+          <a
+            href="/career/gigs"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-amber text-on-solid font-bold rounded-full hover:bg-amber-strong transition shadow-lg"
+          >
+            <i class="fa-solid fa-grid-2"></i>
+            View All {activeGigs.length} Gigs
+          </a>
+        </div>
+
+        <!-- Gigs Grid (Preview - First 6) -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {
+            activeGigs.slice(0, 6).map((gig) => (
+              <a
+                href={`/career/gig/${gig.gigCode}`}
+                class="group block bg-surface rounded-2xl p-6 shadow-sm hover:shadow-xl border border-line-subtle hover:border-amber-muted transition-all duration-300 relative overflow-hidden"
+              >
+                {/* Urgent Badge */}
+                {gig.isUrgent && (
+                  <div class="absolute top-4 right-4">
+                    <span class="px-2.5 py-1 bg-red-soft text-red-fg rounded-full text-xs font-bold animate-pulse">
+                      <i class="fa-solid fa-fire mr-1" />
+                      Urgent
+                    </span>
+                  </div>
+                )}
+
+                {/* Category Icon */}
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                  style={`background: ${gigCategoryColors(gig.category).tint};`}
+                >
+                  <i
+                    class={`fa-solid ${gigCategoryIcons[gig.category]} text-xl`}
+                    style={`color: ${gigCategoryColors(gig.category).ink};`}
+                  />
+                </div>
+
+                {/* Content */}
+                <div class="flex items-center gap-2 mb-2">
+                  <span
+                    class="px-2 py-0.5 rounded text-xs font-semibold"
+                    style={`background: ${gigCategoryColors(gig.category).tint}; color: ${gigCategoryColors(gig.category).ink};`}
+                  >
+                    {gig.category}
+                  </span>
+                  <span class="px-2 py-0.5 bg-surface-strong text-fg-subtle rounded text-xs font-mono">
+                    #{gig.gigCode}
+                  </span>
+                </div>
+
+                <h3 class="text-lg font-bold text-fg mb-2 group-hover:text-amber-fg transition">
+                  {gig.title}
+                </h3>
+
+                <p class="text-sm text-fg-muted mb-4 line-clamp-2">{gig.shortDescription}</p>
+
+                {/* Tags */}
+                <div class="flex flex-wrap gap-1.5 mb-4">
+                  {gig.tags.slice(0, 4).map((tag) => (
+                    <span class="px-2 py-0.5 bg-surface-muted text-fg-muted rounded text-xs">
+                      {tag}
+                    </span>
+                  ))}
+                  {gig.tags.length > 4 && (
+                    <span class="px-2 py-0.5 bg-surface-muted text-fg-subtle rounded text-xs">
+                      +{gig.tags.length - 4}
+                    </span>
+                  )}
+                </div>
+
+                {/* Meta */}
+                <div class="flex items-center justify-between pt-4 border-t border-line-subtle">
+                  <div class="flex flex-col gap-1 text-sm">
+                    <span class="text-emerald-fg font-bold">{gig.budget}</span>
+                    <span class="text-fg-subtle text-xs">{gig.duration}</span>
+                  </div>
+
+                  <div class="w-10 h-10 rounded-full bg-surface-muted group-hover:bg-amber flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-arrow-right text-fg-faint group-hover:text-on-solid transition" />
+                  </div>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+
+        {/* View All Button */}
+        {
+          activeGigs.length > 6 && (
+            <div class="text-center mt-10">
+              <a
+                href="/career/gigs"
+                class="inline-flex items-center gap-2 px-8 py-4 bg-inverse text-on-solid font-bold rounded-full hover:bg-inverse-muted transition shadow-lg"
+              >
+                View All {activeGigs.length} Freelance Gigs
+                <i class="fa-solid fa-arrow-right" />
+              </a>
+            </div>
+          )
+        }
+      </div>
+    </section>
+
+    <!-- Why Join Section -->
+    <section class="py-20 px-6 bg-surface">
+      <div class="max-w-6xl mx-auto">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <span
+              class="inline-block px-4 py-1.5 bg-emerald-soft text-emerald-fg-strong rounded-full text-sm font-semibold mb-4"
+            >
+              WHY JOIN US
+            </span>
+            <h2 class="text-4xl font-black text-fg mb-6">Built for Growth</h2>
+            <p class="text-fg-muted mb-8">
+              We're not just offering jobs — we're offering a chance to build something meaningful
+              across multiple industries.
+            </p>
+
+            <div class="space-y-5">
+              {
+                [
+                  {
+                    icon: "fa-house-laptop",
+                    title: "Remote-First Culture",
+                    desc: "Work from anywhere. Flexible hours. Trust-based environment.",
+                    color: "bg-blue-soft text-blue-fg",
+                  },
+                  {
+                    icon: "fa-rocket",
+                    title: "Startup Speed, Stability",
+                    desc: "Move fast with the backing of an established ecosystem.",
+                    color: "bg-purple-soft text-purple-fg",
+                  },
+                  {
+                    icon: "fa-graduation-cap",
+                    title: "Learning & Growth",
+                    desc: "Annual learning budget. Mentorship. Cross-company exposure.",
+                    color: "bg-amber-soft text-amber-fg",
+                  },
+                  {
+                    icon: "fa-heart-pulse",
+                    title: "Health & Wellness",
+                    desc: "Comprehensive insurance. Mental health support. Wellness programs.",
+                    color: "bg-rose-soft text-rose-fg",
+                  },
+                ].map((perk) => (
+                  <div class="flex items-start gap-4">
+                    <div
+                      class={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${perk.color}`}
+                    >
+                      <i class={`fa-solid ${perk.icon} text-xl`} />
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-fg mb-1">{perk.title}</h4>
+                      <p class="text-sm text-fg-muted">{perk.desc}</p>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+
+          <!-- Company Logos Cloud -->
+          <div class="relative">
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-indigo-soft/50 to-purple-soft/50 rounded-3xl"
+            >
+            </div>
+            <div class="relative p-10">
+              <p class="text-center text-sm text-fg-subtle mb-8 font-medium">OUR PORTFOLIO</p>
+              <div class="grid grid-cols-3 gap-6">
+                {
+                  companies.map((c) => (
+                    <a
+                      href={`/career/company/${c.slug}`}
+                      class="bg-surface rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 flex items-center justify-center aspect-square group"
+                    >
+                      <img
+                        src={c.logo}
+                        alt={c.name}
+                        class="w-12 h-12 object-contain group-hover:scale-110 transition-transform"
+                      />
+                    </a>
+                  ))
+                }
+                <div
+                  class="bg-gradient-to-br from-indigo-strong to-purple-strong rounded-2xl p-5 flex flex-col items-center justify-center aspect-square text-on-solid"
+                >
+                  <i class="fa-solid fa-layer-group text-2xl mb-2"></i>
+                  <span class="text-xs font-bold">GROUP</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 px-6 bg-inverse relative overflow-hidden">
+      <div class="absolute inset-0 opacity-10 pattern-plus bg-on-solid/40"></div>
+
+      <div class="relative max-w-4xl mx-auto text-center">
+        <h2 class="text-4xl font-black text-on-solid mb-4">Don't See Your Role?</h2>
+        <p class="text-fg-faint text-lg mb-10 max-w-xl mx-auto">
+          We're always looking for exceptional talent. Drop us your resume and we'll reach out when
+          there's a match.
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="mailto:careers@exyconn.com"
+            class="inline-flex items-center gap-3 px-8 py-4 bg-surface text-fg font-bold rounded-full hover:bg-surface-muted transition shadow-xl"
+          >
+            <i class="fa-solid fa-envelope"></i>
+            careers@exyconn.com
+          </a>
+          <a
+            href="https://linkedin.com/company/exyconn"
+            target="_blank"
+            class="inline-flex items-center gap-3 px-8 py-4 bg-blue-strong text-on-solid font-bold rounded-full hover:bg-blue-deep transition"
+          >
+            <i class="fa-brands fa-linkedin"></i>
+            Follow on LinkedIn
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</Page>

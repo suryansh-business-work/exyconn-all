@@ -23,6 +23,7 @@
   "dependencies": {
     "@astrojs/node": "^9.5.2",
     "@astrojs/react": "^4.4.2",
+    "@exyconn/config": "workspace:*",
     "@exyconn/regex": "workspace:*",
     "@hookform/resolvers": "^5.9.1",
     "@tailwindcss/vite": "^4.1.18",

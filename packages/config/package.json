@@ -6,6 +6,7 @@
   "description": "Portal app registry plus the build, lint, format and test presets every portal package extends.",
   "exports": {
     "./apps.json": "./apps.json",
+    "./markets.json": "./markets.json",
     "./vite": {
       "types": "./vite.d.ts",
       "default": "./vite.js"
